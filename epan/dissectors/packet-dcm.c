@@ -4019,14 +4019,14 @@ dcm_state_get(packet_info *pinfo, gboolean create)
     conversation_t  *conv=NULL;
     dcm_state_t     *dcm_data=NULL;
 
-    conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
         pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
     if (conv == NULL) {
         /* Conversation does not exist, create one.
            Usually set for the first packet already. Probably by dissect-tcp
         */
-        conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
+        conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
             pinfo->srcport, pinfo->destport, 0);
     }
     else {                      /* conversation exists, try to get data already filled */
@@ -4595,7 +4595,7 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
            Even though this should be a valid DICOM UID, apply the same filter rules
            in case of bogus data.
         */
-        filename = wmem_strdup_printf(wmem_packet_scope(), "%06d-%d-%s.dcm", pinfo->fd->num, cnt_same_pkt,
+        filename = wmem_strdup_printf(wmem_packet_scope(), "%06d-%d-%s.dcm", pinfo->num, cnt_same_pkt,
             g_strcanon(pdv_curr->sop_instance_uid, G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-.", '-'));
     }
     else {
@@ -4603,10 +4603,10 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
 
         sop_class_uid = wmem_strdup(wmem_packet_scope(), WIRESHARK_MEDIA_STORAGE_SOP_CLASS_UID);
         sop_instance_uid = wmem_strdup_printf(wmem_packet_scope(), "%s.%d.%d",
-            WIRESHARK_MEDIA_STORAGE_SOP_INSTANCE_UID_PREFIX, pinfo->fd->num, cnt_same_pkt);
+            WIRESHARK_MEDIA_STORAGE_SOP_INSTANCE_UID_PREFIX, pinfo->num, cnt_same_pkt);
 
         /* Make sure filename does not contain invalid character. Rather conservative.*/
-        filename = wmem_strdup_printf(wmem_packet_scope(), "%06d-%d-%s.dcm", pinfo->fd->num, cnt_same_pkt,
+        filename = wmem_strdup_printf(wmem_packet_scope(), "%06d-%d-%s.dcm", pinfo->num, cnt_same_pkt,
             g_strcanon(pdv->desc, G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-.", '-'));
 
     }
@@ -5586,7 +5586,7 @@ dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        we need both values to uniquely identify a PDV
     */
 
-    *pdv = dcm_state_pdv_get(pctx, pinfo->fd->num, tvb_raw_offset(tvb)+offset, TRUE);
+    *pdv = dcm_state_pdv_get(pctx, pinfo->num, tvb_raw_offset(tvb)+offset, TRUE);
     if (*pdv == NULL) {
         return 0;                   /* Failed to allocate memory */
     }
@@ -6680,7 +6680,7 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (global_dcm_reassemble)
     {
 
-        conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+        conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                             pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
         /* Try to create somewhat unique ID.
@@ -6710,7 +6710,7 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 *pdv_description = (gchar *)wmem_alloc0(wmem_file_scope(), MAX_BUF_LEN);
 
-                if (head && head->reassembled_in != pinfo->fd->num) {
+                if (head && head->reassembled_in != pinfo->num) {
 
                     if (pdv->desc) {
                         /* We know the presentation context already */
@@ -7050,7 +7050,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     offset += 4;
 
     /* Find previously detected association, else create a new one object*/
-    assoc = dcm_state_assoc_get(dcm_data, pinfo->fd->num, TRUE);
+    assoc = dcm_state_assoc_get(dcm_data, pinfo->num, TRUE);
 
     if (assoc == NULL) {        /* Internal error. Failed to create association structure */
         return offset;

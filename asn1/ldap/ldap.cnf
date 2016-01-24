@@ -267,7 +267,7 @@ ldap_conv_info_t *ldap_info;
        * assumption that we won't have more than 2^24 bytes of
        * encapsulated stuff.
        */
-      ldap_info->first_auth_frame = actx->pinfo->fd->num + 1;
+      ldap_info->first_auth_frame = actx->pinfo->num + 1;
       if (ldap_info->auth_mech != NULL &&
           strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) {
 	/* It could be the second leg of GSS-SPNEGO wrapping NTLMSSP

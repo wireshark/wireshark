@@ -3881,15 +3881,15 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                 if (resend_for_packet == 0) {
                     if (line_type == REQUEST_LINE) {
                         DPRINT(("calling setup_sdp_transport() SDP_EXCHANGE_OFFER frame=%d",
-                                pinfo->fd->num));
+                                pinfo->num));
                         DINDENT();
-                        setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_OFFER, pinfo->fd->num, sip_delay_sdp_changes);
+                        setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_OFFER, pinfo->num, sip_delay_sdp_changes);
                         DENDENT();
                     } else if (line_type == STATUS_LINE) {
                         if (stat_info->response_code >= 400) {
                             DPRINT(("calling setup_sdp_transport() SDP_EXCHANGE_ANSWER_REJECT "
                                     "request_frame=%d, this=%d",
-                                    request_for_response, pinfo->fd->num));
+                                    request_for_response, pinfo->num));
                             DINDENT();
                             /* SIP client request failed, so SDP offer should fail */
                             setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_ANSWER_REJECT, request_for_response, sip_delay_sdp_changes);
@@ -3898,7 +3898,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         else if ((stat_info->response_code >= 200) && (stat_info->response_code <= 299)) {
                             DPRINT(("calling setup_sdp_transport() SDP_EXCHANGE_ANSWER_ACCEPT "
                                     "request_frame=%d, this=%d",
-                                    request_for_response, pinfo->fd->num));
+                                    request_for_response, pinfo->num));
                             DINDENT();
                             /* SIP success request, so SDP offer should be accepted */
                             setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_ANSWER_ACCEPT, request_for_response, sip_delay_sdp_changes);
@@ -3908,9 +3908,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                 } else {
                     DPRINT(("calling setup_sdp_transport() resend_for_packet "
                             "request_frame=%d, this=%d",
-                            request_for_response, pinfo->fd->num));
+                            request_for_response, pinfo->num));
                     DINDENT();
-                    setup_sdp_transport_resend(pinfo->fd->num, resend_for_packet);
+                    setup_sdp_transport_resend(pinfo->num, resend_for_packet);
                     DENDENT();
                 }
             }
@@ -4451,7 +4451,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
             if (!result)
             {
                 /* This frame is the original request */
-                p_val->frame_number = pinfo->fd->num;
+                p_val->frame_number = pinfo->num;
             }
             break;
         case STATUS_LINE:
@@ -4462,7 +4462,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
                 if (!result)
                 {
                     /* This frame is the original response */
-                    p_val->frame_number = pinfo->fd->num;
+                    p_val->frame_number = pinfo->num;
                 }
             }
             else

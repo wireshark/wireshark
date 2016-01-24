@@ -547,7 +547,7 @@ static guint16 dissect_control_message(proto_tree *rtitcp_tree, tvbuff_t *tvb, p
         if (!(control_message_kind & RTITCP_FLAG_NOT_REQUEST)) {
             /* This is a request */
             rtitcp_trans=wmem_new(wmem_file_scope(), rtitcp_transaction_t);
-            rtitcp_trans->req_frame = pinfo->fd->num;
+            rtitcp_trans->req_frame = pinfo->num;
             rtitcp_trans->rep_frame = 0;
             rtitcp_trans->req_time = pinfo->abs_ts;
             conversation_info_key = (guint64*)wmem_alloc0(wmem_file_scope(), sizeof(guint64));
@@ -557,7 +557,7 @@ static guint16 dissect_control_message(proto_tree *rtitcp_tree, tvbuff_t *tvb, p
             conversation_info_key = &seq_num;
             rtitcp_trans=(rtitcp_transaction_t *)wmem_map_lookup(rtitcp_info->pdus, conversation_info_key);
             if (rtitcp_trans) {
-                rtitcp_trans->rep_frame = pinfo->fd->num;
+                rtitcp_trans->rep_frame = pinfo->num;
             }
         }
     } else {

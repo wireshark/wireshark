@@ -759,7 +759,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
         if (!is_single_chunk) {
           if (spdy_assemble_entity_bodies) {
             copied_data = (guint8 *)tvb_memdup(wmem_file_scope(),next_tvb, 0, frame->length);
-            spdy_add_data_chunk(conv_data, stream_id, pinfo->fd->num, copied_data, frame->length);
+            spdy_add_data_chunk(conv_data, stream_id, pinfo->num, copied_data, frame->length);
           } else {
             spdy_increment_data_chunk_count(conv_data, stream_id);
           }

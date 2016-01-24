@@ -664,7 +664,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         }
     }
 
-    ssl_debug_printf("\ndissect_ssl enter frame #%u (%s)\n", pinfo->fd->num, (pinfo->fd->flags.visited)?"already visited":"first time");
+    ssl_debug_printf("\ndissect_ssl enter frame #%u (%s)\n", pinfo->num, (pinfo->fd->flags.visited)?"already visited":"first time");
 
     /* Track the version using conversations to reduce the
      * chance that a packet that simply *looks* like a v2 or
@@ -684,7 +684,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     is_from_server = ssl_packet_from_server(session, ssl_associations, pinfo);
 
     if (session->last_nontls_frame != 0 &&
-        session->last_nontls_frame >= pinfo->fd->num) {
+        session->last_nontls_frame >= pinfo->num) {
         /* This conversation started at a different protocol and STARTTLS was
          * used, but this packet comes too early. */
         return 0;
@@ -970,7 +970,7 @@ again:
     if ((msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32(flow->multisegment_pdus, seq))) {
         const char *prefix;
 
-        if (msp->first_frame == PINFO_FD_NUM(pinfo)) {
+        if (msp->first_frame == pinfo->num) {
             prefix = "";
             col_set_str(pinfo->cinfo, COL_INFO, "[SSL segment of a reassembled PDU]");
         } else {
@@ -988,7 +988,7 @@ again:
         int len;
 
         if (!PINFO_FD_VISITED(pinfo)) {
-            msp->last_frame = pinfo->fd->num;
+            msp->last_frame = pinfo->num;
             msp->last_frame_time = pinfo->abs_ts;
         }
 
@@ -1069,7 +1069,7 @@ again:
          * Note that the last segment may include more than what
          * we needed.
          */
-        if (ipfd_head->reassembled_in == pinfo->fd->num &&
+        if (ipfd_head->reassembled_in == pinfo->num &&
             nxtseq < ipfd_head->datalen) {
             /*
              * This is *not* the last segment. It is part of a PDU in the same
@@ -1082,7 +1082,7 @@ again:
             another_pdu_follows = 0;
             col_clear(pinfo->cinfo, COL_INFO);
             another_segment_in_frame = TRUE;
-        } else if (ipfd_head->reassembled_in == pinfo->fd->num) {
+        } else if (ipfd_head->reassembled_in == pinfo->num) {
             /*
              * OK, this is the last segment of the PDU and also the
              * last segment in this frame.

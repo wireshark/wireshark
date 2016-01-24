@@ -103,7 +103,7 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U
 		/*
 		 * Do we have a conversation for this connection?
 		 */
-		conversation = find_conversation(pinfo->fd->num,
+		conversation = find_conversation(pinfo->num,
 				&pinfo->src, &pinfo->dst,
 				pinfo->ptype,
 				pinfo->srcport, pinfo->destport, 0);
@@ -139,7 +139,7 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U
 			 */
 			handle[0]=tvb_get_ntohl(tvb, offset+8);
 			handle[1]=tvb_get_ntohl(tvb, offset+12);
-			packet=pinfo->fd->num;
+			packet=pinfo->num;
 			hkey[0].length=1;
 			hkey[0].key=&packet;
 			hkey[1].length=2;
@@ -225,7 +225,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		if(magic==NBD_REQUEST_MAGIC){
 			/* This is a request */
 			nbd_trans=wmem_new(wmem_file_scope(), nbd_transaction_t);
-			nbd_trans->req_frame=pinfo->fd->num;
+			nbd_trans->req_frame=pinfo->num;
 			nbd_trans->rep_frame=0;
 			nbd_trans->req_time=pinfo->abs_ts;
 			nbd_trans->type=tvb_get_ntohl(tvb, offset);
@@ -243,7 +243,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 			nbd_trans=(nbd_transaction_t *)wmem_tree_lookup32_array(nbd_info->unacked_pdus, hkey);
 			if(nbd_trans){
-				nbd_trans->rep_frame=pinfo->fd->num;
+				nbd_trans->rep_frame=pinfo->num;
 
 				hkey[0].length=1;
 				hkey[0].key=&nbd_trans->rep_frame;
@@ -260,7 +260,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			}
 		}
 	} else {
-		packet=pinfo->fd->num;
+		packet=pinfo->num;
 		hkey[0].length=1;
 		hkey[0].key=&packet;
 		hkey[1].length=2;
@@ -274,7 +274,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	 */
 	if( (magic==NBD_RESPONSE_MAGIC)
 	&&  (nbd_trans)
-	&&  (pinfo->fd->num<nbd_trans->req_frame) ){
+	&&  (pinfo->num<nbd_trans->req_frame) ){
 		/* must have been the wrong one */
 		nbd_trans=NULL;
 	}

@@ -4321,13 +4321,13 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, spx_info *spx_i
     if (!pinfo->fd->flags.visited)
     {
         /* Lets see if this is a new conversation */
-        conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+        conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
             PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->srcport, 0);
 
         if (conversation == NULL)
         {
             /* It's not part of any conversation - create a new one. */
-            conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+            conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
                 PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->srcport, 0);
         }
 
@@ -4357,7 +4357,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, spx_info *spx_i
         request_value->ndps_frag = TRUE;
     }
     /* Now we process the fragments */
-    if (request_value->ndps_frag || (request_value->ndps_end_frag == pinfo->fd->num))
+    if (request_value->ndps_frag || (request_value->ndps_end_frag == pinfo->num))
     {
         /*
          * Fragment
@@ -4388,7 +4388,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, spx_info *spx_i
                         tid++;
                     }
                     /* Remember this fragment number so we can dissect again */
-                    request_value->ndps_end_frag = pinfo->fd->num;
+                    request_value->ndps_end_frag = pinfo->num;
 
                 }
                 else
@@ -4513,20 +4513,20 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
         as being part of a single conversation so that we can
         let the user select that conversation to be displayed.) */
 
-        conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+        conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
             PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->srcport, 0);
 
         if (conversation == NULL)
         {
             /* It's not part of any conversation - create a new one. */
-            conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+            conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
                 PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->srcport, 0);
         }
 
         request_value = ndps_hash_insert(conversation, (guint32) pinfo->srcport);
         request_value->ndps_prog = ndps_prog;
         request_value->ndps_func = ndps_func;
-        request_value->ndps_frame_num = pinfo->fd->num;
+        request_value->ndps_frame_num = pinfo->num;
     }
     switch(ndps_prog)
     {
@@ -6769,7 +6769,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
 
     if (!pinfo->fd->flags.visited) {
         /* Find the conversation whence the request would have come. */
-        conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+        conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
             PT_NCP, (guint32) pinfo->destport, (guint32) pinfo->destport, 0);
         if (conversation != NULL) {
             /* find the record telling us the request made that caused

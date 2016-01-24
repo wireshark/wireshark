@@ -1005,7 +1005,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		guint32 ses_id = 0;
 
 		/* Use conversation index as segment id */
-		conversation  = find_conversation (pinfo->fd->num,
+		conversation  = find_conversation (pinfo->num,
 						   &pinfo->src, &pinfo->dst, pinfo->ptype,
 						   pinfo->srcport, pinfo->destport, 0);
 		if (conversation != NULL) {

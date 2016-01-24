@@ -11092,7 +11092,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
         /* Note: it *is* possible for a TCP SID to appear in an LBTTCP non-transport (UIM) message. */
         if ((pinfo->fd->flags.visited == 0) && (tcp_sid_info.set) && lbm_channel_is_unknown_transport_lbttcp(channel) && tcp_address_valid)
         {
-            lbttcp_transport_sid_add(&tcp_addr, tcp_port, pinfo->fd->num, tcp_sid_info.session_id);
+            lbttcp_transport_sid_add(&tcp_addr, tcp_port, pinfo->num, tcp_sid_info.session_id);
         }
         /* Try to determine the TCP transport channel. */
         if (lbm_channel_type(channel) == LBM_CHANNEL_TRANSPORT_LBTTCP)
@@ -11108,11 +11108,11 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
             {
                 guint32 tcp_session_id = 0;
 
-                if (lbttcp_transport_sid_find(&tcp_addr, tcp_port, pinfo->fd->num, &tcp_session_id))
+                if (lbttcp_transport_sid_find(&tcp_addr, tcp_port, pinfo->num, &tcp_session_id))
                 {
                     lbttcp_transport_t * tcp_transport = NULL;
 
-                    tcp_transport = lbttcp_transport_find(&tcp_addr, tcp_port, tcp_session_id, pinfo->fd->num);
+                    tcp_transport = lbttcp_transport_find(&tcp_addr, tcp_port, tcp_session_id, pinfo->num);
                     if (tcp_transport != NULL)
                     {
                         actual_channel = tcp_transport->channel;
@@ -11157,7 +11157,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                         proto_item * pi = NULL;
                         lbm_uim_stream_tap_info_t * stream_tap_info = NULL;
 
-                        lbm_stream_istream_substream_update(inst_substream, msglen, pinfo->fd->num);
+                        lbm_stream_istream_substream_update(inst_substream, msglen, pinfo->num);
                         stream_item = proto_tree_add_item(subtree, hf_lbm_stream, tvb, 0, 0, ENC_NA);
                         PROTO_ITEM_SET_GENERATED(stream_item);
                         stream_tree = proto_item_add_subtree(stream_item, ett_lbm_stream);
@@ -11207,7 +11207,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                         proto_item * pi = NULL;
                         lbm_uim_stream_tap_info_t * stream_tap_info = NULL;
 
-                        lbm_stream_dstream_substream_update(dom_substream, msglen, pinfo->fd->num);
+                        lbm_stream_dstream_substream_update(dom_substream, msglen, pinfo->num);
                         stream_item = proto_tree_add_item(subtree, hf_lbm_stream, tvb, 0, 0, ENC_NA);
                         PROTO_ITEM_SET_GENERATED(stream_item);
                         stream_tree = proto_item_add_subtree(stream_item, ett_lbm_stream);
@@ -11316,7 +11316,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                         }
                         else
                         {
-                            (void)lbmc_message_add_fragment(msg, lbmc_tvb, pkt_offset, &frag_info, pinfo->fd->num);
+                            (void)lbmc_message_add_fragment(msg, lbmc_tvb, pkt_offset, &frag_info, pinfo->num);
                             if (data_is_umq_cmd_resp)
                             {
                                 msg->data_is_umq_cmd_resp = TRUE;
@@ -11326,13 +11326,13 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                                 if (msg->reassembled_frame == 0)
                                 {
                                     /* Store the frame number in which the message will be reassembled */
-                                    msg->reassembled_frame = pinfo->fd->num;
+                                    msg->reassembled_frame = pinfo->num;
                                 }
                                 data_tvb = tvb_new_subset_remaining(lbmc_tvb, pkt_offset);
                                 msgprop_tvb = NULL;
                                 msg_reassembled = TRUE;
                                 msg_complete = TRUE;
-                                if (msg->reassembled_frame == pinfo->fd->num)
+                                if (msg->reassembled_frame == pinfo->num)
                                 {
                                     /* We can only call a subdissector if this is the frame in which the message is reassembled */
                                     can_call_subdissector = TRUE;
@@ -11358,7 +11358,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
             /* For reassembled messages, show the frame or reassembly information. */
             if (msg_reassembled)
             {
-                if (msg->reassembled_frame == pinfo->fd->num)
+                if (msg->reassembled_frame == pinfo->num)
                 {
                     proto_tree * frag_tree = NULL;
                     proto_item * frag_item = NULL;

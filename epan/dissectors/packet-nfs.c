@@ -2197,7 +2197,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		   	   nfs calls. For now, we don't handle this and those calls will
 		   	   not work properly with this feature
 			*/
-			wmem_tree_insert32(nfs_fhandle_frame_table, pinfo->fd->num, old_fhd);
+			wmem_tree_insert32(nfs_fhandle_frame_table, pinfo->num, old_fhd);
 		}
 	}
 

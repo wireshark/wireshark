@@ -1802,13 +1802,13 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			 * pointer for the second address argument even
 			 * if you do that.
 			 */
-			conversation = find_conversation(pinfo->fd->num, &pinfo->src,
+			conversation = find_conversation(pinfo->num, &pinfo->src,
 				&null_address, pinfo->ptype, pinfo->srcport,
 				pinfo->destport, 0);
 			if (conversation == NULL)
 			{
 				/* It's not part of any conversation - create a new one. */
-				conversation = conversation_new(pinfo->fd->num, &pinfo->src,
+				conversation = conversation_new(pinfo->num, &pinfo->src,
 					&null_address, pinfo->ptype, pinfo->srcport,
 					pinfo->destport, 0);
 			}
@@ -1825,7 +1825,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			{
 				/* We've seen a request with this ID, with the same
 				   destination, before - but was it *this* request? */
-				if (pinfo->fd->num != radius_call->req_num)
+				if (pinfo->num != radius_call->req_num)
 				{
 					/* No, so it's a duplicate request. Mark it as such.
 					  FIXME: This is way too simple, as the request number
@@ -1855,7 +1855,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				new_radius_call_key = wmem_new(wmem_file_scope(), radius_call_info_key);
 				*new_radius_call_key = radius_call_key;
 				radius_call = wmem_new(wmem_file_scope(), radius_call_t);
-				radius_call->req_num = pinfo->fd->num;
+				radius_call->req_num = pinfo->num;
 				radius_call->rsp_num = 0;
 				radius_call->ident = rh.rh_ident;
 				radius_call->code = rh.rh_code;
@@ -1924,7 +1924,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			 * pointer for the second address argument even
 			 * if you do that.
 			 */
-			conversation = find_conversation(pinfo->fd->num, &null_address,
+			conversation = find_conversation(pinfo->num, &null_address,
 				&pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 			if (conversation != NULL)
 			{
@@ -1987,13 +1987,13 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 						/* We have not yet seen a response to that call, so
 						   this must be the first response; remember its
 						   frame number. */
-						radius_call->rsp_num = pinfo->fd->num;
+						radius_call->rsp_num = pinfo->num;
 					}
 					else
 					{
 						/* We have seen a response to this call - but was it
 						   *this* response? (disregard provisional responses) */
-						if ( (radius_call->rsp_num != pinfo->fd->num) && (radius_call->rspcode == rh.rh_code) )
+						if ( (radius_call->rsp_num != pinfo->num) && (radius_call->rspcode == rh.rh_code) )
 						{
 							/* No, so it's a duplicate response. Mark it as such. */
 							rad_info->is_duplicate = TRUE;

@@ -698,7 +698,7 @@ mncp_hash_insert(conversation_t *conversation, guint32 nwconnection, guint8 nwta
 
     if (ncp_echo_conn && nwconnection != 65535) {
         expert_add_info_format(pinfo, NULL, &ei_ncp_new_server_session, "Detected New Server Session. Connection %d, Task %d", nwconnection, nwtask);
-        value->session_start_packet_num = pinfo->fd->num;
+        value->session_start_packet_num = pinfo->num;
     }
 
     return value;
@@ -846,7 +846,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * determine if a new server session is occuring for this
      * connection.
      */
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
         PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport,
         0);
     if ((ncpiph.length & 0x80000000) || ncpiph.signature == NCPIP_RPLY) {
@@ -870,7 +870,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 /* It's not part of any conversation
                  * - create a new one.
                  */
-                conversation = conversation_new(pinfo->fd->num, &pinfo->src,
+                conversation = conversation_new(pinfo->num, &pinfo->src,
                     &pinfo->dst, PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport, 0);
                 mncp_hash_insert(conversation, nw_connection, header.task, pinfo);
             }
@@ -889,7 +889,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* Get request value data */
             request_value = mncp_hash_lookup(conversation, nw_connection, header.task);
             if (request_value) {
-                if ((request_value->session_start_packet_num == pinfo->fd->num) && ncp_echo_conn) {
+                if ((request_value->session_start_packet_num == pinfo->num) && ncp_echo_conn) {
                     expert_add_info_format(pinfo, NULL, &ei_ncp_new_server_session, "Detected New Server Session. Connection %d, Task %d", nw_connection, header.task);
                 }
             }
@@ -912,7 +912,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 /* It's not part of any conversation
                  * - create a new one.
                  */
-                conversation = conversation_new(pinfo->fd->num, &pinfo->src,
+                conversation = conversation_new(pinfo->num, &pinfo->src,
                     &pinfo->dst, PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport, 0);
                 mncp_hash_insert(conversation, nw_connection, header.task, pinfo);
             }
@@ -922,7 +922,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         } else {
             request_value = mncp_hash_lookup(conversation, nw_connection, header.task);
             if (request_value) {
-                if ((request_value->session_start_packet_num == pinfo->fd->num) && ncp_echo_conn) {
+                if ((request_value->session_start_packet_num == pinfo->num) && ncp_echo_conn) {
                     expert_add_info_format(pinfo, NULL, &ei_ncp_new_server_session, "Detected New Server Session. Connection %d, Task %d", nw_connection, header.task);
                 }
             }

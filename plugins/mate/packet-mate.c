@@ -306,7 +306,7 @@ mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 	mate_analyze_frame(pinfo,tree);
 
-	if (( pdus = mate_get_pdus(pinfo->fd->num) )) {
+	if (( pdus = mate_get_pdus(pinfo->num) )) {
 		for ( ; pdus; pdus = pdus->next_in_frame) {
 			mate_i = proto_tree_add_protocol_format(tree,mc->hfid_mate,tvb,0,0,"MATE");
 			mate_t = proto_item_add_subtree(mate_i, mc->ett_root);

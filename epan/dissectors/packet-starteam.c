@@ -490,13 +490,13 @@ dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "StarTeam");
 
   /* This is a trick to know whether this is the first PDU in this packet or not */
-  if(iPreviousFrameNumber != (gint) pinfo->fd->num){
+  if(iPreviousFrameNumber != (gint) pinfo->num){
     col_clear(pinfo->cinfo, COL_INFO);
   } else {
     col_append_str(pinfo->cinfo, COL_INFO, " | ");
   }
 
-  iPreviousFrameNumber = pinfo->fd->num;
+  iPreviousFrameNumber = pinfo->num;
   if(tvb_captured_length(tvb) >= 16){
     guint32 iCommand = 0;
     gboolean bRequest = FALSE;

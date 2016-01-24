@@ -1441,7 +1441,7 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
         if (reason == 0) {
           if (dmp_data->ack_id == 0) {
             /* Only save reference to first ACK */
-            dmp_data->ack_id = pinfo->fd->num;
+            dmp_data->ack_id = pinfo->num;
           } else {
             /* Only count when resending */
             dmp_data->ack_resend_count++;
@@ -1450,7 +1450,7 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
       } else {
         /* Message resent */
         dmp_data->msg_resend_count++;
-        dmp_data->prev_msg_id = pinfo->fd->num;
+        dmp_data->prev_msg_id = pinfo->num;
         dmp_data->prev_msg_time = dmp_data->msg_time;
         dmp_data->msg_time = pinfo->abs_ts;
       }
@@ -1461,21 +1461,21 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
 
       if (dmp.msg_type == ACK) {
         /* No matching message for this ack */
-        dmp_data->ack_id = pinfo->fd->num;
+        dmp_data->ack_id = pinfo->num;
       } else {
         dmp_data->first_msg_time = pinfo->abs_ts;
         dmp_data->msg_time = pinfo->abs_ts;
 
         if (dmp.msg_type == REPORT) {
-          dmp_data->rep_id = pinfo->fd->num;
+          dmp_data->rep_id = pinfo->num;
           dmp_data->msg_id = msg_id;
           dmp_data->rep_not_msg_time = msg_time;
         } else if (dmp.msg_type == NOTIF) {
-          dmp_data->not_id = pinfo->fd->num;
+          dmp_data->not_id = pinfo->num;
           dmp_data->msg_id = msg_id;
           dmp_data->rep_not_msg_time = msg_time;
         } else {
-          dmp_data->msg_id = pinfo->fd->num;
+          dmp_data->msg_id = pinfo->num;
         }
 
         g_hash_table_insert (dmp_id_hash_table, dmp_key, dmp_data);

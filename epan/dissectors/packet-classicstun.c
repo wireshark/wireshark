@@ -289,7 +289,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         if (((msg_type & CLASS_MASK) >> 4) == REQUEST) {
             /* This is a request */
             classicstun_trans=wmem_new(wmem_file_scope(), classicstun_transaction_t);
-            classicstun_trans->req_frame=pinfo->fd->num;
+            classicstun_trans->req_frame=pinfo->num;
             classicstun_trans->rep_frame=0;
             classicstun_trans->req_time=pinfo->abs_ts;
             wmem_tree_insert32_array(classicstun_info->pdus, transaction_id_key,
@@ -298,7 +298,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             classicstun_trans=(classicstun_transaction_t *)wmem_tree_lookup32_array(classicstun_info->pdus,
                                  transaction_id_key);
             if(classicstun_trans){
-                classicstun_trans->rep_frame=pinfo->fd->num;
+                classicstun_trans->rep_frame=pinfo->num;
             }
         }
     } else {

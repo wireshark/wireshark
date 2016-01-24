@@ -1606,7 +1606,7 @@ static void aeron_sequence_report(tvbuff_t * tvb, packet_info * pinfo, proto_tre
                                                 aeron_frame_info_t * frag_frame = (aeron_frame_info_t *) wmem_list_frame_data(lf);
                                                 if (frag_frame != NULL)
                                                 {
-                                                    if (frag_frame->frame != pinfo->fd->num)
+                                                    if (frag_frame->frame != pinfo->num)
                                                     {
                                                         aeron_sequence_report_frame(tvb, frame_tree, frag_frame);
                                                     }
@@ -2023,7 +2023,7 @@ static aeron_msg_fragment_t * aeron_msg_fragment_create(tvbuff_t * tvb, int offs
     frag->term_offset = info->term_offset;
     frag->frame_length = info->length;
     frag->data_length = info->data_length;
-    frag->frame = pinfo->fd->num;
+    frag->frame = pinfo->num;
     frag->frame_offset = offset;
     frag->data = (gchar *) tvb_memdup(wmem_file_scope(), tvb, frag->frame_offset + O_AERON_DATA_DATA, (size_t) frag->data_length);
     frag->flags = info->flags;
@@ -2082,8 +2082,8 @@ static aeron_msg_t * aeron_term_msg_add(aeron_term_t * term, packet_info * pinfo
     msg->frame_length = 0;
     msg->fragment_count = 0;
     msg->contiguous_length = 0;
-    msg->begin_frame = pinfo->fd->num;
-    msg->first_frame = pinfo->fd->num;
+    msg->begin_frame = pinfo->num;
+    msg->first_frame = pinfo->num;
     msg->end_frame = 0;
     msg->last_frame = 0;
     msg->complete = FALSE;
@@ -2201,7 +2201,7 @@ static int dissect_aeron_pad(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
         return 0;
     term_offset = tvb_get_letohl(tvb, offset + O_AERON_PAD_TERM_OFFSET);
     session_id = tvb_get_letohl(tvb, offset + O_AERON_PAD_SESSION_ID);
-    transport = aeron_transport_add(cinfo, session_id, pinfo->fd->num);
+    transport = aeron_transport_add(cinfo, session_id, pinfo->num);
     stream_id = tvb_get_letohl(tvb, offset + O_AERON_PAD_STREAM_ID);
     term_id = tvb_get_letohl(tvb, offset + O_AERON_PAD_TERM_ID);
     pad_length = frame_length - L_AERON_PAD_MIN;
@@ -2345,7 +2345,7 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
     }
     term_offset = tvb_get_letohl(tvb, offset + O_AERON_DATA_TERM_OFFSET);
     session_id = tvb_get_letohl(tvb, offset + O_AERON_DATA_SESSION_ID);
-    transport = aeron_transport_add(cinfo, session_id, pinfo->fd->num);
+    transport = aeron_transport_add(cinfo, session_id, pinfo->num);
     stream_id = tvb_get_letohl(tvb, offset + O_AERON_DATA_STREAM_ID);
     term_id = tvb_get_letohl(tvb, offset + O_AERON_DATA_TERM_ID);
     memset((void *) &pktinfo, 0, sizeof(aeron_packet_info_t));
@@ -2449,7 +2449,7 @@ static int dissect_aeron_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     if (rounded_length < 0)
         return 0;
     session_id = tvb_get_letohl(tvb, offset + O_AERON_NAK_SESSION_ID);
-    transport = aeron_transport_add(cinfo, session_id, pinfo->fd->num);
+    transport = aeron_transport_add(cinfo, session_id, pinfo->num);
     stream_id = tvb_get_letohl(tvb, offset + O_AERON_NAK_STREAM_ID);
     term_id = tvb_get_letohl(tvb, offset + O_AERON_NAK_TERM_ID);
     nak_term_offset = tvb_get_letohl(tvb, offset + O_AERON_NAK_TERM_OFFSET);
@@ -2534,7 +2534,7 @@ static int dissect_aeron_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
     if (rounded_length < 0)
         return 0;
     session_id = tvb_get_letohl(tvb, offset + O_AERON_SM_SESSION_ID);
-    transport = aeron_transport_add(cinfo, session_id, pinfo->fd->num);
+    transport = aeron_transport_add(cinfo, session_id, pinfo->num);
     stream_id = tvb_get_letohl(tvb, offset + O_AERON_SM_STREAM_ID);
     term_id = tvb_get_letohl(tvb, offset + O_AERON_SM_TERM_ID);
     consumption_offset = tvb_get_letohl(tvb, offset + O_AERON_SM_COMPLETED_TERM_OFFSET);
@@ -2677,7 +2677,7 @@ static int dissect_aeron_setup(tvbuff_t * tvb, int offset, packet_info * pinfo, 
         return 0;
     term_offset = tvb_get_letohl(tvb, offset + O_AERON_SETUP_TERM_OFFSET);
     session_id = tvb_get_letohl(tvb, offset + O_AERON_SETUP_SESSION_ID);
-    transport = aeron_transport_add(cinfo, session_id, pinfo->fd->num);
+    transport = aeron_transport_add(cinfo, session_id, pinfo->num);
     stream_id = tvb_get_letohl(tvb, offset + O_AERON_SETUP_STREAM_ID);
     initial_term_id = tvb_get_letohl(tvb, offset + O_AERON_SETUP_INITIAL_TERM_ID);
     active_term_id = tvb_get_letohl(tvb, offset + O_AERON_SETUP_ACTIVE_TERM_ID);
@@ -2762,7 +2762,7 @@ static int dissect_aeron(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
         if (aeron_sequence_analysis)
         {
-            finfo = aeron_frame_info_add(pinfo->fd->num, (guint32) offset);
+            finfo = aeron_frame_info_add(pinfo->num, (guint32) offset);
         }
         frame_type = tvb_get_letohs(tvb, offset + O_AERON_BASIC_TYPE);
         cinfo = aeron_setup_conversation_info(pinfo, frame_type);

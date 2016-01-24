@@ -554,7 +554,7 @@ dissect_lapsat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissec
 		);
 
 		/* Reassembled into this packet ? */
-		if (fd_m && pinfo->fd->num == fd_m->reassembled_in) {
+		if (fd_m && pinfo->num == fd_m->reassembled_in) {
 			/* Yes, so handoff to upper layers */
 			if (!dissector_try_uint(lapsat_sapi_dissector_table, sapi,
 			                        reassembled, pinfo, tree))

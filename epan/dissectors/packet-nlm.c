@@ -186,7 +186,7 @@ nlm_print_msgres_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 {
 	nlm_msg_res_matched_data *md;
 
-	md=(nlm_msg_res_matched_data *)g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->fd->num));
+	md=(nlm_msg_res_matched_data *)g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->num));
 	if(md){
 		nstime_t ns;
 		proto_tree_add_uint(tree, hf_nlm_request_in, tvb, 0, 0, md->req_frame);
@@ -200,7 +200,7 @@ nlm_print_msgres_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 {
 	nlm_msg_res_matched_data *md;
 
-	md=(nlm_msg_res_matched_data *)g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->fd->num));
+	md=(nlm_msg_res_matched_data *)g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->num));
 	if(md){
 		proto_tree_add_uint(tree, hf_nlm_reply_in, tvb, 0, 0, md->rep_frame);
 	}
@@ -210,7 +210,7 @@ nlm_match_fhandle_reply(packet_info *pinfo, proto_tree *tree)
 {
 	nlm_msg_res_matched_data *md;
 
-	md=(nlm_msg_res_matched_data *)g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->fd->num));
+	md=(nlm_msg_res_matched_data *)g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->num));
 	if(md && md->rep_frame){
 		dissect_fhandle_hidden(pinfo,
 				tree, md->req_frame);
@@ -221,7 +221,7 @@ nlm_match_fhandle_request(packet_info *pinfo, proto_tree *tree)
 {
 	nlm_msg_res_matched_data *md;
 
-	md=(nlm_msg_res_matched_data *)g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->fd->num));
+	md=(nlm_msg_res_matched_data *)g_hash_table_lookup(nlm_msg_res_matched, GINT_TO_POINTER(pinfo->num));
 	if(md && md->rep_frame){
 		dissect_fhandle_hidden(pinfo,
 				tree, md->rep_frame);
@@ -244,7 +244,7 @@ nlm_register_unmatched_res(packet_info *pinfo, tvbuff_t *tvb, int offset)
 
 		md_req=(nlm_msg_res_matched_data *)g_malloc(sizeof(nlm_msg_res_matched_data));
 		md_req->req_frame=old_umd->req_frame;
-		md_req->rep_frame=pinfo->fd->num;
+		md_req->rep_frame=pinfo->num;
 		md_req->ns=old_umd->ns;
 		md_rep=(nlm_msg_res_matched_data *)g_memdup(md_req, sizeof(nlm_msg_res_matched_data));
 		g_hash_table_insert(nlm_msg_res_matched, GINT_TO_POINTER(md_req->req_frame), (gpointer)md_req);
@@ -262,7 +262,7 @@ nlm_register_unmatched_msg(packet_info *pinfo, tvbuff_t *tvb, int offset)
 
 	/* allocate and build the unmatched structure for this request */
 	umd=(nlm_msg_res_unmatched_data *)g_malloc(sizeof(nlm_msg_res_unmatched_data));
-	umd->req_frame=pinfo->fd->num;
+	umd->req_frame=pinfo->num;
 	umd->ns=pinfo->abs_ts;
 	umd->cookie_len=tvb_get_ntohl(tvb, offset);
 	umd->cookie=(const guint8 *)tvb_memdup(NULL, tvb, offset+4, umd->cookie_len);

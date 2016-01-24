@@ -4262,7 +4262,7 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
     /* debug output of essential fragment data. */
     /* leave it here for future debugging sessions */
     /*printf("DCE num:%u offset:%u frag_len:%u tvb_len:%u\n",
-      pinfo->fd->num, offset, hdr->frag_len, tvb_reported_length(decrypted_tvb));*/
+      pinfo->num, offset, hdr->frag_len, tvb_reported_length(decrypted_tvb));*/
 
     /* if we are not doing reassembly and this is the first fragment
        then just dissect it and exit
@@ -4337,7 +4337,7 @@ end_cn_stub:
      */
     if (fd_head && (fd_head->flags & FD_DEFRAGMENTED) ) {
 
-        if ((pinfo->fd->num == fd_head->reassembled_in) && (hdr->flags & PFC_LAST_FRAG) ) {
+        if ((pinfo->num == fd_head->reassembled_in) && (hdr->flags & PFC_LAST_FRAG) ) {
             tvbuff_t *next_tvb;
             proto_item *frag_tree_item;
 
@@ -4442,7 +4442,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
      */
     dissect_dcerpc_cn_auth(tvb, offset, pinfo, dcerpc_tree, hdr, FALSE, &auth_info);
 
-    conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
+    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                              pinfo->srcport, pinfo->destport, 0);
     if (!conv)
         show_stub_data(pinfo, tvb, offset, dcerpc_tree, &auth_info, TRUE);
@@ -4455,7 +4455,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
            and desegmented pdu's .
            Instead we check if this pdu is already in the matched table or not
         */
-        matched_key.frame = pinfo->fd->num;
+        matched_key.frame = pinfo->num;
         matched_key.call_id = hdr->call_id;
         value = (dcerpc_call_value *)g_hash_table_lookup(dcerpc_matched, &matched_key);
         if (!value) {
@@ -4505,7 +4505,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     call_value->ver = bind_value->ver;
                     call_value->object_uuid = obj_id;
                     call_value->opnum = opnum;
-                    call_value->req_frame = pinfo->fd->num;
+                    call_value->req_frame = pinfo->num;
                     call_value->req_time = pinfo->abs_ts;
                     call_value->rep_frame = 0;
                     call_value->max_ptr = 0;
@@ -4605,7 +4605,7 @@ dissect_dcerpc_cn_resp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
      */
     dissect_dcerpc_cn_auth(tvb, offset, pinfo, dcerpc_tree, hdr, FALSE, &auth_info);
 
-    conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
+    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                              pinfo->srcport, pinfo->destport, 0);
 
     if (!conv) {
@@ -4619,7 +4619,7 @@ dissect_dcerpc_cn_resp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
            and desegmented pdu's .
            Instead we check if this pdu is already in the matched table or not
         */
-        matched_key.frame = pinfo->fd->num;
+        matched_key.frame = pinfo->num;
         matched_key.call_id = hdr->call_id;
         value = (dcerpc_call_value *)g_hash_table_lookup(dcerpc_matched, &matched_key);
         if (!value) {
@@ -4633,13 +4633,13 @@ dissect_dcerpc_cn_resp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             if ((call_value = (dcerpc_call_value *)g_hash_table_lookup(dcerpc_cn_calls, &call_key))) {
                 /* extra sanity check,  only match them if the reply
                    came after the request */
-                if (call_value->req_frame<pinfo->fd->num) {
+                if (call_value->req_frame<pinfo->num) {
                     new_matched_key = (dcerpc_matched_key *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_matched_key));
                     *new_matched_key = matched_key;
                     g_hash_table_insert(dcerpc_matched, new_matched_key, call_value);
                     value = call_value;
                     if (call_value->rep_frame == 0) {
-                        call_value->rep_frame = pinfo->fd->num;
+                        call_value->rep_frame = pinfo->num;
                     }
                 }
             }
@@ -4751,7 +4751,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
      */
     dissect_dcerpc_cn_auth(tvb, offset, pinfo, dcerpc_tree, hdr, FALSE, &auth_info);
 
-    conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
+    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                              pinfo->srcport, pinfo->destport, 0);
     if (!conv) {
         /* no point in creating one here, really */
@@ -4763,7 +4763,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
            and desegmented pdu's .
            Instead we check if this pdu is already in the matched table or not
         */
-        matched_key.frame = pinfo->fd->num;
+        matched_key.frame = pinfo->num;
         matched_key.call_id = hdr->call_id;
         value = (dcerpc_call_value *)g_hash_table_lookup(dcerpc_matched, &matched_key);
         if (!value) {
@@ -4781,7 +4781,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
                 value = call_value;
                 if (call_value->rep_frame == 0) {
-                    call_value->rep_frame = pinfo->fd->num;
+                    call_value->rep_frame = pinfo->num;
                 }
 
             }
@@ -5946,7 +5946,7 @@ dissect_dcerpc_dg_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                    !(hdr->flags1 & PFCL1_LASTFRAG), 0);
         if (fd_head != NULL) {
             /* We completed reassembly... */
-            if (pinfo->fd->num == fd_head->reassembled_in) {
+            if (pinfo->num == fd_head->reassembled_in) {
                 /* ...and this is the reassembled RPC PDU */
                 next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
                 add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
@@ -6000,7 +6000,7 @@ dissect_dcerpc_dg_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
         call_value->ver = hdr->if_ver;
         call_value->object_uuid = hdr->obj_id;
         call_value->opnum = hdr->opnum;
-        call_value->req_frame = pinfo->fd->num;
+        call_value->req_frame = pinfo->num;
         call_value->req_time = pinfo->abs_ts;
         call_value->rep_frame = 0;
         call_value->max_ptr = 0;
@@ -6013,12 +6013,12 @@ dissect_dcerpc_dg_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
         g_hash_table_insert(dcerpc_dg_calls, call_key, call_value);
 
         new_matched_key = (dcerpc_matched_key *)wmem_alloc(wmem_file_scope(), sizeof(dcerpc_matched_key));
-        new_matched_key->frame = pinfo->fd->num;
+        new_matched_key->frame = pinfo->num;
         new_matched_key->call_id = hdr->seqnum;
         g_hash_table_insert(dcerpc_matched, new_matched_key, call_value);
     }
 
-    matched_key.frame = pinfo->fd->num;
+    matched_key.frame = pinfo->num;
     matched_key.call_id = hdr->seqnum;
     value = (dcerpc_call_value *)g_hash_table_lookup(dcerpc_matched, &matched_key);
     if (!value) {
@@ -6027,7 +6027,7 @@ dissect_dcerpc_dg_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
         value->ver = hdr->if_ver;
         value->object_uuid = hdr->obj_id;
         value->opnum = hdr->opnum;
-        value->req_frame = pinfo->fd->num;
+        value->req_frame = pinfo->num;
         value->rep_frame = 0;
         value->max_ptr = 0;
         value->se_data = NULL;
@@ -6075,16 +6075,16 @@ dissect_dcerpc_dg_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         if ((call_value = (dcerpc_call_value *)g_hash_table_lookup(dcerpc_dg_calls, &call_key))) {
             new_matched_key = (dcerpc_matched_key *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_matched_key));
-            new_matched_key->frame = pinfo->fd->num;
+            new_matched_key->frame = pinfo->num;
             new_matched_key->call_id = hdr->seqnum;
             g_hash_table_insert(dcerpc_matched, new_matched_key, call_value);
             if (call_value->rep_frame == 0) {
-                call_value->rep_frame = pinfo->fd->num;
+                call_value->rep_frame = pinfo->num;
             }
         }
     }
 
-    matched_key.frame = pinfo->fd->num;
+    matched_key.frame = pinfo->num;
     matched_key.call_id = hdr->seqnum;
     value = (dcerpc_call_value *)g_hash_table_lookup(dcerpc_matched, &matched_key);
     if (!value) {
@@ -6093,7 +6093,7 @@ dissect_dcerpc_dg_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
         value->ver = hdr->if_ver;
         value->object_uuid = hdr->obj_id;
         value->opnum = hdr->opnum;
-        value->rep_frame = pinfo->fd->num;
+        value->rep_frame = pinfo->num;
     }
 
     di = wmem_new0(wmem_packet_scope(), dcerpc_info);

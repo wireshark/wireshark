@@ -386,7 +386,7 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
         sm_tvb = tvb_new_subset_remaining(tvb, i);
     /* Try calling a subdissector */
     if (sm_tvb) {
-        if ((reassembled && pinfo->fd->num == reassembled_in)
+        if ((reassembled && pinfo->num == reassembled_in)
             || frag==0 || (frag==1 && try_dissect_1st_frag)) {
             /* Try calling a subdissector only if:
              *  - the Short Message is reassembled in this very packet,

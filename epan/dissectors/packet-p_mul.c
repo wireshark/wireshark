@@ -408,7 +408,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
       addr_time = p_mul_data->pdu_time;
 
       /* Save data for last found PDU */
-      p_mul_data->prev_pdu_id = pinfo->fd->num;
+      p_mul_data->prev_pdu_id = pinfo->num;
       p_mul_data->prev_pdu_time = pinfo->abs_ts;
 
       if (pdu_type == Data_PDU && p_mul_data->msg_resend_count == 0 && last_found_pdu != seq_no - 1) {
@@ -432,7 +432,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
         prev_time = p_mul_data->pdu_time;
       }
     } else if (pdu_type == Address_PDU) {
-      addr_id = pinfo->fd->num;
+      addr_id = pinfo->num;
       addr_time = pinfo->abs_ts;
     }
   }
@@ -461,7 +461,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
           if (!ack_data) {
             /* Only save reference to first ACK */
             ack_data = wmem_new0(wmem_file_scope(), p_mul_ack_data);
-            ack_data->ack_id = pinfo->fd->num;
+            ack_data->ack_id = pinfo->num;
             g_hash_table_insert (p_mul_data->ack_data, GUINT_TO_POINTER(dstIP), ack_data);
           } else {
             /* Only count when resending */
@@ -471,7 +471,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
       } else {
         /* Message resent */
         p_mul_data->msg_resend_count++;
-        p_mul_data->prev_msg_id = pinfo->fd->num;
+        p_mul_data->prev_msg_id = pinfo->num;
         p_mul_data->prev_msg_time = p_mul_data->pdu_time;
         p_mul_data->pdu_time = pinfo->abs_ts;
 
@@ -495,10 +495,10 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
       if (pdu_type == Ack_PDU) {
         /* No matching message for this ack */
         ack_data = wmem_new0(wmem_file_scope(), p_mul_ack_data);
-        ack_data->ack_id = pinfo->fd->num;
+        ack_data->ack_id = pinfo->num;
         g_hash_table_insert (p_mul_data->ack_data, GUINT_TO_POINTER(dstIP), ack_data);
       } else {
-        p_mul_data->pdu_id = pinfo->fd->num;
+        p_mul_data->pdu_id = pinfo->num;
         p_mul_data->pdu_time = pinfo->abs_ts;
         p_mul_data->addr_id = addr_id;
         p_mul_data->addr_time = addr_time;

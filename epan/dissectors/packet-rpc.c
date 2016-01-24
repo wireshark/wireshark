@@ -1092,10 +1092,10 @@ dissect_rpc_authgss_context(proto_tree *tree, tvbuff_t *tvb, int offset,
 		wmem_tree_insert32_array(authgss_contexts, &tkey[0], context_info);
 	}
 	if (is_create) {
-		context_info->create_frame = pinfo->fd->num;
+		context_info->create_frame = pinfo->num;
 	}
 	if (is_destroy) {
-		context_info->destroy_frame = pinfo->fd->num;
+		context_info->destroy_frame = pinfo->num;
 	}
 
 	if (context_info->create_frame) {
@@ -1314,7 +1314,7 @@ dissect_rpc_opaque_auth(tvbuff_t* tvb, proto_tree* tree, int offset,
 	rpc_conv_info_t *conv_info = NULL;
 
 	if (pinfo->ptype == PT_TCP)
-		conv = find_conversation(pinfo->fd->num, &pinfo->src,
+		conv = find_conversation(pinfo->num, &pinfo->src,
 				&pinfo->dst, pinfo->ptype, pinfo->srcport,
 				pinfo->destport, 0);
 
@@ -1662,7 +1662,7 @@ get_conversation_for_call(packet_info *pinfo)
 	 * the original request.
 	 */
 	if (pinfo->ptype == PT_TCP || pinfo->ptype == PT_IBQP) {
-		conversation = find_conversation(pinfo->fd->num,
+		conversation = find_conversation(pinfo->num,
 		    &pinfo->src, &pinfo->dst, pinfo->ptype,
 		    pinfo->srcport, pinfo->destport, 0);
 	} else {
@@ -1671,18 +1671,18 @@ get_conversation_for_call(packet_info *pinfo)
 		 * pointer for the second address argument even
 		 * if you use NO_ADDR_B.
 		 */
-		conversation = find_conversation(pinfo->fd->num,
+		conversation = find_conversation(pinfo->num,
 		    &pinfo->src, &null_address, pinfo->ptype,
 		    pinfo->destport, 0, NO_ADDR_B|NO_PORT_B);
 	}
 
 	if (conversation == NULL) {
 		if (pinfo->ptype == PT_TCP || pinfo->ptype == PT_IBQP) {
-			conversation = conversation_new(pinfo->fd->num,
+			conversation = conversation_new(pinfo->num,
 			    &pinfo->src, &pinfo->dst, pinfo->ptype,
 			    pinfo->srcport, pinfo->destport, 0);
 		} else {
-			conversation = conversation_new(pinfo->fd->num,
+			conversation = conversation_new(pinfo->num,
 			    &pinfo->src, &null_address, pinfo->ptype,
 			    pinfo->destport, 0, NO_ADDR2|NO_PORT2);
 		}
@@ -1716,7 +1716,7 @@ find_conversation_for_reply(packet_info *pinfo)
 	 * might be sent to different ports.
 	 */
 	if (pinfo->ptype == PT_TCP || pinfo->ptype == PT_IBQP) {
-		conversation = find_conversation(pinfo->fd->num,
+		conversation = find_conversation(pinfo->num,
 		    &pinfo->src, &pinfo->dst, pinfo->ptype,
 		    pinfo->srcport, pinfo->destport, 0);
 	} else {
@@ -1725,7 +1725,7 @@ find_conversation_for_reply(packet_info *pinfo)
 		 * pointer for the second address argument even
 		 * if you use NO_ADDR_B.
 		 */
-		conversation = find_conversation(pinfo->fd->num,
+		conversation = find_conversation(pinfo->num,
 		    &pinfo->dst, &null_address, pinfo->ptype,
 		    pinfo->srcport, 0, NO_ADDR_B|NO_PORT_B);
 	}
@@ -1738,11 +1738,11 @@ new_conversation_for_reply(packet_info *pinfo)
 	conversation_t *conversation;
 
 	if (pinfo->ptype == PT_TCP || pinfo->ptype == PT_IBQP) {
-		conversation = conversation_new(pinfo->fd->num,
+		conversation = conversation_new(pinfo->num,
 		    &pinfo->src, &pinfo->dst, pinfo->ptype,
 		    pinfo->srcport, pinfo->destport, 0);
 	} else {
-		conversation = conversation_new(pinfo->fd->num,
+		conversation = conversation_new(pinfo->num,
 		    &pinfo->dst, &null_address, pinfo->ptype,
 		    pinfo->srcport, 0, NO_ADDR2|NO_PORT2);
 	}
@@ -1759,14 +1759,14 @@ get_conversation_for_tcp(packet_info *pinfo)
 	 * not wildcard either address or port, regardless of whether
 	 * this is a call or reply.
 	 */
-	conversation = find_conversation(pinfo->fd->num,
+	conversation = find_conversation(pinfo->num,
 	    &pinfo->src, &pinfo->dst, pinfo->ptype,
 	    pinfo->srcport, pinfo->destport, 0);
 	if (conversation == NULL) {
 		/*
 		 * It's not part of any conversation - create a new one.
 		 */
-		conversation = conversation_new(pinfo->fd->num,
+		conversation = conversation_new(pinfo->num,
 		    &pinfo->src, &pinfo->dst, pinfo->ptype,
 		    pinfo->srcport, pinfo->destport, 0);
 	}
@@ -2191,7 +2191,7 @@ looks_like_rpc_reply(tvbuff_t *tvb, packet_info *pinfo, int offset)
 		 * Define a dummy call for this reply.
 		 */
 		rpc_call = wmem_new0(wmem_file_scope(), rpc_call_info_value);
-		rpc_call->rep_num = pinfo->fd->num;
+		rpc_call->rep_num = pinfo->num;
 		rpc_call->xid = xid;
 		rpc_call->flavor = FLAVOR_NOT_GSSAPI;  /* total punt */
 		rpc_call->req_time = pinfo->abs_ts;
@@ -2487,7 +2487,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			/* We've seen a request with this XID, with the same
 			   source and destination, before - but was it
 			   *this* request? */
-			if (pinfo->fd->num != rpc_call->req_num) {
+			if (pinfo->num != rpc_call->req_num) {
 				/* No, so it's a duplicate request.
 				   Mark it as such. */
 				col_prepend_fstr(pinfo->cinfo, COL_INFO,
@@ -2508,7 +2508,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			   to mean "we don't yet know in which frame
 			   the reply for this call appears". */
 			rpc_call = wmem_new(wmem_file_scope(), rpc_call_info_value);
-			rpc_call->req_num = pinfo->fd->num;
+			rpc_call->req_num = pinfo->num;
 			rpc_call->rep_num = 0;
 			rpc_call->prog = prog;
 			rpc_call->vers = vers;
@@ -2660,11 +2660,11 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			/* We have not yet seen a reply to that call, so
 			   this must be the first reply; remember its
 			   frame number. */
-			rpc_call->rep_num = pinfo->fd->num;
+			rpc_call->rep_num = pinfo->num;
 		} else {
 			/* We have seen a reply to this call - but was it
 			   *this* reply? */
-			if (rpc_call->rep_num != pinfo->fd->num) {
+			if (rpc_call->rep_num != pinfo->num) {
 				proto_item *tmp_item;
 
 				/* No, so it's a duplicate reply.

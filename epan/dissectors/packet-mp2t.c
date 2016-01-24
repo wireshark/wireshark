@@ -267,7 +267,7 @@ static const fragment_items mp2t_msg_frag_items = {
  *          |     +-> pid_analysis_data
  *          |     +-> pid_analysis_data
  *          |
- *          +-> frame_table (RB tree) (key: pinfo->fd->num)
+ *          +-> frame_table (RB tree) (key: pinfo->num)
  *                |
  *                +-> frame_analysis_data (only created if drop detected)
  *                      |
@@ -391,7 +391,7 @@ init_frame_analysis_data(mp2t_analysis_data_t *mp2t_data, packet_info *pinfo)
     frame_analysis_data_p = wmem_new0(wmem_file_scope(), struct frame_analysis_data);
     frame_analysis_data_p->ts_table = wmem_tree_new(wmem_file_scope());
     /* Insert into mp2t tree */
-    wmem_tree_insert32(mp2t_data->frame_table, pinfo->fd->num,
+    wmem_tree_insert32(mp2t_data->frame_table, pinfo->num,
             (void *)frame_analysis_data_p);
 
     return frame_analysis_data_p;
@@ -402,7 +402,7 @@ static frame_analysis_data_t *
 get_frame_analysis_data(mp2t_analysis_data_t *mp2t_data, packet_info *pinfo)
 {
     frame_analysis_data_t *frame_analysis_data_p;
-    frame_analysis_data_p = (frame_analysis_data_t *)wmem_tree_lookup32(mp2t_data->frame_table, pinfo->fd->num);
+    frame_analysis_data_p = (frame_analysis_data_t *)wmem_tree_lookup32(mp2t_data->frame_table, pinfo->num);
     return frame_analysis_data_p;
 }
 

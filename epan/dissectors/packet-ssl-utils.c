@@ -4066,7 +4066,7 @@ ssl_starttls_ack(dissector_handle_t ssl_handle, packet_info *pinfo,
                      (void *)session->app_handle,
                      dissector_handle_get_dissector_name(session->app_handle));
     ssl_debug_printf("%s: current frame %d, app_handle=%p (%s)\n", G_STRFUNC,
-                     pinfo->fd->num, (void *)app_handle,
+                     pinfo->num, (void *)app_handle,
                      dissector_handle_get_dissector_name(app_handle));
 
     /* Do not switch again if a dissector did it before. */
@@ -4079,7 +4079,7 @@ ssl_starttls_ack(dissector_handle_t ssl_handle, packet_info *pinfo,
     /* The SSL dissector should be called first for this conversation. */
     conversation_set_dissector(conversation, ssl_handle);
     /* SSL starts after this frame. */
-    session->last_nontls_frame = pinfo->fd->num;
+    session->last_nontls_frame = pinfo->num;
     return 0;
 } /* }}} */
 

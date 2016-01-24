@@ -537,13 +537,13 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
             destaddr.len  = 1;
             destaddr.data = (guint8*)&circuit_id;
 
-            conv = find_conversation(pinfo->fd->num, &srcaddr, &destaddr, PT_NONE, pinfo->srcport, pinfo->destport, 0);
+            conv = find_conversation(pinfo->num, &srcaddr, &destaddr, PT_NONE, pinfo->srcport, pinfo->destport, 0);
             if (conv)
             {
                 iap_conv = (iap_conversation_t*)conversation_get_proto_data(conv, proto_iap);
                 while (1)
                 {
-                    if (iap_conv->iap_query_frame == pinfo->fd->num)
+                    if (iap_conv->iap_query_frame == pinfo->num)
                     {
                         iap_conv = NULL;
                         break;
@@ -559,7 +559,7 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
             }
             else
             {
-                conv = conversation_new(pinfo->fd->num, &srcaddr, &destaddr, PT_NONE, pinfo->srcport, pinfo->destport, 0);
+                conv = conversation_new(pinfo->num, &srcaddr, &destaddr, PT_NONE, pinfo->srcport, pinfo->destport, 0);
                 iap_conv = wmem_new(wmem_file_scope(), iap_conversation_t);
                 conversation_add_proto_data(conv, proto_iap, (void*)iap_conv);
             }
@@ -573,7 +573,7 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
 
 
                 iap_conv->pnext           = NULL;
-                iap_conv->iap_query_frame = pinfo->fd->num;
+                iap_conv->iap_query_frame = pinfo->num;
                 iap_conv->pattr_dissector = NULL;
 
                 tvb_memcpy(tvb, class_name, offset + 1 + 1, clen);
@@ -691,10 +691,10 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
     destaddr.data = (guint8*)&circuit_id;
 
     /* Find result value dissector */
-    conv = find_conversation(pinfo->fd->num, &srcaddr, &destaddr, PT_NONE, pinfo->srcport, pinfo->destport, 0);
+    conv = find_conversation(pinfo->num, &srcaddr, &destaddr, PT_NONE, pinfo->srcport, pinfo->destport, 0);
     if (conv)
     {
-        num = pinfo->fd->num;
+        num = pinfo->num;
 
         iap_conv = (iap_conversation_t*)conversation_get_proto_data(conv, proto_iap);
         while (iap_conv && (iap_conv->iap_query_frame >= num))
@@ -976,10 +976,10 @@ static void dissect_appl_proto(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
     destaddr.data = (guint8*)&circuit_id;
 
     /* Find result value dissector */
-    conv = find_conversation(pinfo->fd->num, &srcaddr, &destaddr, PT_NONE, pinfo->srcport, pinfo->destport, 0);
+    conv = find_conversation(pinfo->num, &srcaddr, &destaddr, PT_NONE, pinfo->srcport, pinfo->destport, 0);
     if (conv)
     {
-        num = pinfo->fd->num;
+        num = pinfo->num;
 
         lmp_conv = (lmp_conversation_t*)conversation_get_proto_data(conv, proto_irlmp);
         while (lmp_conv && (lmp_conv->iap_result_frame >= num))
@@ -1004,7 +1004,7 @@ static void dissect_appl_proto(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
     if (lmp_conv)
     {
 /*g_message("%x:%d->%x:%d = %p\n", src, pinfo->srcport, circuit_id, pinfo->destport, lmp_conv); */
-/*g_message("->%d: %d %d %p\n", pinfo->fd->num, lmp_conv->iap_result_frame, lmp_conv->ttp, lmp_conv->proto_dissector); */
+/*g_message("->%d: %d %d %p\n", pinfo->num, lmp_conv->iap_result_frame, lmp_conv->ttp, lmp_conv->proto_dissector); */
         if ((lmp_conv->ttp) && (pdu_type != DISCONNECT_PDU))
         {
             offset += dissect_ttp(tvb, pinfo, root, (pdu_type == DATA_PDU));
@@ -1199,7 +1199,7 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
     lmp_conversation_t* lmp_conv = NULL;
 
 
-/*g_message("%d: add_lmp_conversation(%p, %d, %d, %p) = ", pinfo->fd->num, pinfo, dlsap, ttp, proto_dissector); */
+/*g_message("%d: add_lmp_conversation(%p, %d, %d, %p) = ", pinfo->num, pinfo, dlsap, ttp, proto_dissector); */
     srcaddr.type  = AT_NONE;
     srcaddr.len   = 1;
     srcaddr.data  = (guint8*)&circuit_id;
@@ -1209,14 +1209,14 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
     destaddr.len  = 1;
     destaddr.data = (guint8*)&dest;
 
-    conv = find_conversation(pinfo->fd->num, &destaddr, &srcaddr, PT_NONE, dlsap, 0, NO_PORT_B);
+    conv = find_conversation(pinfo->num, &destaddr, &srcaddr, PT_NONE, dlsap, 0, NO_PORT_B);
     if (conv)
     {
         lmp_conv = (lmp_conversation_t*)conversation_get_proto_data(conv, proto_irlmp);
         while (1)
         {
             /* Does entry already exist? */
-            if (lmp_conv->iap_result_frame == pinfo->fd->num)
+            if (lmp_conv->iap_result_frame == pinfo->num)
                 return;
 
             if (lmp_conv->pnext == NULL)
@@ -1230,13 +1230,13 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
     }
     else
     {
-        conv = conversation_new(pinfo->fd->num, &destaddr, &srcaddr, PT_NONE, dlsap, 0, NO_PORT_B);
+        conv = conversation_new(pinfo->num, &destaddr, &srcaddr, PT_NONE, dlsap, 0, NO_PORT_B);
         lmp_conv = wmem_new(wmem_file_scope(), lmp_conversation_t);
         conversation_add_proto_data(conv, proto_irlmp, (void*)lmp_conv);
     }
 
     lmp_conv->pnext            = NULL;
-    lmp_conv->iap_result_frame = pinfo->fd->num;
+    lmp_conv->iap_result_frame = pinfo->num;
     lmp_conv->ttp              = ttp;
     lmp_conv->dissector        = dissector;
 

@@ -464,7 +464,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         p_ifg_info = wmem_new0(wmem_file_scope(), struct ifg_info);
 
         /* Doesn't exist, so we need to calculate the value */
-        if (previous_frame_data.previous_frame_num !=0 && (pinfo->fd->num - previous_frame_data.previous_frame_num == 1))
+        if (previous_frame_data.previous_frame_num !=0 && (pinfo->num - previous_frame_data.previous_frame_num == 1))
         {
             p_ifg_info->ifg = (guint32)(vw_startt - previous_frame_data.previous_end_time);
             p_ifg_info->previous_end_time = previous_frame_data.previous_end_time;
@@ -477,7 +477,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
         /* Store current data into the static structure */
         previous_frame_data.previous_end_time = vw_endt;
-        previous_frame_data.previous_frame_num = pinfo->fd->num;
+        previous_frame_data.previous_frame_num = pinfo->num;
 
         /* Record the current start time */
         p_ifg_info->current_start_time = vw_startt;

@@ -231,7 +231,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
         ((session->spdu_type == SES_DATA_TRANSFER) ||
          (session->spdu_type == SES_MAJOR_SYNC_POINT))) {
         /* Use conversation index as fragment id */
-        conversation  = find_conversation (pinfo->fd->num,
+        conversation  = find_conversation (pinfo->num,
                            &pinfo->src, &pinfo->dst, pinfo->ptype,
                            pinfo->srcport, pinfo->destport, 0);
         if (conversation != NULL) {
@@ -261,7 +261,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
                               data_tvb, 0, pinfo,
                               rtse_id, NULL,
                               fragment_length, TRUE);
-            if (frag_msg && pinfo->fd->num != frag_msg->reassembled_in) {
+            if (frag_msg && pinfo->num != frag_msg->reassembled_in) {
                 /* Add a "Reassembled in" link if not reassembled in this frame */
                 proto_tree_add_uint (tree, *(rtse_frag_items.hf_reassembled_in),
                              data_tvb, 0, 0, frag_msg->reassembled_in);

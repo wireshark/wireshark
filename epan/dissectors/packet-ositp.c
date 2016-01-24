@@ -978,7 +978,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
         cotp_frame_reset = FALSE;
         cotp_last_fragment = fragment;
         dst_ref = cotp_dst_ref;
-        conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+        conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                                  pinfo->ptype, pinfo->srcport, pinfo->destport,
                                  0);
         if (conv) {
@@ -1170,7 +1170,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
         next_tvb = process_reassembled_data (next_tvb, offset, pinfo,
                                              "Reassembled COTP", fd_head,
                                              &cotp_frag_items, NULL, tree);
-      } else if (pinfo->fd->num != fd_head->reassembled_in) {
+      } else if (pinfo->num != fd_head->reassembled_in) {
         /* Add a "Reassembled in" link if not reassembled in this frame */
         proto_tree_add_uint(cotp_tree, *(cotp_frag_items.hf_reassembled_in),
                             next_tvb, 0, 0, fd_head->reassembled_in);

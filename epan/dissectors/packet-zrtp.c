@@ -467,16 +467,16 @@ dissect_Conf2ACK(packet_info *pinfo) {
   dummy_srtp_info->auth_tag_len = 4;
 
   srtp_add_address(pinfo, &pinfo->net_src, pinfo->srcport, pinfo->destport,
-                   "ZRTP", PINFO_FD_NUM(pinfo), FALSE, NULL, dummy_srtp_info);
+                   "ZRTP", pinfo->num, FALSE, NULL, dummy_srtp_info);
 
   srtp_add_address(pinfo, &pinfo->net_dst, pinfo->destport, pinfo->srcport,
-                   "ZRTP", PINFO_FD_NUM(pinfo), FALSE, NULL, dummy_srtp_info);
+                   "ZRTP", pinfo->num, FALSE, NULL, dummy_srtp_info);
 
   srtcp_add_address(pinfo, &pinfo->net_src, pinfo->srcport+1, pinfo->destport+1,
-                    "ZRTP", PINFO_FD_NUM(pinfo), dummy_srtp_info);
+                    "ZRTP", pinfo->num, dummy_srtp_info);
 
   srtcp_add_address(pinfo, &pinfo->net_dst, pinfo->destport+1, pinfo->srcport+1,
-                    "ZRTP", PINFO_FD_NUM(pinfo), dummy_srtp_info);
+                    "ZRTP", pinfo->num, dummy_srtp_info);
 
   col_set_str(pinfo->cinfo, COL_INFO, "Conf2ACK Packet");
 }

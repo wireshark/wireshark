@@ -307,7 +307,7 @@ static gboolean dissect_jxta_UDP_heur(tvbuff_t * tvb, packet_info * pinfo, proto
     save_desegment_len = pinfo->desegment_len;
     ret = dissect_jxta_udp(tvb, pinfo, tree, NULL);
 
-    /* g_message( "%d Heuristic UDP Dissection : %d", pinfo->fd->num, ret ); */
+    /* g_message( "%d Heuristic UDP Dissection : %d", pinfo->num, ret ); */
 
     if (ret < 0) {
         /*
@@ -357,7 +357,7 @@ static gboolean dissect_jxta_TCP_heur(tvbuff_t * tvb, packet_info * pinfo, proto
     save_desegment_len = pinfo->desegment_len;
     ret = dissect_jxta_stream(tvb, pinfo, tree, NULL);
 
-    /* g_message( "%d Heuristic TCP Dissection : %d", pinfo->fd->num, ret ); */
+    /* g_message( "%d Heuristic TCP Dissection : %d", pinfo->num, ret ); */
 
     if (ret < 0) {
         /*
@@ -417,7 +417,7 @@ static gboolean dissect_jxta_SCTP_heur(tvbuff_t * tvb, packet_info * pinfo, prot
     save_desegment_len = pinfo->desegment_len;
     ret = dissect_jxta_stream(tvb, pinfo, tree, NULL);
 
-    /* g_message( "%d Heuristic SCTP Dissection : %d", pinfo->fd->num, ret ); */
+    /* g_message( "%d Heuristic SCTP Dissection : %d", pinfo->num, ret ); */
 
     if (ret < 0) {
         /*
@@ -584,7 +584,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
     proto_item *jxta_tree_item = NULL;
     proto_tree *jxta_tree = NULL;
 
-    /* g_message("Dissecting%s : %d", (NULL != tree) ? " for display" : "", pinfo->fd->num ); */
+    /* g_message("Dissecting%s : %d", (NULL != tree) ? " for display" : "", pinfo->num ); */
 
     if (available < sizeof(JXTA_WELCOME_MSG_SIG)) {
         needed = (gint) (sizeof(JXTA_WELCOME_MSG_SIG) - available);
@@ -601,20 +601,20 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
         if (0 == tpt_conv_data->initiator_welcome_frame) {
             /* The initiator welcome frame */
             tpt_conv_data->tpt_ptype = pinfo->ptype;
-            tpt_conv_data->initiator_welcome_frame = pinfo->fd->num;
+            tpt_conv_data->initiator_welcome_frame = pinfo->num;
             copy_address_wmem(wmem_file_scope(), &tpt_conv_data->initiator_tpt_address, &pinfo->src);
             tpt_conv_data->initiator_tpt_port = pinfo->srcport;
 
             welcome_addr = &tpt_conv_data->initiator_address;
             initiator = TRUE;
         } else {
-            if (tpt_conv_data->initiator_welcome_frame >= pinfo->fd->num) {
+            if (tpt_conv_data->initiator_welcome_frame >= pinfo->num) {
                 /* what we saw previously was the receiver welcome message */
                 tpt_conv_data->receiver_welcome_frame = tpt_conv_data->initiator_welcome_frame;
                 tpt_conv_data->receiver_tpt_address = tpt_conv_data->initiator_tpt_address;
                 tpt_conv_data->receiver_tpt_port = tpt_conv_data->initiator_tpt_port;
                 tpt_conv_data->receiver_address = tpt_conv_data->initiator_address;
-                tpt_conv_data->initiator_welcome_frame = pinfo->fd->num;
+                tpt_conv_data->initiator_welcome_frame = pinfo->num;
                 copy_address_wmem(wmem_file_scope(), &tpt_conv_data->initiator_tpt_address, &pinfo->src);
                 tpt_conv_data->initiator_tpt_port = pinfo->srcport;
 
@@ -623,7 +623,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
             } else {
                 /* The receiver welcome frame */
                 tpt_conv_data->tpt_ptype = pinfo->ptype;
-                tpt_conv_data->receiver_welcome_frame = pinfo->fd->num;
+                tpt_conv_data->receiver_welcome_frame = pinfo->num;
                 copy_address_wmem(wmem_file_scope(), &tpt_conv_data->receiver_tpt_address, &pinfo->src);
                 tpt_conv_data->receiver_tpt_port = pinfo->srcport;
 
@@ -655,7 +655,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
             return 0;
         }
 
-        /* g_message("%d Tpt %s:%d -> %s:%d tvb len=%d\n\t%s %d", pinfo->fd->num,
+        /* g_message("%d Tpt %s:%d -> %s:%d tvb len=%d\n\t%s %d", pinfo->num,
                   address_to_str(wmem_packet_scope(), &pinfo->src), pinfo->srcport,
                   address_to_str(wmem_packet_scope(), &pinfo->dst), pinfo->destport,
                   tvb_reported_length_remaining(tvb, 0),
@@ -683,13 +683,13 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
 
             /* Use our source and destination addresses if we have them */
             if (NULL != peer_conversation) {
-                /* g_message("%d Tpt %s:%d -> %s:%d", pinfo->fd->num,
+                /* g_message("%d Tpt %s:%d -> %s:%d", pinfo->num,
                           address_to_str(wmem_packet_scope(), &tpt_conv_data->initiator_tpt_address), tpt_conv_data->initiator_tpt_port,
                           address_to_str(wmem_packet_scope(), &tpt_conv_data->receiver_tpt_address), tpt_conv_data->receiver_tpt_port); */
 
                 if (addresses_equal(&pinfo->src, &tpt_conv_data->initiator_tpt_address)
                     && tpt_conv_data->initiator_tpt_port == pinfo->srcport) {
-                    /* g_message("%d From initiator : %s -> %s ", pinfo->fd->num,
+                    /* g_message("%d From initiator : %s -> %s ", pinfo->num,
                               address_to_str(wmem_packet_scope(), &tpt_conv_data->initiator_address),
                               address_to_str(wmem_packet_scope(), &tpt_conv_data->receiver_address)); */
                     pinfo->src = tpt_conv_data->initiator_address;
@@ -699,7 +699,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                     pinfo->ptype = PT_NONE;
                 } else if (addresses_equal(&pinfo->src, &tpt_conv_data->receiver_tpt_address) &&
                            tpt_conv_data->receiver_tpt_port == pinfo->srcport) {
-                    /* g_message("%d From receiver : %s -> %s ", pinfo->fd->num,
+                    /* g_message("%d From receiver : %s -> %s ", pinfo->num,
                               address_to_str(wmem_packet_scope(), &tpt_conv_data->receiver_address),
                               address_to_str(wmem_packet_scope(), &tpt_conv_data->initiator_address)); */
                     pinfo->src = tpt_conv_data->receiver_address;
@@ -708,7 +708,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                     pinfo->destport = 0;
                     pinfo->ptype = PT_NONE;
                 } else {
-                    /* g_message("%d Nothing matches %s:%d -> %s:%d", pinfo->fd->num,
+                    /* g_message("%d Nothing matches %s:%d -> %s:%d", pinfo->num,
                               address_to_str(wmem_packet_scope(), &pinfo->src), pinfo->srcport,
                               address_to_str(wmem_packet_scope(), &pinfo->dst), pinfo->destport); */
                 }
@@ -746,7 +746,7 @@ Common_Exit:
 static jxta_stream_conversation_data *get_tpt_conversation(packet_info * pinfo)
 {
     conversation_t *tpt_conversation =
-        find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+        find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
     jxta_stream_conversation_data *tpt_conv_data;
 
     if (tpt_conversation == NULL) {
@@ -754,7 +754,7 @@ static jxta_stream_conversation_data *get_tpt_conversation(packet_info * pinfo)
          * No conversation exists yet - create one.
          */
         tpt_conversation =
-            conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+            conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
     }
 
     conversation_set_dissector(tpt_conversation, stream_jxta_handle);
@@ -797,11 +797,11 @@ static conversation_t *get_peer_conversation(packet_info * pinfo, jxta_stream_co
     conversation_t * peer_conversation = NULL;
 
     if ((AT_NONE != tpt_conv_data->initiator_address.type) && (AT_NONE != tpt_conv_data->receiver_address.type)) {
-        peer_conversation = find_conversation(pinfo->fd->num, &tpt_conv_data->initiator_address, &tpt_conv_data->receiver_address,
+        peer_conversation = find_conversation(pinfo->num, &tpt_conv_data->initiator_address, &tpt_conv_data->receiver_address,
                                                PT_NONE, 0, 0, NO_PORT_B);
 
         if (create && (NULL == peer_conversation)) {
-            peer_conversation = conversation_new(pinfo->fd->num, &tpt_conv_data->initiator_address,
+            peer_conversation = conversation_new(pinfo->num, &tpt_conv_data->initiator_address,
                                                   &tpt_conv_data->receiver_address, PT_NONE, 0, 0, NO_PORT_B);
             conversation_set_dissector(peer_conversation, stream_jxta_handle);
         }
@@ -1320,7 +1320,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
                      * probably be expert info, not a g_warning. Pending confirmation
                      * just comment it out since a g_warning is definitely the
                      * wrong thing to do.
-                     * g_warning( "Failure processing message element #%d of %d of frame %d", each_elem, elem_count, pinfo->fd->num );
+                     * g_warning( "Failure processing message element #%d of %d of frame %d", each_elem, elem_count, pinfo->num );
                      */
                     return 0;
                 }
@@ -1341,7 +1341,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
         complete_messages++;
 
-        /* g_message( "%d Scanned message #%d: ", pinfo->fd->num, complete_messages ); */
+        /* g_message( "%d Scanned message #%d: ", pinfo->num, complete_messages ); */
     }
 
     if ((needed > 0) && gDESEGMENT && pinfo->can_desegment) {
@@ -1487,7 +1487,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     }
 
     if( tree ) {
-        /* g_message( "%d tvb offset : %d  tree offset : %d", pinfo->fd->num, offset, tree_offset ); */
+        /* g_message( "%d tvb offset : %d  tree offset : %d", pinfo->num, offset, tree_offset ); */
         DISSECTOR_ASSERT(tree_offset == offset);
     }
 

@@ -3205,7 +3205,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
     case GTP_MSG_UPDATE_PDP_REQ:
     case GTP_MSG_DELETE_PDP_REQ:
         gcr.is_request=TRUE;
-        gcr.req_frame=pinfo->fd->num;
+        gcr.req_frame=pinfo->num;
         gcr.rep_frame=0;
         break;
     case GTP_MSG_ECHO_RESP:
@@ -3214,7 +3214,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
     case GTP_MSG_DELETE_PDP_RESP:
         gcr.is_request=FALSE;
         gcr.req_frame=0;
-        gcr.rep_frame=pinfo->fd->num;
+        gcr.rep_frame=pinfo->num;
         break;
     default:
         gcr.is_request=FALSE;
@@ -3248,7 +3248,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
                 gcrp = wmem_new(wmem_file_scope(), gtp_msg_hash_t);
             }
             gcrp->seq_nr=seq_nr;
-            gcrp->req_frame = pinfo->fd->num;
+            gcrp->req_frame = pinfo->num;
             gcrp->req_time = pinfo->abs_ts;
             gcrp->rep_frame = 0;
             gcrp->msgtype = msgtype;
@@ -3266,7 +3266,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
             if (gcrp) {
                 if (!gcrp->rep_frame) {
                     g_hash_table_remove(gtp_info->unmatched, gcrp);
-                    gcrp->rep_frame=pinfo->fd->num;
+                    gcrp->rep_frame=pinfo->num;
                     gcrp->is_request=FALSE;
                     g_hash_table_insert(gtp_info->matched, gcrp, gcrp);
                 }

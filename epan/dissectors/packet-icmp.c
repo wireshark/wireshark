@@ -356,12 +356,12 @@ static conversation_t *_find_or_create_conversation(packet_info * pinfo)
 
 	/* Have we seen this conversation before? */
 	conv =
-	    find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+	    find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
 			      pinfo->ptype, 0, 0, 0);
 	if (conv == NULL) {
 		/* No, this is a new conversation. */
 		conv =
-		    conversation_new(pinfo->fd->num, &pinfo->src,
+		    conversation_new(pinfo->num, &pinfo->src,
 				     &pinfo->dst, pinfo->ptype, 0, 0, 0);
 	}
 	return conv;
@@ -955,7 +955,7 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 		icmp_key[1].key = NULL;
 
 		icmp_trans = wmem_new(wmem_file_scope(), icmp_transaction_t);
-		icmp_trans->rqst_frame = PINFO_FD_NUM(pinfo);
+		icmp_trans->rqst_frame = pinfo->num;
 		icmp_trans->resp_frame = 0;
 		icmp_trans->rqst_time = pinfo->abs_ts;
 		nstime_set_zero(&icmp_trans->resp_time);
@@ -963,7 +963,7 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 				       (void *) icmp_trans);
 	} else {
 		/* Already visited this frame */
-		guint32 frame_num = pinfo->fd->num;
+		guint32 frame_num = pinfo->num;
 
 		icmp_key[0].length = 2;
 		icmp_key[0].key = key;
@@ -1022,7 +1022,7 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 	double resp_time;
 
 	conversation =
-	    find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+	    find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
 			      pinfo->ptype, 0, 0, 0);
 	if (conversation == NULL) {
 		return NULL;
@@ -1052,7 +1052,7 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 			return NULL;
 		}
 
-		icmp_trans->resp_frame = PINFO_FD_NUM(pinfo);
+		icmp_trans->resp_frame = pinfo->num;
 
 		/* we found a match. Add entries to the matched table for both request and reply frames
 		 */
@@ -1072,7 +1072,7 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 				       (void *) icmp_trans);
 	} else {
 		/* Already visited this frame */
-		guint32 frame_num = pinfo->fd->num;
+		guint32 frame_num = pinfo->num;
 
 		icmp_key[0].length = 2;
 		icmp_key[0].key = key;

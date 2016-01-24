@@ -1811,12 +1811,12 @@ static void set_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info, gbool
             *frame_result = ue_params->drx_state;
 
             /* And store in table */
-            g_hash_table_insert(mac_lte_drx_frame_result, get_drx_result_hash_key(pinfo->fd->num, pdu_instance, TRUE), frame_result);
+            g_hash_table_insert(mac_lte_drx_frame_result, get_drx_result_hash_key(pinfo->num, pdu_instance, TRUE), frame_result);
         }
         else {
             /* After update, so just copy ue_state 'state' info after part of frame */
             frame_result = (drx_state_t*)g_hash_table_lookup(mac_lte_drx_frame_result,
-                                                             get_drx_result_hash_key(pinfo->fd->num, pdu_instance, FALSE));
+                                                             get_drx_result_hash_key(pinfo->num, pdu_instance, FALSE));
             if (frame_result != NULL) {
                 /* Deep-copy updated state from UE */
                 frame_result->state_after = ue_params->drx_state.state_before;
@@ -1836,7 +1836,7 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
     /* Look up entry by frame number in result table */
     frame_state = (drx_state_t *)g_hash_table_lookup(mac_lte_drx_frame_result,
-                                                     get_drx_result_hash_key(pinfo->fd->num, pdu_instance, FALSE));
+                                                     get_drx_result_hash_key(pinfo->num, pdu_instance, FALSE));
 
     /* Show available information */
     if (frame_state != NULL) {
@@ -1858,7 +1858,7 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
             PROTO_ITEM_SET_GENERATED(ti);
 
             /* Link back to any previous config frame (only from current config frame) */
-            if ((frame_state->config.frameNum == pinfo->fd->num) &&
+            if ((frame_state->config.frameNum == pinfo->num) &&
                 (frame_state->config.previousFrameNum != 0)) {
                     ti = proto_tree_add_uint(drx_config_tree, hf_mac_lte_drx_config_previous_frame_num, tvb,
                                              0, 0, frame_state->config.previousFrameNum);
@@ -3044,7 +3044,7 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, int len
                         result->previousSet = TRUE;
                         result->previousFrameNum = lastData->framenum;
                         result->timeSincePreviousFrame = total_gap;
-                        g_hash_table_insert(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num), result);
+                        g_hash_table_insert(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->num), result);
 
                         /* Now make previous frame point forward to here */
                         original_result = (DLHARQResult *)g_hash_table_lookup(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(lastData->framenum));
@@ -3053,7 +3053,7 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, int len
                             g_hash_table_insert(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(lastData->framenum), original_result);
                         }
                         original_result->nextSet = TRUE;
-                        original_result->nextFrameNum = pinfo->fd->num;
+                        original_result->nextFrameNum = pinfo->num;
                         original_result->timeToNextFrame = total_gap;
                     }
                 }
@@ -3071,12 +3071,12 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, int len
         thisData->length = length;
         tvb_memcpy(tvb, thisData->data, 0, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
         thisData->ndi = p_mac_lte_info->detailed_phy_info.dl_info.ndi;
-        thisData->framenum = pinfo->fd->num;
+        thisData->framenum = pinfo->num;
         thisData->received_time = pinfo->abs_ts;
     }
     else {
         /* Not first time, so just set what's already stored in result */
-        result = (DLHARQResult *)g_hash_table_lookup(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
+        result = (DLHARQResult *)g_hash_table_lookup(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->num));
     }
 
 
@@ -3129,7 +3129,7 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction)
         }
         else {
             /* Otherwise look up in table */
-            DLHARQResult *result = (DLHARQResult *)g_hash_table_lookup(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
+            DLHARQResult *result = (DLHARQResult *)g_hash_table_lookup(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->num));
             return ((result != NULL) && result->previousSet);
         }
     }
@@ -3194,7 +3194,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, int off
                             result->previousSet = TRUE;
                             result->previousFrameNum = lastData->framenum;
                             result->timeSincePreviousFrame = total_gap;
-                            g_hash_table_insert(mac_lte_ul_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num), result);
+                            g_hash_table_insert(mac_lte_ul_harq_result_hash, GUINT_TO_POINTER(pinfo->num), result);
 
                             /* Now make previous frame point forward to here */
                             original_result = (ULHARQResult *)g_hash_table_lookup(mac_lte_ul_harq_result_hash, GUINT_TO_POINTER(lastData->framenum));
@@ -3203,7 +3203,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, int off
                                 g_hash_table_insert(mac_lte_ul_harq_result_hash, GUINT_TO_POINTER(lastData->framenum), original_result);
                             }
                             original_result->nextSet = TRUE;
-                            original_result->nextFrameNum = pinfo->fd->num;
+                            original_result->nextFrameNum = pinfo->num;
                             original_result->timeToNextFrame = total_gap;
                         }
                     }
@@ -3222,12 +3222,12 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, int off
         thisData->length = tvb_reported_length_remaining(tvb, offset);
         tvb_memcpy(tvb, thisData->data, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
         thisData->ndi = p_mac_lte_info->detailed_phy_info.ul_info.ndi;
-        thisData->framenum = pinfo->fd->num;
+        thisData->framenum = pinfo->num;
         thisData->received_time = pinfo->abs_ts;
     }
     else {
         /* Not first time, so just get what's already stored in result */
-        result = (ULHARQResult *)g_hash_table_lookup(mac_lte_ul_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
+        result = (ULHARQResult *)g_hash_table_lookup(mac_lte_ul_harq_result_hash, GUINT_TO_POINTER(pinfo->num));
     }
 
     /* Show any link back to previous Tx */
@@ -3332,7 +3332,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
                         /* Got another grant - fine */
 
                         /* update state */
-                        state->lastGrantFramenum = pinfo->fd->num;
+                        state->lastGrantFramenum = pinfo->num;
                         break;
 
                     case SR_Request:
@@ -3340,12 +3340,12 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
 
                         /* Update state */
                         state->status = SR_Outstanding;
-                        state->lastSRFramenum = pinfo->fd->num;
+                        state->lastSRFramenum = pinfo->num;
                         break;
 
                     case SR_Failure:
                         /* This is an error, since we hadn't send an SR... */
-                        result = GetSRResult(pinfo->fd->num, TRUE);
+                        result = GetSRResult(pinfo->num, TRUE);
                         result->type = InvalidSREvent;
                         result->status = None;
                         result->event = SR_Failure;
@@ -3365,7 +3365,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
                         state->status = None;
 
                         /* Set result info */
-                        result = GetSRResult(pinfo->fd->num, TRUE);
+                        result = GetSRResult(pinfo->num, TRUE);
                         result->type = GrantAnsweringSR;
                         result->frameNum = state->lastSRFramenum;
                         result->timeDifference = timeSinceRequest;
@@ -3373,13 +3373,13 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
                         /* Also set forward link for SR */
                         resultForSRFrame = GetSRResult(state->lastSRFramenum, TRUE);
                         resultForSRFrame->type = SRLeadingToGrant;
-                        resultForSRFrame->frameNum = pinfo->fd->num;
+                        resultForSRFrame->frameNum = pinfo->num;
                         resultForSRFrame->timeDifference = timeSinceRequest;
                         break;
 
                     case SR_Request:
                         /* Another request when already have one pending */
-                        result = GetSRResult(pinfo->fd->num, TRUE);
+                        result = GetSRResult(pinfo->num, TRUE);
                         result->type = InvalidSREvent;
                         result->status = SR_Outstanding;
                         result->event = SR_Request;
@@ -3392,7 +3392,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
                         state->status = SR_Failed;
 
                         /* Set result info for failure frame */
-                        result = GetSRResult(pinfo->fd->num, TRUE);
+                        result = GetSRResult(pinfo->num, TRUE);
                         result->type = FailureAnsweringSR;
                         result->frameNum = state->lastSRFramenum;
                         result->timeDifference = timeSinceRequest;
@@ -3400,7 +3400,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
                         /* Also set forward link for SR */
                         resultForSRFrame = GetSRResult(state->lastSRFramenum, TRUE);
                         resultForSRFrame->type = SRLeadingToFailure;
-                        resultForSRFrame->frameNum = pinfo->fd->num;
+                        resultForSRFrame->frameNum = pinfo->num;
                         resultForSRFrame->timeDifference = timeSinceRequest;
                         break;
                 }
@@ -3421,14 +3421,14 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
 
                         state->status = SR_Outstanding;
 
-                        result = GetSRResult(pinfo->fd->num, TRUE);
+                        result = GetSRResult(pinfo->num, TRUE);
                         result->status = SR_Outstanding;
                         result->event = SR_Request;
                         break;
 
                     case SR_Failure:
                         /* 2 failures in a row.... */
-                        result = GetSRResult(pinfo->fd->num, TRUE);
+                        result = GetSRResult(pinfo->num, TRUE);
                         result->type = InvalidSREvent;
                         result->status = SR_Failed;
                         result->event = SR_Failure;
@@ -3439,7 +3439,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
     }
 
     /* Get stored result for this frame */
-    result = GetSRResult(pinfo->fd->num, FALSE);
+    result = GetSRResult(pinfo->num, FALSE);
     if (result == NULL) {
         /* For an SR frame, there should always be either a PDCCH grant or indication
            that the SR has failed */
@@ -3533,7 +3533,7 @@ static guint16 count_ues_tti(mac_lte_info *p_mac_lte_info, packet_info *pinfo)
     tti_info_t *tti_info;
 
     /* Just return any previous result */
-    TTIInfoResult_t *result = (TTIInfoResult_t *)g_hash_table_lookup(mac_lte_tti_info_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
+    TTIInfoResult_t *result = (TTIInfoResult_t *)g_hash_table_lookup(mac_lte_tti_info_result_hash, GUINT_TO_POINTER(pinfo->num));
     if (result != NULL) {
         return result->ues_in_tti;
     }
@@ -3576,7 +3576,7 @@ static guint16 count_ues_tti(mac_lte_info *p_mac_lte_info, packet_info *pinfo)
     result = wmem_new(wmem_file_scope(), TTIInfoResult_t);
     result->ues_in_tti = tti_info->ues_in_tti;
     g_hash_table_insert(mac_lte_tti_info_result_hash,
-                        GUINT_TO_POINTER(pinfo->fd->num), result);
+                        GUINT_TO_POINTER(pinfo->num), result);
 
     return tti_info->ues_in_tti;
 }
@@ -3586,7 +3586,7 @@ static guint16 count_ues_tti(mac_lte_info *p_mac_lte_info, packet_info *pinfo)
 static void show_ues_tti(packet_info *pinfo, mac_lte_info *p_mac_lte_info, tvbuff_t *tvb, proto_tree *context_tree)
 {
     /* Look up result */
-    TTIInfoResult_t *result = (TTIInfoResult_t *)g_hash_table_lookup(mac_lte_tti_info_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
+    TTIInfoResult_t *result = (TTIInfoResult_t *)g_hash_table_lookup(mac_lte_tti_info_result_hash, GUINT_TO_POINTER(pinfo->num));
     if (result != NULL) {
         proto_item *ti =  proto_tree_add_uint(context_tree,
                                               (p_mac_lte_info->direction == DIRECTION_UPLINK) ?
@@ -4157,7 +4157,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         }
 
                         /* Get pointer to result struct for this frame */
-                        crResult =  (ContentionResolutionResult *)g_hash_table_lookup(mac_lte_cr_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
+                        crResult =  (ContentionResolutionResult *)g_hash_table_lookup(mac_lte_cr_result_hash, GUINT_TO_POINTER(pinfo->num));
                         if (crResult == NULL) {
 
                             /* Need to set result by looking for and comparing with Msg3 */
@@ -4166,7 +4166,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                             /* Allocate result and add it to the table */
                             crResult = wmem_new(wmem_file_scope(), ContentionResolutionResult);
-                            g_hash_table_insert(mac_lte_cr_result_hash, GUINT_TO_POINTER(pinfo->fd->num), crResult);
+                            g_hash_table_insert(mac_lte_cr_result_hash, GUINT_TO_POINTER(pinfo->num), crResult);
 
                             /* Look for Msg3 */
                             msg3Data = (Msg3Data *)g_hash_table_lookup(mac_lte_msg3_hash, GUINT_TO_POINTER(msg3Key));
@@ -5041,7 +5041,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 }
 
                 /* Fill in data details */
-                data->framenum = pinfo->fd->num;
+                data->framenum = pinfo->num;
                 tvb_memcpy(tvb, data->data, offset, data_length);
                 data->msg3Time = pinfo->abs_ts;
             }
@@ -6666,7 +6666,7 @@ void set_mac_lte_drx_config(guint16 ueid, drx_config_t *drx_config, packet_info 
         /* Copy in new config */
         ue_params->drx_state.config = *drx_config;
         /* Remember frame when current settings set */
-        ue_params->drx_state.config.frameNum = pinfo->fd->num;
+        ue_params->drx_state.config.frameNum = pinfo->num;
         /* Also remember any previous config frame number */
         ue_params->drx_state.config.previousFrameNum = previousFrameNum;
     }

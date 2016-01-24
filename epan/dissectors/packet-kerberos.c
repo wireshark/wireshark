@@ -537,8 +537,8 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 	}
 
 	new_key=(enc_key_t *)g_malloc(sizeof(enc_key_t));
-	g_snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %u",origin,pinfo->fd->num);
-	new_key->fd_num = pinfo->fd->num;
+	g_snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %u",origin,pinfo->num);
+	new_key->fd_num = pinfo->num;
 	new_key->next=enc_key_list;
 	enc_key_list=new_key;
 	new_key->keytype=keytype;
@@ -672,7 +672,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 
 			expert_add_info_format(pinfo, NULL, &ei_kerberos_decrypted_keytype,
 								   "Decrypted keytype %d in frame %u using %s",
-								   ek->keytype, pinfo->fd->num, ek->key_origin);
+								   ek->keytype, pinfo->num, ek->key_origin);
 
 			/* return a private g_malloced blob to the caller */
 			user_data=data.data;
@@ -824,7 +824,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 
 			expert_add_info_format(pinfo, NULL, &ei_kerberos_decrypted_keytype,
 								   "Decrypted keytype %d in frame %u using %s",
-								   ek->keytype, pinfo->fd->num, ek->key_origin);
+								   ek->keytype, pinfo->num, ek->key_origin);
 
 			krb5_crypto_destroy(krb5_ctx, crypto);
 			/* return a private g_malloced blob to the caller */
@@ -868,7 +868,7 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 	new_key->keytype = keytype;
 	new_key->length = keylength;
 	new_key->contents = g_memdup(keyvalue, keylength);
-	g_snprintf(new_key->origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %u", origin, pinfo->fd->num);
+	g_snprintf(new_key->origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %u", origin, pinfo->num);
 	service_key_list = g_slist_append(service_key_list, (gpointer) new_key);
 }
 
@@ -3279,10 +3279,10 @@ dissect_kerberos_KDC_REQ_BODY(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 	 * http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-07.txt
 	 */
 	if (actx->pinfo->destport == UDP_PORT_KERBEROS && actx->pinfo->ptype == PT_UDP) {
-		conversation = find_conversation(actx->pinfo->fd->num, &actx->pinfo->src, &actx->pinfo->dst, PT_UDP,
+		conversation = find_conversation(actx->pinfo->num, &actx->pinfo->src, &actx->pinfo->dst, PT_UDP,
 											actx->pinfo->srcport, 0, NO_PORT_B);
 		if (conversation == NULL) {
-			conversation = conversation_new(actx->pinfo->fd->num, &actx->pinfo->src, &actx->pinfo->dst, PT_UDP,
+			conversation = conversation_new(actx->pinfo->num, &actx->pinfo->src, &actx->pinfo->dst, PT_UDP,
 											actx->pinfo->srcport, 0, NO_PORT2);
 			conversation_set_dissector(conversation, kerberos_handle_udp);
 		}

@@ -4145,7 +4145,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       /* Just show this as a fragment. */
       col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented RELOAD protocol (trans id=%x%x off=%u",
                    transaction_id[0],transaction_id[1], fragment);
-      if (reload_fd_head && reload_fd_head->reassembled_in != pinfo->fd->num) {
+      if (reload_fd_head && reload_fd_head->reassembled_in != pinfo->num) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%u]",
                         reload_fd_head->reassembled_in);
       }
@@ -4187,13 +4187,13 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     if (IS_REQUEST(message_code) && (message_code != RELOAD_ERROR)) {
       /* This is a request */
       if (reload_trans->req_frame == 0) {
-        reload_trans->req_frame = pinfo->fd->num;
+        reload_trans->req_frame = pinfo->num;
       }
     }
     else {
       /* This is a catch-all for all non-request messages */
       if (reload_trans->rep_frame == 0) {
-        reload_trans->rep_frame = pinfo->fd->num;
+        reload_trans->rep_frame = pinfo->num;
       }
     }
   }
@@ -4211,7 +4211,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
   /* Retransmission control */
   if (IS_REQUEST(message_code) && (message_code != RELOAD_ERROR)) {
-    if (reload_trans->req_frame != pinfo->fd->num) {
+    if (reload_trans->req_frame != pinfo->num) {
       proto_item *it;
       it = proto_tree_add_uint(reload_tree, hf_reload_duplicate, tvb, 0, 0, reload_trans->req_frame);
       PROTO_ITEM_SET_GENERATED(it);
@@ -4224,7 +4224,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   }
   else {
     /* This is a response */
-    if (reload_trans->rep_frame != pinfo->fd->num) {
+    if (reload_trans->rep_frame != pinfo->num) {
       proto_item *it;
       it = proto_tree_add_uint(reload_tree, hf_reload_duplicate, tvb, 0, 0, reload_trans->rep_frame);
       PROTO_ITEM_SET_GENERATED(it);

@@ -52,7 +52,7 @@ static gint ett_usb_ms = -1;
 /* there is one such structure for each masstorage conversation */
 typedef struct _usb_ms_conv_info_t {
     wmem_tree_t *itl;           /* indexed by LUN */
-    wmem_tree_t *itlq;          /* pinfo->fd->num */
+    wmem_tree_t *itlq;          /* pinfo->num */
 } usb_ms_conv_info_t;
 
 
@@ -258,7 +258,7 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
         }
 
         /* make sure we have an ITLQ structure for this LUN/transaction */
-        itlq=(itlq_nexus_t *)wmem_tree_lookup32(usb_ms_conv_info->itlq, pinfo->fd->num);
+        itlq=(itlq_nexus_t *)wmem_tree_lookup32(usb_ms_conv_info->itlq, pinfo->num);
         if(!itlq){
             itlq=wmem_new(wmem_file_scope(), itlq_nexus_t);
             itlq->lun=lun;
@@ -274,12 +274,12 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
             itlq->data_length=datalen;
             itlq->bidir_data_length=0;
             itlq->fc_time=pinfo->abs_ts;
-            itlq->first_exchange_frame=pinfo->fd->num;
+            itlq->first_exchange_frame=pinfo->num;
             itlq->last_exchange_frame=0;
             itlq->flags=0;
             itlq->alloc_len=0;
             itlq->extra_data=NULL;
-            wmem_tree_insert32(usb_ms_conv_info->itlq, pinfo->fd->num, itlq);
+            wmem_tree_insert32(usb_ms_conv_info->itlq, pinfo->num, itlq);
         }
 
         /* dCBWCBLength */
@@ -322,11 +322,11 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
         status=tvb_get_guint8(tvb, offset);
         /*offset+=1;*/
 
-        itlq=(itlq_nexus_t *)wmem_tree_lookup32_le(usb_ms_conv_info->itlq, pinfo->fd->num);
+        itlq=(itlq_nexus_t *)wmem_tree_lookup32_le(usb_ms_conv_info->itlq, pinfo->num);
         if(!itlq){
             return tvb_captured_length(tvb);
         }
-        itlq->last_exchange_frame=pinfo->fd->num;
+        itlq->last_exchange_frame=pinfo->num;
 
         itl=(itl_nexus_t *)wmem_tree_lookup32(usb_ms_conv_info->itl, itlq->lun);
         if(!itl){
@@ -345,7 +345,7 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
     /*
      * Ok it was neither CDB not STATUS so just assume it is either data in/out
      */
-    itlq=(itlq_nexus_t *)wmem_tree_lookup32_le(usb_ms_conv_info->itlq, pinfo->fd->num);
+    itlq=(itlq_nexus_t *)wmem_tree_lookup32_le(usb_ms_conv_info->itlq, pinfo->num);
     if(!itlq){
         return tvb_captured_length(tvb);
     }

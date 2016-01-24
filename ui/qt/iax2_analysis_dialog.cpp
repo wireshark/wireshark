@@ -81,7 +81,7 @@ public:
     Iax2AnalysisTreeWidgetItem(QTreeWidget *tree, tap_iax2_stat_t *statinfo, packet_info *pinfo) :
         QTreeWidgetItem(tree, iax2_analysis_type_)
     {
-        frame_num_ = pinfo->fd->num;
+        frame_num_ = pinfo->num;
         pkt_len_ = pinfo->fd->pkt_len;
         flags_ = statinfo->flags;
         if (flags_ & STAT_FLAG_FIRST) {

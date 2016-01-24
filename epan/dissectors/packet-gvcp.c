@@ -2286,7 +2286,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		{
 			/* This is a request */
 			gvcp_trans = (gvcp_transaction_t*)wmem_alloc(wmem_packet_scope(), sizeof(gvcp_transaction_t));
-			gvcp_trans->req_frame = pinfo->fd->num;
+			gvcp_trans->req_frame = pinfo->num;
 			gvcp_trans->rep_frame = 0;
 			gvcp_trans->addr_list = 0;
 			gvcp_trans->addr_count = 0;
@@ -2306,7 +2306,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 					{
 						gvcp_trans = (gvcp_transaction_t*)wmem_array_index(gvcp_trans_array, i);
 
-						if (gvcp_trans && (gvcp_trans->req_frame < pinfo->fd->num))
+						if (gvcp_trans && (gvcp_trans->req_frame < pinfo->num))
 						{
 							if (gvcp_trans->rep_frame != 0)
 							{
@@ -2314,7 +2314,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 							}
 							else
 							{
-								gvcp_trans->rep_frame = pinfo->fd->num;
+								gvcp_trans->rep_frame = pinfo->num;
 							}
 
 							break;
@@ -2338,7 +2338,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 			for (i = 0; i < array_size; ++i)
 			{
 				gvcp_trans = (gvcp_transaction_t*)wmem_array_index(gvcp_trans_array, i);
-				if (gvcp_trans && (pinfo->fd->num == gvcp_trans->req_frame || pinfo->fd->num == gvcp_trans->rep_frame))
+				if (gvcp_trans && (pinfo->num == gvcp_trans->req_frame || pinfo->num == gvcp_trans->rep_frame))
 				{
 					break;
 				}

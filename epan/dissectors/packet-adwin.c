@@ -548,14 +548,14 @@ adwin_request_response_handling(tvbuff_t *tvb, packet_info *pinfo,
 		if (direction == ADWIN_REQUEST) {
 			/* This is a request */
 			adwin_trans = wmem_new(wmem_file_scope(), adwin_transaction_t);
-			adwin_trans->req_frame = pinfo->fd->num;
+			adwin_trans->req_frame = pinfo->num;
 			adwin_trans->rep_frame = 0;
 			adwin_trans->req_time = pinfo->abs_ts;
 			wmem_map_insert(adwin_info->pdus, GUINT_TO_POINTER(seq_num), (void *)adwin_trans);
 		} else {
 			adwin_trans = (adwin_transaction_t *)wmem_map_lookup(adwin_info->pdus, GUINT_TO_POINTER(seq_num));
 			if (adwin_trans) {
-				adwin_trans->rep_frame = pinfo->fd->num;
+				adwin_trans->rep_frame = pinfo->num;
 			}
 		}
 	} else {

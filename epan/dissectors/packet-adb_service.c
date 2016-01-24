@@ -184,21 +184,21 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             key[i_key].key = NULL;
 
             subtree = (wmem_tree_t *) wmem_tree_lookup32_array(continuation_infos, key);
-            continuation_data = (subtree) ? (continuation_data_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
-            if (continuation_data && continuation_data->completed_in_frame < pinfo->fd->num)
+            continuation_data = (subtree) ? (continuation_data_t *) wmem_tree_lookup32_le(subtree, pinfo->num) : NULL;
+            if (continuation_data && continuation_data->completed_in_frame < pinfo->num)
                 continuation_data = NULL;
 
-            if (!continuation_data || (continuation_data && continuation_data->length_in_frame == pinfo->fd->num))
+            if (!continuation_data || (continuation_data && continuation_data->length_in_frame == pinfo->num))
                 offset = dissect_ascii_uint32(main_tree, hf_hex_ascii_length, ett_length, hf_length, tvb, offset, &data_length);
 
             if (!pinfo->fd->flags.visited && !continuation_data && tvb_reported_length_remaining(tvb, offset) < 4) {
                 key[i_key].length = 1;
-                key[i_key++].key = &pinfo->fd->num;
+                key[i_key++].key = &pinfo->num;
                 key[i_key].length = 0;
                 key[i_key].key = NULL;
 
                 continuation_data = wmem_new(wmem_file_scope(), continuation_data_t);
-                continuation_data->length_in_frame = pinfo->fd->num;
+                continuation_data->length_in_frame = pinfo->num;
                 continuation_data->completed_in_frame = G_MAXUINT32;
                 continuation_data->length = data_length;
 
@@ -207,9 +207,9 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             }
 
             if (tvb_reported_length_remaining(tvb, offset) >= 4 ||
-                        (continuation_data && continuation_data->completed_in_frame == pinfo->fd->num)) {
+                        (continuation_data && continuation_data->completed_in_frame == pinfo->num)) {
                 if (!pinfo->fd->flags.visited && continuation_data) {
-                    continuation_data->completed_in_frame = pinfo->fd->num;
+                    continuation_data->completed_in_frame = pinfo->num;
                 }
                 offset = dissect_ascii_uint32(main_tree, hf_hex_ascii_version, ett_version, hf_version, tvb, offset, &version);
 
@@ -252,18 +252,18 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             key[i_key].key = NULL;
 
             subtree = (wmem_tree_t *) wmem_tree_lookup32_array(framebuffer_infos, key);
-            framebuffer_data = (subtree) ? (framebuffer_data_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
-            if (framebuffer_data && framebuffer_data->completed_in_frame < pinfo->fd->num)
+            framebuffer_data = (subtree) ? (framebuffer_data_t *) wmem_tree_lookup32_le(subtree, pinfo->num) : NULL;
+            if (framebuffer_data && framebuffer_data->completed_in_frame < pinfo->num)
                 framebuffer_data = NULL;
 
             if (!pinfo->fd->flags.visited && !framebuffer_data) {
                 key[i_key].length = 1;
-                key[i_key++].key = &pinfo->fd->num;
+                key[i_key++].key = &pinfo->num;
                 key[i_key].length = 0;
                 key[i_key].key = NULL;
 
                 framebuffer_data = wmem_new(wmem_file_scope(), framebuffer_data_t);
-                framebuffer_data->data_in      = pinfo->fd->num;
+                framebuffer_data->data_in      = pinfo->num;
                 framebuffer_data->current_size = 0;
                 framebuffer_data->completed_in_frame = G_MAXUINT32;
                 framebuffer_data->size         = tvb_get_letohl(tvb, offset + 4 * 2);
@@ -279,7 +279,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 wmem_tree_insert32_array(framebuffer_infos, key, framebuffer_data);
             }
 
-            if (framebuffer_data && framebuffer_data->data_in == pinfo->fd->num) {
+            if (framebuffer_data && framebuffer_data->data_in == pinfo->num) {
                 proto_tree_add_item(main_tree, hf_framebuffer_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
 
@@ -327,7 +327,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 if (!pinfo->fd->flags.visited && framebuffer_data) {
                     framebuffer_data->current_size += tvb_captured_length_remaining(tvb, offset);
                     if (framebuffer_data->current_size >= framebuffer_data->size)
-                        framebuffer_data->completed_in_frame = pinfo->fd->num;
+                        framebuffer_data->completed_in_frame = pinfo->num;
                 }
 
                 if (pref_dissect_more_detail_framebuffer) {
@@ -429,12 +429,12 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             key[i_key].key = NULL;
 
             subtree = (wmem_tree_t *) wmem_tree_lookup32_array(fragments, key);
-            fragment = (subtree) ? (fragment_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num - 1) : NULL;
+            fragment = (subtree) ? (fragment_t *) wmem_tree_lookup32_le(subtree, pinfo->num - 1) : NULL;
             if (fragment) {
                 if (!pinfo->fd->flags.visited && fragment->reassembled_in_frame == -1)
-                    fragment->reassembled_in_frame = pinfo->fd->num;
+                    fragment->reassembled_in_frame = pinfo->num;
 
-                if (fragment->reassembled_in_frame == pinfo->fd->num) {
+                if (fragment->reassembled_in_frame == pinfo->num) {
                     size += fragment->length;
                     i_char += fragment->length;
                 }
@@ -514,7 +514,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                                 key[i_key].key = &adb_service_data->session_key[i_key];
                             }
                             key[i_key].length = 1;
-                            key[i_key++].key = &pinfo->fd->num;
+                            key[i_key++].key = &pinfo->num;
                             key[i_key].length = 0;
                             key[i_key].key = NULL;
 

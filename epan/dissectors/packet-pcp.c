@@ -506,8 +506,8 @@ static void mark_this_frame_as_last_pmns_names_frame(packet_info *pinfo) {
     pcp_conv_info_t *pcp_conv_info;
     pcp_conv_info = get_pcp_conversation_info(pinfo);
 
-    if(pinfo->fd->num > pcp_conv_info->last_pmns_names_frame) {
-        pcp_conv_info->last_pmns_names_frame = pinfo->fd->num;
+    if(pinfo->num > pcp_conv_info->last_pmns_names_frame) {
+        pcp_conv_info->last_pmns_names_frame = pinfo->num;
     }
 }
 
@@ -569,7 +569,7 @@ static pcp_conv_info_t* get_pcp_conversation_info(packet_info *pinfo) {
     conversation_t  *conversation;
     pcp_conv_info_t *pcp_conv_info;
 
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                                      pinfo->ptype, pinfo->srcport,
                                      pinfo->destport, 0);
 
@@ -601,7 +601,7 @@ static int is_unvisited_pmns_names_frame(packet_info *pinfo) {
 
     pcp_conv_info = get_pcp_conversation_info(pinfo);
 
-    return pinfo->fd->num > pcp_conv_info->last_processed_pmns_names_frame && pinfo->fd->num > pcp_conv_info->last_pmns_names_frame;
+    return pinfo->num > pcp_conv_info->last_processed_pmns_names_frame && pinfo->num > pcp_conv_info->last_pmns_names_frame;
 }
 
 static void populate_pmids_to_names(packet_info *pinfo, tvbuff_t *tvb, int offset, guint32 num_ids) {

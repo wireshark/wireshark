@@ -10538,7 +10538,7 @@ record_msg_delivery_c(conversation_t *conv, amqp_channel_t *channel,
 
     delivery = wmem_new0(wmem_file_scope(), amqp_delivery);
     delivery->delivery_tag = delivery_tag;
-    delivery->msg_framenum = pinfo->fd->num;
+    delivery->msg_framenum = pinfo->num;
     /* append to the list of unacked deliveries */
     delivery->prev = (*dptr);
     (*dptr) = delivery;
@@ -10579,7 +10579,7 @@ record_delivery_ack_c(conversation_t *conv, amqp_channel_t *channel,
                 amqp_delivery *delivery = (*dptr);
                 *dptr = delivery->prev; /* remove from the list of unacked */
 
-                delivery->ack_framenum = pinfo->fd->num;
+                delivery->ack_framenum = pinfo->num;
                 /* append to the list of acked deliveries */
                 delivery->prev = last_acked;
                 last_acked = delivery;

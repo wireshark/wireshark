@@ -668,7 +668,7 @@ rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		/* Include it in maximum delta calculation */
 		if (statinfo->delta > statinfo->max_delta) {
 			statinfo->max_delta = statinfo->delta;
-			statinfo->max_nr = pinfo->fd->num;
+			statinfo->max_nr = pinfo->num;
 		}
 		if (clock_rate != 0) {
 			/* Maximum and mean jitter calculation */

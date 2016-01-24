@@ -645,7 +645,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
 {
   address_hash_value   *value;
   address_hash_value   *result     = NULL;
-  duplicate_result_key  result_key = {pinfo->fd->num, ip};
+  duplicate_result_key  result_key = {pinfo->num, ip};
 
   /* Look up existing result */
   if (pinfo->fd->flags.visited) {
@@ -662,12 +662,12 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
       /* If MAC matches table, just update details */
       if (value != NULL)
       {
-        if (pinfo->fd->num > value->frame_num)
+        if (pinfo->num > value->frame_num)
         {
           if ((memcmp(value->mac, mac, 6) == 0))
           {
             /* Same MAC as before - update existing entry */
-            value->frame_num = pinfo->fd->num;
+            value->frame_num = pinfo->num;
             value->time_of_entry = pinfo->abs_ts.secs;
           }
           else
@@ -688,7 +688,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
         /* No existing entry. Prepare one */
         value = wmem_new(wmem_file_scope(), struct address_hash_value);
         memcpy(value->mac, mac, 6);
-        value->frame_num = pinfo->fd->num;
+        value->frame_num = pinfo->num;
         value->time_of_entry = pinfo->abs_ts.secs;
 
         /* Add it */

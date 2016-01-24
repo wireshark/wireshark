@@ -545,7 +545,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
                 if (nwk_hints && ieee_hints) {
                     /* Map this long address with the nwk layer short address. */
                     nwk_hints->map_rec = ieee802154_addr_update(&zbee_nwk_map, nwk_hints->src,
-                            ieee_hints->src_pan, packet.src64, pinfo->current_proto, pinfo->fd->num);
+                            ieee_hints->src_pan, packet.src64, pinfo->current_proto, pinfo->num);
                 }
                 break;
 
@@ -553,7 +553,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
                 if (ieee_hints) {
                     /* Map this long address with the ieee short address. */
                     ieee_hints->map_rec = ieee802154_addr_update(&zbee_nwk_map, ieee_hints->src16,
-                        ieee_hints->src_pan, packet.src64, pinfo->current_proto, pinfo->fd->num);
+                        ieee_hints->src_pan, packet.src64, pinfo->current_proto, pinfo->num);
                 }
                 break;
 

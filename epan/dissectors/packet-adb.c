@@ -165,7 +165,7 @@ save_command(guint32 cmd, guint32 arg0, guint32 arg1, guint32 data_length,
     gint             direction = P2P_DIR_UNKNOWN;
     usb_conv_info_t *usb_conv_info = (usb_conv_info_t *) data;
 
-    frame_number = pinfo->fd->num;
+    frame_number = pinfo->num;
 
     if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
         interface_id = pinfo->phdr->interface_id;
@@ -229,7 +229,7 @@ save_command(guint32 cmd, guint32 arg0, guint32 arg1, guint32 data_length,
     if (cmd == A_OPEN) {
         service_data = wmem_new(wmem_file_scope(), service_data_t);
 
-        service_data->start_in_frame = pinfo->fd->num;
+        service_data->start_in_frame = pinfo->num;
         service_data->close_local_in_frame = max_in_frame;
         service_data->close_remote_in_frame = max_in_frame;
 
@@ -247,13 +247,13 @@ save_command(guint32 cmd, guint32 arg0, guint32 arg1, guint32 data_length,
     command_data->arg0 = arg0;
     command_data->arg1 = arg1;
 
-    command_data->command_in_frame = pinfo->fd->num;
+    command_data->command_in_frame = pinfo->num;
     command_data->response_in_frame = max_in_frame;
 
     command_data->crc32 = crc32;
     command_data->data_length = data_length;
     if (data_length == 0)
-        command_data->completed_in_frame = pinfo->fd->num;
+        command_data->completed_in_frame = pinfo->num;
     else
         command_data->completed_in_frame = max_in_frame;
     command_data->reassemble_data_length = 0;
@@ -315,9 +315,9 @@ save_command(guint32 cmd, guint32 arg0, guint32 arg1, guint32 data_length,
     } else if (cmd == A_CLSE) {
         if (service_data) {
             if (direction == P2P_DIR_RECV && service_data->local_id == arg1)
-                service_data->close_local_in_frame = pinfo->fd->num;
+                service_data->close_local_in_frame = pinfo->num;
             else if (direction == P2P_DIR_SENT  && service_data->remote_id == arg1)
-                service_data->close_remote_in_frame = pinfo->fd->num;
+                service_data->close_remote_in_frame = pinfo->num;
         }
     }
 
@@ -367,7 +367,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     main_item = proto_tree_add_item(tree, proto_adb, tvb, offset, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_adb);
 
-    frame_number       = pinfo->fd->num;
+    frame_number       = pinfo->num;
 
     /* XXX: Why? If interface is USB only first try is correct
      * (and seems strange...), in other cases standard check for

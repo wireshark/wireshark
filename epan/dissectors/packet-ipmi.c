@@ -196,7 +196,7 @@ get_packet_data(packet_info * pinfo)
 	}
 
 	/* check if packet has changed */
-	if (pinfo->fd->num != data->curr_frame_num) {
+	if (pinfo->num != data->curr_frame_num) {
 		data->curr_level = 0;
 		data->next_level = 0;
 	}
@@ -487,8 +487,8 @@ dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* check for the first invocation */
 	if (!data->curr_level) {
 		/* get current frame data */
-		data->curr_frame = get_frame_data(data, pinfo->fd->num);
-		data->curr_frame_num = pinfo->fd->num;
+		data->curr_frame = get_frame_data(data, pinfo->num);
+		data->curr_frame_num = pinfo->num;
 
 		/* copy frame timestamp */
 		memcpy(&data->curr_frame->ts, &pinfo->abs_ts, sizeof(nstime_t));

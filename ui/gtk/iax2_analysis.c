@@ -562,7 +562,7 @@ static int iax2_packet_add_info(GtkWidget *list, user_data_t * user_data,
 	/*  is this the first packet we got in this direction? */
 	if (statinfo->flags & STAT_FLAG_FIRST) {
 		add_to_list(list, user_data,
-			pinfo->fd->num,
+			pinfo->num,
 			0,
 			0,
 			statinfo->bandwidth,
@@ -573,7 +573,7 @@ static int iax2_packet_add_info(GtkWidget *list, user_data_t * user_data,
 	}
 	else {
 		add_to_list(list, user_data,
-			pinfo->fd->num,
+			pinfo->num,
 			statinfo->delta*1000,
 			statinfo->jitter*1000,
 			statinfo->bandwidth,

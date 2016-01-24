@@ -522,7 +522,7 @@ static void check_esp_sequence_info(guint32 spi, guint32 sequence_number, packet
     /* Create an entry for this SPI */
     status = wmem_new0(wmem_file_scope(), spi_status);
     status->previousSequenceNumber = sequence_number;
-    status->previousFrameNum = pinfo->fd->num;
+    status->previousFrameNum = pinfo->num;
 
     /* And add it to the table */
     g_hash_table_insert(esp_sequence_analysis_hash, GUINT_TO_POINTER((guint)spi), status);
@@ -537,11 +537,11 @@ static void check_esp_sequence_info(guint32 spi, guint32 sequence_number, packet
       /* Copy what was expected */
       *frame_status = *status;
       /* And add it into the report table */
-      g_hash_table_insert(esp_sequence_analysis_report_hash, GUINT_TO_POINTER(pinfo->fd->num), frame_status);
+      g_hash_table_insert(esp_sequence_analysis_report_hash, GUINT_TO_POINTER(pinfo->num), frame_status);
     }
     /* Adopt this setting as 'current' regardless of whether expected */
     status->previousSequenceNumber = sequence_number;
-    status->previousFrameNum = pinfo->fd->num;
+    status->previousFrameNum = pinfo->num;
   }
 }
 
@@ -552,7 +552,7 @@ static void show_esp_sequence_info(guint32 spi, guint32 sequence_number,
 {
   /* Look up this frame in the report table. */
   spi_status *status = (spi_status*)g_hash_table_lookup(esp_sequence_analysis_report_hash,
-                                                        GUINT_TO_POINTER(pinfo->fd->num));
+                                                        GUINT_TO_POINTER(pinfo->num));
   if (status != NULL) {
     proto_item *sn_ti, *frame_ti;
 

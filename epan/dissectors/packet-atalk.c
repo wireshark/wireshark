@@ -857,7 +857,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       call_dissector_with_data(zip_atp_handle, new_tvb, pinfo, tree, &aspinfo);
     else {
       /* XXX need a conversation_get_dissector function ? */
-      if (!aspinfo.reply && !conversation_get_dissector(conversation, pinfo->fd->num)) {
+      if (!aspinfo.reply && !conversation_get_dissector(conversation, pinfo->num)) {
         dissector_handle_t sub;
 
         /* if it's a known ASP function call ASP dissector
@@ -994,12 +994,12 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo, struct aspinfo *aspinfo)
   asp_request_val *request_val;
   guint8           fn;
 
-  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
+  conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                                    pinfo->srcport, pinfo->destport, 0);
 
   if (conversation == NULL)
   {
-    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+    conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
                                     pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
   }
 

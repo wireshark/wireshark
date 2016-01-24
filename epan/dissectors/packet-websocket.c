@@ -193,7 +193,7 @@ dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   http_conv_t        *http_conv = NULL;
 
   /* try to find a dissector which accepts the data. */
-  conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+  conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
   if (conv) {
     http_conv = (http_conv_t *)conversation_get_proto_data(conv, proto_http);
 

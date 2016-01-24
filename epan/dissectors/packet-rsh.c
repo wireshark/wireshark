@@ -123,7 +123,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if(!hash_info){
         hash_info = wmem_new(wmem_file_scope(), rsh_hash_entry_t);
 
-        hash_info->first_packet_number = pinfo->fd->num;
+        hash_info->first_packet_number = pinfo->num;
         hash_info->second_packet_number = 0;
         hash_info->third_packet_number  = 0;
         hash_info->fourth_packet_number  = 0;
@@ -150,25 +150,25 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * as we reach them the first time */
 
     if(!hash_info->second_packet_number
-            && pinfo->fd->num > hash_info->first_packet_number){
+            && pinfo->num > hash_info->first_packet_number){
         /* We're on the second packet of the conversation */
-        hash_info->second_packet_number = pinfo->fd->num;
+        hash_info->second_packet_number = pinfo->num;
     } else if(hash_info->second_packet_number
             && !hash_info->third_packet_number
-            && pinfo->fd->num > hash_info->second_packet_number) {
+            && pinfo->num > hash_info->second_packet_number) {
         /* We're on the third packet of the conversation */
-        hash_info->third_packet_number = pinfo->fd->num;
+        hash_info->third_packet_number = pinfo->num;
     } else if(hash_info->third_packet_number
             && !hash_info->fourth_packet_number
-            && pinfo->fd->num > hash_info->third_packet_number) {
+            && pinfo->num > hash_info->third_packet_number) {
         /* We're on the fourth packet of the conversation */
-        hash_info->fourth_packet_number = pinfo->fd->num;
+        hash_info->fourth_packet_number = pinfo->num;
     }
 
     /* Save this packet's state so we can retrieve it if this packet
      * is selected again later.  If the packet's state was already stored,
      * then retrieve it */
-    if(pinfo->fd->num == hash_info->first_packet_number){
+    if(pinfo->num == hash_info->first_packet_number){
         if(hash_info->first_packet_state == NONE){
             hash_info->first_packet_state = hash_info->state;
         } else {
@@ -176,7 +176,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
     }
 
-    if(pinfo->fd->num == hash_info->second_packet_number){
+    if(pinfo->num == hash_info->second_packet_number){
         if(hash_info->second_packet_state == NONE){
             hash_info->second_packet_state = hash_info->state;
         } else {
@@ -184,7 +184,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
     }
 
-    if(pinfo->fd->num == hash_info->third_packet_number){
+    if(pinfo->num == hash_info->third_packet_number){
         if(hash_info->third_packet_state == NONE){
             hash_info->third_packet_state = hash_info->state;
         } else {
@@ -192,7 +192,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
     }
 
-    if(pinfo->fd->num == hash_info->fourth_packet_number){
+    if(pinfo->num == hash_info->fourth_packet_number){
         if(hash_info->fourth_packet_state == NONE){
             hash_info->fourth_packet_state = hash_info->state;
         } else {

@@ -373,7 +373,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   is_from_server = ssl_packet_from_server(session, dtls_associations, pinfo);
 
   if (session->last_nontls_frame != 0 &&
-      session->last_nontls_frame >= pinfo->fd->num) {
+      session->last_nontls_frame >= pinfo->num) {
     /* This conversation started at a different protocol and STARTTLS was
      * used, but this packet comes too early. */
     return 0;

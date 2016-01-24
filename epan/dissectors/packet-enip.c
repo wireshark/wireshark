@@ -752,25 +752,25 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
          }
 
          request_info = wmem_new(wmem_file_scope(), enip_request_info_t);
-         request_info->req_num = pinfo->fd->num;
+         request_info->req_num = pinfo->num;
          request_info->rep_num = 0;
          request_info->req_time = pinfo->abs_ts;
          request_info->cip_info = NULL;
-         wmem_tree_insert32(request_val->frames, pinfo->fd->num, (void *)request_info);
+         wmem_tree_insert32(request_val->frames, pinfo->num, (void *)request_info);
       }
       if ( request_val && prequest_key && prequest_key->requesttype == ENIP_RESPONSE_PACKET )
       {
-         request_info = (enip_request_info_t*)wmem_tree_lookup32_le( request_val->frames, pinfo->fd->num );
+         request_info = (enip_request_info_t*)wmem_tree_lookup32_le( request_val->frames, pinfo->num );
          if ( request_info )
          {
-            request_info->rep_num = pinfo->fd->num;
+            request_info->rep_num = pinfo->num;
          }
       }
    }
    else
    {
       if ( request_val )
-         request_info = (enip_request_info_t *)wmem_tree_lookup32_le( request_val->frames, pinfo->fd->num );
+         request_info = (enip_request_info_t *)wmem_tree_lookup32_le( request_val->frames, pinfo->num );
    }
 
    if ( tree && request_info )
@@ -1003,7 +1003,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
       conn_val->motion                 = connInfo->motion;
       conn_val->ClassID                = connInfo->ClassID;
       conn_val->open_frame             = connInfo->forward_open_frame;
-      conn_val->open_reply_frame       = pinfo->fd->num;
+      conn_val->open_reply_frame       = pinfo->num;
       conn_val->close_frame            = 0;
       conn_val->connid                 = enip_unique_connid++;
 
@@ -1047,10 +1047,10 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
          /* check for O->T conversation */
          /* similar logic to find_or_create_conversation(), but since I/O traffic
          is on UDP, the pinfo parameter doesn't have the correct information */
-         if ((conversation = find_conversation(pinfo->fd->num, &pinfo->dst, &dest_address,
+         if ((conversation = find_conversation(pinfo->num, &pinfo->dst, &dest_address,
                                               PT_UDP, connInfo->O2T.port, 0, NO_PORT_B)) == NULL) {
 
-            conversation = conversation_new(pinfo->fd->num, &pinfo->dst, &dest_address,
+            conversation = conversation_new(pinfo->num, &pinfo->dst, &dest_address,
                                             PT_UDP, connInfo->O2T.port, 0, NO_PORT2);
          }
 
@@ -1068,10 +1068,10 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
          /* Check if separate T->O conversation is necessary.  If either side is multicast
             or ports aren't equal, a separate conversation must be generated */
          dest_address.data = connInfo->T2O.ipaddress.data;
-         if ((conversationTO = find_conversation(pinfo->fd->num, &pinfo->src, &dest_address,
+         if ((conversationTO = find_conversation(pinfo->num, &pinfo->src, &dest_address,
                                                 PT_UDP, connInfo->T2O.port, 0, NO_PORT_B)) == NULL) {
 
-             conversationTO = conversation_new(pinfo->fd->num, &pinfo->src,
+             conversationTO = conversation_new(pinfo->num, &pinfo->src,
                                                &dest_address, PT_UDP,
                                                connInfo->T2O.port, 0, NO_PORT2);
          }
@@ -1134,7 +1134,7 @@ enip_close_cip_connection(packet_info *pinfo, guint16 ConnSerialNumber,
    conn_val = (enip_conn_val_t *)g_hash_table_lookup( enip_conn_hashtable, &conn_key );
    if ( conn_val )
    {
-      conn_val->close_frame = pinfo->fd->num;
+      conn_val->close_frame = pinfo->num;
 
       /* Save the connection info for the conversation filter */
       if (!pinfo->fd->flags.visited)
@@ -1181,7 +1181,7 @@ enip_get_explicit_connid(packet_info *pinfo, enip_request_key_t *prequest_key, g
    /*
     * Do we have a conversation for this connection?
     */
-   conversation = find_conversation(pinfo->fd->num,
+   conversation = find_conversation(pinfo->num,
             &pinfo->src, &pinfo->dst,
             pinfo->ptype,
             pinfo->srcport, pinfo->destport, 0);
@@ -1214,7 +1214,7 @@ enip_get_explicit_connid(packet_info *pinfo, enip_request_key_t *prequest_key, g
            break;
    }
 
-   if ((conn_val == NULL ) || (conn_val->open_reply_frame > pinfo->fd->num))
+   if ((conn_val == NULL ) || (conn_val->open_reply_frame > pinfo->num))
       return NULL;
 
    return conn_val;
@@ -1232,7 +1232,7 @@ enip_get_io_connid(packet_info *pinfo, guint32 connid, enum enip_connid_type* pc
    /*
     * Do we have a conversation for this connection?
     */
-   conversation = find_conversation(pinfo->fd->num,
+   conversation = find_conversation(pinfo->num,
             &pinfo->src, &pinfo->dst,
             pinfo->ptype,
             pinfo->destport, 0, NO_PORT_B);
@@ -1262,7 +1262,7 @@ enip_get_io_connid(packet_info *pinfo, guint32 connid, enum enip_connid_type* pc
       *pconnid_type = ECIDT_O2T;
    }
 
-   if ((conn_val == NULL) || ( conn_val->open_reply_frame > pinfo->fd->num ))
+   if ((conn_val == NULL) || ( conn_val->open_reply_frame > pinfo->num ))
       return NULL;
 
    return conn_val;

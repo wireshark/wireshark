@@ -198,7 +198,7 @@ int rlc_lte_tap_for_graph_data(void *pct, packet_info *pinfo, epan_dissect_t *ed
 
         /* It matches.  Add to end of segment list */
         segment->next = NULL;
-        segment->num = pinfo->fd->num;
+        segment->num = pinfo->num;
         segment->rel_secs = (guint32) pinfo->rel_ts.secs;
         segment->rel_usecs = pinfo->rel_ts.nsecs/1000;
         segment->abs_secs = (guint32) pinfo->abs_ts.secs;

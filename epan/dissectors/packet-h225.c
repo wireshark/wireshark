@@ -1712,9 +1712,9 @@ dissect_h225_H245TransportAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
       return offset;
     }
 
-    conv=find_conversation(actx->pinfo->fd->num, &src_addr, &src_addr, PT_TCP, ip_port, ip_port, NO_ADDR_B|NO_PORT_B);
+    conv=find_conversation(actx->pinfo->num, &src_addr, &src_addr, PT_TCP, ip_port, ip_port, NO_ADDR_B|NO_PORT_B);
     if(!conv){
-      conv=conversation_new(actx->pinfo->fd->num, &src_addr, &src_addr, PT_TCP, ip_port, ip_port, NO_ADDR2|NO_PORT2);
+      conv=conversation_new(actx->pinfo->num, &src_addr, &src_addr, PT_TCP, ip_port, ip_port, NO_ADDR2|NO_PORT2);
       conversation_set_dissector(conv, h245_handle);
     }
   }
@@ -7716,7 +7716,7 @@ h225ras_call_t * new_h225ras_call(h225ras_call_info_key *h225ras_call_key, packe
   new_h225ras_call_key->reqSeqNum = h225ras_call_key->reqSeqNum;
   new_h225ras_call_key->conversation = h225ras_call_key->conversation;
   h225ras_call = wmem_new(wmem_file_scope(), h225ras_call_t);
-  h225ras_call->req_num = pinfo->fd->num;
+  h225ras_call->req_num = pinfo->num;
   h225ras_call->rsp_num = 0;
   h225ras_call->requestSeqNum = h225ras_call_key->reqSeqNum;
   h225ras_call->responded = FALSE;
@@ -7739,7 +7739,7 @@ h225ras_call_t * append_h225ras_call(h225ras_call_t *prev_call, packet_info *pin
      to mean "we don't yet know in which frame
      the reply for this call appears". */
   h225ras_call = wmem_new(wmem_file_scope(), h225ras_call_t);
-  h225ras_call->req_num = pinfo->fd->num;
+  h225ras_call->req_num = pinfo->num;
   h225ras_call->rsp_num = 0;
   h225ras_call->requestSeqNum = prev_call->requestSeqNum;
   h225ras_call->responded = FALSE;
@@ -11795,16 +11795,16 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
            *this* request already? */
         /* Walk through list of ras requests with identical keys */
         do {
-          if (pinfo->fd->num == h225ras_call->req_num) {
+          if (pinfo->num == h225ras_call->req_num) {
             /* We have seen this request before -> do nothing */
             break;
           }
 
           /* if end of list is reached, exit loop and decide if request is duplicate or not. */
           if (h225ras_call->next_call == NULL) {
-            if ( (pinfo->fd->num > h225ras_call->rsp_num && h225ras_call->rsp_num != 0
+            if ( (pinfo->num > h225ras_call->rsp_num && h225ras_call->rsp_num != 0
                && pinfo->abs_ts.secs > (h225ras_call->req_time.secs + THRESHOLD_REPEATED_RESPONDED_CALL) )
-               ||(pinfo->fd->num > h225ras_call->req_num && h225ras_call->rsp_num == 0
+               ||(pinfo->num > h225ras_call->req_num && h225ras_call->rsp_num == 0
                && pinfo->abs_ts.secs > (h225ras_call->req_time.secs + THRESHOLD_REPEATED_NOT_RESPONDED_CALL) ) )
             {
               /* if last request has been responded
@@ -11844,7 +11844,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     /* end of request message handling*/
     }
     else {          /* Confirm or Reject Message */
-      conversation = find_conversation(pinfo->fd->num, &pinfo->src,
+      conversation = find_conversation(pinfo->num, &pinfo->src,
         &pinfo->dst, pinfo->ptype, pinfo->srcport,
         pinfo->destport, 0);
       if (conversation != NULL) {
@@ -11856,7 +11856,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         if(h225ras_call) {
           /* find matching ras_call in list of ras calls with identical keys */
           do {
-            if (pinfo->fd->num == h225ras_call->rsp_num) {
+            if (pinfo->num == h225ras_call->rsp_num) {
               /* We have seen this response before -> stop now with matching ras call */
               break;
             }
@@ -11883,12 +11883,12 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             /* We have not yet seen a response to that call, so
                this must be the first response; remember its
                frame number. */
-            h225ras_call->rsp_num = pinfo->fd->num;
+            h225ras_call->rsp_num = pinfo->num;
           }
           else {
             /* We have seen a response to this call - but was it
                *this* response? */
-            if (h225ras_call->rsp_num != pinfo->fd->num) {
+            if (h225ras_call->rsp_num != pinfo->num) {
               /* No, so it's a duplicate response.
                  Mark it as such. */
               pi->is_duplicate = TRUE;

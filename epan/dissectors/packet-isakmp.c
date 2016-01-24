@@ -1846,7 +1846,7 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
 
   for (ivl = g_list_first(decr->iv_list); ivl != NULL; ivl = g_list_next(ivl)) {
     ivd = (iv_data_t *) ivl->data;
-    if (ivd->frame_num == pinfo->fd->num) {
+    if (ivd->frame_num == pinfo->num) {
       iv_len = ivd->iv_len;
       memcpy(iv, ivd->iv, iv_len);
     }
@@ -1866,7 +1866,7 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
     if (decr->iv_list == NULL) {
       /* First packet */
       ivd = (iv_data_t *)g_malloc(sizeof(iv_data_t));
-      ivd->frame_num = pinfo->fd->num;
+      ivd->frame_num = pinfo->num;
       ivd->iv_len = digest_size;
       decr->last_message_id = hdr->message_id;
       gcry_md_reset(md_ctx);
@@ -1879,7 +1879,7 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
       memcpy(iv, ivd->iv, iv_len);
     } else if (decr->last_cbc_len >= cbc_block_size) {
       ivd = (iv_data_t *)g_malloc(sizeof(iv_data_t));
-      ivd->frame_num = pinfo->fd->num;
+      ivd->frame_num = pinfo->num;
       if (hdr->message_id != decr->last_message_id) {
         if (decr->last_p1_cbc_len == 0) {
           memcpy(decr->last_p1_cbc, decr->last_cbc, cbc_block_size);
@@ -4051,7 +4051,7 @@ dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
   if (fragment_number == total_fragments) {
     if (!pinfo->fd->flags.visited) {
       /* On first pass, get it from the conversation info */
-      conversation_t *p_conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+      conversation_t *p_conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                                                  pinfo->ptype, pinfo->srcport,
                                                  pinfo->destport, 0);
       if (p_conv != NULL) {
@@ -4062,14 +4062,14 @@ dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
             message_next_payload_set = TRUE;
 
             /* Store in table for this frame for future passes */
-            g_hash_table_insert(defrag_next_payload_hash, GUINT_TO_POINTER(pinfo->fd->num), GUINT_TO_POINTER((guint)message_next_payload));
+            g_hash_table_insert(defrag_next_payload_hash, GUINT_TO_POINTER(pinfo->num), GUINT_TO_POINTER((guint)message_next_payload));
           }
         }
       }
     }
     else {
       /* On later passes, look up in hash table by frame number */
-      message_next_payload = (guint8)GPOINTER_TO_UINT(g_hash_table_lookup(defrag_next_payload_hash, GUINT_TO_POINTER(pinfo->fd->num)));
+      message_next_payload = (guint8)GPOINTER_TO_UINT(g_hash_table_lookup(defrag_next_payload_hash, GUINT_TO_POINTER(pinfo->num)));
       if (message_next_payload != 0) {
         message_next_payload_set = TRUE;
       }

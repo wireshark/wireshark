@@ -2350,14 +2350,14 @@ static void store_sequence_analysis_info(guint32 domain_id, guint32 seqnum, unsi
         *result_state = *domain_state;
 
         /* Add into result table for current frame number */
-        g_hash_table_insert(netflow_sequence_analysis_result_hash, GUINT_TO_POINTER(pinfo->fd->num), result_state);
+        g_hash_table_insert(netflow_sequence_analysis_result_hash, GUINT_TO_POINTER(pinfo->num), result_state);
     }
 
     /* Update domain info for the next frame to consult.
        Add flows(data records) for all protocol versions except for 9, which just counts exported frames */
     domain_state->current_sequence_number = seqnum + ((version == 9) ? 1 : new_flows);
     domain_state->sequence_number_set = TRUE;
-    domain_state->current_frame_number = pinfo->fd->num;
+    domain_state->current_frame_number = pinfo->num;
 }
 
 /* Check for result stored indicating that sequence number wasn't as expected, and show in tree */
@@ -2367,7 +2367,7 @@ static void show_sequence_analysis_info(guint32 domain_id, guint32 seqnum,
 {
     /* Look for info stored for this frame */
     netflow_domain_state_t *state = (netflow_domain_state_t *)g_hash_table_lookup(netflow_sequence_analysis_result_hash,
-                                                                                  GUINT_TO_POINTER(pinfo->fd->num));
+                                                                                  GUINT_TO_POINTER(pinfo->num));
     if (state != NULL) {
         proto_item *ti;
 
@@ -3091,7 +3091,7 @@ dissect_v9_v10_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int 
         /* Provide a link back to template frame */
         ti = proto_tree_add_uint(pdutree, hf_template_frame, tvb,
                                  0, 0, tmplt_p->template_frame_number);
-        if (tmplt_p->template_frame_number > pinfo->fd->num) {
+        if (tmplt_p->template_frame_number > pinfo->num) {
             proto_item_append_text(ti, " (received after this frame)");
         }
         PROTO_ITEM_SET_GENERATED(ti);
@@ -7076,10 +7076,10 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
     /* XXX - These IDs are currently hard-coded in procflow.py. */
     if (got_flags == GOT_TCP_UDP && (tmplt_p->tmplt_id == 256 || tmplt_p->tmplt_id == 258)) {
-        add_tcp_process_info(pinfo->fd->num, &local_addr, &remote_addr, local_port, remote_port, uid, pid, uname_str, cmd_str);
+        add_tcp_process_info(pinfo->num, &local_addr, &remote_addr, local_port, remote_port, uid, pid, uname_str, cmd_str);
     }
     if (got_flags == GOT_TCP_UDP && (tmplt_p->tmplt_id == 257 || tmplt_p->tmplt_id == 259)) {
-        add_udp_process_info(pinfo->fd->num, &local_addr, &remote_addr, local_port, remote_port, uid, pid, uname_str, cmd_str);
+        add_udp_process_info(pinfo->num, &local_addr, &remote_addr, local_port, remote_port, uid, pid, uname_str, cmd_str);
     }
 
     return (guint) (offset - orig_offset);
@@ -7362,7 +7362,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
             copy_address_wmem(wmem_file_scope(), &tmplt_p->src_addr, &pinfo->net_src);
             copy_address_wmem(wmem_file_scope(), &tmplt_p->dst_addr, &pinfo->net_dst);
             /* Remember when we saw this template */
-            tmplt_p->template_frame_number = pinfo->fd->num;
+            tmplt_p->template_frame_number = pinfo->num;
             /* Add completed entry into table */
             g_hash_table_insert(v9_v10_tmplt_table, tmplt_p, tmplt_p);
         }
@@ -7462,7 +7462,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
             copy_address_wmem(wmem_file_scope(), &tmplt_p->src_addr, &pinfo->net_src);
             copy_address_wmem(wmem_file_scope(), &tmplt_p->dst_addr, &pinfo->net_dst);
             /* Remember when we saw this template */
-            tmplt_p->template_frame_number = pinfo->fd->num;
+            tmplt_p->template_frame_number = pinfo->num;
             g_hash_table_insert(v9_v10_tmplt_table, tmplt_p, tmplt_p);
 
             /* Create if necessary observation domain entry (for use with sequence analysis) */

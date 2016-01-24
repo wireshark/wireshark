@@ -141,7 +141,7 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    exception_message == NULL ?
 		        dissector_error_nomsg : exception_message);
 		g_warning("Dissector bug, protocol %s, in packet %u: %s",
-		    pinfo->current_proto, pinfo->fd->num,
+		    pinfo->current_proto, pinfo->num,
 		    exception_message == NULL ?
 		        dissector_error_nomsg : exception_message);
 		expert_add_info_format(pinfo, item, &ei_malformed_dissector_bug, "%s",

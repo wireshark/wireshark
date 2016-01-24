@@ -59,7 +59,7 @@ eo_tftp_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
     entry = (export_object_entry_t*)g_malloc(sizeof(export_object_entry_t));
 
     /* Remember which frame had the last block of the file */
-    entry->pkt_num = pinfo->fd->num;
+    entry->pkt_num = pinfo->num;
 
     /* Copy filename */
     entry->filename = g_strdup(g_path_get_basename(eo_info->filename));

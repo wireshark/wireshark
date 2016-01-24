@@ -1206,11 +1206,11 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     /* populate the exchange struct */
     if(!pinfo->fd->flags.visited){
         if(fchdr->fctl&FC_FCTL_EXCHANGE_FIRST){
-            fc_ex->first_exchange_frame=pinfo->fd->num;
+            fc_ex->first_exchange_frame=pinfo->num;
             fc_ex->fc_time = pinfo->abs_ts;
         }
         if(fchdr->fctl&FC_FCTL_EXCHANGE_LAST){
-            fc_ex->last_exchange_frame=pinfo->fd->num;
+            fc_ex->last_exchange_frame=pinfo->num;
         }
     }
 

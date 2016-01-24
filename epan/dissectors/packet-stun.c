@@ -694,13 +694,13 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         if (msg_type_class == REQUEST) {
             /* This is a request */
             if (stun_trans->req_frame == 0) {
-                stun_trans->req_frame=pinfo->fd->num;
+                stun_trans->req_frame=pinfo->num;
             }
 
         } else {
             /* This is a catch-all for all non-request messages */
             if (stun_trans->rep_frame == 0) {
-                stun_trans->rep_frame=pinfo->fd->num;
+                stun_trans->rep_frame=pinfo->num;
             }
 
         }
@@ -733,7 +733,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     stun_tree = proto_item_add_subtree(ti, ett_stun);
 
     if (msg_type_class == REQUEST) {
-        if (stun_trans->req_frame != pinfo->fd->num) {
+        if (stun_trans->req_frame != pinfo->num) {
             proto_item *it;
             it=proto_tree_add_uint(stun_tree, hf_stun_duplicate,
                                    tvb, offset, 0,
@@ -750,7 +750,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     }
     else {
         /* Retransmission control */
-        if (stun_trans->rep_frame != pinfo->fd->num) {
+        if (stun_trans->rep_frame != pinfo->num) {
             proto_item *it;
             it=proto_tree_add_uint(stun_tree, hf_stun_duplicate,
                                    tvb, offset, 0,
@@ -1348,7 +1348,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         /* RFC 6062: after the ConnectionBind exchange, the connection is no longer framed as TURN;
            instead, it is an unframed pass-through.
            Starting from next frame set conversation dissector to data */
-        conversation_set_dissector_from_frame_number(conversation, pinfo->fd->num+1, data_handle);
+        conversation_set_dissector_from_frame_number(conversation, pinfo->num+1, data_handle);
     }
     return reported_length;
 }

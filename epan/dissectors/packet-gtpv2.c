@@ -6066,7 +6066,7 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
     case GTPV2_DELETE_BEARER_REQUEST:
     case GTPV2_DELETE_SESSION_REQUEST:
         gcr.is_request = TRUE;
-        gcr.req_frame = pinfo->fd->num;
+        gcr.req_frame = pinfo->num;
         gcr.rep_frame = 0;
         break;
     case GTPV2_CREATE_SESSION_RESPONSE:
@@ -6077,7 +6077,7 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
     case GTPV2_DELETE_SESSION_RESPONSE:
         gcr.is_request = FALSE;
         gcr.req_frame = 0;
-        gcr.rep_frame = pinfo->fd->num;
+        gcr.rep_frame = pinfo->num;
         break;
     default:
         gcr.is_request = FALSE;
@@ -6110,7 +6110,7 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
                 gcrp = wmem_new(wmem_file_scope(), gtpv2_msg_hash_t);
             }
             gcrp->seq_nr = seq_nr;
-            gcrp->req_frame = pinfo->fd->num;
+            gcrp->req_frame = pinfo->num;
             gcrp->req_time = pinfo->abs_ts;
             gcrp->rep_frame = 0;
             gcrp->msgtype = msgtype;
@@ -6130,7 +6130,7 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
             if (gcrp) {
                 if (!gcrp->rep_frame) {
                     wmem_map_remove(gtpv2_info->unmatched, gcrp);
-                    gcrp->rep_frame = pinfo->fd->num;
+                    gcrp->rep_frame = pinfo->num;
                     gcrp->is_request = FALSE;
                     wmem_map_insert(gtpv2_info->matched, gcrp, gcrp);
                 }

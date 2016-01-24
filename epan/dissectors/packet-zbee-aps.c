@@ -1310,7 +1310,7 @@ dissect_zbee_aps_transport_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
                     memcmp( ((key_record_t *)((GSList *)(*nwk_keyring))->data)->key, &key,
                         ZBEE_APS_CMD_KEY_LENGTH) ) {
                 /* Store a new or different key in the key ring */
-                key_record.frame_num = pinfo->fd->num;
+                key_record.frame_num = pinfo->num;
                 key_record.label = NULL;
                 memcpy(&key_record.key, &key, ZBEE_APS_CMD_KEY_LENGTH);
                 *nwk_keyring = g_slist_prepend(*nwk_keyring, g_memdup(&key_record, sizeof(key_record_t)));

@@ -850,8 +850,8 @@ iso14443_get_transaction(packet_info *pinfo, proto_tree *tree)
     if (pinfo->p2p_dir == P2P_DIR_SENT) {
         if (PINFO_FD_VISITED(pinfo)) {
             iso14443_trans = (iso14443_transaction_t *)wmem_tree_lookup32(
-                    transactions, PINFO_FD_NUM(pinfo));
-            if (iso14443_trans && iso14443_trans->rqst_frame==PINFO_FD_NUM(pinfo) &&
+                    transactions, pinfo->num);
+            if (iso14443_trans && iso14443_trans->rqst_frame==pinfo->num &&
                     iso14443_trans->resp_frame!=0) {
                it = proto_tree_add_uint(tree, hf_iso14443_resp_in,
                        NULL, 0, 0, iso14443_trans->resp_frame);
@@ -860,7 +860,7 @@ iso14443_get_transaction(packet_info *pinfo, proto_tree *tree)
         }
         else {
             iso14443_trans = wmem_new(wmem_file_scope(), iso14443_transaction_t);
-            iso14443_trans->rqst_frame = PINFO_FD_NUM(pinfo);
+            iso14443_trans->rqst_frame = pinfo->num;
             iso14443_trans->resp_frame = 0;
             /* iso14443_trans->ctrl = ctrl; */
             wmem_tree_insert32(transactions,
@@ -869,13 +869,13 @@ iso14443_get_transaction(packet_info *pinfo, proto_tree *tree)
     }
     else if (pinfo->p2p_dir == P2P_DIR_RECV) {
         iso14443_trans = (iso14443_transaction_t *)wmem_tree_lookup32_le(
-                transactions, PINFO_FD_NUM(pinfo));
+                transactions, pinfo->num);
         if (iso14443_trans && iso14443_trans->resp_frame==0) {
             /* there's a pending request, this packet is the response */
-            iso14443_trans->resp_frame = PINFO_FD_NUM(pinfo);
+            iso14443_trans->resp_frame = pinfo->num;
         }
 
-        if (iso14443_trans && iso14443_trans->resp_frame == PINFO_FD_NUM(pinfo)) {
+        if (iso14443_trans && iso14443_trans->resp_frame == pinfo->num) {
             it = proto_tree_add_uint(tree, hf_iso14443_resp_to,
                     NULL, 0, 0, iso14443_trans->rqst_frame);
             PROTO_ITEM_SET_GENERATED(it);

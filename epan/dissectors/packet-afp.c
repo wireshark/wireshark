@@ -5141,7 +5141,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		else
 			request_val->spotlight_req_command = -1;
 
-		request_val->frame_req = pinfo->fd->num;
+		request_val->frame_req = pinfo->num;
 		request_val->frame_res = 0;
 		request_val->req_time=pinfo->abs_ts;
 
@@ -5411,7 +5411,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		 * Set "frame_res" if it's not already known.
 		 */
 		if (request_val->frame_res == 0)
-			request_val->frame_res = pinfo->fd->num;
+			request_val->frame_res = pinfo->num;
 
 		/*
 		 * Tap the packet before the dissectors are called so we

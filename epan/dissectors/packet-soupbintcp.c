@@ -242,7 +242,7 @@ dissect_soupbintcp_common(
         next_seq = atoi(tmp_buf);
 
         /* Create new conversation for this session */
-        conv = conversation_new(PINFO_FD_NUM(pinfo),
+        conv = conversation_new(pinfo->num,
                                 &pinfo->src,
                                 &pinfo->dst,
                                 pinfo->ptype,
@@ -260,7 +260,7 @@ dissect_soupbintcp_common(
     if (pkt_type == 'S') {
         if (!PINFO_FD_VISITED(pinfo)) {
             /* Get next expected sequence number from conversation */
-            conv = find_conversation(PINFO_FD_NUM(pinfo),
+            conv = find_conversation(pinfo->num,
                                      &pinfo->src,
                                      &pinfo->dst,
                                      pinfo->ptype,

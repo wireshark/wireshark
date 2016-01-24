@@ -459,18 +459,18 @@ find_or_create_call_info_circ(packet_info * pinfo, circuit_type ctype, guint32 c
     circuit_t *circ = NULL;
 
     if(ctype != CT_NONE)
-        circ = find_circuit( ctype, circuit_id, pinfo->fd->num );
+        circ = find_circuit( ctype, circuit_id, pinfo->num );
     if(circ == NULL)
         return NULL;
 
     datax = (h223_call_info *)circuit_get_proto_data(circ, proto_h223);
 
     if( datax == NULL ) {
-        datax = create_call_info(pinfo->fd->num);
+        datax = create_call_info(pinfo->num);
 
 #ifdef DEBUG_H223
         g_debug("%u: Created new call %p for circuit %p ctype %d, id %u",
-                pinfo->fd->num, datax, circ, type, circuit_id);
+                pinfo->num, datax, circ, type, circuit_id);
 #endif
         circuit_add_proto_data(circ, proto_h223, datax);
     }
@@ -490,7 +490,7 @@ find_or_create_call_info_conv(packet_info * pinfo)
     conversation_t *conv;
 
     /* assume we're running atop TCP or RTP; use the conversation support */
-    conv = find_conversation( pinfo->fd->num,
+    conv = find_conversation( pinfo->num,
                               &pinfo->src,&pinfo->dst,
                               pinfo->ptype,
                               pinfo->srcport,pinfo->destport, 0 );
@@ -509,7 +509,7 @@ find_or_create_call_info_conv(packet_info * pinfo)
          *
          * Look for another converstation, going in the opposite direction.
          */
-        conv2 = find_conversation( pinfo->fd->num,
+        conv2 = find_conversation( pinfo->num,
                                   &pinfo->dst,&pinfo->src,
                                   pinfo->ptype,
                                   pinfo->destport,pinfo->srcport, 0 );
@@ -519,7 +519,7 @@ find_or_create_call_info_conv(packet_info * pinfo)
         if(datax != NULL) {
 #ifdef DEBUG_H223
             g_debug("%u: Identified conv %p as reverse of conv %p with call %p and type=%u src=%u.%u.%u.%u:%u dst=%u.%u.%u.%u:%u",
-                    pinfo->fd->num, conv, conv2, datax, pinfo->ptype,
+                    pinfo->num, conv, conv2, datax, pinfo->ptype,
                     pinfo->dst.data[0], pinfo->dst.data[1], pinfo->dst.data[2], pinfo->dst.data[3],
                     pinfo->destport,
                     pinfo->src.data[0], pinfo->src.data[1], pinfo->src.data[2], pinfo->src.data[3],
@@ -532,11 +532,11 @@ find_or_create_call_info_conv(packet_info * pinfo)
     /* we still haven't found any call data - create a new one for this
      * conversation */
     if(datax == NULL) {
-        datax = create_call_info(pinfo->fd->num);
+        datax = create_call_info(pinfo->num);
 
 #ifdef DEBUG_H223
         g_debug("%u: Created new call %p for conv %p type=%u src=%u.%u.%u.%u:%u dst=%u.%u.%u.%u:%u",
-                pinfo->fd->num, datax, conv, pinfo->ptype,
+                pinfo->num, datax, conv, pinfo->ptype,
                 pinfo->src.data[0], pinfo->src.data[1], pinfo->src.data[2], pinfo->src.data[3],
                 pinfo->srcport,
                 pinfo->dst.data[0], pinfo->dst.data[1], pinfo->dst.data[2], pinfo->dst.data[3],
@@ -575,14 +575,14 @@ find_or_create_call_info ( packet_info * pinfo, circuit_type ctype, guint32 circ
 static void
 h223_set_mc( packet_info* pinfo, guint8 mc, h223_mux_element* me, circuit_type ctype, guint32 circuit_id )
 {
-    circuit_t *circ = find_circuit( ctype, circuit_id, pinfo->fd->num );
+    circuit_t *circ = find_circuit( ctype, circuit_id, pinfo->num );
     h223_vc_info* vc_info;
 
     /* if this h245 pdu packet came from an h223 circuit, add the details on
      * the new mux entry */
     if(circ) {
         vc_info = (h223_vc_info *)circuit_get_proto_data(circ, proto_h223);
-        add_h223_mux_element( &(vc_info->call_info->direction_data[pinfo->p2p_dir ? 0 : 1]), mc, me, pinfo->fd->num );
+        add_h223_mux_element( &(vc_info->call_info->direction_data[pinfo->p2p_dir ? 0 : 1]), mc, me, pinfo->num );
     }
 }
 
@@ -590,14 +590,14 @@ h223_set_mc( packet_info* pinfo, guint8 mc, h223_mux_element* me, circuit_type c
 static void
 h223_add_lc( packet_info* pinfo, guint16 lc, h223_lc_params* params, circuit_type ctype, guint32 circuit_id )
 {
-    circuit_t *circ = find_circuit( ctype, circuit_id, pinfo->fd->num );
+    circuit_t *circ = find_circuit( ctype, circuit_id, pinfo->num );
     h223_vc_info* vc_info;
 
     /* if this h245 pdu packet came from an h223 circuit, add the details on
      * the new channel */
     if(circ) {
         vc_info = (h223_vc_info *)circuit_get_proto_data(circ, proto_h223);
-        init_logical_channel( pinfo->fd->num, vc_info->call_info, lc, pinfo->p2p_dir, params );
+        init_logical_channel( pinfo->num, vc_info->call_info, lc, pinfo->p2p_dir, params );
     }
 }
 
@@ -733,7 +733,7 @@ dissect_mux_al_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *vc_tree,
  * tvb          buffer containing the MUX-PDU fragment
  * pinfo        info on the packet containing the last fragment of the MUX-PDU
  * pkt_offset   offset within the block from the superdissector where the
- *                fragment starts (must increase monotonically for constant pinfo->fd->num)
+ *                fragment starts (must increase monotonically for constant pinfo->num)
  * pdu_tree     dissection tree for the PDU; a single item will be added (with
  *              its own subtree)
  * vc           VC for this SDU
@@ -754,7 +754,7 @@ dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb, packet_info *pinfo,
 
     TRY {
         guint32 circuit_id = pinfo->circuit_id;
-        circuit_t *subcircuit=find_circuit(ctype,circuit_id,pinfo->fd->num);
+        circuit_t *subcircuit=find_circuit(ctype,circuit_id,pinfo->num);
         proto_tree *vc_tree = NULL;
         proto_item *vc_item;
         h223_vc_info *vc_info = NULL;
@@ -766,12 +766,12 @@ dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb, packet_info *pinfo,
         }
 
         if( subcircuit == NULL ) {
-            g_message( "Frame %d: Subcircuit id %d not found for call %p VC %d", pinfo->fd->num,
+            g_message( "Frame %d: Subcircuit id %d not found for call %p VC %d", pinfo->num,
                        circuit_id, (void *)call_info, vc );
         } else {
             vc_info = (h223_vc_info *)circuit_get_proto_data(subcircuit, proto_h223);
             if( vc_info != NULL ) {
-                lc_params = find_h223_lc_params( vc_info, pinfo->p2p_dir, pinfo->fd->num );
+                lc_params = find_h223_lc_params( vc_info, pinfo->p2p_dir, pinfo->num );
             }
         }
 
@@ -784,19 +784,19 @@ dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb, packet_info *pinfo,
                     substream = find_stream_circ(subcircuit,pinfo->p2p_dir);
                     if(substream == NULL )
                         substream = stream_new_circ(subcircuit,pinfo->p2p_dir);
-                    frag = stream_find_frag(substream,pinfo->fd->num,pkt_offset);
+                    frag = stream_find_frag(substream,pinfo->num,pkt_offset);
 
                     if(frag == NULL ) {
 #ifdef DEBUG_H223
                         g_debug("%d: New H.223 VC fragment: Parent circuit %d; subcircuit %d; offset %d; len %d, end %d",
-                                pinfo->fd->num, orig_circuit, circuit_id, pkt_offset, tvb_reported_length(next_tvb), end_of_mux_sdu);
+                                pinfo->num, orig_circuit, circuit_id, pkt_offset, tvb_reported_length(next_tvb), end_of_mux_sdu);
 #endif
-                        frag = stream_add_frag(substream,pinfo->fd->num,pkt_offset,
+                        frag = stream_add_frag(substream,pinfo->num,pkt_offset,
                                                next_tvb,pinfo,!end_of_mux_sdu);
                     } else {
 #ifdef DEBUG_H223
                         g_debug("%d: Found H.223 VC fragment: Parent circuit %d; subcircuit %d; offset %d; len %d, end %d",
-                                pinfo->fd->num, orig_circuit, circuit_id, pkt_offset, tvb_reported_length(next_tvb), end_of_mux_sdu);
+                                pinfo->num, orig_circuit, circuit_id, pkt_offset, tvb_reported_length(next_tvb), end_of_mux_sdu);
 #endif
                     }
 
@@ -851,7 +851,7 @@ mux_element_sublist_size( h223_mux_element* me )
  * pinfo        info on the packet containing the last fragment of the MUX-PDU
  * pkt_offset   offset within the block from the superdissector where the
  *                MUX-PDU starts (must increase monotonically for constant
- *                pinfo->fd->num)
+ *                pinfo->num)
  * pdu_tree     dissection tree for the PDU
  * call_info    data structure for h223 call
  * me           top of mux list
@@ -908,7 +908,7 @@ dissect_mux_payload_by_me_list( tvbuff_t *tvb, packet_info *pinfo,
  * pinfo        info on the packet containing the last fragment of the MUX-PDU
  * pkt_offset   offset within the block from the superdissector where the
  *                MUX-PDU starts (must increase monotonically for constant
- *                pinfo->fd->num)
+ *                pinfo->num)
  * pdu_tree     dissection tree for the PDU
  * call_info    data structure for h223 call
  * mc           multiplex code for this PDU
@@ -921,7 +921,7 @@ dissect_mux_payload( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
 {
     guint32 len = tvb_reported_length(tvb);
 
-    h223_mux_element* me = find_h223_mux_element( &(call_info->direction_data[pinfo->p2p_dir ? 0 : 1]), mc, pinfo->fd->num, pkt_offset );
+    h223_mux_element* me = find_h223_mux_element( &(call_info->direction_data[pinfo->p2p_dir ? 0 : 1]), mc, pinfo->num, pkt_offset );
 
     if( me ) {
         dissect_mux_payload_by_me_list( tvb, pinfo, pkt_offset, pdu_tree, call_info, me, 0, endOfMuxSdu, ctype, circuit_id );
@@ -943,7 +943,7 @@ dissect_mux_payload( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
  * pinfo        packet info for packet containing the end of the mux-pdu
  * pkt_offset   offset within the block from the superdissector where the
  *                MUX-PDU starts (must increase monotonically for constant
- *                pinfo->fd->num)
+ *                pinfo->num)
  * h223_tree    dissection tree for h223 protocol; a single item will be added
  *              (with a sub-tree)
  * call_info    h223 info structure for this h223 call
@@ -969,7 +969,7 @@ dissect_mux_pdu( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
 
 #ifdef DEBUG_H223_FRAGMENTATION
     g_debug("%u: dissecting complete H.223 MUX-PDU, pkt_offset %u, len %u",
-            pinfo->fd->num, pkt_offset, tvb_reported_length(tvb));
+            pinfo->num, pkt_offset, tvb_reported_length(tvb));
 #endif
 
     switch(call_info->h223_level) {
@@ -1207,7 +1207,7 @@ dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset,
 
 #ifdef DEBUG_H223_FRAGMENTATION
     g_debug("%d: dissecting H.223 PDU, start_offset %u, %u bytes left",
-            pinfo->fd->num,start_offset, tvb_reported_length_remaining( tvb, start_offset ));
+            pinfo->num,start_offset, tvb_reported_length_remaining( tvb, start_offset ));
 #endif
 
     while( more_frags && offset < tvb_reported_length( tvb )) {

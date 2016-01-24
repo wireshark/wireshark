@@ -123,8 +123,8 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             if (PINFO_FD_VISITED(pinfo)) {
                 /* we've already dissected the receiver's response */
                 hdcp_trans = (hdcp_transaction_t *)wmem_tree_lookup32(
-                        transactions, PINFO_FD_NUM(pinfo));
-                if (hdcp_trans && hdcp_trans->rqst_frame==PINFO_FD_NUM(pinfo) &&
+                        transactions, pinfo->num);
+                if (hdcp_trans && hdcp_trans->rqst_frame==pinfo->num &&
                         hdcp_trans->resp_frame!=0) {
 
                    it = proto_tree_add_uint_format(hdcp_tree, hf_hdcp_resp_in,
@@ -140,7 +140,7 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             else {
                 /* we've not yet dissected the response */
                 hdcp_trans = wmem_new(wmem_file_scope(), hdcp_transaction_t);
-                hdcp_trans->rqst_frame = PINFO_FD_NUM(pinfo);
+                hdcp_trans->rqst_frame = pinfo->num;
                 hdcp_trans->resp_frame = 0;
                 hdcp_trans->rqst_type = reg;
                 wmem_tree_insert32(transactions,
@@ -172,14 +172,14 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         /* transmitter reads from receiver */
 
         hdcp_trans = (hdcp_transaction_t *)wmem_tree_lookup32_le(
-                transactions, PINFO_FD_NUM(pinfo));
+                transactions, pinfo->num);
         if (hdcp_trans) {
             if (hdcp_trans->resp_frame==0) {
                 /* there's a pending request, this packet is the response */
-                hdcp_trans->resp_frame = PINFO_FD_NUM(pinfo);
+                hdcp_trans->resp_frame = pinfo->num;
             }
 
-            if (hdcp_trans->resp_frame== PINFO_FD_NUM(pinfo)) {
+            if (hdcp_trans->resp_frame== pinfo->num) {
                 /* we found the request that corresponds to our response */
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "send %s",
                         val_to_str_const(hdcp_trans->rqst_type,
@@ -231,7 +231,7 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             }
         }
 
-        if (!hdcp_trans || hdcp_trans->resp_frame!=PINFO_FD_NUM(pinfo)) {
+        if (!hdcp_trans || hdcp_trans->resp_frame!=pinfo->num) {
             /* the packet isn't a response to a request from the
              * transmitter; it must be a link verification */
             if (tvb_reported_length_remaining(

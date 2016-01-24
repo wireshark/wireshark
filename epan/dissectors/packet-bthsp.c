@@ -521,7 +521,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             adapter_id   = adapter_id;
             chandle      = chandle;
             dlci         = dlci;
-            frame_number = pinfo->fd->num;
+            frame_number = pinfo->num;
 
 
             key[0].length = 1;
@@ -543,7 +543,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             cmd->chandle      = chandle;
             cmd->dlci         = dlci;
 
-            cmd->frame_number = pinfo->fd->num;
+            cmd->frame_number = pinfo->num;
             cmd->status = STATUS_NO_RESPONSE;
             cmd->time = pinfo->abs_ts;
             cmd->at_command
@@ -718,7 +718,7 @@ dissect_bthsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         service_type    = BTSDP_RFCOMM_PROTOCOL_UUID;
         service_channel = dlci >> 1;
-        frame_number    = pinfo->fd->num;
+        frame_number    = pinfo->num;
 
         key[0].length = 1;
         key[0].key = &interface_id;
@@ -776,7 +776,7 @@ dissect_bthsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     /* save fragments */
     if (!pinfo->fd->flags.visited) {
-        frame_number = pinfo->fd->num - 1;
+        frame_number = pinfo->num - 1;
 
         key[0].length = 1;
         key[0].key = &interface_id;
@@ -803,7 +803,7 @@ dissect_bthsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             previous_fragment = NULL;
         }
 
-        frame_number = pinfo->fd->num;
+        frame_number = pinfo->num;
 
         key[0].length = 1;
         key[0].key = &interface_id;
@@ -856,7 +856,7 @@ dissect_bthsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 reassemble_start_offset = i_length + 1;
             }
 
-            frame_number = pinfo->fd->num;
+            frame_number = pinfo->num;
 
             key[0].length = 1;
             key[0].key = &interface_id;
@@ -918,7 +918,7 @@ dissect_bthsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     /* recover reassembled payload */
-    frame_number = pinfo->fd->num;
+    frame_number = pinfo->num;
 
     key[0].length = 1;
     key[0].key = &interface_id;

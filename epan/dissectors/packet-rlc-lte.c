@@ -498,7 +498,7 @@ static void reassembly_record(channel_sequence_analysis_status *status, packet_i
 {
     /* Just store existing info in hash table */
     g_hash_table_insert(reassembly_report_hash,
-                        get_report_hash_key(SN, pinfo->fd->num, p_rlc_lte_info, TRUE),
+                        get_report_hash_key(SN, pinfo->num, p_rlc_lte_info, TRUE),
                         status->reassembly_info);
 }
 
@@ -851,7 +851,7 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
                         key[0].length = 1;
                         key[0].key = &id;
                         key[1].length = 1;
-                        key[1].key = &PINFO_FD_NUM(pinfo);
+                        key[1].key = &pinfo->num;
                         key[2].length = 0;
                         key[2].key = NULL;
 
@@ -1401,7 +1401,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
     if (pinfo->fd->flags.visited) {
         p_report_in_frame = (sequence_analysis_report*)g_hash_table_lookup(sequence_analysis_report_hash,
                                                                            get_report_hash_key(sequenceNumber,
-                                                                                               pinfo->fd->num,
+                                                                                               pinfo->num,
                                                                                                p_rlc_lte_info,
                                                                                                FALSE));
         if (p_report_in_frame != NULL) {
@@ -1503,7 +1503,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                     p_report_in_frame->previousSegmentIncomplete = p_channel_status->previousSegmentIncomplete;
 
                     /* Update channel status to remember *this* frame */
-                    p_channel_status->previousFrameNum = pinfo->fd->num;
+                    p_channel_status->previousFrameNum = pinfo->num;
                     p_channel_status->previousSequenceNumber = sequenceNumber;
                     p_channel_status->previousSegmentIncomplete = !last_includes_end;
                 }
@@ -1523,13 +1523,13 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                 p_report_in_frame->previousSegmentIncomplete = p_channel_status->previousSegmentIncomplete;
 
                 /* Update channel status to remember *this* frame */
-                p_channel_status->previousFrameNum = pinfo->fd->num;
+                p_channel_status->previousFrameNum = pinfo->num;
                 p_channel_status->previousSequenceNumber = sequenceNumber;
                 p_channel_status->previousSegmentIncomplete = !last_includes_end;
 
                 if (p_channel_status->reassembly_info) {
                     /* Add next segment to reassembly info */
-                    reassembly_add_segment(p_channel_status, sequenceNumber, pinfo->fd->num,
+                    reassembly_add_segment(p_channel_status, sequenceNumber, pinfo->num,
                                            tvb, firstSegmentOffset, firstSegmentLength);
 
                     /* The end of existing reassembly? */
@@ -1550,7 +1550,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                     if (global_rlc_lte_reassembly) {
                         reassembly_reset(p_channel_status);
                         reassembly_add_segment(p_channel_status, sequenceNumber,
-                                               pinfo->fd->num,
+                                               pinfo->num,
                                                tvb, lastSegmentOffset, lastSegmentLength);
                     }
                 }
@@ -1574,7 +1574,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                     /* It really shouldn't be NULL... */
                     if (p_previous_report != NULL) {
                         /* Point it forward to this one */
-                        p_previous_report->nextFrameNum = pinfo->fd->num;
+                        p_previous_report->nextFrameNum = pinfo->num;
                     }
                 }
             }
@@ -1627,14 +1627,14 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
 
                 /* Update channel status */
                 p_channel_status->previousSequenceNumber = sequenceNumber;
-                p_channel_status->previousFrameNum = pinfo->fd->num;
+                p_channel_status->previousFrameNum = pinfo->num;
                 p_channel_status->previousSegmentIncomplete = !last_includes_end;
 
 
                 if (p_channel_status->reassembly_info) {
 
                     /* Add next segment to reassembly info */
-                    reassembly_add_segment(p_channel_status, sequenceNumber, pinfo->fd->num,
+                    reassembly_add_segment(p_channel_status, sequenceNumber, pinfo->num,
                                            tvb, firstSegmentOffset, firstSegmentLength);
 
                     /* The end of existing reassembly? */
@@ -1655,7 +1655,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                     if (global_rlc_lte_reassembly) {
                         reassembly_reset(p_channel_status);
                         reassembly_add_segment(p_channel_status, sequenceNumber,
-                                               pinfo->fd->num,
+                                               pinfo->num,
                                                tvb, lastSegmentOffset, lastSegmentLength);
                     }
                 }
@@ -1671,7 +1671,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                     /* It really shouldn't be NULL... */
                     if (p_previous_report != NULL) {
                         /* Point it forward to this one */
-                        p_previous_report->nextFrameNum = pinfo->fd->num;
+                        p_previous_report->nextFrameNum = pinfo->num;
                     }
                 }
 
@@ -1691,7 +1691,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
 
                 /* Really should be nothing to update... */
                 p_channel_status->previousSequenceNumber = sequenceNumber;
-                p_channel_status->previousFrameNum = pinfo->fd->num;
+                p_channel_status->previousFrameNum = pinfo->num;
                 p_channel_status->previousSegmentIncomplete = !last_includes_end;
             }
 
@@ -1718,7 +1718,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                     /* Update channel state - forget about missed SNs */
                     p_report_in_frame->sequenceExpected = expectedSequenceNumber;
                     p_channel_status->previousSequenceNumber = sequenceNumber;
-                    p_channel_status->previousFrameNum = pinfo->fd->num;
+                    p_channel_status->previousFrameNum = pinfo->num;
                     p_channel_status->previousSegmentIncomplete = !last_includes_end;
                 }
             }
@@ -1731,7 +1731,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
 
     /* Associate with this frame number */
     g_hash_table_insert(sequence_analysis_report_hash,
-                        get_report_hash_key(sequenceNumber, pinfo->fd->num, p_rlc_lte_info, TRUE),
+                        get_report_hash_key(sequenceNumber, pinfo->num, p_rlc_lte_info, TRUE),
                         p_report_in_frame);
 
     /* Add state report for this frame into tree */
@@ -1811,7 +1811,7 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
     /* If find state_report_in_frame already, use that and get out */
     if (pinfo->fd->flags.visited) {
         p_report_in_frame = (channel_repeated_nack_report*)g_hash_table_lookup(repeated_nack_report_hash,
-                                                                               get_report_hash_key(0, pinfo->fd->num,
+                                                                               get_report_hash_key(0, pinfo->num,
                                                                                                    p_rlc_lte_info, FALSE));
         if (p_report_in_frame != NULL) {
             addChannelRepeatedNACKInfo(p_report_in_frame, p_rlc_lte_info,
@@ -1885,7 +1885,7 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
 
         /* Associate with this frame number */
         g_hash_table_insert(repeated_nack_report_hash,
-                            get_report_hash_key(0, pinfo->fd->num,
+                            get_report_hash_key(0, pinfo->num,
                                                 p_rlc_lte_info, TRUE),
                             p_report_in_frame);
 
@@ -1895,7 +1895,7 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
     }
 
     /* Save frame number for next comparison */
-    p_channel_status->frameNum = pinfo->fd->num;
+    p_channel_status->frameNum = pinfo->num;
 }
 
 /* Check that the ACK is consistent with data the expected sequence number
@@ -1914,7 +1914,7 @@ static void checkChannelACKWindow(guint16 ack_sn,
     /* If find stat_report_in_frame already, use that and get out */
     if (pinfo->fd->flags.visited) {
         p_report_in_frame = (sequence_analysis_report*)g_hash_table_lookup(sequence_analysis_report_hash,
-                                                                           get_report_hash_key(0, pinfo->fd->num,
+                                                                           get_report_hash_key(0, pinfo->num,
                                                                                                p_rlc_lte_info,
                                                                                                FALSE));
         if (p_report_in_frame != NULL) {
@@ -1959,7 +1959,7 @@ static void checkChannelACKWindow(guint16 ack_sn,
 
         /* Associate with this frame number */
         g_hash_table_insert(sequence_analysis_report_hash,
-                            get_report_hash_key(0, pinfo->fd->num,
+                            get_report_hash_key(0, pinfo->num,
                                                 p_rlc_lte_info, TRUE),
                             p_report_in_frame);
 
@@ -2226,7 +2226,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
     /* Data                              */
 
     reassembly_info = (rlc_channel_reassembly_info *)g_hash_table_lookup(reassembly_report_hash,
-                                                                         get_report_hash_key((guint16)sn, pinfo->fd->num,
+                                                                         get_report_hash_key((guint16)sn, pinfo->num,
                                                                                              p_rlc_lte_info, FALSE));
 
     if (s_number_of_extensions > 0) {
@@ -2548,7 +2548,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
             key[0].length = 1;
             key[0].key = &id;
             key[1].length = 1;
-            key[1].key = &PINFO_FD_NUM(pinfo);
+            key[1].key = &pinfo->num;
             key[2].length = 0;
             key[2].key = NULL;
             params = (rlc_ue_parameters *)wmem_tree_lookup32_array_le(ue_parameters_tree, key);
@@ -2637,7 +2637,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     if (!first_includes_start) {
         reassembly_info = (rlc_channel_reassembly_info *)g_hash_table_lookup(reassembly_report_hash,
                                                                              get_report_hash_key((guint16)sn,
-                                                                                                 pinfo->fd->num,
+                                                                                                 pinfo->num,
                                                                                                  p_rlc_lte_info,
                                                                                                  FALSE));
     }
@@ -3004,7 +3004,7 @@ void set_rlc_lte_drb_pdcp_seqnum_length(packet_info *pinfo, guint16 ueid, guint8
     key[0].length = 1;
     key[0].key = &id;
     key[1].length = 1;
-    key[1].key = &PINFO_FD_NUM(pinfo);
+    key[1].key = &pinfo->num;
     key[2].length = 0;
     key[2].key = NULL;
 
@@ -3037,7 +3037,7 @@ void set_rlc_lte_drb_li_field(packet_info *pinfo, guint16 ueid, guint8 drbid,
     key[0].length = 1;
     key[0].key = &id;
     key[1].length = 1;
-    key[1].key = &PINFO_FD_NUM(pinfo);
+    key[1].key = &pinfo->num;
     key[2].length = 0;
     key[2].key = NULL;
 

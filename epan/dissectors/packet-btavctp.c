@@ -238,7 +238,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         wmem_tree_key_t key[6];
         guint32         frame_number;
 
-        frame_number = pinfo->fd->num;
+        frame_number = pinfo->num;
 
         key[0].length = 1;
         key[0].key = &interface_id;
@@ -308,7 +308,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 fragments->chandle      = chandle;
                 fragments->psm          = psm;
 
-                frame_number = pinfo->fd->num;
+                frame_number = pinfo->num;
 
                 key[0].length = 1;
                 key[0].key = &interface_id;
@@ -352,7 +352,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 fragments->chandle      = chandle;
                 fragments->psm          = psm;
 
-                frame_number = pinfo->fd->num;
+                frame_number = pinfo->num;
 
                 key[0].length = 1;
                 key[0].key = &interface_id;

@@ -1271,7 +1271,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				   to which the call was sent. */
 				if (pinfo->ptype == PT_TCP)
 				{
-					conversation = find_conversation(pinfo->fd->num, &pinfo->src,
+					conversation = find_conversation(pinfo->num, &pinfo->src,
 					                                 &pinfo->dst, pinfo->ptype, pinfo->srcport,
 					                                 pinfo->destport, 0);
 				}
@@ -1282,7 +1282,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					 * pointer for the second address argument even
 					 * if you do that.
 					 */
-					conversation = find_conversation(pinfo->fd->num, &null_address,
+					conversation = find_conversation(pinfo->num, &null_address,
 					                                 &pinfo->dst, pinfo->ptype, pinfo->srcport,
 					                                 pinfo->destport, 0);
 				}
@@ -1318,13 +1318,13 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 							/* We have not yet seen a response to that call, so
 							   this must be the first response; remember its
 							   frame number. */
-							mgcp_call->rsp_num = pinfo->fd->num;
+							mgcp_call->rsp_num = pinfo->num;
 						}
 						else
 						{
 							/* We have seen a response to this call - but was it
 							   *this* response? (disregard provisional responses) */
-							if ((mgcp_call->rsp_num != pinfo->fd->num) &&
+							if ((mgcp_call->rsp_num != pinfo->num) &&
 							    (mi->rspcode >= 200) &&
 							    (mi->rspcode == mgcp_call->rspcode))
 							{
@@ -1374,7 +1374,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				 */
 				if (pinfo->ptype == PT_TCP)
 				{
-					conversation = find_conversation(pinfo->fd->num, &pinfo->src,
+					conversation = find_conversation(pinfo->num, &pinfo->src,
 					                                 &pinfo->dst, pinfo->ptype, pinfo->srcport,
 					                                 pinfo->destport, 0);
 				}
@@ -1386,7 +1386,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					 * pointer for the second address argument even
 					 * if you do that.
 					 */
-					conversation = find_conversation(pinfo->fd->num, &pinfo->src,
+					conversation = find_conversation(pinfo->num, &pinfo->src,
 					                                 &null_address, pinfo->ptype, pinfo->srcport,
 					                                 pinfo->destport, 0);
 				}
@@ -1395,13 +1395,13 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					/* It's not part of any conversation - create a new one. */
 					if (pinfo->ptype == PT_TCP)
 					{
-						conversation = conversation_new(pinfo->fd->num, &pinfo->src,
+						conversation = conversation_new(pinfo->num, &pinfo->src,
 						                                &pinfo->dst, pinfo->ptype, pinfo->srcport,
 						                                pinfo->destport, 0);
 					}
 					else
 					{
-						conversation = conversation_new(pinfo->fd->num, &pinfo->src,
+						conversation = conversation_new(pinfo->num, &pinfo->src,
 						                                &null_address, pinfo->ptype, pinfo->srcport,
 						                                pinfo->destport, 0);
 					}
@@ -1418,7 +1418,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					/* We've seen a request with this TRANSID, with the same
 					   source and destination, before - but was it
 					   *this* request? */
-					if (pinfo->fd->num != mgcp_call->req_num)
+					if (pinfo->num != mgcp_call->req_num)
 					{
 						/* No, so it's a duplicate request. Mark it as such. */
 						mi->is_duplicate = TRUE;
@@ -1448,7 +1448,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					new_mgcp_call_key    = (mgcp_call_info_key *)wmem_alloc(wmem_file_scope(), sizeof(*new_mgcp_call_key));
 					*new_mgcp_call_key   = mgcp_call_key;
 					mgcp_call            = (mgcp_call_t *)wmem_alloc(wmem_file_scope(), sizeof(*mgcp_call));
-					mgcp_call->req_num   = pinfo->fd->num;
+					mgcp_call->req_num   = pinfo->num;
 					mgcp_call->rsp_num   = 0;
 					mgcp_call->transid   = mi->transid;
 					mgcp_call->responded = FALSE;

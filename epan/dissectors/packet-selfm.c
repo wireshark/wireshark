@@ -2416,7 +2416,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
         if ((CMD_FM_CONFIG == msg_type) || (CMD_DFM_CONFIG == msg_type) || (CMD_PDFM_CONFIG == msg_type)) {
             /* Fill the fm_config_frame */
             fm_config_frame *frame_ptr = fmconfig_frame_fast(selfm_tvb);
-            frame_ptr->fnum = pinfo->fd->num;
+            frame_ptr->fnum = pinfo->num;
             wmem_list_prepend(fm_conv_data->fm_config_frames, frame_ptr);
         }
 
@@ -2445,7 +2445,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
             /* Enter the single frame multiple times, retrieving a single dataitem per entry */
             for (cnt = 1; (cnt <= num_items); cnt++) {
                 fastmsg_dataitem *dataitem_ptr = fastmsg_dataitem_save(selfm_tvb, offset);
-                dataitem_ptr->fnum = pinfo->fd->num;
+                dataitem_ptr->fnum = pinfo->num;
                 dataitem_ptr->base_address = base_addr;
                 dataitem_ptr->index_pos = cnt;
 

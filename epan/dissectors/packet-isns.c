@@ -783,10 +783,10 @@ dissect_isns_attr_port(tvbuff_t *tvb, guint offset, proto_tree *tree, int hf_ind
             handle = isns_tcp_handle;
         }
 
-        conversation = find_conversation(pinfo->fd->num,
+        conversation = find_conversation(pinfo->num,
                 &pinfo->src, &pinfo->dst, pt, port, 0, NO_PORT_B);
         if (conversation == NULL) {
-            conversation = conversation_new(pinfo->fd->num,
+            conversation = conversation_new(pinfo->num,
                     &pinfo->src, &pinfo->dst, pt, port, 0, NO_PORT2_FORCE);
             conversation_set_dissector(conversation, handle);
         }

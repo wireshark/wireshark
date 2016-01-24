@@ -639,7 +639,7 @@ rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 	/*  is this the first packet we got in this direction? */
 	if (statinfo->flags & STAT_FLAG_FIRST) {
 		add_to_list(list, user_data,
-			pinfo->fd->num, rtpinfo->info_seq_num,
+			pinfo->num, rtpinfo->info_seq_num,
 			statinfo->timestamp,
 			0,
 			0,
@@ -653,7 +653,7 @@ rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 	}
 	else {
 		add_to_list(list, user_data,
-			pinfo->fd->num, rtpinfo->info_seq_num,
+			pinfo->num, rtpinfo->info_seq_num,
 			statinfo->timestamp,
 			statinfo->delta,
 			statinfo->jitter,

@@ -4354,7 +4354,7 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
             }
             col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Session opened");
-            circuit = circuit_new(CT_DVBCI, CT_ID(ssnb, tcid), pinfo->fd->num);
+            circuit = circuit_new(CT_DVBCI, CT_ID(ssnb, tcid), pinfo->num);
             if (circuit) {
                 /* we always add the resource id immediately after the circuit
                    was created */
@@ -4378,9 +4378,9 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ssnb = tvb_get_ntohs(tvb, offset+1);
             proto_tree_add_item(sess_tree, hf_dvbci_sess_nb,
                     tvb, offset+1, 2, ENC_BIG_ENDIAN);
-            circuit = find_circuit(CT_DVBCI, CT_ID(ssnb, tcid), pinfo->fd->num);
+            circuit = find_circuit(CT_DVBCI, CT_ID(ssnb, tcid), pinfo->num);
             if (circuit)
-                close_circuit(circuit, pinfo->fd->num);
+                close_circuit(circuit, pinfo->num);
             break;
         case T_SESSION_NUMBER:
             ssnb = tvb_get_ntohs(tvb, offset);
@@ -4395,7 +4395,7 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     if (ssnb && !circuit)
-        circuit = find_circuit(CT_DVBCI, CT_ID(ssnb, tcid), pinfo->fd->num);
+        circuit = find_circuit(CT_DVBCI, CT_ID(ssnb, tcid), pinfo->num);
 
     /* if the packet contains no resource id, we add the cached id from
        the circuit so that each packet has a resource id that can be

@@ -1890,7 +1890,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                                           "Reassembled Short Message", fd_sm, &sm_frag_items,
                                           NULL, subtree);
 
-        if(reassembled && pinfo->fd->num == reassembled_in)
+        if(reassembled && pinfo->num == reassembled_in)
         {
             /* Reassembled */
             col_append_str (pinfo->cinfo, COL_INFO,
@@ -1927,7 +1927,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
             /* Per 3GPP 31.111 chapter 6.4.10: */
             /* It shall use the SMS default 7-bit coded alphabet */
             /* as defined in TS 23.038 with bit 8 set to 0 */
-            if(!(reassembled && pinfo->fd->num == reassembled_in))
+            if(!(reassembled && pinfo->num == reassembled_in))
             {
                 proto_tree_add_item(subtree, hf_gsm_sms_text, tvb, offset, length, ENC_ASCII|ENC_NA);
             }
@@ -1949,7 +1949,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         }
         else if (seven_bit)
         {
-            if(!(reassembled && pinfo->fd->num == reassembled_in))
+            if(!(reassembled && pinfo->num == reassembled_in))
             {
                 /* Show unassembled SMS */
                 proto_tree_add_ts_23_038_7bits_item(subtree, hf_gsm_sms_text, tvb, (offset<<3)+fill_bits,
@@ -1979,7 +1979,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         }
         else if (eight_bit)
         {
-            if (!is_fragmented || (reassembled && pinfo->fd->num == reassembled_in)) {
+            if (!is_fragmented || (reassembled && pinfo->num == reassembled_in)) {
                 if (! dissector_try_uint(gsm_sms_dissector_tbl, udh_fields.port_src, sm_tvb, pinfo, subtree))
                 {
                     if (! dissector_try_uint(gsm_sms_dissector_tbl, udh_fields.port_dst,sm_tvb, pinfo, subtree))
@@ -1996,7 +1996,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
             {
                 guint rep_len = tvb_reported_length(sm_tvb);
 
-                if (!(reassembled && pinfo->fd->num == reassembled_in))
+                if (!(reassembled && pinfo->num == reassembled_in))
                 {
                     /* Show unreassembled SMS */
                     proto_tree_add_item(subtree, hf_gsm_sms_text, sm_tvb,

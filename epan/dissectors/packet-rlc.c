@@ -457,7 +457,7 @@ static int
 rlc_frag_assign(struct rlc_frag *frag, enum rlc_mode mode, packet_info *pinfo,
         guint16 seq, guint16 li, struct atm_phdr *atm)
 {
-    frag->frame_num = pinfo->fd->num;
+    frag->frame_num = pinfo->num;
     frag->seq       = seq;
     frag->li        = li;
     frag->len       = 0;
@@ -1001,7 +1001,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
     }
     rlc_frag_assign(&frag_lookup, mode, pinfo, seq, num_li, atm);
     #if RLC_ADD_FRAGMENT_DEBUG_PRINT
-        g_print("packet: %d, channel (%d %d %d) seq: %u, num_li: %u, offset: %u, \n", pinfo->fd->num, ch_lookup.dir, ch_lookup.rbid, ch_lookup.urnti, seq, num_li, offset);
+        g_print("packet: %d, channel (%d %d %d) seq: %u, num_li: %u, offset: %u, \n", pinfo->num, ch_lookup.dir, ch_lookup.rbid, ch_lookup.urnti, seq, num_li, offset);
     #endif
 
     snmod = getChannelSNModulus(&ch_lookup);
@@ -1053,7 +1053,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
                     }
                 }
             } else if (endlist->list) {
-                if (endlist->fail_packet != 0 && endlist->fail_packet <= pinfo->fd->num) {
+                if (endlist->fail_packet != 0 && endlist->fail_packet <= pinfo->num) {
                     proto_tree_add_expert_format(tree, pinfo, &ei_rlc_reassembly_fail_flag_set, tvb, 0, 0, "Did not perform reassembly because fail flag was set in packet %u.", endlist->fail_packet);
                 } else {
                     gint16 end = GPOINTER_TO_INT(endlist->list->data);
@@ -1086,7 +1086,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
                 tempfrag = tempfrag->next;
             tempfrag->next = frag;
         } else { /* This should never happen */
-            endlist->fail_packet = pinfo->fd->num;
+            endlist->fail_packet = pinfo->num;
             return NULL;
         }
     } else {
@@ -1118,9 +1118,9 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
         gint16 end = GPOINTER_TO_INT(endlist->list->next->data);
         if (frags[end] == NULL) {
 #if RLC_ADD_FRAGMENT_FAIL_PRINT
-            g_warning("frag[end] is null, this is probably because end was a startpoint but because of some error ended up being treated as an endpoint, setting fail flag, start %d, end %d, packet %u\n", start, end, pinfo->fd->num);
+            g_warning("frag[end] is null, this is probably because end was a startpoint but because of some error ended up being treated as an endpoint, setting fail flag, start %d, end %d, packet %u\n", start, end, pinfo->num);
 #endif
-            endlist->fail_packet = pinfo->fd->num;
+            endlist->fail_packet = pinfo->num;
             return NULL;
         }
 
@@ -1155,9 +1155,9 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
                     g_warning(
 "Packet %u. Setting fail flag because RLC fragment with sequence number %u was \
 too far away from an unfinished sequence (%u->%u). The missing sequence number \
-is %u. The most recently complete sequence ended in packet %u.", pinfo->fd->num, seq, 0, end, start, 0);
+is %u. The most recently complete sequence ended in packet %u.", pinfo->num, seq, 0, end, start, 0);
 #endif
-                    endlist->fail_packet = pinfo->fd->num; /* If it has gone too far, give up */
+                    endlist->fail_packet = pinfo->num; /* If it has gone too far, give up */
                     return NULL;
                 }
                 return frag;
@@ -1173,9 +1173,9 @@ is %u. The most recently complete sequence ended in packet %u.", pinfo->fd->num,
 #if RLC_ADD_FRAGMENT_FAIL_PRINT
             g_warning(
 "Packet %u. Setting fail flag because RLC fragment with sequence number %u was \
-too far away from an unfinished sequence with start %u and without end.", pinfo->fd->num, seq, first);
+too far away from an unfinished sequence with start %u and without end.", pinfo->num, seq, first);
 #endif
-            endlist->fail_packet = pinfo->fd->num; /* Give up if things have gone too far. */
+            endlist->fail_packet = pinfo->num; /* Give up if things have gone too far. */
             return NULL;
         }
     }
@@ -1251,7 +1251,7 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
         g_hash_table_insert(sequence_table, &list->ch, list);
     }
     seq_item.seq = seq;
-    seq_item.frame_num = pinfo->fd->num;
+    seq_item.frame_num = pinfo->num;
 
     /* When seq is 12 bit (in RLC protocol), it will wrap around after 4096. */
     /* Window size is at most 4095 so we remove packets further away than that */
@@ -1498,14 +1498,14 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
 
     /*TODO: This doesn't really work for all packets..*/
     /*Check if we have ciphering info and that this frame is ciphered*/
-    if(c_inf!=NULL && ( (c_inf->setup_frame > 0 && c_inf->setup_frame < pinfo->fd->num && c_inf->seq_no[rlcinf->rbid[pos]][indx] == -1)  ||
-                     (c_inf->setup_frame < pinfo->fd->num && c_inf->seq_no[rlcinf->rbid[pos]][indx] >= 0  && c_inf->seq_no[rlcinf->rbid[pos]][indx] <= seq) )){
+    if(c_inf!=NULL && ( (c_inf->setup_frame > 0 && c_inf->setup_frame < pinfo->num && c_inf->seq_no[rlcinf->rbid[pos]][indx] == -1)  ||
+                     (c_inf->setup_frame < pinfo->num && c_inf->seq_no[rlcinf->rbid[pos]][indx] >= 0  && c_inf->seq_no[rlcinf->rbid[pos]][indx] <= seq) )){
 
         tvbuff_t *t;
 
         /*Check if this counter has been initialized*/
         if(!counter_init[rlcinf->rbid[pos]][indx] ){
-            guint32 frame_num = pinfo->fd->num;
+            guint32 frame_num = pinfo->num;
 
             /*Initializes counter*/
             counter_init[rlcinf->rbid[pos]][0] = TRUE;
@@ -1528,7 +1528,7 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
                 ciph = (guint32 *)g_malloc(sizeof(guint32)*2);
                 ciph[0] = ps_counter[rlcinf->rbid[pos]][0];
                 ciph[1] = ps_counter[rlcinf->rbid[pos]][1];
-                g_tree_insert(counter_map, GINT_TO_POINTER((gint)pinfo->fd->num), ciph);
+                g_tree_insert(counter_map, GINT_TO_POINTER((gint)pinfo->num), ciph);
             }
 
         }
@@ -1540,7 +1540,7 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
             if(tree){
                 guint32 frame_num[3];
                 /*Set frame num we will be "searching" around*/
-                frame_num[0] = pinfo->fd->num;
+                frame_num[0] = pinfo->num;
                 /*Find the correct counter value*/
                 g_tree_foreach(counter_map, (GTraverseFunc)rlc_find_old_counter, &frame_num[0]);
                 t = rlc_decipher_tvb(tvb, pinfo, (frame_num[indx+1] | seq),16,!fpinf->is_uplink,header_size);
@@ -1551,7 +1551,7 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
             if(tree){
                 /*We need to find the original counter value for second dissection pass*/
                 guint32 frame_num[3];
-                frame_num[0] = pinfo->fd->num;
+                frame_num[0] = pinfo->num;
                 g_tree_foreach(counter_map, (GTraverseFunc)rlc_find_old_counter, &frame_num[0]);
                 t = rlc_decipher_tvb(tvb, pinfo, (frame_num[indx+1] | seq),rlcinf->rbid[pos],!fpinf->is_uplink,header_size);
             }else
@@ -1568,7 +1568,7 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
                 ciph = (guint32 *)g_malloc(sizeof(guint32)*2);
                 ciph[0] = ps_counter[rlcinf->rbid[pos]][0];
                 ciph[1] = ps_counter[rlcinf->rbid[pos]][1];
-                g_tree_insert(counter_map, GINT_TO_POINTER((gint)pinfo->fd->num+1), ciph);
+                g_tree_insert(counter_map, GINT_TO_POINTER((gint)pinfo->num+1), ciph);
             }
         }
 
@@ -1900,7 +1900,7 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* do not detect duplicates or reassemble, if prefiltering is done */
-    if (pinfo->fd->num == 0) return;
+    if (pinfo->num == 0) return;
     /* check for duplicates */
     if (rlc_is_duplicate(RLC_UM, pinfo, seq, &orig_num, atm) == TRUE) {
         col_add_fstr(pinfo->cinfo, COL_INFO, "[RLC UM Fragment] [Duplicate]  SN=%u", seq);
@@ -2321,13 +2321,13 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* do not detect duplicates or reassemble, if prefiltering is done */
-    if (pinfo->fd->num == 0) return;
+    if (pinfo->num == 0) return;
     /* check for duplicates, but not if already visited */
     if (pinfo->fd->flags.visited == FALSE && rlc_is_duplicate(RLC_AM, pinfo, seq, &orig_num, atm) == TRUE) {
-        g_hash_table_insert(duplicate_table, GUINT_TO_POINTER(pinfo->fd->num), GUINT_TO_POINTER(orig_num));
+        g_hash_table_insert(duplicate_table, GUINT_TO_POINTER(pinfo->num), GUINT_TO_POINTER(orig_num));
         return;
     } else if (pinfo->fd->flags.visited == TRUE && tree) {
-        gpointer value = g_hash_table_lookup(duplicate_table, GUINT_TO_POINTER(pinfo->fd->num));
+        gpointer value = g_hash_table_lookup(duplicate_table, GUINT_TO_POINTER(pinfo->num));
         if (value != NULL) {
             col_add_fstr(pinfo->cinfo, COL_INFO, "[RLC AM Fragment] [Duplicate]  SN=%u %s", seq, (polling != 0) ? "(P)" : "");
             proto_tree_add_uint(tree, hf_rlc_duplicate_of, tvb, 0, 0, GPOINTER_TO_UINT(value));

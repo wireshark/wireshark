@@ -657,7 +657,7 @@ void LBMLBTRUSourceTransportEntry::processPacket(const packet_info * pinfo, cons
             {
                 sqn = it.value();
             }
-            sqn->processFrame(pinfo->fd->num);
+            sqn->processFrame(pinfo->num);
         }
         else
         {
@@ -674,7 +674,7 @@ void LBMLBTRUSourceTransportEntry::processPacket(const packet_info * pinfo, cons
                 sqn = it.value();
             }
         }
-        sqn->processFrame(pinfo->fd->num);
+        sqn->processFrame(pinfo->num);
     }
     else if (tap_info->type == LBTRU_PACKET_TYPE_NCF)
     {
@@ -697,7 +697,7 @@ void LBMLBTRUSourceTransportEntry::processPacket(const packet_info * pinfo, cons
             {
                 sqn = it.value();
             }
-            sqn->processFrame(tap_info->ncf_reason, pinfo->fd->num);
+            sqn->processFrame(tap_info->ncf_reason, pinfo->num);
         }
     }
     else if (tap_info->type == LBTRU_PACKET_TYPE_SM)
@@ -717,7 +717,7 @@ void LBMLBTRUSourceTransportEntry::processPacket(const packet_info * pinfo, cons
         {
             sqn = it.value();
         }
-        sqn->processFrame(pinfo->fd->num);
+        sqn->processFrame(pinfo->num);
     }
     else if (tap_info->type == LBTRU_PACKET_TYPE_RST)
     {
@@ -736,7 +736,7 @@ void LBMLBTRUSourceTransportEntry::processPacket(const packet_info * pinfo, cons
         {
             reason = it.value();
         }
-        reason->processFrame(pinfo->fd->num);
+        reason->processFrame(pinfo->num);
     }
     else
     {
@@ -1105,7 +1105,7 @@ void LBMLBTRUReceiverTransportEntry::processPacket(const packet_info * pinfo, co
                     {
                         sqn = it.value();
                     }
-                    sqn->processFrame(pinfo->fd->num);
+                    sqn->processFrame(pinfo->num);
                 }
             }
             break;
@@ -1126,7 +1126,7 @@ void LBMLBTRUReceiverTransportEntry::processPacket(const packet_info * pinfo, co
                 {
                     sqn = it.value();
                 }
-                sqn->processFrame(pinfo->fd->num);
+                sqn->processFrame(pinfo->num);
             }
             break;
         case LBTRU_PACKET_TYPE_CREQ:
@@ -1146,7 +1146,7 @@ void LBMLBTRUReceiverTransportEntry::processPacket(const packet_info * pinfo, co
                 {
                     req = it.value();
                 }
-                req->processFrame(pinfo->fd->num);
+                req->processFrame(pinfo->num);
             }
             break;
         default:

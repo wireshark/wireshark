@@ -1770,7 +1770,7 @@ dissect_ieee802154_assoc_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* Update the address table. */
     if ((status == IEEE802154_CMD_ASRSP_AS_SUCCESS) && (short_addr != IEEE802154_NO_ADDR16)) {
         ieee802154_addr_update(&ieee802154_map, short_addr, packet->dst_pan, packet->dst64,
-                pinfo->current_proto, pinfo->fd->num);
+                pinfo->current_proto, pinfo->num);
     }
 
     /* Call the data dissector for any leftover bytes. */
@@ -1820,9 +1820,9 @@ dissect_ieee802154_disassoc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!pinfo->fd->flags.visited) {
         /* Update the address tables */
         if ( packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT ) {
-            ieee802154_long_addr_invalidate(packet->dst64, pinfo->fd->num);
+            ieee802154_long_addr_invalidate(packet->dst64, pinfo->num);
         } else if ( packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT ) {
-            ieee802154_short_addr_invalidate(packet->dst16, packet->dst_pan, pinfo->fd->num);
+            ieee802154_short_addr_invalidate(packet->dst16, packet->dst_pan, pinfo->num);
         }
     }
 
@@ -1884,7 +1884,7 @@ dissect_ieee802154_realign(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     /* Update the address table. */
     if ((short_addr != IEEE802154_NO_ADDR16) && (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT)) {
         ieee802154_addr_update(&ieee802154_map, short_addr, packet->dst_pan, packet->dst64,
-                pinfo->current_proto, pinfo->fd->num);
+                pinfo->current_proto, pinfo->num);
     }
 
     /* Get and display the channel page, if it exists. Added in IEEE802.15.4-2006 */

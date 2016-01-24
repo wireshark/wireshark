@@ -131,14 +131,14 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         key[3].key = NULL;
 
         subtree = (wmem_tree_t *) wmem_tree_lookup32_array(client_requests, key);
-        client_request = (subtree) ? (client_request_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
-        if (client_request && client_request->service_in > -1 && client_request->service_in < pinfo->fd->num) {
+        client_request = (subtree) ? (client_request_t *) wmem_tree_lookup32_le(subtree, pinfo->num) : NULL;
+        if (client_request && client_request->service_in > -1 && client_request->service_in < pinfo->num) {
             p_item = proto_tree_add_string(main_tree, hf_service, tvb, offset, 0, client_request->service);
             PROTO_ITEM_SET_GENERATED(p_item);
             service = client_request->service;
             client_request_service = TRUE;
         } else {
-            if (client_request && client_request->service_in > -1 && client_request->service_in <= pinfo->fd->num)
+            if (client_request && client_request->service_in > -1 && client_request->service_in <= pinfo->num)
                client_request_service = TRUE;
             client_request = NULL;
         }
@@ -193,7 +193,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             key[2].length = 1;
             key[2].key = &pinfo->destport;
             key[3].length = 1;
-            key[3].key = &pinfo->fd->num;
+            key[3].key = &pinfo->num;
             key[4].length = 0;
             key[4].key = NULL;
 
@@ -202,7 +202,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             client_request->service_length = length;
             client_request->service = SERVICE_NONE;
             client_request->response_frame = -1;
-            client_request->first_in = pinfo->fd->num;
+            client_request->first_in = pinfo->num;
             client_request->service_in = -1;
             client_request->data_length = -1;
             wmem_tree_insert32_array(client_requests, key, client_request);
@@ -223,14 +223,14 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 key[3].key = NULL;
 
                 subtree = (wmem_tree_t *) wmem_tree_lookup32_array(client_requests, key);
-                client_request = (subtree) ? (client_request_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num - 1) : NULL;
+                client_request = (subtree) ? (client_request_t *) wmem_tree_lookup32_le(subtree, pinfo->num - 1) : NULL;
             }
 
             if (client_request) {
                 client_request->service = (guint8 *) wmem_alloc(wmem_file_scope(), (const size_t)(client_request->service_length + 1));
                 tvb_memcpy(tvb, client_request->service, offset, (size_t) client_request->service_length);
                 client_request->service[client_request->service_length] = '\0';
-                client_request->service_in = pinfo->fd->num;
+                client_request->service_in = pinfo->num;
             }
         }
 
@@ -268,7 +268,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         key[3].key = NULL;
 
         subtree = (wmem_tree_t *) wmem_tree_lookup32_array(client_requests, key);
-        client_request = (subtree) ? (client_request_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num - 1) : NULL;
+        client_request = (subtree) ? (client_request_t *) wmem_tree_lookup32_le(subtree, pinfo->num - 1) : NULL;
         if (client_request) {
             service = client_request->service;
             status = client_request->status;
@@ -291,7 +291,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             return tvb_captured_length(tvb);
         }
 
-        if (response_frame == -1 || response_frame == (gint64) pinfo->fd->num) {
+        if (response_frame == -1 || response_frame == (gint64) pinfo->num) {
             proto_tree_add_item(main_tree, hf_status, tvb, offset, 4, ENC_NA | ENC_ASCII);
             col_append_fstr(pinfo->cinfo, COL_INFO, " Status=%c%c%c%c", tvb_get_guint8(tvb, offset),
             tvb_get_guint8(tvb, offset + 1), tvb_get_guint8(tvb, offset + 2), tvb_get_guint8(tvb, offset + 3));
@@ -310,7 +310,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             }
 
             if (!pinfo->fd->flags.visited && client_request) {
-                client_request->response_frame = pinfo->fd->num;
+                client_request->response_frame = pinfo->num;
                 client_request->status = status;
                 client_request->data_length = length;
             }

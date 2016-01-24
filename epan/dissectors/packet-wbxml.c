@@ -7675,7 +7675,7 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8                codepage_stag   = 0;
 	guint8                codepage_attr   = 0;
 
-	DebugLog(("dissect_wbxml: Dissecting packet %u\n", pinfo->fd->num));
+	DebugLog(("dissect_wbxml: Dissecting packet %u\n", pinfo->num));
 	/* WBXML format
 	 *
 	 * Version 1.0: version publicid         strtbl BODY

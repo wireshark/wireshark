@@ -166,7 +166,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
     data_ver_ = col_data_ver_;
 
     packet_info *pi = &edt.pi;
-    conv_ = find_conversation(pi->fd->num, &pi->src, &pi->dst, pi->ptype,
+    conv_ = find_conversation(pi->num, &pi->src, &pi->dst, pi->ptype,
                               pi->srcport, pi->destport, 0);
 
     epan_dissect_cleanup(&edt);

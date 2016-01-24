@@ -334,7 +334,7 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     proto_tree         *socks_tree;
     proto_item         *ti;
 
-    conversation = find_conversation( pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
+    conversation = find_conversation( pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
         pinfo->srcport, pinfo->destport, 0);
 
     DISSECTOR_ASSERT( conversation);    /* should always find a conversation */
@@ -387,7 +387,7 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 static void
 new_udp_conversation( socks_hash_entry_t *hash_info, packet_info *pinfo){
 
-    conversation_t *conversation = conversation_new( pinfo->fd->num, &pinfo->src, &pinfo->dst,  PT_UDP,
+    conversation_t *conversation = conversation_new( pinfo->num, &pinfo->src, &pinfo->dst,  PT_UDP,
             hash_info->udp_port, hash_info->port, 0);
 
     DISSECTOR_ASSERT( conversation);
@@ -1002,7 +1002,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     if (state_info->in_socks_dissector_flag)
         return 0;
 
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                      pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
     if (conversation == NULL) {
         /* If we don't already have a conversation, make sure the first
@@ -1011,7 +1011,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
         if ((version != 4) && (version != 5))
             return 0;
 
-        conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+        conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
                                         pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
     }
 
@@ -1080,7 +1080,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
 
         if ((hash_info->clientState == clientDone) &&
             (hash_info->serverState == serverDone)) {   /* if done now  */
-            hash_info->start_done_frame = pinfo->fd->num;
+            hash_info->start_done_frame = pinfo->num;
         }
     }
 
@@ -1104,7 +1104,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
         }
 
         /* if past startup, add the faked stuff */
-        if ( pinfo->fd->num > hash_info->start_done_frame){
+        if ( pinfo->num > hash_info->start_done_frame){
                         /*  add info to tree */
             ti = proto_tree_add_uint( socks_tree, hf_socks_cmd, tvb, offset, 0, hash_info->command);
             PROTO_ITEM_SET_GENERATED(ti);
@@ -1132,7 +1132,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
 
 
     /* call next dissector if ready */
-    if ( pinfo->fd->num > hash_info->start_done_frame){
+    if ( pinfo->num > hash_info->start_done_frame){
         call_next_dissector(tvb, offset, pinfo, tree, socks_tree,
             hash_info, state_info, tcpinfo);
     }

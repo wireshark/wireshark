@@ -282,7 +282,7 @@ static int dissect_lbmpdm_tcp_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tre
     }
     lbmpdm_tcp_tree = proto_item_add_subtree(ti, ett_lbmpdm_tcp);
 
-    transport = lbmtcp_transport_add(&(pinfo->src), pinfo->srcport, &(pinfo->dst), pinfo->destport, pinfo->fd->num);
+    transport = lbmtcp_transport_add(&(pinfo->src), pinfo->srcport, &(pinfo->dst), pinfo->destport, pinfo->num);
     if (transport != NULL)
     {
         channel = transport->channel;

@@ -321,7 +321,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
         /* Reassembled into this packet
          */
-        if (fd_m && pinfo->fd->num == fd_m->reassembled_in) {
+        if (fd_m && pinfo->num == fd_m->reassembled_in) {
             if (!dissector_try_uint(lapdm_sapi_dissector_table, sapi,
                                     reassembled, pinfo, tree))
                 call_dissector(data_handle, reassembled, pinfo, tree);

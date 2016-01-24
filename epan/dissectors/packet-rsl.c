@@ -3160,9 +3160,9 @@ dissct_rsl_ipaccess_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
         src_addr.len = 4;
         src_addr.data = (guint8 *)&local_addr;
         rtp_add_address(pinfo, &src_addr, local_port, 0,
-                        "GSM A-bis/IP", pinfo->fd->num, 0, NULL);
+                        "GSM A-bis/IP", pinfo->num, 0, NULL);
         rtcp_add_address(pinfo, &src_addr, local_port+1, 0,
-                         "GSM A-bis/IP", pinfo->fd->num);
+                         "GSM A-bis/IP", pinfo->num);
         break;
     }
     return offset;

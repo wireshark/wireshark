@@ -423,7 +423,7 @@ force_reassemble_seq(reassembly_table *table, packet_info *pinfo, guint32 id)
 
 	/* mark this packet as defragmented */
 	fd_head->flags |= FD_DEFRAGMENTED;
-	fd_head->reassembled_in=pinfo->fd->num;
+	fd_head->reassembled_in=pinfo->num;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (t4-data Reassembled: %d pack lost, %d pack burst lost)", packet_lost, burst_lost);
 
@@ -709,7 +709,7 @@ dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
             /* if we have not reassembled this packet and it is the first fragment, reset the reassemble ID and the start seq number*/
             if (p_t38_packet_conv && p_t38_conv && (p_t38_packet_conv_info->reass_ID == 0)) {
                 /* we use the first fragment's frame_number as fragment ID because the protocol doesn't provide it */
-                    p_t38_conv_info->reass_ID = actx->pinfo->fd->num;
+                    p_t38_conv_info->reass_ID = actx->pinfo->num;
                     p_t38_conv_info->reass_start_seqnum = seq_number;
                     p_t38_conv_info->time_first_t4_data = nstime_to_sec(&actx->pinfo->rel_ts);
                     p_t38_conv_info->additional_hdlc_data_field_counter = 0;
@@ -1017,13 +1017,13 @@ init_t38_info_conv(packet_info *pinfo)
 
 
 	/* find the conversation used for Reassemble and Setup Info */
-	p_conv = find_conversation(pinfo->fd->num, &pinfo->net_dst, &pinfo->net_src,
+	p_conv = find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
                                    pinfo->ptype,
                                    pinfo->destport, pinfo->srcport, NO_ADDR_B | NO_PORT_B);
 
 	/* create a conv if it doen't exist */
 	if (!p_conv) {
-		p_conv = conversation_new(pinfo->fd->num, &pinfo->net_src, &pinfo->net_dst,
+		p_conv = conversation_new(pinfo->num, &pinfo->net_src, &pinfo->net_dst,
 			      pinfo->ptype, pinfo->srcport, pinfo->destport, NO_ADDR_B | NO_PORT_B);
 
 		/* Set dissector */

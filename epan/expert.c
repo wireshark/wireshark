@@ -519,7 +519,7 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 	}
 
 	/* if this packet isn't loaded because of a read filter, don't output anything */
-	if (pinfo == NULL || PINFO_FD_NUM(pinfo) == 0) {
+	if (pinfo == NULL || pinfo->num == 0) {
 		return;
 	}
 
@@ -572,7 +572,7 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 
 	ei = wmem_new(wmem_packet_scope(), expert_info_t);
 
-	ei->packet_num  = PINFO_FD_NUM(pinfo);
+	ei->packet_num  = pinfo->num;
 	ei->group       = group;
 	ei->severity    = severity;
 	ei->hf_index    = hf_index;

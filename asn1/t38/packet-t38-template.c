@@ -378,7 +378,7 @@ force_reassemble_seq(reassembly_table *table, packet_info *pinfo, guint32 id)
 
 	/* mark this packet as defragmented */
 	fd_head->flags |= FD_DEFRAGMENTED;
-	fd_head->reassembled_in=pinfo->fd->num;
+	fd_head->reassembled_in=pinfo->num;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (t4-data Reassembled: %d pack lost, %d pack burst lost)", packet_lost, burst_lost);
 
@@ -428,13 +428,13 @@ init_t38_info_conv(packet_info *pinfo)
 
 
 	/* find the conversation used for Reassemble and Setup Info */
-	p_conv = find_conversation(pinfo->fd->num, &pinfo->net_dst, &pinfo->net_src,
+	p_conv = find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
                                    pinfo->ptype,
                                    pinfo->destport, pinfo->srcport, NO_ADDR_B | NO_PORT_B);
 
 	/* create a conv if it doen't exist */
 	if (!p_conv) {
-		p_conv = conversation_new(pinfo->fd->num, &pinfo->net_src, &pinfo->net_dst,
+		p_conv = conversation_new(pinfo->num, &pinfo->net_src, &pinfo->net_dst,
 			      pinfo->ptype, pinfo->srcport, pinfo->destport, NO_ADDR_B | NO_PORT_B);
 
 		/* Set dissector */

@@ -1514,7 +1514,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   if (!actx->pinfo->fd->flags.visited) {
     if (system_info_value_current_set && (value != system_info_value_current)) {
       /* Add entry to the hash table.  Offset by one to distinguish 0 from lookup failure */
-      g_hash_table_insert(lte_rrc_system_info_value_changed_hash, GUINT_TO_POINTER(actx->pinfo->fd->num),
+      g_hash_table_insert(lte_rrc_system_info_value_changed_hash, GUINT_TO_POINTER(actx->pinfo->num),
                           GUINT_TO_POINTER(system_info_value_current+1));
     }
     system_info_value_current_set = TRUE;
@@ -1522,7 +1522,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   }
   else {
     /* Look up indication of changed info value from hash table */
-    gpointer p_previous = g_hash_table_lookup(lte_rrc_system_info_value_changed_hash, GUINT_TO_POINTER(actx->pinfo->fd->num));
+    gpointer p_previous = g_hash_table_lookup(lte_rrc_system_info_value_changed_hash, GUINT_TO_POINTER(actx->pinfo->num));
     if (p_previous != NULL) {
       /* Subtract one from stored result to get previous value */
       guint32 previous = GPOINTER_TO_UINT(p_previous) - 1;
@@ -1933,7 +1933,7 @@ PUCCH-ConfigDedicated-v13xy/codebooksizeDetermination-r13 DISPLAY=BASE_DEC STRIN
   pdcp_security_info_t *p_security_algorithms;
 %(DEFAULT_BODY)s
   p_security_algorithms = private_data_pdcp_security_algorithms(actx);
-  p_security_algorithms->configuration_frame = actx->pinfo->fd->num;
+  p_security_algorithms->configuration_frame = actx->pinfo->num;
   p_security_algorithms->previous_configuration_frame = 0;
   p_security_algorithms->previous_integrity = eia0;
   p_security_algorithms->previous_ciphering = eea0;

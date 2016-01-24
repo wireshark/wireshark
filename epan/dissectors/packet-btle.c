@@ -394,7 +394,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     else
         adapter_id = HCI_ADAPTER_DEFAULT;
 
-    frame_number = pinfo->fd->num;
+    frame_number = pinfo->num;
 
     if (access_address == ACCESS_ADDRESS_ADVERTISING) {
         proto_item  *advertising_header_item;
@@ -668,7 +668,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(connection_addresses, key);
         if (wmem_tree) {
-            connection_address = (connection_address_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->fd->num);
+            connection_address = (connection_address_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
             if (connection_address) {
                 gchar  *str_addr;
                 int     str_addr_len = 18 + 1;

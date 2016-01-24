@@ -1329,7 +1329,7 @@ get_sccp_assoc(packet_info *pinfo, guint offset, sccp_decode_context_t* value)
   guint32 opck, dpck;
   address *opc = &(pinfo->src);
   address *dpc = &(pinfo->dst);
-  guint framenum = PINFO_FD_NUM(pinfo);
+  guint framenum = pinfo->num;
 
   if (value->assoc)
     return value->assoc;
@@ -2675,7 +2675,7 @@ static sccp_msg_info_t *
 new_ud_msg(packet_info *pinfo, guint32 msg_type _U_)
 {
   sccp_msg_info_t *m = wmem_new0(wmem_packet_scope(), sccp_msg_info_t);
-  m->framenum = PINFO_FD_NUM(pinfo);
+  m->framenum = pinfo->num;
   m->data.ud.calling_gt = NULL;
   m->data.ud.called_gt = NULL;
 
@@ -3317,7 +3317,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
         if (m->data.co.label)
           proto_item_append_text(pi," %s", m->data.co.label);
 
-        if ((m->framenum == PINFO_FD_NUM(pinfo)) && (m->offset == msg_offset) ) {
+        if ((m->framenum == pinfo->num) && (m->offset == msg_offset) ) {
           tap_queue_packet(sccp_tap, pinfo, m);
           proto_item_append_text(pi," (current)");
         }

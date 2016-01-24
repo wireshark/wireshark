@@ -3054,17 +3054,17 @@ get_request(tvbuff_t *tvb, gint offset, packet_info *pinfo, guint8 opcode,
     key[2].length = 0;
     key[2].key    = NULL;
 
-    frame_number = pinfo->fd->num;
+    frame_number = pinfo->num;
 
     sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(requests, key);
     request_data = (sub_wmemtree) ? (request_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
-    if (request_data && request_data->request_in_frame == pinfo->fd->num)
+    if (request_data && request_data->request_in_frame == pinfo->num)
         return request_data;
 
     if (request_data) do {
         frame_number = request_data->request_in_frame - 1;
 
-        if (request_data->request_in_frame == pinfo->fd->num)
+        if (request_data->request_in_frame == pinfo->num)
             break;
 
       switch (opcode) {
@@ -3097,7 +3097,7 @@ get_request(tvbuff_t *tvb, gint offset, packet_info *pinfo, guint8 opcode,
     if (!request_data)
         return NULL;
 
-    if (request_data->request_in_frame == pinfo->fd->num)
+    if (request_data->request_in_frame == pinfo->num)
         return request_data;
 
     switch (opcode) {
@@ -3155,7 +3155,7 @@ save_request(packet_info *pinfo, guint8 opcode, union request_parameters_union p
     guint32          frame_number;
     request_data_t  *request_data;
 
-    frame_number = pinfo->fd->num;
+    frame_number = pinfo->num;
 
     key[0].length = 1;
     key[0].key    = &bluetooth_data->interface_id;
@@ -3197,7 +3197,7 @@ save_handle(packet_info *pinfo, bluetooth_uuid_t uuid, guint32 handle,
         guint32          frame_number;
         handle_data_t   *handle_data;
 
-        frame_number = pinfo->fd->num;
+        frame_number = pinfo->num;
 
         key[0].length = 1;
         key[0].key    = &bluetooth_data->interface_id;
@@ -3230,7 +3230,7 @@ get_uuid_from_handle(packet_info *pinfo, guint32 handle,
 
     memset(&uuid, 0, sizeof uuid);
 
-    frame_number = pinfo->fd->num;
+    frame_number = pinfo->num;
 
     key[0].length = 1;
     key[0].key    = &bluetooth_data->interface_id;
@@ -3262,7 +3262,7 @@ get_service_uuid_from_handle(packet_info *pinfo, guint32 handle,
 
     memset(&uuid, 0, sizeof uuid);
 
-    frame_number = pinfo->fd->num;
+    frame_number = pinfo->num;
 
     key[0].length = 1;
     key[0].key    = &bluetooth_data->interface_id;
@@ -3300,7 +3300,7 @@ get_characteristic_uuid_from_handle(packet_info *pinfo, guint32 handle,
 
     memset(&uuid, 0, sizeof uuid);
 
-    frame_number = pinfo->fd->num;
+    frame_number = pinfo->num;
 
     key[0].length = 1;
     key[0].key    = &bluetooth_data->interface_id;
@@ -6094,7 +6094,7 @@ get_mtu(packet_info *pinfo, bluetooth_data_t *bluetooth_data)
     wmem_tree_t     *sub_wmemtree;
     guint            mtu = 23;
 
-    frame_number = pinfo->fd->num;
+    frame_number = pinfo->num;
 
     key[0].length = 1;
     key[0].key    = &bluetooth_data->interface_id;
@@ -6119,7 +6119,7 @@ save_mtu(packet_info *pinfo, bluetooth_data_t *bluetooth_data, guint mtu)
     guint32          frame_number;
     mtu_data_t      *mtu_data;
 
-    frame_number = pinfo->fd->num;
+    frame_number = pinfo->num;
 
     key[0].length = 1;
     key[0].key    = &bluetooth_data->interface_id;
@@ -6144,7 +6144,7 @@ save_value_fragment(packet_info *pinfo, tvbuff_t *tvb, gint offset,
     guint32           frame_number;
     fragment_data_t  *fragment_data;
 
-    frame_number = pinfo->fd->num;
+    frame_number = pinfo->num;
 
     key[0].length = 1;
     key[0].key    = &bluetooth_data->interface_id;
@@ -6179,7 +6179,7 @@ get_value(packet_info *pinfo, guint32 handle, bluetooth_data_t *bluetooth_data, 
     guint8           *data = NULL;
 
 
-    frame_number = pinfo->fd->num;
+    frame_number = pinfo->num;
 
     key[0].length = 1;
     key[0].key    = &bluetooth_data->interface_id;
@@ -6849,16 +6849,16 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     if (request_data) {
-        if (request_data->request_in_frame > 0  && request_data->request_in_frame != pinfo->fd->num) {
+        if (request_data->request_in_frame > 0  && request_data->request_in_frame != pinfo->num) {
             sub_item = proto_tree_add_uint(main_tree, hf_request_in_frame, tvb, 0, 0, request_data->request_in_frame);
             PROTO_ITEM_SET_GENERATED(sub_item);
         }
 
         if (!pinfo->fd->flags.visited && request_data->response_in_frame == 0 &&
-                pinfo->fd->num > request_data->request_in_frame)
-            request_data->response_in_frame = pinfo->fd->num;
+                pinfo->num > request_data->request_in_frame)
+            request_data->response_in_frame = pinfo->num;
 
-        if (request_data->response_in_frame > 0 && request_data->response_in_frame != pinfo->fd->num) {
+        if (request_data->response_in_frame > 0 && request_data->response_in_frame != pinfo->num) {
             sub_item = proto_tree_add_uint(main_tree, hf_response_in_frame, tvb, 0, 0, request_data->response_in_frame);
             PROTO_ITEM_SET_GENERATED(sub_item);
         }

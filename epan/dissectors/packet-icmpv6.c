@@ -1199,11 +1199,11 @@ static conversation_t *_find_or_create_conversation(packet_info *pinfo)
     conversation_t *conv = NULL;
 
     /* Have we seen this conversation before? */
-    conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
         pinfo->ptype, 0, 0, 0);
     if (conv == NULL) {
         /* No, this is a new conversation. */
-        conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+        conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
             pinfo->ptype, 0, 0, 0);
     }
     return conv;
@@ -1239,14 +1239,14 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
         icmpv6_key[1].key = NULL;
 
         icmpv6_trans = wmem_new(wmem_file_scope(), icmp_transaction_t);
-        icmpv6_trans->rqst_frame = PINFO_FD_NUM(pinfo);
+        icmpv6_trans->rqst_frame = pinfo->num;
         icmpv6_trans->resp_frame = 0;
         icmpv6_trans->rqst_time = pinfo->abs_ts;
         nstime_set_zero(&icmpv6_trans->resp_time);
         wmem_tree_insert32_array(icmpv6_info->unmatched_pdus, icmpv6_key, (void *)icmpv6_trans);
     } else {
         /* Already visited this frame */
-        guint32 frame_num = pinfo->fd->num;
+        guint32 frame_num = pinfo->num;
 
         icmpv6_key[0].length = 2;
         icmpv6_key[0].key = key;
@@ -1271,7 +1271,7 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
                    so can report here (and in taps) */
                 expert_add_info_format(pinfo, it, &ei_icmpv6_resp_not_found,
                                        "No response seen to ICMPv6 request in frame %u",
-                                       pinfo->fd->num);
+                                       pinfo->num);
         }
 
         return NULL;
@@ -1302,7 +1302,7 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
     nstime_t            ns;
     double resp_time;
 
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
         pinfo->ptype, 0, 0, 0);
     if (conversation == NULL)
         return NULL;
@@ -1327,7 +1327,7 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
         if (icmpv6_trans->resp_frame != 0)
             return NULL;
 
-        icmpv6_trans->resp_frame = PINFO_FD_NUM(pinfo);
+        icmpv6_trans->resp_frame = pinfo->num;
 
         /*
          * we found a match.  Add entries to the matched table for both
@@ -1347,7 +1347,7 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
         wmem_tree_insert32_array(icmpv6_info->matched_pdus, icmpv6_key, (void *)icmpv6_trans);
     } else {
         /* Already visited this frame */
-        guint32 frame_num = pinfo->fd->num;
+        guint32 frame_num = pinfo->num;
 
         icmpv6_key[0].length = 2;
         icmpv6_key[0].key = key;
@@ -2266,7 +2266,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
                         proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
                 if ((opt_len <= 24) && hints) {
-                    lowpan_context_insert(context_id, hints->src_pan, context_len, &context_prefix, pinfo->fd->num);
+                    lowpan_context_insert(context_id, hints->src_pan, context_len, &context_prefix, pinfo->num);
                 }
             }
             break;

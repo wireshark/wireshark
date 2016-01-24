@@ -122,14 +122,14 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 		}
 		fi=(field_info *)gp->pdata[0];
 
-		old_ctx=g_hash_table_lookup(ctx_handle_table, GINT_TO_POINTER(pinfo->fd->num));
+		old_ctx=g_hash_table_lookup(ctx_handle_table, GINT_TO_POINTER(pinfo->num));
 		if(old_ctx){
-			g_hash_table_remove(ctx_handle_table, GINT_TO_POINTER(pinfo->fd->num));
+			g_hash_table_remove(ctx_handle_table, GINT_TO_POINTER(pinfo->num));
 		}
 		if(!old_ctx){
 			old_ctx=wmem_memdup(wmem_file_scope(), fi->value.value.bytes->data, 20);
 		}
-		g_hash_table_insert(ctx_handle_table, GINT_TO_POINTER(pinfo->fd->num), old_ctx);
+		g_hash_table_insert(ctx_handle_table, GINT_TO_POINTER(pinfo->num), old_ctx);
 
 		return 0;
 	}

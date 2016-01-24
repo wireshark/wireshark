@@ -445,13 +445,13 @@ rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_t
     if (!PINFO_FD_VISITED(pinfo)) {
         if (is_request){
             rtpproxy_info = wmem_new0(wmem_file_scope(), rtpproxy_info_t);
-            rtpproxy_info->req_frame = PINFO_FD_NUM(pinfo);
+            rtpproxy_info->req_frame = pinfo->num;
             rtpproxy_info->req_time = pinfo->abs_ts;
             wmem_tree_insert_string(rtpproxy_conv->trans, cookie, rtpproxy_info, 0);
         } else {
             rtpproxy_info = (rtpproxy_info_t *)wmem_tree_lookup_string(rtpproxy_conv->trans, cookie, 0);
             if (rtpproxy_info) {
-                rtpproxy_info->resp_frame = PINFO_FD_NUM(pinfo);
+                rtpproxy_info->resp_frame = pinfo->num;
             }
         }
     } else {
@@ -884,11 +884,11 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 if (rtp_handle) {
                     /* FIXME tell if isn't a video stream, and setup codec mapping */
                     if (addr.len)
-                        rtp_add_address(pinfo, &addr, port, 0, "RTPproxy", pinfo->fd->num, 0, NULL);
+                        rtp_add_address(pinfo, &addr, port, 0, "RTPproxy", pinfo->num, 0, NULL);
                 }
                 if (rtcp_handle) {
                     if (addr.len)
-                        rtcp_add_address(pinfo, &addr, port+1, 0, "RTPproxy", pinfo->fd->num);
+                        rtcp_add_address(pinfo, &addr, port+1, 0, "RTPproxy", pinfo->num);
                 }
             }
             break;

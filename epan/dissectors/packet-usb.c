@@ -1148,7 +1148,7 @@ get_usb_conversation(packet_info *pinfo,
     /*
      * Do we have a conversation for this connection?
      */
-    conversation = find_conversation(pinfo->fd->num,
+    conversation = find_conversation(pinfo->num,
                                src_addr, dst_addr,
                                pinfo->ptype,
                                src_endpoint, dst_endpoint, 0);
@@ -1157,7 +1157,7 @@ get_usb_conversation(packet_info *pinfo,
     }
 
     /* We don't yet have a conversation, so create one. */
-    conversation = conversation_new(pinfo->fd->num,
+    conversation = conversation_new(pinfo->num,
                            src_addr, dst_addr,
                            pinfo->ptype,
                            src_endpoint, dst_endpoint, 0);
@@ -1393,7 +1393,7 @@ dissect_usb_device_qualifier_descriptor(packet_info *pinfo _U_, proto_tree *pare
         wmem_tree_key_t         key[4];
         device_protocol_data_t  *device_protocol_data;
 
-        k_frame_number = pinfo->fd->num;
+        k_frame_number = pinfo->num;
         k_device_address = usb_conv_info->device_address;
         k_bus_id = usb_conv_info->bus_id;
 
@@ -1516,7 +1516,7 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
         device_product_data_t   *device_product_data;
         device_protocol_data_t  *device_protocol_data;
 
-        k_frame_number = pinfo->fd->num;
+        k_frame_number = pinfo->num;
         k_device_address = usb_conv_info->device_address;
         k_bus_id = usb_conv_info->bus_id;
 
@@ -2736,7 +2736,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
     if (ret)
         return tvb_captured_length(next_tvb);
 
-    k_frame_number = pinfo->fd->num;
+    k_frame_number = pinfo->num;
     k_device_address = usb_conv_info->device_address;
     k_bus_id = usb_conv_info->bus_id;
 
@@ -3283,7 +3283,7 @@ static usb_trans_info_t
     key[0].length = 2;
     key[0].key = (guint32 *)&usb_id;
     key[1].length = 1;
-    key[1].key = &PINFO_FD_NUM(pinfo);
+    key[1].key = &pinfo->num;
     key[2].length = 0;
     key[2].key = NULL;
 
@@ -3292,7 +3292,7 @@ static usb_trans_info_t
         usb_trans_info = (usb_trans_info_t *)wmem_tree_lookup32_array(usb_conv_info->transactions, key);
         if (!usb_trans_info) {
             usb_trans_info              = wmem_new0(wmem_file_scope(), usb_trans_info_t);
-            usb_trans_info->request_in  = pinfo->fd->num;
+            usb_trans_info->request_in  = pinfo->num;
             usb_trans_info->req_time    = pinfo->abs_ts;
             usb_trans_info->header_type = header_type;
             usb_trans_info->usb_id      = usb_id;
@@ -3316,7 +3316,7 @@ static usb_trans_info_t
                 if (usb_trans_info->usb_id == usb_id) {
                     if (usb_trans_info->response_in == 0) {
                         /* USBPcap generates 2 frames for response; store the first one */
-                        usb_trans_info->response_in = pinfo->fd->num;
+                        usb_trans_info->response_in = pinfo->num;
                     }
                     wmem_tree_insert32_array(usb_conv_info->transactions, key, usb_trans_info);
                 } else {
@@ -3556,7 +3556,7 @@ dissect_usb_payload(tvbuff_t *tvb, packet_info *pinfo,
     device_protocol_data_t  *device_protocol_data = NULL;
     tvbuff_t                *next_tvb = NULL;
 
-    k_frame_number = pinfo->fd->num;
+    k_frame_number = pinfo->num;
     k_device_address = device_address;
     k_bus_id = usb_conv_info->bus_id;
 

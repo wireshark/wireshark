@@ -1061,7 +1061,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 }
                 ft_fdh = ft_fdh->next;
             }
-            if (last_frame && last_frame != pinfo->fd->num)
+            if (last_frame && last_frame != pinfo->num)
                 proto_tree_add_uint(seg_tree, hf_ampdu_reassembled_in,
                     tvb, 0, 0, last_frame);
         }

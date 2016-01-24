@@ -119,7 +119,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 		ti = proto_tree_add_protocol_format(tree, proto_file, tvb, 0, -1,
 		    "File record %u: %u byte%s",
-		    pinfo->fd->num, frame_len, frame_plurality);
+		    pinfo->num, frame_len, frame_plurality);
 		proto_item_append_text(ti, ", %u byte%s",
 		    cap_len, cap_plurality);
 
@@ -127,7 +127,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 		proto_tree_add_int(fh_tree, hf_file_ftap_encap, tvb, 0, 0, pinfo->pkt_encap);
 
-		proto_tree_add_uint(fh_tree, hf_file_record_number, tvb, 0, 0, pinfo->fd->num);
+		proto_tree_add_uint(fh_tree, hf_file_record_number, tvb, 0, 0, pinfo->num);
 
 		proto_tree_add_uint_format(fh_tree, hf_file_record_len, tvb,
 					   0, 0, frame_len, "Record Length: %u byte%s (%u bits)",

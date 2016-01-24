@@ -745,7 +745,7 @@ static struct _sprt_conversation_info* find_sprt_conversation_data(packet_info *
     conversation_t *p_conv = NULL;
     struct _sprt_conversation_info *p_conv_data = NULL;
     /* Use existing packet info if available */
-    p_conv = find_conversation(pinfo->fd->num,
+    p_conv = find_conversation(pinfo->num,
                                 &pinfo->src,
                                 &pinfo->dst,
                                 pinfo->ptype,
@@ -1033,7 +1033,7 @@ dissect_sprt_data(tvbuff_t *tvb,
             /* have we previously seen a CONNECT msg in this conversation (i.e., do we know if DLCI is used w/I_OCTET?) */
             if (p_conv_data->connect_frame_number == 0)
             {
-                p_conv_data->connect_frame_number = pinfo->fd->num;
+                p_conv_data->connect_frame_number = pinfo->num;
                 if (word & 0x8000)
                 {
                     p_conv_data->i_octet_dlci_status = DLCI_PRESENT;
@@ -1421,7 +1421,7 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             &pinfo->src, pinfo->srcport,
             0,
             "SPRT stream",
-            pinfo->fd->num);
+            pinfo->num);
         p_conv_data = find_sprt_conversation_data(pinfo);
     }
 

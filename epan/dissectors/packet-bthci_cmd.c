@@ -1697,7 +1697,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
                 interface_id = bluetooth_data->interface_id;
                 adapter_id   = bluetooth_data->adapter_id;
-                frame_number = pinfo->fd->num;
+                frame_number = pinfo->num;
                 bd_addr_oui  = bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
                 bd_addr_id   = bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
 
@@ -1764,7 +1764,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
                 interface_id = bluetooth_data->interface_id;
                 adapter_id   = bluetooth_data->adapter_id;
-                frame_number = pinfo->fd->num;
+                frame_number = pinfo->num;
                 bd_addr_oui  = bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
                 bd_addr_id   = bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
 
@@ -3185,7 +3185,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     interface_id = bluetooth_data->interface_id;
     adapter_id   = bluetooth_data->adapter_id;
-    frame_number = pinfo->fd->num;
+    frame_number = pinfo->num;
 
     ti_cmd = proto_tree_add_item(tree, proto_bthci_cmd, tvb, offset, -1, ENC_NA);
     bthci_cmd_tree = proto_item_add_subtree(ti_cmd, ett_bthci_cmd);
@@ -3384,7 +3384,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     key[3].key    = NULL;
 
     subtree = (wmem_tree_t *) wmem_tree_lookup32_array(bthci_cmds, key);
-    bthci_cmd_data = (subtree) ? (bthci_cmd_data_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
+    bthci_cmd_data = (subtree) ? (bthci_cmd_data_t *) wmem_tree_lookup32_le(subtree, pinfo->num) : NULL;
     if (bthci_cmd_data && bthci_cmd_data->pending_in_frame < max_disconnect_in_frame) {
         nstime_t  delta;
 

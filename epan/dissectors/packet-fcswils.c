@@ -1713,11 +1713,11 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     /* Register conversation if this is not a response */
     if ((opcode != FC_SWILS_SWACC) && (opcode != FC_SWILS_SWRJT)) {
-        conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+        conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                                          pinfo->ptype, fchdr->oxid,
                                          fchdr->rxid, NO_PORT2);
         if (!conversation) {
-            conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+            conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
                                             pinfo->ptype, fchdr->oxid,
                                             fchdr->rxid, NO_PORT2);
         }
@@ -1745,7 +1745,7 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     }
     else {
         /* Opcode is ACC or RJT */
-        conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+        conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                                          pinfo->ptype, fchdr->oxid,
                                          fchdr->rxid, NO_PORT2);
         isreq = FC_SWILS_RPLY;

@@ -45,7 +45,7 @@ eo_http_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
          * is closed. */
         entry = (export_object_entry_t *)g_malloc(sizeof(export_object_entry_t));
 
-        entry->pkt_num = pinfo->fd->num;
+        entry->pkt_num = pinfo->num;
         entry->hostname = g_strdup(eo_info->hostname);
         entry->content_type = g_strdup(eo_info->content_type);
         entry->filename = g_strdup(g_path_get_basename(eo_info->filename));

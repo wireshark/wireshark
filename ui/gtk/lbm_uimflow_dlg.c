@@ -166,7 +166,7 @@ static int lbmc_uim_flow_graph_add_to_graph(packet_info * pinfo, const lbm_uim_s
     item = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
     copy_address(&(item->src_addr), &(pinfo->src));
     copy_address(&(item->dst_addr), &(pinfo->dst));
-    item->frame_number = pinfo->fd->num;
+    item->frame_number = pinfo->num;
     item->port_src = pinfo->srcport;
     item->port_dst = pinfo->destport;
     item->protocol = g_strdup(port_type_to_str(pinfo->ptype));

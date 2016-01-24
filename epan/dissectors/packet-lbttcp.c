@@ -546,24 +546,24 @@ static int dissect_lbttcp_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
             clntport = pinfo->srcport;
         }
         /* See if we have a matching transport with no session ID. */
-        transport = lbttcp_transport_find(&source_address, srcport, sid, pinfo->fd->num);
+        transport = lbttcp_transport_find(&source_address, srcport, sid, pinfo->num);
         if (transport == NULL)
         {
             /* See if we know about a SID */
-            if (lbttcp_transport_sid_find(&source_address, srcport, pinfo->fd->num, &sid))
+            if (lbttcp_transport_sid_find(&source_address, srcport, pinfo->num, &sid))
             {
-                transport = lbttcp_transport_find(&source_address, srcport, sid, pinfo->fd->num);
+                transport = lbttcp_transport_find(&source_address, srcport, sid, pinfo->num);
             }
         }
         if (transport != NULL)
         {
             channel = transport->channel;
             /* See if we already know about this client */
-            client = lbttcp_client_transport_find(transport, &client_address, clntport, pinfo->fd->num);
+            client = lbttcp_client_transport_find(transport, &client_address, clntport, pinfo->num);
             if (client == NULL)
             {
                 /* No - add it. */
-                client = lbttcp_client_transport_add(transport, &client_address, clntport, pinfo->fd->num);
+                client = lbttcp_client_transport_add(transport, &client_address, clntport, pinfo->num);
             }
             if (client != NULL)
             {
@@ -575,11 +575,11 @@ static int dissect_lbttcp_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
             if (PINFO_FD_VISITED(pinfo))
             {
                 /* No TIR and no session ID seen, so create the transport */
-                transport = lbttcp_transport_add(&source_address, srcport, 0, pinfo->fd->num);
+                transport = lbttcp_transport_add(&source_address, srcport, 0, pinfo->num);
                 if (transport != NULL)
                 {
                     channel = transport->channel;
-                    client = lbttcp_client_transport_add(transport, &client_address, clntport, pinfo->fd->num);
+                    client = lbttcp_client_transport_add(transport, &client_address, clntport, pinfo->num);
                     if (client != NULL)
                     {
                         client_id = client->id;

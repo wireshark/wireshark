@@ -143,7 +143,7 @@ rlogin_state_machine(rlogin_hash_entry_t *hash_info, tvbuff_t *tvb, packet_info 
 			{
 				/* Have info, store frame number */
 				hash_info->state = DONE;
-				hash_info->info_framenum = pinfo->fd->num;
+				hash_info->info_framenum = pinfo->num;
 			}
 		}
 	}
@@ -154,7 +154,7 @@ rlogin_state_machine(rlogin_hash_entry_t *hash_info, tvbuff_t *tvb, packet_info 
 	{
 		/* Store frame number here */
 		hash_info->state = DONE;
-		hash_info->info_framenum = pinfo->fd->num;
+		hash_info->info_framenum = pinfo->num;
 
 		/* Work out length of string to copy */
 		stringlen = tvb_strnlen(tvb, 0, NAME_LEN);
@@ -249,7 +249,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		return;
 	}
 
-	if (hash_info->info_framenum == pinfo->fd->num)
+	if (hash_info->info_framenum == pinfo->num)
 	{
 		gint info_len;
 		gint slash_offset;

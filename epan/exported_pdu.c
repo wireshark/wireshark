@@ -312,10 +312,10 @@ load_export_pdu_tags(packet_info *pinfo, guint tag_type, const char* proto_name,
 			i++;
 			exp_pdu_data->tlv_buffer[i] = EXP_PDU_TAG_ORIG_FNO_LEN; /* tag length */
 			i++;
-			exp_pdu_data->tlv_buffer[i]   = (pinfo->fd->num & 0xff000000) >> 24;
-			exp_pdu_data->tlv_buffer[i+1] = (pinfo->fd->num & 0x00ff0000) >> 16;
-			exp_pdu_data->tlv_buffer[i+2] = (pinfo->fd->num & 0x0000ff00) >> 8;
-			exp_pdu_data->tlv_buffer[i+3] = (pinfo->fd->num & 0x000000ff);
+			exp_pdu_data->tlv_buffer[i]   = (pinfo->num & 0xff000000) >> 24;
+			exp_pdu_data->tlv_buffer[i+1] = (pinfo->num & 0x00ff0000) >> 16;
+			exp_pdu_data->tlv_buffer[i+2] = (pinfo->num & 0x0000ff00) >> 8;
+			exp_pdu_data->tlv_buffer[i+3] = (pinfo->num & 0x000000ff);
 			/*i = i +EXP_PDU_TAG_ORIG_FNO_LEN;*/
 		}
 	}

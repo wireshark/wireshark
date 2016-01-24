@@ -1864,7 +1864,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             rohc_cid_context = wmem_new(wmem_file_scope(), rohc_cid_context_t);
             rohc_cid_context->profile = profile;
             rohc_cid_context->prev_ir_frame_number = tmp_prev_ir_frame_number;
-            rohc_cid_context->ir_frame_number = pinfo->fd->num;
+            rohc_cid_context->ir_frame_number = pinfo->num;
             rohc_cid_context->rohc_ip_version = tmp_prev_rohc_ip_version;
             rohc_cid_context->mode = (enum rohc_mode)tmp_prev_mode;
             rohc_cid_context->rnd = tmp_prev_rnd;
@@ -1882,7 +1882,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             rohc_cid_context->udp_checksum_present = FALSE;
             rohc_cid_context->profile = profile;
             rohc_cid_context->prev_ir_frame_number = -1;
-            rohc_cid_context->ir_frame_number = pinfo->fd->num;
+            rohc_cid_context->ir_frame_number = pinfo->num;
             rohc_cid_context->rohc_ip_version = p_rohc_info->rohc_ip_version;
             rohc_cid_context->mode = p_rohc_info->mode;
 
@@ -1985,7 +1985,7 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             rohc_cid_context = wmem_new(wmem_file_scope(), rohc_cid_context_t);
             rohc_cid_context->profile = profile;
             rohc_cid_context->prev_ir_frame_number = tmp_prev_ir_frame_number;
-            rohc_cid_context->ir_frame_number = pinfo->fd->num;
+            rohc_cid_context->ir_frame_number = pinfo->num;
             rohc_cid_context->rohc_ip_version = tmp_prev_rohc_ip_version;
             rohc_cid_context->mode = (enum rohc_mode)tmp_prev_mode;
             rohc_cid_context->rnd = tmp_prev_rnd;
@@ -2004,7 +2004,7 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             rohc_cid_context->udp_checksum_present = FALSE;
             rohc_cid_context->profile = profile;
             rohc_cid_context->prev_ir_frame_number = -1;
-            rohc_cid_context->ir_frame_number = pinfo->fd->num;
+            rohc_cid_context->ir_frame_number = pinfo->num;
             rohc_cid_context->mode = p_rohc_info->mode;
 
             /*g_warning("IR pkt New CID %u",cid);*/

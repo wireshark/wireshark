@@ -119,7 +119,7 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
     k_interface_id      = bluetooth_data->interface_id;
     k_adapter_id        = bluetooth_data->adapter_id;
     k_connection_handle = flags & 0x0fff;
-    k_frame_number      = pinfo->fd->num;
+    k_frame_number      = pinfo->num;
 
     key[0].length = 1;
     key[0].key    = &k_interface_id;
@@ -129,7 +129,7 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
     key[2].key    = NULL;
 
     subtree = (wmem_tree_t *) wmem_tree_lookup32_array(bthci_sco_stream_numbers, key);
-    sco_stream_number = (subtree) ? (bthci_sco_stream_number_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
+    sco_stream_number = (subtree) ? (bthci_sco_stream_number_t *) wmem_tree_lookup32_le(subtree, pinfo->num) : NULL;
 
     key[2].length = 1;
     key[2].key    = &k_connection_handle;
@@ -137,10 +137,10 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
     key[3].key    = NULL;
 
     subtree = (wmem_tree_t *) wmem_tree_lookup32_array(bluetooth_data->chandle_sessions, key);
-    chandle_session = (subtree) ? (chandle_session_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
+    chandle_session = (subtree) ? (chandle_session_t *) wmem_tree_lookup32_le(subtree, pinfo->num) : NULL;
     if (!(chandle_session &&
-            chandle_session->connect_in_frame < pinfo->fd->num &&
-            chandle_session->disconnect_in_frame > pinfo->fd->num)){
+            chandle_session->connect_in_frame < pinfo->num &&
+            chandle_session->disconnect_in_frame > pinfo->num)){
         chandle_session = NULL;
     }
 
@@ -169,7 +169,7 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
 
         k_bd_addr_oui  = bd_addr_oui;
         k_bd_addr_id   = bd_addr_id;
-        k_frame_number = pinfo->fd->num;
+        k_frame_number = pinfo->num;
 
         key[0].length = 1;
         key[0].key    = &k_interface_id;
@@ -219,7 +219,7 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
 
     k_interface_id      = bluetooth_data->interface_id;
     k_adapter_id        = bluetooth_data->adapter_id;
-    k_frame_number      = pinfo->fd->num;
+    k_frame_number      = pinfo->num;
 
     /* localhost bdaddr and name */
     key[0].length = 1;

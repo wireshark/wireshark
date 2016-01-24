@@ -1312,12 +1312,12 @@ try_conversation_dissector(const address *addr_a, const address *addr_b, const p
 {
 	conversation_t *conversation;
 
-	conversation = find_conversation(pinfo->fd->num, addr_a, addr_b, ptype, port_a,
+	conversation = find_conversation(pinfo->num, addr_a, addr_b, ptype, port_a,
 	    port_b, 0);
 
 	if (conversation != NULL) {
 		int ret;
-		dissector_handle_t handle = (dissector_handle_t)wmem_tree_lookup32_le(conversation->dissector_tree, pinfo->fd->num);
+		dissector_handle_t handle = (dissector_handle_t)wmem_tree_lookup32_le(conversation->dissector_tree, pinfo->num);
 		if (handle == NULL)
 			return FALSE;
 		ret=call_dissector_only(handle, tvb, pinfo, tree, data);
@@ -1345,25 +1345,25 @@ find_or_create_conversation(packet_info *pinfo)
 	conversation_t *conv=NULL;
 
 	DPRINT(("called for frame #%d: %s:%d -> %s:%d (ptype=%d)",
-		pinfo->fd->num, address_to_str(wmem_packet_scope(), &pinfo->src), pinfo->srcport,
+		pinfo->num, address_to_str(wmem_packet_scope(), &pinfo->src), pinfo->srcport,
 		address_to_str(wmem_packet_scope(), &pinfo->dst), pinfo->destport, pinfo->ptype));
 	DINDENT();
 
 	/* Have we seen this conversation before? */
-	if((conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+	if((conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
 				     pinfo->ptype, pinfo->srcport,
 				     pinfo->destport, 0)) != NULL) {
 		DPRINT(("found previous conversation for frame #%d (last_frame=%d)",
-				pinfo->fd->num, conv->last_frame));
-		if (pinfo->fd->num > conv->last_frame) {
-			conv->last_frame = pinfo->fd->num;
+				pinfo->num, conv->last_frame));
+		if (pinfo->num > conv->last_frame) {
+			conv->last_frame = pinfo->num;
 		}
 	} else {
 		/* No, this is a new conversation. */
 		DPRINT(("did not find previous conversation for frame #%d",
-				pinfo->fd->num));
+				pinfo->num));
 		DINDENT();
-		conv = conversation_new(pinfo->fd->num, &pinfo->src,
+		conv = conversation_new(pinfo->num, &pinfo->src,
 					&pinfo->dst, pinfo->ptype,
 					pinfo->srcport, pinfo->destport, 0);
 		DENDENT();

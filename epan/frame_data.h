@@ -36,7 +36,6 @@ struct _packet_info;
 struct epan_session;
 struct wtap_pkthdr;
 
-#define PINFO_FD_NUM(pinfo)       ((pinfo)->fd->num)
 #define PINFO_FD_VISITED(pinfo)   ((pinfo)->fd->flags.visited)
 
 /** @file

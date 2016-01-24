@@ -3106,7 +3106,7 @@ static void dissect_x11_initial_conn(tvbuff_t *tvb, packet_info *pinfo,
       /*
        * This is the initial connection request...
        */
-      state->iconn_frame = pinfo->fd->num;
+      state->iconn_frame = pinfo->num;
 
       /*
        * ...and we're expecting a reply to it.
@@ -3134,7 +3134,7 @@ static void dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo,
       proto_item_append_text(ti, ", Reply, Initial connection reply");
       t = proto_item_add_subtree(ti, ett_x11);
 
-      state->iconn_reply = pinfo->fd->num;
+      state->iconn_reply = pinfo->num;
       success = INT8(success);
       if (success) {
             UNUSED(1);
@@ -4566,7 +4566,7 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
                   return;
             }
 
-            if (state->iconn_frame == pinfo->fd->num ||
+            if (state->iconn_frame == pinfo->num ||
                 (g_hash_table_lookup(state->seqtable,
                 GINT_TO_POINTER(state->sequencenumber)) == (int *)NOTHING_SEEN &&
                  (opcode == 'B' || opcode == 'l') &&
@@ -4879,7 +4879,7 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              */
             if (g_hash_table_lookup(state->seqtable,
                                     GINT_TO_POINTER(state->sequencenumber)) == (int *)INITIAL_CONN
-                || (state->iconn_reply == pinfo->fd->num)) {
+                || (state->iconn_reply == pinfo->num)) {
                   /*
                    * Either the connection is in the "initial
                    * connection" state, or this frame is known

@@ -338,11 +338,11 @@ get_itl_nexus(packet_info *pinfo, gboolean create_new)
 {
 	itl_nexus_t *itl;
 
-	if(create_new || !(itl=(itl_nexus_t *)wmem_tree_lookup32_le(ndmp_conv_data->itl, pinfo->fd->num))){
+	if(create_new || !(itl=(itl_nexus_t *)wmem_tree_lookup32_le(ndmp_conv_data->itl, pinfo->num))){
 		itl=wmem_new(wmem_file_scope(), itl_nexus_t);
 		itl->cmdset=0xff;
 		itl->conversation=ndmp_conv_data->conversation;
-		wmem_tree_insert32(ndmp_conv_data->itl, pinfo->fd->num, itl);
+		wmem_tree_insert32(ndmp_conv_data->itl, pinfo->num, itl);
 	}
 	return itl;
 }
@@ -1369,7 +1369,7 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if(ndmp_conv_data->task && !ndmp_conv_data->task->itlq){
 			ndmp_conv_data->task->itlq=wmem_new(wmem_file_scope(), itlq_nexus_t);
 			ndmp_conv_data->task->itlq->lun=0xffff;
-			ndmp_conv_data->task->itlq->first_exchange_frame=pinfo->fd->num;
+			ndmp_conv_data->task->itlq->first_exchange_frame=pinfo->num;
 			ndmp_conv_data->task->itlq->last_exchange_frame=0;
 			ndmp_conv_data->task->itlq->scsi_opcode=0xffff;
 			ndmp_conv_data->task->itlq->task_flags=0;
@@ -3236,7 +3236,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	case NDMP_MESSAGE_REQUEST:
 		if(!pinfo->fd->flags.visited){
 			ndmp_conv_data->task=wmem_new(wmem_file_scope(), ndmp_task_data_t);
-			ndmp_conv_data->task->request_frame=pinfo->fd->num;
+			ndmp_conv_data->task->request_frame=pinfo->num;
 			ndmp_conv_data->task->response_frame=0;
 			ndmp_conv_data->task->ndmp_time=pinfo->abs_ts;
 			ndmp_conv_data->task->itlq=NULL;
@@ -3255,9 +3255,9 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 		ndmp_conv_data->task=(ndmp_task_data_t *)wmem_map_lookup(ndmp_conv_data->tasks, GUINT_TO_POINTER(nh.rep_seq));
 
 		if(ndmp_conv_data->task && !pinfo->fd->flags.visited){
-			ndmp_conv_data->task->response_frame=pinfo->fd->num;
+			ndmp_conv_data->task->response_frame=pinfo->num;
 			if(ndmp_conv_data->task->itlq){
-				ndmp_conv_data->task->itlq->last_exchange_frame=pinfo->fd->num;
+				ndmp_conv_data->task->itlq->last_exchange_frame=pinfo->num;
 			}
 		}
 		if(ndmp_conv_data->task && ndmp_conv_data->task->request_frame){

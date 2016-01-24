@@ -437,10 +437,10 @@ wcp_window_t *get_wcp_window_ptr(packet_info *pinfo, circuit_type ctype, guint32
 	wcp_circuit_data_t *wcp_circuit_data;
 
 	circuit = find_circuit( ctype, circuit_id,
-		pinfo->fd->num);
+		pinfo->num);
 	if ( !circuit){
 		circuit = circuit_new( ctype, circuit_id,
-			pinfo->fd->num);
+			pinfo->num);
 	}
 	wcp_circuit_data = (wcp_circuit_data_t *)circuit_get_proto_data(circuit, proto_wcp);
 	if ( !wcp_circuit_data){

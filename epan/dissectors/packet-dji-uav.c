@@ -125,7 +125,7 @@ request_response_handling(tvbuff_t *tvb, packet_info *pinfo, proto_tree *djiuav_
 	if (!pinfo->fd->flags.visited) {
 		if (is_cmd) {
 			djiuav_trans=wmem_new(wmem_file_scope(), djiuav_transaction_t);
-			djiuav_trans->request_frame=pinfo->fd->num;
+			djiuav_trans->request_frame=pinfo->num;
 			djiuav_trans->reply_frame=0;
 			djiuav_trans->request_time=pinfo->abs_ts;
 			djiuav_trans->seqno=seq_no;
@@ -136,7 +136,7 @@ request_response_handling(tvbuff_t *tvb, packet_info *pinfo, proto_tree *djiuav_
 			if (djiuav_trans) {
 				/* Special case: djiuav seems to send 0x24 replies with seqno 0 and without a request */
 				if (djiuav_trans->reply_frame == 0)
-					djiuav_trans->reply_frame=pinfo->fd->num;
+					djiuav_trans->reply_frame=pinfo->num;
 			}
 		}
 	} else {

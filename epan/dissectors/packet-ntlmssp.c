@@ -1818,7 +1818,7 @@ get_sign_key(packet_info *pinfo, int cryptpeer)
   conversation_t *conversation;
   ntlmssp_info   *conv_ntlmssp_info;
 
-  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+  conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                                    pinfo->ptype, pinfo->srcport,
                                    pinfo->destport, 0);
   if (conversation == NULL) {
@@ -1858,7 +1858,7 @@ get_encrypted_state(packet_info *pinfo, int cryptpeer)
   conversation_t *conversation;
   ntlmssp_info   *conv_ntlmssp_info;
 
-  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+  conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                                    pinfo->ptype, pinfo->srcport,
                                    pinfo->destport, 0);
   if (conversation == NULL) {
@@ -1994,7 +1994,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
     ntlmssp_info   *conv_ntlmssp_info;
 
     /* Pull the challenge info from the conversation */
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                                      pinfo->ptype, pinfo->srcport,
                                      pinfo->destport, 0);
     if (conversation == NULL) {
@@ -2202,7 +2202,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
     /* We don't have data for this packet */
     return;
   }
-  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+  conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                                    pinfo->ptype, pinfo->srcport,
                                    pinfo->destport, 0);
   if (conversation == NULL) {
@@ -2507,7 +2507,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
 
   if (!packet_ntlmssp_info->payload_decrypted) {
     /* Pull the challenge info from the conversation */
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                                      pinfo->ptype, pinfo->srcport,
                                      pinfo->destport, 0);
     if (conversation == NULL) {

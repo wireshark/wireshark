@@ -6404,7 +6404,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                    more_frags);
     next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled SCSI DATA", ipfd_head, &scsi_frag_items, &update_col_info, tree);
 
-    if ( ipfd_head && (ipfd_head->reassembled_in != pinfo->fd->num) ) {
+    if ( ipfd_head && (ipfd_head->reassembled_in != pinfo->num) ) {
         col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Reassembled in #%u] ",
                              ipfd_head->reassembled_in);
     }

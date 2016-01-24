@@ -45,7 +45,7 @@ static int tap_packet_cb_error_handler(lua_State* L) {
     static int repeated = 0;
     static int next = 2;
     gchar* where =  (lua_pinfo) ?
-        wmem_strdup_printf(NULL, "Lua: on packet %i Error During execution of Listener Packet Callback",lua_pinfo->fd->num) :
+        wmem_strdup_printf(NULL, "Lua: on packet %i Error During execution of Listener Packet Callback",lua_pinfo->num) :
         wmem_strdup_printf(NULL, "Lua: Error During execution of Listener Packet Callback") ;
 
     /* show the error the 1st, 3rd, 5th, 9th, 17th, 33th... time it appears to avoid window flooding */

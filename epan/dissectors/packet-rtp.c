@@ -1238,7 +1238,7 @@ srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
     }
 
     DPRINT(("#%u: %srtp_add_address(%s, %u, %u, %s, %u)",
-            pinfo->fd->num, (srtp_info)?"s":"", address_to_str(wmem_packet_scope(), addr), port,
+            pinfo->num, (srtp_info)?"s":"", address_to_str(wmem_packet_scope(), addr), port,
             other_port, setup_method, setup_frame_number));
     DINDENT();
 
@@ -1374,11 +1374,11 @@ dissect_rtp_heur_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     }
 
     /* Create a conversation in case none exists so as to allow reassembly code to work */
-    if (!find_conversation(pinfo->fd->num, &pinfo->net_dst, &pinfo->net_src, pinfo->ptype,
+    if (!find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src, pinfo->ptype,
                            pinfo->destport, pinfo->srcport, NO_ADDR2)) {
         conversation_t *p_conv;
         struct _rtp_conversation_info *p_conv_data;
-        p_conv = conversation_new(pinfo->fd->num, &pinfo->net_dst, &pinfo->net_src, pinfo->ptype,
+        p_conv = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src, pinfo->ptype,
                                   pinfo->destport, pinfo->srcport, NO_ADDR2);
         p_conv_data = (struct _rtp_conversation_info *)conversation_get_proto_data(p_conv, proto_rtp);
         if (! p_conv_data) {
@@ -1391,7 +1391,7 @@ dissect_rtp_heur_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             conversation_add_proto_data(p_conv, proto_rtp, p_conv_data);
         }
         g_strlcpy(p_conv_data->method, "HEUR RTP", MAX_RTP_SETUP_METHOD_SIZE+1);
-        p_conv_data->frame_number = pinfo->fd->num;
+        p_conv_data->frame_number = pinfo->num;
         p_conv_data->is_video = FALSE;
         p_conv_data->srtp_info = NULL;
         p_conv_data->bta2dp_info = NULL;
@@ -1567,7 +1567,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 #ifdef DEBUG_FRAGMENTS
     g_debug("%d: RTP Part of convo %d(%p); seqno %d",
-        pinfo->fd->num,
+        pinfo->num,
         p_conv_data->frame_number, p_conv_data,
         seqno
         );
@@ -2628,7 +2628,7 @@ get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
         conversation_t *p_conv;
 
         /* First time, get info from conversation */
-        p_conv = find_conversation(pinfo->fd->num, &pinfo->net_dst, &pinfo->net_src,
+        p_conv = find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
                                    pinfo->ptype,
                                    pinfo->destport, pinfo->srcport, NO_ADDR_B);
         if (p_conv)

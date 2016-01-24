@@ -142,9 +142,9 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
 
     /* Set the first and last frame num in current interval matching the target field+filter  */
     if (item->first_frame_in_invl == 0) {
-        item->first_frame_in_invl = pinfo->fd->num;
+        item->first_frame_in_invl = pinfo->num;
     }
-    item->last_frame_in_invl = pinfo->fd->num;
+    item->last_frame_in_invl = pinfo->num;
 
     if (edt && hf_index >= 0) {
         GPtrArray *gp;

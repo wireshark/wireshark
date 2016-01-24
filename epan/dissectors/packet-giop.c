@@ -2029,7 +2029,7 @@ static gboolean try_explicit_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, p
     /* but only if user not clicking */
 
     if (!pinfo->fd->flags.visited)
-      add_sub_handle_repoid_to_comp_req_list(pinfo->fd->num, subdiss, repoid);
+      add_sub_handle_repoid_to_comp_req_list(pinfo->num, subdiss, repoid);
 
 
     /* Call subdissector if current offset exists , and dissector is enabled in GUI "edit protocols" */
@@ -4043,9 +4043,9 @@ dissect_reply_body (tvbuff_t *tvb, guint offset, packet_info *pinfo,
 
     /* lookup MFN in hash directly */
 
-    mfn = get_mfn_from_fn(pinfo->fd->num);
+    mfn = get_mfn_from_fn(pinfo->num);
 
-    if (mfn == pinfo->fd->num)
+    if (mfn == pinfo->num)
       return;                 /* no matching frame number, what am I */
 
     /* get entry for this MFN */
@@ -4176,9 +4176,9 @@ static void dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
    */
 
   if (! pinfo->fd->flags.visited) {
-    mfn = get_mfn_from_fn_and_reqid(pinfo->fd->num, request_id, &pinfo->dst, pinfo->destport); /* find MFN for this FN */
-    if (mfn != pinfo->fd->num) { /* if mfn is not fn, good */
-      insert_in_complete_reply_hash(pinfo->fd->num, mfn);
+    mfn = get_mfn_from_fn_and_reqid(pinfo->num, request_id, &pinfo->dst, pinfo->destport); /* find MFN for this FN */
+    if (mfn != pinfo->num) { /* if mfn is not fn, good */
+      insert_in_complete_reply_hash(pinfo->num, mfn);
     }
   }
 
@@ -4242,9 +4242,9 @@ static void dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
    */
 
   if (! pinfo->fd->flags.visited) {
-    mfn = get_mfn_from_fn_and_reqid(pinfo->fd->num, request_id, &pinfo->dst, pinfo->destport); /* find MFN for this FN */
-    if (mfn != pinfo->fd->num) { /* if mfn is not fn, good */
-      insert_in_complete_reply_hash(pinfo->fd->num, mfn);
+    mfn = get_mfn_from_fn_and_reqid(pinfo->num, request_id, &pinfo->dst, pinfo->destport); /* find MFN for this FN */
+    if (mfn != pinfo->num) { /* if mfn is not fn, good */
+      insert_in_complete_reply_hash(pinfo->num, mfn);
     }
   }
 
@@ -4405,7 +4405,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
    * But only if user is NOT clicking.
    */
   if (! pinfo->fd->flags.visited)
-    giop_complete_request_list = insert_in_comp_req_list(giop_complete_request_list, pinfo->fd->num,
+    giop_complete_request_list = insert_in_comp_req_list(giop_complete_request_list, pinfo->num,
                                                          request_id, operation, NULL, &pinfo->src, pinfo->srcport);
 
 
@@ -4528,7 +4528,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
    */
 
   if (! pinfo->fd->flags.visited)
-    giop_complete_request_list = insert_in_comp_req_list(giop_complete_request_list, pinfo->fd->num,
+    giop_complete_request_list = insert_in_comp_req_list(giop_complete_request_list, pinfo->num,
                                                          request_id, operation, NULL, &pinfo->src, pinfo->srcport);
 
   /*

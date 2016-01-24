@@ -2784,7 +2784,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 			request_val = wmem_new(wmem_file_scope(), struct afs_request_val);
 			request_val -> opcode = tvb_get_ntohl(tvb, offset);
-			request_val -> req_num = pinfo->fd->num;
+			request_val -> req_num = pinfo->num;
 			request_val -> rep_num = 0;
 			request_val -> req_time = pinfo->abs_ts;
 
@@ -2792,7 +2792,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 				request_val);
 		}
 		if( request_val && reply ) {
-			request_val -> rep_num = pinfo->fd->num;
+			request_val -> rep_num = pinfo->num;
 		}
 	}
 

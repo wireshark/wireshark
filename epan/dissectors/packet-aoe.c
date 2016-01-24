@@ -222,7 +222,7 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
       ata_info=wmem_new(wmem_file_scope(), ata_info_t);
       ata_info->tag=tag;
       ata_info->conversation=conversation;
-      ata_info->request_frame=pinfo->fd->num;
+      ata_info->request_frame=pinfo->num;
       ata_info->response_frame=0;
       ata_info->cmd=tvb_get_guint8(tvb, offset+3);
       ata_info->req_time=pinfo->abs_ts;
@@ -242,14 +242,14 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
       /* woo hoo we could, so no need to store this in unmatched any more,
          move both request and response to the matched table */
       if(ata_info){
-        ata_info->response_frame=pinfo->fd->num;
+        ata_info->response_frame=pinfo->num;
         g_hash_table_remove(ata_cmd_unmatched, ata_info);
         g_hash_table_insert(ata_cmd_matched, GUINT_TO_POINTER(ata_info->request_frame), ata_info);
         g_hash_table_insert(ata_cmd_matched, GUINT_TO_POINTER(ata_info->response_frame), ata_info);
       }
     }
   } else {
-    ata_info=(ata_info_t *)g_hash_table_lookup(ata_cmd_matched, GUINT_TO_POINTER(pinfo->fd->num));
+    ata_info=(ata_info_t *)g_hash_table_lookup(ata_cmd_matched, GUINT_TO_POINTER(pinfo->num));
   }
 
   if(ata_info){

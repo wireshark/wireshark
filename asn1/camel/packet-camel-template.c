@@ -523,7 +523,7 @@ static void
 update_camelsrt_call(struct camelsrt_call_t *p_camelsrt_call, packet_info *pinfo,
                      guint msg_category)
 {
-  p_camelsrt_call->category[msg_category].req_num = pinfo->fd->num;
+  p_camelsrt_call->category[msg_category].req_num = pinfo->num;
   p_camelsrt_call->category[msg_category].rsp_num = 0;
   p_camelsrt_call->category[msg_category].responded = FALSE;
   p_camelsrt_call->category[msg_category].req_time = pinfo->abs_ts;
@@ -543,7 +543,7 @@ camelsrt_close_call_matching(packet_info *pinfo,
 
   p_camelsrt_info->bool_msginfo[CAMELSRT_SESSION]=TRUE;
 #ifdef DEBUG_CAMELSRT
-  dbg(10,"\n Session end #%u\n", pinfo->fd->num);
+  dbg(10,"\n Session end #%u\n", pinfo->num);
 #endif
   /* look only for matching request, if matching conversation is available. */
   camelsrt_call_key.SessionIdKey = p_camelsrt_info->tcap_session_id;
@@ -625,7 +625,7 @@ camelsrt_begin_call_matching(packet_info *pinfo,
 
   /* look up the request */
 #ifdef DEBUG_CAMELSRT
-  dbg(10,"\n Session begin #%u\n", pinfo->fd->num);
+  dbg(10,"\n Session begin #%u\n", pinfo->num);
   dbg(11,"Search key %lu ",camelsrt_call_key.SessionIdKey);
 #endif
   p_camelsrt_call = (struct camelsrt_call_t *)g_hash_table_lookup(srt_calls, &camelsrt_call_key);
@@ -664,7 +664,7 @@ camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
   proto_item *ti, *hidden_item;
 
 #ifdef DEBUG_CAMELSRT
-  dbg(10,"\n %s #%u\n", val_to_str_const(srt_type, camelSRTtype_naming, "Unk"),pinfo->fd->num);
+  dbg(10,"\n %s #%u\n", val_to_str_const(srt_type, camelSRTtype_naming, "Unk"),pinfo->num);
 #endif
 
   /* look only for matching request, if matching conversation is available. */
@@ -689,20 +689,20 @@ camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
         srt_type=CAMELSRT_VOICE_ACR1;
       } else  if ( (p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].req_num == 0)
                    && (p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].rsp_num != 0)
-                   && (p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].rsp_num < pinfo->fd->num) ) {
+                   && (p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].rsp_num < pinfo->num) ) {
         srt_type=CAMELSRT_VOICE_ACR2;
       } else  if ( (p_camelsrt_call->category[CAMELSRT_VOICE_ACR3].req_num == 0)
                    && (p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].rsp_num != 0)
-                   && (p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].rsp_num < pinfo->fd->num) ) {
+                   && (p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].rsp_num < pinfo->num) ) {
         srt_type=CAMELSRT_VOICE_ACR3;
       } else if (p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].rsp_num != 0
-                 && p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].rsp_num > pinfo->fd->num) {
+                 && p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].rsp_num > pinfo->num) {
         srt_type=CAMELSRT_VOICE_ACR1;
       } else  if ( p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].rsp_num != 0
-                   && p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].rsp_num > pinfo->fd->num) {
+                   && p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].rsp_num > pinfo->num) {
         srt_type=CAMELSRT_VOICE_ACR2;
       } else  if (p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].rsp_num != 0
-                  && p_camelsrt_call->category[CAMELSRT_VOICE_ACR3].rsp_num > pinfo->fd->num) {
+                  && p_camelsrt_call->category[CAMELSRT_VOICE_ACR3].rsp_num > pinfo->num) {
         srt_type=CAMELSRT_VOICE_ACR3;
       }
 #ifdef DEBUG_CAMELSRT
@@ -719,12 +719,12 @@ camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
       /* We have not yet seen a request to that call, so this must be the first request
          remember its frame number. */
 #ifdef DEBUG_CAMELSRT
-      dbg(5,"Set reqlink #%u ", pinfo->fd->num);
+      dbg(5,"Set reqlink #%u ", pinfo->num);
 #endif
       update_camelsrt_call(p_camelsrt_call, pinfo, srt_type);
     } else {
       /* We have seen a request to this call - but was it *this* request? */
-      if (p_camelsrt_call->category[srt_type].req_num != pinfo->fd->num) {
+      if (p_camelsrt_call->category[srt_type].req_num != pinfo->num) {
 
         if (srt_type!=CAMELSRT_VOICE_DISC) {
           /* No, so it's a duplicate request. Mark it as such. */
@@ -739,10 +739,10 @@ camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
 
         } else {
           /* Ignore duplicate frame */
-          if (pinfo->fd->num > p_camelsrt_call->category[srt_type].req_num) {
-            p_camelsrt_call->category[srt_type].req_num = pinfo->fd->num;
+          if (pinfo->num > p_camelsrt_call->category[srt_type].req_num) {
+            p_camelsrt_call->category[srt_type].req_num = pinfo->num;
 #ifdef DEBUG_CAMELSRT
-            dbg(5,"DISC Set reqlink #%u ", pinfo->fd->num);
+            dbg(5,"DISC Set reqlink #%u ", pinfo->num);
 #endif
             update_camelsrt_call(p_camelsrt_call, pinfo, srt_type);
           } /* greater frame */
@@ -754,7 +754,7 @@ camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
     if ( gcamel_DisplaySRT &&
          (p_camelsrt_call->category[srt_type].rsp_num != 0) &&
          (p_camelsrt_call->category[srt_type].req_num != 0) &&
-         (p_camelsrt_call->category[srt_type].req_num == pinfo->fd->num) ) {
+         (p_camelsrt_call->category[srt_type].req_num == pinfo->num) ) {
 #ifdef DEBUG_CAMELSRT
       dbg(20,"Display_framersplink %d ",p_camelsrt_call->category[srt_type].rsp_num);
 #endif
@@ -834,7 +834,7 @@ camelsrt_report_call_matching(tvbuff_t *tvb, packet_info *pinfo,
   proto_item *ti, *hidden_item;
 
 #ifdef DEBUG_CAMELSRT
-  dbg(10,"\n %s #%u\n", val_to_str_const(srt_type, camelSRTtype_naming, "Unk"),pinfo->fd->num);
+  dbg(10,"\n %s #%u\n", val_to_str_const(srt_type, camelSRTtype_naming, "Unk"),pinfo->num);
 #endif
   camelsrt_call_key.SessionIdKey = p_camelsrt_info->tcap_session_id;
   /* look only for matching request, if matching conversation is available. */
@@ -852,13 +852,13 @@ camelsrt_report_call_matching(tvbuff_t *tvb, packet_info *pinfo,
 
     if (srt_type==CAMELSRT_VOICE_ACR1) {
       if (p_camelsrt_call->category[CAMELSRT_VOICE_ACR3].req_num != 0
-          && p_camelsrt_call->category[CAMELSRT_VOICE_ACR3].req_num < pinfo->fd->num) {
+          && p_camelsrt_call->category[CAMELSRT_VOICE_ACR3].req_num < pinfo->num) {
         srt_type=CAMELSRT_VOICE_ACR1;
       } else  if ( p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].req_num != 0
-                   && p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].req_num < pinfo->fd->num) {
+                   && p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].req_num < pinfo->num) {
         srt_type=CAMELSRT_VOICE_ACR2;
       } else  if (p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].req_num != 0
-                  && p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].req_num < pinfo->fd->num) {
+                  && p_camelsrt_call->category[CAMELSRT_VOICE_ACR1].req_num < pinfo->num) {
         srt_type=CAMELSRT_VOICE_ACR1;
       }
 #ifdef DEBUG_CAMELSRT
@@ -869,22 +869,22 @@ camelsrt_report_call_matching(tvbuff_t *tvb, packet_info *pinfo,
 
     if (p_camelsrt_call->category[srt_type].rsp_num == 0) {
       if  ( (p_camelsrt_call->category[srt_type].req_num != 0)
-            && (pinfo->fd->num > p_camelsrt_call->category[srt_type].req_num) ){
+            && (pinfo->num > p_camelsrt_call->category[srt_type].req_num) ){
         /* We have not yet seen a response to that call, so this must be the first response;
            remember its frame number only if response comes after request */
 #ifdef DEBUG_CAMELSRT
-        dbg(14,"Set reslink #%d req %u ",pinfo->fd->num, p_camelsrt_call->category[srt_type].req_num);
+        dbg(14,"Set reslink #%d req %u ",pinfo->num, p_camelsrt_call->category[srt_type].req_num);
 #endif
-        p_camelsrt_call->category[srt_type].rsp_num = pinfo->fd->num;
+        p_camelsrt_call->category[srt_type].rsp_num = pinfo->num;
 
       } else {
 #ifdef DEBUG_CAMELSRT
-        dbg(2,"badreslink #%u req %u ",pinfo->fd->num, p_camelsrt_call->category[srt_type].req_num);
+        dbg(2,"badreslink #%u req %u ",pinfo->num, p_camelsrt_call->category[srt_type].req_num);
 #endif
       } /* req_num != 0 */
     } else { /* rsp_num != 0 */
       /* We have seen a response to this call - but was it *this* response? */
-      if (p_camelsrt_call->category[srt_type].rsp_num != pinfo->fd->num) {
+      if (p_camelsrt_call->category[srt_type].rsp_num != pinfo->num) {
         /* No, so it's a duplicate response. Mark it as such. */
 #ifdef DEBUG_CAMELSRT
         dbg(21,"Display_duplicate rsp=%d ", p_camelsrt_call->category[srt_type].rsp_num);
@@ -899,7 +899,7 @@ camelsrt_report_call_matching(tvbuff_t *tvb, packet_info *pinfo,
 
     if ( (p_camelsrt_call->category[srt_type].req_num != 0) &&
          (p_camelsrt_call->category[srt_type].rsp_num != 0) &&
-         (p_camelsrt_call->category[srt_type].rsp_num == pinfo->fd->num) ) {
+         (p_camelsrt_call->category[srt_type].rsp_num == pinfo->num) ) {
 
       p_camelsrt_call->category[srt_type].responded = TRUE;
       p_camelsrt_info->msginfo[srt_type].request_available = TRUE;

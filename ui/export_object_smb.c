@@ -362,7 +362,7 @@ eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
         new_file->free_chunk_list = NULL;
         new_file->data_gathered = 0;
         new_file->is_out_of_memory = FALSE;
-        entry->pkt_num = pinfo->fd->num;
+        entry->pkt_num = pinfo->num;
 
         entry->hostname=g_filename_display_name(g_strcanon(eo_info->hostname,LEGAL_FILENAME_CHARS,'?'));
         entry->filename=g_filename_display_name(g_strcanon(eo_info->filename,LEGAL_FILENAME_CHARS,'?'));

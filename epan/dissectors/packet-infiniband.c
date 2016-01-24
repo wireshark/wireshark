@@ -3022,7 +3022,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
                 proto_data = wmem_new(wmem_file_scope(), conversation_infiniband_data);
                 proto_data->service_id = connection->service_id;
 
-                conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
                                         PT_IBQP, pinfo->srcport, pinfo->destport, 0);
                 conversation_add_proto_data(conv, proto_infiniband, proto_data);
             }
@@ -3094,10 +3094,10 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
                     set_address(&req_addr, AT_IB, GID_SIZE, connection->req_gid);
                     set_address(&resp_addr, AT_IB, GID_SIZE, connection->resp_gid);
 
-                    conv = conversation_new(pinfo->fd->num, &req_addr, &req_addr,
+                    conv = conversation_new(pinfo->num, &req_addr, &req_addr,
                                             PT_IBQP, connection->req_qp, connection->req_qp, NO_ADDR2|NO_PORT2);
                     conversation_add_proto_data(conv, proto_infiniband, proto_data);
-                    conv = conversation_new(pinfo->fd->num, &resp_addr, &resp_addr,
+                    conv = conversation_new(pinfo->num, &resp_addr, &resp_addr,
                                             PT_IBQP, connection->resp_qp, connection->resp_qp, NO_ADDR2|NO_PORT2);
                     conversation_add_proto_data(conv, proto_infiniband, proto_data);
 
@@ -3105,10 +3105,10 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
                     set_address(&req_addr, AT_IB, sizeof(guint16), &(connection->req_lid));
                     set_address(&resp_addr, AT_IB, sizeof(guint16), &(connection->resp_lid));
 
-                    conv = conversation_new(pinfo->fd->num, &req_addr, &req_addr,
+                    conv = conversation_new(pinfo->num, &req_addr, &req_addr,
                                             PT_IBQP, connection->req_qp, connection->req_qp, NO_ADDR2|NO_PORT2);
                     conversation_add_proto_data(conv, proto_infiniband, proto_data);
-                    conv = conversation_new(pinfo->fd->num, &resp_addr, &resp_addr,
+                    conv = conversation_new(pinfo->num, &resp_addr, &resp_addr,
                                             PT_IBQP, connection->resp_qp, connection->resp_qp, NO_ADDR2|NO_PORT2);
                     conversation_add_proto_data(conv, proto_infiniband, proto_data);
 

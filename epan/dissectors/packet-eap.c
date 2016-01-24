@@ -679,21 +679,21 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    * keep them separate?  (Or is that not going to happen?)
    */
   if (pinfo->destport == pinfo->match_uint) {
-    conversation = find_conversation(pinfo->fd->num, &pinfo->dst, &pinfo->src,
+    conversation = find_conversation(pinfo->num, &pinfo->dst, &pinfo->src,
                                      pinfo->ptype, pinfo->destport,
                                      0, NO_PORT_B);
   } else {
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                                      pinfo->ptype, pinfo->srcport,
                                      0, NO_PORT_B);
   }
   if (conversation == NULL) {
     if (pinfo->destport == pinfo->match_uint) {
-      conversation = conversation_new(pinfo->fd->num, &pinfo->dst, &pinfo->src,
+      conversation = conversation_new(pinfo->num, &pinfo->dst, &pinfo->src,
                                       pinfo->ptype, pinfo->destport,
                                       0, NO_PORT2);
     } else {
-      conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+      conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
                                       pinfo->ptype, pinfo->srcport,
                                       0, NO_PORT2);
     }
@@ -945,7 +945,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                  * also check that we have a length;
                  */
                 needs_reassembly = TRUE;
-                conversation_state->eap_reass_cookie = pinfo->fd->num;
+                conversation_state->eap_reass_cookie = pinfo->num;
 
                 /*
                  * Start the reassembly sequence number at 0.

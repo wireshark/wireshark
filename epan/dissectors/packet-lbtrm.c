@@ -1181,22 +1181,22 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         /* Note that this won't handle the case when a NAK occurs in the capture before any other packets for that transport. Oh well. */
         if (packet_type == LBTRM_PACKET_TYPE_NAK)
         {
-            transport = lbtrm_transport_unicast_find(&(pinfo->dst), src_port, session_id, pinfo->fd->num);
+            transport = lbtrm_transport_unicast_find(&(pinfo->dst), src_port, session_id, pinfo->num);
         }
         else
         {
-            transport = lbtrm_transport_add(&(pinfo->src), src_port, session_id, &(pinfo->dst), dest_port, pinfo->fd->num);
+            transport = lbtrm_transport_add(&(pinfo->src), src_port, session_id, &(pinfo->dst), dest_port, pinfo->num);
         }
     }
     else
     {
         if (packet_type == LBTRM_PACKET_TYPE_NAK)
         {
-            transport = lbtrm_transport_unicast_find(&(pinfo->dst), src_port, session_id, pinfo->fd->num);
+            transport = lbtrm_transport_unicast_find(&(pinfo->dst), src_port, session_id, pinfo->num);
         }
         else
         {
-            transport = lbtrm_transport_find(&(pinfo->src), src_port, session_id, &(pinfo->dst), dest_port, pinfo->fd->num);
+            transport = lbtrm_transport_find(&(pinfo->src), src_port, session_id, &(pinfo->dst), dest_port, pinfo->num);
         }
     }
     if (transport != NULL)
@@ -1303,7 +1303,7 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         {
             if (transport != NULL)
             {
-                lbtrm_transport_frame_add(transport, packet_type, pinfo->fd->num, sequence, retransmission);
+                lbtrm_transport_frame_add(transport, packet_type, pinfo->num, sequence, retransmission);
             }
         }
         else
@@ -1316,7 +1316,7 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                 transport_item = proto_tree_add_item(lbtrm_tree, hf_lbtrm_analysis, tvb, 0, 0, ENC_NA);
                 PROTO_ITEM_SET_GENERATED(transport_item);
                 transport_tree = proto_item_add_subtree(transport_item, ett_lbtrm_transport);
-                frame = lbtrm_transport_frame_find(transport, pinfo->fd->num);
+                frame = lbtrm_transport_frame_find(transport, pinfo->num);
                 if (frame != NULL)
                 {
                     lbm_transport_sqn_t * sqn = NULL;
@@ -1358,7 +1358,7 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                                     frame_tree = proto_item_add_subtree(frame_tree_item, ett_lbtrm_transport_sqn);
                                     cb_data.tree = frame_tree;
                                     cb_data.tvb = tvb;
-                                    cb_data.current_frame = pinfo->fd->num;
+                                    cb_data.current_frame = pinfo->num;
                                     wmem_tree_foreach(sqn->frame, dissect_lbtrm_sqn_frame_list_callback, (void *) &cb_data);
                                 }
                             }
@@ -1412,7 +1412,7 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                                     frame_tree = proto_item_add_subtree(frame_tree_item, ett_lbtrm_transport_sqn);
                                     cb_data.tree = frame_tree;
                                     cb_data.tvb = tvb;
-                                    cb_data.current_frame = pinfo->fd->num;
+                                    cb_data.current_frame = pinfo->num;
                                     wmem_tree_foreach(sqn->frame, dissect_lbtrm_sqn_frame_list_callback, (void *) &cb_data);
                                 }
                             }

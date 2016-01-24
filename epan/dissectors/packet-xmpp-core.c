@@ -180,7 +180,7 @@ xmpp_iq(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *pac
         /*displays request/response field in each iq packet*/
         if (reqresp_trans) {
 
-            if (reqresp_trans->req_frame == pinfo->fd->num) {
+            if (reqresp_trans->req_frame == pinfo->num) {
                 if (reqresp_trans->resp_frame) {
                     proto_item *it = proto_tree_add_uint(tree, hf_xmpp_response_in, tvb, 0, 0, reqresp_trans->resp_frame);
                     PROTO_ITEM_SET_GENERATED(it);
@@ -697,11 +697,11 @@ xmpp_starttls(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     tls_item = proto_tree_add_item(tree, hf_xmpp_starttls, tvb, packet->offset, packet->length, ENC_BIG_ENDIAN);
     tls_tree = proto_item_add_subtree(tls_item, ett_xmpp_starttls);
 
-    if (xmpp_info->ssl_start && xmpp_info->ssl_start != pinfo->fd->num) {
+    if (xmpp_info->ssl_start && xmpp_info->ssl_start != pinfo->num) {
         expert_add_info_format(pinfo, tls_item, &ei_xmpp_starttls_already_in_frame, "Already saw STARTTLS in frame %u", xmpp_info->ssl_start);
     }
     else {
-        xmpp_info->ssl_start = pinfo->fd->num;
+        xmpp_info->ssl_start = pinfo->num;
     }
 
     xmpp_display_attrs(tls_tree, packet, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -731,7 +731,7 @@ xmpp_proceed(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
     ssl_proceed =
         ssl_starttls_ack(find_dissector("ssl"), pinfo, find_dissector("xmpp"));
-    if (ssl_proceed > 0 && ssl_proceed != pinfo->fd->num) {
+    if (ssl_proceed > 0 && ssl_proceed != pinfo->num) {
         expert_add_info_format(pinfo, proceed_item, &ei_xmpp_proceed_already_in_frame,
                                "Already saw PROCEED in frame %u", ssl_proceed);
     }

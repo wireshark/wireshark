@@ -153,7 +153,7 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     k_interface_id = bluetooth_data->interface_id;
     k_adapter_id   = adapter_id;
-    k_frame_number = pinfo->fd->num;
+    k_frame_number = pinfo->num;
 
     key[0].length = 1;
     key[0].key    = &k_interface_id;
@@ -171,7 +171,7 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         disconnect_in_frame = wmem_new(wmem_file_scope(), guint32);
 
         if (disconnect_in_frame) {
-            *disconnect_in_frame = pinfo->fd->num;
+            *disconnect_in_frame = pinfo->num;
 
             wmem_tree_insert32_array(adapter_to_disconnect_in_frame, key, disconnect_in_frame);
         }

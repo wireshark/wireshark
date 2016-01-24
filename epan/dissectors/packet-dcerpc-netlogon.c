@@ -2444,7 +2444,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
                                    hf_client_challenge,&vars->client_challenge);
     memcpy(tab,&vars->client_challenge,8);
 
-    vars->start = pinfo->fd->num;
+    vars->start = pinfo->num;
     vars->next_start = -1;
     vars->next = NULL;
 
@@ -2466,7 +2466,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
         }
         else {
             debugprintf("Adding a new entry with this start packet = %d\n",vars->start);
-            existing_vars->next_start = pinfo->fd->num;
+            existing_vars->next_start = pinfo->num;
             existing_vars->next = vars;
         }
     }
@@ -2488,7 +2488,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
             debugprintf("It seems that I already record this vars (schannel hash)%d\n",vars->start);
         }
         else {
-            existing_vars->next_start = pinfo->fd->num;
+            existing_vars->next_start = pinfo->num;
             existing_vars->next = vars;
         }
 #endif
@@ -2515,10 +2515,10 @@ netlogon_dissect_netrserverreqchallenge_reply(tvbuff_t *tvb, int offset,
     offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep,
                               hf_netlogon_rc, NULL);
     if(vars != NULL) {
-        while(vars !=NULL && vars->next_start != -1 && vars->next_start < (int)pinfo->fd->num )
+        while(vars !=NULL && vars->next_start != -1 && vars->next_start < (int)pinfo->num )
         {
             vars = vars->next;
-            debugprintf("looping challenge reply... %d %d \n", vars->next_start, pinfo->fd->num);
+            debugprintf("looping challenge reply... %d %d \n", vars->next_start, pinfo->num);
         }
         if(vars == NULL)
         {
@@ -6642,7 +6642,7 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
     vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths, &key);
     if(vars != NULL) {
         debugprintf("Found some vars (ie. server/client challenges), let's see if I can get a session key\n");
-        while(vars != NULL && vars->next_start != -1 && vars->next_start < (int) pinfo->fd->num ) {
+        while(vars != NULL && vars->next_start != -1 && vars->next_start < (int) pinfo->num ) {
             debugprintf("looping auth reply...\n");
             vars = vars->next;
         }
@@ -7685,13 +7685,13 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
     guint8* decrypted;
     netlogon_auth_vars *vars;
     netlogon_auth_key key;
-    /*debugprintf("Dissection of request data offset %d len=%d on packet %d\n",offset,tvb_length_remaining(tvb,offset),pinfo->fd->num);*/
+    /*debugprintf("Dissection of request data offset %d len=%d on packet %d\n",offset,tvb_length_remaining(tvb,offset),pinfo->num);*/
 
     generate_hash_key(pinfo,is_server,&key,NULL);
     vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths, &key);
 
     if(vars != NULL  ) {
-        while(vars != NULL && vars->next_start != -1 && vars->next_start < (int) pinfo->fd->num ) {
+        while(vars != NULL && vars->next_start != -1 && vars->next_start < (int) pinfo->num ) {
             vars = vars->next;
         }
         if(vars == NULL ) {
@@ -7756,7 +7756,7 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
     generate_hash_key(pinfo,is_server,&key,NULL);
     vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths,(gconstpointer*) &key);
-    if(  ! (seen.isseen && seen.num == pinfo->fd->num) ) {
+    if(  ! (seen.isseen && seen.num == pinfo->num) ) {
         /*
          * Create a new tree, and split into x components ...
          */
@@ -7788,7 +7788,7 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         update_vars = 1;
     }
     if( vars != NULL ) {
-        while(vars != NULL && vars->next_start != -1 && vars->next_start <  (int)pinfo->fd->num ) {
+        while(vars != NULL && vars->next_start != -1 && vars->next_start <  (int)pinfo->num ) {
             vars = vars->next;
         }
         if(vars == NULL ) {
@@ -7815,9 +7815,9 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     {
         debugprintf("Vars not found (is null %d) %d (dissect_verf)\n",vars==NULL,g_hash_table_size(netlogon_auths));
     }
-    /*debugprintf("Setting isseen to true, old packet %d new %d\n",seen.num,pinfo->fd->num);*/
+    /*debugprintf("Setting isseen to true, old packet %d new %d\n",seen.num,pinfo->num);*/
     seen.isseen = TRUE;
-    seen.num = pinfo->fd->num;
+    seen.num = pinfo->num;
 
     return offset;
 }

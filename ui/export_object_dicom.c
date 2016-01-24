@@ -50,7 +50,7 @@ eo_dicom_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
         */
         entry = (export_object_entry_t *)g_malloc(sizeof(export_object_entry_t));
 
-        entry->pkt_num = pinfo->fd->num;
+        entry->pkt_num = pinfo->num;
         entry->hostname = eo_info->hostname;
         entry->content_type = eo_info->content_type;
         entry->filename = g_strdup(g_path_get_basename(eo_info->filename));

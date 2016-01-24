@@ -1058,7 +1058,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             cops_call = wmem_new(wmem_file_scope(), cops_call_t);
             cops_call->op_code = op_code;
             cops_call->solicited = is_solicited;
-            cops_call->req_num = PINFO_FD_NUM(pinfo);
+            cops_call->req_num = pinfo->num;
             cops_call->rsp_num = 0;
             cops_call->req_time = pinfo->abs_ts;
             g_ptr_array_add(pdus_array, cops_call);
@@ -1066,7 +1066,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         else {
             for (i=0; i < pdus_array->len; i++) {
                 cops_call = (cops_call_t*)g_ptr_array_index(pdus_array, i);
-                if ( cops_call->req_num == PINFO_FD_NUM(pinfo)
+                if ( cops_call->req_num == pinfo->num
                   && cops_call->rsp_num != 0)  {
                     ti = proto_tree_add_uint_format(cops_tree, hf_cops_response_in, tvb, 0, 0, cops_call->rsp_num,
                                                       "Response to this request is in frame %u", cops_call->rsp_num);
@@ -1104,7 +1104,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                          op_code == COPS_MSG_CC) ) ||
                     ( (cops_call->op_code == COPS_MSG_KA && !(cops_call->solicited)) &&
                         (op_code == COPS_MSG_KA && is_solicited) ) ) {
-                    cops_call->rsp_num = PINFO_FD_NUM(pinfo);
+                    cops_call->rsp_num = pinfo->num;
                     break;
                 }
             }
@@ -1112,7 +1112,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         else {
             for (i=0; i < pdus_array->len; i++) {
                 cops_call = (cops_call_t*)g_ptr_array_index(pdus_array, i);
-                if ( cops_call->rsp_num == PINFO_FD_NUM(pinfo) ) {
+                if ( cops_call->rsp_num == pinfo->num ) {
                     ti = proto_tree_add_uint_format(cops_tree, hf_cops_response_to, tvb, 0, 0, cops_call->req_num,
                                                       "Response to a request in frame %u", cops_call->req_num);
                     PROTO_ITEM_SET_GENERATED(ti);

@@ -153,7 +153,7 @@ static void mark_pmproxy_exchange_complete(packet_info *pinfo) {
     if(pmproxy_conversation == NULL) {
         pmproxy_conversation = wmem_new(wmem_file_scope(), pmproxy_conversation_info_t);
     }
-    pmproxy_conversation->last_proxy_frame = pinfo->fd->num;
+    pmproxy_conversation->last_proxy_frame = pinfo->num;
     conversation_add_proto_data(conversation, proto_pmproxy, pmproxy_conversation);
 }
 
@@ -168,7 +168,7 @@ static int is_pmproxy_exchange_complete(packet_info *pinfo) {
         return FALSE;
     }
 
-    return pinfo->fd->num >= pmproxy_conversation->last_proxy_frame;
+    return pinfo->num >= pmproxy_conversation->last_proxy_frame;
 }
 
 static int dissect_through_pcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {

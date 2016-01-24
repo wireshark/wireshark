@@ -1165,7 +1165,7 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
     return(is_retransmission);
 
 
-  framenum = PINFO_FD_NUM(pinfo);
+  framenum = pinfo->num;
 
   /*  If we're dissecting for a read filter in the GUI [tshark assigns
    *  frame numbers before running the read filter], don't do the TSN
@@ -1235,7 +1235,7 @@ ack_tree(sctp_tsn_t *t, proto_tree *acks_tree,
   proto_item *pi;
   proto_tree *pt;
   nstime_t rtt;
-  guint framenum =  pinfo->fd->num;
+  guint framenum =  pinfo->num;
 
   if ( t->ack.framenum == framenum ) {
     nstime_delta( &rtt, &(t->ack.ts), &(t->first_transmit.ts) );
@@ -1264,7 +1264,7 @@ sctp_ack(packet_info *pinfo, tvbuff_t *tvb,  proto_tree *acks_tree,
   if (!h || !h->peer)
     return;
 
-  framenum = PINFO_FD_NUM(pinfo);
+  framenum = pinfo->num;
 
   /* printf("%.6d ACK: %p->%p [%u] \n",framenum,h,h->peer,reltsn); */
 
@@ -1310,7 +1310,7 @@ sctp_ack_block(packet_info *pinfo, sctp_half_assoc_t *h, tvbuff_t *tvb,
   if ( !h || !h->peer || ! h->peer->started )
     return;
 
-  framenum =  PINFO_FD_NUM(pinfo);
+  framenum =  pinfo->num;
   rel_end = RELTSNACK(tsn_end);
 
   if (tsn_start_ptr) {
@@ -2743,7 +2743,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
     /* this fragment is already known.
      * compare frame number to check if it's a duplicate
      */
-    if (fragment->frame_num == pinfo->fd->num) {
+    if (fragment->frame_num == pinfo->num) {
       return fragment;
     } else {
       /* There already is a fragment having the same ports, v_tag,
@@ -2767,7 +2767,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
 
   /* create new fragment */
   fragment = (sctp_fragment *)g_malloc (sizeof (sctp_fragment));
-  fragment->frame_num = pinfo->fd->num;
+  fragment->frame_num = pinfo->num;
   fragment->tsn = tsn;
   fragment->len = tvb_captured_length(tvb);
   fragment->ppi = msg->ppi;

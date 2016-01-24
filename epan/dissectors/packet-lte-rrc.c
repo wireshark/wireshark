@@ -21827,7 +21827,7 @@ dissect_lte_rrc_SecurityAlgorithmConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_
                                    ett_lte_rrc_SecurityAlgorithmConfig, SecurityAlgorithmConfig_sequence);
 
   p_security_algorithms = private_data_pdcp_security_algorithms(actx);
-  p_security_algorithms->configuration_frame = actx->pinfo->fd->num;
+  p_security_algorithms->configuration_frame = actx->pinfo->num;
   p_security_algorithms->previous_configuration_frame = 0;
   p_security_algorithms->previous_integrity = eia0;
   p_security_algorithms->previous_ciphering = eea0;
@@ -22373,7 +22373,7 @@ dissect_lte_rrc_T_systemInfoValueTag(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
   if (!actx->pinfo->fd->flags.visited) {
     if (system_info_value_current_set && (value != system_info_value_current)) {
       /* Add entry to the hash table.  Offset by one to distinguish 0 from lookup failure */
-      g_hash_table_insert(lte_rrc_system_info_value_changed_hash, GUINT_TO_POINTER(actx->pinfo->fd->num),
+      g_hash_table_insert(lte_rrc_system_info_value_changed_hash, GUINT_TO_POINTER(actx->pinfo->num),
                           GUINT_TO_POINTER(system_info_value_current+1));
     }
     system_info_value_current_set = TRUE;
@@ -22381,7 +22381,7 @@ dissect_lte_rrc_T_systemInfoValueTag(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
   }
   else {
     /* Look up indication of changed info value from hash table */
-    gpointer p_previous = g_hash_table_lookup(lte_rrc_system_info_value_changed_hash, GUINT_TO_POINTER(actx->pinfo->fd->num));
+    gpointer p_previous = g_hash_table_lookup(lte_rrc_system_info_value_changed_hash, GUINT_TO_POINTER(actx->pinfo->num));
     if (p_previous != NULL) {
       /* Subtract one from stored result to get previous value */
       guint32 previous = GPOINTER_TO_UINT(p_previous) - 1;

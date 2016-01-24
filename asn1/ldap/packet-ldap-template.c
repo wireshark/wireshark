@@ -800,7 +800,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         case LDAP_REQ_COMPARE:
         case LDAP_REQ_EXTENDED:
           lcr.is_request=TRUE;
-          lcr.req_frame=pinfo->fd->num;
+          lcr.req_frame=pinfo->num;
           lcr.rep_frame=0;
           break;
         case LDAP_RES_BIND:
@@ -816,7 +816,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         case LDAP_RES_INTERMEDIATE:
           lcr.is_request=FALSE;
           lcr.req_frame=0;
-          lcr.rep_frame=pinfo->fd->num;
+          lcr.rep_frame=pinfo->num;
           break;
         default:
           return NULL;
@@ -856,7 +856,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
           lcrp=wmem_new0(wmem_file_scope(), ldap_call_response_t);
         }
         lcrp->messageId=messageId;
-        lcrp->req_frame=pinfo->fd->num;
+        lcrp->req_frame=pinfo->num;
         lcrp->req_time=pinfo->abs_ts;
         lcrp->rep_frame=0;
         lcrp->protocolOpTag=protocolOpTag;
@@ -885,7 +885,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
           if(!lcrp->rep_frame){
             g_hash_table_remove(ldap_info->unmatched, lcrp);
-            lcrp->rep_frame=pinfo->fd->num;
+            lcrp->rep_frame=pinfo->num;
             lcrp->is_request=FALSE;
             g_hash_table_insert(ldap_info->matched, lcrp, lcrp);
           }
@@ -1097,7 +1097,7 @@ static void
     * It's SASL; are we using a security layer?
     */
     if (ldap_info->first_auth_frame != 0 &&
-      pinfo->fd->num >= ldap_info->first_auth_frame) {
+      pinfo->num >= ldap_info->first_auth_frame) {
         doing_sasl_security = TRUE; /* yes */
     }
   }
@@ -1113,7 +1113,7 @@ static void
     &&(tvb_get_ntohl(tvb, offset)<=(guint)(tvb_reported_length_remaining(tvb, offset)-4))
     &&(tvb_get_guint8(tvb, offset+4)==0x60) ){
       ldap_info->auth_type=LDAP_AUTH_SASL;
-      ldap_info->first_auth_frame=pinfo->fd->num;
+      ldap_info->first_auth_frame=pinfo->num;
       ldap_info->auth_mech=g_strdup("GSS-SPNEGO");
       doing_sasl_security=TRUE;
   }
@@ -1777,7 +1777,7 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
   /*
    * Do we have a conversation for this connection?
    */
-  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+  conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                                    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
   if(conversation){
     ldap_info = (ldap_conv_info_t *)conversation_get_proto_data(conversation, proto_ldap);

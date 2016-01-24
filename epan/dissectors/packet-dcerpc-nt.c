@@ -679,7 +679,7 @@ void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 		return;
 
 	/* Look up existing value */
-	pol = find_pol_handle(policy_hnd, pinfo->fd->num, &value);
+	pol = find_pol_handle(policy_hnd, pinfo->num, &value);
 
 	if (pol != NULL) {
 		/*
@@ -703,15 +703,15 @@ void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 			 * is 0; if so, this is presumably a duplicate call,
 			 * and we don't do an implicit close.
 			 */
-			if (pol->first_frame == pinfo->fd->num &&
+			if (pol->first_frame == pinfo->num &&
 			    pol->last_frame == 0)
 				return;
-			pol->last_frame = pinfo->fd->num;
+			pol->last_frame = pinfo->num;
 			pol = NULL;
 		} else {
 			if (is_close) {
-				pol->close_frame = pinfo->fd->num;
-				pol->last_frame = pinfo->fd->num;
+				pol->close_frame = pinfo->num;
+				pol->last_frame = pinfo->num;
 			}
 			return;
 		}
@@ -721,14 +721,14 @@ void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 
 	pol = (pol_value *)wmem_alloc(wmem_file_scope(), sizeof(pol_value));
 
-	pol->open_frame = is_open ? pinfo->fd->num : 0;
-	pol->close_frame = is_close ? pinfo->fd->num : 0;
-	pol->first_frame = pinfo->fd->num;
+	pol->open_frame = is_open ? pinfo->num : 0;
+	pol->close_frame = is_close ? pinfo->num : 0;
+	pol->first_frame = pinfo->num;
 	pol->last_frame = pol->close_frame;	/* if 0, unknown; if non-0, known */
 	pol->type=0;
 	pol->name = NULL;
 
-	add_pol_handle(policy_hnd, pinfo->fd->num, pol, value);
+	add_pol_handle(policy_hnd, pinfo->num, pol, value);
 }
 
 /* Store the type of a policy handle */
@@ -750,7 +750,7 @@ static void dcerpc_store_polhnd_type(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 		return;
 
 	/* Look up existing value */
-	pol = find_pol_handle(policy_hnd, pinfo->fd->num, &value);
+	pol = find_pol_handle(policy_hnd, pinfo->num, &value);
 
 	if (pol != NULL) {
 		/*
@@ -779,7 +779,7 @@ void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 		return;
 
 	/* Look up existing value */
-	pol = find_pol_handle(policy_hnd, pinfo->fd->num, &value);
+	pol = find_pol_handle(policy_hnd, pinfo->num, &value);
 
 	if (pol != NULL) {
 		/*
@@ -805,7 +805,7 @@ void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 
 	pol->open_frame = 0;
 	pol->close_frame = 0;
-	pol->first_frame = pinfo->fd->num;
+	pol->first_frame = pinfo->num;
 	pol->last_frame = 0;
 	pol->type = 0;
 	if (name)
@@ -813,7 +813,7 @@ void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 	else
 		pol->name = wmem_strdup(wmem_file_scope(), "<UNKNOWN>");
 
-	add_pol_handle(policy_hnd, pinfo->fd->num, pol, value);
+	add_pol_handle(policy_hnd, pinfo->num, pol, value);
 }
 
 /*
@@ -997,7 +997,7 @@ dissect_nt_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	/* Insert open/close/name information if known */
 	if (dcerpc_fetch_polhnd_data(&hnd, &name, NULL, &open_frame,
-			&close_frame, pinfo->fd->num)) {
+			&close_frame, pinfo->num)) {
 
 		if (open_frame) {
 			proto_item *item_local;

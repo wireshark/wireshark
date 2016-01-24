@@ -402,13 +402,13 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * being frame zero. */
 	if (messageDetail != INFERRED_PEERSHUTDOWN &&
 	    (highest_num_seen == 0 ||
-	     highest_num_seen < pinfo->fd->num)) {
+	     highest_num_seen < pinfo->num)) {
 
 		ldss_broadcast_t *data;
 
 		/* Populate data from the broadcast */
 		data = wmem_new0(wmem_file_scope(), ldss_broadcast_t);
-		data->num = pinfo->fd->num;
+		data->num = pinfo->num;
 		data->ts = pinfo->abs_ts;
 		data->message_id = messageID;
 		data->message_detail = messageDetail;
@@ -431,7 +431,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		/* Record that the frame was processed */
-		highest_num_seen = pinfo->fd->num;
+		highest_num_seen = pinfo->num;
 	}
 
 	return tvb_captured_length(tvb);
@@ -467,7 +467,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 	/* Look for the transfer conversation; this was created during
 	 * earlier broadcast dissection (see prepare_ldss_transfer_conv) */
-	transfer_conv = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
+	transfer_conv = find_conversation (pinfo->num, &pinfo->src, &pinfo->dst,
 					   PT_TCP, pinfo->srcport, pinfo->destport, 0);
 	transfer_info = (ldss_transfer_info_t *)conversation_get_proto_data(transfer_conv, proto_ldss);
 
@@ -491,12 +491,12 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		col_set_str(pinfo->cinfo, COL_INFO, "LDSS File Transfer (Requesting file - pull)");
 
 		if (highest_num_seen == 0 ||
-		    highest_num_seen < pinfo->fd->num) {
+		    highest_num_seen < pinfo->num) {
 
 			already_dissected = FALSE;
 			transfer_info->req = wmem_new0(wmem_file_scope(), ldss_file_request_t);
 			transfer_info->req->file = wmem_new0(wmem_file_scope(), ldss_file_t);
-			highest_num_seen = pinfo->fd->num;
+			highest_num_seen = pinfo->num;
 		}
 
 		if (tree) {
@@ -627,7 +627,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			PROTO_ITEM_SET_GENERATED(ti);
 		}
 
-		transfer_info->req->num = pinfo->fd->num;
+		transfer_info->req->num = pinfo->num;
 		transfer_info->req->ts = pinfo->abs_ts;
 	}
 	/* Remaining packets are the file response */
@@ -667,7 +667,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		}
 
 		/* OK. Now we have the whole file that was transferred. */
-		transfer_info->resp_num = pinfo->fd->num;
+		transfer_info->resp_num = pinfo->num;
 		transfer_info->resp_ts = pinfo->abs_ts;
 
 		col_add_fstr(pinfo->cinfo, COL_INFO, "LDSS File Transfer (Sending file - %s)",

@@ -1420,28 +1420,28 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     }
     if (pinfo->fd->flags.visited == 0)
     {
-        transport = lbtru_transport_add(&source_address, source_port, session_id, pinfo->fd->num);
+        transport = lbtru_transport_add(&source_address, source_port, session_id, pinfo->num);
     }
     else
     {
-        transport = lbtru_transport_find(&source_address, source_port, session_id, pinfo->fd->num);
+        transport = lbtru_transport_find(&source_address, source_port, session_id, pinfo->num);
     }
     if (transport != NULL)
     {
         if (pinfo->fd->flags.visited == 0)
         {
-            client = lbtru_client_transport_add(transport, &receiver_address, receiver_port, pinfo->fd->num);
+            client = lbtru_client_transport_add(transport, &receiver_address, receiver_port, pinfo->num);
             if (client != NULL)
             {
                 if (lbtru_sequence_analysis)
                 {
-                    lbtru_client_transport_frame_add(client, packet_type, pinfo->fd->num, packet_sqn, retransmission);
+                    lbtru_client_transport_frame_add(client, packet_type, pinfo->num, packet_sqn, retransmission);
                 }
             }
         }
         else
         {
-            client = lbtru_client_transport_find(transport, &receiver_address, receiver_port, pinfo->fd->num);
+            client = lbtru_client_transport_find(transport, &receiver_address, receiver_port, pinfo->num);
         }
         tapinfo->transport = lbtru_transport_source_string_transport(transport);
         channel = transport->channel;
@@ -1465,7 +1465,7 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
             lbm_transport_frame_t * frame = NULL;
 
             /* Fill in the tree */
-            frame = lbtru_client_transport_frame_find(client, pinfo->fd->num);
+            frame = lbtru_client_transport_frame_find(client, pinfo->num);
             if (frame != NULL)
             {
                 lbm_transport_sqn_t * sqn = NULL;
@@ -1507,7 +1507,7 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                                 frame_tree = proto_item_add_subtree(frame_tree_item, ett_lbtru_transport_sqn);
                                 cb_data.tree = frame_tree;
                                 cb_data.tvb = tvb;
-                                cb_data.current_frame = pinfo->fd->num;
+                                cb_data.current_frame = pinfo->num;
                                 wmem_tree_foreach(sqn->frame, dissect_lbtru_sqn_frame_list_callback, (void *) &cb_data);
                             }
                         }
@@ -1562,7 +1562,7 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                                 frame_tree = proto_item_add_subtree(frame_tree_item, ett_lbtru_transport_sqn);
                                 cb_data.tree = frame_tree;
                                 cb_data.tvb = tvb;
-                                cb_data.current_frame = pinfo->fd->num;
+                                cb_data.current_frame = pinfo->num;
                                 wmem_tree_foreach(sqn->frame, dissect_lbtru_sqn_frame_list_callback, (void *) &cb_data);
                             }
                         }

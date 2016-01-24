@@ -404,7 +404,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 #ifdef DEBUG
     printf("WTP packet %u: tree = %p, pdu = %s (%u) length: %u\n",
-            pinfo->fd->num, tree,
+            pinfo->num, tree,
             val_to_str(pdut, vals_wtp_pdu_type, "Unknown PDU type 0x%x"),
             pdut, tvb_captured_length(tvb));
 #endif
@@ -722,7 +722,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     NULL, wtp_tree);
 #ifdef DEBUG
             printf("WTP: Packet %u %s -> %d: wsp_tvb = %p, fd_wtp = %p, frame = %u\n",
-                    pinfo->fd->num,
+                    pinfo->num,
                     fd_wtp ? "Reassembled" : "Not reassembled",
                     fd_wtp ? fd_wtp->reassembled_in : -1,
                     wsp_tvb,
@@ -732,7 +732,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (fd_wtp) {
                 /* Reassembled */
                 reassembled_in = fd_wtp->reassembled_in;
-                if (pinfo->fd->num == reassembled_in) {
+                if (pinfo->num == reassembled_in) {
                     /* Reassembled in this very packet:
                      * We can safely hand the tvb to the WSP dissector */
                     call_dissector(wsp_handle, wsp_tvb, pinfo, tree);

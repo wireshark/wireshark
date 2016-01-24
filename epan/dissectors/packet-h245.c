@@ -483,7 +483,7 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 		if (upcoming_channel_lcl->media_addr.addr.type!=AT_NONE && upcoming_channel_lcl->media_addr.port!=0) {
 			t38_add_address(pinfo, &upcoming_channel_lcl->media_addr.addr,
 							upcoming_channel_lcl->media_addr.port, 0,
-							"H245", pinfo->fd->num);
+							"H245", pinfo->num);
 		}
 		return;
 	}
@@ -503,12 +503,12 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 	if (upcoming_channel_lcl->media_addr.addr.type!=AT_NONE && upcoming_channel_lcl->media_addr.port!=0) {
 		srtp_add_address(pinfo, &upcoming_channel_lcl->media_addr.addr,
 						upcoming_channel_lcl->media_addr.port, 0,
-						"H245", pinfo->fd->num, upcoming_channel_lcl->is_video , rtp_dyn_payload, dummy_srtp_info);
+						"H245", pinfo->num, upcoming_channel_lcl->is_video , rtp_dyn_payload, dummy_srtp_info);
 	}
 	if (upcoming_channel_lcl->media_control_addr.addr.type!=AT_NONE && upcoming_channel_lcl->media_control_addr.port!=0 && rtcp_handle) {
 		srtcp_add_address(pinfo, &upcoming_channel_lcl->media_control_addr.addr,
 						upcoming_channel_lcl->media_control_addr.port, 0,
-						"H245", pinfo->fd->num, dummy_srtp_info);
+						"H245", pinfo->num, dummy_srtp_info);
 	}
 }
 

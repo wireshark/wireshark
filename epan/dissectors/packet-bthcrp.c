@@ -398,7 +398,7 @@ dissect_bthcrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         service_type    = BTSDP_L2CAP_PROTOCOL_UUID;
         service_channel = l2cap_data->psm;
-        frame_number    = pinfo->fd->num;
+        frame_number    = pinfo->num;
 
         key[0].length = 1;
         key[0].key = &interface_id;

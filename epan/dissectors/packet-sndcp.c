@@ -341,7 +341,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
       /* Reassembled
        */
       reassembled_in = fd_npdu->reassembled_in;
-      if (pinfo->fd->num == reassembled_in) {
+      if (pinfo->num == reassembled_in) {
         /* Reassembled in this very packet:
          * We can safely hand the tvb to the IP dissector
          */

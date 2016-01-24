@@ -714,7 +714,7 @@ dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
         if (!pinfo->fd->flags.visited) {
             sep_entry_t     *sep_data;
             wmem_tree_key_t  key[7];
-            guint32          frame_number = pinfo->fd->num;
+            guint32          frame_number = pinfo->num;
 
             key[0].length = 1;
             key[0].key    = &interface_id;
@@ -1353,7 +1353,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     chandle = l2cap_data->chandle;
     psm = l2cap_data->psm;
     cid = l2cap_data->cid;
-    frame_number = pinfo->fd->num;
+    frame_number = pinfo->num;
 
     key[0].length = 1;
     key[0].key    = &interface_id;
@@ -1369,10 +1369,10 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     subtree = (wmem_tree_t *) wmem_tree_lookup32_array(channels, key);
     channels_info = (subtree) ? (channels_info_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
     if (!(channels_info &&
-            ((*channels_info->adapter_disconnect_in_frame >= pinfo->fd->num &&
-            *channels_info->hci_disconnect_in_frame >= pinfo->fd->num &&
-            *channels_info->l2cap_disconnect_in_frame >= pinfo->fd->num &&
-            channels_info->disconnect_in_frame >= pinfo->fd->num) ||
+            ((*channels_info->adapter_disconnect_in_frame >= pinfo->num &&
+            *channels_info->hci_disconnect_in_frame >= pinfo->num &&
+            *channels_info->l2cap_disconnect_in_frame >= pinfo->num &&
+            channels_info->disconnect_in_frame >= pinfo->num) ||
             (*channels_info->adapter_disconnect_in_frame == 0 ||
             *channels_info->hci_disconnect_in_frame == 0 ||
             *channels_info->l2cap_disconnect_in_frame == 0 ||
@@ -1465,10 +1465,10 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (media_stream_number_value) {
                     sep_data.stream_number         = media_stream_number_value->stream_number;
                     if (media_stream_number_value->stream_start_in_frame == 0)
-                        media_stream_number_value->stream_start_in_frame = pinfo->fd->num;
+                        media_stream_number_value->stream_start_in_frame = pinfo->num;
 
                     if (!pinfo->fd->flags.visited)
-                        media_stream_number_value->stream_end_in_frame = pinfo->fd->num;
+                        media_stream_number_value->stream_end_in_frame = pinfo->num;
 
                     sep_data.stream_start_in_frame = media_stream_number_value->stream_start_in_frame;
                     sep_data.stream_end_in_frame   = media_stream_number_value->stream_end_in_frame;
@@ -1939,8 +1939,8 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             }
             if (!pinfo->fd->flags.visited && message_type == MESSAGE_TYPE_ACCEPT &&
-                    channels_info->disconnect_in_frame > pinfo->fd->num) {
-                channels_info->disconnect_in_frame = pinfo->fd->num;
+                    channels_info->disconnect_in_frame > pinfo->num) {
+                channels_info->disconnect_in_frame = pinfo->num;
             }
             break;
         case SIGNAL_ID_SUSPEND:
@@ -1976,8 +1976,8 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             }
             if (!pinfo->fd->flags.visited && message_type == MESSAGE_TYPE_ACCEPT &&
-                    channels_info->disconnect_in_frame > pinfo->fd->num) {
-                channels_info->disconnect_in_frame = pinfo->fd->num;
+                    channels_info->disconnect_in_frame > pinfo->num) {
+                channels_info->disconnect_in_frame = pinfo->num;
             }
             break;
         case SIGNAL_ID_SECURITY_CONTROL:
@@ -3082,7 +3082,7 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (bta2dp_codec_info.content_protection_type == 0 && codec_dissector == aptx_handle) {
         call_dissector_with_data(aptx_handle, tvb, pinfo, tree, &bta2dp_codec_info);
     } else {
-        bluetooth_add_address(pinfo, &pinfo->net_dst, sep_data.stream_number, "BT A2DP", pinfo->fd->num, FALSE, &bta2dp_codec_info);
+        bluetooth_add_address(pinfo, &pinfo->net_dst, sep_data.stream_number, "BT A2DP", pinfo->num, FALSE, &bta2dp_codec_info);
         call_dissector(rtp_handle, tvb, pinfo, tree);
     }
     offset += tvb_reported_length_remaining(tvb, offset);
@@ -3315,7 +3315,7 @@ dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     pinfo->destport = sep_data.stream_number;
 #endif
 
-    bluetooth_add_address(pinfo, &pinfo->net_dst, 0, "BT VDP", pinfo->fd->num, TRUE, &btvdp_codec_info);
+    bluetooth_add_address(pinfo, &pinfo->net_dst, 0, "BT VDP", pinfo->num, TRUE, &btvdp_codec_info);
     call_dissector(rtp_handle, tvb, pinfo, tree);
     offset += tvb_reported_length_remaining(tvb, offset);
 

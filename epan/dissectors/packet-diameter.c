@@ -1342,22 +1342,22 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 				diameter_pair->cmd_code = cmd;
 				diameter_pair->result_code = 0;
 				diameter_pair->cmd_str = cmd_str;
-				diameter_pair->req_frame = PINFO_FD_NUM(pinfo);
+				diameter_pair->req_frame = pinfo->num;
 				diameter_pair->ans_frame = 0;
 				diameter_pair->req_time = pinfo->abs_ts;
-				wmem_tree_insert32(pdus_tree, PINFO_FD_NUM(pinfo), (void *)diameter_pair);
+				wmem_tree_insert32(pdus_tree, pinfo->num, (void *)diameter_pair);
 			} else {
 				/* Look for a request which occurs earlier in the trace than this answer. */
-				diameter_pair = (diameter_req_ans_pair_t *)wmem_tree_lookup32_le(pdus_tree, PINFO_FD_NUM(pinfo));
+				diameter_pair = (diameter_req_ans_pair_t *)wmem_tree_lookup32_le(pdus_tree, pinfo->num);
 
 				/* Verify the end-to-end-id matches before declaring a match */
 				if (diameter_pair && diameter_pair->end_to_end_id == end_to_end_id) {
-					diameter_pair->ans_frame = PINFO_FD_NUM(pinfo);
+					diameter_pair->ans_frame = pinfo->num;
 				}
 			}
 		} else {
 			/* Look for a request which occurs earlier in the trace than this answer. */
-			diameter_pair = (diameter_req_ans_pair_t *)wmem_tree_lookup32_le(pdus_tree, PINFO_FD_NUM(pinfo));
+			diameter_pair = (diameter_req_ans_pair_t *)wmem_tree_lookup32_le(pdus_tree, pinfo->num);
 
 			/* If the end-to-end ID doesn't match then this is not the request we were
 			 * looking for.

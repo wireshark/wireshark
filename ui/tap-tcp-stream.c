@@ -76,7 +76,7 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
     {
         struct segment *segment = (struct segment *)g_malloc(sizeof(struct segment));
         segment->next      = NULL;
-        segment->num       = pinfo->fd->num;
+        segment->num       = pinfo->num;
         segment->rel_secs  = (guint32)pinfo->rel_ts.secs;
         segment->rel_usecs = pinfo->rel_ts.nsecs/1000;
         /* Currently unused

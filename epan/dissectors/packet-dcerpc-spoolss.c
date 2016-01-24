@@ -651,7 +651,7 @@ SpoolssClosePrinter_q(tvbuff_t *tvb, int offset,
 		FALSE, TRUE);
 
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
-			     pinfo->fd->num);
+			     pinfo->num);
 
 	if (pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -4610,7 +4610,7 @@ SpoolssStartPagePrinter_q(tvbuff_t *tvb, int offset,
 		FALSE, FALSE);
 
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
-			     pinfo->fd->num);
+			     pinfo->num);
 
 	if (pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -4651,7 +4651,7 @@ SpoolssEndPagePrinter_q(tvbuff_t *tvb, int offset,
 		FALSE, FALSE);
 
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
-			     pinfo->fd->num);
+			     pinfo->num);
 
 	if (pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -4783,7 +4783,7 @@ SpoolssStartDocPrinter_q(tvbuff_t *tvb, int offset,
 		FALSE, FALSE);
 
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
-			     pinfo->fd->num);
+			     pinfo->num);
 
 	if (pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -4829,7 +4829,7 @@ SpoolssEndDocPrinter_q(tvbuff_t *tvb, int offset,
 		FALSE, FALSE);
 
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
-			     pinfo->fd->num);
+			     pinfo->num);
 
 	if (pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -4877,7 +4877,7 @@ SpoolssWritePrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		FALSE, FALSE);
 
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
-			     pinfo->fd->num);
+			     pinfo->num);
 
 	if (pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -5357,7 +5357,7 @@ SpoolssGetPrinterDriver2_q(tvbuff_t *tvb, int offset,
 		FALSE, FALSE);
 
 	dcerpc_fetch_polhnd_data(&policy_hnd, &pol_name, NULL, NULL, NULL,
-			     pinfo->fd->num);
+			     pinfo->num);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				pol_name);

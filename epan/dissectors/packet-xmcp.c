@@ -895,12 +895,12 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   if (!pinfo->fd->flags.visited) {
     if (xmcp_msg_type_class == XMCP_CLASS_REQUEST) {
       if (xmcp_trans->request_frame == 0) {
-        xmcp_trans->request_frame = pinfo->fd->num;
+        xmcp_trans->request_frame = pinfo->num;
         xmcp_trans->request_time = pinfo->abs_ts;
       }
     } else if (xmcp_msg_type_class != XMCP_CLASS_RESERVED) {
       if (xmcp_trans->response_frame == 0) {
-        xmcp_trans->response_frame = pinfo->fd->num;
+        xmcp_trans->response_frame = pinfo->num;
       }
     }
   }

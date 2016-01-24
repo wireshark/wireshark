@@ -836,7 +836,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
         p_report_in_frame =
             (pdcp_sequence_report_in_frame*)g_hash_table_lookup(pdcp_lte_sequence_analysis_report_hash,
                                                                 get_report_hash_key(sequenceNumber,
-                                                                                    pinfo->fd->num,
+                                                                                    pinfo->num,
                                                                                     p_pdcp_lte_info, FALSE));
         if (p_report_in_frame != NULL) {
             addChannelSequenceInfo(p_report_in_frame, p_pdcp_lte_info,
@@ -923,7 +923,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
             p_report_in_frame->previousFrameNum = p_channel_status->previousFrameNum;
 
             /* Update channel status to remember *this* frame */
-            p_channel_status->previousFrameNum = pinfo->fd->num;
+            p_channel_status->previousFrameNum = pinfo->num;
             p_channel_status->previousSequenceNumber = sequenceNumber;
         }
         else {
@@ -948,7 +948,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
         }
 
         /* Update channel status to remember *this* frame */
-        p_channel_status->previousFrameNum = pinfo->fd->num;
+        p_channel_status->previousFrameNum = pinfo->num;
         p_channel_status->previousSequenceNumber = sequenceNumber;
 
         if (p_report_in_frame->previousFrameNum != 0) {
@@ -962,14 +962,14 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
             /* It really shouldn't be NULL... */
             if (p_previous_report != NULL) {
                 /* Point it forward to this one */
-                p_previous_report->nextFrameNum = pinfo->fd->num;
+                p_previous_report->nextFrameNum = pinfo->num;
             }
         }
     }
 
     /* Associate with this frame number */
     g_hash_table_insert(pdcp_lte_sequence_analysis_report_hash,
-                        get_report_hash_key(sequenceNumber, pinfo->fd->num,
+                        get_report_hash_key(sequenceNumber, pinfo->num,
                                             p_pdcp_lte_info, TRUE),
                         p_report_in_frame);
 
@@ -1758,7 +1758,7 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* Take a deep copy of the settings */
             *security_to_store = *current_security;
             g_hash_table_insert(pdcp_security_result_hash,
-                                get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->fd->num, TRUE),
+                                get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->num, TRUE),
                                 security_to_store);
         }
         else {
@@ -1771,14 +1771,14 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 security_to_store->integrity = global_default_integrity_algorithm;
                 security_to_store->seen_next_ul_pdu = TRUE;
                 g_hash_table_insert(pdcp_security_result_hash,
-                                    get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->fd->num, TRUE),
+                                    get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->num, TRUE),
                                     security_to_store);
             }
         }
     }
 
     /* Show security settings for this PDU */
-    pdu_security = (pdcp_security_info_t*)g_hash_table_lookup(pdcp_security_result_hash, get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->fd->num, FALSE));
+    pdu_security = (pdcp_security_info_t*)g_hash_table_lookup(pdcp_security_result_hash, get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->num, FALSE));
     if (pdu_security != NULL) {
         proto_item *ti;
 

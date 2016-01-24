@@ -286,7 +286,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 		ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
 		    "Frame %u: %u byte%s on wire",
-		    pinfo->fd->num, frame_len, frame_plurality);
+		    pinfo->num, frame_len, frame_plurality);
 		if (generate_bits_field)
 			proto_item_append_text(ti, " (%u bits)", frame_len * 8);
 		proto_item_append_text(ti, ", %u byte%s captured",
@@ -365,7 +365,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			if (proto_field_is_referenced(tree, hf_frame_time_delta)) {
 				nstime_t     del_cap_ts;
 
-				frame_delta_abs_time(pinfo->epan, pinfo->fd, pinfo->fd->num - 1, &del_cap_ts);
+				frame_delta_abs_time(pinfo->epan, pinfo->fd, pinfo->num - 1, &del_cap_ts);
 
 				item = proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,
 							   0, 0, &(del_cap_ts));
@@ -393,7 +393,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		}
 
 		proto_tree_add_uint(fh_tree, hf_frame_number, tvb,
-				    0, 0, pinfo->fd->num);
+				    0, 0, pinfo->num);
 
 		proto_tree_add_uint_format(fh_tree, hf_frame_len, tvb,
 					   0, 0, frame_len, "Frame Length: %u byte%s (%u bits)",
@@ -662,7 +662,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 						"Dissector %s incomplete in frame %u: undecoded byte number %u "
 						"(0x%.4X+%u)",
 						(fi ? fi->hfinfo->abbrev : "[unknown]"),
-						pinfo->fd->num, i, i - i % 16, i % 16);
+						pinfo->num, i, i - i % 16, i % 16);
 					proto_tree_add_expert_format(tree, pinfo, &ei_incomplete, tvb, i, 1, "Undecoded byte number: %u (0x%.4X+%u)", i, i - i % 16, i % 16);
 				}
 			}

@@ -1456,10 +1456,10 @@ static int dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 break;
         }
 
-        if (leg != NULL && ( (! leg->msgs) || leg->msgs->last->framenum < pinfo->fd->num ) ) {
+        if (leg != NULL && ( (! leg->msgs) || leg->msgs->last->framenum < pinfo->num ) ) {
             alcap_msg_data_t* msg = wmem_new(wmem_file_scope(), alcap_msg_data_t);
             msg->msg_type = msg_info->msg_type;
-            msg->framenum = pinfo->fd->num;
+            msg->framenum = pinfo->num;
             msg->next = NULL;
             msg->last = NULL;
 

@@ -723,11 +723,11 @@ dissect_etch_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     gbl_pdu_counter++;
 
     /* Switch to another frame? => Clear column */
-    if (pinfo->fd->num != gbl_old_frame_num) {
+    if (pinfo->num != gbl_old_frame_num) {
       col_clear(pinfo->cinfo, COL_INFO);
       gbl_pdu_counter = 0;
     }
-    gbl_old_frame_num = pinfo->fd->num;
+    gbl_old_frame_num = pinfo->num;
 
     col_set_writable(pinfo->cinfo, TRUE);
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", wmem_strbuf_get_str(colInfo));

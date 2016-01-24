@@ -1018,7 +1018,7 @@ save_path(packet_info *pinfo, const gchar *current_path, const gchar *name,
         guint32               frame_number;
         const gchar          *path = path_unknown;
 
-        frame_number = pinfo->fd->num;
+        frame_number = pinfo->num;
 
         key[0].length = 1;
         key[0].key = &obex_proto_data->interface_id;
@@ -2010,7 +2010,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                                 obex_profile_data_t  *obex_profile_data;
 
                                 wmem_tree_key_t       key[6];
-                                frame_number = pinfo->fd->num;
+                                frame_number = pinfo->num;
 
                                 key[0].length = 1;
                                 key[0].key = &obex_proto_data->interface_id;
@@ -2296,7 +2296,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     save_fragmented = pinfo->fragmented;
 
-    frame_number = pinfo->fd->num;
+    frame_number = pinfo->num;
 
     key[0].length = 1;
     key[0].key = &obex_proto_data.interface_id;
@@ -2353,12 +2353,12 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (tvb_captured_length(tvb) == tvb_reported_length(tvb)) {
         frag_msg = fragment_get_reassembled_id(&btobex_reassembly_table, pinfo, pinfo->p2p_dir);
-        if (frag_msg && pinfo->fd->num != frag_msg->reassembled_in) {
+        if (frag_msg && pinfo->num != frag_msg->reassembled_in) {
             /* reassembled but not last */
 
             new_tvb = process_reassembled_data(tvb, 0, pinfo,
                     "Reassembled Obex packet", frag_msg, &btobex_frag_items, NULL, main_tree);
-        } else if (frag_msg && pinfo->fd->num == frag_msg->reassembled_in) {
+        } else if (frag_msg && pinfo->num == frag_msg->reassembled_in) {
             /* reassembled and last, so dissect reassembled packet here */
 
             new_tvb = process_reassembled_data(tvb, 0, pinfo,
@@ -2451,7 +2451,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (!pinfo->fd->flags.visited &&
                     (pinfo->p2p_dir == P2P_DIR_SENT ||
                     pinfo->p2p_dir == P2P_DIR_RECV)) {
-                frame_number = pinfo->fd->num;
+                frame_number = pinfo->num;
 
                 key[0].length = 1;
                 key[0].key = &obex_proto_data.interface_id;
@@ -2490,7 +2490,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         length = tvb_get_ntohs(tvb, offset) - 3;
         offset += 2;
 
-        frame_number = pinfo->fd->num;
+        frame_number = pinfo->num;
 
         key[0].length = 1;
         key[0].key = &obex_proto_data.interface_id;
@@ -2510,16 +2510,16 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 obex_last_opcode_data->adapter_id == obex_proto_data.adapter_id &&
                 obex_last_opcode_data->chandle == obex_proto_data.chandle &&
                 obex_last_opcode_data->channel == obex_proto_data.channel) {
-            if (obex_last_opcode_data->request_in_frame > 0 && obex_last_opcode_data->request_in_frame != pinfo->fd->num) {
+            if (obex_last_opcode_data->request_in_frame > 0 && obex_last_opcode_data->request_in_frame != pinfo->num) {
                 sub_item = proto_tree_add_uint(main_tree, hf_request_in_frame, next_tvb, 0, 0, obex_last_opcode_data->request_in_frame);
                 PROTO_ITEM_SET_GENERATED(sub_item);
             }
 
-            if (!pinfo->fd->flags.visited && obex_last_opcode_data->response_in_frame == 0 && obex_last_opcode_data->request_in_frame < pinfo->fd->num) {
-                obex_last_opcode_data->response_in_frame = pinfo->fd->num;
+            if (!pinfo->fd->flags.visited && obex_last_opcode_data->response_in_frame == 0 && obex_last_opcode_data->request_in_frame < pinfo->num) {
+                obex_last_opcode_data->response_in_frame = pinfo->num;
             }
 
-            if (obex_last_opcode_data->response_in_frame > 0 && obex_last_opcode_data->response_in_frame != pinfo->fd->num) {
+            if (obex_last_opcode_data->response_in_frame > 0 && obex_last_opcode_data->response_in_frame != pinfo->num) {
                 sub_item = proto_tree_add_uint(main_tree, hf_response_in_frame, next_tvb, 0, 0, obex_last_opcode_data->response_in_frame);
                 PROTO_ITEM_SET_GENERATED(sub_item);
             }

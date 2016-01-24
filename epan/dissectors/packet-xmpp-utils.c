@@ -51,13 +51,13 @@ xmpp_iq_reqresp_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_info
     if (!pinfo->fd->flags.visited) {
         xmpp_trans = (xmpp_transaction_t *)wmem_tree_lookup_string(xmpp_info->req_resp, id, WMEM_TREE_STRING_NOCASE);
         if (xmpp_trans) {
-            xmpp_trans->resp_frame = pinfo->fd->num;
+            xmpp_trans->resp_frame = pinfo->num;
 
         } else {
             char *se_id = wmem_strdup(wmem_file_scope(), id);
 
             xmpp_trans = wmem_new(wmem_file_scope(), xmpp_transaction_t);
-            xmpp_trans->req_frame = pinfo->fd->num;
+            xmpp_trans->req_frame = pinfo->num;
             xmpp_trans->resp_frame = 0;
 
             wmem_tree_insert_string(xmpp_info->req_resp, se_id, (void *) xmpp_trans, WMEM_TREE_STRING_NOCASE);

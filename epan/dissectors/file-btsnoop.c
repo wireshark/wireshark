@@ -192,7 +192,7 @@ dissect_btsnoop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
         if (pref_dissect_next_layer) switch (datalink) {\
             case 1001: /* H1 */
-                pinfo->fd->num = frame_number;
+                pinfo->num = frame_number;
                 pinfo->abs_ts = timestamp;
 
                 pinfo->pseudo_header->bthci.sent = (flags & 0x01) ? FALSE : TRUE;
@@ -209,7 +209,7 @@ dissect_btsnoop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 call_dissector(hci_h1_handle, next_tvb, pinfo, payload_tree);
                 break;
             case 1002: /* H4 */
-                pinfo->fd->num = frame_number;
+                pinfo->num = frame_number;
                 pinfo->abs_ts = timestamp;
                 pinfo->p2p_dir = (flags & 0x01) ? P2P_DIR_RECV : P2P_DIR_SENT;
 
@@ -217,7 +217,7 @@ dissect_btsnoop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 call_dissector(hci_h4_handle, next_tvb, pinfo, payload_tree);
                 break;
             case 2001: /* Linux Monitor */
-                pinfo->fd->num = frame_number;
+                pinfo->num = frame_number;
                 pinfo->abs_ts = timestamp;
 
                 pinfo->pseudo_header->btmon.opcode = flags & 0xFFFF;

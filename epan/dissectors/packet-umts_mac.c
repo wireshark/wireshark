@@ -713,7 +713,7 @@ static tvbuff_t * add_to_tree(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
 {
     tvbuff_t * new_tvb = NULL;
 
-    if (sdu->frame_num == pinfo->fd->num) {
+    if (sdu->frame_num == pinfo->num) {
         mac_is_fragment * f = sdu->fragments;
         guint counter = 0;
         new_tvb = tvb_new_child_real_data(tvb, sdu->data, sdu->length, sdu->length);
@@ -811,13 +811,13 @@ static tvbuff_t * mac_is_add_fragment(tvbuff_t * tvb _U_, packet_info *pinfo, pr
         /* Middle segment */
         if (no_sdus == 1 && ss == 3) {
             guint head_length, tail_length;
-            init_frag(tvb, body_parts_array[tsn], maclength, offset, pinfo->fd->num, tsn, MAC_IS_MIDDLE);
+            init_frag(tvb, body_parts_array[tsn], maclength, offset, pinfo->num, tsn, MAC_IS_MIDDLE);
             tail_length = find_tail(body_parts_array, tsn);
             if (tail_length > 0) {
                 head_length = find_head(body_parts_array, &tsn);
                 if (head_length > 0) {
                     /* tsn is now TSN of head */
-                    return reassemble(tvb, body_parts_array, tsn, tail_length+head_length+maclength, &ch, pinfo->fd->num);
+                    return reassemble(tvb, body_parts_array, tsn, tail_length+head_length+maclength, &ch, pinfo->num);
                 }
             }
             /* XXX: haven't confirmed if case when middle segment comes last
@@ -826,20 +826,20 @@ static tvbuff_t * mac_is_add_fragment(tvbuff_t * tvb _U_, packet_info *pinfo, pr
         /* If first SDU is last segment of previous. A tail. */
         else if (sdu_no == 0 && (ss & 1) == 1) {
             guint length = maclength;
-            init_frag(tvb, body_parts_array[tsn], maclength, offset, pinfo->fd->num, tsn, MAC_IS_TAIL);
+            init_frag(tvb, body_parts_array[tsn], maclength, offset, pinfo->num, tsn, MAC_IS_TAIL);
             length += find_head(body_parts_array, &tsn);
             if (length > maclength) {
                 /* tsn is now TSN of head */
-                return reassemble(tvb, body_parts_array, tsn, length, &ch, pinfo->fd->num);
+                return reassemble(tvb, body_parts_array, tsn, length, &ch, pinfo->num);
             }
         }
         /* If last SDU is first segment of next. A head. */
         else if (sdu_no == no_sdus-1 && (ss & 2) == 2) {
             guint length = maclength;
-            init_frag(tvb, body_parts_array[tsn], maclength, offset, pinfo->fd->num, tsn, MAC_IS_HEAD);
+            init_frag(tvb, body_parts_array[tsn], maclength, offset, pinfo->num, tsn, MAC_IS_HEAD);
             length += find_tail(body_parts_array, tsn);
             if (length > maclength) {
-                return reassemble(tvb, body_parts_array, tsn, length, &ch, pinfo->fd->num);
+                return reassemble(tvb, body_parts_array, tsn, length, &ch, pinfo->num);
             }
         /* If our SDU is not fragmented. */
         } else {
@@ -851,21 +851,21 @@ static tvbuff_t * mac_is_add_fragment(tvbuff_t * tvb _U_, packet_info *pinfo, pr
         tvbuff_t * new_tvb = NULL;
         /* Middle segment */
         if (no_sdus == 1 && ss == 3) {
-            mac_is_sdu * sdu = get_sdu(pinfo->fd->num, tsn, MAC_IS_MIDDLE, &ch);
+            mac_is_sdu * sdu = get_sdu(pinfo->num, tsn, MAC_IS_MIDDLE, &ch);
             if (sdu) {
                 return add_to_tree(tvb, pinfo, tree, sdu, offset, maclength, MAC_IS_MIDDLE);
             }
         }
         /* If first SDU is last segment of previous. A tail. */
         else if (sdu_no == 0 && (ss & 1) == 1) {
-            mac_is_sdu * sdu = get_sdu(pinfo->fd->num, tsn, MAC_IS_TAIL, &ch);
+            mac_is_sdu * sdu = get_sdu(pinfo->num, tsn, MAC_IS_TAIL, &ch);
             if (sdu) {
                 return add_to_tree(tvb, pinfo, tree, sdu, offset, maclength, MAC_IS_TAIL);
             }
         }
         /* If last SDU is first segment of next. A head. */
         else if (sdu_no == no_sdus-1 && (ss & 2) == 2) {
-            mac_is_sdu * sdu = get_sdu(pinfo->fd->num, tsn, MAC_IS_HEAD, &ch);
+            mac_is_sdu * sdu = get_sdu(pinfo->num, tsn, MAC_IS_HEAD, &ch);
             if (sdu) {
                 return add_to_tree(tvb, pinfo, tree, sdu, offset, maclength, MAC_IS_HEAD);
             }

@@ -686,7 +686,7 @@ static void push_req(http_conv_t *conv_data, packet_info *pinfo)
 	/* a request will always create a new http_req_res_t object */
 	http_req_res_t *req_res = push_req_res(conv_data);
 
-	req_res->req_framenum = pinfo->fd->num;
+	req_res->req_framenum = pinfo->num;
 	req_res->req_ts = pinfo->abs_ts;
 
 	p_add_proto_data(wmem_file_scope(), pinfo, proto_http, 0, req_res);
@@ -707,7 +707,7 @@ static void push_res(http_conv_t *conv_data, packet_info *pinfo)
 	if (!req_res || req_res->res_framenum > 0) {
 		req_res = push_req_res(conv_data);
 	}
-	req_res->res_framenum = pinfo->fd->num;
+	req_res->res_framenum = pinfo->num;
 	p_add_proto_data(wmem_file_scope(), pinfo, proto_http, 0, req_res);
 }
 
@@ -839,7 +839,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	is_ssl = proto_is_frame_protocol(pinfo->layers, "ssl");
 
 	stat_info = wmem_new(wmem_packet_scope(), http_info_value_t);
-	stat_info->framenum = pinfo->fd->num;
+	stat_info->framenum = pinfo->num;
 	stat_info->response_code = 0;
 	stat_info->request_method = NULL;
 	stat_info->request_uri = NULL;
@@ -1558,13 +1558,13 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	if (http_type == HTTP_RESPONSE && conv_data->upgrade == UPGRADE_SSTP) {
-		conv_data->startframe = pinfo->fd->num + 1;
+		conv_data->startframe = pinfo->num + 1;
 		headers.upgrade = conv_data->upgrade;
 	}
 
 	if (http_type == HTTP_RESPONSE && pinfo->desegment_offset<=0 && pinfo->desegment_len<=0) {
 		conv_data->upgrade = headers.upgrade;
-		conv_data->startframe = pinfo->fd->num + 1;
+		conv_data->startframe = pinfo->num + 1;
 		copy_address_wmem(wmem_file_scope(), &conv_data->server_addr, &pinfo->src);
 		conv_data->server_port = pinfo->srcport;
 	}
@@ -2072,14 +2072,14 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 			destport = pinfo->destport;
 		}
 
-		conv = find_conversation(PINFO_FD_NUM(pinfo), &pinfo->src, &pinfo->dst, PT_TCP, srcport, destport, 0);
+		conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, PT_TCP, srcport, destport, 0);
 
 		/* We may get stuck in a recursion loop if we let process_tcp_payload() call us.
 		 * So, if the port in the URI is one we're registered for or we have set up a
 		 * conversation (e.g., one we detected heuristically or via Decode-As) call the data
 		 * dissector directly.
 		 */
-		if (value_is_in_range(http_tcp_range, uri_port) || (conv && conversation_get_dissector(conv, pinfo->fd->num) == http_handle)) {
+		if (value_is_in_range(http_tcp_range, uri_port) || (conv && conversation_get_dissector(conv, pinfo->num) == http_handle)) {
 			call_dissector(data_handle, tvb, pinfo, tree);
 		} else {
 			/* set pinfo->{src/dst port} and call the TCP sub-dissector lookup */
@@ -3019,23 +3019,23 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	 * Check if this is proxied connection and if so, hand of dissection to the
 	 * payload-dissector.
 	 * Response code 200 means "OK" and strncmp() == 0 means the strings match exactly */
-	if(pinfo->fd->num >= conv_data->startframe &&
+	if(pinfo->num >= conv_data->startframe &&
 	   conv_data->response_code == 200 &&
 	   conv_data->request_method &&
 	   strncmp(conv_data->request_method, "CONNECT", 7) == 0 &&
 	   conv_data->request_uri) {
 		if(conv_data->startframe == 0 && !pinfo->fd->flags.visited)
-			conv_data->startframe = pinfo->fd->num;
+			conv_data->startframe = pinfo->num;
 		http_payload_subdissector(tvb, tree, pinfo, conv_data, data);
 	} else {
 		while (tvb_reported_length_remaining(tvb, offset) > 0) {
-			if (conv_data->upgrade == UPGRADE_WEBSOCKET && pinfo->fd->num >= conv_data->startframe) {
+			if (conv_data->upgrade == UPGRADE_WEBSOCKET && pinfo->num >= conv_data->startframe) {
 				next_handle = websocket_handle;
 			}
-			if (conv_data->upgrade == UPGRADE_HTTP2 && pinfo->fd->num >= conv_data->startframe) {
+			if (conv_data->upgrade == UPGRADE_HTTP2 && pinfo->num >= conv_data->startframe) {
 				next_handle = http2_handle;
 			}
-			if (conv_data->upgrade == UPGRADE_SSTP && conv_data->response_code == 200 && pinfo->fd->num >= conv_data->startframe) {
+			if (conv_data->upgrade == UPGRADE_SSTP && conv_data->response_code == 200 && pinfo->num >= conv_data->startframe) {
 				next_handle = sstp_handle;
 			}
 			if (next_handle) {

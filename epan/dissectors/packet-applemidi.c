@@ -297,7 +297,7 @@ dissect_applemidi_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	rtp_dyn_payload = rtp_dyn_payload_new();
 	rtp_dyn_payload_insert(rtp_dyn_payload, 97, "rtp-midi", 10000);
 	rtp_add_address( pinfo, &pinfo->src, pinfo->srcport, 0, APPLEMIDI_DISSECTOR_SHORTNAME,
-			 pinfo->fd->num, FALSE, rtp_dyn_payload);
+			 pinfo->num, FALSE, rtp_dyn_payload);
 
 	/* call dissect_applemidi() from now on for UDP packets on this "connection"
 	   it is important to do this step after calling rtp_add_address, otherwise

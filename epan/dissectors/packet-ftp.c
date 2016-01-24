@@ -728,7 +728,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                  * "ftp_ip_address" and "server_port", and
                  * wildcard everything else?
                  */
-                conversation = find_conversation(pinfo->fd->num, &ftp_ip_address,
+                conversation = find_conversation(pinfo->num, &ftp_ip_address,
                     &pinfo->dst, PT_TCP, ftp_port, 0,
                     NO_PORT_B);
                 if (conversation == NULL) {
@@ -750,7 +750,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                      * a new one was opened?
                      */
                     conversation = conversation_new(
-                        pinfo->fd->num, &ftp_ip_address, &pinfo->dst,
+                        pinfo->num, &ftp_ip_address, &pinfo->dst,
                         PT_TCP, ftp_port, 0, NO_PORT2);
                     conversation_set_dissector(conversation, ftpdata_handle);
                 }
@@ -792,12 +792,12 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                     tvb, eprt_offset, ftp_port_len, ftp_port);
 
             /* Find/create conversation for data */
-            conversation = find_conversation(pinfo->fd->num,
+            conversation = find_conversation(pinfo->num,
                     &pinfo->src, &ftp_ip_address,
                     PT_TCP, ftp_port, 0, NO_PORT_B);
             if (conversation == NULL) {
                 conversation = conversation_new(
-                        pinfo->fd->num, &pinfo->src, &ftp_ip_address,
+                        pinfo->num, &pinfo->src, &ftp_ip_address,
                         PT_TCP, ftp_port, 0, NO_PORT2);
                 conversation_set_dissector(conversation,
                         ftpdata_handle);
@@ -840,12 +840,12 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                         ftp_port_len, ftp_port);
 
                 /* Find/create conversation for data */
-                conversation = find_conversation(pinfo->fd->num, &ftp_ip_address,
+                conversation = find_conversation(pinfo->num, &ftp_ip_address,
                                                  &pinfo->dst, PT_TCP, ftp_port, 0,
                                                  NO_PORT_B);
                 if (conversation == NULL) {
                     conversation = conversation_new(
-                        pinfo->fd->num, &ftp_ip_address, &pinfo->dst,
+                        pinfo->num, &ftp_ip_address, &pinfo->dst,
                         PT_TCP, ftp_port, 0, NO_PORT2);
                     conversation_set_dissector(conversation,
                         ftpdata_handle);

@@ -198,7 +198,7 @@ comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	computed_cksum=in_cksum(&cksum_vec[0], 3);
 
 	/* Set up the new order to create the zebra effect */
-	fInfoTemp=(frame_info *)g_hash_table_lookup(cs->packet_set, GINT_TO_POINTER(pinfo->fd->num));
+	fInfoTemp=(frame_info *)g_hash_table_lookup(cs->packet_set, GINT_TO_POINTER(pinfo->num));
 	if((fInfoTemp!=NULL)){
 		col_set_time(pinfo->cinfo, COL_INFO, &fInfoTemp->zebra_time, "ZebraTime");
 	}
@@ -209,7 +209,7 @@ comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	fInfo->fg->partner=NULL;
 	fInfo->fg->count=1;
 	fInfo->fg->cksum=computed_cksum;
-	fInfo->num=pinfo->fd->num;
+	fInfo->num=pinfo->num;
 	fInfo->id=ci->ip_id;
 	fInfo->ip_ttl=ci->ip_ttl;
 	fInfo->dl_dst=pinfo->dl_dst;
@@ -217,7 +217,7 @@ comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	/* clean memory */
 	nstime_set_zero(&fInfo->zebra_time);
 	nstime_set_zero(&fInfo->fg->predecessor_time);
-	g_hash_table_insert(cs->packet_set, GINT_TO_POINTER(pinfo->fd->num), fInfo);
+	g_hash_table_insert(cs->packet_set, GINT_TO_POINTER(pinfo->num), fInfo);
 
 	if((guint32)cf_get_packet_count(&cfile)==fInfo->num){
 		nstime_set_unset(&cs->current_time);
@@ -248,7 +248,7 @@ call_foreach_count_ip_id(gpointer key _U_, gpointer value, gpointer arg)
 	/* we only need one value out of pinfo we use a temp one */
 	packet_info *pinfo=(packet_info*)g_malloc(sizeof(packet_info));
 	pinfo->fd=(frame_data*)g_malloc(sizeof(frame_data));
-	pinfo->fd->num = fInfo->num;
+	pinfo->num = fInfo->num;
 
 	fInfoTemp=(frame_info *)g_hash_table_lookup(cs->ip_id_set, GINT_TO_POINTER((gint)fInfo->id));
 	if(fInfoTemp==NULL){

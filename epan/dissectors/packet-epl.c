@@ -2695,7 +2695,7 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
 	seq_send = seq_send >> EPL_ASND_SDO_SEQ_MASK;
 	epl_segmentation.send = seq_send;
 	/* get the current frame-number */
-	frame = pinfo->fd->num;
+	frame = pinfo->num;
 
 	/* Create a key */
 	key = epl_duplication_key(epl_segmentation.src,epl_segmentation.dest,seq_recv,seq_send);
@@ -2978,7 +2978,7 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 	fragment_head *frag_msg = NULL;
 
 	/* get the current frame number */
-	frame = pinfo->fd->num;
+	frame = pinfo->num;
 
 	if (!response)
 	{   /* request */
@@ -3432,7 +3432,7 @@ dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packe
 	fragment_head *frag_msg = NULL;
 
 	/* get the current frame number */
-	frame = pinfo->fd->num;
+	frame = pinfo->num;
 
 	if (!response)
 	{   /* request */

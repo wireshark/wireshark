@@ -406,7 +406,7 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
             break;
 
         frame_item = new QTreeWidgetItem();
-        frame_item->setText(column_number_name, QString(tr("Frame %1")).arg(pinfo->fd->num));
+        frame_item->setText(column_number_name, QString(tr("Frame %1")).arg(pinfo->num));
         frame_item->setText(column_number_ogf, QString("").sprintf("0x%02X", tap_hci->ogf));
         frame_item->setText(column_number_ocf, QString("").sprintf("0x%04X", tap_hci->ocf));
         frame_item->setText(column_number_opcode, QString("").sprintf("0x%04X", tap_hci->ogf << 10 | tap_hci->ocf));
@@ -415,7 +415,7 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
         item_data = wmem_new(wmem_file_scope(), item_data_t);
         item_data->interface_id = tap_hci->interface_id;
         item_data->adapter_id   = tap_hci->adapter_id;
-        item_data->frame_number = pinfo->fd->num;
+        item_data->frame_number = pinfo->num;
         frame_item->setData(0, Qt::UserRole, QVariant::fromValue<item_data_t *>(item_data));
 
         break;
@@ -454,14 +454,14 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
             break;
 
         frame_item = new QTreeWidgetItem();
-        frame_item->setText(column_number_name, QString(tr("Frame %1")).arg(pinfo->fd->num));
+        frame_item->setText(column_number_name, QString(tr("Frame %1")).arg(pinfo->num));
         frame_item->setText(column_number_event, QString("").sprintf("0x%02X", tap_hci->event));
         item->addChild(frame_item);
 
         item_data = wmem_new(wmem_file_scope(), item_data_t);
         item_data->interface_id = tap_hci->interface_id;
         item_data->adapter_id   = tap_hci->adapter_id;
-        item_data->frame_number = pinfo->fd->num;
+        item_data->frame_number = pinfo->num;
         frame_item->setData(0, Qt::UserRole, QVariant::fromValue<item_data_t *>(item_data));
 
         break;
@@ -491,14 +491,14 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
         item->setText(column_number_occurrence, QString::number(item->text(column_number_occurrence).toInt() + 1));
 
         frame_item = new QTreeWidgetItem();
-        frame_item->setText(column_number_name, QString(tr("Frame %1")).arg(pinfo->fd->num));
+        frame_item->setText(column_number_name, QString(tr("Frame %1")).arg(pinfo->num));
         frame_item->setText(column_number_status, QString("").sprintf("0x%02X", tap_hci->status));
         item->addChild(frame_item);
 
         item_data = wmem_new(wmem_file_scope(), item_data_t);
         item_data->interface_id = tap_hci->interface_id;
         item_data->adapter_id   = tap_hci->adapter_id;
-        item_data->frame_number = pinfo->fd->num;
+        item_data->frame_number = pinfo->num;
         frame_item->setData(0, Qt::UserRole, QVariant::fromValue<item_data_t *>(item_data));
 
         break;
@@ -525,14 +525,14 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
         item->setText(column_number_occurrence, QString::number(item->text(column_number_occurrence).toInt() + 1));
 
         frame_item = new QTreeWidgetItem();
-        frame_item->setText(column_number_name, QString(tr("Frame %1")).arg(pinfo->fd->num));
+        frame_item->setText(column_number_name, QString(tr("Frame %1")).arg(pinfo->num));
         frame_item->setText(column_number_status, QString("").sprintf("%u", tap_hci->status));
         item->addChild(frame_item);
 
         item_data = wmem_new(wmem_file_scope(), item_data_t);
         item_data->interface_id = tap_hci->interface_id;
         item_data->adapter_id   = tap_hci->adapter_id;
-        item_data->frame_number = pinfo->fd->num;
+        item_data->frame_number = pinfo->num;
         frame_item->setData(0, Qt::UserRole, QVariant::fromValue<item_data_t *>(item_data));
 
         break;
@@ -562,14 +562,14 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
         item->setText(column_number_occurrence, QString::number(item->text(column_number_occurrence).toInt() + 1));
 
         frame_item = new QTreeWidgetItem();
-        frame_item->setText(column_number_name, QString(tr("Frame %1")).arg(pinfo->fd->num));
+        frame_item->setText(column_number_name, QString(tr("Frame %1")).arg(pinfo->num));
         frame_item->setText(column_number_reason, QString("").sprintf("0x%02X", tap_hci->reason));
         item->addChild(frame_item);
 
         item_data = wmem_new(wmem_file_scope(), item_data_t);
         item_data->interface_id = tap_hci->interface_id;
         item_data->adapter_id   = tap_hci->adapter_id;
-        item_data->frame_number = pinfo->fd->num;
+        item_data->frame_number = pinfo->num;
         frame_item->setData(0, Qt::UserRole, QVariant::fromValue<item_data_t *>(item_data));
 
         break;
@@ -596,14 +596,14 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
         item->setText(column_number_occurrence, QString::number(item->text(column_number_occurrence).toInt() + 1));
 
         frame_item = new QTreeWidgetItem();
-        frame_item->setText(column_number_name, QString(tr("Frame %1")).arg(pinfo->fd->num));
+        frame_item->setText(column_number_name, QString(tr("Frame %1")).arg(pinfo->num));
         frame_item->setText(column_number_hardware_error, QString("").sprintf("0x%02X", tap_hci->hardware_error));
         item->addChild(frame_item);
 
         item_data = wmem_new(wmem_file_scope(), item_data_t);
         item_data->interface_id = tap_hci->interface_id;
         item_data->adapter_id   = tap_hci->adapter_id;
-        item_data->frame_number = pinfo->fd->num;
+        item_data->frame_number = pinfo->num;
         frame_item->setData(0, Qt::UserRole, QVariant::fromValue<item_data_t *>(item_data));
 
         break;

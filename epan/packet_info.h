@@ -55,7 +55,9 @@ typedef struct _packet_info {
   const char *current_proto;        /**< name of protocol currently being dissected */
   struct epan_column_info *cinfo;   /**< Column formatting information */
   guint32 presence_flags;           /**< Presence flags for some items */
+  guint32 num;                      /**< Frame number */
   nstime_t abs_ts;                  /**< Packet absolute time stamp */
+  nstime_t rel_ts;                  /**< Relative timestamp (yes, it can be negative) */
   gint pkt_encap;                   /**< Per-packet encapsulation/data-link type */
   frame_data *fd;
   union wtap_pseudo_header *pseudo_header;
@@ -158,7 +160,6 @@ typedef struct _packet_info {
 
   wmem_allocator_t *pool;      /**< Memory pool scoped to the pinfo struct */
   struct epan_session *epan;
-  nstime_t     rel_ts;       /**< Relative timestamp (yes, it can be negative) */
   const gchar *heur_list_name;    /**< name of heur list if this packet is being heuristically dissected */
 } packet_info;
 

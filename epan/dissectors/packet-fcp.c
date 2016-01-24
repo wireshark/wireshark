@@ -346,7 +346,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     request_data = (fcp_request_data_t*)wmem_map_lookup(fcp_conv_data->luns, GUINT_TO_POINTER((guint)lun));
     if (!request_data) {
         request_data = wmem_new(wmem_file_scope(), fcp_request_data_t);
-        request_data->request_frame = pinfo->fd->num;
+        request_data->request_frame = pinfo->num;
         request_data->response_frame = 0;
         request_data->request_time = pinfo->abs_ts;
 
@@ -369,11 +369,11 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     /* populate the exchange struct */
     if(!pinfo->fd->flags.visited){
         if(fchdr->fctl&FC_FCTL_EXCHANGE_FIRST){
-            request_data->itlq->first_exchange_frame=pinfo->fd->num;
+            request_data->itlq->first_exchange_frame=pinfo->num;
             request_data->itlq->fc_time = pinfo->abs_ts;
         }
         if(fchdr->fctl&FC_FCTL_EXCHANGE_LAST){
-            request_data->itlq->last_exchange_frame=pinfo->fd->num;
+            request_data->itlq->last_exchange_frame=pinfo->num;
         }
     }
 
@@ -482,16 +482,16 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
 
     /* Save the response frame */
     if (request_data != NULL) {
-        request_data->response_frame = pinfo->fd->num;
+        request_data->response_frame = pinfo->num;
 
         /* populate the exchange struct */
         if(!pinfo->fd->flags.visited){
             if(fchdr->fctl&FC_FCTL_EXCHANGE_FIRST){
-                request_data->itlq->first_exchange_frame=pinfo->fd->num;
+                request_data->itlq->first_exchange_frame=pinfo->num;
                 request_data->itlq->fc_time = pinfo->abs_ts;
             }
             if(fchdr->fctl&FC_FCTL_EXCHANGE_LAST){
-                request_data->itlq->last_exchange_frame=pinfo->fd->num;
+                request_data->itlq->last_exchange_frame=pinfo->num;
             }
         }
     } else {
@@ -661,7 +661,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                                             fcp_iu_val, "Unknown 0x%02x"));
     fcp_tree = proto_item_add_subtree(ti, ett_fcp);
 
-    fc_conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+    fc_conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                      pinfo->ptype, pinfo->srcport,
                      pinfo->destport, 0);
     if (fc_conv != NULL) {

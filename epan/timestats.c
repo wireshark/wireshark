@@ -44,23 +44,23 @@ time_stat_update(timestat_t *stats, const nstime_t *delta, packet_info *pinfo)
 {
 	if(stats->num==0){
 		stats->max=*delta;
-		stats->max_num=pinfo->fd->num;
+		stats->max_num=pinfo->num;
 		stats->min=*delta;
-		stats->min_num=pinfo->fd->num;
+		stats->min_num=pinfo->num;
 	}
 
 	if( (delta->secs<stats->min.secs)
 	||( (delta->secs==stats->min.secs)
 	  &&(delta->nsecs<stats->min.nsecs) ) ){
 		stats->min=*delta;
-		stats->min_num=pinfo->fd->num;
+		stats->min_num=pinfo->num;
 	}
 
 	if( (delta->secs>stats->max.secs)
 	||( (delta->secs==stats->max.secs)
 	  &&(delta->nsecs>stats->max.nsecs) ) ){
 		stats->max=*delta;
-		stats->max_num=pinfo->fd->num;
+		stats->max_num=pinfo->num;
 	}
 
 	nstime_add(&stats->tot, delta);

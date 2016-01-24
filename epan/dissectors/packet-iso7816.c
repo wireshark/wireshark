@@ -569,8 +569,8 @@ dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (PINFO_FD_VISITED(pinfo)) {
         iso7816_trans = (iso7816_transaction_t *)wmem_tree_lookup32(
-                transactions, PINFO_FD_NUM(pinfo));
-        if (iso7816_trans && iso7816_trans->cmd_frame==PINFO_FD_NUM(pinfo) &&
+                transactions, pinfo->num);
+        if (iso7816_trans && iso7816_trans->cmd_frame==pinfo->num &&
                 iso7816_trans->resp_frame!=0) {
             trans_ti = proto_tree_add_uint_format(tree, hf_iso7816_resp_in,
                            NULL, 0, 0, iso7816_trans->resp_frame,
@@ -581,7 +581,7 @@ dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else {
         if (transactions) {
             iso7816_trans = wmem_new(wmem_file_scope(), iso7816_transaction_t);
-            iso7816_trans->cmd_frame = PINFO_FD_NUM(pinfo);
+            iso7816_trans->cmd_frame = pinfo->num;
             iso7816_trans->resp_frame = 0;
             iso7816_trans->cmd_ins = INS_INVALID;
 
@@ -654,14 +654,14 @@ dissect_iso7816_resp_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* receive the largest key that is less than or equal to our frame
            number */
         iso7816_trans = (iso7816_transaction_t *)wmem_tree_lookup32_le(
-                transactions, PINFO_FD_NUM(pinfo));
+                transactions, pinfo->num);
         if (iso7816_trans) {
             if (iso7816_trans->resp_frame==0) {
                 /* there's a pending request, this packet is the response */
-                iso7816_trans->resp_frame = PINFO_FD_NUM(pinfo);
+                iso7816_trans->resp_frame = pinfo->num;
             }
 
-            if (iso7816_trans->resp_frame== PINFO_FD_NUM(pinfo)) {
+            if (iso7816_trans->resp_frame== pinfo->num) {
                 /* we found the request that corresponds to our response */
                 cmd_ins_str = val_to_str_const(iso7816_trans->cmd_ins,
                         iso7816_ins, "Unknown instruction");

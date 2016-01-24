@@ -1483,13 +1483,13 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 
 		set_address(&dst_addr, AT_IPv4, 4, &GPRS_user_data_ipv4_address);
 
-		conversation = find_conversation(pinfo->fd->num,&dst_addr,
+		conversation = find_conversation(pinfo->num,&dst_addr,
 			&null_addr, PT_UDP, GPRS_user_data_transport_UDP_port,
 			0, NO_ADDR_B|NO_PORT_B);
 
 		if (conversation == NULL) {
 			/* It's not part of any conversation - create a new one. */
-			conversation = conversation_new(pinfo->fd->num, &dst_addr,
+			conversation = conversation_new(pinfo->num, &dst_addr,
 			    &null_addr, PT_UDP,GPRS_user_data_transport_UDP_port ,
 			    0, NO_ADDR2|NO_PORT2);
 
@@ -1515,13 +1515,13 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 
 		set_address(&dst_addr, AT_IPv4, 4, &unc_ipv4_address);
 
-		conversation = find_conversation(pinfo->fd->num,&dst_addr,
+		conversation = find_conversation(pinfo->num,&dst_addr,
 			&null_addr, PT_TCP, UNC_tcp_port,
 			0, NO_ADDR_B|NO_PORT_B);
 
 		if (conversation == NULL) {
 			/* It's not part of any conversation - create a new one. */
-			conversation = conversation_new(pinfo->fd->num, &dst_addr,
+			conversation = conversation_new(pinfo->num, &dst_addr,
 			    &null_addr, PT_TCP,UNC_tcp_port ,
 			    0, NO_ADDR2|NO_PORT2);
 			/* Set dissector */
@@ -1545,10 +1545,10 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		}
 		if((!pinfo->fd->flags.visited) && RTP_UDP_port!=0){
 
-			rtp_add_address(pinfo, &src_addr, RTP_UDP_port, 0, "UMA", pinfo->fd->num, FALSE, 0);
+			rtp_add_address(pinfo, &src_addr, RTP_UDP_port, 0, "UMA", pinfo->num, FALSE, 0);
 			if ((RTP_UDP_port & 0x1) == 0){ /* Even number RTP port RTCP should follow on odd number */
 				RTCP_UDP_port = RTP_UDP_port + 1;
-				rtcp_add_address(pinfo, &src_addr, RTCP_UDP_port, 0, "UMA", pinfo->fd->num);
+				rtcp_add_address(pinfo, &src_addr, RTCP_UDP_port, 0, "UMA", pinfo->num);
 			}
 		}
 		break;
@@ -1559,7 +1559,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		if((!pinfo->fd->flags.visited) && rtcp_ipv4_address!=0 && RTCP_UDP_port!=0 && rtcp_handle){
 			set_address(&src_addr, AT_IPv4, 4, &rtcp_ipv4_address);
 
-			rtcp_add_address(pinfo, &src_addr, RTCP_UDP_port, 0, "UMA", pinfo->fd->num);
+			rtcp_add_address(pinfo, &src_addr, RTCP_UDP_port, 0, "UMA", pinfo->num);
 		}
 		break;
 	case 106:

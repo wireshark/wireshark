@@ -3405,7 +3405,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	}
 
 	/* it is reassembled but it was reassembled in a different frame */
-	if(pinfo->fd->num!=fd_head->reassembled_in){
+	if(pinfo->num!=fd_head->reassembled_in){
 		proto_tree_add_uint(parent_tree, hf_smb_pipe_reassembled_in, d_tvb, 0, 0, fd_head->reassembled_in);
 		goto clean_up_and_exit;
 	}

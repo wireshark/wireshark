@@ -97,7 +97,7 @@ static dissector_table_t per_oid_dissector_table = NULL;
 
 /*
 #define DEBUG_ENTRY(x) \
-printf("#%u  %s   tvb:0x%08x\n",actx->pinfo->fd->num,x,(int)tvb);
+printf("#%u  %s   tvb:0x%08x\n",actx->pinfo->num,x,(int)tvb);
 */
 #define DEBUG_ENTRY(x) \
 	;

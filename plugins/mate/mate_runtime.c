@@ -846,7 +846,7 @@ extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree) {
 	rd->now = (float) nstime_to_sec(&pinfo->rel_ts);
 
 	if ( proto_tracking_interesting_fields(tree)
-		 && rd->highest_analyzed_frame < pinfo->fd->num ) {
+		 && rd->highest_analyzed_frame < pinfo->num ) {
 		for ( i = 0; i < mc->pducfglist->len; i++ ) {
 
 			cfg = (mate_cfg_pdu *)g_ptr_array_index(mc->pducfglist,i);
@@ -862,7 +862,7 @@ extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree) {
 					dbg_print (dbg_pdu,3,dbg_facility,"mate_analyze_frame: found matching proto, extracting: %s",cfg->name);
 
 					proto = (field_info*) g_ptr_array_index(protos,j);
-					pdu = new_pdu(cfg, pinfo->fd->num, proto, tree);
+					pdu = new_pdu(cfg, pinfo->num, proto, tree);
 
 					if (cfg->criterium) {
 						criterium_match = new_avpl_from_match(cfg->criterium_match_mode,"",pdu->avpl,cfg->criterium,FALSE);
@@ -897,7 +897,7 @@ extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree) {
 					}
 
 					if (!last) {
-						g_hash_table_insert(rd->frames,GINT_TO_POINTER(pinfo->fd->num),pdu);
+						g_hash_table_insert(rd->frames,GINT_TO_POINTER(pinfo->num),pdu);
 						last = pdu;
 					} else {
 						last->next_in_frame = pdu;
@@ -910,7 +910,7 @@ extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree) {
 			}
 		}
 
-		rd->highest_analyzed_frame = pinfo->fd->num;
+		rd->highest_analyzed_frame = pinfo->num;
 	}
 }
 

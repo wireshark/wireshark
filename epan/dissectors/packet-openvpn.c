@@ -368,7 +368,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
 
     } else { /* Not last packet of reassembled Short Message */
       col_append_fstr(pinfo->cinfo, COL_INFO, " (Message fragment %d) ", msg_mpid);
-      if (pinfo->fd->num != frag_msg->reassembled_in) {
+      if (pinfo->num != frag_msg->reassembled_in) {
         /* Add a "Reassembled in" link if not reassembled in this frame */
         proto_tree_add_uint(openvpn_tree, hf_openvpn_reassembled_in,
                             tvb, 0, 0, frag_msg->reassembled_in);

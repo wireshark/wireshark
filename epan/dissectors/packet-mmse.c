@@ -659,7 +659,7 @@ dissect_mmse_standalone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     const char   *message_type;
 
     DebugLog(("dissect_mmse_standalone() - START (Packet %u)\n",
-                pinfo->fd->num));
+                pinfo->num));
 
     pdut = tvb_get_guint8(tvb, 1);
     message_type = val_to_str(pdut, vals_message_type, "Unknown type %u");
@@ -680,7 +680,7 @@ dissect_mmse_encapsulated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     const char   *message_type;
 
     DebugLog(("dissect_mmse_encapsulated() - START (Packet %u)\n",
-                pinfo->fd->num));
+                pinfo->num));
 
     pdut = tvb_get_guint8(tvb, 1);
     message_type = val_to_str(pdut, vals_message_type, "Unknown type %u");
@@ -708,7 +708,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
     proto_item  *ti = NULL;
     proto_tree  *mmse_tree = NULL;
 
-    DebugLog(("dissect_mmse() - START (Packet %u)\n", pinfo->fd->num));
+    DebugLog(("dissect_mmse() - START (Packet %u)\n", pinfo->num));
 
     /* If tree == NULL then we are only interested in protocol dissection
      * up to reassembly and handoff to subdissectors if applicable; the

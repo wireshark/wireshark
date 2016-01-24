@@ -218,7 +218,7 @@ lua_delta_nstime_to_sec(const Pinfo pinfo, const frame_data *fd, guint32 prev_nu
 PINFO_NAMED_BOOLEAN_GETTER(visited,fd->flags.visited);
 
 /* WSLUA_ATTRIBUTE Pinfo_number RO The number of this packet in the current file. */
-PINFO_NAMED_NUMBER_GETTER(number,fd->num);
+PINFO_NAMED_NUMBER_GETTER(number,num);
 
 /* WSLUA_ATTRIBUTE Pinfo_len  RO The length of the frame. */
 PINFO_NAMED_NUMBER_GETTER(len,fd->pkt_len);
@@ -233,7 +233,7 @@ WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,abs_ts,lua_nstime_to_sec(&obj->ws_pinf
 WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,rel_ts,lua_nstime_to_sec(&obj->ws_pinfo->rel_ts));
 
 /* WSLUA_ATTRIBUTE Pinfo_delta_ts RO Number of seconds passed since the last captured packet. */
-WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,delta_ts,lua_delta_nstime_to_sec(obj, obj->ws_pinfo->fd, obj->ws_pinfo->fd->num - 1));
+WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,delta_ts,lua_delta_nstime_to_sec(obj, obj->ws_pinfo->fd, obj->ws_pinfo->num - 1));
 
 /* WSLUA_ATTRIBUTE Pinfo_delta_dis_ts RO Number of seconds passed since the last displayed packet. */
 WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,delta_dis_ts,lua_delta_nstime_to_sec(obj, obj->ws_pinfo->fd, obj->ws_pinfo->fd->prev_dis_num));

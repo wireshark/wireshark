@@ -245,13 +245,13 @@ void rdt_add_address(packet_info *pinfo,
 
     /* Check if the ip address and port combination is not already registered
        as a conversation. */
-    p_conv = find_conversation(pinfo->fd->num, addr, &null_addr, PT_UDP, port, other_port,
+    p_conv = find_conversation(pinfo->num, addr, &null_addr, PT_UDP, port, other_port,
                                NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
 
     /* If not, create a new conversation. */
-    if ( !p_conv || p_conv->setup_frame != pinfo->fd->num)
+    if ( !p_conv || p_conv->setup_frame != pinfo->num)
     {
-        p_conv = conversation_new(pinfo->fd->num, addr, &null_addr, PT_UDP,
+        p_conv = conversation_new(pinfo->num, addr, &null_addr, PT_UDP,
                                   (guint32)port, (guint32)other_port,
                                   NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
     }
@@ -272,7 +272,7 @@ void rdt_add_address(packet_info *pinfo,
 
     /* Update the conversation data. */
     g_strlcpy(p_conv_data->method, setup_method, MAX_RDT_SETUP_METHOD_SIZE);
-    p_conv_data->frame_number = pinfo->fd->num;
+    p_conv_data->frame_number = pinfo->num;
     p_conv_data->feature_level = rdt_feature_level;
 }
 
@@ -1233,7 +1233,7 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (!p_conv_data)
     {
         /* First time, get info from conversation */
-        p_conv = find_conversation(pinfo->fd->num, &pinfo->net_dst, &pinfo->net_src,
+        p_conv = find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
                                    pinfo->ptype,
                                    pinfo->destport, pinfo->srcport, NO_ADDR_B);
         if (p_conv)

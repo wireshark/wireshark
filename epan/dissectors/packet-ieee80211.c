@@ -17785,7 +17785,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           if (result && (result->seq_control == seq_control)) {
             /* keep a pointer to the first seen frame, could be done with proto data? */
             fnum = result->fnum;
-            g_hash_table_insert(fc_first_frame_table, GINT_TO_POINTER(pinfo->fd->num),
+            g_hash_table_insert(fc_first_frame_table, GINT_TO_POINTER(pinfo->num),
                                 GINT_TO_POINTER(fnum));
             retransmitted = TRUE;
           } else {
@@ -17796,10 +17796,10 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
               g_hash_table_insert(fc_analyse_retransmit_table, result, result);
             }
             result->seq_control = seq_control;
-            result->fnum =  pinfo->fd->num;
+            result->fnum =  pinfo->num;
           }
         }
-        else if ((fnum = GPOINTER_TO_UINT(g_hash_table_lookup(fc_first_frame_table, GINT_TO_POINTER(pinfo->fd->num))))) {
+        else if ((fnum = GPOINTER_TO_UINT(g_hash_table_lookup(fc_first_frame_table, GINT_TO_POINTER(pinfo->num))))) {
           retransmitted = TRUE;
         }
 

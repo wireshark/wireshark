@@ -105,7 +105,7 @@ seq_analysis_frame_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
 
         if (!sai) return FALSE;
 
-        sai->frame_number = pinfo->fd->num;
+        sai->frame_number = pinfo->num;
 
         sai->port_src=pinfo->srcport;
         sai->port_dst=pinfo->destport;
@@ -197,7 +197,7 @@ seq_analysis_tcp_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt 
         seq_analysis_item_t *sai;
 
         sai = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
-        sai->frame_number = pinfo->fd->num;
+        sai->frame_number = pinfo->num;
         if (sainfo->any_addr) {
             copy_address(&(sai->src_addr),&(pinfo->net_src));
             copy_address(&(sai->dst_addr),&(pinfo->net_dst));

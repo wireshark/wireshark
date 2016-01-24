@@ -2991,7 +2991,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	{
 		/* Add entry to tracking table for PVFS_SERV_IO request */
 		if ((server_op == PVFS_SERV_IO) && !pinfo->fd->flags.visited)
-			val = pvfs2_io_tracking_new_with_tag(tag, pinfo->fd->num);
+			val = pvfs2_io_tracking_new_with_tag(tag, pinfo->num);
 	}
 	else
 	{
@@ -3007,17 +3007,17 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		{
 			/* If response HAS NOT been seen, mark this frame as response */
 			if (val->response_frame_num == 0)
-				val->response_frame_num = pinfo->fd->num;
+				val->response_frame_num = pinfo->num;
 			else
 			{
 				/* If response HAS been seen, this frame is flow data */
 				if (val->flow_frame_num == 0)
-					val->flow_frame_num = pinfo->fd->num;
+					val->flow_frame_num = pinfo->num;
 			}
 		}
 	}
 
-	if (val && (val->flow_frame_num == pinfo->fd->num))
+	if (val && (val->flow_frame_num == pinfo->num))
 	{
 		/* This frame is marked as being flow data */
 		col_set_str(pinfo->cinfo, COL_INFO, "PVFS flow data");

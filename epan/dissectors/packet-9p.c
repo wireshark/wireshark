@@ -1134,7 +1134,7 @@ static void conv_set_fid_nocopy(packet_info *pinfo, guint32 fid, const char *pat
 	}
 
 	/* fill it */
-	wmem_tree_insert32((wmem_tree_t *)val->data, pinfo->fd->num, (void *)path);
+	wmem_tree_insert32((wmem_tree_t *)val->data, pinfo->num, (void *)path);
 }
 
 static void conv_set_fid(packet_info *pinfo, guint32 fid, const gchar *path, gsize len)
@@ -1162,7 +1162,7 @@ static const char *conv_get_fid(packet_info *pinfo, guint32 fid)
 
 	/* -1 because the fid needs to have been set on a previous message.
 	   Let's ignore the possibility of num == 0... */
-	return (char*)wmem_tree_lookup32_le((wmem_tree_t*)val->data, pinfo->fd->num-1);
+	return (char*)wmem_tree_lookup32_le((wmem_tree_t*)val->data, pinfo->num-1);
 }
 
 static inline void conv_free_fid(packet_info *pinfo, guint32 fid)

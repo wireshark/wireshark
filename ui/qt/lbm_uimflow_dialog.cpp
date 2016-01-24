@@ -125,7 +125,7 @@ static gboolean lbm_uimflow_add_to_graph(seq_analysis_info_t * seq_info, packet_
     item = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
     copy_address(&(item->src_addr), &(pinfo->src));
     copy_address(&(item->dst_addr), &(pinfo->dst));
-    item->frame_number = pinfo->fd->num;
+    item->frame_number = pinfo->num;
     item->port_src = pinfo->srcport;
     item->port_dst = pinfo->destport;
     item->protocol = g_strdup(port_type_to_str(pinfo->ptype));

@@ -182,7 +182,7 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         packet_data_item = proto_tree_add_item(packet_tree, hf_pcap_packet_data, tvb, offset, length, ENC_NA);
         packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcap_packet_data);
 
-        pinfo->fd->num = frame_number;
+        pinfo->num = frame_number;
         pinfo->abs_ts = timestamp;
 
         if (pref_dissect_next_layer) {

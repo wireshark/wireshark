@@ -1027,7 +1027,7 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 				}
 			}
 			cid_index = i;
-			while (pinfo->fd->num > cid_adj_array_size)
+			while (pinfo->num > cid_adj_array_size)
 			{
 				cid_adj_array_size += 1024;
 				cid_adj_array = (guint *)g_realloc(cid_adj_array, (int)sizeof(guint) * cid_adj_array_size);
@@ -1048,21 +1048,21 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 			{
 				frag_number[cid_index] = 0;
 			}
-			if (cid_adj_array[pinfo->fd->num])
+			if (cid_adj_array[pinfo->num])
 			{
 				/* We apparently just clicked on the packet again. */
-				cid_adjust[cid_index] = cid_adj_array[pinfo->fd->num];
+				cid_adjust[cid_index] = cid_adj_array[pinfo->num];
 				/* Set the frag_number at start of packet. */
 				if (first_gmh)
 				{
-					frag_number[cid_index] = frag_num_array[pinfo->fd->num];
+					frag_number[cid_index] = frag_num_array[pinfo->num];
 				}
 			} else {
 				/* Save for next time we click on this packet. */
-				cid_adj_array[pinfo->fd->num] = cid_adjust[cid_index];
+				cid_adj_array[pinfo->num] = cid_adjust[cid_index];
 				if (first_gmh)
 				{
-					frag_num_array[pinfo->fd->num] = frag_number[cid_index];
+					frag_num_array[pinfo->num] = frag_number[cid_index];
 				}
 			}
 			/* Reset in case we stay in this while() loop to finish the packet. */

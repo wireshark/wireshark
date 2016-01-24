@@ -457,9 +457,9 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
 
     if (proto_tree_ && cap_file_->edt->tree) {
         packet_info *pi = &cap_file_->edt->pi;
-        related_packet_delegate_.setCurrentFrame(pi->fd->num);
+        related_packet_delegate_.setCurrentFrame(pi->num);
         proto_tree_->fillProtocolTree(cap_file_->edt->tree);
-        conversation_t *conv = find_conversation(pi->fd->num, &pi->src, &pi->dst, pi->ptype,
+        conversation_t *conv = find_conversation(pi->num, &pi->src, &pi->dst, pi->ptype,
                                                 pi->srcport, pi->destport, 0);
         if (conv) {
             related_packet_delegate_.setConversation(conv);

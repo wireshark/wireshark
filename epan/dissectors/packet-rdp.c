@@ -1495,7 +1495,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
   if (rdp_info &&
       ((rdp_info->licenseAgreed == 0) ||
-       (pinfo->fd->num <= rdp_info->licenseAgreed))) {
+       (pinfo->num <= rdp_info->licenseAgreed))) {
     /* licensing stage hasn't been completed */
     proto_tree *next_tree;
 
@@ -1553,7 +1553,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
           break;
         case ERROR_ALERT:
           /*offset =*/ dissect_rdp_fields(tvb, offset, pinfo, next_tree, error_fields, 0);
-          rdp_info->licenseAgreed = pinfo->fd->num;
+          rdp_info->licenseAgreed = pinfo->num;
           break;
         default:
           /* Unknown msgType */
@@ -1563,7 +1563,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         /*offset =*/ dissect_rdp_encrypted(tvb, offset, pinfo, next_tree, NULL);
 
         /* XXX: we assume the license is agreed in this exchange */
-        rdp_info->licenseAgreed = pinfo->fd->num;
+        rdp_info->licenseAgreed = pinfo->num;
       }
       break;
 

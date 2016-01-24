@@ -890,7 +890,7 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             matcher = wmem_new(wmem_file_scope(), kafka_query_response_t);
 
             matcher->api_key        = tvb_get_ntohs(tvb, offset);
-            matcher->request_frame  = PINFO_FD_NUM(pinfo);
+            matcher->request_frame  = pinfo->num;
             matcher->response_found = FALSE;
 
             p_add_proto_data(wmem_file_scope(), pinfo, proto_kafka, 0, matcher);
@@ -960,7 +960,7 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             if (wmem_queue_count(match_queue) > 0) {
                 matcher = (kafka_query_response_t *) wmem_queue_peek(match_queue);
             }
-            if (matcher == NULL || matcher->request_frame >= PINFO_FD_NUM(pinfo)) {
+            if (matcher == NULL || matcher->request_frame >= pinfo->num) {
                 col_set_str(pinfo->cinfo, COL_INFO, "Kafka Response (Unknown API, Missing Request)");
                 /* TODO: expert info, don't have request, can't dissect */
                 return tvb_captured_length(tvb);
@@ -968,7 +968,7 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
             wmem_queue_pop(match_queue);
 
-            matcher->response_frame = PINFO_FD_NUM(pinfo);
+            matcher->response_frame = pinfo->num;
             matcher->response_found = TRUE;
 
             p_add_proto_data(wmem_file_scope(), pinfo, proto_kafka, 0, matcher);

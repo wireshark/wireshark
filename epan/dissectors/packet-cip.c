@@ -5247,7 +5247,7 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
          preq_info->connInfo->ConnSerialNumber = ConnSerialNumber;
          preq_info->connInfo->VendorID = VendorID;
          preq_info->connInfo->DeviceSerialNumber = DeviceSerialNumber;
-         preq_info->connInfo->forward_open_frame = pinfo->fd->num;
+         preq_info->connInfo->forward_open_frame = pinfo->num;
          preq_info->connInfo->O2T.connID = O2TConnID;
          preq_info->connInfo->T2O.connID = T2OConnID;
          preq_info->connInfo->TransportClass_trigger = TransportClass_trigger;

@@ -1024,7 +1024,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             struct interface_description  *interface_description;
             proto_tree *packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcapng_packet_data);
 
-            pinfo->fd->num = info->frame_number;
+            pinfo->num = info->frame_number;
 
             interface_description = (struct interface_description *) wmem_array_index(info->interfaces, interface_id);
             TRY {
@@ -1062,7 +1062,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             struct interface_description  *interface_description;
             proto_tree *packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcapng_packet_data);
 
-            pinfo->fd->num = info->frame_number;
+            pinfo->num = info->frame_number;
 
             interface_description = (struct interface_description *) wmem_array_index(info->interfaces, interface_id);
             TRY {
@@ -1227,7 +1227,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             struct interface_description  *interface_description;
             proto_tree *packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcapng_packet_data);
 
-            pinfo->fd->num = info->frame_number;
+            pinfo->num = info->frame_number;
 
             interface_description = (struct interface_description *) wmem_array_index(info->interfaces, interface_id);
             TRY {

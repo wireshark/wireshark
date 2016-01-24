@@ -270,7 +270,7 @@ gboolean BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo
         item_data_t *item_data = wmem_new(wmem_file_scope(), item_data_t);
         item_data->interface_id = tap_device->interface_id;
         item_data->adapter_id = tap_device->adapter_id;
-        item_data->frame_number = pinfo->fd->num;
+        item_data->frame_number = pinfo->num;
         item->setData(0, Qt::UserRole, QVariant::fromValue<item_data_t *>(item_data));
     }
 

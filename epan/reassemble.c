@@ -642,7 +642,7 @@ fragment_get_reassembled_id(reassembly_table *table, const packet_info *pinfo,
 	reassembled_key key;
 
 	/* create key to search hash with */
-	key.frame = pinfo->fd->num;
+	key.frame = pinfo->num;
 	key.id = id;
 	fd_head = (fragment_head *)g_hash_table_lookup(table->reassembled_table, &key);
 
@@ -808,7 +808,7 @@ fragment_reassembled(reassembly_table *table, fragment_head *fd_head,
 		 * table; just hash it using the current frame number.
 		 */
 		new_key = g_slice_new(reassembled_key);
-		new_key->frame = pinfo->fd->num;
+		new_key->frame = pinfo->num;
 		new_key->id = id;
 		g_hash_table_insert(table->reassembled_table, new_key, fd_head);
 	} else {
@@ -824,7 +824,7 @@ fragment_reassembled(reassembly_table *table, fragment_head *fd_head,
 		}
 	}
 	fd_head->flags |= FD_DEFRAGMENTED;
-	fd_head->reassembled_in = pinfo->fd->num;
+	fd_head->reassembled_in = pinfo->num;
 	fd_head->reas_in_layer_num = pinfo->curr_layer_num;
 }
 
@@ -878,7 +878,7 @@ fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 	fd = g_slice_new(fragment_item);
 	fd->next = NULL;
 	fd->flags = 0;
-	fd->frame = pinfo->fd->num;
+	fd->frame = pinfo->num;
 	fd->offset = frag_offset;
 	fd->fragment_nr_offset = 0; /* will only be used with sequence */
 	fd->len  = frag_data_len;
@@ -1196,7 +1196,7 @@ fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 	/* mark this packet as defragmented.
 	   allows us to skip any trailing fragments */
 	fd_head->flags |= FD_DEFRAGMENTED;
-	fd_head->reassembled_in=pinfo->fd->num;
+	fd_head->reassembled_in=pinfo->num;
 	fd_head->reas_in_layer_num = pinfo->curr_layer_num;
 
 	/* we don't throw until here to avoid leaking old_data and others */
@@ -1229,7 +1229,7 @@ fragment_add_common(reassembly_table *table, tvbuff_t *tvb, const int offset,
 	/* leave it here for future debugging sessions */
 	if(strcmp(pinfo->current_proto, "DCERPC") == 0) {
 		printf("proto:%s num:%u id:%u offset:%u len:%u more:%u visited:%u\n",
-			pinfo->current_proto, pinfo->fd->num, id, frag_offset, frag_data_len, more_frags, pinfo->fd->flags.visited);
+			pinfo->current_proto, pinfo->num, id, frag_offset, frag_data_len, more_frags, pinfo->fd->flags.visited);
 		if(fd_head != NULL) {
 			for(fd_item=fd_head->next;fd_item;fd_item=fd_item->next){
 				printf("fd_frame:%u fd_offset:%u len:%u datalen:%u\n",
@@ -1264,7 +1264,7 @@ fragment_add_common(reassembly_table *table, tvbuff_t *tvb, const int offset,
 			 * reassembly; if this frame is later than that
 			 * frame, we know it hasn't been added yet.
 			 */
-			if (pinfo->fd->num <= fd_head->frame) {
+			if (pinfo->num <= fd_head->frame) {
 				already_added = FALSE;
 				/*
 				 * The first item in the reassembly list
@@ -1274,7 +1274,7 @@ fragment_add_common(reassembly_table *table, tvbuff_t *tvb, const int offset,
 				 */
 				for (fd_item = fd_head->next; fd_item;
 				    fd_item = fd_item->next) {
-					if (pinfo->fd->num == fd_item->frame &&
+					if (pinfo->num == fd_item->frame &&
 					    frag_offset == fd_item->offset) {
 						already_added = TRUE;
 						break;
@@ -1323,7 +1323,7 @@ fragment_add_common(reassembly_table *table, tvbuff_t *tvb, const int offset,
 			 * Is it later in the capture than all of the
 			 * fragments in the reassembly?
 			 */
-			if (pinfo->fd->num > fd_head->frame) {
+			if (pinfo->num > fd_head->frame) {
 				/*
 				 * Yes, so report this as a problem,
 				 * possibly a retransmission.
@@ -1431,7 +1431,7 @@ fragment_add_check(reassembly_table *table, tvbuff_t *tvb, const int offset,
 	 * of reassembled packets.
 	 */
 	if (pinfo->fd->flags.visited) {
-		reass_key.frame = pinfo->fd->num;
+		reass_key.frame = pinfo->num;
 		reass_key.id = id;
 		return (fragment_head *)g_hash_table_lookup(table->reassembled_table, &reass_key);
 	}
@@ -1548,7 +1548,7 @@ fragment_defragment_and_free (fragment_head *fd_head, const packet_info *pinfo)
 	 * allows us to skip any trailing fragments.
 	 */
 	fd_head->flags |= FD_DEFRAGMENTED;
-	fd_head->reassembled_in=pinfo->fd->num;
+	fd_head->reassembled_in=pinfo->num;
 	fd_head->reas_in_layer_num = pinfo->curr_layer_num;
 }
 
@@ -1615,7 +1615,7 @@ fragment_add_seq_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 	fd = g_slice_new(fragment_item);
 	fd->next = NULL;
 	fd->flags = 0;
-	fd->frame = pinfo->fd->num;
+	fd->frame = pinfo->num;
 	fd->offset = frag_number_work;
 	fd->len  = frag_data_len;
 	fd->tvb_data = NULL;
@@ -1855,7 +1855,7 @@ fragment_add_seq_common(reassembly_table *table, tvbuff_t *tvb,
 			 */
 			if (orig_keyp != NULL)
 				*orig_keyp = NULL;
-			fd_head->reassembled_in=pinfo->fd->num;
+			fd_head->reassembled_in=pinfo->num;
 			fd_head->reas_in_layer_num = pinfo->curr_layer_num;
 			return fd_head;
 		}
@@ -1998,7 +1998,7 @@ fragment_add_seq_check_work(reassembly_table *table, tvbuff_t *tvb,
 	 * If so, look for it in the table of reassembled packets.
 	 */
 	if (pinfo->fd->flags.visited) {
-		reass_key.frame = pinfo->fd->num;
+		reass_key.frame = pinfo->num;
 		reass_key.id = id;
 		return (fragment_head *)g_hash_table_lookup(table->reassembled_table, &reass_key);
 	}
@@ -2123,7 +2123,7 @@ fragment_end_seq_next(reassembly_table *table, const packet_info *pinfo,
 	 * If so, look for it in the table of reassembled packets.
 	 */
 	if (pinfo->fd->flags.visited) {
-		reass_key.frame = pinfo->fd->num;
+		reass_key.frame = pinfo->num;
 		reass_key.id = id;
 		return (fragment_head *)g_hash_table_lookup(table->reassembled_table, &reass_key);
 	}
@@ -2153,7 +2153,7 @@ fragment_end_seq_next(reassembly_table *table, const packet_info *pinfo,
 		fragment_reassembled(table, fd_head, pinfo, id);
 		if (fd_head->next != NULL) {
 			new_key = g_slice_new(reassembled_key);
-			new_key->frame = pinfo->fd->num;
+			new_key->frame = pinfo->num;
 			new_key->id = id;
 			g_hash_table_insert(table->reassembled_table, new_key, fd_head);
 		}
@@ -2182,7 +2182,7 @@ process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 	gboolean update_col_info;
 	proto_item *frag_tree_item;
 
-	if (fd_head != NULL && pinfo->fd->num == fd_head->reassembled_in && pinfo->curr_layer_num == fd_head->reas_in_layer_num) {
+	if (fd_head != NULL && pinfo->num == fd_head->reassembled_in && pinfo->curr_layer_num == fd_head->reas_in_layer_num) {
 		/*
 		 * OK, we've reassembled this.
 		 * Is this something that's been reassembled from more

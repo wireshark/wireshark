@@ -162,7 +162,7 @@ static wmem_tree_t *cid_to_psm_table  = NULL;
 typedef struct _config_data_t {
     guint8      mode;
     guint8      txwindow;
-    wmem_tree_t *start_fragments;  /* indexed by pinfo->fd->num */
+    wmem_tree_t *start_fragments;  /* indexed by pinfo->num */
 } config_data_t;
 
 typedef struct _sdu_reassembly_t
@@ -491,7 +491,7 @@ get_service_uuid(packet_info *pinfo, btl2cap_data_t *l2cap_data, guint16 psm, gb
 
     k_service_type    = BTSDP_L2CAP_PROTOCOL_UUID;
     k_service_channel = psm;
-    k_frame_number    = pinfo->fd->num;
+    k_frame_number    = pinfo->num;
 
     key[0].length = 1;
     key[0].key = &k_interface_id;
@@ -638,7 +638,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
         k_adapter_id   = adapter_id;
         k_chandle      = chandle;
         k_cid          = scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x80000000 : 0x00000000);
-        k_frame_number = pinfo->fd->num;
+        k_frame_number = pinfo->num;
 
         psm_data = wmem_new(wmem_file_scope(), psm_data_t);
         if (pinfo->p2p_dir == P2P_DIR_RECV) {
@@ -659,7 +659,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
         psm_data->interface_id = k_interface_id;
         psm_data->adapter_id   = k_adapter_id;
         psm_data->chandle      = k_chandle;
-        psm_data->connect_in_frame = pinfo->fd->num;
+        psm_data->connect_in_frame = pinfo->num;
         psm_data->disconnect_in_frame = max_disconnect_in_frame;
 
         key[0].length = 1;
@@ -704,7 +704,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
         k_adapter_id   = adapter_id;
         k_chandle      = chandle;
         k_cid          = scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x80000000 : 0x00000000);
-        k_frame_number = pinfo->fd->num;
+        k_frame_number = pinfo->num;
 
         key[0].length = 1;
         key[0].key    = &k_interface_id;
@@ -947,7 +947,7 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
         k_adapter_id   = adapter_id;
         k_chandle      = chandle;
         k_cid          = cid;
-        k_frame_number = pinfo->fd->num;
+        k_frame_number = pinfo->num;
 
         key[0].length = 1;
         key[0].key    = &k_interface_id;
@@ -968,7 +968,7 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 psm_data->chandle == chandle &&
                 ((pinfo->p2p_dir == P2P_DIR_SENT && psm_data->remote_cid == cid) ||
                 (pinfo->p2p_dir == P2P_DIR_RECV && psm_data->local_cid == cid)) &&
-                psm_data->disconnect_in_frame > pinfo->fd->num) {
+                psm_data->disconnect_in_frame > pinfo->num) {
             if (pinfo->p2p_dir == P2P_DIR_RECV)
                 config_data = &(psm_data->out);
             else
@@ -1142,7 +1142,7 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
         k_adapter_id   = adapter_id;
         k_chandle      = chandle;
         k_cid          = cid;
-        k_frame_number = pinfo->fd->num;
+        k_frame_number = pinfo->num;
 
         key[0].length = 1;
         key[0].key    = &k_interface_id;
@@ -1163,7 +1163,7 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 psm_data->chandle == chandle &&
                 ((pinfo->p2p_dir == P2P_DIR_SENT && psm_data->local_cid == cid) ||
                 (pinfo->p2p_dir == P2P_DIR_RECV && psm_data->remote_cid == cid)) &&
-                psm_data->disconnect_in_frame > pinfo->fd->num) {
+                psm_data->disconnect_in_frame > pinfo->num) {
             if (pinfo->p2p_dir == P2P_DIR_RECV)
                 config_data = &(psm_data->out);
             else
@@ -1231,7 +1231,7 @@ dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
         k_adapter_id   = adapter_id;
         k_chandle      = chandle;
         k_cid          = cid;
-        k_frame_number = pinfo->fd->num;
+        k_frame_number = pinfo->num;
 
         key[0].length = 1;
         key[0].key    = &k_interface_id;
@@ -1252,14 +1252,14 @@ dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 psm_data->chandle == chandle &&
                 ((pinfo->p2p_dir == P2P_DIR_SENT && psm_data->remote_cid == cid) ||
                 (pinfo->p2p_dir == P2P_DIR_RECV && psm_data->local_cid == cid)) &&
-                psm_data->disconnect_in_frame > pinfo->fd->num) {
+                psm_data->disconnect_in_frame > pinfo->num) {
             cid = dcid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x80000000 : 0x00000000);
 
             k_interface_id = interface_id;
             k_adapter_id   = adapter_id;
             k_chandle      = chandle;
             k_cid          = cid;
-            k_frame_number = pinfo->fd->num;
+            k_frame_number = pinfo->num;
 
             key[0].length = 1;
             key[0].key    = &k_interface_id;
@@ -1437,7 +1437,7 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
         k_adapter_id   = adapter_id;
         k_chandle      = chandle;
         k_cid          = key_dcid;
-        k_frame_number = pinfo->fd->num;
+        k_frame_number = pinfo->num;
 
         key[0].length = 1;
         key[0].key    = &k_interface_id;
@@ -1458,14 +1458,14 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 psm_data->chandle == chandle &&
                 psm_data->remote_cid == key_dcid &&
                 psm_data->disconnect_in_frame == max_disconnect_in_frame) {
-            psm_data->disconnect_in_frame = pinfo->fd->num;
+            psm_data->disconnect_in_frame = pinfo->num;
         }
 
         k_interface_id = interface_id;
         k_adapter_id   = adapter_id;
         k_chandle      = chandle;
         k_cid          = key_scid;
-        k_frame_number = pinfo->fd->num;
+        k_frame_number = pinfo->num;
 
         key[0].length = 1;
         key[0].key    = &k_interface_id;
@@ -1486,7 +1486,7 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 psm_data->chandle == chandle &&
                 psm_data->local_cid == key_scid &&
                 psm_data->disconnect_in_frame == max_disconnect_in_frame) {
-            psm_data->disconnect_in_frame = pinfo->fd->num;
+            psm_data->disconnect_in_frame = pinfo->num;
         }
     }
 
@@ -1523,7 +1523,7 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
         k_adapter_id   = adapter_id;
         k_chandle      = chandle;
         k_cid          = key_dcid;
-        k_frame_number = pinfo->fd->num;
+        k_frame_number = pinfo->num;
 
         key[0].length = 1;
         key[0].key    = &k_interface_id;
@@ -1728,15 +1728,15 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (!pinfo->fd->flags.visited) {
             mfp              = wmem_new(wmem_file_scope(), sdu_reassembly_t);
-            mfp->first_frame = pinfo->fd->num;
+            mfp->first_frame = pinfo->num;
             mfp->last_frame  = 0;
             mfp->tot_len     = sdulen;
             mfp->reassembled = (guint8 *) wmem_alloc(wmem_file_scope(), sdulen);
             tvb_memcpy(tvb, mfp->reassembled, offset, sdulen);
             mfp->cur_off     = sdulen;
-            wmem_tree_insert32(config_data->start_fragments, pinfo->fd->num, mfp);
+            wmem_tree_insert32(config_data->start_fragments, pinfo->num, mfp);
         } else {
-            mfp              = (sdu_reassembly_t *)wmem_tree_lookup32(config_data->start_fragments, pinfo->fd->num);
+            mfp              = (sdu_reassembly_t *)wmem_tree_lookup32(config_data->start_fragments, pinfo->num);
         }
         if (mfp != NULL && mfp->last_frame) {
             proto_item *item;
@@ -1753,13 +1753,13 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         length -= 4; /*Control, FCS*/
     }
     if (segment == 0x02 || segment == 0x03) {
-        mfp = (sdu_reassembly_t *)wmem_tree_lookup32_le(config_data->start_fragments, pinfo->fd->num);
+        mfp = (sdu_reassembly_t *)wmem_tree_lookup32_le(config_data->start_fragments, pinfo->num);
         if (!pinfo->fd->flags.visited) {
             if (mfp != NULL && !mfp->last_frame && (mfp->tot_len>=mfp->cur_off + length)) {
                 tvb_memcpy(tvb, mfp->reassembled + mfp->cur_off, offset, length);
                 mfp->cur_off += length;
                 if (segment == 0x02) {
-                    mfp->last_frame = pinfo->fd->num;
+                    mfp->last_frame = pinfo->num;
                 }
             }
         }
@@ -1770,7 +1770,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             col_append_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", mfp->first_frame);
         }
     }
-    if (segment == 0x02 && mfp != NULL && mfp->last_frame == pinfo->fd->num) {
+    if (segment == 0x02 && mfp != NULL && mfp->last_frame == pinfo->num) {
         next_tvb = tvb_new_child_real_data(tvb, (guint8 *)mfp->reassembled, mfp->tot_len, mfp->tot_len);
         add_new_data_source(pinfo, next_tvb, "Reassembled L2CAP");
     }
@@ -2246,7 +2246,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         k_adapter_id   = adapter_id;
         k_chandle      = chandle;
         k_cid          = key_cid;
-        k_frame_number = pinfo->fd->num;
+        k_frame_number = pinfo->num;
 
         key[0].length = 1;
         key[0].key    = &k_interface_id;
@@ -2267,7 +2267,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 psm_data->chandle == chandle &&
                 (psm_data->local_cid == key_cid ||
                 psm_data->remote_cid == key_cid) &&
-                psm_data->disconnect_in_frame > pinfo->fd->num) {
+                psm_data->disconnect_in_frame > pinfo->num) {
             config_data_t  *config_data;
             proto_item     *sub_item;
             guint32         bt_uuid;

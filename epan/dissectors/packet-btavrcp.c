@@ -1070,10 +1070,10 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (packet_type == PACKET_TYPE_START) {
         if (pinfo->fd->flags.visited == 0 && tvb_captured_length_remaining(tvb, offset) == length) {
             k_op = pdu_id | (company_id << 8);
-            frame_number = pinfo->fd->num;
+            frame_number = pinfo->num;
 
             fragment = wmem_new(wmem_file_scope(), fragment_t);
-            fragment->start_frame_number = pinfo->fd->num;
+            fragment->start_frame_number = pinfo->num;
             fragment->end_frame_number = 0;
             fragment->state = 0;
 
@@ -1116,7 +1116,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     } else if (packet_type == PACKET_TYPE_CONTINUE) {
         if (pinfo->fd->flags.visited == 0 && tvb_captured_length_remaining(tvb, offset) == length) {
             k_op = pdu_id | (company_id << 8);
-            frame_number = pinfo->fd->num;
+            frame_number = pinfo->num;
 
             key[0].length = 1;
             key[0].key = &avrcp_proto_data->interface_id;
@@ -1160,7 +1160,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         col_append_str(pinfo->cinfo, COL_INFO, " [end]");
 
         k_op = pdu_id | (company_id << 8);
-        frame_number = pinfo->fd->num;
+        frame_number = pinfo->num;
 
         key[0].length = 1;
         key[0].key = &avrcp_proto_data->interface_id;
@@ -1186,7 +1186,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
             if (fragment->state == 1 && pinfo->fd->flags.visited == 0) {
-                fragment->end_frame_number = pinfo->fd->num;
+                fragment->end_frame_number = pinfo->num;
                 fragment->count += 1;
                 fragment->state = 2;
 
@@ -1577,7 +1577,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         } else if (!pinfo->fd->flags.visited) {
                             btavrcp_song_position_data_t  *song_position_data;
 
-                            frame_number = pinfo->fd->num;
+                            frame_number = pinfo->num;
 
                             key[0].length = 1;
                             key[0].key = &avrcp_proto_data->interface_id;
@@ -1671,7 +1671,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 if (pinfo->fd->flags.visited == 0) {
                     k_op           = continuing_op;
-                    frame_number = pinfo->fd->num;
+                    frame_number = pinfo->num;
 
                     key[0].length = 1;
                     key[0].key = &avrcp_proto_data->interface_id;
@@ -1716,7 +1716,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 if (pinfo->fd->flags.visited == 0) {
                     k_op           = continuing_op;
-                    frame_number = pinfo->fd->num;
+                    frame_number = pinfo->num;
 
                     key[0].length = 1;
                     key[0].key = &avrcp_proto_data->interface_id;
@@ -2158,7 +2158,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         };
 
         k_op_arg       = (ctype == 0x0a) ? G_MAXUINT32 : op_arg;
-        frame_number = pinfo->fd->num;
+        frame_number = pinfo->num;
 
         key[0].length = 1;
         key[0].key = &avrcp_proto_data.interface_id;
@@ -2191,7 +2191,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 }
 
                 timing_info = wmem_new(wmem_file_scope(), timing_info_t);
-                timing_info->command_frame_number = pinfo->fd->num;
+                timing_info->command_frame_number = pinfo->num;
                 timing_info->command_timestamp = pinfo->abs_ts;
                 timing_info->response_frame_number = 0;
                 timing_info->response_timestamp.secs = 0;
@@ -2218,14 +2218,14 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         timing_info->op == op &&
                         ((ctype == 0x0a) ? 1 : (timing_info->op_arg == op_arg)) &&
                         timing_info->used == 0) {
-                    timing_info->response_frame_number = pinfo->fd->num;
+                    timing_info->response_frame_number = pinfo->num;
                     timing_info->response_timestamp = pinfo->abs_ts;
                     timing_info->used = 1;
                 }
             }
 
             k_op_arg       = (ctype == 0x0a) ? G_MAXUINT32 : op_arg;
-            frame_number = pinfo->fd->num;
+            frame_number = pinfo->num;
 
             key[0].length = 1;
             key[0].key = &avrcp_proto_data.interface_id;

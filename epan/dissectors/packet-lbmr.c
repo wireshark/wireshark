@@ -3937,7 +3937,7 @@ static int dissect_lbmr_tir_transport(tvbuff_t * tvb, int offset, lbm_uint8_t tr
                     session_id = 0;
                     len += L_LBMR_TIR_TCP_T;
                 }
-                lbttcp_transport = lbttcp_transport_add(&(pinfo->src), port, session_id, pinfo->fd->num);
+                lbttcp_transport = lbttcp_transport_add(&(pinfo->src), port, session_id, pinfo->num);
                 channel = lbttcp_transport->channel;
                 add_contents_tir(contents, topic_name, lbttcp_transport_source_string(&(pinfo->src), port, session_id), topic_index);
             }
@@ -3963,7 +3963,7 @@ static int dissect_lbmr_tir_transport(tvbuff_t * tvb, int offset, lbm_uint8_t tr
                 proto_tree_add_item(lbtrm_tree, hf_lbmr_tir_lbtrm_session_id, tvb, offset + O_LBMR_TIR_LBTRM_T_SESSION_ID, L_LBMR_TIR_LBTRM_T_SESSION_ID, ENC_BIG_ENDIAN);
                 proto_tree_add_item(lbtrm_tree, hf_lbmr_tir_lbtrm_udp_dest_port, tvb, offset + O_LBMR_TIR_LBTRM_T_UDP_DEST_PORT, L_LBMR_TIR_LBTRM_T_UDP_DEST_PORT, ENC_BIG_ENDIAN);
                 proto_tree_add_item(lbtrm_tree, hf_lbmr_tir_lbtrm_src_ucast_port, tvb, offset + O_LBMR_TIR_LBTRM_T_SRC_UCAST_PORT, L_LBMR_TIR_LBTRM_T_SRC_UCAST_PORT, ENC_BIG_ENDIAN);
-                lbtrm_transport = lbtrm_transport_add(&(pinfo->src), src_ucast_port, session_id, &multicast_group, udp_dest_port, pinfo->fd->num);
+                lbtrm_transport = lbtrm_transport_add(&(pinfo->src), src_ucast_port, session_id, &multicast_group, udp_dest_port, pinfo->num);
                 channel = lbtrm_transport->channel;
                 add_contents_tir(contents, topic_name, lbtrm_transport_source_string(&(pinfo->src), src_ucast_port, session_id, &multicast_group, udp_dest_port), topic_index);
                 len += L_LBMR_TIR_LBTRM_T;
@@ -4005,7 +4005,7 @@ static int dissect_lbmr_tir_transport(tvbuff_t * tvb, int offset, lbm_uint8_t tr
                     proto_tree_add_item(lbtru_tree, hf_lbmr_tir_lbtru_port, tvb, offset + O_LBMR_TIR_LBTRU_T_PORT, L_LBMR_TIR_LBTRU_T_PORT, ENC_BIG_ENDIAN);
                     len += L_LBMR_TIR_LBTRU_T;
                 }
-                lbtru_transport = lbtru_transport_add(&(pinfo->src), port, session_id, pinfo->fd->num);
+                lbtru_transport = lbtru_transport_add(&(pinfo->src), port, session_id, pinfo->num);
                 channel = lbtru_transport->channel;
                 add_contents_tir(contents, topic_name, lbtru_transport_source_string(&(pinfo->src), port, session_id), topic_index);
             }

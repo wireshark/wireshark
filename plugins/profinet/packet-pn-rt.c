@@ -416,7 +416,7 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             if (uFragNumber == 0)
             { /* this is the first "new" fragment, so set up a new key Id */
                 guint32 u32FrameKey;
-                u32FrameKey = (pinfo->fd->num << 2) | u32FragID;
+                u32FrameKey = (pinfo->num << 2) | u32FragID;
                 /* store it in the array */
                 start_frag_OR_ID[u32FragID] = u32FrameKey;
             }
@@ -428,12 +428,12 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
             if (pdu_frag && !bMoreFollows) /* PDU is complete! and last fragment */
             {   /* store this fragment as the completed fragment in hash table */
-                g_hash_table_insert(reasembled_frag_table, GUINT_TO_POINTER(pinfo->fd->num), pdu_frag);
+                g_hash_table_insert(reasembled_frag_table, GUINT_TO_POINTER(pinfo->num), pdu_frag);
                 start_frag_OR_ID[u32FragID] = 0; /* reset the starting frame counter */
             }
             if (!bMoreFollows) /* last fragment */
             {
-                pdu_frag = (fragment_head *)g_hash_table_lookup(reasembled_frag_table, GUINT_TO_POINTER(pinfo->fd->num));
+                pdu_frag = (fragment_head *)g_hash_table_lookup(reasembled_frag_table, GUINT_TO_POINTER(pinfo->num));
                 if (pdu_frag)    /* found a matching fragment; dissect it */
                 {
                     guint16   type;

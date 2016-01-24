@@ -336,7 +336,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 	int i;
 	guint8 idx = 0;
 
-	framenumber = PINFO_FD_NUM(pinfo);
+	framenumber = pinfo->num;
 
 	type = sctp_info->ip_src.type;
 
@@ -533,7 +533,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 						info->max_usecs = tsn->usecs;
 				}
 
-				sack->frame_number = tsn->frame_number = pinfo->fd->num;
+				sack->frame_number = tsn->frame_number = pinfo->num;
 			}
 			if ((tvb_get_guint8(sctp_info->tvb[0],0) == SCTP_INIT_CHUNK_ID) || (tvb_get_guint8(sctp_info->tvb[0],0) == SCTP_INIT_ACK_CHUNK_ID))
 			{
@@ -751,7 +751,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 				memcpy(addr,(tmp_info.dst.data),tmp_info.dst.len);
 				store->data = addr;
 				info = add_address(store, info, 2);
-				info->frame_numbers=g_list_prepend(info->frame_numbers,&(pinfo->fd->num));
+				info->frame_numbers=g_list_prepend(info->frame_numbers,&(pinfo->num));
 				if (datachunk || forwardchunk)
 					info->tsn1 = g_list_prepend(info->tsn1, tsn);
 				if (sackchunk == TRUE)
@@ -762,7 +762,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 			{
 				gchar* tmp_str;
 				error = (sctp_error_info_t *)g_malloc(sizeof(sctp_error_info_t));
-				error->frame_number = pinfo->fd->num;
+				error->frame_number = pinfo->num;
 				error->chunk_info[0] = '\0';
 				if ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_CHUNK_ID)
 				{
@@ -848,9 +848,9 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 				else if (tsn->secs == info->max_secs && tsn->usecs > info->max_usecs)
 					info->max_usecs = tsn->usecs;
 			}
-			sack->frame_number = tsn->frame_number = pinfo->fd->num;
+			sack->frame_number = tsn->frame_number = pinfo->num;
 		}
-		info->frame_numbers = g_list_prepend(info->frame_numbers,&(pinfo->fd->num));
+		info->frame_numbers = g_list_prepend(info->frame_numbers,&(pinfo->num));
 
 		store = (address *)g_malloc(sizeof (address));
 		store->type = tmp_info.src.type;

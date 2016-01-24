@@ -512,7 +512,7 @@ void LBMLBTRMSourceTransportEntry::processPacket(const packet_info * pinfo, cons
                 sqn = it.value();
             }
         }
-        sqn->processFrame(pinfo->fd->num);
+        sqn->processFrame(pinfo->num);
     }
     else if (tap_info->type == LBTRM_PACKET_TYPE_NCF)
     {
@@ -535,7 +535,7 @@ void LBMLBTRMSourceTransportEntry::processPacket(const packet_info * pinfo, cons
             {
                 sqn = it.value();
             }
-            sqn->processFrame(tap_info->ncf_reason, pinfo->fd->num);
+            sqn->processFrame(tap_info->ncf_reason, pinfo->num);
         }
     }
     else if (tap_info->type == LBTRM_PACKET_TYPE_SM)
@@ -555,7 +555,7 @@ void LBMLBTRMSourceTransportEntry::processPacket(const packet_info * pinfo, cons
         {
             sqn = it.value();
         }
-        sqn->processFrame(pinfo->fd->num);
+        sqn->processFrame(pinfo->num);
     }
     else
     {
@@ -874,7 +874,7 @@ void LBMLBTRMReceiverTransportEntry::processPacket(const packet_info * pinfo, co
             {
                 sqn = it.value();
             }
-            sqn->processFrame(pinfo->fd->num);
+            sqn->processFrame(pinfo->num);
         }
     }
     else

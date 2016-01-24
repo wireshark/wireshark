@@ -1685,7 +1685,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
 
         RTMPT_DEBUG("Dissect: frame=%u visited=%d len=%d tree=%p\n",
-                    pinfo->fd->num, pinfo->fd->flags.visited,
+                    pinfo->num, pinfo->fd->flags.visited,
                     tvb_reported_length_remaining(tvb, offset), tree);
 
         /* Clear any previous data in Info column (RTMP packets are protected by a "fence") */
@@ -1720,7 +1720,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
                                 tp->txid = rtmpt_get_amf_txid(tvb, iBodyOffset+soff);
                                 if (tp->txid != 0) {
                                         RTMPT_DEBUG("got txid=%d\n", tp->txid);
-                                        wmem_tree_insert32(rconv->txids[cdir], tp->txid, GINT_TO_POINTER(pinfo->fd->num));
+                                        wmem_tree_insert32(rconv->txids[cdir], tp->txid, GINT_TO_POINTER(pinfo->num));
                                 }
                         }
                 }
@@ -2295,9 +2295,9 @@ dissect_rtmpt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         }
         tcpinfo = (struct tcpinfo*)data;
 
-        conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+        conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
         if (!conv) {
-                conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+                conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
         }
 
         rconv = (rtmpt_conv_t*)conversation_get_proto_data(conv, proto_rtmpt);
@@ -2365,16 +2365,16 @@ dissect_rtmpt_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         cdir = pinfo->srcport == pinfo->match_uint;
 
         if (cdir) {
-                conv = find_conversation(pinfo->fd->num, &pinfo->dst, &pinfo->src, pinfo->ptype, 0, pinfo->srcport, 0);
+                conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->src, pinfo->ptype, 0, pinfo->srcport, 0);
                 if (!conv) {
                         RTMPT_DEBUG("RTMPT new conversation\n");
-                        conv = conversation_new(pinfo->fd->num, &pinfo->dst, &pinfo->src, pinfo->ptype, 0, pinfo->srcport, 0);
+                        conv = conversation_new(pinfo->num, &pinfo->dst, &pinfo->src, pinfo->ptype, 0, pinfo->srcport, 0);
                 }
         } else {
-                conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, 0, pinfo->destport, 0);
+                conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype, 0, pinfo->destport, 0);
                 if (!conv) {
                         RTMPT_DEBUG("RTMPT new conversation\n");
-                        conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, 0, pinfo->destport, 0);
+                        conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype, 0, pinfo->destport, 0);
                 }
         }
 
@@ -2391,7 +2391,7 @@ dissect_rtmpt_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
          * plus one. If there is no previous frame then we must be at seq=1!
          * (This is per-conversation and per-direction, of course.) */
 
-        lastackseq = GPOINTER_TO_INT(wmem_tree_lookup32_le(rconv->seqs[cdir ^ 1], pinfo->fd->num))+1;
+        lastackseq = GPOINTER_TO_INT(wmem_tree_lookup32_le(rconv->seqs[cdir ^ 1], pinfo->num))+1;
 
         if (cdir == 1 && lastackseq < 2 && remain == 17) {
                 /* Session startup: the client makes an /open/ request and
@@ -2408,17 +2408,17 @@ dissect_rtmpt_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                 remain--;
         }
 
-        seq = GPOINTER_TO_INT(wmem_tree_lookup32(rconv->seqs[cdir], pinfo->fd->num));
+        seq = GPOINTER_TO_INT(wmem_tree_lookup32(rconv->seqs[cdir], pinfo->num));
 
         if (seq == 0) {
-                seq = GPOINTER_TO_INT(wmem_tree_lookup32_le(rconv->seqs[cdir], pinfo->fd->num));
+                seq = GPOINTER_TO_INT(wmem_tree_lookup32_le(rconv->seqs[cdir], pinfo->num));
                 seq += remain;
-                wmem_tree_insert32(rconv->seqs[cdir], pinfo->fd->num, GINT_TO_POINTER(seq));
+                wmem_tree_insert32(rconv->seqs[cdir], pinfo->num, GINT_TO_POINTER(seq));
         }
 
         seq -= remain-1;
 
-        RTMPT_DEBUG("RTMPT f=%d cdir=%d seq=%d lastackseq=%d len=%d\n", pinfo->fd->num, cdir, seq, lastackseq, remain);
+        RTMPT_DEBUG("RTMPT f=%d cdir=%d seq=%d lastackseq=%d len=%d\n", pinfo->num, cdir, seq, lastackseq, remain);
 
         if (remain < 1)
                 return offset;
@@ -2448,10 +2448,10 @@ dissect_rtmpt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                 {
                         /* Register this dissector for this conversation */
                         conversation = NULL;
-                        conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+                        conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
                         if (conversation == NULL)
                         {
-                                conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+                                conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
                         }
                         conversation_set_dissector(conversation, rtmpt_tcp_handle);
 

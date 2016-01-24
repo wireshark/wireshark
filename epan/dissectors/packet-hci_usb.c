@@ -213,12 +213,12 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     reassembled = fragment_get_reassembled_id(&hci_usb_reassembly_table, pinfo, session_id);
-    if (reassembled && pinfo->fd->num < reassembled->reassembled_in) {
+    if (reassembled && pinfo->num < reassembled->reassembled_in) {
         pitem = proto_tree_add_item(ttree, hf_bthci_usb_packet_fragment, tvb, offset, -1, ENC_NA);
         PROTO_ITEM_SET_GENERATED(pitem);
 
         col_append_str(pinfo->cinfo, COL_INFO, " Fragment");
-    } else if (reassembled && pinfo->fd->num == reassembled->reassembled_in) {
+    } else if (reassembled && pinfo->num == reassembled->reassembled_in) {
         pitem = proto_tree_add_item(ttree, hf_bthci_usb_packet_complete, tvb, offset, -1, ENC_NA);
         PROTO_ITEM_SET_GENERATED(pitem);
 

@@ -1489,7 +1489,7 @@ save_local_device_name_from_eir_ad(tvbuff_t *tvb, gint offset, packet_info *pinf
 
             k_interface_id = bluetooth_data->interface_id;
             k_adapter_id = bluetooth_data->adapter_id;
-            k_frame_number = pinfo->fd->num;
+            k_frame_number = pinfo->num;
 
             key[0].length = 1;
             key[0].key    = &k_interface_id;
@@ -1575,7 +1575,7 @@ get_conversation(packet_info *pinfo,
 {
     conversation_t *conversation;
 
-    conversation = find_conversation(pinfo->fd->num,
+    conversation = find_conversation(pinfo->num,
                                src_addr, dst_addr,
                                pinfo->ptype,
                                src_endpoint, dst_endpoint, 0);
@@ -1583,7 +1583,7 @@ get_conversation(packet_info *pinfo,
         return conversation;
     }
 
-    conversation = conversation_new(pinfo->fd->num,
+    conversation = conversation_new(pinfo->num,
                            src_addr, dst_addr,
                            pinfo->ptype,
                            src_endpoint, dst_endpoint, 0);

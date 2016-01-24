@@ -83,7 +83,7 @@ public:
     RtpAnalysisTreeWidgetItem(QTreeWidget *tree, tap_rtp_stat_t *statinfo, packet_info *pinfo, const struct _rtp_info *rtpinfo) :
         QTreeWidgetItem(tree, rtp_analysis_type_)
     {
-        frame_num_ = pinfo->fd->num;
+        frame_num_ = pinfo->num;
         sequence_num_ = rtpinfo->info_seq_num;
         pkt_len_ = pinfo->fd->pkt_len;
         flags_ = statinfo->flags;

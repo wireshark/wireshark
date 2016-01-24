@@ -1424,7 +1424,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     k_bus_id          = bus_id;
     k_device_address  = device_address;
-    k_frame_number    = pinfo->fd->num;
+    k_frame_number    = pinfo->num;
 
     key[0].length = 1;
     key[0].key = &k_bus_id;
@@ -1712,7 +1712,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             command_data->device_address = device_address;
 
             command_data->command = command;
-            command_data->command_frame_number = pinfo->fd->num;
+            command_data->command_frame_number = pinfo->num;
             command_data->register_id = register_id;
 
             wmem_tree_insert32_array(command_info, key, command_data);
@@ -1729,7 +1729,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(command_info, key);
    if (wmem_tree) {
-        command_data = (command_data_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->fd->num);
+        command_data = (command_data_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
         if (command_data) {
             command_response = command_data->command;
             register_id = command_data->register_id;

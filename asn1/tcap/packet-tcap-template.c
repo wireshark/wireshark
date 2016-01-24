@@ -317,7 +317,7 @@ static void
 update_tcaphash_begincall(struct tcaphash_begincall_t *p_tcaphash_begincall,
                           packet_info *pinfo)
 {
-  p_tcaphash_begincall->context->first_frame = pinfo->fd->num;
+  p_tcaphash_begincall->context->first_frame = pinfo->num;
   p_tcaphash_begincall->context->last_frame = 0;
   p_tcaphash_begincall->context->responded = FALSE;
   p_tcaphash_begincall->context->begin_time = pinfo->abs_ts;
@@ -345,7 +345,7 @@ append_tcaphash_begincall(struct tcaphash_begincall_t *prev_begincall,
   p_new_tcaphash_begincall->context=p_tcaphash_context;
   p_tcaphash_context->begincall=p_new_tcaphash_begincall;
   p_new_tcaphash_begincall->beginkey=prev_begincall->beginkey;
-  p_new_tcaphash_begincall->context->first_frame = pinfo->fd->num;
+  p_new_tcaphash_begincall->context->first_frame = pinfo->num;
   p_new_tcaphash_begincall->next_begincall=NULL;
   p_new_tcaphash_begincall->previous_begincall=prev_begincall;
   p_new_tcaphash_begincall->father=FALSE;
@@ -359,7 +359,7 @@ append_tcaphash_begincall(struct tcaphash_begincall_t *prev_begincall,
 #ifdef DEBUG_TCAPSRT
     dbg(10,"last ");
 #endif
-    prev_begincall->context->last_frame = pinfo->fd->num-1;
+    prev_begincall->context->last_frame = pinfo->num-1;
   }
   return p_new_tcaphash_begincall;
 }
@@ -371,7 +371,7 @@ static void
 update_tcaphash_ansicall(struct tcaphash_ansicall_t *p_tcaphash_ansicall,
                           packet_info *pinfo)
 {
-  p_tcaphash_ansicall->context->first_frame = pinfo->fd->num;
+  p_tcaphash_ansicall->context->first_frame = pinfo->num;
   p_tcaphash_ansicall->context->last_frame = 0;
   p_tcaphash_ansicall->context->responded = FALSE;
   p_tcaphash_ansicall->context->begin_time = pinfo->abs_ts;
@@ -399,7 +399,7 @@ append_tcaphash_ansicall(struct tcaphash_ansicall_t *prev_ansicall,
   p_new_tcaphash_ansicall->context=p_tcaphash_context;
   p_tcaphash_context->ansicall=p_new_tcaphash_ansicall;
   p_new_tcaphash_ansicall->ansikey=prev_ansicall->ansikey;
-  p_new_tcaphash_ansicall->context->first_frame = pinfo->fd->num;
+  p_new_tcaphash_ansicall->context->first_frame = pinfo->num;
   p_new_tcaphash_ansicall->next_ansicall=NULL;
   p_new_tcaphash_ansicall->previous_ansicall=prev_ansicall;
   p_new_tcaphash_ansicall->father=FALSE;
@@ -413,7 +413,7 @@ append_tcaphash_ansicall(struct tcaphash_ansicall_t *prev_ansicall,
 #ifdef DEBUG_TCAPSRT
     dbg(10,"last ");
 #endif
-    prev_ansicall->context->last_frame = pinfo->fd->num-1;
+    prev_ansicall->context->last_frame = pinfo->num-1;
   }
   return p_new_tcaphash_ansicall;
 }
@@ -493,11 +493,11 @@ find_tcaphash_begin(struct tcaphash_begin_info_key_t *p_tcaphash_begin_key,
     do {
       if ( p_tcaphash_begincall->context ) {
         if ( ( isBegin &&
-               pinfo->fd->num == p_tcaphash_begincall->context->first_frame )
+               pinfo->num == p_tcaphash_begincall->context->first_frame )
              ||
              ( !isBegin &&
-               pinfo->fd->num >= p_tcaphash_begincall->context->first_frame &&
-               ( p_tcaphash_begincall->context->last_frame?pinfo->fd->num <= p_tcaphash_begincall->context->last_frame:1 )
+               pinfo->num >= p_tcaphash_begincall->context->first_frame &&
+               ( p_tcaphash_begincall->context->last_frame?pinfo->num <= p_tcaphash_begincall->context->last_frame:1 )
                )
              ) {
           /* We have a dialogue, with this key, opened before this request */
@@ -539,8 +539,8 @@ find_tcaphash_cont(struct tcaphash_cont_info_key_t *p_tcaphash_cont_key,
   if(p_tcaphash_contcall) {
     do {
       if ( p_tcaphash_contcall->context ) {
-        if (pinfo->fd->num >= p_tcaphash_contcall->context->first_frame &&
-            (p_tcaphash_contcall->context->last_frame?pinfo->fd->num <= p_tcaphash_contcall->context->last_frame:1) ) {
+        if (pinfo->num >= p_tcaphash_contcall->context->first_frame &&
+            (p_tcaphash_contcall->context->last_frame?pinfo->num <= p_tcaphash_contcall->context->last_frame:1) ) {
           /* We have a dialogue, with this key, opened before this request */
 #ifdef DEBUG_TCAPSRT
           dbg(10,"C%d ", p_tcaphash_contcall->context->session_id);
@@ -579,12 +579,12 @@ find_tcaphash_end(struct tcaphash_end_info_key_t *p_tcaphash_end_key,
     do {
       if ( p_tcaphash_endcall->context ) {
         if ( ( isEnd &&
-               (p_tcaphash_endcall->context->last_frame?pinfo->fd->num == p_tcaphash_endcall->context->last_frame:1)
+               (p_tcaphash_endcall->context->last_frame?pinfo->num == p_tcaphash_endcall->context->last_frame:1)
                )
              ||
              ( !isEnd &&
-               pinfo->fd->num >= p_tcaphash_endcall->context->first_frame &&
-               (p_tcaphash_endcall->context->last_frame?pinfo->fd->num <= p_tcaphash_endcall->context->last_frame:1)
+               pinfo->num >= p_tcaphash_endcall->context->first_frame &&
+               (p_tcaphash_endcall->context->last_frame?pinfo->num <= p_tcaphash_endcall->context->last_frame:1)
                )
              ) {
           /* We have a dialogue, with this key, opened before this request */
@@ -642,7 +642,7 @@ new_tcaphash_context(struct tcaphash_context_key_t *p_tcaphash_context_key,
 #endif
   p_new_tcaphash_context->key = p_new_tcaphash_context_key;
   p_new_tcaphash_context->session_id = p_tcaphash_context_key->session_id;
-  p_new_tcaphash_context->first_frame = pinfo->fd->num;
+  p_new_tcaphash_context->first_frame = pinfo->num;
 #ifdef DEBUG_TCAPSRT
   dbg(10,"S%d ", p_new_tcaphash_context->session_id);
 #endif
@@ -985,7 +985,7 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* look up the request */
 #ifdef DEBUG_TCAPSRT
-  dbg(10,"\n Hbegin #%u ", pinfo->fd->num);
+  dbg(10,"\n Hbegin #%u ", pinfo->num);
   dbg(11,"key %lx ",tcaphash_begin_key.hashKey);
   dbg(51,"addr %s ", address_to_str(wmem_packet_scope(), &pinfo->src));
   dbg(51,"Tid %lx \n",tcaphash_begin_key.tid);
@@ -998,7 +998,7 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Walk through list of transaction with identical keys */
     do {
       /* Check if the request with this reqSeqNum has been seen, with the same Message Type */
-      if (pinfo->fd->num == p_tcaphash_begincall->context->first_frame) {
+      if (pinfo->num == p_tcaphash_begincall->context->first_frame) {
         /* We have seen this request before -> do nothing */
 #ifdef DEBUG_TCAPSRT
         dbg(22,"Already seen ");
@@ -1017,11 +1017,11 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
            and this request appears after last request (has bigger frame number)
            and this request occurred after the timeout for message lost */
         if ( ( p_tcaphash_begincall->context->last_frame != 0
-               && pinfo->fd->num > p_tcaphash_begincall->context->first_frame
+               && pinfo->num > p_tcaphash_begincall->context->first_frame
                && (guint) pinfo->abs_ts.secs > (guint)(p_tcaphash_begincall->context->begin_time.secs + gtcap_RepetitionTimeout)
                ) ||
              ( p_tcaphash_begincall->context->last_frame == 0
-               && pinfo->fd->num > p_tcaphash_begincall->context->first_frame
+               && pinfo->num > p_tcaphash_begincall->context->first_frame
                && (guint)pinfo->abs_ts.secs > (guint)(p_tcaphash_begincall->context->begin_time.secs + gtcap_LostTimeout)
                )
              )
@@ -1030,7 +1030,7 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* Append new record to the list */
 #ifdef DEBUG_TCAPSRT
             dbg(12,"(timeout) Append key %lx ",tcaphash_begin_key.hashKey);
-            dbg(12,"Frame %u rsp %u ",pinfo->fd->num,p_tcaphash_begincall->context->last_frame );
+            dbg(12,"Frame %u rsp %u ",pinfo->num,p_tcaphash_begincall->context->last_frame );
 #endif
             tcaphash_context_key.session_id = tcapsrt_global_SessionId++;
             p_tcaphash_context = new_tcaphash_context(&tcaphash_context_key, pinfo);
@@ -1051,7 +1051,7 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           if ( p_tcaphash_begincall->context->closed) {
 #ifdef DEBUG_TCAPSRT
             dbg(12,"(closed) Append key %lu ",tcaphash_begin_key.hashKey);
-            dbg(12,"Frame %u rsp %u ",pinfo->fd->num,p_tcaphash_begincall->context->last_frame );
+            dbg(12,"Frame %u rsp %u ",pinfo->num,p_tcaphash_begincall->context->last_frame );
 #endif
             tcaphash_context_key.session_id = tcapsrt_global_SessionId++;
             p_tcaphash_context = new_tcaphash_context(&tcaphash_context_key, pinfo);
@@ -1105,7 +1105,7 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 #ifdef DEBUG_TCAPSRT
     dbg(11,"Update key %lx ",tcaphash_begin_key.hashKey);
-    dbg(11,"Frame reqlink #%u ", pinfo->fd->num);
+    dbg(11,"Frame reqlink #%u ", pinfo->num);
 #endif
     update_tcaphash_begincall(p_tcaphash_begincall, pinfo);
   }
@@ -1159,7 +1159,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 #ifdef DEBUG_TCAPSRT
   dbg(51,"src %s srcTid %lx dst %s dstTid %lx ", address_to_str(wmem_packet_scope(), &pinfo->src), p_tcapsrt_info->src_tid, address_to_str(wmem_packet_scope(), &pinfo->dst), p_tcapsrt_info->dst_tid);
-  dbg(10,"\n Hcont #%u ", pinfo->fd->num);
+  dbg(10,"\n Hcont #%u ", pinfo->num);
 #endif
 
   /* look only for matching request, if matching conversation is available. */
@@ -1243,7 +1243,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 #ifdef DEBUG_TCAPSRT
       dbg(10,"New Ckey %lx ",tcaphash_cont_key.hashKey);
-      dbg(11,"Frame reqlink #%u \n", pinfo->fd->num);
+      dbg(11,"Frame reqlink #%u \n", pinfo->num);
 #endif
       create_tcaphash_cont(&tcaphash_cont_key,
                            p_tcaphash_begincall->context);
@@ -1264,7 +1264,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       dbg(10,"New Ekey %lx ",tcaphash_end_key.hashKey);
       dbg(51,"addr %s ", address_to_str(wmem_packet_scope(), &pinfo->src));
       dbg(51,"Tid %lx ",tcaphash_end_key.tid);
-      dbg(11,"Frame reqlink #%u ", pinfo->fd->num);
+      dbg(11,"Frame reqlink #%u ", pinfo->num);
 #endif
       create_tcaphash_end(&tcaphash_end_key,
                           p_tcaphash_begincall->context);
@@ -1317,7 +1317,7 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 #ifdef DEBUG_TCAPSRT
   dbg(51,"src %s dst %s dstTid %lx ", address_to_str(wmem_packet_scope(), &pinfo->src), address_to_str(wmem_packet_scope(), &pinfo->dst), p_tcapsrt_info->dst_tid);
-  dbg(10,"\n Hend #%u ", pinfo->fd->num);
+  dbg(10,"\n Hend #%u ", pinfo->num);
 #endif
   /* look only for matching request, if matching conversation is available. */
   tcaphash_end_key.tid = p_tcapsrt_info->dst_tid;
@@ -1453,7 +1453,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* look up the request */
 #ifdef DEBUG_TCAPSRT
-  dbg(10,"\n Hansi #%u ", pinfo->fd->num);
+  dbg(10,"\n Hansi #%u ", pinfo->num);
   dbg(11,"key %lx ",tcaphash_ansi_key.hashKey);
   dbg(51,"PC %s %s ",address_to_str(wmem_packet_scope(), &pinfo->src), address_to_str(wmem_packet_scope(), &pinfo->dst));
   dbg(51,"Tid %lx ",tcaphash_ansi_key.tid);
@@ -1465,7 +1465,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Walk through list of transaction with identical keys */
     do {
       /* Check if the request with this reqSeqNum has been seen */
-      if (pinfo->fd->num == p_tcaphash_ansicall->context->first_frame) {
+      if (pinfo->num == p_tcaphash_ansicall->context->first_frame) {
         /* We have seen this request before -> do nothing */
 #ifdef DEBUG_TCAPSRT
         dbg(22,"Request already seen ");
@@ -1476,7 +1476,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       }
 
       /* Check if the reponse with this reqSeqNum has been seen */
-      if (pinfo->fd->num == p_tcaphash_ansicall->context->last_frame) {
+      if (pinfo->num == p_tcaphash_ansicall->context->last_frame) {
         /* We have seen this response before -> do nothing */
 #ifdef DEBUG_TCAPSRT
         dbg(22,"Response already seen ");
@@ -1488,14 +1488,14 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
       /* Check for the first Request without Response
        received before this frame */
-      if ( pinfo->fd->num > p_tcaphash_ansicall->context->first_frame &&
+      if ( pinfo->num > p_tcaphash_ansicall->context->first_frame &&
            p_tcaphash_ansicall->context->last_frame==0 ) {
         /* Take it, and update the context */
 
 #ifdef DEBUG_TCAPSRT
         dbg(12,"Update key %lx ",tcaphash_ansi_key.hashKey);
 #endif
-        p_tcaphash_ansicall->context->last_frame = pinfo->fd->num;
+        p_tcaphash_ansicall->context->last_frame = pinfo->num;
         p_tcaphash_ansicall->context->responded = TRUE;
         p_tcaphash_ansicall->context->closed = TRUE;
         p_tcaphash_context=p_tcaphash_ansicall->context;
@@ -1539,11 +1539,11 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
            and this request appears after last request (has bigger frame number)
            and this request occurred after the timeout for message lost */
         if ( ( p_tcaphash_ansicall->context->last_frame != 0
-               && pinfo->fd->num > p_tcaphash_ansicall->context->first_frame
+               && pinfo->num > p_tcaphash_ansicall->context->first_frame
                && (guint) pinfo->abs_ts.secs > (guint)(p_tcaphash_ansicall->context->begin_time.secs + gtcap_RepetitionTimeout)
                ) ||
              ( p_tcaphash_ansicall->context->last_frame == 0
-               && pinfo->fd->num > p_tcaphash_ansicall->context->first_frame
+               && pinfo->num > p_tcaphash_ansicall->context->first_frame
                && (guint)pinfo->abs_ts.secs > (guint)(p_tcaphash_ansicall->context->begin_time.secs + gtcap_LostTimeout)
                )
              )
@@ -1552,7 +1552,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* Append new record to the list */
 #ifdef DEBUG_TCAPSRT
             dbg(12,"(timeout) Append key %lx ",tcaphash_ansi_key.hashKey);
-            dbg(12,"Frame %u rsp %u ",pinfo->fd->num,p_tcaphash_ansicall->context->last_frame );
+            dbg(12,"Frame %u rsp %u ",pinfo->num,p_tcaphash_ansicall->context->last_frame );
 #endif
             tcaphash_context_key.session_id = tcapsrt_global_SessionId++;
             p_tcaphash_context = new_tcaphash_context(&tcaphash_context_key, pinfo);
@@ -1571,7 +1571,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           if ( p_tcaphash_ansicall->context->closed) {
 #ifdef DEBUG_TCAPSRT
             dbg(12,"(closed) Append key %lu ",tcaphash_ansi_key.hashKey);
-            dbg(12,"Frame %u rsp %u ",pinfo->fd->num,p_tcaphash_ansicall->context->last_frame );
+            dbg(12,"Frame %u rsp %u ",pinfo->num,p_tcaphash_ansicall->context->last_frame );
 #endif
             tcaphash_context_key.session_id = tcapsrt_global_SessionId++;
             p_tcaphash_context = new_tcaphash_context(&tcaphash_context_key, pinfo);
@@ -1637,7 +1637,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 #ifdef DEBUG_TCAPSRT
     dbg(11,"Update key %lx ",tcaphash_ansi_key.hashKey);
-    dbg(11,"Frame reqlink #%u ", pinfo->fd->num);
+    dbg(11,"Frame reqlink #%u ", pinfo->num);
 #endif
     update_tcaphash_ansicall(p_tcaphash_ansicall, pinfo);
   }
@@ -1710,7 +1710,7 @@ tcapsrt_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   struct tcaphash_context_t *tcap_context=NULL;
 
   /* if this packet isn't loaded because of a read filter, don't output anything */
-  if(pinfo == NULL || pinfo->fd->num == 0) {
+  if(pinfo == NULL || pinfo->num == 0) {
     return NULL;
   }
 
@@ -1795,7 +1795,7 @@ tcapsrt_close(struct tcaphash_context_t *p_tcaphash_context,
 #endif
   if (p_tcaphash_context) {
     p_tcaphash_context->responded=TRUE;
-    p_tcaphash_context->last_frame = pinfo->fd->num;
+    p_tcaphash_context->last_frame = pinfo->num;
     p_tcaphash_context->end_time = pinfo->abs_ts;
     p_tcaphash_context->closed=TRUE;
 

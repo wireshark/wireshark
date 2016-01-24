@@ -330,7 +330,7 @@ add_to_graph(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *
     }
 
     gai = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
-    gai->frame_number = pinfo->fd->num;
+    gai->frame_number = pinfo->num;
     copy_address(&(gai->src_addr),src_addr);
     copy_address(&(gai->dst_addr),dst_addr);
 
@@ -516,7 +516,7 @@ rtp_event_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _
         return FALSE;
     }
 
-    tapinfo->rtp_evt_frame_num = pinfo->fd->num;
+    tapinfo->rtp_evt_frame_num = pinfo->num;
     tapinfo->rtp_evt = pi->info_rtp_evt;
     tapinfo->rtp_evt_end = pi->info_end;
 
@@ -624,7 +624,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
     }
 
     /* if this is a duplicated RTP Event End, just return */
-    if ((tapinfo->rtp_evt_frame_num == pinfo->fd->num) && !strinfo && (tapinfo->rtp_evt_end == TRUE)) {
+    if ((tapinfo->rtp_evt_frame_num == pinfo->num) && !strinfo && (tapinfo->rtp_evt_end == TRUE)) {
         return FALSE;
     }
 
@@ -663,7 +663,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
     strinfo->stop_fd = pinfo->fd;
 
     /* process RTP Event */
-    if (tapinfo->rtp_evt_frame_num == pinfo->fd->num) {
+    if (tapinfo->rtp_evt_frame_num == pinfo->num) {
         strinfo->rtp_event = tapinfo->rtp_evt;
         if (tapinfo->rtp_evt_end == TRUE) {
             strinfo->end_stream = TRUE;
@@ -1085,7 +1085,7 @@ sip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt ,
 
     const sip_info_value_t *pi = (const sip_info_value_t *)SIPinfo;
 
-    tapinfo->sip_frame_num = pinfo->fd->num;
+    tapinfo->sip_frame_num = pinfo->num;
 
     /* do not consider packets without call_id */
     if (pi->tap_call_id ==NULL) {
@@ -1230,8 +1230,8 @@ TODO: is useful but not perfect, what is appended is truncated when displayed in
         g_free((void *)tmp_dst.data);
 
         /* add SDP info if apply */
-        if ( (tapinfo->sdp_summary != NULL) && (tapinfo->sdp_frame_num == pinfo->fd->num) ) {
-            append_to_frame_graph(tapinfo, pinfo->fd->num, tapinfo->sdp_summary, NULL);
+        if ( (tapinfo->sdp_summary != NULL) && (tapinfo->sdp_frame_num == pinfo->num) ) {
+            append_to_frame_graph(tapinfo, pinfo->num, tapinfo->sdp_summary, NULL);
             g_free(tapinfo->sdp_summary);
             tapinfo->sdp_summary = NULL;
         }
@@ -1307,7 +1307,7 @@ isup_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
     const isup_tap_rec_t *pi = (const isup_tap_rec_t *)isup_info;
 
     /* check if the lower layer is MTP matching the frame number */
-    if (tapinfo->mtp3_frame_num != pinfo->fd->num)
+    if (tapinfo->mtp3_frame_num != pinfo->num)
         return FALSE;
 
     /* check whether we already have a call with these parameters in the list */
@@ -1508,7 +1508,7 @@ mtp3_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt 
     tapinfo->mtp3_opc = pi->addr_opc.pc;
     tapinfo->mtp3_dpc = pi->addr_dpc.pc;
     tapinfo->mtp3_ni = pi->addr_opc.ni;
-    tapinfo->mtp3_frame_num = pinfo->fd->num;
+    tapinfo->mtp3_frame_num = pinfo->num;
 
     return FALSE;
 }
@@ -1596,7 +1596,7 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
     else
         tapinfo->q931_called_number = g_strdup("");
     tapinfo->q931_cause_value = pi->cause_value;
-    tapinfo->q931_frame_num = pinfo->fd->num;
+    tapinfo->q931_frame_num = pinfo->num;
     tapinfo->q931_crv = pi->crv;
 
 
@@ -1718,7 +1718,7 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
                     }
 
                     /* Add the H245 info if exists to the Graph */
-                    h245_add_to_graph(tapinfo, pinfo->fd->num);
+                    h245_add_to_graph(tapinfo, pinfo->num);
                     break;
                 }
             }
@@ -2004,7 +2004,7 @@ h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         g_queue_push_tail(tapinfo->callsinfos, callsinfo);
     }
 
-    tapinfo->h225_frame_num = pinfo->fd->num;
+    tapinfo->h225_frame_num = pinfo->num;
     tapinfo->h225_call_num = callsinfo->call_num;
 
     /* let's analyze the call state */
@@ -2109,13 +2109,13 @@ h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
     /* add to graph analysis */
 
     /* if the frame number exists in graph, append to it*/
-    if (!append_to_frame_graph(tapinfo, pinfo->fd->num, pi->frame_label, comment)) {
+    if (!append_to_frame_graph(tapinfo, pinfo->num, pi->frame_label, comment)) {
         /* if not exist, add to the graph */
         add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
     }
 
     /* Add the H245 info if exists to the Graph */
-    h245_add_to_graph(tapinfo, pinfo->fd->num);
+    h245_add_to_graph(tapinfo, pinfo->num);
 
     g_free(frame_label);
     g_free(comment);
@@ -2268,7 +2268,7 @@ h245dg_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *ed
         /* increment the packets counter of all calls */
         ++(tapinfo->npackets);
         /* if the frame number exists in graph, append to it*/
-        if (!append_to_frame_graph(tapinfo, pinfo->fd->num, pi->frame_label, pi->comment)) {
+        if (!append_to_frame_graph(tapinfo, pinfo->num, pi->frame_label, pi->comment)) {
             /* if not exist, add to the graph */
             add_to_graph(tapinfo, pinfo, edt, pi->frame_label, pi->comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
         }
@@ -2277,7 +2277,7 @@ h245dg_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *ed
            tunnel OFF but we did not matched the h245 add, in this case nobady will set this label
            since the frame_num will not match */
 
-        h245_add_label(tapinfo, pinfo->fd->num, (gchar *) pi->frame_label, (gchar *) pi->comment);
+        h245_add_label(tapinfo, pinfo->num, (gchar *) pi->frame_label, (gchar *) pi->comment);
     }
 
     tapinfo->redraw |= REDRAW_H245DG;
@@ -2349,10 +2349,10 @@ sdp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _
        to use it later
      */
     g_free(tapinfo->sdp_summary);
-    tapinfo->sdp_frame_num = pinfo->fd->num;
+    tapinfo->sdp_frame_num = pinfo->num;
     /* Append to graph the SDP summary if the packet exists */
     tapinfo->sdp_summary = g_strdup_printf("SDP (%s)", pi->summary_str);
-    append_to_frame_graph(tapinfo, pinfo->fd->num, tapinfo->sdp_summary, NULL);
+    append_to_frame_graph(tapinfo, pinfo->num, tapinfo->sdp_summary, NULL);
 
     tapinfo->redraw |= REDRAW_SDP;
 
@@ -2722,8 +2722,8 @@ mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
     g_free(frame_label);
 
     /* add SDP info if apply */
-    if ( (tapinfo->sdp_summary != NULL) && (tapinfo->sdp_frame_num == pinfo->fd->num) ) {
-        append_to_frame_graph(tapinfo, pinfo->fd->num, tapinfo->sdp_summary, NULL);
+    if ( (tapinfo->sdp_summary != NULL) && (tapinfo->sdp_frame_num == pinfo->num) ) {
+        append_to_frame_graph(tapinfo, pinfo->num, tapinfo->sdp_summary, NULL);
         g_free(tapinfo->sdp_summary);
         tapinfo->sdp_summary = NULL;
     }
@@ -2796,7 +2796,7 @@ actrace_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
     voip_calls_info_t        *tmp_listinfo;
     voip_calls_info_t        *callsinfo = NULL;
 
-    tapinfo->actrace_frame_num = pinfo->fd->num;
+    tapinfo->actrace_frame_num = pinfo->num;
     tapinfo->actrace_trunk = pi->trunk;
     tapinfo->actrace_direction = pi->direction;
 
@@ -4092,7 +4092,7 @@ voip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
     GList *list = NULL;
     const voip_packet_info_t *pi = (const voip_packet_info_t *)VoIPinfo;
 
-    /* VOIP_CALLS_DEBUG("num %u", pinfo->fd->num); */
+    /* VOIP_CALLS_DEBUG("num %u", pinfo->num); */
     if (pi->call_id)
         list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
     while (list) {
@@ -4206,7 +4206,7 @@ prot_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt 
     if (callsinfo!=NULL) {
         callsinfo->stop_abs = pinfo->abs_ts;
         callsinfo->stop_rel = pinfo->rel_ts;
-        callsinfo->last_frame_num=pinfo->fd->num;
+        callsinfo->last_frame_num=pinfo->num;
         ++(callsinfo->npackets);
         ++(tapinfo->npackets);
     }

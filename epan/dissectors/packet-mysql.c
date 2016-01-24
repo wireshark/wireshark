@@ -1004,7 +1004,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	if (!(conn_data->frame_start_ssl) && conn_data->clnt_caps & MYSQL_CAPS_SL) /* Next packet will be use SSL */
 	{
 		col_set_str(pinfo->cinfo, COL_INFO, "Response: SSL Handshake");
-		conn_data->frame_start_ssl = pinfo->fd->num;
+		conn_data->frame_start_ssl = pinfo->num;
 		ssl_starttls_ack(ssl_handle, pinfo, mysql_handle);
 	}
 	if (conn_data->clnt_caps & MYSQL_CAPS_CU) /* 4.1 protocol */

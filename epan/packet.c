@@ -384,7 +384,7 @@ void
 mark_frame_as_depended_upon(packet_info *pinfo, guint32 frame_num)
 {
 	/* Don't mark a frame as dependent on itself */
-	if (frame_num != PINFO_FD_NUM(pinfo)) {
+	if (frame_num != pinfo->num) {
 		pinfo->dependent_frames = g_slist_prepend(pinfo->dependent_frames, GUINT_TO_POINTER(frame_num));
 	}
 }
@@ -462,6 +462,7 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	edt->pi.current_proto = "<Missing Protocol Name>";
 	edt->pi.cinfo = cinfo;
 	edt->pi.presence_flags = 0;
+	edt->pi.num = fd->num;
 	if (fd->flags.has_ts) {
 		edt->pi.presence_flags |= PINFO_HAS_TS;
 		edt->pi.abs_ts = fd->abs_ts;

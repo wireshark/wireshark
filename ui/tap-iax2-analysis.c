@@ -103,7 +103,7 @@ iax2_packet_analyse(tap_iax2_stat_t *statinfo,
         /* include it in maximum delta calculation */
         if (statinfo->delta > statinfo->max_delta) {
             statinfo->max_delta = statinfo->delta;
-            statinfo->max_nr = pinfo->fd->num;
+            statinfo->max_nr = pinfo->num;
         }
         /* maximum and mean jitter calculation */
         if (statinfo->jitter > statinfo->max_jitter) {

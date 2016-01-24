@@ -1060,7 +1060,7 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree _U_, packet_info *pinfo, tvbuff
 		if (ret >= 0) {
 			expert_add_info_format(pinfo, NULL, &ei_spnego_decrypted_keytype,
 								   "Decrypted keytype %d in frame %u using %s",
-								   ek->keytype, pinfo->fd->num, ek->key_origin);
+								   ek->keytype, pinfo->num, ek->key_origin);
 
 			gssapi_encrypt->gssapi_decrypted_tvb=tvb_new_child_real_data(tvb,
 				output_message_buffer,
@@ -1758,7 +1758,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
 	     * If we have a conversation, try to get the handle,
 	     * and if we get one, attach it to the frame.
 	     */
-	    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+	    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
 					     pinfo->ptype, pinfo->srcport,
 					     pinfo->destport, 0);
 

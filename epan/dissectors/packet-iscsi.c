@@ -580,7 +580,7 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, proto_tree *tree _U_,char *val)
     if (addr && !pinfo->fd->flags.visited) {
         conversation_t *conv;
 
-        conv = conversation_new(pinfo->fd->num, addr, addr, PT_TCP, port, port, NO_ADDR2|NO_PORT2);
+        conv = conversation_new(pinfo->num, addr, addr, PT_TCP, port, port, NO_ADDR2|NO_PORT2);
         if (conv == NULL) {
             return;
         }
@@ -745,7 +745,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     key[0].length = 1;
     key[0].key = &itt;
     key[1].length = 1;
-    key[1].key = &pinfo->fd->num;
+    key[1].key = &pinfo->num;
     key[2].length = 0;
     key[2].key = NULL;
 
@@ -810,17 +810,17 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         /* first time we see this packet. check if we can find the request */
         switch(opcode){
         case ISCSI_OPCODE_SCSI_RESPONSE:
-            cdata->itlq.last_exchange_frame=pinfo->fd->num;
+            cdata->itlq.last_exchange_frame=pinfo->num;
             break;
         case ISCSI_OPCODE_SCSI_DATA_IN:
             /* a bit ugly but we need to check the S bit here */
             if(tvb_get_guint8(tvb, offset+1)&ISCSI_SCSI_DATA_FLAG_S){
-                cdata->itlq.last_exchange_frame=pinfo->fd->num;
+                cdata->itlq.last_exchange_frame=pinfo->num;
             }
-            cdata->data_in_frame=pinfo->fd->num;
+            cdata->data_in_frame=pinfo->num;
             break;
         case ISCSI_OPCODE_SCSI_DATA_OUT:
-            cdata->data_out_frame=pinfo->fd->num;
+            cdata->data_out_frame=pinfo->num;
             break;
         }
 
@@ -847,7 +847,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         }
 
         cdata->itlq.lun=lun;
-        cdata->itlq.first_exchange_frame=pinfo->fd->num;
+        cdata->itlq.first_exchange_frame=pinfo->num;
 
         itl=(itl_nexus_t *)wmem_map_lookup(iscsi_session->itl, GUINT_TO_POINTER((gulong)lun));
         if(!itl){

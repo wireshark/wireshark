@@ -3969,7 +3969,7 @@ static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     mq_tree = tree;
                 }
 
-                if (fd_head != NULL && pinfo->fd->num == fd_head->reassembled_in)
+                if (fd_head != NULL && pinfo->num == fd_head->reassembled_in)
                 {
                     tvbuff_t *next_tvb;
 

@@ -2356,10 +2356,10 @@ dissect_opensafety_udpdata(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree
 
     /* More than one openSAFETY package could be transported in the same frame,
      * in such a case, we need to establish the number of packages inside the frame */
-    if ( pinfo->fd->num != frameNum )
+    if ( pinfo->num != frameNum )
     {
         frameIdx = 0;
-        frameNum = pinfo->fd->num;
+        frameNum = pinfo->num;
     }
 
     result = opensafety_package_dissector("openSAFETY/UDP", "", global_udp_frame2_first,

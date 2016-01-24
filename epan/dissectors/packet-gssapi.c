@@ -261,7 +261,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if(!fi){
 				goto done;
 			}
-			wmem_tree_insert32(gss_info->frags, pinfo->fd->num, fi);
+			wmem_tree_insert32(gss_info->frags, pinfo->num, fi);
 			fd_head=fragment_add(&gssapi_reassembly_table,
 				tvb, 0, pinfo, fi->first_frame, NULL,
 				gss_info->frag_offset,
@@ -275,7 +275,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 			/* this blob is now fully reassembled */
 			gss_info->do_reassembly=FALSE;
-			fi->reassembled_in=pinfo->fd->num;
+			fi->reassembled_in=pinfo->num;
 
 			gss_tvb=tvb_new_chain(tvb, fd_head->tvb_data);
 			add_new_data_source(pinfo, gss_tvb, "Reassembled GSSAPI");
@@ -285,12 +285,12 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 */
 		if( (pinfo->fd->flags.visited)
 		&&  (gssapi_reassembly) ){
-			fi=(gssapi_frag_info_t *)wmem_tree_lookup32(gss_info->frags, pinfo->fd->num);
+			fi=(gssapi_frag_info_t *)wmem_tree_lookup32(gss_info->frags, pinfo->num);
 			if(fi){
 				fd_head=fragment_get(&gssapi_reassembly_table,
 					pinfo, fi->first_frame, NULL);
 				if(fd_head && (fd_head->flags&FD_DEFRAGMENTED)){
-					if(pinfo->fd->num==fi->reassembled_in){
+					if(pinfo->num==fi->reassembled_in){
 					        proto_item *frag_tree_item;
 						gss_tvb=tvb_new_chain(tvb, fd_head->tvb_data);
 						add_new_data_source(pinfo, gss_tvb, "Reassembled GSSAPI");
@@ -429,18 +429,18 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		&&  (len1>(guint32)tvb_captured_length_remaining(gss_tvb, oid_start_offset))
 		&&  (gssapi_reassembly) ){
 			fi=wmem_new(wmem_file_scope(), gssapi_frag_info_t);
-			fi->first_frame=pinfo->fd->num;
+			fi->first_frame=pinfo->num;
 			fi->reassembled_in=0;
-			wmem_tree_insert32(gss_info->frags, pinfo->fd->num, fi);
+			wmem_tree_insert32(gss_info->frags, pinfo->num, fi);
 
 			fragment_add(&gssapi_reassembly_table,
-				gss_tvb, 0, pinfo, pinfo->fd->num, NULL,
+				gss_tvb, 0, pinfo, pinfo->num, NULL,
 				0, tvb_captured_length(gss_tvb), TRUE);
 			fragment_set_tot_len(&gssapi_reassembly_table,
-				pinfo, pinfo->fd->num, NULL, len1+oid_start_offset);
+				pinfo, pinfo->num, NULL, len1+oid_start_offset);
 
 			gss_info->do_reassembly=TRUE;
-			gss_info->first_frame=pinfo->fd->num;
+			gss_info->first_frame=pinfo->num;
 			gss_info->frag_offset=tvb_captured_length(gss_tvb);
 			goto done;
 		}

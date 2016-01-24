@@ -413,14 +413,14 @@ dissect_rpcordma_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* first try to find a conversation between the two current hosts. in most cases this
        will not work since we do not have the source QP. this WILL succeed when we're still
        in the process of CM negotiations */
-    conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+    conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
                              PT_IBQP, pinfo->srcport, pinfo->destport, 0);
 
     if (!conv) {
         /* if not, try to find an established RC channel. recall Infiniband conversations are
            registered with one side of the channel. since the packet is only guaranteed to
            contain the qpn of the destination, we'll use this */
-        conv = find_conversation(pinfo->fd->num, &pinfo->dst, &pinfo->dst,
+        conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->dst,
                                  PT_IBQP, pinfo->destport, pinfo->destport, NO_ADDR_B|NO_PORT_B);
 
         if (!conv)

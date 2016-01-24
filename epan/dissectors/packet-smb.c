@@ -1099,7 +1099,7 @@ feed_eo_smb(guint16 cmd, guint16 fid, tvbuff_t * tvb, packet_info *pinfo, guint1
 		GSL_iterator = si->ct->GSL_fid_info;
 		while (GSL_iterator) {
 			suspect_fid_info = (smb_fid_info_t *)GSL_iterator->data;
-			if (suspect_fid_info->opened_in > pinfo->fd->num) break;
+			if (suspect_fid_info->opened_in > pinfo->num) break;
 			if ((suspect_fid_info->tid == si->tid) && (suspect_fid_info->fid == fid))
 				fid_info = suspect_fid_info;
 			GSL_iterator = g_slist_next(GSL_iterator);
@@ -2890,7 +2890,7 @@ dissect_smb_tid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 
 	if ((!pinfo->fd->flags.visited) && is_created) {
 		tid_info = wmem_new(wmem_file_scope(), smb_tid_info_t);
-		tid_info->opened_in = pinfo->fd->num;
+		tid_info->opened_in = pinfo->num;
 		tid_info->closed_in = 0;
 		tid_info->type = SMB_FID_TYPE_UNKNOWN;
 		if (si->sip && (si->sip->extra_info_type == SMB_EI_TIDNAME)) {
@@ -2909,7 +2909,7 @@ dissect_smb_tid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	}
 
 	if ((!pinfo->fd->flags.visited) && is_closed) {
-		tid_info->closed_in = pinfo->fd->num;
+		tid_info->closed_in = pinfo->num;
 	}
 
 	if (tid_info->opened_in) {
@@ -3479,7 +3479,7 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 
 	if ((!pinfo->fd->flags.visited) && is_created) {
 		fid_info = wmem_new(wmem_file_scope(), smb_fid_info_t);
-		fid_info->opened_in = pinfo->fd->num;
+		fid_info->opened_in = pinfo->num;
 		fid_info->closed_in = 0;
 		fid_info->type = SMB_FID_TYPE_UNKNOWN;
 		fid_info->fid = fid;
@@ -3508,7 +3508,7 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 		GSL_iterator = si->ct->GSL_fid_info;
 		while (GSL_iterator) {
 			suspect_fid_info = (smb_fid_info_t *)GSL_iterator->data;
-			if (suspect_fid_info->opened_in > pinfo->fd->num) break;
+			if (suspect_fid_info->opened_in > pinfo->num) break;
 			if ((suspect_fid_info->tid == si->tid) && (suspect_fid_info->fid == fid))
 				fid_info = (smb_fid_info_t *)suspect_fid_info;
 			GSL_iterator = g_slist_next(GSL_iterator);
@@ -3531,7 +3531,7 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	}
 
 	if ((!pinfo->fd->flags.visited) && is_closed) {
-		fid_info->closed_in = pinfo->fd->num;
+		fid_info->closed_in = pinfo->num;
 	}
 
 	if (fid_info->opened_in) {
@@ -7238,7 +7238,7 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		smb_uid_t *smb_uid;
 
 		smb_uid = (smb_uid_t *)si->sip->extra_info;
-		smb_uid->logged_in = pinfo->fd->num;
+		smb_uid->logged_in = pinfo->num;
 		wmem_tree_insert32(si->ct->uid_tree, si->uid, smb_uid);
 	}
 
@@ -17257,7 +17257,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 			sip = (smb_saved_info_t *)g_hash_table_lookup(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
 			if (sip != NULL) {
 				new_key = (smb_saved_info_key_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_saved_info_key_t));
-				new_key->frame = pinfo->fd->num;
+				new_key->frame = pinfo->num;
 				new_key->pid_mid = pid_mid;
 				g_hash_table_insert(si->ct->matched, new_key,
 				    sip);
@@ -17272,7 +17272,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 			/* we have seen this packet before; check the
 			   matching table
 			*/
-			key.frame = pinfo->fd->num;
+			key.frame = pinfo->num;
 			key.pid_mid = pid_mid;
 			sip = (smb_saved_info_t *)g_hash_table_lookup(si->ct->matched, &key);
 			if (sip == NULL) {
@@ -17382,7 +17382,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 						   we have seen to this packet,
 						   or it's a continuation of
 						   a response we've seen. */
-						sip->frame_res = pinfo->fd->num;
+						sip->frame_res = pinfo->num;
 						new_key = (smb_saved_info_key_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_saved_info_key_t));
 						new_key->frame = sip->frame_res;
 						new_key->pid_mid = pid_mid;
@@ -17419,7 +17419,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 			}
 			if (si->request) {
 				sip = (smb_saved_info_t *)wmem_alloc(wmem_file_scope(), sizeof(smb_saved_info_t));
-				sip->frame_req = pinfo->fd->num;
+				sip->frame_req = pinfo->num;
 				sip->frame_res = 0;
 				sip->req_time = pinfo->abs_ts;
 				sip->flags = 0;
@@ -17454,7 +17454,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 			   we've seen this packet before, we've already
 			   saved the information.
 			*/
-			key.frame = pinfo->fd->num;
+			key.frame = pinfo->num;
 			key.pid_mid = pid_mid;
 			sip = (smb_saved_info_t *)g_hash_table_lookup(si->ct->matched, &key);
 		}

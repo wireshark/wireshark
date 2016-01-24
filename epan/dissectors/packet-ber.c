@@ -2804,7 +2804,7 @@ printf("CHOICE dissect_ber_choice(%s) entered len:%d\n", name, tvb_reported_leng
             proto_tree_add_expert_format(
                 tree, actx->pinfo, &ei_hf_field_not_integer_type, tvb, offset, len,
                 "dissect_ber_choice(): frame:%u offset:%d Was passed an HF field that was not integer type : %s",
-                actx->pinfo->fd->num, offset, hfinfo->abbrev);
+                actx->pinfo->num, offset, hfinfo->abbrev);
             return end_offset;
         }
     }
@@ -3918,7 +3918,7 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
         proto_tree_add_expert_format(
             parent_tree, actx->pinfo, &ei_ber_constr_bitstr, tvb, offset, len,
             "dissect_ber_constrained_bitstring(): frame:%u offset:%d Was passed an illegal length of 0",
-            actx->pinfo->fd->num, offset);
+            actx->pinfo->num, offset);
         return offset;
     }
     actx->created_item = NULL;

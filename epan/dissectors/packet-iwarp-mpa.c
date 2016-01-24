@@ -355,7 +355,7 @@ is_mpa_req(tvbuff_t *tvb, packet_info *pinfo)
 		state->ini_exp_m_res = mcrres & MPA_MARKER_FLAG;
 		state->crc = mcrres & MPA_CRC_FLAG;
 		state->revision = tvb_get_guint8(tvb, 17);
-		state->req_frame_num = pinfo->fd->num;
+		state->req_frame_num = pinfo->num;
 		state->minfo[MPA_INITIATOR].port = pinfo->srcport;
 		state->minfo[MPA_RESPONDER].port = pinfo->destport;
 
@@ -384,7 +384,7 @@ is_mpa_rep(tvbuff_t *tvb, packet_info *pinfo)
 		return FALSE;
 	}
 
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src,
+	conversation = find_conversation(pinfo->num, &pinfo->src,
 			&pinfo->dst, pinfo->ptype, pinfo->srcport,
 			pinfo->destport, 0);
 
@@ -402,7 +402,7 @@ is_mpa_rep(tvbuff_t *tvb, packet_info *pinfo)
 		mcrres = tvb_get_guint8(tvb, 16);
 		state->res_exp_m_ini = mcrres & MPA_MARKER_FLAG;
 		state->crc = state->crc | (mcrres & MPA_CRC_FLAG);
-		state->rep_frame_num = pinfo->fd->num;
+		state->rep_frame_num = pinfo->num;
 
 		 /* enter Full Operation Phase only if the Reject bit is not set */
 		if (!(mcrres & MPA_REJECT_FLAG))
@@ -420,7 +420,7 @@ is_mpa_fpdu(packet_info *pinfo)
 	conversation_t *conversation = NULL;
 	mpa_state_t *state = NULL;
 
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src,
+	conversation = find_conversation(pinfo->num, &pinfo->src,
 			&pinfo->dst, pinfo->ptype, pinfo->srcport,
 			pinfo->destport, 0);
 
@@ -438,8 +438,8 @@ is_mpa_fpdu(packet_info *pinfo)
 		return FALSE;
 	}
 
-	if (pinfo->fd->num == state->req_frame_num
-			|| pinfo->fd->num == state->rep_frame_num) {
+	if (pinfo->num == state->req_frame_num
+			|| pinfo->num == state->rep_frame_num) {
 		return FALSE;
 	} else {
 		return TRUE;
@@ -795,7 +795,7 @@ dissect_iwarp_mpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	/* FPDU */
 	if (tvb_captured_length(tvb) >= MPA_SMALLEST_FPDU_LEN && is_mpa_fpdu(pinfo)) {
 
-		conversation = find_conversation(pinfo->fd->num, &pinfo->src,
+		conversation = find_conversation(pinfo->num, &pinfo->src,
 				&pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
 		state = get_mpa_state(conversation);

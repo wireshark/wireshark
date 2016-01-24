@@ -85,7 +85,7 @@ void gcp_init(void) {
 
 gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
     gcp_msg_t* m;
-    guint32 framenum = (guint32)pinfo->fd->num;
+    guint32 framenum = (guint32)pinfo->num;
     guint32 offset = (guint32)o;
     address* src = &(pinfo->src);
     address* dst = &(pinfo->dst);

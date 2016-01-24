@@ -690,12 +690,12 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DRDA");
     /* This is a trick to know whether this is the first PDU in this packet or not */
-    if (iPreviousFrameNumber != pinfo->fd->num)
+    if (iPreviousFrameNumber != pinfo->num)
         col_clear(pinfo->cinfo, COL_INFO);
     else
         col_append_str(pinfo->cinfo, COL_INFO, " | ");
 
-    iPreviousFrameNumber = pinfo->fd->num;
+    iPreviousFrameNumber = pinfo->num;
     /* There may be multiple DRDA commands in one frame */
     while ((guint) (offset + 10) <= tvb_reported_length(tvb))
     {

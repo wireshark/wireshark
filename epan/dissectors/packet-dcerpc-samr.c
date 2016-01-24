@@ -2145,7 +2145,7 @@ cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	}
 	if(polhnd){
 		dcerpc_fetch_polhnd_data(polhnd, NULL, &type, NULL, NULL,
-					pinfo->fd->num);
+					pinfo->num);
 	}
 	switch(type){
 	case PIDL_POLHND_TYPE_SAMR_USER:

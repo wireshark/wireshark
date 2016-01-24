@@ -3728,7 +3728,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   key[0].length = 1;
   key[0].key = &id;
   key[1].length = 1;
-  key[1].key = &pinfo->fd->num;
+  key[1].key = &pinfo->num;
   key[2].length = 0;
   key[2].key = NULL;
 
@@ -3736,7 +3736,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!(flags&F_RESPONSE)) {
       /* This is a request */
       dns_trans=wmem_new(wmem_file_scope(), dns_transaction_t);
-      dns_trans->req_frame=pinfo->fd->num;
+      dns_trans->req_frame=pinfo->num;
       dns_trans->rep_frame=0;
       dns_trans->req_time=pinfo->abs_ts;
       dns_trans->id = id;
@@ -3747,7 +3747,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (dns_trans->id != id) {
           dns_trans = NULL;
         } else {
-          dns_trans->rep_frame=pinfo->fd->num;
+          dns_trans->rep_frame=pinfo->num;
         }
       }
     }

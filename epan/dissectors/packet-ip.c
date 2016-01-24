@@ -2446,7 +2446,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
                  "Fragmented IP protocol (proto=%s %u, off=%u, ID=%04x)",
                  ipprotostr(iph->ip_p), iph->ip_p,
                  (iph->ip_off & IP_OFFSET) * 8, iph->ip_id);
-    if ( ipfd_head && ipfd_head->reassembled_in != pinfo->fd->num ) {
+    if ( ipfd_head && ipfd_head->reassembled_in != pinfo->num ) {
       col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%u]",
                       ipfd_head->reassembled_in);
     }

@@ -1076,7 +1076,7 @@ static gboolean test_vnc_protocol(tvbuff_t *tvb, packet_info *pinfo,
 	conversation_t *conversation;
 
 	if (vnc_is_client_or_server_version_message(tvb, NULL, NULL)) {
-		conversation = conversation_new(pinfo->fd->num, &pinfo->src,
+		conversation = conversation_new(pinfo->num, &pinfo->src,
 						&pinfo->dst, pinfo->ptype,
 						pinfo->srcport,
 						pinfo->destport, 0);

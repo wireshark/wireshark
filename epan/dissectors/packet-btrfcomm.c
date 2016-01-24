@@ -648,7 +648,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         k_chandle         = l2cap_data->chandle;
         k_psm             = l2cap_data->psm;
         k_channel         = dlci >> 1;
-        k_frame_number    = pinfo->fd->num;
+        k_frame_number    = pinfo->num;
         k_dlci            = dlci;
 
         key[0].length = 1;

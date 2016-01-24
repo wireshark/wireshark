@@ -1950,7 +1950,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
 #endif
 
     if (exchange_type != SDP_EXCHANGE_OFFER)
-        wmem_tree_insert32(sdp_transport_rsps, pinfo->fd->num, (void *)transport_info);
+        wmem_tree_insert32(sdp_transport_rsps, pinfo->num, (void *)transport_info);
 
     /* Offer has already been answered or rejected and hash tables freed, so
      * don't try to add to it
@@ -2089,7 +2089,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
 
         /* If no request_frame number has been found use this frame's number */
         if (request_frame == 0) {
-            establish_frame = pinfo->fd->num;
+            establish_frame = pinfo->num;
         } else {
             establish_frame = request_frame;
         }
@@ -2157,9 +2157,9 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
 
                 if (transport_info->media_port[n] == 0 && current_rtp_port) {
                     sprt_add_address(pinfo, &transport_info->src_addr[n], current_rtp_port,
-                                     0, "SDP", pinfo->fd->num); /* will use same port as RTP */
+                                     0, "SDP", pinfo->num); /* will use same port as RTP */
                 } else {
-                    sprt_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->fd->num);
+                    sprt_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->num);
                 }
             }
 
@@ -2168,7 +2168,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
                 !transport_info->media[n].set_rtp &&
                 (transport_info->proto_bitmask[n] & SDP_T38_PROTO) &&
                 (transport_info->proto_bitmask[n] & SDP_IPv4)) {
-                t38_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->fd->num);
+                t38_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->num);
             }
 
             /* Add MSRP conversation.  Uses addresses discovered in attribute
@@ -2177,7 +2177,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
             if ((transport_info->proto_bitmask[n] & SDP_MSRP_PROTO) &&
                 (transport_info->proto_bitmask[n] & SDP_MSRP_IPv4) &&
                 msrp_handle) {
-                msrp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], "SDP", pinfo->fd->num);
+                msrp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], "SDP", pinfo->num);
             }
 
             /* Free the hash table if we did't assigned it to a conv use it */
@@ -2278,11 +2278,11 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     sdp_pi->summary_str[0] = '\0';
 
     if (!pinfo->fd->flags.visited) {
-        transport_info = (transport_info_t*)wmem_tree_lookup32( sdp_transport_reqs, pinfo->fd->num );
+        transport_info = (transport_info_t*)wmem_tree_lookup32( sdp_transport_reqs, pinfo->num );
 
         if (transport_info == NULL) {
           /* Can't find it in the requests, make sure it's not a response */
-          transport_info = (transport_info_t*)wmem_tree_lookup32( sdp_transport_rsps, pinfo->fd->num );
+          transport_info = (transport_info_t*)wmem_tree_lookup32( sdp_transport_rsps, pinfo->num );
         }
     }
 
@@ -2501,7 +2501,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 DPRINT(("calling srtp_add_address for media_port=%d, for channel=%d",
                         transport_info->media_port[n],n));
                 DINDENT();
-                srtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->fd->num,
+                srtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->num,
                                 (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
                                  transport_info->media[n].rtp_dyn_payload, srtp_info);
                 DENDENT();
@@ -2509,7 +2509,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 DPRINT(("calling rtp_add_address for media_port=%d, for channel=%d",
                         transport_info->media_port[n],n));
                 DINDENT();
-                rtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->fd->num,
+                rtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->num,
                                 (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
                                 transport_info->media[n].rtp_dyn_payload);
                 DENDENT();
@@ -2523,13 +2523,13 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                     DPRINT(("calling srtcp_add_address for media_port=%d, for channel=%d",
                             transport_info->media_port[n],n));
                     DINDENT();
-                    srtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", pinfo->fd->num, srtp_info);
+                    srtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", pinfo->num, srtp_info);
                     DENDENT();
                 } else {
                     DPRINT(("calling rtcp_add_address for media_port=%d, for channel=%d",
                             transport_info->media_port[n],n));
                     DINDENT();
-                    rtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", pinfo->fd->num);
+                    rtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", pinfo->num);
                     DENDENT();
                 }
             }
@@ -2544,9 +2544,9 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
             if (transport_info->media_port[n] == 0 && current_rtp_port) {
                 sprt_add_address(pinfo, &transport_info->src_addr[n], current_rtp_port,
-                                 0, "SDP", pinfo->fd->num); /* will use same port as RTP */
+                                 0, "SDP", pinfo->num); /* will use same port as RTP */
             } else {
-                sprt_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->fd->num);
+                sprt_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->num);
             }
         }
 
@@ -2557,7 +2557,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             !transport_info->media[n].set_rtp &&
             (transport_info->proto_bitmask[n] & SDP_T38_PROTO) &&
             (transport_info->proto_bitmask[n] & SDP_IPv4)) {
-            t38_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->fd->num);
+            t38_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->num);
         }
 
         /* Add MSRP conversation.  Uses addresses discovered in attribute
@@ -2567,7 +2567,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             (transport_info->proto_bitmask[n] & SDP_MSRP_PROTO) &&
             (transport_info->proto_bitmask[n] & SDP_MSRP_IPv4) &&
             msrp_handle) {
-            msrp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], "SDP", pinfo->fd->num);
+            msrp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], "SDP", pinfo->num);
         }
 
         if (local_transport_info.media_port[n] != 0) {

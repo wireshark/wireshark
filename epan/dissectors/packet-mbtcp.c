@@ -1126,7 +1126,7 @@ dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tr
             request_data = (modbus_request_info_t *)wmem_list_frame_data(frame);
             req_frame_num = request_data->fnum;
             req_function_code = request_data->function_code;
-            if ((pinfo->fd->num > req_frame_num) && (req_function_code == function_code)) {
+            if ((pinfo->num > req_frame_num) && (req_function_code == function_code)) {
                 request_frame_item = proto_tree_add_uint(modbus_tree, hf_modbus_request_frame, tvb, 0, 0, req_frame_num);
                 reg_base = request_data->base_address;
                 PROTO_ITEM_SET_GENERATED(request_frame_item);
@@ -1481,7 +1481,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             modbus_request_info_t    *frame_ptr = wmem_new(wmem_file_scope(), modbus_request_info_t);
 
             /* load information into the modbus request frame */
-            frame_ptr->fnum = pinfo->fd->num;
+            frame_ptr->fnum = pinfo->num;
             frame_ptr->function_code = function_code;
             frame_ptr->base_address = tvb_get_ntohs(tvb, 1);
             frame_ptr->num_reg = tvb_get_ntohs(tvb, 3);

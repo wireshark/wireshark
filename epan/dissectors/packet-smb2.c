@@ -697,7 +697,7 @@ smb2stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 	 * retransmissions triggered by the expiry of the rexmit timer (RTOs). Only calculating SRT
 	 * for the last received response accomplishes this goal without requiring the TCP pref
 	 * "Do not call subdissectors for error packets" to be set. */
-	if ((si->saved->frame_req == 0) || (si->saved->frame_res != pinfo->fd->num))
+	if ((si->saved->frame_req == 0) || (si->saved->frame_res != pinfo->num))
 		return 0;
 
 	smb2_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
@@ -970,7 +970,7 @@ feed_eo_smb2(tvbuff_t * tvb,packet_info *pinfo,smb2_info_t * si, guint16 dataoff
 
 	/* Try to get file id and filename */
 	file_id=policy_hnd_to_file_id(&si->saved->policy_hnd);
-	dcerpc_fetch_polhnd_data(&si->saved->policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->fd->num);
+	dcerpc_fetch_polhnd_data(&si->saved->policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->num);
 	if (fid_name && g_strcmp0(fid_name,"File: ")!=0) {
 		auxstring=fid_name;
 		/* Remove "File: " from filename */
@@ -1012,7 +1012,7 @@ feed_eo_smb2(tvbuff_t * tvb,packet_info *pinfo,smb2_info_t * si, guint16 dataoff
 	}
 
 	/* packet number */
-	eo_info->pkt_num = pinfo->fd->num;
+	eo_info->pkt_num = pinfo->num;
 
 	/* fid type */
 	if (si->eo_file_info->attr_mask & SMB2_FLAGS_ATTR_DIRECTORY) {
@@ -1713,7 +1713,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 			} else {
 				sfi->name = wmem_strdup_printf(wmem_file_scope(), "[unknown]");
 			}
-			sfi->open_frame = pinfo->fd->num;
+			sfi->open_frame = pinfo->num;
 
 			if (si->saved && si->saved->extra_info_type == SMB2_EI_FILENAME) {
 				fid_name = wmem_strdup_printf(wmem_file_scope(), "File: %s", (char *)si->saved->extra_info);
@@ -1768,7 +1768,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 		}
 	}
 
-	if (dcerpc_fetch_polhnd_data(&policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->fd->num)) {
+	if (dcerpc_fetch_polhnd_data(&policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->num)) {
 		/* look for the eo_file_info */
 		if (!si->eo_file_info) {
 			if (si->saved) { si->saved->policy_hnd = policy_hnd; }
@@ -2808,7 +2808,7 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					       sizeof(sesid->client_decryption_key));
 				}
 				sesid->server_port = pinfo->destport;
-				sesid->auth_frame = pinfo->fd->num;
+				sesid->auth_frame = pinfo->num;
 				sesid->tids = g_hash_table_new(smb2_tid_info_hash, smb2_tid_info_equal);
 				g_hash_table_insert(si->conv->sesids, sesid, sesid);
 			}
@@ -2893,7 +2893,7 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		}
 
 		for (ek=enc_key_list;ek;ek=ek->next) {
-			if (ek->fd_num == (int)pinfo->fd->num) {
+			if (ek->fd_num == (int)pinfo->num) {
 				break;
 			}
 		}
@@ -2919,7 +2919,7 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 					    "ServerOut", 10,
 					    sesid->client_decryption_key);
 			sesid->server_port = pinfo->srcport;
-			sesid->auth_frame = pinfo->fd->num;
+			sesid->auth_frame = pinfo->num;
 			sesid->tids = g_hash_table_new(smb2_tid_info_hash, smb2_tid_info_equal);
 			g_hash_table_insert(si->conv->sesids, sesid, sesid);
 		}
@@ -2992,7 +2992,7 @@ dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		tid = wmem_new(wmem_file_scope(), smb2_tid_info_t);
 		tid->tid = si->tid;
 		tid->name = (char *)si->saved->extra_info;
-		tid->connect_frame = pinfo->fd->num;
+		tid->connect_frame = pinfo->num;
 		tid->share_type = share_type;
 
 		g_hash_table_insert(si->session->tids, tid, tid);
@@ -4780,7 +4780,7 @@ dissect_file_data_smb2_pipe(tvbuff_t *raw_tvb, packet_info *pinfo, proto_tree *t
 	}
 
 	/* it is reassembled but it was reassembled in a different frame */
-	if (pinfo->fd->num != fd_head->reassembled_in) {
+	if (pinfo->num != fd_head->reassembled_in) {
 		proto_item *item;
 		item = proto_tree_add_uint(top_tree, hf_smb2_pipe_reassembled_in,
 					   tvb, 0, 0, fd_head->reassembled_in);
@@ -8075,7 +8075,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 					*/
 					ssi                  = wmem_new0(wmem_file_scope(), smb2_saved_info_t);
 					ssi->msg_id          = ssi_key.msg_id;
-					ssi->frame_req       = pinfo->fd->num;
+					ssi->frame_req       = pinfo->num;
 					ssi->req_time        = pinfo->abs_ts;
 					ssi->extra_info_type = SMB2_EI_NONE;
 					g_hash_table_insert(si->conv->unmatched, ssi, ssi);
@@ -8086,7 +8086,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 					&& si->status == NT_STATUS_PENDING)
 					&& ssi) {
 					/* just  set the response frame and move it to the matched table */
-					ssi->frame_res = pinfo->fd->num;
+					ssi->frame_res = pinfo->num;
 					g_hash_table_remove(si->conv->unmatched, ssi);
 					g_hash_table_insert(si->conv->matched, ssi, ssi);
 				}
@@ -8103,7 +8103,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		}
 
 		if (ssi) {
-			if (dcerpc_fetch_polhnd_data(&ssi->policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->fd->num)) {
+			if (dcerpc_fetch_polhnd_data(&ssi->policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->num)) {
 				/* If needed, create the file entry and save the policy hnd */
 				if (!si->eo_file_info) {
 					if (si->conv) {

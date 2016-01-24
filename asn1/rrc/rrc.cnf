@@ -417,7 +417,7 @@ fp_info       *fpinf ;
 
   fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
   if(fpinf && ((c_inf = (rrc_ciphering_info *)g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id))) != NULL) ){
-    c_inf->setup_frame = actx->pinfo->fd->num;
+    c_inf->setup_frame = actx->pinfo->num;
   }
 
 
@@ -883,7 +883,7 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
         *start = tvb_get_bits32(start_val,0,20,ENC_BIG_ENDIAN);
         if(c_inf && c_inf->start_ps)
           /*Insert the value based on current frame num since this might vary over time*/
-          g_tree_insert(c_inf->start_ps, GUINT_TO_POINTER(actx->pinfo->fd->num), start);
+          g_tree_insert(c_inf->start_ps, GUINT_TO_POINTER(actx->pinfo->num), start);
 
         break;
       default:

@@ -1294,10 +1294,10 @@ dissect_osd_partition_id(packet_info *pinfo, tvbuff_t *tvb, int offset,
             wmem_tree_insert32_array(lun_info->partitions, &pikey[0], part_info);
         }
         if (is_created) {
-            part_info->created_in = pinfo->fd->num;
+            part_info->created_in = pinfo->num;
         }
         if (is_removed) {
-            part_info->removed_in = pinfo->fd->num;
+            part_info->removed_in = pinfo->num;
         }
         if (item) {
             partition_tree = proto_item_add_subtree(item, ett_osd_partition);

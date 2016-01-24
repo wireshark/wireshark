@@ -465,7 +465,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 guint32                    frame_number;
                 localhost_bdaddr_entry_t   *localhost_bdaddr_entry;
 
-                frame_number = pinfo->fd->num;
+                frame_number = pinfo->num;
 
                 key[0].length = 1;
                 key[0].key    = &bluetooth_data->interface_id;

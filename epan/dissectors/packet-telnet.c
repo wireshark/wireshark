@@ -482,9 +482,9 @@ dissect_starttls_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_
 
   if (session->starttls_requested_in == 0) {
     /* First sender (client or server) requesting to start TLS. */
-    session->starttls_requested_in = pinfo->fd->num;
+    session->starttls_requested_in = pinfo->num;
     session->starttls_port = pinfo->srcport;
-  } else if (session->starttls_requested_in < pinfo->fd->num &&
+  } else if (session->starttls_requested_in < pinfo->num &&
       session->starttls_port != pinfo->srcport) {
     /* Other side confirms that following data is TLS. */
     ssl_starttls_ack(ssl_handle, pinfo, telnet_handle);

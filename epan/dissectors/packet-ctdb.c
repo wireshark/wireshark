@@ -459,18 +459,18 @@ ctdb_display_trans(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, ctdb_tra
 {
 	proto_item *item;
 
-	if(ctdb_trans->request_in!=pinfo->fd->num){
+	if(ctdb_trans->request_in!=pinfo->num){
 		item=proto_tree_add_uint(tree, hf_ctdb_request_in, tvb, 0, 0, ctdb_trans->request_in);
 		PROTO_ITEM_SET_GENERATED(item);
 	}
 
 	if( (ctdb_trans->response_in!=0)
-	  &&(ctdb_trans->response_in!=pinfo->fd->num) ){
+	  &&(ctdb_trans->response_in!=pinfo->num) ){
 		item=proto_tree_add_uint(tree, hf_ctdb_response_in, tvb, 0, 0, ctdb_trans->response_in);
 		PROTO_ITEM_SET_GENERATED(item);
 	}
 
-	if(pinfo->fd->num==ctdb_trans->response_in){
+	if(pinfo->num==ctdb_trans->response_in){
 		nstime_t ns;
 
 		nstime_delta(&ns, &pinfo->abs_ts, &ctdb_trans->req_time);
@@ -484,18 +484,18 @@ ctdb_display_control(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, ctdb_c
 {
 	proto_item *item;
 
-	if(ctdb_control->request_in!=pinfo->fd->num){
+	if(ctdb_control->request_in!=pinfo->num){
 		item=proto_tree_add_uint(tree, hf_ctdb_request_in, tvb, 0, 0, ctdb_control->request_in);
 		PROTO_ITEM_SET_GENERATED(item);
 	}
 
 	if( (ctdb_control->response_in!=0)
-	  &&(ctdb_control->response_in!=pinfo->fd->num) ){
+	  &&(ctdb_control->response_in!=pinfo->num) ){
 		item=proto_tree_add_uint(tree, hf_ctdb_response_in, tvb, 0, 0, ctdb_control->response_in);
 		PROTO_ITEM_SET_GENERATED(item);
 	}
 
-	if(pinfo->fd->num==ctdb_control->response_in){
+	if(pinfo->num==ctdb_control->response_in){
 		nstime_t ns;
 
 		nstime_delta(&ns, &pinfo->abs_ts, &ctdb_control->req_time);
@@ -619,7 +619,7 @@ dissect_ctdb_reply_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 	ctdb_trans=(ctdb_trans_t *)wmem_tree_lookup32_array(ctdb_transactions, &tkey[0]);
 
 	if(ctdb_trans){
-		ctdb_trans->response_in=pinfo->fd->num;
+		ctdb_trans->response_in=pinfo->num;
 		ctdb_display_trans(pinfo, tree, tvb, ctdb_trans);
 	}
 
@@ -750,7 +750,7 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 
 		ctdb_control=wmem_new(wmem_file_scope(), ctdb_control_t);
 		ctdb_control->opcode=opcode;
-		ctdb_control->request_in=pinfo->fd->num;
+		ctdb_control->request_in=pinfo->num;
 		ctdb_control->response_in=0;
 		ctdb_control->req_time=pinfo->abs_ts;
 		tkey[0].length=1;
@@ -810,7 +810,7 @@ dissect_ctdb_reply_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 	}
 
 	if(!pinfo->fd->flags.visited){
-		ctdb_control->response_in = pinfo->fd->num;
+		ctdb_control->response_in = pinfo->num;
 	}
 
 	/* ctrl opcode */
@@ -940,7 +940,7 @@ dissect_ctdb_req_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 		ctdb_trans=wmem_new(wmem_file_scope(), ctdb_trans_t);
 		ctdb_trans->key_hash=keyhash;
-		ctdb_trans->request_in=pinfo->fd->num;
+		ctdb_trans->request_in=pinfo->num;
 		ctdb_trans->response_in=0;
 		ctdb_trans->req_time=pinfo->abs_ts;
 		tkey[0].length=1;

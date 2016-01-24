@@ -288,11 +288,11 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
   rcr.is_request = isInvoke;
 
   if(isInvoke) {
-    rcr.req_frame=pinfo->fd->num;
+    rcr.req_frame=pinfo->num;
     rcr.rep_frame=0;
   } else {
     rcr.req_frame=0;
-    rcr.rep_frame=pinfo->fd->num;
+    rcr.rep_frame=pinfo->num;
   }
 
   rcrp=(ros_call_response_t *)g_hash_table_lookup(ros_info->matched, &rcr);
@@ -324,7 +324,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	rcrp=wmem_new(wmem_file_scope(), ros_call_response_t);
       }
       rcrp->invokeId=invokeId;
-      rcrp->req_frame=pinfo->fd->num;
+      rcrp->req_frame=pinfo->num;
       rcrp->req_time=pinfo->abs_ts;
       rcrp->rep_frame=0;
       rcrp->is_request=TRUE;
@@ -342,7 +342,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
 	if(!rcrp->rep_frame){
 	  g_hash_table_remove(ros_info->unmatched, rcrp);
-	  rcrp->rep_frame=pinfo->fd->num;
+	  rcrp->rep_frame=pinfo->num;
 	  rcrp->is_request=FALSE;
 	  g_hash_table_insert(ros_info->matched, rcrp, rcrp);
 	}

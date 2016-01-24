@@ -4053,7 +4053,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
                             else if (p_conv_data->dchs_in_flow_list[chan] == 24 && tb_size != 340) {
                                 macinf->ctmux[j+chan] = FALSE;/*Set TRUE if this channel is multiplexed (ie. C/T flag exists)*/
 
-                                /*g_warning("settin this for %d", pinfo->fd->num);*/
+                                /*g_warning("settin this for %d", pinfo->num);*/
                                 macinf->lchid[j+chan] = fake_lchid;
                                 macinf->fake_chid[j+chan] = TRUE;
                                 macinf->content[j+chan] = MAC_CONTENT_PS_DTCH; /*lchId_type_table[fake_lchid];*/    /*Base MAC content on logical channel id (Table is in packet-nbap.h)*/
@@ -4226,7 +4226,7 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     p_fp_info = (struct fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
 
     /* Check if we have conversation info */
-    p_conv = (conversation_t *)find_conversation(pinfo->fd->num, &pinfo->net_dst, &pinfo->net_src,
+    p_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
                                pinfo->ptype,
                                pinfo->destport, pinfo->srcport, NO_ADDR_B);
 
@@ -4234,7 +4234,7 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (p_conv) {
          /*Find correct conversation, basically find the one that's closest to this frame*/
 #if 0
-         while (p_conv->next != NULL && p_conv->next->setup_frame < pinfo->fd->num) {
+         while (p_conv->next != NULL && p_conv->next->setup_frame < pinfo->num) {
             p_conv = p_conv->next;
          }
 #endif

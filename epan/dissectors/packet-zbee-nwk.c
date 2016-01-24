@@ -551,7 +551,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                 /* Update nwk extended address hash table */
                 if ( unicast_src ) {
                     nwk_hints->map_rec = ieee802154_addr_update(&zbee_nwk_map,
-                            packet.src, addr16.pan, packet.src64, pinfo->current_proto, pinfo->fd->num);
+                            packet.src, addr16.pan, packet.src64, pinfo->current_proto, pinfo->num);
                 }
             }
         }

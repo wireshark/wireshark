@@ -692,7 +692,7 @@ static gboolean get_fid_and_frame(packet_info *pinfo, guint32 *fid, guint *frame
 	if (!p_smb_level) {
 		return FALSE;
 	}
-	*frame = pinfo->fd->num;
+	*frame = pinfo->num;
 	if (*p_smb_level == SMB1) {
 		smb_info_t *si = (smb_info_t*)data;
 		smb_fid_info_t *info;
@@ -706,7 +706,7 @@ static gboolean get_fid_and_frame(packet_info *pinfo, guint32 *fid, guint *frame
 		guint32     open_frame = 0, close_frame = 0;
 		char       *fid_name = NULL;
 		if (si2->saved) {
-			dcerpc_fetch_polhnd_data(&si2->saved->policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->fd->num);
+			dcerpc_fetch_polhnd_data(&si2->saved->policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->num);
 			*fid = open_frame;
 		} else {
 			result = FALSE;
@@ -8090,7 +8090,7 @@ static int dissect_mswsp_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	}
 
 	if (si->saved) {
-		dcerpc_fetch_polhnd_data(&si->saved->policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->fd->num);
+		dcerpc_fetch_polhnd_data(&si->saved->policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->num);
 	}
 
 	if (!fid_name || strcmp(fid_name, "File: MsFteWds") != 0) {

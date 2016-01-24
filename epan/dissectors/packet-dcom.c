@@ -320,12 +320,12 @@ dcom_interface_t *dcom_interface_new(packet_info *pinfo, const address *addr, e_
 	}
 
 	if(oxid == 0 || oid == 0) {
-		/*g_warning("interface_new#%u", pinfo->fd->num);*/
+		/*g_warning("interface_new#%u", pinfo->num);*/
 
 		interf = wmem_new(wmem_file_scope(), dcom_interface_t);
 		interf->parent = NULL;
 		interf->private_data = NULL;
-		interf->first_packet = pinfo->fd->num;
+		interf->first_packet = pinfo->num;
 		interf->iid = *iid;
 		interf->ipid = *ipid;
 
@@ -348,7 +348,7 @@ dcom_interface_t *dcom_interface_new(packet_info *pinfo, const address *addr, e_
 		machine = g_new(dcom_machine_t,1);
 		copy_address(&machine->ip, addr);
 		machine->objects = NULL;
-		machine->first_packet = pinfo->fd->num;
+		machine->first_packet = pinfo->num;
 		dcom_machines = g_list_append(dcom_machines, machine);
 	}
 
@@ -368,7 +368,7 @@ dcom_interface_t *dcom_interface_new(packet_info *pinfo, const address *addr, e_
 		object->parent = machine;
 		object->interfaces = NULL;
 		object->private_data = NULL;
-		object->first_packet = pinfo->fd->num;
+		object->first_packet = pinfo->num;
 		object->oid = oid;
 		object->oxid = oxid;
 
@@ -390,7 +390,7 @@ dcom_interface_t *dcom_interface_new(packet_info *pinfo, const address *addr, e_
 		interf = g_new(dcom_interface_t,1);
 		interf->parent = object;
 		interf->private_data = NULL;
-		interf->first_packet = pinfo->fd->num;
+		interf->first_packet = pinfo->num;
 		interf->iid = *iid;
 		interf->ipid = *ipid;
 

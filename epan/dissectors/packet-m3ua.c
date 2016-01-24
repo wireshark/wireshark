@@ -1116,22 +1116,22 @@ m3ua_heur_mtp3_standard(tvbuff_t *tvb, packet_info *pinfo, guint32 opc, guint32 
   case MTP_SI_SCCP:
   {
     if (opc < ITU_PC_MASK && dpc < ITU_PC_MASK &&
-        looks_like_valid_sccp(PINFO_FD_NUM(pinfo), tvb, ITU_STANDARD)) {
+        looks_like_valid_sccp(pinfo->num, tvb, ITU_STANDARD)) {
 
       return ITU_STANDARD;
     }
     /* Network 0 is reserved in ANSI */
     /* Could also check that cluster!=0 for small networks (networks 1-5) */
     if ((opc & ANSI_NETWORK_MASK) > 0 && (dpc & ANSI_NETWORK_MASK) > 0 &&
-        looks_like_valid_sccp(PINFO_FD_NUM(pinfo), tvb, ANSI_STANDARD)) {
+        looks_like_valid_sccp(pinfo->num, tvb, ANSI_STANDARD)) {
 
       return ANSI_STANDARD;
     }
-    if (looks_like_valid_sccp(PINFO_FD_NUM(pinfo), tvb, CHINESE_ITU_STANDARD)) {
+    if (looks_like_valid_sccp(pinfo->num, tvb, CHINESE_ITU_STANDARD)) {
       return CHINESE_ITU_STANDARD;
     }
     if (opc < JAPAN_PC_MASK && dpc < JAPAN_PC_MASK &&
-        looks_like_valid_sccp(PINFO_FD_NUM(pinfo), tvb, JAPAN_STANDARD)) {
+        looks_like_valid_sccp(pinfo->num, tvb, JAPAN_STANDARD)) {
 
       return JAPAN_STANDARD;
     }

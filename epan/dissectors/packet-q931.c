@@ -2587,7 +2587,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     tvb, offset, pinfo, call_ref_val, NULL,
                     frag_len, more_frags);
     if (fd_head) {
-        if (pinfo->fd->num == fd_head->reassembled_in) {  /* last fragment */
+        if (pinfo->num == fd_head->reassembled_in) {  /* last fragment */
             if (fd_head->next != NULL) {  /* 2 or more segments */
                 next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
                 add_new_data_source(pinfo, next_tvb, "Reassembled Q.931 IEs");

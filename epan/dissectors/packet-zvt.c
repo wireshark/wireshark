@@ -493,10 +493,10 @@ zvt_set_addresses(packet_info *pinfo, zvt_transaction_t *zvt_trans)
     if (!ai)
         return;
 
-    if (zvt_trans->rqst_frame == PINFO_FD_NUM(pinfo)) {
+    if (zvt_trans->rqst_frame == pinfo->num) {
         dir = ai->direction;
     }
-    else if (zvt_trans->resp_frame == PINFO_FD_NUM(pinfo)) {
+    else if (zvt_trans->resp_frame == pinfo->num) {
         if (ai->direction == DIRECTION_ECR_TO_PT)
             dir = DIRECTION_PT_TO_ECR;
         else
@@ -565,13 +565,13 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tre
         offset++;
 
         zvt_trans = (zvt_transaction_t *)wmem_tree_lookup32_le(
-                transactions, PINFO_FD_NUM(pinfo));
+                transactions, pinfo->num);
         if (zvt_trans && zvt_trans->resp_frame==0) {
             /* there's a pending request, this packet is the response */
-            zvt_trans->resp_frame = PINFO_FD_NUM(pinfo);
+            zvt_trans->resp_frame = pinfo->num;
         }
 
-        if (zvt_trans && zvt_trans->resp_frame == PINFO_FD_NUM(pinfo)) {
+        if (zvt_trans && zvt_trans->resp_frame == pinfo->num) {
             it = proto_tree_add_uint(apdu_tree, hf_zvt_resp_to,
                     NULL, 0, 0, zvt_trans->rqst_frame);
             PROTO_ITEM_SET_GENERATED(it);
@@ -586,8 +586,8 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tre
 
         if (PINFO_FD_VISITED(pinfo)) {
             zvt_trans = (zvt_transaction_t *)wmem_tree_lookup32(
-                    transactions, PINFO_FD_NUM(pinfo));
-            if (zvt_trans && zvt_trans->rqst_frame==PINFO_FD_NUM(pinfo) &&
+                    transactions, pinfo->num);
+            if (zvt_trans && zvt_trans->rqst_frame==pinfo->num &&
                     zvt_trans->resp_frame!=0) {
                it = proto_tree_add_uint(apdu_tree, hf_zvt_resp_in,
                        NULL, 0, 0, zvt_trans->resp_frame);
@@ -596,7 +596,7 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tre
         }
         else {
             zvt_trans = wmem_new(wmem_file_scope(), zvt_transaction_t);
-            zvt_trans->rqst_frame = PINFO_FD_NUM(pinfo);
+            zvt_trans->rqst_frame = pinfo->num;
             zvt_trans->resp_frame = 0;
             zvt_trans->ctrl = ctrl;
             wmem_tree_insert32(transactions,
