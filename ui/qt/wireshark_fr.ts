@@ -3665,12 +3665,12 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="io_graph_dialog.cpp" line="1524"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format d&apos;échange de Fichier JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1525"/>
         <source>Comma Separated Values (*.csv)</source>
-        <translation type="unfinished"></translation>
+        <translation>Valeurs séparées par des virgules (*.csv)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1537"/>
@@ -3688,12 +3688,12 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="24"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Forward&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Reverse&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Aller&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Retour&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="65"/>
         <source>Forward</source>
-        <translation type="unfinished"></translation>
+        <translation>Aller</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="69"/>
@@ -3703,12 +3703,12 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="74"/>
         <source>Delta (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta(ms)</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="79"/>
         <source>Jitter (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gigue(ms)</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="84"/>
@@ -3728,7 +3728,7 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="106"/>
         <source>Reverse</source>
-        <translation type="unfinished"></translation>
+        <translation>Retour</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="116"/>
@@ -3738,42 +3738,42 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="127"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche ou masque les valeurs de gigue aller.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="130"/>
         <source>Forward Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Gigue aller</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="150"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche ou masque les valeurs de différence aller.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="153"/>
         <source>Forward Difference</source>
-        <translation type="unfinished"></translation>
+        <translation>Différence Aller</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="177"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche ou masque les valeurs de gigueretour.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="180"/>
         <source>Reverse Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Gigue Retour</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="200"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche ou masqe les valeurs de différences retour.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="203"/>
         <source>Reverse Difference</source>
-        <translation type="unfinished"></translation>
+        <translation>Différence Retour</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="233"/>
@@ -3783,37 +3783,37 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="265"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="268"/>
         <source>Save the audio data for both channels.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder les données audio pour les deux canaux.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="273"/>
         <source>Forward Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Flux Audio Aller</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="276"/>
         <source>Save the forward stream audio data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder les données audio du flux aller.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="281"/>
         <source>Reverse Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Flux Audio Retour</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="284"/>
         <source>Save the reverse stream audio data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder les données audio du flux retour.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="289"/>
         <source>CSV</source>
-        <translation>CSV</translation>
+        <translation>CSV </translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="292"/>
@@ -3828,17 +3828,17 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="300"/>
         <source>Save the forward table as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder la table aller en CSV.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="305"/>
         <source>Reverse Stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSV Flux Retour</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="308"/>
         <source>Save the reverse table as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder la table inverse en CSV.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="313"/>
@@ -3868,12 +3868,12 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="332"/>
         <source>Next Problem Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquet problématique suivant</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="335"/>
         <source>Go to the next problem packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Aller au prochain paquet problématique</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="338"/>
@@ -3883,7 +3883,7 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="215"/>
         <source>IAX2 Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Analyse Flux IAX2</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="282"/>
@@ -3908,7 +3908,7 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="444"/>
         <source> G: Go to packet, N: Next problem packet</source>
-        <translation type="unfinished"></translation>
+        <translation>G: Aller au paquet, N: Paquet problématique suivant</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="565"/>
@@ -3928,7 +3928,7 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="569"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format d&apos;2change de Fichier JPEG </translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="580"/>
@@ -3938,22 +3938,22 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="739"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ne peut sauvegarder dans un fichier: Longueur incorrecte des paquets capturés.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="750"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ne peut sauvegarder dans un fichier: Problème d&apos;E/S fichier.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="872"/>
         <source>Save forward stream audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder le flux audio aller</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="875"/>
         <source>Save reverse stream audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder le flux audio retour</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="879"/>
@@ -3963,7 +3963,7 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="883"/>
         <source>Sun Audio (*.au)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sun Audio (*.au)</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="885"/>
@@ -3994,12 +3994,12 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="1143"/>
         <source>Save forward stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder CSV flux aller</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="1146"/>
         <source>Save reverse stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder CSV flux retour</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="1150"/>
@@ -4286,17 +4286,17 @@ pour fichiers de filtre : %2.</translation>
 <context>
     <name>InterfaceTree</name>
     <message>
-        <location filename="interface_tree.cpp" line="66"/>
+        <location filename="interface_tree.cpp" line="68"/>
         <source>Welcome screen list</source>
         <translation>Page de bienvenue</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="72"/>
+        <location filename="interface_tree.cpp" line="74"/>
         <source>Waiting for startup%1</source>
         <translation>Attente de démarrage%1</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="226"/>
+        <location filename="interface_tree.cpp" line="228"/>
         <source>Interface information not available</source>
         <translation>Information concernant l&apos;interface n&apos;est pas disponible</translation>
     </message>
@@ -5715,7 +5715,7 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="457"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format d&apos;2change de Fichier JPEG </translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="458"/>
@@ -7987,7 +7987,7 @@ a:hover {
         <location filename="main_window.ui" line="2797"/>
         <location filename="main_window.ui" line="2800"/>
         <source>IAX2 Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Analyse Flux IAX2</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2848"/>
@@ -8732,12 +8732,12 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2521"/>
         <source>RTP Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Flux RTP</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2529"/>
         <source>Edit the packet list coloring rules.</source>
-        <translation type="unfinished"></translation>
+        <translation>Editer les règles de coloriage de la liste des paquets.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2534"/>
@@ -8748,27 +8748,27 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2549"/>
         <source>Show Packet in New &amp;Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Affiche Paquet dans Nouvelle &amp;Fenêtre</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2552"/>
         <source>Show this packet in a separate window.</source>
-        <translation type="unfinished"></translation>
+        <translation>Affiche ce paquet dans une fenêtre séparée.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2560"/>
         <source>Show the linked packet in a separate window.</source>
-        <translation type="unfinished"></translation>
+        <translation>Affiche le paquet lié dans une fenêtre séparée.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2568"/>
         <source>Auto Scroll in Li&amp;ve Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Défilement Auto en Capture &amp;Vivante</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2571"/>
         <source>Automatically scroll to the last packet during a live capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Défiler automatiquement jusqu&apos;au dernier paquet durant une capture en temps réel.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2576"/>
@@ -8778,12 +8778,12 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2579"/>
         <source>Show expert notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher notifications expert</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2590"/>
         <source>Add an expression to the display filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajoute une expression au filtre d&apos;affichage.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2595"/>
@@ -8813,17 +8813,17 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2655"/>
         <source>Resolved Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresses résolues</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2658"/>
         <source>Show each table of resolved addresses as copyable text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Affiche chaque table d&apos;adresses résolues en texte copiable.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2663"/>
         <source>Color &amp;1</source>
-        <translation type="unfinished"></translation>
+        <translation>Couleur &amp;1</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2666"/>
@@ -8838,92 +8838,92 @@ a:hover {
         <location filename="main_window.ui" line="2765"/>
         <source>Mark the current conversation with its own color.</source>
         <oldsource>Mark the current coversation with its own color.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Marquer la conversation courante avec sa propre couleur.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2674"/>
         <source>Color &amp;2</source>
-        <translation type="unfinished"></translation>
+        <translation>Couleur &amp;2</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2685"/>
         <source>Color &amp;3</source>
-        <translation type="unfinished"></translation>
+        <translation>Couleur &amp;3</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2696"/>
         <source>Color &amp;4</source>
-        <translation type="unfinished"></translation>
+        <translation>Couleur &amp;4</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2707"/>
         <source>Color &amp;5</source>
-        <translation type="unfinished"></translation>
+        <translation>Couleur &amp;5</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2718"/>
         <source>Color &amp;6</source>
-        <translation type="unfinished"></translation>
+        <translation>Couleur &amp;6</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2729"/>
         <source>Color &amp;7</source>
-        <translation type="unfinished"></translation>
+        <translation>Couleur &amp;7</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2740"/>
         <source>Color &amp;8</source>
-        <translation type="unfinished"></translation>
+        <translation>Couleur &amp;8</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2751"/>
         <source>Color &amp;9</source>
-        <translation type="unfinished"></translation>
+        <translation>Couleur &amp;9</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2762"/>
         <source>Color 1&amp;0</source>
-        <translation type="unfinished"></translation>
+        <translation>Couleur 1&amp;0</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2773"/>
         <source>Create a new coloring rule based on this conversation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Crée une nouvelle règle de coloriage basée sur cette conversation.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2778"/>
         <source>Reset Colorization</source>
-        <translation type="unfinished"></translation>
+        <translation>Rétablit Coloriage</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2781"/>
         <source>Reset colorized conversations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rétablit conversations coloriées.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2784"/>
         <source>Ctrl+Space</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Espace</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2792"/>
         <source>RTP Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Analyse flux RTP</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2805"/>
         <source>Edit Resolved Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Editer Nom Résolu</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2808"/>
         <source>Manually edit a name resolution entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>Edite manuellement une entrée de résolution de nom.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2816"/>
         <source>Enable and disable specific protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Active et désactive des protocoles spécifiques</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2819"/>
@@ -8931,33 +8931,33 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="353"/>
+        <location filename="main_window.cpp" line="354"/>
         <source>Check for Updates</source>
         <oldsource>Check for Updates...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Vérifier Mises à Jour</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="736"/>
+        <location filename="main_window.cpp" line="737"/>
         <source> before quitting</source>
-        <translation type="unfinished"></translation>
+        <translation>avant de quitter</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="912"/>
+        <location filename="main_window.cpp" line="913"/>
         <source>Save packets before merging?</source>
         <translation>Sauvegarder les paquets avant la fusion?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="913"/>
+        <location filename="main_window.cpp" line="914"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>une capture temporaire ne peut pas etre fusionner.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="919"/>
+        <location filename="main_window.cpp" line="920"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>Sauvegarder les changements dans &quot;%1&quot; avant la fusion?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="921"/>
+        <location filename="main_window.cpp" line="922"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>Les changements doivent etre sauvegarder avant la fusion de fichier.</translation>
     </message>
@@ -8967,118 +8967,118 @@ a:hover {
         <translation>Filtre d&apos;affichage invalide</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="978"/>
-        <source>Invalid Read Filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.cpp" line="979"/>
-        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
-        <translation type="unfinished"></translation>
+        <source>Invalid Read Filter</source>
+        <translation>Filtre de Lecture Invalide</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1069"/>
+        <location filename="main_window.cpp" line="980"/>
+        <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
+        <translation>L&apos;expression de filtre %1 n&apos;est pas un filtre de lecture valide. (%2).</translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="1070"/>
         <source> before importing a new capture</source>
         <translation> avant l&apos;import d&apos;une nouvelle capture</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1382"/>
+        <location filename="main_window.cpp" line="1383"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>Impossible d&apos;exporter dans &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1383"/>
+        <location filename="main_window.cpp" line="1384"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>Vous ne pouvez pas exporter les paquets de la capture en cours.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1470"/>
-        <location filename="main_window.cpp" line="1495"/>
+        <location filename="main_window.cpp" line="1471"/>
+        <location filename="main_window.cpp" line="1496"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1536"/>
+        <location filename="main_window.cpp" line="1537"/>
         <source>You have unsaved packets</source>
         <translation>Vous avez des paquets non sauvegardés</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1537"/>
+        <location filename="main_window.cpp" line="1538"/>
         <source>They will be lost if you don&apos;t save them.</source>
         <translation>Ils seront perdues si vous ne les enregistrez pas.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1540"/>
-        <location filename="main_window.cpp" line="1553"/>
+        <location filename="main_window.cpp" line="1541"/>
+        <location filename="main_window.cpp" line="1554"/>
         <source>Do you want to stop the capture and save the captured packets</source>
         <translation>
 Voulez-vous arrêter la capture et enregistrer les paquets capturés</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1542"/>
+        <location filename="main_window.cpp" line="1543"/>
         <source>Do you want to save the captured packets</source>
         <translation>Voulez-vous  enregistrer les paquets capturés</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1544"/>
-        <location filename="main_window.cpp" line="1554"/>
+        <location filename="main_window.cpp" line="1545"/>
+        <location filename="main_window.cpp" line="1555"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1556"/>
+        <location filename="main_window.cpp" line="1557"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>Votre capture de paquet sera perdu si vous ne les enregistrez pas.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1559"/>
+        <location filename="main_window.cpp" line="1560"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>Voulez-vous enregistrer les modifications que vous avez apportées au fichier de capture &quot;%1&quot;%2?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1565"/>
+        <location filename="main_window.cpp" line="1566"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Vos changements seront perdus si vous ne les enregistrez pas.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1577"/>
+        <location filename="main_window.cpp" line="1578"/>
         <source>Stop and Save</source>
         <translation>Arreter et Sauvegarder</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1585"/>
+        <location filename="main_window.cpp" line="1586"/>
         <source>Stop and Quit without Saving</source>
         <translation>Arreter et Quitter sans Sauvegarder</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1588"/>
+        <location filename="main_window.cpp" line="1589"/>
         <source>Quit without Saving</source>
         <translation>Quitter sans Sauvegarder</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1593"/>
+        <location filename="main_window.cpp" line="1594"/>
         <source>Stop and Continue without Saving</source>
         <translation>Arreter et Continuer sans Sauvegarder</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1596"/>
+        <location filename="main_window.cpp" line="1597"/>
         <source>Continue &amp;without Saving</source>
         <translation>Continuer sans &amp;Sauvegarder</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1848"/>
+        <location filename="main_window.cpp" line="1849"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Nom du fichier ne peut pas être mappé à l&apos;UTF-8)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1861"/>
+        <location filename="main_window.cpp" line="1862"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>L&apos;analyseur de réseau Wireshark</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1880"/>
+        <location filename="main_window.cpp" line="1881"/>
         <source>Capturing from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Capture en cours de %1</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="700"/>
@@ -9093,12 +9093,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="main_window_slots.cpp" line="829"/>
         <source>No interface selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Aucune interface sélectionnée</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="839"/>
         <source>Invalid capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de capture invalide</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="1083"/>
@@ -9113,7 +9113,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="main_window_slots.cpp" line="1731"/>
         <source>Export Selected Packet Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporter Octets de Paquets Sélectionnés</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="1733"/>
@@ -9133,7 +9133,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="main_window_slots.cpp" line="1797"/>
         <source>Export SSL Session Keys (%1 key%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporter Clés de session SSL (%1 key%2</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="1802"/>
@@ -9147,9 +9147,9 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="2347"/>
-        <location filename="main_window_slots.cpp" line="3380"/>
+        <location filename="main_window_slots.cpp" line="3382"/>
         <source>Unable to build conversation filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossible de construire un filtre de conversation.</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="2492"/>
@@ -9157,49 +9157,51 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <translation>Aucun filtre disponible. Essayer un autre</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3387"/>
+        <location filename="main_window_slots.cpp" line="3389"/>
         <source>Error compiling filter for this conversation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erreur dans la compilation du filtre pour cette conversation.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3396"/>
+        <location filename="main_window_slots.cpp" line="3398"/>
         <source>No previous/next packet in conversation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aucun paquet précédent/suivant dans la conversation</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3473"/>
+        <location filename="main_window_slots.cpp" line="3475"/>
         <source>No Interface Selected</source>
         <translation>Aucune Interface Sélectionnée</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3480"/>
+        <location filename="main_window_slots.cpp" line="3482"/>
         <source> before starting a new capture</source>
-        <translation type="unfinished"></translation>
+        <translation>avant de commencer une nouvelle capture</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3685"/>
+        <location filename="main_window_slots.cpp" line="3687"/>
         <source>Wiki Page for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Page Wiki pour %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3686"/>
+        <location filename="main_window_slots.cpp" line="3688"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Le Wiki Wireshark est maintenu par la communauté&lt;/p&gt;
+&lt;p&gt;La page que vous vous apprêtez à charger peut être magnifique, incomplète, fausse ou inexistante&lt;/p&gt;
+&lt;p&gt;Poursuivre vers le wiki?&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="main_window.h" line="249"/>
         <source>Loading</source>
-        <translation type="unfinished"></translation>
+        <translation>Chargement</translation>
     </message>
     <message>
         <location filename="main_window.h" line="251"/>
         <source>Reloading</source>
-        <translation type="unfinished"></translation>
+        <translation>Rechargement</translation>
     </message>
     <message>
         <location filename="main_window.h" line="252"/>
         <source>Rescanning</source>
-        <translation type="unfinished"></translation>
+        <translation>Rebalayage</translation>
     </message>
 </context>
 <context>
@@ -9322,12 +9324,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="manage_interfaces_dialog.ui" line="17"/>
         <source>Manage Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Gérer Interfaces</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="30"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click the checkbox to hide or show a hidden interface.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cliquez la case à cocher pour masquer ou afficher une interface masquée.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="33"/>
@@ -9343,7 +9345,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="manage_interfaces_dialog.ui" line="60"/>
         <source>Friendly Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom Familier</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="65"/>
@@ -9358,37 +9360,37 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="manage_interfaces_dialog.ui" line="79"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a pipe to capture from or remove an existing pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ajoute un pipe d&apos;où capturer, ou supprimer un pipe existant de la liste.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="82"/>
         <source>Pipes</source>
-        <translation type="unfinished"></translation>
+        <translation>Pipes</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="116"/>
         <source>Named Pipe Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Chemin de Pipe Nommé</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="126"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a new pipe using default settings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ajoute un nouveau pipe en utilisant les parmètres par défaut.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="140"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Supprime le pipe sélectioné de la liste.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="170"/>
         <source>Remote Interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfaces Distantes</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="185"/>
         <source>Host / Device URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL Hôte / Périphérique</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="195"/>
@@ -9413,17 +9415,17 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="169"/>
         <source>This version of Wireshark does not save pipe settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cette version de Wireshark ne sauvegarde pas les paramètres de pipe.</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="173"/>
         <source>This version of Wireshark does not save remote settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cette version de Wireshark ne sauvegarde pas les paramètres distants.</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="175"/>
         <source>This version of Wireshark does not support remote interfaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cette version de Wireshark ne supporte pas les interfaces distantes.</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="418"/>
@@ -9433,7 +9435,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="419"/>
         <source>Default interface cannot be hidden.</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;interface par défaut ne peut pas être masquée.</translation>
     </message>
 </context>
 <context>
@@ -9441,7 +9443,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="module_preferences_scroll_area.ui" line="14"/>
         <source>ScrollArea</source>
-        <translation type="unfinished"></translation>
+        <translation>ZoneDéfilement</translation>
     </message>
 </context>
 <context>
@@ -10184,12 +10186,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="profile_dialog.cpp" line="202"/>
         <source>A profile already exists with this name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Un profil existe déjà avec ce nom.</translation>
     </message>
     <message>
         <location filename="profile_dialog.cpp" line="207"/>
         <source>A profile already exists with this name</source>
-        <translation type="unfinished"></translation>
+        <translation>Un profil existe déjà avec ce nom.</translation>
     </message>
     <message>
         <location filename="profile_dialog.cpp" line="306"/>
@@ -10215,7 +10217,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="proto_tree.cpp" line="203"/>
         <source>Colorize with Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Colorier avec un Filtre</translation>
     </message>
     <message>
         <location filename="proto_tree.cpp" line="384"/>
@@ -10243,7 +10245,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="32"/>
         <source>Percent Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Pourcent Paquets</translation>
     </message>
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="37"/>
@@ -10253,7 +10255,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="42"/>
         <source>Percent Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Pourcent Octets</translation>
     </message>
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="47"/>
@@ -10303,7 +10305,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="106"/>
         <source>Copy stream list as YAML.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copie la liste des flux en YAML.</translation>
     </message>
     <message>
         <location filename="protocol_hierarchy_dialog.cpp" line="178"/>
@@ -10505,7 +10507,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="capture_file.cpp" line="48"/>
         <source>[no capture file]</source>
-        <translation type="unfinished"></translation>
+        <translation>[pas de fichier de capture]</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="78"/>
@@ -10550,12 +10552,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="filter_action.cpp" line="79"/>
         <source>Colorize</source>
-        <translation type="unfinished"></translation>
+        <translation>Colorier</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="82"/>
         <source>Look Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Chercher</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="85"/>
@@ -10567,7 +10569,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <location filename="filter_action.cpp" line="140"/>
         <location filename="filter_action.cpp" line="191"/>
         <source>UNKNOWN</source>
-        <translation type="unfinished"></translation>
+        <translation>INCONNU</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="122"/>
@@ -10598,12 +10600,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <location filename="filter_action.cpp" line="182"/>
         <location filename="filter_action.cpp" line="185"/>
         <source>Any </source>
-        <translation type="unfinished"></translation>
+        <translation>Tout</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="177"/>
         <source>Don&apos;t show this message again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ne plus afficher ce message.</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="219"/>
@@ -11087,181 +11089,199 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="resolved_addresses_dialog.ui" line="50"/>
         <source>IPv4 Hash Table</source>
-        <translation type="unfinished"></translation>
+        <translation>Table Hash IPv4</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="53"/>
         <source>Show the IPv4 hash table entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher les entrées de la table hash IPv4</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="61"/>
         <source>IPv6 Hash Table</source>
-        <translation type="unfinished"></translation>
+        <translation>Table Hash IPv6</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="64"/>
         <source>Show the IPv6 hash table entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher les entrées de la table hash IPv6</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="69"/>
         <source>Show All</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher tout</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="72"/>
         <source>Show all address types.</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher tous les types d&apos;adresses.</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="77"/>
         <source>Hide All</source>
-        <translation type="unfinished"></translation>
+        <translation>Masquer tout</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="80"/>
         <source>Hide all address types.</source>
-        <translation type="unfinished"></translation>
+        <translation>Masquer tous les types d&apos;adresses</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="91"/>
         <source>IPv4 and IPv6 Addresses (hosts)</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresses IPv4 et IPv6 (hôtes)</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="94"/>
         <source>Show resolved IPv4 and IPv6 host names in &quot;hosts&quot; format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher les noms d&apos;hôtes IPv4 et IPv6 résolus en format &quot;hosts&quot;.</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="105"/>
         <source>Port names (services)</source>
-        <translation type="unfinished"></translation>
+        <translation>Noms de ports (services)</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="108"/>
         <source>Show resolved port names in &quot;services&quot; format.</source>
         <oldsource>Show resolved port names names in &quot;servies&quot; format.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Afficher les noms de ports résolus en format &quot;services&quot;</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="119"/>
         <source>Ethernet Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresses Ethernet</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="122"/>
         <source>Show resolved Ethernet addresses in &quot;ethers&quot; format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher les adresses Ethernet résolues en format &quot;ethers&quot;</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="133"/>
         <source>Ethernet Well-Known Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresses Ethernet Bien-Connues</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="136"/>
         <source>Show well-known Ethernet addresses in &quot;ethers&quot; format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher les adresses Ethernet bien-connues en format &quot;ethers&quot;</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="147"/>
         <source>Ethernet Manufacturers</source>
-        <translation type="unfinished"></translation>
+        <translation>Fabricants Ethernet</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="150"/>
         <source>Show Ethernet manufacturers in &quot;ethers&quot; format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher les fabricants Ethernet en format &quot;ethers&quot;.</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.cpp" line="177"/>
         <source>[no file]</source>
-        <translation type="unfinished"></translation>
+        <translation>[pas de fichier]</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="181"/>
+        <location filename="resolved_addresses_dialog.cpp" line="182"/>
         <source>Resolved Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresses résolues</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="267"/>
+        <location filename="resolved_addresses_dialog.cpp" line="268"/>
         <source>Show</source>
         <translation>Afficher</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="296"/>
+        <location filename="resolved_addresses_dialog.cpp" line="297"/>
         <source># Resolved addresses found in %1</source>
-        <translation type="unfinished"></translation>
+        <translation># Adresses résolues trouvées dans %1</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="300"/>
+        <location filename="resolved_addresses_dialog.cpp" line="301"/>
         <source># Comments
 #
 # </source>
-        <translation type="unfinished"></translation>
+        <translation># Commentaires
+#
+# </translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="313"/>
+        <location filename="resolved_addresses_dialog.cpp" line="314"/>
         <source># Hosts
 #
 # </source>
-        <translation type="unfinished"></translation>
+        <translation># Hôtes
+#
+# </translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="326"/>
+        <location filename="resolved_addresses_dialog.cpp" line="327"/>
         <source># IPv4 Hash Table
 #
 # </source>
-        <translation type="unfinished"></translation>
+        <translation># Table Hash IPv4
+#
+#</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="329"/>
-        <location filename="resolved_addresses_dialog.cpp" line="342"/>
-        <location filename="resolved_addresses_dialog.cpp" line="355"/>
-        <location filename="resolved_addresses_dialog.cpp" line="368"/>
-        <location filename="resolved_addresses_dialog.cpp" line="381"/>
-        <location filename="resolved_addresses_dialog.cpp" line="394"/>
+        <location filename="resolved_addresses_dialog.cpp" line="330"/>
+        <location filename="resolved_addresses_dialog.cpp" line="343"/>
+        <location filename="resolved_addresses_dialog.cpp" line="356"/>
+        <location filename="resolved_addresses_dialog.cpp" line="369"/>
+        <location filename="resolved_addresses_dialog.cpp" line="382"/>
+        <location filename="resolved_addresses_dialog.cpp" line="395"/>
         <source>
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="339"/>
+        <location filename="resolved_addresses_dialog.cpp" line="340"/>
         <source># IPv6 Hash Table
 #
 # </source>
-        <translation type="unfinished"></translation>
+        <translation># Table Hash IPv6
+#
+#</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="352"/>
+        <location filename="resolved_addresses_dialog.cpp" line="353"/>
         <source># Services
 #
 # </source>
-        <translation type="unfinished"></translation>
+        <translation># Services
+#
+#</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="365"/>
+        <location filename="resolved_addresses_dialog.cpp" line="366"/>
         <source># Ethernet addresses
 #
 # </source>
-        <translation type="unfinished"></translation>
+        <translation># Adresses ethernet
+#
+#</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="378"/>
+        <location filename="resolved_addresses_dialog.cpp" line="379"/>
         <source># Ethernet manufacturers
 #
 # </source>
-        <translation type="unfinished"></translation>
+        <translation># Fabricants ethernet
+#
+#</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="391"/>
+        <location filename="resolved_addresses_dialog.cpp" line="392"/>
         <source># Well known Ethernet addresses
 #
 # </source>
-        <translation type="unfinished"></translation>
+        <translation># Adresses Ethernet Bien connues
+#
+#</translation>
     </message>
 </context>
 <context>
@@ -11365,12 +11385,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.ui" line="24"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Forward&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Reverse&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Aller&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Retour&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="65"/>
         <source>Forward</source>
-        <translation type="unfinished"></translation>
+        <translation>Aller</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="69"/>
@@ -11380,23 +11400,23 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.ui" line="74"/>
         <source>Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Séquence</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="79"/>
         <source>Delta (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta(ms)</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="84"/>
         <source>Jitter (ms)</source>
         <oldsource>Jitter</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Gigue(ms)</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="89"/>
         <source>Skew</source>
-        <translation type="unfinished"></translation>
+        <translation>Déviation</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="94"/>
@@ -11406,7 +11426,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.ui" line="99"/>
         <source>Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Marqueur</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="104"/>
@@ -11416,7 +11436,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.ui" line="116"/>
         <source>Reverse</source>
-        <translation type="unfinished"></translation>
+        <translation>Retour</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="126"/>
@@ -11426,52 +11446,52 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.ui" line="137"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche ou masque les valeurs de gigue aller.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="140"/>
         <source>Forward Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Gigue Aller</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="160"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche ou masque les valeurs de différence aller.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="163"/>
         <source>Forward Difference</source>
-        <translation type="unfinished"></translation>
+        <translation>Différence Aller</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="183"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche ou masque les valeurs de delta aller.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="186"/>
         <source>Forward Delta</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta Aller</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="210"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche ou masque les valeurs de gigueretour.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="213"/>
         <source>Reverse Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Gigue Retour</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="233"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche ou masque les valeurs de différence retour.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="236"/>
         <source>Reverse Difference</source>
-        <translation type="unfinished"></translation>
+        <translation>Différence Retour</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="256"/>
@@ -11481,7 +11501,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.ui" line="259"/>
         <source>Reverse Delta</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta Retour</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="289"/>
@@ -11491,32 +11511,32 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.ui" line="321"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="324"/>
         <source>Save the audio data for both channels.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder les données audio pour les deux canaux.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="329"/>
         <source>Forward Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Flux Audio Aller</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="332"/>
         <source>Save the forward stream audio data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder les données audio du flux aller.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="337"/>
         <source>Reverse Stream Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Flux Audio Retour</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="340"/>
         <source>Save the reverse stream audio data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder les données audio du flux retour.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="345"/>
@@ -11536,17 +11556,17 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.ui" line="356"/>
         <source>Save the forward table as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder la table aller en CSV.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="361"/>
         <source>Reverse Stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSV Flux Retour</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="364"/>
         <source>Save the reverse table as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder la table inverse en CSV.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="369"/>
@@ -11576,12 +11596,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.ui" line="388"/>
         <source>Next Problem Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquet problématique suivant</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="391"/>
         <source>Go to the next problem packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Aller au prochain paquet problématique</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="394"/>
@@ -11591,7 +11611,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="261"/>
         <source>RTP Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Analyse flux RTP</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="332"/>
@@ -11601,17 +11621,17 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1482"/>
         <source>No RTP packets found</source>
-        <translation type="unfinished"></translation>
+        <translation>Aucun paquet RTP trouvé</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1504"/>
         <source>Please select an RTP packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionnez un paquet RTP</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1528"/>
         <source>RTP version %1 found. Only version 2 is supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>RTP version %1 trouvée. Seule la version 2 est supportée.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1536"/>
@@ -11621,22 +11641,22 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="376"/>
         <source>No streams found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aucun flux trouvé.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="411"/>
         <source>%1 streams found.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 flux trouvés.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="426"/>
         <source> G: Go to packet, N: Next problem packet</source>
-        <translation type="unfinished"></translation>
+        <translation>G: Aller au paquet, N: Paquet à problème suivant</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="445"/>
         <source>No Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Pas d&apos;Audio</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="566"/>
@@ -11656,7 +11676,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="570"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format d&apos;2change de Fichier JPEG </translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="581"/>
@@ -11666,33 +11686,33 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="754"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ne peut sauvegarder dans un fichier: Longueur incorrecte des paquets capturés.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="764"/>
         <source>Can&apos;t save in a file: RTP data with padding.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ne peut sauvegarder dans un fichier: données RTP avec remplissage.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="799"/>
         <location filename="rtp_analysis_dialog.cpp" line="827"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ne peut sauvegarder dans un fichier: Problème d&apos;E/S fichier.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="815"/>
         <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ne peut sauvegarder dans un fichier: Les données n&apos;ont pas toutes été capturées dans tous les paquets.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1031"/>
         <source>Save forward stream audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder le flux audio aller</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1034"/>
         <source>Save reverse stream audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder le flux audio retour</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1038"/>
@@ -11702,7 +11722,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1042"/>
         <source>Sun Audio (*.au)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sun Audio (*.au)</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1044"/>
@@ -11724,7 +11744,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1070"/>
         <source>Can&apos;t save in a file: saving in au format supported only for alaw/ulaw streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Ne peut sauvegarder dans un fichier: sauvegarder au format &quot;au&quot; n&apos;est supporté que pour les flux alaw/ulaw</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1086"/>
@@ -11739,12 +11759,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1312"/>
         <source>Save forward stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder CSV flux aller</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1315"/>
         <source>Save reverse stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder CSV flux retour</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1319"/>
@@ -11808,7 +11828,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_player_dialog.ui" line="72"/>
         <source>Sample Rate (Hz)</source>
-        <translation type="unfinished"></translation>
+        <translation>Taux d’échantillonnage (Hz)</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="77"/>
@@ -11865,27 +11885,27 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_player_dialog.ui" line="110"/>
         <source>&lt;small&gt;&lt;i&gt;No audio&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Pas d&apos;audio&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="162"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="165"/>
         <source>Jitter Buffer:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tampon de Gigue:</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="172"/>
         <source>The simulated jitter buffer in milliseconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>Le tampon de gigue simulé en millisecondes.</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="204"/>
         <source>Playback Timing:</source>
-        <translation type="unfinished"></translation>
+        <translation>Durée playback:</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="211"/>
@@ -11904,22 +11924,22 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_player_dialog.ui" line="219"/>
         <source>Jitter Buffer</source>
-        <translation type="unfinished"></translation>
+        <translation>Tampon Gigue</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="224"/>
         <source>RTP Timestamp</source>
-        <translation type="unfinished"></translation>
+        <translation>Cachet RTP</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="229"/>
         <source>Uninterrupted Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode Ininterrompu</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="250"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;View the timestamps as time of day (checked) or seconds since beginning of capture (unchecked).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Voir les cachets comme heure du jour (coché) ou comme secondes depuis le début de la capture (décoché).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="253"/>
@@ -12070,32 +12090,32 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_player_dialog.cpp" line="169"/>
         <source>Play Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Jouer Flux</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.cpp" line="275"/>
         <source>Out of Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Hors de Séquence</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.cpp" line="290"/>
         <source>Jitter Drops</source>
-        <translation type="unfinished"></translation>
+        <translation>Chutes de Gigue</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.cpp" line="305"/>
         <source>Wrong Timestamps</source>
-        <translation type="unfinished"></translation>
+        <translation>Mauvais Cachets</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.cpp" line="320"/>
         <source>Inserted Silence</source>
-        <translation type="unfinished"></translation>
+        <translation>Silence Inséré</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.cpp" line="500"/>
         <source>%1. Press &quot;G&quot; to go to packet %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1. Appuyez sur &quot;G&quot; pour aller au paquet %2</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.cpp" line="684"/>
@@ -12148,22 +12168,22 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_stream_dialog.ui" line="80"/>
         <source>Lost</source>
-        <translation type="unfinished"></translation>
+        <translation>Perdu</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="85"/>
         <source>Max Delta (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Delta Max (ms)</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="90"/>
         <source>Max Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Gigue Max</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="95"/>
         <source>Mean Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Gigue Moyenne</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="100"/>
@@ -12178,12 +12198,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_stream_dialog.ui" line="128"/>
         <source>Find Reverse</source>
-        <translation type="unfinished"></translation>
+        <translation>Trouver Retour</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="131"/>
         <source>Find the reverse stream matching the selected forward stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Trouver le flux retour correspondant au flux aller sélectionné.</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="134"/>
@@ -12193,12 +12213,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_stream_dialog.ui" line="139"/>
         <source>Mark Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Marquer Paquets</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="142"/>
         <source>Mark the packets of the selected stream(s).</source>
-        <translation type="unfinished"></translation>
+        <translation>Marquer les paquets du(des) flux sélectionné(s).</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="145"/>
@@ -12208,22 +12228,22 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_stream_dialog.ui" line="150"/>
         <source>Select None</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionner Aucun</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="153"/>
         <source>Undo stream selection.</source>
-        <translation type="unfinished"></translation>
+        <translation>Annuler sélection du flux.</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="158"/>
         <source>Go To Setup</source>
-        <translation type="unfinished"></translation>
+        <translation>Aller au Setup</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="161"/>
         <source>Go to the setup packet for this stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aller au paquet Setup pour ce flux.</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="164"/>
@@ -12233,12 +12253,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_stream_dialog.ui" line="169"/>
         <source>Prepare Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Préparer Filtre</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="172"/>
         <source>Prepare a filter matching the selected stream(s).</source>
-        <translation type="unfinished"></translation>
+        <translation>Prépare un filtre correspondant au(x) flux sélectioné(s).</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="175"/>
@@ -12248,12 +12268,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_stream_dialog.ui" line="180"/>
         <source>Export As RTPDump</source>
-        <translation type="unfinished"></translation>
+        <translation>Export en RTPDump</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="183"/>
         <source>Export the stream payload as rtpdump</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporter le payload du flux en rtpdump</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="186"/>
@@ -12268,7 +12288,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_stream_dialog.ui" line="194"/>
         <source>Open the analysis window for the selected stream(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ouvre la fenêtre d&apos;analyse pour le(s) flux sélectionné(s)</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="199"/>
@@ -12288,12 +12308,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_stream_dialog.ui" line="210"/>
         <source>Copy stream list as YAML.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copie la liste des flux en YAML.</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.cpp" line="224"/>
         <source>RTP Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Flux RTP</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.cpp" line="250"/>
@@ -12324,12 +12344,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_stream_dialog.cpp" line="395"/>
         <source>, %1 selected, %2 total packets</source>
-        <translation type="unfinished"></translation>
+        <translation>,%1 sélectionné, %2 paquets au total</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.cpp" line="523"/>
         <source>Save RTPDump As</source>
-        <translation type="unfinished"></translation>
+        <translation>Savegarder RTPDump Comme</translation>
     </message>
 </context>
 <context>
@@ -12657,7 +12677,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="382"/>
         <source>Time / Sequence (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps / Séquence (Stevens)</translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="385"/>
@@ -12687,7 +12707,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="404"/>
         <source>Time / Sequence (tcptrace)</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps / Séquence (tcptrace)</translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="407"/>
@@ -12990,7 +13010,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="sctp_graph_arwnd_dialog.ui" line="32"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="sctp_graph_arwnd_dialog.ui" line="54"/>
@@ -13053,7 +13073,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="sctp_graph_byte_dialog.ui" line="32"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="sctp_graph_byte_dialog.ui" line="54"/>
@@ -13094,7 +13114,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="sctp_graph_byte_dialog.cpp" line="127"/>
         <source>Received Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Octets Reçus</translation>
     </message>
     <message>
         <location filename="sctp_graph_byte_dialog.cpp" line="173"/>
@@ -13132,7 +13152,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="sctp_graph_dialog.ui" line="32"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="sctp_graph_dialog.ui" line="84"/>
@@ -13217,7 +13237,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="sctp_graph_dialog.cpp" line="447"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format d&apos;échange de Fichier JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <location filename="sctp_graph_dialog.cpp" line="454"/>
@@ -13384,7 +13404,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="sequence_dialog.cpp" line="273"/>
         <source>No data</source>
-        <translation type="unfinished"></translation>
+        <translation>Pas de données</translation>
     </message>
     <message numerus="yes">
         <location filename="sequence_dialog.cpp" line="275"/>
@@ -13420,7 +13440,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="sequence_dialog.cpp" line="300"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format d&apos;échange de Fichier JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <location filename="sequence_dialog.cpp" line="301"/>
@@ -13676,7 +13696,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="simple_dialog.cpp" line="200"/>
         <source>Multiple problems found</source>
-        <translation type="unfinished"></translation>
+        <translation>Plusieurs problèmes trouvés</translation>
     </message>
 </context>
 <context>
@@ -13725,7 +13745,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="splash_overlay.cpp" line="151"/>
         <source>Removing Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Suppression plugins Lua</translation>
     </message>
     <message>
         <location filename="splash_overlay.cpp" line="154"/>
@@ -13796,7 +13816,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="supported_protocols_dialog.ui" line="74"/>
         <source>&lt;small&gt;&lt;i&gt;Gathering protocol information…&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Regroupement de l&apos;information de protocole…&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <location filename="supported_protocols_dialog.cpp" line="45"/>
@@ -13806,7 +13826,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="supported_protocols_dialog.cpp" line="68"/>
         <source>%1 protocols, %2 fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 protocoles, %2 champs.</translation>
     </message>
 </context>
 <context>
@@ -14234,7 +14254,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="417"/>
-        <location filename="tcp_stream_dialog.cpp" line="697"/>
+        <location filename="tcp_stream_dialog.cpp" line="699"/>
         <source>Round Trip Time</source>
         <translation>Temps d&apos;Aller-Retour</translation>
     </message>
@@ -14250,7 +14270,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="428"/>
-        <location filename="tcp_stream_dialog.cpp" line="620"/>
+        <location filename="tcp_stream_dialog.cpp" line="622"/>
         <source>Throughput</source>
         <translation>Débit</translation>
     </message>
@@ -14267,7 +14287,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="439"/>
         <source>Time / Sequence (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps / Séquence (Stevens)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="442"/>
@@ -14281,7 +14301,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="450"/>
-        <location filename="tcp_stream_dialog.cpp" line="751"/>
+        <location filename="tcp_stream_dialog.cpp" line="753"/>
         <source>Window Scaling</source>
         <translation>Mise à l&apos;échelle Fenêtre</translation>
     </message>
@@ -14298,7 +14318,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="461"/>
         <source>Time / Sequence (tcptrace)</source>
-        <translation type="unfinished"></translation>
+        <translation>Temps / Séquence (tcptrace)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="464"/>
@@ -14355,103 +14375,103 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Majuscule+Y</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="215"/>
+        <location filename="tcp_stream_dialog.cpp" line="216"/>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
         <translation>Enregistrer sous</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="383"/>
+        <location filename="tcp_stream_dialog.cpp" line="385"/>
         <source>No Capture Data</source>
         <translation>Aucune donnée de capture</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="439"/>
+        <location filename="tcp_stream_dialog.cpp" line="441"/>
         <source>%1 %2 pkts, %3 %4 %5 pkts, %6 </source>
         <translation>%1 %2 pqts, %3 %4 %5 pqts, %6 </translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="546"/>
+        <location filename="tcp_stream_dialog.cpp" line="548"/>
         <source>Sequence Numbers (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation>Numéros de Séquence (Stevens)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="571"/>
+        <location filename="tcp_stream_dialog.cpp" line="573"/>
         <source>Sequence Numbers (tcptrace)</source>
-        <translation type="unfinished"></translation>
+        <translation>Numéros de Séquence (tcptrace)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="622"/>
+        <location filename="tcp_stream_dialog.cpp" line="624"/>
         <source> (1s MA)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="624"/>
+        <location filename="tcp_stream_dialog.cpp" line="626"/>
         <source> (%1 Segment MA)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="639"/>
+        <location filename="tcp_stream_dialog.cpp" line="641"/>
         <source> [not enough data]</source>
         <translation>[Pas assez de donné]</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="778"/>
+        <location filename="tcp_stream_dialog.cpp" line="780"/>
         <source> for %1:%2 %3 %4:%5</source>
         <translation>Pour %1:%2 %3 %4:%5</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="961"/>
+        <location filename="tcp_stream_dialog.cpp" line="963"/>
         <source>%1 %2 (%3s len %4 seq %5 ack %6 win %7)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="962"/>
+        <location filename="tcp_stream_dialog.cpp" line="964"/>
         <source>Click to select packet</source>
         <translation>Cliquez pour sélectionner le paquet</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="962"/>
+        <location filename="tcp_stream_dialog.cpp" line="964"/>
         <source>Packet</source>
         <translation>Paquet</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="976"/>
+        <location filename="tcp_stream_dialog.cpp" line="978"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
         <translation>Relâchez pour agrandir, x = %1 de %2, y = %3 de %4</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="982"/>
+        <location filename="tcp_stream_dialog.cpp" line="984"/>
         <source>Unable to select range.</source>
         <translation>Impossible de sélectionner la plage.</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="985"/>
+        <location filename="tcp_stream_dialog.cpp" line="987"/>
         <source>Click to select a portion of the graph.</source>
         <translation>Cliquez pour sélectionner une partie du graphique.</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1028"/>
+        <location filename="tcp_stream_dialog.cpp" line="1030"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1029"/>
+        <location filename="tcp_stream_dialog.cpp" line="1031"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1030"/>
+        <location filename="tcp_stream_dialog.cpp" line="1032"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1032"/>
+        <location filename="tcp_stream_dialog.cpp" line="1034"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Format d&apos;échange de Fichier JPEG (*.jpeg *jpg)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1039"/>
+        <location filename="tcp_stream_dialog.cpp" line="1041"/>
         <source>Save Graph As</source>
         <translation>Sauvegarder le Graphique Sous</translation>
     </message>
@@ -14497,7 +14517,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tap_parameter_dialog.ui" line="79"/>
         <source>Copy a text representation of the tree to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Copie une représentation texte de l&apos;arborescence dans le presse-papiers</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.ui" line="82"/>
@@ -14508,12 +14528,12 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <location filename="tap_parameter_dialog.ui" line="87"/>
         <source>Save as…</source>
         <oldsource>Save as...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder sous...</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.ui" line="90"/>
         <source>Save the displayed data in various formats</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarde l&apos;information affichée sous divers formats</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.ui" line="93"/>
@@ -14528,22 +14548,22 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tap_parameter_dialog.cpp" line="555"/>
         <source>Save Statistics As</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarde Statistiques Sous</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.cpp" line="557"/>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichier plat (*.txt);;Valeurs séparées par des virgules (*.csv);;Document XML (*.xml);; Document YAML (*.yaml)</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.cpp" line="561"/>
         <source>Plain text file (*.txt)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichier plat (*.txt)</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.cpp" line="603"/>
         <source>Error saving file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Erreur en sauvegardant le fichier %1</translation>
     </message>
 </context>
 <context>
@@ -14556,7 +14576,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="time_shift_dialog.ui" line="38"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[-][[hh:]mm:]ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[-][[hh:]mm:]ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="time_shift_dialog.ui" line="62"/>
@@ -14583,7 +14603,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="time_shift_dialog.ui" line="160"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="time_shift_dialog.ui" line="169"/>
@@ -14616,27 +14636,27 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="traffic_table_dialog.ui" line="22"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show resolved addresses and port names rather than plain values. The corresponding name resolution preference must be enabled.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche les adresses résolues et les noms de ports plutôt que les valeurs simples.  La préférence de résolution de nom correspondante doit être activée.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="25"/>
         <source>Name resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Résolution de nom</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="45"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ne montre que les conversations correspondant au filtre d&apos;affichage courant&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="48"/>
         <source>Limit to display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Limiter au Filtre d&apos;Affichage</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="68"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add and remove conversation types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ajoute et supprime des types de conversation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.cpp" line="66"/>
@@ -14666,7 +14686,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="traffic_table_dialog.cpp" line="79"/>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copier toutes les valeurs de cette page dans le presse-papier en format de sérialisation de données YAML .</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.h" line="109"/>
@@ -14679,19 +14699,19 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="uat_dialog.ui" line="28"/>
         <source>Create a new entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>Créer une nouvelle entrée.</translation>
     </message>
     <message>
         <location filename="uat_dialog.ui" line="42"/>
         <source>Remove this entry.</source>
         <oldsource>Remove this profile.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer cette entrée.</translation>
     </message>
     <message>
         <location filename="uat_dialog.ui" line="53"/>
         <source>Copy this entry.</source>
         <oldsource>Copy this profile.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Copier cette entrée.</translation>
     </message>
     <message>
         <location filename="uat_dialog.cpp" line="88"/>
@@ -14706,12 +14726,12 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="uat_dialog.cpp" line="403"/>
         <source>Uneven number of chars hex string (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre impair de caractères dans la chaine hex (%1)</translation>
     </message>
     <message>
         <location filename="uat_dialog.cpp" line="410"/>
         <source>Error parsing hex string</source>
-        <translation type="unfinished"></translation>
+        <translation>Erreur de conversion de la chaine hex</translation>
     </message>
 </context>
 <context>
@@ -14764,7 +14784,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="voip_calls_dialog.ui" line="81"/>
         <source>&lt;small&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="98"/>
@@ -14790,22 +14810,22 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <location filename="voip_calls_dialog.ui" line="14"/>
         <location filename="voip_calls_dialog.cpp" line="182"/>
         <source>VoIP Calls</source>
-        <translation type="unfinished"></translation>
+        <translation>Appels VoIP</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="186"/>
         <source>Prepare Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Préparer Filtre</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="187"/>
         <source>Flow Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Séquence Flux</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="348"/>
         <source>No Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Pas d&apos;Audio</translation>
     </message>
 </context>
 <context>
@@ -14823,7 +14843,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="wireless_frame.ui" line="69"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 channel.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Définit le canal 802.11 .&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="wireless_frame.ui" line="72"/>
@@ -14833,12 +14853,12 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="wireless_frame.ui" line="124"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When capturing, show all frames, ones that have a valid frame check sequence (FCS), or ones with an invalid FCS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pendant la capture, montre toutes les trames, celles qui ont une séquence de contrôle de trame valide (Frame Check Sequence FCS), ou celles qui ont une FCS invalide.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="wireless_frame.ui" line="127"/>
         <source>FCS Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre FCS</translation>
     </message>
     <message>
         <location filename="wireless_frame.ui" line="135"/>
@@ -14858,7 +14878,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="wireless_frame.ui" line="166"/>
         <source>Wireless controls are not supported in this version of Wireshark.</source>
-        <translation type="unfinished"></translation>
+        <translation>Les contrôles Sans-Fil ne sont pas supportés dans cette version de Wireshark.</translation>
     </message>
     <message>
         <location filename="wireless_frame.ui" line="190"/>
@@ -14868,7 +14888,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="wireless_frame.ui" line="197"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the IEEE 802.11 preferences, including decryption keys.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche les préférences IEEE 802.11, y compris les clés de décryption.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="wireless_frame.ui" line="200"/>
@@ -14925,7 +14945,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="474"/>
         <source>Percent Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Pourcent Paquets</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="475"/>

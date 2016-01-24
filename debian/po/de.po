@@ -3,14 +3,15 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# Dominik Eismann <dorlamm@gmx.de>, 2016
 # Uli Heilmeier, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: Wireshark\n"
 "Report-Msgid-Bugs-To: wireshark@packages.debian.org\n"
 "POT-Creation-Date: 2010-06-20 16:35+0200\n"
-"PO-Revision-Date: 2015-10-22 07:58+0000\n"
-"Last-Translator: Alexis La Goutte <alexis.lagoutte@gmail.com>\n"
+"PO-Revision-Date: 2016-01-23 00:36+0000\n"
+"Last-Translator: Dominik Eismann <dorlamm@gmx.de>\n"
 "Language-Team: German (http://www.transifex.com/wireshark/wireshark/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -22,7 +23,7 @@ msgstr ""
 #. Description
 #: ../templates:2001
 msgid "Should non-superusers be able to capture packets?"
-msgstr "Soll normalen Benutzern erlaubt sein Pakete aufzuzeichnen?"
+msgstr "Soll es normalen Benutzern erlaubt sein, Pakete aufzuzeichnen?"
 
 #. Type: boolean
 #. Description
