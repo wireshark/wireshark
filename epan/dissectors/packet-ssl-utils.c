@@ -5978,7 +5978,7 @@ ssl_dissect_hnd_cert(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
     }
 
 #if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
-    if (ssl)
+    if (is_from_server && ssl)
         ssl_find_private_key_by_pubkey(ssl, key_hash, &subjectPublicKeyInfo);
 #endif
 }
