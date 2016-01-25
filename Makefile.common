@@ -168,6 +168,17 @@ captype_SOURCES = \
 dftest_SOURCES =	\
 	dftest.c
 
+# echld specifics
+echld_test_SOURCES =	\
+	echld_test.c	\
+	capture_opts.c	\
+	capture_stop_conditions.c	\
+	cfile.c		\
+	conditions.c	\
+	pcapio.c	\
+	ringbuffer.c	\
+	sync_pipe_write.c
+
 # randpkt specifics
 randpkt_SOURCES = \
 	randpkt.c

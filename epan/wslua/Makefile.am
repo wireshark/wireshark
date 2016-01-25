@@ -28,24 +28,24 @@ AM_CPPFLAGS = -I$(top_srcdir) @LUA_INCLUDES@
 noinst_LTLIBRARIES = libwslua.la
 
 wslua_modules = 	\
-	$(srcdir)/lua_bitop.c \
-	$(srcdir)/lrexlib.c \
-	$(srcdir)/lrexlib_glib.c \
-	$(srcdir)/lrexlib_glib_f.c \
-	$(srcdir)/wslua_tvb.c \
-	$(srcdir)/wslua_proto.c \
-	$(srcdir)/wslua_int64.c \
-	$(srcdir)/wslua_tree.c \
-	$(srcdir)/wslua_pinfo.c \
-	$(srcdir)/wslua_listener.c \
-	$(srcdir)/wslua_gui.c \
-	$(srcdir)/wslua_dir.c \
-	$(srcdir)/wslua_util.c \
-	$(srcdir)/wslua_field.c \
-	$(srcdir)/wslua_file.c \
-	$(srcdir)/wslua_struct.c \
-	$(srcdir)/wslua_dumper.c \
-	$(srcdir)/wslua_internals.c
+	lua_bitop.c \
+	lrexlib.c \
+	lrexlib_glib.c \
+	lrexlib_glib_f.c \
+	wslua_tvb.c \
+	wslua_proto.c \
+	wslua_int64.c \
+	wslua_tree.c \
+	wslua_pinfo.c \
+	wslua_listener.c \
+	wslua_gui.c \
+	wslua_dir.c \
+	wslua_util.c \
+	wslua_field.c \
+	wslua_file.c \
+	wslua_struct.c \
+	wslua_dumper.c \
+	wslua_internals.c
 
 libwslua_la_SOURCES = \
 	$(wslua_modules) \
@@ -117,7 +117,7 @@ wslua.h: declare_wslua.h
 register_wslua.c: declare_wslua.h
 
 declare_wslua.h: make-reg.pl $(wslua_modules) taps_wslua.c
-	$(PERL) $(srcdir)/make-reg.pl $(wslua_modules);
+	$(PERL) $(srcdir)/make-reg.pl -d $(srcdir) $(wslua_modules);
 
 dummy:
 	touch dummy

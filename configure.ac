@@ -41,7 +41,7 @@ dnl AC_CANONICAL_BUILD
 dnl AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE([1.9 tar-ustar dist-bzip2 no-dist-gzip])
+AM_INIT_AUTOMAKE([1.9 tar-ustar dist-bzip2 no-dist-gzip subdir-objects])
 
 # Make Wireshark's version available in config.h
 AC_DEFINE(VERSION_MAJOR, version_major, [Wireshark's major version])

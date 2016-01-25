@@ -24,13 +24,28 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 use strict;
+use Getopt::Long;
 
 my @classes = ();
 my @functions = ();
+my $source_dir = "";
 
-while (<>) {
-	push @classes, $1 if /WSLUA_CLASS_DEFINE(?:_BASE)?\050\s*([A-Za-z0-9]+)/;
-	push @functions, $1 if  /WSLUA_FUNCTION\s+wslua_([a-z_0-9]+)/;
+GetOptions('dir=s' => \$source_dir);
+
+my $filename;
+while ($filename = $ARGV[0]) {
+	shift;
+
+	if ($source_dir and ! -e $filename) {
+		$filename = $source_dir . '/' . $filename;
+	}
+
+	open FILE, $filename or warn "Couldn't open file $filename: $!";
+
+	while (<FILE>) {
+		push @classes, $1 if /WSLUA_CLASS_DEFINE(?:_BASE)?\050\s*([A-Za-z0-9]+)/;
+		push @functions, $1 if /WSLUA_FUNCTION\s+wslua_([a-z_0-9]+)/;
+	}
 }
 
 open C, ">register_wslua.c";

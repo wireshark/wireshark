@@ -45,8 +45,7 @@ AM_CPPFLAGS = -I$(srcdir)/.. -I$(srcdir)/../wiretap
 
 libechld_la_SOURCES = \
 	$(LIBECHLD_SRC)		\
-	$(LIBECHLD_INCLUDES)	\
-	$(LIBECHLD_MORE_SRC)
+	$(LIBECHLD_INCLUDES)
 
 
 libechld_la_DEPENDENCIES = \
