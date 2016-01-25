@@ -133,8 +133,6 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
     return win32_check_save_as_with_comments((HWND)parent->effectiveWinId(), cf, file_type);
 #else // Q_OS_WIN
     guint32 comment_types;
-    QMessageBox msg_dialog;
-    int response;
 
     /* What types of comments do we have? */
     comment_types = cf_comment_types(cf);
@@ -146,41 +144,45 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
         return SAVE;
     }
 
+    QMessageBox msg_dialog;
+    QPushButton *save_button;
+    QPushButton *discard_button;
+
+    msg_dialog.setIcon(QMessageBox::Question);
+    msg_dialog.setText(tr("This capture file contains comments."));
+    msg_dialog.setStandardButtons(QMessageBox::Cancel);
+
     /* No. Are there formats in which we can write this file that
        supports all the comments in this file? */
     if (wtap_dump_can_write(cf->linktypes, comment_types)) {
-        QPushButton *default_button;
         /* Yes.  Offer the user a choice of "Save in a format that
            supports comments", "Discard comments and save in the
            format you selected", or "Cancel", meaning "don't bother
            saving the file at all". */
-        msg_dialog.setIcon(QMessageBox::Question);
-        msg_dialog.setText(tr("This capture file contains comments."));
         msg_dialog.setInformativeText(tr("The file format you chose doesn't support comments. "
-                                      "Do you want to save the capture in a format that supports comments "
-                                      "or discard the comments and save in the format you chose?"));
-        msg_dialog.setStandardButtons(QMessageBox::Cancel);
+                                         "Do you want to save the capture in a format that supports comments "
+                                         "or discard the comments and save in the format you chose?"));
         // The predefined roles don't really match the tasks at hand...
-        msg_dialog.addButton(tr("Discard comments and save"), QMessageBox::DestructiveRole);
-        default_button = msg_dialog.addButton(tr("Save in another format"), QMessageBox::AcceptRole);
-        msg_dialog.setDefaultButton(default_button);
+        discard_button = msg_dialog.addButton(tr("Discard comments and save"), QMessageBox::DestructiveRole);
+        save_button = msg_dialog.addButton(tr("Save in another format"), QMessageBox::AcceptRole);
+        msg_dialog.setDefaultButton(save_button);
     } else {
         /* No.  Offer the user a choice of "Discard comments and
            save in the format you selected" or "Cancel". */
-        msg_dialog.setIcon(QMessageBox::Question);
-        msg_dialog.setText(tr("This capture file contains comments."));
         msg_dialog.setInformativeText(tr("No file format in which it can be saved supports comments. "
-                                      "Do you want to discard the comments and save in the format you chose?"));
-        msg_dialog.setStandardButtons(QMessageBox::Cancel);
-        msg_dialog.addButton(tr("Discard comments and save"), QMessageBox::DestructiveRole);
+                                         "Do you want to discard the comments and save in the format you chose?"));
+        save_button = NULL;
+        discard_button = msg_dialog.addButton(tr("Discard comments and save"), QMessageBox::DestructiveRole);
         msg_dialog.setDefaultButton(QMessageBox::Cancel);
     }
 
-    response = msg_dialog.exec();
+    msg_dialog.exec();
+    /* According to the Qt doc:
+     * when using QMessageBox with custom buttons, exec() function returns an opaque value.
+     *
+     * Therefore we should use clickedButton() to determine which button was clicked. */
 
-    switch (response) {
-
-    case QMessageBox::Save:
+    if (msg_dialog.clickedButton() == save_button) {
       /* OK, the only other format we support is pcap-ng.  Make that
          the one and only format in the combo box, and return to
          let the user continue with the dialog.
@@ -195,16 +197,13 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *
       /* XXX - need a compressed checkbox here! */
       return SAVE_IN_ANOTHER_FORMAT;
 
-    case QMessageBox::Discard:
+    } else if (msg_dialog.clickedButton() == discard_button) {
       /* Save without the comments and, if that succeeds, delete the
          comments. */
       return SAVE_WITHOUT_COMMENTS;
-
-    case QMessageBox::Cancel:
-    default:
-      /* Just give up. */
-      break;
     }
+
+    /* Just give up. */
     return CANCELLED;
 #endif // Q_OS_WIN
 }
