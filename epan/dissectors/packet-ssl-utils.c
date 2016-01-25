@@ -2736,13 +2736,17 @@ ssl_create_decoder(SslCipherSuite *cipher_suite, gint compression,
      memory allocation and waste samo more memory*/
     dec->cipher_suite=cipher_suite;
     dec->compression = compression;
-    /* AEED ciphers don't have a MAC but need to keep the write IV instead */
-    if (mk == NULL) {
+    /* AEED ciphers require a write IV (iv) and do not use MAC keys (mk).
+     * All other ciphers require a MAC key. As a special case, allow omission
+     * for the NULL cipher such that record payloads can still be dissected. */
+    if (mk != NULL) {
+        dec->mac_key.data = dec->_mac_key_or_write_iv;
+        ssl_data_set(&dec->mac_key, mk, ssl_cipher_suite_dig(cipher_suite)->len);
+    } else if (iv != NULL) {
         dec->write_iv.data = dec->_mac_key_or_write_iv;
         ssl_data_set(&dec->write_iv, iv, cipher_suite->block);
     } else {
-        dec->mac_key.data = dec->_mac_key_or_write_iv;
-        ssl_data_set(&dec->mac_key, mk, ssl_cipher_suite_dig(cipher_suite)->len);
+        DISSECTOR_ASSERT(cipher_suite->enc == ENC_NULL);
     }
     dec->seq = 0;
     dec->decomp = ssl_create_decompressor(compression);
@@ -2912,11 +2916,12 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
 int
 ssl_generate_keyring_material(SslDecryptSession*ssl_session)
 {
-    StringInfo  key_block;
+    StringInfo  key_block = { NULL, 0 };
     guint8      _iv_c[MAX_BLOCK_SIZE],_iv_s[MAX_BLOCK_SIZE];
     guint8      _key_c[MAX_KEY_SIZE],_key_s[MAX_KEY_SIZE];
     gint        needed;
-    guint8     *ptr,*c_wk,*s_wk,*c_mk,*s_mk,*c_iv = _iv_c,*s_iv = _iv_s;
+    guint8     *ptr, *c_iv = _iv_c,*s_iv = _iv_s;
+    guint8     *c_wk = NULL, *s_wk = NULL, *c_mk = NULL, *s_mk = NULL;
 
     /* check for enough info to proced */
     guint need_all = SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION;
@@ -2925,6 +2930,16 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
         ssl_debug_printf("ssl_generate_keyring_material not enough data to generate key "
                          "(0x%02X required 0x%02X or 0x%02X)\n", ssl_session->state,
                          need_all|SSL_MASTER_SECRET, need_all|SSL_PRE_MASTER_SECRET);
+        /* Special case: for NULL encryption, allow dissection of data even if
+         * the Client Hello is missing (MAC keys are now skipped though). */
+        need_all = SSL_CIPHER|SSL_VERSION;
+        if ((ssl_session->state & need_all) == need_all &&
+                ssl_session->cipher_suite.enc == ENC_NULL) {
+            ssl_debug_printf("%s NULL cipher found, will create a decoder but "
+                    "skip MAC validation as keys are missing.\n", G_STRFUNC);
+            goto create_decoders;
+        }
+
         return -1;
     }
 
@@ -3160,6 +3175,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
         ssl_print_data("Server Write IV",s_iv,8);
     }
 
+create_decoders:
     /* create both client and server ciphers*/
     ssl_debug_printf("%s ssl_create_decoder(client)\n", G_STRFUNC);
     ssl_session->client_new = ssl_create_decoder(&ssl_session->cipher_suite, ssl_session->session.compression, c_mk, c_wk, c_iv);
@@ -3569,6 +3585,15 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
         mac = out_str->data + worklen;
     } else /* if (decoder->cipher_suite->mode == MODE_GCM) */ {
         /* GenericAEADCipher has no MAC */
+        goto skip_mac;
+    }
+
+    /* If NULL encryption active and no keys are available, do not bother
+     * checking the MAC. We do not have keys for that. */
+    if (decoder->cipher_suite->mode == MODE_STREAM &&
+            decoder->cipher_suite->enc == ENC_NULL &&
+            !(ssl->state & SSL_MASTER_SECRET)) {
+        ssl_debug_printf("MAC check skipped due to missing keys\n");
         goto skip_mac;
     }
 
@@ -4522,9 +4547,14 @@ ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map)
                                 mk_map->session, &ssl->session_ticket) &&
         !ssl_restore_master_key(ssl, "Client Random", FALSE,
                                 mk_map->crandom, &ssl->client_random)) {
-        /* how unfortunate, the master secret could not be found */
-        ssl_debug_printf("  Cannot find master secret\n");
-        return;
+        if (ssl->cipher_suite.enc != ENC_NULL) {
+            /* how unfortunate, the master secret could not be found */
+            ssl_debug_printf("  Cannot find master secret\n");
+            return;
+        } else {
+            ssl_debug_printf(" Cannot find master secret, continuing anyway "
+                    "because of a NULL cipher\n");
+        }
     }
 
     if (ssl_generate_keyring_material(ssl) < 0) {
