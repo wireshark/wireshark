@@ -30,6 +30,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
+#include <epan/proto_data.h>
 
 #include <wiretap/catapult_dct2000.h>
 #include "packet-umts_fp.h"

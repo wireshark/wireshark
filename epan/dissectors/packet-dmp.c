@@ -46,6 +46,7 @@
 #include <epan/asn1.h>
 #include <epan/strutil.h>
 #include <epan/uat.h>
+#include <epan/proto_data.h>
 
 #include <wsutil/str_util.h>
 

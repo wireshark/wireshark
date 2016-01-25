@@ -40,6 +40,8 @@
 #include <epan/crc16-tvb.h>
 #include <epan/crc32-tvb.h>
 #include <epan/decode_as.h>
+#include <epan/proto_data.h>
+
 #include <wiretap/wtap.h>
 
 /* Prototypes */

@@ -44,6 +44,8 @@
 #include <epan/arcnet_pids.h>
 #include <epan/in_cksum.h>
 #include <epan/decode_as.h>
+#include <epan/proto_data.h>
+
 #include <wiretap/erf.h>
 #include <wsutil/str_util.h>
 #include "packet-ipv6.h"

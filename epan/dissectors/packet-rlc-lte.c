@@ -28,6 +28,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
+#include <epan/proto_data.h>
 #include "packet-mac-lte.h"
 #include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"

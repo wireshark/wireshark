@@ -31,6 +31,7 @@
 #include "epan/addr_resolv.h"
 #include "epan/packet.h"
 #include "epan/tap.h"
+#include "epan/proto_data.h"
 #include "epan/dissectors/packet-tcp.h"
 #include "epan/dissectors/packet-icmp.h"
 

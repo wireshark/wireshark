@@ -40,6 +40,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
 
 #include <epan/nghttp2/nghttp2.h>
 

@@ -69,6 +69,7 @@
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/crc16-tvb.h>
+#include <epan/proto_data.h>
 
 void proto_register_selfm(void);
 

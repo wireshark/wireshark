@@ -30,6 +30,7 @@
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/decode_as.h>
+#include <epan/proto_data.h>
 #include "packet-bluetooth.h"
 #include "packet-btrfcomm.h"
 #include "packet-btl2cap.h"

@@ -28,6 +28,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
 
 #include "packet-xmpp.h"
 #include "packet-xmpp-core.h"

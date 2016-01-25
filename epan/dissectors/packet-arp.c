@@ -35,6 +35,7 @@
 #include <epan/ax25_pids.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 
 void proto_register_arp(void);
 void proto_reg_handoff_arp(void);

@@ -59,6 +59,7 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #include "packet-rtp.h"
 

@@ -37,6 +37,7 @@
 #include <string.h>
 #include <epan/rtp_pt.h>
 #include <epan/addr_resolv.h>
+#include <epan/proto_data.h>
 #include <epan/dissectors/packet-rtp.h>
 #include "rtp_stream.h"
 #include "tap-rtp-common.h"

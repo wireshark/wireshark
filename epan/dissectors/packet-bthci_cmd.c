@@ -38,6 +38,8 @@
 #include <epan/prefs.h>
 #include <epan/decode_as.h>
 #include <epan/tap.h>
+#include <epan/proto_data.h>
+
 #include <wsutil/utf8_entities.h>
 
 #include "packet-bluetooth.h"

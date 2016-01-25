@@ -72,6 +72,8 @@
 #include <epan/strutil.h>
 #include <epan/to_str.h>
 #include <epan/show_exception.h>
+#include <epan/proto_data.h>
+
 #include <wsutil/pint.h>
 
 /* Use libgcrypt for cipher libraries. */

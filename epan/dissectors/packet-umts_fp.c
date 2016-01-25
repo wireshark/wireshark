@@ -30,6 +30,8 @@
 #include <epan/uat.h>
 #include <epan/conversation.h>
 #include <epan/addr_resolv.h>
+#include <epan/proto_data.h>
+
 #include <wsutil/crc7.h> /* For FP data header and control frame CRC. */
 #include <wsutil/crc16-plain.h> /* For FP Payload CRC. */
 #include <wsutil/crc11.h> /* For FP EDCH header CRC. */

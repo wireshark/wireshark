@@ -37,12 +37,15 @@
 #include <string.h>
 #include <locale.h>
 
-#include "epan/packet_info.h"
-#include "epan/value_string.h"
+#include <glib.h>
+
+#include <epan/packet_info.h>
+#include <epan/value_string.h>
 #include <epan/tap.h>
 #include <epan/rtp_pt.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/addr_resolv.h>
+
 #include "ui/rtp_stream.h"
 #include "ui/tap-rtp-common.h"
 

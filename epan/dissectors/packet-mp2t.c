@@ -35,6 +35,7 @@
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/address_types.h>
+#include <epan/proto_data.h>
 #include "packet-l2tp.h"
 
 #include <epan/tvbuff-int.h> /* XXX, for tvb_new_proxy() */

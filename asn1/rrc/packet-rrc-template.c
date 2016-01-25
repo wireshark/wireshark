@@ -37,6 +37,7 @@
 #include <epan/asn1.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #include "packet-ber.h"
 #include "packet-per.h"

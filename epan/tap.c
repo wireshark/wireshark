@@ -33,9 +33,13 @@
 #endif
 
 #include <string.h>
+
+#include <glib.h>
+
 #include <epan/packet_info.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/tap.h>
+
 #include <wsutil/ws_diag_control.h>
 
 static gboolean tapping_is_active=FALSE;

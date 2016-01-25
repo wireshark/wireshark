@@ -26,6 +26,7 @@
 #include <wiretap/wtap.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include "packet-umts_fp.h"
 #include "packet-umts_mac.h"
 #include "packet-rlc.h"

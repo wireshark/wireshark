@@ -37,6 +37,8 @@
 #include <epan/tap.h>
 #include <epan/expert.h>
 #include <epan/show_exception.h>
+#include <epan/proto_data.h>
+
 #include <wsutil/rc4.h>
 #include <wsutil/md4.h>
 #include <wsutil/md5.h>

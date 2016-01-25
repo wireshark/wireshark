@@ -39,6 +39,8 @@
 #include <epan/arcnet_pids.h>
 #include <epan/conversation.h>
 #include <epan/conversation_table.h>
+#include <epan/proto_data.h>
+
 void proto_register_ipx(void);
 void proto_reg_handoff_ipx(void);
 

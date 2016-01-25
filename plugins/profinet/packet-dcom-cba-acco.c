@@ -28,6 +28,7 @@
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <epan/dissector_filters.h>
+#include <epan/proto_data.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-dcom.h>
 #include "packet-dcom-cba-acco.h"

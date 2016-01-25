@@ -61,6 +61,7 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
+#include <epan/proto_data.h>
 
 #include "packet-tcp.h"
 #include "packet-udp.h"

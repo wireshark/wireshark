@@ -51,6 +51,7 @@
 #include <epan/to_str.h>
 #include <epan/expert.h>
 #include <epan/dissector_filters.h>
+#include <epan/proto_data.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
 #include "packet-pn.h"

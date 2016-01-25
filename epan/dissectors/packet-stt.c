@@ -27,10 +27,10 @@
 
 #include "config.h"
 
+#include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/in_cksum.h>
 #include <epan/ipproto.h>
-#include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/to_str.h>

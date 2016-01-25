@@ -29,6 +29,7 @@
 #include <epan/crc32-tvb.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
+#include <epan/proto_data.h>
 
 /* Packet Classes */
 #define TS2C_STANDARD      0xbef0

@@ -76,6 +76,7 @@ LIBWIRESHARK_SRC =		\
 	print.c			\
 	print_stream.c		\
 	proto.c			\
+	proto_data.c		\
 	range.c			\
 	reassemble.c		\
 	reedsolomon.c		\
@@ -229,6 +230,7 @@ LIBWIRESHARK_INCLUDES =		\
 	prefs.h			\
 	prefs-int.h		\
 	proto.h			\
+	proto_data.h		\
 	ps.h			\
 	ptvcursor.h		\
 	range.h			\

@@ -26,6 +26,8 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
+
 #include <wiretap/wtap.h>
 #include "packet-sscop.h"
 

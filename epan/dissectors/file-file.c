@@ -36,6 +36,8 @@
 #include <epan/to_str.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
+
 #include <wsutil/md5.h>
 #include <wsutil/str_util.h>
 

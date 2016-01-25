@@ -27,10 +27,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "epan/packet_info.h"
+#include <glib.h>
+
+#include <epan/packet_info.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
-#include "epan/value_string.h"
+#include <epan/value_string.h>
 #include <epan/dissectors/packet-sctp.h>
 #include <epan/to_str.h>
 

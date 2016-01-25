@@ -45,6 +45,7 @@
 #include <wiretap/wtap.h>
 #include <epan/lapd_sapi.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include "packet-l2tp.h"
 
 void proto_register_lapd(void);

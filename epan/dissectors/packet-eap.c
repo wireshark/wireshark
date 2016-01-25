@@ -29,6 +29,7 @@
 #include <epan/reassemble.h>
 #include <epan/eap.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #include "packet-wps.h"
 

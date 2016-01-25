@@ -30,6 +30,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
+
 #include <wiretap/wtap.h>
 
 #include "packet-btle.h"

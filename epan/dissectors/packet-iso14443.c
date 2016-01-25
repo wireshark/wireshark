@@ -38,8 +38,8 @@
 
 #include "config.h"
 #include <math.h>
-#include <epan/expert.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/tfs.h>
 #include <wiretap/wtap.h>
 

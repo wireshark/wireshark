@@ -25,6 +25,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/proto_data.h>
+
 #include <wiretap/wtap.h>
 
 void proto_register_ixveriwave(void);

@@ -36,6 +36,7 @@
 #include <epan/reassemble.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
+#include <epan/proto_data.h>
 
 #include <wsutil/str_util.h>
 

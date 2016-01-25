@@ -40,6 +40,8 @@
 #include <epan/addr_resolv.h>
 #include <epan/show_exception.h>
 #include <epan/decode_as.h>
+#include <epan/proto_data.h>
+
 #include <wsutil/str_util.h>
 #include "packet-tcp.h"
 #include "packet-dcerpc.h"

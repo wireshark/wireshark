@@ -1643,6 +1643,7 @@ set(LIBWIRESHARK_FILES
 	print_stream.c
 	prefs.c
 	proto.c
+	proto_data.c
 	ps.c
 	range.c
 	reassemble.c

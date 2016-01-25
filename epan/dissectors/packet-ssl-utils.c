@@ -40,6 +40,8 @@
 #include <epan/ipv6.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
+#include <epan/proto_data.h>
+
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>

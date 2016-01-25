@@ -30,6 +30,7 @@
 #include <epan/crc16-tvb.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include "packet-tcp.h"
 
 #include <wsutil/utf8_entities.h>

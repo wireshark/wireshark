@@ -25,8 +25,8 @@
 
 #include <string.h>
 
-#include "packet_info.h"
 #include "proto.h"
+#include "packet_info.h"
 #include "rtd_table.h"
 
 struct register_rtd {

@@ -29,6 +29,7 @@
 #include <epan/packet.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
 #include "packet-windows-common.h"
 #include "packet-iwarp-ddp-rdmap.h"
 #include "packet-infiniband.h"

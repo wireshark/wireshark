@@ -31,6 +31,8 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
+
 #include <wsutil/str_util.h>
 
 #include "packet-msrp.h"

@@ -28,9 +28,12 @@
 
 #include <errno.h>
 
+#include <glib.h>
+
 #include <epan/packet_info.h>
-#include <wiretap/wtap.h>
 #include <epan/tap.h>
+
+#include <wiretap/wtap.h>
 
 #include <wsutil/file_util.h>
 

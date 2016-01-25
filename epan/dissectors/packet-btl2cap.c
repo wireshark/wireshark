@@ -31,6 +31,8 @@
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/decode_as.h>
+#include <epan/proto_data.h>
+
 #include <wiretap/wtap.h>
 
 #include "packet-bluetooth.h"

@@ -31,6 +31,7 @@
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #include "packet-bluetooth.h"
 #include "packet-bthci_acl.h"

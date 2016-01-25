@@ -32,6 +32,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
+#include <epan/proto_data.h>
 
 /* We require libgcrpyt in order to decrypt ZigBee packets. Without it the best
  * we can do is parse the security header and give up.

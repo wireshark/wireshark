@@ -40,6 +40,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include "packet-rmt-common.h"
 
 void proto_register_rmt_fec(void);

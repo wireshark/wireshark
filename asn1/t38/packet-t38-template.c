@@ -53,6 +53,7 @@
 #include <epan/prefs.h>
 #include <epan/ipproto.h>
 #include <epan/asn1.h>
+#include <epan/proto_data.h>
 
 #include "packet-t38.h"
 #include "packet-per.h"

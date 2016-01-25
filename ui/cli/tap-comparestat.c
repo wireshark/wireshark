@@ -37,13 +37,15 @@
 #include <string.h>
 #include <math.h>
 
-#include "epan/packet_info.h"
+#include <glib.h>
+
+#include <epan/packet_info.h>
 #include <epan/in_cksum.h>
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/dissectors/packet-ip.h>
-#include "epan/timestats.h"
+#include <epan/timestats.h>
 
 
 /* For checksum */

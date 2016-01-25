@@ -5895,6 +5895,7 @@ def produce_code():
 #include <epan/strutil.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
+#include <epan/proto_data.h>
 #include "packet-ncp-int.h"
 #include "packet-ncp-nmas.h"
 #include "packet-ncp-sss.h"

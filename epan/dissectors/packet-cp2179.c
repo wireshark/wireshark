@@ -54,6 +54,7 @@ F = 16-bit CRC
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
 
 void proto_reg_handoff_cp2179(void);
 void proto_register_cp2179(void);

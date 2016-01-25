@@ -27,7 +27,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include <epan/tvbuff.h>
 #include <wsutil/nstime.h>
 #include <wsutil/ws_diag_control.h>
 #include "ws_symbol_export.h"
@@ -94,12 +93,6 @@ typedef struct _frame_data {
   guint32      prev_dis_num; /**< Previous displayed frame (0 if first one) */
 } frame_data;
 DIAG_ON(pedantic)
-
-/* Utility routines used by packet*.c */
-WS_DLL_PUBLIC void p_add_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key, void *proto_data);
-WS_DLL_PUBLIC void *p_get_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key);
-WS_DLL_PUBLIC void p_remove_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key);
-gchar *p_get_proto_name_and_key(wmem_allocator_t *scope, struct _packet_info* pinfo, guint pfd_index);
 
 /** compare two frame_datas */
 WS_DLL_PUBLIC gint frame_data_compare(const struct epan_session *epan, const frame_data *fdata1, const frame_data *fdata2, int field);

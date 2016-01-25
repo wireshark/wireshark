@@ -38,6 +38,7 @@
 #include <epan/expert.h>
 #include <epan/aftypes.h>
 #include <epan/tap.h>
+#include <epan/proto_data.h>
 
 #include <wsutil/str_util.h>
 

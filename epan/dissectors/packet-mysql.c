@@ -41,6 +41,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
+#include <epan/proto_data.h>
 #include "packet-tcp.h"
 #include "packet-ssl-utils.h"
 

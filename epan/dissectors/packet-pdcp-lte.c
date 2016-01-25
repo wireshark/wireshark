@@ -29,6 +29,8 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
+#include <epan/proto_data.h>
+
 #include <wsutil/wsgcrypt.h>
 
 /* Define this symbol if you have a working implementation of SNOW3G f8() and f9() available.

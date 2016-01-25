@@ -35,6 +35,7 @@
 #include <epan/expert.h>
 #include <epan/asn1.h>
 #include <epan/conversation.h>
+#include <epan/proto_data.h>
 #include <wsutil/rc4.h>
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"

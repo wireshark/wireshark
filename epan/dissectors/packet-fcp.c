@@ -25,6 +25,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/proto_data.h>
 #include "packet-scsi.h"
 #include "packet-fc.h"
 #include "packet-fcp.h"

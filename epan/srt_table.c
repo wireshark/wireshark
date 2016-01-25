@@ -24,8 +24,8 @@
 
 #include <string.h>
 
-#include "packet_info.h"
 #include "proto.h"
+#include "packet_info.h"
 #include "srt_table.h"
 
 struct register_srt {

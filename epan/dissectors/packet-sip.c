@@ -42,6 +42,7 @@
 #include <epan/req_resp_hdrs.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/tap.h>
+#include <epan/proto_data.h>
 
 #include <wsutil/str_util.h>
 

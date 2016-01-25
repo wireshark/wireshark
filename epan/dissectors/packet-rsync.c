@@ -30,6 +30,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
 
 void proto_register_rsync(void);
 

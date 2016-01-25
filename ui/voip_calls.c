@@ -38,6 +38,7 @@
 
 #include "epan/epan_dissect.h"
 #include "epan/packet.h"
+#include "epan/proto_data.h"
 #include "epan/dissectors/packet-sip.h"
 #include "epan/dissectors/packet-h225.h"
 #include "epan/dissectors/packet-h245.h"

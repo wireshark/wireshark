@@ -42,6 +42,8 @@
 #include <epan/stats_tree.h>
 #include <epan/to_str.h>
 #include <epan/req_resp_hdrs.h>
+#include <epan/proto_data.h>
+
 #include <wsutil/base64.h>
 #include "packet-http.h"
 #include "packet-tcp.h"

@@ -33,6 +33,7 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #define TCP_PORT_BEEP 10288
 

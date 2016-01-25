@@ -54,6 +54,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
+#include <epan/proto_data.h>
 
 void proto_register_epl(void);
 void proto_reg_handoff_epl(void);

@@ -2874,6 +2874,8 @@ persistent data about the packet for the lifetime of the capture (file scope)
 and to exchange data between dissectors across a single packet (packet scope).
 It is also used to provide packet data for Decode As dialog (packet scope).
 
+These functions are delcared in <epan/proto_data.h>.
+
 void
 p_add_proto_data(wmem_allocator_t *scope, packet_info *pinfo, int proto, guint32 key, void *proto_data)
 void *
@@ -2985,6 +2987,8 @@ Where: module - Returned by the prefs_register_protocol routine
              FALSE if it is to be displayed as an option
              menu
      max_value - The maximum allowed value for a range (0 is the minimum).
+
+These functions are declared in <epan/prefs.h>.
 
 An example from packet-beep.c -
 

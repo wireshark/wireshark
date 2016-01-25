@@ -33,6 +33,7 @@
 #include <epan/packet.h>
 #include <epan/tvbparse.h>
 #include <epan/dtd.h>
+#include <epan/proto_data.h>
 #include <wsutil/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>

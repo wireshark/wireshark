@@ -102,6 +102,7 @@
 #include <epan/uat.h>
 #include <epan/eapol_keydes_types.h>
 #include <epan/to_str.h>
+#include <epan/proto_data.h>
 
 #include "packet-wps.h"
 #include "packet-e212.h"

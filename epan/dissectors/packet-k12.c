@@ -30,6 +30,8 @@
 #include <epan/uat.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
+#include <epan/proto_data.h>
+
 #include <wiretap/wtap.h>
 #include <wsutil/pint.h>
 #include <wsutil/str_util.h>

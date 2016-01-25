@@ -30,6 +30,7 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
+#include <epan/proto_data.h>
 
 #include <wsutil/str_util.h>
 

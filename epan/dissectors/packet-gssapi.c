@@ -32,6 +32,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/show_exception.h>
+#include <epan/proto_data.h>
 
 #include "packet-ber.h"
 #include "packet-dcerpc.h"

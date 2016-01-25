@@ -41,6 +41,7 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/decode_as.h>
+#include <epan/proto_data.h>
 #include "packet-tcp.h"
 #include "packet-cip.h"
 #include "packet-enip.h"

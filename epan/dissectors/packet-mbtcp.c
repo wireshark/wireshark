@@ -69,6 +69,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/crc16-tvb.h> /* For CRC verification */
+#include <epan/proto_data.h>
 
 void proto_register_modbus(void);
 void proto_reg_handoff_mbtcp(void);

@@ -98,6 +98,8 @@
 
 
 #include <epan/packet.h>
+#include <epan/proto_data.h>
+
 #include <wiretap/wtap.h>
 #include <wsutil/pint.h>
 #include <epan/circuit.h>

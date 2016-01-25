@@ -32,6 +32,8 @@
 #include <epan/conversation.h>
 #include <epan/ipproto.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
+
 #include <wsutil/str_util.h>
 #include "packet-frame.h"
 #include "packet-osi.h"

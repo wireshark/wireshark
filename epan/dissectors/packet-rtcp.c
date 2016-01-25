@@ -76,6 +76,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
+#include <epan/proto_data.h>
 
 void proto_register_rtcp(void);
 void proto_reg_handoff_rtcp(void);

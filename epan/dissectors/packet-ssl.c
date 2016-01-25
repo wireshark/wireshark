@@ -91,6 +91,8 @@
 #include <epan/addr_resolv.h>
 #include <epan/follow.h>
 #include <epan/exported_pdu.h>
+#include <epan/proto_data.h>
+
 #include <wsutil/str_util.h>
 #include "packet-tcp.h"
 #include "packet-x509af.h"

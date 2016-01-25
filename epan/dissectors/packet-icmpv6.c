@@ -44,6 +44,7 @@
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/capture_dissectors.h>
+#include <epan/proto_data.h>
 
 #include "packet-ber.h"
 #include "packet-dns.h"

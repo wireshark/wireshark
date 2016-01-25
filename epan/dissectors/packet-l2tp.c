@@ -61,6 +61,8 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/decode_as.h>
+#include <epan/proto_data.h>
+
 #include <wsutil/md5.h>
 #include <wsutil/sha1.h>
 

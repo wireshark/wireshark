@@ -27,7 +27,8 @@ extern "C" {
 #endif /* __cplusplus */
 
 #include <glib.h>
-#include "frame_data.h"
+#include <epan/tvbuff.h>
+#include <epan/frame_data.h>
 #include "register.h"
 #include "ws_symbol_export.h"
 

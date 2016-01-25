@@ -29,6 +29,7 @@
 #include <epan/reassemble.h>
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
+#include <epan/proto_data.h>
 #include "packet-ipv6.h"
 #include "packet-6lowpan.h"
 #include "packet-btl2cap.h"

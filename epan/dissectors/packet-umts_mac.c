@@ -26,6 +26,7 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
 
 #include "packet-rrc.h"
 #include "packet-umts_fp.h"

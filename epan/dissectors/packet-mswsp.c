@@ -26,6 +26,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #include "packet-smb.h"
 #include "packet-smb2.h"

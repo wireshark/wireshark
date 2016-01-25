@@ -42,6 +42,7 @@
 #include <epan/tap.h>
 #include <epan/ipproto.h>
 #include <epan/capture_dissectors.h>
+#include <epan/proto_data.h>
 
 #include "packet-ip.h"
 #include "packet-icmp.h"

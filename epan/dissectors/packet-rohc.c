@@ -36,6 +36,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/rtp_pt.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include "packet-rohc.h"
 
 void proto_register_rohc(void);

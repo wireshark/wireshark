@@ -36,6 +36,7 @@
 #include <epan/expert.h>
 #include <epan/uat.h>
 #include <epan/decode_as.h>
+#include <epan/proto_data.h>
 
 #include "packet-bluetooth.h"
 #include "packet-btsdp.h"

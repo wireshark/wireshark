@@ -58,6 +58,7 @@
 #include <epan/prefs.h>
 #include <epan/ipproto.h>
 #include <epan/decode_as.h>
+#include <epan/proto_data.h>
 
 #include "packet-ppp.h"
 #include "packet-mpls.h"

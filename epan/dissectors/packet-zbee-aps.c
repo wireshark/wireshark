@@ -30,6 +30,7 @@
 #include <epan/prefs.h>    /* req'd for packet-zbee-security.h */
 #include <epan/expert.h>
 #include <epan/reassemble.h>
+#include <epan/proto_data.h>
 
 #include "packet-zbee.h"
 #include "packet-zbee-nwk.h"

@@ -36,6 +36,7 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
 #include "packet-rdt.h"
 
 static dissector_handle_t rdt_handle;

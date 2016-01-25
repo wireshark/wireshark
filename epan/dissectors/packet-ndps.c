@@ -30,6 +30,7 @@
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
+#include <epan/proto_data.h>
 
 #include "packet-ipx.h"
 #include "packet-tcp.h"

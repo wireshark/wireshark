@@ -38,6 +38,8 @@
 #include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
+#include <epan/proto_data.h>
+
 #include <wsutil/utf8_entities.h>
 #include <wsutil/pint.h>
 
