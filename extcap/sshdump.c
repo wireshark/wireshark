@@ -567,7 +567,10 @@ static int list_config(char *interface, unsigned int remote_port)
 		"{type=string}{default=%s}{tooltip=The remote dumpcap binary used "
 		"for capture.}\n", inc++, DEFAULT_CAPTURE_BIN);
 	printf("arg {number=%u}{call=--remote-filter}{display=Remote capture filter}"
-		"{type=string}{default=%s}{tooltip=The remote capture filter}\n", inc++, ipfilter);
+		"{type=string}{tooltip=The remote capture filter}", inc++);
+	if (ipfilter)
+		printf("{default=%s}", ipfilter);
+	printf("\n");
 	printf("arg {number=%u}{call=--remote-count}{display=Packets to capture}"
 		"{type=unsigned}{default=0}{tooltip=The number of remote packets to capture. (Default: inf)}\n",
 		inc++);
