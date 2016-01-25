@@ -880,6 +880,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  parse_key_string@Base 1.9.1
  pfilter_expression_head@Base 1.9.1
  plugin_if_apply_filter@Base 1.99.8
+ plugin_if_get_ws_info@Base 2.1.0
  plugin_if_goto_frame@Base 2.0.0
  plugin_if_register_gui_cb@Base 1.99.8
  plugin_if_save_preference@Base 1.99.8
