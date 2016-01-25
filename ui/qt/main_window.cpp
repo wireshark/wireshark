@@ -789,7 +789,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     }
 
     QString before_what(tr(" before quitting"));
-    if (!testCaptureFileClose(before_what, QuitButtons)) {
+    if (!testCaptureFileClose(before_what, Quit)) {
         event->ignore();
         return;
     }
@@ -1121,7 +1121,7 @@ void MainWindow::mergeCaptureFile()
 void MainWindow::importCaptureFile() {
     ImportTextDialog import_dlg;
 
-    QString before_what(tr(" before importing a new capture"));
+    QString before_what(tr(" before importing a capture"));
     if (!testCaptureFileClose(before_what))
         return;
 
@@ -1555,7 +1555,7 @@ void MainWindow::fileAddExtension(QString &file_name, int file_type, bool compre
     }
 }
 
-bool MainWindow::testCaptureFileClose(QString before_what, FileCloseButtons buttons) {
+bool MainWindow::testCaptureFileClose(QString before_what, FileCloseContext context) {
     bool capture_in_progress = false;
     bool do_close_file = false;
 
@@ -1579,47 +1579,31 @@ bool MainWindow::testCaptureFileClose(QString before_what, FileCloseButtons butt
         {
             QMessageBox msg_dialog;
             QString question;
-            QPushButton *saveButton;
-            QPushButton *discardButton;
+            QString infotext;
+            QPushButton *save_button;
+            QPushButton *discard_button;
 
             msg_dialog.setIcon(QMessageBox::Question);
             msg_dialog.setWindowTitle("Unsaved packets" UTF8_HORIZONTAL_ELLIPSIS);
+
             /* This file has unsaved data or there's a capture in
                progress; ask the user whether to save the data. */
-            if (capture_file_.capFile()->is_tempfile) {
-
-                msg_dialog.setText(tr("You have unsaved packets"));
-                msg_dialog.setInformativeText(tr("They will be lost if you don't save them."));
-
-                if (capture_in_progress) {
-                    question.append(tr("Do you want to stop the capture and save the captured packets"));
-                } else {
-                    question.append(tr("Do you want to save the captured packets"));
-                }
-                question.append(before_what).append(tr("?"));
-                msg_dialog.setInformativeText(question);
-
-
+            if (capture_in_progress && context != Restart) {
+                question = tr("Do you want to stop the capture and save the captured packets%1?").arg(before_what);
+                infotext = tr("Your captured packets will be lost if you don't save them.");
+            } else if (capture_file_.capFile()->is_tempfile) {
+                question = tr("Do you want to save the captured packets%1?").arg(before_what);
+                infotext = tr("Your captured packets will be lost if you don't save them.");
             } else {
-                /*
-                 * Format the message.
-                 */
-                if (capture_in_progress) {
-                    question.append(tr("Do you want to stop the capture and save the captured packets"));
-                    question.append(before_what).append(tr("?"));
-                    msg_dialog.setText(question);
-                    msg_dialog.setInformativeText(tr("Your captured packets will be lost if you don't save them."));
-                } else {
-                    gchar *display_basename = g_filename_display_basename(capture_file_.capFile()->filename);
-                    question.append(QString(tr("Do you want to save the changes you've made to the capture file \"%1\"%2?"))
-                                    .arg(display_basename)
-                                    .arg(before_what)
-                                    );
-                    g_free(display_basename);
-                    msg_dialog.setText(question);
-                    msg_dialog.setInformativeText(tr("Your changes will be lost if you don't save them."));
-                }
+                // No capture in progress and not a tempfile, so this is not unsaved packets
+                gchar *display_basename = g_filename_display_basename(capture_file_.capFile()->filename);
+                question = tr("Do you want to save the changes you've made to the capture file \"%1\"%2?").arg(display_basename, before_what);
+                infotext = tr("Your changes will be lost if you don't save them.");
+                g_free(display_basename);
             }
+
+            msg_dialog.setText(question);
+            msg_dialog.setInformativeText(infotext);
 
             // XXX Text comes from ui/gtk/stock_icons.[ch]
             // Note that the button roles differ from the GTK+ version.
@@ -1629,43 +1613,43 @@ bool MainWindow::testCaptureFileClose(QString before_what, FileCloseButtons butt
             msg_dialog.addButton(QMessageBox::Cancel);
 
             if (capture_in_progress) {
-                QString saveButtonText;
-                if (buttons == RestartButtons) {
-                    saveButtonText = tr("Save before Continue");
+                QString save_button_text;
+                if (context == Restart) {
+                    save_button_text = tr("Save before Continue");
                 } else {
-                    saveButtonText = tr("Stop and Save");
+                    save_button_text = tr("Stop and Save");
                 }
-                saveButton = msg_dialog.addButton(saveButtonText, QMessageBox::AcceptRole);
+                save_button = msg_dialog.addButton(save_button_text, QMessageBox::AcceptRole);
             } else {
-                saveButton = msg_dialog.addButton(QMessageBox::Save);
+                save_button = msg_dialog.addButton(QMessageBox::Save);
             }
-            msg_dialog.setDefaultButton(saveButton);
+            msg_dialog.setDefaultButton(save_button);
 
-            QString discardButtonText;
+            QString discard_button_text;
             if (capture_in_progress) {
-                switch (buttons) {
-                case QuitButtons:
-                    discardButtonText = tr("Stop and Quit without Saving");
+                switch (context) {
+                case Quit:
+                    discard_button_text = tr("Stop and Quit without Saving");
                     break;
-                case RestartButtons:
-                    discardButtonText = tr("Continue without Saving");
+                case Restart:
+                    discard_button_text = tr("Continue without Saving");
                     break;
                 default:
-                    discardButtonText = tr("Stop and Continue without Saving");
+                    discard_button_text = tr("Stop and Continue without Saving");
                     break;
                 }
             } else {
-                switch (buttons) {
-                case QuitButtons:
-                    discardButtonText = tr("Quit without Saving");
+                switch (context) {
+                case Quit:
+                    discard_button_text = tr("Quit without Saving");
                     break;
-                case RestartButtons:
+                case Restart:
                 default:
-                    discardButtonText = tr("Continue without Saving");
+                    discard_button_text = tr("Continue without Saving");
                     break;
                 }
             }
-            discardButton = msg_dialog.addButton(discardButtonText, QMessageBox::DestructiveRole);
+            discard_button = msg_dialog.addButton(discard_button_text, QMessageBox::DestructiveRole);
 
             msg_dialog.exec();
             /* According to the Qt doc:
@@ -1673,7 +1657,7 @@ bool MainWindow::testCaptureFileClose(QString before_what, FileCloseButtons butt
              *
              * Therefore we should use clickedButton() to determine which button was clicked. */
 
-            if (msg_dialog.clickedButton() == saveButton) {
+            if (msg_dialog.clickedButton() == save_button) {
 #ifdef HAVE_LIBPCAP
                 /* If there's a capture in progress, we have to stop the capture
                    and then do the save. */
@@ -1682,7 +1666,7 @@ bool MainWindow::testCaptureFileClose(QString before_what, FileCloseButtons butt
 #endif
                 /* Save the file and close it */
                 saveCaptureFile(capture_file_.capFile(), true);
-            } else if(msg_dialog.clickedButton() == discardButton) {
+            } else if(msg_dialog.clickedButton() == discard_button) {
                 /* Just close the file, discarding changes */
                 do_close_file = true;
             } else {

@@ -202,7 +202,8 @@ bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned 
             }
         }
 
-        if (!testCaptureFileClose()) {
+        QString before_what(tr(" before opening another file"));
+        if (!testCaptureFileClose(before_what)) {
             return false;
         }
 
@@ -1678,7 +1679,8 @@ void MainWindow::on_actionFileImportFromHexDump_triggered()
 }
 
 void MainWindow::on_actionFileClose_triggered() {
-    if (testCaptureFileClose())
+    QString before_what(tr(" before closing the file"));
+    if (testCaptureFileClose(before_what))
         main_ui_->mainStack->setCurrentWidget(main_welcome_);
 }
 
@@ -3548,8 +3550,8 @@ void MainWindow::on_actionCaptureStop_triggered()
 
 void MainWindow::on_actionCaptureRestart_triggered()
 {
-    QString before_what(tr(" before restarting a new capture"));
-    if (!testCaptureFileClose(before_what, RestartButtons))
+    QString before_what(tr(" before restarting the capture"));
+    if (!testCaptureFileClose(before_what, Restart))
         return;
 
 /* TODO: GTK use only this: capture_restart(&cap_session_); */
