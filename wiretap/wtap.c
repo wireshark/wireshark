@@ -1458,6 +1458,19 @@ gboolean
 wtap_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
+	/*
+	 * Set the packet encapsulation to the file's encapsulation
+	 * value; if that's not WTAP_ENCAP_PER_PACKET, it's the
+	 * right answer (and means that the read routine for this
+	 * capture file type doesn't have to set it), and if it
+	 * *is* WTAP_ENCAP_PER_PACKET, the caller needs to set it
+	 * anyway.
+	 *
+	 * Do the same for the packet time stamp resolution.
+	 */
+	phdr->pkt_encap = wth->file_encap;
+	phdr->pkt_tsprec = wth->file_tsprec;
+
 	if (!wth->subtype_seek_read(wth, seek_off, phdr, buf, err, err_info))
 		return FALSE;
 
