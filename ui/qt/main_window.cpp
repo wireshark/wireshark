@@ -1592,8 +1592,14 @@ bool MainWindow::testCaptureFileClose(QString before_what, FileCloseContext cont
                 question = tr("Do you want to stop the capture and save the captured packets%1?").arg(before_what);
                 infotext = tr("Your captured packets will be lost if you don't save them.");
             } else if (capture_file_.capFile()->is_tempfile) {
-                question = tr("Do you want to save the captured packets%1?").arg(before_what);
-                infotext = tr("Your captured packets will be lost if you don't save them.");
+                if (context == Reload) {
+                    // Reloading a tempfile will keep the packets, so this is not unsaved packets
+                    question = tr("Do you want to save the changes you've made%1?").arg(before_what);
+                    infotext = tr("Your changes will be lost if you don't save them.");
+                } else {
+                    question = tr("Do you want to save the captured packets%1?").arg(before_what);
+                    infotext = tr("Your captured packets will be lost if you don't save them.");
+                }
             } else {
                 // No capture in progress and not a tempfile, so this is not unsaved packets
                 gchar *display_basename = g_filename_display_basename(capture_file_.capFile()->filename);
@@ -1691,7 +1697,8 @@ bool MainWindow::testCaptureFileClose(QString before_what, FileCloseContext cont
             captureStop();
 #endif
         /* captureStop() will close the file if not having any packets */
-        if (capture_file_.capFile())
+        if (capture_file_.capFile() && context != Restart && context != Reload)
+            // Don't really close if Restart or Reload
             cf_close(capture_file_.capFile());
     }
 

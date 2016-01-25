@@ -2506,12 +2506,26 @@ void MainWindow::on_actionContextShowLinkedPacketInNewWindow_triggered()
 
 void MainWindow::on_actionViewReload_triggered()
 {
-    cf_reload(CaptureFile::globalCapFile());
+    capture_file *cf = CaptureFile::globalCapFile();
+
+    if (cf->unsaved_changes) {
+        QString before_what(tr(" before reloading the file"));
+        if (!testCaptureFileClose(before_what, Reload))
+            return;
+    }
+
+    cf_reload(cf);
 }
 
 void MainWindow::on_actionViewReload_as_File_Format_or_Capture_triggered()
 {
     capture_file *cf = CaptureFile::globalCapFile();
+
+    if (cf->unsaved_changes) {
+        QString before_what(tr(" before reloading the file"));
+        if (!testCaptureFileClose(before_what, Reload))
+            return;
+    }
 
     if (cf->open_type == WTAP_TYPE_AUTO)
         cf->open_type = open_info_name_to_type("MIME Files Format");

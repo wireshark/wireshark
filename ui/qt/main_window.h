@@ -124,7 +124,8 @@ private:
     enum FileCloseContext {
         Default,
         Quit,
-        Restart
+        Restart,
+        Reload
     };
 
     Ui::MainWindow *main_ui_;
