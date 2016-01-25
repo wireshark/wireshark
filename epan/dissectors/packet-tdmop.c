@@ -352,8 +352,12 @@ void proto_reg_handoff_tdmop(void)
     if (!init)
     {
         tdmop_handle = create_dissector_handle(dissect_tdmop, proto_tdmop);
-        dissector_add_uint("udp.port", pref_tdmop_udpport, tdmop_handle);
-        dissector_add_uint("ethertype", pref_tdmop_ethertype, tdmop_handle);
+        if (pref_tdmop_udpport) {
+            dissector_add_uint("udp.port", pref_tdmop_udpport, tdmop_handle);
+        }
+        if (pref_tdmop_ethertype) {
+            dissector_add_uint("ethertype", pref_tdmop_ethertype, tdmop_handle);
+        }
         lapd_handle = find_dissector("lapd-bitstream");
         data_handle = find_dissector("data");
         current_tdmop_ethertype = pref_tdmop_ethertype;
@@ -363,13 +367,17 @@ void proto_reg_handoff_tdmop(void)
     if (current_tdmop_ethertype != pref_tdmop_ethertype)
     {
         dissector_delete_uint("ethertype", current_tdmop_ethertype, tdmop_handle);
-        dissector_add_uint("ethertype", pref_tdmop_ethertype, tdmop_handle);
+        if (pref_tdmop_ethertype) {
+            dissector_add_uint("ethertype", pref_tdmop_ethertype, tdmop_handle);
+        }
         current_tdmop_ethertype = pref_tdmop_ethertype;
     }
     if (current_tdmop_udpport != pref_tdmop_udpport)
     {
         dissector_delete_uint("udp.port", current_tdmop_udpport, tdmop_handle);
-        dissector_add_uint("udp.port", pref_tdmop_udpport, tdmop_handle);
+        if (pref_tdmop_udpport) {
+            dissector_add_uint("udp.port", pref_tdmop_udpport, tdmop_handle);
+        }
         current_tdmop_udpport = pref_tdmop_udpport;
     }
 }
