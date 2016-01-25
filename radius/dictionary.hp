@@ -26,6 +26,7 @@ ATTRIBUTE	HP-Port-Client-Limit-Dot1x		10	integer
 ATTRIBUTE	HP-Port-Client-Limit-MA			11	integer
 ATTRIBUTE	HP-Port-Client-Limit-WA			12	integer
 ATTRIBUTE	HP-Port-Auth-Mode-Dot1x			13	integer
+ATTRIBUTE	HP-Port-Bounce-Host			23	integer
 
 # Client QoS attributes
 ATTRIBUTE	HP-Port-Priority-Regeneration-Table	40	string
@@ -49,6 +50,9 @@ ATTRIBUTE	HP-Egress-VLAN-Name			65	string
 
 # See http://wiki.freeradius.org/vendor/HP#Capability-advertisements
 ATTRIBUTE	HP-Capability-Advert			255	octets
+
+# Captival Portal
+ATTRIBUTE	HP-Captive-Portal-URL			24	string
 
 # HP-Port-Auth-Mode-Dot1x Attribute Values
 VALUE	HP-Port-Auth-Mode-Dot1x		Port-Based		1
