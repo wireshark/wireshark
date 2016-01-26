@@ -89,7 +89,7 @@ p_add_proto_data(wmem_allocator_t *tmp_scope, struct _packet_info* pinfo, int pr
   p1->proto_data = proto_data;
 
   /* Add it to the GSLIST */
-  *proto_list = g_slist_prepend(*proto_list, (gpointer *)p1);
+  *proto_list = g_slist_prepend(*proto_list, p1);
 }
 
 void *
@@ -103,9 +103,9 @@ p_get_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto,
   temp.proto_data = NULL;
 
   if (scope == pinfo->pool) {
-    item = g_slist_find_custom(pinfo->proto_data, (gpointer *)&temp, p_compare);
+    item = g_slist_find_custom(pinfo->proto_data, &temp, p_compare);
   } else {
-    item = g_slist_find_custom(pinfo->fd->pfd, (gpointer *)&temp, p_compare);
+    item = g_slist_find_custom(pinfo->fd->pfd, &temp, p_compare);
   }
 
   if (item) {
@@ -128,10 +128,10 @@ p_remove_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int pro
   temp.proto_data = NULL;
 
   if (scope == pinfo->pool) {
-    item = g_slist_find_custom(pinfo->fd->pfd, (gpointer *)&temp, p_compare);
+    item = g_slist_find_custom(pinfo->fd->pfd, &temp, p_compare);
     proto_list = &pinfo->proto_data;
   } else {
-    item = g_slist_find_custom(pinfo->fd->pfd, (gpointer *)&temp, p_compare);
+    item = g_slist_find_custom(pinfo->fd->pfd, &temp, p_compare);
     proto_list = &pinfo->fd->pfd;
   }
 
