@@ -182,8 +182,6 @@ WSLUA_METHOD Tvb_bytes(lua_State* L) {
         return 0;
     }
 
-    ba = g_byte_array_new();
-
     if (len < 0) {
         len = tvb_captured_length_remaining(tvb->ws_tvb,offset);
         if (len < 0) {
@@ -195,6 +193,7 @@ WSLUA_METHOD Tvb_bytes(lua_State* L) {
         return 0;
     }
 
+    ba = g_byte_array_new();
     g_byte_array_append(ba, tvb_get_ptr(tvb->ws_tvb, offset, len), len);
     pushByteArray(L,ba);
 
@@ -1117,9 +1116,8 @@ WSLUA_METHOD TvbRange_bytes(lua_State* L) {
         return 0;
     }
 
-    ba = g_byte_array_new();
-
     if (encoding == 0) {
+        ba = g_byte_array_new();
         g_byte_array_append(ba,(const guint8 *)tvb_memdup(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len),tvbr->len);
         pushByteArray(L,ba);
         lua_pushinteger(L, tvbr->len);
@@ -1129,7 +1127,10 @@ WSLUA_METHOD TvbRange_bytes(lua_State* L) {
     }
     else {
         gint endoff = 0;
-        GByteArray* retval = tvb_get_string_bytes(tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len,
+        GByteArray* retval;
+
+        ba = g_byte_array_new();
+        retval = tvb_get_string_bytes(tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len,
                                                   encoding, ba, &endoff);
         if (!retval || endoff == 0) {
             g_byte_array_free(ba, TRUE);
