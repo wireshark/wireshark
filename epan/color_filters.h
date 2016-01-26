@@ -131,6 +131,7 @@ color_filters_colorize_packet(struct epan_dissect *edt);
 /** Clone the currently active filter list.
  *
  * @param user_data will be returned by each call to to color_filter_add_cb()
+ * @param add_cb the callback function to add color filter
  */
 WS_DLL_PUBLIC void color_filters_clone(gpointer user_data, color_filter_add_cb_func add_cb);
 
@@ -158,12 +159,14 @@ WS_DLL_PUBLIC gboolean color_filters_read_globals(gpointer user_data, gchar** er
  *
  * @param tmp_cfl the temporary color filter list to apply
  * @param edit_cfl the edited permanent color filter list to apply
+ * @param err_msg a string with error message
  */
 WS_DLL_PUBLIC gboolean color_filters_apply(GSList *tmp_cfl, GSList *edit_cfl, gchar** err_msg);
 
 /** Save filters in users filter file.
  *
  * @param cfl the filter list to write
+ * @param err_msg a string with error message
  * @return TRUE if write succeeded
  */
 WS_DLL_PUBLIC gboolean color_filters_write(GSList *cfl, gchar** err_msg);
@@ -173,6 +176,7 @@ WS_DLL_PUBLIC gboolean color_filters_write(GSList *cfl, gchar** err_msg);
  * @param path the path to the filter file
  * @param cfl the filter list to write
  * @param only_selected TRUE if only the selected filters should be saved
+ * @param err_msg a string with error message
  * @return TRUE, if write succeeded
  */
 WS_DLL_PUBLIC gboolean color_filters_export(const gchar *path, GSList *cfl, gboolean only_selected, gchar** err_msg);
