@@ -90,6 +90,9 @@ wmem_itree_find_intervals(wmem_itree_t *tree, wmem_allocator_t *allocator, guint
 void
 wmem_print_itree(wmem_itree_t *tree);
 
+/**   @}
+ *  @} */
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
