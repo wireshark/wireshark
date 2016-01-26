@@ -355,9 +355,9 @@ WSLUA_CONSTRUCTOR ByteArray_tvb (lua_State *L) {
     data = (guint8 *)g_memdup(ba->data, ba->len);
 
     tvb = (Tvb)g_malloc(sizeof(struct _wslua_tvb));
-    tvb->ws_tvb = tvb_new_real_data(data, ba->len,ba->len);
+    tvb->ws_tvb = tvb_new_child_real_data(lua_tvb, data, ba->len,ba->len);
     tvb->expired = FALSE;
-    tvb->need_free = TRUE;
+    tvb->need_free = FALSE;
     tvb_set_free_cb(tvb->ws_tvb, g_free);
 
     add_new_data_source(lua_pinfo, tvb->ws_tvb, name);
