@@ -94,6 +94,7 @@ WS_DLL_PUBLIC gboolean tmp_color_filters_used(void);
  * @param filt_nr a number 1-10 pointing to a temporary color
  * @param filter the new filter-string
  * @param disabled whether the filter-rule should be disabled
+ * @param err_msg a string with error message
  */
 WS_DLL_PUBLIC gboolean
 color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled, gchar **err_msg);
@@ -137,6 +138,8 @@ WS_DLL_PUBLIC void color_filters_clone(gpointer user_data, color_filter_add_cb_f
  *
  * @param path the path to the import file
  * @param user_data will be returned by each call to to color_filter_add_cb()
+ * @param err_msg a string with error message
+ * @param add_cb the callback function to add color filter
  * @return TRUE, if read succeeded
  */
 WS_DLL_PUBLIC gboolean color_filters_import(const gchar *path, const gpointer user_data, gchar** err_msg, color_filter_add_cb_func add_cb);
@@ -144,6 +147,8 @@ WS_DLL_PUBLIC gboolean color_filters_import(const gchar *path, const gpointer us
 /** Read filters from the global filter file (not the users file).
  *
  * @param user_data will be returned by each call to to color_filter_add_cb()
+ * @param err_msg a string with error message
+ * @param add_cb the callback function to add color filter
  * @return TRUE, if read succeeded
  */
 WS_DLL_PUBLIC gboolean color_filters_read_globals(gpointer user_data, gchar** err_msg, color_filter_add_cb_func add_cb);
