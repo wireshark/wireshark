@@ -994,14 +994,7 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo, struct aspinfo *aspinfo)
   asp_request_val *request_val;
   guint8           fn;
 
-  conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-                                   pinfo->srcport, pinfo->destport, 0);
-
-  if (conversation == NULL)
-  {
-    conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
-                                    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-  }
+  conversation = find_or_create_conversation(pinfo);
 
   request_key.conversation = conversation->index;
   memcpy(request_key.src, (!aspinfo->reply)?pinfo->src.data:pinfo->dst.data, 4);

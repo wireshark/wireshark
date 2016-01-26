@@ -2295,10 +2295,7 @@ dissect_rtmpt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         }
         tcpinfo = (struct tcpinfo*)data;
 
-        conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-        if (!conv) {
-                conv = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-        }
+        conv = find_or_create_conversation(pinfo);
 
         rconv = (rtmpt_conv_t*)conversation_get_proto_data(conv, proto_rtmpt);
         if (!rconv) {
@@ -2446,18 +2443,13 @@ dissect_rtmpt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                     && tcpinfo->seq == RTMPT_HANDSHAKE_OFFSET_1
                     && tvb_get_guint8(tvb, 0) == RTMPT_MAGIC)
                 {
-                        /* Register this dissector for this conversation */
-                        conversation = NULL;
-                        conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-                        if (conversation == NULL)
-                        {
-                                conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-                        }
-                        conversation_set_dissector(conversation, rtmpt_tcp_handle);
+                    /* Register this dissector for this conversation */
+                    conversation = find_or_create_conversation(pinfo);
+                    conversation_set_dissector(conversation, rtmpt_tcp_handle);
 
-                        /* Dissect the packet */
-                        dissect_rtmpt_tcp(tvb, pinfo, tree, data);
-                        return TRUE;
+                    /* Dissect the packet */
+                    dissect_rtmpt_tcp(tvb, pinfo, tree, data);
+                    return TRUE;
                 }
         }
         return FALSE;
