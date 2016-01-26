@@ -2840,6 +2840,45 @@ find_val_for_string(const char *needle, const enum_val_t *haystack,
     return default_value;
 }
 
+
+/* Array of columns that have been migrated to custom columns */
+struct deprecated_columns {
+    const gchar *col_fmt;
+    const gchar *col_expr;
+};
+static struct deprecated_columns migrated_columns[] = {
+    { /* COL_COS_VALUE */ "%U", "vlan.priority" },
+    { /* COL_CIRCUIT_ID */ "%c", "iax2.call" },
+    { /* COL_BSSGP_TLLI */ "%l", "bssgp.tlli" },
+    { /* COL_HPUX_SUBSYS */ "%H", "nettl.subsys" },
+    { /* COL_HPUX_DEVID */ "%P", "nettl.devid" },
+    { /* COL_FR_DLCI */ "%C", "fr.dlci" },
+    { /* COL_REL_CONV_TIME */ "%rct", "tcp.time_relative" },
+    { /* COL_DELTA_CONV_TIME */ "%dct", "tcp.time_delta" },
+    { /* COL_OXID */ "%XO", "fc.ox_id" },
+    { /* COL_RXID */ "%XR", "fc.rx_id" },
+    { /* COL_SRCIDX */ "%Xd", "mdshdr.srcidx" },
+    { /* COL_DSTIDX */ "%Xs", "mdshdr.dstidx" },
+    { /* COL_DCE_CTX */ "%z", "dcerpc.cn_ctx_id" }
+};
+
+static gboolean
+is_deprecated_column_format(const gchar* fmt)
+{
+    guint haystack_idx;
+
+    for (haystack_idx = 0;
+         haystack_idx < G_N_ELEMENTS(migrated_columns);
+         ++haystack_idx) {
+
+        if (strcmp(migrated_columns[haystack_idx].col_fmt, fmt) == 0) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
 /* Preferences file format:
  * - Configuration directives start at the beginning of the line, and
  *   are terminated with a colon.
@@ -2896,7 +2935,7 @@ parse_column_format(fmt_data *cfmt, const char *fmt)
         g_strfreev(cust_format_info);
     } else {
         col_fmt = get_column_format_from_str(fmt);
-        if (col_fmt == -1)
+        if ((col_fmt == -1) && (!is_deprecated_column_format(fmt)))
             return FALSE;
     }
 
@@ -3852,32 +3891,10 @@ string_to_name_resolve(const char *string, e_addr_resolve *name_resolve)
     return '\0';
 }
 
-
 static void
 try_convert_to_custom_column(gpointer *el_data)
 {
-    /* Array of columns that have been migrated to custom columns */
-    struct {
-        gint el;
-        const gchar *col_expr;
-    } migrated_columns[] = {
-        { COL_COS_VALUE, "vlan.priority" },
-        { COL_CIRCUIT_ID, "iax2.call" },
-        { COL_BSSGP_TLLI, "bssgp.tlli" },
-        { COL_HPUX_SUBSYS, "nettl.subsys" },
-        { COL_HPUX_DEVID, "nettl.devid" },
-        { COL_FR_DLCI, "fr.dlci" },
-        { COL_REL_CONV_TIME, "tcp.time_relative" },
-        { COL_DELTA_CONV_TIME, "tcp.time_delta" },
-        { COL_OXID, "fc.ox_id" },
-        { COL_RXID, "fc.rx_id" },
-        { COL_SRCIDX, "mdshdr.srcidx" },
-        { COL_DSTIDX, "mdshdr.dstidx" },
-        { COL_DCE_CTX, "dcerpc.cn_ctx_id" }
-    };
-
     guint haystack_idx;
-    const gchar *haystack_fmt;
 
     gchar **fmt = (gchar **) el_data;
 
@@ -3885,8 +3902,7 @@ try_convert_to_custom_column(gpointer *el_data)
          haystack_idx < G_N_ELEMENTS(migrated_columns);
          ++haystack_idx) {
 
-        haystack_fmt = col_format_to_string(migrated_columns[haystack_idx].el);
-        if (strcmp(haystack_fmt, *fmt) == 0) {
+        if (strcmp(migrated_columns[haystack_idx].col_fmt, *fmt) == 0) {
             gchar *cust_col = g_strdup_printf("%%Cus:%s:0",
                                 migrated_columns[haystack_idx].col_expr);
 

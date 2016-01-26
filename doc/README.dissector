@@ -584,8 +584,7 @@ based on the time-value.
 
 For example:
 
-    nstime_delta(&ts, &pinfo->fd->abs_ts, &tcpd->ts_first);
-    col_set_time(pinfo->cinfo, COL_REL_CONV_TIME, &ts, "tcp.time_relative");
+    col_set_time(pinfo->cinfo, COL_REL_TIME, &ts, "s4607.ploc.time");
 
 
 1.5 Constructing the protocol tree.
@@ -2553,10 +2552,9 @@ selected in random order once the whole file has been read.
 
 After calculating the conversation timestamps, it is time to put them in
 the appropriate columns with the function 'col_set_time' (described in
-section 1.5.9). There are two columns for conversation timestamps:
+section 1.5.9). The column used for relative timestamps is:
 
-COL_REL_CONV_TIME,  /* Relative time to beginning of conversation */
-COL_DELTA_CONV_TIME,/* Delta time to last frame in conversation */
+COL_REL_TIME, /* Delta time to last frame in conversation */
 
 Last but not least, there MUST be a preference in each dissector that
 uses conversation timestamps that makes it possible to enable and
