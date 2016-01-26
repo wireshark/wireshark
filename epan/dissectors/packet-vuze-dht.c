@@ -77,6 +77,7 @@ enum {
   TL_SHORT =  2,
   TL_INT   =  4,
   TL_IPv4  =  4,
+  TL_FLOAT =  4,
   TL_LONG  =  8,
   TL_IPv6  = 16
 };
@@ -186,6 +187,15 @@ static const value_string vuze_dht_error_type_vals[] = {
   { 0, NULL }
 };
 
+/* network coordinate type */
+enum {
+  NC_VIVALDI = 1
+};
+static const value_string vuze_dht_network_coordinate_type_vals[] = {
+  { NC_VIVALDI, "Vivaldi" },
+  { 0, NULL }
+};
+
 static int proto_vuze_dht = -1;
 
 /* --- fields ---*/
@@ -231,6 +241,10 @@ static int hf_vuze_dht_network_coordinate = -1;
 static int hf_vuze_dht_network_coordinate_type = -1;
 static int hf_vuze_dht_network_coordinate_size = -1;
 static int hf_vuze_dht_network_coordinate_data = -1;
+static int hf_vuze_dht_network_coordinate_x = -1;
+static int hf_vuze_dht_network_coordinate_y = -1;
+static int hf_vuze_dht_network_coordinate_height = -1;
+static int hf_vuze_dht_network_coordinate_error = -1;
 
 /* firstly appear in request store */
 static int hf_vuze_dht_spoof_id = -1;
@@ -567,21 +581,45 @@ dissect_vuze_dht_network_coordinate(tvbuff_t *tvb, packet_info _U_*pinfo, proto_
   proto_item *ti;
   proto_tree *sub_tree;
   guint coordinate_size;
+  guint coordinate_type;
 
+  coordinate_type = tvb_get_guint8( tvb, offset );
   coordinate_size = tvb_get_guint8( tvb, offset+1 );
 
   ti = proto_tree_add_item( tree, hf_vuze_dht_network_coordinate, tvb, offset, coordinate_size+2, ENC_NA );
   sub_tree = proto_item_add_subtree(ti, ett_vuze_dht_network_coordinate);
 
-  proto_item_append_text( ti, ": type %d, length %d ( %s )",
-    tvb_get_guint8(tvb,offset), tvb_get_guint8(tvb,offset+TL_BYTE), tvb_bytes_to_str(wmem_packet_scope(), tvb, offset+TL_BYTE+TL_BYTE, coordinate_size ) );
+  proto_item_append_text( ti, ": type %d, length %d", tvb_get_guint8(tvb,offset), tvb_get_guint8(tvb,offset+TL_BYTE) );
+
+  if (coordinate_type == NC_VIVALDI) {
+    proto_item_append_text( ti, " ( %.2f, %.2f, %.2f, %.2f )",
+        tvb_get_ntohieee_float(tvb, offset+TL_BYTE+TL_BYTE),
+        tvb_get_ntohieee_float(tvb, offset+TL_BYTE+TL_BYTE+TL_FLOAT),
+        tvb_get_ntohieee_float(tvb, offset+TL_BYTE+TL_BYTE+TL_FLOAT+TL_FLOAT),
+        tvb_get_ntohieee_float(tvb, offset+TL_BYTE+TL_BYTE+TL_FLOAT+TL_FLOAT+TL_FLOAT) );
+  } else {
+    proto_item_append_text( ti, " ( %s )",
+        tvb_bytes_to_str(wmem_packet_scope(), tvb, offset+TL_BYTE+TL_BYTE, coordinate_size ) );
+  }
 
   proto_tree_add_item( sub_tree, hf_vuze_dht_network_coordinate_type, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN );
   offset += TL_BYTE;
   proto_tree_add_item( sub_tree, hf_vuze_dht_network_coordinate_size, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN );
   offset += TL_BYTE;
-  proto_tree_add_item( sub_tree, hf_vuze_dht_network_coordinate_data, tvb, offset, coordinate_size, ENC_NA );
-  offset += coordinate_size;
+
+  if (coordinate_type == NC_VIVALDI) {
+      proto_tree_add_item( sub_tree, hf_vuze_dht_network_coordinate_x, tvb, offset, TL_FLOAT, ENC_BIG_ENDIAN );
+      offset += TL_FLOAT;
+      proto_tree_add_item( sub_tree, hf_vuze_dht_network_coordinate_y, tvb, offset, TL_FLOAT, ENC_BIG_ENDIAN );
+      offset += TL_FLOAT;
+      proto_tree_add_item( sub_tree, hf_vuze_dht_network_coordinate_height, tvb, offset, TL_FLOAT, ENC_BIG_ENDIAN );
+      offset += TL_FLOAT;
+      proto_tree_add_item( sub_tree, hf_vuze_dht_network_coordinate_error, tvb, offset, TL_FLOAT, ENC_BIG_ENDIAN );
+      offset += TL_FLOAT;
+  } else {
+    proto_tree_add_item( sub_tree, hf_vuze_dht_network_coordinate_data, tvb, offset, coordinate_size, ENC_NA );
+    offset += coordinate_size;
+  }
 
   return offset;
 }
@@ -1274,7 +1312,7 @@ proto_register_vuze_dht(void)
     },
     { &hf_vuze_dht_network_coordinate_type,
       { "Network Coordinate Type", "vuze-dht.network_coordinate.type",
-      FT_UINT8, BASE_DEC,  NULL, 0x0,
+      FT_UINT8, BASE_DEC,  VALS(vuze_dht_network_coordinate_type_vals), 0x0,
       NULL, HFILL }
     },
     { &hf_vuze_dht_network_coordinate_size,
@@ -1285,6 +1323,26 @@ proto_register_vuze_dht(void)
     { &hf_vuze_dht_network_coordinate_data,
       { "Network Coordinate Data", "vuze-dht.network_coordinate.data",
       FT_BYTES, BASE_NONE,  NULL, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_vuze_dht_network_coordinate_x,
+      { "Network Coordinate X", "vuze-dht.network_coordinate.x",
+      FT_FLOAT, BASE_NONE,  NULL, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_vuze_dht_network_coordinate_y,
+      { "Network Coordinate Y", "vuze-dht.network_coordinate.y",
+      FT_FLOAT, BASE_NONE,  NULL, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_vuze_dht_network_coordinate_height,
+      { "Network Coordinate Height", "vuze-dht.network_coordinate.height",
+      FT_FLOAT, BASE_NONE,  NULL, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_vuze_dht_network_coordinate_error,
+      { "Network Coordinate Error", "vuze-dht.network_coordinate.error",
+      FT_FLOAT, BASE_NONE,  NULL, 0x0,
       NULL, HFILL }
     },
     { &hf_vuze_dht_spoof_id,
