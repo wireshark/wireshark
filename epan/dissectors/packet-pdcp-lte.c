@@ -47,7 +47,7 @@ void proto_reg_handoff_pdcp_lte(void);
 
 /* Described in:
  * 3GPP TS 36.323 Evolved Universal Terrestrial Radio Access (E-UTRA)
- *                Packet Data Convergence Protocol (PDCP) specification v11.0.0
+ *                Packet Data Convergence Protocol (PDCP) specification v13.0.0
  */
 
 
@@ -57,6 +57,7 @@ void proto_reg_handoff_pdcp_lte(void);
    - Speed up AES decryption by keeping the crypt handle around for the channel
      (like ESP decryption in IPSEC dissector)
    - Add Relay Node user plane data PDU dissection
+   - Add SLRB user data plane data PDU dissection
 */
 
 
@@ -91,6 +92,8 @@ static int hf_pdcp_lte_seq_num_7 = -1;
 static int hf_pdcp_lte_reserved3 = -1;
 static int hf_pdcp_lte_seq_num_12 = -1;
 static int hf_pdcp_lte_seq_num_15 = -1;
+static int hf_pdcp_lte_reserved5 = -1;
+static int hf_pdcp_lte_seq_num_18 = -1;
 static int hf_pdcp_lte_signalling_data = -1;
 static int hf_pdcp_lte_mac = -1;
 static int hf_pdcp_lte_data_control = -1;
@@ -99,6 +102,8 @@ static int hf_pdcp_lte_control_pdu_type = -1;
 static int hf_pdcp_lte_fms = -1;
 static int hf_pdcp_lte_reserved4 = -1;
 static int hf_pdcp_lte_fms2 = -1;
+static int hf_pdcp_lte_reserved6 = -1;
+static int hf_pdcp_lte_fms3 = -1;
 static int hf_pdcp_lte_bitmap = -1;
 static int hf_pdcp_lte_bitmap_byte = -1;
 
@@ -468,7 +473,7 @@ typedef struct
 /* Channel state */
 typedef struct
 {
-    guint16  previousSequenceNumber;
+    guint32  previousSequenceNumber;
     guint32  previousFrameNum;
     guint32  hfn;
 } pdcp_channel_status;
@@ -482,11 +487,11 @@ static GHashTable *pdcp_sequence_analysis_channel_hash = NULL;
 
 typedef struct {
     guint32         frameNumber;
-    guint32         SN :       15;
+    guint32         SN :       18;
     guint32         plane :    2;
     guint32         channelId: 5;
     guint32         direction: 1;
-    guint32         notUsed :  9;
+    guint32         notUsed :  6;
 } pdcp_result_hash_key;
 
 static gint pdcp_result_hash_equal(gconstpointer v, gconstpointer v2)
@@ -504,10 +509,10 @@ static guint pdcp_result_hash_func(gconstpointer v)
     const pdcp_result_hash_key* val1 = (const pdcp_result_hash_key *)v;
 
     /* TODO: This is a bit random.  */
-    return val1->frameNumber + (val1->channelId<<13) +
-                               (val1->plane<<5) +
-                               (val1->SN<<18) +
-                               (val1->direction<<9);
+    return val1->frameNumber + (val1->channelId<<7) +
+                               (val1->plane<<12) +
+                               (val1->SN<<14) +
+                               (val1->direction<<6);
 }
 
 /* pdcp_channel_hash_key fits into the pointer, so just copy the value into
@@ -521,7 +526,7 @@ static gpointer get_channel_hash_key(pdcp_channel_hash_key *key)
 }
 
 /* Convenience function to get a pointer for the hash_func to work with */
-static gpointer get_report_hash_key(guint16 SN, guint32 frameNumber,
+static gpointer get_report_hash_key(guint32 SN, guint32 frameNumber,
                                     pdcp_lte_info *p_pdcp_lte_info,
                                     gboolean do_persist)
 {
@@ -557,12 +562,12 @@ typedef enum
 typedef struct
 {
     gboolean sequenceExpectedCorrect;
-    guint16  sequenceExpected;
+    guint32  sequenceExpected;
     guint32  previousFrameNum;
     guint32  nextFrameNum;
 
-    guint16  firstSN;
-    guint16  lastSN;
+    guint32  firstSN;
+    guint32  lastSN;
     guint32  hfn;
 
     sequence_state state;
@@ -611,7 +616,7 @@ static uat_ue_keys_record_t* look_up_keys_record(guint16 ueid)
 /* Add to the tree values associated with sequence analysis for this frame */
 static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                                    pdcp_lte_info *p_pdcp_lte_info,
-                                   guint16   sequenceNumber,
+                                   guint32   sequenceNumber,
                                    packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                                    proto_tree *security_tree,
                                    pdu_security_settings_t *pdu_security)
@@ -649,6 +654,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
         case PDCP_SN_LENGTH_7_BITS:
         case PDCP_SN_LENGTH_12_BITS:
         case PDCP_SN_LENGTH_15_BITS:
+        case PDCP_SN_LENGTH_18_BITS:
             break;
         default:
             DISSECTOR_ASSERT_NOT_REACHED();
@@ -701,6 +707,9 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                         break;
                     case PDCP_SN_LENGTH_15_BITS:
                         hfn_multiplier = 32768;
+                        break;
+                    case PDCP_SN_LENGTH_18_BITS:
+                        hfn_multiplier = 262144;
                         break;
                     default:
                         DISSECTOR_ASSERT_NOT_REACHED();
@@ -821,7 +830,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
 /* Update the channel status and set report for this frame */
 static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                                      pdcp_lte_info *p_pdcp_lte_info,
-                                     guint16 sequenceNumber,
+                                     guint32 sequenceNumber,
                                      proto_tree *tree,
                                      proto_tree *security_tree,
                                      pdu_security_settings_t *pdu_security)
@@ -830,8 +839,8 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     pdcp_channel_status           *p_channel_status;
     pdcp_sequence_report_in_frame *p_report_in_frame      = NULL;
     gboolean                       createdChannel         = FALSE;
-    guint16                        expectedSequenceNumber = 0;
-    guint16                        snLimit                = 0;
+    guint32                        expectedSequenceNumber = 0;
+    guint32                        snLimit                = 0;
 
     /* If find stat_report_in_frame already, use that and get out */
     if (pinfo->fd->flags.visited) {
@@ -893,6 +902,9 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
             break;
         case PDCP_SN_LENGTH_15_BITS:
             snLimit = 32768;
+            break;
+        case PDCP_SN_LENGTH_18_BITS:
+            snLimit = 262144;
             break;
         default:
             DISSECTOR_ASSERT_NOT_REACHED();
@@ -957,7 +969,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
             /* Get report for previous frame */
             pdcp_sequence_report_in_frame *p_previous_report;
             p_previous_report = (pdcp_sequence_report_in_frame*)g_hash_table_lookup(pdcp_lte_sequence_analysis_report_hash,
-                                                                                    get_report_hash_key((sequenceNumber+32767) % 32768,
+                                                                                    get_report_hash_key((sequenceNumber+262144) % 262144,
                                                                                                         p_report_in_frame->previousFrameNum,
                                                                                                         p_pdcp_lte_info,
                                                                                                         FALSE));
@@ -1821,7 +1833,7 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!p_pdcp_info->no_header_pdu) {
 
         /* TODO: shouldn't need to initialise this one!! */
-        guint16  seqnum = 0;
+        guint32  seqnum = 0;
         gboolean seqnum_set = FALSE;
 
         guint8  first_byte = tvb_get_guint8(tvb, offset);
@@ -1900,6 +1912,29 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         proto_tree_add_item(pdcp_tree, hf_pdcp_lte_seq_num_15, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
                         break;
+                    case PDCP_SN_LENGTH_18_BITS:
+                        {
+                            proto_item *ti;
+                            guint8 reserved_value;
+
+                            /* 5 reserved bits */
+                            ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_reserved5, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            reserved_value = (first_byte & 0x7c) >> 2;
+
+                            /* Complain if not 0 */
+                            if (reserved_value != 0) {
+                                expert_add_info_format(pinfo, ti, &ei_pdcp_lte_reserved_bits_not_zero,
+                                                       "Reserved bits have value 0x%x - should be 0x0",
+                                                       reserved_value);
+                            }
+
+                            /* 18-bit sequence number */
+                            seqnum = tvb_get_ntoh24(tvb, offset) & 0x03ffff;
+                            seqnum_set = TRUE;
+                            proto_tree_add_item(pdcp_tree, hf_pdcp_lte_seq_num_18, tvb, offset, 3, ENC_BIG_ENDIAN);
+                            offset += 3;
+                        }
+                        break;
                     default:
                         /* Not a recognised data format!!!!! */
                         return 1;
@@ -1917,15 +1952,15 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     case 0:    /* PDCP status report */
                         {
                             guint8  bits;
-                            guint16 fms;
-                            guint16 modulo;
+                            guint32 fms;
+                            guint32 modulo;
                             guint   not_received = 0;
                             guint   sn, i, j, l;
                             guint32 len, bit_offset;
                             proto_tree *bitmap_tree;
                             proto_item *bitmap_ti = NULL;
                             gchar  *buff = NULL;
-                            #define BUFF_SIZE 49
+                            #define BUFF_SIZE 57
 
                             if (p_pdcp_info->seqnum_length == PDCP_SN_LENGTH_12_BITS) {
                                 /* First-Missing-Sequence SN */
@@ -1935,7 +1970,7 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                     offset, 2, ENC_BIG_ENDIAN);
                                 offset += 2;
                                 modulo = 4096;
-                            } else {
+                            } else if (p_pdcp_info->seqnum_length == PDCP_SN_LENGTH_15_BITS) {
                                 proto_item *ti;
                                 guint8 reserved_value;
 
@@ -1958,6 +1993,28 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                     offset, 2, ENC_BIG_ENDIAN);
                                 offset += 2;
                                 modulo = 32768;
+                            } else {
+                                proto_item *ti;
+                                guint8 reserved_value;
+
+                                /* 2 reserved bits */
+                                ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_reserved6, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                reserved_value = (tvb_get_guint8(tvb, offset) & 0x0c)>>2;
+
+                                /* Complain if not 0 */
+                                if (reserved_value != 0) {
+                                    expert_add_info_format(pinfo, ti, &ei_pdcp_lte_reserved_bits_not_zero,
+                                                           "Reserved bits have value 0x%x - should be 0x0",
+                                                           reserved_value);
+                                }
+
+                                /* First-Missing-Sequence SN */
+                                fms = tvb_get_ntoh24(tvb, offset) & 0x3ffff;
+                                sn = (fms + 1) % 262144;
+                                proto_tree_add_item(pdcp_tree, hf_pdcp_lte_fms3, tvb,
+                                                    offset, 3, ENC_BIG_ENDIAN);
+                                offset += 3;
+                                modulo = 262144;
                             }
 
                             /* Bitmap tree */
@@ -1974,9 +2031,9 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                     bits = tvb_get_bits8(tvb, bit_offset, 8);
                                     for (l=0, j=0; l<8; l++) {
                                         if ((bits << l) & 0x80) {
-                                            j += g_snprintf(&buff[j], BUFF_SIZE-j, "%5u,", (unsigned)(sn+(8*i)+l)%modulo);
+                                            j += g_snprintf(&buff[j], BUFF_SIZE-j, "%6u,", (unsigned)(sn+(8*i)+l)%modulo);
                                         } else {
-                                            j += g_snprintf(&buff[j], BUFF_SIZE-j, "     ,");
+                                            j += g_snprintf(&buff[j], BUFF_SIZE-j, "      ,");
                                             not_received++;
                                         }
                                     }
@@ -2031,7 +2088,7 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             if (do_analysis) {
                 checkChannelSequenceInfo(pinfo, tvb, p_pdcp_info,
-                                         (guint16)seqnum, pdcp_tree, security_tree,
+                                         seqnum, pdcp_tree, security_tree,
                                          &pdu_security_settings);
             }
         }
@@ -2377,6 +2434,18 @@ void proto_register_pdcp(void)
               "PDCP Seq num", HFILL
             }
         },
+        { &hf_pdcp_lte_reserved5,
+            { "Reserved",
+              "pdcp-lte.reserved5", FT_UINT8, BASE_HEX, NULL, 0x7c,
+              "5 reserved bits", HFILL
+            }
+        },
+        { &hf_pdcp_lte_seq_num_18,
+            { "Seq Num",
+              "pdcp-lte.seq-num", FT_UINT24, BASE_DEC, NULL, 0x3ffff,
+              "PDCP Seq num", HFILL
+            }
+        },
         { &hf_pdcp_lte_signalling_data,
             { "Signalling Data",
               "pdcp-lte.signalling-data", FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -2425,6 +2494,18 @@ void proto_register_pdcp(void)
               "First Missing PDCP Sequence Number", HFILL
             }
         },
+        { &hf_pdcp_lte_reserved6,
+            { "Reserved",
+              "pdcp-lte.reserved6", FT_UINT8, BASE_HEX, NULL, 0x0c,
+              "2 reserved bits", HFILL
+            }
+        },
+        { &hf_pdcp_lte_fms3,
+            { "First Missing Sequence Number",
+              "pdcp-lte.fms", FT_UINT24, BASE_DEC, NULL, 0x03ffff,
+              "First Missing PDCP Sequence Number", HFILL
+            }
+        },
         { &hf_pdcp_lte_bitmap,
             { "Bitmap",
               "pdcp-lte.bitmap", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -2464,7 +2545,7 @@ void proto_register_pdcp(void)
         },
         { &hf_pdcp_lte_sequence_analysis_expected_sn,
             { "Expected SN",
-              "pdcp-lte.sequence-analysis.expected-sn", FT_UINT16, BASE_DEC, 0, 0x0,
+              "pdcp-lte.sequence-analysis.expected-sn", FT_UINT32, BASE_DEC, 0, 0x0,
               NULL, HFILL
             }
         },

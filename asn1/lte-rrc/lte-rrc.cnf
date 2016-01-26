@@ -1668,6 +1668,14 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     mapping->pdcp_sn_size_present = TRUE;
   }
 
+#.FN_BODY PDCP-Config/eag_4/pdcp-SN-Size-v13xx
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
+%(DEFAULT_BODY)s
+  if (mapping != NULL) {
+    mapping->pdcp_sn_size = 18;
+    mapping->pdcp_sn_size_present = TRUE;
+  }
+
 #.FN_BODY NeighCellsInfo-r12/transmissionModeList-r12 VAL_PTR=&tm_list_tvb
   tvbuff_t *tm_list_tvb=NULL;
   proto_tree *subtree;

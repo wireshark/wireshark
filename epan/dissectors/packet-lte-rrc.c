@@ -13062,8 +13062,15 @@ static const value_string lte_rrc_T_pdcp_SN_Size_v13xx_vals[] = {
 
 static int
 dissect_lte_rrc_T_pdcp_SN_Size_v13xx(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
+
+  if (mapping != NULL) {
+    mapping->pdcp_sn_size = 18;
+    mapping->pdcp_sn_size_present = TRUE;
+  }
+
 
   return offset;
 }

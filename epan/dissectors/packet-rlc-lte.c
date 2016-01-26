@@ -63,12 +63,13 @@ static gint global_rlc_lte_um_sequence_analysis = SEQUENCE_ANALYSIS_MAC_ONLY;
 /* By default do call PDCP/RRC dissectors for SDU data */
 static gboolean global_rlc_lte_call_pdcp_for_srb = TRUE;
 
-enum pdcp_for_drb { PDCP_drb_off, PDCP_drb_SN_7, PDCP_drb_SN_12, PDCP_drb_SN_signalled, PDCP_drb_SN_15};
+enum pdcp_for_drb { PDCP_drb_off, PDCP_drb_SN_7, PDCP_drb_SN_12, PDCP_drb_SN_signalled, PDCP_drb_SN_15, PDCP_drb_SN_18};
 static const enum_val_t pdcp_drb_col_vals[] = {
     {"pdcp-drb-off",           "Off",                 PDCP_drb_off},
     {"pdcp-drb-sn-7",          "7-bit SN",            PDCP_drb_SN_7},
     {"pdcp-drb-sn-12",         "12-bit SN",           PDCP_drb_SN_12},
     {"pdcp-drb-sn-15",         "15-bit SN",           PDCP_drb_SN_15},
+    {"pdcp-drb-sn-18",         "18-bit SN",           PDCP_drb_SN_18},
     {"pdcp-drb-sn-signalling", "Use signalled value", PDCP_drb_SN_signalled},
     {NULL, NULL, -1}
 };
@@ -845,6 +846,9 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
                         break;
                     case PDCP_drb_SN_15:
                         p_pdcp_lte_info->seqnum_length = 15;
+                        break;
+                    case PDCP_drb_SN_18:
+                        p_pdcp_lte_info->seqnum_length = 18;
                         break;
                     case PDCP_drb_SN_signalled:
                         /* Use whatever was signalled (e.g. in RRC) */
