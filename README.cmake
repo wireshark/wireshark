@@ -74,7 +74,7 @@ Note 3:
   To get predictable results please set umask explicitly.
 
 How to do an out of tree build using Visual C++ 2013:
-[This is at rc status and should build all executables, support for VS2010 and VS2012
+[This is used for the 2.x release builds, support for VS2010 and VS2012
  is included, but hasn't been tested.]
 0) Install cmake (currently 3.1.3 or later is recommended).  You can use chocolatey,
    choco inst cmake.
@@ -101,7 +101,7 @@ How to do an out of tree build using Visual C++ 2013:
        nothing - This will build a VS solution for win32 using the latest version of VS found (preferred).
        -G "Visual Studio 12" ("12" builds for VS2013. Use "11" for VS2012 or "10" for VS2010.)
        -G "NMake Makefiles" - to build an nmake makefile.
-       -G "Visual Studio 12 Win64" (Win32 is the default)
+       -G "Visual Studio 12 Win64" (to build an x64 version you must add the "Win64", Win32 is the default)
 5) Run one of the following to build Wireshark:
    msbuild /m /p:Configuration=RelWithDebInfo wireshark.sln (preferred).
    Open Wireshark.sln in Windows Explorer to build in Visual Studio
@@ -112,7 +112,8 @@ How to do an out of tree build using Visual C++ 2013:
    build dir and start form step 2) again.
 6) The executables can be run from the appropriate directory, e.g. run\RelWithDebInfo for VS solutions
    or run\ for NMake files.
-7) To build an installer, build the nsis_package project, e.g.
+7) To build an installer, build the nsis_package_prep and then the nsis_package projects, e.g.
+   msbuild /m /p:Configuration=RelWithDebInfo nsis_package_prep.vcxproj
    msbuild /m /p:Configuration=RelWithDebInfo nsis_package.vcxproj
    nmake ???
 
@@ -120,10 +121,11 @@ Why cmake?
 ==========
 - Can create project files for many IDEs including Qt Creator, Visual Studio,
   and XCode.
-- Fast
+- Fast, builds in parallel in Visual Studio or msbuild with the /m flag
 - Easier to understand/learn
 - Doesn't create any files in the source tree in case of out of tree builds
 - One build infrastructure for all of our tier 1 platforms (including Windows)
+- Out of tree builds permits both Win32 and Win64 builds without requiring a "clean" when swapping.
 
 Why not cmake?
 ==============
