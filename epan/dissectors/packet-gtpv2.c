@@ -42,6 +42,7 @@
 #include "packet-ntp.h"
 #include "packet-gtpv2.h"
 #include "packet-diameter.h"
+#include "packet-ip.h"
 
 void proto_register_gtpv2(void);
 void proto_reg_handoff_gtpv2(void);
@@ -498,6 +499,8 @@ static int hf_gtpv2_dl_pdcp_sequence_number = -1;
 static int hf_gtpv2_ul_pdcp_sequence_number = -1;
 static int hf_gtpv2_fq_csid_node_id = -1;
 static int hf_gtpv2_fq_csid_mcc_mnc = -1;
+static int hf_gtpv2_ppi_value = -1;
+static int hf_gtpv2_ppi_flag = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -571,6 +574,8 @@ static expert_field ei_gtpv2_ie = EI_INIT;
 #define GTPv2_ULI_TAI_MASK          0x08
 #define GTPv2_ULI_ECGI_MASK         0x10
 #define GTPv2_ULI_LAI_MASK          0x20
+
+#define GTPV2_PPI_VAL_MASK          0x3F
 
 #define GTPV2_SRVCC_PS_TO_CS_REQUEST     25
 #define GTPV2_CREATE_SESSION_REQUEST     32
@@ -856,6 +861,8 @@ static value_string_ext gtpv2_message_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv
 #define GTPV2_IE_METRIC                 182
 #define GTPV2_IE_SEQ_NO                 183
 #define GTPV2_IE_APN_AND_REL_CAP        184
+/* 185: WLAN Offloadability Indication*/
+#define GTPV2_IE_PAGING_AND_SERVICE_INF 186
 
 /* 169 to 254 reserved for future use */
 #define GTPV2_IE_PRIVATE_EXT            255
@@ -1008,8 +1015,10 @@ static const value_string gtpv2_element_type_vals[] = {
     {182, "Metric"},                                                            /* Fixed Length / 8.113 */
     {183, "Sequence Number"},                                                   /* Fixed Length / 8.114 */
     {184, "APN and Relative Capacity"},                                         /* Extendable / 8.115 */
+    {185, "WLAN Offloadability Indication"},                                    /* Extendable / 8.116 */
+    {186, "Paging and Service Information"},                                    /* Extendable / 8.117 */
 
-    /* 185 to 254    Spare. For future use.    */
+    /* 187 to 254    Spare. For future use.    */
 
     {255, "Private Extension"},                                                 /* Variable Length / 8.67 */
     {0, NULL}
@@ -5907,6 +5916,36 @@ dissect_gtpv2_apn_and_relative_capacity(tvbuff_t *tvb, packet_info *pinfo _U_, p
         }
 
 }
+/*
+ * 8.117        Paging and Service Information
+ */
+static void
+dissect_gtpv2_paging_and_service_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    int offset = 0;
+    guint8 ppi_flag;
+
+    /* Spare (all bits set to 0) B8 - B5 */
+    proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, offset, 4, ENC_BIG_ENDIAN);
+    /* EPS Bearer ID (EBI) B4 - B1 */
+    proto_tree_add_item(tree, hf_gtpv2_ebi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    /* Spare B8 - B2 */
+    proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, offset << 3, 7, ENC_BIG_ENDIAN);
+    /* Paging Policy Indication flag (PPI) */
+    ppi_flag = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_gtpv2_ppi_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if(ppi_flag & 1){
+        /* Spare B8 - B7 */
+        proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, offset << 3, 2, ENC_BIG_ENDIAN);
+        /* Paging Policy Indication Value */
+        proto_item_append_text(tree, " (PPI Value: %s)", val_to_str_ext_const(tvb_get_guint8(tvb, offset), &dscp_vals_ext, "Unknown"));
+        proto_tree_add_item(tree, hf_gtpv2_ppi_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+}
 
 typedef struct _gtpv2_ie {
     int ie_type;
@@ -6046,6 +6085,8 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_METRIC, dissect_gtpv2_metric},                               /* 182, 8.113 Metric */
     {GTPV2_IE_SEQ_NO, dissect_gtpv2_seq_no},                               /* 183, 8.114 Sequence Number */
     {GTPV2_IE_APN_AND_REL_CAP, dissect_gtpv2_apn_and_relative_capacity},   /* 184, 8.115 APN and Relative Capacity */
+    /* 185, 8.116 WLAN Offloadability Indication */
+    {GTPV2_IE_PAGING_AND_SERVICE_INF, dissect_gtpv2_paging_and_service_inf}, /* 186, 8.117 Paging and Service Information */
 
     {GTPV2_IE_PRIVATE_EXT, dissect_gtpv2_private_ext},
 
@@ -8205,6 +8246,16 @@ void proto_register_gtpv2(void)
         { "CKSN'ps", "gtpv2.cksn_ps",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_gtpv2_ppi_value,
+            {"Paging and Policy Information Value", "gtpv2.ppi_value",
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING,
+            &dscp_vals_ext, GTPV2_PPI_VAL_MASK, NULL, HFILL}
+        },
+        { &hf_gtpv2_ppi_flag,
+            {"Paging Policy Indication", "gtpv2.ppi_flag",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
         },
 
       /* Generated from convert_proto_tree_add_text.pl */
