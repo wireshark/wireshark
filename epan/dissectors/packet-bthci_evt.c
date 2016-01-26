@@ -889,6 +889,7 @@ dissect_bthci_evt_connect_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     status = tvb_get_guint8(tvb, offset);
+    send_hci_summary_status_tap(status, pinfo, bluetooth_data);
     offset += 1;
 
     connection_handle = tvb_get_letohs(tvb, offset) & 0x0FFF;
@@ -1704,6 +1705,7 @@ dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
         tap_hci_summary->type = BLUETOOTH_HCI_SUMMARY_EVENT_OPCODE;
         tap_hci_summary->ogf = ogf;
         tap_hci_summary->ocf = opcode & 0x03ff;
+        tap_hci_summary->event = 0x0f; /* Command Status */
         if (try_val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext))
             tap_hci_summary->name = val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%04x");
         else
@@ -2323,6 +2325,25 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
     ogf = opcode >> 10;
     if (out_opcode)
         *out_opcode = opcode;
+
+    if (have_tap_listener(bluetooth_hci_summary_tap)) {
+        bluetooth_hci_summary_tap_t  *tap_hci_summary;
+
+        tap_hci_summary = wmem_new(wmem_packet_scope(), bluetooth_hci_summary_tap_t);
+
+        tap_hci_summary->interface_id  = bluetooth_data->interface_id;
+        tap_hci_summary->adapter_id    = bluetooth_data->adapter_id;
+
+        tap_hci_summary->type = BLUETOOTH_HCI_SUMMARY_EVENT_OPCODE;
+        tap_hci_summary->ogf = ogf;
+        tap_hci_summary->ocf = opcode & 0x03ff;
+        tap_hci_summary->event = 0x0e; /* Command Complete */
+        if (try_val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext))
+            tap_hci_summary->name = val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%04x");
+        else
+            tap_hci_summary->name = NULL;
+        tap_queue_packet(bluetooth_hci_summary_tap, pinfo, tap_hci_summary);
+    }
 
     interface_id = bluetooth_data->interface_id;
     adapter_id   = bluetooth_data->adapter_id;
@@ -3257,6 +3278,17 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             offset += 2;
             proto_tree_add_item(tree, hf_bthci_evt_total_num_data_blocks, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
+
+            break;
+        case 0x100b: /* Read Local Supported Codecs */
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
+            status = tvb_get_guint8(tvb, offset);
+            send_hci_summary_status_tap(status, pinfo, bluetooth_data);
+            offset += 1;
+
+/* TODO: Implement */
+            proto_tree_add_expert(tree, pinfo, &ei_event_undecoded, tvb, offset, tvb_captured_length_remaining(tvb, offset));
+            offset += tvb_reported_length_remaining(tvb, offset);
 
             break;
 

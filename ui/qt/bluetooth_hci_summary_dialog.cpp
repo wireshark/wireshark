@@ -371,8 +371,10 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
         for (int i_item = 0; i_item < main_item->childCount(); i_item +=1) {
             if (main_item->child(i_item)->text(column_number_opcode) == QString("").sprintf("0x%04X", tap_hci->ogf << 10 | tap_hci->ocf)) {
                 item = main_item->child(i_item);
-                if (tap_hci->type == BLUETOOTH_HCI_SUMMARY_VENDOR_OPCODE && tap_hci->name)
+                if (tap_hci->type == BLUETOOTH_HCI_SUMMARY_VENDOR_OPCODE && tap_hci->name) {
                     item->setText(column_number_name, tap_hci->name);
+                    item->setText(column_number_occurrence, QString::number(item->text(column_number_occurrence).toInt() - 1));
+                }
                 break;
             }
         }
@@ -410,6 +412,8 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
         frame_item->setText(column_number_ogf, QString("").sprintf("0x%02X", tap_hci->ogf));
         frame_item->setText(column_number_ocf, QString("").sprintf("0x%04X", tap_hci->ocf));
         frame_item->setText(column_number_opcode, QString("").sprintf("0x%04X", tap_hci->ogf << 10 | tap_hci->ocf));
+        if (tap_hci->type == BLUETOOTH_HCI_SUMMARY_EVENT_OPCODE)
+            frame_item->setText(column_number_event, QString("").sprintf("0x%02X", tap_hci->event));
         item->addChild(frame_item);
 
         item_data = wmem_new(wmem_file_scope(), item_data_t);
