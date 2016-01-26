@@ -46,6 +46,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/ws_diag_control.h>
 #include <wsutil/ws_version_info.h>
+#include <wiretap/wtap_opttypes.h>
 
 /* Show command-line usage */
 static void
@@ -187,9 +188,9 @@ main(int argc, char *argv[])
     guint wrong_order_count = 0;
     gboolean write_output_regardless = TRUE;
     guint i;
-    wtapng_section_t            *shb_hdr = NULL;
+    wtap_optionblock_t           shb_hdr = NULL;
     wtapng_iface_descriptions_t *idb_inf = NULL;
-    wtapng_name_res_t           *nrb_hdr = NULL;
+    wtap_optionblock_t           nrb_hdr = NULL;
 
     GPtrArray *frames;
     FrameRecord_t *prevFrame = NULL;
@@ -287,8 +288,8 @@ main(int argc, char *argv[])
     if (pdh == NULL) {
         fprintf(stderr, "reordercap: Failed to open output file: (%s) - error %s\n",
                 outfile, wtap_strerror(err));
-        wtap_free_shb(shb_hdr);
-        wtap_free_nrb(nrb_hdr);
+        wtap_optionblock_free(shb_hdr);
+        wtap_optionblock_free(nrb_hdr);
         exit(1);
     }
 
@@ -361,12 +362,12 @@ main(int argc, char *argv[])
     if (!wtap_dump_close(pdh, &err)) {
         fprintf(stderr, "reordercap: Error closing %s: %s\n", outfile,
                 wtap_strerror(err));
-        wtap_free_shb(shb_hdr);
-        wtap_free_nrb(nrb_hdr);
+        wtap_optionblock_free(shb_hdr);
+        wtap_optionblock_free(nrb_hdr);
         exit(1);
     }
-    wtap_free_shb(shb_hdr);
-    wtap_free_nrb(nrb_hdr);
+    wtap_optionblock_free(shb_hdr);
+    wtap_optionblock_free(nrb_hdr);
 
     /* Finally, close infile */
     wtap_fdclose(wth);

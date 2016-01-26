@@ -28,6 +28,7 @@
 #include "wslua_file_common.h"
 
 #include <epan/addr_resolv.h>
+#include <wiretap/pcapng.h>
 
 
 /* WSLUA_CONTINUE_MODULE File */
@@ -111,23 +112,23 @@ WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(CaptureInfo,snapshot_length,wth->snapshot_le
 
 /* WSLUA_ATTRIBUTE CaptureInfo_comment RW A string comment for the whole capture file,
     or nil if there is no `comment`. */
-WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfo,comment,wth->shb_hdr.opt_comment);
-WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(CaptureInfo,comment,wth->shb_hdr.opt_comment,TRUE);
+WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(CaptureInfo,comment,wth->shb_hdr,OPT_COMMENT);
+WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_SETTER(CaptureInfo,comment,wth->shb_hdr,OPT_COMMENT);
 
 /* WSLUA_ATTRIBUTE CaptureInfo_hardware RW A string containing the description of
     the hardware used to create the capture, or nil if there is no `hardware` string. */
-WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfo,hardware,wth->shb_hdr.shb_hardware);
-WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(CaptureInfo,hardware,wth->shb_hdr.shb_hardware,TRUE);
+WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(CaptureInfo,hardware,wth->shb_hdr,OPT_SHB_HARDWARE);
+WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_SETTER(CaptureInfo,hardware,wth->shb_hdr,OPT_SHB_HARDWARE);
 
 /* WSLUA_ATTRIBUTE CaptureInfo_os RW A string containing the name of
     the operating system used to create the capture, or nil if there is no `os` string. */
-WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfo,os,wth->shb_hdr.shb_os);
-WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(CaptureInfo,os,wth->shb_hdr.shb_os,TRUE);
+WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(CaptureInfo,os,wth->shb_hdr,OPT_SHB_OS);
+WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_SETTER(CaptureInfo,os,wth->shb_hdr,OPT_SHB_OS);
 
 /* WSLUA_ATTRIBUTE CaptureInfo_user_app RW A string containing the name of
     the application used to create the capture, or nil if there is no `user_app` string. */
-WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfo,user_app,wth->shb_hdr.shb_user_appl);
-WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(CaptureInfo,user_app,wth->shb_hdr.shb_user_appl,TRUE);
+WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(CaptureInfo,user_app,wth->shb_hdr,OPT_SHB_USERAPPL);
+WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_SETTER(CaptureInfo,user_app,wth->shb_hdr,OPT_SHB_USERAPPL);
 
 /* WSLUA_ATTRIBUTE CaptureInfo_hosts WO Sets resolved ip-to-hostname information.
 
@@ -354,19 +355,19 @@ WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfoConst,encap,wdh->encap);
 
 /* WSLUA_ATTRIBUTE CaptureInfoConst_comment RW A comment for the whole capture file, if the
     `wtap_presence_flags.COMMENTS` was set in the presence flags; nil if there is no comment. */
-WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfoConst,comment,wth->shb_hdr.opt_comment);
+WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(CaptureInfoConst,comment,wth->shb_hdr,OPT_COMMENT);
 
 /* WSLUA_ATTRIBUTE CaptureInfoConst_hardware RO A string containing the description of
     the hardware used to create the capture, or nil if there is no hardware string. */
-WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfoConst,hardware,wth->shb_hdr.shb_hardware);
+WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(CaptureInfoConst,hardware,wth->shb_hdr,OPT_SHB_HARDWARE);
 
 /* WSLUA_ATTRIBUTE CaptureInfoConst_os RO A string containing the name of
     the operating system used to create the capture, or nil if there is no os string. */
-WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfoConst,os,wth->shb_hdr.shb_os);
+WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(CaptureInfoConst,os,wth->shb_hdr,OPT_SHB_OS);
 
 /* WSLUA_ATTRIBUTE CaptureInfoConst_user_app RO A string containing the name of
     the application used to create the capture, or nil if there is no user_app string. */
-WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfoConst,user_app,wth->shb_hdr.shb_user_appl);
+WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(CaptureInfoConst,user_app,wth->shb_hdr,OPT_SHB_USERAPPL);
 
 /* WSLUA_ATTRIBUTE CaptureInfoConst_hosts RO A ip-to-hostname Lua table of two key-ed names: `ipv4_addresses` and `ipv6_addresses`.
     The value of each of these names are themselves array tables, of key-ed tables, such that the inner table has a key

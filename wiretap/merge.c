@@ -35,6 +35,8 @@
 
 #include <string.h>
 #include "merge.h"
+#include "wtap_opttypes.h"
+#include "pcapng.h"
 
 #include <wsutil/filesystem.h>
 #include "wsutil/os_version_info.h"
@@ -358,14 +360,16 @@ merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
 
 
 /* creates a section header block for the new output file */
-static wtapng_section_t*
+static wtap_optionblock_t
 create_shb_header(const merge_in_file_t *in_files, const guint in_file_count,
                   const gchar *app_name)
 {
-    wtapng_section_t *shb_hdr = NULL;
+    wtap_optionblock_t shb_hdr;
     GString *comment_gstr;
     GString *os_info_str;
     guint i;
+    char* shb_comment = NULL;
+    wtapng_mandatory_section_t* shb_data;
 
     shb_hdr = wtap_file_get_shb_for_new_file(in_files[0].wth);
 
@@ -373,12 +377,12 @@ create_shb_header(const merge_in_file_t *in_files, const guint in_file_count,
 
     /* TODO: merge comments from all files */
 
+    wtap_optionblock_get_option_string(shb_hdr, OPT_COMMENT, &shb_comment);
+
     /* very lame way to save comments - does not save them from the other files */
-    if (shb_hdr->opt_comment && strlen(shb_hdr->opt_comment) > 0) {
-        g_string_append_printf(comment_gstr, "%s \n",shb_hdr->opt_comment);
+    if (shb_comment && strlen(shb_comment) > 0) {
+        g_string_append_printf(comment_gstr, "%s \n",shb_comment);
     }
-    g_free(shb_hdr->opt_comment);
-    shb_hdr->opt_comment = NULL;
 
     g_string_append_printf(comment_gstr, "File created by merging: \n");
 
@@ -389,65 +393,97 @@ create_shb_header(const merge_in_file_t *in_files, const guint in_file_count,
     os_info_str = g_string_new("");
     get_os_version_info(os_info_str);
 
-    shb_hdr->section_length = -1;
+    shb_data = (wtapng_mandatory_section_t*)wtap_optionblock_get_mandatory_data(shb_hdr);
+    shb_data->section_length = -1;
     /* TODO: handle comments from each file being merged */
-    shb_hdr->opt_comment   = g_string_free(comment_gstr, FALSE);  /* section comment */
-    shb_hdr->shb_hardware  = NULL;        /* NULL if not available, UTF-8 string containing the        */
-                                          /*  description of the hardware used to create this section. */
-    shb_hdr->shb_os        = g_string_free(os_info_str, FALSE); /* UTF-8 string containing the name   */
-                                          /*  of the operating system used to create this section.     */
-    shb_hdr->shb_user_appl = g_strdup(app_name); /* NULL if not available, UTF-8 string containing the name */
-                                          /*  of the application used to create this section.          */
+    wtap_optionblock_set_option_string(shb_hdr, OPT_COMMENT, g_string_free(comment_gstr, TRUE)); /* section comment */
+    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_HARDWARE, NULL ); /* NULL if not available, UTF-8 string containing the        */
+                                                                                      /*  description of the hardware used to create this section. */
+
+    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_OS, g_string_free(os_info_str, TRUE)); /* UTF-8 string containing the name   */
+                                                                                                            /*  of the operating system used to create this section.     */
+    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_USERAPPL, (char*)app_name ); /* NULL if not available, UTF-8 string containing the name */
+                                                                                      /*  of the application used to create this section.          */
 
     return shb_hdr;
 }
 
 static gboolean
-is_duplicate_idb(const wtapng_if_descr_t *idb1, const wtapng_if_descr_t *idb2)
+is_duplicate_idb(const wtap_optionblock_t idb1, const wtap_optionblock_t idb2)
 {
+    wtapng_if_descr_mandatory_t *idb1_mand, *idb2_mand;
+    guint64 idb1_if_speed, idb2_if_speed;
+    guint8 idb1_if_tsresol, idb2_if_tsresol;
+    guint8 idb1_if_fcslen, idb2_if_fcslen;
+    char *idb1_opt_comment, *idb2_opt_comment, *idb1_if_name, *idb2_if_name,
+         *idb1_if_description, *idb2_if_description, *idb1_if_os, *idb2_if_os;
+
     g_assert(idb1 && idb2);
+    idb1_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(idb1);
+    idb2_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(idb2);
 
     merge_debug("merge::is_duplicate_idb() called");
-    merge_debug("idb1->wtap_encap == idb2->wtap_encap: %s",
-                 (idb1->wtap_encap == idb2->wtap_encap) ? "TRUE":"FALSE");
-    merge_debug("idb1->time_units_per_second == idb2->time_units_per_second: %s",
-                 (idb1->time_units_per_second == idb2->time_units_per_second) ? "TRUE":"FALSE");
-    merge_debug("idb1->tsprecision == idb2->tsprecision: %s",
-                 (idb1->tsprecision == idb2->tsprecision) ? "TRUE":"FALSE");
-    merge_debug("idb1->link_type == idb2->link_type: %s",
-                 (idb1->link_type == idb2->link_type) ? "TRUE":"FALSE");
-    merge_debug("idb1->snap_len == idb2->snap_len: %s",
-                 (idb1->snap_len == idb2->snap_len) ? "TRUE":"FALSE");
-    merge_debug("idb1->if_speed == idb2->if_speed: %s",
-                 (idb1->if_speed == idb2->if_speed) ? "TRUE":"FALSE");
-    merge_debug("idb1->if_tsresol == idb2->if_tsresol: %s",
-                 (idb1->if_tsresol == idb2->if_tsresol) ? "TRUE":"FALSE");
-    merge_debug("idb1->if_fcslen == idb2->if_fcslen: %s",
-                 (idb1->if_fcslen == idb2->if_fcslen) ? "TRUE":"FALSE");
-    merge_debug("g_strcmp0(idb1->opt_comment, idb2->opt_comment) == 0: %s",
-                 (g_strcmp0(idb1->opt_comment, idb2->opt_comment) == 0) ? "TRUE":"FALSE");
-    merge_debug("g_strcmp0(idb1->if_name, idb2->if_name) == 0: %s",
-                 (g_strcmp0(idb1->if_name, idb2->if_name) == 0) ? "TRUE":"FALSE");
-    merge_debug("g_strcmp0(idb1->if_description, idb2->if_description) == 0: %s",
-                 (g_strcmp0(idb1->if_description, idb2->if_description) == 0) ? "TRUE":"FALSE");
-    merge_debug("g_strcmp0(idb1->if_os, idb2->if_os) == 0: %s",
-                 (g_strcmp0(idb1->if_os, idb2->if_os) == 0) ? "TRUE":"FALSE");
+    merge_debug("idb1_mand->wtap_encap == idb2_mand->wtap_encap: %s",
+                 (idb1_mand->wtap_encap == idb2_mand->wtap_encap) ? "TRUE":"FALSE");
+    merge_debug("idb1_mand->time_units_per_second == idb2_mand->time_units_per_second: %s",
+                 (idb1_mand->time_units_per_second == idb2_mand->time_units_per_second) ? "TRUE":"FALSE");
+    merge_debug("idb1_mand->tsprecision == idb2_mand->tsprecision: %s",
+                 (idb1_mand->tsprecision == idb2_mand->tsprecision) ? "TRUE":"FALSE");
+    merge_debug("idb1_mand->link_type == idb2_mand->link_type: %s",
+                 (idb1_mand->link_type == idb2_mand->link_type) ? "TRUE":"FALSE");
+    merge_debug("idb1_mand->snap_len == idb2_mand->snap_len: %s",
+                 (idb1_mand->snap_len == idb2_mand->snap_len) ? "TRUE":"FALSE");
+
+    wtap_optionblock_get_option_uint64(idb1, OPT_IDB_SPEED, &idb1_if_speed);
+    wtap_optionblock_get_option_uint64(idb2, OPT_IDB_SPEED, &idb2_if_speed);
+    merge_debug("idb1_if_speed == idb2_if_speed: %s",
+                 (idb1_if_speed == idb2_if_speed) ? "TRUE":"FALSE");
+
+    wtap_optionblock_get_option_uint8(idb1, OPT_IDB_TSRESOL, &idb1_if_tsresol);
+    wtap_optionblock_get_option_uint8(idb2, OPT_IDB_TSRESOL, &idb2_if_tsresol);
+    merge_debug("idb1_if_tsresol == idb2_if_tsresol: %s",
+                 (idb1_if_tsresol == idb2_if_tsresol) ? "TRUE":"FALSE");
+
+    wtap_optionblock_get_option_uint8(idb1, OPT_IDB_FCSLEN, &idb1_if_fcslen);
+    wtap_optionblock_get_option_uint8(idb2, OPT_IDB_FCSLEN, &idb2_if_fcslen);
+    merge_debug("idb1_if_fcslen == idb2_if_fcslen: %s",
+                 (idb1_if_fcslen == idb2_if_fcslen) ? "TRUE":"FALSE");
+
+    wtap_optionblock_get_option_string(idb1, OPT_COMMENT, &idb1_opt_comment);
+    wtap_optionblock_get_option_string(idb2, OPT_COMMENT, &idb2_opt_comment);
+    merge_debug("g_strcmp0(idb1_opt_comment, idb2_opt_comment) == 0: %s",
+                 (g_strcmp0(idb1_opt_comment, idb2_opt_comment) == 0) ? "TRUE":"FALSE");
+
+    wtap_optionblock_get_option_string(idb1, OPT_IDB_NAME, &idb1_if_name);
+    wtap_optionblock_get_option_string(idb2, OPT_IDB_NAME, &idb2_if_name);
+    merge_debug("g_strcmp0(idb1_if_name, idb2_if_name) == 0: %s",
+                 (g_strcmp0(idb1_if_name, idb2_if_name) == 0) ? "TRUE":"FALSE");
+
+    wtap_optionblock_get_option_string(idb1, OPT_IDB_DESCR, &idb1_if_description);
+    wtap_optionblock_get_option_string(idb2, OPT_IDB_DESCR, &idb2_if_description);
+    merge_debug("g_strcmp0(idb1_if_description, idb2_if_description) == 0: %s",
+                 (g_strcmp0(idb1_if_description, idb2_if_description) == 0) ? "TRUE":"FALSE");
+
+    wtap_optionblock_get_option_string(idb1, OPT_IDB_OS, &idb1_if_os);
+    wtap_optionblock_get_option_string(idb2, OPT_IDB_OS, &idb2_if_os);
+    merge_debug("g_strcmp0(idb1_if_os, idb2_if_os) == 0: %s",
+                 (g_strcmp0(idb1_if_os, idb2_if_os) == 0) ? "TRUE":"FALSE");
     merge_debug("merge::is_duplicate_idb() returning");
 
     /* does not compare filters nor interface statistics */
-    return (idb1->wtap_encap == idb2->wtap_encap &&
-            idb1->time_units_per_second == idb2->time_units_per_second &&
-            idb1->tsprecision == idb2->tsprecision &&
-            idb1->link_type == idb2->link_type &&
+    return (idb1_mand->wtap_encap == idb2_mand->wtap_encap &&
+            idb1_mand->time_units_per_second == idb2_mand->time_units_per_second &&
+            idb1_mand->tsprecision == idb2_mand->tsprecision &&
+            idb1_mand->link_type == idb2_mand->link_type &&
             /* XXX: should snaplen not be compared? */
-            idb1->snap_len == idb2->snap_len &&
-            idb1->if_speed == idb2->if_speed &&
-            idb1->if_tsresol == idb2->if_tsresol &&
-            idb1->if_fcslen == idb2->if_fcslen &&
-            g_strcmp0(idb1->opt_comment, idb2->opt_comment) == 0 &&
-            g_strcmp0(idb1->if_name, idb2->if_name) == 0 &&
-            g_strcmp0(idb1->if_description, idb2->if_description) == 0 &&
-            g_strcmp0(idb1->if_os, idb2->if_os) == 0);
+            idb1_mand->snap_len == idb2_mand->snap_len &&
+            idb1_if_speed == idb2_if_speed &&
+            idb1_if_tsresol == idb2_if_tsresol &&
+            idb1_if_fcslen == idb2_if_fcslen &&
+            g_strcmp0(idb1_opt_comment, idb2_opt_comment) == 0 &&
+            g_strcmp0(idb1_if_name, idb2_if_name) == 0 &&
+            g_strcmp0(idb1_if_description, idb2_if_description) == 0 &&
+            g_strcmp0(idb1_if_os, idb2_if_os) == 0);
 }
 
 /*
@@ -459,7 +495,7 @@ all_idbs_are_duplicates(const merge_in_file_t *in_files, const guint in_file_cou
     wtapng_iface_descriptions_t *first_idb_list = NULL;
     wtapng_iface_descriptions_t *other_idb_list = NULL;
     guint first_idb_list_size, other_idb_list_size;
-    const wtapng_if_descr_t *first_file_idb, *other_file_idb;
+    wtap_optionblock_t first_file_idb, other_file_idb;
     guint i, j;
 
     g_assert(in_files != NULL);
@@ -485,8 +521,8 @@ all_idbs_are_duplicates(const merge_in_file_t *in_files, const guint in_file_cou
         }
 
         for (j = 0; j < other_idb_list_size; j++) {
-            first_file_idb = &g_array_index(first_idb_list->interface_data, wtapng_if_descr_t, j);
-            other_file_idb = &g_array_index(other_idb_list->interface_data, wtapng_if_descr_t, j);
+            first_file_idb = g_array_index(first_idb_list->interface_data, wtap_optionblock_t, j);
+            other_file_idb = g_array_index(other_idb_list->interface_data, wtap_optionblock_t, j);
 
             if (!is_duplicate_idb(first_file_idb, other_file_idb)) {
                 merge_debug("merge::all_idbs_are_duplicates: IDBs at index %d do not match, returning FALSE", j);
@@ -515,11 +551,11 @@ all_idbs_are_duplicates(const merge_in_file_t *in_files, const guint in_file_cou
  * own (same) input file.
  */
 static gboolean
-find_duplicate_idb(const wtapng_if_descr_t *input_file_idb,
+find_duplicate_idb(const wtap_optionblock_t input_file_idb,
                const wtapng_iface_descriptions_t *merged_idb_list,
                guint *found_index)
 {
-    const wtapng_if_descr_t *merged_idb;
+    wtap_optionblock_t merged_idb;
     guint i;
 
     g_assert(input_file_idb != NULL);
@@ -528,7 +564,7 @@ find_duplicate_idb(const wtapng_if_descr_t *input_file_idb,
     g_assert(found_index != NULL);
 
     for (i = 0; i < merged_idb_list->interface_data->len; i++) {
-        merged_idb = &g_array_index(merged_idb_list->interface_data, wtapng_if_descr_t, i);
+        merged_idb = g_array_index(merged_idb_list->interface_data, wtap_optionblock_t, i);
 
         if (is_duplicate_idb(input_file_idb, merged_idb)) {
             *found_index = i;
@@ -542,31 +578,26 @@ find_duplicate_idb(const wtapng_if_descr_t *input_file_idb,
 /* adds IDB to merged file info, returns its index */
 static guint
 add_idb_to_merged_file(wtapng_iface_descriptions_t *merged_idb_list,
-                       const wtapng_if_descr_t *input_file_idb)
+                       const wtap_optionblock_t input_file_idb)
 {
-    wtapng_if_descr_t idb;
+    wtap_optionblock_t idb = wtap_optionblock_create(WTAP_OPTION_BLOCK_IF_DESCR);
+    wtapng_if_descr_mandatory_t* idb_mand;
+    wtapng_if_descr_filter_t if_filter;
+
 
     g_assert(merged_idb_list != NULL);
     g_assert(merged_idb_list->interface_data != NULL);
     g_assert(input_file_idb != NULL);
 
-    idb.wtap_encap            = input_file_idb->wtap_encap;
-    idb.time_units_per_second = input_file_idb->time_units_per_second;
-    idb.tsprecision           = input_file_idb->tsprecision;
-    idb.link_type             = input_file_idb->link_type;
-    idb.snap_len              = input_file_idb->snap_len;
-    idb.if_name               = g_strdup(input_file_idb->if_name);
-    idb.opt_comment           = g_strdup(input_file_idb->opt_comment);;
-    idb.if_description        = g_strdup(input_file_idb->if_description);
-    idb.if_speed              = input_file_idb->if_speed;
-    idb.if_tsresol            = input_file_idb->if_tsresol;
-    idb.if_filter_str         = NULL;
-    idb.bpf_filter_len        = 0;
-    idb.if_filter_bpf_bytes   = NULL;
-    idb.if_os                 = g_strdup(input_file_idb->if_os);
-    idb.if_fcslen             = input_file_idb->if_fcslen;
-    idb.num_stat_entries      = 0;          /* Number of ISB:s */
-    idb.interface_statistics  = NULL;
+    wtap_optionblock_copy_options(idb, input_file_idb);
+    idb_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(idb);
+
+    /* Don't copy filter or stat information */
+    memset(&if_filter, 0, sizeof(if_filter));
+    wtap_optionblock_set_option_custom(idb, OPT_IDB_FILTER, &if_filter);
+
+    idb_mand->num_stat_entries      = 0;          /* Number of ISB:s */
+    idb_mand->interface_statistics  = NULL;
 
     g_array_append_val(merged_idb_list->interface_data, idb);
 
@@ -581,13 +612,13 @@ generate_merged_idb(merge_in_file_t *in_files, const guint in_file_count, const 
 {
     wtapng_iface_descriptions_t *merged_idb_list = NULL;
     wtapng_iface_descriptions_t *input_file_idb_list = NULL;
-    const wtapng_if_descr_t     *input_file_idb = NULL;
+    wtap_optionblock_t           input_file_idb;
     guint                        itf_count, merged_index;
     guint                        i;
 
     /* create new IDB info */
     merged_idb_list = g_new(wtapng_iface_descriptions_t,1);
-    merged_idb_list->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
+    merged_idb_list->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
 
     if (mode == IDB_MERGE_MODE_ALL_SAME && all_idbs_are_duplicates(in_files, in_file_count)) {
         guint num_idbs;
@@ -601,8 +632,8 @@ generate_merged_idb(merge_in_file_t *in_files, const guint in_file_count, const 
 
         /* put them in the merged file */
         for (itf_count = 0; itf_count < num_idbs; itf_count++) {
-            input_file_idb = &g_array_index(input_file_idb_list->interface_data,
-                                            wtapng_if_descr_t, itf_count);
+            input_file_idb = g_array_index(input_file_idb_list->interface_data,
+                                            wtap_optionblock_t, itf_count);
             merged_index = add_idb_to_merged_file(merged_idb_list, input_file_idb);
             add_idb_index_map(&in_files[0], itf_count, merged_index);
         }
@@ -621,8 +652,8 @@ generate_merged_idb(merge_in_file_t *in_files, const guint in_file_count, const 
             input_file_idb_list = wtap_file_get_idb_info(in_files[i].wth);
 
             for (itf_count = 0; itf_count < input_file_idb_list->interface_data->len; itf_count++) {
-                input_file_idb = &g_array_index(input_file_idb_list->interface_data,
-                                                wtapng_if_descr_t, itf_count);
+                input_file_idb = g_array_index(input_file_idb_list->interface_data,
+                                                wtap_optionblock_t, itf_count);
 
                 if (mode == IDB_MERGE_MODE_ANY_SAME &&
                     find_duplicate_idb(input_file_idb, merged_idb_list, &merged_index))
@@ -851,7 +882,7 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
     struct wtap_pkthdr *phdr, snap_phdr;
     int                 count = 0;
     gboolean            stop_flag = FALSE;
-    wtapng_section_t            *shb_hdr = NULL;
+    wtap_optionblock_t          shb_hdr = NULL;
     wtapng_iface_descriptions_t *idb_inf = NULL;
 
     g_assert(out_fd > 0);
@@ -913,7 +944,7 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
     if (pdh == NULL) {
         merge_close_in_files(in_file_count, in_files);
         g_free(in_files);
-        wtap_free_shb(shb_hdr);
+        wtap_optionblock_free(shb_hdr);
         wtap_free_idb_info(idb_inf);
         return MERGE_ERR_CANT_OPEN_OUTFILE;
     }
@@ -1035,7 +1066,7 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
     }
 
     g_free(in_files);
-    wtap_free_shb(shb_hdr);
+    wtap_optionblock_free(shb_hdr);
     wtap_free_idb_info(idb_inf);
 
     return status;

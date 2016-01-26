@@ -53,6 +53,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "pcap-encap.h"
+#include "pcapng.h"
 #include "erf.h"
 
 static gboolean erf_read_header(FILE_T fh,
@@ -751,42 +752,47 @@ int erf_dump_open(wtap_dumper *wdh, int *err)
 
 int erf_populate_interfaces(wtap *wth)
 {
-  wtapng_if_descr_t int_data;
+  wtap_optionblock_t int_data;
+  wtapng_if_descr_mandatory_t* int_data_mand;
   int i;
+  char* tmp;
 
   if (!wth)
     return -1;
 
-  memset(&int_data, 0, sizeof(int_data)); /* Zero all fields */
-
-  int_data.wtap_encap = WTAP_ENCAP_ERF;
-  /* int_data.time_units_per_second = (1LL<<32);  ERF format resolution is 2^-32, capture resolution is unknown */
-  int_data.time_units_per_second = 1000000000; /* XXX Since Wireshark only supports down to nanosecond resolution we have to dilute to this */
-  int_data.link_type = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_ERF);
-  int_data.snap_len = 65535; /* ERF max length */
-  int_data.opt_comment = NULL;
-  /* XXX: if_IPv4addr opt 4  Interface network address and netmask.*/
-  /* XXX: if_IPv6addr opt 5  Interface network address and prefix length (stored in the last byte).*/
-  /* XXX: if_MACaddr  opt 6  Interface Hardware MAC address (48 bits).*/
-  /* XXX: if_EUIaddr  opt 7  Interface Hardware EUI address (64 bits)*/
-  int_data.if_speed = 0; /* Unknown */
-  /* int_data.if_tsresol = 0xa0;  ERF format resolution is 2^-32 = 0xa0, capture resolution is unknown */
-  int_data.if_tsresol = 0x09; /* XXX Since Wireshark only supports down to nanosecond resolution we have to dilute to this */
-  /* XXX: if_tzone      10  Time zone for GMT support (TODO: specify better). */
-  int_data.if_filter_str = NULL;
-  int_data.bpf_filter_len = 0;
-  int_data.if_filter_bpf_bytes = NULL;
-  int_data.if_os = NULL;
-  int_data.if_fcslen = 0; /* unknown! */
-  /* XXX if_tsoffset; opt 14  A 64 bits integer value that specifies an offset (in seconds)...*/
-  /* Interface statistics */
-  int_data.num_stat_entries = 0;
-  int_data.interface_statistics = NULL;
-
   /* Preemptively create interface entries for 4 interfaces, since this is the max number in ERF */
   for (i=0; i<4; i++) {
-    int_data.if_name = g_strdup_printf("Port %c", 'A'+i);
-    int_data.if_description = g_strdup_printf("ERF Interface Id %d (Port %c)", i, 'A'+i);
+
+    int_data = wtap_optionblock_create(WTAP_OPTION_BLOCK_IF_DESCR);
+    int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(int_data);
+
+    int_data_mand->wtap_encap = WTAP_ENCAP_ERF;
+    /* int_data.time_units_per_second = (1LL<<32);  ERF format resolution is 2^-32, capture resolution is unknown */
+    int_data_mand->time_units_per_second = 1000000000; /* XXX Since Wireshark only supports down to nanosecond resolution we have to dilute to this */
+    int_data_mand->link_type = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_ERF);
+    int_data_mand->snap_len = 65535; /* ERF max length */
+
+    /* XXX: if_IPv4addr opt 4  Interface network address and netmask.*/
+    /* XXX: if_IPv6addr opt 5  Interface network address and prefix length (stored in the last byte).*/
+    /* XXX: if_MACaddr  opt 6  Interface Hardware MAC address (48 bits).*/
+    /* XXX: if_EUIaddr  opt 7  Interface Hardware EUI address (64 bits)*/
+    wtap_optionblock_set_option_uint64(int_data, OPT_IDB_SPEED, 0); /* Unknown  - XXX should be left at default? */
+    /* int_data.if_tsresol = 0xa0;  ERF format resolution is 2^-32 = 0xa0, capture resolution is unknown */
+    wtap_optionblock_set_option_uint8(int_data, OPT_IDB_TSRESOL, 0x09); /* XXX Since Wireshark only supports down to nanosecond resolution we have to dilute to this */
+
+    /* XXX: if_tzone      10  Time zone for GMT support (TODO: specify better). */
+
+    /* XXX if_tsoffset; opt 14  A 64 bits integer value that specifies an offset (in seconds)...*/
+    /* Interface statistics */
+    int_data_mand->num_stat_entries = 0;
+    int_data_mand->interface_statistics = NULL;
+
+    tmp = g_strdup_printf("Port %c", 'A'+i);
+    wtap_optionblock_set_option_string(int_data, OPT_IDB_NAME, tmp);
+    g_free(tmp);
+    tmp = g_strdup_printf("ERF Interface Id %d (Port %c)", i, 'A'+i);
+    wtap_optionblock_set_option_string(int_data, OPT_IDB_DESCR, tmp);
+    g_free(tmp);
 
     g_array_append_val(wth->interface_data, int_data);
   }

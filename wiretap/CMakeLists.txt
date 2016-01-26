@@ -79,6 +79,7 @@ set(WIRETAP_FILES
 	vms.c
 	vwr.c
 	wtap.c
+	wtap_opttypes.c
 )
 
 if (WERROR_COMMON_FLAGS)

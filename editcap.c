@@ -89,6 +89,8 @@
 #include <wsutil/str_util.h>
 #include <wsutil/ws_diag_control.h>
 #include <wsutil/ws_version_info.h>
+#include <wiretap/wtap_opttypes.h>
+#include <wiretap/pcapng.h>
 
 #include "ringbuffer.h" /* For RINGBUFFER_MAX_NUM_FILES */
 
@@ -936,9 +938,9 @@ get_editcap_runtime_info(GString *str)
 
 static wtap_dumper *
 editcap_dump_open(const char *filename, guint32 snaplen,
-                  wtapng_section_t *shb_hdr,
+                  wtap_optionblock_t shb_hdr,
                   wtapng_iface_descriptions_t *idb_inf,
-                  wtapng_name_res_t *nrb_hdr, int *write_err)
+                  wtap_optionblock_t nrb_hdr, int *write_err)
 {
   wtap_dumper *pdh;
 
@@ -998,8 +1000,9 @@ main(int argc, char *argv[])
     const struct wtap_pkthdr    *phdr;
     struct wtap_pkthdr           temp_phdr;
     wtapng_iface_descriptions_t *idb_inf = NULL;
-    wtapng_section_t            *shb_hdr = NULL;
-    wtapng_name_res_t           *nrb_hdr = NULL;
+    wtap_optionblock_t           shb_hdr = NULL;
+    wtap_optionblock_t           nrb_hdr = NULL;
+    char                        *shb_user_appl;
 
 #ifdef HAVE_PLUGINS
     char* init_progfile_dir_error;
@@ -1410,8 +1413,11 @@ main(int argc, char *argv[])
                 g_assert(filename);
 
                 /* If we don't have an application name add Editcap */
-                if (shb_hdr->shb_user_appl == NULL) {
-                    shb_hdr->shb_user_appl = g_strdup("Editcap " VERSION);
+                wtap_optionblock_get_option_string(shb_hdr, OPT_SHB_USERAPPL, &shb_user_appl);
+                if (shb_user_appl == NULL) {
+                    shb_user_appl = g_strdup("Editcap " VERSION);
+                    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_USERAPPL, shb_user_appl);
+                    g_free(shb_user_appl);
                 }
 
                 pdh = editcap_dump_open(filename,
@@ -1873,9 +1879,9 @@ main(int argc, char *argv[])
                     wtap_strerror(write_err));
             goto error_on_exit;
         }
-        wtap_free_shb(shb_hdr);
+        wtap_optionblock_free(shb_hdr);
         shb_hdr = NULL;
-        wtap_free_nrb(nrb_hdr);
+        wtap_optionblock_free(nrb_hdr);
         nrb_hdr = NULL;
         g_free(filename);
 
@@ -1899,8 +1905,8 @@ main(int argc, char *argv[])
     return 0;
 
 error_on_exit:
-    wtap_free_shb(shb_hdr);
-    wtap_free_nrb(nrb_hdr);
+    wtap_optionblock_free(shb_hdr);
+    wtap_optionblock_free(nrb_hdr);
     g_free(idb_inf);
     exit(2);
 }

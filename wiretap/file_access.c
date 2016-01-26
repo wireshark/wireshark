@@ -818,11 +818,12 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 	wth->file_tsprec = WTAP_TSPREC_USEC;
 	wth->priv = NULL;
 	wth->wslua_data = NULL;
+	wth->shb_hdr = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_SECTION);
 
 	/* Initialize the array containing a list of interfaces. pcapng_open and
 	 * erf_open needs this (and libpcap_open for ERF encapsulation types).
 	 * Always initing it here saves checking for a NULL ptr later. */
-	wth->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
+	wth->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
 
 	if (wth->random_fh) {
 		wth->fast_seek = g_ptr_array_new();
@@ -1083,31 +1084,24 @@ success:
 	if ((wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP) ||
 		(wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC)) {
 
-		wtapng_if_descr_t descr;
+		wtap_optionblock_t descr = wtap_optionblock_create(WTAP_OPTION_BLOCK_IF_DESCR);
+		wtapng_if_descr_mandatory_t* descr_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(descr);
 
-		descr.wtap_encap = wth->file_encap;
+		descr_mand->wtap_encap = wth->file_encap;
 		if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC) {
-			descr.time_units_per_second = 1000000000; /* nanosecond resolution */
-			descr.if_tsresol = 9;
-			descr.tsprecision = WTAP_TSPREC_NSEC;
+			descr_mand->time_units_per_second = 1000000000; /* nanosecond resolution */
+			wtap_optionblock_set_option_uint8(descr, OPT_IDB_TSRESOL, 9);
+			descr_mand->tsprecision = WTAP_TSPREC_NSEC;
 		} else {
-			descr.time_units_per_second = 1000000; /* default microsecond resolution */
-			descr.if_tsresol = 6;
-			descr.tsprecision = WTAP_TSPREC_USEC;
+			descr_mand->time_units_per_second = 1000000; /* default microsecond resolution */
+			wtap_optionblock_set_option_uint8(descr, OPT_IDB_TSRESOL, 6);
+			descr_mand->tsprecision = WTAP_TSPREC_USEC;
 		}
-		descr.link_type = wtap_wtap_encap_to_pcap_encap(wth->file_encap);
-		descr.snap_len = wth->snapshot_length;
-		descr.opt_comment = NULL;
-		descr.if_name = NULL;
-		descr.if_description = NULL;
-		descr.if_speed = 0;
-		descr.if_filter_str= NULL;
-		descr.bpf_filter_len= 0;
-		descr.if_filter_bpf_bytes= NULL;
-		descr.if_os = NULL;
-		descr.if_fcslen = -1;
-		descr.num_stat_entries = 0;          /* Number of ISB:s */
-		descr.interface_statistics = NULL;
+		descr_mand->link_type = wtap_wtap_encap_to_pcap_encap(wth->file_encap);
+		descr_mand->snap_len = wth->snapshot_length;
+
+		descr_mand->num_stat_entries = 0;          /* Number of ISB:s */
+		descr_mand->interface_statistics = NULL;
 		g_array_append_val(wth->interface_data, descr);
 
 	}
@@ -2144,11 +2138,12 @@ static int wtap_dump_file_close(wtap_dumper *wdh);
 
 static wtap_dumper *
 wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean compressed,
-                      wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf,
-                      wtapng_name_res_t *nrb_hdr, int *err)
+                      wtap_optionblock_t shb_hdr, wtapng_iface_descriptions_t *idb_inf,
+                      wtap_optionblock_t nrb_hdr, int *err)
 {
 	wtap_dumper *wdh;
-	wtapng_if_descr_t descr, *file_int_data;
+	wtap_optionblock_t descr, file_int_data;
+	wtapng_if_descr_mandatory_t *descr_mand, *file_int_data_mand;
 
 	/* Check whether we can open a capture file with that file type
 	   and that encapsulation. */
@@ -2169,37 +2164,31 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 		guint itf_count;
 
 		/* XXX: what free's this stuff? */
-		wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
+		wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
 		for (itf_count = 0; itf_count < idb_inf->interface_data->len; itf_count++) {
-			file_int_data = &g_array_index(idb_inf->interface_data, wtapng_if_descr_t, itf_count);
-			if ((encap != WTAP_ENCAP_PER_PACKET) && (encap != file_int_data->wtap_encap)) {
-				/* XXX: this does a shallow copy, not a true clone; e.g., comments are not duped */
-				memcpy(&descr, file_int_data, sizeof(wtapng_if_descr_t));
-				descr.wtap_encap = encap;
-				descr.link_type = wtap_wtap_encap_to_pcap_encap(encap);
-				g_array_append_val(wdh->interface_data, descr);
-			} else {
-				g_array_append_val(wdh->interface_data, *file_int_data);
+			file_int_data = g_array_index(idb_inf->interface_data, wtap_optionblock_t, itf_count);
+			file_int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(file_int_data);
+			descr = wtap_optionblock_create(WTAP_OPTION_BLOCK_IF_DESCR);
+			wtap_optionblock_copy_options(descr, file_int_data);
+			if ((encap != WTAP_ENCAP_PER_PACKET) && (encap != file_int_data_mand->wtap_encap)) {
+				descr_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(descr);
+				descr_mand->wtap_encap = encap;
+				descr_mand->link_type = wtap_wtap_encap_to_pcap_encap(encap);
 			}
+			g_array_append_val(wdh->interface_data, descr);
 		}
 	} else {
-		descr.wtap_encap = encap;
-		descr.time_units_per_second = 1000000; /* default microsecond resolution */
-		descr.link_type = wtap_wtap_encap_to_pcap_encap(encap);
-		descr.snap_len = snaplen;
-		descr.opt_comment = NULL;
-		descr.if_name = g_strdup("Unknown/not available in original file format(libpcap)");
-		descr.if_description = NULL;
-		descr.if_speed = 0;
-		descr.if_tsresol = 6;
-		descr.if_filter_str= NULL;
-		descr.bpf_filter_len= 0;
-		descr.if_filter_bpf_bytes= NULL;
-		descr.if_os = NULL;
-		descr.if_fcslen = -1;
-		descr.num_stat_entries = 0;          /* Number of ISB:s */
-		descr.interface_statistics = NULL;
-		wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
+		descr = wtap_optionblock_create(WTAP_OPTION_BLOCK_IF_DESCR);
+		descr_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(descr);
+		descr_mand->wtap_encap = encap;
+		descr_mand->time_units_per_second = 1000000; /* default microsecond resolution */
+		descr_mand->link_type = wtap_wtap_encap_to_pcap_encap(encap);
+		descr_mand->snap_len = snaplen;
+		wtap_optionblock_set_option_string(descr, OPT_IDB_NAME, "Unknown/not available in original file format(libpcap)");
+
+		descr_mand->num_stat_entries = 0;          /* Number of ISB:s */
+		descr_mand->interface_statistics = NULL;
+		wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
 		g_array_append_val(wdh->interface_data, descr);
 	}
 	return wdh;
@@ -2214,8 +2203,8 @@ wtap_dump_open(const char *filename, int file_type_subtype, int encap,
 
 wtap_dumper *
 wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
-		  int snaplen, gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf,
-		  wtapng_name_res_t *nrb_hdr, int *err)
+		  int snaplen, gboolean compressed, wtap_optionblock_t shb_hdr, wtapng_iface_descriptions_t *idb_inf,
+		  wtap_optionblock_t nrb_hdr, int *err)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;
@@ -2260,9 +2249,9 @@ wtap_dumper *
 wtap_dump_open_tempfile_ng(char **filenamep, const char *pfx,
 			   int file_type_subtype, int encap,
 			   int snaplen, gboolean compressed,
-			   wtapng_section_t *shb_hdr,
+			   wtap_optionblock_t shb_hdr,
 			   wtapng_iface_descriptions_t *idb_inf,
-			   wtapng_name_res_t *nrb_hdr, int *err)
+			   wtap_optionblock_t nrb_hdr, int *err)
 {
 	int fd;
 	char *tmpname;
@@ -2319,8 +2308,8 @@ wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snaplen,
 
 wtap_dumper *
 wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int snaplen,
-		    gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf,
-		    wtapng_name_res_t *nrb_hdr, int *err)
+		    gboolean compressed, wtap_optionblock_t shb_hdr, wtapng_iface_descriptions_t *idb_inf,
+		    wtap_optionblock_t nrb_hdr, int *err)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;
@@ -2359,9 +2348,9 @@ wtap_dump_open_stdout(int file_type_subtype, int encap, int snaplen,
 
 wtap_dumper *
 wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
-			 gboolean compressed, wtapng_section_t *shb_hdr,
+			 gboolean compressed, wtap_optionblock_t shb_hdr,
 			 wtapng_iface_descriptions_t *idb_inf,
-			 wtapng_name_res_t *nrb_hdr, int *err)
+			 wtap_optionblock_t nrb_hdr, int *err)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;

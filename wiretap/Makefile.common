@@ -83,7 +83,8 @@ NONGENERATED_C_FILES = \
 	visual.c		\
 	vms.c			\
 	vwr.c           \
-	wtap.c
+	wtap.c			\
+	wtap_opttypes.c
 
 # Header files that are not generated from other files
 NONGENERATED_HEADER_FILES = \
@@ -147,6 +148,7 @@ NONGENERATED_HEADER_FILES = \
 	vms.h			\
 	vwr.h           \
 	wtap.h			\
+	wtap_opttypes.h \
 	wtap-int.h
 
 # Files that generate compileable files

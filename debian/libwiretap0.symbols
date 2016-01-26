@@ -62,8 +62,6 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_file_type_subtype_string@Base 1.12.0~rc1
  wtap_free_extensions_list@Base 1.9.1
  wtap_free_idb_info@Base 1.99.9
- wtap_free_nrb@Base 1.99.9
- wtap_free_shb@Base 1.99.9
  wtap_fstat@Base 1.9.1
  wtap_get_all_file_extensions_list@Base 1.12.0~rc1
  wtap_get_bytes_dumped@Base 1.9.1
@@ -79,6 +77,17 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_has_open_info@Base 1.12.0~rc1
  wtap_iscompressed@Base 1.9.1
  wtap_open_offline@Base 1.9.1
+ wtap_optionblock_create@Base 2.1.0
+ wtap_optionblock_free@Base 2.1.0
+ wtap_optionblock_get_mandatory_data@Base 2.1.0
+ wtap_optionblock_get_option_custom@Base 2.1.0
+ wtap_optionblock_get_option_string@Base 2.1.0
+ wtap_optionblock_get_option_uint8@Base 2.1.0
+ wtap_optionblock_get_option_uint64@Base 2.1.0
+ wtap_optionblock_set_option_custom@Base 2.1.0
+ wtap_optionblock_set_option_string@Base 2.1.0
+ wtap_optionblock_set_option_uint8@Base 2.1.0
+ wtap_optionblock_set_option_uint64@Base 2.1.0
  wtap_pcap_encap_to_wtap_encap@Base 1.9.1
  wtap_phdr@Base 1.9.1
  wtap_phdr_cleanup@Base 1.99.2

@@ -80,6 +80,8 @@
 #include <wsutil/privileges.h>
 #include <wsutil/ws_diag_control.h>
 #include <wsutil/ws_version_info.h>
+#include <wiretap/wtap_opttypes.h>
+#include <wiretap/pcapng.h>
 
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
@@ -1039,9 +1041,10 @@ process_cap_file(wtap *wth, const char *filename)
   nstime_t              prev_time;
   gboolean              know_order = FALSE;
   order_t               order = IN_ORDER;
-  const wtapng_section_t *shb_inf;
+  wtap_optionblock_t    shb_inf;
   guint                 i;
   wtapng_iface_descriptions_t *idb_info;
+  char                  *shb_str;
 
   g_assert(wth != NULL);
   g_assert(filename != NULL);
@@ -1072,7 +1075,7 @@ process_cap_file(wtap *wth, const char *filename)
 
   /* get IDB info strings */
   for (i = 0; i < cf_info.num_interfaces; i++) {
-    const wtapng_if_descr_t *if_descr = &g_array_index(idb_info->interface_data, wtapng_if_descr_t, i);
+    const wtap_optionblock_t if_descr = g_array_index(idb_info->interface_data, wtap_optionblock_t, i);
     gchar *s = wtap_get_debug_if_descr(if_descr, 21, "\n");
     g_array_append_val(cf_info.idb_info_strings, s);
   }
@@ -1246,10 +1249,14 @@ process_cap_file(wtap *wth, const char *filename)
   shb_inf = wtap_file_get_shb(wth);
   if (shb_inf) {
     /* opt_comment is always 0-terminated by pcapng_read_section_header_block */
-    cf_info.comment  = g_strdup(shb_inf->opt_comment);
-    cf_info.hardware = g_strdup(shb_inf->shb_hardware);
-    cf_info.os       = g_strdup(shb_inf->shb_os);
-    cf_info.usr_appl = g_strdup(shb_inf->shb_user_appl);
+    wtap_optionblock_get_option_string(shb_inf, OPT_COMMENT, &shb_str);
+    cf_info.comment  = g_strdup(shb_str);
+    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_HARDWARE, &shb_str);
+    cf_info.hardware = g_strdup(shb_str);
+    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_OS, &shb_str);
+    cf_info.os       = g_strdup(shb_str);
+    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_USERAPPL, &shb_str);
+    cf_info.usr_appl = g_strdup(shb_str);
   }
 
   string_replace_newlines(cf_info.comment);

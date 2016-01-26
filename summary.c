@@ -23,6 +23,8 @@
 #include <config.h>
 
 #include <wiretap/pcap-encap.h>
+#include <wiretap/wtap_opttypes.h>
+#include <wiretap/pcapng.h>
 
 #include <epan/packet.h>
 #include "cfile.h"
@@ -105,12 +107,16 @@ summary_fill_in(capture_file *cf, summary_tally *st)
 {
   frame_data    *first_frame, *cur_frame;
   guint32        framenum;
-  const wtapng_section_t* shb_inf;
+  wtap_optionblock_t shb_inf;
   iface_options iface;
   guint i;
   wtapng_iface_descriptions_t* idb_info;
-  wtapng_if_descr_t wtapng_if_descr;
-  wtapng_if_stats_t *if_stats;
+  wtap_optionblock_t wtapng_if_descr;
+  wtapng_if_descr_mandatory_t *wtapng_if_descr_mand;
+  wtap_optionblock_t if_stats;
+  guint64 isb_ifdrop;
+  char* if_string;
+  wtapng_if_descr_filter_t* if_filter;
 
   st->packet_count_ts = 0;
   st->start_time = 0;
@@ -163,34 +169,39 @@ summary_fill_in(capture_file *cf, summary_tally *st)
     st->shb_os         = NULL;
     st->shb_user_appl  = NULL;
   }else{
-    st->opt_comment    = shb_inf->opt_comment;
-    st->shb_hardware   = shb_inf->shb_hardware;
-    st->shb_os         = shb_inf->shb_os;
-    st->shb_user_appl  = shb_inf->shb_user_appl;
+    wtap_optionblock_get_option_string(shb_inf, OPT_COMMENT, &st->opt_comment);
+    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_HARDWARE, &st->shb_hardware);
+    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_OS, &st->shb_os);
+    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_USERAPPL, (char**)&st->shb_user_appl);
   }
 
   st->ifaces  = g_array_new(FALSE, FALSE, sizeof(iface_options));
   idb_info = wtap_file_get_idb_info(cf->wth);
   for (i = 0; i < idb_info->interface_data->len; i++) {
-    wtapng_if_descr = g_array_index(idb_info->interface_data, wtapng_if_descr_t, i);
-    iface.cfilter = g_strdup(wtapng_if_descr.if_filter_str);
-    iface.name = g_strdup(wtapng_if_descr.if_name);
-    iface.descr = g_strdup(wtapng_if_descr.if_description);
+    wtapng_if_descr = g_array_index(idb_info->interface_data, wtap_optionblock_t, i);
+    wtapng_if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(wtapng_if_descr);
+    wtap_optionblock_get_option_custom(wtapng_if_descr, OPT_IDB_FILTER, (void**)&if_filter);
+    iface.cfilter = g_strdup(if_filter->if_filter_str);
+    wtap_optionblock_get_option_string(wtapng_if_descr, OPT_IDB_NAME, &if_string);
+    iface.name = g_strdup(if_string);
+    wtap_optionblock_get_option_string(wtapng_if_descr, OPT_IDB_DESCR, &if_string);
+    iface.descr = g_strdup(if_string);
     iface.drops_known = FALSE;
     iface.drops = 0;
-    iface.snap = wtapng_if_descr.snap_len;
+    iface.snap = wtapng_if_descr_mand->snap_len;
     iface.has_snap = (iface.snap != 65535);
-    iface.encap_type = wtapng_if_descr.wtap_encap;
+    iface.encap_type = wtapng_if_descr_mand->wtap_encap;
     iface.isb_comment = NULL;
-    if(wtapng_if_descr.num_stat_entries == 1){
+    if(wtapng_if_descr_mand->num_stat_entries == 1){
       /* dumpcap only writes one ISB, only handle that for now */
-      if_stats = &g_array_index(wtapng_if_descr.interface_statistics, wtapng_if_stats_t, 0);
-      if (if_stats->isb_ifdrop != G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
+      if_stats = g_array_index(wtapng_if_descr_mand->interface_statistics, wtap_optionblock_t, 0);
+      wtap_optionblock_get_option_uint64(if_stats, OPT_ISB_IFDROP, &isb_ifdrop);
+      if (isb_ifdrop != G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
         iface.drops_known = TRUE;
-        iface.drops = if_stats->isb_ifdrop;
+        iface.drops = isb_ifdrop;
       }
       /* XXX: this doesn't get used, and might need to be g_strdup'ed when it does */
-      iface.isb_comment = if_stats->opt_comment;
+      wtap_optionblock_get_option_string(if_stats, OPT_COMMENT, &iface.isb_comment);
     }
     g_array_append_val(st->ifaces, iface);
   }

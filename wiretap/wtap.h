@@ -25,6 +25,7 @@
 #include <time.h>
 #include <wsutil/buffer.h>
 #include <wsutil/nstime.h>
+#include "wtap_opttypes.h"
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus
@@ -1249,10 +1250,9 @@ struct wtap_pkthdr {
 #define WTAP_HAS_PACK_FLAGS    0x00000020  /**< packet flags */
 
 /**
- * Holds the option strings from pcapng:s Section Header block(SHB).
+ * Holds the required data from pcapng:s Section Header block(SHB).
  */
-typedef struct wtapng_section_s {
-    /* mandatory */
+typedef struct wtapng_section_mandatory_s {
     guint64             section_length; /**< 64-bit value specifying the length in bytes of the
                                          *     following section.
                                          *     Section Length equal -1 (0xFFFFFFFFFFFFFFFF) means
@@ -1261,185 +1261,49 @@ typedef struct wtapng_section_s {
                                          *     be invalid if anything changes, such as the other
                                          *     members of this struct, or the packets written.
                                          */
-    /* options */
-    gchar               *opt_comment;   /**< NULL if not available */
-    gchar               *shb_hardware;  /**< NULL if not available
-                                         *     UTF-8 string containing the description of the
-                                         *     hardware used to create this section.
-                                         */
-    gchar               *shb_os;        /**< NULL if not available, UTF-8 string containing the
-                                         *     name of the operating system used to create this section.
-                                         */
-    gchar               *shb_user_appl; /**< NULL if not available, UTF-8 string containing the
-                                         *     name of the application used to create this section.
-                                         */
-} wtapng_section_t;
-
+} wtapng_mandatory_section_t;
 
 /** struct holding the information to build IDB:s
- *  the interface_data array holds an array of wtapng_if_descr_t
- *  one per interface.
+ *  the interface_data array holds an array of wtap_optionblock_t
+ *  represending IDB of one per interface.
  */
 typedef struct wtapng_iface_descriptions_s {
     GArray *interface_data;
 } wtapng_iface_descriptions_t;
 
-/* Interface Description
- *
- * Options:
- *
- * if_name        2  A UTF-8 string containing the name of the device used to capture data.
- *                     "eth0" / "\Device\NPF_{AD1CE675-96D0-47C5-ADD0-2504B9126B68}" / ...
- *
- * if_description 3  A UTF-8 string containing the description of the device used
- *                     to capture data. "Broadcom NetXtreme" / "First Ethernet Interface" / ...
- *
- * if_IPv4addr    4  Interface network address and netmask. This option can be
- *                     repeated multiple times within the same Interface Description Block
- *                     when multiple IPv4 addresses are assigned to the interface. 192 168 1 1 255 255 255 0
- *
- * if_IPv6addr    5  Interface network address and prefix length (stored in the last byte).
- *                     This option can be repeated multiple times within the same Interface
- *                     Description Block when multiple IPv6 addresses are assigned to the interface.
- *                     2001:0db8:85a3:08d3:1319:8a2e:0370:7344/64 is written (in hex) as
- *                     "20 01 0d b8 85 a3 08 d3 13 19 8a 2e 03 70 73 44 40"
- *
- * if_MACaddr     6  Interface Hardware MAC address (48 bits). 00 01 02 03 04 05
- *
- * if_EUIaddr     7  Interface Hardware EUI address (64 bits), if available. TODO: give a good example
- *
- * if_speed       8  Interface speed (in bps). 100000000 for 100Mbps
- *
- * if_tsresol     9  Resolution of timestamps. If the Most Significant Bit is equal to zero,
- *                     the remaining bits indicates the resolution of the timestamp as as a
- *                     negative power of 10 (e.g. 6 means microsecond resolution, timestamps
- *                     are the number of microseconds since 1/1/1970). If the Most Significant Bit
- *                     is equal to one, the remaining bits indicates the resolution has a
- *                     negative power of 2 (e.g. 10 means 1/1024 of second).
- *                     If this option is not present, a resolution of 10^-6 is assumed
- *                     (i.e. timestamps have the same resolution of the standard 'libpcap' timestamps). 6
- *
- * if_tzone      10  Time zone for GMT support (TODO: specify better). TODO: give a good example
- *
- * if_filter     11  The filter (e.g. "capture only TCP traffic") used to capture traffic.
- *                     The first byte of the Option Data keeps a code of the filter used
- *                     (e.g. if this is a libpcap string, or BPF bytecode, and more).
- *                     More details about this format will be presented in Appendix XXX (TODO).
- *                     (TODO: better use different options for different fields?
- *                     e.g. if_filter_pcap, if_filter_bpf, ...) 00 "tcp port 23 and host 10.0.0.5"
- *
- * if_os         12  A UTF-8 string containing the name of the operating system of the
- *                     machine in which this interface is installed.
- *                     This can be different from the same information that can be
- *                     contained by the Section Header Block
- *                     (Section 3.1 (Section Header Block (mandatory))) because
- *                     the capture can have been done on a remote machine.
- *                     "Windows XP SP2" / "openSUSE 10.2" / ...
- *
- * if_fcslen     13  An integer value that specified the length of the
- *                     Frame Check Sequence (in bits) for this interface.
- *                     For link layers whose FCS length can change during time,
- *                     the Packet Block Flags Word can be used (see Appendix A (Packet Block Flags Word)). 4
- *
- * if_tsoffset   14  A 64 bits integer value that specifies an offset (in seconds)
- *                     that must be added to the timestamp of each packet to obtain
- *                     the absolute timestamp of a packet. If the option is missing,
- *                     the timestamps stored in the packet must be considered absolute
- *                     timestamps. The time zone of the offset can be specified with the
- *                     option if_tzone. TODO: won't a if_tsoffset_low for fractional
- *                     second offsets be useful for highly syncronized capture systems? 1234
- */
 /**
  * Interface description data
  */
-typedef struct wtapng_if_descr_s {
+typedef struct wtapng_if_descr_mandatory_s {
     int                    wtap_encap;            /**< link_type translated to wtap_encap */
     guint64                time_units_per_second;
     int                    tsprecision;           /**< WTAP_TSPREC_ value for this interface */
 
-    /* mandatory */
     guint16                link_type;
     guint32                snap_len;
 
-    /* options */
-    gchar                 *opt_comment;           /**< NULL if not available */
-    gchar                 *if_name;               /**< NULL if not available
-                                                   *  opt 2
-                                                   *     A UTF-8 string containing the name of the
-                                                   *     device used to capture data.
-                                                   */
-    gchar                 *if_description;        /**< NULL if not available
-                                                   *  opt 3
-                                                   *     A UTF-8 string containing the description
-                                                   *     of the device used to capture data.
-                                                   */
-
-    /* XXX: if_IPv4addr opt 4  Interface network address and netmask.                                */
-    /* XXX: if_IPv6addr opt 5  Interface network address and prefix length (stored in the last byte).*/
-    /* XXX: if_MACaddr  opt 6  Interface Hardware MAC address (48 bits).                             */
-    /* XXX: if_EUIaddr  opt 7  Interface Hardware EUI address (64 bits)                              */
-
-    guint64                if_speed;              /**< 0xFFFFFFFF if unknown
-                                                   *  opt 8
-                                                   *     Interface speed (in bps). 100000000 for 100Mbps
-                                                   */
-    guint8                 if_tsresol;            /**< default is 6 for microsecond resolution
-                                                   *  opt 9
-                                                   *     Resolution of timestamps.
-                                                   *     If the Most Significant Bit is equal to zero,
-                                                   *     the remaining bits indicates the resolution of the
-                                                   *     timestamp as as a negative power of 10
-                                                   */
-
-    /* XXX: if_tzone      10  Time zone for GMT support (TODO: specify better). */
-
-    gchar                 *if_filter_str;         /**< NULL if not available
-                                                   *  opt 11  libpcap string.
-                                                   */
-    guint16                bpf_filter_len;        /** Opt 11 variant II BPF filter len 0 if not used*/
-    gchar                 *if_filter_bpf_bytes;   /** Opt 11 BPF filter or NULL */
-    gchar                 *if_os;                 /**< NULL if not available
-                                                   *     12  A UTF-8 string containing the name of the
-                                                   *     operating system of the machine in which this
-                                                   *     interface is installed.
-                                                   */
-    gint8                  if_fcslen;             /**< -1 if unknown or changes between packets,
-                                                   *  opt 13
-                                                   *     An integer value that specified the length of
-                                                   *     the Frame Check Sequence (in bits) for this interface. */
-    /* XXX: guint64    if_tsoffset; opt 14  A 64 bits integer value that specifies an offset (in seconds)...*/
     guint8                 num_stat_entries;
     GArray                *interface_statistics;  /**< An array holding the interface statistics from
                                                    *     pcapng ISB:s or equivalent(?)*/
-} wtapng_if_descr_t;
+} wtapng_if_descr_mandatory_t;
 
+/* Interface description data - Option 11 structure */
+typedef struct wtapng_if_descr_filter_s {
+    gchar                 *if_filter_str;         /**< NULL if not available
+                                                   *  libpcap string.
+                                                   */
+    guint16                bpf_filter_len;        /** variant II BPF filter len 0 if not used*/
+    gchar                 *if_filter_bpf_bytes;   /** BPF filter or NULL */
+} wtapng_if_descr_filter_t;
 
 /**
- * Interface Statistics. pcap-ng Interface Statistics Block (ISB).
+ * Holds the required data for pcap-ng Interface Statistics Block (ISB).
  */
-typedef struct wtapng_if_stats_s {
-    /* mandatory */
+typedef struct wtapng_if_stats_mandatory_s {
     guint32  interface_id;
     guint32  ts_high;
     guint32  ts_low;
-    /* options */
-    gchar   *opt_comment;       /**< NULL if not available */
-    guint64  isb_starttime;
-    guint64  isb_endtime;
-    guint64  isb_ifrecv;
-    guint64  isb_ifdrop;
-    guint64  isb_filteraccept;
-    guint64  isb_osdrop;
-    guint64  isb_usrdeliv;
-} wtapng_if_stats_t;
-
-
-/* Name Resolution, pcap-ng Name Resolution Block (NRB). */
-typedef struct wtapng_name_res_s {
-    /* options */
-    gchar  *opt_comment;    /**< NULL if not available */
-    /* XXX */
-} wtapng_name_res_t;
+} wtapng_if_stats_mandatory_t;
 
 #ifndef MAXNAMELEN
 #define MAXNAMELEN  	64	/* max name length (hostname and port name) */
@@ -1726,11 +1590,11 @@ int wtap_file_tsprec(wtap *wth);
  * @return The existing section header, which must NOT be g_free'd.
  */
 WS_DLL_PUBLIC
-const wtapng_section_t* wtap_file_get_shb(wtap *wth);
+wtap_optionblock_t wtap_file_get_shb(wtap *wth);
 
 /**
  * @brief Gets new section header block for new file, based on existing info.
- * @details Creates a new wtapng_section_t section header block and only
+ * @details Creates a new wtap_optionblock_t section header block and only
  *          copies appropriate members of the SHB for a new file. In
  *          particular, the comment string is copied, and any custom options
  *          which should be copied are copied. The os, hardware, and
@@ -1742,13 +1606,7 @@ const wtapng_section_t* wtap_file_get_shb(wtap *wth);
  * @return The new section header, which must be wtap_free_shb'd.
  */
 WS_DLL_PUBLIC
-wtapng_section_t* wtap_file_get_shb_for_new_file(wtap *wth);
-
-/**
- * Free's a section header block and all of its members.
- */
-WS_DLL_PUBLIC
-void wtap_free_shb(wtapng_section_t *shb_hdr);
+wtap_optionblock_t wtap_file_get_shb_for_new_file(wtap *wth);
 
 /**
  * @brief Gets the section header comment string.
@@ -1813,28 +1671,22 @@ void wtap_free_idb_info(wtapng_iface_descriptions_t *idb_info);
  * @return A newly allocated gcahr array string, which must be g_free'd.
  */
 WS_DLL_PUBLIC
-gchar *wtap_get_debug_if_descr(const wtapng_if_descr_t *if_descr,
+gchar *wtap_get_debug_if_descr(const wtap_optionblock_t if_descr,
                                const int indent,
                                const char* line_end);
 
 /**
  * @brief Gets new name resolution info for new file, based on existing info.
- * @details Creates a new wtapng_name_res_t name resolution info and only
+ * @details Creates a new wtap_optionblock_t of name resolution info and only
  *          copies appropriate members for a new file.
  *
  * @note Use wtap_free_nrb() to free the returned pointer.
  *
  * @param wth The wiretap session.
- * @return The new name resolution info, which must be wtap_free_nrb'd.
+ * @return The new name resolution info, which must be wtap_optionblock_free'd.
  */
 WS_DLL_PUBLIC
-wtapng_name_res_t* wtap_file_get_nrb_for_new_file(wtap *wth);
-
-/**
- * Free's the name resolution info and all of its members.
- */
-WS_DLL_PUBLIC
-void wtap_free_nrb(wtapng_name_res_t *nrb_hdr);
+wtap_optionblock_t wtap_file_get_nrb_for_new_file(wtap *wth);
 
 /**
  * @brief Gets the name resolution comment, if any.
@@ -1930,8 +1782,8 @@ wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype, int enc
  */
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
-    int snaplen, gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf,
-    wtapng_name_res_t *nrb_hdr, int *err);
+    int snaplen, gboolean compressed, wtap_optionblock_t shb_hdr, wtapng_iface_descriptions_t *idb_inf,
+    wtap_optionblock_t nrb_hdr, int *err);
 
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_tempfile(char **filenamep, const char *pfx,
@@ -1961,8 +1813,8 @@ wtap_dumper* wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_tempfile_ng(char **filenamep, const char *pfx,
     int file_type_subtype, int encap, int snaplen, gboolean compressed,
-    wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf,
-    wtapng_name_res_t *nrb_hdr, int *err);
+    wtap_optionblock_t shb_hdr, wtapng_iface_descriptions_t *idb_inf,
+    wtap_optionblock_t nrb_hdr, int *err);
 
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snaplen,
@@ -1988,8 +1840,8 @@ wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snap
  */
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int snaplen,
-                gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf,
-                wtapng_name_res_t *nrb_hdr, int *err);
+                gboolean compressed, wtap_optionblock_t shb_hdr, wtapng_iface_descriptions_t *idb_inf,
+                wtap_optionblock_t nrb_hdr, int *err);
 
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_stdout(int file_type_subtype, int encap, int snaplen,
@@ -2014,8 +1866,8 @@ wtap_dumper* wtap_dump_open_stdout(int file_type_subtype, int encap, int snaplen
  */
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
-                gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf,
-                wtapng_name_res_t *nrb_hdr, int *err);
+                gboolean compressed, wtap_optionblock_t shb_hdr, wtapng_iface_descriptions_t *idb_inf,
+                wtap_optionblock_t nrb_hdr, int *err);
 
 WS_DLL_PUBLIC
 gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *, const guint8 *,

@@ -4475,9 +4475,9 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
        or moving the capture file, we have to do it by writing the packets
        out in Wiretap. */
 
-    wtapng_section_t            *shb_hdr = NULL;
+    wtap_optionblock_t           shb_hdr = NULL;
     wtapng_iface_descriptions_t *idb_inf = NULL;
-    wtapng_name_res_t           *nrb_hdr = NULL;
+    wtap_optionblock_t           nrb_hdr = NULL;
     int encap;
 
     /* XXX: what free's this shb_hdr? */
@@ -4698,9 +4698,9 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
   int                          err;
   wtap_dumper                 *pdh;
   save_callback_args_t         callback_args;
-  wtapng_section_t            *shb_hdr = NULL;
+  wtap_optionblock_t           shb_hdr = NULL;
   wtapng_iface_descriptions_t *idb_inf = NULL;
-  wtapng_name_res_t           *nrb_hdr = NULL;
+  wtap_optionblock_t           nrb_hdr = NULL;
   int                          encap;
 
   cf_callback_invoke(cf_cb_file_export_specified_packets_started, (gpointer)fname);

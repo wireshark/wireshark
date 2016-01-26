@@ -187,10 +187,10 @@ nettrace_close(wtap *wth)
 	wtap_close(file_info->wth_tmp_file);
 
 	/*Clear the shb info, it's been freed by wtap_close*/
-	wth->shb_hdr.opt_comment = NULL;
-	wth->shb_hdr.shb_hardware = NULL;
-	wth->shb_hdr.shb_os = NULL;
-	wth->shb_hdr.shb_user_appl = NULL;
+	wtap_optionblock_set_option_string(wth->shb_hdr, OPT_COMMENT, NULL);
+	wtap_optionblock_set_option_string(wth->shb_hdr, OPT_SHB_HARDWARE, NULL);
+	wtap_optionblock_set_option_string(wth->shb_hdr, OPT_SHB_OS, NULL);
+	wtap_optionblock_set_option_string(wth->shb_hdr, OPT_SHB_USERAPPL, NULL);
 
 	/* delete the temp file */
 	ws_unlink(file_info->tmpname);
@@ -609,9 +609,10 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	wtap_open_return_val result = WTAP_OPEN_MINE;
 
 	/* pcapng defs */
-	wtapng_section_t            *shb_hdr = NULL;
+	wtap_optionblock_t           shb_hdr = NULL;
 	wtapng_iface_descriptions_t *idb_inf = NULL;
-	wtapng_if_descr_t            int_data;
+	wtap_optionblock_t           int_data;
+	wtapng_if_descr_mandatory_t *int_data_mand;
 	GString                     *os_info_str;
 	gint64 file_size;
 	int packet_size;
@@ -623,6 +624,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	int scan_found;
 	unsigned second, ms;
 	gboolean do_random = FALSE;
+	gchar* wireshark_ver;
 	char *curr_pos, *next_msg_pos, *next_pos, *prev_pos;
 	/* Info to build exported_pdu tags*/
 	exported_pdu_info_t  exported_pdu_info;
@@ -647,47 +649,37 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	os_info_str = g_string_new("");
 	get_os_version_info(os_info_str);
 
-	shb_hdr = g_new(wtapng_section_t, 1);
-	shb_hdr->section_length = -1;
+	shb_hdr = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_SECTION);
 	/* options */
-	shb_hdr->opt_comment = g_strdup_printf("File converted to Exported PDU format during opening");
-	/*
-	* UTF-8 string containing the description of the hardware used to create
-	* this section.
-	*/
-	shb_hdr->shb_hardware = NULL;
+	wtap_optionblock_set_option_string(wth->shb_hdr, OPT_COMMENT, "File converted to Exported PDU format during opening");
 	/*
 	* UTF-8 string containing the name of the operating system used to create
 	* this section.
 	*/
-	shb_hdr->shb_os = g_string_free(os_info_str, FALSE);
+	wtap_optionblock_set_option_string(wth->shb_hdr, OPT_SHB_OS, g_string_free(os_info_str, TRUE));
+
 	/*
 	* UTF-8 string containing the name of the application used to create
 	* this section.
 	*/
-	shb_hdr->shb_user_appl = g_strdup_printf("Wireshark %s", get_ws_vcs_version_info());
+	wireshark_ver = g_strdup_printf("Wireshark %s", get_ws_vcs_version_info());
+	wtap_optionblock_set_option_string(wth->shb_hdr, OPT_SHB_USERAPPL, wireshark_ver);
+	g_free(wireshark_ver);
 
 	/* Create fake IDB info */
 	idb_inf = g_new(wtapng_iface_descriptions_t, 1);
-	idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
+	idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
 
 	/* create the fake interface data */
-	int_data.wtap_encap = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
-	int_data.time_units_per_second = 1000000; /* default microsecond resolution */
-	int_data.link_type = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_WIRESHARK_UPPER_PDU);
-	int_data.snap_len = WTAP_MAX_PACKET_SIZE;
-	int_data.if_name = g_strdup("Fake IF");
-	int_data.opt_comment = NULL;
-	int_data.if_description = NULL;
-	int_data.if_speed = 0;
-	int_data.if_tsresol = 6;
-	int_data.if_filter_str = NULL;
-	int_data.bpf_filter_len = 0;
-	int_data.if_filter_bpf_bytes = NULL;
-	int_data.if_os = NULL;
-	int_data.if_fcslen = -1;
-	int_data.num_stat_entries = 0;          /* Number of ISB:s */
-	int_data.interface_statistics = NULL;
+	int_data = wtap_optionblock_create(WTAP_OPTION_BLOCK_IF_DESCR);
+	int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(int_data);
+	int_data_mand->wtap_encap = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
+	int_data_mand->time_units_per_second = 1000000; /* default microsecond resolution */
+	int_data_mand->link_type = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_WIRESHARK_UPPER_PDU);
+	int_data_mand->snap_len = WTAP_MAX_PACKET_SIZE;
+	wtap_optionblock_set_option_string(int_data, OPT_IDB_NAME, "Fake IF");
+	int_data_mand->num_stat_entries = 0;          /* Number of ISB:s */
+	int_data_mand->interface_statistics = NULL;
 
 	g_array_append_val(idb_inf->interface_data, int_data);
 
@@ -953,7 +945,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 end:
 	g_free(wrt_err_info);
 	g_free(packet_buf);
-	wtap_free_shb(shb_hdr);
+	wtap_optionblock_free(shb_hdr);
 	wtap_free_idb_info(idb_inf);
 
 	return result;
@@ -1012,10 +1004,7 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err, gchar **err_info)
 		return WTAP_OPEN_ERROR;
 
 	/* Copy data from the temp file wth */
-	wth->shb_hdr.opt_comment = file_info->wth_tmp_file->shb_hdr.opt_comment;
-	wth->shb_hdr.shb_hardware = file_info->wth_tmp_file->shb_hdr.shb_hardware;
-	wth->shb_hdr.shb_os = file_info->wth_tmp_file->shb_hdr.shb_os;
-	wth->shb_hdr.shb_user_appl = file_info->wth_tmp_file->shb_hdr.shb_user_appl;
+	wtap_optionblock_copy_options(wth->shb_hdr, file_info->wth_tmp_file->shb_hdr);
 
 	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_NETTRACE_3GPP_32_423;
 	wth->file_encap = file_info->wth_tmp_file->file_encap;

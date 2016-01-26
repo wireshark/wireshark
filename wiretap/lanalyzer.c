@@ -24,6 +24,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "lanalyzer.h"
+#include "pcapng.h"
 
 /* The LANalyzer format is documented (at least in part) in Novell document
    TID022037, which can be found at, among other places:
@@ -327,7 +328,7 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
                   return WTAP_OPEN_NOT_MINE;
             }
             comment[record_length] = '\0';
-            wth->shb_hdr.opt_comment = comment;
+            wtap_optionblock_set_option_string(wth->shb_hdr, OPT_COMMENT, comment);
       }
 
       /* If we made it this far, then the file is a LANAlyzer file.

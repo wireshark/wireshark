@@ -554,6 +554,12 @@ extern int wslua_set__index(lua_State *L);
 #define WSLUA_ATTRIBUTE_STRING_GETTER(C,member) \
     WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(C,member,member)
 
+#define WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(C,name,member,option) \
+    WSLUA_ATTRIBUTE_GET(C,name, { \
+        char* str;  \
+        wtap_optionblock_get_option_string(obj->member, option, &str); \
+        lua_pushstring(L,str); /* this pushes nil if obj->member is null */ \
+    })
 
 #define WSLUA_ATTRIBUTE_SET(C,name,block) \
     static int C##_set_##name (lua_State* L) { \
@@ -602,6 +608,21 @@ extern int wslua_set__index(lua_State *L);
 
 #define WSLUA_ATTRIBUTE_STRING_SETTER(C,field,need_free) \
     WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(C,field,field,need_free)
+
+#define WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_SETTER(C,field,member,option) \
+    static int C##_set_##field (lua_State* L) { \
+        C obj = check##C (L,1); \
+        gchar* s = NULL; \
+        if (lua_isstring(L,-1) || lua_isnil(L,-1)) { \
+            s = g_strdup(lua_tostring(L,-1)); \
+        } else { \
+            return luaL_error(L, "%s's attribute `%s' must be a string or nil", #C , #field ); \
+        } \
+        wtap_optionblock_set_option_string(obj->member, option, s); \
+        return 0; \
+    } \
+    /* silly little trick so we can add a semicolon after this macro */ \
+    typedef void __dummy##C##_set_##field
 
 #define WSLUA_ERROR(name,error) { luaL_error(L, "%s%s", #name ": " ,error); }
 #define WSLUA_ARG_ERROR(name,attr,error) { luaL_argerror(L,WSLUA_ARG_ ## name ## _ ## attr, #name  ": " error); }

@@ -28,6 +28,8 @@
 #endif
 
 #include "wtap-int.h"
+#include "wtap_opttypes.h"
+#include "pcapng.h"
 
 #include "file_wrappers.h"
 #include <wsutil/file_util.h>
@@ -79,6 +81,9 @@ DIAG_ON(pedantic)
 void
 wtap_register_plugin_types(void)
 {
+	/* Piggyback the initialization here for now */
+	wtap_opttypes_initialize();
+
 	add_plugin_type("libwiretap", check_for_wtap_plugin);
 }
 
@@ -160,29 +165,34 @@ wtap_file_tsprec(wtap *wth)
 const gchar *
 wtap_file_get_shb_comment(wtap *wth)
 {
-	return wth ? wth->shb_hdr.opt_comment : NULL;
+	char* opt_comment;
+	if (wth == NULL)
+		return NULL;
+
+	wtap_optionblock_get_option_string(wth->shb_hdr, OPT_COMMENT, &opt_comment);
+	return opt_comment;
 }
 
-const wtapng_section_t *
+wtap_optionblock_t
 wtap_file_get_shb(wtap *wth)
 {
-	return wth ? &(wth->shb_hdr) : NULL;
+	return wth ? wth->shb_hdr : NULL;
 }
 
-wtapng_section_t *
+wtap_optionblock_t
 wtap_file_get_shb_for_new_file(wtap *wth)
 {
-	wtapng_section_t *shb_hdr;
+	wtap_optionblock_t shb_hdr;
+	char* opt_comment;
 
 	if (wth == NULL)
-	    return NULL;
+		return NULL;
 
-	shb_hdr = g_new0(wtapng_section_t,1);
+	shb_hdr = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_SECTION);
 
-	shb_hdr->section_length = -1;
 	/* options */
-	shb_hdr->opt_comment = g_strdup(wth->shb_hdr.opt_comment);
-	/* the rest of the options remain NULL */
+	wtap_optionblock_get_option_string(wth->shb_hdr, OPT_COMMENT, &opt_comment);
+	wtap_optionblock_set_option_string(shb_hdr, OPT_COMMENT, opt_comment);
 
 	return shb_hdr;
 }
@@ -190,12 +200,14 @@ wtap_file_get_shb_for_new_file(wtap *wth)
 const gchar*
 wtap_get_nrb_comment(wtap *wth)
 {
+	char* opt_comment;
 	g_assert(wth);
 
-	if (wth == NULL)
+	if ((wth == NULL) || (wth->nrb_hdr == NULL))
 		return NULL;
 
-	return wth->nrb_hdr ? wth->nrb_hdr->opt_comment : NULL;
+	wtap_optionblock_get_option_string(wth->nrb_hdr, OPT_COMMENT, &opt_comment);
+	return opt_comment;
 }
 
 void
@@ -207,38 +219,16 @@ wtap_write_nrb_comment(wtap *wth, gchar *comment)
 		return;
 
 	if (wth->nrb_hdr == NULL) {
-		wth->nrb_hdr = g_new0(wtapng_name_res_t,1);
-	} else {
-		g_free(wth->nrb_hdr->opt_comment);
+		wth->nrb_hdr = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_NRB);
 	}
 
-	/*
-	 * I'd prefer this function duplicate the passed-in comment,
-	 * but wtap_write_shb_comment() assumes the caller duplicated
-	 * it so we'll stick with that.
-	 */
-	wth->nrb_hdr->opt_comment = comment;
-}
-
-void
-wtap_free_shb(wtapng_section_t *shb_hdr)
-{
-	if (shb_hdr == NULL)
-	    return;
-
-	g_free(shb_hdr->opt_comment);
-	g_free(shb_hdr->shb_hardware);
-	g_free(shb_hdr->shb_os);
-	g_free(shb_hdr->shb_user_appl);
-	g_free(shb_hdr);
+	wtap_optionblock_set_option_string(wth->nrb_hdr, OPT_COMMENT, comment);
 }
 
 void
 wtap_write_shb_comment(wtap *wth, gchar *comment)
 {
-	g_free(wth->shb_hdr.opt_comment);
-	wth->shb_hdr.opt_comment = comment;
-
+	wtap_optionblock_set_option_string(wth->shb_hdr, OPT_COMMENT, comment);
 }
 
 wtapng_iface_descriptions_t *
@@ -253,47 +243,18 @@ wtap_file_get_idb_info(wtap *wth)
 	return idb_info;
 }
 
-static void
-wtap_free_isb_members(wtapng_if_stats_t *isb)
-{
-	if (isb) {
-		g_free(isb->opt_comment);
-	}
-}
-
-static void
-wtap_free_idb_members(wtapng_if_descr_t* idb)
-{
-	if (idb) {
-		g_free(idb->opt_comment);
-		g_free(idb->if_os);
-		g_free(idb->if_name);
-		g_free(idb->if_description);
-		g_free(idb->if_filter_str);
-		g_free(idb->if_filter_bpf_bytes);
-		if (idb->interface_statistics) {
-			wtapng_if_stats_t *isb;
-			guint i;
-			for (i = 0; i < idb->interface_statistics->len; i++) {
-				isb = &g_array_index(idb->interface_statistics, wtapng_if_stats_t, i);
-				wtap_free_isb_members(isb);
-			}
-			g_array_free(idb->interface_statistics, TRUE);
-		}
-	}
-}
 
 void
 wtap_free_idb_info(wtapng_iface_descriptions_t *idb_info)
 {
 	if (idb_info == NULL)
-	    return;
+		return;
 
 	if (idb_info->interface_data) {
 		guint i;
 		for (i = 0; i < idb_info->interface_data->len; i++) {
-			wtapng_if_descr_t* idb = &g_array_index(idb_info->interface_data, wtapng_if_descr_t, i);
-			wtap_free_idb_members(idb);
+			wtap_optionblock_t idb = g_array_index(idb_info->interface_data, wtap_optionblock_t, i);
+			wtap_optionblock_free(idb);
 		}
 		g_array_free(idb_info->interface_data, TRUE);
 	}
@@ -302,116 +263,119 @@ wtap_free_idb_info(wtapng_iface_descriptions_t *idb_info)
 }
 
 gchar *
-wtap_get_debug_if_descr(const wtapng_if_descr_t *if_descr,
+wtap_get_debug_if_descr(const wtap_optionblock_t if_descr,
                         const int indent,
                         const char* line_end)
 {
+	char* tmp_content;
+	wtapng_if_descr_mandatory_t* if_descr_mand;
 	GString *info = g_string_new("");
+	guint64 tmp64;
+	gint8 itmp8;
+	guint8 tmp8;
+	wtapng_if_descr_filter_t* if_filter;
 
 	g_assert(if_descr);
 
+	if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(if_descr);
+	wtap_optionblock_get_option_string(if_descr, OPT_IDB_NAME, &tmp_content);
 	g_string_printf(info,
 			"%*cName = %s%s", indent, ' ',
-			if_descr->if_name ? if_descr->if_name : "UNKNOWN",
+			tmp_content ? tmp_content : "UNKNOWN",
 			line_end);
 
+	wtap_optionblock_get_option_string(if_descr, OPT_IDB_DESCR, &tmp_content);
 	g_string_append_printf(info,
 			"%*cDescription = %s%s", indent, ' ',
-			if_descr->if_description ? if_descr->if_description : "NONE",
+			tmp_content ? tmp_content : "NONE",
 			line_end);
 
 	g_string_append_printf(info,
 			"%*cEncapsulation = %s (%d/%u - %s)%s", indent, ' ',
-			wtap_encap_string(if_descr->wtap_encap),
-			if_descr->wtap_encap,
-			if_descr->link_type,
-			wtap_encap_short_string(if_descr->wtap_encap),
+			wtap_encap_string(if_descr_mand->wtap_encap),
+			if_descr_mand->wtap_encap,
+			if_descr_mand->link_type,
+			wtap_encap_short_string(if_descr_mand->wtap_encap),
 			line_end);
 
+	wtap_optionblock_get_option_uint64(if_descr, OPT_IDB_SPEED, &tmp64);
 	g_string_append_printf(info,
 			"%*cSpeed = %" G_GINT64_MODIFIER "u%s", indent, ' ',
-			if_descr->if_speed,
+			tmp64,
 			line_end);
 
 	g_string_append_printf(info,
 			"%*cCapture length = %u%s", indent, ' ',
-			if_descr->snap_len,
+			if_descr_mand->snap_len,
 			line_end);
 
+	wtap_optionblock_get_option_uint8(if_descr, OPT_IDB_FCSLEN, &itmp8);
 	g_string_append_printf(info,
 			"%*cFCS length = %d%s", indent, ' ',
-			if_descr->if_fcslen,
+			itmp8,
 			line_end);
 
 	g_string_append_printf(info,
 			"%*cTime precision = %s (%d)%s", indent, ' ',
-			wtap_tsprec_string(if_descr->tsprecision),
-			if_descr->tsprecision,
+			wtap_tsprec_string(if_descr_mand->tsprecision),
+			if_descr_mand->tsprecision,
 			line_end);
 
 	g_string_append_printf(info,
 			"%*cTime ticks per second = %" G_GINT64_MODIFIER "u%s", indent, ' ',
-			if_descr->time_units_per_second,
+			if_descr_mand->time_units_per_second,
 			line_end);
 
+	wtap_optionblock_get_option_uint8(if_descr, OPT_IDB_TSRESOL, &tmp8);
 	g_string_append_printf(info,
 			"%*cTime resolution = 0x%.2x%s", indent, ' ',
-			if_descr->if_tsresol,
+			tmp8,
 			line_end);
 
+	wtap_optionblock_get_option_custom(if_descr, OPT_IDB_FILTER, (void**)&if_filter);
 	g_string_append_printf(info,
 			"%*cFilter string = %s%s", indent, ' ',
-			if_descr->if_filter_str ? if_descr->if_filter_str : "NONE",
+			if_filter->if_filter_str ? if_filter->if_filter_str : "NONE",
 			line_end);
 
+	wtap_optionblock_get_option_string(if_descr, OPT_IDB_OS, &tmp_content);
 	g_string_append_printf(info,
 			"%*cOperating system = %s%s", indent, ' ',
-			if_descr->if_os ? if_descr->if_os : "UNKNOWN",
+			tmp_content ? tmp_content : "UNKNOWN",
 			line_end);
 
+	wtap_optionblock_get_option_string(if_descr, OPT_COMMENT, &tmp_content);
 	g_string_append_printf(info,
 			"%*cComment = %s%s", indent, ' ',
-			if_descr->opt_comment ? if_descr->opt_comment : "NONE",
+			tmp_content ? tmp_content : "NONE",
 			line_end);
 
 	g_string_append_printf(info,
 			"%*cBPF filter length = %u%s", indent, ' ',
-			if_descr->bpf_filter_len,
+			if_filter->bpf_filter_len,
 			line_end);
 
 	g_string_append_printf(info,
 			"%*cNumber of stat entries = %u%s", indent, ' ',
-			if_descr->num_stat_entries,
+			if_descr_mand->num_stat_entries,
 			line_end);
 
 	return g_string_free(info, FALSE);
 }
 
-wtapng_name_res_t *
+wtap_optionblock_t
 wtap_file_get_nrb_for_new_file(wtap *wth)
 {
-	wtapng_name_res_t *nrb_hdr;
+	wtap_optionblock_t nrb_hdr;
 
 	if (wth == NULL || wth->nrb_hdr == NULL)
-	    return NULL;
+		return NULL;
 
-	nrb_hdr = g_new0(wtapng_name_res_t,1);
+	nrb_hdr = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_NRB);
 
-	nrb_hdr->opt_comment = g_strdup(wth->nrb_hdr->opt_comment);
-
+	wtap_optionblock_copy_options(nrb_hdr, wth->nrb_hdr);
 	return nrb_hdr;
 }
-
-void
-wtap_free_nrb(wtapng_name_res_t *nrb_hdr)
-{
-	if (nrb_hdr == NULL)
-	    return;
-
-	g_free(nrb_hdr->opt_comment);
-	g_free(nrb_hdr);
-}
-
 
 /* Table of the encapsulation types we know about. */
 struct encap_type_info {
@@ -1217,8 +1181,9 @@ void
 wtap_close(wtap *wth)
 {
 	guint i, j;
-	wtapng_if_descr_t *wtapng_if_descr;
-	wtapng_if_stats_t *if_stats;
+	wtap_optionblock_t wtapng_if_descr;
+	wtap_optionblock_t if_stats;
+	wtapng_if_descr_mandatory_t* wtapng_if_descr_mand;
 
 	wtap_sequential_close(wth);
 
@@ -1236,40 +1201,16 @@ wtap_close(wtap *wth)
 		g_ptr_array_free(wth->fast_seek, TRUE);
 	}
 
-	g_free(wth->shb_hdr.opt_comment);
-	g_free(wth->shb_hdr.shb_hardware);
-	g_free(wth->shb_hdr.shb_os);
-	g_free(wth->shb_hdr.shb_user_appl);
+	wtap_optionblock_free(wth->shb_hdr);
 
 	for(i = 0; i < wth->interface_data->len; i++) {
-		wtapng_if_descr = &g_array_index(wth->interface_data, wtapng_if_descr_t, i);
-		if(wtapng_if_descr->opt_comment != NULL){
-			g_free(wtapng_if_descr->opt_comment);
+		wtapng_if_descr = g_array_index(wth->interface_data, wtap_optionblock_t, i);
+		wtapng_if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(wtapng_if_descr);
+		for(j = 0; j < wtapng_if_descr_mand->num_stat_entries; j++) {
+			if_stats = g_array_index(wtapng_if_descr_mand->interface_statistics, wtap_optionblock_t, j);
+			wtap_optionblock_free(if_stats);
 		}
-		if(wtapng_if_descr->if_name != NULL){
-			g_free(wtapng_if_descr->if_name);
-		}
-		if(wtapng_if_descr->if_description != NULL){
-			g_free(wtapng_if_descr->if_description);
-		}
-		if(wtapng_if_descr->if_filter_str != NULL){
-			g_free(wtapng_if_descr->if_filter_str);
-		}
-		if(wtapng_if_descr->if_filter_bpf_bytes != NULL){
-			g_free(wtapng_if_descr->if_filter_bpf_bytes);
-		}
-		if(wtapng_if_descr->if_os != NULL){
-			g_free(wtapng_if_descr->if_os);
-		}
-		for(j = 0; j < wtapng_if_descr->num_stat_entries; j++) {
-			if_stats = &g_array_index(wtapng_if_descr->interface_statistics, wtapng_if_stats_t, j);
-			if(if_stats->opt_comment != NULL){
-				g_free(if_stats->opt_comment);
-			}
-		}
-		if(wtapng_if_descr->num_stat_entries != 0){
-			g_array_free(wtapng_if_descr->interface_statistics, TRUE);
-		}
+		wtap_optionblock_free(wtapng_if_descr);
 	}
 	g_array_free(wth->interface_data, TRUE);
 	g_free(wth);

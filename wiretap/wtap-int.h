@@ -31,6 +31,7 @@
 #include <wsutil/file_util.h>
 
 #include "wtap.h"
+#include "wtap_opttypes.h"
 
 WS_DLL_PUBLIC
 int wtap_fstat(wtap *wth, ws_statb64 *statb, int *err);
@@ -39,6 +40,7 @@ typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, gint64*);
 typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64,
                                            struct wtap_pkthdr *, Buffer *buf,
                                            int *, char **);
+
 /**
  * Struct holding data of the currently read file.
  */
@@ -49,9 +51,9 @@ struct wtap {
     guint                       snapshot_length;
     struct Buffer               *frame_buffer;
     struct wtap_pkthdr          phdr;
-    struct wtapng_section_s     shb_hdr;
+    wtap_optionblock_t          shb_hdr;
     GArray                      *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?)*/
-    wtapng_name_res_t           *nrb_hdr;               /**< holds the Name Res Block's comment/custom_opts, or NULL */
+    wtap_optionblock_t          nrb_hdr;               /**< holds the Name Res Block's comment/custom_opts, or NULL */
 
     void                        *priv;          /* this one holds per-file state and is free'd automatically by wtap_close() */
     void                        *wslua_data;    /* this one holds wslua state info and is not free'd */
@@ -112,8 +114,8 @@ struct wtap_dumper {
                                              * e.g. WTAP_TSPREC_USEC
                                              */
     addrinfo_lists_t        *addrinfo_lists; /**< Struct containing lists of resolved addresses */
-    wtapng_section_t        *shb_hdr;
-    wtapng_name_res_t       *nrb_hdr;        /**< name resolution comment/custom_opt, or NULL */
+    wtap_optionblock_t       shb_hdr;
+    wtap_optionblock_t       nrb_hdr;        /**< name resolution comment/custom_opt, or NULL */
     GArray                  *interface_data; /**< An array holding the interface data from pcapng IDB:s or equivalent(?) NULL if not present.*/
 };
 
