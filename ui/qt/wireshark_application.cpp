@@ -385,6 +385,7 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
     emit recentFilesRead();
     emit filterExpressionsChanged();
     emit checkDisplayFilter();
+    emit displayFilterListChanged();
 
     /* Enable all protocols and disable from the disabled list */
     proto_enable_all();
@@ -702,6 +703,9 @@ void WiresharkApplication::emitAppSignal(AppSignal signal)
     switch (signal) {
     case ColumnsChanged:
         emit columnsChanged();
+        break;
+    case DisplayFilterListChanged:
+        emit displayFilterListChanged();
         break;
     case FilterExpressionsChanged:
         emit filterExpressionsChanged();

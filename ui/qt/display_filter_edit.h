@@ -49,6 +49,7 @@ protected:
 
 public slots:
     bool checkFilter();
+    void updateBookmarkMenu();
     void applyDisplayFilter();
     void displayFilterSuccess(bool success);
 
@@ -66,6 +67,8 @@ private slots:
 private:
     DisplayFilterEditType type_;
     QString placeholder_text_;
+    QAction *save_action_;
+    QAction *remove_action_;
     StockIconToolButton *bookmark_button_;
     StockIconToolButton *clear_button_;
     StockIconToolButton *apply_button_;

@@ -40,6 +40,7 @@
 #include <QCompleter>
 #include <QEvent>
 #include <QMenu>
+#include <QMessageBox>
 #include <QPainter>
 #include <QStringListModel>
 
@@ -98,6 +99,8 @@ static const QString fld_abbrev_chars_ = "-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ
 DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type) :
     SyntaxLineEdit(parent),
     type_(type),
+    save_action_(NULL),
+    remove_action_(NULL),
     bookmark_button_(NULL),
     clear_button_(NULL),
     apply_button_(NULL)
@@ -193,7 +196,9 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
             .arg(bksz.width())
             .arg(cbsz.width() + apsz.width() + frameWidth + 1)
                   );
-    checkFilter();
+
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(updateBookmarkMenu()));
+    connect(wsApp, SIGNAL(displayFilterListChanged()), this, SLOT(updateBookmarkMenu()));
 }
 
 void DisplayFilterEdit::setDefaultPlaceholderText()
@@ -335,55 +340,75 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
     if (bookmark_button_) {
         bool enable_save_action = false;
         bool match = false;
-        QMenu *bb_menu = bookmark_button_->menu();
 
-        bb_menu->clear();
-        QAction *save_action = bb_menu->addAction(tr("Save this filter"));
-        connect(save_action, SIGNAL(triggered(bool)), this, SLOT(saveFilter()));
-        QAction *manage_action = bb_menu->addAction(tr("Manage Display Filters"));
-        connect(manage_action, SIGNAL(triggered(bool)), this, SLOT(showFilters()));
-        QAction *expr_action = bb_menu->addAction(tr("Manage Filter Expressions"));
-        connect(expr_action, SIGNAL(triggered(bool)), this, SLOT(showExpressionPrefs()));
-
-        QAction *first_filter = NULL;
         for (GList *df_item = get_filter_list_first(DFILTER_LIST); df_item; df_item = g_list_next(df_item)) {
             if (!df_item->data) continue;
             filter_def *df_def = (filter_def *) df_item->data;
             if (!df_def->name || !df_def->strval) continue;
 
-            int one_em = bb_menu->fontMetrics().height();
-            QString prep_text = QString("%1: %2").arg(df_def->name).arg(df_def->strval);
-            prep_text = bb_menu->fontMetrics().elidedText(prep_text, Qt::ElideRight, one_em * 40);
-
-            QAction *prep_action = bb_menu->addAction(prep_text);
-            prep_action->setData(df_def->strval);
-            connect(prep_action, SIGNAL(triggered(bool)), this, SLOT(prepareFilter()));
-            if (!first_filter) first_filter = prep_action;
-
             if (filter_text.compare(df_def->strval) == 0) {
                 match = true;
             }
         }
-        if (first_filter) bb_menu->insertSeparator(first_filter);
 
         if (match) {
             bookmark_button_->setStockIcon("x-filter-matching-bookmark");
-            QAction *remove_action = new QAction(tr("Remove this filter"), bb_menu);
-            bb_menu->insertAction(manage_action, remove_action);
-            remove_action->setData(filter_text);
-            connect(remove_action, SIGNAL(triggered(bool)), this, SLOT(removeFilter()));
+            if (remove_action_) {
+                remove_action_->setData(text());
+                remove_action_->setVisible(true);
+            }
         } else {
             bookmark_button_->setStockIcon("x-filter-bookmark");
+            if (remove_action_) {
+                remove_action_->setVisible(false);
+            }
         }
 
         if (!match && (syntaxState() == Valid || syntaxState() == Deprecated) && !filter_text.isEmpty()) {
             enable_save_action = true;
         }
-        save_action->setEnabled(enable_save_action);
+        if (save_action_) {
+            save_action_->setEnabled(enable_save_action);
+        }
     }
     if (apply_button_) {
         apply_button_->setEnabled(syntaxState() != Invalid);
     }
+}
+
+void DisplayFilterEdit::updateBookmarkMenu()
+{
+    if (!bookmark_button_)
+        return;
+
+    QMenu *bb_menu = bookmark_button_->menu();
+    bb_menu->clear();
+
+    save_action_ = bb_menu->addAction(tr("Save this filter"));
+    connect(save_action_, SIGNAL(triggered(bool)), this, SLOT(saveFilter()));
+    remove_action_ = bb_menu->addAction(tr("Remove this filter"));
+    connect(remove_action_, SIGNAL(triggered(bool)), this, SLOT(removeFilter()));
+    QAction *manage_action = bb_menu->addAction(tr("Manage Display Filters"));
+    connect(manage_action, SIGNAL(triggered(bool)), this, SLOT(showFilters()));
+    QAction *expr_action = bb_menu->addAction(tr("Manage Filter Expressions"));
+    connect(expr_action, SIGNAL(triggered(bool)), this, SLOT(showExpressionPrefs()));
+    bb_menu->addSeparator();
+
+    for (GList *df_item = get_filter_list_first(DFILTER_LIST); df_item; df_item = g_list_next(df_item)) {
+        if (!df_item->data) continue;
+        filter_def *df_def = (filter_def *) df_item->data;
+        if (!df_def->name || !df_def->strval) continue;
+
+        int one_em = bb_menu->fontMetrics().height();
+        QString prep_text = QString("%1: %2").arg(df_def->name).arg(df_def->strval);
+        prep_text = bb_menu->fontMetrics().elidedText(prep_text, Qt::ElideRight, one_em * 40);
+
+        QAction *prep_action = bb_menu->addAction(prep_text);
+        prep_action->setData(df_def->strval);
+        connect(prep_action, SIGNAL(triggered(bool)), this, SLOT(prepareFilter()));
+    }
+
+    checkFilter();
 }
 
 // GTK+ behavior:
@@ -537,6 +562,21 @@ void DisplayFilterEdit::removeFilter()
             remove_from_filter_list(DFILTER_LIST, df_item);
         }
     }
+
+    char *f_path;
+    int f_save_errno;
+
+    save_filter_list(DFILTER_LIST, &f_path, &f_save_errno);
+    if (f_path != NULL) {
+        // We had an error saving the filter.
+        QString warning_title = tr("Unable to save display filter settings.");
+        QString warning_msg = tr("Could not save to your display filter file\n\"%1\": %2.").arg(f_path).arg(g_strerror(f_save_errno));
+
+        QMessageBox::warning(this, warning_title, warning_msg, QMessageBox::Ok);
+        g_free(f_path);
+    }
+
+    updateBookmarkMenu();
 }
 
 void DisplayFilterEdit::showFilters()
