@@ -24,25 +24,25 @@ S<[ B<--remote-interface>=E<lt>interfaceE<gt> ]>
 S<[ B<--remote-capture-bin>=E<lt>capture binaryE<gt> ]>
 
 B<sshdump>
-S< B<--extcap-interfaces> >
+S<B<--extcap-interfaces>>
 
 B<sshdump>
-S< B<--extcap-interface>=E<lt>interfaceE<gt> >
-S<[ B<--extcap-dlts> ]>
+S<B<--extcap-interface>=E<lt>interfaceE<gt>>
+S<B<--extcap-dlts>>
 
 B<sshdump>
-S< B<--extcap-interface>=E<lt>interfaceE<gt> >
-S<[ B<--extcap-config> ]>
+S<B<--extcap-interface>=E<lt>interfaceE<gt>>
+S<B<--extcap-config>>
 
 B<sshdump>
-S< B<--extcap-interface>=E<lt>interfaceE<gt> >
-S< B<--fifo>=E<lt>path to file or pipeE<gt> >
-S< B<--capture> >
-S< B<--remote-host=myremotehost> >
-S< B<--remote-port=22> >
-S< B<--remote-username=user> >
-S< B<--remote-interface=eth2> >
-S< B<--remote-capture-bin=/usr/sbin/dumpcap> >
+S<B<--extcap-interface>=E<lt>interfaceE<gt>>
+S<B<--fifo>=E<lt>path to file or pipeE<gt>>
+S<B<--capture>>
+S<B<--remote-host=myremotehost>>
+S<B<--remote-port=22>>
+S<B<--remote-username=user>>
+S<B<--remote-interface=eth2>>
+S<B<--remote-capture-bin=/usr/sbin/dumpcap>>
 
 =head1 DESCRIPTION
 
@@ -97,7 +97,7 @@ List configuration options of specified interface.
 
 =item --capture
 
-Start capturing from specified interface save saved it in place specified by --fifo.
+Start capturing from specified interface and write raw packet data to the location specified by --fifo.
 
 =item --fifo=E<lt>path to file or pipeE<gt>
 
@@ -170,26 +170,32 @@ To see interface configuration options:
     sshdump --extcap-interface=ssh --extcap-config
 
   Output:
-    arg {number=0}{call=--remote-host}{display=Remote SSH server address}{type=string}{default=127.0.0.1}
-    {tooltip=The remote SSH host. It can be both an IP address or an hostname}
-    arg {number=1}{call=--remote-port}{display=Remote SSH server port}{type=unsigned}{default=22}
-    {tooltip=The remote SSH host port}
-    arg {number=2}{call=--remote-username}{display=Remote SSH server username}{type=string}{default=dario}
-    {tooltip=The remote SSH username. If not provided, the current user will be used}
-    arg {number=3}{call=--remote-password}{display=Remote SSH server password}{type=string}
-    {tooltip=The SSH password. SSH agent and certificate are used before it.If they fail, password will
-    be used, and, if it fails, the connection is not established.}
-    arg {number=4}{call=--remote-interface}{display=Remote SSH server interface}{type=string}{default=eth0}
-    {tooltip=The remote network interface used for capture}
-    arg {number=5}{call=--remote-capture-bin}{display=Remote SSH capture bin}{type=string}{default=dumpcap}
-    {tooltip=The remote dumcap binary used for capture.}
-    arg {number=6}{call=--extcap-capture-filter}{display=Capture filter}{type=string}{default=not host hardcore}
-    {tooltip=The capture filter}
+
+    arg {number=0}{call=--remote-host}{display=Remote SSH server address}{type=string}
+        {tooltip=The remote SSH host. It can be both an IP address or a hostname}{required=true}
+    arg {number=1}{call=--remote-port}{display=Remote SSH server port}{type=unsigned}
+        {default=22}{tooltip=The remote SSH host port (1-65535)}{range=1,65535}
+    arg {number=2}{call=--remote-username}{display=Remote SSH server username}{type=string}
+        {default=myusername}{tooltip=The remote SSH username. If not provided, the current user will be used}
+    arg {number=3}{call=--remote-password}{display=Remote SSH server password}{type=password}
+        {tooltip=The SSH password, used when other methods (SSH agent or key files) are unavailable.}
+    arg {number=4}{call=--sshkey}{display=Path to SSH private key}{type=fileselect}
+        {tooltip=The path on the local filesystem of the private ssh key}
+    arg {number=5}{call=--sshkey-passphrase}{display=SSH key passphrase}
+        {type=string}{tooltip=Passphrase to unlock the SSH private key}
+    arg {number=6}{call=--remote-interface}{display=Remote interface}{type=string}{default=eth0}
+        {tooltip=The remote network interface used for capture}
+    arg {number=7}{call=--remote-capture-bin}{display=Remote capture binary}{type=string}
+        {default=dumpcap}{tooltip=The remote dumpcap binary used for capture.}
+    arg {number=8}{call=--remote-filter}{display=Remote capture filter}{type=string}
+        {default=not ((host myip) and port 22)}{tooltip=The remote capture filter}
+    arg {number=9}{call=--remote-count}{display=Packets to capture}{type=unsigned}{default=0}
+        {tooltip=The number of remote packets to capture. (Default: unlimited)}
 
 To capture:
 
     sshdump --extcap-interface=ssh --fifo=/tmp/ssh.pcapng --capture --remote-host 192.168.1.10
-    --remote-username user --extcap-capture-filter "not port 22"
+    --remote-username user --remote-filter "not port 22"
 
 NOTE: To stop capturing CTRL+C/kill/terminate application.
 
