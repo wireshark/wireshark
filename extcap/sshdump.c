@@ -557,8 +557,8 @@ static int list_config(char *interface, unsigned int remote_port)
 	printf("arg {number=%u}{call=--sshkey}{display=Path to SSH private key}"
 		"{type=fileselect}{tooltip=The path on the local filesystem of the private ssh key}\n",
 		inc++);
-	printf("arg {number=%u}{call=--sshkey-passphrase}{display=SSH key passphrase}\n"
-		"{type=string}{tooltip=Passphrase to unlock the SSH private key}\n",
+	printf("arg {number=%u}{call=--sshkey-passphrase}{display=SSH key passphrase}"
+		"{type=password}{tooltip=Passphrase to unlock the SSH private key}\n",
 		inc++);
 	printf("arg {number=%u}{call=--remote-interface}{display=Remote interface}"
 		"{type=string}{default=eth0}{tooltip=The remote network interface used for capture"
