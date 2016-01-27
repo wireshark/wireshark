@@ -595,34 +595,22 @@ else()
 	set (C_UNUSED "" )
 endif()
 
+set(WIRESHARK_LD_FLAGS
+	-Wl,--as-needed
+	# -flto
+	# -fwhopr
+	# -fwhole-program
+)
+# CMAKE_POSITION_INDEPENDENT_CODE is only supported starting with CMake
+# 2.8.9. Do not add -pie automatically for older versions.
 #
-# XXX - at least with the Visual Studio 12 generator, this would test
-# whether the flag works with the compiler, but, at least when building
-# for Win64, the flag "works", in that the link succeeds, but with a
-# warning of an unused linker argument.
+# XXX - are there other compilers that don't support -pie?  It's
+# not as if the only platforms we support are Windows and Linux....
 #
-# So we leave it out for now; maybe there's a way to force the linker to
-# fail with unknown arguments, or maybe we have to look for error
-# messages in the linker output, the way CHECK_C_COMPILER_FLAG does.
-#
-if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
-	set(WIRESHARK_LD_FLAGS
-		-Wl,--as-needed
-		# -flto
-		# -fwhopr
-		# -fwhole-program
+if(NOT CMAKE_VERSION VERSION_LESS "2.8.9")
+	set(WIRESHARK_LD_FLAGS ${WIRESHARK_LD_FLAGS}
+		-pie
 	)
-	# CMAKE_POSITION_INDEPENDENT_CODE is only supported starting with CMake
-	# 2.8.9. Do not add -pie automatically for older versions.
-	#
-	# XXX - are there other compilers that don't support -pie?  It's
-	# not as if the only platforms we support are Windows and Linux....
-	#
-	if(NOT CMAKE_VERSION VERSION_LESS "2.8.9")
-		set(WIRESHARK_LD_FLAGS ${WIRESHARK_LD_FLAGS}
-			-pie
-		)
-	endif()
 endif()
 
 include(CheckCLinkerFlag)
