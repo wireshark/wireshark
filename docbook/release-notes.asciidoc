@@ -62,6 +62,9 @@ UserLog Protocol
 
 === Updated Protocol Support
 
+Bluetooth OBEX dissector (btobex) was renamed to Obex Dissector (obex), allow to
+DecodeAs it over USB, TCP and UDP.
+
 Too many protocols have been updated to list here.
 
 === New and Updated Capture File Support

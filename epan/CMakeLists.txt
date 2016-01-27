@@ -453,7 +453,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-btle_rf.c
 	dissectors/packet-btl2cap.c
 	dissectors/packet-btmcap.c
-	dissectors/packet-btobex.c
 	dissectors/packet-btrfcomm.c
 	dissectors/packet-btsap.c
 	dissectors/packet-btsdp.c
@@ -1088,6 +1087,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-nwmtp.c
 	dissectors/packet-nwp.c
 	dissectors/packet-oampdu.c
+	dissectors/packet-obex.c
 	dissectors/packet-ocfs2.c
 	dissectors/packet-oicq.c
 	dissectors/packet-oipf.c

@@ -374,7 +374,6 @@ DISSECTOR_SRC = \
 	packet-btle.c		\
 	packet-btle_rf.c	\
 	packet-btmcap.c		\
-	packet-btobex.c		\
 	packet-btrfcomm.c	\
 	packet-btsap.c		\
 	packet-btsdp.c		\
@@ -1007,6 +1006,7 @@ DISSECTOR_SRC = \
 	packet-nwmtp.c		\
 	packet-nwp.c		\
 	packet-oampdu.c		\
+	packet-obex.c		\
 	packet-ocfs2.c		\
 	packet-oicq.c		\
 	packet-oipf.c		\
