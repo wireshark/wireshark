@@ -34,7 +34,7 @@ CaptureFilterCombo::CaptureFilterCombo(QWidget *parent) :
     QComboBox(parent),
     cf_edit_(NULL)
 {
-    cf_edit_ = new CaptureFilterEdit(this, true);
+    cf_edit_ = new CaptureFilterEdit(this, false);
 
     setEditable(true);
     // Enabling autocompletion here gives us two simultaneous completions:

@@ -33,11 +33,14 @@
 
 #include "capture_filter_edit.h"
 #include "capture_filter_syntax_worker.h"
+#include "filter_dialog.h"
 #include "stock_icon_tool_button.h"
 #include "wireshark_application.h"
 
 #include <QComboBox>
 #include <QCompleter>
+#include <QMenu>
+#include <QMessageBox>
 #include <QPainter>
 #include <QStringListModel>
 #include <QStyleOptionFrame>
@@ -110,6 +113,9 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
     SyntaxLineEdit(parent),
     plain_(plain),
     field_name_only_(false),
+    enable_save_action_(false),
+    save_action_(NULL),
+    remove_action_(NULL),
     bookmark_button_(NULL),
     clear_button_(NULL),
     apply_button_(NULL)
@@ -125,11 +131,10 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
     setPlaceholderText(placeholder_text_);
 #endif
 
-    // These are fully implemented in DisplayFilterEdit but not here.
-
     if (!plain_) {
         bookmark_button_ = new StockIconToolButton(this, "x-filter-bookmark");
         bookmark_button_->setCursor(Qt::ArrowCursor);
+        bookmark_button_->setMenu(new QMenu());
         bookmark_button_->setPopupMode(QToolButton::InstantPopup);
         bookmark_button_->setToolTip(tr("Manage saved bookmarks."));
         bookmark_button_->setIconSize(QSize(14, 14));
@@ -162,6 +167,8 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
 
     connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(checkFilter(const QString&)));
 
+#if 0
+    // Disable the apply button for now
     if (!plain_) {
         apply_button_ = new StockIconToolButton(this, "x-filter-apply");
         apply_button_->setCursor(Qt::ArrowCursor);
@@ -177,6 +184,7 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
                 );
         connect(apply_button_, SIGNAL(clicked()), this, SLOT(applyCaptureFilter()));
     }
+#endif
     connect(this, SIGNAL(returnPressed()), this, SLOT(applyCaptureFilter()));
 
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
@@ -203,20 +211,34 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
     syntax_worker_ = new CaptureFilterSyntaxWorker;
     syntax_worker_->moveToThread(syntax_thread);
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(initCaptureFilter()));
+    connect(wsApp, SIGNAL(captureFilterListChanged()), this, SLOT(updateBookmarkMenu()));
     connect(syntax_thread, SIGNAL(started()), syntax_worker_, SLOT(start()));
     connect(syntax_thread, SIGNAL(started()), this, SLOT(checkFilter()));
     connect(syntax_worker_, SIGNAL(syntaxResult(QString,int,QString)),
             this, SLOT(setFilterSyntaxState(QString,int,QString)));
     connect(syntax_thread, SIGNAL(finished()), syntax_worker_, SLOT(deleteLater()));
     syntax_thread->start();
-
-    checkFilter();
 }
 
-#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
 void CaptureFilterEdit::paintEvent(QPaintEvent *evt) {
     SyntaxLineEdit::paintEvent(evt);
 
+    if (bookmark_button_) {
+        // Draw the right border by hand. We could try to do this in the
+        // style sheet but it's a pain.
+#ifdef Q_OS_MAC
+        QColor divider_color = Qt::gray;
+#else
+        QColor divider_color = palette().shadow().color();
+#endif
+        QPainter painter(this);
+        painter.setPen(divider_color);
+        QRect cr = contentsRect();
+        QSize bksz = bookmark_button_->size();
+        painter.drawLine(bksz.width(), cr.top(), bksz.width(), cr.bottom());
+    }
+
+#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
     // http://wiki.forum.nokia.com/index.php/Custom_QLineEdit
     if (text().isEmpty() && ! this->hasFocus()) {
         QPainter p(this);
@@ -238,8 +260,8 @@ void CaptureFilterEdit::paintEvent(QPaintEvent *evt) {
     }
     // else check filter syntax and set the background accordingly
     // XXX - Should we add little warning/error icons as well?
-}
 #endif // QT < 4.7
+}
 
 void CaptureFilterEdit::resizeEvent(QResizeEvent *)
 {
@@ -274,7 +296,35 @@ void CaptureFilterEdit::checkFilter(const QString& filter)
     bool empty = filter.isEmpty();
 
     if (bookmark_button_) {
-        bookmark_button_->setEnabled(false);
+        bool match = false;
+
+        for (GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = g_list_next(cf_item)) {
+            if (!cf_item->data) continue;
+            filter_def *cf_def = (filter_def *) cf_item->data;
+            if (!cf_def->name || !cf_def->strval) continue;
+
+            if (filter.compare(cf_def->strval) == 0) {
+                match = true;
+            }
+        }
+
+        if (match) {
+            bookmark_button_->setStockIcon("x-filter-matching-bookmark");
+            if (remove_action_) {
+                remove_action_->setData(text());
+                remove_action_->setVisible(true);
+            }
+        } else {
+            bookmark_button_->setStockIcon("x-filter-bookmark");
+            if (remove_action_) {
+                remove_action_->setVisible(false);
+            }
+        }
+
+        enable_save_action_ = (!match && !filter.isEmpty());
+        if (save_action_) {
+            save_action_->setEnabled(false);
+        }
     }
 
     if (apply_button_) {
@@ -297,11 +347,46 @@ void CaptureFilterEdit::checkFilter()
     checkFilter(text());
 }
 
+void CaptureFilterEdit::updateBookmarkMenu()
+{
+    if (!bookmark_button_)
+        return;
+
+    QMenu *bb_menu = bookmark_button_->menu();
+    bb_menu->clear();
+
+    save_action_ = bb_menu->addAction(tr("Save this filter"));
+    connect(save_action_, SIGNAL(triggered(bool)), this, SLOT(saveFilter()));
+    remove_action_ = bb_menu->addAction(tr("Remove this filter"));
+    connect(remove_action_, SIGNAL(triggered(bool)), this, SLOT(removeFilter()));
+    QAction *manage_action = bb_menu->addAction(tr("Manage Capture Filters"));
+    connect(manage_action, SIGNAL(triggered(bool)), this, SLOT(showFilters()));
+    bb_menu->addSeparator();
+
+    for (GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = g_list_next(cf_item)) {
+        if (!cf_item->data) continue;
+        filter_def *cf_def = (filter_def *) cf_item->data;
+        if (!cf_def->name || !cf_def->strval) continue;
+
+        int one_em = bb_menu->fontMetrics().height();
+        QString prep_text = QString("%1: %2").arg(cf_def->name).arg(cf_def->strval);
+        prep_text = bb_menu->fontMetrics().elidedText(prep_text, Qt::ElideRight, one_em * 40);
+
+        QAction *prep_action = bb_menu->addAction(prep_text);
+        prep_action->setData(cf_def->strval);
+        connect(prep_action, SIGNAL(triggered(bool)), this, SLOT(prepareFilter()));
+    }
+
+    checkFilter();
+}
+
 void CaptureFilterEdit::initCaptureFilter()
 {
 #ifdef HAVE_LIBPCAP
     setText(global_capture_opts.default_options.cfilter);
 #endif // HAVE_LIBPCAP
+
+    updateBookmarkMenu();
 }
 
 void CaptureFilterEdit::setFilterSyntaxState(QString filter, int state, QString err_msg)
@@ -316,8 +401,8 @@ void CaptureFilterEdit::setFilterSyntaxState(QString filter, int state, QString 
     bool valid = (state != Invalid);
 
     if (valid) {
-        if (bookmark_button_) {
-            bookmark_button_->setEnabled(true);
+        if (save_action_) {
+            save_action_->setEnabled(enable_save_action_);
         }
         if (apply_button_) {
             apply_button_->setEnabled(true);
@@ -379,6 +464,61 @@ void CaptureFilterEdit::applyCaptureFilter()
     }
 
     emit startCapture();
+}
+
+void CaptureFilterEdit::saveFilter()
+{
+    FilterDialog capture_filter_dlg(window(), FilterDialog::CaptureFilter, text());
+    capture_filter_dlg.exec();
+}
+
+void CaptureFilterEdit::removeFilter()
+{
+    QAction *ra = qobject_cast<QAction*>(sender());
+    if (!ra || ra->data().toString().isEmpty()) return;
+
+    QString remove_filter = ra->data().toString();
+
+    for (GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = g_list_next(cf_item)) {
+        if (!cf_item->data) continue;
+        filter_def *cf_def = (filter_def *) cf_item->data;
+        if (!cf_def->name || !cf_def->strval) continue;
+
+        if (remove_filter.compare(cf_def->strval) == 0) {
+            remove_from_filter_list(CFILTER_LIST, cf_item);
+        }
+    }
+
+    char *f_path;
+    int f_save_errno;
+
+    save_filter_list(CFILTER_LIST, &f_path, &f_save_errno);
+    if (f_path != NULL) {
+        // We had an error saving the filter.
+        QString warning_title = tr("Unable to save capture filter settings.");
+        QString warning_msg = tr("Could not save to your capture filter file\n\"%1\": %2.").arg(f_path).arg(g_strerror(f_save_errno));
+
+        QMessageBox::warning(this, warning_title, warning_msg, QMessageBox::Ok);
+        g_free(f_path);
+    }
+
+    updateBookmarkMenu();
+}
+
+void CaptureFilterEdit::showFilters()
+{
+    FilterDialog capture_filter_dlg(window(), FilterDialog::CaptureFilter);
+    capture_filter_dlg.exec();
+}
+
+void CaptureFilterEdit::prepareFilter()
+{
+    QAction *pa = qobject_cast<QAction*>(sender());
+    if (!pa || pa->data().toString().isEmpty()) return;
+
+    QString filter(pa->data().toString());
+    setText(filter);
+    emit textEdited(filter);
 }
 
 /*

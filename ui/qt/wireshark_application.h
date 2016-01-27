@@ -63,6 +63,7 @@ public:
 
     enum AppSignal {
         ColumnsChanged,
+        CaptureFilterListChanged,
         DisplayFilterListChanged,
         FilterExpressionsChanged,
         PacketDissectionChanged,
@@ -149,6 +150,7 @@ signals:
     void profileNameChanged(const gchar *profile_name);
 
     void columnsChanged(); // XXX This recreates the packet list. We might want to rename it accordingly.
+    void captureFilterListChanged();
     void displayFilterListChanged();
     void filterExpressionsChanged();
     void packetDissectionChanged();
