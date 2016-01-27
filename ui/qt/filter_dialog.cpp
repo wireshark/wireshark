@@ -239,7 +239,9 @@ void FilterDialog::on_buttonBox_accepted()
         g_free(f_path);
     }
 
-    if (filter_type_ == DisplayFilter) {
+    if (filter_type_ == CaptureFilter) {
+        wsApp->emitAppSignal(WiresharkApplication::CaptureFilterListChanged);
+    } else {
         wsApp->emitAppSignal(WiresharkApplication::DisplayFilterListChanged);
     }
 }

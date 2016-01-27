@@ -36,15 +36,18 @@ public:
     explicit CaptureFilterEdit(QWidget *parent = 0, bool plain = false);
 
 protected:
-#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
     void paintEvent(QPaintEvent *evt);
-#endif
     void resizeEvent(QResizeEvent *);
     void keyPressEvent(QKeyEvent *event) { completionKeyPressEvent(event); }
     void focusInEvent(QFocusEvent *event) { completionFocusInEvent(event); }
 
 public slots:
     void checkFilter();
+    void updateBookmarkMenu();
+    void saveFilter();
+    void removeFilter();
+    void showFilters();
+    void prepareFilter();
 
 private slots:
     void initCaptureFilter();
@@ -56,7 +59,10 @@ private slots:
 private:
     bool plain_;
     bool field_name_only_;
+    bool enable_save_action_;
     QString placeholder_text_;
+    QAction *save_action_;
+    QAction *remove_action_;
     StockIconToolButton *bookmark_button_;
     StockIconToolButton *clear_button_;
     StockIconToolButton *apply_button_;
