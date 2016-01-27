@@ -595,7 +595,16 @@ else()
 	set (C_UNUSED "" )
 endif()
 
-
+#
+# XXX - at least with the Visual Studio 12 generator, this would test
+# whether the flag works with the compiler, but, at least when building
+# for Win64, the flag "works", in that the link succeeds, but with a
+# warning of an unused linker argument.
+#
+# So we leave it out for now; maybe there's a way to force the linker to
+# fail with unknown arguments, or maybe we have to look for error
+# messages in the linker output, the way CHECK_C_COMPILER_FLAG does.
+#
 if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	set(WIRESHARK_LD_FLAGS
 		-Wl,--as-needed
