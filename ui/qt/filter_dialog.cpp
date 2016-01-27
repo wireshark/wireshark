@@ -238,6 +238,10 @@ void FilterDialog::on_buttonBox_accepted()
         QMessageBox::warning(this, warning_title, warning_msg, QMessageBox::Ok);
         g_free(f_path);
     }
+
+    if (filter_type_ == DisplayFilter) {
+        wsApp->emitAppSignal(WiresharkApplication::DisplayFilterListChanged);
+    }
 }
 
 void FilterDialog::on_buttonBox_helpRequested()
