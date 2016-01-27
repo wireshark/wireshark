@@ -611,6 +611,28 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
      */
     tvb_offset = megaco_tvb_skip_wsp(tvb, tvb_offset);
 
+    /* Quick fix for MEGACO packet with Authentication Header,
+     * marked as "AU" or "Authentication".
+     */
+    if (g_ascii_strncasecmp(word, "Authentication", 14) ||
+        g_ascii_strncasecmp(word, "AU", 2) ) {
+        gint counter;
+        guint8 next;
+
+        /* move offset to end of auth header (EOL or WSP) */
+        for ( counter = tvb_offset; counter < tvb_len; counter++ ) {
+            needle = tvb_get_guint8(tvb, counter);
+            if (needle == ' ' || needle == '\r' || needle == '\n') {
+                next = tvb_get_guint8(tvb, counter+1);
+                if (next == ' ' || next == '\r' || next == '\n') {
+                    continue;
+                }
+                tvb_offset = counter + 1;
+                break;
+            }
+        }
+    }
+
     /* Quick fix for MEGACO not following the RFC, hopefully not breaking any thing
      * Turned out to be TPKT in case of TCP, added some code to handle that.
      *
