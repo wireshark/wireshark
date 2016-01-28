@@ -44,10 +44,10 @@ MACRO (CHECK_C_LINKER_FLAG _FLAG _RESULT)
    elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
       #
       # We'll be running the linker through the compiler driver, so
-      # we may need to pass -Werror=unknown-warning-option to have it
+      # we may need to pass -Werror=unused-command-line-argument to have it
       # fail, rather than just complaining and driving on, if it's
       # passed a flag it doesn't handle.
-      set(CMAKE_REQUIRED_LIBRARIES "-Werror=unknown-warning-option")
+      set(CMAKE_REQUIRED_LIBRARIES "-Werror=unused-command-line-argument")
    endif()
    set(CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES} ${_FLAG}")
    message(status "check linker flag - test linker flags: ${_FLAG}")
