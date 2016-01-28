@@ -70,6 +70,8 @@ static int hf_lcsap_gnss_pos_usage = -1;
 
 /* Initialize the subtree pointers */
 static int ett_lcsap = -1;
+static int ett_lcsap_plmnd_id = -1;
+static int ett_lcsap_imsi = -1;
 
 #include "packet-lcsap-ett.c"
 
@@ -295,7 +297,9 @@ void proto_register_lcsap(void) {
 
   /* List of subtrees */
   static gint *ett[] = {
-		  &ett_lcsap,
+    &ett_lcsap,
+    &ett_lcsap_plmnd_id,
+    &ett_lcsap_imsi,
 #include "packet-lcsap-ettarr.c"
  };
 

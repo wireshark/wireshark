@@ -235,6 +235,8 @@ static int hf_lcsap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_valu
 
 /* Initialize the subtree pointers */
 static int ett_lcsap = -1;
+static int ett_lcsap_plmnd_id = -1;
+static int ett_lcsap_imsi = -1;
 
 
 /*--- Included file: packet-lcsap-ett.c ---*/
@@ -286,7 +288,7 @@ static gint ett_lcsap_SuccessfulOutcome = -1;
 static gint ett_lcsap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-lcsap-ett.c ---*/
-#line 75 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 77 "../../asn1/lcsap/packet-lcsap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -729,7 +731,7 @@ dissect_lcsap_Correlation_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_lcsap_DegreesLatitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 202 "../../asn1/lcsap/lcsap.cnf"
+#line 204 "../../asn1/lcsap/lcsap.cnf"
   gint32 degrees;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -746,7 +748,7 @@ dissect_lcsap_DegreesLatitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_lcsap_DegreesLongitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 210 "../../asn1/lcsap/lcsap.cnf"
+#line 212 "../../asn1/lcsap/lcsap.cnf"
   gint32 degrees;
 
     offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -766,14 +768,16 @@ static int
 dissect_lcsap_PLMN_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 156 "../../asn1/lcsap/lcsap.cnf"
   tvbuff_t *parameter_tvb=NULL;
+  proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 3, FALSE, &parameter_tvb);
-	if(tvb_reported_length(tvb)==0)
-		return offset;
+  if(tvb_reported_length(tvb)==0)
+    return offset;
 
-	if (!parameter_tvb)
-		return offset;
-	dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, E212_NONE, TRUE);
+  if (!parameter_tvb)
+    return offset;
+   subtree = proto_item_add_subtree(actx->created_item, ett_lcsap_plmnd_id);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, TRUE);
 
 
   return offset;
@@ -832,7 +836,7 @@ dissect_lcsap_Geographical_Coordinates(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_lcsap_Uncertainty_Code(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 194 "../../asn1/lcsap/lcsap.cnf"
+#line 196 "../../asn1/lcsap/lcsap.cnf"
   guint32 uncertainty_code;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -1126,7 +1130,7 @@ dissect_lcsap_Global_eNB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_lcsap_GNSS_Positioning_Method_And_Usage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 180 "../../asn1/lcsap/lcsap.cnf"
+#line 182 "../../asn1/lcsap/lcsap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -1163,8 +1167,17 @@ dissect_lcsap_GNSS_Positioning_Data_Set(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 static int
 dissect_lcsap_Horizontal_Accuracy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 230 "../../asn1/lcsap/lcsap.cnf"
+  guint32 uncertainty_code;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 127U, NULL, FALSE);
+                                                            0U, 127U, &uncertainty_code, FALSE);
+
+
+
+
+#line 234 "../../asn1/lcsap/lcsap.cnf"
+  proto_item_append_text(actx->created_item, " (%.1f m)", 10 * (pow(1.1, (double)uncertainty_code) - 1));
+
 
   return offset;
 }
@@ -1314,8 +1327,19 @@ dissect_lcsap_Horizontal_With_Vertical_Velocity_And_Uncertainty(tvbuff_t *tvb _U
 
 static int
 dissect_lcsap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 220 "../../asn1/lcsap/lcsap.cnf"
+  tvbuff_t *imsi_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       3, 8, FALSE, NULL);
+                                       3, 8, FALSE, &imsi_tvb);
+
+  if (imsi_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_lcsap_imsi);
+    dissect_e212_imsi(imsi_tvb, actx->pinfo, subtree, 0, tvb_reported_length(imsi_tvb), FALSE);
+  }
+
+
 
   return offset;
 }
@@ -1510,8 +1534,17 @@ dissect_lcsap_Vertical_Requested(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_lcsap_Vertical_Accuracy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 237 "../../asn1/lcsap/lcsap.cnf"
+  guint32 vertical_uncertainty;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 127U, NULL, FALSE);
+                                                            0U, 127U, &vertical_uncertainty, FALSE);
+
+
+
+
+#line 241 "../../asn1/lcsap/lcsap.cnf"
+  proto_item_append_text(actx->created_item, " (%.1f m)", 45 * (pow(1.025, (double)vertical_uncertainty) - 1));
+
 
   return offset;
 }
@@ -1615,7 +1648,7 @@ dissect_lcsap_Payload_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_lcsap_Positioning_Method_And_Usage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 168 "../../asn1/lcsap/lcsap.cnf"
+#line 170 "../../asn1/lcsap/lcsap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -2202,7 +2235,7 @@ static int dissect_LCS_AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-lcsap-fn.c ---*/
-#line 188 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 190 "../../asn1/lcsap/packet-lcsap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -2302,7 +2335,7 @@ proto_reg_handoff_lcsap(void)
 
 
 /*--- End of included file: packet-lcsap-dis-tab.c ---*/
-#line 249 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 251 "../../asn1/lcsap/packet-lcsap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, lcsap_handle);
@@ -2784,12 +2817,14 @@ void proto_register_lcsap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-lcsap-hfarr.c ---*/
-#line 294 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 296 "../../asn1/lcsap/packet-lcsap-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-		  &ett_lcsap,
+    &ett_lcsap,
+    &ett_lcsap_plmnd_id,
+    &ett_lcsap_imsi,
 
 /*--- Included file: packet-lcsap-ettarr.c ---*/
 #line 1 "../../asn1/lcsap/packet-lcsap-ettarr.c"
@@ -2840,7 +2875,7 @@ void proto_register_lcsap(void) {
     &ett_lcsap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-lcsap-ettarr.c ---*/
-#line 300 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 304 "../../asn1/lcsap/packet-lcsap-template.c"
  };
 
   module_t *lcsap_module;
