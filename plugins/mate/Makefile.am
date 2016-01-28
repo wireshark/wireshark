@@ -23,8 +23,6 @@
 include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
-#AM_CFLAGS = $(GENERATED_FILES)
-
 #
 # XXX - how to make this apply only to clean files?
 #
@@ -46,6 +44,7 @@ nodist_mate_la_SOURCES = \
 	$(NODIST_SRC_FILES) \
 	$(NODIST_HEADER_FILES)
 
+mate_la_CFLAGS = $(GENERATED_CFLAGS)
 mate_la_LDFLAGS = -module -avoid-version
 mate_la_LIBADD = @PLUGIN_LIBS@
 
