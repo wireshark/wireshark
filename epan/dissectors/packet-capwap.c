@@ -1,6 +1,6 @@
 /* packet-capwap.c
- * Routines for CAPWAP dissection (RFC 5415 / RFC5416)
- * Copyright 2009,  Alexis La Goutte <alexis.lagoutte at gmail dot com>
+ * Routines for CAPWAP dissection (RFC 5415 / RFC 5416)
+ * Copyright 2009, Alexis La Goutte <alexis.lagoutte at gmail dot com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -1514,7 +1514,7 @@ static const value_string fortinet_element_id_vals[] = {
     { VSP_FORTINET_COEXT, "Coext" },
     { VSP_FORTINET_AMSDU, "AMSDU" },
     { VSP_FORTINET_PS_OPT, "PS OPT" },
-    { VSP_FORTINET_PURE, "Pure "},
+    { VSP_FORTINET_PURE, "Pure" },
     { VSP_FORTINET_EBP_TAG, "EBP Tag" },
     { VSP_FORTINET_TELNET_ENABLE, "Telnet Enable" },
     { VSP_FORTINET_ADMIN_PASSWD, "Admin Password" },
