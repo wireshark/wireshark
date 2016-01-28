@@ -2,6 +2,7 @@
 --SIEMENS ASN.1 Compiler       R5.70  (Production_5.70)    
 --            Date: 2003-09-04 Time: 14:14:00            
 -- Updated to version 3GPP TS 29.002 V7.5.0 (2006-09) Release 7
+-- Partially from ETS 300 599: December 2000 (GSM 09.02 version 4.19.1)
 
 DummyMAP{ 0 identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-Protocol (4) version5 (5) }
 
@@ -681,6 +682,26 @@ RoutingInfoForSM-ArgV1 ::= SEQUENCE {
     --singleAttemptDelivery   [13]    NULL        OPTIONAL,
     --correlationID   [15] CorrelationID  OPTIONAL
     }
+
+-- From ETS 300 599: December 2000 (GSM 09.02 version 4.19.1), clause 14.7.6
+RoutingInfoForSM-ResV2::= SEQUENCE {
+	imsi			IMSI,
+	locationInfoWithLMSI		[0] LocationInfoWithLMSIv2,
+	mwd-Set		[2] BOOLEAN	OPTIONAL,
+	-- mwd-Set must be absent in version greater 1
+	...}
+
+-- From ETS 300 599: December 2000 (GSM 09.02 version 4.19.1), clause 14.7.6
+LocationInfoWithLMSIv2 ::= SEQUENCE {
+		locationInfo	LocationInfo,
+		lmsi		LMSI			OPTIONAL,
+	...}
+
+-- From ETS 300 599: December 2000 (GSM 09.02 version 4.19.1), clause 14.7.6
+LocationInfo ::= CHOICE {
+	roamingNumber	[0] ISDN-AddressString,
+	-- roamingNumber must not be used in version greater 1
+	msc-Number	[1] ISDN-AddressString}
 
 Ki ::= OCTET STRING (SIZE (16))
 
