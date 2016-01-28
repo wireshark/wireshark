@@ -465,6 +465,18 @@ extern guint32
 ssl_starttls_ack(dissector_handle_t ssl_handle, packet_info *pinfo,
                  dissector_handle_t app_handle);
 
+/** Marks this packet as belonging to an SSL conversation started with STARTTLS.
+ * @param ssl_handle The dissector handle for SSL or DTLS.
+ * @param pinfo Packet Info.
+ * @param app_handle Dissector handle for the protocol inside the decrypted
+ * Application Data record.
+ * @return 0 for the first STARTTLS acknowledgement (success) or if ssl_handle
+ * is NULL. >0 if STARTTLS was started before.
+ */
+extern guint32
+ssl_starttls_post_ack(dissector_handle_t ssl_handle, packet_info *pinfo,
+                 dissector_handle_t app_handle);
+
 /** set the data and len for the stringInfo buffer. buf should be big enough to
  * contain the provided data
  @param buf the buffer to update

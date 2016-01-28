@@ -52,13 +52,37 @@ static gint ett_imap_reqresp = -1;
 static dissector_handle_t imap_handle;
 static dissector_handle_t ssl_handle;
 
+static gboolean imap_ssl_heuristic = TRUE;
+
 #define TCP_PORT_IMAP     143
 #define TCP_PORT_SSL_IMAP 993
 #define MAX_BUFFER        1024
+#define IMAP_HEUR_LEN     5
 
 typedef struct imap_state {
   gboolean  ssl_requested;
+  gint      ssl_heur_tries_left;
 } imap_state_t;
+
+/* Heuristic to detect plaintext or TLS ciphertext IMAP */
+static gboolean
+check_imap_heur(tvbuff_t *tvb)
+{
+  const gchar *s;
+  gint i;
+
+  if (!tvb_bytes_exist(tvb, 0, IMAP_HEUR_LEN)) {
+    return TRUE;
+  }
+
+  s = (const gchar *)tvb_get_ptr(tvb, 0, IMAP_HEUR_LEN);
+  for (i = 0; i < IMAP_HEUR_LEN; i++) {
+    if (!g_ascii_isprint(s[i])) {
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
 
 static int
 dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -92,7 +116,38 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   if (!session_state) {
     session_state = wmem_new0(wmem_file_scope(), imap_state_t);
     session_state->ssl_requested = FALSE;
+    if (imap_ssl_heuristic)
+      session_state->ssl_heur_tries_left = 2;
+    else
+      session_state->ssl_heur_tries_left = -1; /* Disabled */
     conversation_add_proto_data(conversation, proto_imap, session_state);
+  }
+
+  if (imap_ssl_heuristic && session_state->ssl_heur_tries_left < 0) {
+    /* Preference changed to enabled */
+    session_state->ssl_heur_tries_left = 2;
+  }
+  else if (!imap_ssl_heuristic && session_state->ssl_heur_tries_left >= 0) {
+    /* Preference changed to disabled */
+    session_state->ssl_heur_tries_left = -1;
+  }
+
+  /*
+   * It is possible the IMAP session is already running over TLS and the
+   * STARTTLS request/response happened before the capture began. Don't assume
+   * we have plaintext without performing some heuristic checks first.
+   * We have three cases:
+   *   1. capture includes STARTTLS command: no need for heuristics
+   *   2. capture starts with STARTTLS OK response: next frame will be TLS (need to retry heuristic)
+   *   3. capture start after STARTTLS negotiation: current frame is TLS
+   */
+  if (session_state->ssl_heur_tries_left > 0) {
+    session_state->ssl_heur_tries_left--;
+    if (!check_imap_heur(tvb)) {
+      ssl_starttls_post_ack(ssl_handle, pinfo, imap_handle);
+      session_state->ssl_heur_tries_left = 0;
+      return call_dissector(ssl_handle, tvb, pinfo, tree);
+    }
   }
 
   tokenbuf = (guchar *)wmem_alloc0(wmem_packet_scope(), MAX_BUFFER);
@@ -260,6 +315,9 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             if (!is_request && strncmp(tokenbuf, "ok", tokenlen) == 0) {
               /* STARTTLS accepted, next reply will be TLS. */
               ssl_starttls_ack(ssl_handle, pinfo, imap_handle);
+              if (session_state->ssl_heur_tries_left > 0) {
+                session_state->ssl_heur_tries_left = 0;
+              }
             }
             session_state->ssl_requested = FALSE;
           }
@@ -348,12 +406,20 @@ proto_register_imap(void)
     &ett_imap_reqresp,
   };
 
+  module_t *imap_module;
+
   proto_imap = proto_register_protocol("Internet Message Access Protocol", "IMAP", "imap");
 
   imap_handle = register_dissector("imap", dissect_imap, proto_imap);
 
   proto_register_field_array(proto_imap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  imap_module = prefs_register_protocol(proto_imap, NULL);
+  prefs_register_bool_preference(imap_module, "ssl_heuristic",
+                                   "Use heuristic detection for TLS",
+                                   "Whether to use heuristics for post-STARTTLS detection of encrypted IMAP conversations",
+                                   &imap_ssl_heuristic);
 }
 
 void

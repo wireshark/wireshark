@@ -4100,10 +4100,9 @@ ssl_get_session(conversation_t *conversation, dissector_handle_t ssl_handle)
     return ssl_session;
 }
 
-/* ssl_starttls_ack: mark future frames as encrypted. {{{ */
-guint32
-ssl_starttls_ack(dissector_handle_t ssl_handle, packet_info *pinfo,
-                 dissector_handle_t app_handle)
+static guint32
+ssl_starttls(dissector_handle_t ssl_handle, packet_info *pinfo,
+                 dissector_handle_t app_handle, guint32 last_nontls_frame)
 {
     conversation_t  *conversation;
     SslSession      *session;
@@ -4135,9 +4134,24 @@ ssl_starttls_ack(dissector_handle_t ssl_handle, packet_info *pinfo,
     /* The SSL dissector should be called first for this conversation. */
     conversation_set_dissector(conversation, ssl_handle);
     /* SSL starts after this frame. */
-    session->last_nontls_frame = pinfo->num;
+    session->last_nontls_frame = last_nontls_frame;
     return 0;
 } /* }}} */
+
+/* ssl_starttls_ack: mark future frames as encrypted. {{{ */
+guint32
+ssl_starttls_ack(dissector_handle_t ssl_handle, packet_info *pinfo,
+                 dissector_handle_t app_handle)
+{
+    return ssl_starttls(ssl_handle, pinfo, app_handle, pinfo->num);
+}
+
+guint32
+ssl_starttls_post_ack(dissector_handle_t ssl_handle, packet_info *pinfo,
+                 dissector_handle_t app_handle)
+{
+    return ssl_starttls(ssl_handle, pinfo, app_handle, pinfo->num - 1);
+}
 
 /* Functions for TLS/DTLS sessions and RSA private keys hashtables. {{{ */
 static gint
