@@ -1677,6 +1677,7 @@ static int hf_gsm_old_msisdn_02 = -1;             /* AddressString */
 static int hf_gsm_old_sm_RP_PRI = -1;             /* BOOLEAN */
 static int hf_gsm_old_serviceCentreAddress = -1;  /* AddressString */
 static int hf_gsm_old_cug_Interlock = -1;         /* CUG_Interlock */
+static int hf_gsm_old_teleserviceCode = -1;       /* TeleserviceCode */
 static int hf_gsm_old_subscriberId = -1;          /* SubscriberIdentity */
 static int hf_gsm_old_requestParameterList = -1;  /* RequestParameterList */
 static int hf_gsm_old_RequestParameterList_item = -1;  /* RequestParameter */
@@ -17888,6 +17889,7 @@ static const ber_sequence_t gsm_old_RoutingInfoForSM_ArgV1_sequence[] = {
   { &hf_gsm_old_sm_RP_PRI   , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_old_BOOLEAN },
   { &hf_gsm_old_serviceCentreAddress, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gsm_map_AddressString },
   { &hf_gsm_old_cug_Interlock, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_CUG_Interlock },
+  { &hf_gsm_old_teleserviceCode, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_TeleserviceCode },
   { &hf_gsm_old_imsi        , BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
   { NULL, 0, 0, 0, NULL }
 };
@@ -21159,7 +21161,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     }
     break;
   case 45: /*sendRoutingInfoForSM*/
-    if (application_context_version == 1) {
+    if (application_context_version < 2) {
       offset=dissect_gsm_old_RoutingInfoForSM_ArgV1(FALSE, tvb, offset, actx, tree, -1);
     } else {
       offset=dissect_gsm_map_sm_RoutingInfoForSM_Arg(FALSE, tvb, offset, actx, tree, -1);
@@ -29001,6 +29003,10 @@ void proto_register_gsm_map(void) {
     { &hf_gsm_old_cug_Interlock,
       { "cug-Interlock", "gsm_old.cug_Interlock",
         FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_old_teleserviceCode,
+      { "teleserviceCode", "gsm_old.teleserviceCode",
+        FT_UINT8, BASE_DEC, VALS(Teleservice_vals), 0,
         NULL, HFILL }},
     { &hf_gsm_old_subscriberId,
       { "subscriberId", "gsm_old.subscriberId",

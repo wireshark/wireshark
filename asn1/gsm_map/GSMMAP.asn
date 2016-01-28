@@ -665,10 +665,10 @@ RoutingInfoForSM-ArgV1 ::= SEQUENCE {
     serviceCentreAddress    [2] AddressString,
     -- WS specific change to be backwards compatible with phase 1 (See Bug 9704)
     cug-Interlock       [3]  CUG-Interlock  OPTIONAL,
-    --teleserviceCode         [5] TeleserviceCode OPTIONAL,
+    teleserviceCode         [5] TeleserviceCode OPTIONAL,
     -- END Ws specific change
     --extensionContainer  [6] ExtensionContainer  OPTIONAL,
-    --... ,
+    ... ,
     --gprsSupportIndicator    [7] NULL        OPTIONAL,
     -- gprsSupportIndicator is set only if the SMS-GMSC supports
     -- receiving of two numbers from the HLR
