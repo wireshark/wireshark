@@ -479,6 +479,7 @@ static int hf_time_sync_port_proto_addr_info_port_proto_addr = -1;
 static int hf_time_sync_steps_removed = -1;
 static int hf_time_sync_sys_time_and_offset_time = -1;
 static int hf_time_sync_sys_time_and_offset_offset = -1;
+static int hf_cip_security_state = -1;
 static int hf_conn_path_class = -1;
 
 /* Initialize the subtree pointers */
@@ -869,6 +870,15 @@ static const value_string cip_time_sync_network_protocol_vals[] = {
    { 0xFFFF, "Local or Unknown protocol"   },
    { 0,      NULL           }
 };
+
+static const value_string cip_security_state_vals[] = {
+   { 0,      "Factory Default Configuration"     },
+   { 1,      "Initial Commissioning In Progress" },
+   { 2,      "Configured"   },
+   { 3,      "Incomplete Configuration"    },
+   { 0,      NULL           }
+};
+
 
 
 static const value_string cip_path_seg_vals[] = {
@@ -2583,6 +2593,9 @@ static const value_string cip_class_names_vals[] = {
    { 0x53,     "Power Management Object"               },
    { 0x54,     "RSTP Bridge Object"                    },
    { 0x55,     "RSTP Port Object"                      },
+   { 0x5D,     "CIP Security Object"                   },
+   { 0x5E,     "EtherNet/IP Security Object"           },
+   { 0x5F,     "Certificate Management Object"         },
    { 0xF0,     "ControlNet Object"                     },
    { 0xF1,     "ControlNet Keeper Object"              },
    { 0xF2,     "ControlNet Scheduling Object"          },
@@ -3258,6 +3271,9 @@ static attribute_info_t cip_attribute_vals[] = {
    {0x43, FALSE, 26, -1, "Port Protocol Address Info", cip_dissector_func, NULL, dissect_time_sync_port_proto_addr_info},
    {0x43, FALSE, 27, -1, "Steps Removed", cip_uint, &hf_time_sync_steps_removed, NULL},
    {0x43, FALSE, 28, -1, "System Time and Offset", cip_dissector_func, NULL, dissect_time_sync_sys_time_and_offset},
+
+    /* CIP Security Object (instance attributes) */
+   {0x5D, FALSE, 1, 0, "State", cip_usint, &hf_cip_security_state, NULL},
 };
 
 typedef struct attribute_val_array {
@@ -7512,6 +7528,7 @@ proto_register_cip(void)
       { &hf_time_sync_steps_removed, { "Steps Removed", "cip.time_sync.steps_removed", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_time_sync_sys_time_and_offset_time, { "System Time (Microseconds)", "cip.time_sync.sys_time_and_offset.time", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_time_sync_sys_time_and_offset_offset, { "System Offset (Microseconds)", "cip.time_sync.sys_time_and_offset.offset", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_security_state, { "State", "cip.security.state", FT_UINT8, BASE_DEC, VALS(cip_security_state_vals), 0, NULL, HFILL }},
       { &hf_conn_path_class, { "CIP Connection Path Class", "cip.conn_path_class", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &cip_class_names_vals_ext, 0, NULL, HFILL }},
    };
 
