@@ -23,8 +23,6 @@
 include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
-#AM_CFLAGS = $(GENERATED_CFLAGS)
-
 #
 # XXX - how to make this apply only to clean files?
 #
@@ -42,6 +40,7 @@ wimaxasncp_la_SOURCES = \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 
+wimaxasncp_la_CFLAGS = $(GENERATED_CFLAGS)
 wimaxasncp_la_LDFLAGS = -module -avoid-version
 wimaxasncp_la_LIBADD = @PLUGIN_LIBS@
 
