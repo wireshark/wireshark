@@ -43,7 +43,6 @@
 ExtcapArgumentFileSelection::ExtcapArgumentFileSelection (extcap_arg * argument) :
     ExtcapArgument(argument), textBox(0)
 {
-    _default = new QVariant(QString(""));
 }
 
 ExtcapArgumentFileSelection::~ExtcapArgumentFileSelection()
@@ -61,7 +60,7 @@ QWidget * ExtcapArgumentFileSelection::createEditor(QWidget * parent)
     fileWidget->setContentsMargins(margins.left(), margins.right(), 0, margins.bottom());
     QPushButton * button = new QPushButton(UTF8_HORIZONTAL_ELLIPSIS, fileWidget);
 
-    textBox = new QLineEdit(_default->toString(), parent);
+    textBox = new QLineEdit(defaultValue(), parent);
     textBox->setReadOnly(true);
 
     if ( _argument->default_complex != NULL && _argument->arg_type == EXTCAP_ARG_STRING )

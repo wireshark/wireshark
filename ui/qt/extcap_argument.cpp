@@ -41,6 +41,8 @@
 #include <QStandardItemModel>
 #include <QItemSelectionModel>
 
+#include <glib.h>
+#include <log.h>
 #include <epan/prefs.h>
 #include <color_utils.h>
 
@@ -138,18 +140,10 @@ QWidget * ExtArgRadio::createEditor(QWidget * parent)
             QString callString = (*iter).call();
             callStrings->append(callString);
 
-            if ( _default != NULL && (*iter).isDefault() )
+            if ( (*iter).isDefault() )
             {
                 radio->setChecked(true);
                 anyChecked = true;
-            }
-            else if (_default != NULL)
-            {
-                if ( callString.compare(_default->toString()) == 0 )
-                {
-                    radio->setChecked(true);
-                    anyChecked = true;
-                }
             }
 
             connect(radio, SIGNAL(clicked(bool)), SLOT(onBoolChanged(bool)));
@@ -219,19 +213,13 @@ QWidget * ExtArgBool::createLabel(QWidget * parent)
 
 QWidget * ExtArgBool::createEditor(QWidget * parent)
 {
+    bool state = defaultBool();
+
     boolBox = new QCheckBox(QString().fromUtf8(_argument->display), parent);
     if ( _argument->tooltip != NULL )
         boolBox->setToolTip(QString().fromUtf8(_argument->tooltip));
 
-    if ( _argument->default_complex != NULL )
-        if ( extcap_complex_get_bool(_argument->default_complex) == (gboolean)TRUE )
-            boolBox->setCheckState(Qt::Checked);
-
-    if ( _default != NULL )
-    {
-        if ( _default->toString().compare("true") )
-            boolBox->setCheckState(Qt::Checked);
-    }
+    boolBox->setCheckState(state ? Qt::Checked : Qt::Unchecked );
 
     connect (boolBox, SIGNAL(stateChanged(int)), SLOT(onIntChanged(int)));
 
@@ -263,26 +251,37 @@ bool ExtArgBool::isValid()
     return true;
 }
 
+bool ExtArgBool::defaultBool()
+{
+    bool result = false;
+
+    if ( _argument )
+    {
+        if ( _argument->default_complex )
+        {
+            if ( extcap_complex_get_bool(_argument->default_complex) == (gboolean)TRUE )
+                result = true;
+        }
+    }
+
+    return result;
+}
+
 QString ExtArgBool::defaultValue()
 {
-    if ( _argument != 0 && _argument->default_complex != NULL )
-        if ( extcap_complex_get_bool(_argument->default_complex) == (gboolean)TRUE )
-            return QString("true");
-
-    return QString("false");
+    return defaultBool() ? QString("true") : QString("false");
 }
 
 ExtArgText::ExtArgText(extcap_arg * argument) :
     ExtcapArgument(argument), textBox(0)
 {
-    _default = new QVariant(QString(""));
 }
 
 QWidget * ExtArgText::createEditor(QWidget * parent)
 {
-    textBox = new QLineEdit(_default->toString(), parent);
+    QString text = defaultValue();
 
-    textBox->setText(defaultValue());
+    textBox = new QLineEdit(text, parent);
 
     if ( _argument->tooltip != NULL )
         textBox->setToolTip(QString().fromUtf8(_argument->tooltip));
@@ -330,23 +329,12 @@ bool ExtArgText::isValid()
     return valid;
 }
 
-QString ExtArgText::defaultValue()
-{
-    if ( _argument != 0 && _argument->default_complex != 0)
-    {
-        gchar * str = extcap_get_complex_as_string(_argument->default_complex);
-        if ( str != 0 )
-            return QString(str);
-    }
-
-    return QString();
-}
-
 ExtArgNumber::ExtArgNumber(extcap_arg * argument) :
         ExtArgText(argument) {}
 
 QWidget * ExtArgNumber::createEditor(QWidget * parent)
 {
+    QString text = defaultValue();
     textBox = (QLineEdit *)ExtArgText::createEditor(parent);
     textBox->disconnect(SIGNAL(textChanged(QString)));
 
@@ -354,13 +342,45 @@ QWidget * ExtArgNumber::createEditor(QWidget * parent)
     {
         QIntValidator * textValidator = new QIntValidator(parent);
         if ( _argument->range_start != NULL )
-            textValidator->setBottom(extcap_complex_get_int(_argument->range_start));
+        {
+            int val = 0;
+            if ( _argument->arg_type == EXTCAP_ARG_INTEGER )
+                val = extcap_complex_get_int(_argument->range_start);
+            else if ( _argument->arg_type == EXTCAP_ARG_UNSIGNED )
+            {
+                val = extcap_complex_get_uint(_argument->range_start);
+                if ( val > G_MAXINT )
+                {
+                    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Defined value for range_start of %s exceeds valid integer range", _argument->call );
+                    val = G_MAXINT;
+                }
+            }
 
+            textValidator->setBottom(val);
+        }
         if ( _argument->arg_type == EXTCAP_ARG_UNSIGNED && textValidator->bottom() < 0 )
+        {
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "%s sets negative bottom range for unsigned value, setting to 0", _argument->call );
             textValidator->setBottom(0);
+        }
 
         if ( _argument->range_end != NULL )
-            textValidator->setTop(extcap_complex_get_int(_argument->range_end));
+        {
+            int val = 0;
+            if ( _argument->arg_type == EXTCAP_ARG_INTEGER )
+                val = extcap_complex_get_int(_argument->range_end);
+            else if ( _argument->arg_type == EXTCAP_ARG_UNSIGNED )
+            {
+                val = extcap_complex_get_uint(_argument->range_end);
+                if ( val > G_MAXINT )
+                {
+                    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Defined value for range_end of %s exceeds valid integer range", _argument->call );
+                    val = G_MAXINT;
+                }
+            }
+
+            textValidator->setTop(val);
+        }
         textBox->setValidator(textValidator);
     }
     else if ( _argument->arg_type == EXTCAP_ARG_DOUBLE )
@@ -374,7 +394,7 @@ QWidget * ExtArgNumber::createEditor(QWidget * parent)
         textBox->setValidator(textValidator);
     }
 
-    textBox->setText(defaultValue());
+    textBox->setText(text.trimmed());
 
     connect(textBox, SIGNAL(textChanged(QString)), SLOT(onStringChanged(QString)));
 
@@ -385,7 +405,7 @@ QString ExtArgNumber::defaultValue()
 {
     QString result;
 
-    if ( _argument != 0 && _argument->default_complex != NULL )
+    if ( _argument != 0 )
     {
         if ( _argument->arg_type == EXTCAP_ARG_DOUBLE )
             result = QString::number(extcap_complex_get_double(_argument->default_complex));
@@ -396,7 +416,10 @@ QString ExtArgNumber::defaultValue()
         else if ( _argument->arg_type == EXTCAP_ARG_LONG )
             result = QString::number(extcap_complex_get_long(_argument->default_complex));
         else
-            result = QString();
+        {
+            QString defValue = ExtcapArgument::defaultValue();
+            result = defValue.length() > 0 ? defValue : QString();
+        }
     }
 
     return result;
@@ -417,7 +440,7 @@ void ExtcapValue::setChildren(ExtcapValueList children)
 }
 
 ExtcapArgument::ExtcapArgument(extcap_arg * argument, QObject *parent) :
-        QObject(parent), _argument(argument), _default(0), _label(0),
+        QObject(parent), _argument(argument), _label(0),
         label_style(QString("QLabel { color: %1; }"))
 {
     if ( _argument->values != 0 )
@@ -515,29 +538,14 @@ bool ExtcapArgument::isValid()
 
 QString ExtcapArgument::defaultValue()
 {
-    return QString();
-}
-
-void ExtcapArgument::setDefault(GHashTable * defaultsList)
-{
-    if ( defaultsList != NULL && g_hash_table_size(defaultsList) > 0 )
+    if ( _argument != 0 && _argument->default_complex != 0)
     {
-        GList * keys = g_hash_table_get_keys(defaultsList);
-        while ( keys != NULL )
-        {
-            if ( call().compare(QString().fromUtf8((gchar *)keys->data)) == 0 )
-            {
-                gpointer data = g_hash_table_lookup(defaultsList, keys->data);
-                QString dataStr = QString().fromUtf8((gchar *)data);
-                /* We assume an empty value but set entry must be a boolflag */
-                if ( dataStr.length() == 0 )
-                    dataStr = "true";
-                _default = new QVariant(dataStr);
-                break;
-            }
-            keys = keys->next;
-        }
+        gchar * str = extcap_get_complex_as_string(_argument->default_complex);
+        if ( str != 0 )
+            return QString(str);
     }
+
+    return QString();
 }
 
 bool ExtcapArgument::isRequired()
@@ -564,7 +572,7 @@ bool ExtcapArgument::isDefault()
     return false;
 }
 
-ExtcapArgument * ExtcapArgument::create(extcap_arg * argument, GHashTable * device_defaults)
+ExtcapArgument * ExtcapArgument::create(extcap_arg * argument)
 {
     if ( argument == 0 || argument->display == 0 )
         return 0;
@@ -591,8 +599,6 @@ ExtcapArgument * ExtcapArgument::create(extcap_arg * argument, GHashTable * devi
         /* For everything else, we just print the label */
         result = new ExtcapArgument(argument);
     }
-
-    result->setDefault(device_defaults);
 
     return result;
 }

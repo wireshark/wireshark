@@ -37,6 +37,10 @@
 
 #ifdef HAVE_EXTCAP
 
+/* As boolean flags will be allowed any form of yes, true or any number != 0 (or starting with 0)
+ * The regex will be matched case-insensitive, so only the lower-case is defined here. */
+#define EXTCAP_BOOLEAN_REGEX "^.*([yt1-9])"
+
 /* Prefix for the pipe interfaces */
 #define EXTCAP_PIPE_PREFIX "wireshark_extcap"
 

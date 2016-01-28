@@ -119,8 +119,8 @@ QWidget * ExtArgMultiSelect::createEditor(QWidget * parent)
     if (items.length() == 0)
         return new QWidget();
 
-    if ( _default != 0 )
-        defaults = _default->toString().split(",", QString::SkipEmptyParts);
+    if ( defaultValue().length() > 0 )
+        defaults = defaultValue().split(",", QString::SkipEmptyParts);
 
     viewModel = new QStandardItemModel();
     QList<QStandardItem *>::const_iterator iter = items.constBegin();
@@ -171,18 +171,6 @@ QString ExtArgMultiSelect::value()
     }
 
     return result.join(QString(","));
-}
-
-QString ExtArgMultiSelect::defaultValue()
-{
-    if ( _argument != 0 && _argument->default_complex != 0)
-    {
-        gchar * str = extcap_get_complex_as_string(_argument->default_complex);
-        if ( str != 0 )
-            return QString(str);
-    }
-
-    return QString();
 }
 
 void ExtArgMultiSelect::selectionChanged(const QItemSelection &, const QItemSelection &)

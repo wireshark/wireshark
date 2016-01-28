@@ -71,6 +71,7 @@ typedef enum {
     EXTCAP_PARAM_FILE_EXTENSION,
     EXTCAP_PARAM_PARENT,
     EXTCAP_PARAM_REQUIRED,
+    EXTCAP_PARAM_SAVE,
     EXTCAP_PARAM_VALIDATION,
     EXTCAP_PARAM_VERSION
 } extcap_param_type;
@@ -91,15 +92,7 @@ typedef struct _extcap_value {
 /* Complex-ish struct for storing complex values */
 typedef struct _extcap_complex {
     extcap_arg_type complex_type;
-    union {
-        int int_value;
-        unsigned int uint_value;
-        long long_value;
-        double double_value;
-        gboolean bool_value;
-        gchar *string_value;
-    } complex_value;
-    gboolean value_filled;
+    gchar * _val;
 } extcap_complex;
 
 /* An argument sentence and accompanying options */
@@ -114,6 +107,7 @@ typedef struct _extcap_arg {
     gboolean fileexists;
 
     gboolean is_required;
+    gboolean do_not_save;
 
     gchar * regexp;
 
@@ -192,10 +186,10 @@ void extcap_printf_complex(extcap_complex *comp);
  */
 gchar *extcap_get_complex_as_string(extcap_complex *comp);
 
-int extcap_complex_get_int(extcap_complex *comp);
-unsigned int extcap_complex_get_uint(extcap_complex *comp);
-long extcap_complex_get_long(extcap_complex *comp);
-double extcap_complex_get_double(extcap_complex *comp);
+gint extcap_complex_get_int(extcap_complex *comp);
+guint extcap_complex_get_uint(extcap_complex *comp);
+gint64 extcap_complex_get_long(extcap_complex *comp);
+gdouble extcap_complex_get_double(extcap_complex *comp);
 gboolean extcap_complex_get_bool(extcap_complex *comp);
 gchar *extcap_complex_get_string(extcap_complex *comp);
 
@@ -220,8 +214,6 @@ extcap_token_param *extcap_find_param_by_type(extcap_token_param *first,
         extcap_param_type t);
 
 void extcap_free_value(extcap_value *v);
-
-extcap_arg *extcap_new_arg(void);
 
 /* Free a single argument */
 void extcap_free_arg(extcap_arg *a);

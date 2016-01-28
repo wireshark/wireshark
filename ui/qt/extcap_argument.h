@@ -98,7 +98,7 @@ public:
     bool isValid();
     bool isRequired();
 
-    static ExtcapArgument * create(extcap_arg * argument = 0, GHashTable * device_defaults = 0);
+    static ExtcapArgument * create(extcap_arg * argument = 0);
 
 Q_SIGNALS:
     void valueChanged();
@@ -107,14 +107,11 @@ protected:
 
     bool fileExists();
 
-    void setDefault(GHashTable * defaultsList);
-
     ExtcapValueList loadValues(QString parent);
 
     ExtcapValueList values;
 
     extcap_arg * _argument;
-    QVariant * _default;
     QWidget * _label;
 
     const QString label_style;
@@ -136,7 +133,6 @@ public:
     virtual QWidget * createEditor(QWidget * parent);
     virtual QString value();
     virtual bool isValid();
-    virtual QString defaultValue();
 
 protected:
 
@@ -197,6 +193,8 @@ public:
 private:
 
     QCheckBox * boolBox;
+
+    bool defaultBool();
 };
 
 #endif /* UI_QT_EXTCAP_ARGUMENT_H_ */

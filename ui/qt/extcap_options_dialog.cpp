@@ -62,15 +62,14 @@ ExtcapOptionsDialog::ExtcapOptionsDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ExtcapOptionsDialog),
     device_name(""),
-    device_idx(0),
-    device_defaults(NULL)
+    device_idx(0)
 {
     ui->setupUi(this);
 
     setWindowTitle(wsApp->windowTitleString(tr("Extcap Interface Options")));
 
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Start"));
 
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Start"));
 }
 
 ExtcapOptionsDialog * ExtcapOptionsDialog::createForDevice(QString &dev_name, QWidget *parent)
@@ -99,7 +98,6 @@ ExtcapOptionsDialog * ExtcapOptionsDialog::createForDevice(QString &dev_name, QW
     resultDialog = new ExtcapOptionsDialog(parent);
     resultDialog->device_name = QString(dev_name);
     resultDialog->device_idx = if_idx;
-    resultDialog->device_defaults = device.external_cap_args_settings;
 
     resultDialog->setWindowTitle(wsApp->windowTitleString(tr("Extcap Interface Options") + ": " + device.display_name));
 
@@ -205,7 +203,7 @@ void ExtcapOptionsDialog::updateWidgets()
         item = g_list_first((GList *)(walker->data));
         while ( item != NULL )
         {
-            argument = ExtcapArgument::create((extcap_arg *)(item->data), device_defaults);
+            argument = ExtcapArgument::create((extcap_arg *)(item->data));
             if ( argument != NULL )
             {
                 if ( argument->isRequired() )
@@ -266,9 +264,7 @@ void ExtcapOptionsDialog::updateWidgets()
 // Not sure why we have to do this manually.
 void ExtcapOptionsDialog::on_buttonBox_rejected()
 {
-    if (saveOptionToCaptureInfo()) {
-        reject();
-    }
+    reject();
 }
 
 void ExtcapOptionsDialog::on_buttonBox_helpRequested()
@@ -305,7 +301,6 @@ bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
 
         gchar * call_string = g_strdup(call.toStdString().c_str());
         gchar * value_string = g_strdup(value.toStdString().c_str());
-
         g_hash_table_insert(ret_args, call_string, value_string );
     }
 

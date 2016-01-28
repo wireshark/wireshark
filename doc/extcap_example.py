@@ -73,11 +73,12 @@ def extcap_config(interface):
 	args = []
 	values = []
 
-	args.append ( (0, '--delay', 'Time delay', 'Time delay between packages', 'integer', '{range=1,15}') )
+	args.append ( (0, '--delay', 'Time delay', 'Time delay between packages', 'integer', '{range=1,15}{default=5}') )
 	args.append ( (1, '--message', 'Message', 'Package message content', 'string', '{required=true}') )
-	args.append ( (2, '--verify', 'Verify', 'Verify package content', 'boolflag', '') )
+	args.append ( (2, '--verify', 'Verify', 'Verify package content', 'boolflag', '{default=yes}') )
 	args.append ( (3, '--remote', 'Remote Channel', 'Remote Channel Selector', 'selector', ''))
-	args.append ( (4, '--fake_ip', 'Fake IP Address', 'Use this ip address as sender', 'string', '{validation=\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b}'))
+	args.append ( (4, '--fake_ip', 'Fake IP Address', 'Use this ip address as sender', 'string', '{save=false}{validation=\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b}'))
+	args.append ( (5, '--password', 'Password', 'Package message password', 'password', '') )
 
 	values.append ( (3, "if1", "Remote1", "true" ) )
 	values.append ( (3, "if2", "Remote2", "false" ) )

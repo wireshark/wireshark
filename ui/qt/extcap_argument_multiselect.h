@@ -40,7 +40,6 @@ public:
     virtual ~ExtArgMultiSelect();
 
     virtual QString value();
-    virtual QString defaultValue();
     virtual bool isValid();
 
 protected:

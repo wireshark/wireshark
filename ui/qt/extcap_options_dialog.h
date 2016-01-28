@@ -66,7 +66,6 @@ private:
     Ui::ExtcapOptionsDialog *ui;
     QString device_name;
     guint device_idx;
-    GHashTable * device_defaults;
 
     ExtcapArgumentList extcapArguments;
 
