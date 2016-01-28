@@ -169,6 +169,20 @@ register_codec(const char *name, codec_init_fn init_fn, codec_release_fn release
     return TRUE;
 }
 
+/* Deregister a codec by name. */
+gboolean
+deregister_codec(const char *name)
+{
+    gpointer key, value;
+
+    if (registered_codecs && g_hash_table_lookup_extended(registered_codecs, name, &key, &value)) {
+        g_hash_table_remove(registered_codecs, name);
+        g_free(value);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 void *codec_init(codec_handle_t codec)
 {
     if (!codec) return NULL;

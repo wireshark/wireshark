@@ -50,6 +50,7 @@ typedef size_t (*codec_decode_fn)(void *context, const void *input, size_t input
 WS_DLL_PUBLIC gboolean register_codec(const char *name, codec_init_fn init_fn,
         codec_release_fn release_fn, codec_get_channels_fn channels_fn,
         codec_get_frequency_fn frequency_fn, codec_decode_fn decode_fn);
+WS_DLL_PUBLIC gboolean deregister_codec(const char *name);
 WS_DLL_PUBLIC codec_handle_t find_codec(const char *name);
 WS_DLL_PUBLIC void *codec_init(codec_handle_t codec);
 WS_DLL_PUBLIC void codec_release(codec_handle_t codec, void *context);

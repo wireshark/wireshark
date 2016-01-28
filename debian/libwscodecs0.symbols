@@ -5,6 +5,7 @@ libwscodecs.so.0 libwireshark0 #MINVER#
  codec_init@Base 2.1.0
  codec_register_plugin_types@Base 2.1.0
  codec_release@Base 2.1.0
+ deregister_codec@Base 2.1.0
  find_codec@Base 2.1.0
  register_all_codecs@Base 2.1.0
  register_codec@Base 2.1.0
