@@ -340,7 +340,6 @@ extern attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint
 /*
 ** Exported variables
 */
-extern dissector_table_t subdissector_class_table;
 extern const value_string cip_sc_rr[];
 extern const value_string cip_reset_type_vals[];
 extern value_string_ext cip_gs_vals_ext;

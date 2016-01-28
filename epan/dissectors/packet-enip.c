@@ -326,6 +326,7 @@ static expert_field ei_mal_dlr_active_gateway_address = EI_INIT;
 static dissector_table_t   subdissector_srrd_table;
 static dissector_table_t   subdissector_sud_table;
 static dissector_table_t   subdissector_io_table;
+static dissector_table_t   subdissector_class_table;
 
 static dissector_handle_t  data_handle;
 static dissector_handle_t  arp_handle;
@@ -3891,6 +3892,7 @@ proto_reg_handoff_enip(void)
    dissector_add_uint("ethertype", ETHERTYPE_DLR, dlr_handle);
 
    proto_cipsafety = proto_get_id_by_filter_name( "cipsafety" );
+   subdissector_class_table = find_dissector_table("cip.class.iface");
 
 } /* end of proto_reg_handoff_enip() */
 

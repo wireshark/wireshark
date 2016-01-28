@@ -45,6 +45,7 @@ static int proto_cip_class_s_supervisor   = -1;
 static int proto_cip_class_s_validator    = -1;
 static int proto_cip                      = -1;
 
+static dissector_table_t subdissector_class_table;
 static dissector_handle_t cip_class_s_validator_handle;
 
 /* CIP Safety field identifiers */
@@ -2595,6 +2596,7 @@ proto_reg_handoff_cipsafety(void)
    dissector_add_for_decode_as("enip.io", cipsafety_handle );
 
    proto_cip = proto_get_id_by_filter_name( "cip" );
+   subdissector_class_table = find_dissector_table("cip.class.iface");
 }
 
 

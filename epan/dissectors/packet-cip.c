@@ -607,7 +607,7 @@ static expert_field ei_mal_fwd_close_missing_data = EI_INIT;
 static expert_field ei_mal_opt_attr_list = EI_INIT;
 static expert_field ei_mal_opt_service_list = EI_INIT;
 
-dissector_table_t   subdissector_class_table;
+static dissector_table_t   subdissector_class_table;
 static dissector_table_t   subdissector_symbol_table;
 
 /* Translate function to string - CIP Service codes */
