@@ -3347,6 +3347,7 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
   char buf[1000];
   FILE *in;
   char *tpltname;
+  char *tpltname_alloc = NULL;
   char *cp;
 
   /* first, see if user specified a template filename on the command line. */
@@ -3378,7 +3379,8 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
   }else if( access(templatename,004)==0 ){
     tpltname = templatename;
   }else{
-    tpltname = pathsearch(lemp->argv0,templatename,0);
+    tpltname_alloc = pathsearch(lemp->argv0,templatename,0);
+    tpltname = tpltname_alloc;
   }
   if( tpltname==0 ){
     fprintf(stderr,"Can't find the parser driver template file \"%s\".\n",
@@ -3390,7 +3392,9 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
   if( in==0 ){
     fprintf(stderr,"Can't open the template file \"%s\".\n",templatename);
     lemp->errorcnt++;
-    return 0;
+  }
+  if (tpltname_alloc) {
+    free(tpltname_alloc);
   }
   return in;
 }
