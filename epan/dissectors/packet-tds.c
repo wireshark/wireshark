@@ -347,6 +347,8 @@
 #define TDS_DATA_TYPE_IMAGE           0x22  /* 34 = Image */
 #define TDS_DATA_TYPE_NTEXT           0x63  /* 99 = NText */
 #define TDS_DATA_TYPE_SSVARIANT       0x62  /* 98 = Sql_Variant (introduced in TDS 7.2) */
+/* no official data type, used only as error indication */
+#define TDS_DATA_TYPE_INVALID         G_MAXUINT8
 
 #define is_fixedlen_type_sybase(x) (x==SYBINT1      ||            \
                                     x==SYBINT2      ||            \
@@ -3410,7 +3412,8 @@ dissect_tds_type_info(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tr
             break;
         default:
             expert_add_info(pinfo, data_type_item, &ei_tds_type_info_type);
-            THROW(ReportedBoundsError); /* No point in continuing */
+            varlen_len = 0;
+            data_type = TDS_DATA_TYPE_INVALID;
     }
 
     if(varlen_len)
@@ -3539,6 +3542,8 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(status_sub_tree, hf_tds_rpc_parameter_status_default, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             ++offset;
             data_type = dissect_tds_type_info(tvb, &offset, pinfo, sub_tree, &plp, FALSE);
+            if (data_type == TDS_DATA_TYPE_INVALID)
+                break;
             dissect_tds_type_varbyte(tvb, &offset, pinfo, sub_tree, hf_tds_rpc_parameter_value, data_type, 0, plp, -1); /* TODO: Precision needs setting? */
             proto_item_set_end(param_item, tvb, offset);
         }
