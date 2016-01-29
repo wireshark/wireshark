@@ -1492,7 +1492,15 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			proto_tree *ampdu_tree = NULL, *ampdu_flags_tree;
 			guint16	    ampdu_flags;
 
+			phdr.has_aggregate_info = 1;
+			phdr.aggregate_flags = 0;
+			phdr.aggregate_id = tvb_get_letohl(tvb, offset);
+
 			ampdu_flags = tvb_get_letohs(tvb, offset + 4);
+			if (ampdu_flags & IEEE80211_RADIOTAP_AMPDU_IS_LAST)
+				phdr.aggregate_flags |= PHDR_802_11_LAST_PART_OF_A_MPDU;
+			if (ampdu_flags & IEEE80211_RADIOTAP_AMPDU_DELIM_CRC_ERR)
+				phdr.aggregate_flags |= PHDR_802_11_A_MPDU_DELIM_CRC_ERROR;
 
 			if (tree) {
 				it = proto_tree_add_item(radiotap_tree, hf_radiotap_ampdu,

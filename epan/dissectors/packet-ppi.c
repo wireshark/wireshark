@@ -629,13 +629,9 @@ dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
 {
     proto_tree  *ftree       = tree;
     ptvcursor_t *csr;
-    int          subtree_off = add_subtree ? 4 : 0;
     guint32      flags;
 
     phdr->phy = PHDR_802_11_PHY_11N;
-
-    *n_mac_flags = tvb_get_letohl(tvb, offset + subtree_off);
-    *ampdu_id = tvb_get_letohl(tvb, offset + 4 + subtree_off);
 
     if (add_subtree) {
         ftree = proto_tree_add_subtree(tree, tvb, offset, data_len, ett_dot11n_mac, NULL, "802.11n MAC");
@@ -651,10 +647,19 @@ dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
     csr = ptvcursor_new(ftree, tvb, offset);
 
     flags = tvb_get_letohl(tvb, ptvcursor_current_offset(csr));
+    *n_mac_flags = flags;
     phdr->phy_info.info_11n.has_short_gi = TRUE;
     phdr->phy_info.info_11n.has_greenfield = TRUE;
     phdr->phy_info.info_11n.short_gi = ((flags & DOT11N_FLAG_SHORT_GI) != 0);
     phdr->phy_info.info_11n.greenfield = ((flags & DOT11N_FLAG_GREENFIELD) != 0);
+    if (DOT11N_IS_AGGREGATE(flags)) {
+        phdr->has_aggregate_info = 1;
+        phdr->aggregate_flags = 0;
+        if (!(flags & DOT11N_FLAG_MORE_AGGREGATES))
+            phdr->aggregate_flags |= PHDR_802_11_LAST_PART_OF_A_MPDU;
+        if (flags & DOT11N_FLAG_AGG_CRC_ERROR)
+            phdr->aggregate_flags |= PHDR_802_11_A_MPDU_DELIM_CRC_ERROR;
+    }
     ptvcursor_add_with_subtree(csr, hf_80211n_mac_flags, 4, ENC_LITTLE_ENDIAN,
                                ett_dot11n_mac_flags);
     ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_greenfield, 4, ENC_LITTLE_ENDIAN);
@@ -666,6 +671,10 @@ dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
     ptvcursor_add(csr, hf_80211n_mac_flags_delimiter_crc_after, 4, ENC_LITTLE_ENDIAN); /* Last */
     ptvcursor_pop_subtree(csr);
 
+    if (DOT11N_IS_AGGREGATE(flags)) {
+        *ampdu_id = tvb_get_letohl(tvb, ptvcursor_current_offset(csr));
+        phdr->aggregate_id = *ampdu_id;
+    }
     ptvcursor_add(csr, hf_80211n_mac_ampdu_id, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(csr, hf_80211n_mac_num_delimiters, 1, ENC_LITTLE_ENDIAN);
 

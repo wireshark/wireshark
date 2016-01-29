@@ -779,6 +779,7 @@ struct ieee_802_11_phdr {
     guint    has_signal_dbm:1;
     guint    has_noise_dbm:1;
     guint    has_tsf_timestamp:1;
+    guint    has_aggregate_info:1;    /* aggregate flags and ID */
 
     guint16  channel;        /* Channel number */
     guint32  frequency;      /* Channel center frequency */
@@ -788,7 +789,15 @@ struct ieee_802_11_phdr {
     gint8    signal_dbm;     /* Signal level, in dBm */
     gint8    noise_dbm;      /* Noise level, in dBm */
     guint64  tsf_timestamp;
+    guint32  aggregate_flags; /* A-MPDU flags */
+    guint32  aggregate_id;    /* ID for A-MPDU reassembly */
 };
+
+/*
+ * A-MPDU flags.
+ */
+#define PHDR_802_11_LAST_PART_OF_A_MPDU    0x00000001 /* this is the last part of an A-MPDU */
+#define PHDR_802_11_A_MPDU_DELIM_CRC_ERROR 0x00000002 /* delimiter CRC error after this part */
 
 /* Packet "pseudo-header" for the output from CoSine L2 debug output. */
 

@@ -77,6 +77,9 @@ static int hf_wlan_radio_signal_dbm = -1;
 static int hf_wlan_radio_noise_percent = -1;
 static int hf_wlan_radio_noise_dbm = -1;
 static int hf_wlan_radio_timestamp = -1;
+static int hf_wlan_last_part_of_a_mpdu = -1;
+static int hf_wlan_a_mpdu_delim_crc_error = -1;
+static int hf_wlan_a_mpdu_aggregate_id = -1;
 
 static const value_string phy_vals[] = {
     { PHDR_802_11_PHY_11_FHSS,       "802.11 FHSS" },
@@ -562,6 +565,16 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
       proto_tree_add_uint64(radio_tree, hf_wlan_radio_timestamp, tvb, 0, 0,
               phdr->tsf_timestamp);
     }
+    if (phdr->has_aggregate_info) {
+      proto_tree_add_boolean(radio_tree, hf_wlan_last_part_of_a_mpdu, tvb, 0, 0,
+              (phdr->aggregate_flags & PHDR_802_11_LAST_PART_OF_A_MPDU) ?
+               TRUE : FALSE);
+      proto_tree_add_boolean(radio_tree, hf_wlan_a_mpdu_delim_crc_error, tvb, 0, 0,
+              (phdr->aggregate_flags & PHDR_802_11_A_MPDU_DELIM_CRC_ERROR) ?
+               TRUE : FALSE);
+      proto_tree_add_uint(radio_tree, hf_wlan_a_mpdu_aggregate_id, tvb, 0, 0,
+              phdr->aggregate_id);
+    }
   }
 
   /* dissect the 802.11 packet next */
@@ -715,6 +728,18 @@ static hf_register_info hf_wlan_radio[] = {
 
     {&hf_wlan_radio_timestamp,
      {"TSF timestamp", "wlan_radio.timestamp", FT_UINT64, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_wlan_last_part_of_a_mpdu,
+     {"Last part of an A-MPDU", "wlan_radio.last_part_of_an_ampdu", FT_BOOLEAN, 0, NULL, 0,
+      "This is the last part of an A-MPDU", HFILL }},
+
+    {&hf_wlan_a_mpdu_delim_crc_error,
+     {"A-MPDU delimiter CRC error", "wlan_radio.a_mpdu_delim_crc_error", FT_BOOLEAN, 0, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_wlan_a_mpdu_aggregate_id,
+     {"A-MPDU aggregate ID", "wlan_radio.a_mpdu_aggregate_id", FT_UINT32, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 };
 
