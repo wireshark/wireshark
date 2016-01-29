@@ -29,6 +29,9 @@ The following bugs have been fixed:
 //  SXSW while you end up working double shifts. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v1.12.10rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+Windows installers and PortableApps(R) packages are now dual signed using SHA-1 and SHA-256
+in order to comply with
+http://social.technet.microsoft.com/wiki/contents/articles/32288.windows-enforcement-of-authenticode-code-signing-and-timestamping.aspx[Microsoft Authenticode policy].
 
 === New and Updated Features
 
