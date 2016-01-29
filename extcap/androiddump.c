@@ -702,7 +702,8 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
             closesocket(sock);
             if (!response || data_length < 1) {
                 if (verbose) {
-                    fprintf(stderr, "WARNING: Error while getting hcidump version by <%s> (%p len=%"G_GSSIZE_FORMAT")\n", adb_hcidump_version, response, data_length);
+                    fprintf(stderr, "WARNING: Error while getting hcidump version by <%s> (%p len=%"G_GSSIZE_FORMAT")\n",
+                        adb_hcidump_version, (void*)response, data_length);
                     fprintf(stderr, "VERBOSE: Android hcidump version for %s is unknown\n", serial_number);
                 }
                 disable_interface = 1;
@@ -742,7 +743,8 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
             closesocket(sock);
             if (!response || data_length < 1) {
                 if (verbose) {
-                    fprintf(stderr, "WARNING: Error while getting Bluetooth application process id by <%s> (%p len=%"G_GSSIZE_FORMAT")\n", adb_hcidump_version, response, data_length);
+                    fprintf(stderr, "WARNING: Error while getting Bluetooth application process id by <%s> "
+                        "(%p len=%"G_GSSIZE_FORMAT")\n", adb_hcidump_version, (void*)response, data_length);
                     fprintf(stderr, "VERBOSE: Android Bluetooth application PID for %s is unknown\n", serial_number);
                 }
                 disable_interface = 1;
@@ -817,7 +819,8 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
             closesocket(sock);
             if (!response || data_length < 1) {
                 if (verbose) {
-                    fprintf(stderr, "WARNING: Error while getting Bluetooth application process id by <%s> (%p len=%"G_GSSIZE_FORMAT")\n", adb_hcidump_version, response, data_length);
+                    fprintf(stderr, "WARNING: Error while getting Bluetooth application process id by <%s> "
+                        "(%p len=%"G_GSSIZE_FORMAT")\n", adb_hcidump_version, (void*)response, data_length);
                     fprintf(stderr, "VERBOSE: Android Bluetooth application PID for %s is unknown\n", serial_number);
                 }
                 disable_interface = 1;
