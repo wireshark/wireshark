@@ -57,10 +57,12 @@
 #include "ui/software_update.h"
 #include "ui/last_open_dir.h"
 #include "ui/recent_utils.h"
-#include <wsutil/utf8_entities.h>
+
+#include "wsutil/utf8_entities.h"
 
 #ifdef _WIN32
 #  include "ui/win32/console_win32.h"
+#  include "wsutil/file_util.h"
 #endif /* _WIN32 */
 
 #include <QAction>
@@ -76,11 +78,6 @@
 #include <QThread>
 #include <QUrl>
 #include <QColorDialog>
-
-#ifdef Q_OS_WIN
-#include <QDebug>
-#include <QLibrary>
-#endif
 
 WiresharkApplication *wsApp = NULL;
 
@@ -537,13 +534,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
 
 #ifdef Q_OS_WIN
     /* RichEd20.DLL is needed for native file dialog filter entries. */
-    if (QLibrary::isLibrary("riched20.dll")) {
-        QLibrary riched20("riched20.dll");
-        riched20.load();
-        if (!riched20.isLoaded()) {
-            qDebug() << riched20.errorString();
-        }
-    }
+    ws_load_library("riched20.dll");
 #endif // Q_OS_WIN
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))

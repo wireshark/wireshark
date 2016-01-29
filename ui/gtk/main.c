@@ -3367,7 +3367,7 @@ WinMain (struct HINSTANCE__ *hInstance,
     comm_ctrl.dwICC = ICC_WIN95_CLASSES;
     InitCommonControlsEx(&comm_ctrl);
 
-    /* RichEd20.DLL is needed for filter entries. */
+    /* RichEd20.DLL is needed for native file dialog filter entries. */
     ws_load_library("riched20.dll");
 
     set_has_console(FALSE);
