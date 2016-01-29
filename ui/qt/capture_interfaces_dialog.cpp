@@ -1048,7 +1048,7 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
 #endif
         case col_filter_:
         {
-            CaptureFilterCombo *cf = new CaptureFilterCombo(parent);
+            CaptureFilterCombo *cf = new CaptureFilterCombo(parent, true);
             connect(cf->lineEdit(), SIGNAL(textEdited(QString)), this, SIGNAL(filterChanged(QString)));
             w = (QWidget*) cf;
         }
