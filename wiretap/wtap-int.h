@@ -247,8 +247,11 @@ extern gint wtap_num_file_types;
 #define g_ptr_array_len(a)      ((a)->len)
 #endif
 
-/*** get GSList of all compressed file extensions ***/
-GSList *wtap_get_compressed_file_extensions(void);
+/*
+ * Table of extensions for compressed file types we support.
+ * Last pointer in the list is null.
+ */
+extern const char *compressed_file_extension_table[];
 
 /*
  * Read a given number of bytes from a file.
