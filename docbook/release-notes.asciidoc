@@ -115,6 +115,9 @@ depth is set to 16 bits (ws-buglink:9914[])
 
 Wireshark should let you work with multiple capture files. (ws-buglink:10488[])
 
+Dell Backup and Recovery (DBAR) makes many Windows applications crash,
+including Wireshark. (ws-buglink:12036[])
+
 == Getting Help
 
 Community support is available on https://ask.wireshark.org/[Wireshark's
