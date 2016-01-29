@@ -2259,7 +2259,7 @@ static const guint8 VID_IKE_CHALLENGE_RESPONSE_REV_2[]= { /* IKE Challenge/Respo
         0x19, 0x00, 0xF0, 0x24, 0xBA, 0x66, 0xA8, 0x6B
 };
 
-static const guint8 VID_MS_L2TP_IPSEC_VPN_CLIENT[]= { /* Microsoft L2TP/IPSec VPN Client */
+static const guint8 VID_CISCO_FRAG2[]= { /* Cisco Fragmentation - md5("FRAGMENTATION") */
         0x40, 0x48, 0xB7, 0xD5, 0x6E, 0xBC, 0xE8, 0x85,
         0x25, 0xE7, 0xDE, 0x7F, 0x00, 0xD6, 0xC2, 0xD3
 };
@@ -2303,6 +2303,34 @@ static const guint8 VID_CISCO_FRAG[] = { /* Cisco Fragmentation */
         0x40, 0x48, 0xB7, 0xD5, 0x6E, 0xBC, 0xE8, 0x85,
         0x25, 0xE7, 0xDE, 0x7F, 0x00, 0xD6, 0xC2, 0xD3,
         0x80, 0x00, 0x00, 0x00
+};
+
+static const guint8 VID_CISCO_FLEXVPN_SUPPORTED[] = { /* "FLEXVPN-SUPPORTED" */
+        0x46, 0x4c, 0x45, 0x58, 0x56, 0x50, 0x4e, 0x2d,
+        0x53, 0x55, 0x50, 0x50, 0x4f, 0x52, 0x54, 0x45,
+        0x44
+};
+
+static const guint8 VID_CISCO_DELETE_REASON[] = { /* CISCO-DELETE-REASON */
+        0x43, 0x49, 0x53, 0x43, 0x4f, 0x2d, 0x44, 0x45,
+        0x4c, 0x45, 0x54, 0x45, 0x2d, 0x52, 0x45, 0x41,
+        0x53, 0x4f, 0x4e
+};
+
+/* CISCO(COPYRIGHT)&Copyright (c) 2009 Cisco Systems, Inc. */
+static const guint8 VID_CISCO_COPYRIGHT[] = { /* Cisco Copyright */
+        0x43, 0x49, 0x53, 0x43, 0x4f, 0x28, 0x43, 0x4f,
+        0x50, 0x59, 0x52, 0x49, 0x47, 0x48, 0x54, 0x29,
+        0x26, 0x43, 0x6f, 0x70, 0x79, 0x72, 0x69, 0x67,
+        0x68, 0x74, 0x20, 0x28, 0x63, 0x29, 0x20, 0x32,
+        0x30, 0x30, 0x39, 0x20, 0x43, 0x69, 0x73, 0x63,
+        0x6f, 0x20, 0x53, 0x79, 0x73, 0x74, 0x65, 0x6d,
+        0x73, 0x2c, 0x20, 0x49, 0x6e, 0x63, 0x2e
+};
+
+static const guint8 VID_CISCO_GRE_MODE[] = { /* CISCO-GRE-MODE */
+        0x43, 0x49, 0x53, 0x43, 0x4f, 0x2d, 0x47, 0x52,
+        0x45, 0x2d, 0x4d, 0x4f, 0x44, 0x45
 };
 
 static const guint8 VID_CP_01_R65[] = { /* CryptoPro/GOST 0.1 / Check Point R65 */
@@ -2562,7 +2590,11 @@ static const byte_string vendor_id[] = {
   { VID_IKE_CHALLENGE_RESPONSE_2, sizeof(VID_IKE_CHALLENGE_RESPONSE_2), "IKE Challenge/Response for Authenticated Cryptographic Keys" },
   { VID_IKE_CHALLENGE_RESPONSE_REV_1, sizeof(VID_IKE_CHALLENGE_RESPONSE_REV_1), "IKE Challenge/Response for Authenticated Cryptographic Keys (Revised)" },
   { VID_IKE_CHALLENGE_RESPONSE_REV_2, sizeof(VID_IKE_CHALLENGE_RESPONSE_REV_2), "IKE Challenge/Response for Authenticated Cryptographic Keys (Revised)" },
-  { VID_MS_L2TP_IPSEC_VPN_CLIENT, sizeof(VID_MS_L2TP_IPSEC_VPN_CLIENT), "Microsoft L2TP/IPSec VPN Client" },
+  { VID_CISCO_FRAG2, sizeof(VID_CISCO_FRAG2), "Cisco Fragmentation" },
+  { VID_CISCO_FLEXVPN_SUPPORTED, sizeof(VID_CISCO_FLEXVPN_SUPPORTED), "Cisco FlexVPN Supported" },
+  { VID_CISCO_DELETE_REASON, sizeof(VID_CISCO_DELETE_REASON), "Cisco Delete Reason Supported"},
+  { VID_CISCO_COPYRIGHT, sizeof(VID_CISCO_COPYRIGHT), "Cisco Copyright"},
+  { VID_CISCO_GRE_MODE, sizeof(VID_CISCO_GRE_MODE), "Cisco GRE Mode Supported"},
   { VID_MS_VID_INITIAL_CONTACT, sizeof(VID_MS_VID_INITIAL_CONTACT), "Microsoft Vid-Initial-Contact" },
   { VID_GSS_API_1, sizeof(VID_GSS_API_1), "A GSS-API Authentication Method for IKE" },
   { VID_GSS_API_2, sizeof(VID_GSS_API_2), "A GSS-API Authentication Method for IKE" },
