@@ -29,6 +29,7 @@
 #include <string.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 #include "packet-ecatmb.h"
 
@@ -193,6 +194,13 @@ static int hf_ecat_mailbox_soe_data = -1;
 static int hf_ecat_mailbox_soe_frag = -1;
 static int hf_ecat_mailbox_soe_error = -1;
 
+static expert_field ei_ecat_mailbox_error       = EI_INIT;
+static expert_field ei_ecat_mailbox_coe_error   = EI_INIT;
+static expert_field ei_ecat_mailbox_eoe_error   = EI_INIT;
+static expert_field ei_ecat_mailbox_soe_error   = EI_INIT;
+static expert_field ei_ecat_mailbox_foe_error   = EI_INIT;
+
+
 static const value_string EcMBoxType[] =
 {
    {   0, "Invalid", },
@@ -295,14 +303,14 @@ static const true_false_string tfs_ecat_yes_no =
 
 void init_mbx_header(PETHERCAT_MBOX_HEADER pMbox, tvbuff_t *tvb, gint offset)
 {
-   pMbox->Length = tvb_get_letohs(tvb, offset); offset+=(int)sizeof(guint16);
-   pMbox->Address = tvb_get_letohs(tvb, offset); offset+=(int)sizeof(guint16);
+   pMbox->Length = tvb_get_letohs(tvb, offset); offset+=2;
+   pMbox->Address = tvb_get_letohs(tvb, offset); offset+=2;
    pMbox->aControlUnion.Control = tvb_get_letohs(tvb, offset);
 }
 
 static void init_eoe_header(PETHERCAT_EOE_HEADER pEoE, tvbuff_t *tvb, gint offset)
 {
-   pEoE->anEoeHeaderInfoUnion.Info = tvb_get_letohs(tvb, offset); offset+=(int)sizeof(guint16);
+   pEoE->anEoeHeaderInfoUnion.Info = tvb_get_letohs(tvb, offset); offset+=2;
    pEoE->anEoeHeaderDataUnion.Result = tvb_get_letohs(tvb, offset);
 }
 
@@ -328,7 +336,7 @@ static void init_coe_header(PETHERCAT_COE_HEADER pCoE, tvbuff_t *tvb, gint offse
 static void init_sdo_header(PETHERCAT_SDO_HEADER pSdo, tvbuff_t *tvb, gint offset)
 {
    pSdo->anSdoHeaderUnion.CS = tvb_get_guint8(tvb, offset++);
-   pSdo->Index = tvb_get_letohs(tvb, offset);offset+=(int)sizeof(guint16);
+   pSdo->Index = tvb_get_letohs(tvb, offset);offset+=2;
    pSdo->SubIndex = tvb_get_guint8(tvb, offset++);
    pSdo->Data = tvb_get_letohl(tvb, offset);
 }
@@ -337,7 +345,7 @@ static void init_sdo_info_header(PETHERCAT_SDO_INFO_HEADER pInfo, tvbuff_t *tvb,
 {
    pInfo->anSdoControlUnion.Control = tvb_get_guint8(tvb, offset++);
    pInfo->Reserved = tvb_get_guint8(tvb, offset);
-   pInfo->FragmentsLeft = (int)sizeof(guint16);
+   pInfo->FragmentsLeft = 2;
 }
 
 static void CANopenSdoReqFormatter(PETHERCAT_SDO_HEADER pSdo, char *szText, gint nMax)
@@ -523,6 +531,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
             if( coe_length < ETHERCAT_COE_HEADER_LEN + ETHERCAT_SDO_HEADER_LEN )
             {
                col_append_str(pinfo->cinfo, COL_INFO, "Sdo Req - invalid length");
+               expert_add_info_format(pinfo, ecat_coe_tree, &ei_ecat_mailbox_coe_error, "Sdo Req - invalid length");
                break;
             }
 
@@ -612,6 +621,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
             if( coe_length < ETHERCAT_COE_HEADER_LEN + ETHERCAT_SDO_HEADER_LEN )
             {
                col_append_str(pinfo->cinfo, COL_INFO, "Sdo Res - invalid length");
+               expert_add_info_format(pinfo, ecat_coe_tree, &ei_ecat_mailbox_coe_error, "Sdo Res - invalid length");
                break;
             }
 
@@ -687,6 +697,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
             if( coe_length < ETHERCAT_COE_HEADER_LEN + ETHERCAT_SDO_INFO_LISTREQ_LEN )
             {
                col_append_str(pinfo->cinfo, COL_INFO, "Sdo Info - invalid length");
+               expert_add_info_format(pinfo, ecat_coe_tree, &ei_ecat_mailbox_coe_error, "Sdo Info - invalid length");
                break;
             }
 
@@ -805,6 +816,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    else
    {
       col_append_str(pinfo->cinfo, COL_INFO, "- invalid length");
+      expert_add_info(pinfo, tree, &ei_ecat_mailbox_coe_error);
    }
 }
 
@@ -894,6 +906,7 @@ static void dissect_ecat_soe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    else
    {
       col_append_str(pinfo->cinfo, COL_INFO, "SoE - invalid length");
+      expert_add_info(pinfo, tree, &ei_ecat_mailbox_soe_error);
    }
 }
 
@@ -1014,7 +1027,10 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                proto_tree_add_item(ecat_eoe_init_tree, hf_ecat_mailbox_eoe_init_dnsname, tvb, offset, 32, ENC_ASCII|ENC_NA);
             }
             else
+            {
                proto_item_append_text(anItem, " - Invalid length!");
+               expert_add_info(pinfo, anItem, &ei_ecat_mailbox_eoe_error);
+            }
             break;
 
          case EOE_TYPE_MACFILTER_REQ:
@@ -1046,13 +1062,16 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                      proto_tree_add_item(ecat_eoe_macfilter_filter_tree, hf_ecat_mailbox_eoe_macfilter_filters[nCnt], tvb, offset+nCnt*ETHERNET_ADDRESS_LEN, ETHERNET_ADDRESS_LEN, ENC_NA);
                   offset+=16*ETHERNET_ADDRESS_LEN;
 
-                  anItem = proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_filtermask, tvb, offset, 4*(int)sizeof(guint32), ENC_NA);
+                  anItem = proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_filtermask, tvb, offset, 4*4, ENC_NA);
                   ecat_eoe_macfilter_filtermask_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_eoe_macfilter_filtermask);
                   for( nCnt=0; nCnt<options.v.MacFilterMaskCount; nCnt++)
-                     proto_tree_add_item(ecat_eoe_macfilter_filtermask_tree, hf_ecat_mailbox_eoe_macfilter_filtermasks[nCnt], tvb, offset+nCnt*(int)sizeof(guint32), (int)sizeof(guint32), ENC_NA);
+                     proto_tree_add_item(ecat_eoe_macfilter_filtermask_tree, hf_ecat_mailbox_eoe_macfilter_filtermasks[nCnt], tvb, offset+nCnt*4, 4, ENC_NA);
                }
                else
+               {
                   proto_item_append_text(anItem, " - Invalid length!");
+                  expert_add_info(pinfo, anItem, &ei_ecat_mailbox_eoe_error);
+               }
             }
             break;
 
@@ -1068,6 +1087,7 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    }
    else
    {
+      expert_add_info(pinfo, tree, &ei_ecat_mailbox_eoe_error);
       col_append_str(pinfo->cinfo, COL_INFO, "EoE - invalid length!");
    }
 }
@@ -1165,6 +1185,7 @@ static void dissect_ecat_foe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    else
    {
       col_append_str(pinfo->cinfo, COL_INFO, "FoE - invalid length");
+      expert_add_info(pinfo, tree, &ei_ecat_mailbox_foe_error);
    }
 }
 
@@ -1184,41 +1205,36 @@ static int dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
       init_mbx_header(&hdr, tvb, offset);
 
+      col_append_str(pinfo->cinfo, COL_INFO, " Mbx(");
+
+      /* Create the mailbox sub tree */
+      anItem = proto_tree_add_item(tree, proto_ecat_mailbox, tvb, 0, ETHERCAT_MBOX_HEADER_LEN+hdr.Length, ENC_NA);
+      ecat_mailbox_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox);
+
+      /* Create a mailbox header subtree */
+      ecat_mailbox_header_tree = proto_tree_add_subtree(ecat_mailbox_tree, tvb, offset, ETHERCAT_MBOX_HEADER_LEN, ett_ecat_mailbox_header, NULL, "Header");
+
+      /* Add length information to the mailbox header */
+      proto_tree_add_item(ecat_mailbox_header_tree, hf_ecat_mailboxlength, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset+=2;
+
+      /* Add address information to the mailbox header */
+      proto_tree_add_item(ecat_mailbox_header_tree, hf_ecat_mailboxaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset+=2;
+
+      /* Add priority information to the mailbox header */
+      proto_tree_add_item(ecat_mailbox_header_tree, hf_ecat_mailboxpriority, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset+=1;
+
+      /* Add type information to the mailbox header */
+      proto_tree_add_uint(ecat_mailbox_header_tree, hf_ecat_mailboxtype, tvb, offset, 1, hdr.aControlUnion.v.Type);
+
+      /* Add counter information to the mailbox header */
+      proto_tree_add_uint(ecat_mailbox_header_tree, hf_ecat_mailboxcounter, tvb, offset, 1, hdr.aControlUnion.v.Counter);
+      offset++;
+
       if( mailbox_length >= ETHERCAT_MBOX_HEADER_LEN + hdr.Length )
       {
-         col_append_str(pinfo->cinfo, COL_INFO, " Mbx(");
-
-         if( tree )
-         {
-            /* Create the mailbox sub tree */
-            anItem = proto_tree_add_item(tree, proto_ecat_mailbox, tvb, 0, ETHERCAT_MBOX_HEADER_LEN+hdr.Length, ENC_NA);
-            ecat_mailbox_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox);
-
-            /* Create a mailbox header subtree */
-            ecat_mailbox_header_tree = proto_tree_add_subtree(ecat_mailbox_tree, tvb, offset, ETHERCAT_MBOX_HEADER_LEN, ett_ecat_mailbox_header, NULL, "Header");
-
-            /* Add length information to the mailbox header */
-            proto_tree_add_item(ecat_mailbox_header_tree, hf_ecat_mailboxlength, tvb, offset, sizeof(hdr.Length), ENC_LITTLE_ENDIAN);
-            offset+=(int)sizeof(hdr.Length);
-
-            /* Add address information to the mailbox header */
-            proto_tree_add_item(ecat_mailbox_header_tree, hf_ecat_mailboxaddress, tvb, offset, sizeof(hdr.Address), ENC_LITTLE_ENDIAN);
-            offset+=(int)sizeof(hdr.Address);
-
-            /* Add priority information to the mailbox header */
-            proto_tree_add_item(ecat_mailbox_header_tree, hf_ecat_mailboxpriority, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset+=(int)sizeof(guint8);
-
-            /* Add type information to the mailbox header */
-            proto_tree_add_uint(ecat_mailbox_header_tree, hf_ecat_mailboxtype, tvb, offset, 1, hdr.aControlUnion.v.Type);
-
-            /* Add counter information to the mailbox header */
-            proto_tree_add_uint(ecat_mailbox_header_tree, hf_ecat_mailboxcounter, tvb, offset, 1, hdr.aControlUnion.v.Counter);
-            offset++;
-         }
-         else
-            offset+=ETHERCAT_MBOX_HEADER_LEN;
-
          next_tvb = tvb_new_subset_length (tvb, offset, hdr.Length);
          switch ( hdr.aControlUnion.v.Type )
          {
@@ -1245,11 +1261,15 @@ static int dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
          default:
             proto_tree_add_item(ecat_mailbox_tree, hf_ecat_mailboxdata, tvb, offset, hdr.Length, ENC_NA);
          }
-
-         col_append_str(pinfo->cinfo, COL_INFO, ")");
       }
+      else
+      {
+         anItem =proto_tree_add_item(ecat_mailbox_tree, hf_ecat_mailboxdata, tvb, offset, mailbox_length-ETHERCAT_MBOX_HEADER_LEN, ENC_NA);
+         expert_add_info_format(pinfo, anItem, &ei_ecat_mailbox_error,"Incorrect Mailbox data length(Expected:%d Actual:%d)", hdr.Length, mailbox_length-ETHERCAT_MBOX_HEADER_LEN);
+      }
+      col_append_str(pinfo->cinfo, COL_INFO, ")");
    }
-    return tvb_captured_length(tvb);
+   return tvb_captured_length(tvb);
 }
 
 void proto_register_ecat_mailbox(void)
@@ -1315,7 +1335,7 @@ void proto_register_ecat_mailbox(void)
       },
       { &hf_ecat_mailbox_eoe_last,
       { "Last Fragment", "ecat_mailbox.eoe.last",
-      FT_BOOLEAN, 32, TFS(&tfs_ecat_yes_no), 0x0, NULL, HFILL }
+      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_ecat_mailbox_eoe_timestampapp,
       { "Time Stamp Appended", "ecat_mailbox.eoe.timestampapp",
@@ -1937,8 +1957,23 @@ void proto_register_ecat_mailbox(void)
       &ett_ecat_mailbox_header
    };
 
+   static ei_register_info ei[] =
+   {
+      { &ei_ecat_mailbox_error, { "ecat_mailbox.invalid", PI_MALFORMED, PI_ERROR, "Malformed mailbox data", EXPFILL } },
+      { &ei_ecat_mailbox_coe_error, { "ecat_mailbox.coe.invalid", PI_MALFORMED, PI_ERROR, "Malformed CoE data", EXPFILL } },
+      { &ei_ecat_mailbox_foe_error, { "ecat_mailbox.foe.invalid", PI_MALFORMED, PI_ERROR, "Malformed FoE data", EXPFILL } },
+      { &ei_ecat_mailbox_soe_error, { "ecat_mailbox.soe.invalid", PI_MALFORMED, PI_ERROR, "Malformed SoE data", EXPFILL } },
+      { &ei_ecat_mailbox_eoe_error, { "ecat_mailbox.eoe.invalid", PI_MALFORMED, PI_ERROR, "Malformed EoE data", EXPFILL } },
+   };
+
+   expert_module_t *expert_module;
+
    proto_ecat_mailbox = proto_register_protocol("EtherCAT Mailbox Protocol",
       "ECAT_MAILBOX", "ecat_mailbox");
+
+   expert_module = expert_register_protocol(proto_ecat_mailbox);
+   expert_register_field_array(expert_module, ei, array_length(ei));
+
    proto_register_field_array(proto_ecat_mailbox, hf,array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
 
