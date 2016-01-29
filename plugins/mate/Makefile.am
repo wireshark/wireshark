@@ -104,6 +104,9 @@ plugin.c: $(REGISTER_SRC_FILES) Makefile.common $(top_srcdir)/tools/make-dissect
 #dist-hook:
 #	@rm -f $(distdir)/plugin.c
 
+BUILT_SOURCES = \
+	$(LEMON_GENERATED_HEADER_FILES)
+
 CLEANFILES = \
 	mate \
 	*~
@@ -142,8 +145,6 @@ EXTRA_DIST = \
 	matelib/sip.mate
 
 mate_parser_lex.h : mate_parser.c
-
-mate_parser.lo : mate_grammar.h
 
 mate_grammar.h : mate_grammar.c
 mate_grammar.c : mate_grammar.lemon mate.h mate_util.h $(LEMON)
