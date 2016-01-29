@@ -1013,7 +1013,7 @@ QWidget* InterfaceTreeDelegate::createEditor( QWidget *parent, const QStyleOptio
 #endif
         case col_filter_:
         {
-            CaptureFilterCombo *cf = new CaptureFilterCombo(parent);
+            CaptureFilterCombo *cf = new CaptureFilterCombo(parent, true);
             w = (QWidget*) cf;
         }
         default:

@@ -30,11 +30,11 @@
 #include "capture_filter_combo.h"
 #include "wireshark_application.h"
 
-CaptureFilterCombo::CaptureFilterCombo(QWidget *parent) :
+CaptureFilterCombo::CaptureFilterCombo(QWidget *parent, bool plain) :
     QComboBox(parent),
     cf_edit_(NULL)
 {
-    cf_edit_ = new CaptureFilterEdit(this, false);
+    cf_edit_ = new CaptureFilterEdit(this, plain);
 
     setEditable(true);
     // Enabling autocompletion here gives us two simultaneous completions:
