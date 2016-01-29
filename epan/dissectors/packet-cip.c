@@ -3609,7 +3609,7 @@ static int dissect_segment_network_extended(tvbuff_t *tvb, int offset, int pathp
    return data_words * 2 + 2;
 }
 
-int dissect_segment_network_production_inhibit_us(tvbuff_t *tvb, int offset, int pathpos, gboolean generate, proto_tree *net_tree)
+static int dissect_segment_network_production_inhibit_us(tvbuff_t *tvb, int offset, int pathpos, gboolean generate, proto_tree *net_tree)
 {
    int data_words;
    guint32 inhibit_time;
