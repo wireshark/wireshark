@@ -24,7 +24,7 @@
 # also need to link against libftypes.
 
 if HAVE_WARNINGS_AS_ERRORS
-AM_CFLAGS = -Werror
+CFLAGS_FOR_BUILD += -Werror
 endif
 
 noinst_PROGRAMS = lemon
