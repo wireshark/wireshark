@@ -2129,11 +2129,13 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     if (iph->ip_len > tvb_reported_length(tvb)) {
       /*
        * Length runs past the data we're given.
-       * Note that.
+       * Note that if not in a ICMP error packet.
        */
-      expert_add_info_format(pinfo, tf, &ei_ip_bogus_ip_length,
-                  "IPv4 total length exceeds packet length (%u bytes)",
-                  tvb_reported_length(tvb));
+      if (!pinfo->flags.in_error_pkt) {
+        expert_add_info_format(pinfo, tf, &ei_ip_bogus_ip_length,
+                               "IPv4 total length exceeds packet length (%u bytes)",
+                               tvb_reported_length(tvb));
+      }
     } else {
       /*
        * Now that we know that the total length of this IP datagram isn't
