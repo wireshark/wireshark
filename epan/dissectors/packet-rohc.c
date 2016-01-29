@@ -2036,7 +2036,9 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     }
 
     /* Set length of IR-DYN header */
-    proto_item_set_len(ir_item, offset-ir_item_start);
+    if (offset != -1) {
+        proto_item_set_len(ir_item, offset-ir_item_start);
+    }
 
     return offset;
 }
