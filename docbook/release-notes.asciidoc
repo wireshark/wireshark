@@ -21,7 +21,6 @@ A dissector went awry.
 // Fixed in master-2.0: gXXXX
 // Fixed in master-1.12: gXXXX
 
-
 The following bugs have been fixed:
 
 //* ws-buglink:5000[]
@@ -30,6 +29,9 @@ The following bugs have been fixed:
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.2rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+Windows installers and PortableApps(R) packages are now dual signed using SHA-1 and SHA-256
+in order to comply with
+http://social.technet.microsoft.com/wiki/contents/articles/32288.windows-enforcement-of-authenticode-code-signing-and-timestamping.aspx[Microsoft Authenticode policy].
 
 === New and Updated Features
 
