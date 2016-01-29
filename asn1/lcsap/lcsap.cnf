@@ -96,25 +96,20 @@ ProtocolIE-Field/value ie_field_value
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
 
-	{
-		guint8 tmp = tvb_get_guint8(tvb, 0);
+  guint8 tmp = tvb_get_guint8(tvb, 0);
 
-		if(tmp == 0)
+  if(tmp == 0)
 
-		col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%sReq",
-			   val_to_str(ProcedureCode, lcsap_ProcedureCode_vals,
-			        "unknown message"));
+  col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%sReq",
+               val_to_str(ProcedureCode, lcsap_ProcedureCode_vals, "unknown message"));
 
-		else if(tmp == 32)
-			col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%sResp",
-				  val_to_str(ProcedureCode, lcsap_ProcedureCode_vals,
-				    "unknown message"));
-			else
-				col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s",
-				  val_to_str(ProcedureCode, lcsap_ProcedureCode_vals,
-				    "unknown message"));
+  else if(tmp == 32)
+    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%sResp",
+                 val_to_str(ProcedureCode, lcsap_ProcedureCode_vals, "unknown message"));
+    else
+      col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s",
+                   val_to_str(ProcedureCode, lcsap_ProcedureCode_vals, "unknown message"));
 
-	}
 
 #.END
 
@@ -127,8 +122,8 @@ ProtocolIE-Field/value ie_field_value
 #--- Parameterization is not supported in asn2wrs ---
 
 #ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, LCS-AP-PROTOCOL-IES : IEsSetParam} ::=
-#	SEQUENCE (SIZE (lowerBound..upperBound)) OF
-#	ProtocolIE-Container {{IEsSetParam}}
+#  SEQUENCE (SIZE (lowerBound..upperBound)) OF
+#  ProtocolIE-Container {{IEsSetParam}}
 
 
 #.END
@@ -171,11 +166,11 @@ ProtocolIE-Field/value ie_field_value
 
 %(DEFAULT_BODY)s
 
-	if (!parameter_tvb)
-		return offset;
+  if (!parameter_tvb)
+    return offset;
 
-	proto_tree_add_item(tree, hf_lcsap_pos_method, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_lcsap_pos_usage, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_lcsap_pos_method, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_lcsap_pos_usage, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
 
 
 #.FN_BODY GNSS-Positioning-Method-And-Usage VAL_PTR = &parameter_tvb
@@ -183,12 +178,12 @@ ProtocolIE-Field/value ie_field_value
 
 %(DEFAULT_BODY)s
 
-	if (!parameter_tvb)
-		return offset;
+  if (!parameter_tvb)
+    return offset;
 
-	proto_tree_add_item(tree, hf_lcsap_gnss_pos_method, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_lcsap_gnss_id, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_lcsap_gnss_pos_usage, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_lcsap_gnss_pos_method, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_lcsap_gnss_id, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_lcsap_gnss_pos_usage, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
 
 #
 # Code copied from packet-gsm_a_common.c
@@ -198,7 +193,7 @@ ProtocolIE-Field/value ie_field_value
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 127U, &uncertainty_code, FALSE);
 
-	proto_item_append_text(actx->created_item, " (%.1f m)", 10 * (pow(1.1, (double)uncertainty_code) - 1));
+  proto_item_append_text(actx->created_item, " (%.1f m)", 10 * (pow(1.1, (double)uncertainty_code) - 1));
 
 #.FN_BODY DegreesLatitude  VAL_PTR = &degrees
   gint32 degrees;
@@ -211,10 +206,10 @@ ProtocolIE-Field/value ie_field_value
 #.FN_BODY DegreesLongitude  VAL_PTR = &degrees
   gint32 degrees;
 
-    offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             -8388608, 8388607U, &degrees, FALSE);
 
-	proto_item_append_text(actx->created_item, " (%.5f degrees)", (((double)degrees/16777215) * 360));
+  proto_item_append_text(actx->created_item, " (%.5f degrees)", (((double)degrees/16777215) * 360));
 
 #.FN_BODY IMSI VAL_PTR=&imsi_tvb
   tvbuff_t *imsi_tvb;
@@ -303,7 +298,7 @@ UE-Positioning-Capability               N lcsap.ies id-UE-Positioning-Capability
 Velocity-Estimate                       N lcsap.ies id-Velocity-Estimate
 
 #LCS-AP-PROTOCOL-EXTENSION
-LCS-Service-Type-ID						N lcsap.extension id-LCS-Service-Type-ID
+LCS-Service-Type-ID                     N lcsap.extension id-LCS-Service-Type-ID
 
 
 
