@@ -561,7 +561,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     gint        tvb_transaction_end_offset;
     proto_tree  *megaco_tree, *message_body_tree, *megaco_tree_command_line, *ti, *sub_ti;
 
-    guint8      word[7];
+    guint8      word[15];
     guint8      TermID[30];
     guint8      tempchar;
     gint        tvb_RBRKT, tvb_LBRKT,  RBRKT_counter, LBRKT_counter;
@@ -611,11 +611,18 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
      */
     tvb_offset = megaco_tvb_skip_wsp(tvb, tvb_offset);
 
+    /* Quick fix for MEGACO not following the RFC, hopefully not breaking any thing
+     * Turned out to be TPKT in case of TCP, added some code to handle that.
+     *
+     * tvb_offset = tvb_find_guint8(tvb, tvb_offset, 5, 'M');
+     */
+    if(!tvb_get_nstringz0(tvb,tvb_offset,sizeof(word),word)) return tvb_captured_length(tvb);
+
     /* Quick fix for MEGACO packet with Authentication Header,
      * marked as "AU" or "Authentication".
      */
-    if (g_ascii_strncasecmp(word, "Authentication", 14) ||
-        g_ascii_strncasecmp(word, "AU", 2) ) {
+    if ((g_ascii_strncasecmp(word, "Authentication", 14) == 0) ||
+        (g_ascii_strncasecmp(word, "AU", 2) == 0)) {
         gint counter;
         guint8 next;
 
@@ -632,13 +639,6 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             }
         }
     }
-
-    /* Quick fix for MEGACO not following the RFC, hopefully not breaking any thing
-     * Turned out to be TPKT in case of TCP, added some code to handle that.
-     *
-     * tvb_offset = tvb_find_guint8(tvb, tvb_offset, 5, 'M');
-     */
-    if(!tvb_get_nstringz0(tvb,tvb_offset,sizeof(word),word)) return tvb_captured_length(tvb);
 
     short_form = (tvb_get_guint8(tvb, tvb_offset ) == '!');
 
