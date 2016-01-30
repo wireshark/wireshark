@@ -948,6 +948,24 @@ EXTRA_DIST = \
 	image/toolbar/14x14/x-capture-comment-update.png	\
 	image/toolbar/14x14/x-capture-comment-update.svg	\
 	image/toolbar/14x14/x-capture-comment-update@2x.png	\
+	image/toolbar/14x14/x-capture-filter-bookmark.active.png \
+	image/toolbar/14x14/x-capture-filter-bookmark.active.svg \
+	image/toolbar/14x14/x-capture-filter-bookmark.active@2x.png \
+	image/toolbar/14x14/x-capture-filter-bookmark.png \
+	image/toolbar/14x14/x-capture-filter-bookmark.selected.png \
+	image/toolbar/14x14/x-capture-filter-bookmark.selected.svg \
+	image/toolbar/14x14/x-capture-filter-bookmark.selected@2x.png \
+	image/toolbar/14x14/x-capture-filter-bookmark.svg \
+	image/toolbar/14x14/x-capture-filter-bookmark@2x.png \
+	image/toolbar/14x14/x-display-filter-bookmark.active.png \
+	image/toolbar/14x14/x-display-filter-bookmark.active.svg \
+	image/toolbar/14x14/x-display-filter-bookmark.active@2x.png \
+	image/toolbar/14x14/x-display-filter-bookmark.png \
+	image/toolbar/14x14/x-display-filter-bookmark.selected.png \
+	image/toolbar/14x14/x-display-filter-bookmark.selected.svg \
+	image/toolbar/14x14/x-display-filter-bookmark.selected@2x.png \
+	image/toolbar/14x14/x-display-filter-bookmark.svg \
+	image/toolbar/14x14/x-display-filter-bookmark@2x.png \
 	image/toolbar/14x14/x-expert-chat.png	\
 	image/toolbar/14x14/x-expert-chat@2x.png	\
 	image/toolbar/14x14/x-expert-error.png	\
@@ -959,15 +977,6 @@ EXTRA_DIST = \
 	image/toolbar/14x14/x-expert-note@2x.png	\
 	image/toolbar/14x14/x-expert-warn.png	\
 	image/toolbar/14x14/x-expert-warn@2x.png	\
-	image/toolbar/14x14/x-filter-bookmark.active.png \
-	image/toolbar/14x14/x-filter-bookmark.active.svg \
-	image/toolbar/14x14/x-filter-bookmark.active@2x.png \
-	image/toolbar/14x14/x-filter-bookmark.png \
-	image/toolbar/14x14/x-filter-bookmark.selected.png \
-	image/toolbar/14x14/x-filter-bookmark.selected.svg \
-	image/toolbar/14x14/x-filter-bookmark.selected@2x.png \
-	image/toolbar/14x14/x-filter-bookmark.svg \
-	image/toolbar/14x14/x-filter-bookmark@2x.png \
 	image/toolbar/14x14/x-filter-clear.active.png \
 	image/toolbar/14x14/x-filter-clear.active.svg \
 	image/toolbar/14x14/x-filter-clear.active@2x.png \

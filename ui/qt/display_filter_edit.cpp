@@ -121,7 +121,7 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
     //     Combo drop-down
 
     if (type_ == DisplayFilterToApply) {
-        bookmark_button_ = new StockIconToolButton(this, "x-filter-bookmark");
+        bookmark_button_ = new StockIconToolButton(this, "x-display-filter-bookmark");
         bookmark_button_->setCursor(Qt::ArrowCursor);
         bookmark_button_->setMenu(new QMenu());
         bookmark_button_->setPopupMode(QToolButton::InstantPopup);
@@ -364,7 +364,7 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
                 remove_action_->setVisible(true);
             }
         } else {
-            bookmark_button_->setStockIcon("x-filter-bookmark");
+            bookmark_button_->setStockIcon("x-display-filter-bookmark");
             if (remove_action_) {
                 remove_action_->setVisible(false);
             }

@@ -132,7 +132,7 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
 #endif
 
     if (!plain_) {
-        bookmark_button_ = new StockIconToolButton(this, "x-filter-bookmark");
+        bookmark_button_ = new StockIconToolButton(this, "x-capture-filter-bookmark");
         bookmark_button_->setCursor(Qt::ArrowCursor);
         bookmark_button_->setMenu(new QMenu());
         bookmark_button_->setPopupMode(QToolButton::InstantPopup);
@@ -315,7 +315,7 @@ void CaptureFilterEdit::checkFilter(const QString& filter)
                 remove_action_->setVisible(true);
             }
         } else {
-            bookmark_button_->setStockIcon("x-filter-bookmark");
+            bookmark_button_->setStockIcon("x-capture-filter-bookmark");
             if (remove_action_) {
                 remove_action_->setVisible(false);
             }

@@ -51,8 +51,8 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="26.663818"
-     inkscape:cx="3.9658628"
+     inkscape:zoom="21.601466"
+     inkscape:cx="12.646295"
      inkscape:cy="6.6686077"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -62,8 +62,8 @@
      inkscape:guide-bbox="true"
      inkscape:window-width="1401"
      inkscape:window-height="817"
-     inkscape:window-x="369"
-     inkscape:window-y="214"
+     inkscape:window-x="23"
+     inkscape:window-y="736"
      inkscape:window-maximized="0"
      inkscape:object-nodes="true">
     <inkscape:grid
@@ -105,5 +105,49 @@
        id="path5548"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccccccccc" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5px;line-height:125%;font-family:Sans;-inkscape-font-specification:Helvetica;letter-spacing:0px;word-spacing:0px;fill:#729fcf;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
+       x="15.498643"
+       y="1042.2798"
+       id="text4147"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4149"
+         x="15.498643"
+         y="1042.2798">Plain: 729fcf</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5px;line-height:125%;font-family:Sans;-inkscape-font-specification:Helvetica;letter-spacing:0px;word-spacing:0px;fill:#3565a4;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="15.804076"
+       y="1047.2047"
+       id="text4151"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4153"
+         x="15.804076"
+         y="1047.2047">Active: 3465a4</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5px;line-height:125%;font-family:Sans;-inkscape-font-specification:Helvetica;letter-spacing:0px;word-spacing:0px;fill:#204a87;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="15.526486"
+       y="1052.3054"
+       id="text4155"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4157"
+         x="15.526486"
+         y="1052.3054">Selected: 204a87</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5px;line-height:125%;font-family:Sans;-inkscape-font-specification:Helvetica;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="15.398189"
+       y="1057.6213"
+       id="text4159"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4161"
+         x="15.398189"
+         y="1057.6213">http://emilis.info/other/extended_tango/</tspan></text>
   </g>
 </svg>
