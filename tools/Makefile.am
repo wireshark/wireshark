@@ -169,6 +169,8 @@ EXTRA_DIST = \
 	parse_xml2skinny_dissector.py			\
 	pkt-from-core.py				\
 	pre-commit					\
+	pre-commit-ignore.conf				\
+	pre-commit-ignore.py				\
 	process-x11-fields.pl				\
 	process-x11-xcb.pl				\
 	randpkt-test.sh					\

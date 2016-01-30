@@ -20,24 +20,18 @@
 
 import sys
 import os
-import re
 import fnmatch
-import filecmp
 
-TOOLS_DIR = "tools"
-CHECK_CONF = "pre-commit-check.conf"
-
-CHECK_LIST = ["checkhf.pl", "checkAPIs.pl -p", "fix-encoding-args.pl", "checkfiltername.pl"]
+IGNORE_CONF = "pre-commit-ignore.conf"
 
 if len(sys.argv) > 2:
-    print("Usage: {0} [COMMIT]".format(sys.argv[0]))
+    print("Usage: {0} [path/to/ignore.conf]".format(sys.argv[0]))
     sys.exit(1)
 
-# If the commit identifier is not given, use HEAD instead.
 if len(sys.argv) == 2:
-    COMMIT_ID = sys.argv[1]
+    ignore_path = sys.argv[1]
 else:
-    COMMIT_ID = "HEAD"
+    ignore_path = IGNORE_CONF
 
 # Function to load our patterns from 'path' for modified files
 # to be ignored (skipping any comments)
@@ -46,47 +40,24 @@ def load_checkignore(path):
         with open(path) as f:
             patterns = f.read()
     except OSError as err:
-        print("'" + path + "':", str(err))
+        print(str(err))
         return []
     ign = [l.strip() for l in patterns.splitlines()]
     ign = [l for l in ign if l and not l.startswith("#")]
     return ign
 
-IGNORE_LIST = load_checkignore(os.path.join(TOOLS_DIR, CHECK_CONF))
+ignore_list = load_checkignore(ignore_path)
 
-# Run git-diff index and process/filter output
-def run_diff_index():
-    ret = []
-    with os.popen("git diff-index --cached --name-status " + COMMIT_ID) as p:
-        diff = p.read()
-    for l in diff.splitlines():
-        l = l.lstrip()
-        if l.startswith("D"):
-            continue
-        l = l.split()
-        f = l[1].strip()
-        if not re.search("\.[ch]$", f):
-            continue
-        for pattern in IGNORE_LIST:
-            if fnmatch.fnmatchcase(f, pattern):
-                f = None
-                break
-        if f:
-            ret.append(f)
-    return ret
+def ignore_match(f):
+    for p in ignore_list:
+        if fnmatch.fnmatchcase(f, p):
+            return True
+    return False
 
-exit_status = 0
-
-# For each valid modified file run our checks
-for f in run_diff_index():
-    for c in CHECK_LIST:
-        script = os.path.join(TOOLS_DIR, c)
-        cmd = "perl {0} {1}".format(script, f)
-        ret = os.system(cmd)
-        if ret != 0:
-            exit_status = 1
-
-sys.exit(exit_status)
+for line in sys.stdin:
+    line = line.strip()
+    if not ignore_match(line):
+        print(line)
 
 #
 #  Editor modelines
