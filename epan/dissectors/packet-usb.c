@@ -2061,10 +2061,8 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
         }
 
         if ((remaining_tvb == 0) || (next_len > remaining_tvb)) {
-            if (!truncation_expected) {
-                THROW(ReportedBoundsError);
-            }
-            break;
+            if (truncation_expected)
+                break;
         }
 
         next_type = tvb_get_guint8(tvb, offset+1);
