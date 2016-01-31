@@ -1301,6 +1301,7 @@ DISSECTOR_SRC = \
 	packet-usb-masstorage.c	\
 	packet-usb-video.c	\
 	packet-usb.c		\
+	packet-usbip.c		\
 	packet-user_encap.c	\
 	packet-userlog.c	\
 	packet-uts.c		\

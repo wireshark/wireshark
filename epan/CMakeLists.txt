@@ -1384,6 +1384,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-usb-masstorage.c
 	dissectors/packet-usb-video.c
 	dissectors/packet-usb.c
+	dissectors/packet-usbip.c
 	dissectors/packet-user_encap.c
 	dissectors/packet-userlog.c
 	dissectors/packet-uts.c

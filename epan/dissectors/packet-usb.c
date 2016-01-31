@@ -39,6 +39,7 @@
 
 #include "packet-usb.h"
 #include "packet-mausb.h"
+#include "packet-usbip.h"
 
 /* protocols and header fields */
 static int proto_usb = -1;
@@ -104,6 +105,7 @@ static int hf_usb_iso_numdesc = -1;
 static int hf_usb_iso_status = -1;
 static int hf_usb_iso_off = -1;
 static int hf_usb_iso_len = -1;
+static int hf_usb_iso_actual_len = -1;
 static int hf_usb_iso_pad = -1;
 static int hf_usb_iso_data = -1;
 
@@ -432,7 +434,7 @@ static const value_string usb_class_vals[] = {
     {IF_CLASS_VENDOR_SPECIFIC,          "Vendor Specific"},
     {0, NULL}
 };
-static value_string_ext usb_class_vals_ext = VALUE_STRING_EXT_INIT(usb_class_vals);
+value_string_ext usb_class_vals_ext = VALUE_STRING_EXT_INIT(usb_class_vals);
 
 /* use usb class, subclass and protocol id together
   http://www.usb.org/developers/defined_class
@@ -774,7 +776,7 @@ static const value_string usb_urb_status_vals[] = {
     { 0,    "Success"},
     { 0, NULL }
 };
-static value_string_ext usb_urb_status_vals_ext = VALUE_STRING_EXT_INIT(usb_urb_status_vals);
+value_string_ext usb_urb_status_vals_ext = VALUE_STRING_EXT_INIT(usb_urb_status_vals);
 
 #define USB_CONTROL_STAGE_SETUP  0x00
 #define USB_CONTROL_STAGE_DATA   0x01
@@ -3542,6 +3544,66 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
 }
 
 static gint
+dissect_usbip_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
+        tvbuff_t *tvb, gint offset, guint32 iso_numdesc, guint32 desc_offset,
+        usb_conv_info_t *usb_conv_info)
+{
+    proto_item *tii;
+    guint32     i;
+    guint       data_base;
+    guint32     iso_off = 0;
+    guint32     iso_len = 0;
+
+    tii = proto_tree_add_uint(urb_tree, hf_usb_bInterfaceClass, tvb, offset, 0, usb_conv_info->interfaceClass);
+    PROTO_ITEM_SET_GENERATED(tii);
+
+    /* All fields which belong to usbip are in big-endian byte order.
+     * unlike the linux kernel, the usb isoc descriptor is appended at
+     * the end of the isoc data. We have to reassemble the pdus and jump
+     * to the end (actual_length) and the remaining data is the isoc
+     * descriptor.
+     */
+
+    data_base = offset;
+    for (i = 0; i<iso_numdesc; i++) {
+        proto_item   *iso_desc_ti;
+        proto_tree   *iso_desc_tree;
+        guint32       iso_status;
+
+        iso_status = tvb_get_ntohl(tvb, desc_offset + 12);
+        iso_desc_ti = proto_tree_add_protocol_format(urb_tree, proto_usb, tvb, desc_offset,
+                16, "USB isodesc %u [%s]", i, val_to_str_ext(iso_status, &usb_urb_status_vals_ext, "Error %d"));
+        iso_desc_tree = proto_item_add_subtree(iso_desc_ti, usb_isodesc);
+
+        proto_tree_add_item_ret_uint(iso_desc_tree, hf_usb_iso_off, tvb, desc_offset, 4, ENC_BIG_ENDIAN, &iso_off);
+        desc_offset += 4;
+
+        proto_tree_add_item(iso_desc_tree, hf_usb_iso_len, tvb, desc_offset, 4, ENC_BIG_ENDIAN);
+        desc_offset += 4;
+
+        proto_tree_add_item_ret_uint(iso_desc_tree, hf_usb_iso_actual_len, tvb, desc_offset, 4, ENC_BIG_ENDIAN, &iso_len);
+        desc_offset += 4;
+        if (iso_len > 0)
+            proto_item_append_text(iso_desc_ti, " (%u bytes)", iso_len);
+
+        proto_tree_add_uint(iso_desc_tree, hf_usb_iso_status, tvb, desc_offset, 4, iso_status);
+        desc_offset += 4;
+
+        /* Show the ISO data if we captured them and either the status
+           is OK or the packet is sent from host to device.
+           The Linux kernel sets the status field in outgoing isochronous
+           URBs to -EXDEV and fills the data part with valid data.
+         */
+        if ((pinfo->p2p_dir==P2P_DIR_SENT || !iso_status) &&
+                iso_len && data_base + iso_off + iso_len <= tvb_reported_length(tvb)) {
+            proto_tree_add_item(iso_desc_tree, hf_usb_iso_data, tvb, (guint) data_base + iso_off, iso_len, ENC_NA);
+            proto_tree_set_appendix(iso_desc_tree, tvb, (guint) data_base + iso_off, (gint)iso_len);
+        }
+    }
+    return desc_offset;
+}
+
+static gint
 dissect_usb_payload(tvbuff_t *tvb, packet_info *pinfo,
                     proto_tree *parent, proto_tree *tree,
                     usb_conv_info_t *usb_conv_info, guint8 urb_type,
@@ -3602,12 +3664,14 @@ dissect_usb_payload(tvbuff_t *tvb, packet_info *pinfo,
 
 void
 dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
-                   usb_header_t header_type, struct mausb_header *ma_header)
+                   usb_header_t header_type, void *extra_data)
 {
     gint                  offset = 0;
     int                   endpoint;
     guint8                urb_type;
     guint32               win32_data_len = 0;
+    guint32               iso_numdesc = 0;
+    guint32               desc_offset = 0;
     proto_item           *urb_tree_ti;
     proto_tree           *tree;
     proto_item           *item;
@@ -3617,6 +3681,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     guint16              bus_id;
     guint8                   usbpcap_control_stage = 0;
     guint64                  usb_id;
+    struct mausb_header  *ma_header = NULL;
+    struct usbip_header  *ip_header = NULL;
 
     /* the goal is to get the conversation struct as early as possible
        and store all status values in this struct
@@ -3640,10 +3706,19 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         break;
 
     case USB_HEADER_MAUSB:
+        ma_header = (struct mausb_header *) extra_data;
         urb_type = mausb_is_from_host(ma_header) ? URB_SUBMIT : URB_COMPLETE;
         device_address = mausb_ep_handle_dev_addr(ma_header->handle);
         endpoint = mausb_ep_handle_ep_num(ma_header->handle);
         bus_id = mausb_ep_handle_bus_num(ma_header->handle);
+        break;
+
+    case USB_HEADER_USBIP:
+        ip_header = (struct usbip_header *) extra_data;
+        urb_type = tvb_get_ntohl(tvb, 0) == 1 ? URB_SUBMIT : URB_COMPLETE;
+        device_address = ip_header->devid;
+        bus_id = ip_header->busid;
+        endpoint = ip_header->ep;
         break;
 
     default:
@@ -3684,6 +3759,24 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         usb_id = 0;
         break;
 
+    case USB_HEADER_USBIP:
+        iso_numdesc = tvb_get_ntohl(tvb, 0x20);
+        usb_conv_info->transfer_type = endpoint == 0 ? URB_CONTROL : (iso_numdesc > 0 ? URB_ISOCHRONOUS : URB_UNKNOWN);
+        usb_conv_info->direction = ip_header->dir == USBIP_DIR_OUT ? P2P_DIR_SENT : P2P_DIR_RECV;
+        usb_conv_info->is_setup = endpoint == 0 ? (tvb_get_ntoh64(tvb, 0x28) != G_GUINT64_CONSTANT(0)) : FALSE;
+        usb_conv_info->is_request = (urb_type==URB_SUBMIT);
+        offset = usb_conv_info->is_setup ? USBIP_HEADER_WITH_SETUP_LEN : USBIP_HEADER_LEN;
+
+        /* The ISOC descriptor is located at the end of the isoc frame behind the isoc data. */
+        if ((usb_conv_info->is_request && usb_conv_info->direction == USBIP_DIR_OUT) ||
+            (!usb_conv_info->is_request && usb_conv_info->direction == USBIP_DIR_IN)) {
+            desc_offset += tvb_get_ntohl(tvb, 0x18);
+        }
+
+        desc_offset += offset;
+        usb_id = 0;
+        break;
+
     default:
         usb_id = 0;
         break;
@@ -3717,6 +3810,9 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             break;
 
         case USB_HEADER_MAUSB:
+            break;
+
+        case USB_HEADER_USBIP:
             break;
         }
         break;
@@ -3753,6 +3849,9 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
                 case USB_HEADER_MAUSB:
                     break;
+
+                case USB_HEADER_USBIP:
+                    break;
                 }
             }
         } else {
@@ -3784,6 +3883,9 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
             case USB_HEADER_MAUSB:
                 break;
+
+            case USB_HEADER_USBIP:
+                break;
             }
 
             offset = dissect_usb_setup_response(pinfo, tree, tvb, offset,
@@ -3806,6 +3908,11 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
         case USB_HEADER_MAUSB:
             break;
+
+        case USB_HEADER_USBIP:
+            offset = dissect_usbip_iso_transfer(pinfo, tree,
+                    tvb, offset, iso_numdesc, desc_offset, usb_conv_info);
+            break;
         }
         break;
 
@@ -3825,6 +3932,9 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             break;
 
         case USB_HEADER_MAUSB:
+            break;
+
+        case USB_HEADER_USBIP:
             break;
         }
         break;
@@ -4133,6 +4243,11 @@ proto_register_usb(void)
           { "Length [bytes]", "usb.iso.iso_len",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             "ISO data length in bytes", HFILL }},
+
+        { &hf_usb_iso_actual_len,
+          { "Actual Length [bytes]", "usb.iso.iso_actual_len",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "ISO data actual length in bytes", HFILL }},
 
         { &hf_usb_iso_pad,                        /* host endian byte order */
           { "Padding", "usb.iso.pad",
