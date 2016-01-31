@@ -417,6 +417,11 @@ extcap_interface_list(char **err_str) {
     return g_list_sort ( ret, if_info_compare );
 }
 
+static void extcap_free_arg_elem(gpointer data, gpointer user_data _U_) {
+    extcap_free_arg((extcap_arg *) data);
+    g_free(data);
+}
+
 static void extcap_free_if_configuration(GList *list)
 {
     GList *elem, *sl;
@@ -426,7 +431,7 @@ static void extcap_free_if_configuration(GList *list)
         if (elem->data != NULL) {
             /* g_list_free_full() only exists since 2.28. */
             sl = g_list_first((GList *)elem->data);
-            g_list_foreach(sl, (GFunc)g_free, NULL);
+            g_list_foreach(sl, (GFunc)extcap_free_arg_elem, NULL);
             g_list_free(sl);
         }
     }
@@ -505,6 +510,7 @@ extcap_has_configuration(const char * ifname, gboolean is_required) {
         }
         walker = walker->next;
     }
+    extcap_free_if_configuration(arguments);
 
     return found;
 }
