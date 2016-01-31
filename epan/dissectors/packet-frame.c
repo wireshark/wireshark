@@ -186,6 +186,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 	tree=parent_tree;
 
+	DISSECTOR_ASSERT(fr_data);
+
 	switch (pinfo->phdr->rec_type) {
 
 	case REC_TYPE_PACKET:
@@ -254,7 +256,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		break;
 	}
 
-	if (fr_data && fr_data->pkt_comment) {
+	if (fr_data->pkt_comment) {
 		item = proto_tree_add_item(tree, proto_pkt_comment, tvb, 0, 0, ENC_NA);
 		comments_tree = proto_item_add_subtree(item, ett_comments);
 		comment_item = proto_tree_add_string_format(comments_tree, hf_comments_text, tvb, 0, 0,
@@ -507,9 +509,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				{
 					int file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
 
-					if (fr_data) {
-						file_type_subtype = fr_data->file_type_subtype;
-					}
+					file_type_subtype = fr_data->file_type_subtype;
 
 					if (!dissector_try_uint(wtap_fts_rec_dissector_table, file_type_subtype,
 					    tvb, pinfo, parent_tree)) {
