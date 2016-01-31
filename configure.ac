@@ -1037,6 +1037,11 @@ AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wjump-misses-init, C)
 # so only enable this for C for now.
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wshorten-64-to-32, C)
 
+# Clang only. Avoid "argument unused during compilation" warnings
+# (for example, when getting the -gsplit-dwarf option or
+# when combining -fwrapv with -fno-strict-overflow)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Qunused-arguments)
+
 #
 # Use the faster pre gcc 4.5 floating point precision if available.
 #
