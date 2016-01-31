@@ -537,24 +537,23 @@
 <context>
     <name>CaptureFileDialog</name>
     <message>
-        <location filename="capture_file_dialog.cpp" line="158"/>
-        <location filename="capture_file_dialog.cpp" line="171"/>
+        <location filename="capture_file_dialog.cpp" line="152"/>
         <source>This capture file contains comments.</source>
         <translation>このキャプチャファイルにはコメントが含まれています。</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="159"/>
+        <location filename="capture_file_dialog.cpp" line="162"/>
         <source>The file format you chose doesn&apos;t support comments. Do you want to save the capture in a format that supports comments or discard the comments and save in the format you chose?</source>
         <translation>あなたが選んだファイル形式はコメントに対応していません。コメントに対応した形式で保存しますか？もしくはコメントを破棄して選んだ形式で保存しますか？</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="164"/>
+        <location filename="capture_file_dialog.cpp" line="166"/>
         <location filename="capture_file_dialog.cpp" line="175"/>
         <source>Discard comments and save</source>
         <translation>コメントを破棄して保存</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="165"/>
+        <location filename="capture_file_dialog.cpp" line="167"/>
         <source>Save in another format</source>
         <translation>別の型式で保存</translation>
     </message>
@@ -564,185 +563,185 @@
         <translation>コメントに対応したファイル形式ではありません。コメントを破棄して選んだ形式で保存しますか？</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="392"/>
+        <location filename="capture_file_dialog.cpp" line="391"/>
         <source>All Files (*.*)</source>
         <translation>すべてのファイル (*.*)</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="398"/>
+        <location filename="capture_file_dialog.cpp" line="397"/>
         <source>All Capture Files</source>
         <translation>すべてのキャプチャファイル</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="434"/>
+        <location filename="capture_file_dialog.cpp" line="433"/>
         <source>Format:</source>
         <translation>形式:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="439"/>
+        <location filename="capture_file_dialog.cpp" line="438"/>
         <source>Size:</source>
         <translation>サイズ:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="444"/>
+        <location filename="capture_file_dialog.cpp" line="443"/>
         <source>Packets:</source>
         <translation>パケット:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="449"/>
+        <location filename="capture_file_dialog.cpp" line="448"/>
         <source>First Packet:</source>
         <translation>最初のパケット</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="454"/>
+        <location filename="capture_file_dialog.cpp" line="453"/>
         <source>Elapsed Time:</source>
         <translation>経過時間:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="466"/>
+        <location filename="capture_file_dialog.cpp" line="465"/>
         <source>Prepend packets</source>
         <translation>前につけたパケット</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="467"/>
+        <location filename="capture_file_dialog.cpp" line="466"/>
         <source>Insert packets from the selected file before the current file. Packet timestamps will be ignored.</source>
         <translation>現在のファイルの前に選択したファイルからパケットを挿入します。パケットの時刻は無視されます。</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="470"/>
+        <location filename="capture_file_dialog.cpp" line="469"/>
         <source>Merge chronologically</source>
         <translation>時系列で結合します。</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="471"/>
+        <location filename="capture_file_dialog.cpp" line="470"/>
         <source>Insert packets in chronological order.</source>
         <translation>時系列の順番でパケットを挿入します。</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="475"/>
+        <location filename="capture_file_dialog.cpp" line="474"/>
         <source>Append packets</source>
         <translation>パケットを追加</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="476"/>
+        <location filename="capture_file_dialog.cpp" line="475"/>
         <source>Insert packets from the selected file after the current file. Packet timestamps will be ignored.</source>
         <translation>現在のファイルの後ろにパケットを挿入します。パケットの時刻は無視されます。</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="491"/>
+        <location filename="capture_file_dialog.cpp" line="490"/>
         <source>Read filter:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="500"/>
+        <location filename="capture_file_dialog.cpp" line="499"/>
         <source>Automatic</source>
         <translation>自動</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="509"/>
+        <location filename="capture_file_dialog.cpp" line="508"/>
         <source>&amp;MAC name resolution</source>
         <translation>MACアドレスの解決</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="513"/>
+        <location filename="capture_file_dialog.cpp" line="512"/>
         <source>&amp;Transport name resolution</source>
         <translation>トランスポート層のサービス名の解決</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="517"/>
+        <location filename="capture_file_dialog.cpp" line="516"/>
         <source>&amp;Network name resolution</source>
         <translation>ネットワーク層の名前解決</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="521"/>
+        <location filename="capture_file_dialog.cpp" line="520"/>
         <source>&amp;External name resolver</source>
         <translation>外部の名前解決</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="527"/>
+        <location filename="capture_file_dialog.cpp" line="526"/>
         <source>Compress with g&amp;zip</source>
         <translation>g&amp;zip形式で圧縮</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="558"/>
+        <location filename="capture_file_dialog.cpp" line="557"/>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation>Wireshark: キャプチャファイルを開く</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="594"/>
+        <location filename="capture_file_dialog.cpp" line="593"/>
         <source>Save Capture File As</source>
         <oldsource>Wireshark: Save Capture File As</oldsource>
         <translation>Wireshark: としてキャプチャファイルを保存</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="600"/>
+        <location filename="capture_file_dialog.cpp" line="599"/>
         <source>Save as:</source>
         <translation>名前をつけて保存:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="622"/>
+        <location filename="capture_file_dialog.cpp" line="621"/>
         <source>Export Specified Packets</source>
         <oldsource>Wireshark: Export Specified Packets</oldsource>
         <translation>Wireshark: 特定のパケットを出力</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="626"/>
+        <location filename="capture_file_dialog.cpp" line="625"/>
         <source>Export as:</source>
         <translation>名前をつけてエクスポート:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="655"/>
+        <location filename="capture_file_dialog.cpp" line="654"/>
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Wireshark: キャプチャファイルをマージ</translation>
     </message>
     <message>
+        <location filename="capture_file_dialog.cpp" line="756"/>
         <location filename="capture_file_dialog.cpp" line="757"/>
         <location filename="capture_file_dialog.cpp" line="758"/>
         <location filename="capture_file_dialog.cpp" line="759"/>
         <location filename="capture_file_dialog.cpp" line="760"/>
-        <location filename="capture_file_dialog.cpp" line="761"/>
         <source>-</source>
         <translation>-</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="768"/>
+        <location filename="capture_file_dialog.cpp" line="767"/>
         <source>directory</source>
         <translation>ディレクトリ</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="775"/>
+        <location filename="capture_file_dialog.cpp" line="774"/>
         <source>unknown file format</source>
         <translation>不明なファイルフォーマット</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="777"/>
+        <location filename="capture_file_dialog.cpp" line="776"/>
         <source>error opening file</source>
         <translation>ファイルオープンエラー</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="791"/>
+        <location filename="capture_file_dialog.cpp" line="790"/>
         <source>%1 bytes</source>
         <translation>%1 バイト</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="820"/>
+        <location filename="capture_file_dialog.cpp" line="819"/>
         <source>error after reading %1 packets</source>
         <translation>%1 個のパケットを読み込んでからエラー</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="826"/>
+        <location filename="capture_file_dialog.cpp" line="825"/>
         <source>more than %1 (preview timeout)</source>
         <translation>%1 以上(プレビュー タイムアウト)</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="845"/>
+        <location filename="capture_file_dialog.cpp" line="844"/>
         <source>?</source>
         <translation>？</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="851"/>
+        <location filename="capture_file_dialog.cpp" line="850"/>
         <source>unknown</source>
         <translation>不明</translation>
     </message>
@@ -998,24 +997,50 @@
 <context>
     <name>CaptureFilterEdit</name>
     <message>
-        <location filename="capture_filter_edit.cpp" line="117"/>
+        <location filename="capture_filter_edit.cpp" line="123"/>
         <source>Capture filter entry</source>
         <translation>キャプチャフィルタ入力</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="123"/>
+        <location filename="capture_filter_edit.cpp" line="129"/>
         <source>Enter a capture filter %1</source>
         <translation>キャプチャフィルタを入力 %1</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="134"/>
+        <location filename="capture_filter_edit.cpp" line="139"/>
         <source>Manage saved bookmarks.</source>
         <translation>保存したブックマークを管理</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="169"/>
+        <location filename="capture_filter_edit.cpp" line="176"/>
         <source>Apply this filter string to the display.</source>
         <translation>このフィルタ文字列を表示に適用</translation>
+    </message>
+    <message>
+        <location filename="capture_filter_edit.cpp" line="358"/>
+        <source>Save this filter</source>
+        <translation type="unfinished">このフィルタを保存</translation>
+    </message>
+    <message>
+        <location filename="capture_filter_edit.cpp" line="360"/>
+        <source>Remove this filter</source>
+        <translation type="unfinished">このフィルタを削除</translation>
+    </message>
+    <message>
+        <location filename="capture_filter_edit.cpp" line="362"/>
+        <source>Manage Capture Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_filter_edit.cpp" line="498"/>
+        <source>Unable to save capture filter settings.</source>
+        <translation type="unfinished">キャプチャフィルタ設定を保存できません。</translation>
+    </message>
+    <message>
+        <location filename="capture_filter_edit.cpp" line="499"/>
+        <source>Could not save to your capture filter file
+&quot;%1&quot;: %2.</source>
+        <translation type="unfinished">キャプチャフィルタファイルを保存できません &quot;%1&quot;: %2.</translation>
     </message>
 </context>
 <context>
@@ -1830,62 +1855,73 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>DisplayFilterEdit</name>
     <message>
-        <location filename="display_filter_edit.cpp" line="105"/>
+        <location filename="display_filter_edit.cpp" line="108"/>
         <source>Display filter entry</source>
         <translation>表示フィルタ入力</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="209"/>
+        <location filename="display_filter_edit.cpp" line="214"/>
         <source>Enter a display filter %1</source>
         <translation>表示フィルタを入力します %1</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="204"/>
+        <location filename="display_filter_edit.cpp" line="209"/>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
         <translation>表示フィルタを適用します %1 &lt;%2/&gt;</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="213"/>
+        <location filename="display_filter_edit.cpp" line="218"/>
         <source>Apply a read filter %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="125"/>
+        <location filename="display_filter_edit.cpp" line="128"/>
         <source>Manage saved bookmarks.</source>
         <translation>保存したブックマークを管理</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="159"/>
+        <location filename="display_filter_edit.cpp" line="162"/>
         <source>Apply this filter string to the display.</source>
         <translation>このフィルタ文字列を表示に適用</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="347"/>
+        <location filename="display_filter_edit.cpp" line="393"/>
         <source>Save this filter</source>
         <translation>このフィルタを保存</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="349"/>
+        <location filename="display_filter_edit.cpp" line="397"/>
         <source>Manage Display Filters</source>
         <translation>表示フィルタの管理</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="351"/>
+        <location filename="display_filter_edit.cpp" line="399"/>
         <source>Manage Filter Expressions</source>
         <translation>フィルタ表示式の管理</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="377"/>
+        <location filename="display_filter_edit.cpp" line="578"/>
+        <source>Unable to save display filter settings.</source>
+        <translation type="unfinished">表示フィルタ設定を保存できません</translation>
+    </message>
+    <message>
+        <location filename="display_filter_edit.cpp" line="579"/>
+        <source>Could not save to your display filter file
+&quot;%1&quot;: %2.</source>
+        <translation type="unfinished">表示フィルタファイルへ保存できません。&quot;%1&quot;: %2</translation>
+    </message>
+    <message>
+        <location filename="display_filter_edit.cpp" line="395"/>
         <source>Remove this filter</source>
         <translation>このフィルタを削除</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="325"/>
+        <location filename="display_filter_edit.cpp" line="330"/>
         <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
         <translation>&quot;%1&quot; は期待しない結果になったかもしれません。(ユーザーズガイドを参照ください)</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="332"/>
+        <location filename="display_filter_edit.cpp" line="337"/>
         <source>Invalid filter: </source>
         <oldsource>Invalid filter</oldsource>
         <translation>無効なフィルタ:</translation>
@@ -2628,6 +2664,11 @@ for filter files: %2.</source>
         <location filename="filter_expressions_preferences_frame.ui" line="34"/>
         <source>Filter Expression</source>
         <translation>フィルタ式</translation>
+    </message>
+    <message>
+        <location filename="filter_expressions_preferences_frame.ui" line="60"/>
+        <source>Copy this filter.</source>
+        <translation type="unfinished">このプロファイルをコピー</translation>
     </message>
 </context>
 <context>
@@ -10922,7 +10963,7 @@ a:hover {
         <translation>フォルダで表示</translation>
     </message>
     <message>
-        <location filename="filter_expressions_preferences_frame.cpp" line="270"/>
+        <location filename="filter_expressions_preferences_frame.cpp" line="278"/>
         <source>My Filter</source>
         <translation>自分のフィルタ</translation>
     </message>

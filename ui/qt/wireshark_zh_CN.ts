@@ -537,24 +537,23 @@
 <context>
     <name>CaptureFileDialog</name>
     <message>
-        <location filename="capture_file_dialog.cpp" line="158"/>
-        <location filename="capture_file_dialog.cpp" line="171"/>
+        <location filename="capture_file_dialog.cpp" line="152"/>
         <source>This capture file contains comments.</source>
         <translation>此捕获文件含有注释内容。</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="159"/>
+        <location filename="capture_file_dialog.cpp" line="162"/>
         <source>The file format you chose doesn&apos;t support comments. Do you want to save the capture in a format that supports comments or discard the comments and save in the format you chose?</source>
         <translation>您所选择的文件格式不支持注释。您希望将捕获内容保存为支持注释的格式，还是希望丢弃注释，直接保存为您所选择的格式？</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="164"/>
+        <location filename="capture_file_dialog.cpp" line="166"/>
         <location filename="capture_file_dialog.cpp" line="175"/>
         <source>Discard comments and save</source>
         <translation>丢弃注释并保存</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="165"/>
+        <location filename="capture_file_dialog.cpp" line="167"/>
         <source>Save in another format</source>
         <translation>保存为其他格式</translation>
     </message>
@@ -564,185 +563,185 @@
         <translation>可以保存的文件格式中，没有支持注释的格式。您是否要丢弃注释并以您选择的格式保存？</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="392"/>
+        <location filename="capture_file_dialog.cpp" line="391"/>
         <source>All Files (*.*)</source>
         <translation>所有文件 (*.*)</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="398"/>
+        <location filename="capture_file_dialog.cpp" line="397"/>
         <source>All Capture Files</source>
         <translation>所有捕获文件</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="434"/>
+        <location filename="capture_file_dialog.cpp" line="433"/>
         <source>Format:</source>
         <translation>格式:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="439"/>
+        <location filename="capture_file_dialog.cpp" line="438"/>
         <source>Size:</source>
         <translation>大小:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="444"/>
+        <location filename="capture_file_dialog.cpp" line="443"/>
         <source>Packets:</source>
         <translation>分组数目:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="449"/>
+        <location filename="capture_file_dialog.cpp" line="448"/>
         <source>First Packet:</source>
         <translation>首个分组:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="454"/>
+        <location filename="capture_file_dialog.cpp" line="453"/>
         <source>Elapsed Time:</source>
         <translation>已用时间:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="466"/>
+        <location filename="capture_file_dialog.cpp" line="465"/>
         <source>Prepend packets</source>
         <translation>前置分组</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="467"/>
+        <location filename="capture_file_dialog.cpp" line="466"/>
         <source>Insert packets from the selected file before the current file. Packet timestamps will be ignored.</source>
         <translation>将选中文件中的分组插入到当前文件之前。分组时间戳将被忽略。</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="470"/>
+        <location filename="capture_file_dialog.cpp" line="469"/>
         <source>Merge chronologically</source>
         <translation>按时间戳合并</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="471"/>
+        <location filename="capture_file_dialog.cpp" line="470"/>
         <source>Insert packets in chronological order.</source>
         <translation>按照时间顺序插入分组。</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="475"/>
+        <location filename="capture_file_dialog.cpp" line="474"/>
         <source>Append packets</source>
         <translation>追加分组</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="476"/>
+        <location filename="capture_file_dialog.cpp" line="475"/>
         <source>Insert packets from the selected file after the current file. Packet timestamps will be ignored.</source>
         <translation>将选中文件中的分组插入到当前文件之后。分组时间戳将被忽略。</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="491"/>
+        <location filename="capture_file_dialog.cpp" line="490"/>
         <source>Read filter:</source>
         <translation>读取过滤器:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="500"/>
+        <location filename="capture_file_dialog.cpp" line="499"/>
         <source>Automatic</source>
         <translation>自动</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="509"/>
+        <location filename="capture_file_dialog.cpp" line="508"/>
         <source>&amp;MAC name resolution</source>
         <translation>MAC地址解析(&amp;M)</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="513"/>
+        <location filename="capture_file_dialog.cpp" line="512"/>
         <source>&amp;Transport name resolution</source>
         <translation>传输层名称解析(&amp;T)</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="517"/>
+        <location filename="capture_file_dialog.cpp" line="516"/>
         <source>&amp;Network name resolution</source>
         <translation>网络层名称解析(&amp;N)</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="521"/>
+        <location filename="capture_file_dialog.cpp" line="520"/>
         <source>&amp;External name resolver</source>
         <translation>使用外部解析服务(&amp;E)</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="527"/>
+        <location filename="capture_file_dialog.cpp" line="526"/>
         <source>Compress with g&amp;zip</source>
         <translation>用 gzip 压缩(&amp;Z)</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="558"/>
+        <location filename="capture_file_dialog.cpp" line="557"/>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation>打开捕获文件</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="594"/>
+        <location filename="capture_file_dialog.cpp" line="593"/>
         <source>Save Capture File As</source>
         <oldsource>Wireshark: Save Capture File As</oldsource>
         <translation>保存捕获文件为</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="600"/>
+        <location filename="capture_file_dialog.cpp" line="599"/>
         <source>Save as:</source>
         <translation>另存为:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="622"/>
+        <location filename="capture_file_dialog.cpp" line="621"/>
         <source>Export Specified Packets</source>
         <oldsource>Wireshark: Export Specified Packets</oldsource>
         <translation>导出特定分组</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="626"/>
+        <location filename="capture_file_dialog.cpp" line="625"/>
         <source>Export as:</source>
         <translation>导出为:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="655"/>
+        <location filename="capture_file_dialog.cpp" line="654"/>
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>合并捕获文件</translation>
     </message>
     <message>
+        <location filename="capture_file_dialog.cpp" line="756"/>
         <location filename="capture_file_dialog.cpp" line="757"/>
         <location filename="capture_file_dialog.cpp" line="758"/>
         <location filename="capture_file_dialog.cpp" line="759"/>
         <location filename="capture_file_dialog.cpp" line="760"/>
-        <location filename="capture_file_dialog.cpp" line="761"/>
         <source>-</source>
         <translation>-</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="768"/>
+        <location filename="capture_file_dialog.cpp" line="767"/>
         <source>directory</source>
         <translation>目录</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="775"/>
+        <location filename="capture_file_dialog.cpp" line="774"/>
         <source>unknown file format</source>
         <translation>未知文件格式</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="777"/>
+        <location filename="capture_file_dialog.cpp" line="776"/>
         <source>error opening file</source>
         <translation>打开文件出错</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="791"/>
+        <location filename="capture_file_dialog.cpp" line="790"/>
         <source>%1 bytes</source>
         <translation>%1 字节</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="820"/>
+        <location filename="capture_file_dialog.cpp" line="819"/>
         <source>error after reading %1 packets</source>
         <translation>读取 %1 分组后出错</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="826"/>
+        <location filename="capture_file_dialog.cpp" line="825"/>
         <source>more than %1 (preview timeout)</source>
         <translation>大于 %1 (预览超时)</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="845"/>
+        <location filename="capture_file_dialog.cpp" line="844"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="851"/>
+        <location filename="capture_file_dialog.cpp" line="850"/>
         <source>unknown</source>
         <translation>未知</translation>
     </message>
@@ -998,24 +997,51 @@
 <context>
     <name>CaptureFilterEdit</name>
     <message>
-        <location filename="capture_filter_edit.cpp" line="117"/>
+        <location filename="capture_filter_edit.cpp" line="123"/>
         <source>Capture filter entry</source>
         <translation>捕获过滤器</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="123"/>
+        <location filename="capture_filter_edit.cpp" line="129"/>
         <source>Enter a capture filter %1</source>
         <translation>输入捕获过滤器 %1</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="134"/>
+        <location filename="capture_filter_edit.cpp" line="139"/>
         <source>Manage saved bookmarks.</source>
         <translation>管理保存的书签。</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="169"/>
+        <location filename="capture_filter_edit.cpp" line="176"/>
         <source>Apply this filter string to the display.</source>
         <translation>应用此过滤器字符串进行显示。</translation>
+    </message>
+    <message>
+        <location filename="capture_filter_edit.cpp" line="358"/>
+        <source>Save this filter</source>
+        <translation type="unfinished">保存该过滤器</translation>
+    </message>
+    <message>
+        <location filename="capture_filter_edit.cpp" line="360"/>
+        <source>Remove this filter</source>
+        <translation type="unfinished">删除该过滤器</translation>
+    </message>
+    <message>
+        <location filename="capture_filter_edit.cpp" line="362"/>
+        <source>Manage Capture Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_filter_edit.cpp" line="498"/>
+        <source>Unable to save capture filter settings.</source>
+        <translation type="unfinished">无法保存捕获过滤器设置。</translation>
+    </message>
+    <message>
+        <location filename="capture_filter_edit.cpp" line="499"/>
+        <source>Could not save to your capture filter file
+&quot;%1&quot;: %2.</source>
+        <translation type="unfinished">未能保存您的捕获过滤器文件
+“%1”：%2。</translation>
     </message>
 </context>
 <context>
@@ -1831,62 +1857,74 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>DisplayFilterEdit</name>
     <message>
-        <location filename="display_filter_edit.cpp" line="105"/>
+        <location filename="display_filter_edit.cpp" line="108"/>
         <source>Display filter entry</source>
         <translation>显示过滤器</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="209"/>
+        <location filename="display_filter_edit.cpp" line="214"/>
         <source>Enter a display filter %1</source>
         <translation>输入显示过滤器 %1</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="204"/>
+        <location filename="display_filter_edit.cpp" line="209"/>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
         <translation>应用显示过滤器 %1 &lt;%2/&gt;</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="213"/>
+        <location filename="display_filter_edit.cpp" line="218"/>
         <source>Apply a read filter %1</source>
         <translation>应用读取过滤器 %1</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="125"/>
+        <location filename="display_filter_edit.cpp" line="128"/>
         <source>Manage saved bookmarks.</source>
         <translation>管理保存的书签。</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="159"/>
+        <location filename="display_filter_edit.cpp" line="162"/>
         <source>Apply this filter string to the display.</source>
         <translation>应用此过滤器字符串进行显示。</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="347"/>
+        <location filename="display_filter_edit.cpp" line="393"/>
         <source>Save this filter</source>
         <translation>保存该过滤器</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="349"/>
+        <location filename="display_filter_edit.cpp" line="397"/>
         <source>Manage Display Filters</source>
         <translation>管理显示过滤器</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="351"/>
+        <location filename="display_filter_edit.cpp" line="399"/>
         <source>Manage Filter Expressions</source>
         <translation>管理过滤器表达式</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="377"/>
+        <location filename="display_filter_edit.cpp" line="578"/>
+        <source>Unable to save display filter settings.</source>
+        <translation type="unfinished">无法保存显示过滤器设置。</translation>
+    </message>
+    <message>
+        <location filename="display_filter_edit.cpp" line="579"/>
+        <source>Could not save to your display filter file
+&quot;%1&quot;: %2.</source>
+        <translation type="unfinished">未能保存您的显示过滤器文件
+“%1”：%2。</translation>
+    </message>
+    <message>
+        <location filename="display_filter_edit.cpp" line="395"/>
         <source>Remove this filter</source>
         <translation>删除该过滤器</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="325"/>
+        <location filename="display_filter_edit.cpp" line="330"/>
         <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
         <translation>&quot;%1&quot;可能遇到意外的结果（参考用户手册）</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="332"/>
+        <location filename="display_filter_edit.cpp" line="337"/>
         <source>Invalid filter: </source>
         <oldsource>Invalid filter</oldsource>
         <translation>无效的过滤器:</translation>
@@ -2633,6 +2671,11 @@ for filter files: %2.</source>
         <location filename="filter_expressions_preferences_frame.ui" line="34"/>
         <source>Filter Expression</source>
         <translation>过滤器表达式</translation>
+    </message>
+    <message>
+        <location filename="filter_expressions_preferences_frame.ui" line="60"/>
+        <source>Copy this filter.</source>
+        <translation type="unfinished">复制此过滤器。</translation>
     </message>
 </context>
 <context>
@@ -10964,7 +11007,7 @@ text-decoration: underline;
         <translation>在 Finder 中显示</translation>
     </message>
     <message>
-        <location filename="filter_expressions_preferences_frame.cpp" line="270"/>
+        <location filename="filter_expressions_preferences_frame.cpp" line="278"/>
         <source>My Filter</source>
         <translation>我的过滤器</translation>
     </message>

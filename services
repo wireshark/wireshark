@@ -9791,6 +9791,7 @@ raqmon-pdu       7744/tcp # RAQMON PDU [RFC4712]
 raqmon-pdu       7744/udp # RAQMON PDU [RFC4712]
 prgp             7747/tcp # Put/Run/Get Protocol [Jayasooriah] [Jayasooriah] 2008-02-22
 prgp             7747/udp # Put/Run/Get Protocol [Jayasooriah] [Jayasooriah] 2008-02-22
+inetfs           7775/tcp # A File System using TLS over a wide area network [Roger_Allan] [Roger_Allan] 2016-01-28
 cbt              7777/tcp # cbt [Tony_Ballardie] [Tony_Ballardie] Known Unauthorized Use on port 7777
 cbt              7777/udp # cbt [Tony_Ballardie] [Tony_Ballardie] Known Unauthorized Use on port 7777
 interwise        7778/tcp # Interwise [Joseph_Gray] [Joseph_Gray]
