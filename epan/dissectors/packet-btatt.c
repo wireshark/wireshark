@@ -3443,8 +3443,9 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
     tvb = tvb_new_subset(old_tvb, old_offset, length, length);
 
-    if (att_data)
-        bluetooth_data = att_data->bluetooth_data;
+    DISSECTOR_ASSERT(att_data);
+
+    bluetooth_data = att_data->bluetooth_data;
 
     if (p_get_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_HANDLE) == NULL) {
         guint16 *value_data;
