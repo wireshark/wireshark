@@ -8845,14 +8845,14 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             offset = offset + (*gtpopt[i].decode) (tvb, offset, pinfo, gtp_tree, args);
         }
 
-        if (g_gtp_session && !PINFO_FD_VISITED(pinfo)) {
+        if (args && !PINFO_FD_VISITED(pinfo)) {
             /* We insert the lists inside the table*/
             fill_map(args->teid_list, args->ip_list, pinfo->num);
         }
         /*Use sequence number to track Req/Resp pairs*/
         if (has_SN) {
             guint8 cause_aux = 128; /* Cause accepted by default. Only used when args is NULL */
-            if (g_gtp_session) {
+            if (args) {
                 cause_aux = args->last_cause;
             }
             gcrp = gtp_match_response(tvb, pinfo, gtp_tree, seq_no, gtp_hdr->message, gtp_info, cause_aux);
@@ -8862,7 +8862,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             }
         }
     }
-    if (g_gtp_session) {
+    if (args) {
         track_gtp_session(tvb, pinfo, gtp_tree, gtp_hdr, args->teid_list, args->ip_list, args->last_teid, args->last_ip);
     }
     proto_item_set_end(ti, tvb, offset);
