@@ -2346,8 +2346,8 @@ static int hf_lte_rrc_um_Uni_Directional_UL = -1;  /* T_um_Uni_Directional_UL */
 static int hf_lte_rrc_um_Uni_Directional_DL = -1;  /* T_um_Uni_Directional_DL */
 static int hf_lte_rrc_ul_extended_RLC_LI_Field_r12 = -1;  /* T_ul_extended_RLC_LI_Field_r12 */
 static int hf_lte_rrc_dl_extended_RLC_LI_Field_r12 = -1;  /* T_dl_extended_RLC_LI_Field_r12 */
-static int hf_lte_rrc_ul_extended_RLC_AM_SN_r13 = -1;  /* BOOLEAN */
-static int hf_lte_rrc_dl_extended_RLC_AM_SN_r13 = -1;  /* BOOLEAN */
+static int hf_lte_rrc_ul_extended_RLC_AM_SN_r13 = -1;  /* T_ul_extended_RLC_AM_SN_r13 */
+static int hf_lte_rrc_dl_extended_RLC_AM_SN_r13 = -1;  /* T_dl_extended_RLC_AM_SN_r13 */
 static int hf_lte_rrc_pollPDU_v13xy = -1;         /* PollPDU_v13xy */
 static int hf_lte_rrc_t_PollRetransmit = -1;      /* T_PollRetransmit */
 static int hf_lte_rrc_pollPDU = -1;               /* PollPDU */
@@ -13205,6 +13205,38 @@ dissect_lte_rrc_DRB_ToAddMod_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
+
+static int
+dissect_lte_rrc_T_ul_extended_RLC_AM_SN_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  gboolean ext_am_sn;
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
+  offset = dissect_per_boolean(tvb, offset, actx, tree, hf_index, &ext_am_sn);
+
+  if (mapping != NULL) {
+    mapping->rlc_ul_ext_am_sn = ext_am_sn;
+  }
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_dl_extended_RLC_AM_SN_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  gboolean ext_am_sn;
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
+  offset = dissect_per_boolean(tvb, offset, actx, tree, hf_index, &ext_am_sn);
+
+  if (mapping != NULL) {
+    mapping->rlc_dl_ext_am_sn = ext_am_sn;
+  }
+
+
+  return offset;
+}
+
+
 static const value_string lte_rrc_PollPDU_v13xy_vals[] = {
   {   0, "p512" },
   {   1, "p1024" },
@@ -13228,8 +13260,8 @@ dissect_lte_rrc_PollPDU_v13xy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 
 static const per_sequence_t RLC_Config_v13xx_sequence[] = {
-  { &hf_lte_rrc_ul_extended_RLC_AM_SN_r13, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BOOLEAN },
-  { &hf_lte_rrc_dl_extended_RLC_AM_SN_r13, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BOOLEAN },
+  { &hf_lte_rrc_ul_extended_RLC_AM_SN_r13, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_ul_extended_RLC_AM_SN_r13 },
+  { &hf_lte_rrc_dl_extended_RLC_AM_SN_r13, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_dl_extended_RLC_AM_SN_r13 },
   { &hf_lte_rrc_pollPDU_v13xy, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_PollPDU_v13xy },
   { NULL, 0, 0, NULL }
 };
@@ -62046,11 +62078,11 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_ul_extended_RLC_AM_SN_r13,
       { "ul-extended-RLC-AM-SN-r13", "lte-rrc.ul_extended_RLC_AM_SN_r13",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_dl_extended_RLC_AM_SN_r13,
       { "dl-extended-RLC-AM-SN-r13", "lte-rrc.dl_extended_RLC_AM_SN_r13",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_pollPDU_v13xy,
       { "pollPDU-v13xy", "lte-rrc.pollPDU_v13xy",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_PollPDU_v13xy_vals), 0,

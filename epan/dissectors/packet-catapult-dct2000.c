@@ -1844,7 +1844,7 @@ static void attach_rlc_lte_info(packet_info *pinfo)
     p_rlc_lte_info->rlcMode = outhdr_values[i++];
     p_rlc_lte_info->direction = outhdr_values[i++];
     p_rlc_lte_info->priority = outhdr_values[i++];
-    p_rlc_lte_info->UMSequenceNumberLength = outhdr_values[i++];
+    p_rlc_lte_info->sequenceNumberLength = outhdr_values[i++];
     p_rlc_lte_info->channelId = outhdr_values[i++];
     p_rlc_lte_info->channelType = outhdr_values[i++];
     p_rlc_lte_info->ueid = outhdr_values[i++];

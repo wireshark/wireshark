@@ -48,6 +48,8 @@
 /* UMSequenceNumberLength */
 #define UM_SN_LENGTH_5_BITS 5
 #define UM_SN_LENGTH_10_BITS 10
+#define AM_SN_LENGTH_10_BITS 10
+#define AM_SN_LENGTH_16_BITS 16
 
 /* Info attached to each LTE RLC frame */
 typedef struct rlc_lte_info
@@ -55,7 +57,7 @@ typedef struct rlc_lte_info
     guint8          rlcMode;
     guint8          direction;
     guint8          priority;
-    guint8          UMSequenceNumberLength;
+    guint8          sequenceNumberLength;
     guint16         ueid;
     guint16         channelType;
     guint16         channelId;
@@ -73,7 +75,7 @@ typedef struct rlc_lte_tap_info {
     guint16         channelType;
     guint16         channelId;
     guint16         pduLength;
-    guint8          UMSequenceNumberLength;
+    guint8          sequenceNumberLength;
 
     nstime_t        rlc_lte_time;
     guint8          loggedInMACFrame;
@@ -122,10 +124,11 @@ void set_rlc_lte_drb_li_field(packet_info *pinfo, guint16 ueid, guint8 drbid, gb
    (where the allowed values are defined above */
 
 /* Conditional field. This field is mandatory in case of RLC Unacknowledged mode.
+   In case of RLC Acknowledged mode, the field is optional (assume 10 bits by default).
    The format is to have the tag, followed by the value (there is no length field,
    it's implicit from the tag). The allowed values are defined above. */
 
-#define RLC_LTE_UM_SN_LENGTH_TAG    0x02
+#define RLC_LTE_SN_LENGTH_TAG    0x02
 /* 1 byte */
 
 /* Optional fields. Attaching this info to frames will allow you

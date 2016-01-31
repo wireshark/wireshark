@@ -1624,6 +1624,22 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     mapping->rlc_dl_ext_li_field = ext_li_field;
   }
 
+#.FN_BODY RLC-Config-v13xx/ul-extended-RLC-AM-SN-r13 VAL_PTR=&ext_am_sn
+  gboolean ext_am_sn;
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
+%(DEFAULT_BODY)s
+  if (mapping != NULL) {
+    mapping->rlc_ul_ext_am_sn = ext_am_sn;
+  }
+
+#.FN_BODY RLC-Config-v13xx/dl-extended-RLC-AM-SN-r13 VAL_PTR=&ext_am_sn
+  gboolean ext_am_sn;
+  drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
+%(DEFAULT_BODY)s
+  if (mapping != NULL) {
+    mapping->rlc_dl_ext_am_sn = ext_am_sn;
+  }
+
 #.FN_BODY DRB-ToAddMod/logicalChannelIdentity VAL_PTR=&value
   guint32 value;
   drb_mapping_t *mapping = private_data_get_drb_mapping(actx);

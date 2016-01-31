@@ -413,7 +413,7 @@ void LteRlcGraphDialog::zoomAxes(bool in)
     }
     else {
         // Don't want to zoom out *too* far on y axis.
-        if (rp->yAxis->range().size() > (1024+10)) {
+        if (rp->yAxis->range().size() > (65536+10)) {
             return;
         }
     }
@@ -449,7 +449,7 @@ void LteRlcGraphDialog::zoomYAxis(bool in)
     }
     else {
         // Don't want to zoom out *too* far on y axis.
-        if (rp->yAxis->range().size() > (1024+10)) {
+        if (rp->yAxis->range().size() > (65536+10)) {
             return;
         }
     }
@@ -469,7 +469,7 @@ void LteRlcGraphDialog::panAxes(int x_pixels, int y_pixels)
     double v_pan = 0.0;
 
     // Don't scroll up beyond max range, or below 0
-    if (((y_pixels > 0) && (rp->yAxis->range().upper > 1024)) ||
+    if (((y_pixels > 0) && (rp->yAxis->range().upper > 65536)) ||
         ((y_pixels < 0) && (rp->yAxis->range().lower < 0))) {
         return;
     }

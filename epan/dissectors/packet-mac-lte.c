@@ -1201,17 +1201,41 @@ typedef enum rlc_channel_type_t {
     rlcAM,
     rlcAMulExtLiField,
     rlcAMdlExtLiField,
-    rlcAMextLiField
+    rlcAMextLiField,
+    rlcAMul16,
+    rlcAMdl16,
+    rlcAM16,
+    rlcAMul16ulExtLiField,
+    rlcAMdl16ulExtLiField,
+    rlcAM16ulExtLiField,
+    rlcAMul16dlExtLiField,
+    rlcAMdl16dlExtLiField,
+    rlcAM16dlExtLiField,
+    rlcAMul16extLiField,
+    rlcAMdl16extLiField,
+    rlcAM16extLiField,
 } rlc_channel_type_t;
 
 static const value_string rlc_channel_type_vals[] = {
-    { rlcTM            ,  "TM"},
-    { rlcUM5           ,  "UM, SN Len=5"},
-    { rlcUM10          ,  "UM, SN Len=10"},
-    { rlcAM            ,  "AM"},
-    { rlcAMulExtLiField,  "AM, UL Extended LI Field"},
-    { rlcAMdlExtLiField,  "AM, DL Extended LI Field"},
-    { rlcAMextLiField  ,  "AM, UL/DL Extended LI Field"},
+    { rlcTM                , "TM"},
+    { rlcUM5               , "UM, SN Len=5"},
+    { rlcUM10              , "UM, SN Len=10"},
+    { rlcAM                , "AM"},
+    { rlcAMulExtLiField    , "AM, UL Extended LI Field"},
+    { rlcAMdlExtLiField    , "AM, DL Extended LI Field"},
+    { rlcAMextLiField      , "AM, UL/DL Extended LI Field"},
+    { rlcAMul16            , "AM, UL SN Len=16"},
+    { rlcAMdl16            , "AM, DL SN Len=16"},
+    { rlcAM16              , "AM, SN Len=16"},
+    { rlcAMul16ulExtLiField, "AM, UL SN Len=16, UL Extended LI Field"},
+    { rlcAMdl16ulExtLiField, "AM, DL SN Len=16, UL Extended LI Field"},
+    { rlcAM16ulExtLiField  , "AM, SN Len=16, UL Extended LI Field"},
+    { rlcAMul16dlExtLiField, "AM, UL SN Len=16, DL Extended LI Field"},
+    { rlcAMdl16dlExtLiField, "AM, DL SN Len=16, DL Extended LI Field"},
+    { rlcAM16dlExtLiField  , "AM, SN Len=16, DL Extended LI Field"},
+    { rlcAMul16extLiField  , "AM, UL SN Len=16, UL/DL Extended LI Field"},
+    { rlcAMdl16extLiField  , "AM, DL SN Len=16, UL/DL Extended LI Field"},
+    { rlcAM16extLiField    , "AM, SN Len=16, UL/DL Extended LI Field"},
     { 0, NULL }
 };
 
@@ -2985,7 +3009,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                int offset, guint16 data_length,
                                guint8 mode, guint8 direction, guint16 ueid,
                                guint16 channelType, guint16 channelId,
-                               guint8 UMSequenceNumberLength,
+                               guint8 sequenceNumberLength,
                                guint8 priority, gboolean rlcExtLiField)
 {
     tvbuff_t            *rb_tvb = tvb_new_subset_length(tvb, offset, data_length);
@@ -3005,7 +3029,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     p_rlc_lte_info->channelType = channelType;
     p_rlc_lte_info->channelId = channelId;
     p_rlc_lte_info->pduLength = data_length;
-    p_rlc_lte_info->UMSequenceNumberLength = UMSequenceNumberLength;
+    p_rlc_lte_info->sequenceNumberLength = sequenceNumberLength;
     p_rlc_lte_info->extendedLiField = rlcExtLiField;
 
     /* Store info in packet */
@@ -3649,20 +3673,132 @@ static void show_ues_tti(packet_info *pinfo, mac_lte_info *p_mac_lte_info, tvbuf
     }
 }
 
-
+static void set_rlc_seqnum_length_ext_li_field(rlc_channel_type_t rlc_channel_type,
+                                               guint8 direction,
+                                               guint8 *seqnum_length,
+                                               gboolean *rlc_ext_li_field)
+{
+    switch (rlc_channel_type) {
+        case rlcUM5:
+            *seqnum_length = 5;
+            break;
+        case rlcUM10:
+            *seqnum_length = 10;
+            break;
+        case rlcAMulExtLiField:
+            *seqnum_length = 10;
+            if (direction == DIRECTION_UPLINK) {
+                *rlc_ext_li_field = TRUE;
+            }
+            break;
+        case rlcAMdlExtLiField:
+            *seqnum_length = 10;
+            if (direction == DIRECTION_DOWNLINK) {
+                *rlc_ext_li_field = TRUE;
+            }
+            break;
+        case rlcAMextLiField:
+            *seqnum_length = 10;
+            *rlc_ext_li_field = TRUE;
+            break;
+        case rlcAMul16:
+            if (direction == DIRECTION_UPLINK) {
+                *seqnum_length = 16;
+            } else {
+                *seqnum_length = 10;
+            }
+            break;
+        case rlcAMdl16:
+            if (direction == DIRECTION_UPLINK) {
+                *seqnum_length = 10;
+            } else {
+                *seqnum_length = 16;
+            }
+            break;
+        case rlcAM16:
+            *seqnum_length = 16;
+            break;
+        case rlcAMul16ulExtLiField:
+            if (direction == DIRECTION_UPLINK) {
+                *seqnum_length = 16;
+                *rlc_ext_li_field = TRUE;
+            } else {
+                *seqnum_length = 10;
+            }
+            break;
+        case rlcAMdl16ulExtLiField:
+            if (direction == DIRECTION_UPLINK) {
+                *seqnum_length = 10;
+                *rlc_ext_li_field = TRUE;
+            } else {
+                *seqnum_length = 16;
+            }
+            break;
+        case rlcAM16ulExtLiField:
+            *seqnum_length = 16;
+            if (direction == DIRECTION_UPLINK) {
+                *rlc_ext_li_field = TRUE;
+            }
+            break;
+        case rlcAMul16dlExtLiField:
+            if (direction == DIRECTION_UPLINK) {
+                *seqnum_length = 16;
+            } else {
+                *seqnum_length = 10;
+                *rlc_ext_li_field = TRUE;
+            }
+            break;
+        case rlcAMdl16dlExtLiField:
+            if (direction == DIRECTION_UPLINK) {
+                *seqnum_length = 10;
+            } else {
+                *seqnum_length = 16;
+                *rlc_ext_li_field = TRUE;
+            }
+            break;
+        case rlcAM16dlExtLiField:
+            *seqnum_length = 16;
+            if (direction == DIRECTION_DOWNLINK) {
+                *rlc_ext_li_field = TRUE;
+            }
+            break;
+        case rlcAMul16extLiField:
+            if (direction == DIRECTION_UPLINK) {
+                *seqnum_length = 16;
+            } else {
+                *seqnum_length = 10;
+            }
+            *rlc_ext_li_field = TRUE;
+            break;
+        case rlcAMdl16extLiField:
+            if (direction == DIRECTION_UPLINK) {
+                *seqnum_length = 10;
+            } else {
+                *seqnum_length = 16;
+            }
+            *rlc_ext_li_field = TRUE;
+            break;
+        case rlcAM16extLiField:
+            *seqnum_length = 16;
+            *rlc_ext_li_field = TRUE;
+            break;
+        default:
+            break;
+    }
+}
 
 /* Lookup channel details for lcid */
 static void lookup_rlc_channel_from_lcid(guint16 ueid,
                                          guint8 lcid,
                                          guint8 direction,
                                          rlc_channel_type_t *rlc_channel_type,
-                                         guint8 *UM_seqnum_length,
+                                         guint8 *seqnum_length,
                                          gint *drb_id,
                                          gboolean *rlc_ext_li_field)
 {
     /* Zero params (in case no match is found) */
     *rlc_channel_type = rlcRaw;
-    *UM_seqnum_length = 0;
+    *seqnum_length    = 0;
     *drb_id           = 0;
     *rlc_ext_li_field = FALSE;
 
@@ -3675,30 +3811,9 @@ static void lookup_rlc_channel_from_lcid(guint16 ueid,
 
                 *rlc_channel_type = lcid_drb_mappings[m].channel_type;
 
-                /* Set UM_seqnum_length */
-                switch (*rlc_channel_type) {
-                    case rlcUM5:
-                        *UM_seqnum_length = 5;
-                        break;
-                    case rlcUM10:
-                        *UM_seqnum_length = 10;
-                        break;
-                    case rlcAMulExtLiField:
-                        if (direction == DIRECTION_UPLINK) {
-                            *rlc_ext_li_field = TRUE;
-                        }
-                        break;
-                    case rlcAMdlExtLiField:
-                        if (direction == DIRECTION_DOWNLINK) {
-                            *rlc_ext_li_field = TRUE;
-                        }
-                        break;
-                    case rlcAMextLiField:
-                        *rlc_ext_li_field = TRUE;
-                        break;
-                    default:
-                        break;
-                }
+                /* Set seqnum_length and rlc_ext_li_field */
+                set_rlc_seqnum_length_ext_li_field(*rlc_channel_type, direction,
+                                                   seqnum_length, rlc_ext_li_field);
 
                 /* Set drb_id */
                 *drb_id = lcid_drb_mappings[m].drbid;
@@ -3720,30 +3835,9 @@ static void lookup_rlc_channel_from_lcid(guint16 ueid,
 
         *rlc_channel_type = ue_mappings->mapping[lcid].channel_type;
 
-        /* Set UM_seqnum_length */
-        switch (*rlc_channel_type) {
-            case rlcUM5:
-                *UM_seqnum_length = 5;
-                break;
-            case rlcUM10:
-                *UM_seqnum_length = 10;
-                break;
-            case rlcAMulExtLiField:
-                if (direction == DIRECTION_UPLINK) {
-                    *rlc_ext_li_field = TRUE;
-                }
-                break;
-            case rlcAMdlExtLiField:
-                if (direction == DIRECTION_DOWNLINK) {
-                    *rlc_ext_li_field = TRUE;
-                }
-                break;
-            case rlcAMextLiField:
-                *rlc_ext_li_field = TRUE;
-                break;
-            default:
-                break;
-        }
+        /* Set seqnum_length and rlc_ext_li_field */
+        set_rlc_seqnum_length_ext_li_field(*rlc_channel_type, direction,
+                                           seqnum_length, rlc_ext_li_field);
 
         /* Set drb_id */
         *drb_id = ue_mappings->mapping[lcid].drbid;
@@ -5220,7 +5314,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
             /* Look for mapping for this LCID to drb channel set by UAT table */
             rlc_channel_type_t rlc_channel_type;
-            guint8 UM_seqnum_length;
+            guint8 seqnum_length;
             gint drb_id;
             gboolean rlc_ext_li_field;
             guint8 priority = get_mac_lte_channel_priority(p_mac_lte_info->ueid,
@@ -5230,7 +5324,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                          lcids[n],
                                          p_mac_lte_info->direction,
                                          &rlc_channel_type,
-                                         &UM_seqnum_length,
+                                         &seqnum_length,
                                          &drb_id,
                                          &rlc_ext_li_field);
 
@@ -5240,16 +5334,28 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 case rlcUM10:
                     call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                        RLC_UM_MODE, p_mac_lte_info->direction, p_mac_lte_info->ueid,
-                                       CHANNEL_TYPE_DRB, (guint16)drb_id, UM_seqnum_length,
+                                       CHANNEL_TYPE_DRB, (guint16)drb_id, seqnum_length,
                                        priority, FALSE);
                     break;
                 case rlcAM:
                 case rlcAMulExtLiField:
                 case rlcAMdlExtLiField:
                 case rlcAMextLiField:
+                case rlcAMul16:
+                case rlcAMdl16:
+                case rlcAM16:
+                case rlcAMul16ulExtLiField:
+                case rlcAMdl16ulExtLiField:
+                case rlcAM16ulExtLiField:
+                case rlcAMul16dlExtLiField:
+                case rlcAMdl16dlExtLiField:
+                case rlcAM16dlExtLiField:
+                case rlcAMul16extLiField:
+                case rlcAMdl16extLiField:
+                case rlcAM16extLiField:
                     call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                        RLC_AM_MODE, p_mac_lte_info->direction, p_mac_lte_info->ueid,
-                                       CHANNEL_TYPE_DRB, (guint16)drb_id, 0,
+                                       CHANNEL_TYPE_DRB, (guint16)drb_id, seqnum_length,
                                        priority, rlc_ext_li_field);
                     break;
                 case rlcTM:
@@ -6745,7 +6851,51 @@ void set_mac_lte_channel_mapping(drb_mapping_t *drb_mapping)
     if (drb_mapping->rlcMode_present) {
         switch (drb_mapping->rlcMode) {
             case RLC_AM_MODE:
-                if (drb_mapping->rlc_ul_ext_li_field == TRUE) {
+                if (drb_mapping->rlc_ul_ext_am_sn == TRUE) {
+                    if (drb_mapping->rlc_dl_ext_am_sn == TRUE) {
+                        if (drb_mapping->rlc_ul_ext_li_field == TRUE) {
+                            if (drb_mapping->rlc_dl_ext_li_field == TRUE) {
+                                ue_mappings->mapping[lcid].channel_type = rlcAM16extLiField;
+                            } else {
+                                ue_mappings->mapping[lcid].channel_type = rlcAM16ulExtLiField;
+                            }
+                        } else {
+                            if (drb_mapping->rlc_dl_ext_li_field == TRUE) {
+                                ue_mappings->mapping[lcid].channel_type = rlcAM16dlExtLiField;
+                            } else {
+                                ue_mappings->mapping[lcid].channel_type = rlcAM16;
+                            }
+                        }
+                    } else {
+                        if (drb_mapping->rlc_ul_ext_li_field == TRUE) {
+                            if (drb_mapping->rlc_dl_ext_li_field == TRUE) {
+                                ue_mappings->mapping[lcid].channel_type = rlcAMul16extLiField;
+                            } else {
+                                ue_mappings->mapping[lcid].channel_type = rlcAMul16ulExtLiField;
+                            }
+                        } else {
+                            if (drb_mapping->rlc_dl_ext_li_field == TRUE) {
+                                ue_mappings->mapping[lcid].channel_type = rlcAMul16dlExtLiField;
+                            } else {
+                                ue_mappings->mapping[lcid].channel_type = rlcAMul16;
+                            }
+                        }
+                    }
+                } else if (drb_mapping->rlc_dl_ext_am_sn == TRUE) {
+                    if (drb_mapping->rlc_ul_ext_li_field == TRUE) {
+                        if (drb_mapping->rlc_dl_ext_li_field == TRUE) {
+                            ue_mappings->mapping[lcid].channel_type = rlcAMdl16extLiField;
+                        } else {
+                            ue_mappings->mapping[lcid].channel_type = rlcAMdl16ulExtLiField;
+                        }
+                    } else {
+                        if (drb_mapping->rlc_dl_ext_li_field == TRUE) {
+                            ue_mappings->mapping[lcid].channel_type = rlcAMdl16dlExtLiField;
+                        } else {
+                            ue_mappings->mapping[lcid].channel_type = rlcAMdl16;
+                        }
+                    }
+                } else if (drb_mapping->rlc_ul_ext_li_field == TRUE) {
                     if (drb_mapping->rlc_dl_ext_li_field == TRUE) {
                         ue_mappings->mapping[lcid].channel_type = rlcAMextLiField;
                     } else {
