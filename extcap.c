@@ -177,7 +177,6 @@ static void extcap_foreach(gint argc, gchar **args, extcap_cb_t cb,
             gchar *command_output = NULL;
             gboolean status = FALSE;
             gint exit_status = 0;
-            GError *error = NULL;
             gchar **envp = NULL;
 
             /* full path to extcap binary */
@@ -201,7 +200,7 @@ static void extcap_foreach(gint argc, gchar **args, extcap_cb_t cb,
 
             status = g_spawn_sync(dirname, argv, envp,
                 (GSpawnFlags) 0, NULL, NULL,
-                    &command_output, NULL, &exit_status, &error);
+                    &command_output, NULL, &exit_status, NULL);
 
             if (status && exit_status == 0)
             keep_going = cb(extcap_path->str, ifname, command_output, cb_data, err_str);
