@@ -745,7 +745,7 @@ static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo _U
 
     /* May need to skip padding after last extension part */
     isOdd = (s_number_of_extensions % 2);
-    if (isOdd) {
+    if (isOdd && (p_rlc_lte_info->extendedLiField == FALSE)) {
         proto_tree_add_item(tree, hf_rlc_lte_extension_padding,
                             tvb, offset++, 1, ENC_BIG_ENDIAN);
     }
