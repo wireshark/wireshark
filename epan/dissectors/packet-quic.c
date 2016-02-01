@@ -1664,7 +1664,7 @@ proto_register_quic(void)
               "The hash is an FNV1a-128 hash, serialized in little endian order", HFILL }
         },
         { &hf_quic_frame,
-            { "Frame", "quic.frame_type",
+            { "Frame", "quic.frame",
                FT_NONE, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
@@ -1879,7 +1879,7 @@ proto_register_quic(void)
               NULL, HFILL }
         },
         { &hf_quic_data_len,
-            { "Data Length", "quic.offset_len",
+            { "Data Length", "quic.data_len",
                FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
@@ -2103,7 +2103,7 @@ proto_register_quic(void)
     static ei_register_info ei[] = {
         { &ei_quic_tag_undecoded, { "quic.tag.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for QUIC Tag code not implemented, Contact Wireshark developers if you want this supported", EXPFILL }},
         { &ei_quic_tag_length, { "quic.tag.length.truncated", PI_MALFORMED, PI_NOTE, "Truncated Tag Length...", EXPFILL }},
-        { &ei_quic_tag_unknown, { "quic.tag.unknown", PI_UNDECODED, PI_NOTE, "Unknown Data", EXPFILL }}
+        { &ei_quic_tag_unknown, { "quic.tag.unknown.data", PI_UNDECODED, PI_NOTE, "Unknown Data", EXPFILL }}
 
     };
 
