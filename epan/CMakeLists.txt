@@ -1077,6 +1077,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-nntp.c
 	dissectors/packet-noe.c
 	dissectors/packet-nsip.c
+	dissectors/packet-nsh.c
 	dissectors/packet-nsrp.c
 	dissectors/packet-nstrace.c
 	dissectors/packet-nt-oui.c

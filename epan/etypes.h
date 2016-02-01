@@ -538,6 +538,10 @@ extern "C" {
 #define ETHERTYPE_HSR			0x892F  /* High-availability Seamless Redundancy (IEC62439 Part 3) */
 #endif
 
+#ifndef ETHERTYPE_NSH
+#define ETHERTYPE_NSH			0x894F  /* Network Service Header (draft-ietf-sfc-nsh-01.txt) */
+#endif
+
 #ifndef ETHERTYPE_LOOP
 #define ETHERTYPE_LOOP			0x9000	/* used for layer 2 testing (do i see my own frames on the wire) */
 #endif

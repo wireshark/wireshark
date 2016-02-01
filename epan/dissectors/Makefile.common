@@ -996,6 +996,7 @@ DISSECTOR_SRC = \
 	packet-nntp.c		\
 	packet-noe.c		\
 	packet-nsip.c		\
+	packet-nsh.c		\
 	packet-nsrp.c		\
 	packet-nstrace.c	\
 	packet-nt-oui.c		\
