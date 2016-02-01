@@ -62,7 +62,6 @@
 /* XXX - This should probably be a preference */
 #define MAX_TREE_ITEMS (1 * 1000 * 1000)
 
-
 typedef struct __subtree_lvl {
 	gint        cursor_offset;
 	proto_item *it;
@@ -6675,6 +6674,54 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 	}
 }
 
+#ifdef ENABLE_CHECK_FILTER
+static enum ftenum
+_ftype_common(enum ftenum type)
+{
+	switch (type) {
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+			return FT_INT32;
+
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+		case FT_IPXNET:
+		case FT_FRAMENUM:
+			return FT_UINT32;
+
+		case FT_UINT64:
+		case FT_EUI64:
+			return FT_UINT64;
+
+		case FT_STRING:
+		case FT_STRINGZ:
+		case FT_UINT_STRING:
+			return FT_STRING;
+
+		case FT_FLOAT:
+		case FT_DOUBLE:
+			return FT_DOUBLE;
+
+		case FT_BYTES:
+		case FT_UINT_BYTES:
+		case FT_ETHER:
+		case FT_OID:
+			return FT_BYTES;
+
+		case FT_ABSOLUTE_TIME:
+		case FT_RELATIVE_TIME:
+			return FT_ABSOLUTE_TIME;
+
+		default:
+			return type;
+	}
+}
+#endif
+
 static void
 register_type_length_mismatch(void)
 {
@@ -6803,6 +6850,13 @@ proto_register_field_init(header_field_info *hfinfo, const int parent)
 
 			same_name_hfinfo->same_name_next = hfinfo;
 			hfinfo->same_name_prev_id = same_name_hfinfo->id;
+#ifdef ENABLE_CHECK_FILTER
+			while (same_name_hfinfo) {
+				if (_ftype_common(hfinfo->type) != _ftype_common(same_name_hfinfo->type))
+					fprintf(stderr, "'%s' exists multiple times with NOT compatible types: %s and %s\n", hfinfo->abbrev, ftype_name(hfinfo->type), ftype_name(same_name_hfinfo->type));
+				same_name_hfinfo = same_name_hfinfo->same_name_next;
+			}
+#endif
 		}
 	}
 

@@ -963,6 +963,14 @@ AC_ARG_ENABLE(asan,
 ],)
 
 
+# Add check hf conflict..
+#
+AC_ARG_ENABLE(checkhf-conflict,
+  AC_HELP_STRING( [--enable-checkhf-conflict],
+		  [Enable Check hf conflict for debugging (May be slow start)@<:@default=no@:>@]),
+[
+	AC_DEFINE(ENABLE_CHECK_FILTER, 1, [Enable check hf conflict])
+],)
 
 #
 # The following are for C and C++

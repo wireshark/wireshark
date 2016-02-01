@@ -989,6 +989,10 @@ elseif(QT_FOUND)
 	endif()
 endif()
 
+if(ENABLE_CHECKHF_CONFLICT)
+	set(ENABLE_CHECK_FILTER 1)
+endif()
+
 message(STATUS "C-Flags: ${CMAKE_C_FLAGS}")
 message(STATUS "CXX-Flags: ${CMAKE_CXX_FLAGS}")
 message(STATUS "Warnings as errors: ${WERROR_COMMON_FLAGS}")

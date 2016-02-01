@@ -31,6 +31,9 @@
 /* Define to 1 if we want to enable plugins */
 #cmakedefine HAVE_PLUGINS 1
 
+/*  Define to 1 if we check hf conflict */
+#cmakedefine ENABLE_CHECK_FILTER 1
+
 /* Link plugins statically into Wireshark */
 #cmakedefine ENABLE_STATIC 1
 
