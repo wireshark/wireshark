@@ -42,12 +42,14 @@ extern "C" {
  * TEMPLATE flag will be altered once the first connections (connection
  * oriented protocols only) to include the newly found information which
  * matched the wildcard options.
+ * flag USE_EXT_ADDRESS_INF is used to indicate that exact match on extended
+ * address information is required such as VLAN Id expected to be fetched from pinfo.
  */
 #define NO_ADDR2 0x01
 #define NO_PORT2 0x02
 #define NO_PORT2_FORCE 0x04
 #define CONVERSATION_TEMPLATE 0x08
-
+#define USE_EXT_ADDRESS_INF 0x10
 /*
  * Flags to pass to "find_conversation()" to indicate that the address B
  * and/or port B search arguments are wildcards.
@@ -67,6 +69,7 @@ typedef struct conversation_key {
 	port_type ptype;
 	guint32	port1;
 	guint32	port2;
+	guint32	vlan_id;		/** Outer VLAN Id from pinfo->vlan_id, currently only used in conversation_hashtable_exact_ext*/
 } conversation_key;
 
 typedef struct conversation {
@@ -96,7 +99,7 @@ extern void conversation_cleanup(void);
  */
 extern void conversation_init(void);
 
-/*
+/**
  * Given two address/port pairs for a packet, create a new conversation
  * to contain packets between those address/port pairs.
  *
@@ -107,6 +110,12 @@ extern void conversation_init(void);
 WS_DLL_PUBLIC conversation_t *conversation_new(const guint32 setup_frame, const address *addr1, const address *addr2,
     const port_type ptype, const guint32 port1, const guint32 port2, const guint options);
 
+/**
+ * Meant to be used only with option USE_EXT_ADDRESS_INF which will require exact match on all address parameters
+ * in conversation_key
+ */
+WS_DLL_PUBLIC conversation_t *conversation_new_ext(const guint32 setup_frame, const address *addr1, const address *addr2,
+    const port_type ptype, const guint32 port1, const guint32 port2, packet_info *pinfo, const guint options);
 /**
  * Given two address/port pairs for a packet, search for a conversation
  * containing packets between those address/port pairs.  Returns NULL if
@@ -146,6 +155,8 @@ WS_DLL_PUBLIC conversation_t *conversation_new(const guint32 setup_frame, const 
 WS_DLL_PUBLIC conversation_t *find_conversation(const guint32 frame_num, const address *addr_a, const address *addr_b,
     const port_type ptype, const guint32 port_a, const guint32 port_b, const guint options);
 
+WS_DLL_PUBLIC conversation_t *find_conversation_ext_from_pinfo(packet_info *pinfo);
+
 /**  A helper function that calls find_conversation() and, if a conversation is
  *  not found, calls conversation_new().
  *  The frame number and addresses are taken from pinfo.
@@ -153,6 +164,7 @@ WS_DLL_PUBLIC conversation_t *find_conversation(const guint32 frame_num, const a
  *  parameter.
  */
 WS_DLL_PUBLIC conversation_t *find_or_create_conversation(packet_info *pinfo);
+WS_DLL_PUBLIC conversation_t *find_or_create_conversation_ext(packet_info *pinfo, const guint options);
 
 WS_DLL_PUBLIC void conversation_add_proto_data(conversation_t *conv, const int proto,
     void *proto_data);
