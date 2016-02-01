@@ -1431,7 +1431,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-wtls.c
 	dissectors/packet-wtp.c
 	dissectors/packet-x11.c
-	dissectors/packet-x224.c
 	dissectors/packet-x25.c
 	dissectors/packet-x29.c
 	dissectors/packet-xcsl.c

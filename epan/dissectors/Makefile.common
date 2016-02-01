@@ -195,7 +195,6 @@ ASN1_DISSECTOR_SRC = \
 	packet-tetra.c	\
 	packet-ulp.c	\
 	packet-wlancertextn.c	\
-	packet-x224.c	\
 	packet-x2ap.c	\
 	packet-x509af.c	\
 	packet-x509ce.c	\
