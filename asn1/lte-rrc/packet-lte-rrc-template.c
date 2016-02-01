@@ -296,6 +296,7 @@ static gint ett_lte_rrc_sib12_fragments = -1;
 static expert_field ei_lte_rrc_number_pages_le15 = EI_INIT;
 static expert_field ei_lte_rrc_si_info_value_changed = EI_INIT;
 static expert_field ei_lte_rrc_sibs_changing = EI_INIT;
+static expert_field ei_lte_rrc_sibs_changing_edrx = EI_INIT;
 static expert_field ei_lte_rrc_earthquake_warning_sys = EI_INIT;
 static expert_field ei_lte_rrc_commercial_mobile_alert_sys = EI_INIT;
 static expert_field ei_lte_rrc_unexpected_type_value = EI_INIT;
@@ -3710,6 +3711,7 @@ void proto_register_lte_rrc(void) {
      { &ei_lte_rrc_number_pages_le15, { "lte_rrc.number_pages_le15", PI_MALFORMED, PI_ERROR, "Number of pages should be <=15", EXPFILL }},
      { &ei_lte_rrc_si_info_value_changed, { "lte_rrc.si_info_value_changed", PI_SEQUENCE, PI_WARN, "SI Info Value changed", EXPFILL }},
      { &ei_lte_rrc_sibs_changing, { "lte_rrc.sibs_changing", PI_SEQUENCE, PI_WARN, "SIBs changing in next BCCH modification period - signalled in Paging message", EXPFILL }},
+     { &ei_lte_rrc_sibs_changing_edrx, { "lte_rrc.sibs_changing_edrx", PI_SEQUENCE, PI_WARN, "SIBs changing in next BCCH modification period for UEs in eDRX mode - signalled in Paging message", EXPFILL }},
      { &ei_lte_rrc_earthquake_warning_sys, { "lte_rrc.earthquake_warning_sys", PI_SEQUENCE, PI_WARN, "Earthquake and Tsunami Warning System Indication!", EXPFILL }},
      { &ei_lte_rrc_commercial_mobile_alert_sys, { "lte_rrc.commercial_mobile_alert_sys", PI_SEQUENCE, PI_WARN, "Commercial Mobile Alert System Indication!", EXPFILL }},
      { &ei_lte_rrc_unexpected_type_value, { "lte_rrc.unexpected_type_value", PI_MALFORMED, PI_ERROR, "Unexpected type value", EXPFILL }},

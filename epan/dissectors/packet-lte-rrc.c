@@ -5570,6 +5570,7 @@ static gint ett_lte_rrc_sib12_fragments = -1;
 static expert_field ei_lte_rrc_number_pages_le15 = EI_INIT;
 static expert_field ei_lte_rrc_si_info_value_changed = EI_INIT;
 static expert_field ei_lte_rrc_sibs_changing = EI_INIT;
+static expert_field ei_lte_rrc_sibs_changing_edrx = EI_INIT;
 static expert_field ei_lte_rrc_earthquake_warning_sys = EI_INIT;
 static expert_field ei_lte_rrc_commercial_mobile_alert_sys = EI_INIT;
 static expert_field ei_lte_rrc_unexpected_type_value = EI_INIT;
@@ -34789,6 +34790,10 @@ dissect_lte_rrc_T_systemInfoModification_eDRX_r13(tvbuff_t *tvb _U_, int offset 
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " (systemInfoModification-eDRX-r13)");
+  expert_add_info(actx->pinfo, actx->created_item, &ei_lte_rrc_sibs_changing_edrx);
+
+
   return offset;
 }
 
@@ -53419,7 +53424,7 @@ static int dissect_UE_EUTRA_Capability_v9a0_IEs_PDU(tvbuff_t *tvb _U_, packet_in
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 2763 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2764 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -67477,7 +67482,7 @@ void proto_register_lte_rrc(void) {
         "BIT_STRING_SIZE_19", HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2964 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2965 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -69854,7 +69859,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_MasterInformationBlock_SL,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 3683 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3684 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -69885,6 +69890,7 @@ void proto_register_lte_rrc(void) {
      { &ei_lte_rrc_number_pages_le15, { "lte_rrc.number_pages_le15", PI_MALFORMED, PI_ERROR, "Number of pages should be <=15", EXPFILL }},
      { &ei_lte_rrc_si_info_value_changed, { "lte_rrc.si_info_value_changed", PI_SEQUENCE, PI_WARN, "SI Info Value changed", EXPFILL }},
      { &ei_lte_rrc_sibs_changing, { "lte_rrc.sibs_changing", PI_SEQUENCE, PI_WARN, "SIBs changing in next BCCH modification period - signalled in Paging message", EXPFILL }},
+     { &ei_lte_rrc_sibs_changing_edrx, { "lte_rrc.sibs_changing_edrx", PI_SEQUENCE, PI_WARN, "SIBs changing in next BCCH modification period for UEs in eDRX mode - signalled in Paging message", EXPFILL }},
      { &ei_lte_rrc_earthquake_warning_sys, { "lte_rrc.earthquake_warning_sys", PI_SEQUENCE, PI_WARN, "Earthquake and Tsunami Warning System Indication!", EXPFILL }},
      { &ei_lte_rrc_commercial_mobile_alert_sys, { "lte_rrc.commercial_mobile_alert_sys", PI_SEQUENCE, PI_WARN, "Commercial Mobile Alert System Indication!", EXPFILL }},
      { &ei_lte_rrc_unexpected_type_value, { "lte_rrc.unexpected_type_value", PI_MALFORMED, PI_ERROR, "Unexpected type value", EXPFILL }},
@@ -69936,7 +69942,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 3747 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3749 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
   register_cleanup_routine(&lte_rrc_cleanup_protocol);

@@ -1497,6 +1497,11 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%u PagingRecords)", number_of_records);
 
+#.FN_BODY Paging-v13xx-IEs/systemInfoModification-eDRX-r13
+%(DEFAULT_BODY)s
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " (systemInfoModification-eDRX-r13)");
+  expert_add_info(actx->pinfo, actx->created_item, &ei_lte_rrc_sibs_changing_edrx);
+
 #.FN_BODY MasterInformationBlock/systemFrameNumber VAL_PTR=&value_tvb
   tvbuff_t *value_tvb;
   guint32 sfn;
