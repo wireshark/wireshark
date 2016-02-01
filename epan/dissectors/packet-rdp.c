@@ -22,7 +22,7 @@
  */
 
 /*
- * See: "[MS -RDPBCGR] Remote Desktop Protocol: Basic Connectivity and Graphics Remoting"
+ * See: "[MS-RDPBCGR] Remote Desktop Protocol: Basic Connectivity and Graphics Remoting"
  */
 
 #include "config.h"
@@ -31,6 +31,7 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
 #include "packet-ssl.h"
 #include "packet-t124.h"
 
@@ -49,6 +50,13 @@ static void prefs_register_rdp(void);
 static int proto_rdp = -1;
 
 static int ett_rdp = -1;
+
+static int ett_negReq_flags = -1;
+static int ett_requestedProtocols = -1;
+
+static int ett_negRsp_flags = -1;
+static int ett_selectedProtocol = -1;
+
 static int ett_rdp_SendData = -1;
 
 static int ett_rdp_ClientData = -1;
@@ -87,6 +95,32 @@ static int ett_rdp_capabilitySet = -1;
 static int ett_rdp_StandardDate = -1;
 static int ett_rdp_DaylightDate = -1;
 static int ett_rdp_clientTimeZone = -1;
+
+static expert_field ei_rdp_neg_len_invalid = EI_INIT;
+static expert_field ei_rdp_not_correlation_info = EI_INIT;
+
+static int hf_rdp_rt_cookie = -1;
+static int hf_rdp_neg_type = -1;
+static int hf_rdp_negReq_flags = -1;
+static int hf_rdp_negReq_flag_restricted_admin_mode_req = -1;
+static int hf_rdp_negReq_flag_correlation_info_present = -1;
+static int hf_rdp_neg_length = -1;
+static int hf_rdp_requestedProtocols = -1;
+static int hf_rdp_requestedProtocols_flag_ssl = -1;
+static int hf_rdp_requestedProtocols_flag_hybrid = -1;
+static int hf_rdp_requestedProtocols_flag_hybrid_ex = -1;
+static int hf_rdp_correlationInfo_flags;
+static int hf_rdp_correlationId = -1;
+static int hf_rdp_correlationInfo_reserved = -1;
+static int hf_rdp_negRsp_flags = -1;
+static int hf_rdp_negRsp_flag_extended_client_data_supported = -1;
+static int hf_rdp_negRsp_flag_dynvc_gfx_protocol_supported = -1;
+static int hf_rdp_negRsp_flag_restricted_admin_mode_supported = -1;
+static int hf_rdp_selectedProtocol = -1;
+static int hf_rdp_selectedProtocol_flag_ssl = -1;
+static int hf_rdp_selectedProtocol_flag_hybrid = -1;
+static int hf_rdp_selectedProtocol_flag_hybrid_ex = -1;
+static int hf_rdp_negFailure_failureCode = -1;
 
 static int hf_rdp_ClientData = -1;
 static int hf_rdp_SendData = -1;
@@ -333,6 +367,32 @@ static int hf_rdp_DaylightDate = -1;
 static int hf_rdp_DaylightBias = -1;
 
 static int hf_rdp_unused = -1;
+
+#define TYPE_RDP_NEG_REQ          0x01
+#define TYPE_RDP_NEG_RSP          0x02
+#define TYPE_RDP_NEG_FAILURE      0x03
+#define TYPE_RDP_CORRELATION_INFO 0x06
+
+static const value_string neg_type_vals[] = {
+  { TYPE_RDP_NEG_REQ,          "RDP Negotiation Request" },
+  { TYPE_RDP_NEG_RSP,          "RDP Negotiation Response" },
+  { TYPE_RDP_NEG_FAILURE,      "RDP Negotiation Failure" },
+  { TYPE_RDP_CORRELATION_INFO, "RDP Correlation Info" },
+  { 0, NULL }
+};
+
+#define RESTRICTED_ADMIN_MODE_REQUIRED 0x01
+#define CORRELATION_INFO_PRESENT       0x08
+
+static const value_string failure_code_vals[] = {
+  { 0x00000001, "TLS required by server" },
+  { 0x00000002, "TLS not allowed by server" },
+  { 0x00000003, "TLS certificate not on server" },
+  { 0x00000004, "Inconsistent flags" },
+  { 0x00000005, "Server requires Enhanced RDP Security with CredSSP" },
+  { 0x00000006, "Server requires Enhanced RDP Security with TLS and certificate-based client authentication" },
+  { 0, NULL }
+};
 
 #define CS_CORE                0xC001
 #define CS_SECURITY            0xC002
@@ -1991,12 +2051,314 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   return tvb_captured_length(tvb);
 }
 
+/* Dissect extra data in a CR PDU */
+static int
+dissect_rdpCorrelationInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  guint32 type;
+  guint32 length;
+  proto_item *type_item, *length_item;
+
+  type_item = proto_tree_add_item_ret_uint(tree, hf_rdp_neg_type, tvb, offset, 1, ENC_NA, &type);
+  offset += 1;
+  if (type != TYPE_RDP_CORRELATION_INFO) {
+    expert_add_info(pinfo, type_item, &ei_rdp_not_correlation_info);
+    return offset;
+  }
+  proto_tree_add_item(tree, hf_rdp_correlationInfo_flags, tvb, offset, 1, ENC_NA);
+  offset += 1;
+  length_item = proto_tree_add_item_ret_uint(tree, hf_rdp_neg_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
+  offset += 2;
+  if (length != 36) {
+    expert_add_info_format(pinfo, length_item, &ei_rdp_neg_len_invalid, "RDP Correlation Info length is %u, not 36", length);
+    return offset;
+  }
+  proto_tree_add_item(tree, hf_rdp_correlationId, tvb, offset, 16, ENC_NA);
+  offset += 16;
+  proto_tree_add_item(tree, hf_rdp_correlationInfo_reserved, tvb, offset, 16, ENC_NA);
+  offset += 16;
+  return offset;
+}
+
+static int
+dissect_rdpNegReq(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  guint64 flags;
+  guint32 length;
+  proto_item *length_item;
+  static const int *flag_bits[] = {
+    &hf_rdp_negReq_flag_restricted_admin_mode_req,
+    &hf_rdp_negReq_flag_correlation_info_present,
+    NULL
+  };
+  static const int *requestedProtocols_bits[] = {
+    &hf_rdp_requestedProtocols_flag_ssl,
+    &hf_rdp_requestedProtocols_flag_hybrid,
+    &hf_rdp_requestedProtocols_flag_hybrid_ex,
+    NULL
+  };
+
+  proto_tree_add_item(tree, hf_rdp_neg_type, tvb, offset, 1, ENC_NA);
+  offset += 1;
+  proto_tree_add_bitmask_ret_uint64(tree, tvb, offset, hf_rdp_negReq_flags,
+                                    ett_negReq_flags, flag_bits,
+                                    ENC_LITTLE_ENDIAN, &flags);
+  offset += 1;
+  length_item = proto_tree_add_item_ret_uint(tree, hf_rdp_neg_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
+  offset += 2;
+  if (length != 8) {
+    expert_add_info_format(pinfo, length_item, &ei_rdp_neg_len_invalid, "RDP Negotiate Request length is %u, not 8", length);
+    return offset;
+  }
+  proto_tree_add_bitmask(tree, tvb, offset, hf_rdp_requestedProtocols,
+                         ett_requestedProtocols, requestedProtocols_bits,
+                         ENC_LITTLE_ENDIAN);
+  offset += 4;
+  if (flags & CORRELATION_INFO_PRESENT)
+    offset = dissect_rdpCorrelationInfo(tvb, offset, pinfo, tree);
+  return offset;
+}
+
+static int
+dissect_rdp_cr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
+{
+  int offset = 0;
+  gboolean have_cookie = FALSE;
+  gboolean have_rdpNegRequest = FALSE;
+  proto_item *item;
+  proto_tree *tree;
+  gint linelen, next_offset;
+
+  /*
+   * routingToken or cookie?  Both begin with "Cookie: ".
+   */
+  if (tvb_memeql(tvb, offset, "Cookie: ", 8) == 0) {
+    /* Looks like a routing token or cookie */
+    have_cookie = TRUE;
+  } else if (tvb_bytes_exist(tvb, offset, 4) &&
+             tvb_get_guint8(tvb, offset) == TYPE_RDP_NEG_REQ &&
+             tvb_get_letohs(tvb, offset + 2) == 8) {
+    /* Looks like a Negotiate Request (TYPE_RDP_NEG_REQ, length 8) */
+    have_rdpNegRequest = TRUE;
+  }
+  if (!have_cookie && !have_rdpNegRequest) {
+    /* Doesn't look like our data */
+    return 0;
+  }
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "RDP");
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  item = proto_tree_add_item(parent_tree, proto_rdp, tvb, 0, -1, ENC_NA);
+  tree = proto_item_add_subtree(item, ett_rdp);
+
+  if (have_cookie) {
+    /* XXX - distinguish between routing token and cookie? */
+    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, TRUE);
+    proto_tree_add_item(tree, hf_rdp_rt_cookie, tvb, offset, linelen, ENC_ASCII|ENC_NA);
+    offset = (linelen == -1) ? tvb_captured_length(tvb) : next_offset;
+  }
+  /*
+   * rdpNegRequest?
+   */
+  if (tvb_reported_length_remaining(tvb, offset) > 0)
+    offset = dissect_rdpNegReq(tvb, offset, pinfo, tree);
+  return offset; /* returns 0 if nothing was dissected, which is what we want */
+}
+
+/* Dissect extra data in a CC PDU */
+static int
+dissect_rdpNegRsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  guint32 length;
+  proto_item *length_item;
+  static const int *flag_bits[] = {
+    &hf_rdp_negRsp_flag_extended_client_data_supported,
+    &hf_rdp_negRsp_flag_dynvc_gfx_protocol_supported,
+    &hf_rdp_negRsp_flag_restricted_admin_mode_supported,
+    NULL
+  };
+  static const int *selectedProtocol_bits[] = {
+    &hf_rdp_selectedProtocol_flag_ssl,
+    &hf_rdp_selectedProtocol_flag_hybrid,
+    &hf_rdp_selectedProtocol_flag_hybrid_ex,
+    NULL
+  };
+
+  proto_tree_add_item(tree, hf_rdp_neg_type, tvb, offset, 1, ENC_NA);
+  offset += 1;
+  proto_tree_add_bitmask(tree, tvb, offset, hf_rdp_negRsp_flags,
+                         ett_negRsp_flags, flag_bits,
+                         ENC_LITTLE_ENDIAN);
+  offset += 1;
+  length_item = proto_tree_add_item_ret_uint(tree, hf_rdp_neg_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
+  offset += 2;
+  if (length != 8) {
+    expert_add_info_format(pinfo, length_item, &ei_rdp_neg_len_invalid, "RDP Negotiate Response length is %u, not 8", length);
+    return offset;
+  }
+  proto_tree_add_bitmask(tree, tvb, offset, hf_rdp_selectedProtocol,
+                         ett_selectedProtocol, selectedProtocol_bits,
+                         ENC_LITTLE_ENDIAN);
+  offset += 4;
+  return offset;
+}
+
+static int
+dissect_rdpNegFailure(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  guint32 length;
+  proto_item *length_item;
+
+  proto_tree_add_item(tree, hf_rdp_neg_type, tvb, offset, 1, ENC_NA);
+  offset += 1;
+  proto_tree_add_item(tree, hf_rdp_negReq_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+  length_item = proto_tree_add_item_ret_uint(tree, hf_rdp_neg_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
+  offset += 2;
+  if (length != 8) {
+    expert_add_info_format(pinfo, length_item, &ei_rdp_neg_len_invalid, "RDP Negotiate Failure length is %u, not 8", length);
+    return offset;
+  }
+  proto_tree_add_item(tree, hf_rdp_negFailure_failureCode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  offset += 4;
+  return offset;
+}
+
+static int
+dissect_rdp_cc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
+{
+  int offset = 0;
+  guint8 type;
+  guint16 length;
+  gboolean ours = FALSE;
+  proto_item *item;
+  proto_tree *tree;
+
+  if (tvb_bytes_exist(tvb, offset, 4)) {
+    type = tvb_get_guint8(tvb, offset);
+    length = tvb_get_letohs(tvb, offset + 2);
+    if ((type == TYPE_RDP_NEG_RSP || type == TYPE_RDP_NEG_FAILURE) &&
+        length == 8) {
+      /* Looks like a Negotiate Response (TYPE_RDP_NEG_RSP, length 8)
+         or a Negotaiate Failure (TYPE_RDP_NEG_FAILURE, length 8) */
+      ours = TRUE;
+    }
+  }
+  if (!ours) {
+    /* Doesn't look like our data */
+    return 0;
+  }
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "RDP");
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  item = proto_tree_add_item(parent_tree, proto_rdp, tvb, 0, -1, ENC_NA);
+  tree = proto_item_add_subtree(item, ett_rdp);
+
+  switch (type) {
+
+  case TYPE_RDP_NEG_RSP:
+    offset = dissect_rdpNegRsp(tvb, offset, pinfo, tree);
+    break;
+
+  case TYPE_RDP_NEG_FAILURE:
+    offset = dissect_rdpNegFailure(tvb, offset, pinfo, tree);
+    break;
+  }
+  return offset;
+}
+
 /*--- proto_register_rdp -------------------------------------------*/
 void
 proto_register_rdp(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
+    { &hf_rdp_rt_cookie,
+      { "Routing Token/Cookie", "rdp.rt_cookie",
+        FT_STRING, BASE_NONE, NULL, 0,
+	NULL, HFILL }},
+    { &hf_rdp_neg_type,
+      { "Type", "rdp.neg_type",
+        FT_UINT8, BASE_HEX, VALS(neg_type_vals), 0,
+	NULL, HFILL }},
+    { &hf_rdp_negReq_flags,
+      { "Flags", "rdp.negReq.flags",
+        FT_UINT8, BASE_HEX, NULL, 0,
+	NULL, HFILL }},
+    { &hf_rdp_negReq_flag_restricted_admin_mode_req,
+      { "Restricted admin mode required", "rdp.negReq.flags.restricted_admin_mode_req",
+        FT_BOOLEAN, 8, NULL, RESTRICTED_ADMIN_MODE_REQUIRED,
+	NULL, HFILL }},
+    { &hf_rdp_negReq_flag_correlation_info_present,
+      { "Correlation info present", "rdp.negReq.flags.correlation_info_present",
+        FT_BOOLEAN, 8, NULL, CORRELATION_INFO_PRESENT,
+	NULL, HFILL }},
+    { &hf_rdp_neg_length,
+      { "Length", "rdp.neg_length",
+        FT_UINT16, BASE_DEC, NULL, 0,
+	NULL, HFILL }},
+    { &hf_rdp_requestedProtocols,
+      { "requestedProtocols", "rdp.negReq.requestedProtocols",
+        FT_UINT32, BASE_HEX, NULL, 0,
+	NULL, HFILL }},
+    { &hf_rdp_requestedProtocols_flag_ssl,
+      { "TLS security supported", "rdp.negReq.requestedProtocols.ssl",
+        FT_BOOLEAN, 32, NULL, 0x00000001,
+	NULL, HFILL }},
+    { &hf_rdp_requestedProtocols_flag_hybrid,
+      { "CredSSP supported", "rdp.negReq.requestedProtocols.hybrid",
+        FT_BOOLEAN, 32, NULL, 0x00000002,
+	NULL, HFILL }},
+    { &hf_rdp_requestedProtocols_flag_hybrid_ex,
+      { "Early User Authorization Result PDU supported", "rdp.negReq.requestedProtocols.hybrid_ex",
+        FT_BOOLEAN, 32, NULL, 0x00000008,
+	NULL, HFILL }},
+    { &hf_rdp_correlationInfo_flags,
+      { "Flags", "rdp.correlationInfo.flags",
+        FT_UINT8, BASE_HEX, NULL, 0,
+	NULL, HFILL }},
+    { &hf_rdp_correlationId,
+      { "correlationId", "rdp.correlationInfo.correlationId",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rdp_correlationInfo_reserved,
+      { "Reserved", "rdp.correlationInfo.reserved",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rdp_negRsp_flags,
+      { "Flags", "rdp.negRsp.flags",
+        FT_UINT8, BASE_HEX, NULL, 0,
+	NULL, HFILL }},
+    { &hf_rdp_negRsp_flag_extended_client_data_supported,
+      { "Extended Client Data Blocks supported", "rdp.negRsp.flags.extended_client_data_supported",
+        FT_BOOLEAN, 8, NULL, 0x01,
+	NULL, HFILL }},
+    { &hf_rdp_negRsp_flag_dynvc_gfx_protocol_supported,
+      { "Graphics Pipeline Extension Protocol supported", "rdp.negRsp.flags.dynvc_gfx_protocol_supported",
+        FT_BOOLEAN, 8, NULL, 0x02,
+	NULL, HFILL }},
+    { &hf_rdp_negRsp_flag_restricted_admin_mode_supported,
+      { "Restricted admin mode supported", "rdp.negRsp.flags.restricted_admin_mode_supported",
+        FT_BOOLEAN, 8, NULL, 0x08,
+	NULL, HFILL }},
+    { &hf_rdp_selectedProtocol,
+      { "selectedProtocol", "rdp.negReq.selectedProtocol",
+        FT_UINT32, BASE_HEX, NULL, 0,
+	NULL, HFILL }},
+    { &hf_rdp_selectedProtocol_flag_ssl,
+      { "TLS security selected", "rdp.negReq.selectedProtocol.ssl",
+        FT_BOOLEAN, 32, NULL, 0x00000001,
+	NULL, HFILL }},
+    { &hf_rdp_selectedProtocol_flag_hybrid,
+      { "CredSSP selected", "rdp.negReq.selectedProtocol.hybrid",
+        FT_BOOLEAN, 32, NULL, 0x00000002,
+	NULL, HFILL }},
+    { &hf_rdp_selectedProtocol_flag_hybrid_ex,
+      { "Early User Authorization Result PDU selected", "rdp.negReq.selectedProtocol.hybrid_ex",
+        FT_BOOLEAN, 32, NULL, 0x00000008,
+	NULL, HFILL }},
+    { &hf_rdp_negFailure_failureCode,
+      { "failureCode", "rdp.negFailure.failureCode",
+        FT_UINT32, BASE_HEX, VALS(failure_code_vals), 0,       
+	NULL, HFILL }},
     { &hf_rdp_ClientData,
       { "ClientData", "rdp.clientData",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2876,6 +3238,10 @@ proto_register_rdp(void) {
   /* List of subtrees */
   static gint *ett[] = {
     &ett_rdp,
+    &ett_negReq_flags,
+    &ett_requestedProtocols,
+    &ett_negRsp_flags,
+    &ett_selectedProtocol,
     &ett_rdp_ClientData,
     &ett_rdp_ServerData,
     &ett_rdp_SendData,
@@ -2913,13 +3279,20 @@ proto_register_rdp(void) {
     &ett_rdp_DaylightDate,
     &ett_rdp_clientTimeZone,
   };
+  static ei_register_info ei[] = {
+     { &ei_rdp_neg_len_invalid, { "rdp.neg_len.invalid", PI_PROTOCOL, PI_ERROR, "Invalid length", EXPFILL }},
+     { &ei_rdp_not_correlation_info, { "rdp.not_correlation_info", PI_PROTOCOL, PI_ERROR, "What follows RDP Negotiation Request is not an RDP Correlation Info", EXPFILL }},
+  };
   module_t *rdp_module;
+  expert_module_t* expert_rdp;
 
   /* Register protocol */
   proto_rdp = proto_register_protocol(PNAME, PSNAME, PFNAME);
   /* Register fields and subtrees */
   proto_register_field_array(proto_rdp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_rdp = expert_register_protocol(proto_rdp);
+  expert_register_field_array(expert_rdp, ei, array_length(ei));
 
   /*   register_dissector("rdp", dissect_rdp, proto_rdp); */
 
@@ -2940,6 +3313,9 @@ proto_reg_handoff_rdp(void)
 
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");
+
+  heur_dissector_add("cotp_cr", dissect_rdp_cr, "RDP", "rdp_cr", proto_rdp, HEURISTIC_ENABLE);
+  heur_dissector_add("cotp_cc", dissect_rdp_cc, "RDP", "rdp_cc", proto_rdp, HEURISTIC_ENABLE);
 
   prefs_register_rdp();
 

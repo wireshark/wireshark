@@ -1367,12 +1367,6 @@ get_uint_value(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, const 
 	return value;
 }
 
-/*
- * NOTE: to support code written when proto_tree_add_item() took a
- * gboolean as its last argument, with FALSE meaning "big-endian"
- * and TRUE meaning "little-endian", we treat any non-zero value of
- * "encoding" as meaning "little-endian".
- */
 static inline guint64
 get_uint64_value(proto_tree *tree, tvbuff_t *tvb, gint offset, guint length, const guint encoding)
 {
@@ -1435,12 +1429,6 @@ get_uint64_value(proto_tree *tree, tvbuff_t *tvb, gint offset, guint length, con
 	return value;
 }
 
-/*
- * NOTE: to support code written when proto_tree_add_item() took a
- * gboolean as its last argument, with FALSE meaning "big-endian"
- * and TRUE meaning "little-endian", we treat any non-zero value of
- * "encoding" as meaning "little-endian".
- */
 static gint32
 get_int_value(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, const guint encoding)
 {
@@ -8716,71 +8704,25 @@ proto_construct_match_selected_string(field_info *finfo, epan_dissect_t *edt)
 	return filter;
 }
 
-/* This function is common code for both proto_tree_add_bitmask() and
- *	proto_tree_add_bitmask_text() functions.
+/* This function is common code for all proto_tree_add_bitmask... functions.
  */
 
-/* NOTE: to support code written when proto_tree_add_bitmask() and
- * proto_tree_add_bitmask_text took a
- * gboolean as its last argument, with FALSE meaning "big-endian"
- * and TRUE meaning "little-endian", we treat any non-zero value of
- * "encoding" as meaning "little-endian".
- */
 static gboolean
 proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			    const int len, const gint ett, const int **fields,
-			    const guint encoding, const int flags,
-			    gboolean first, gboolean use_parent_tree, gboolean use_value,
+			    const int flags, gboolean first,
+			    gboolean use_parent_tree,
 			    proto_tree* tree, guint64 value)
 {
+	guint              bitshift;
 	guint64            available_bits = 0;
 	guint64            tmpval;
 	header_field_info *hf;
 
-	switch (len) {
-		case 1:
-			if (use_value == FALSE)
-				value = tvb_get_guint8(tvb, offset);
-			available_bits = 0xFF;
-			break;
-		case 2:
-			if (use_value == FALSE)
-				value = encoding ? tvb_get_letohs(tvb, offset) : tvb_get_ntohs(tvb, offset);
-			available_bits = 0xFFFF;
-			break;
-		case 3:
-			if (use_value == FALSE)
-				value = encoding ? tvb_get_letoh24(tvb, offset) : tvb_get_ntoh24(tvb, offset);
-			available_bits = 0xFFFFFF;
-			break;
-		case 4:
-			if (use_value == FALSE)
-				value = encoding ? tvb_get_letohl(tvb, offset) : tvb_get_ntohl(tvb, offset);
-			available_bits = 0xFFFFFFFF;
-			break;
-		case 5:
-			if (use_value == FALSE)
-				value = encoding ? tvb_get_letoh40(tvb, offset) : tvb_get_ntoh40(tvb, offset);
-			available_bits = G_GUINT64_CONSTANT(0xFFFFFFFFFF);
-			break;
-		case 6:
-			if (use_value == FALSE)
-				value = encoding ? tvb_get_letoh48(tvb, offset) : tvb_get_ntoh48(tvb, offset);
-			available_bits = G_GUINT64_CONSTANT(0xFFFFFFFFFFFF);
-			break;
-		case 7:
-			if (use_value == FALSE)
-				value = encoding ? tvb_get_letoh56(tvb, offset) : tvb_get_ntoh56(tvb, offset);
-			available_bits = G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFF);
-			break;
-		case 8:
-			if (use_value == FALSE)
-				value = encoding ? tvb_get_letoh64(tvb, offset) : tvb_get_ntoh64(tvb, offset);
-			available_bits = G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF);
-			break;
-		default:
-			g_assert_not_reached();
-	}
+	if (len <= 0 || len > 8)
+		g_assert_not_reached();
+	bitshift = (8 - (guint)len)*8;
+	available_bits = G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF) >> bitshift;
 
 	if (use_parent_tree == FALSE)
 		tree = proto_item_add_subtree(item, ett);
@@ -8797,43 +8739,36 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			continue;
 		}
 
-		if (use_value)
-		{
-			switch (hf->type) {
-			case FT_INT8:
-			case FT_UINT8:
-			case FT_INT16:
-			case FT_UINT16:
-			case FT_INT24:
-			case FT_UINT24:
-			case FT_INT32:
-			case FT_UINT32:
-				proto_tree_add_uint(tree, **fields, tvb, offset, len, (guint32)value);
-				break;
+		switch (hf->type) {
+		case FT_INT8:
+		case FT_UINT8:
+		case FT_INT16:
+		case FT_UINT16:
+		case FT_INT24:
+		case FT_UINT24:
+		case FT_INT32:
+		case FT_UINT32:
+			proto_tree_add_uint(tree, **fields, tvb, offset, len, (guint32)value);
+			break;
 
-			case FT_INT40:
-			case FT_UINT40:
-			case FT_INT48:
-			case FT_UINT48:
-			case FT_INT56:
-			case FT_UINT56:
-			case FT_INT64:
-			case FT_UINT64:
-				proto_tree_add_uint64(tree, **fields, tvb, offset, len, value);
-				break;
+		case FT_INT40:
+		case FT_UINT40:
+		case FT_INT48:
+		case FT_UINT48:
+		case FT_INT56:
+		case FT_UINT56:
+		case FT_INT64:
+		case FT_UINT64:
+			proto_tree_add_uint64(tree, **fields, tvb, offset, len, value);
+			break;
 
-			case FT_BOOLEAN:
-				proto_tree_add_boolean64(tree, **fields, tvb, offset, len, value);
-				break;
+		case FT_BOOLEAN:
+			proto_tree_add_boolean64(tree, **fields, tvb, offset, len, value);
+			break;
 
-			default:
-				DISSECTOR_ASSERT_NOT_REACHED();
-				break;
-			}
-		}
-		else
-		{
-			proto_tree_add_item(tree, **fields, tvb, offset, len, encoding);
+		default:
+			DISSECTOR_ASSERT_NOT_REACHED();
+			break;
 		}
 		if (flags & BMT_NO_APPEND) {
 			fields++;
@@ -8921,11 +8856,38 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 }
 
 /* This function will dissect a sequence of bytes that describe a
- * bitmask.
- * hf_hdr is a 8/16/24/32 bit integer that describes the bitmask to be dissected.
+ * bitmask and supply the value of that sequence through a pointer.
+ * hf_hdr is a 8/16/24/32/40/48/56/64 bit integer that describes the bitmask
+ * to be dissected.
  * This field will form an expansion under which the individual fields of the
  * bitmask is dissected and displayed.
- * This field must be of the type FT_[U]INT{8|16|24|32}.
+ * This field must be of the type FT_[U]INT{8|16|24|32|40|48|56|64}.
+ *
+ * fields is an array of pointers to int that lists all the fields of the
+ * bitmask. These fields can be either of the type FT_BOOLEAN for flags
+ * or another integer of the same type/size as hf_hdr with a mask specified.
+ * This array is terminated by a NULL entry.
+ *
+ * FT_BOOLEAN bits that are set to 1 will have the name added to the expansion.
+ * FT_integer fields that have a value_string attached will have the
+ * matched string displayed on the expansion line.
+ */
+proto_item *
+proto_tree_add_bitmask_ret_uint64(proto_tree *parent_tree, tvbuff_t *tvb,
+		       const guint offset, const int hf_hdr,
+		       const gint ett, const int **fields,
+		       const guint encoding, guint64 *retval)
+{
+	return proto_tree_add_bitmask_with_flags_ret_uint64(parent_tree, tvb, offset, hf_hdr, ett, fields, encoding, BMT_NO_INT|BMT_NO_TFS, retval);
+}
+
+/* This function will dissect a sequence of bytes that describe a
+ * bitmask.
+ * hf_hdr is a 8/16/24/32/40/48/56/64 bit integer that describes the bitmask
+ * to be dissected.
+ * This field will form an expansion under which the individual fields of the
+ * bitmask is dissected and displayed.
+ * This field must be of the type FT_[U]INT{8|16|24|32|40|48|56|64}.
  *
  * fields is an array of pointers to int that lists all the fields of the
  * bitmask. These fields can be either of the type FT_BOOLEAN for flags
@@ -8945,7 +8907,35 @@ proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb,
 	return proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_hdr, ett, fields, encoding, BMT_NO_INT|BMT_NO_TFS);
 }
 
-/* The same as proto_tree_add_bitmask(), but uses user-supplied flags to determine
+/* The same as proto_tree_add_bitmask_ret_uint64(), but uses user-supplied flags to determine
+ * what data is appended to the header.
+ */
+proto_item *
+proto_tree_add_bitmask_with_flags_ret_uint64(proto_tree *parent_tree, tvbuff_t *tvb, const guint offset,
+		const int hf_hdr, const gint ett, const int **fields, const guint encoding, const int flags,
+		guint64 *retval)
+{
+	proto_item        *item = NULL;
+	header_field_info *hf;
+	int                len;
+	guint64            value;
+
+	PROTO_REGISTRAR_GET_NTH(hf_hdr,hf);
+	DISSECTOR_ASSERT_FIELD_TYPE_IS_INTEGRAL(hf);
+	len = ftype_length(hf->type);
+	value = get_uint64_value(parent_tree, tvb, offset, len, encoding);
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_hdr, tvb, offset, len, encoding);
+		proto_item_add_bitmask_tree(item, tvb, offset, len, ett, fields,
+		    flags, FALSE, FALSE, NULL, value);
+	}
+
+	*retval = value;
+	return item;
+}
+
+/* The same as proto_tree_add_bitmask_ret_uint64(), but uses user-supplied flags to determine
  * what data is appended to the header.
  */
 proto_item *
@@ -8955,15 +8945,17 @@ proto_tree_add_bitmask_with_flags(proto_tree *parent_tree, tvbuff_t *tvb, const 
 	proto_item        *item = NULL;
 	header_field_info *hf;
 	int                len;
+	guint64            value;
 
 	PROTO_REGISTRAR_GET_NTH(hf_hdr,hf);
 	DISSECTOR_ASSERT_FIELD_TYPE_IS_INTEGRAL(hf);
-	len = ftype_length(hf->type);
 
 	if (parent_tree) {
+		len = ftype_length(hf->type);
 		item = proto_tree_add_item(parent_tree, hf_hdr, tvb, offset, len, encoding);
-		proto_item_add_bitmask_tree(item, tvb, offset, len, ett, fields, encoding,
-					    flags, FALSE, FALSE, FALSE, NULL, 0);
+		value = get_uint64_value(parent_tree, tvb, offset, len, encoding);
+		proto_item_add_bitmask_tree(item, tvb, offset, len, ett, fields,
+		    flags, FALSE, FALSE, NULL, value);
 	}
 
 	return item;
@@ -8999,8 +8991,7 @@ proto_tree_add_bitmask_value_with_flags(proto_tree *parent_tree, tvbuff_t *tvb, 
 			item = proto_tree_add_uint64(parent_tree, hf_hdr, tvb, offset, len, value);
 
 		proto_item_add_bitmask_tree(item, tvb, offset, len, ett, fields,
-			    0, flags, FALSE, FALSE, TRUE, NULL, value);
-
+		    flags, FALSE, FALSE, NULL, value);
 	}
 
 	return item;
@@ -9011,9 +9002,13 @@ void
 proto_tree_add_bitmask_list(proto_tree *tree, tvbuff_t *tvb, const guint offset,
 								const int len, const int **fields, const guint encoding)
 {
-	if (tree)
+	guint64 value;
+
+	if (tree) {
+		value = get_uint64_value(tree, tvb, offset, len, encoding);
 		proto_item_add_bitmask_tree(NULL, tvb, offset, len, -1, fields,
-								encoding, BMT_NO_APPEND, FALSE, TRUE, FALSE, tree, 0);
+		    BMT_NO_APPEND, FALSE, TRUE, tree, value);
+	}
 }
 
 
@@ -9039,6 +9034,7 @@ proto_tree_add_bitmask_len(proto_tree *parent_tree, tvbuff_t *tvb,
 	guint   decodable_len;
 	guint   decodable_offset;
 	guint32 decodable_value;
+	guint64 value;
 
 	PROTO_REGISTRAR_GET_NTH(hf_hdr, hf);
 	DISSECTOR_ASSERT_FIELD_TYPE_IS_INTEGRAL(hf);
@@ -9070,8 +9066,9 @@ proto_tree_add_bitmask_len(proto_tree *parent_tree, tvbuff_t *tvb,
 	}
 
 	if (item) {
+		value = get_uint64_value(parent_tree, tvb, decodable_offset, decodable_len, encoding);
 		proto_item_add_bitmask_tree(item, tvb, decodable_offset, decodable_len,
-					    ett, fields, encoding, BMT_NO_INT|BMT_NO_TFS, FALSE, FALSE, FALSE, NULL, 0);
+		    ett, fields, BMT_NO_INT|BMT_NO_TFS, FALSE, FALSE, NULL, value);
 	}
 
 	return item;
@@ -9086,11 +9083,13 @@ proto_tree_add_bitmask_text(proto_tree *parent_tree, tvbuff_t *tvb,
 			    const guint encoding, const int flags)
 {
 	proto_item *item = NULL;
+	guint64     value;
 
 	if (parent_tree) {
 		item = proto_tree_add_text_internal(parent_tree, tvb, offset, len, "%s", name ? name : "");
-		if (proto_item_add_bitmask_tree(item, tvb, offset, len, ett, fields, encoding,
-					flags, TRUE, FALSE, FALSE, NULL, 0) && fallback) {
+		value = get_uint64_value(parent_tree, tvb, offset, len, encoding);
+		if (proto_item_add_bitmask_tree(item, tvb, offset, len, ett, fields,
+		    flags, TRUE, FALSE, NULL, value) && fallback) {
 			/* Still at first item - append 'fallback' text if any */
 			proto_item_append_text(item, "%s", fallback);
 		}

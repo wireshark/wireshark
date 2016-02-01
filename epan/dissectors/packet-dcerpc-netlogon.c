@@ -7383,7 +7383,8 @@ static int dissect_secchan_nl_auth_message(tvbuff_t *tvb, int offset,
 {
     proto_item *item = NULL;
     proto_tree *subtree = NULL;
-    guint32 messagetype, messageflags;
+    guint32 messagetype;
+    guint64 messageflags;
     static const int *flag_fields[] = {
         &hf_netlogon_secchan_nl_message_flags_nb_domain,
         &hf_netlogon_secchan_nl_message_flags_nb_host,
@@ -7410,10 +7411,14 @@ static int dissect_secchan_nl_auth_message(tvbuff_t *tvb, int offset,
         hf_netlogon_secchan_nl_message_type, &messagetype);
 
     /* Flags */
-    proto_tree_add_bitmask(subtree, tvb, offset, hf_netlogon_secchan_nl_message_flags, ett_secchan_nl_auth_message_flags, flag_fields, (drep[0] & DREP_LITTLE_ENDIAN));
-    messageflags = ((drep[0] & DREP_LITTLE_ENDIAN)
-                    ? tvb_get_letohl (tvb, offset)
-                    : tvb_get_ntohl (tvb, offset));
+    proto_tree_add_bitmask_ret_uint64(subtree, tvb, offset,
+                                      hf_netlogon_secchan_nl_message_flags,
+                                      ett_secchan_nl_auth_message_flags,
+                                      flag_fields,
+                                      (drep[0] & DREP_LITTLE_ENDIAN) ?
+                                          ENC_LITTLE_ENDIAN :
+                                          ENC_BIG_ENDIAN,
+                                      &messageflags);
     offset += 4;
 
 
