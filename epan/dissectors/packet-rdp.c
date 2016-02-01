@@ -2154,7 +2154,7 @@ dissect_rdp_cr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
     /* XXX - distinguish between routing token and cookie? */
     linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, TRUE);
     proto_tree_add_item(tree, hf_rdp_rt_cookie, tvb, offset, linelen, ENC_ASCII|ENC_NA);
-    offset = (linelen == -1) ? tvb_captured_length(tvb) : next_offset;
+    offset = (linelen == -1) ? (gint)tvb_captured_length(tvb) : next_offset;
   }
   /*
    * rdpNegRequest?
