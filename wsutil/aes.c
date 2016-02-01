@@ -26,6 +26,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <string.h>
 #include <glib.h>
 #include "aes.h"
 
@@ -1250,6 +1251,102 @@ void rijndael_decrypt(
 {
 	rijndaelDecrypt(ctx->dk, ctx->Nr, src, dst);
 }
+
+
+/*
+ * CMAC
+ */
+void aes_cmac_encrypt_starts(aes_cmac_ctx *ctx, const guint8 *key, guint key_len)
+{
+	if (ctx == NULL || key == NULL) {
+		ctx->key_len = 0;
+		return;
+	}
+
+	ctx->key_len = key_len;
+	memset(ctx->state, 0, key_len);
+	ctx->input_used = 0;
+	ctx->aes.Nr = rijndaelKeySetupEnc(ctx->aes.ek, key, key_len * 8);
+}
+
+#define XOR_BLOCK(b, a, len)					\
+	{							\
+		guint __i__;					\
+		for (__i__ = 0; __i__ < (guint)(len); __i__++)	\
+			(b)[__i__] ^= (a)[__i__];		\
+	}
+
+void aes_cmac_encrypt_update(aes_cmac_ctx *ctx, const guint8 *input, guint length)
+{
+	guint left ;
+
+	if (ctx == NULL || input == NULL || ctx->key_len == 0) {
+		return;
+	}
+
+	left = ctx->key_len - ctx->input_used;
+
+	if (length <= left) {
+		memcpy(&ctx->input[ctx->input_used], input, length);
+		ctx->input_used += length;
+		return;
+	}
+
+	if (ctx->input_used > 0) {
+		memcpy(&ctx->input[ctx->input_used], input, left);
+		input += left;
+		length -= left;
+		XOR_BLOCK(ctx->state, ctx->input, ctx->key_len);
+		rijndael_encrypt(&(ctx->aes), ctx->state, ctx->state);
+	}
+
+	while (length > ctx->key_len) {
+		XOR_BLOCK(ctx->state, input, ctx->key_len);
+		rijndael_encrypt(&(ctx->aes), ctx->state, ctx->state);
+		input += ctx->key_len;
+		length -= ctx->key_len;
+	}
+
+	if (length > 0) {
+		memcpy(ctx->input, input, length);
+		ctx->input_used = length;
+	}
+}
+
+static void sub_key_shift(guint8* sub_key, guint key_len)
+{
+	guint8 carry = (sub_key[0] & 0x80);
+	guint i;
+
+	for (i = 0; i < key_len - 1; i++)
+		sub_key[i] = (sub_key[i] << 1) | (sub_key[i + 1] >> 7);
+	sub_key[key_len - 1] <<= 1;
+
+	if (carry)
+		sub_key[key_len - 1] ^= 0x87;
+}
+
+void aes_cmac_encrypt_finish(aes_cmac_ctx *ctx, guint8 *output)
+{
+	guint8  sub_key[RIJNDAEL_MAXKB];
+	memset(sub_key, 0, ctx->key_len);
+	rijndael_encrypt(&(ctx->aes), sub_key, sub_key);
+	sub_key_shift(sub_key, ctx->key_len);
+
+	if (ctx->input_used == ctx->key_len) {
+		XOR_BLOCK(sub_key, ctx->input, ctx->key_len);
+	} else {
+		sub_key_shift(sub_key, ctx->key_len);
+		XOR_BLOCK(sub_key, ctx->input, ctx->input_used);
+		sub_key[ctx->input_used] ^= 0x80;
+	}
+
+	XOR_BLOCK(ctx->state, sub_key, ctx->key_len);
+	rijndael_encrypt(&(ctx->aes), ctx->state, output);
+}
+
+#undef XOR_BLOCK
+
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

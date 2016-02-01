@@ -62,5 +62,46 @@ void rijndael_decrypt(
 	const guchar *src,
 	guchar *dst);
 
+typedef struct s_aes_cmac_ctx {
+	rijndael_ctx aes;
+	guint key_len;
+	guint input_used;
+	guint8 state[RIJNDAEL_MAXKB];
+	guint8 input[RIJNDAEL_MAXKB];
+} aes_cmac_ctx;
+
+/**
+ * Initialize AES-CMAC calculation with the provided key.
+ * @param [OUT] ctx Context to initialize
+ * @param [IN]  key Key to used
+ * @param [IN]  key_len Key length in bytes
+ */
+WS_DLL_PUBLIC
+void aes_cmac_encrypt_starts(
+	aes_cmac_ctx *ctx,
+	const guint8 *key,
+	guint key_len);
+
+/**
+ * Add a new buffer for AES-CMAC calculation
+ * @param [IN] ctx Context (initialize with @ref AES_CMAC_encrypt_starts)
+ * @param [IN] input Buffer to add in AES-CMAC calculation
+ * @param [IN] length Length of input buffer (in bytes)
+ */
+WS_DLL_PUBLIC
+void aes_cmac_encrypt_update(
+	aes_cmac_ctx *ctx,
+	const guint8 *input,
+	guint length);
+
+/**
+ * Ends AES-CMAC calculation
+ * @param [IN] ctx Context (initialize with @ref AES_CMAC_encrypt_starts)
+ * @param [OUT] output Buffer to store MAC (must be at least key_len long)
+ */
+WS_DLL_PUBLIC
+void aes_cmac_encrypt_finish(
+	aes_cmac_ctx *ctx,
+	guint8 *output);
 
 #endif
