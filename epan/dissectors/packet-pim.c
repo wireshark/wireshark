@@ -1615,7 +1615,7 @@ proto_register_pim(void)
                 NULL, HFILL }
             },
             { &hf_pim_source_ip6,
-              { "Source", "pim.source",
+              { "Source", "pim.source_ip6",
                 FT_IPv6, BASE_NONE, NULL, 0,
                 NULL, HFILL }
             },
@@ -1630,7 +1630,7 @@ proto_register_pim(void)
                 NULL, HFILL }
             },
             { &hf_pim_group_ip6,
-              { "Group", "pim.group",
+              { "Group", "pim.group_ip6",
                 FT_IPv6, BASE_NONE, NULL, 0,
                 NULL, HFILL }
             },
@@ -1640,7 +1640,7 @@ proto_register_pim(void)
                 NULL, HFILL }
             },
             { &hf_pim_upstream_neighbor_ip6,
-              { "Upstream-neighbor", "pim.upstream_neighbor",
+              { "Upstream-neighbor", "pim.upstream_neighbor_ip6",
                 FT_IPv6, BASE_NONE, NULL, 0,
                 NULL, HFILL }
             },
@@ -1650,7 +1650,7 @@ proto_register_pim(void)
                 NULL, HFILL }
             },
             { &hf_pim_join_ip6,
-              { "IP address", "pim.join_ip",
+              { "IP address", "pim.join_ip6",
                 FT_IPv6, BASE_NONE, NULL, 0,
                 NULL, HFILL }
             },
@@ -1660,7 +1660,7 @@ proto_register_pim(void)
                 NULL, HFILL }
             },
             { &hf_pim_prune_ip6,
-              { "IP address", "pim.prune_ip",
+              { "IP address", "pim.prune_ip6",
                 FT_IPv6, BASE_NONE, NULL, 0,
                 NULL, HFILL }
             },
@@ -1670,7 +1670,7 @@ proto_register_pim(void)
                 NULL, HFILL }
             },
             { &hf_pim_address_list_ip6,
-              { "Address", "pim.address_list",
+              { "Address", "pim.address_list_ip6",
                 FT_IPv6, BASE_NONE, NULL, 0,
                 NULL, HFILL }
             },
@@ -1680,7 +1680,7 @@ proto_register_pim(void)
                 NULL, HFILL }
             },
             { &hf_pim_bsr_ip6,
-              { "BSR", "pim.bsr",
+              { "BSR", "pim.bsr_ip6",
                 FT_IPv6, BASE_NONE, NULL, 0,
                 NULL, HFILL }
             },
@@ -1690,7 +1690,7 @@ proto_register_pim(void)
                 NULL, HFILL }
             },
             { &hf_pim_rp_ip6,
-              { "RP", "pim.rp",
+              { "RP", "pim.rp_ip6",
                 FT_IPv6, BASE_NONE, NULL, 0,
                 NULL, HFILL }
             },
@@ -1700,7 +1700,7 @@ proto_register_pim(void)
                 NULL, HFILL }
             },
             { &hf_pim_originator_ip6,
-              { "Originator", "pim.originator",
+              { "Originator", "pim.originator_ip6",
                 FT_IPv6, BASE_NONE, NULL, 0,
                 NULL, HFILL }
             },
