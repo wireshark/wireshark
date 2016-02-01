@@ -73,8 +73,6 @@ static GtkToolItem *zoom_in_button, *zoom_out_button, *zoom_100_button, *coloriz
 static GtkToolItem *resize_columns_button;
 static GtkToolItem *color_display_button, *prefs_button, *help_button;
 
-extern capture_file cfile;
-
 /*
  * Redraw all toolbars
  */
