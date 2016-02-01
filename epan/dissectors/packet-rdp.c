@@ -2357,7 +2357,7 @@ proto_register_rdp(void) {
 	NULL, HFILL }},
     { &hf_rdp_negFailure_failureCode,
       { "failureCode", "rdp.negFailure.failureCode",
-        FT_UINT32, BASE_HEX, VALS(failure_code_vals), 0,       
+        FT_UINT32, BASE_HEX, VALS(failure_code_vals), 0,
 	NULL, HFILL }},
     { &hf_rdp_ClientData,
       { "ClientData", "rdp.clientData",
