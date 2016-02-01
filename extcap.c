@@ -584,6 +584,11 @@ extcap_has_configuration(const char * ifname, gboolean is_required) {
                         else if ( ! defval && (!stored || strlen(g_strchomp(stored)) <= (size_t)0) )
                             found = TRUE;
                     }
+
+                    if ( arg->arg_type == EXTCAP_ARG_FILESELECT ) {
+                        if ( arg->fileexists && ! ( file_exists(defval) || file_exists(stored) ) )
+                            found = TRUE;
+                    }
                 }
             }
 
