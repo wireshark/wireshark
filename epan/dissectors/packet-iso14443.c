@@ -129,6 +129,7 @@ static const true_false_string tfs_wupb_reqb = { "WUPB", "REQB" };
 static const true_false_string tfs_compliant_not_compliant = { "Compliant", "Not compliant" };
 static const true_false_string tfs_incomplete_complete = { "Incomplete", "Complete" };
 static const true_false_string tfs_iso_propr = { "As defined in ISO14443-3", "Proprietary" };
+static const true_false_string tfs_not_required_required = { "Not required", "Required" };
 static const true_false_string tfs_ack_nak = { "ACK", "NAK" };
 
 #define CT_BYTE 0x88
@@ -150,6 +151,7 @@ static int ett_iso14443_msg = -1;
 static int ett_iso14443_app_data = -1;
 static int ett_iso14443_prot_inf = -1;
 static int ett_iso14443_prot_type = -1;
+static int ett_iso14443_attr_p1 = -1;
 static int ett_iso14443_pcb = -1;
 static int ett_iso14443_inf = -1;
 
@@ -178,6 +180,7 @@ static int hf_iso14443_max_frame_size_code = -1;
 static int hf_iso14443_prot_type = -1;
 static int hf_iso14443_min_tr2 = -1;
 static int hf_iso14443_4_compl_atqb = -1;
+static int hf_iso14443_fwi = -1;
 static int hf_iso14443_adc = -1;
 static int hf_iso14443_nad_supported = -1;
 static int hf_iso14443_cid_supported = -1;
@@ -201,6 +204,10 @@ static int hf_iso14443_hist_bytes = -1;
 static int hf_iso14443_attrib_start = -1;
 static int hf_iso14443_pupi = -1;
 static int hf_iso14443_param1 = -1;
+static int hf_iso14443_min_tr0 = -1;
+static int hf_iso14443_min_tr1 = -1;
+static int hf_iso14443_eof = -1;
+static int hf_iso14443_sof = -1;
 static int hf_iso14443_param2 = -1;
 static int hf_iso14443_param3 = -1;
 static int hf_iso14443_param4 = -1;
@@ -324,7 +331,8 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
     proto_tree_add_item(prot_type_tree, hf_iso14443_4_compl_atqb,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    /* XXX - FWI */
+    proto_tree_add_item(prot_inf_tree, hf_iso14443_fwi,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
     iso14443_adc = tvb_get_guint8(tvb, offset) & 0x04;
     proto_tree_add_item(prot_inf_tree, hf_iso14443_adc,
             tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -591,6 +599,8 @@ dissect_iso14443_cmd_type_attrib(tvbuff_t *tvb, packet_info *pinfo,
     gboolean crc_dropped = (gboolean)GPOINTER_TO_UINT(data);
     proto_item *ti = proto_tree_get_parent(tree);
     gint offset = 0;
+    proto_item *p1_it;
+    proto_tree *p1_tree;
     gint hl_inf_len, hl_resp_len;
     guint8 mbli, cid;
 
@@ -604,10 +614,21 @@ dissect_iso14443_cmd_type_attrib(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(tree, hf_iso14443_pupi,
                 tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-        /* XXX - subtree, details for each parameter */
-        proto_tree_add_item(tree, hf_iso14443_param1,
+
+        p1_it = proto_tree_add_item(tree, hf_iso14443_param1,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        p1_tree = proto_item_add_subtree( p1_it, ett_iso14443_attr_p1);
+        proto_tree_add_item(p1_tree, hf_iso14443_min_tr0,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(p1_tree, hf_iso14443_min_tr1,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(p1_tree, hf_iso14443_eof,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(p1_tree, hf_iso14443_sof,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
+
+        /* XXX - subtree, details for each parameter */
         proto_tree_add_item(tree, hf_iso14443_param2,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
@@ -1138,6 +1159,10 @@ proto_register_iso14443(void)
             { "Compliant with ISO 14443-4", "iso14443.4_compliant", FT_BOOLEAN, 8,
                 TFS(&tfs_compliant_not_compliant), 0x01, NULL, HFILL }
         },
+        { &hf_iso14443_fwi,
+            { "FWI", "iso14443.fwi", FT_UINT8, BASE_DEC,
+                NULL, 0xF0, NULL, HFILL }
+        },
         { &hf_iso14443_adc,
             { "Application Data Coding", "iso14443.adc", FT_BOOLEAN, 8,
                 TFS(&tfs_iso_propr), 0x04, NULL, HFILL }
@@ -1230,6 +1255,22 @@ proto_register_iso14443(void)
             { "Param 1", "iso14443.param1",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
         },
+        { &hf_iso14443_min_tr0,
+            { "Minimum TR0", "iso14443.min_tr0",
+                FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL }
+        },
+        { &hf_iso14443_min_tr1,
+            { "Minimum TR1", "iso14443.min_tr1",
+                FT_UINT8, BASE_HEX, NULL, 0x30, NULL, HFILL }
+        },
+        { &hf_iso14443_eof,
+            { "EOF", "iso14443.eof", FT_BOOLEAN, 8,
+                TFS(&tfs_not_required_required), 0x08, NULL, HFILL }
+        },
+        { &hf_iso14443_sof,
+            { "SOF", "iso14443.eof", FT_BOOLEAN, 8,
+                TFS(&tfs_not_required_required), 0x04, NULL, HFILL }
+        },
         { &hf_iso14443_param2,
             { "Param 2", "iso14443.param2",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
@@ -1303,6 +1344,7 @@ proto_register_iso14443(void)
         &ett_iso14443_app_data,
         &ett_iso14443_prot_inf,
         &ett_iso14443_prot_type,
+        &ett_iso14443_attr_p1,
         &ett_iso14443_pcb,
         &ett_iso14443_inf
     };
