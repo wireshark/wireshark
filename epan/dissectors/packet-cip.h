@@ -320,14 +320,20 @@ typedef struct cip_req_info {
    void                      *pData;
    cip_simple_request_info_t *ciaData;
    cip_conn_info_t*           connInfo;
-   gboolean                   isUnconnectedSend;
 } cip_req_info_t;
 
 /*
 ** Exported functions
 */
+
+/* Depending on if a Class or Symbol segment appears in Connection Path or
+   a Request Path, display '->' before or after the actual name. */
+#define NO_DISPLAY 0
+#define DISPLAY_CONNECTION_PATH 1
+#define DISPLAY_REQUEST_PATH 2
 extern void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_tree *path_tree, proto_item *epath_item, int offset, int path_length,
-                          gboolean generate, gboolean packed, cip_simple_request_info_t* req_data, cip_safety_epath_info_t* safety);
+                          gboolean generate, gboolean packed, cip_simple_request_info_t* req_data, cip_safety_epath_info_t* safety,
+                          int display_type);
 extern void dissect_cip_date_and_time(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_datetime);
 extern attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint attribute);
 

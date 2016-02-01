@@ -1366,7 +1366,7 @@ dissect_tcpip_physical_link(packet_info *pinfo, proto_tree *tree, proto_item *it
    }
 
    epath_tree = proto_tree_add_subtree(tree, tvb, offset+2, path_size, ett_path, &path_item, "Path: ");
-   dissect_epath( tvb, pinfo, epath_tree, path_item, offset+2, path_size, FALSE, FALSE, NULL, NULL);
+   dissect_epath( tvb, pinfo, epath_tree, path_item, offset+2, path_size, FALSE, FALSE, NULL, NULL, NO_DISPLAY);
 
    return path_size+2;
 }
@@ -2442,6 +2442,8 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
       } /* end of switch () */
 
    } /* end of if ( encapsulated data ) */
+
+   col_set_fence(pinfo->cinfo, COL_INFO);
 
    return tvb_captured_length(tvb);
 } /* end of dissect_enip_pdu() */

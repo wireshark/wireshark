@@ -40,6 +40,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
 #include <epan/proto_data.h>
 #include "packet-cip.h"
 #include "packet-cipsafety.h"
@@ -61,6 +62,8 @@ static dissector_handle_t cip_class_cm_handle;
 static dissector_handle_t modbus_handle;
 static dissector_handle_t cip_class_cco_handle;
 static heur_dissector_list_t  heur_subdissector_service;
+
+static gboolean cip_enhanced_info_column = FALSE;
 
 /* Initialize the protocol and registered fields */
 static int proto_cip = -1;
@@ -2595,29 +2598,51 @@ static const value_string cip_class_names_vals[] = {
 
 value_string_ext cip_class_names_vals_ext = VALUE_STRING_EXT_INIT(cip_class_names_vals);
 
+static void add_cip_class_to_info_column(packet_info *pinfo, guint32 class_id, int display_type)
+{
+   cip_req_info_t *cip_req_info;
+
+   /* Skip printing the top level class for Unconnected Sends because it gets
+      too wordy in the Info column, and it's misleading for responses. */
+   cip_req_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
+   if (cip_req_info
+       && (cip_req_info->bService == SC_CM_UNCON_SEND && class_id == CI_CLS_CM))
+   {
+       return;
+   }
+
+   if (display_type == DISPLAY_CONNECTION_PATH)
+   {
+       col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str(class_id, cip_class_names_vals, "Class (0x%02x)"));
+   }
+   else if (display_type == DISPLAY_REQUEST_PATH)
+   {
+       col_append_fstr(pinfo->cinfo, COL_INFO, "%s - ", val_to_str(class_id, cip_class_names_vals, "Class (0x%02x)"));
+   }
+}
+
+static void add_cip_symbol_to_info_column(packet_info *pinfo, gchar *symbol_name, int display_type)
+{
+   if (symbol_name == NULL)
+   {
+       return;
+   }
+
+   if (display_type == DISPLAY_CONNECTION_PATH)
+   {
+       col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", symbol_name);
+   }
+   else if (display_type == DISPLAY_REQUEST_PATH)
+   {
+       col_append_fstr(pinfo->cinfo, COL_INFO, "%s - ", symbol_name);
+   }
+}
+
 static void add_cip_service_to_info_column(packet_info *pinfo, guint8 service, const value_string* service_vals)
 {
-   cip_req_info_t *preq_info;
-
-   preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0 );
-
-   if ((preq_info == NULL) || (preq_info->isUnconnectedSend == FALSE))
-   {
-       /* Add service to info column */
-       col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "%s",
-               val_to_str( service & CIP_SC_MASK,
-                  service_vals, "Unknown Service (0x%02x)") );
+   col_append_str( pinfo->cinfo, COL_INFO,
+   val_to_str(service & CIP_SC_MASK, service_vals, "Service (0x%02x)"));
        col_set_fence(pinfo->cinfo, COL_INFO);
-   }
-   else
-   {
-      col_append_str( pinfo->cinfo, COL_INFO,
-               val_to_str(service & CIP_SC_MASK,
-                  service_vals, "Unknown Service (0x%02x)") );
-       col_set_fence(pinfo->cinfo, COL_INFO);
-      /* Make sure it's only set once */
-      preq_info->isUnconnectedSend = FALSE;
-   }
 }
 
 static int dissect_id_revision(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
@@ -3823,7 +3848,8 @@ static int dissect_segment_symbolic(tvbuff_t *tvb, proto_tree *path_seg_tree,
 }
 
 void dissect_epath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *path_tree, proto_item *epath_item, int offset, int path_length,
-                    gboolean generate, gboolean packed, cip_simple_request_info_t* req_data, cip_safety_epath_info_t* safety)
+                    gboolean generate, gboolean packed, cip_simple_request_info_t* req_data, cip_safety_epath_info_t* safety,
+                    int display_type)
 {
    int pathpos, temp_data, temp_data2, seg_size, i;
    unsigned char segment_type, opt_link_size;
@@ -4044,6 +4070,11 @@ void dissect_epath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *path_tree, pro
                        "Class", cip_class_names_vals, (req_data == NULL) ? NULL : &req_data->iClass,
                        hf_cip_class8, hf_cip_class16, hf_cip_class32) == FALSE)
                        return;
+
+                  if (req_data != NULL && cip_enhanced_info_column == TRUE)
+                  {
+                      add_cip_class_to_info_column(pinfo, req_data->iClass, display_type);
+                  }
 
                   break;
 
@@ -4267,15 +4298,23 @@ void dissect_epath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *path_tree, pro
                   /* Segment data  */
                   if( seg_size != 0 )
                   {
+                     gchar *symbol_name;
+                     symbol_name = tvb_format_text(tvb, offset + pathpos + 2, seg_size);
+
                      if ( generate )
                      {
-                        it = proto_tree_add_string(ds_tree, hf_cip_symbol, NULL, 0, 0, tvb_format_text(tvb, offset + pathpos + 2, seg_size));
+                        it = proto_tree_add_string(ds_tree, hf_cip_symbol, NULL, 0, 0, symbol_name);
                         PROTO_ITEM_SET_GENERATED(it);
                      }
                      else
                         proto_tree_add_item( ds_tree, hf_cip_symbol, tvb, offset + pathpos + 2, seg_size, ENC_ASCII|ENC_NA );
 
-                     proto_item_append_text(epath_item, "%s", tvb_format_text(tvb, offset + pathpos + 2, seg_size));
+                     proto_item_append_text(epath_item, "%s", symbol_name);
+
+                     if (cip_enhanced_info_column == TRUE)
+                     {
+                        add_cip_symbol_to_info_column(pinfo, symbol_name, display_type);
+                     }
                   }
 
                   /* Check for pad byte */
@@ -4743,8 +4782,6 @@ dissect_cip_generic_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int 
    {
       /* Request message */
 
-      add_cip_service_to_info_column(pinfo, service, cip_sc_vals);
-
       req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
 
       /* If there is any command specific data creat a sub-tree for it */
@@ -4762,6 +4799,7 @@ dissect_cip_generic_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int 
 
    } /* End of if-else( request ) */
 
+   add_cip_service_to_info_column(pinfo, service, cip_sc_vals);
 } /* End of dissect_cip_generic_data() */
 
 static int
@@ -4936,6 +4974,8 @@ dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto
        }
    }
 
+   col_append_str(pinfo->cinfo, COL_INFO, ": ");
+
    for( i=0; i < num_services; i++ )
    {
       int serv_length;
@@ -4979,8 +5019,6 @@ dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto
       ** We call ourselves again to dissect embedded packet
       */
 
-      col_append_str( pinfo->cinfo, COL_INFO, ", ");
-
       next_tvb = tvb_new_subset_length(tvb, offset+serv_offset, serv_length);
 
       if ( mr_mult_req_info )
@@ -4991,6 +5029,11 @@ dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto
       else
       {
          dissect_cip_data(mult_serv_tree, next_tvb, 0, pinfo, NULL );
+      }
+
+      if (i != num_services - 1)
+      {
+          col_append_str(pinfo->cinfo, COL_INFO, ", ");
       }
    }
 
@@ -5390,6 +5433,8 @@ dissect_cip_multiple_service_packet_rsp(tvbuff_t *tvb, packet_info *pinfo, proto
          mr_mult_req_info = NULL;
    }
 
+   col_append_str(pinfo->cinfo, COL_INFO, ": ");
+
    /* Add number of replies */
    for( i=0; i < num_services; i++ )
    {
@@ -5422,8 +5467,6 @@ dissect_cip_multiple_service_packet_rsp(tvbuff_t *tvb, packet_info *pinfo, proto
       ** We call ourselves again to dissect embedded packet
       */
 
-      col_append_str( pinfo->cinfo, COL_INFO, ", ");
-
       next_tvb = tvb_new_subset_length(tvb, offset+serv_offset, serv_length);
       if ( mr_mult_req_info )
       {
@@ -5434,8 +5477,12 @@ dissect_cip_multiple_service_packet_rsp(tvbuff_t *tvb, packet_info *pinfo, proto
       {
          dissect_cip_data( mult_serv_tree, next_tvb, 0, pinfo, NULL );
       }
-   }
 
+      if (i != num_services - 1)
+      {
+          col_append_str(pinfo->cinfo, COL_INFO, ", ");
+      }
+   }
 }
 
 static void
@@ -5476,6 +5523,8 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    item_length = tvb_reported_length(tvb);
    guint8 service = tvb_get_guint8( tvb, offset ) & CIP_SC_MASK,
           add_stat_size = tvb_get_guint8( tvb, offset+3 ) * 2;
+
+   add_cip_service_to_info_column(pinfo, service, cip_sc_vals);
 
    /* If there is any command specific data create a sub-tree for it */
    if( (item_length-4-add_stat_size ) != 0 )
@@ -5689,7 +5738,7 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
 
    /* Add the epath */
    epath_tree = proto_tree_add_subtree(cmd_tree, tvb, offset+26+net_param_offset+6, conn_path_size, ett_path, &pi, "Connection Path: ");
-   dissect_epath( tvb, pinfo, epath_tree, pi, offset+26+net_param_offset+6, conn_path_size, FALSE, FALSE, &connection_path, &safety_fwdopen);
+   dissect_epath( tvb, pinfo, epath_tree, pi, offset+26+net_param_offset+6, conn_path_size, FALSE, FALSE, &connection_path, &safety_fwdopen, DISPLAY_CONNECTION_PATH);
 
    if (pinfo->fd->flags.visited)
    {
@@ -5841,7 +5890,7 @@ static void display_previous_request_path(cip_req_info_t *preq_info, proto_tree 
             preq_info->ciaData = wmem_new(wmem_file_scope(), cip_simple_request_info_t);
          }
 
-         dissect_epath(tvbIOI, pinfo, epath_tree, pi, 0, preq_info->IOILen * 2, TRUE, FALSE, preq_info->ciaData, NULL);
+         dissect_epath(tvbIOI, pinfo, epath_tree, pi, 0, preq_info->IOILen * 2, TRUE, FALSE, preq_info->ciaData, NULL, DISPLAY_REQUEST_PATH);
          tvb_free(tvbIOI);
       }
    }
@@ -5954,6 +6003,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
 
    /* Add Service code */
    proto_tree_add_item(rrsc_tree, hf_cip_cm_sc, tvb, offset, 1, ENC_LITTLE_ENDIAN );
+   add_cip_service_to_info_column(pinfo, service, cip_sc_vals_cm);
 
    if( service & CIP_SC_RESPONSE_MASK )
    {
@@ -6165,8 +6215,6 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
    {
       /* Request message */
 
-      add_cip_service_to_info_column(pinfo, service, cip_sc_vals_cm);
-
       req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
 
       /* If there is any command specific data creat a sub-tree for it */
@@ -6188,6 +6236,9 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             dissect_cip_cm_fwd_open_req(preq_info, cmd_data_tree, tvb, offset+2+req_path_size, TRUE, pinfo);
             break;
          case SC_CM_FWD_CLOSE:
+         {
+            cip_simple_request_info_t conn_path;
+
             /* Forward Close Request */
 
             dissect_cip_cm_timeout( cmd_data_tree, tvb, offset+2+req_path_size);
@@ -6210,8 +6261,9 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
 
             /* Add the EPATH */
             epath_tree = proto_tree_add_subtree(cmd_data_tree, tvb, offset+2+req_path_size+12, conn_path_size, ett_path, &pi, "Connection Path: ");
-            dissect_epath( tvb, pinfo, epath_tree, pi, offset+2+req_path_size+12, conn_path_size, FALSE, FALSE, NULL, NULL );
+            dissect_epath( tvb, pinfo, epath_tree, pi, offset+2+req_path_size+12, conn_path_size, FALSE, FALSE, &conn_path, NULL, DISPLAY_CONNECTION_PATH);
             break;
+         }
          case SC_CM_UNCON_SEND:
          {
             /* Unconnected send */
@@ -6247,8 +6299,6 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                {
                   pembedded_req_info = (cip_req_info_t*)preq_info->pData;
                }
-
-               pembedded_req_info->isUnconnectedSend = TRUE;
             }
             dissect_cip_data( temp_tree, next_tvb, 0, pinfo, pembedded_req_info );
 
@@ -6268,7 +6318,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
 
             /* Route Path */
             epath_tree = proto_tree_add_subtree(cmd_data_tree, tvb, offset+2+req_path_size+6+msg_req_siz, route_path_size, ett_path, &temp_item, "Route Path: ");
-            dissect_epath( tvb, pinfo, epath_tree, temp_item, offset+2+req_path_size+6+msg_req_siz, route_path_size, FALSE, FALSE, NULL, NULL );
+            dissect_epath( tvb, pinfo, epath_tree, temp_item, offset+2+req_path_size+6+msg_req_siz, route_path_size, FALSE, FALSE, NULL, NULL, NO_DISPLAY );
          }
          break;
          case SC_CM_GET_CONN_OWNER:
@@ -6283,7 +6333,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
 
             /* Add the epath */
             epath_tree = proto_tree_add_subtree(cmd_data_tree, tvb, offset+2+req_path_size+2, conn_path_size, ett_path, &pi, "Connection Path: ");
-            dissect_epath( tvb, pinfo, epath_tree, pi, offset+2+req_path_size+2, conn_path_size, FALSE, FALSE, NULL, NULL );
+            dissect_epath( tvb, pinfo, epath_tree, pi, offset+2+req_path_size+2, conn_path_size, FALSE, FALSE, NULL, NULL, NO_DISPLAY );
             break;
          default:
             /* Add data */
@@ -6583,7 +6633,7 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
 
    /* Add the epath */
    epath_tree = proto_tree_add_subtree(cmd_tree, tvb, offset+30, conn_path_size, ett_path, &pi, "Connection Path: ");
-   dissect_epath( tvb, pinfo, epath_tree, pi, offset+30, conn_path_size, FALSE, FALSE, NULL, NULL );
+   dissect_epath( tvb, pinfo, epath_tree, pi, offset+30, conn_path_size, FALSE, FALSE, NULL, NULL, NO_DISPLAY );
 
    variable_data_size += (conn_path_size+30);
 
@@ -6972,13 +7022,12 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
       /* Add general status */
       gen_status = tvb_get_guint8( tvb, offset+2 );
       proto_tree_add_item(status_tree, hf_cip_genstat, tvb, offset+2, 1, ENC_LITTLE_ENDIAN );
-      proto_item_append_text( status_item, "%s", val_to_str_ext( gen_status,
+      proto_item_append_text( status_item, "%s: ", val_to_str_ext( gen_status,
                      &cip_gs_vals_ext , "Unknown Response (%x)")   );
 
       /* Add reply status to info column */
-      col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "%s",
+      col_append_fstr(pinfo->cinfo, COL_INFO, "%s: ",
                val_to_str_ext( gen_status, &cip_gs_vals_ext, "Unknown Response (%x)") );
-      col_set_fence(pinfo->cinfo, COL_INFO);
 
       /* Add additional status size */
       add_stat_size = tvb_get_guint8( tvb, offset+3 );
@@ -7044,12 +7093,12 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
       if (preq_info)
       {
          preq_info->ciaData = wmem_new(wmem_file_scope(), cip_simple_request_info_t);
-         dissect_epath( tvb, pinfo, epath_tree, pi, offset+2, req_path_size*2, FALSE, FALSE, preq_info->ciaData, NULL);
+         dissect_epath( tvb, pinfo, epath_tree, pi, offset+2, req_path_size*2, FALSE, FALSE, preq_info->ciaData, NULL, DISPLAY_REQUEST_PATH);
          memcpy(&path_info, preq_info->ciaData, sizeof(cip_simple_request_info_t));
       }
       else
       {
-         dissect_epath( tvb, pinfo, epath_tree, pi, offset+2, req_path_size*2, FALSE, FALSE, &path_info, NULL);
+         dissect_epath( tvb, pinfo, epath_tree, pi, offset+2, req_path_size*2, FALSE, FALSE, &path_info, NULL, DISPLAY_REQUEST_PATH);
       }
 
       ioilen = tvb_get_guint8( tvb, offset + 1 );
@@ -7128,6 +7177,7 @@ dissect_cip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP");
 
    col_clear(pinfo->cinfo, COL_INFO);
+   col_append_sep_str(pinfo->cinfo, COL_INFO, " | ", "");
 
    /* Each CIP request received by ENIP gets a unique ID */
    enip_info = (enip_request_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
@@ -7745,6 +7795,7 @@ proto_register_cip(void)
       { &ei_mal_opt_service_list, { "cip.malformed.opt_service_list", PI_MALFORMED, PI_ERROR, "Optional service list missing data", EXPFILL }},
    };
 
+   module_t *cip_module;
    expert_module_t* expert_cip;
 
    /* Register the protocol name and description */
@@ -7758,6 +7809,12 @@ proto_register_cip(void)
 
    expert_cip = expert_register_protocol(proto_cip);
    expert_register_field_array(expert_cip, ei, array_length(ei));
+
+   cip_module = prefs_register_protocol(proto_cip, NULL);
+   prefs_register_bool_preference(cip_module, "enhanced_info_column",
+      "Display enhanced Info column data",
+      "Whether the CIP dissector should display enhanced/verbose data in the Info column for CIP explicit messages",
+      &cip_enhanced_info_column);
 
    subdissector_class_table = register_dissector_table("cip.class.iface",
       "CIP Class Interface Handle", FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
