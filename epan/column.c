@@ -45,71 +45,67 @@ col_format_to_string(const gint fmt) {
     "%Yt",                                      /* 1) COL_ABS_YMD_TIME */
     "%YDOYt",                                   /* 2) COL_ABS_YDOY_TIME */
     "%At",                                      /* 3) COL_ABS_TIME */
-    "%V",                                       /* 4) COL_VSAN - !! DEPRECATED !!*/
-    "%B",                                       /* 5) COL_CUMULATIVE_BYTES */
-    "%Cus",                                     /* 6 COL_CUSTOM */
-    "%y",                                       /* 7) COL_DCE_CALL */
-    "%Tt",                                      /* 8) COL_DELTA_TIME */
-    "%Gt",                                      /* 9) COL_DELTA_TIME_DIS */
-    "%rd",                                      /* 10) COL_RES_DST */
-    "%ud",                                      /* 11) COL_UNRES_DST */
-    "%rD",                                      /* 12) COL_RES_DST_PORT */
-    "%uD",                                      /* 13) COL_UNRES_DST_PORT */
-    "%d",                                       /* 14) COL_DEF_DST */
-    "%D",                                       /* 15) COL_DEF_DST_PORT */
-    "%a",                                       /* 16) COL_EXPERT */
-    "%I",                                       /* 17) COL_IF_DIR */
-    "%F",                                       /* 18) COL_FREQ_CHAN */
-    "%hd",                                      /* 19) COL_DEF_DL_DST */
-    "%hs",                                      /* 20) COL_DEF_DL_SRC */
-    "%rhd",                                     /* 21) COL_RES_DL_DST */
-    "%uhd",                                     /* 22) COL_UNRES_DL_DST */
-    "%rhs",                                     /* 23) COL_RES_DL_SRC*/
-    "%uhs",                                     /* 24) COL_UNRES_DL_SRC */
-    "%e",                                       /* 25) COL_RSSI */
-    "%x",                                       /* 26) COL_TX_RATE */
-    "%f",                                       /* 27) COL_DSCP_VALUE */
-    "%i",                                       /* 28) COL_INFO */
-    "%rnd",                                     /* 29) COL_RES_NET_DST */
-    "%und",                                     /* 30) COL_UNRES_NET_DST */
-    "%rns",                                     /* 31) COL_RES_NET_SRC */
-    "%uns",                                     /* 32) COL_UNRES_NET_SRC */
-    "%nd",                                      /* 33) COL_DEF_NET_DST */
-    "%ns",                                      /* 34) COL_DEF_NET_SRC */
-    "%m",                                       /* 35) COL_NUMBER */
-    "%L",                                       /* 36) COL_PACKET_LENGTH */
-    "%p",                                       /* 37) COL_PROTOCOL */
-    "%Rt",                                      /* 38) COL_REL_TIME */
-    "%s",                                       /* 39) COL_DEF_SRC */
-    "%S",                                       /* 40) COL_DEF_SRC_PORT */
-    "%rs",                                      /* 41) COL_RES_SRC */
-    "%us",                                      /* 42) COL_UNRES_SRC */
-    "%rS",                                      /* 43) COL_RES_SRC_PORT */
-    "%uS",                                      /* 44) COL_UNRES_SRC_PORT */
-    "%E",                                       /* 45) COL_TEI */
-    "%Yut",                                     /* 46) COL_UTC_YMD_TIME */
-    "%YDOYut",                                  /* 47) COL_UTC_YDOY_TIME */
-    "%Aut",                                     /* 48) COL_UTC_TIME */
-    "%t"                                        /* 49) COL_CLS_TIME */
+    "%c",                                       /* 4) COL_CIRCUIT_ID */
+    "%Xd",                                      /* 5) COL_DSTIDX - !! DEPRECATED !!*/
+    "%Xs",                                      /* 6) COL_SRCIDX - !! DEPRECATED !!*/
+    "%V",                                       /* 7) COL_VSAN - !! DEPRECATED !!*/
+    "%B",                                       /* 8) COL_CUMULATIVE_BYTES */
+    "%Cus",                                     /* 9) COL_CUSTOM */
+    "%y",                                       /* 10) COL_DCE_CALL */
+    "%z",                                       /* 11) COL_DCE_CTX */
+    "%Tt",                                      /* 12) COL_DELTA_TIME */
+    "%dct",                                     /* 13) COL_DELTA_CONV_TIME */
+    "%Gt",                                      /* 14) COL_DELTA_TIME_DIS */
+    "%rd",                                      /* 15) COL_RES_DST */
+    "%ud",                                      /* 16) COL_UNRES_DST */
+    "%rD",                                      /* 17) COL_RES_DST_PORT */
+    "%uD",                                      /* 18) COL_UNRES_DST_PORT */
+    "%d",                                       /* 19) COL_DEF_DST */
+    "%D",                                       /* 20) COL_DEF_DST_PORT */
+    "%a",                                       /* 21) COL_EXPERT */
+    "%I",                                       /* 22) COL_IF_DIR */
+    "%XO",                                      /* 23) COL_OXID */
+    "%XR",                                      /* 24) COL_RXID */
+    "%C",                                       /* 25) !! DEPRECATED !! - COL_FR_DLCI */
+    "%F",                                       /* 26) COL_FREQ_CHAN */
+    "%l",                                       /* 27) !! DEPRECATED !! - COL_BSSGP_TLLI */
+    "%P",                                       /* 28) !! DEPRECATED !! - COL_HPUX_DEVID */
+    "%H",                                       /* 29) !! DEPRECATED !! - COL_HPUX_SUBSYS */
+    "%hd",                                      /* 30) COL_DEF_DL_DST */
+    "%hs",                                      /* 31) COL_DEF_DL_SRC */
+    "%rhd",                                     /* 32) COL_RES_DL_DST */
+    "%uhd",                                     /* 33) COL_UNRES_DL_DST */
+    "%rhs",                                     /* 34) COL_RES_DL_SRC*/
+    "%uhs",                                     /* 35) COL_UNRES_DL_SRC */
+    "%e",                                       /* 36) COL_RSSI */
+    "%x",                                       /* 37) COL_TX_RATE */
+    "%f",                                       /* 38) COL_DSCP_VALUE */
+    "%i",                                       /* 39) COL_INFO */
+    "%U",                                       /* 40) !! DEPRECATED !! - COL_COS_VALUE */
+    "%rnd",                                     /* 41) COL_RES_NET_DST */
+    "%und",                                     /* 42) COL_UNRES_NET_DST */
+    "%rns",                                     /* 43) COL_RES_NET_SRC */
+    "%uns",                                     /* 44) COL_UNRES_NET_SRC */
+    "%nd",                                      /* 45) COL_DEF_NET_DST */
+    "%ns",                                      /* 46) COL_DEF_NET_SRC */
+    "%m",                                       /* 47) COL_NUMBER */
+    "%L",                                       /* 48) COL_PACKET_LENGTH */
+    "%p",                                       /* 49) COL_PROTOCOL */
+    "%Rt",                                      /* 50) COL_REL_TIME */
+    "%rct",                                     /* 51) !! DEPRECATED !! - COL_REL_CONV_TIME */
+    "%s",                                       /* 52) COL_DEF_SRC */
+    "%S",                                       /* 53) COL_DEF_SRC_PORT */
+    "%rs",                                      /* 54) COL_RES_SRC */
+    "%us",                                      /* 55) COL_UNRES_SRC */
+    "%rS",                                      /* 56) COL_RES_SRC_PORT */
+    "%uS",                                      /* 57) COL_UNRES_SRC_PORT */
+    "%E",                                       /* 58) COL_TEI */
+    "%Yut",                                     /* 59) COL_UTC_YMD_TIME */
+    "%YDOYut",                                  /* 60) COL_UTC_YDOY_TIME */
+    "%Aut",                                     /* 61) COL_UTC_TIME */
+    "%t"                                        /* 62) COL_CLS_TIME */
   };
 
- /* The following formats have been used in deprecated columns.  Noted here
-  * so they aren't reused
-  *
-  *  "%U",                                             COL_COS_VALUE
-  *  "%c",                                             COL_CIRCUIT_ID
-  *  "%l",                                             COL_BSSGP_TLLI
-  *  "%H",                                             COL_HPUX_SUBSYS
-  *  "%P",                                             COL_HPUX_DEVID
-  *  "%C",                                             COL_FR_DLCI
-  *  "%rct",                                           COL_REL_CONV_TIME
-  *  "%dct",                                           COL_DELTA_CONV_TIME
-  *  "%XO",                                            COL_OXID
-  *  "%XR",                                            COL_RXID
-  *  "%Xd",                                            COL_SRCIDX
-  *  "%Xs",                                            COL_DSTIDX
-  *  "%z",                                             COL_DCE_CTX
-  */
   if (fmt < 0 || fmt >= NUM_COL_FMTS)
     return NULL;
 
@@ -125,52 +121,65 @@ col_format_desc(const gint fmt) {
     "Absolute date, as YYYY-MM-DD, and time",   /* 1) COL_ABS_YMD_TIME */
     "Absolute date, as YYYY/DOY, and time",     /* 2) COL_ABS_YDOY_TIME */
     "Absolute time",                            /* 3) COL_ABS_TIME */
-    "Cisco VSAN",                               /* 4) COL_VSAN */
-    "Cumulative Bytes" ,                        /* 5) COL_CUMULATIVE_BYTES */
-    "Custom",                                   /* 6) COL_CUSTOM */
-    "DCE/RPC call (cn_call_id / dg_seqnum)",    /* 7) COL_DCE_CALL */
-    "Delta time",                               /* 8) COL_DELTA_TIME */
-    "Delta time displayed",                     /* 9) COL_DELTA_TIME_DIS */
-    "Dest addr (resolved)",                     /* 10) COL_RES_DST */
-    "Dest addr (unresolved)",                   /* 11) COL_UNRES_DST */
-    "Dest port (resolved)",                     /* 12) COL_RES_DST_PORT */
-    "Dest port (unresolved)",                   /* 13) COL_UNRES_DST_PORT */
-    "Destination address",                      /* 14) COL_DEF_DST */
-    "Destination port",                         /* 15) COL_DEF_DST_PORT */
-    "Expert Info Severity",                     /* 16) COL_EXPERT */
-    "FW-1 monitor if/direction",                /* 17) COL_IF_DIR */
-    "Frequency/Channel",                        /* 18) COL_FREQ_CHAN */
-    "Hardware dest addr",                       /* 19) COL_DEF_DL_DST */
-    "Hardware src addr",                        /* 20) COL_DEF_DL_SRC */
-    "Hw dest addr (resolved)",                  /* 21) COL_RES_DL_DST */
-    "Hw dest addr (unresolved)",                /* 22) COL_UNRES_DL_DST */
-    "Hw src addr (resolved)",                   /* 23) COL_RES_DL_SRC*/
-    "Hw src addr (unresolved)",                 /* 24) COL_UNRES_DL_SRC */
-    "IEEE 802.11 RSSI",                         /* 25) COL_RSSI */
-    "IEEE 802.11 TX rate",                      /* 26) COL_TX_RATE */
-    "IP DSCP Value",                            /* 27) COL_DSCP_VALUE */
-    "Information",                              /* 28) COL_INFO */
-    "Net dest addr (resolved)",                 /* 29) COL_RES_NET_DST */
-    "Net dest addr (unresolved)",               /* 30) COL_UNRES_NET_DST */
-    "Net src addr (resolved)",                  /* 31) COL_RES_NET_SRC */
-    "Net src addr (unresolved)",                /* 32) COL_UNRES_NET_SRC */
-    "Network dest addr",                        /* 33) COL_DEF_NET_DST */
-    "Network src addr",                         /* 34) COL_DEF_NET_SRC */
-    "Number",                                   /* 35) COL_NUMBER */
-    "Packet length (bytes)" ,                   /* 36) COL_PACKET_LENGTH */
-    "Protocol",                                 /* 37) COL_PROTOCOL */
-    "Relative time",                            /* 38) COL_REL_TIME */
-    "Source address",                           /* 39) COL_DEF_SRC */
-    "Source port",                              /* 40) COL_DEF_SRC_PORT */
-    "Src addr (resolved)",                      /* 41) COL_RES_SRC */
-    "Src addr (unresolved)",                    /* 42) COL_UNRES_SRC */
-    "Src port (resolved)",                      /* 43) COL_RES_SRC_PORT */
-    "Src port (unresolved)",                    /* 44) COL_UNRES_SRC_PORT */
-    "TEI",                                      /* 45) COL_TEI */
-    "UTC date, as YYYY-MM-DD, and time",        /* 46) COL_UTC_YMD_TIME */
-    "UTC date, as YYYY/DOY, and time",          /* 47) COL_UTC_YDOY_TIME */
-    "UTC time",                                 /* 48) COL_UTC_TIME */
-    "Time (format as specified)"                /* 49) COL_CLS_TIME */
+    "Circuit ID",                               /* 4) COL_CIRCUIT_ID */
+    "Cisco Dst PortIdx",                        /* 5) COL_DSTIDX */
+    "Cisco Src PortIdx",                        /* 6) COL_SRCIDX */
+    "Cisco VSAN",                               /* 7) COL_VSAN */
+    "Cumulative Bytes" ,                        /* 8) COL_CUMULATIVE_BYTES */
+    "Custom",                                   /* 9) COL_CUSTOM */
+    "DCE/RPC call (cn_call_id / dg_seqnum)",    /* 10) COL_DCE_CALL */
+    "DCE/RPC context ID (cn_ctx_id)",           /* 11) COL_DCE_CTX */
+    "Delta time",                               /* 12) COL_DELTA_TIME */
+    "Delta time (conversation)",                /* 13) COL_DELTA_CONV_TIME */
+    "Delta time displayed",                     /* 14) COL_DELTA_TIME_DIS */
+    "Dest addr (resolved)",                     /* 15) COL_RES_DST */
+    "Dest addr (unresolved)",                   /* 16) COL_UNRES_DST */
+    "Dest port (resolved)",                     /* 17) COL_RES_DST_PORT */
+    "Dest port (unresolved)",                   /* 18) COL_UNRES_DST_PORT */
+    "Destination address",                      /* 19) COL_DEF_DST */
+    "Destination port",                         /* 20) COL_DEF_DST_PORT */
+    "Expert Info Severity",                     /* 21) COL_EXPERT */
+    "FW-1 monitor if/direction",                /* 22) COL_IF_DIR */
+    "Fibre Channel OXID",                       /* 23) COL_OXID */
+    "Fibre Channel RXID",                       /* 24) COL_RXID */
+    "Frame Relay DLCI",                         /* 25) !! DEPRECATED !! - COL_FR_DLCI */
+    "Frequency/Channel",                        /* 26) COL_FREQ_CHAN */
+    "GPRS BSSGP TLLI",                          /* 27) !! DEPRECATED !! - COL_BSSGP_TLLI */
+    "HP-UX Device ID",                          /* 28) !! DEPRECATED !! - COL_HPUX_DEVID */
+    "HP-UX Subsystem",                          /* 29) !! DEPRECATED !! - COL_HPUX_SUBSYS */
+    "Hardware dest addr",                       /* 30) COL_DEF_DL_DST */
+    "Hardware src addr",                        /* 31) COL_DEF_DL_SRC */
+    "Hw dest addr (resolved)",                  /* 32) COL_RES_DL_DST */
+    "Hw dest addr (unresolved)",                /* 33) COL_UNRES_DL_DST */
+    "Hw src addr (resolved)",                   /* 34) COL_RES_DL_SRC*/
+    "Hw src addr (unresolved)",                 /* 35) COL_UNRES_DL_SRC */
+    "IEEE 802.11 RSSI",                         /* 36) COL_RSSI */
+    "IEEE 802.11 TX rate",                      /* 37) COL_TX_RATE */
+    "IP DSCP Value",                            /* 38) COL_DSCP_VALUE */
+    "Information",                              /* 39) COL_INFO */
+    "L2 COS Value (802.1p)",                    /* 40) !! DEPRECATED !! - COL_COS_VALUE */
+    "Net dest addr (resolved)",                 /* 41) COL_RES_NET_DST */
+    "Net dest addr (unresolved)",               /* 42) COL_UNRES_NET_DST */
+    "Net src addr (resolved)",                  /* 43) COL_RES_NET_SRC */
+    "Net src addr (unresolved)",                /* 44) COL_UNRES_NET_SRC */
+    "Network dest addr",                        /* 45) COL_DEF_NET_DST */
+    "Network src addr",                         /* 46) COL_DEF_NET_SRC */
+    "Number",                                   /* 47) COL_NUMBER */
+    "Packet length (bytes)" ,                   /* 48) COL_PACKET_LENGTH */
+    "Protocol",                                 /* 49) COL_PROTOCOL */
+    "Relative time",                            /* 50) COL_REL_TIME */
+    "Relative time (conversation)",             /* 51) !! DEPRECATED !! - COL_REL_CONV_TIME */
+    "Source address",                           /* 52) COL_DEF_SRC */
+    "Source port",                              /* 53) COL_DEF_SRC_PORT */
+    "Src addr (resolved)",                      /* 54) COL_RES_SRC */
+    "Src addr (unresolved)",                    /* 55) COL_UNRES_SRC */
+    "Src port (resolved)",                      /* 56) COL_RES_SRC_PORT */
+    "Src port (unresolved)",                    /* 57) COL_UNRES_SRC_PORT */
+    "TEI",                                      /* 58) COL_TEI */
+    "UTC date, as YYYY-MM-DD, and time",        /* 59) COL_UTC_YMD_TIME */
+    "UTC date, as YYYY/DOY, and time",          /* 60) COL_UTC_YDOY_TIME */
+    "UTC time",                                 /* 61) COL_UTC_TIME */
+    "Time (format as specified)"                /* 62) COL_CLS_TIME */
   };
 
   g_assert((fmt >= 0) && (fmt < NUM_COL_FMTS));
@@ -464,6 +473,10 @@ get_column_longest_string(const gint format)
     case COL_DELTA_TIME_DIS:
       return get_timestamp_column_longest_string(TS_DELTA_DIS, timestamp_get_precision());
       break;
+    case COL_REL_CONV_TIME: /* 'abuse' TS_RELATIVE to set the time format */
+    case COL_DELTA_CONV_TIME:   /* for the conversation related time columns */
+      return get_timestamp_column_longest_string(TS_RELATIVE, timestamp_get_precision());
+      break;
     case COL_DEF_SRC:
     case COL_RES_SRC:
     case COL_UNRES_SRC:
@@ -501,8 +514,19 @@ get_column_longest_string(const gint format)
     case COL_CUMULATIVE_BYTES:
       return "00000000";
       break;
+    case COL_RXID:
+    case COL_OXID:
+      return "000000";
+      break;
     case COL_IF_DIR:
       return "i 00000000 I";
+      break;
+    case COL_CIRCUIT_ID:
+      return "000000";
+      break;
+    case COL_SRCIDX:
+    case COL_DSTIDX:
+      return "00000000";
       break;
     case COL_VSAN:
      return "000000";
@@ -513,7 +537,16 @@ get_column_longest_string(const gint format)
     case COL_RSSI:
       return "100";
       break;
+    case COL_HPUX_SUBSYS:
+      return "OTS9000-TRANSPORT";
+      break;
+    case COL_HPUX_DEVID:
+      return "0000";
+      break;
     case COL_DCE_CALL:
+      return "0000";
+      break;
+    case COL_DCE_CTX:
       return "0000";
       break;
     case COL_8021Q_VLAN_ID:
@@ -522,8 +555,17 @@ get_column_longest_string(const gint format)
     case COL_DSCP_VALUE:
       return "00";
       break;
+    case COL_COS_VALUE:
+      return "0";
+      break;
     case COL_TEI:
       return "127";
+      break;
+    case COL_FR_DLCI:
+      return "8388608";
+      break;
+    case COL_BSSGP_TLLI:
+      return "0xffffffff";
       break;
     case COL_EXPERT:
       return "ERROR";

@@ -1763,7 +1763,8 @@ col_set_fmt_time(const frame_data *fd, column_info *cinfo, const gint fmt, const
 /* --------------------------- */
 /* Set the given (relative) time to a column element.
  *
- * Used by dissectors to set the time in a column
+ * Used by multiple dissectors to set the time in the column
+ * COL_DELTA_CONV_TIME
  *
  * @param cinfo         the current packet row
  * @param el            the column to use, e.g. COL_INFO
