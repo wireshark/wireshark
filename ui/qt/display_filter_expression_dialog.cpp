@@ -128,9 +128,10 @@ DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
     connect(ui->rangeLineEdit, SIGNAL(textEdited(QString)), this, SLOT(updateWidgets()));
 
     // Trigger updateWidgets
-    if (ui->fieldTreeWidget->topLevelItemCount() > 0) {
-        ui->fieldTreeWidget->topLevelItem(0)->setSelected(true);
-    }
+    ui->fieldTreeWidget->selectionModel()->clear();
+//    if (ui->fieldTreeWidget->topLevelItemCount() > 0) {
+//        ui->fieldTreeWidget->topLevelItem(0)->setSelected(true);
+//    }
 }
 
 DisplayFilterExpressionDialog::~DisplayFilterExpressionDialog()
@@ -195,8 +196,8 @@ void DisplayFilterExpressionDialog::updateWidgets()
 
     QPushButton *ok_bt = ui->buttonBox->button(QDialogButtonBox::Ok);
     if (ok_bt) {
-        bool ok_enable = !ui->displayFilterLineEdit->text().isEmpty()
-                && (ui->displayFilterLineEdit->syntaxState() != SyntaxLineEdit::Invalid);
+        bool ok_enable = !(ui->displayFilterLineEdit->text().isEmpty()
+                || (ui->displayFilterLineEdit->syntaxState() == SyntaxLineEdit::Invalid));
         ok_bt->setEnabled(ok_enable);
     }
 }
