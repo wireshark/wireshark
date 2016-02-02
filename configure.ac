@@ -1682,6 +1682,21 @@ if test "x$enable_wireshark" = "xyes"; then
 				;;
 			esac
 			AC_SUBST(Qt_LDFLAGS)
+			if test -z "$MOC_OPTIONS"
+			then
+				if test $qt_version -eq 5
+				then
+					MOC_OPTIONS="--no-notes"
+				elif test $qt_version -eq 4
+				then
+					qt_minor_version=`echo "$QT_VERSION" | cut -f2 -d.`
+					if test $qt_minor_version -ge 8
+					then
+						MOC_OPTIONS="-nn"
+					fi
+				fi
+			fi
+			AC_SUBST(MOC_OPTIONS)
 		],
 		[
 			case "$with_qt" in
@@ -3330,7 +3345,7 @@ fi
 
 if test "x$have_qt" = "xyes" ; then
 	enable_wireshark_qt="yes"
-	qt_lib_message=" (with Qt $qt_version)"
+	qt_lib_message=" (with Qt$qt_version v$QT_VERSION)"
 else
 	enable_wireshark_qt="no"
 fi

@@ -965,6 +965,9 @@ if (Qt5Widgets_FOUND)
 		set (QT_LIBRARIES ${QT_LIBRARIES} ${Qt5WinExtras_LIBRARIES})
 		# set(QT_WINEXTRAS_LIB 1) # Not needed?
 	endif()
+	if(NOT DEFINED MOC_OPTIONS)
+		set(MOC_OPTIONS --no-notes)
+	endif()
 # If Qt4: QT_LIBRARIES and QT_INCLUDES are not set above. They require extra magic
 elseif(QT_FOUND)
 	include(${QT_USE_FILE})
@@ -978,6 +981,11 @@ elseif(QT_FOUND)
 		message(STATUS "QtMultimedia libs: ${QT_QTMULTIMEDIA_LIBRARY}")
 		# That's the name autofoo uses
 		set(QT_MULTIMEDIA_LIB 1)
+	endif()
+	if(NOT DEFINED MOC_OPTIONS)
+		if(QT_VERSION_MAJOR EQUAL 4 AND QT_VERSION_MINOR GREATER 7)
+			set(MOC_OPTIONS -nn)
+		endif()
 	endif()
 endif()
 

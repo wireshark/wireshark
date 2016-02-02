@@ -2055,7 +2055,10 @@ AC_DEFUN([AC_WIRESHARK_QT_CHECK],
 	# other modules.
 	#
 	AC_WIRESHARK_QT_MODULE_CHECK(Core, $1, $qt_version_to_check,
-	    [qt_version_to_check=$qt_version],
+	    [
+	      qt_version_to_check=$qt_version
+	      QT_VERSION=$mod_version
+	    ],
 	    [no_qt=yes])
 
 	if test x"$no_qt" = x ; then

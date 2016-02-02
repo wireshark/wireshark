@@ -457,7 +457,7 @@ if (QT_VERSION EQUAL 5)
 	QT5_WRAP_UI(WIRESHARK_QT_UI_SRC ${WIRESHARK_QT_UI})
 	# For now, do the moc stuff manually
 	QT5_WRAP_CPP(WIRESHARK_QT_MOC_SRC ${WIRESHARK_QT_HEADERS}
-		OPTIONS --no-notes)
+		OPTIONS ${MOC_OPTIONS})
 	# Starting with cmake 2.8.6, we may also use
 	# set(CMAKE_AUTOMOC TRUE)
 	# or
@@ -468,7 +468,7 @@ else()
 	QT4_WRAP_UI(WIRESHARK_QT_UI_SRC ${WIRESHARK_QT_UI})
 	# For now, do the moc stuff manually
 	QT4_WRAP_CPP(WIRESHARK_QT_MOC_SRC ${WIRESHARK_QT_HEADERS}
-		OPTIONS --no-notes)
+		OPTIONS ${MOC_OPTIONS})
 	# Starting with cmake 2.8.6, we may also use
 	# set(CMAKE_AUTOMOC TRUE)
 	# or
