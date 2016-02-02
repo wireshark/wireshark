@@ -152,6 +152,7 @@ static int ett_iso14443_app_data = -1;
 static int ett_iso14443_prot_inf = -1;
 static int ett_iso14443_prot_type = -1;
 static int ett_iso14443_attr_p1 = -1;
+static int ett_iso14443_attr_p2 = -1;
 static int ett_iso14443_pcb = -1;
 static int ett_iso14443_inf = -1;
 
@@ -282,6 +283,7 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
     proto_item *app_data_it, *prot_inf_it, *prot_type_it;
     proto_tree *app_data_tree, *prot_inf_tree, *prot_type_tree;
     gint app_data_offset, rem_len;
+    guint8 max_frame_size_code;
     gboolean iso14443_adc;
     guint8 prot_inf_len = 0;
 
@@ -319,8 +321,11 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
     proto_tree_add_item(prot_inf_tree, hf_iso14443_bit_rate_cap,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(prot_inf_tree, hf_iso14443_max_frame_size_code,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
+    max_frame_size_code = (tvb_get_guint8(tvb, offset) & 0xF0) >> 4;
+    proto_tree_add_uint_bits_format_value(prot_inf_tree,
+            hf_iso14443_max_frame_size_code,
+            tvb, offset*8, 4, max_frame_size_code, "%d",
+            max_frame_size_code);
     /* XXX - calculate max frame size and add a generated item */
     prot_type_it = proto_tree_add_item(prot_inf_tree, hf_iso14443_prot_type,
             tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -599,8 +604,9 @@ dissect_iso14443_cmd_type_attrib(tvbuff_t *tvb, packet_info *pinfo,
     gboolean crc_dropped = (gboolean)GPOINTER_TO_UINT(data);
     proto_item *ti = proto_tree_get_parent(tree);
     gint offset = 0;
-    proto_item *p1_it;
-    proto_tree *p1_tree;
+    proto_item *p1_it, *p2_it;
+    proto_tree *p1_tree, *p2_tree;
+    guint8 max_frame_size_code;
     gint hl_inf_len, hl_resp_len;
     guint8 mbli, cid;
 
@@ -628,10 +634,17 @@ dissect_iso14443_cmd_type_attrib(tvbuff_t *tvb, packet_info *pinfo,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
-        /* XXX - subtree, details for each parameter */
-        proto_tree_add_item(tree, hf_iso14443_param2,
+        p2_it = proto_tree_add_item(tree, hf_iso14443_param2,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
+        p2_tree = proto_item_add_subtree( p2_it, ett_iso14443_attr_p2);
+        max_frame_size_code = tvb_get_guint8(tvb, offset) & 0x0F;
+        proto_tree_add_uint_bits_format_value(p2_tree,
+                hf_iso14443_max_frame_size_code,
+                tvb, offset*8+4, 4, max_frame_size_code, "%d",
+                max_frame_size_code);
         offset++;
+
+        /* XXX - subtree, details for each parameter */
         proto_tree_add_item(tree, hf_iso14443_param3,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
@@ -1145,7 +1158,7 @@ proto_register_iso14443(void)
         },
         { &hf_iso14443_max_frame_size_code,
             { "Max frame size code", "iso14443.max_frame_size_code",
-                FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
         },
         { &hf_iso14443_prot_type,
             { "Protocol type", "iso14443.protocol_type",
@@ -1345,6 +1358,7 @@ proto_register_iso14443(void)
         &ett_iso14443_prot_inf,
         &ett_iso14443_prot_type,
         &ett_iso14443_attr_p1,
+        &ett_iso14443_attr_p2,
         &ett_iso14443_pcb,
         &ett_iso14443_inf
     };
