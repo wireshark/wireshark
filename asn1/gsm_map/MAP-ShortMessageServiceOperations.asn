@@ -1,10 +1,10 @@
--- 3GPP TS 29.002 V12.3.0 (2013-12)  
+-- 3GPP TS 29.002 V13.2.0 (2015-12)
 -- 17.6.5	Short message service operations
  
 MAP-ShortMessageServiceOperations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-ShortMessageServiceOperations (9)
-   version15 (15)}
+   version16 (16)}
 
 DEFINITIONS
 
@@ -45,7 +45,7 @@ joint-iso-itu-t remote-operations(4)
 	absentSubscriberSM
 FROM MAP-Errors {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-Errors (10) version15 (15)}
+   gsm-Network (1) modules (3) map-Errors (10) version16 (16)}
 
 	RoutingInfoForSM-Arg,
 	RoutingInfoForSM-Res,
@@ -63,7 +63,7 @@ FROM MAP-Errors {
 	MT-ForwardSM-VGCS-Res
 FROM MAP-SM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SM-DataTypes (16) version15 (15)}
+   gsm-Network (1) modules (3) map-SM-DataTypes (16) version16 (16)}
 
 ;
 

@@ -1,9 +1,9 @@
--- 3GPP TS 29.002 V12.3.0 (2013-12)
+-- 3GPP TS 29.002 V13.2.0 (2015-12)
 -- 17.7.4	Supplementary service data types
  
 MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-DataTypes (14) version15 (15)}
+   gsm-Network (1) modules (3) map-SS-DataTypes (14) version16 (16)}
 
 DEFINITIONS
 
@@ -57,17 +57,17 @@ IMPORTS
 	ExternalSignalInfo
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version15 (15)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version16 (16)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version15 (15)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version16 (16)}
 
 	SS-Code
 FROM MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-Code (15) version15 (15)}
+   gsm-Network (1) modules (3) map-SS-Code (15) version16 (16)}
 ;
 
 

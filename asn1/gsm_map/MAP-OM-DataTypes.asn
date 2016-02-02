@@ -1,9 +1,9 @@
 -- 17.7.2	Operation and maintenance data types
--- 3GPP TS 29.002 V12.3.0 (2013-12)
+-- 3GPP TS 29.002 V13.2.0 (2015-12)
  
 MAP-OM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-OM-DataTypes (12) version15 (15)}
+   gsm-Network (1) modules (3) map-OM-DataTypes (12) version16 (16)}
 
 DEFINITIONS
 
@@ -29,15 +29,16 @@ IMPORTS
 	E-UTRAN-CGI,
 	TA-Id,
 	RAIdentity,
-	LAIFixedLength
+	LAIFixedLength,
+	PLMN-Id
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version15 (15)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version16 (16)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version15 (15)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version16 (16)}
 
 ;
 
@@ -77,8 +78,11 @@ MDT-Configuration ::= SEQUENCE {
 	positioningMethod	[10] PositioningMethod	OPTIONAL,
 	measurementQuantity	[11] MeasurementQuantity	OPTIONAL,
 	eventThreshold1F	[12] EventThreshold1F	OPTIONAL,
-	eventThreshold1I	[13] EventThreshold1I	OPTIONAL }
+	eventThreshold1I	[13] EventThreshold1I	OPTIONAL,
+	mdt-Allowed-PLMN-List	[14] MDT-Allowed-PLMNId-List	OPTIONAL }
 
+MDT-Allowed-PLMNId-List ::= SEQUENCE SIZE (1..16) OF
+				PLMN-Id
 PeriodUMTS ::= ENUMERATED {
 	d250ms (0),
 	d500ms (1),

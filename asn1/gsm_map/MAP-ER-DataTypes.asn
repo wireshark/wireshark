@@ -1,9 +1,9 @@
--- 3GPP TS V12.3.0 (2013-12) 
+-- 3GPP TS V13.2.0 (2015-12)
 -- 17.7.7	Error data types
 
 MAP-ER-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ER-DataTypes (17) version15 (15)}
+   gsm-Network (1) modules (3) map-ER-DataTypes (17) version16 (16)}
 
 DEFINITIONS
 
@@ -71,7 +71,7 @@ IMPORTS
 	SS-Status
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-DataTypes (14) version15 (15)}
+   gsm-Network (1) modules (3) map-SS-DataTypes (14) version16 (16)}
 
 	SignalInfo,
 	BasicServiceCode,
@@ -80,18 +80,18 @@ FROM MAP-SS-DataTypes {
 	IMSI
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version15 (15)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version16 (16)}
 
 
 	SS-Code
 FROM MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-Code (15) version15 (15)}
+   gsm-Network (1) modules (3) map-SS-Code (15) version16 (16)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version15 (15)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version16 (16)}
 ;
 
 RoamingNotAllowedParam ::= SEQUENCE {
