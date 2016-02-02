@@ -598,10 +598,11 @@ static dissector_handle_t bgp_handle;
 #define BGP_NLRI_TLV_LEN_MAX_LINK_BANDWIDTH             4
 #define BGP_NLRI_TLV_LEN_MAX_RESERVABLE_LINK_BANDWIDTH  4
 #define BGP_NLRI_TLV_LEN_UNRESERVED_BANDWIDTH           32
-#define BGP_NLRI_TLV_LEN_TE_DEFAULT_METRIC              3
+#define BGP_NLRI_TLV_LEN_TE_DEFAULT_METRIC_OLD          3
+#define BGP_NLRI_TLV_LEN_TE_DEFAULT_METRIC_NEW          4
 #define BGP_NLRI_TLV_LEN_LINK_PROTECTION_TYPE           2
 #define BGP_NLRI_TLV_LEN_MPLS_PROTOCOL_MASK             1
-#define BGP_NLRI_TLV_LEN_METRIC                         3
+#define BGP_NLRI_TLV_LEN_MAX_METRIC                     3
 #define BGP_NLRI_TLV_LEN_IGP_FLAGS                      1
 #define BGP_NLRI_TLV_LEN_PREFIX_METRIC                  4
 #define BGP_NLRI_TLV_LEN_AREA_ID                        4
@@ -1576,12 +1577,15 @@ static int hf_bgp_ls_tlv_max_reservable_link_bandwidth = -1;       /* 1090 */
 static int hf_bgp_ls_tlv_unreserved_bandwidth = -1;                /* 1091 */
 static int hf_bgp_ls_bandwidth_value = -1;
 static int hf_bgp_ls_tlv_te_default_metric = -1;                   /* 1092 */
+static int hf_bgp_ls_tlv_te_default_metric_value_old = -1;
 static int hf_bgp_ls_tlv_te_default_metric_value = -1;
 static int hf_bgp_ls_tlv_link_protection_type = -1;                /* 1093 */
 static int hf_bgp_ls_tlv_link_protection_type_value = -1;
 static int hf_bgp_ls_tlv_mpls_protocol_mask = -1;                  /* 1094 */
 static int hf_bgp_ls_tlv_metric = -1;                              /* 1095 */
-static int hf_bgp_ls_tlv_metric_value = -1;
+static int hf_bgp_ls_tlv_metric_value1 = -1;
+static int hf_bgp_ls_tlv_metric_value2 = -1;
+static int hf_bgp_ls_tlv_metric_value3 = -1;
 static int hf_bgp_ls_tlv_shared_risk_link_group = -1;              /* 1096 */
 static int hf_bgp_ls_tlv_shared_risk_link_group_value = -1;
 static int hf_bgp_ls_tlv_opaque_link_attribute = -1;               /* 1097 */
@@ -1801,6 +1805,7 @@ static expert_field ei_bgp_unknown_afi = EI_INIT;
 static expert_field ei_bgp_unknown_safi = EI_INIT;
 static expert_field ei_bgp_unknown_label_vpn = EI_INIT;
 static expert_field ei_bgp_ls_error = EI_INIT;
+static expert_field ei_bgp_ls_warn = EI_INIT;
 static expert_field ei_bgp_ext_com_len_bad = EI_INIT;
 static expert_field ei_bgp_attr_pmsi_opaque_type = EI_INIT;
 static expert_field ei_bgp_attr_pmsi_tunnel_type = EI_INIT;
@@ -3590,15 +3595,33 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
         case BGP_NLRI_TLV_TE_DEFAULT_METRIC:
             tlv_item = proto_tree_add_item(tree, hf_bgp_ls_tlv_te_default_metric, tvb, offset, length+4, ENC_NA);
             tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
-
-            if(length != BGP_NLRI_TLV_LEN_TE_DEFAULT_METRIC){
-                expert_add_info_format(pinfo, tlv_tree, &ei_bgp_ls_error, "Unexpected Metric TLV's length (%u), it must be %u bytes!",
-                                       length, BGP_NLRI_TLV_LEN_METRIC);
+            /* FF: The 'TE Default Metric TLV's length changed. From draft-ietf-idr-ls-distribution-00 to 04
+               was 3 bytes as per RFC5305/3.7, since version 05 is 4 bytes. Here we try to parse both formats
+               without complain because there are real implementations out there based on the 3 bytes size. At
+               the same time we clearly highlight that 3 is "old" and 4 is correct via expert info. */
+            if (length == BGP_NLRI_TLV_LEN_TE_DEFAULT_METRIC_OLD) {
+                expert_add_info_format(pinfo, tlv_tree, &ei_bgp_ls_warn,
+                                       "Old TE Default Metric TLV's length (%u), it should be %u bytes!",
+                                       length,
+                                       BGP_NLRI_TLV_LEN_TE_DEFAULT_METRIC_NEW);
+                /* just a warning do not give up dissection */
+            }
+            if (length != BGP_NLRI_TLV_LEN_TE_DEFAULT_METRIC_OLD && length != BGP_NLRI_TLV_LEN_TE_DEFAULT_METRIC_NEW) {
+                expert_add_info_format(pinfo, tlv_tree, &ei_bgp_ls_error,
+                                       "Unexpected TE Default Metric TLV's length (%u), it must be %u or %u bytes!",
+                                       length,
+                                       BGP_NLRI_TLV_LEN_TE_DEFAULT_METRIC_OLD,
+                                       BGP_NLRI_TLV_LEN_TE_DEFAULT_METRIC_NEW);
+                /* major error give up dissection */
                 break;
             }
             proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_te_default_metric_value, tvb, offset + 4, 3, ENC_BIG_ENDIAN);
+            if (length == BGP_NLRI_TLV_LEN_TE_DEFAULT_METRIC_OLD) {
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_te_default_metric_value_old, tvb, offset + 4, 3, ENC_BIG_ENDIAN);
+            } else if (length == BGP_NLRI_TLV_LEN_TE_DEFAULT_METRIC_NEW) {
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_te_default_metric_value, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+            }
             break;
 
         case BGP_NLRI_TLV_LINK_PROTECTION_TYPE:
@@ -3661,16 +3684,26 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
             }
             break;
         case BGP_NLRI_TLV_METRIC:
-            tlv_item = proto_tree_add_item(tree, hf_bgp_ls_tlv_metric, tvb, offset, length+4, ENC_NA);
+            /* FF: The IGP 'Metric TLV's length changed. From draft-ietf-idr-ls-distribution-00 to 02
+               was fixed at 3 bytes, since version 03 is variable 1/2/3 bytes. We cannot complain if
+               length is not fixed at 3. */
+            tlv_item = proto_tree_add_item(tree, hf_bgp_ls_tlv_metric, tvb, offset, length + 4, ENC_NA);
             tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
-            if(length != BGP_NLRI_TLV_LEN_METRIC){
-                expert_add_info_format(pinfo, tlv_tree, &ei_bgp_ls_error, "Unexpected Metric TLV's length (%u), it must be %u bytes!",
-                                       length, BGP_NLRI_TLV_LEN_METRIC);
+            if (length > BGP_NLRI_TLV_LEN_MAX_METRIC) {
+                expert_add_info_format(pinfo, tlv_tree, &ei_bgp_ls_error,
+                                       "Unexpected Metric TLV's length (%u), it must be less than %u bytes!",
+                                       length, BGP_NLRI_TLV_LEN_MAX_METRIC);
                 break;
             }
             proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_metric_value, tvb, offset + 4, 3, ENC_BIG_ENDIAN);
+            if (length == 1) {
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_metric_value1, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+            } else if (length == 2) {
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_metric_value2, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+            } else if (length == 3) {
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_metric_value3, tvb, offset + 4, 3, ENC_BIG_ENDIAN);
+            }
             break;
         case BGP_NLRI_TLV_SHARED_RISK_LINK_GROUP:
             tlv_item = proto_tree_add_item(tree, hf_bgp_ls_tlv_shared_risk_link_group, tvb, offset, length+4, ENC_NA);
@@ -8176,8 +8209,11 @@ proto_register_bgp(void)
       { &hf_bgp_ls_tlv_te_default_metric,
         { "TE Default Metric TLV", "bgp.ls.tlv.te_default_metric", FT_NONE,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_tlv_te_default_metric_value_old,
+        { "TE Default Metric (old format)", "bgp.ls.tlv.te_default_metric_value", FT_UINT24,
+          BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_ls_tlv_te_default_metric_value,
-        { "TE Default Metric", "bgp.ls.tlv.te_default_metric_value", FT_UINT24,
+        { "TE Default Metric", "bgp.ls.tlv.te_default_metric_value", FT_UINT32,
           BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_ls_tlv_link_protection_type,
         { "Link Protection Type TLV", "bgp.ls.tlv.link_protection_type", FT_NONE,
@@ -8191,7 +8227,13 @@ proto_register_bgp(void)
       { &hf_bgp_ls_tlv_metric,
         { "Metric TLV", "bgp.ls.tlv.metric", FT_NONE,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
-      { &hf_bgp_ls_tlv_metric_value,
+      { &hf_bgp_ls_tlv_metric_value1,
+        { "IGP Metric", "bgp.ls.tlv.metric_value", FT_UINT8,
+          BASE_HEX_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_tlv_metric_value2,
+        { "IGP Metric", "bgp.ls.tlv.metric_value", FT_UINT16,
+          BASE_HEX_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ls_tlv_metric_value3,
         { "IGP Metric", "bgp.ls.tlv.metric_value", FT_UINT24,
           BASE_HEX_DEC, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_ls_tlv_shared_risk_link_group,
@@ -8519,6 +8561,7 @@ proto_register_bgp(void)
         { &ei_bgp_unknown_safi, { "bgp.unknown_safi", PI_PROTOCOL, PI_ERROR, "Unknown SAFI", EXPFILL }},
         { &ei_bgp_unknown_label_vpn, { "bgp.unknown_label", PI_PROTOCOL, PI_ERROR, "Unknown Label VPN", EXPFILL }},
         { &ei_bgp_ls_error, { "bgp.ls.error", PI_PROTOCOL, PI_ERROR, "Link State error", EXPFILL }},
+        { &ei_bgp_ls_warn, { "bgp.ls.warn", PI_PROTOCOL, PI_WARN, "Link State warning", EXPFILL }},
         { &ei_bgp_ext_com_len_bad, { "bgp.ext_com.length.bad", PI_PROTOCOL, PI_ERROR, "Extended community length is wrong", EXPFILL }},
         { &ei_bgp_evpn_nlri_rt4_len_err, { "bgp.evpn.len", PI_MALFORMED, PI_ERROR, "Length is invalid", EXPFILL }},
         { &ei_bgp_evpn_nlri_rt_type_err, { "bgp.evpn.type", PI_MALFORMED, PI_ERROR, "EVPN Route Type is invalid", EXPFILL }},
