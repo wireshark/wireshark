@@ -5021,7 +5021,7 @@ write_prefs(char **pf_path_return)
         struct filter_expression *fe = *(struct filter_expression **)prefs.filter_expressions;
 
         if (fe != NULL)
-            fprintf(pf, "\n####### Filter Expressions ########\n");
+            fprintf(pf, "\n####### Filter Expressions ########\n\n");
 
         while (fe != NULL) {
             if (fe->deleted == FALSE) {
