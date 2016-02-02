@@ -153,19 +153,32 @@ static const value_string flagnames[] = {
 };
 #endif
 
+#define HIQNET_DATATYPE_BYTE    0
+#define HIQNET_DATATYPE_UBYTE   1
+#define HIQNET_DATATYPE_WORD    2
+#define HIQNET_DATATYPE_UWORD   3
+#define HIQNET_DATATYPE_LONG    4
+#define HIQNET_DATATYPE_ULONG   5
+#define HIQNET_DATATYPE_FLOAT32 6
+#define HIQNET_DATATYPE_FLOAT64 7
+#define HIQNET_DATATYPE_BLOCK   8
+#define HIQNET_DATATYPE_STRING  9
+#define HIQNET_DATATYPE_LONG64  10
+#define HIQNET_DATATYPE_ULONG64 11
+
 static const value_string datatypenames[] = {
-    { 0, "BYTE" },
-    { 1, "UBYTE" },
-    { 2, "WORD" },
-    { 3, "UWORD" },
-    { 4, "LONG" },
-    { 5, "ULONG" },
-    { 6, "FLOAT32" },
-    { 7, "FLOAT64" },
-    { 8, "BLOCK" },
-    { 9, "STRING" },
-    { 10, "LONG64" },
-    { 11, "ULONG64" },
+    { HIQNET_DATATYPE_BYTE,    "BYTE" },
+    { HIQNET_DATATYPE_UBYTE,   "UBYTE" },
+    { HIQNET_DATATYPE_WORD,    "WORD" },
+    { HIQNET_DATATYPE_UWORD,   "UWORD" },
+    { HIQNET_DATATYPE_LONG,    "LONG" },
+    { HIQNET_DATATYPE_ULONG,   "ULONG" },
+    { HIQNET_DATATYPE_FLOAT32, "FLOAT32" },
+    { HIQNET_DATATYPE_FLOAT64, "FLOAT64" },
+    { HIQNET_DATATYPE_BLOCK,   "BLOCK" },
+    { HIQNET_DATATYPE_STRING,  "STRING" },
+    { HIQNET_DATATYPE_LONG64,  "LONG64" },
+    { HIQNET_DATATYPE_ULONG64, "ULONG64" },
     { 0, NULL }
 };
 
@@ -280,8 +293,6 @@ static const value_string flowcontrolnames[] = {
     { 0, NULL }
 };
 
-static const gint hiqnet_datasize_per_type[] = { 1, 1, 2, 2, 4, 4, 4, 8, -1, -1, 8, 8 };
-
 static int proto_hiqnet = -1;
 
 static int hf_hiqnet_version = -1;
@@ -326,8 +337,6 @@ static int hf_hiqnet_gateway = -1;
 static int hf_hiqnet_flagmask = -1;
 static int hf_hiqnet_paramcount = -1;
 static int hf_hiqnet_paramid = -1;
-static int hf_hiqnet_datatype = -1;
-static int hf_hiqnet_value = -1;
 static int hf_hiqnet_vdobject = -1;
 static int hf_hiqnet_subtype = -1;
 static int hf_hiqnet_sensrate = -1;
@@ -340,8 +349,20 @@ static int hf_hiqnet_reserved0 = -1;
 static int hf_hiqnet_reserved1 = -1;
 static int hf_hiqnet_attrcount = -1;
 static int hf_hiqnet_attrid = -1;
+static int hf_hiqnet_datatype = -1;
 static int hf_hiqnet_datalen = -1;
-static int hf_hiqnet_string = -1;
+static int hf_hiqnet_byte_value = -1;
+static int hf_hiqnet_ubyte_value = -1;
+static int hf_hiqnet_word_value = -1;
+static int hf_hiqnet_uword_value = -1;
+static int hf_hiqnet_long_value = -1;
+static int hf_hiqnet_ulong_value = -1;
+static int hf_hiqnet_float32_value = -1;
+static int hf_hiqnet_float64_value = -1;
+static int hf_hiqnet_block_value = -1;
+static int hf_hiqnet_string_value = -1;
+static int hf_hiqnet_long64_value = -1;
+static int hf_hiqnet_ulong64_value = -1;
 static int hf_hiqnet_wrkgrppath = -1;
 static int hf_hiqnet_numvds = -1;
 static int hf_hiqnet_vdaddr = -1;
@@ -517,28 +538,83 @@ hiqnet_display_paramsub(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, gint off
 /* TODO: decode flags for attributes and parameters */
 static gint
 hiqnet_display_data(proto_tree *hiqnet_payload_tree, packet_info *pinfo, tvbuff_t *tvb, gint offset) {
-    guint8 datatype = 0;
-    gint datalen = 0;
+    guint32 datatype;
+    guint32 datalen;
     proto_item* ti;
 
-    datatype = tvb_get_guint8(tvb, offset);
-    ti = proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_datatype, tvb, offset, 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item_ret_uint(hiqnet_payload_tree, hf_hiqnet_datatype, tvb, offset, 1, ENC_BIG_ENDIAN, &datatype);
     offset += 1;
-    if (datatype < sizeof(hiqnet_datasize_per_type)/sizeof(int))
-        datalen = hiqnet_datasize_per_type[datatype];
-    else
-        expert_add_info(pinfo, ti, &ei_hiqnet_datatype);
-    if (datalen < 0) { /* This is a string or a block */
-        datalen = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_datalen, tvb, offset, 2, ENC_BIG_ENDIAN);
+    switch (datatype) {
+
+    case HIQNET_DATATYPE_BYTE:
+        proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_byte_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        break;
+
+    case HIQNET_DATATYPE_UBYTE:
+        proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_ubyte_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        break;
+
+    case HIQNET_DATATYPE_WORD:
+        proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_word_value, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
+        break;
+
+    case HIQNET_DATATYPE_UWORD:
+        proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_uword_value, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        break;
+
+    case HIQNET_DATATYPE_LONG:
+        proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_long_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        break;
+
+    case HIQNET_DATATYPE_ULONG:
+        proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_ulong_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        break;
+
+    case HIQNET_DATATYPE_FLOAT32:
+        proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_float32_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        break;
+
+    case HIQNET_DATATYPE_FLOAT64:
+        proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_float64_value, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+        break;
+
+    case HIQNET_DATATYPE_BLOCK:
+        proto_tree_add_item_ret_uint(hiqnet_payload_tree, hf_hiqnet_datalen, tvb, offset, 2, ENC_BIG_ENDIAN, &datalen);
+        offset += 2;
+        proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_block_value, tvb, offset, datalen, ENC_NA);
+        offset += datalen;
+        break;
+
+    case HIQNET_DATATYPE_STRING:
+        proto_tree_add_item_ret_uint(hiqnet_payload_tree, hf_hiqnet_datalen, tvb, offset, 2, ENC_BIG_ENDIAN, &datalen);
+        offset += 2;
+        proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_string_value, tvb, offset, datalen, ENC_UCS_2|ENC_BIG_ENDIAN);
+        offset += datalen;
+        break;
+
+    case HIQNET_DATATYPE_LONG64:
+        proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_long64_value, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+        break;
+
+    case HIQNET_DATATYPE_ULONG64:
+        proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_ulong64_value, tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+        break;
+
+    default:
+        /* Flag an error, and punt and assume these values have no length. */
+        expert_add_info(pinfo, ti, &ei_hiqnet_datatype);
+        break;
     }
-    if (datatype == 9) { /* This is a string */
-        proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_string, tvb, offset, datalen, ENC_UCS_2);
-    } else {
-        proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_value, tvb, offset, datalen, ENC_NA);
-    }
-    offset += datalen;
     return offset;
 }
 
@@ -656,7 +732,7 @@ dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             hiqnet_error_tree = proto_tree_add_subtree(hiqnet_header_tree, tvb, offset, 2, ett_hiqnet, NULL, "Error");
             proto_tree_add_item(hiqnet_error_tree, hf_hiqnet_errcode, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
-            proto_tree_add_item(hiqnet_error_tree, hf_hiqnet_errstr, tvb, offset, headerlen - offset, ENC_UCS_2);
+            proto_tree_add_item(hiqnet_error_tree, hf_hiqnet_errstr, tvb, offset, headerlen - offset, ENC_UCS_2|ENC_BIG_ENDIAN);
         }
         if (flags & HIQNET_MULTIPART_FLAG) {
             /* TODO: rebuild the full message */
@@ -1275,18 +1351,6 @@ proto_register_hiqnet(void)
                 NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_hiqnet_datatype,
-            { "Data type", "hiqnet.datatype",
-                FT_UINT8, BASE_HEX,
-                VALS(datatypenames), 0x0,
-                NULL, HFILL }
-        },
-        { &hf_hiqnet_value,
-            { "Value", "hiqnet.value",
-                FT_BYTES, BASE_NONE,
-                NULL, 0x0,
-                NULL, HFILL }
-        },
         { &hf_hiqnet_vdobject,
             { "Virtual Device Object", "hiqnet.vdobject",
                 FT_BYTES, BASE_NONE,
@@ -1367,15 +1431,88 @@ proto_register_hiqnet(void)
                 VALS(device_attributes_names), 0x0,
                 NULL, HFILL }
         },
+        { &hf_hiqnet_datatype,
+            { "Data type", "hiqnet.datatype",
+                FT_UINT8, BASE_HEX,
+                VALS(datatypenames), 0x0,
+                NULL, HFILL }
+        },
         { &hf_hiqnet_datalen,
             { "Data length", "hiqnet.datalen",
                 FT_UINT16, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_hiqnet_string,
-            { "String", "hiqnet.string",
+        { &hf_hiqnet_byte_value,
+            { "Value", "hiqnet.byte_value",
+                FT_INT8, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_hiqnet_ubyte_value,
+            { "Value", "hiqnet.ubyte_value",
+                FT_UINT8, BASE_DEC_HEX,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_hiqnet_word_value,
+            { "Value", "hiqnet.word_value",
+                FT_INT16, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_hiqnet_uword_value,
+            { "Value", "hiqnet.uword_value",
+                FT_UINT16, BASE_DEC_HEX,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_hiqnet_long_value,
+            { "Value", "hiqnet.long_value",
+                FT_INT32, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_hiqnet_ulong_value,
+            { "Value", "hiqnet.ulong_value",
+                FT_UINT32, BASE_DEC_HEX,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_hiqnet_float32_value,
+            { "Value", "hiqnet.float32_value",
+                FT_FLOAT, BASE_NONE,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_hiqnet_float64_value,
+            { "Value", "hiqnet.float64_value",
+                FT_DOUBLE, BASE_NONE,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_hiqnet_block_value,
+            { "Value", "hiqnet.block_value",
+                FT_BYTES, BASE_NONE,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        /* Counted *and* null-terminated */
+        { &hf_hiqnet_string_value,
+            { "Value", "hiqnet.string_value",
                 FT_STRINGZ, STR_UNICODE,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_hiqnet_long64_value,
+            { "Value", "hiqnet.long64_value",
+                FT_INT64, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_hiqnet_ulong64_value,
+            { "Value", "hiqnet.ulong64_value",
+                FT_UINT64 , BASE_DEC_HEX,
                 NULL, 0x0,
                 NULL, HFILL }
         },
