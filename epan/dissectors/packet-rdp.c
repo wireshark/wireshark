@@ -32,6 +32,7 @@
 #include <epan/conversation.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <epan/strutil.h>
 #include "packet-ssl.h"
 #include "packet-t124.h"
 
@@ -2096,6 +2097,8 @@ dissect_rdpNegReq(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
     NULL
   };
 
+  col_append_str(pinfo->cinfo, COL_INFO, "Negotiate Request");
+
   proto_tree_add_item(tree, hf_rdp_neg_type, tvb, offset, 1, ENC_NA);
   offset += 1;
   proto_tree_add_bitmask_ret_uint64(tree, tvb, offset, hf_rdp_negReq_flags,
@@ -2126,6 +2129,8 @@ dissect_rdp_cr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
   proto_item *item;
   proto_tree *tree;
   gint linelen, next_offset;
+  const guint8 *stringval;
+  const char *sep = "";
 
   /*
    * routingToken or cookie?  Both begin with "Cookie: ".
@@ -2153,14 +2158,20 @@ dissect_rdp_cr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
   if (have_cookie) {
     /* XXX - distinguish between routing token and cookie? */
     linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, TRUE);
-    proto_tree_add_item(tree, hf_rdp_rt_cookie, tvb, offset, linelen, ENC_ASCII|ENC_NA);
+    proto_tree_add_item_ret_string(tree, hf_rdp_rt_cookie, tvb, offset,
+                                   linelen, ENC_ASCII|ENC_NA,
+                                   wmem_packet_scope(), &stringval);
     offset = (linelen == -1) ? (gint)tvb_captured_length(tvb) : next_offset;
+    col_append_str(pinfo->cinfo, COL_INFO, format_text(stringval, strlen(stringval)));
+    sep = ", ";
   }
   /*
    * rdpNegRequest?
    */
-  if (tvb_reported_length_remaining(tvb, offset) > 0)
+  if (tvb_reported_length_remaining(tvb, offset) > 0) {
+    col_append_str(pinfo->cinfo, COL_INFO, sep);
     offset = dissect_rdpNegReq(tvb, offset, pinfo, tree);
+  }
   return offset; /* returns 0 if nothing was dissected, which is what we want */
 }
 
@@ -2181,6 +2192,8 @@ dissect_rdpNegRsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
     &hf_rdp_selectedProtocol_flag_hybrid_ex,
     NULL
   };
+
+  col_append_str(pinfo->cinfo, COL_INFO, "Negotiate Response");
 
   proto_tree_add_item(tree, hf_rdp_neg_type, tvb, offset, 1, ENC_NA);
   offset += 1;
@@ -2205,6 +2218,9 @@ static int
 dissect_rdpNegFailure(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   guint32 length;
   proto_item *length_item;
+  guint32 failureCode;
+
+  col_append_str(pinfo->cinfo, COL_INFO, "Negotiate Failure");
 
   proto_tree_add_item(tree, hf_rdp_neg_type, tvb, offset, 1, ENC_NA);
   offset += 1;
@@ -2216,8 +2232,10 @@ dissect_rdpNegFailure(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
     expert_add_info_format(pinfo, length_item, &ei_rdp_neg_len_invalid, "RDP Negotiate Failure length is %u, not 8", length);
     return offset;
   }
-  proto_tree_add_item(tree, hf_rdp_negFailure_failureCode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item_ret_uint(tree, hf_rdp_negFailure_failureCode, tvb, offset, 4, ENC_LITTLE_ENDIAN, &failureCode);
   offset += 4;
+  col_append_fstr(pinfo->cinfo, COL_INFO, ", failureCode %s",
+                  val_to_str(failureCode, failure_code_vals, "Unknown (0x%08x)"));
   return offset;
 }
 
