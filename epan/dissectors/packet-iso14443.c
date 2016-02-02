@@ -100,6 +100,16 @@ static const value_string iso14443_short_frame[] = {
     { 0, NULL }
 };
 
+/* convert a length code into the length it encodes
+   code_to_len[x] is the length encoded by x
+   this conversion is used for type A's FSCI and FSDI and for type B's
+   maximum frame size */
+static const guint16 code_to_len[] = {
+    16, 24, 32, 40, 48, 64, 96, 128, 256
+};
+/* XXX - do we have a generic macro for this? */
+#define LEN_CODE_MAX (sizeof(code_to_len) / sizeof(code_to_len[0]))
+
 /* the bits in the ATS' TO byte indicating which other bytes are transmitted */
 #define HAVE_TC1 0x40
 #define HAVE_TB1 0x20
@@ -151,6 +161,7 @@ static int ett_iso14443_msg = -1;
 static int ett_iso14443_app_data = -1;
 static int ett_iso14443_prot_inf = -1;
 static int ett_iso14443_prot_type = -1;
+static int ett_iso14443_ats_t0 = -1;
 static int ett_iso14443_attr_p1 = -1;
 static int ett_iso14443_attr_p2 = -1;
 static int ett_iso14443_pcb = -1;
@@ -164,6 +175,7 @@ static int hf_iso14443_resp_in = -1;
 static int hf_iso14443_short_frame = -1;
 static int hf_iso14443_propr_coding = -1;
 static int hf_iso14443_uid_size = -1;
+static int hf_iso14443_max_frame_size = -1;
 static int hf_iso14443_bit_frame_anticoll = -1;
 static int hf_iso14443_apf = -1;
 static int hf_iso14443_afi = -1;
@@ -195,9 +207,12 @@ static int hf_iso14443_uid_cln = -1;
 static int hf_iso14443_bcc = -1;
 static int hf_iso14443_rats_start = -1;
 static int hf_iso14443_fsdi = -1;
+static int hf_iso14443_fsd = -1;
 static int hf_iso14443_cid = -1;
 static int hf_iso14443_tl = -1;
 static int hf_iso14443_t0 = -1;
+static int hf_iso14443_fsci = -1;
+static int hf_iso14443_fsc = -1;
 static int hf_iso14443_tc1 = -1;
 static int hf_iso14443_tb1 = -1;
 static int hf_iso14443_ta1 = -1;
@@ -284,6 +299,7 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
     proto_tree *app_data_tree, *prot_inf_tree, *prot_type_tree;
     gint app_data_offset, rem_len;
     guint8 max_frame_size_code;
+    proto_item *pi;
     gboolean iso14443_adc;
     guint8 prot_inf_len = 0;
 
@@ -326,7 +342,11 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
             hf_iso14443_max_frame_size_code,
             tvb, offset*8, 4, max_frame_size_code, "%d",
             max_frame_size_code);
-    /* XXX - calculate max frame size and add a generated item */
+    if (max_frame_size_code < LEN_CODE_MAX) {
+        pi = proto_tree_add_uint(prot_inf_tree, hf_iso14443_max_frame_size,
+                tvb, offset, 1, code_to_len[max_frame_size_code]);
+        PROTO_ITEM_SET_GENERATED(pi);
+    }
     prot_type_it = proto_tree_add_item(prot_inf_tree, hf_iso14443_prot_type,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     prot_type_tree = proto_item_add_subtree(
@@ -528,7 +548,10 @@ dissect_iso14443_cmd_type_ats(tvbuff_t *tvb, packet_info *pinfo,
     proto_item *ti = proto_tree_get_parent(tree);
     gint offset = 0, offset_tl, hist_len;
     guint8 fsdi, cid;
-    guint8 tl, t0 = 0;
+    proto_item *pi;
+    guint8 tl, t0 = 0, fsci;
+    proto_item *t0_it;
+    proto_tree *t0_tree;
 
     if (pinfo->p2p_dir == P2P_DIR_SENT) {
         col_set_str(pinfo->cinfo, COL_INFO, "RATS");
@@ -540,6 +563,11 @@ dissect_iso14443_cmd_type_ats(tvbuff_t *tvb, packet_info *pinfo,
         fsdi = tvb_get_guint8(tvb, offset) >> 4;
         proto_tree_add_uint_bits_format_value(tree, hf_iso14443_fsdi,
                 tvb, offset*8, 4, fsdi, "%d", fsdi);
+        if (fsdi < LEN_CODE_MAX) {
+            pi = proto_tree_add_uint(tree, hf_iso14443_fsd,
+                    tvb, offset, 1, code_to_len[fsdi]);
+            PROTO_ITEM_SET_GENERATED(pi);
+        }
         cid = tvb_get_guint8(tvb, offset) & 0x0F;
         proto_tree_add_uint_bits_format_value(tree, hf_iso14443_cid,
                 tvb, offset*8+4, 4, cid, "%d", cid);
@@ -561,8 +589,17 @@ dissect_iso14443_cmd_type_ats(tvbuff_t *tvb, packet_info *pinfo,
         /* the length in TL includes the TL byte itself */
         if (tl >= 2) {
             t0 = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(tree, hf_iso14443_t0,
+            t0_it = proto_tree_add_item(tree, hf_iso14443_t0,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
+            t0_tree = proto_item_add_subtree(t0_it, ett_iso14443_ats_t0);
+            fsci = t0 & 0x0F;
+            proto_tree_add_item(t0_tree, hf_iso14443_fsci,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            if (fsci < LEN_CODE_MAX) {
+                pi = proto_tree_add_uint(t0_tree, hf_iso14443_fsc,
+                        tvb, offset, 1, code_to_len[fsci]);
+                PROTO_ITEM_SET_GENERATED(pi);
+            }
             offset++;
         }
         if (t0 & HAVE_TC1) {
@@ -601,7 +638,7 @@ static int dissect_iso14443_attrib(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, proto_tree *tree, gboolean crc_dropped)
 {
     proto_item *ti = proto_tree_get_parent(tree);
-    proto_item *p1_it, *p2_it;
+    proto_item *p1_it, *p2_it, *pi;
     proto_tree *p1_tree, *p2_tree;
     guint8 max_frame_size_code;
     gint hl_inf_len;
@@ -637,6 +674,11 @@ static int dissect_iso14443_attrib(tvbuff_t *tvb, gint offset,
             hf_iso14443_max_frame_size_code,
             tvb, offset*8+4, 4, max_frame_size_code, "%d",
             max_frame_size_code);
+    if (max_frame_size_code < LEN_CODE_MAX) {
+        pi = proto_tree_add_uint(p2_tree, hf_iso14443_max_frame_size,
+                tvb, offset, 1, code_to_len[max_frame_size_code]);
+        PROTO_ITEM_SET_GENERATED(pi);
+    }
     offset++;
 
     /* XXX - subtree, details for each parameter */
@@ -1121,6 +1163,10 @@ proto_register_iso14443(void)
             { "UID size", "iso14443.uid_size",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
         },
+        { &hf_iso14443_max_frame_size,
+            { "Maximum frame size", "iso14443.max_frame_size",
+                FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
         { &hf_iso14443_bit_frame_anticoll,
             { "Bit frame anticollision", "iso14443.bit_frame_anticoll",
                 FT_UINT8, BASE_HEX, NULL, 0x1F, NULL, HFILL }
@@ -1239,7 +1285,11 @@ proto_register_iso14443(void)
         },
         { &hf_iso14443_fsdi,
             { "FSDI", "iso14443.fsdi",
-                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_fsd,
+            { "FSD", "iso14443.fsd",
+                FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_iso14443_cid,
             { "CID", "iso14443.cid",
@@ -1252,6 +1302,14 @@ proto_register_iso14443(void)
         { &hf_iso14443_t0,
             { "Format byte T0", "iso14443.t0",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_fsci,
+            { "FSCI", "iso14443.fsci",
+                FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
+        },
+        { &hf_iso14443_fsc,
+            { "FSC", "iso14443.fsc",
+                FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_iso14443_tc1,
             { "Interface byte TC1", "iso14443.tc1",
@@ -1370,6 +1428,7 @@ proto_register_iso14443(void)
         &ett_iso14443_app_data,
         &ett_iso14443_prot_inf,
         &ett_iso14443_prot_type,
+        &ett_iso14443_ats_t0,
         &ett_iso14443_attr_p1,
         &ett_iso14443_attr_p2,
         &ett_iso14443_pcb,
