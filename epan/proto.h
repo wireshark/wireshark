@@ -1023,7 +1023,7 @@ proto_tree_add_item_ret_length(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			      const gint start, gint length,
 			      const guint encoding, gint *retval);
 
-/** Add an item to a proto_tree, using the text label registered to that item.
+/** Add an integer data item to a proto_tree, using the text label registered to that item.
 The item is extracted from the tvbuff handed to it, and the retrieved
 value is also set to *retval so the caller gets it back for other uses.
 
@@ -1053,11 +1053,42 @@ Integers of 8, 16, 24 and 32 bits can be retrieved with these functions.
 */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_int(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-const gint start, gint length, const guint encoding, gint32 *retval);
+    const gint start, gint length, const guint encoding, gint32 *retval);
 
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-const gint start, gint length, const guint encoding, guint32 *retval);
+    const gint start, gint length, const guint encoding, guint32 *retval);
+
+/** Add an string item to a proto_tree, using the text label registered to
+that item.
+
+The item is extracted from the tvbuff handed to it, and the retrieved
+value is also set to *retval so the caller gets it back for other uses.
+The value is allocated using the wmem scope passed in.
+
+This function retrieves the value even if the passed-in tree param is NULL,
+so that it can be used by dissectors at all times to both get the value
+and set the tree item to it.
+
+Like other proto_tree_add functions, if there is a tree and the value cannot
+be decoded from the tvbuff, then an expert info error is reported.
+
+This function accepts string encodings.
+
+@param scope the wmem scope to use to allocate the string
+@param tree the tree to append this item to
+@param hfindex field
+@param tvb the tv buffer of the current data
+@param start start of data in tvb (cannot be negative)
+@param length length of data in tvb (for strings can be -1 for remaining)
+@param encoding data encoding (e.g, ENC_ASCII, ENC_UTF_8, etc.)
+@param[out] retval points to a guint8 * which will be set
+@return the newly created item, and *retval is set to the decoded value
+*/
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_string(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+    const gint start, gint length, const guint encoding,
+    wmem_allocator_t *scope, const guint8 **retval);
 
 /** (INTERNAL USE ONLY) Add a text-only node to a proto_tree.
  @param tree the tree to append this item to

@@ -225,8 +225,6 @@ proto_tree_set_time(field_info *fi, const nstime_t *value_ptr);
 static void
 proto_tree_set_string(field_info *fi, const char* value);
 static void
-proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length, gint encoding);
-static void
 proto_tree_set_ax25(field_info *fi, const guint8* value);
 static void
 proto_tree_set_ax25_tvb(field_info *fi, tvbuff_t *tvb, gint start);
@@ -1511,6 +1509,98 @@ get_int64_value(proto_tree *tree, tvbuff_t *tvb, gint start, guint length, const
 	return value;
 }
 
+/* For FT_STRING */
+static inline const guint8 *
+get_string_value(wmem_allocator_t *scope, tvbuff_t *tvb, gint start,
+    gint length, gint *ret_length, const guint encoding)
+{
+	if (length == -1) {
+		length = tvb_ensure_captured_length_remaining(tvb, start);
+	}
+	*ret_length = length;
+	return tvb_get_string_enc(scope, tvb, start, length, encoding);
+}
+
+/* For FT_STRINGZ */
+static inline const guint8 *
+get_stringz_value(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb,
+    gint start, gint length, gint *ret_length, const guint encoding)
+{
+	const guint8 *value;
+
+	if (length < -1) {
+		report_type_length_mismatch(tree, "a string", length, TRUE);
+	}
+	if (length == -1) {
+		/* This can throw an exception */
+		value = tvb_get_stringz_enc(scope, tvb, start, &length, encoding);
+	} else if (length == 0) {
+		value = "[Empty]";
+	} else {
+		/* In this case, length signifies the length of the string.
+		 *
+		 * This could either be a null-padded string, which doesn't
+		 * necessarily have a '\0' at the end, or a null-terminated
+		 * string, with a trailing '\0'.  (Yes, there are cases
+		 * where you have a string that's both counted and null-
+		 * terminated.)
+		 *
+		 * In the first case, we must allocate a buffer of length
+		 * "length+1", to make room for a trailing '\0'.
+		 *
+		 * In the second case, we don't assume that there is a
+		 * trailing '\0' there, as the packet might be malformed.
+		 * (XXX - should we throw an exception if there's no
+		 * trailing '\0'?)  Therefore, we allocate a buffer of
+		 * length "length+1", and put in a trailing '\0', just to
+		 * be safe.
+		 *
+		 * (XXX - this would change if we made string values counted
+		 * rather than null-terminated.)
+		 */
+		value = tvb_get_string_enc(scope, tvb, start, length, encoding);
+	}
+	*ret_length = length;
+	return value;
+}
+
+/* For FT_UINT_STRING */
+static inline const guint8 *
+get_uint_string_value(wmem_allocator_t *scope, proto_tree *tree,
+    tvbuff_t *tvb, gint start, gint length, gint *ret_length,
+    const guint encoding)
+{
+	guint32 n;
+	const guint8 *value;
+
+	/* I believe it's ok if this is called with a NULL tree */
+	n = get_uint_value(tree, tvb, start, length, encoding & ~ENC_CHARENCODING_MASK);
+	value = tvb_get_string_enc(scope, tvb, start + length, n, encoding);
+	length += n;
+	*ret_length = length;
+	return value;
+}
+
+/* For FT_STRINGZPAD */
+static inline const guint8 *
+get_stringzpad_value(wmem_allocator_t *scope, tvbuff_t *tvb, gint start,
+    gint length, gint *ret_length, const guint encoding)
+{
+	/*
+	 * XXX - currently, string values are null-
+	 * terminated, so a "zero-padded" string
+	 * isn't special.  If we represent string
+	 * values as something that includes a counted
+	 * array of bytes, we'll need to strip
+	 * trailing NULs.
+	 */
+	if (length == -1) {
+		length = tvb_ensure_captured_length_remaining(tvb, start);
+	}
+	*ret_length = length;
+	return tvb_get_string_enc(scope, tvb, start, length, encoding);
+}
+
 /* this can be called when there is no tree, so don't add that as a param */
 static void
 get_time_value(tvbuff_t *tvb, const gint start, const gint length, const guint encoding,
@@ -1729,7 +1819,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	guint32	    value, n;
 	float	    floatval;
 	double	    doubleval;
-	const char *string;
+	const char *stringval;
 	nstime_t    time_stamp;
 	gboolean    length_error;
 
@@ -1993,14 +2083,27 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_STRING:
-			proto_tree_set_string_tvb(new_fi, tvb, start, length,
-			    encoding);
+			stringval = get_string_value(wmem_packet_scope(),
+			    tvb, start, length, &length, encoding);
+			proto_tree_set_string(new_fi, stringval);
+
+			/* Instead of calling proto_item_set_len(), since we
+			 * don't yet have a proto_item, we set the
+			 * field_info's length ourselves.
+			 *
+			 * XXX - our caller can't use that length to
+			 * advance an offset unless they arrange that
+			 * there always be a protocol tree into which
+			 * we're putting this item.
+			 */
+			new_fi->length = length;
 			break;
 
 		case FT_STRINGZ:
-			if (length < -1) {
-				report_type_length_mismatch(tree, "a string", length, TRUE);
-			}
+			stringval = get_stringz_value(wmem_packet_scope(),
+			    tree, tvb, start, length, &length, encoding);
+			proto_tree_set_string(new_fi, stringval);
+
 			/* Instead of calling proto_item_set_len(),
 			 * since we don't yet have a proto_item, we
 			 * set the field_info's length ourselves.
@@ -2010,47 +2113,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 * there always be a protocol tree into which
 			 * we're putting this item.
 			 */
-			if (length == -1) {
-				/* This can throw an exception */
-				string = tvb_get_stringz_enc(wmem_packet_scope(), tvb, start, &length, encoding);
-			} else if (length == 0) {
-				string = "[Empty]";
-			} else {
-				/* In this case, length signifies
-				 * the length of the string.
-				 *
-				 * This could either be a null-padded
-				 * string, which doesn't necessarily
-				 * have a '\0' at the end, or a
-				 * null-terminated string, with a
-				 * trailing '\0'.  (Yes, there are
-				 * cases where you have a string
-				 * that's both counted and null-
-				 * terminated.)
-				 *
-				 * In the first case, we must
-				 * allocate a buffer of length
-				 * "length+1", to make room for
-				 * a trailing '\0'.
-				 *
-				 * In the second case, we don't
-				 * assume that there is a trailing
-				 * '\0' there, as the packet might
-				 * be malformed.  (XXX - should we
-				 * throw an exception if there's no
-				 * trailing '\0'?)	Therefore, we
-				 * allocate a buffer of length
-				 * "length+1", and put in a trailing
-				 * '\0', just to be safe.
-				 *
-				 * (XXX - this would change if
-				 * we made string values counted
-				 * rather than null-terminated.)
-				 */
-				string = tvb_get_string_enc(wmem_packet_scope(), tvb, start, length, encoding);
-			}
 			new_fi->length = length;
-			proto_tree_set_string(new_fi, string);
 			break;
 
 		case FT_UINT_STRING:
@@ -2068,9 +2131,9 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 */
 			if (encoding == TRUE)
 				encoding = ENC_ASCII|ENC_LITTLE_ENDIAN;
-			n = get_uint_value(tree, tvb, start, length, encoding & ~ENC_CHARENCODING_MASK);
-			proto_tree_set_string_tvb(new_fi, tvb, start + length, n,
-			    encoding);
+			stringval = get_uint_string_value(wmem_packet_scope(),
+			    tree, tvb, start, length, &length, encoding);
+			proto_tree_set_string(new_fi, stringval);
 
 			/* Instead of calling proto_item_set_len(), since we
 			 * don't yet have a proto_item, we set the
@@ -2081,20 +2144,24 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 * there always be a protocol tree into which
 			 * we're putting this item.
 			 */
-			new_fi->length = n + length;
+			new_fi->length = length;
 			break;
 
 		case FT_STRINGZPAD:
-			/*
-			 * XXX - currently, string values are null-
-			 * terminated, so a "zero-padded" string
-			 * isn't special.  If we represent string
-			 * values as something that includes a counted
-			 * array of bytes, we'll need to strip
-			 * trailing NULs.
+			stringval = get_stringzpad_value(wmem_packet_scope(),
+			    tvb, start, length, &length, encoding);
+			proto_tree_set_string(new_fi, stringval);
+
+			/* Instead of calling proto_item_set_len(), since we
+			 * don't yet have a proto_item, we set the
+			 * field_info's length ourselves.
+			 *
+			 * XXX - our caller can't use that length to
+			 * advance an offset unless they arrange that
+			 * there always be a protocol tree into which
+			 * we're putting this item.
 			 */
-			proto_tree_set_string_tvb(new_fi, tvb, start, length,
-			    encoding);
+			new_fi->length = length;
 			break;
 
 		case FT_ABSOLUTE_TIME:
@@ -2282,6 +2349,51 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	new_fi = new_field_info(tree, hfinfo, tvb, start, length);
 
 	proto_tree_set_uint(new_fi, value);
+
+	new_fi->flags |= (encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN;
+
+	return proto_tree_add_node(tree, new_fi);
+}
+
+proto_item *
+proto_tree_add_item_ret_string(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+                               const gint start, gint length,
+                               const guint encoding, wmem_allocator_t *scope,
+                               const guint8 **retval)
+{
+	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	field_info	  *new_fi;
+	const guint8	  *value;
+
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+
+	switch (hfinfo->type){
+	case FT_STRING:
+		value = get_string_value(scope, tvb, start, length, &length, encoding);
+		break;
+	case FT_STRINGZ:
+		value = get_stringz_value(scope, tree, tvb, start, length, &length, encoding);
+		break;
+	case FT_UINT_STRING:
+		value = get_uint_string_value(scope, tree, tvb, start, length, &length, encoding);
+		break;
+	case FT_STRINGZPAD:
+		value = get_stringzpad_value(scope, tvb, start, length, &length, encoding);
+		break;
+	default:
+		DISSECTOR_ASSERT_NOT_REACHED();
+	}
+
+	if (retval)
+		*retval = value;
+
+	CHECK_FOR_NULL_TREE(tree);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfinfo->id, hfinfo);
+
+	new_fi = new_field_info(tree, hfinfo, tvb, start, length);
+
+	proto_tree_set_string(new_fi, value);
 
 	new_fi->flags |= (encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN;
 
@@ -3462,19 +3574,6 @@ proto_tree_set_string(field_info *fi, const char* value)
 	} else {
 		fvalue_set_string(&fi->value, "[ Null ]");
 	}
-}
-
-static void
-proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length, gint encoding)
-{
-	gchar	*string;
-
-	if (length == -1) {
-		length = tvb_ensure_captured_length_remaining(tvb, start);
-	}
-
-	string = tvb_get_string_enc(wmem_packet_scope(), tvb, start, length, encoding);
-	proto_tree_set_string(fi, string);
 }
 
 /* Set the FT_AX25 value */
