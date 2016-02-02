@@ -127,6 +127,28 @@ decryption_step_80211_wpa_psk_mfp() {
 	test_step_ok
 }
 
+# WPA decode traffic in a TDLS (Tunneled Direct-Link Setup) session (802.11z)
+# Included in git sources test/captures/wpa-test-decode-tdls.pcap.gz
+decryption_step_80211_wpa_tdls() {
+	local out frames
+	out=$($TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-o "wlan.enable_decryption: TRUE" \
+		-r "$CAPTURE_DIR/wpa-test-decode-tdls.pcap.gz" \
+		-Y "icmp" \
+		2>&1)
+	RETURNVALUE=$?
+	frames=$(echo "$out" | wc -l)
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		echo "$out" > ./wpa_tdls.txt
+		test_step_failed "Error during test execution: see $PWD/wpa_tdls.txt"
+		return
+	elif [ $frames -ne 2 ]; then
+		test_step_failed "Not able to decode all TDLS traffic ($frames/2)"
+		return
+	fi
+	test_step_ok
+}
+
 # DTLS
 # https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil.tgz
 decryption_step_dtls() {
@@ -306,6 +328,7 @@ tshark_decryption_suite() {
 	test_step_add "IEEE 802.11 WPA PSK Decryption2 (EAPOL frames missing with a Win 10 client)" decryption_step_80211_wpa_eapol_incomplete_rekeys
 	test_step_add "IEEE 802.11 WPA PSK Decryption of Management frames (802.11w)" decryption_step_80211_wpa_psk_mfp
 	test_step_add "IEEE 802.11 WPA EAP Decryption" decryption_step_80211_wpa_eap
+	test_step_add "IEEE 802.11 WPA TDLS Decryption" decryption_step_80211_wpa_tdls
 	test_step_add "DTLS Decryption" decryption_step_dtls
 	test_step_add "SSL Decryption (private key)" decryption_step_ssl
 	test_step_add "SSL Decryption (RSA private key with p smaller than q)" decryption_step_ssl_rsa_pq
