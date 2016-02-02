@@ -597,6 +597,71 @@ dissect_iso14443_cmd_type_ats(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 
+static int dissect_iso14443_attrib(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo, proto_tree *tree, gboolean crc_dropped)
+{
+    proto_item *ti = proto_tree_get_parent(tree);
+    proto_item *p1_it, *p2_it;
+    proto_tree *p1_tree, *p2_tree;
+    guint8 max_frame_size_code;
+    gint hl_inf_len;
+
+    col_set_str(pinfo->cinfo, COL_INFO, "Attrib");
+    proto_item_append_text(ti, ": Attrib");
+
+    proto_tree_add_item(tree, hf_iso14443_attrib_start,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_iso14443_pupi,
+            tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    p1_it = proto_tree_add_item(tree, hf_iso14443_param1,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    p1_tree = proto_item_add_subtree( p1_it, ett_iso14443_attr_p1);
+    proto_tree_add_item(p1_tree, hf_iso14443_min_tr0,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(p1_tree, hf_iso14443_min_tr1,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(p1_tree, hf_iso14443_eof,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(p1_tree, hf_iso14443_sof,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    p2_it = proto_tree_add_item(tree, hf_iso14443_param2,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    p2_tree = proto_item_add_subtree( p2_it, ett_iso14443_attr_p2);
+    max_frame_size_code = tvb_get_guint8(tvb, offset) & 0x0F;
+    proto_tree_add_uint_bits_format_value(p2_tree,
+            hf_iso14443_max_frame_size_code,
+            tvb, offset*8+4, 4, max_frame_size_code, "%d",
+            max_frame_size_code);
+    offset++;
+
+    /* XXX - subtree, details for each parameter */
+    proto_tree_add_item(tree, hf_iso14443_param3,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_iso14443_param4,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    hl_inf_len = crc_dropped ?
+        tvb_reported_length_remaining(tvb, offset) :
+        tvb_reported_length_remaining(tvb, offset) - CRC_LEN;
+    if (hl_inf_len > 0) {
+        offset += hl_inf_len;
+    }
+    if (!crc_dropped) {
+        proto_tree_add_item(tree, hf_iso14443_crc,
+                tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
+        offset += CRC_LEN;
+    }
+
+    return offset;
+}
+
+
 static int
 dissect_iso14443_cmd_type_attrib(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
@@ -604,64 +669,12 @@ dissect_iso14443_cmd_type_attrib(tvbuff_t *tvb, packet_info *pinfo,
     gboolean crc_dropped = (gboolean)GPOINTER_TO_UINT(data);
     proto_item *ti = proto_tree_get_parent(tree);
     gint offset = 0;
-    proto_item *p1_it, *p2_it;
-    proto_tree *p1_tree, *p2_tree;
-    guint8 max_frame_size_code;
-    gint hl_inf_len, hl_resp_len;
     guint8 mbli, cid;
+    gint hl_resp_len;
 
     if (pinfo->p2p_dir == P2P_DIR_SENT) {
-        col_set_str(pinfo->cinfo, COL_INFO, "Attrib");
-        proto_item_append_text(ti, ": Attrib");
-
-        proto_tree_add_item(tree, hf_iso14443_attrib_start,
-                tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
-        proto_tree_add_item(tree, hf_iso14443_pupi,
-                tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-
-        p1_it = proto_tree_add_item(tree, hf_iso14443_param1,
-                tvb, offset, 1, ENC_BIG_ENDIAN);
-        p1_tree = proto_item_add_subtree( p1_it, ett_iso14443_attr_p1);
-        proto_tree_add_item(p1_tree, hf_iso14443_min_tr0,
-                tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(p1_tree, hf_iso14443_min_tr1,
-                tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(p1_tree, hf_iso14443_eof,
-                tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(p1_tree, hf_iso14443_sof,
-                tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
-
-        p2_it = proto_tree_add_item(tree, hf_iso14443_param2,
-                tvb, offset, 1, ENC_BIG_ENDIAN);
-        p2_tree = proto_item_add_subtree( p2_it, ett_iso14443_attr_p2);
-        max_frame_size_code = tvb_get_guint8(tvb, offset) & 0x0F;
-        proto_tree_add_uint_bits_format_value(p2_tree,
-                hf_iso14443_max_frame_size_code,
-                tvb, offset*8+4, 4, max_frame_size_code, "%d",
-                max_frame_size_code);
-        offset++;
-
-        /* XXX - subtree, details for each parameter */
-        proto_tree_add_item(tree, hf_iso14443_param3,
-                tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
-        proto_tree_add_item(tree, hf_iso14443_param4,
-                tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
-        hl_inf_len = crc_dropped ?
-            tvb_reported_length_remaining(tvb, offset) :
-            tvb_reported_length_remaining(tvb, offset) - CRC_LEN;
-        if (hl_inf_len > 0) {
-            offset += hl_inf_len;
-        }
-        if (!crc_dropped) {
-            proto_tree_add_item(tree, hf_iso14443_crc,
-                    tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
-            offset += CRC_LEN;
-        }
+        offset = dissect_iso14443_attrib(
+                tvb, offset, pinfo, tree, crc_dropped);
     }
     else if (pinfo->p2p_dir == P2P_DIR_RECV) {
         col_set_str(pinfo->cinfo, COL_INFO, "Response to Attrib");
