@@ -373,16 +373,15 @@ void ExtcapOptionsDialog::storeValues()
         else
             value = (*iter)->prefValue();
 
-        QString prefKey = QString("%1.%2").arg(device_name).arg(argument->prefKey());
-        if ( prefKey.length() > 0 )
+        QString key = argument->prefKey(device_name);
+        if (key.length() > 0)
         {
-            gchar * key = g_strdup(prefKey.toStdString().c_str());
             gchar * val = g_strdup(value.length() == 0 ? " " : value.toStdString().c_str());
 
             /* Setting the internally stored value for the preference to the new value */
             (*iter)->argument()->storeval = g_strdup(val);
 
-            g_hash_table_insert(entries, key, val);
+            g_hash_table_insert(entries, g_strdup(key.toStdString().c_str()), val);
         }
     }
 

@@ -593,12 +593,12 @@ QString ExtcapArgument::defaultValue()
     return QString();
 }
 
-QString ExtcapArgument::prefKey()
+QString ExtcapArgument::prefKey(const QString & device_name)
 {
     if ( ! _argument->save )
         return QString();
 
-    return QString(_argument->call).replace("-", "");
+    return QString(extcap_settings_key(device_name.toStdString().c_str(), _argument->call));
 }
 
 bool ExtcapArgument::isRequired()

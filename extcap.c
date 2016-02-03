@@ -461,6 +461,34 @@ static void extcap_free_if_configuration(GList *list)
     g_list_free(list);
 }
 
+gchar * extcap_settings_key(const gchar * ifname, const gchar * setting)
+{
+    gchar * setting_nohyphen;
+    gchar * ifname_underscore;
+    gchar * ifname_lower;
+    gchar * key;
+    GRegex * regex = g_regex_new ("(?![a-zA-Z1-9_]).", (GRegexCompileFlags) 0, (GRegexMatchFlags) 0, NULL );
+
+    if (!regex)
+        return NULL;
+
+    setting_nohyphen =
+        g_regex_replace_literal(regex, setting, strlen(setting), 0,
+            "", (GRegexMatchFlags) 0, NULL );
+    ifname_underscore =
+        g_regex_replace_literal(regex, ifname, strlen(ifname), 0,
+            "_", (GRegexMatchFlags) 0, NULL );
+    ifname_lower = g_utf8_strdown(ifname_underscore, -1);
+    key = g_strconcat(ifname_lower, ".", setting_nohyphen, NULL);
+
+    g_free(setting_nohyphen);
+    g_free(ifname_underscore);
+    g_free(ifname_lower);
+    g_regex_unref(regex);
+
+    return key;
+}
+
 static gboolean search_cb(const gchar *extcap _U_, const gchar *ifname _U_, gchar *output, void *data,
         char **err_str _U_) {
     extcap_token_sentence *tokens = NULL;
@@ -482,37 +510,29 @@ static gboolean search_cb(const gchar *extcap _U_, const gchar *ifname _U_, gcha
     if ( dev_module ) {
         GList * walker = arguments;
 
-        GRegex * regex = g_regex_new ("[-]+", (GRegexCompileFlags) 0, (GRegexMatchFlags) 0, NULL );
-        if (regex) {
-            while ( walker != NULL ) {
-                extcap_arg * arg = (extcap_arg *)walker->data;
+        while ( walker != NULL ) {
+            extcap_arg * arg = (extcap_arg *)walker->data;
 
-                if ( arg->save ) {
-                    struct preference * pref = NULL;
+            if ( arg->save ) {
+                struct preference * pref = NULL;
+                gchar * pref_ifname = extcap_settings_key(ifname, arg->call);
 
-                    gchar * pref_name = g_regex_replace(regex, arg->call, strlen(arg->call), 0, "", (GRegexMatchFlags) 0, NULL );
-                    gchar * pref_ifname = g_strdup(g_strconcat(ifname, ".", pref_name, NULL));
+                if ( ( pref = prefs_find_preference(dev_module, pref_ifname) ) == NULL ) {
+                    /* Set an initial value */
+                    if ( ! arg->storeval && arg->default_complex )
+                        arg->storeval = g_strdup(arg->default_complex->_val);
 
-                    if ( ( pref = prefs_find_preference(dev_module, pref_ifname) ) == NULL ) {
-                        /* Set an initial value */
-                        if ( ! arg->storeval && arg->default_complex )
-                            arg->storeval = g_strdup(arg->default_complex->_val);
-
-                        prefs_register_string_preference(dev_module, g_strdup(pref_ifname),
-                                arg->display, arg->display, (const gchar **)&(arg->storeval));
-                    } else {
-                        /* Been here before, restore stored value */
-                        if (! arg->storeval && pref->varp.string)
-                            arg->storeval = g_strdup(*(pref->varp.string));
+                    prefs_register_string_preference(dev_module, g_strdup(pref_ifname),
+                            arg->display, arg->display, (const gchar **)&(arg->storeval));
+                } else {
+                    /* Been here before, restore stored value */
+                    if (! arg->storeval && pref->varp.string)
+                        arg->storeval = g_strdup(*(pref->varp.string));
                     }
-
-                    g_free(pref_name);
-                    g_free(pref_ifname);
-                }
-
-                walker = g_list_next(walker);
+                g_free(pref_ifname);
             }
-            g_regex_unref(regex);
+
+            walker = g_list_next(walker);
         }
     }
 

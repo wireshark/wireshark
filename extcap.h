@@ -87,6 +87,9 @@ extcap_get_if_configuration(const char * ifname);
 gboolean
 extcap_has_configuration(const char * ifname, gboolean is_required);
 
+/* converts an extcap setting to its equivalent preference key */
+gchar * extcap_settings_key(const gchar * ifname, const gchar * setting);
+
 #ifdef WIN32
 HANDLE
 extcap_get_win32_handle();

@@ -98,7 +98,7 @@ public:
     bool isValid();
     bool isRequired();
 
-    QString prefKey();
+    QString prefKey(const QString & device_name);
     virtual QString prefValue();
 
     static ExtcapArgument * create(extcap_arg * argument = 0);
