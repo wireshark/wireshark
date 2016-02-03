@@ -589,7 +589,7 @@ proto_register_mpeg_pes(void)
 				FT_UINT8, BASE_HEX, VALS(mpeg_pes_TrickModeIntraSliceRefresh_vals), 0,
 				"mpeg_pes trick mode intra slice refresh", HFILL }},
 		{ &hf_mpeg_pes_dsm_trick_mode_frequency_truncation,
-			{ "frequency truncation", "mpeg-pes.trick-mode-frequeny-truncation",
+			{ "frequency truncation", "mpeg-pes.trick-mode-frequency-truncation",
 				FT_UINT8, BASE_HEX, VALS(mpeg_pes_TrickModeFrequencyTruncation_vals), 0,
 				"mpeg_pes trick mode frequency truncation", HFILL }},
 		{ &hf_mpeg_pes_dsm_trick_mode_rep_cntrl,

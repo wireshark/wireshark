@@ -154,7 +154,7 @@ static snmp_ue_assoc_t* localized_ues = NULL;
 static snmp_ue_assoc_t* unlocalized_ues = NULL;
 /****/
 
-/* Variabled used for handling enterprise specific trap types */
+/* Variables used for handling enterprise specific trap types */
 typedef struct _snmp_st_assoc_t {
 	char *enterprise;
 	guint trap;

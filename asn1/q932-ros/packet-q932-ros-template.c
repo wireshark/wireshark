@@ -51,7 +51,7 @@ static expert_field ei_ros_undecoded = EI_INIT;
 /* Subdissectors */
 static dissector_handle_t data_handle = NULL;
 
-/* Gloabl variables */
+/* Global variables */
 static rose_ctx_t *rose_ctx_tmp;
 
 static guint32 problem_val;

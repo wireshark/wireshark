@@ -146,7 +146,7 @@ static snmp_ue_assoc_t* localized_ues = NULL;
 static snmp_ue_assoc_t* unlocalized_ues = NULL;
 /****/
 
-/* Variabled used for handling enterprise spesific trap types */
+/* Variables used for handling enterprise specific trap types */
 typedef struct _snmp_st_assoc_t {
 	char *enterprise;
 	guint trap;
@@ -2055,7 +2055,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
 	/*
 	 * See if this looks like SNMP or not. if not, return 0 so
-	 * wireshark can try som other dissector instead.
+	 * wireshark can try some other dissector instead.
 	 */
 	/* All SNMP packets are BER encoded and consist of a SEQUENCE
 	 * that spans the entire PDU. The first item is an INTEGER that
@@ -2070,7 +2070,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	/* then comes a length which spans the rest of the tvb */
 	offset = get_ber_length(tvb, offset, &tmp_length, &tmp_ind);
 	/* if(tmp_length!=(guint32)tvb_reported_length_remaining(tvb, offset)) {
-	 * Losen the heuristic a bit to handle the case where data has intentionally
+	 * Loosen the heuristic a bit to handle the case where data has intentionally
 	 * been added after the snmp PDU ( UDP case)
 	 */
 	if ( pinfo->ptype == PT_UDP ) {

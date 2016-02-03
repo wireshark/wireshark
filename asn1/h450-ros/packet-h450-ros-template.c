@@ -52,7 +52,7 @@ static expert_field ei_ros_undecoded = EI_INIT;
 /* Subdissectors */
 static dissector_handle_t data_handle = NULL;
 
-/* Gloabl variables */
+/* Global variables */
 static gint32 problem_val;
 static gchar problem_str[64];
 static tvbuff_t *arg_next_tvb, *res_next_tvb, *err_next_tvb;
