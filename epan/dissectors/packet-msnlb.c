@@ -533,13 +533,13 @@ proto_register_msnlb(void)
         NULL, HFILL }
     },
     { &hf_msnlb_reserved2,
-      { "Reserved", "msnlb.reserved",
+      { "Reserved", "msnlb.reserved2",
         FT_NONE, BASE_NONE,
         NULL, 0,
         NULL, HFILL }
     },
     { &hf_msnlb_reserved2_data,
-      { "Reserved Data", "msnlb.reserved.data",
+      { "Reserved Data", "msnlb.reserved2.data",
         FT_UINT32, BASE_DEC_HEX,
         NULL, 0,
         NULL, HFILL }
