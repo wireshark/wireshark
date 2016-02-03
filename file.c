@@ -2469,7 +2469,7 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
   proto_tree_needed =
       callback_args.print_args->print_dissections != print_dissections_none ||
       callback_args.print_args->print_hex ||
-      have_custom_cols(&cf->cinfo);
+      have_custom_cols(&cf->cinfo) || have_field_extractors();
   epan_dissect_init(&callback_args.edt, cf->epan, proto_tree_needed, proto_tree_needed);
 
   /* Iterate through the list of packets, printing the packets we were
@@ -2641,8 +2641,8 @@ cf_write_psml_packets(capture_file *cf, print_args_t *print_args)
   callback_args.fh = fh;
 
   /* Fill in the column information, only create the protocol tree
-     if having custom columns. */
-  proto_tree_needed = have_custom_cols(&cf->cinfo);
+     if having custom columns or field extractors. */
+  proto_tree_needed = have_custom_cols(&cf->cinfo) || have_field_extractors();
   epan_dissect_init(&callback_args.edt, cf->epan, proto_tree_needed, proto_tree_needed);
 
   /* Iterate through the list of packets, printing the packets we were
@@ -2721,8 +2721,8 @@ cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
 
   callback_args.fh = fh;
 
-  /* only create the protocol tree if having custom columns. */
-  proto_tree_needed = have_custom_cols(&cf->cinfo);
+  /* only create the protocol tree if having custom columns or field extractors. */
+  proto_tree_needed = have_custom_cols(&cf->cinfo) || have_field_extractors();
   epan_dissect_init(&callback_args.edt, cf->epan, proto_tree_needed, proto_tree_needed);
 
   /* Iterate through the list of packets, printing the packets we were

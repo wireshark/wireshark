@@ -133,8 +133,9 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
         return;    /* error reading the record */
     }
 
-    create_proto_tree = (dissect_color && color_filters_used()) ||
-                        (dissect_columns && have_custom_cols(cinfo));
+    create_proto_tree = ((dissect_color && color_filters_used()) ||
+                         (dissect_columns && (have_custom_cols(cinfo) ||
+                                              have_field_extractors())));
 
     epan_dissect_init(&edt, cap_file->epan,
                       create_proto_tree,

@@ -241,6 +241,11 @@ void col_custom_prime_edt(struct epan_dissect *edt, column_info *cinfo);
 /** For internal Wireshark use only.  Not to be called from dissectors. */
 WS_DLL_PUBLIC
 gboolean have_custom_cols(column_info *cinfo);
+
+/** For internal Wireshark use only.  Not to be called from dissectors. */
+WS_DLL_PUBLIC
+gboolean have_field_extractors(void);
+
 /** For internal Wireshark use only.  Not to be called from dissectors. */
 WS_DLL_PUBLIC
 gboolean col_has_time_fmt(column_info *cinfo, const gint col);

@@ -415,6 +415,12 @@ dfilter_prime_proto_tree(const dfilter_t *df, proto_tree *tree)
 	}
 }
 
+gboolean
+dfilter_has_interesting_fields(const dfilter_t *df)
+{
+	return (df->num_interesting_fields > 0);
+}
+
 GPtrArray *
 dfilter_deprecated_tokens(dfilter_t *df) {
 	if (df->deprecated && df->deprecated->len > 0) {

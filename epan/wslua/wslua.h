@@ -710,6 +710,7 @@ extern void wslua_prefs_changed(void);
 extern void proto_register_lua(void);
 extern GString* lua_register_all_taps(void);
 extern void wslua_prime_dfilter(epan_dissect_t *edt);
+extern gboolean wslua_has_field_extractors(void);
 extern void lua_prime_all_fields(proto_tree* tree);
 
 extern int Proto_commit(lua_State* L);
