@@ -335,6 +335,7 @@ static gboolean
 dissect_thrift_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void *data _U_) {
     int offset = 0;
     guint32 header;
+    gint tframe_length;
     int length = tvb_captured_length(tvb);
     int str_length;
     guchar c;
@@ -346,8 +347,29 @@ dissect_thrift_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void *d
 
     header = tvb_get_ntohl(tvb, offset);
 
-    if ((header & THRIFT_VERSION_MASK) != THRIFT_VERSION_1){
-        return FALSE;
+    if ((header & THRIFT_VERSION_MASK) != THRIFT_VERSION_1) {
+        /* if at first we don't see the Thrift header, look ahead;
+         * if this packet is using TFramedTransport, the header will be
+         * preceded by a message length, type int32 */
+        tframe_length = header;
+        offset += 4;
+        header = tvb_get_ntohl(tvb, offset);
+
+        /* ensure TFramedTransport's length is no greater than the underlying
+         * Thrift packet length; this allows both full AND truncated packets to
+         * pass this heuristic */
+        if (tframe_length > (length - 4)) {
+            return FALSE;
+        }
+        else if ((header & THRIFT_VERSION_MASK) != THRIFT_VERSION_1) {
+            return FALSE;
+        }
+        else {
+            /* strip off TFramedTransport */
+            tvb = tvb_new_subset_remaining(tvb, 4);
+            offset -= 4;
+            length -= 4;
+        }
     }
 
     offset += 4;
