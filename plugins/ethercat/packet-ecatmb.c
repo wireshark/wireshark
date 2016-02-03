@@ -296,11 +296,6 @@ static const true_false_string tfs_complete =
    "Complete", "Legacy"
 };
 
-static const true_false_string tfs_ecat_yes_no =
-{
-   "Yes", "No"
-};
-
 void init_mbx_header(PETHERCAT_MBOX_HEADER pMbox, tvbuff_t *tvb, gint offset)
 {
    pMbox->Length = tvb_get_letohs(tvb, offset); offset+=2;
