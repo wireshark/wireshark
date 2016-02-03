@@ -81,7 +81,7 @@ decryption_step_80211_wpa_eap() {
 		-o "wlan.enable_decryption: TRUE" \
 		-r "$CAPTURE_DIR/wpa-eap-tls.pcap.gz" \
 		-Y "wlan.analysis.tk==7d9987daf5876249b6c773bf454a0da7" \
-		 | grep "Group Message" > /dev/null 2>&1
+		| grep "Group Message" > /dev/null 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "Failed to decrypt IEEE 802.11 WPA EAP"
@@ -92,39 +92,39 @@ decryption_step_80211_wpa_eap() {
 # WPA decode with message1+2 only and secure bit set on message 2
 # Included in git sources test/captures/wpa-test-decode.pcap.gz
 decryption_step_80211_wpa_eapol_incomplete_rekeys() {
-        $TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
-                -o "wlan.enable_decryption: TRUE" \
-                -r "$CAPTURE_DIR/wpa-test-decode.pcap.gz" \
-                -Y "icmp.resp_to == 4263" \
-                 | grep "Echo"  > /dev/null 2>&1
-        RETURNVALUE=$?
-        if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-                test_step_failed "Not able to follow rekey with missing eapol frames"
-                return
-        fi
-        test_step_ok
+	$TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-o "wlan.enable_decryption: TRUE" \
+		-r "$CAPTURE_DIR/wpa-test-decode.pcap.gz" \
+		-Y "icmp.resp_to == 4263" \
+		| grep "Echo"  > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Not able to follow rekey with missing eapol frames"
+		return
+	fi
+	test_step_ok
 }
 
 # WPA decode management frames with MFP enabled (802.11w)
 # Included in git sources test/captures/wpa-test-decode-mgmt.pcap.gz
 decryption_step_80211_wpa_psk_mfp() {
-        local out frames
-        out=$($TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
-                -o "wlan.enable_decryption: TRUE" \
-                -r "$CAPTURE_DIR/wpa-test-decode-mgmt.pcap.gz" \
+	local out frames
+	out=$($TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-o "wlan.enable_decryption: TRUE" \
+		-r "$CAPTURE_DIR/wpa-test-decode-mgmt.pcap.gz" \
 		-Y "wlan_mgt.fixed.reason_code == 2 || wlan_mgt.fixed.category_code == 3" \
 		2>&1)
-        RETURNVALUE=$?
-        frames=$(echo "$out" | wc -l)
-        if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-                echo "$out" > ./wpa_psk_mfp.txt
-                test_step_failed "Error during test execution: see $PWD/wpa_psk_mfp.txt"
-                return
-        elif [ $frames -ne 3 ]; then
-            test_step_failed "Not able to decode All Management frames ($frames/3)"
-            return
-        fi
-        test_step_ok
+	RETURNVALUE=$?
+	frames=$(echo "$out" | wc -l)
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		echo "$out" > ./wpa_psk_mfp.txt
+		test_step_failed "Error during test execution: see $PWD/wpa_psk_mfp.txt"
+		return
+	elif [ $frames -ne 3 ]; then
+		test_step_failed "Not able to decode All Management frames ($frames/3)"
+		return
+	fi
+	test_step_ok
 }
 
 # DTLS
@@ -276,28 +276,28 @@ decryption_step_ikev1_certs() {
 
 # HTTP2 (HPACK)
 decryption_step_http2() {
-		env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
-				-Tfields -e http2.header.value \
-				-d tcp.port==3000,http2 \
-				-r "$CAPTURE_DIR/packet-h2-14_headers.pcapng" \
-		> ./testout.txt
-		grep "nghttp2" ./testout.txt > /dev/null 2>&1
-		RETURNVALUE=$?
-		if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
-			-V \
-			-d tcp.port==3000,http2 \
-			-r "$CAPTURE_DIR/packet-h2-14_headers.pcapng" \
-			> ./testout2.txt
-		echo
-		echo "Test output:"
-		cat ./testout.txt
-		echo "Verbose output:"
-		cat ./testout2.txt
-				test_step_failed "Failed to decode HTTP2 HPACK"
-				return
-		fi
-		test_step_ok
+	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-Tfields -e http2.header.value \
+		-d tcp.port==3000,http2 \
+		-r "$CAPTURE_DIR/packet-h2-14_headers.pcapng" \
+	> ./testout.txt
+	grep "nghttp2" ./testout.txt > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-V \
+		-d tcp.port==3000,http2 \
+		-r "$CAPTURE_DIR/packet-h2-14_headers.pcapng" \
+		> ./testout2.txt
+	echo
+	echo "Test output:"
+	cat ./testout.txt
+	echo "Verbose output:"
+	cat ./testout2.txt
+		test_step_failed "Failed to decode HTTP2 HPACK"
+		return
+	fi
+	test_step_ok
 }
 
 
