@@ -147,7 +147,7 @@ void sha256_update( sha256_context *ctx, const guint8 *input, guint32 length )
 
     if( ! length ) return;
 
-    left = ctx->total % SHA256_BLOCK_SIZE;
+    left = (guint32)(ctx->total % SHA256_BLOCK_SIZE);
     fill = SHA256_BLOCK_SIZE - left;
 
     ctx->total += length;
@@ -192,7 +192,7 @@ void sha256_finish( sha256_context *ctx, guint8 digest[SHA256_DIGEST_LEN] )
 
     total_length = ctx->total * 8;
 
-    last = ctx->total % SHA256_BLOCK_SIZE;
+    last = (guint32)(ctx->total % SHA256_BLOCK_SIZE);
     padn = ( last < 56 ) ? ( 56 - last ) : ( 120 - last );
 
     PUT_UINT32( total_length >> 32, msglen, 0 );
