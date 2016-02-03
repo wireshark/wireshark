@@ -204,10 +204,13 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
                 ulimit -S -t $MAX_CPU_TIME -s $MAX_STACK
                 ulimit -c unlimited
 
-                # Don't enable ulimit -v when use ASAN see
-                # https://code.google.com/p/address-sanitizer/wiki/AddressSanitizer#ulimit_-v
+                # Don't enable ulimit -v when using ASAN. See
+                # https://github.com/google/sanitizers/wiki/AddressSanitizer#ulimit--v
                 if [ $ASAN -eq 0 ]; then
                     ulimit -v $MAX_VMEM
+                else
+                    echo -n "ASan enabled. Virtual memory limit is "
+                    ulimit -v
                 fi
 
                 "$RUNNER" $COMMON_ARGS $ARGS $TMP_DIR/$TMP_FILE \
