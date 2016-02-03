@@ -96,20 +96,19 @@ ProtocolIE-Field/value ie_field_value
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
 
-  guint8 tmp = tvb_get_guint8(tvb, 0);
+  {
+    guint8 tmp = tvb_get_guint8(tvb, 0);
 
-  if(tmp == 0)
-
-  col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%sReq",
-               val_to_str(ProcedureCode, lcsap_ProcedureCode_vals, "unknown message"));
-
-  else if(tmp == 32)
-    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%sResp",
-                 val_to_str(ProcedureCode, lcsap_ProcedureCode_vals, "unknown message"));
+    if (tmp == 0)
+      col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%sReq",
+                   val_to_str(ProcedureCode, lcsap_ProcedureCode_vals, "unknown message"));
+    else if (tmp == 32)
+      col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%sResp",
+                   val_to_str(ProcedureCode, lcsap_ProcedureCode_vals, "unknown message"));
     else
       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s",
                    val_to_str(ProcedureCode, lcsap_ProcedureCode_vals, "unknown message"));
-
+  }
 
 #.END
 
