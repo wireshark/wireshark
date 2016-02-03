@@ -528,7 +528,7 @@ capture_suite() {
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
-# c-basic-offset: 8
+# sh-basic-offset: 8
 # tab-width: 8
 # indent-tabs-mode: t
 # End:
