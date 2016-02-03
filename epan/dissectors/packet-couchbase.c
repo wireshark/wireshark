@@ -1,7 +1,7 @@
 /* packet-couchbase.c
  *
  * Routines for Couchbase Protocol
- * Copyright 2015, Dave Rigby <daver@couchbase.com>
+ * Copyright 2015-2016, Dave Rigby <daver@couchbase.com>
  * Copyright 2011, Sergey Avseyev <sergey.avseyev@gmail.com>
  *
  * With contributions from Mark Woosey <mark@markwoosey.com>
@@ -1202,6 +1202,56 @@ dissect_multipath_lookup_response(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void
+dissect_multipath_mutation_response(tvbuff_t *tvb, packet_info *pinfo,
+                                    proto_tree *tree, gint offset, guint32 value_len)
+{
+  gint end = offset + value_len;
+  int spec_idx = 0;
+
+  /* Expect a variable number of mutation responses:
+   * - If response.status == SUCCESS, zero to N responses, one for each mutation
+   *   spec which returns a value.
+   * - If response.status != SUCCESS, exactly 1 response, for first failing
+   *   spec.
+   */
+  while (offset < end) {
+    proto_item *ti;
+    proto_tree *multipath_tree;
+    tvbuff_t *json_tvb;
+    guint32 status;
+    gint start_offset = offset;
+
+    ti = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_multipath,
+                                       &multipath_tree, "Mutation Result [ %u ]",
+                                       spec_idx);
+
+    proto_tree_add_item(multipath_tree, hf_multipath_index, tvb, offset, 1,
+                        ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item_ret_uint(multipath_tree, hf_status, tvb, offset, 2,
+                                 ENC_BIG_ENDIAN, &status);
+    offset += 2;
+    if (status == PROTOCOL_BINARY_RESPONSE_SUCCESS) {
+      guint32 result_len;
+      proto_tree_add_item_ret_uint(multipath_tree, hf_value_length, tvb,
+                                   offset, 4, ENC_BIG_ENDIAN, &result_len);
+      offset += 4;
+
+      proto_tree_add_item(multipath_tree, hf_value, tvb, offset, result_len,
+                          ENC_ASCII | ENC_NA);
+      if (result_len > 0) {
+        json_tvb = tvb_new_subset(tvb, offset, result_len, result_len);
+        call_dissector(json_handle, json_tvb, pinfo, multipath_tree);
+      }
+      offset += result_len;
+    }
+    proto_item_set_len(ti, offset - start_offset);
+
+    spec_idx++;
+  }
+}
+
+static void
 dissect_multipath_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         gint offset, guint32 value_len, gboolean is_mutation,
                         gboolean request)
@@ -1261,15 +1311,8 @@ dissect_multipath_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       spec_idx++;
     }
   } else {
-    /* Response - for lookup we expect one lookup_result per path. */
     if (is_mutation) {
-        ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len,
-                                 ENC_ASCII | ENC_NA);
-
-        expert_add_info_format(pinfo, ti, &ef_warn_shall_not_have_value,
-                               "%s Response shall not have Value",
-                               val_to_str_ext(PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION,
-                                              &opcode_vals_ext, "Opcode 0x%x"));
+      dissect_multipath_mutation_response(tvb, pinfo, tree, offset, value_len);
     } else {
       dissect_multipath_lookup_response(tvb, pinfo, tree, offset, value_len);
     }
@@ -1566,17 +1609,7 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         dissect_multipath_lookup_response(tvb, pinfo, tree, offset, value_len);
 
     } else if (opcode == PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION) {
-        /* Upon non-success includes the index and status code of first path
-         * to fail.
-         */
-        proto_tree *multipath_tree;
-        multipath_tree = proto_item_add_subtree(ti, ett_multipath);
-
-        proto_tree_add_item(multipath_tree, hf_status, tvb, offset, 2,
-                            ENC_BIG_ENDIAN);
-        offset += 2;
-        proto_tree_add_item(multipath_tree, hf_multipath_index, tvb, offset, 1,
-                            ENC_BIG_ENDIAN);
+        dissect_multipath_mutation_response(tvb, pinfo, tree, offset, value_len);
     }
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
                     val_to_str_ext(status, &status_vals_ext, "Unknown status: 0x%x"));
