@@ -1480,7 +1480,7 @@ proto_register_pcapng(void)
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_ipv6,
-            { "IPv6",                                      "pcapng.options.option.data.ipv4",
+            { "IPv6",                                      "pcapng.options.option.data.ipv6",
             FT_IPv6, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
