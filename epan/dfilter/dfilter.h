@@ -80,6 +80,10 @@ dfilter_apply(dfilter_t *df, proto_tree *tree);
 void
 dfilter_prime_proto_tree(const dfilter_t *df, proto_tree *tree);
 
+/* Check if dfilter has interesting fields */
+gboolean
+dfilter_has_interesting_fields(const dfilter_t *df);
+
 WS_DLL_PUBLIC
 GPtrArray *
 dfilter_deprecated_tokens(dfilter_t *df);

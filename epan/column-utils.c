@@ -42,6 +42,10 @@
 #include <epan/epan.h>
 #include <epan/dfilter/dfilter.h>
 
+#ifdef HAVE_LUA
+#include <epan/wslua/wslua.h>
+#endif
+
 /* Allocate all the data structures for constructing column data, given
    the number of columns. */
 void
@@ -289,6 +293,16 @@ gboolean
 have_custom_cols(column_info *cinfo)
 {
   return HAVE_CUSTOM_COLS(cinfo);
+}
+
+gboolean
+have_field_extractors(void)
+{
+#ifdef HAVE_LUA
+    return wslua_has_field_extractors();
+#else
+    return FALSE;
+#endif
 }
 
 /* search in edt tree custom fields */

@@ -764,6 +764,7 @@ libwireshark.so.6 libwireshark6 #MINVER#
  has_heur_dissector_list@Base 1.12.0~rc1
  have_custom_cols@Base 1.9.1
  have_filtering_tap_listeners@Base 1.9.1
+ have_field_extractors@Base 2.0.2
  have_tap_listener@Base 1.12.0~rc1
  heur_dissector_add@Base 1.9.1
  heur_dissector_delete@Base 1.9.1

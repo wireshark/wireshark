@@ -551,6 +551,11 @@ void wslua_prime_dfilter(epan_dissect_t *edt) {
     }
 }
 
+/* Check if we have any registered field extractors. */
+gboolean wslua_has_field_extractors(void) {
+    return (wslua_dfilter && dfilter_has_interesting_fields(wslua_dfilter));
+}
+
 /*
  * field extractor registration is tricky, In order to allow
  * the user to define them in the body of the script we will
