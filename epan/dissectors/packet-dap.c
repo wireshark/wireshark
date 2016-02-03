@@ -736,7 +736,7 @@ static int dissect_dap_FamilyEntries(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 /* Filter -> SetOfFilter -> Filter */
 /* Filter -> Filter */
-int dissect_dap_Filter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+/*int dissect_dap_Filter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);*/
 
 /* ListResultData -> ListResultData/uncorrelatedListInfo -> ListResult -> ListResultData */
 /* ListResultData -> ListResultData/uncorrelatedListInfo -> ListResult -> ListResult/signedListResult -> ListResultData */

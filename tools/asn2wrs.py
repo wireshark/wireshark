@@ -1791,7 +1791,10 @@ class EthCtx:
                 t = self.type[self.eth_dep_cycle[i][0]]['ethname']
                 if self.dep_cycle_eth_type[t][0] != i: i += 1; continue
                 fx.write(''.join(['/* %s */\n' % ' -> '.join(self.eth_dep_cycle[i]) for i in self.dep_cycle_eth_type[t]]))
-                fx.write(self.eth_type_fn_h(t))
+                if not self.eth_type[t]['export'] & EF_TYPE:
+                    fx.write(self.eth_type_fn_h(t))
+                else:
+                    fx.write('/*' + self.eth_type_fn_h(t).strip() + '*/\n')
                 fx.write('\n')
                 i += 1
             fx.write('\n')

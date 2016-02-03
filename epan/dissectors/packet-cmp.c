@@ -298,7 +298,7 @@ static gint ett_cmp_PollRepContent_item = -1;
 /*--- Cyclic dependencies ---*/
 
 /* PKIMessage -> PKIBody -> NestedMessageContent -> PKIMessages -> PKIMessage */
-int dissect_cmp_PKIMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+/*int dissect_cmp_PKIMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);*/
 
 
 

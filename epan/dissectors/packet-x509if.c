@@ -337,15 +337,15 @@ x509if_frame_end(void)
 
 /* Refinement -> Refinement/and -> Refinement */
 /* Refinement -> Refinement */
-int dissect_x509if_Refinement(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+/*int dissect_x509if_Refinement(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);*/
 
 /* ContextCombination -> ContextCombination/and -> ContextCombination */
 /* ContextCombination -> ContextCombination */
-int dissect_x509if_ContextCombination(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+/*int dissect_x509if_ContextCombination(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);*/
 
 /* AttributeCombination -> AttributeCombination/and -> AttributeCombination */
 /* AttributeCombination -> AttributeCombination */
-int dissect_x509if_AttributeCombination(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+/*int dissect_x509if_AttributeCombination(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);*/
 
 
 
