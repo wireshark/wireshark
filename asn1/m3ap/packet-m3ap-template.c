@@ -29,6 +29,7 @@
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/sctpppids.h>
+#include <epan/expert.h>
 
 #include "packet-ber.h"
 #include "packet-per.h"
@@ -53,7 +54,8 @@ static dissector_handle_t m3ap_handle=NULL;
 static int proto_m3ap = -1;
 
 static int hf_m3ap_Absolute_Time_ofMBMS_Data_value = -1;
-static int hf_m3ap_IPAddress = -1;
+static int hf_m3ap_IPAddress_v4 = -1;
+static int hf_m3ap_IPAddress_v6 = -1;
 
 #include "packet-m3ap-hf.c"
 
@@ -61,6 +63,8 @@ static int hf_m3ap_IPAddress = -1;
 static int ett_m3ap = -1;
 
 #include "packet-m3ap-ett.c"
+
+static expert_field ei_m3ap_invalid_ip_address_len = EI_INIT;
 
 enum{
   INITIATING_MESSAGE,
@@ -144,8 +148,13 @@ void proto_register_m3ap(void) {
          FT_STRING, BASE_NONE, NULL, 0,
          NULL, HFILL }
     },
-    { &hf_m3ap_IPAddress,
-      { "IPAddress", "m3ap.IPAddress",
+    { &hf_m3ap_IPAddress_v4,
+      { "IPAddress", "m3ap.IPAddress_v4",
+         FT_IPv4, BASE_NONE, NULL, 0,
+         NULL, HFILL }
+    },
+    { &hf_m3ap_IPAddress_v6,
+      { "IPAddress", "m3ap.IPAddress_v6",
          FT_IPv6, BASE_NONE, NULL, 0,
          NULL, HFILL }
     },
@@ -159,12 +168,19 @@ void proto_register_m3ap(void) {
 #include "packet-m3ap-ettarr.c"
   };
 
+  expert_module_t* expert_m3ap;
+
+  static ei_register_info ei[] = {
+     { &ei_m3ap_invalid_ip_address_len, { "m3ap.invalid_ip_address_len", PI_MALFORMED, PI_ERROR, "Invalid IP address length", EXPFILL }}
+  };
 
   /* Register protocol */
   proto_m3ap = proto_register_protocol(PNAME, PSNAME, PFNAME);
   /* Register fields and subtrees */
   proto_register_field_array(proto_m3ap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_m3ap = expert_register_protocol(proto_m3ap);
+  expert_register_field_array(expert_m3ap, ei, array_length(ei));
 
   /* Register dissector tables */
   m3ap_ies_dissector_table = register_dissector_table("m3ap.ies", "M3AP-PROTOCOL-IES", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
