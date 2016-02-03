@@ -152,7 +152,7 @@ static int st_node_http2_type = -1;
 
 /* Packet Header */
 static int proto_http2 = -1;
-static int hf_http2 = -1;
+static int hf_http2_stream = -1;
 static int hf_http2_length = -1;
 static int hf_http2_type = -1;
 static int hf_http2_r = -1;
@@ -1269,7 +1269,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         |                   Frame Payload (0...)                      ...
         +---------------------------------------------------------------+
     */
-    ti = proto_tree_add_item(tree, hf_http2, tvb, 0, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, hf_http2_stream, tvb, 0, -1, ENC_NA);
 
     http2_tree = proto_item_add_subtree(ti, ett_http2_header);
 
@@ -1457,8 +1457,8 @@ proto_register_http2(void)
 
     static hf_register_info hf[] = {
         /* Packet Header */
-        { &hf_http2,
-            { "Stream", "http2",
+        { &hf_http2_stream,
+            { "Stream", "http2.stream",
                FT_NONE, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
