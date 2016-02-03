@@ -310,12 +310,9 @@ void extcap_free_interface(extcap_interface *i) {
 
     while (i) {
         next_i = i->next_interface;
-        if (i->call != NULL)
-            g_free(i->call);
-
-        if (i->display != NULL)
-            g_free(i->display);
-
+        g_free(i->call);
+        g_free(i->display);
+        g_free(i->version);
         g_free(i);
         i = next_i;
     }
