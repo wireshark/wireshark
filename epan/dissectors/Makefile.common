@@ -611,6 +611,7 @@ DISSECTOR_SRC = \
 	packet-fip.c		\
 	packet-fix.c		\
 	packet-flexnet.c	\
+	packet-flexray.c\
 	packet-flip.c		\
 	packet-fmp.c		\
 	packet-fmp_notify.c	\

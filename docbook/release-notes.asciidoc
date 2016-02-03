@@ -57,6 +57,8 @@ LAT protocol (DECNET)
 Ericsson IPOS Kernel Packet Header Dissector Added (IPOS)
 STANAG 5602 SIMPLE
 UserLog Protocol
+FLEXRAY Protocol dissector added (automotive bus)
+
 // Items in --sort-and-group-- blocks will be sorted and comma-separated.
 --sort-and-group--
 --sort-and-group--
