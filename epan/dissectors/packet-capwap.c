@@ -5224,7 +5224,7 @@ proto_register_capwap_control(void)
               NULL, HFILL }
         },
         { &hf_capwap_fortinet_ebptag_tag,
-            { "Tag", "capwap.control.fortinet.ebptag.ebp",
+            { "Tag", "capwap.control.fortinet.ebptag.tag",
               FT_ETHER, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
