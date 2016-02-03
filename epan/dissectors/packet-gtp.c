@@ -8405,7 +8405,7 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
         if ((gtp_hdr->message != GTP_MSG_CREATE_PDP_RESP && gtp_hdr->message != GTP_MSG_CREATE_PDP_REQ && gtp_hdr->message != GTP_MSG_UPDATE_PDP_RESP
             && gtp_hdr->message != GTP_MSG_UPDATE_PDP_REQ)) {
             /* If the lists are not empty*/
-            if (!wmem_list_count(teid_list) && !wmem_list_count(ip_list)) {
+            if (wmem_list_count(teid_list) && wmem_list_count(ip_list)) {
                 remove_frame_info(&pinfo->num);
             }
         }
