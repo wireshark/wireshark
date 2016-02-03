@@ -4658,7 +4658,7 @@ dissect_file_data_smb2_pipe(tvbuff_t *raw_tvb, packet_info *pinfo, proto_tree *t
 	if (!pinfo->can_desegment) {
 		result = dissector_try_heuristic(smb2_pipe_subdissector_list,
 						 tvb, pinfo, top_tree,
-						 &hdtbl_entry, NULL);
+						 &hdtbl_entry, data);
 		goto clean_up_and_exit;
 	}
 
@@ -4693,7 +4693,7 @@ dissect_file_data_smb2_pipe(tvbuff_t *raw_tvb, packet_info *pinfo, proto_tree *t
 			 */
 			result = dissector_try_heuristic(smb2_pipe_subdissector_list,
 							 tvb, pinfo, top_tree,
-							 &hdtbl_entry, NULL);
+							 &hdtbl_entry, data);
 
 			/* no this didn't look like something we know */
 			if (!result) {
@@ -4746,7 +4746,7 @@ dissect_file_data_smb2_pipe(tvbuff_t *raw_tvb, packet_info *pinfo, proto_tree *t
 			/* dissect the full PDU */
 			result = dissector_try_heuristic(smb2_pipe_subdissector_list,
 							 tvb, pinfo, top_tree,
-							 &hdtbl_entry, NULL);
+							 &hdtbl_entry, data);
 		}
 		goto clean_up_and_exit;
 	}
@@ -4768,14 +4768,14 @@ dissect_file_data_smb2_pipe(tvbuff_t *raw_tvb, packet_info *pinfo, proto_tree *t
 		*/
 		result = dissector_try_heuristic(smb2_pipe_subdissector_list,
 						 tvb, pinfo, top_tree,
-						 &hdtbl_entry, NULL);
+						 &hdtbl_entry, data);
 		goto clean_up_and_exit;
 	}
 	if (!(fd_head->flags&FD_DEFRAGMENTED)) {
 		/* we don't have a fully reassembled frame */
 		result = dissector_try_heuristic(smb2_pipe_subdissector_list,
 						 tvb, pinfo, top_tree,
-						 &hdtbl_entry, NULL);
+						 &hdtbl_entry, data);
 		goto clean_up_and_exit;
 	}
 
@@ -4803,7 +4803,7 @@ dissect_file_data_smb2_pipe(tvbuff_t *raw_tvb, packet_info *pinfo, proto_tree *t
 	/* dissect the full PDU */
 	result = dissector_try_heuristic(smb2_pipe_subdissector_list,
 					 tvb, pinfo, top_tree,
-					 &hdtbl_entry, NULL);
+					 &hdtbl_entry, data);
 
 clean_up_and_exit:
 	/* clear out the variables */
