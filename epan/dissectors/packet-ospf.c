@@ -3399,7 +3399,7 @@ proto_register_ospf(void)
          { "Link Max BW", "ospf.mpls.link_max_bw", FT_FLOAT,
            BASE_NONE, NULL, 0x0, NULL, HFILL }},
         {&hf_ospf_ls_mpls_bc_model_id,
-         { "MPLS/DSTE Bandwidth Constraints Model Id", "ospf.mpls.bc", FT_UINT8,
+         { "MPLS/DSTE Bandwidth Constraints Model Id", "ospf.mpls.bc.model_id", FT_UINT8,
            BASE_RANGE_STRING | BASE_DEC, RVALS(mpls_link_stlv_bcmodel_rvals), 0x0,
            NULL, HFILL }},
 
@@ -3721,7 +3721,7 @@ proto_register_ospf(void)
       { &hf_ospf_pad_bytes, { "Pad Bytes", "ospf.pad_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_ls_metric, { "Metric", "ospf.ls.metric", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_v3_lsa_forwarding_address_ipv4, { "Forwarding Address", "ospf.v3.lsa.forwarding_address.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_ospf_link_local_interface_address_ipv4, { "Link-local Interface Address", "ospf.v3.lsa.link_local_interface_address.ipv6", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_ospf_link_local_interface_address_ipv4, { "Link-local Interface Address", "ospf.v3.lsa.link_local_interface_address.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_v3_lsa_num_prefixes, { "# prefixes", "ospf.v3.lsa.num_prefixes", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_v3_address_prefix_ipv6, { "Address Prefix", "ospf.v3.address_prefix.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_v3_address_prefix_ipv4, { "Address Prefix", "ospf.v3.address_prefix.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
