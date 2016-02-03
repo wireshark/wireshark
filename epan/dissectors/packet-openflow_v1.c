@@ -132,7 +132,6 @@ static int hf_openflow_ofp_match_pad = -1;
 static int hf_openflow_match_dl_type = -1;
 static int hf_openflow_ofp_match_tos = -1;
 static int hf_openflow_ofp_match_nw_proto = -1;
-static int hf_openflow_match_pad = -1;
 static int hf_openflow_ofp_source_addr = -1;
 static int hf_openflow_ofp_dest_addr = -1;
 static int hf_openflow_ofp_source_port = -1;
@@ -334,7 +333,7 @@ dissect_openflow_ofp_match_v1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     proto_tree_add_item(tree, hf_openflow_ofp_match_nw_proto, tvb, offset, 1, ENC_NA);
     offset++;
     /* uint8_t pad2[2]; Align to 64-bits */
-    proto_tree_add_item(tree, hf_openflow_match_pad, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_ofp_match_pad, tvb, offset, 2, ENC_NA);
     offset += 2;
     /* uint32_t nw_src; IP source address. */
     proto_tree_add_item(tree, hf_openflow_ofp_source_addr, tvb, offset, 4, ENC_NA);
@@ -1362,11 +1361,6 @@ proto_register_openflow_v1(void)
         { &hf_openflow_ofp_match_nw_proto,
             { "IP protocol", "openflow.ofp_match.nw_proto",
               FT_UINT8, BASE_DEC, NULL, 0x0,
-               NULL, HFILL }
-        },
-        { &hf_openflow_match_pad,
-            { "Pad", "openflow.ofp_match.pad",
-              FT_UINT16, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_ofp_source_addr,
