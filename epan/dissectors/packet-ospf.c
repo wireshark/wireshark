@@ -1789,11 +1789,11 @@ static const value_string oif_stlv_str[] = {
 };
 
 static const range_string ospf_instance_id_rvals[] = {
-    { 0, 32, "IPv6 unicast AF" },
-    { 33, 64, "IPv6 multicast AF" },
-    { 65, 96, "IPv4 unicast AF" },
-    { 97, 128, "IPv4 multicast AF" },
-    { 129, 255, "Reserved" },
+    { 0, 31, "IPv6 unicast AF" },
+    { 32, 63, "IPv6 multicast AF" },
+    { 64, 95, "IPv4 unicast AF" },
+    { 96, 127, "IPv4 multicast AF" },
+    { 128, 255, "Reserved" },
     { 0, 0, NULL },
 };
 
