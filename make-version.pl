@@ -103,11 +103,16 @@ my %version_pref = (
 	);
 my $srcdir = ".";
 my $info_cmd = "";
+my $verbose = 0;
 
 # Ensure we run with correct locale
 $ENV{LANG} = "C";
 $ENV{LC_ALL} = "C";
 $ENV{GIT_PAGER} = "";
+
+sub print_diag {
+	print STDERR @_ if $verbose;
+}
 
 # Attempt to get revision information from the repository.
 sub read_repo_info {
@@ -694,7 +699,8 @@ sub get_config {
 		   "git-bin", \$git_executable,
 		   "print-vcs", \$print_vcs,
 		   "set-version|v", \$set_version,
-		   "set-release|r|package-version|p", \$set_release
+		   "set-release|r|package-version|p", \$set_release,
+		   "verbose", \$verbose
 		   ) || pod2usage(2);
 
 	if ($show_help) { pod2usage(1); }
@@ -708,8 +714,8 @@ sub get_config {
 	}
 
 	if (! open(FILE, "<$vconf_file")) {
-		print STDERR "Version configuration file $vconf_file not "
-		. "found.  Using defaults.\n";
+		print_diag "Version configuration file $vconf_file not "
+		. "found. Using defaults.\n";
 		return 1;
 	}
 
@@ -778,6 +784,7 @@ make-version.pl [options] [source directory]
     --set-release, -r          Set the release information in configure.ac
                                and config.nmake
     --package-version, -p      Deprecated. Same as --set-release.
+    --verbose                  Print diagnostic messages to STDERR.
 
 Options can be used in any combination. If none are specified B<--set-svn>
 is assumed.
