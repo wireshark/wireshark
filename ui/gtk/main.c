@@ -1452,8 +1452,8 @@ main_cf_cb_file_read_finished(capture_file *cf)
         add_menu_recent_capture_file(cf->filename);
 
         /* Remember folder for next Open dialog and save it in recent */
-        dir_path = get_dirname(g_strdup(cf->filename));
-        set_last_open_dir(dir_path);
+        dir_path = g_strdup(cf->filename);
+        set_last_open_dir(get_dirname(dir_path));
         g_free(dir_path);
     }
 
@@ -1474,8 +1474,8 @@ main_cf_cb_file_rescan_finished(capture_file *cf)
         add_menu_recent_capture_file(cf->filename);
 
         /* Remember folder for next Open dialog and save it in recent */
-        dir_path = get_dirname(g_strdup(cf->filename));
-        set_last_open_dir(dir_path);
+        dir_path = g_strdup(cf->filename);
+        set_last_open_dir(get_dirname(dir_path));
         g_free(dir_path);
     }
 
@@ -3299,8 +3299,8 @@ main(int argc, char *argv[])
             if (global_capture_opts.save_file != NULL) {
                 /* Save the directory name for future file dialogs. */
                 /* (get_dirname overwrites filename) */
-                s = get_dirname(g_strdup(global_capture_opts.save_file));
-                set_last_open_dir(s);
+                s = g_strdup(global_capture_opts.save_file);
+                set_last_open_dir(get_dirname(s));
                 g_free(s);
             }
             /* "-k" was specified; start a capture. */

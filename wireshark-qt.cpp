@@ -1410,8 +1410,8 @@ int main(int argc, char *argv[])
             if (global_capture_opts.save_file != NULL) {
                 /* Save the directory name for future file dialogs. */
                 /* (get_dirname overwrites filename) */
-                gchar *s = get_dirname(g_strdup(global_capture_opts.save_file));
-                set_last_open_dir(s);
+                gchar *s = g_strdup(global_capture_opts.save_file);
+                set_last_open_dir(get_dirname(s));
                 g_free(s);
             }
             /* "-k" was specified; start a capture. */

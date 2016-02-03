@@ -275,8 +275,8 @@ fileset_add_dir(const char *fname, void *window)
 
 
     /* get (convert) directory name, but don't touch the given string */
-    fname_dup = get_dirname(g_strdup(fname));
-    dirname = g_string_new(fname_dup);
+    fname_dup = g_strdup(fname);
+    dirname = g_string_new(get_dirname(fname_dup));
     g_free(fname_dup);
 
     set.dirname = g_strdup(dirname->str);

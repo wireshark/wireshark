@@ -1323,8 +1323,8 @@ void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
         case CF_WRITE_OK:
             /* The save succeeded; we're done. */
             /* Save the directory name for future file dialogs. */
-            dirname = get_dirname(qstring_strdup(file_name));  /* Overwrites cf_name */
-            set_last_open_dir(dirname);
+            dirname = qstring_strdup(file_name);  /* Overwrites cf_name */
+            set_last_open_dir(get_dirname(dirname));
             g_free(dirname);
             /* If we discarded comments, redraw the packet list to reflect
                any packets that no longer have comments. */
@@ -1463,8 +1463,8 @@ void MainWindow::exportSelectedPackets() {
         case CF_WRITE_OK:
             /* The save succeeded; we're done. */
             /* Save the directory name for future file dialogs. */
-            dirname = get_dirname(qstring_strdup(file_name));  /* Overwrites cf_name */
-            set_last_open_dir(dirname);
+            dirname = qstring_strdup(file_name);  /* Overwrites cf_name */
+            set_last_open_dir(get_dirname(dirname));
             g_free(dirname);
             /* If we discarded comments, redraw the packet list to reflect
                any packets that no longer have comments. */

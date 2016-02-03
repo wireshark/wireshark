@@ -261,7 +261,7 @@ bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned 
         }
         break;
     }
-    // get_dirname overwrites its path. Hopefully this isn't a problem.
+    // get_dirname overwrites its path.
     wsApp->setLastOpenDir(get_dirname(cf_path.toUtf8().data()));
 
     main_ui_->statusBar->showExpert();
@@ -706,8 +706,8 @@ void MainWindow::captureFileReadFinished() {
         add_menu_recent_capture_file(capture_file_.capFile()->filename);
 
         /* Remember folder for next Open dialog and save it in recent */
-        dir_path = get_dirname(g_strdup(capture_file_.capFile()->filename));
-        wsApp->setLastOpenDir(dir_path);
+        dir_path = g_strdup(capture_file_.capFile()->filename);
+        wsApp->setLastOpenDir(get_dirname(dir_path));
         g_free(dir_path);
     }
 
