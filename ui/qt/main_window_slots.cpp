@@ -2177,12 +2177,13 @@ void MainWindow::setTimestampFormat(QAction *action)
     if (recent.gui_time_format != tsf) {
         timestamp_set_type(tsf);
         recent.gui_time_format = tsf;
+
+        if (packet_list_) {
+            packet_list_->resetColumns();
+        }
         if (capture_file_.capFile()) {
             /* This call adjusts column width */
             cf_timestamp_auto_precision(capture_file_.capFile());
-        }
-        if (packet_list_) {
-            packet_list_->resetColumns();
         }
     }
 }
@@ -2199,12 +2200,13 @@ void MainWindow::setTimestampPrecision(QAction *action)
         /* the actual precision will be set in packet_list_queue_draw() below */
         timestamp_set_precision(tsp);
         recent.gui_time_precision = tsp;
+
+        if (packet_list_) {
+            packet_list_->resetColumns();
+        }
         if (capture_file_.capFile()) {
             /* This call adjusts column width */
             cf_timestamp_auto_precision(capture_file_.capFile());
-        }
-        if (packet_list_) {
-            packet_list_->resetColumns();
         }
     }
 }
@@ -2218,12 +2220,12 @@ void MainWindow::on_actionViewTimeDisplaySecondsWithHoursAndMinutes_triggered(bo
     }
     timestamp_set_seconds_type(recent.gui_seconds_format);
 
+    if (packet_list_) {
+        packet_list_->resetColumns();
+    }
     if (capture_file_.capFile()) {
         /* This call adjusts column width */
         cf_timestamp_auto_precision(capture_file_.capFile());
-    }
-    if (packet_list_) {
-        packet_list_->resetColumns();
     }
 }
 
