@@ -36,6 +36,8 @@
 #include "packet-gre.h"
 #include <epan/addr_resolv.h>
 #include <epan/etypes.h>
+#include <epan/decode_as.h>
+#include <epan/proto_data.h>
 
 void proto_register_sll(void);
 void proto_reg_handoff_sll(void);
@@ -82,6 +84,8 @@ static dissector_handle_t ethertype_handle;
 static dissector_handle_t netlink_handle;
 
 static header_field_info *hfi_sll = NULL;
+
+static int proto_sll;
 
 #define SLL_HFI_INIT HFI_INIT(proto_sll)
 
@@ -138,6 +142,17 @@ static gint ett_sll = -1;
 static dissector_table_t sll_linux_dissector_table;
 static dissector_table_t gre_dissector_table;
 static dissector_handle_t data_handle;
+
+static void sll_prompt(packet_info *pinfo, gchar* result)
+{
+	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "SLL protocol type 0x%04x as",
+		GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_sll, 0)));
+}
+
+static gpointer sll_value(packet_info *pinfo)
+{
+	return p_get_proto_data(pinfo->pool, pinfo, proto_sll, 0);
+}
 
 static gboolean
 capture_sll(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
@@ -252,6 +267,8 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		proto_tree_add_uint(fh_tree, &hfi_sll_ltype, tvb, 14, 2,
 		    protocol);
 
+		p_add_proto_data(pinfo->pool, pinfo, proto_sll, 0, GUINT_TO_POINTER((guint)protocol));
+
 		if(!dissector_try_uint(sll_linux_dissector_table, protocol,
 			next_tvb, pinfo, tree)) {
 			call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -303,7 +320,11 @@ proto_register_sll(void)
 		&ett_sll
 	};
 
-	int proto_sll;
+	/* Decode As handling */
+	static build_valid_func sll_da_build_value[1] = {sll_value};
+	static decode_as_value_t sll_da_values = {sll_prompt, 1, sll_da_build_value};
+	static decode_as_t sll_da = {"sll.ltype", "Link", "sll.ltype", 1, 0, &sll_da_values, NULL, NULL,
+				decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
 	proto_sll = proto_register_protocol("Linux cooked-mode capture",
 	    "SLL", "sll" );
@@ -321,6 +342,7 @@ proto_register_sll(void)
 		BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE
 	);
 	register_capture_dissector_table("sll.ltype", "Linux SLL protocol");
+	register_decode_as(&sll_da);
 }
 
 void
