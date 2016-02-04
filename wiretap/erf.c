@@ -618,6 +618,8 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
     case ERF_TYPE_INFINIBAND:
     case ERF_TYPE_INFINIBAND_LINK:
     case ERF_TYPE_META:
+    case ERF_TYPE_OPA_SNC:
+    case ERF_TYPE_OPA_9B:
 #if 0
       {
         phdr->len =  g_htons(erf_header->wlen);

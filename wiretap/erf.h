@@ -69,6 +69,8 @@
 #define ERF_TYPE_INFINIBAND_LINK    25
 /* XXX - what about 26? */
 #define ERF_TYPE_META               27
+#define ERF_TYPE_OPA_SNC            28
+#define ERF_TYPE_OPA_9B             29
 
 /* 28-31 reserved for future public ERF types */
 

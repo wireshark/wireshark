@@ -1032,6 +1032,10 @@ set(DISSECTOR_SRC
 	packet-olsr.c
 	packet-omapi.c
 	packet-omron-fins.c
+	packet-opa.c
+	packet-opa-fe.c
+	packet-opa-mad.c
+	packet-opa-snc.c
 	packet-openflow.c
 	packet-openflow_v1.c
 	packet-openflow_v4.c

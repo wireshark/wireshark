@@ -414,6 +414,8 @@ static const value_string erf_type_vals[] = {
   { ERF_TYPE_RAW_LINK           , "RAW_LINK"},
   { ERF_TYPE_INFINIBAND_LINK    , "INFINIBAND_LINK"},
   { ERF_TYPE_META               , "META"},
+  { ERF_TYPE_OPA_SNC            , "OMNI-PATH_SNC"},
+  { ERF_TYPE_OPA_9B             , "OMNI-PATH"},
   {0, NULL}
 };
 
@@ -2219,6 +2221,8 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   case ERF_TYPE_IPV6:
   case ERF_TYPE_INFINIBAND:
   case ERF_TYPE_INFINIBAND_LINK:
+  case ERF_TYPE_OPA_SNC:
+  case ERF_TYPE_OPA_9B:
     if (!dissector_try_uint(erf_dissector_table, erf_type, tvb, pinfo, tree)) {
       call_data_dissector(tvb, pinfo, tree);
     }
