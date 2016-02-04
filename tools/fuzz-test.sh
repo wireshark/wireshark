@@ -128,6 +128,13 @@ if [ $MIN_PLUGINS -gt 0 -a $PLUGIN_COUNT -lt $MIN_PLUGINS ] ; then
     exit 1
 fi
 
+if [ $ASAN -ne 0 ]; then
+    echo -n "ASan enabled. Virtual memory limit is "
+    ulimit -v
+else
+    echo -n "ASan disabled. Virtual memory limit is $MAX_VMEM"
+fi
+
 HOWMANY="forever"
 if [ $MAX_PASSES -gt 0 ]; then
     HOWMANY="$MAX_PASSES passes"
@@ -208,9 +215,6 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
                 # https://github.com/google/sanitizers/wiki/AddressSanitizer#ulimit--v
                 if [ $ASAN -eq 0 ]; then
                     ulimit -v $MAX_VMEM
-                else
-                    echo -n "ASan enabled. Virtual memory limit is "
-                    ulimit -v
                 fi
 
                 "$RUNNER" $COMMON_ARGS $ARGS $TMP_DIR/$TMP_FILE \
