@@ -358,9 +358,6 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   cf->prev_cap = NULL;
   cf->cum_bytes = 0;
 
-  /* Adjust timestamp precision if auto is selected, col width will be adjusted */
-  cf_timestamp_auto_precision(cf);
-  /* XXX needed ? */
   packet_list_queue_draw();
   cf_callback_invoke(cf_cb_file_opened, cf);
 
