@@ -4212,6 +4212,16 @@ static int hf_ieee80211_tag_mmie_keyid = -1;
 static int hf_ieee80211_tag_mmie_ipn = -1;
 static int hf_ieee80211_tag_mmie_mic = -1;
 
+/* IEEE Std 802.11-2012: 8.4.2.61 */
+static int hf_ieee80211_tag_obss_spd = -1;
+static int hf_ieee80211_tag_obss_sad = -1;
+static int hf_ieee80211_tag_obss_cwtsi = -1;
+static int hf_ieee80211_tag_obss_sptpc = -1;
+static int hf_ieee80211_tag_obss_satpc = -1;
+static int hf_ieee80211_tag_obss_wctdf = -1;
+static int hf_ieee80211_tag_obss_sat = -1;
+
+
 /*WAPI-Specification 7.3.2.25 : WAPI Parameter Set*/
 static int hf_ieee80211_tag_wapi_param_set_version = -1;
 
@@ -11566,6 +11576,41 @@ dissect_ric_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 }
 
 static int
+dissect_overlap_bss_scan_par(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
+                         guint32 tag_len, proto_item *ti _U_, proto_item *ti_len)
+{
+
+  if (tag_len !=  14)  {
+    expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length,
+                           "OBSS Length must be 14 bytes");
+    return 0;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_obss_spd, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_obss_sad, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_obss_cwtsi, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_obss_sptpc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_obss_satpc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_obss_wctdf, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_obss_sat, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  return offset;
+}
+
+static int
 dissect_ric_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
                          guint32 tag_len, proto_item *ti, proto_item *ti_len)
 {
@@ -11601,6 +11646,7 @@ dissect_ric_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
     /* 0,2-255 are reserved*/
     proto_item_append_text(ti, " :Reserved (type != 1)");
   }
+
   return offset;
 }
 
@@ -15247,6 +15293,10 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
     case TAG_RM_ENABLED_CAPABILITY: /* RM Enabled Capabilities (70) */
       dissect_rm_enabled_capabilities_ie(pinfo, tree, ti, ti_len, tag_len, tvb, offset+2, tag_end);
+      break;
+
+    case TAG_OVERLAP_BSS_SCAN_PAR: /* Overlapping BSS Scan Parameters (74) */
+      dissect_overlap_bss_scan_par(pinfo, tree, tvb, offset + 2, tag_len, ti, ti_len);
       break;
 
     case TAG_RIC_DESCRIPTOR: /* RIC Descriptor (75) */
@@ -26320,6 +26370,35 @@ proto_register_ieee80211 (void)
      {"Status Code", "wlan_mgt.ric_data.status_code",
       FT_UINT16, BASE_HEX|BASE_EXT_STRING, &ieee80211_status_code_ext, 0,
       "Status of requested Resource", HFILL }},
+
+    /* OBSS IE: 802.11-2012: 8.4.2.61 */
+    {&hf_ieee80211_tag_obss_spd,
+     {"Scan Passive Dwell", "wlan_mgt.obss.spd",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_obss_sad,
+     {"Scan Active Dwell", "wlan_mgt.obss.sad",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_obss_cwtsi,
+     {"Channel Width Trigger Scan Interval", "wlan_mgt.obss.cwtsi",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_obss_sptpc,
+     {"Scan Passive Total Per Channel", "wlan_mgt.obss.sptpc",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_obss_satpc,
+     {"Scan Active Total Per Channel", "wlan_mgt.obss.satpc",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_obss_wctdf,
+     {"Width Channel Transition Delay Factor", "wlan_mgt.obss.wctdf",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_obss_sat,
+     {"Scan Activity Threshold", "wlan_mgt.obss.sat",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     /* RIC Descriptor IE: 802.11-2012: 8.4.2.53 */
     {&hf_ieee80211_tag_ric_desc_rsrc_type,
