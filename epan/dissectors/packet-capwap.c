@@ -1547,7 +1547,7 @@ static const value_string fortinet_element_id_vals[] = {
 static int
 dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *sub_msg_element_type_tree, guint offset, packet_info *pinfo _U_, guint optlen,  proto_item *msg_element_type_item)
 {
-    guint element_id;
+    guint element_id, i;
 
     proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_element_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     element_id = tvb_get_ntohs(tvb, offset);
@@ -1582,7 +1582,7 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
             offset += 1;
         break;
         case VSP_FORTINET_MAC:{ /* 33 */
-            guint8 mac_length;
+            guint mac_length;
             proto_item *ti;
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mac_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
@@ -1596,7 +1596,7 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
                 expert_add_info(pinfo, ti, &ei_capwap_fortinet_mac_len );
                 break;
             }
-            for(;mac_length > 0; mac_length -= 6){
+            for(i = 0; i < mac_length/6; i++){
                 proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mac, tvb, offset, 6, ENC_NA);
                 offset += 6;
             }
@@ -1609,7 +1609,7 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
             offset += 1;
         break;
         case VSP_FORTINET_WBH_STA:{ /* 36 */
-            guint16 mac_length;
+            guint mac_length;
             proto_item *ti;
 
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wbh_sta_rid, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1622,7 +1622,7 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
                 expert_add_info(pinfo, ti, &ei_capwap_fortinet_mac_len );
                 break;
             }
-            for(;mac_length > 0; mac_length -= 6){
+            for(i = 0; i < mac_length/6; i++){
                 proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wbh_sta_mac, tvb, offset, 6, ENC_NA);
                 offset += 6;
             }
@@ -2218,12 +2218,11 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
                            "AC IPv4 List length %u wrong, must be >= 4", optlen);
         break;
         }
-        offset_end = offset + 4 + optlen;
         offset += 4;
 
         if (optlen%4 == 0)
         {
-            while (offset_end-offset > 0)
+            for (i = 0; i < optlen/4; i++)
             {
                 proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_ipv4_list, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
@@ -2237,12 +2236,11 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
                            "AC IPv6 List length %u wrong, must be >= 4", optlen);
         break;
         }
-        offset_end = offset + 4 + optlen;
         offset += 4;
 
         if (optlen%16 == 0)
         {
-            while (offset_end-offset > 0)
+            for (i = 0; i < optlen/16; i++)
             {
                 proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_ipv6_list, tvb, offset, 16, ENC_NA);
                 offset += 16;
