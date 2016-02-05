@@ -229,7 +229,6 @@ dissect_pktc_app_specific_data(packet_info *pinfo, proto_tree *parent_tree, tvbu
             break;
         default:
             proto_tree_add_expert(tree, pinfo, &ei_pktc_unknown_kmmid, tvb, offset, 1);
-            THROW(ReportedBoundsError); /* bail out and inform user we can't dissect the packet */
         };
         break;
     case DOI_IPSEC:
@@ -247,12 +246,10 @@ dissect_pktc_app_specific_data(packet_info *pinfo, proto_tree *parent_tree, tvbu
             break;
         default:
             proto_tree_add_expert(tree, pinfo, &ei_pktc_unknown_kmmid, tvb, offset, 1);
-            THROW(ReportedBoundsError); /* bail out and inform user we can't dissect the packet */
         };
         break;
     default:
         proto_tree_add_expert(tree, pinfo, &ei_pktc_unknown_doi, tvb, offset, 1);
-        THROW(ReportedBoundsError); /* bail out and inform user we can't dissect the packet */
     }
 
     proto_item_set_len(item, offset-old_offset);
@@ -308,7 +305,6 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
         break;
     default:
         proto_tree_add_expert(tree, pinfo, &ei_pktc_unknown_doi, tvb, offset, 1);
-            THROW(ReportedBoundsError); /* bail out and inform user we can't dissect the packet */
     }
 
     proto_item_set_len(item, offset-old_offset);
@@ -527,8 +523,6 @@ dissect_pktc_mtafqdn_krbsafeuserdata(packet_info *pinfo, tvbuff_t *tvb, proto_tr
     case PKTC_MTAFQDN_REP:
         /* MTA FQDN */
         string_len = tvb_reported_length_remaining(tvb, offset) - 4;
-        if (string_len <= 0)
-                THROW(ReportedBoundsError);
         proto_tree_add_item(tree, hf_pktc_mtafqdn_fqdn, tvb, offset, string_len, ENC_ASCII|ENC_NA);
         offset+=string_len;
 
