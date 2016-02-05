@@ -279,6 +279,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-sabp.c
 	dissectors/packet-sbc-ap.c
 	dissectors/packet-smrse.c
+	dissectors/packet-snmp.c
 	dissectors/packet-spnego.c
 	dissectors/packet-sv.c
 	dissectors/packet-t124.c
@@ -295,7 +296,6 @@ set(ASN1_DISSECTOR_SRC
 )
 
 set(DIRTY_ASN1_DISSECTOR_SRC
-	dissectors/packet-snmp.c
 	dissectors/packet-tcap.c
 )
 

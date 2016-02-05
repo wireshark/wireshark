@@ -281,7 +281,7 @@ static int hf_snmp_generic_trap = -1;             /* GenericTrap */
 static int hf_snmp_specific_trap = -1;            /* SpecificTrap */
 static int hf_snmp_time_stamp = -1;               /* TimeTicks */
 static int hf_snmp_name = -1;                     /* ObjectName */
-static int hf_snmp_valueType = -1;                /* NULL */
+static int hf_snmp_valueType = -1;                /* ValueType */
 static int hf_snmp_VarBindList_item = -1;         /* VarBind */
 static int hf_snmp_open = -1;                     /* OpenPDU */
 static int hf_snmp_close = -1;                    /* ClosePDU */
@@ -2123,15 +2123,6 @@ static int
 dissect_snmp_T_error_status(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_snmp_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }

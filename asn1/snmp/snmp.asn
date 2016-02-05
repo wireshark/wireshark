@@ -248,7 +248,7 @@ Trap-PDU ::= [4] IMPLICIT SEQUENCE {
 
 -- variable bindings
 
-VarBind ::= SEQUENCE { name ObjectName, valueType NULL }
+VarBind ::= SEQUENCE { name ObjectName, valueType ValueType }
 -- SEQUENCE {
 --	name ObjectName,
 --	valueType ValueType
