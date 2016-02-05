@@ -351,7 +351,6 @@ static int hf_vbucket_states_size = -1;
 static int hf_vbucket_states_id = -1;
 static int hf_vbucket_states_seqno = -1;
 
-static int hf_multipath = -1;
 static int hf_multipath_opcode = -1;
 static int hf_multipath_index = -1;
 static int hf_multipath_pathlen = -1;
@@ -1296,12 +1295,12 @@ dissect_multipath_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 4;
       }
 
-      proto_tree_add_item(multipath_tree, hf_path, tvb, offset, path_len,
+      proto_tree_add_item(multipath_tree, hf_multipath_path, tvb, offset, path_len,
                           ENC_ASCII | ENC_NA);
       offset += path_len;
 
       if (spec_value_len > 0) {
-        proto_tree_add_item(multipath_tree, hf_value, tvb, offset,
+        proto_tree_add_item(multipath_tree, hf_multipath_value, tvb, offset,
                             spec_value_len, ENC_ASCII | ENC_NA);
         offset += spec_value_len;
       }
@@ -1749,7 +1748,6 @@ proto_register_couchbase(void)
     { &hf_observe_status, { "Status", "couchbase.observe.status", FT_UINT8, BASE_HEX, NULL, 0x0, "Status of the observable key", HFILL } },
     { &hf_observe_cas, { "CAS", "couchbase.observe.cas", FT_UINT64, BASE_HEX, NULL, 0x0, "CAS value of the observable key", HFILL } },
 
-    { &hf_multipath, { "Multipath", "couchbase.multipath", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_multipath_opcode, { "Opcode", "couchbase.multipath.opcode", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &opcode_vals_ext, 0x0, "Command code", HFILL } },
     { &hf_multipath_index, { "Index", "couchbase.multipath.index", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_multipath_pathlen, { "Path Length", "couchbase.multipath.path.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
