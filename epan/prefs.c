@@ -4400,7 +4400,6 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
                     module_t *new_module = prefs_find_module("vlan");
                     if (new_module) {
                         pref = prefs_find_preference(new_module, "qinq_ethertype");
-                        module = new_module;
                     }
                 }
             } else if (strcmp(module->name, "taps") == 0) {
