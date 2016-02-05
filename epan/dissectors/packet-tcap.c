@@ -173,7 +173,6 @@ static gint ett_tcap_Reject = -1;
 static gint ett_tcap_T_invokeIDRej = -1;
 static gint ett_tcap_T_problem = -1;
 static gint ett_tcap_OPERATION = -1;
-static gint ett_tcap_ERROR = -1;
 static gint ett_tcap_ErrorCode = -1;
 static gint ett_tcap_UniDialoguePDU = -1;
 static gint ett_tcap_AUDT_apdu_U = -1;
@@ -996,22 +995,6 @@ static int
 dissect_tcap_TCMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  TCMessage_choice, hf_index, ett_tcap_TCMessage,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const ber_choice_t ERROR_choice[] = {
-  {   0, &hf_tcap_localValue     , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_tcap_INTEGER },
-  {   1, &hf_tcap_globalValue    , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_tcap_OBJECT_IDENTIFIER },
-  { 0, NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_tcap_ERROR(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 ERROR_choice, hf_index, ett_tcap_ERROR,
                                  NULL);
 
   return offset;
@@ -3716,7 +3699,6 @@ proto_register_tcap(void)
     &ett_tcap_T_invokeIDRej,
     &ett_tcap_T_problem,
     &ett_tcap_OPERATION,
-    &ett_tcap_ERROR,
     &ett_tcap_ErrorCode,
     &ett_tcap_UniDialoguePDU,
     &ett_tcap_AUDT_apdu_U,

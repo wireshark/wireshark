@@ -6,6 +6,7 @@ RLRQ-apdu
 RLRE-apdu
 Release-request-reason
 Release-response-reason
+ERROR
 #.END
 
 #.MODULE_IMPORT
@@ -23,7 +24,6 @@ UniDialoguePDU B "0.0.17.773.1.2.1"  "id-as-uniDialogue"
 
 #.NO_EMIT ONLY_VALS
 TCMessage
-ERROR
 
 #.NO_EMIT
 
