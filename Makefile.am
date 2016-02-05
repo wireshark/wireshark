@@ -28,7 +28,7 @@ ACLOCAL_AMFLAGS = `./aclocal-flags`
 
 # Common headers
 AM_CPPFLAGS += -I$(top_srcdir)/wiretap $(LIBGNUTLS_CFLAGS) \
-	$(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS) $(LUA_CFLAGS) $(SBC_CFLAGS) \
+	$(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS) $(LUA_CFLAGS) \
 	$(KRB5_CFLAGS)
 
 bin_PROGRAMS = \
@@ -424,7 +424,6 @@ wireshark_common_ldadd = \
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@		\
-	@SBC_LIBS@			\
 	@GLIB_LIBS@
 
 if HAVE_Qt

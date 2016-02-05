@@ -27,7 +27,6 @@ LIBWSCODECS_SRC = \
 	G711u/G711udecode.c \
 	G722/G722decode.c \
 	G726/G726decode.c \
-	sbc/sbc.c \
 	speex/resample.c
 
 noinst_HEADERS = \
@@ -38,7 +37,5 @@ noinst_HEADERS = \
 	G726/G726decode.h \
 	sbc/sbc_private.h \
 	speex/arch.h \
-	speex/README.txt \
 	speex/speex_resampler.h \
 	speex/stack_alloc.h
-

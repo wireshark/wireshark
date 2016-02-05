@@ -3021,6 +3021,7 @@ if test "x$with_sbc" != "xno"; then
 else
     have_sbc=no
 fi
+AM_CONDITIONAL(HAVE_SBC, test "x$have_sbc" = "xyes")
 
 dnl
 dnl check whether plugins should be enabled and, if they should be,

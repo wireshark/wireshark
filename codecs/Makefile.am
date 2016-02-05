@@ -24,6 +24,32 @@ include $(top_srcdir)/Makefile.am.inc
 
 AM_CPPFLAGS += -I$(top_srcdir)/wiretap -DWS_BUILD_DLL
 
+lib_LTLIBRARIES = libwscodecs.la
+
+if HAVE_SBC
+LIBWSCODECS_SRC += sbc/sbc.c
+endif
+
+# All sources that should be put in the source distribution tarball
+libwscodecs_la_SOURCES = \
+	$(LIBWSCODECS_SRC) \
+	$(noinst_HEADERS)
+
+libwscodecs_la_CFLAGS = $(AM_CFLAGS) $(SBC_CFLAGS)
+
+# http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
+libwscodecs_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
+
+libwscodecs_la_LIBADD = $(top_builddir)/wsutil/libwsutil.la $(SBC_LIBS)
+
+libwscodecs_la_DEPENDENCIES = $(top_builddir)/wsutil/libwsutil.la
+
+EXTRA_DIST = \
+	CMakeLists.txt			\
+	Makefile.common			\
+	Makefile.nmake			\
+	speex/README.txt
+
 CLEANFILES = \
 	libwscodec.la	\
 	*~
@@ -31,25 +57,7 @@ CLEANFILES = \
 MAINTAINERCLEANFILES =	\
 	Makefile.in
 
-lib_LTLIBRARIES = libwscodecs.la
-# http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-libwscodecs_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
-
-# All sources that should be put in the source distribution tarball
-libwscodecs_la_SOURCES = \
-	$(LIBWSCODECS_SRC) \
-	$(noinst_HEADERS)
-
-libwscodecs_la_DEPENDENCIES = ${top_builddir}/wsutil/libwsutil.la
-
-libwscodecs_la_LIBADD = ${top_builddir}/wsutil/libwsutil.la
-
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \
 	-sourcedir=$(srcdir) \
 	$(LIBWSCODECS_SRC)
-
-EXTRA_DIST = \
-	CMakeLists.txt			\
-	Makefile.common			\
-	Makefile.nmake

@@ -84,4 +84,4 @@ maintainer-clean: distclean
 
 checkapi:
 	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput -build \
-	$(LIBWSCODECS_SRC)
+	$(LIBWSCODECS_SRC) sbc/sbc.c
