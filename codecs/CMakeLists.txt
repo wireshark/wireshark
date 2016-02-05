@@ -45,7 +45,9 @@ if(SBC_FOUND)
 endif()
 
 set(wscodecs_LIBS
+  ${M_LIBRARIES}
   ${GMODULE2_LIBRARIES}
+  ${SBC_LIBRARIES}
   wsutil
 )
 
