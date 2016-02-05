@@ -367,6 +367,8 @@ enum gf_fop_procnum {
 	GFS3_OP_FALLOCATE,
 	GFS3_OP_DISCARD,
 	GFS3_OP_ZEROFILL,
+	GFS3_OP_IPC,
+	GFS3_OP_SEEK,
 	GFS3_OP_MAXVALUE
 };
 
@@ -409,6 +411,11 @@ enum gluster_lk_whence {
 	GF_LK_SEEK_SET = 0,
 	GF_LK_SEEK_CUR,
 	GF_LK_SEEK_END
+};
+
+enum gluster_seek_whence {
+	GF_SEEK_DATA = 0,
+	GF_SEEK_HOLE
 };
 
 /* based on enum glusterd_op_ from xlators/mgmt/glusterd/src/glusterd.h */

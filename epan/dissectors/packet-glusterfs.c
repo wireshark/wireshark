@@ -74,6 +74,7 @@ static gint hf_glusterfs_umask = -1;
 static gint hf_glusterfs_mask = -1;
 static gint hf_glusterfs_name = -1;
 static gint hf_glusterfs_namelen = -1;
+static gint hf_glusterfs_whence = -1;
 
 /* flags passed on to OPEN, CREATE etc.*/
 static gint hf_glusterfs_flags = -1;
@@ -1863,6 +1864,34 @@ glusterfs_gfs3_3_op_zerofill_call(tvbuff_t *tvb,
 	return offset;
 }
 
+static int
+glusterfs_gfs3_3_op_seek_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
+			       proto_tree *tree, void* data _U_)
+{
+	int offset = 0;
+
+	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
+	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_offset, offset);
+	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
+
+	return offset;
+}
+
+static int
+glusterfs_gfs3_3_op_seek_call(tvbuff_t *tvb, packet_info *pinfo _U_,
+			      proto_tree *tree, void* data _U_)
+{
+	int offset = 0;
+
+	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
+	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
+	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_offset, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_whence, offset);
+	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
+
+	return offset;
+}
+
 /* This function is for common replay. RELEASE , RELEASEDIR and some other function use this method */
 
 int
@@ -2160,6 +2189,10 @@ static const vsff glusterfs3_3_fop_proc[] = {
 		GFS3_OP_ZEROFILL, "ZEROFILL",
 		glusterfs_gfs3_3_op_zerofill_call, glusterfs_gfs3_3_op_setattr_reply
 	},
+	{
+		GFS3_OP_SEEK, "SEEK",
+		glusterfs_gfs3_3_op_seek_call, glusterfs_gfs3_3_op_seek_reply
+	},
 	{ 0, NULL, NULL, NULL }
 };
 
@@ -2218,6 +2251,8 @@ static const value_string glusterfs3_1_fop_proc_vals[] = {
 	{ GFS3_OP_FALLOCATE,    "FALLOCATE" },
 	{ GFS3_OP_DISCARD,      "DISCARD" },
 	{ GFS3_OP_ZEROFILL,     "ZEROFILL" },
+	{ GFS3_OP_IPC,          "IPC" },
+	{ GFS3_OP_SEEK,         "SEEK" },
 	{ 0, NULL }
 };
 static value_string_ext glusterfs3_1_fop_proc_vals_ext = VALUE_STRING_EXT_INIT(glusterfs3_1_fop_proc_vals);
@@ -2263,6 +2298,12 @@ static const value_string glusterfs_lk_whence[] = {
 	{ GF_LK_SEEK_SET, "SEEK_SET" },
 	{ GF_LK_SEEK_CUR, "SEEK_CUR" },
 	{ GF_LK_SEEK_END, "SEEK_END" },
+	{ 0, NULL }
+};
+
+static const value_string glusterfs_seek_whence[] = {
+	{ GF_SEEK_DATA, "SEEK_DATA" },
+	{ GF_SEEK_HOLE, "SEEK_HOLE" },
 	{ 0, NULL }
 };
 
@@ -2364,6 +2405,10 @@ proto_register_glusterfs(void)
 		{ &hf_glusterfs_entries, /* READDIRP returned <x> entries */
 			{ "Entries returned", "glusterfs.entries", FT_INT32, BASE_DEC,
 				NULL, 0, NULL, HFILL }
+		},
+		{ &hf_glusterfs_whence,
+			{ "Whence", "glusterfs.whence", FT_UINT32, BASE_DEC,
+				VALS(glusterfs_seek_whence), 0, NULL, HFILL }
 		},
 		/* Flags passed on to OPEN, CREATE etc, based on */
 		{ &hf_glusterfs_flags,
