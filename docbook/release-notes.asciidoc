@@ -14,12 +14,77 @@ The following vulnerabilities have been fixed:
 
 * ws-salink:2016-01[]
 +
-A dissector went awry.
-(ws-buglink:XXXX[])
+DLL hijacking vulnerability.
+//(ws-buglink:XXXX[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: gXXXX
-// Fixed in master-2.0: gXXXX
-// Fixed in master-1.12: gXXXX
+// Fixed in master: g4a79cf2
+// Fixed in master-2.0: gb33f4c8
+// Fixed in master-1.12: gf8d67cf
+
+* ws-salink:2016-02[]
++
+ASN.1 BER dissector crash.
+(ws-buglink:11828[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: g9b2f3f7
+// Fixed in master-2.0: g1942c8a
+
+* ws-salink:2016-03[]
++
+DNP dissector infinite loop.
+(ws-buglink:11938[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: g260afe1
+// Fixed in master-2.0: g0cc86bb
+// Fixed in master-1.12: g0ca7445
+
+* ws-salink:2016-04[]
++
+X.509AF dissector crash.
+(ws-buglink:12002[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: g5a8020a
+// Fixed in master-2.0: g1f4977b
+
+* ws-salink:2016-05[]
++
+HTTP/2 dissector crash.
+(ws-buglink:12077[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: g
+// Fixed in master-2.0: g
+
+* ws-salink:2016-06[]
++
+HiQnet dissector crash.
+(ws-buglink:11983[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: g69a679c
+// Fixed in master-2.0: g325fb1a
+
+* ws-salink:2016-07[]
++
+3GPP TS 32.423 Trace file parser crash.
+(ws-buglink:11982[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: g140aad0
+// Fixed in master-2.0: g10d4c85
+
+* ws-salink:2016-08[]
++
+LBMC dissector crash.
+(ws-buglink:11984[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: g1c090e9
+// Fixed in master-2.0: g32fc1bc
+
+* ws-salink:2016-09[]
++
+iSeries file parser crash.
+(ws-buglink:11985[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: g96d585a
+// Fixed in master-2.0: g83dd13c
 
 The following bugs have been fixed:
 
@@ -28,6 +93,72 @@ The following bugs have been fixed:
 //* cve-idlink:2016-7000[]
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.2rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* HTTP 302 decoded as TCP when "Allow subdissector to reassemble TCP streams" option is enabled. (ws-buglink:9848[])
+
+* Questionable calling of ethernet dissector by encapsulating protocol dissectors. (ws-buglink:9933[])
+
+* [Qt & Legacy & probably TShark too] Delta Time Conversation column is empty. (ws-buglink:11559[])
+
+* extcap: abort when validating capture filter for DLT 147. (ws-buglink:11656[])
+
+* Missing columns in Qt Flow Graph. (ws-buglink:11710[])
+
+* Interface list doesn't show well when the list is very long. (ws-buglink:11733[])
+
+* Wireshark heap-based out-of-bounds read in dissect_ber_constrained_bitstring. (ws-buglink:11828[])
+
+* Unable to use saved Capture Filters in Qt UI. (ws-buglink:11836[])
+
+* extcap: capture interface options snaplen, buffer and promiscuous not being used. (ws-buglink:11865[])
+
+* GTPv1 Dual Stack with one static and one Dynamic IP. (ws-buglink:11945[])
+
+* Wireshark 2.0.1 MPLS dissector not decoding payload when control word is present in pseudowire. (ws-buglink:11949[])
+
+* "...using this filter" turns white (not green or red). Plus dropdown arrow does nothing. (ws-buglink:11950[])
+
+* EIGRP field eigrp.ipv4.destination does not show the correct destination. (ws-buglink:11953[])
+
+* tshark -z conv,type[,filter] swapped frame / byte values from / to columns. (ws-buglink:11959[])
+
+* The field name nstrace.tcpdbg.tcpack should be nstrace.tcpdbg.tcprtt. (ws-buglink:11964[])
+
+* 6LoWPAN IPHC traffic class not decompressed correctly. (ws-buglink:11971[])
+
+* Crash with snooping NFS file handles. (ws-buglink:11972[])
+
+* 802.11 dissector fails to decrypt some broadcast messages. (ws-buglink:11973[])
+
+* Wireshark hangs when adding a new profile. (ws-buglink:11979[])
+
+* Issues when closing the application with a running capture without packets. (ws-buglink:11981[])
+
+* New Qt UI lacks ability to step through multiple TCP streams with Analyze > Follow > TCP Strem. (ws-buglink:11987[])
+
+* GTK: plugin_if_goto_frame causes Access Violation if called before capture file is loaded. (ws-buglink:11989[])
+
+* Wireshark 2.0.1 crash on start. (ws-buglink:11992[])
+
+* Wi-Fi 4-way handshake 4/4 is displayed as 2/4. (ws-buglink:11994[])
+
+* ACN: acn.dmx.data has incorrect type. (ws-buglink:11999[])
+
+* editcap packet comment won't add multiple comments. (ws-buglink:12007[])
+
+* DICOM Sequences no longer able to be expanded. (ws-buglink:12011[])
+
+* Wrong TCP stream when port numbers are reused. (ws-buglink:12022[])
+
+* SSL decryption fails in presence of a Client certificate. (ws-buglink:12042[])
+
+* LUA: TVBs backing a data source is freed too early. (ws-buglink:12050[])
+
+* PIM: pim.group filter have the same name for IPv4 and IPv6. (ws-buglink:12061[])
+
+* Failed to parse M3AP IE (TNL information). (ws-buglink:12070[])
+
+* Wrong interpretation of Instance ID value in OSPFv3 packet. (ws-buglink:12072[])
 
 Windows installers and PortableApps(R) packages are now dual signed using SHA-1 and SHA-256
 in order to comply with
@@ -51,12 +182,52 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+6LoWPAN
+ACN
+ASN.1 BER
+BATADV
+DICOM
+DNP3
+DOCSIS INT-RNG-REQ
+E100
+EIGRP
+GSM A DTAP
+GSM SMS
+GTP
+HiQnet
+HTTP
+HTTP/2
+IEEE 802.11
+IKEv2
+InfiniBand
+IPv4
+IPv6
+LBMC
+M3AP
+MAC LTE
+MPLS
+NFS
+NS Trace
+OSPF
+PIM
+RLC LTE
+RoHC
+SSL
+TCP
+TRILL
+VXLAN
+WaveAgent
+X.509AF
 --sort-and-group--
 
 === New and Updated Capture File Support
 
 //There is no new or updated capture file support in this release.
 --sort-and-group--
+3GPP TS 32.423 Trace
+iSeries
+pcap
+pcapng
 --sort-and-group--
 
 === New and Updated Capture Interfaces support
