@@ -1597,8 +1597,8 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     dissect_value(tvb, pinfo, couchbase_tree, offset, value_len, path_len,
                   opcode, request);
   } else if (bodylen) {
-    ti = proto_tree_add_item(couchbase_tree, hf_value, tvb, offset, bodylen,
-                             ENC_ASCII | ENC_NA);
+    proto_tree_add_item(couchbase_tree, hf_value, tvb, offset, bodylen,
+                        ENC_ASCII | ENC_NA);
     if (status == PROTOCOL_BINARY_RESPONSE_NOT_MY_VBUCKET) {
       tvbuff_t *json_tvb;
       json_tvb = tvb_new_subset(tvb, offset, bodylen, bodylen);
