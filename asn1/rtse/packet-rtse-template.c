@@ -231,9 +231,13 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
         ((session->spdu_type == SES_DATA_TRANSFER) ||
          (session->spdu_type == SES_MAJOR_SYNC_POINT))) {
         /* Use conversation index as fragment id */
-        conversation  = find_conversation (pinfo->num,
-                           &pinfo->src, &pinfo->dst, pinfo->ptype,
-                           pinfo->srcport, pinfo->destport, 0);
+        if (pinfo->ptype == PT_TCP) {
+            conversation = find_conversation_ext_from_pinfo(pinfo);
+        } else {
+            conversation = find_conversation(pinfo->num,
+                &pinfo->src, &pinfo->dst, pinfo->ptype,
+                pinfo->srcport, pinfo->destport, 0);
+        }
         if (conversation != NULL) {
             rtse_id = conversation->index;
         }
