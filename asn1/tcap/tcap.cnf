@@ -126,10 +126,15 @@ ABRT-apdu/_untag/user-information abrt_user_information
   tvbuff_t *parameter_tvb;
   guint8 len, i;
   proto_tree *subtree;
-  subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_otid, NULL, "Source Transaction ID");
+  int saved_offset;
 
-  dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid, NULL);
+  hf_index = hf_tcap_tid;
+  saved_offset = offset;
+%(DEFAULT_BODY)s
   PROTO_ITEM_SET_HIDDEN(actx->created_item);
+  offset = saved_offset;
+
+  subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_otid, NULL, "Source Transaction ID");
   offset = dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_otid,
                                     &parameter_tvb);
 
@@ -152,25 +157,29 @@ ABRT-apdu/_untag/user-information abrt_user_information
 
     if (len) {
       col_append_str(actx->pinfo->cinfo, COL_INFO, "otid(");
-      for(i=0;i<len;i++)
+      for (i = 0; i < len; i++) {
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%02x",tvb_get_guint8(parameter_tvb,i));
+      }
       col_append_str(actx->pinfo->cinfo, COL_INFO, ") ");
     }
-
   }
-
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY DestTransactionID
   tvbuff_t *parameter_tvb;
   guint8 len , i;
   proto_tree *subtree;
-  subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dtid, NULL, "Destination Transaction ID");
+  int saved_offset;
 
-  dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid, NULL);
+  hf_index = hf_tcap_tid;
+  saved_offset = offset;
+%(DEFAULT_BODY)s
   PROTO_ITEM_SET_HIDDEN(actx->created_item);
+  offset = saved_offset;
+
+  subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dtid, NULL, "Destination Transaction ID");
   offset = dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_dtid,
-                                      &parameter_tvb);
+                                    &parameter_tvb);
 
   if (parameter_tvb) {
     len = tvb_reported_length_remaining(parameter_tvb, 0);
@@ -191,8 +200,9 @@ ABRT-apdu/_untag/user-information abrt_user_information
 
     if (len) {
       col_append_str(actx->pinfo->cinfo, COL_INFO, "dtid(");
-      for(i=0;i<len;i++)
+      for(i = 0; i < len; i++) {
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%02x",tvb_get_guint8(parameter_tvb,i));
+      }
       col_append_str(actx->pinfo->cinfo, COL_INFO, ") ");
     }
   }
