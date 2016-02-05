@@ -203,7 +203,7 @@ setuid-root.pl: setuid-root.pl.in Makefile
 		-e 's,@BIN_PREFIX\@,$(bindir),' \
 		-e 's,@TSHARK_BIN\@,$(tshark_bin)$(EEXT),' \
 		-e 's,@DUMPCAP_BIN\@,$(dumpcap_bin)$(EEXT),' \
-		< $(srcdir)/setuid-root.pl.in > setuid-root.pl
+		< $(srcdir)/setuid-root.pl.in > setuid-root.pl; \
 	chmod +x setuid-root.pl
 
 CLEANFILES = \

@@ -54,7 +54,7 @@ EXTRA_DIST = \
 	x11-fields
 
 packet-ncp2222.c : $(top_srcdir)/tools/ncp2222.py
-	$(PYTHON) $(top_srcdir)/tools/ncp2222.py -o $@
+	$(AM_V_python)$(PYTHON) $(top_srcdir)/tools/ncp2222.py -o $@
 
 # Target to rebuild the X11 dissector header files.
 # See README.X11 before using this--it requires the xcb and mesa source.

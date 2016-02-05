@@ -65,6 +65,15 @@ AM_V_SED = $(am__v_SED_@AM_V@)
 am__v_SED_ = $(am__v_SED_@AM_DEFAULT_V@)
 am__v_SED_0 = @echo "  SED     " $@;
 
+# _PYTHON is a reserved automake keyword
+AM_V_python = $(am__v_python_@AM_V@)
+am__v_python_ = $(am__v_python_@AM_DEFAULT_V@)
+am__v_python_0 = @echo "  PYTHON   " $@;
+
+AM_V_YACC = $(am__v_YACC_@AM_V@)
+am__v_YACC_ = $(am__v_YACC_@AM_DEFAULT_V@)
+am__v_YACC_0 = @echo "  YACC    " $@;
+
 .l.c:
 	$(AM_V_RUNLEX)$(RUNLEX) "$(LEX)" "$(SED)" -o$@ $<
 

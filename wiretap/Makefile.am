@@ -78,7 +78,7 @@ ascend.c: ascend.y
 		echo "Neither bison nor byacc has been found"; \
 		exit 1; \
 	fi
-	$(YACC) -d -p ascend -o ascend.c $(srcdir)/ascend.y
+	$(AM_V_YACC)$(YACC) -d -p ascend -o ascend.c $(srcdir)/ascend.y
 
 # ABI compliance checker can be obtained from
 # http://ispras.linux-foundation.org/index.php/ABI_compliance_checker

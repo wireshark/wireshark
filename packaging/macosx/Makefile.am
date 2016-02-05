@@ -92,7 +92,7 @@ EXTRA_DIST = \
 
 
 COPYING.txt: $(top_srcdir)/COPYING
-	cp $(top_srcdir)/COPYING $@
+	$(AM_V_GEN)cp $(top_srcdir)/COPYING $@
 
 all: COPYING.txt
 

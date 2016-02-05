@@ -118,7 +118,7 @@ taps_used = \
 	$(top_srcdir)/epan/dissectors/packet-ieee80211.h
 
 taps_wslua.c: make-taps.pl $(srcdir)/taps $(taps_used)
-	$(PERL) $(srcdir)/make-taps.pl $(srcdir)/taps taps_wslua.c taps.txt $(srcdir)
+	$(AM_V_PERL)$(PERL) $(srcdir)/make-taps.pl $(srcdir)/taps taps_wslua.c taps.txt $(srcdir)
 
 taps.txt: taps_wslua.c
 
@@ -127,10 +127,10 @@ wslua.h: declare_wslua.h
 register_wslua.c: declare_wslua.h
 
 declare_wslua.h: make-reg.pl $(wslua_modules) taps_wslua.c
-	$(PERL) $(srcdir)/make-reg.pl -d $(srcdir) $(wslua_modules)
+	$(AM_V_PERL)$(PERL) $(srcdir)/make-reg.pl -d $(srcdir) $(wslua_modules)
 
 init.lua: template-init.lua make-init-lua.pl $(top_srcdir)/epan/ftypes/ftypes.h $(top_srcdir)/wiretap/wtap.h  $(top_srcdir)/epan/proto.h $(top_srcdir)/epan/stat_groups.h
-	$(PERL) $(srcdir)/make-init-lua.pl $(top_srcdir) $(srcdir)/template-init.lua > init.lua
+	$(AM_V_PERL)$(PERL) $(srcdir)/make-init-lua.pl $(top_srcdir) $(srcdir)/template-init.lua > init.lua
 
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \

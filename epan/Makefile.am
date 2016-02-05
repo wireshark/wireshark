@@ -181,7 +181,7 @@ update-sminmpec:
 	$(PERL) $(srcdir)/../tools/make-sminmpec.pl
 
 ps.c: print.ps $(top_srcdir)/tools/rdps.py
-	$(PYTHON) $(top_srcdir)/tools/rdps.py $(srcdir)/print.ps ps.c
+	$(AM_V_python)$(PYTHON) $(top_srcdir)/tools/rdps.py $(srcdir)/print.ps ps.c
 
 if HAVE_PLUGINS
 
