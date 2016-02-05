@@ -96,11 +96,9 @@ cmake_pop_check_state()
 # Use check_symbol_exists just in case math.h does something magic
 # and there's not actually a function named floorl()
 #
-if(UNIX)
-	set(_mathlib m)
-endif()
 cmake_push_check_state()
-set(CMAKE_REQUIRED_LIBRARIES ${_mathlib})
+set(CMAKE_REQUIRED_INCLUDES ${M_INCLUDE_DIRS})
+set(CMAKE_REQUIRED_LIBRARIES ${M_LIBRARIES})
 check_symbol_exists("floorl" "math.h"    HAVE_FLOORL)
 cmake_pop_check_state()
 
