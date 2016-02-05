@@ -15,19 +15,35 @@ The following vulnerabilities have been fixed:
 
 * ws-salink:2016-01[]
 +
-A dissector went awry.
-(ws-buglink:XXXX[])
+DLL hijacking vulnerability.
+//(ws-buglink:XXXX[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: gXXXX
-// Fixed in master-2.0: gXXXX
-// Fixed in master-1.12: gXXXX
+// Fixed in master: g4a79cf2
+// Fixed in master-2.0: gb33f4c8
+// Fixed in master-1.12: gf8d67cf
 
+* ws-salink:2016-03[]
++
+DNP dissector infinite loop.
+(ws-buglink:11938[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: g260afe1
+// Fixed in master-2.0: g0cc86bb
+// Fixed in master-1.12: g0ca7445
 
 The following bugs have been fixed:
 
 //* Wireshark always manages to score tickets for Burning Man, Coachella, and
 //  SXSW while you end up working double shifts. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v1.12.10rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Questionable calling of ethernet dissector by encapsulating protocol dissectors. (ws-buglink:9933[])
+
+* GTPv1 Dual Stack with one static and one Dynamic IP. (ws-buglink:11945[])
+
+* Failed to parse M3AP IE (TNL information). (ws-buglink:12070[])
+
+* Wrong interpretation of Instance ID value in OSPFv3 packet. (ws-buglink:12072[])
 
 Windows installers and PortableApps(R) packages are now dual signed using SHA-1 and SHA-256
 in order to comply with
@@ -44,6 +60,22 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+BATADV
+DNP3
+E100
+EIGRP
+GSM A DTAP
+GSM SMS
+GTP
+HiQnet
+InfiniBand
+M3AP
+NFS
+OSPF
+RoHC
+TRILL
+VXLAN
+X.509AF
 --sort-and-group--
 
 === New and Updated Capture File Support
