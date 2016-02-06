@@ -46,6 +46,8 @@
 // - Change line_style to seq_type (i.e. draw ACKs dashed)
 // - Create WSGraph subclasses with common behavior.
 // - Help button and text
+// - Diagram shrinks when you click on it on retina displays.
+// - Add zoom controls.
 
 SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *info) :
     WiresharkDialog(parent, cf),

@@ -67,12 +67,14 @@ SequenceDiagram::SequenceDiagram(QCPAxis *keyAxis, QCPAxis *valueAxis, QCPAxis *
 //    valueAxis->setAutoTickStep(false);
     QList<QCPAxis *> axes;
     axes << value_axis_ << key_axis_ << comment_axis_;
+    QPen no_pen(Qt::NoPen);
     foreach (QCPAxis *axis, axes) {
         axis->setAutoTicks(false);
         axis->setTickStep(1.0);
         axis->setAutoTickLabels(false);
-        axis->setTicks(false);
-        axis->setBasePen(QPen(Qt::NoPen));
+        axis->setSubTickPen(no_pen);
+        axis->setTickPen(no_pen);
+        axis->setBasePen(no_pen);
     }
 
     value_axis_->grid()->setVisible(false);
@@ -192,6 +194,8 @@ void SequenceDiagram::draw(QCPPainter *painter)
     fg_pen.setStyle(Qt::DashLine);
     painter->setPen(fg_pen);
     for (int ll_x = value_axis_->range().lower; ll_x < value_axis_->range().upper; ll_x++) {
+        // Only draw where we have arrows.
+        if (ll_x < 0 || ll_x >= value_axis_->tickVector().size()) continue;
         QPoint ll_start(coordsToPixels(key_axis_->range().upper, ll_x).toPoint());
         QPoint ll_end(coordsToPixels(key_axis_->range().lower, ll_x).toPoint());
         painter->drawLine(ll_start, ll_end);
@@ -222,6 +226,8 @@ void SequenceDiagram::draw(QCPPainter *painter)
             painter->setPen(hl_pen);
             painter->setOpacity(alpha);
             for (int ll_x = value_axis_->range().lower; ll_x < value_axis_->range().upper; ll_x++) {
+                // Only draw where we have arrows.
+                if (ll_x < 0 || ll_x >= value_axis_->tickVector().size()) continue;
                 QPoint ll_start(coordsToPixels(cur_key - 0.5, ll_x).toPoint());
                 QPoint ll_end(coordsToPixels(cur_key + 0.5, ll_x).toPoint());
                 hl_pen.setDashOffset(bg_rect.top() - ll_start.x());
