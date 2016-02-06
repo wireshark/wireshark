@@ -285,7 +285,10 @@ typedef enum {
     CT_IAX2,            /* IAX2 call id */
     CT_H223,            /* H.223 logical channel number */
     CT_BICC,            /* BICC Circuit identifier */
-    CT_DVBCI            /* DVB-CI session number|transport connection id */
+    CT_DVBCI,           /* DVB-CI session number|transport connection id */
+    CT_ISO14443         /* ISO14443 connection between terminal and card
+                           the circuit ID is always 0, there's only one
+                           such connection */
     /* Could also have ATM VPI/VCI pairs */
 } circuit_type;
 

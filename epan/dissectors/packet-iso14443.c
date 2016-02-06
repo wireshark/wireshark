@@ -40,8 +40,11 @@
 #include <math.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/circuit.h>
 #include <epan/tfs.h>
 #include <wiretap/wtap.h>
+#include <epan/crc16-tvb.h>
+
 
 /* Proximity Integrated Circuit Card, i.e. the smartcard */
 #define ADDR_PICC "PICC"
@@ -94,6 +97,11 @@ typedef struct _iso14443_transaction_t {
     iso14443_cmd_t cmd;
 } iso14443_transaction_t;
 
+typedef enum _iso14443_type_t {
+    ISO14443_A,
+    ISO14443_B,
+} iso14443_type_t;
+
 static const value_string iso14443_short_frame[] = {
     { 0x26 , "REQA" },
     { 0x52 , "WUPA" },
@@ -145,6 +153,10 @@ static const true_false_string tfs_ack_nak = { "ACK", "NAK" };
 #define CT_BYTE 0x88
 
 #define CRC_LEN 2
+
+/* we'll only ever have a single circuit,
+   only one card can be active at a time */
+#define ISO14443_CIRCUIT_ID 0
 
 void proto_register_iso14443(void);
 void proto_reg_handoff_iso14443(void);
@@ -242,6 +254,34 @@ static int hf_iso14443_inf = -1;
 static int hf_iso14443_crc = -1;
 
 static expert_field ei_iso14443_unknown_cmd = EI_INIT;
+
+
+/* dissect and verify the CRC
+   the tvb includes the message followed by the CRC
+   bytes 0 to crc_offset-1 contain the message, the CRC starts at
+   crc_offset and is CRC_LEN bytes long */
+static int dissect_iso14443_crc(tvbuff_t *tvb, gint crc_offset,
+        proto_tree *tree, iso14443_type_t type)
+{
+    proto_item *crc_pi;
+    guint16 crc_recv, crc_calc;
+
+    crc_recv = tvb_get_letohs(tvb, crc_offset);
+    if (type == ISO14443_A)
+        crc_calc = crc16_iso14443a_tvb_offset(tvb, 0, crc_offset);
+    else if (type == ISO14443_B)
+        crc_calc = crc16_ccitt_tvb_offset(tvb, 0, crc_offset);
+    else
+        return -1;
+
+    crc_pi = proto_tree_add_item(tree, hf_iso14443_crc,
+            tvb, crc_offset, CRC_LEN, ENC_LITTLE_ENDIAN);
+    /* XXX - expert info if the CRC is wrong */
+    proto_item_append_text(crc_pi, crc_recv==crc_calc ?
+            " (correct)" : " (wrong)");
+
+    return CRC_LEN;
+}
 
 
 static int
@@ -383,11 +423,8 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
     if (prot_inf_len>3)
         offset++;
 
-    if (!crc_dropped) {
-        proto_tree_add_item(tree, hf_iso14443_crc,
-                tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
-        offset += CRC_LEN;
-    }
+    if (!crc_dropped)
+        offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_B);
 
     return offset;
 }
@@ -425,11 +462,8 @@ dissect_iso14443_cmd_type_wupb(tvbuff_t *tvb, packet_info *pinfo,
                 "%d", (guint8)pow(2, param&0x07));
         offset++;
 
-        if (!crc_dropped) {
-            proto_tree_add_item(tree, hf_iso14443_crc,
-                    tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
-            offset += CRC_LEN;
-        }
+        if (!crc_dropped)
+            offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_B);
     }
     else if (pinfo->p2p_dir == P2P_DIR_RECV) {
         offset = dissect_iso14443_atqb(tvb, offset, pinfo, tree, crc_dropped);
@@ -453,12 +487,8 @@ dissect_iso14443_cmd_type_hlta(tvbuff_t *tvb, packet_info *pinfo,
             tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    /* XXX - is the CRC calculation different for type A and type B? */
-    if (!crc_dropped) {
-        proto_tree_add_item(tree, hf_iso14443_crc,
-                tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
-        offset += CRC_LEN;
-    }
+    if (!crc_dropped)
+        offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_A);
 
     return offset;
 }
@@ -508,11 +538,8 @@ dissect_iso14443_cmd_type_uid(tvbuff_t *tvb, packet_info *pinfo,
             col_set_str(pinfo->cinfo, COL_INFO, "Select");
             proto_item_append_text(ti, ": Select");
             offset = dissect_iso14443_uid_part(tvb, offset, pinfo, tree);
-            if (!crc_dropped) {
-                proto_tree_add_item(tree, hf_iso14443_crc,
-                        tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
-                offset += CRC_LEN;
-            }
+            if (!crc_dropped)
+                offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_A);
         }
     }
     else if (pinfo->p2p_dir == P2P_DIR_RECV) {
@@ -524,11 +551,8 @@ dissect_iso14443_cmd_type_uid(tvbuff_t *tvb, packet_info *pinfo,
             proto_tree_add_item(tree, hf_iso14443_uid_complete,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
-            if (!crc_dropped) {
-                proto_tree_add_item(tree, hf_iso14443_crc,
-                        tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
-                offset += CRC_LEN;
-            }
+            if (!crc_dropped)
+                offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_A);
         }
         else if (tvb_reported_length_remaining(tvb, offset) == 5) {
             col_set_str(pinfo->cinfo, COL_INFO, "UID");
@@ -552,6 +576,7 @@ dissect_iso14443_cmd_type_ats(tvbuff_t *tvb, packet_info *pinfo,
     guint8 tl, t0 = 0, fsci;
     proto_item *t0_it;
     proto_tree *t0_tree;
+    circuit_t *circuit;
 
     if (pinfo->p2p_dir == P2P_DIR_SENT) {
         col_set_str(pinfo->cinfo, COL_INFO, "RATS");
@@ -572,15 +597,17 @@ dissect_iso14443_cmd_type_ats(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_uint_bits_format_value(tree, hf_iso14443_cid,
                 tvb, offset*8+4, 4, cid, "%d", cid);
         offset++;
-        if (!crc_dropped) {
-            proto_tree_add_item(tree, hf_iso14443_crc,
-                    tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
-            offset += CRC_LEN;
-        }
+        if (!crc_dropped)
+            offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_A);
     }
     else if (pinfo->p2p_dir == P2P_DIR_RECV) {
         col_set_str(pinfo->cinfo, COL_INFO, "ATS");
         proto_item_append_text(ti, ": ATS");
+
+        circuit = circuit_new(CT_ISO14443, ISO14443_CIRCUIT_ID, pinfo->num);
+        circuit_add_proto_data(circuit,
+                proto_iso14443, GUINT_TO_POINTER((guint)ISO14443_A));
+
         offset_tl = offset;
         tl = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_iso14443_tl,
@@ -623,11 +650,8 @@ dissect_iso14443_cmd_type_ats(tvbuff_t *tvb, packet_info *pinfo,
                     tvb, offset, hist_len, ENC_NA);
             offset += hist_len;
         }
-        if (!crc_dropped) {
-            proto_tree_add_item(tree, hf_iso14443_crc,
-                    tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
-            offset += CRC_LEN;
-        }
+        if (!crc_dropped)
+            offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_A);
     }
 
     return offset;
@@ -694,11 +718,8 @@ static int dissect_iso14443_attrib(tvbuff_t *tvb, gint offset,
     if (hl_inf_len > 0) {
         offset += hl_inf_len;
     }
-    if (!crc_dropped) {
-        proto_tree_add_item(tree, hf_iso14443_crc,
-                tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
-        offset += CRC_LEN;
-    }
+    if (!crc_dropped)
+        offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_B);
 
     return offset;
 }
@@ -713,6 +734,7 @@ dissect_iso14443_cmd_type_attrib(tvbuff_t *tvb, packet_info *pinfo,
     gint offset = 0;
     guint8 mbli, cid;
     gint hl_resp_len;
+    circuit_t *circuit;
 
     if (pinfo->p2p_dir == P2P_DIR_SENT) {
         offset = dissect_iso14443_attrib(
@@ -721,6 +743,10 @@ dissect_iso14443_cmd_type_attrib(tvbuff_t *tvb, packet_info *pinfo,
     else if (pinfo->p2p_dir == P2P_DIR_RECV) {
         col_set_str(pinfo->cinfo, COL_INFO, "Response to Attrib");
         proto_item_append_text(ti, ": Response to Attrib");
+
+        circuit = circuit_new(CT_ISO14443, ISO14443_CIRCUIT_ID, pinfo->num);
+        circuit_add_proto_data(circuit,
+                proto_iso14443, GUINT_TO_POINTER((guint)ISO14443_B));
 
         mbli = tvb_get_guint8(tvb, offset) >> 4;
         proto_tree_add_uint_bits_format_value(tree, hf_iso14443_mbli,
@@ -737,11 +763,8 @@ dissect_iso14443_cmd_type_attrib(tvbuff_t *tvb, packet_info *pinfo,
             offset += hl_resp_len;
         }
 
-        if (!crc_dropped) {
-            proto_tree_add_item(tree, hf_iso14443_crc,
-                    tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
-            offset += CRC_LEN;
-        }
+        if (!crc_dropped)
+            offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_B);
     }
 
     return offset;
@@ -869,9 +892,15 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
 
 
     if (!crc_dropped) {
-        proto_tree_add_item(tree, hf_iso14443_crc,
-                tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
-        offset += CRC_LEN;
+        iso14443_type_t t;
+        circuit_t *circuit;
+
+        circuit = find_circuit(CT_ISO14443, ISO14443_CIRCUIT_ID, pinfo->num);
+        if (circuit) {
+            t = (iso14443_type_t)GPOINTER_TO_UINT(
+                    (gpointer)circuit_get_proto_data(circuit, proto_iso14443));
+            offset += dissect_iso14443_crc(tvb, offset, tree, t);
+        }
     }
 
     return offset;
@@ -1072,6 +1101,7 @@ static int dissect_iso14443(tvbuff_t *tvb,
     proto_item *tree_ti;
     proto_tree *iso14443_tree, *hdr_tree;
     tvbuff_t    *payload_tvb;
+    circuit_t   *circuit;
 
     if (tvb_captured_length(tvb) < 4)
         return 0;
@@ -1121,6 +1151,12 @@ static int dissect_iso14443(tvbuff_t *tvb,
     }
     else {
         col_set_str(pinfo->cinfo, COL_INFO, event_str);
+
+        /* all events that are not data transfers close the connection
+           to the card (e.g. the field is switched on or off) */
+        circuit = find_circuit(CT_ISO14443, ISO14443_CIRCUIT_ID, pinfo->num);
+        if (circuit)
+                close_circuit(circuit, pinfo->num);
     }
 
     return offset;
