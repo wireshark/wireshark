@@ -50,7 +50,8 @@ PATH should contain directory with tools like "adb" and "android".
 Android SDK for various platform are available on:
 https://developer.android.com/sdk/index.html#Other
 
-2. You must have permission to Android devices.
+2. You must have permission to Android devices. Some Android devices requires
+on-screen authentication.
 
 
 Supported interfaces:
@@ -73,12 +74,11 @@ Supported interfaces:
 
 =item 8. Bluetooth BtsnoopNet (Lollipop)
 
+=item 9. WiFi tcpdump
+
 =back
 
 Please note that it will work also for FirefoxOS.
-
-NOTE: If one of device require ADB Authentication you need accept or reject that
-request. Otherwise no devices will be available.
 
 =head1 OPTIONS
 
