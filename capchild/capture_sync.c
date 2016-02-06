@@ -1297,6 +1297,7 @@ sync_pipe_run_command(char** argv, gchar **data, gchar **primary_msg,
 
 int
 sync_interface_set_80211_chan(const gchar *iface, const char *freq, const gchar *type,
+                              const gchar *center_freq1, const gchar *center_freq2,
                               gchar **data, gchar **primary_msg,
                               gchar **secondary_msg, void (*update_cb)(void))
 {
@@ -1317,7 +1318,7 @@ sync_interface_set_80211_chan(const gchar *iface, const char *freq, const gchar 
     argv = sync_pipe_add_arg(argv, &argc, iface);
 
     if (type)
-        opt = g_strdup_printf("%s,%s", freq, type);
+        opt = g_strdup_printf("%s,%s,%s,%s", freq, type, center_freq1, center_freq2);
     else
         opt = g_strdup_printf("%s", freq);
 

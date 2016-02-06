@@ -174,6 +174,13 @@ if (NL_FOUND)
 		}"
 		HAVE_NL80211_SPLIT_WIPHY_DUMP
 	)
+	check_c_source_compiles(
+		"#include <linux/nl80211.h>
+		int main() {
+			enum nl80211_attrs x = NL80211_ATTR_VHT_CAPABILITY;
+		}"
+		HAVE_NL80211_VHT_CAPABILITY
+	)
 endif()
 
 #

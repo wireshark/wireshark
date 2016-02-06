@@ -31,13 +31,19 @@ enum ws80211_channel_type {
 	WS80211_CHAN_NO_HT,
 	WS80211_CHAN_HT20,
 	WS80211_CHAN_HT40MINUS,
-	WS80211_CHAN_HT40PLUS
+	WS80211_CHAN_HT40PLUS,
+	WS80211_CHAN_VHT80,
+	WS80211_CHAN_VHT80P80,
+	WS80211_CHAN_VHT160
 };
 
 #define CHAN_NO_HT	"NOHT"
 #define CHAN_HT20	"HT20"
 #define CHAN_HT40MINUS	"HT40-"
 #define CHAN_HT40PLUS	"HT40+"
+#define CHAN_VHT80	"VHT80"
+#define CHAN_VHT80P80	"VHT80+80"
+#define CHAN_VHT160	"VHT160"
 
 /* XXX This doesn't match AirpcapValidationType. Should it? */
 enum ws80211_fcs_validation {
@@ -59,6 +65,8 @@ struct ws80211_interface
 struct ws80211_iface_info {
 	int current_freq;
 	enum ws80211_channel_type current_chan_type;
+	int current_center_freq1;
+	int current_center_freq2;
 	enum ws80211_fcs_validation current_fcs_validation;
 };
 
@@ -92,9 +100,11 @@ void ws80211_free_interfaces(GArray *interfaces);
  * @param name The interface name.
  * @param freq The frequency in MHz.
  * @param chan_type The HT channel type (no, 20Mhz, 40Mhz...).
+ * @param center_freq The center frequency in MHz (if 80MHz, 80+80MHz or 160MHz).
+ * @param center_freq2 The 2nd center frequency in MHz (if 80+80MHz).
  * @return Zero on success, nonzero on failure.
  */
-int ws80211_set_freq(const char *name, int freq, int chan_type);
+int ws80211_set_freq(const char *name, int freq, int chan_type, int _U_ center_freq, int _U_ center_freq2);
 
 int ws80211_str_to_chan_type(const gchar *s); /* GTK+ only? */
 const gchar *ws80211_chan_type_to_str(int type); /* GTK+ only? */

@@ -205,6 +205,9 @@
 /* SPLIT_WIPHY_DUMP is supported */
 #cmakedefine HAVE_NL80211_SPLIT_WIPHY_DUMP 1
 
+/* VHT_CAPABILITY is supported */
+#cmakedefine HAVE_NL80211_VHT_CAPABILITY 1
+
 /* Define to 1 if you have the <Ntddndis.h> header file. */
 #cmakedefine HAVE_NTDDNDIS_H 1
 

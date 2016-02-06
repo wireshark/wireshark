@@ -66,6 +66,7 @@ sync_pipe_kill(ws_process_id fork_child);
 /** Set wireless channel using dumpcap */
 extern int
 sync_interface_set_80211_chan(const gchar *iface, const char *freq, const gchar *type,
+                              const gchar *center_freq1, const gchar *center_freq2,
                               gchar **data, gchar **primary_msg,
                               gchar **secondary_msg, void (*update_cb)(void));
 

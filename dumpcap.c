@@ -486,7 +486,8 @@ print_usage(FILE *output)
 #ifdef HAVE_BPF_IMAGE
     fprintf(output, "  -d                       print generated BPF code for capture filter\n");
 #endif
-    fprintf(output, "  -k                       set channel on wifi interface <freq>,[<type>]\n");
+    fprintf(output, "  -k                       set channel on wifi interface:\n"
+                    "                           <freq>,[<type>],[<center_freq1>],[<center_freq2>]\n");
     fprintf(output, "  -S                       print statistics for each interface once per second\n");
     fprintf(output, "  -M                       for -D, -L, and -S, produce machine-readable output\n");
     fprintf(output, "\n");
@@ -3648,23 +3649,33 @@ capture_loop_queue_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr
 static int
 set_80211_channel(const char *iface, const char *opt)
 {
-    int     freq    = 0, type, ret;
+    int freq = 0;
+    int type = -1;
+    int center_freq1 = -1;
+    int center_freq2 = -1;
+    int args;
+    int ret;
     gchar **options = NULL;
 
-    options = g_strsplit_set(opt, ",", 2);
+    options = g_strsplit_set(opt, ",", 4);
+    for (args = 0; options[args]; args++);
 
     if (options[0])
         freq = atoi(options[0]);
 
-    if (options[1]) {
+    if (args >= 1 && options[1]) {
         type = ws80211_str_to_chan_type(options[1]);
         if (type == -1) {
             ret = EINVAL;
             goto out;
         }
     }
-    else
-        type = -1;
+
+    if (args >= 2 && options[2])
+        center_freq1 = atoi(options[2]);
+
+    if (args >= 3 && options[3])
+        center_freq2 = atoi(options[3]);
 
     ret = ws80211_init();
     if (ret) {
@@ -3672,7 +3683,7 @@ set_80211_channel(const char *iface, const char *opt)
         ret = 2;
         goto out;
     }
-    ret = ws80211_set_freq(iface, freq, type);
+    ret = ws80211_set_freq(iface, freq, type, center_freq1, center_freq2);
 
     if (ret) {
         cmdarg_err("%d: Failed to set channel: %s\n", abs(ret), g_strerror(abs(ret)));

@@ -265,7 +265,8 @@ void WirelessFrame::setInterfaceInfo()
 
     if (frequency.isEmpty() || chan_type < 0) return;
 
-    ret = sync_interface_set_80211_chan(cur_iface.toUtf8().constData(), frequency.toUtf8().constData(), chan_type_s,
+    ret = sync_interface_set_80211_chan(cur_iface.toUtf8().constData(), frequency.toUtf8().constData(),
+                                        chan_type_s, "-1", "-1",
                                         &data, &primary_msg, &secondary_msg, main_window_update);
 
     g_free(data);
@@ -282,7 +283,7 @@ void WirelessFrame::setInterfaceInfo()
     int chan_type = ui->channelTypeComboBox->itemData(cur_type_idx).toInt();
     if (frequency < 0 || chan_type < 0) return;
 
-    if (ws80211_set_freq(cur_iface.toUtf8().constData(), frequency, chan_type) != 0) {
+    if (ws80211_set_freq(cur_iface.toUtf8().constData(), frequency, chan_type, -1, -1) != 0) {
         QString err_str = tr("Unable to set channel or offset.");
         emit pushAdapterStatus(err_str);
     }
