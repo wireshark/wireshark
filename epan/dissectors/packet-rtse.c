@@ -179,12 +179,12 @@ register_rtse_oid_dissector_handle(const char *oid, dissector_handle_t dissector
   /* register RTSE with the BER (ACSE) */
   register_ber_oid_dissector_handle(oid, rtse_handle, proto, name);
 
-  if(uses_ros) {
+  if (uses_ros) {
     /* make sure we call ROS ... */
     dissector_add_string("rtse.oid", oid, ros_handle);
 
     /* and then tell ROS how to dissect the AS*/
-    if(dissector != NULL)
+    if (dissector != NULL)
       register_ros_oid_dissector_handle(oid, dissector, proto, name, TRUE);
 
   } else {
@@ -201,7 +201,7 @@ call_rtse_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    if((len = dissector_try_string(rtse_oid_dissector_table, oid, next_tvb, pinfo, tree, data)) == 0) {
+    if ((len = dissector_try_string(rtse_oid_dissector_table, oid, next_tvb, pinfo, tree, data)) == 0) {
         proto_item *item;
         proto_tree *next_tree;
 
@@ -227,7 +227,7 @@ call_rtse_external_type_callback(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 
         oid = (const char *)find_oid_by_pres_ctx_id(actx->pinfo, actx->external.indirect_reference);
 
-        if(!oid)
+        if (!oid)
             proto_tree_add_expert_format(tree, actx->pinfo, &ei_rtse_abstract_syntax, tvb, offset, tvb_captured_length_remaining(tvb, offset),
                     "Unable to determine abstract syntax for indirect reference: %d.", actx->external.indirect_reference);
     } else if (actx->external.direct_ref_present) {
@@ -764,7 +764,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
     /* do we have application context from the acse dissector? */
     if (data == NULL)
         return 0;
-    session  = (struct SESSION_DATA_STRUCTURE*)data;
+    session = (struct SESSION_DATA_STRUCTURE*)data;
 
     /* save parent_tree so subdissectors can create new top nodes */
     top_tree=parent_tree;
@@ -776,7 +776,8 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 
     if (rtse_reassemble &&
         ((session->spdu_type == SES_DATA_TRANSFER) ||
-         (session->spdu_type == SES_MAJOR_SYNC_POINT))) {
+         (session->spdu_type == SES_MAJOR_SYNC_POINT)))
+    {
         /* Use conversation index as fragment id */
         if (pinfo->ptype == PT_TCP) {
             conversation = find_conversation_ext_from_pinfo(pinfo);
@@ -841,10 +842,10 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
     }
 
     if (!data_handled) {
-        while (tvb_reported_length_remaining(tvb, offset) > 0){
+        while (tvb_reported_length_remaining(tvb, offset) > 0) {
             old_offset=offset;
             offset=dissect_rtse_RTSE_apdus(TRUE, tvb, offset, &asn1_ctx, tree, -1);
-            if(offset == old_offset){
+            if (offset == old_offset) {
                 next_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
                                 ett_rtse_unknown, &item, "Unknown RTSE PDU");
                 expert_add_info (pinfo, item, &ei_rtse_unknown_rtse_pdu);
@@ -1013,7 +1014,7 @@ void proto_register_rtse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 369 "../../asn1/rtse/packet-rtse-template.c"
+#line 370 "../../asn1/rtse/packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -1035,7 +1036,7 @@ void proto_register_rtse(void) {
     &ett_rtse_CallingSSuserReference,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 378 "../../asn1/rtse/packet-rtse-template.c"
+#line 379 "../../asn1/rtse/packet-rtse-template.c"
   };
 
   static ei_register_info ei[] = {

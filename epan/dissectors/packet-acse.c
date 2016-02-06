@@ -269,7 +269,7 @@ acse_ctx_oid_equal(gconstpointer k1, gconstpointer k2)
 static void
 acse_init(void)
 {
-	if( acse_ctx_oid_table ){
+	if (acse_ctx_oid_table) {
 		g_hash_table_destroy(acse_ctx_oid_table);
 		acse_ctx_oid_table = NULL;
 	}
@@ -288,7 +288,7 @@ register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, char *oid)
 
 	/* if this ctx already exists, remove the old one first */
 	tmpaco=(acse_ctx_oid_t *)g_hash_table_lookup(acse_ctx_oid_table, aco);
-	if(tmpaco){
+	if (tmpaco) {
 		g_hash_table_remove(acse_ctx_oid_table, tmpaco);
 	}
 	g_hash_table_insert(acse_ctx_oid_table, aco, aco);
@@ -299,7 +299,7 @@ find_oid_by_ctx_id(packet_info *pinfo _U_, guint32 idx)
 	acse_ctx_oid_t aco, *tmpaco;
 	aco.ctx_id=idx;
 	tmpaco=(acse_ctx_oid_t *)g_hash_table_lookup(acse_ctx_oid_table, &aco);
-	if(tmpaco){
+	if (tmpaco) {
 		return tmpaco->oid;
 	}
 	return NULL;
@@ -1715,21 +1715,21 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	/* do we have spdu type from the session dissector?  */
-	if( data == NULL){
+	if (data == NULL) {
 		return 0;
 	}
 
 	/* first, try to check length   */
 	/* do we have at least 2 bytes  */
-	if (!tvb_bytes_exist(tvb, 0, 2)){
+	if (!tvb_bytes_exist(tvb, 0, 2)) {
 		proto_tree_add_item(parent_tree, hf_acse_user_data, tvb, offset,
 			tvb_reported_length_remaining(tvb,offset), ENC_NA);
 		return 0;  /* no, it isn't a ACSE PDU */
 	}
 
-	session  = ( (struct SESSION_DATA_STRUCTURE*)data);
-	if(session->spdu_type == 0 ) {
-		if(parent_tree){
+	session = ( (struct SESSION_DATA_STRUCTURE*)data);
+	if (session->spdu_type == 0) {
+		if (parent_tree) {
 			REPORT_DISSECTOR_BUG(
 				wmem_strdup_printf(wmem_packet_scope(), "Wrong spdu type %x from session dissector.",session->spdu_type));
 			return 0;
@@ -1743,7 +1743,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	/*  ACSE has only AARQ,AARE,RLRQ,RLRE,ABRT type of pdu */
 	/*  reject everything else                              */
 	/*  data pdu is not ACSE pdu and has to go directly to app dissector */
-	switch(session->spdu_type){
+	switch (session->spdu_type) {
 	case SES_CONNECTION_REQUEST:		/*   AARQ   */
 	case SES_CONNECTION_ACCEPT:		/*   AARE   */
 	case SES_REFUSE:			/*   RLRE   */
@@ -1754,8 +1754,8 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		break;
 	case SES_DATA_TRANSFER:
 		oid=find_oid_by_pres_ctx_id(pinfo, indir_ref);
-		if(oid){
-			if(strcmp(oid, ACSE_APDU_OID) == 0){
+		if (oid) {
+			if (strcmp(oid, ACSE_APDU_OID) == 0) {
 				proto_tree_add_expert_format(parent_tree, pinfo, &ei_acse_invalid_oid, tvb, offset, -1,
 				    "Invalid OID: %s", ACSE_APDU_OID);
 			}
@@ -1773,17 +1773,14 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		return 0;
 	}
 
-	if(session->spdu_type == CLSES_UNIT_DATA)
-	{
+	if (session->spdu_type == CLSES_UNIT_DATA) {
 		/* create display subtree for the connectionless protocol */
 		item = proto_tree_add_item(parent_tree, proto_clacse, tvb, 0, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_acse);
 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "CL-ACSE");
 		col_clear(pinfo->cinfo, COL_INFO);
-	}
-	else
-	{
+	} else {
 		/* create display subtree for the protocol */
 		item = proto_tree_add_item(parent_tree, proto_acse, tvb, 0, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_acse);
@@ -1794,10 +1791,10 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 
 	/*  we can't make any additional checking here   */
 	/*  postpone it before dissector will have more information */
-	while (tvb_reported_length_remaining(tvb, offset) > 0){
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		int old_offset=offset;
 		offset = dissect_acse_ACSE_apdu(FALSE, tvb, offset, &asn1_ctx, tree, -1);
-		if(offset == old_offset ){
+		if (offset == old_offset) {
 			proto_tree_add_expert(tree, pinfo, &ei_acse_malformed, tvb, offset, -1);
 			break;
 		}
@@ -2249,7 +2246,7 @@ void proto_register_acse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-acse-hfarr.c ---*/
-#line 269 "../../asn1/acse/packet-acse-template.c"
+#line 266 "../../asn1/acse/packet-acse-template.c"
   };
 
   /* List of subtrees */
@@ -2295,7 +2292,7 @@ void proto_register_acse(void) {
     &ett_acse_Authentication_value,
 
 /*--- End of included file: packet-acse-ettarr.c ---*/
-#line 275 "../../asn1/acse/packet-acse-template.c"
+#line 272 "../../asn1/acse/packet-acse-template.c"
   };
 
   static ei_register_info ei[] = {

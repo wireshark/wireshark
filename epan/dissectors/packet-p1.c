@@ -8519,7 +8519,7 @@ dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     /* save parent_tree so subdissectors can create new top nodes */
     p1_initialize_content_globals (&asn1_ctx, parent_tree, TRUE);
 
-    if(parent_tree){
+    if (parent_tree) {
         item = proto_tree_add_item(parent_tree, proto_p1, tvb, 0, -1, ENC_NA);
         tree = proto_item_add_subtree(item, ett_p1);
     }
@@ -8593,10 +8593,10 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 
     col_set_str(pinfo->cinfo, COL_INFO, p1_op_name);
 
-    while (tvb_reported_length_remaining(tvb, offset) > 0){
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
         old_offset=offset;
         offset=(*p1_dissector)(FALSE, tvb, offset, &asn1_ctx , tree, hf_p1_index);
-        if(offset == old_offset){
+        if (offset == old_offset) {
             proto_tree_add_expert(tree, pinfo, &ei_p1_zero_pdu, tvb, offset, -1);
             break;
         }
@@ -11346,13 +11346,13 @@ prefs_register_p1(void)
 
   /* de-register the old port */
   /* port 102 is registered by TPKT - don't undo this! */
-  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
+  if ((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
     dissector_delete_uint("tcp.port", tcp_port, tpkt_handle);
 
   /* Set our port number for future use */
   tcp_port = global_p1_tcp_port;
 
-  if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
+  if ((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
     dissector_add_uint("tcp.port", tcp_port, tpkt_handle);
 
 }
