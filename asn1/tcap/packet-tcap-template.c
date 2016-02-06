@@ -122,32 +122,32 @@ static GHashTable* ansi_sub_dissectors = NULL;
 static GHashTable* itu_sub_dissectors = NULL;
 
 extern void add_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector) {
-    g_hash_table_insert(ansi_sub_dissectors,GUINT_TO_POINTER(ssn),dissector);
-    dissector_add_uint("sccp.ssn",ssn,tcap_handle);
+  g_hash_table_insert(ansi_sub_dissectors,GUINT_TO_POINTER(ssn),dissector);
+  dissector_add_uint("sccp.ssn",ssn,tcap_handle);
 }
 
 extern void add_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector) {
-    g_hash_table_insert(itu_sub_dissectors,GUINT_TO_POINTER(ssn),dissector);
-    dissector_add_uint("sccp.ssn",ssn,tcap_handle);
+  g_hash_table_insert(itu_sub_dissectors,GUINT_TO_POINTER(ssn),dissector);
+  dissector_add_uint("sccp.ssn",ssn,tcap_handle);
 }
 
 extern void delete_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector _U_) {
-    g_hash_table_remove(ansi_sub_dissectors,GUINT_TO_POINTER(ssn));
-    if (!get_itu_tcap_subdissector(ssn))
+  g_hash_table_remove(ansi_sub_dissectors,GUINT_TO_POINTER(ssn));
+  if (!get_itu_tcap_subdissector(ssn))
       dissector_delete_uint("sccp.ssn",ssn,tcap_handle);
 }
 extern void delete_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector _U_) {
-    g_hash_table_remove(itu_sub_dissectors,GUINT_TO_POINTER(ssn));
-    if (!get_ansi_tcap_subdissector(ssn))
-      dissector_delete_uint("sccp.ssn", ssn,tcap_handle);
+  g_hash_table_remove(itu_sub_dissectors,GUINT_TO_POINTER(ssn));
+  if (!get_ansi_tcap_subdissector(ssn))
+    dissector_delete_uint("sccp.ssn", ssn,tcap_handle);
 }
 
 dissector_handle_t get_ansi_tcap_subdissector(guint32 ssn) {
-    return (dissector_handle_t)g_hash_table_lookup(ansi_sub_dissectors,GUINT_TO_POINTER(ssn));
+  return (dissector_handle_t)g_hash_table_lookup(ansi_sub_dissectors,GUINT_TO_POINTER(ssn));
 }
 
 dissector_handle_t get_itu_tcap_subdissector(guint32 ssn) {
-    return (dissector_handle_t)g_hash_table_lookup(itu_sub_dissectors,GUINT_TO_POINTER(ssn));
+  return (dissector_handle_t)g_hash_table_lookup(itu_sub_dissectors,GUINT_TO_POINTER(ssn));
 }
 
 #include "packet-tcap-fn.c"
@@ -1967,8 +1967,8 @@ const value_string tcap_component_type_str[] = {
 static int
 dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-  proto_item		*item=NULL;
-  proto_tree		*tree=NULL;
+  proto_item *item=NULL;
+  proto_tree *tree=NULL;
 
   struct tcaphash_context_t * p_tcap_context;
   dissector_handle_t subdissector_handle;
@@ -1978,14 +1978,14 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
   gint tag;
 
   /* Check if ANSI TCAP and call the ANSI TCAP dissector if that's the case
-   * PackageType ::= CHOICE { unidirectional			[PRIVATE 1] IMPLICIT UniTransactionPDU,
-   * 						 queryWithPerm				[PRIVATE 2] IMPLICIT TransactionPDU,
-   * 						 queryWithoutPerm			[PRIVATE 3] IMPLICIT TransactionPDU,
-   * 						 response					[PRIVATE 4] IMPLICIT TransactionPDU,
-   * 						 conversationWithPerm		[PRIVATE 5] IMPLICIT TransactionPDU,
-   * 						 conversationWithoutPerm	[PRIVATE 6] IMPLICIT TransactionPDU,
-   * 						 abort						[PRIVATE 22] IMPLICIT Abort
-   * 						 }
+   * PackageType ::= CHOICE { unidirectional            [PRIVATE 1] IMPLICIT UniTransactionPDU,
+   *                          queryWithPerm             [PRIVATE 2] IMPLICIT TransactionPDU,
+   *                          queryWithoutPerm          [PRIVATE 3] IMPLICIT TransactionPDU,
+   *                          response                  [PRIVATE 4] IMPLICIT TransactionPDU,
+   *                          conversationWithPerm      [PRIVATE 5] IMPLICIT TransactionPDU,
+   *                          conversationWithoutPerm   [PRIVATE 6] IMPLICIT TransactionPDU,
+   *                          abort                     [PRIVATE 22] IMPLICIT Abort
+   *                          }
    *
    *
    */
@@ -2436,11 +2436,11 @@ dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
           = get_itu_tcap_subdissector(actx->pinfo->match_uint))) {
           /* Found according to SSN */
           is_subdissector=TRUE;
-	} else {
+        } else {
           /* Nothing found, take the Data handler */
           subdissector_handle = data_handle;
           is_subdissector=TRUE;
-	} /* SSN */
+        } /* SSN */
       } /* ACN */
     } else {
       /* There is no A.C.N for this transaction, so search in the SSN table */
@@ -2479,3 +2479,16 @@ call_tcap_dissector(dissector_handle_t handle, tvbuff_t* tvb, packet_info* pinfo
 
   requested_subdissector_handle = NULL;
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

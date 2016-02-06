@@ -79,123 +79,123 @@ ABRT-apdu/_untag/user-information abrt_user_information
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY Component
-tvbuff_t	*next_tvb;
-gint8 ber_class;
-gboolean pc;
-gint tag;
-guint32 len, comp_offset;
-gint ind_field;
+  tvbuff_t *next_tvb;
+  gint8 ber_class;
+  gboolean pc;
+  gint tag;
+  guint32 len, comp_offset;
+  gint ind_field;
 
-comp_offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
-comp_offset = dissect_ber_length(actx->pinfo, tree, tvb, comp_offset, &len, &ind_field);
-/* we can believe the length now */
-next_tvb = tvb_new_subset_length(tvb, offset, len+comp_offset-offset);
+  comp_offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
+  comp_offset = dissect_ber_length(actx->pinfo, tree, tvb, comp_offset, &len, &ind_field);
+  /* we can believe the length now */
+  next_tvb = tvb_new_subset_length(tvb, offset, len+comp_offset-offset);
 
-if (!next_tvb)
-  return comp_offset;
+  if (!next_tvb)
+    return comp_offset;
 
-TRY {
-%(DEFAULT_BODY)s
-}
-CATCH_NONFATAL_ERRORS {
-  show_exception(tvb, actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
-}
-ENDTRY;
+  TRY {
+  %(DEFAULT_BODY)s
+  }
+  CATCH_NONFATAL_ERRORS {
+    show_exception(tvb, actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+  }
+  ENDTRY;
 
- dissect_tcap_ITU_ComponentPDU(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
+  dissect_tcap_ITU_ComponentPDU(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
 
 /* return comp_offset+len; or return offset (will be automatically added) */
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY AUDT-apdu/_untag/application-context-name  FN_VARIANT = _str  VAL_PTR = &cur_oid
 %(DEFAULT_BODY)s
-	tcap_private.oid= (const void*) cur_oid;
-	tcap_private.acv=TRUE;
+  tcap_private.oid= (const void*) cur_oid;
+  tcap_private.acv=TRUE;
 #----------------------------------------------------------------------------------------
 #.FN_BODY AARQ-apdu/_untag/application-context-name  FN_VARIANT = _str  VAL_PTR = &cur_oid
 %(DEFAULT_BODY)s
-	tcap_private.oid= (const void*) cur_oid;
-	tcap_private.acv=TRUE;
+  tcap_private.oid= (const void*) cur_oid;
+  tcap_private.acv=TRUE;
 #----------------------------------------------------------------------------------------
 #.FN_BODY AARE-apdu/_untag/application-context-name  FN_VARIANT = _str  VAL_PTR = &cur_oid
 %(DEFAULT_BODY)s
-	tcap_private.oid= (const void*) cur_oid;
-	tcap_private.acv=TRUE;
+  tcap_private.oid= (const void*) cur_oid;
+  tcap_private.acv=TRUE;
 #----------------------------------------------------------------------------------------
 #.FN_BODY OrigTransactionID
-tvbuff_t *parameter_tvb;
-guint8 len, i;
-proto_tree *subtree;
-subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_otid, NULL, "Source Transaction ID");
+  tvbuff_t *parameter_tvb;
+  guint8 len, i;
+  proto_tree *subtree;
+  subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_otid, NULL, "Source Transaction ID");
 
-dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid, NULL);
-PROTO_ITEM_SET_HIDDEN(actx->created_item);
-offset = dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_otid,
+  dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid, NULL);
+  PROTO_ITEM_SET_HIDDEN(actx->created_item);
+  offset = dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_otid,
                                     &parameter_tvb);
 
-if (parameter_tvb){
-	len = tvb_reported_length_remaining(parameter_tvb, 0);
-	switch(len) {
-	case 1:
-		gp_tcapsrt_info->src_tid=tvb_get_guint8(parameter_tvb, 0);
-		break;
-	case 2:
-		gp_tcapsrt_info->src_tid=tvb_get_ntohs(parameter_tvb, 0);
-		break;
-	case 4:
-		gp_tcapsrt_info->src_tid=tvb_get_ntohl(parameter_tvb, 0);
-		break;
-	default:
-		gp_tcapsrt_info->src_tid=0;
-		break;
-	}
+  if (parameter_tvb) {
+    len = tvb_reported_length_remaining(parameter_tvb, 0);
+    switch(len) {
+    case 1:
+      gp_tcapsrt_info->src_tid=tvb_get_guint8(parameter_tvb, 0);
+      break;
+    case 2:
+      gp_tcapsrt_info->src_tid=tvb_get_ntohs(parameter_tvb, 0);
+      break;
+    case 4:
+      gp_tcapsrt_info->src_tid=tvb_get_ntohl(parameter_tvb, 0);
+      break;
+    default:
+      gp_tcapsrt_info->src_tid=0;
+      break;
+    }
 
-	if (len){
-		col_append_str(actx->pinfo->cinfo, COL_INFO, "otid(");
-		for(i=0;i<len;i++)
-			col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%02x",tvb_get_guint8(parameter_tvb,i));
-		col_append_str(actx->pinfo->cinfo, COL_INFO, ") ");
-	}
+    if (len) {
+      col_append_str(actx->pinfo->cinfo, COL_INFO, "otid(");
+      for(i=0;i<len;i++)
+        col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%02x",tvb_get_guint8(parameter_tvb,i));
+      col_append_str(actx->pinfo->cinfo, COL_INFO, ") ");
+    }
 
-}
+  }
 
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY DestTransactionID
-tvbuff_t *parameter_tvb;
-guint8 len , i;
-proto_tree *subtree;
-subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dtid, NULL, "Destination Transaction ID");
+  tvbuff_t *parameter_tvb;
+  guint8 len , i;
+  proto_tree *subtree;
+  subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dtid, NULL, "Destination Transaction ID");
 
-dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid, NULL);
-PROTO_ITEM_SET_HIDDEN(actx->created_item);
-offset = dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_dtid,
-                                    &parameter_tvb);
+  dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid, NULL);
+  PROTO_ITEM_SET_HIDDEN(actx->created_item);
+  offset = dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_dtid,
+                                      &parameter_tvb);
 
-if (parameter_tvb){
-	len = tvb_reported_length_remaining(parameter_tvb, 0);
-	switch(len) {
-	case 1:
-		gp_tcapsrt_info->dst_tid=tvb_get_guint8(parameter_tvb, 0);
-		break;
-	case 2:
-		gp_tcapsrt_info->dst_tid=tvb_get_ntohs(parameter_tvb, 0);
-		break;
-	case 4:
-		gp_tcapsrt_info->dst_tid=tvb_get_ntohl(parameter_tvb, 0);
-		break;
-	default:
-		gp_tcapsrt_info->dst_tid=0;
-		break;
-	}
+  if (parameter_tvb) {
+    len = tvb_reported_length_remaining(parameter_tvb, 0);
+    switch(len) {
+    case 1:
+      gp_tcapsrt_info->dst_tid=tvb_get_guint8(parameter_tvb, 0);
+      break;
+    case 2:
+      gp_tcapsrt_info->dst_tid=tvb_get_ntohs(parameter_tvb, 0);
+      break;
+    case 4:
+      gp_tcapsrt_info->dst_tid=tvb_get_ntohl(parameter_tvb, 0);
+      break;
+    default:
+      gp_tcapsrt_info->dst_tid=0;
+      break;
+    }
 
-	if (len){
-		col_append_str(actx->pinfo->cinfo, COL_INFO, "dtid(");
-		for(i=0;i<len;i++)
-			col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%02x",tvb_get_guint8(parameter_tvb,i));
-		col_append_str(actx->pinfo->cinfo, COL_INFO, ") ");
-	}
-}
+    if (len) {
+      col_append_str(actx->pinfo->cinfo, COL_INFO, "dtid(");
+      for(i=0;i<len;i++)
+        col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%02x",tvb_get_guint8(parameter_tvb,i));
+      col_append_str(actx->pinfo->cinfo, COL_INFO, ") ");
+    }
+  }
 #.FN_HDR Begin
 gp_tcapsrt_info->ope=TC_BEGIN;
 
@@ -206,26 +206,39 @@ gp_tcapsrt_info->ope=TC_BEGIN;
  *  If there's something there that should not be overwritten, whoever
  *  put that info there should call col_set_fence() to protect it.
  */
-	col_set_str(actx->pinfo->cinfo, COL_INFO, "Begin ");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "Begin ");
 #.END
 
 
 #.FN_HDR End
 gp_tcapsrt_info->ope=TC_END;
 
-	col_set_str(actx->pinfo->cinfo, COL_INFO, "End ");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "End ");
 #.END
 
 
 #.FN_HDR Continue
 gp_tcapsrt_info->ope=TC_CONT;
 
-	col_set_str(actx->pinfo->cinfo, COL_INFO, "Continue ");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "Continue ");
 #.END
 
 
 #.FN_HDR Abort
 gp_tcapsrt_info->ope=TC_ABORT;
 
-	col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
 #.END
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 2
+# tab-width: 8
+# indent-tabs-mode: nil
+# End:
+#
+# vi: set shiftwidth=2 tabstop=8 expandtab:
+# :indentSize=2:tabSize=8:noTabs=true:
+#
