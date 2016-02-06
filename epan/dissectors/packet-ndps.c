@@ -2239,10 +2239,6 @@ objectidentifier(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         }
     }
     global_attribute_name = label;
-    /* XXX - There's probably a better way to handle this */
-    if ((int) (foffset+(length%2)) < 0) {
-        THROW(ReportedBoundsError);
-    }
     return foffset+(length%2);
 }
 
@@ -2612,11 +2608,9 @@ cardinal_seq(tvbuff_t* tvb, packet_info* pinfo, proto_tree *ndps_tree, int foffs
         {
             proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, ENC_BIG_ENDIAN);
         }
-        tvb_ensure_bytes_exist(tvb, foffset, length);
+        tvb_ensure_bytes_exist(tvb, foffset, length+length%2);
         foffset += length;
         foffset += (length%2);
-        if ((int) foffset <= 0)
-            THROW(ReportedBoundsError);
         proto_item_set_end(aitem, tvb, foffset);
     }
     return foffset;
@@ -3226,10 +3220,9 @@ attribute_value(tvbuff_t* tvb, packet_info* pinfo, proto_tree *ndps_tree, int fo
                 {
                     proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, ENC_BIG_ENDIAN);
                 }
+                tvb_ensure_bytes_exist(tvb, foffset, length+length%2);
                 foffset += length;
                 foffset += (length%2);
-                if ((int) foffset <= 0)
-                    THROW(ReportedBoundsError);
                 proto_item_set_end(aitem, tvb, foffset);
             }
             break;
@@ -3414,8 +3407,6 @@ attribute_value(tvbuff_t* tvb, packet_info* pinfo, proto_tree *ndps_tree, int fo
                 }
                 foffset += length;
                 foffset += (length%2);
-                if ((int) foffset <= 0)
-                    THROW(ReportedBoundsError);
             }
             else
             {
@@ -3558,8 +3549,6 @@ attribute_value(tvbuff_t* tvb, packet_info* pinfo, proto_tree *ndps_tree, int fo
                 }
                 foffset += length;
                 foffset += (length%2);
-                if ((int) foffset <= 0)
-                    THROW(ReportedBoundsError);
             }
             number_of_items = tvb_get_ntohl(tvb, foffset);
             expert_item = proto_tree_add_uint(ndps_tree, hf_ndps_num_values, tvb, foffset, 4, number_of_items);
@@ -3577,10 +3566,9 @@ attribute_value(tvbuff_t* tvb, packet_info* pinfo, proto_tree *ndps_tree, int fo
                 {
                     proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, ENC_BIG_ENDIAN);
                 }
+                tvb_ensure_bytes_exist(tvb, foffset, length+length%2);
                 foffset += length;
                 foffset += (length%2);
-                if ((int) foffset <= 0)
-                    THROW(ReportedBoundsError);
                 proto_item_set_end(aitem, tvb, foffset);
             }
             break;
@@ -3815,8 +3803,6 @@ attribute_value(tvbuff_t* tvb, packet_info* pinfo, proto_tree *ndps_tree, int fo
             }
             foffset += length;
             foffset += (length%2);
-            if ((int) foffset <= 0)
-                THROW(ReportedBoundsError);
             break;
         case 107:         /* Octet String Integer Pair */
             length = tvb_get_ntohl(tvb, foffset);
@@ -3868,8 +3854,6 @@ attribute_value(tvbuff_t* tvb, packet_info* pinfo, proto_tree *ndps_tree, int fo
                     }
                     foffset += length;
                     foffset += (length%2);
-                    if ((int) foffset <= 0)
-                        THROW(ReportedBoundsError);
                     break;
                 case 4:     /*DIST_NAME_STRING*/
                     foffset = ndps_string(tvb, hf_object_name, ndps_tree, foffset, NULL);
@@ -4652,8 +4636,6 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                         }
                         foffset += length;
                         foffset += (length%2);
-                        if ((int) foffset <= 0)
-                            THROW(ReportedBoundsError);
                     }
                     else
                     {
