@@ -709,9 +709,11 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
           gboolean fec;
 
           /*
-           * If we don't have necessary fields, then bail.
+           * If we don't have necessary fields, or if we have them but
+           * they have invalid values, then bail.
            */
           if (!info_n->has_mcs_index ||
+            info_n->mcs_index >= MAX_MCS_INDEX ||
             !info_n->has_bandwidth ||
             !info_n->has_short_gi)
               break;
