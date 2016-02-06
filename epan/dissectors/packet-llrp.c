@@ -1425,7 +1425,7 @@ static value_string_ext impinj_hub_fault_type_ext = VALUE_STRING_EXT_INIT(impinj
 
 static guint
 dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        guint offset, const guint end);
+        guint offset, const guint end, const guint depth);
 
 static guint dissect_llrp_utf8_parameter(tvbuff_t * const tvb, packet_info *pinfo,
         proto_tree * const tree, const guint hfindex, const guint offset)
@@ -1720,12 +1720,12 @@ dissect_llrp_impinj_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
         break;
     }
     /* Each custom parameters ends with optional custom parameter, disscect it */
-    return dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+    return dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, 0);
 }
 
 static guint
 dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        guint offset, const guint end)
+        guint offset, const guint end, const guint depth)
 {
     guint8      has_length;
     guint16     len, type;
@@ -1752,6 +1752,10 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 real_len = len;
 
             param_end = offset + real_len;
+
+            if (depth > 16) {
+                return param_end;
+            }
 
             ti = proto_tree_add_none_format(tree, hf_llrp_param, tvb,
                     offset, real_len, "TLV Parameter: %s",
@@ -1781,7 +1785,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             case LLRP_TLV_READER_EVENT_NOTI_DATA:
             case LLRP_TLV_C1G2_UHF_RF_MD_TBL:
             case LLRP_TLV_C1G2_TAG_SPEC:
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_UTC_TIMESTAMP:
             case LLRP_TLV_UPTIME:
@@ -1794,7 +1798,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 PARAM_TREE_ADD(device_manufacturer, 4, ENC_BIG_ENDIAN);
                 PARAM_TREE_ADD(model, 4, ENC_BIG_ENDIAN);
                 suboffset = dissect_llrp_utf8_parameter(tvb, pinfo, param_tree, hf_llrp_firmware_version, suboffset);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_MAX_RECEIVE_SENSE:
                 PARAM_TREE_ADD(max_receive_sense, 2, ENC_BIG_ENDIAN);
@@ -1859,7 +1863,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             case LLRP_TLV_REGU_CAPABILITIES:
                 PARAM_TREE_ADD(country_code, 2, ENC_BIG_ENDIAN);
                 PARAM_TREE_ADD(comm_standard, 2, ENC_BIG_ENDIAN);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_XMIT_POWER_LEVEL_ENTRY:
                 PARAM_TREE_ADD(index, 2, ENC_BIG_ENDIAN);
@@ -1867,7 +1871,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
             case LLRP_TLV_FREQ_INFORMATION:
                 PARAM_TREE_ADD(hopping, 1, ENC_NA);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_FREQ_HOP_TABLE:
                 PARAM_TREE_ADD(hop_table_id, 1, ENC_NA);
@@ -1887,16 +1891,16 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 PARAM_TREE_ADD(rospec_id, 4, ENC_BIG_ENDIAN);
                 PARAM_TREE_ADD(priority, 1, ENC_NA);
                 PARAM_TREE_ADD(cur_state, 1, ENC_NA);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_RO_SPEC_START_TRIGGER:
                 PARAM_TREE_ADD(rospec_start_trig_type, 1, ENC_NA);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_PER_TRIGGER_VAL:
                 PARAM_TREE_ADD(offset, 4, ENC_BIG_ENDIAN);
                 PARAM_TREE_ADD(period, 4, ENC_BIG_ENDIAN);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_GPI_TRIGGER_VAL:
                 PARAM_TREE_ADD(gpi_port, 2, ENC_BIG_ENDIAN);
@@ -1906,17 +1910,17 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             case LLRP_TLV_RO_SPEC_STOP_TRIGGER:
                 PARAM_TREE_ADD(rospec_stop_trig_type, 1, ENC_NA);
                 PARAM_TREE_ADD(duration_trig, 4, ENC_BIG_ENDIAN);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_AI_SPEC:
                 suboffset = dissect_llrp_item_array(tvb, pinfo, param_tree,
                         hf_llrp_antenna_count, hf_llrp_antenna, 2, suboffset);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_AI_SPEC_STOP:
                 PARAM_TREE_ADD(aispec_stop_trig_type, 1, ENC_NA);
                 PARAM_TREE_ADD(duration_trig, 4, ENC_BIG_ENDIAN);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_TAG_OBSERV_TRIGGER:
                 PARAM_TREE_ADD(trig_type, 1, ENC_NA);
@@ -1929,13 +1933,13 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             case LLRP_TLV_INVENTORY_PARAM_SPEC:
                 PARAM_TREE_ADD(inventory_spec_id, 2, ENC_BIG_ENDIAN);
                 PARAM_TREE_ADD(protocol_id, 1, ENC_NA);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_RF_SURVEY_SPEC:
                 PARAM_TREE_ADD(antenna_id, 2, ENC_BIG_ENDIAN);
                 PARAM_TREE_ADD(start_freq, 4, ENC_BIG_ENDIAN);
                 PARAM_TREE_ADD(stop_freq, 4, ENC_BIG_ENDIAN);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_RF_SURVEY_SPEC_STOP_TR:
                 PARAM_TREE_ADD(stop_trig_type, 1, ENC_NA);
@@ -1951,7 +1955,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 PARAM_TREE_ADD(protocol_id, 1, ENC_BIG_ENDIAN);
                 PARAM_TREE_ADD(access_cur_state, 1, ENC_NA);
                 PARAM_TREE_ADD(rospec_id, 4, ENC_BIG_ENDIAN);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_ACCESS_SPEC_STOP_TRIG:
                 PARAM_TREE_ADD(access_stop_trig_type, 1, ENC_NA);
@@ -1962,7 +1966,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
             case LLRP_TLV_CLIENT_REQ_RESPONSE:
                 PARAM_TREE_ADD(accessspec_id, 2, ENC_BIG_ENDIAN);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_LLRP_CONF_STATE_VAL:
                 PARAM_TREE_ADD(conf_value, 4, ENC_BIG_ENDIAN);
@@ -1988,7 +1992,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
             case LLRP_TLV_ANTENNA_CONF:
                 PARAM_TREE_ADD(antenna_id, 2, ENC_BIG_ENDIAN);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_RF_RECEIVER:
                 PARAM_TREE_ADD(receiver_sense, 2, ENC_BIG_ENDIAN);
@@ -2009,7 +2013,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             case LLRP_TLV_RO_REPORT_SPEC:
                 PARAM_TREE_ADD(ro_report_trig, 1, ENC_NA);
                 PARAM_TREE_ADD(n_2, 2, ENC_BIG_ENDIAN);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_TAG_REPORT_CONTENT_SEL:
                 PARAM_TREE_ADD_STAY(enable_rospec_id, 2, ENC_BIG_ENDIAN);
@@ -2022,7 +2026,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 PARAM_TREE_ADD_STAY(enable_last_seen, 2, ENC_BIG_ENDIAN);
                 PARAM_TREE_ADD_STAY(enable_seen_count, 2, ENC_BIG_ENDIAN);
                 PARAM_TREE_ADD(enable_accessspec_id, 2, ENC_BIG_ENDIAN);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_ACCESS_REPORT_SPEC:
                 PARAM_TREE_ADD(access_report_trig, 1, ENC_NA);
@@ -2035,7 +2039,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 PARAM_TREE_ADD(bandwidth, 4, ENC_BIG_ENDIAN);
                 PARAM_TREE_ADD(average_rssi, 1, ENC_NA);
                 PARAM_TREE_ADD(peak_rssi, 1, ENC_NA);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_EVENT_NOTIF_STATE:
                 PARAM_TREE_ADD(event_type, 2, ENC_BIG_ENDIAN);
@@ -2057,11 +2061,10 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             case LLRP_TLV_REPORT_BUF_LEVEL_WARN:
                 PARAM_TREE_ADD(buffer_full_percentage, 1, ENC_NA);
                 break;
-            case LLRP_TLV_REPORT_BUF_OVERFLOW_ERR:
-                break;
+            case LLRP_TLV_REPORT_BUF_OVERFLOW_ERR: break;
             case LLRP_TLV_READER_EXCEPTION_EVENT:
                 suboffset = dissect_llrp_utf8_parameter(tvb, pinfo, param_tree, hf_llrp_message, suboffset);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_RF_SURVEY_EVENT:
                 PARAM_TREE_ADD(rfevent_type, 1, ENC_NA);
@@ -2072,7 +2075,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 PARAM_TREE_ADD(aievent_type, 1, ENC_NA);
                 PARAM_TREE_ADD(rospec_id, 4, ENC_BIG_ENDIAN);
                 PARAM_TREE_ADD(spec_idx, 2, ENC_BIG_ENDIAN);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_ANTENNA_EVENT:
                 PARAM_TREE_ADD(antenna_event_type, 1, ENC_NA);
@@ -2090,7 +2093,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             case LLRP_TLV_LLRP_STATUS:
                 PARAM_TREE_ADD(status_code, 2, ENC_BIG_ENDIAN);
                 suboffset = dissect_llrp_utf8_parameter(tvb, pinfo, param_tree, hf_llrp_error_desc, suboffset);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_FIELD_ERROR:
                 PARAM_TREE_ADD(field_num, 2, ENC_BIG_ENDIAN);
@@ -2099,7 +2102,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             case LLRP_TLV_PARAM_ERROR:
                 PARAM_TREE_ADD(parameter_type, 2, ENC_BIG_ENDIAN);
                 PARAM_TREE_ADD(error_code, 2, ENC_BIG_ENDIAN);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_C1G2_LLRP_CAP:
                 PARAM_TREE_ADD_STAY(can_support_block_erase, 1, ENC_NA);
@@ -2130,11 +2133,11 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
             case LLRP_TLV_C1G2_INVENTORY_COMMAND:
                 PARAM_TREE_ADD(inventory_state_aware, 1, ENC_NA);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_C1G2_FILTER:
                 PARAM_TREE_ADD(trunc, 1, ENC_NA);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_C1G2_TAG_INV_MASK:
                 PARAM_TREE_ADD(mb, 1, ENC_NA);
@@ -2156,7 +2159,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 PARAM_TREE_ADD(session, 1, ENC_NA);
                 PARAM_TREE_ADD(tag_population, 2, ENC_BIG_ENDIAN);
                 PARAM_TREE_ADD(tag_transit_time, 4, ENC_BIG_ENDIAN);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_C1G2_TAG_INV_AWARE_SING:
                 PARAM_TREE_ADD_STAY(sing_i, 1, ENC_NA);
@@ -2200,7 +2203,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             case LLRP_TLV_C1G2_LOCK:
                 PARAM_TREE_ADD(opspec_id, 2, ENC_BIG_ENDIAN);
                 PARAM_TREE_ADD(access_pass, 4, ENC_BIG_ENDIAN);
-                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end);
+                suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_C1G2_LOCK_PAYLOAD:
                 PARAM_TREE_ADD(privilege, 1, ENC_NA);
@@ -2641,7 +2644,7 @@ dissect_llrp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             DISSECTOR_ASSERT_NOT_REACHED();
     };
     if(ends_with_parameters) {
-        offset = dissect_llrp_parameters(tvb, pinfo, tree, offset, tvb_reported_length(tvb));
+        offset = dissect_llrp_parameters(tvb, pinfo, tree, offset, tvb_reported_length(tvb), 0);
     }
     if(tvb_reported_length_remaining(tvb, offset) != 0) {
         /* Report problem */
