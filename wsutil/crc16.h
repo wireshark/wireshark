@@ -61,6 +61,12 @@ WS_DLL_PUBLIC guint16 crc16_x25_ccitt_seed(const guint8 *buf, guint len, guint16
  @return The CRC16 CCITT checksum (using the given seed). */
 WS_DLL_PUBLIC guint16 crc16_ccitt_seed(const guint8 *buf, guint len, guint16 seed);
 
+/** Compute the 16bit CRC_A value of a buffer as defined in ISO14443-3.
+ @param buf The buffer containing the data.
+ @param len The number of bytes to include in the computation.
+ @return the CRC16 checksum for the buffer */
+WS_DLL_PUBLIC guint16 crc16_iso14443a(const guint8 *buf, guint len);
+
 /** Calculates a CRC16 checksum for the given buffer with the polynom
  *  0x5935 using a precompiled CRC table
  * @param buf a pointer to a buffer of the given length

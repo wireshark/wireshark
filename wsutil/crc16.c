@@ -346,6 +346,14 @@ guint16 crc16_ccitt_seed(const guint8 *buf, guint len, guint16 seed)
        ^ crc16_ccitt_xorout;
 }
 
+/* ISO14443-3, section 6.2.4: For ISO14443-A, the polynomial 0x1021 is
+   used, the initial register value shall be 0x6363, the final register
+   value is not XORed with anything. */
+guint16 crc16_iso14443a(const guint8 *buf, guint len)
+{
+    return crc16_reflected(buf,len, 0x6363 ,crc16_ccitt_table_reverse);
+}
+
 guint16 crc16_0x5935(const guint8 *buf, guint32 len, guint16 seed)
 {
     return crc16_unreflected(buf, len, seed, crc16_precompiled_5935);
