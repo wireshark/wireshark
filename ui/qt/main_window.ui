@@ -2837,6 +2837,11 @@
     <string>Ctrl+Shift+E</string>
    </property>
   </action>
+  <action name="actionContextShowPacketBytes">
+   <property name="text">
+    <string>Show Packet Bytes…</string>
+   </property>
+  </action>
   <action name="actionContextWikiProtocolPage">
    <property name="text">
     <string>Wiki Protocol Page</string>

@@ -86,6 +86,48 @@ You can choose to view the data in one of the following formats:
   program for further examination. The display will look the same as the ASCII
   setting, but ``Save As'' will result in a binary file.
 
+[[ChAdvShowPacketBytes]]
+
+=== Show Packet Bytes
+
+If a selected packet field does not show all the bytes (i.e. they are truncated)
+or if they are shown as bytes rather than string or if they require more formatting
+because they contain an image or HTML then this dialog can be used.
+
+You can choose from the following actions:
+
+. __Find__: Search for the given text.  Matching text will be highlighted,
+  and the ``Find Next'' will search for more.
+
+. __Print__: Print the bytes in the currently selected format.
+
+. __Copy__: Copy the bytes to the clipboard in the currently selected format.
+
+. __Save As__: Save the bytes in the currently selected format.
+
+. __Close__: Close this dialog box.
+
+You can choose to view the data in one of the following formats:
+
+. __ASCII__: In this view you see the bytes as ASCII.
+  All non-ASCII bytes are replaced by dot for readability.
+
+. __EBCDIC__: For the big-iron freaks out there.
+
+. __HTML__: This allows you to see all the data formatted as a HTML document.
+  The HTML supported is what's supported by the Qt QTextEdit class.
+
+. __Image__: This will try to convert the bytes into an image.
+  Images supported are what's supported by the Qt QImage class.
+
+. __ISO 8859-1__: In this view you see the bytes as ISO 8859-1.
+
+. __Raw__: This allows you to load the unaltered stream data into a different
+  program for further examination. The display will show HEX data, but
+  ``Save As'' will result in a binary file.
+
+. __UTF8__: In this view you see the bytes as UTF-8.
+
 [[ChAdvExpert]]
 
 === Expert Information

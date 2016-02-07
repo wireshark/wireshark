@@ -99,6 +99,7 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_sctp_graph_byte_dialog.h	\
 	ui_search_frame.h	\
 	ui_sequence_dialog.h	\
+	ui_show_packet_bytes_dialog.h	\
 	ui_splash_overlay.h	\
 	ui_supported_protocols_dialog.h	\
 	ui_tap_parameter_dialog.h	\
@@ -255,6 +256,7 @@ MOC_HDRS =	\
 	sequence_diagram.h	\
 	sequence_dialog.h	\
 	service_response_time_dialog.h	\
+	show_packet_bytes_dialog.h	\
 	simple_dialog.h	\
 	simple_statistics_dialog.h	\
 	sparkline_delegate.h	\
@@ -347,6 +349,7 @@ UI_FILES =	\
 	sctp_graph_byte_dialog.ui	\
 	search_frame.ui	\
 	sequence_dialog.ui	\
+	show_packet_bytes_dialog.ui	\
 	splash_overlay.ui	\
 	supported_protocols_dialog.ui	\
 	tap_parameter_dialog.ui	\
@@ -513,6 +516,7 @@ WIRESHARK_QT_SRC =	\
 	sequence_diagram.cpp	\
 	sequence_dialog.cpp	\
 	service_response_time_dialog.cpp	\
+	show_packet_bytes_dialog.cpp	\
 	simple_dialog.cpp	\
 	simple_statistics_dialog.cpp	\
 	sparkline_delegate.cpp	\

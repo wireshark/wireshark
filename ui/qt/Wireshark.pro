@@ -277,6 +277,7 @@ FORMS += \
     sctp_graph_byte_dialog.ui  \
     search_frame.ui \
     sequence_dialog.ui \
+    show_packet_bytes_dialog.ui \
     splash_overlay.ui \
     supported_protocols_dialog.ui \
     tap_parameter_dialog.ui \
@@ -368,6 +369,7 @@ HEADERS += $$HEADERS_WS_C \
     search_frame.h \
     service_response_time_dialog.h \
     simple_statistics_dialog.h \
+    show_packet_bytes_dialog.h \
     splash_overlay.h \
     stats_tree_dialog.h \
     tango_colors.h \
@@ -782,6 +784,7 @@ SOURCES += \
     service_response_time_dialog.cpp \
     simple_dialog.cpp \
     simple_statistics_dialog.cpp \
+    show_packet_bytes_dialog.cpp \
     sparkline_delegate.cpp \
     splash_overlay.cpp \
     stats_tree_dialog.cpp \

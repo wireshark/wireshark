@@ -128,6 +128,7 @@ set(WIRESHARK_QT_HEADERS
 	search_frame.h
 	sequence_diagram.h
 	sequence_dialog.h
+	show_packet_bytes_dialog.h
 	simple_dialog.h
 	splash_overlay.h
 	stats_tree_dialog.h
@@ -278,6 +279,7 @@ set(WIRESHARK_QT_SRC
 	service_response_time_dialog.cpp
 	simple_dialog.cpp
 	simple_statistics_dialog.cpp
+	show_packet_bytes_dialog.cpp
 	splash_overlay.cpp
 	sparkline_delegate.cpp
 	stock_icon.cpp
@@ -401,6 +403,7 @@ set(WIRESHARK_QT_UI
 	sctp_graph_byte_dialog.ui
 	search_frame.ui
 	sequence_dialog.ui
+	show_packet_bytes_dialog.ui
 	splash_overlay.ui
 	supported_protocols_dialog.ui
 	tap_parameter_dialog.ui

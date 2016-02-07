@@ -130,6 +130,7 @@
 #include "sctp_assoc_analyse_dialog.h"
 #include "sctp_graph_dialog.h"
 #include "sequence_dialog.h"
+#include "show_packet_bytes_dialog.h"
 #include "stats_tree_dialog.h"
 #include "stock_icon.h"
 #include "supported_protocols_dialog.h"
@@ -1759,6 +1760,13 @@ void MainWindow::on_actionFileExportPacketBytes_triggered()
         wsApp->setLastOpenDir(&file_name);
     }
 }
+
+void MainWindow::on_actionContextShowPacketBytes_triggered()
+{
+    ShowPacketBytesDialog *spbd = new ShowPacketBytesDialog(*this, capture_file_);
+    spbd->show();
+}
+
 void MainWindow::on_actionFileExportPDU_triggered()
 {
     ExportPDUDialog *exportpdu_dialog = new ExportPDUDialog(this);

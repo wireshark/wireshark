@@ -262,6 +262,9 @@ topic_action_url(topic_action_e action)
     case(HELP_FOLLOW_STREAM_DIALOG):
         url = user_guide_url("ChAdvFollowTCPSection.html");
         break;
+    case(HELP_SHOW_PACKET_BYTES_DIALOG):
+        url = user_guide_url("ChAdvShowPacketBytes.html");
+        break;
     case(HELP_EXPERT_INFO_DIALOG):
         url = user_guide_url("ChAdvExpert.html");
         break;

@@ -256,6 +256,8 @@ sctp_graph_arwnd_dialog.$(OBJEXT): ui_sctp_graph_arwnd_dialog.h
 
 sctp_graph_byte_dialog.$(OBJEXT): ui_sctp_graph_byte_dialog.h
 
+show_packet_bytes_dialog.$(OBJEXT): ui_show_packet_bytes_dialog.h
+
 splash_overlay.$(OBJEXT): ui_splash_overlay.h
 
 supported_protocols_dialog.$(OBJEXT): ui_supported_protocols_dialog.h

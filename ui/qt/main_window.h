@@ -601,6 +601,8 @@ private slots:
     void on_actionContextCopyBytesHexStream_triggered();
     void on_actionContextCopyBytesBinary_triggered();
 
+    void on_actionContextShowPacketBytes_triggered();
+
     void on_actionContextWikiProtocolPage_triggered();
     void on_actionContextFilterFieldReference_triggered();
 
