@@ -285,6 +285,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-t124.c
 	dissectors/packet-t125.c
 	dissectors/packet-t38.c
+	dissectors/packet-tcap.c
 	dissectors/packet-tetra.c
 	dissectors/packet-ulp.c
 	dissectors/packet-wlancertextn.c
@@ -296,7 +297,6 @@ set(ASN1_DISSECTOR_SRC
 )
 
 set(DIRTY_ASN1_DISSECTOR_SRC
-	dissectors/packet-tcap.c
 )
 
 set(DIRTY_CORBA_IDL_DISSECTOR_SRC

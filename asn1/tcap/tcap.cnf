@@ -84,6 +84,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
   gboolean pc;
   gint tag;
   guint32 len, comp_offset;
+  volatile guint32 _offset;
   gint ind_field;
 
   comp_offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
@@ -94,13 +95,17 @@ ABRT-apdu/_untag/user-information abrt_user_information
   if (!next_tvb)
     return comp_offset;
 
+  _offset = offset;
   TRY {
-  %(DEFAULT_BODY)s
+    _offset = dissect_ber_choice(actx, tree, tvb, _offset,
+                                 Component_choice, hf_index, ett_tcap_Component,
+                                 NULL);
   }
   CATCH_NONFATAL_ERRORS {
     show_exception(tvb, actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
   }
   ENDTRY;
+  offset = _offset;
 
   dissect_tcap_ITU_ComponentPDU(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
 
