@@ -705,7 +705,7 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
           static const guint Nhteltf[4] = {0, 1, 2, 4};
           guint Nsts, bits, Mstbc, bits_per_symbol, symbols;
           int stbc_streams;
-          int ness;
+          guint ness;
           gboolean fec;
 
           /*
@@ -755,6 +755,10 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 
           if (info_n->has_ness) {
             ness = info_n->ness;
+            if (ness >= G_N_ELEMENTS(Nhteltf)) {
+                /* Not valid */
+                break;
+            }
           } else {
             ness = 0;
             assumed_no_extension_streams = TRUE;
