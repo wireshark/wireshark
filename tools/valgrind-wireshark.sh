@@ -36,9 +36,10 @@ VALID=0
 PCAP=""
 TOOL="memcheck"
 
-while getopts ":2b:C:lmnpP:rtTYwcevWdG" OPTCHAR ; do
+while getopts ":2a:b:C:lmnpP:rstTYwcevWdG" OPTCHAR ; do
     case $OPTCHAR in
         2) COMMAND_ARGS="-2 $COMMAND_ARGS" ;;
+        a) ADDITIONAL_SUPPRESSION_FILE="--suppressions=$OPTARG" ;;
         b) WIRESHARK_BIN_DIR=$OPTARG ;;
         C) COMMAND_ARGS="-C $OPTARG $COMMAND_ARGS" ;;
         l) LEAK_CHECK="--leak-check=full" ;;
@@ -49,6 +50,7 @@ while getopts ":2b:C:lmnpP:rtTYwcevWdG" OPTCHAR ; do
         P) TOOL="callgrind"
            CALLGRIND_OUT_FILE="--callgrind-out-file=$OPTARG" ;;
         r) REACHABLE="--show-reachable=yes" ;;
+        s) GEN_SUPPRESSIONS="--gen-suppressions=yes" ;;
         t) TRACK_ORIGINS="--track-origins=yes" ;;
         T) COMMAND_ARGS="-Vx $COMMAND_ARGS" ;; # "build the Tree"
         Y) COMMAND_ARGS="-Y frame $COMMAND_ARGS" ;; # Run with a read filter (but no tree)
@@ -84,7 +86,7 @@ fi
 
 if [ $VALID -eq 0 ]
 then
-    printf "Usage: $0 [-2] [-b bin_dir] [-c] [-e] [-C config_profile] [-l] [-m] [-n] [-p] [-r] [-t] [-T] [-w] [-v] /path/to/file.pcap\n"
+    printf "Usage: $0 [-2] [-a file] [-b bin_dir] [-c] [-e] [-C config_profile] [-l] [-m] [-n] [-p] [-r] [-s] [-t] [-T] [-w] [-v] /path/to/file.pcap\n"
     exit 1
 fi
 
@@ -110,4 +112,12 @@ else
     LIBTOOL=""
 fi
 
-$LIBTOOL valgrind --suppressions=`dirname $0`/vg-suppressions --tool=$TOOL $CALLGRIND_OUT_FILE $VERBOSE $LEAK_CHECK $REACHABLE $TRACK_ORIGINS $COMMAND $COMMAND_ARGS $PCAP $COMMAND_ARGS2 > /dev/null
+cmdline="$LIBTOOL valgrind --suppressions=`dirname $0`/vg-suppressions $ADDITIONAL_SUPPRESSION_FILE \
+--tool=$TOOL $CALLGRIND_OUT_FILE $VERBOSE $LEAK_CHECK $REACHABLE $GEN_SUPPRESSIONS $TRACK_ORIGINS \
+$COMMAND $COMMAND_ARGS $PCAP $COMMAND_ARGS2"
+
+if [ $VERBOSE ];then
+  echo -e "\n$cmdline\n"
+fi
+
+$cmdline > /dev/null
