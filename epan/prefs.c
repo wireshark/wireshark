@@ -65,6 +65,9 @@ static gboolean prefs_is_column_visible(const gchar *cols_hidden, fmt_data *cfmt
 static gboolean parse_column_format(fmt_data *cfmt, const char *fmt);
 static void try_convert_to_custom_column(gpointer *el_data);
 
+#define IS_PREF_OBSOLETE(p) ((p) & PREF_OBSOLETE)
+#define SET_PREF_OBSOLETE(p) ((p) |= PREF_OBSOLETE)
+#define RESET_PREF_OBSOLETE(p) ((p) &= ~PREF_OBSOLETE)
 
 #define PF_NAME         "preferences"
 #define OLD_GPF_NAME    "wireshark.conf" /* old name for global preferences file */
@@ -235,9 +238,12 @@ static void
 free_pref(gpointer data, gpointer user_data _U_)
 {
     pref_t *pref = (pref_t *)data;
+    int type = pref->type;
 
-    switch (pref->type) {
-    case PREF_OBSOLETE:
+    /* we reset the PREF_OBSOLETE bit in order to allow the original preference to be freed */
+    RESET_PREF_OBSOLETE(type);
+
+    switch (type) {
     case PREF_BOOL:
     case PREF_ENUM:
     case PREF_UINT:
@@ -773,7 +779,7 @@ prefs_apply(module_t *module)
  */
 static pref_t *
 register_preference(module_t *module, const char *name, const char *title,
-                    const char *description, pref_type_t type)
+                    const char *description, int type)
 {
     pref_t *preference;
     const gchar *p;
@@ -812,7 +818,7 @@ register_preference(module_t *module, const char *name, const char *title,
     if (prefs_find_preference(module, name) != NULL)
         g_error("Preference %s has already been registered", name);
 
-    if ((type != PREF_OBSOLETE) &&
+    if ((!IS_PREF_OBSOLETE(type)) &&
         /* Don't compare if it's a subtree */
         (module->name != NULL)) {
         /*
@@ -1021,7 +1027,7 @@ prefs_register_enum_preference(module_t *module, const char *name,
 static void
 register_string_like_preference(module_t *module, const char *name,
                                 const char *title, const char *description,
-                                char **var, pref_type_t type,
+                                char **var, int type,
                                 struct pref_custom_cbs* custom_cbs,
                                 gboolean free_tmp)
 {
@@ -1298,7 +1304,7 @@ extern gboolean
 prefs_get_preference_obsolete(pref_t *pref)
 {
     if (pref)
-        return pref->type == PREF_OBSOLETE ? TRUE : FALSE;
+        return (IS_PREF_OBSOLETE(pref->type) ? TRUE : FALSE);
 
     return TRUE;
 }
@@ -1310,7 +1316,7 @@ extern prefs_set_pref_e
 prefs_set_preference_obsolete(pref_t *pref)
 {
     if (pref) {
-        pref->type = PREF_OBSOLETE;
+        SET_PREF_OBSOLETE(pref->type);
         return PREFS_SET_OK;
     }
     return PREFS_SET_NO_SUCH_PREF;
@@ -1343,7 +1349,7 @@ prefs_pref_foreach(module_t *module, pref_cb callback, gpointer user_data)
 
     for (elem = g_list_first(module->prefs); elem != NULL; elem = g_list_next(elem)) {
         pref = (pref_t *)elem->data;
-        if (pref->type == PREF_OBSOLETE) {
+        if (IS_PREF_OBSOLETE(pref->type)) {
             /*
              * This preference is no longer supported; it's
              * not a real preference, so we don't call the
@@ -3180,9 +3186,23 @@ pre_init_prefs(void)
 static void
 reset_pref(pref_t *pref)
 {
+    int type;
     if (!pref) return;
 
-    switch (pref->type) {
+    type = pref->type;
+
+    /*
+     * This preference is no longer supported; it's not a
+     * real preference, so we don't reset it (i.e., we
+     * treat it as if it weren't found in the list of
+     * preferences, and we weren't called in the first place).
+     */
+    if (IS_PREF_OBSOLETE(type))
+        return;
+    else
+        RESET_PREF_OBSOLETE(type);
+
+    switch (type) {
 
     case PREF_UINT:
         *pref->varp.uint = pref->default_val.uint;
@@ -3225,15 +3245,6 @@ reset_pref(pref_t *pref)
 
     case PREF_CUSTOM:
         pref->custom_cbs.reset_cb(pref);
-        break;
-
-    case PREF_OBSOLETE:
-        /*
-         * This preference is no longer supported; it's not a
-         * real preference, so we don't reset it (i.e., we
-         * treat it as if it weren't found in the list of
-         * preferences, and we weren't called in the first place).
-         */
         break;
     }
 }
@@ -4021,6 +4032,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
     gchar    *filter_expr = NULL;
     module_t *module, *containing_module;
     pref_t   *pref;
+    int type;
 
     if (strcmp(pref_name, PRS_GUI_FILTER_LABEL) == 0) {
         filter_label = g_strdup(value);
@@ -4420,7 +4432,14 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
         if (pref == NULL)
             return PREFS_SET_NO_SUCH_PREF;        /* no such preference */
 
-        switch (pref->type) {
+        type = pref->type;
+        if (IS_PREF_OBSOLETE(type)) {
+            return PREFS_SET_OBSOLETE;        /* no such preference any more */
+        } else {
+            RESET_PREF_OBSOLETE(type);
+        }
+
+        switch (type) {
 
         case PREF_UINT:
             /* XXX - give an error if it doesn't fit in a guint? */
@@ -4491,9 +4510,6 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
         {
             break;
         }
-
-        case PREF_OBSOLETE:
-            return PREFS_SET_OBSOLETE;        /* no such preference any more */
         }
     }
 
@@ -4509,12 +4525,21 @@ const char *
 prefs_pref_type_name(pref_t *pref)
 {
     const char *type_name = "[Unknown]";
+    int type;
 
     if (!pref) {
         return type_name; /* ...or maybe assert? */
     }
 
-    switch (pref->type) {
+    type = pref->type;
+
+    if (IS_PREF_OBSOLETE(type)) {
+        type_name = "Obsolete";
+    } else {
+        RESET_PREF_OBSOLETE(type);
+    }
+
+    switch (type) {
 
     case PREF_UINT:
         switch (pref->info.base) {
@@ -4567,10 +4592,6 @@ prefs_pref_type_name(pref_t *pref)
         type_name = "Custom";
         break;
 
-    case PREF_OBSOLETE:
-        type_name = "Obsolete";
-        break;
-
     case PREF_STATIC_TEXT:
         type_name = "Static text";
         break;
@@ -4586,12 +4607,21 @@ char *
 prefs_pref_type_description(pref_t *pref)
 {
     const char *type_desc = "An unknown preference type";
+    int type;
 
     if (!pref) {
         return g_strdup_printf("%s.", type_desc); /* ...or maybe assert? */
     }
 
-    switch (pref->type) {
+    type = pref->type;
+
+    if (IS_PREF_OBSOLETE(type)) {
+        type_desc = "An obsolete preference";
+    } else {
+        RESET_PREF_OBSOLETE(type);
+    }
+
+    switch (type) {
 
     case PREF_UINT:
         switch (pref->info.base) {
@@ -4659,10 +4689,6 @@ prefs_pref_type_description(pref_t *pref)
         type_desc = "A custom value";
         break;
 
-    case PREF_OBSOLETE:
-        type_desc = "An obsolete preference";
-        break;
-
     case PREF_STATIC_TEXT:
         type_desc = "[Static text]";
         break;
@@ -4678,10 +4704,19 @@ prefs_pref_type_description(pref_t *pref)
 }
 
 static gboolean
-prefs_pref_is_default(pref_t *pref) {
+prefs_pref_is_default(pref_t *pref)
+{
+    int type;
     if (!pref) return FALSE;
 
-    switch (pref->type) {
+    type = pref->type;
+    if (IS_PREF_OBSOLETE(type)) {
+        return FALSE;
+    } else {
+        RESET_PREF_OBSOLETE(type);
+    }
+
+    switch (type) {
 
     case PREF_UINT:
         if (pref->default_val.uint == *pref->varp.uint)
@@ -4724,7 +4759,6 @@ prefs_pref_is_default(pref_t *pref) {
     case PREF_CUSTOM:
         return pref->custom_cbs.is_default_cb(pref);
 
-    case PREF_OBSOLETE:
     case PREF_STATIC_TEXT:
     case PREF_UAT:
         return FALSE;
@@ -4740,6 +4774,7 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
     void *valp; /* pointer to preference value */
     color_t *pref_color;
     gchar *tmp_value, *ret_value;
+    int type;
 
     if (!pref) {
         return g_strdup(pref_text);
@@ -4765,7 +4800,14 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
             return g_strdup(pref_text);
     }
 
-    switch (pref->type) {
+    type = pref->type;
+    if (IS_PREF_OBSOLETE(type)) {
+        pref_text = "[Obsolete]";
+    } else {
+        RESET_PREF_OBSOLETE(type);
+    }
+
+    switch (type) {
 
     case PREF_UINT:
     {
@@ -4830,10 +4872,6 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
         pref_text = "[Custom]";
         break;
 
-    case PREF_OBSOLETE:
-        pref_text = "[Obsolete]";
-        break;
-
     case PREF_STATIC_TEXT:
         pref_text = "[Static text]";
         break;
@@ -4864,9 +4902,10 @@ write_pref(gpointer data, gpointer user_data)
     write_pref_arg_t *arg = (write_pref_arg_t *)user_data;
     gchar **desc_lines;
     int i;
+    int type;
 
-    switch (pref->type) {
-    case PREF_OBSOLETE:
+    type = pref->type;
+    if (IS_PREF_OBSOLETE(type)) {
         /*
          * This preference is no longer supported; it's not a
          * real preference, so we don't write it out (i.e., we
@@ -4874,6 +4913,11 @@ write_pref(gpointer data, gpointer user_data)
          * preferences, and we weren't called in the first place).
          */
         return;
+    } else {
+        RESET_PREF_OBSOLETE(type);
+    }
+
+    switch (type) {
 
     case PREF_STATIC_TEXT:
     case PREF_UAT:
