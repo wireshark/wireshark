@@ -785,7 +785,7 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
             bandwidth_40 =
               (phdr->phy_info.info_11n.bandwidth == PHDR_802_11_BANDWIDTH_40_MHZ) ?
                1 : 0;
-            if (phdr->phy_info.info_11n.mcs_index < MAX_MCS_INDEX) {
+            if (phdr->phy_info.info_11n.mcs_index <= MAX_MCS_INDEX) {
               data_rate = ieee80211_float_htrates[phdr->phy_info.info_11n.mcs_index][bandwidth_40][phdr->phy_info.info_11n.short_gi];
               have_data_rate = TRUE;
             }
