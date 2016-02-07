@@ -6311,6 +6311,7 @@ dissect_zcl_binary_input_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint 
         case ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_POLARITY:
             proto_tree_add_item(tree, hf_zbee_zcl_binary_input_basic_polarity, tvb, *offset, 1, ENC_NA);
             *offset += 1;
+            break;
 
         case ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_RELIABILITY:
             proto_tree_add_item(tree, hf_zbee_zcl_binary_input_basic_reliability, tvb, *offset, 1, ENC_NA);

@@ -612,6 +612,7 @@ dissect_zcl_fan_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset
         case ZBEE_ZCL_ATTR_ID_FAN_CONTROL_FAN_MODE_SEQUENCE:
             proto_tree_add_item(tree, hf_zbee_zcl_fan_control_attr_fan_mode_seq, tvb, *offset, 1, ENC_NA);
             *offset += 1;
+            break;
 
         default:
             dissect_zcl_attr_data(tvb, tree, offset, data_type);
@@ -807,10 +808,12 @@ dissect_zcl_dehumidification_control_attr_data(proto_tree *tree, tvbuff_t *tvb, 
         case ZBEE_ZCL_ATTR_ID_DEHUMIDIFICATION_CONTROL_DEHUM_LOCKOUT:
             proto_tree_add_item(tree, hf_zbee_zcl_dehumidification_control_attr_dehum_lockout, tvb, *offset, 1, ENC_NA);
             *offset += 1;
+            break;
 
         case ZBEE_ZCL_ATTR_ID_DEHUMIDIFICATION_CONTROL_RELATIVE_HUMIDITY_DISPLAY:
             proto_tree_add_item(tree, hf_zbee_zcl_dehumidification_control_attr_rel_hum_display, tvb, *offset, 1, ENC_NA);
             *offset += 1;
+            break;
 
         case ZBEE_ZCL_ATTR_ID_DEHUMIDIFICATION_CONTROL_RELATIVE_HUMIDITY:
         case ZBEE_ZCL_ATTR_ID_DEHUMIDIFICATION_CONTROL_DEHUM_COOLING:
@@ -999,6 +1002,7 @@ dissect_zcl_thermostat_ui_config_attr_data(proto_tree *tree, tvbuff_t *tvb, guin
         case ZBEE_ZCL_ATTR_ID_THERMOSTAT_UI_CONFIG_KEYPAD_LOCKOUT:
             proto_tree_add_item(tree, hf_zbee_zcl_thermostat_ui_config_attr_keypad_lockout, tvb, *offset, 1, ENC_NA);
             *offset += 1;
+            break;
 
         default:
             dissect_zcl_attr_data(tvb, tree, offset, data_type);
