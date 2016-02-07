@@ -1207,7 +1207,7 @@
         <location filename="capture_interfaces_dialog.ui" line="128"/>
         <source>Capture filter for selected interfaces:</source>
         <oldsource>Capture Filter for selected Interfaces:</oldsource>
-        <translation type="unfinished">選択したインタフェースのキャプチャフィルタ</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="158"/>
@@ -2014,12 +2014,12 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>表示フィルタ式</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="187"/>
+        <location filename="display_filter_expression_dialog.cpp" line="188"/>
         <source>Select a field name to get started</source>
         <translation>開始するフィールド名を選択</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="191"/>
+        <location filename="display_filter_expression_dialog.cpp" line="192"/>
         <source>Click OK to insert this filter</source>
         <translation>OKをクリックしてこのフィルタを挿入</translation>
     </message>
@@ -2433,12 +2433,12 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>ExtcapArgumentFileSelection</name>
     <message>
-        <location filename="extcap_argument_file.cpp" line="101"/>
+        <location filename="extcap_argument_file.cpp" line="110"/>
         <source>Any File (*.*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="extcap_argument_file.cpp" line="110"/>
+        <location filename="extcap_argument_file.cpp" line="119"/>
         <source>Open File</source>
         <translation>ファイルを開く</translation>
     </message>
@@ -2446,15 +2446,20 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>ExtcapOptionsDialog</name>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="69"/>
-        <location filename="extcap_options_dialog.cpp" line="102"/>
+        <location filename="extcap_options_dialog.cpp" line="74"/>
+        <location filename="extcap_options_dialog.cpp" line="108"/>
         <source>Extcap Interface Options</source>
         <translation>Extcapインタフェースオプション</translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="72"/>
+        <location filename="extcap_options_dialog.cpp" line="78"/>
         <source>Start</source>
         <translation>開始</translation>
+    </message>
+    <message>
+        <location filename="extcap_options_dialog.ui" line="33"/>
+        <source>Save parameter on capture start</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2669,7 +2674,7 @@ for filter files: %2.</source>
         <location filename="follow_stream_dialog.cpp" line="116"/>
         <source>Filter Out This Stream</source>
         <oldsource>Hide this stream</oldsource>
-        <translation type="unfinished">このストリームを隠す</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="119"/>
@@ -9102,7 +9107,7 @@ a:hover {
         <location filename="main_window.cpp" line="1124"/>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
-        <translation type="unfinished">新しいキャプチャファイルのインポートする前</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1437"/>
@@ -9121,26 +9126,10 @@ a:hover {
         <translation>.</translation>
     </message>
     <message>
-        <source>You have unsaved packets</source>
-        <translation type="vanished">保存していないパケットがあります。</translation>
-    </message>
-    <message>
-        <source>They will be lost if you don&apos;t save them.</source>
-        <translation type="vanished">保存しない場合、これらは失われます。</translation>
-    </message>
-    <message>
-        <source>Do you want to stop the capture and save the captured packets</source>
-        <translation type="vanished">キャプチャは停止してキャプチャされたパケットを保存しますか</translation>
-    </message>
-    <message>
         <location filename="main_window.cpp" line="1597"/>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
-        <translation type="unfinished">キャプチャされたパケットを保存したいですか</translation>
-    </message>
-    <message>
-        <source>?</source>
-        <translation type="vanished">？</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1593"/>
@@ -9291,54 +9280,54 @@ a:hover {
         <translation>テキストコピーできません 別に試してください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2348"/>
-        <location filename="main_window_slots.cpp" line="3422"/>
+        <location filename="main_window_slots.cpp" line="2350"/>
+        <location filename="main_window_slots.cpp" line="3424"/>
         <source>Unable to build conversation filter.</source>
         <translation>会話フィルタを作成できません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2485"/>
-        <location filename="main_window_slots.cpp" line="2498"/>
+        <location filename="main_window_slots.cpp" line="2487"/>
+        <location filename="main_window_slots.cpp" line="2500"/>
         <source> before reloading the file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2532"/>
+        <location filename="main_window_slots.cpp" line="2534"/>
         <source>No filter available. Try another </source>
         <translation>フィルタが利用できません 別に試してください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3429"/>
+        <location filename="main_window_slots.cpp" line="3431"/>
         <source>Error compiling filter for this conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3438"/>
+        <location filename="main_window_slots.cpp" line="3440"/>
         <source>No previous/next packet in conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3515"/>
+        <location filename="main_window_slots.cpp" line="3517"/>
         <source>No Interface Selected</source>
         <translation>インターフェースが選択されていません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3522"/>
+        <location filename="main_window_slots.cpp" line="3524"/>
         <source> before starting a new capture</source>
         <translation>新規キャプチャを開始する前に</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3540"/>
+        <location filename="main_window_slots.cpp" line="3542"/>
         <source> before restarting the capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3723"/>
+        <location filename="main_window_slots.cpp" line="3725"/>
         <source>Wiki Page for %1</source>
         <translation>%1 の Wikiページ</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3724"/>
+        <location filename="main_window_slots.cpp" line="3726"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;ワイヤーシャークWikiはコミュニティによって運営されています。&lt;/p&gt;&lt;p&gt;いま見ているページはすばらしかったり、不完全だったり、間違っていたり、存在しないかもしれません。&lt;/p&gt;&lt;p&gt;Wikiに移動しますか？&lt;/p&gt;</translation>
     </message>

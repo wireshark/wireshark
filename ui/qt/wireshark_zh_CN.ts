@@ -1019,28 +1019,28 @@
     <message>
         <location filename="capture_filter_edit.cpp" line="358"/>
         <source>Save this filter</source>
-        <translation type="unfinished">保存该过滤器</translation>
+        <translation>保存此过滤器</translation>
     </message>
     <message>
         <location filename="capture_filter_edit.cpp" line="360"/>
         <source>Remove this filter</source>
-        <translation type="unfinished">删除该过滤器</translation>
+        <translation>移除此过滤器</translation>
     </message>
     <message>
         <location filename="capture_filter_edit.cpp" line="362"/>
         <source>Manage Capture Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>管理捕获筛选器</translation>
     </message>
     <message>
         <location filename="capture_filter_edit.cpp" line="498"/>
         <source>Unable to save capture filter settings.</source>
-        <translation type="unfinished">无法保存捕获过滤器设置。</translation>
+        <translation>无法保存捕获筛选器设置。</translation>
     </message>
     <message>
         <location filename="capture_filter_edit.cpp" line="499"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
-        <translation type="unfinished">未能保存您的捕获过滤器文件
+        <translation>未能保存您的捕获过滤器文件
 “%1”：%2。</translation>
     </message>
 </context>
@@ -1208,7 +1208,7 @@
         <location filename="capture_interfaces_dialog.ui" line="128"/>
         <source>Capture filter for selected interfaces:</source>
         <oldsource>Capture Filter for selected Interfaces:</oldsource>
-        <translation type="unfinished">所选择接口的捕获过滤器:</translation>
+        <translation>所选择接口的捕获过滤器:</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="158"/>
@@ -1901,13 +1901,13 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="display_filter_edit.cpp" line="572"/>
         <source>Unable to save display filter settings.</source>
-        <translation type="unfinished">无法保存显示过滤器设置。</translation>
+        <translation>无法保存显示过滤器设置。</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="573"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation type="unfinished">未能保存您的显示过滤器文件
+        <translation>未能保存您的显示过滤器文件
 “%1”：%2。</translation>
     </message>
     <message>
@@ -2017,12 +2017,12 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>显示过滤器表达式</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="187"/>
+        <location filename="display_filter_expression_dialog.cpp" line="188"/>
         <source>Select a field name to get started</source>
         <translation>选择一个字段名称以开始</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="191"/>
+        <location filename="display_filter_expression_dialog.cpp" line="192"/>
         <source>Click OK to insert this filter</source>
         <translation>点击确定插入此过滤器</translation>
     </message>
@@ -2436,12 +2436,12 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>ExtcapArgumentFileSelection</name>
     <message>
-        <location filename="extcap_argument_file.cpp" line="101"/>
+        <location filename="extcap_argument_file.cpp" line="110"/>
         <source>Any File (*.*)</source>
         <translation>任意文件 (*.*)</translation>
     </message>
     <message>
-        <location filename="extcap_argument_file.cpp" line="110"/>
+        <location filename="extcap_argument_file.cpp" line="119"/>
         <source>Open File</source>
         <translation>打开文件</translation>
     </message>
@@ -2449,15 +2449,20 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>ExtcapOptionsDialog</name>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="69"/>
-        <location filename="extcap_options_dialog.cpp" line="102"/>
+        <location filename="extcap_options_dialog.cpp" line="74"/>
+        <location filename="extcap_options_dialog.cpp" line="108"/>
         <source>Extcap Interface Options</source>
         <translation>Extcap 接口选项</translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="72"/>
+        <location filename="extcap_options_dialog.cpp" line="78"/>
         <source>Start</source>
         <translation>开始</translation>
+    </message>
+    <message>
+        <location filename="extcap_options_dialog.ui" line="33"/>
+        <source>Save parameter on capture start</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2676,7 +2681,7 @@ for filter files: %2.</source>
         <location filename="follow_stream_dialog.cpp" line="116"/>
         <source>Filter Out This Stream</source>
         <oldsource>Hide this stream</oldsource>
-        <translation type="unfinished">隐藏这条流</translation>
+        <translation>滤掉此流</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="119"/>
@@ -9135,7 +9140,7 @@ text-decoration: underline;
         <location filename="main_window.cpp" line="1124"/>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
-        <translation type="unfinished"> 导入新捕获前</translation>
+        <translation> 导入新捕获前</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1437"/>
@@ -9154,26 +9159,10 @@ text-decoration: underline;
         <translation>.</translation>
     </message>
     <message>
-        <source>You have unsaved packets</source>
-        <translation type="vanished">您有未保存的分组</translation>
-    </message>
-    <message>
-        <source>They will be lost if you don&apos;t save them.</source>
-        <translation type="vanished">若不保存，这些分组将会丢失。</translation>
-    </message>
-    <message>
-        <source>Do you want to stop the capture and save the captured packets</source>
-        <translation type="vanished">您是否要停止捕获，并保存已捕获的分组</translation>
-    </message>
-    <message>
         <location filename="main_window.cpp" line="1597"/>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
-        <translation type="unfinished">是否希望保存已捕获的分组</translation>
-    </message>
-    <message>
-        <source>?</source>
-        <translation type="vanished">?</translation>
+        <translation>您是否要保存已做出的更改%1？</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1593"/>
@@ -9195,12 +9184,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.cpp" line="1592"/>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
-        <translation type="unfinished"></translation>
+        <translation>您是否要停止捕获，并保存已捕获的分组%1？</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1600"/>
         <source>Do you want to save the captured packets%1?</source>
-        <translation type="unfinished"></translation>
+        <translation>您是否要保存已捕获的分组%1？</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1624"/>
@@ -9251,7 +9240,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window_slots.cpp" line="205"/>
         <source> before opening another file</source>
-        <translation type="unfinished"></translation>
+        <translation>打开另一个文件前</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="692"/>
@@ -9286,7 +9275,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window_slots.cpp" line="1655"/>
         <source> before closing the file</source>
-        <translation type="unfinished"></translation>
+        <translation>关闭文件前</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="1732"/>
@@ -9324,58 +9313,54 @@ text-decoration: underline;
         <translation>无法复制文本。请尝试其他对象。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2348"/>
-        <location filename="main_window_slots.cpp" line="3422"/>
+        <location filename="main_window_slots.cpp" line="2350"/>
+        <location filename="main_window_slots.cpp" line="3424"/>
         <source>Unable to build conversation filter.</source>
         <translation>无法建立对话过滤器。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2485"/>
-        <location filename="main_window_slots.cpp" line="2498"/>
+        <location filename="main_window_slots.cpp" line="2487"/>
+        <location filename="main_window_slots.cpp" line="2500"/>
         <source> before reloading the file</source>
-        <translation type="unfinished"></translation>
+        <translation>重新载入文件前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2532"/>
+        <location filename="main_window_slots.cpp" line="2534"/>
         <source>No filter available. Try another </source>
         <translation>无过滤器可用。请尝试其他 </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3429"/>
+        <location filename="main_window_slots.cpp" line="3431"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>为此对话编译过滤器时出错。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3438"/>
+        <location filename="main_window_slots.cpp" line="3440"/>
         <source>No previous/next packet in conversation.</source>
         <translation>此对话中没有上一个/下一个分组。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3515"/>
+        <location filename="main_window_slots.cpp" line="3517"/>
         <source>No Interface Selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3522"/>
+        <location filename="main_window_slots.cpp" line="3524"/>
         <source> before starting a new capture</source>
         <translation>在开始新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3540"/>
+        <location filename="main_window_slots.cpp" line="3542"/>
         <source> before restarting the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>重新开始捕获前</translation>
     </message>
     <message>
-        <source> before restarting a new capture</source>
-        <translation type="vanished">在重启新捕获前</translation>
-    </message>
-    <message>
-        <location filename="main_window_slots.cpp" line="3723"/>
+        <location filename="main_window_slots.cpp" line="3725"/>
         <source>Wiki Page for %1</source>
         <translation>%1 的 Wiki 页面</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3724"/>
+        <location filename="main_window_slots.cpp" line="3726"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Wireshark Wiki 由社区进行维护。&lt;/p&gt;&lt;p&gt;您即将加载的页面可能是良好的、不完整的、有错误的，甚至不存在的。&lt;/p&gt;&lt;p&gt;继续访问该 Wiki？&lt;/p&gt;</translation>
     </message>

@@ -1019,28 +1019,28 @@
     <message>
         <location filename="capture_filter_edit.cpp" line="358"/>
         <source>Save this filter</source>
-        <translation type="unfinished">Zapisz filtr</translation>
+        <translation>Zapisz filtr</translation>
     </message>
     <message>
         <location filename="capture_filter_edit.cpp" line="360"/>
         <source>Remove this filter</source>
-        <translation type="unfinished">Usuń filtr</translation>
+        <translation>Usuń filtr</translation>
     </message>
     <message>
         <location filename="capture_filter_edit.cpp" line="362"/>
         <source>Manage Capture Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarządzaj filtrami przechwytywania</translation>
     </message>
     <message>
         <location filename="capture_filter_edit.cpp" line="498"/>
         <source>Unable to save capture filter settings.</source>
-        <translation type="unfinished">Nie można zapisać ustawień filtru przechwytywania.</translation>
+        <translation>Nie można zapisać ustawień filtru przechwytywania.</translation>
     </message>
     <message>
         <location filename="capture_filter_edit.cpp" line="499"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
-        <translation type="unfinished">Nie można zapisać do pliku filtrów przechwytywania
+        <translation>Nie można zapisać do pliku filtrów przechwytywania
 &quot;%1&quot;:%2.</translation>
     </message>
 </context>
@@ -1208,7 +1208,7 @@
         <location filename="capture_interfaces_dialog.ui" line="128"/>
         <source>Capture filter for selected interfaces:</source>
         <oldsource>Capture Filter for selected Interfaces:</oldsource>
-        <translation type="unfinished">Filtr przechwytywania dla wybranych interfejsów:</translation>
+        <translation>Filtr przechwytywania dla wybranych interfejsów:</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="158"/>
@@ -1901,13 +1901,13 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     <message>
         <location filename="display_filter_edit.cpp" line="572"/>
         <source>Unable to save display filter settings.</source>
-        <translation type="unfinished">Nie można zapisać ustawień filtru wyświetlania.</translation>
+        <translation>Nie można zapisać ustawień filtru wyświetlania.</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="573"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation type="unfinished">Nie można zapisać do pliku filtrów wyświetlania
+        <translation>Nie można zapisać do pliku filtrów wyświetlania
 &quot;%1&quot;:%2.</translation>
     </message>
     <message>
@@ -2017,12 +2017,12 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <translation>Wyrażenie filtru wyświetlania</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="187"/>
+        <location filename="display_filter_expression_dialog.cpp" line="188"/>
         <source>Select a field name to get started</source>
         <translation>Wybierz nazwę pola by rozpocząć</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="191"/>
+        <location filename="display_filter_expression_dialog.cpp" line="192"/>
         <source>Click OK to insert this filter</source>
         <translation>Kliknij OK by dodać filtr</translation>
     </message>
@@ -2436,12 +2436,12 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
 <context>
     <name>ExtcapArgumentFileSelection</name>
     <message>
-        <location filename="extcap_argument_file.cpp" line="101"/>
+        <location filename="extcap_argument_file.cpp" line="110"/>
         <source>Any File (*.*)</source>
         <translation>Wszystkie pliki (*.*)</translation>
     </message>
     <message>
-        <location filename="extcap_argument_file.cpp" line="110"/>
+        <location filename="extcap_argument_file.cpp" line="119"/>
         <source>Open File</source>
         <translation>Otwórz plik</translation>
     </message>
@@ -2449,15 +2449,20 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
 <context>
     <name>ExtcapOptionsDialog</name>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="69"/>
-        <location filename="extcap_options_dialog.cpp" line="102"/>
+        <location filename="extcap_options_dialog.cpp" line="74"/>
+        <location filename="extcap_options_dialog.cpp" line="108"/>
         <source>Extcap Interface Options</source>
         <translation>Opcje interfejsów Extcap</translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="72"/>
+        <location filename="extcap_options_dialog.cpp" line="78"/>
         <source>Start</source>
         <translation>Start</translation>
+    </message>
+    <message>
+        <location filename="extcap_options_dialog.ui" line="33"/>
+        <source>Save parameter on capture start</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2676,7 +2681,7 @@ dla plików filtrów: %2.</translation>
         <location filename="follow_stream_dialog.cpp" line="116"/>
         <source>Filter Out This Stream</source>
         <oldsource>Hide this stream</oldsource>
-        <translation type="unfinished">Ukryj ten strumień</translation>
+        <translation>Odfiltruj ten strumień</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="119"/>
@@ -9144,7 +9149,7 @@ text-decoration: underline;
         <location filename="main_window.cpp" line="1124"/>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
-        <translation type="unfinished">przed zaimportowaniem nowego pliku przechwytywania</translation>
+        <translation>przed zaimportowaniem nowego pliku przechwytywania</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1437"/>
@@ -9163,26 +9168,10 @@ text-decoration: underline;
         <translation>.</translation>
     </message>
     <message>
-        <source>You have unsaved packets</source>
-        <translation type="vanished">Masz niezapisane pakiety</translation>
-    </message>
-    <message>
-        <source>They will be lost if you don&apos;t save them.</source>
-        <translation type="vanished">Będą utracone jeśli ich nie zapiszesz.</translation>
-    </message>
-    <message>
-        <source>Do you want to stop the capture and save the captured packets</source>
-        <translation type="vanished">Czy chcesz zatrzymać przechwytywanie i zapisać przechwycone pakiety</translation>
-    </message>
-    <message>
         <location filename="main_window.cpp" line="1597"/>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
-        <translation type="unfinished">Czy chcesz zapisać przechwycone pakiety</translation>
-    </message>
-    <message>
-        <source>?</source>
-        <translation type="vanished">?</translation>
+        <translation>Czy chcesz zapisać zrobione zmiany %1?</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1593"/>
@@ -9204,12 +9193,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.cpp" line="1592"/>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy chcesz zatrzymać przechwytywanie i zapisać przechwycone pakiety%1?</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1600"/>
         <source>Do you want to save the captured packets%1?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy chcesz zapisać przechwycone pakiety%1?</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1624"/>
@@ -9260,7 +9249,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window_slots.cpp" line="205"/>
         <source> before opening another file</source>
-        <translation type="unfinished"></translation>
+        <translation>przed otwarciem nowego pliku</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="692"/>
@@ -9295,7 +9284,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window_slots.cpp" line="1655"/>
         <source> before closing the file</source>
-        <translation type="unfinished"></translation>
+        <translation>przed zapisaniem pliku</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="1732"/>
@@ -9333,58 +9322,54 @@ text-decoration: underline;
         <translation>Nie można skopiować tekstu. Spróbuj inną pozycję.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2348"/>
-        <location filename="main_window_slots.cpp" line="3422"/>
+        <location filename="main_window_slots.cpp" line="2350"/>
+        <location filename="main_window_slots.cpp" line="3424"/>
         <source>Unable to build conversation filter.</source>
         <translation>Nie można stworzyć filtru konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2485"/>
-        <location filename="main_window_slots.cpp" line="2498"/>
+        <location filename="main_window_slots.cpp" line="2487"/>
+        <location filename="main_window_slots.cpp" line="2500"/>
         <source> before reloading the file</source>
-        <translation type="unfinished"></translation>
+        <translation>przed przeładowaniem pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2532"/>
+        <location filename="main_window_slots.cpp" line="2534"/>
         <source>No filter available. Try another </source>
         <translation>Brak dostępnych filtrów. Spróbuj ponownie</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3429"/>
+        <location filename="main_window_slots.cpp" line="3431"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Błąd kompilacji filtru dla tej konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3438"/>
+        <location filename="main_window_slots.cpp" line="3440"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Brak poprzedniego i następnego pakietu w konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3515"/>
+        <location filename="main_window_slots.cpp" line="3517"/>
         <source>No Interface Selected</source>
         <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3522"/>
+        <location filename="main_window_slots.cpp" line="3524"/>
         <source> before starting a new capture</source>
         <translation>przed wystartowaniem nowego przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3540"/>
+        <location filename="main_window_slots.cpp" line="3542"/>
         <source> before restarting the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>przed restartem przechwytywania</translation>
     </message>
     <message>
-        <source> before restarting a new capture</source>
-        <translation type="vanished">przed restartem przechwytywania</translation>
-    </message>
-    <message>
-        <location filename="main_window_slots.cpp" line="3723"/>
+        <location filename="main_window_slots.cpp" line="3725"/>
         <source>Wiki Page for %1</source>
         <translation>Strona Wiki dla %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3724"/>
+        <location filename="main_window_slots.cpp" line="3726"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Strona Wiki Wiresharka jest zarządzania przez społeczność.&lt;/p&gt;&lt;p&gt;Strona którą chcesz wczytać może być wspaniała, niekompletna, błędna lub nie istnieć.&lt;/p&gt;&lt;p&gt;Kontynuować wczytywanie strony Wiki?&lt;/p&gt;</translation>
     </message>

@@ -1210,7 +1210,7 @@
         <location filename="capture_interfaces_dialog.ui" line="128"/>
         <source>Capture filter for selected interfaces:</source>
         <oldsource>Capture Filter for selected Interfaces:</oldsource>
-        <translation type="unfinished">Filtre de capture pour les interfaces sélectionnées :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="158"/>
@@ -1873,7 +1873,7 @@ si vous voulez utiliser des fichiers multiples.</translation>
     <message>
         <location filename="display_filter_edit.cpp" line="218"/>
         <source>Apply a read filter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Appliquer un filtre de lecture %1</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="128"/>
@@ -1903,15 +1903,14 @@ si vous voulez utiliser des fichiers multiples.</translation>
     <message>
         <location filename="display_filter_edit.cpp" line="572"/>
         <source>Unable to save display filter settings.</source>
-        <translation type="unfinished">Impossible d&apos;enregistrer les paramètres de filtre d&apos;affichage.</translation>
+        <translation>Impossible d&apos;enregistrer les paramètres de filtre d&apos;affichage.</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="573"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation type="unfinished">Ne peut enregistrer votre fichier de filtre d&apos;affichage
-&quot;%1&quot;: %2.
-</translation>
+        <translation>Impossible de sauvegarder dans votre dossier de filtre d&apos;affichage
+&quot;%1&quot;: %2.</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="389"/>
@@ -2020,12 +2019,12 @@ si vous voulez utiliser des fichiers multiples.</translation>
         <translation>Affiche Expression de Filtre</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="187"/>
+        <location filename="display_filter_expression_dialog.cpp" line="188"/>
         <source>Select a field name to get started</source>
         <translation>Sélectionner un nom de champ pour commencer</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="191"/>
+        <location filename="display_filter_expression_dialog.cpp" line="192"/>
         <source>Click OK to insert this filter</source>
         <translation>Cliquer OK pour insérer ce filtre</translation>
     </message>
@@ -2439,12 +2438,12 @@ si vous voulez utiliser des fichiers multiples.</translation>
 <context>
     <name>ExtcapArgumentFileSelection</name>
     <message>
-        <location filename="extcap_argument_file.cpp" line="101"/>
+        <location filename="extcap_argument_file.cpp" line="110"/>
         <source>Any File (*.*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="extcap_argument_file.cpp" line="110"/>
+        <location filename="extcap_argument_file.cpp" line="119"/>
         <source>Open File</source>
         <translation>Ouvrir un fichier</translation>
     </message>
@@ -2452,15 +2451,20 @@ si vous voulez utiliser des fichiers multiples.</translation>
 <context>
     <name>ExtcapOptionsDialog</name>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="69"/>
-        <location filename="extcap_options_dialog.cpp" line="102"/>
+        <location filename="extcap_options_dialog.cpp" line="74"/>
+        <location filename="extcap_options_dialog.cpp" line="108"/>
         <source>Extcap Interface Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="72"/>
+        <location filename="extcap_options_dialog.cpp" line="78"/>
         <source>Start</source>
         <translation>Démarrer</translation>
+    </message>
+    <message>
+        <location filename="extcap_options_dialog.ui" line="33"/>
+        <source>Save parameter on capture start</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2671,7 +2675,7 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="filter_expressions_preferences_frame.ui" line="60"/>
         <source>Copy this filter.</source>
-        <translation type="unfinished">Copier ce filtre.</translation>
+        <translation>Copier ce filtre.</translation>
     </message>
 </context>
 <context>
@@ -2680,7 +2684,7 @@ pour fichiers de filtre : %2.</translation>
         <location filename="follow_stream_dialog.cpp" line="116"/>
         <source>Filter Out This Stream</source>
         <oldsource>Hide this stream</oldsource>
-        <translation type="unfinished">Cacher ce flux</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="119"/>
@@ -7206,7 +7210,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="725"/>
         <source>Wireless Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Barre d&apos;outils Wireless</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="817"/>
@@ -7407,7 +7411,7 @@ a:hover {
         <location filename="main_window.ui" line="1460"/>
         <source>Ctrl+Alt+M</source>
         <oldsource>Meta+Alt+M</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+M</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1465"/>
@@ -7423,7 +7427,7 @@ a:hover {
         <location filename="main_window.ui" line="1471"/>
         <source>Ctrl+Shift+N</source>
         <oldsource>Meta+Shift+N</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Maj+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1476"/>
@@ -7439,7 +7443,7 @@ a:hover {
         <location filename="main_window.ui" line="1482"/>
         <source>Ctrl+Shift+B</source>
         <oldsource>Meta+Shift+B</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Maj+B</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1487"/>
@@ -7594,7 +7598,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1631"/>
         <source>&amp;Protocol Hierarchy</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Hiérarchie des Protocoles</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1634"/>
@@ -7830,7 +7834,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1851"/>
         <source>Sametime</source>
-        <translation type="unfinished"></translation>
+        <translation>Sametime</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1854"/>
@@ -7895,18 +7899,18 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1915"/>
         <source>Advertisements by Topic</source>
-        <translation type="unfinished"></translation>
+        <translation>Annonces par Sujet</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1920"/>
         <location filename="main_window.ui" line="1955"/>
         <source>Advertisements by Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Annonces par Source</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1925"/>
         <source>Advertisements by Transport</source>
-        <translation type="unfinished"></translation>
+        <translation>Annonces par Transport</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1930"/>
@@ -8204,7 +8208,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1224"/>
         <source>&amp;DICOM…</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;DICOM…</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1229"/>
@@ -8337,7 +8341,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1998"/>
         <source>Export PDUs to File…</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporter PDU vers un Fichier...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2003"/>
@@ -8362,7 +8366,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2031"/>
         <source>&amp;Filter Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Barre d&apos;outils Filtre</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2034"/>
@@ -9119,7 +9123,7 @@ a:hover {
         <location filename="main_window.cpp" line="1124"/>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
-        <translation type="unfinished"> avant l&apos;import d&apos;une nouvelle capture</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1437"/>
@@ -9138,27 +9142,10 @@ a:hover {
         <translation>.</translation>
     </message>
     <message>
-        <source>You have unsaved packets</source>
-        <translation type="vanished">Vous avez des paquets non sauvegardés</translation>
-    </message>
-    <message>
-        <source>They will be lost if you don&apos;t save them.</source>
-        <translation type="vanished">Ils seront perdues si vous ne les enregistrez pas.</translation>
-    </message>
-    <message>
-        <source>Do you want to stop the capture and save the captured packets</source>
-        <translation type="vanished">
-Voulez-vous arrêter la capture et enregistrer les paquets capturés</translation>
-    </message>
-    <message>
         <location filename="main_window.cpp" line="1597"/>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
-        <translation type="unfinished">Voulez-vous  enregistrer les paquets capturés</translation>
-    </message>
-    <message>
-        <source>?</source>
-        <translation type="vanished">?</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1593"/>
@@ -9309,54 +9296,54 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <translation>Impossible de copier le texte. Essayer un autre item.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2348"/>
-        <location filename="main_window_slots.cpp" line="3422"/>
+        <location filename="main_window_slots.cpp" line="2350"/>
+        <location filename="main_window_slots.cpp" line="3424"/>
         <source>Unable to build conversation filter.</source>
         <translation>Impossible de construire un filtre de conversation.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2485"/>
-        <location filename="main_window_slots.cpp" line="2498"/>
+        <location filename="main_window_slots.cpp" line="2487"/>
+        <location filename="main_window_slots.cpp" line="2500"/>
         <source> before reloading the file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2532"/>
+        <location filename="main_window_slots.cpp" line="2534"/>
         <source>No filter available. Try another </source>
         <translation>Aucun filtre disponible. Essayer un autre</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3429"/>
+        <location filename="main_window_slots.cpp" line="3431"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Erreur dans la compilation du filtre pour cette conversation.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3438"/>
+        <location filename="main_window_slots.cpp" line="3440"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Aucun paquet précédent/suivant dans la conversation</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3515"/>
+        <location filename="main_window_slots.cpp" line="3517"/>
         <source>No Interface Selected</source>
         <translation>Aucune Interface Sélectionnée</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3522"/>
+        <location filename="main_window_slots.cpp" line="3524"/>
         <source> before starting a new capture</source>
         <translation>avant de commencer une nouvelle capture</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3540"/>
+        <location filename="main_window_slots.cpp" line="3542"/>
         <source> before restarting the capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3723"/>
+        <location filename="main_window_slots.cpp" line="3725"/>
         <source>Wiki Page for %1</source>
         <translation>Page Wiki pour %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3724"/>
+        <location filename="main_window_slots.cpp" line="3726"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Le Wiki Wireshark est maintenu par la communauté&lt;/p&gt;
 &lt;p&gt;La page que vous vous apprêtez à charger peut être magnifique, incomplète, fausse ou inexistante&lt;/p&gt;
