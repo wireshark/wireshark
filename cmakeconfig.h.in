@@ -73,6 +73,9 @@
 /* Define if you have the 'floorl' function. */
 #cmakedefine HAVE_FLOORL 1
 
+/* Define if you have the 'lrint' function. */
+#cmakedefine HAVE_LRINT 1
+
 /* Define to 1 if you have the `getaddrinfo' function. */
 #cmakedefine HAVE_GETADDRINFO 1
 

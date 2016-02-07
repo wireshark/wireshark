@@ -538,6 +538,8 @@ AC_SEARCH_LIBS(floorl, m,
   ],
   FLOORL_LO="floorl.lo")
 AC_SUBST(FLOORL_LO)
+AC_SEARCH_LIBS(lrint, m,
+  [AC_DEFINE(HAVE_LRINT, 1, [Define if you have the 'lrint' function.])])
 
 
 #

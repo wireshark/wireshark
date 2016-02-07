@@ -51,6 +51,10 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+#ifndef HAVE_LRINT
+#define lrint   rint
+#endif
+
 #define AXIS_HORIZONTAL         0
 #define AXIS_VERTICAL           1
 
@@ -959,10 +963,10 @@ static void draw_element_line(struct gtk_rlc_graph *g, struct element *e, cairo_
     }
 
     /* Map point into graph area, and round to nearest int */
-    xx1 = (int)rint(e->p.line.dim.x1 + g->geom.x - g->wp.x);
-    xx2 = (int)rint(e->p.line.dim.x2 + g->geom.x - g->wp.x);
-    yy1 = (int)rint((g->geom.height-1-e->p.line.dim.y1) + g->geom.y-g->wp.y);
-    yy2 = (int)rint((g->geom.height-1-e->p.line.dim.y2) + g->geom.y-g->wp.y);
+    xx1 = (int)lrint(e->p.line.dim.x1 + g->geom.x - g->wp.x);
+    xx2 = (int)lrint(e->p.line.dim.x2 + g->geom.x - g->wp.x);
+    yy1 = (int)lrint((g->geom.height-1-e->p.line.dim.y1) + g->geom.y-g->wp.y);
+    yy2 = (int)lrint((g->geom.height-1-e->p.line.dim.y2) + g->geom.y-g->wp.y);
 
     /* If line completely out of the area, we won't show it  */
     if (((xx1 < 0) && (xx2 < 0)) || ((xx1 >= g->wp.width)  && (xx2 >= g->wp.width)) ||
@@ -1122,7 +1126,7 @@ static void v_axis_pixmap_draw(struct axis *axis)
     for (i=imin; i <= imax; i++) {
         gint w, h;
         char desc[32];
-        int y = (int) (g->geom.height-1 - (int )rint(i * major_tick) -
+        int y = (int) (g->geom.height-1 - (int )lrint(i * major_tick) -
                         offset + corr + axis->s.y);
 
         debug(DBS_AXES_DRAWING) printf("%f @ %d\n",
@@ -1147,7 +1151,7 @@ static void v_axis_pixmap_draw(struct axis *axis)
         imin = (int) ((g->geom.height - offset + corr - g->wp.height)/minor_tick + 1);
         imax = (int) ((g->geom.height - offset + corr) / minor_tick);
         for (i=imin; i <= imax; i++) {
-            int y = (int) (g->geom.height-1 - (int )rint(i*minor_tick) -
+            int y = (int) (g->geom.height-1 - (int )lrint(i*minor_tick) -
                             offset + corr + axis->s.y);
 
             if ((y > 0) && (y < axis->p.height)) {
@@ -1503,18 +1507,18 @@ static int line_detect_collision(struct element *e, int x, int y)
 
     /* Get sorted x, y co-ordinates for line */
     if (e->p.line.dim.x1 < e->p.line.dim.x2) {
-        xx1 = (int)rint(e->p.line.dim.x1);
-        xx2 = (int)rint(e->p.line.dim.x2);
+        xx1 = (int)lrint(e->p.line.dim.x1);
+        xx2 = (int)lrint(e->p.line.dim.x2);
     } else {
-        xx1 = (int)rint(e->p.line.dim.x2);
-        xx2 = (int)rint(e->p.line.dim.x1);
+        xx1 = (int)lrint(e->p.line.dim.x2);
+        xx2 = (int)lrint(e->p.line.dim.x1);
     }
     if (e->p.line.dim.y1 < e->p.line.dim.y2) {
-        yy1 = (int)rint(e->p.line.dim.y1);
-        yy2 = (int)rint(e->p.line.dim.y2);
+        yy1 = (int)lrint(e->p.line.dim.y1);
+        yy2 = (int)lrint(e->p.line.dim.y2);
     } else {
-        yy1 = (int)rint(e->p.line.dim.y2);
-        yy2 = (int)rint(e->p.line.dim.y1);
+        yy1 = (int)lrint(e->p.line.dim.y2);
+        yy2 = (int)lrint(e->p.line.dim.y1);
     }
     /*
     printf("line: (%d,%d)->(%d,%d), clicked: (%d,%d)\n", xx1, yy1, xx2, yy2, x, y);
@@ -1534,10 +1538,10 @@ static int ellipse_detect_collision(struct element *e, int x, int y)
 {
     int xx1, yy1, xx2, yy2;
 
-    xx1 = (int )rint (e->p.ellipse.dim.x);
-    xx2 = (int )rint (e->p.ellipse.dim.x + e->p.ellipse.dim.width);
-    yy1 = (int )rint (e->p.ellipse.dim.y - e->p.ellipse.dim.height);
-    yy2 = (int )rint (e->p.ellipse.dim.y);
+    xx1 = (int )lrint (e->p.ellipse.dim.x);
+    xx2 = (int )lrint (e->p.ellipse.dim.x + e->p.ellipse.dim.width);
+    yy1 = (int )lrint (e->p.ellipse.dim.y - e->p.ellipse.dim.height);
+    yy2 = (int )lrint (e->p.ellipse.dim.y);
     /*
     printf ("ellipse: (%d,%d)->(%d,%d), clicked: (%d,%d)\n", xx1, yy1, xx2, yy2, x, y);
      */
@@ -1573,8 +1577,8 @@ static gboolean configure_event(GtkWidget *widget _U_, GdkEventConfigure *event,
     new_zoom.y     = (double)g->wp.height / cur_wp_height;
     cur_g_width    = g->geom.width;
     cur_g_height   = g->geom.height;
-    g->geom.width  = (int)rint(g->geom.width * new_zoom.x);
-    g->geom.height = (int)rint(g->geom.height * new_zoom.y);
+    g->geom.width  = (int)lrint(g->geom.width * new_zoom.x);
+    g->geom.height = (int)lrint(g->geom.height * new_zoom.y);
     g->zoom.x = (double)(g->geom.width - 1) / g->bounds.width;
     g->zoom.y = (double)(g->geom.height -1) / g->bounds.height;
 
@@ -1674,8 +1678,8 @@ perform_zoom(struct gtk_rlc_graph *g, struct zoomfactor *zf,
     int cur_width = g->geom.width, cur_height = g->geom.height;
 
     /* Multiply by x and y factors */
-    g->geom.width  = (int )rint(g->geom.width  * zf->x);
-    g->geom.height = (int )rint(g->geom.height * zf->y);
+    g->geom.width  = (int )lrint(g->geom.width  * zf->x);
+    g->geom.height = (int )lrint(g->geom.height * zf->y);
 
     /* If already fully-zoomed out, don't waste time re-drawing */
     if ((g->geom.width <= g->wp.width) &&
@@ -1696,9 +1700,9 @@ perform_zoom(struct gtk_rlc_graph *g, struct zoomfactor *zf,
     g->zoom.y = (g->geom.height- 1) / g->bounds.height;
 
     /* Move origin to keep mouse position at centre of view */
-    g->geom.x -= (int)rint((g->geom.width - cur_width) *
+    g->geom.x -= (int)lrint((g->geom.width - cur_width) *
                            ((origin_x - g->geom.x)/(double )cur_width));
-    g->geom.y -= (int)rint((g->geom.height - cur_height) *
+    g->geom.y -= (int)lrint((g->geom.height - cur_height) *
                            ((origin_y - g->geom.y)/(double )cur_height));
 
     /* Again, don't go out of bounds */
@@ -1869,8 +1873,8 @@ static void do_zoom_common(struct gtk_rlc_graph *g, GdkEventButton *event,
     }
 
     /* Multiply by x and y factors */
-    g->geom.width = (int )rint(g->geom.width * factor.x);
-    g->geom.height = (int )rint(g->geom.height * factor.y);
+    g->geom.width = (int )lrint(g->geom.width * factor.x);
+    g->geom.height = (int )lrint(g->geom.height * factor.y);
 
     /* Clip to space if necessary */
     if (g->geom.width < g->wp.width)
@@ -1883,9 +1887,9 @@ static void do_zoom_common(struct gtk_rlc_graph *g, GdkEventButton *event,
     g->zoom.y = (g->geom.height- 1) / g->bounds.height;
 
     /* Move origin to keep mouse position at centre of view */
-    g->geom.x -= (int )rint((g->geom.width - cur_width) *
+    g->geom.x -= (int )lrint((g->geom.width - cur_width) *
             ((pointer_x - g->geom.x)/(double)cur_width));
-    g->geom.y -= (int )rint((g->geom.height - cur_height) *
+    g->geom.y -= (int )lrint((g->geom.height - cur_height) *
             ((pointer_y - g->geom.y)/(double)cur_height));
 
     /* Make sure we haven't moved outside the whole graph */
@@ -2006,8 +2010,8 @@ static gboolean button_press_event(GtkWidget *widget _U_, GdkEventButton *event,
 
     if (event->button == MOUSE_BUTTON_RIGHT) {
         /* Turn on grab.  N.B. using (maybe) approx mouse position from event... */
-        g->grab.x = (int )rint (event->x) - g->geom.x;
-        g->grab.y = (int )rint (event->y) - g->geom.y;
+        g->grab.x = (int )lrint (event->x) - g->geom.x;
+        g->grab.y = (int )lrint (event->y) - g->geom.y;
         g->grab.grabbed = TRUE;
     } else if (event->button == MOUSE_BUTTON_MIDDLE) {
         do_zoom_mouse(g, event);
