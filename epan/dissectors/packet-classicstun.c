@@ -496,8 +496,6 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                                      (transaction_id_first_word >> 16));
                         PROTO_ITEM_SET_GENERATED(ti);
 
-                        if (att_length < 8)
-                            break;
                         switch( tvb_get_guint8(tvb, offset+1) ){
                             case 1:
                                 if (att_length < 8)
