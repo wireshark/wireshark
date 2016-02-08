@@ -272,7 +272,7 @@
 
 #define TRY \
 {\
-	except_t *exc; \
+	except_t *volatile exc; \
 	volatile int except_state = 0; \
 	static const except_id_t catch_spec[] = { \
 		{ XCEPT_GROUP_WIRESHARK, XCEPT_CODE_ANY } }; \
