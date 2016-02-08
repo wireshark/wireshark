@@ -29,7 +29,7 @@
 # that way.
 #
 
-if [ -n $1 ] && [ "$1" != "--install-optional" ]
+if [ ! -z $1 ] && [ "$1" != "--install-optional" ]
 then
 	echo "\n*** Invalid parameter: $1\n"
 	exit 1
@@ -48,7 +48,7 @@ then
 fi
 
 apt-get install libnl-3-dev qttools5-dev qttools5-dev-tools libgtk-3-dev \
-	libc-ares-dev libssh-dev libkrb5-dev libqt5svg5-dev lynx libsmi2-dev
+	libc-ares-dev libssh-dev libkrb5-dev libqt5svg5-dev lynx libsmi2-dev \
 	portaudio19-dev asciidoc libgcrypt-dev libsbc-dev libgeoip-dev \
-	libgnutls-dev qtmultimedia5-dev liblua5.2-dev libnl-cli-3-dev
+	libgnutls-dev qtmultimedia5-dev liblua5.2-dev libnl-cli-3-dev \
 	libparse-yapp-perl qt5-default
