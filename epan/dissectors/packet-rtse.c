@@ -779,13 +779,9 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
          (session->spdu_type == SES_MAJOR_SYNC_POINT)))
     {
         /* Use conversation index as fragment id */
-        if (pinfo->ptype == PT_TCP) {
-            conversation = find_conversation_ext_from_pinfo(pinfo);
-        } else {
-            conversation = find_conversation(pinfo->num,
-                &pinfo->src, &pinfo->dst, pinfo->ptype,
-                pinfo->srcport, pinfo->destport, 0);
-        }
+        conversation  = find_conversation (pinfo->num,
+                           &pinfo->src, &pinfo->dst, pinfo->ptype,
+                           pinfo->srcport, pinfo->destport, 0);
         if (conversation != NULL) {
             rtse_id = conversation->index;
         }
@@ -1014,7 +1010,11 @@ void proto_register_rtse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
+<<<<<<< HEAD
 #line 370 "../../asn1/rtse/packet-rtse-template.c"
+=======
+#line 365 "../../asn1/rtse/packet-rtse-template.c"
+>>>>>>> Revert "RTSE and PRES relies on the TCP conversation to do reassembly, switch to the new interface."
   };
 
   /* List of subtrees */
@@ -1036,7 +1036,11 @@ void proto_register_rtse(void) {
     &ett_rtse_CallingSSuserReference,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
+<<<<<<< HEAD
 #line 379 "../../asn1/rtse/packet-rtse-template.c"
+=======
+#line 374 "../../asn1/rtse/packet-rtse-template.c"
+>>>>>>> Revert "RTSE and PRES relies on the TCP conversation to do reassembly, switch to the new interface."
   };
 
   static ei_register_info ei[] = {

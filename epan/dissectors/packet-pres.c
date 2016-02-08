@@ -274,12 +274,8 @@ register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, const char *oid)
 	pco=wmem_new(wmem_file_scope(), pres_ctx_oid_t);
 	pco->ctx_id=idx;
 	pco->oid=wmem_strdup(wmem_file_scope(), oid);
-	if (pinfo->ptype == PT_TCP) {
-		conversation = find_conversation_ext_from_pinfo(pinfo);
-	} else {
-		conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
+	conversation=find_conversation (pinfo->num, &pinfo->src, &pinfo->dst,
 			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
 	if (conversation) {
 		pco->idx = conversation->index;
 	} else {
@@ -319,12 +315,8 @@ find_oid_by_pres_ctx_id(packet_info *pinfo, guint32 idx)
 	conversation_t *conversation;
 
 	pco.ctx_id=idx;
-	if (pinfo->ptype == PT_TCP) {
-		conversation = find_conversation_ext_from_pinfo(pinfo);
-	} else {
-		conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
+	conversation=find_conversation (pinfo->num, &pinfo->src, &pinfo->dst,
 			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
 	if (conversation) {
 		pco.idx = conversation->index;
 	} else {
@@ -1367,7 +1359,7 @@ static int dissect_UD_type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-pres-fn.c ---*/
-#line 232 "../../asn1/pres/packet-pres-template.c"
+#line 224 "../../asn1/pres/packet-pres-template.c"
 
 
 /*
@@ -1849,7 +1841,7 @@ void proto_register_pres(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pres-hfarr.c ---*/
-#line 401 "../../asn1/pres/packet-pres-template.c"
+#line 393 "../../asn1/pres/packet-pres-template.c"
   };
 
   /* List of subtrees */
@@ -1896,7 +1888,7 @@ void proto_register_pres(void) {
     &ett_pres_UD_type,
 
 /*--- End of included file: packet-pres-ettarr.c ---*/
-#line 407 "../../asn1/pres/packet-pres-template.c"
+#line 399 "../../asn1/pres/packet-pres-template.c"
   };
 
   static ei_register_info ei[] = {
