@@ -485,12 +485,10 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				"Audio Layer %d", mpa_layer(&mpa) + 1);
 	if (MPA_BITRATE_VALID(&mpa) && MPA_FREQUENCY_VALID(&mpa)) {
 		data_size = (int)(MPA_DATA_BYTES(&mpa) - sizeof mpa);
-		SET_ADDRESS(&pinfo->src, AT_NONE, 0, NULL);
-		col_add_fstr(pinfo->cinfo, COL_DEF_SRC,
-					"%d kb/s", mpa_bitrate(&mpa) / 1000);
-		SET_ADDRESS(&pinfo->dst, AT_NONE, 0, NULL);
-		col_add_fstr(pinfo->cinfo, COL_DEF_DST,
-					"%g kHz", mpa_frequency(&mpa) / (float)1000);
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+						", %d kb/s, %g kHz",
+						mpa_bitrate(&mpa) / 1000,
+						mpa_frequency(&mpa) / (float)1000);
 	}
 
 	if (tree == NULL)
@@ -654,7 +652,7 @@ proto_register_mpeg_audio(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-mpeg-audio-hfarr.c ---*/
-#line 153 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
+#line 151 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
 		{ &hf_mpeg_audio_data,
 			{ "Data", "mpeg-audio.data",
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -678,7 +676,7 @@ proto_register_mpeg_audio(void)
     &ett_mpeg_audio_ID3v1,
 
 /*--- End of included file: packet-mpeg-audio-ettarr.c ---*/
-#line 170 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
+#line 168 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
 	};
 
 	proto_mpeg_audio = proto_register_protocol(
