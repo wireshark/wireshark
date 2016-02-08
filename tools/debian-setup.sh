@@ -36,7 +36,7 @@ then
 fi
 
 apt-get install libgtk2.0-dev libpcap-dev bison flex make automake \
-	libtool python perl
+	libtool libtool-bin python perl
 
 #
 # Now arrange for optional support libraries
