@@ -2756,22 +2756,22 @@ proto_register_gsm_sms(void)
             },
             { &hf_gsm_sms_tp_oa,
               { "TP-OA Digits", "gsm_sms.tp-oa",
-                FT_STRING, BASE_NONE, NULL, 0x00,
+                FT_STRING, STR_UNICODE, NULL, 0x00,
                 "TP-Originating-Address Digits", HFILL }
             },
             { &hf_gsm_sms_tp_da,
               { "TP-DA Digits", "gsm_sms.tp-da",
-                FT_STRING, BASE_NONE, NULL, 0x00,
+                FT_STRING, STR_UNICODE, NULL, 0x00,
                 "TP-Destination-Address Digits", HFILL }
             },
             { &hf_gsm_sms_tp_ra,
               { "TP-RA Digits", "gsm_sms.tp-ra",
-                FT_STRING, BASE_NONE, NULL, 0x00,
+                FT_STRING, STR_UNICODE, NULL, 0x00,
                 "TP-Recipient-Address Digits", HFILL }
             },
             { &hf_gsm_sms_tp_digits,
               { "Digits", "gsm_sms.tp-digits",
-                FT_STRING, BASE_NONE, NULL, 0x00,
+                FT_STRING, STR_UNICODE, NULL, 0x00,
                 "TP (Unknown) Digits", HFILL }
             },
             { &hf_gsm_sms_tp_pid,
