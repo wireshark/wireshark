@@ -2087,7 +2087,7 @@ static void file_list(packet_info* pinfo, int offset, gboolean request, tvbuff_t
 
 			/*display number of files to list*/
 			no_of_items = tvb_get_guint8(tvb, offset);
-			ecmp_file_list_item = proto_tree_add_item(ecmp_tree, hf_ecmp_number_of_files_to_list, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(ecmp_tree, hf_ecmp_number_of_files_to_list, tvb, offset, 1, ENC_NA);
 			offset++;
 
 			/*display hash value (dissection TBD)*/
