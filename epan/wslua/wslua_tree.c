@@ -260,6 +260,10 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
             break;
 
         default:
+            if (tvb_find_guint8 (tvbr->tvb->ws_tvb, tvbr->offset, -1, 0) == -1) {
+                luaL_error(L,"out of bounds");
+                return 0;
+            }
             tvbr->len = tvb_strsize (tvbr->tvb->ws_tvb, tvbr->offset);
             break;
         }
@@ -340,6 +344,14 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
     if (hfid > 0 ) {
         /* hfid is > 0 when the first arg was a ProtoField or Proto */
 
+        if (type == FT_STRINGZ) {
+            if (tvb_find_guint8 (tvbr->tvb->ws_tvb, tvbr->offset, -1, 0) == -1) {
+                luaL_error(L,"out of bounds");
+                return 0;
+            }
+            tvbr->len = tvb_strsize (tvbr->tvb->ws_tvb, tvbr->offset);
+        }
+
         if (lua_gettop(L)) {
             /* if we got here, the (L,1) index is the value to add, instead of decoding from the Tvb */
 
@@ -380,10 +392,8 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
                     item = proto_tree_add_time(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,checkNSTime(L,1));
                     break;
                 case FT_STRING:
-                    item = proto_tree_add_string(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,luaL_checkstring(L,1));
-                    break;
                 case FT_STRINGZ:
-                    item = proto_tree_add_string(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvb_strsize (tvbr->tvb->ws_tvb, tvbr->offset),luaL_checkstring(L,1));
+                    item = proto_tree_add_string(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,luaL_checkstring(L,1));
                     break;
                 case FT_BYTES:
                     item = proto_tree_add_bytes(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len, (const guint8*) luaL_checkstring(L,1));
@@ -420,7 +430,6 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
                 return 0;
             }
             /* the Lua stack is empty - no value was given - so decode the value from the tvb */
-            if (type == FT_STRINGZ) tvbr->len = tvb_strsize (tvbr->tvb->ws_tvb, tvbr->offset);
             item = proto_tree_add_item(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
         }
 
