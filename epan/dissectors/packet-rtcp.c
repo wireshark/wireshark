@@ -744,7 +744,7 @@ void srtcp_add_address( packet_info *pinfo,
         return;
     }
 
-    clear_address(&null_addr);
+    set_address(&null_addr, AT_NONE, 0, NULL);
 
     /*
      * Check if the ip address and port combination is not

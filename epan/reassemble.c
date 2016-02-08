@@ -97,8 +97,8 @@ fragment_addresses_temporary_key(const packet_info *pinfo, const guint32 id,
 	/*
 	 * Do a shallow copy of the addresses.
 	 */
-	copy_address_shallow(&key->src, &pinfo->src);
-	copy_address_shallow(&key->dst, &pinfo->dst);
+	key->src = pinfo->src;
+	key->dst = pinfo->dst;
 	key->id = id;
 
 	return (gpointer)key;
@@ -142,8 +142,8 @@ fragment_addresses_free_persistent_key(gpointer ptr)
 		/*
 		 * Free up the copies of the addresses from the old key.
 		 */
-		free_address(&key->src);
-		free_address(&key->dst);
+		g_free((gpointer)key->src.data);
+		g_free((gpointer)key->dst.data);
 
 		g_slice_free(fragment_addresses_key, key);
 	}
@@ -231,8 +231,8 @@ fragment_addresses_ports_temporary_key(const packet_info *pinfo, const guint32 i
 	/*
 	 * Do a shallow copy of the addresses.
 	 */
-	copy_address_shallow(&key->src_addr, &pinfo->src);
-	copy_address_shallow(&key->dst_addr, &pinfo->dst);
+	key->src_addr = pinfo->src;
+	key->dst_addr = pinfo->dst;
 	key->src_port = pinfo->srcport;
 	key->dst_port = pinfo->destport;
 	key->id = id;
@@ -280,8 +280,8 @@ fragment_addresses_ports_free_persistent_key(gpointer ptr)
 		/*
 		 * Free up the copies of the addresses from the old key.
 		 */
-		free_address(&key->src_addr);
-		free_address(&key->dst_addr);
+		g_free((gpointer)key->src_addr.data);
+		g_free((gpointer)key->dst_addr.data);
 
 		g_slice_free(fragment_addresses_ports_key, key);
 	}

@@ -529,9 +529,13 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
 
             /* create conversation entry */
             src = circuit_id ^ CMD_FRAME;
-            set_address(&srcaddr, AT_NONE, 1, &src);
+            srcaddr.type  = AT_NONE;
+            srcaddr.len   = 1;
+            srcaddr.data  = (guint8*)&src;
 
-            set_address(&destaddr, AT_NONE, 1, &circuit_id);
+            destaddr.type = AT_NONE;
+            destaddr.len  = 1;
+            destaddr.data = (guint8*)&circuit_id;
 
             conv = find_conversation(pinfo->num, &srcaddr, &destaddr, PT_NONE, pinfo->srcport, pinfo->destport, 0);
             if (conv)
@@ -678,9 +682,13 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
     retcode = tvb_get_guint8(tvb, offset + 1);
 
     src = circuit_id ^ CMD_FRAME;
-    set_address(&srcaddr, AT_NONE, 1, &src);
+    srcaddr.type  = AT_NONE;
+    srcaddr.len   = 1;
+    srcaddr.data  = (guint8*)&src;
 
-    set_address(&destaddr, AT_NONE, 1, &circuit_id);
+    destaddr.type = AT_NONE;
+    destaddr.len  = 1;
+    destaddr.data = (guint8*)&circuit_id;
 
     /* Find result value dissector */
     conv = find_conversation(pinfo->num, &srcaddr, &destaddr, PT_NONE, pinfo->srcport, pinfo->destport, 0);
@@ -959,9 +967,13 @@ static void dissect_appl_proto(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
 
 
     src = circuit_id ^ CMD_FRAME;
-    set_address(&srcaddr, AT_NONE, 1, &src);
+    srcaddr.type  = AT_NONE;
+    srcaddr.len   = 1;
+    srcaddr.data  = (guint8*)&src;
 
-    set_address(&destaddr, AT_NONE, 1, &circuit_id);
+    destaddr.type = AT_NONE;
+    destaddr.len  = 1;
+    destaddr.data = (guint8*)&circuit_id;
 
     /* Find result value dissector */
     conv = find_conversation(pinfo->num, &srcaddr, &destaddr, PT_NONE, pinfo->srcport, pinfo->destport, 0);
@@ -1188,9 +1200,14 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
 
 
 /*g_message("%d: add_lmp_conversation(%p, %d, %d, %p) = ", pinfo->num, pinfo, dlsap, ttp, proto_dissector); */
-    set_address(&srcaddr, AT_NONE, 1, &circuit_id);
+    srcaddr.type  = AT_NONE;
+    srcaddr.len   = 1;
+    srcaddr.data  = (guint8*)&circuit_id;
 
-    set_address(&destaddr, AT_NONE, 1, &dest);
+    dest = circuit_id ^ CMD_FRAME;
+    destaddr.type = AT_NONE;
+    destaddr.len  = 1;
+    destaddr.data = (guint8*)&dest;
 
     conv = find_conversation(pinfo->num, &destaddr, &srcaddr, PT_NONE, dlsap, 0, NO_PORT_B);
     if (conv)

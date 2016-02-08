@@ -63,23 +63,8 @@ typedef enum {
 typedef struct _address {
     int           type;         /* type of address */
     int           len;          /* length of address, in bytes */
-    const void   *data;         /* pointer to address data */
-
-    /* private */
-    void         *priv;
+    const void  *data;          /* pointer to address data */
 } address;
-
-#define ADDRESS_INIT(type, len, data) {type, len, data, NULL}
-#define ADDRESS_INIT_NONE ADDRESS_INIT(AT_NONE, 0, NULL)
-
-static inline void
-clear_address(address *addr)
-{
-    addr->type = AT_NONE;
-    addr->len  = -1;
-    addr->data = NULL;
-    addr->priv = NULL;
-}
 
 /** Initialize an address with the given values.
  *
@@ -91,10 +76,9 @@ clear_address(address *addr)
  */
 static inline void
 set_address(address *addr, int addr_type, int addr_len, const void *addr_data) {
+    addr->data = addr_data;
     addr->type = addr_type;
     addr->len  = addr_len;
-    addr->data = addr_data;
-    addr->priv = NULL;
 }
 
 /** Initialize an address from TVB data.
@@ -118,46 +102,6 @@ set_address_tvb(address *addr, int addr_type, int addr_len, tvbuff_t *tvb, int o
 
     p = tvb_get_ptr(tvb, offset, addr_len);
     set_address(addr, addr_type, addr_len, p);
-}
-
-/** Initialize an address with the given values, allocating a new buffer
- * for the address data using wmem-scoped memory.
- *
- * @param scope [in] The lifetime of the allocated memory, e.g., wmem_packet_scope()
- * @param addr [in,out] The address to initialize.
- * @param addr_type [in] Address type.
- * @param addr_len [in] The length in bytes of the address data. For example, 4 for
- *                     AT_IPv4 or sizeof(struct e_in6_addr) for AT_IPv6.
- * @param addr_data [in] Pointer to the address data.
- */
-static inline void
-alloc_address_wmem(wmem_allocator_t *scope, address *addr,
-                        int addr_type, int addr_len, const void *addr_data) {
-    addr->type = addr_type;
-    addr->len  = addr_len;
-    addr->priv = wmem_memdup(scope, addr_data, addr->len);
-    addr->data = addr->priv;
-}
-
-/** Allocate an address from TVB data.
- *
- * Same as alloc_address_wmem but it takes a TVB and an offset.
- *
- * @param scope [in] The lifetime of the allocated memory, e.g., wmem_packet_scope()
- * @param addr [in,out] The address to initialize.
- * @param addr_type [in] Address type.
- * @param addr_len [in] The length in bytes of the address data. For example, 4 for
- *                     AT_IPv4 or sizeof(struct e_in6_addr) for AT_IPv6.
- * @param tvb [in] Pointer to the TVB.
- * @param offset [in] Offset within the TVB.
- */
-static inline void
-alloc_address_tvb(wmem_allocator_t *scope, address *addr,
-                    int addr_type, int addr_len,  tvbuff_t *tvb, int offset) {
-    const void *p;
-
-    p = tvb_get_ptr(tvb, offset, addr_len);
-    alloc_address_wmem(scope, addr, addr_type, addr_len, p);
 }
 
 /** Compare two addresses.
@@ -219,32 +163,6 @@ addresses_data_equal(const address *addr1, const address *addr2) {
     return FALSE;
 }
 
-/** Perform a shallow copy of the address (both addresses point to the same
- * memory location).
- *
- * @param to [in,out] The destination address.
- * @param from [in] The source address.
- *
- * \warning Make sure 'from' memory stays valid for the lifetime of this object.
- * Also it's strongly recommended to use this function instead of copy-assign.
- */
-static inline void
-copy_address_shallow(address *to, const address *from) {
-    set_address(to, from->type, from->len, from->data);
-}
-
-/** Copy an address, allocating a new buffer for the address data
- *  using wmem-scoped memory.
- *
- * @param scope [in] The lifetime of the allocated memory, e.g., wmem_packet_scope()
- * @param to [in,out] The destination address.
- * @param from [in] The source address.
- */
-static inline void
-copy_address_wmem(wmem_allocator_t *scope, address *to, const address *from) {
-    alloc_address_wmem(scope, to, from->type, from->len, from->data);
-}
-
 /** Copy an address, allocating a new buffer for the address data.
  *
  * @param to [in,out] The destination address.
@@ -252,33 +170,49 @@ copy_address_wmem(wmem_allocator_t *scope, address *to, const address *from) {
  */
 static inline void
 copy_address(address *to, const address *from) {
-    copy_address_wmem(NULL, to, from);
+    guint8 *to_data;
+
+    to->type = from->type;
+    to->len = from->len;
+    to_data = (guint8 *)g_malloc(from->len);
+    if (from->len != 0)
+        memcpy(to_data, from->data, from->len);
+    to->data = to_data;
 }
 
-/** Free an address allocated with wmem-scoped memory.
+/** Perform a shallow copy of the address (both addresses point to the same
+ * memory location).
  *
- * @param scope [in] The lifetime of the allocated memory, e.g., wmem_packet_scope()
- * @param addr [in,out] The address whose data to free.
+ * @param to [in,out] The destination address.
+ * @param from [in] The source address.
  */
 static inline void
-free_address_wmem(wmem_allocator_t *scope, address *addr) {
-    /* Because many dissectors set 'type = AT_NONE' to mean clear we check for that */
-    if (addr->type != AT_NONE && addr->len > 0 && addr->priv != NULL) {
-        /* Make sure API use is correct */
-        /* if priv is not null then data == priv */
-        g_assert(addr->data == addr->priv);
-        wmem_free(scope, addr->priv);
-    }
-    clear_address(addr);
+copy_address_shallow(address *to, const address *from) {
+    memcpy(to, from, sizeof(address));
+    /*
+    to->type = from->type;
+    to->len = from->len;
+    to->data = from->data;
+    */
 }
 
-/** Free an address.
+/** Copy an address, allocating a new buffer for the address data
+ *  using wmem-scoped memory.
  *
- * @param addr [in,out] The address whose data to free.
+ * @param scope [in] The lifetime of the allocated memory, wmem_packet_scope()
+ * @param to [in,out] The destination address.
+ * @param from [in] The source address.
  */
 static inline void
-free_address(address *addr) {
-    free_address_wmem(NULL, addr);
+copy_address_wmem(wmem_allocator_t *scope, address *to, const address *from) {
+    void *to_data;
+
+    to->type = from->type;
+    to->len = from->len;
+    to_data = wmem_alloc(scope, from->len);
+    if (from->len != 0)
+        memcpy(to_data, from->data, from->len);
+    to->data = to_data;
 }
 
 /** Hash an address into a hash value (which must already have been set).

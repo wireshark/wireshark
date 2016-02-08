@@ -146,7 +146,7 @@ dealloc_wlan_details_ep (wlan_details_ep_t *details)
     while (details) {
         tmp = details;
         details = details->next;
-        free_address(&tmp->addr);
+        g_free ((void*)tmp->addr.data);
         g_free (tmp);
     }
 }
@@ -206,7 +206,7 @@ wlanstat_reset (void *phs)
         tmp  = list;
         dealloc_wlan_details_ep(tmp->details);
         list = tmp->next;
-        free_address(&tmp->bssid);
+        g_free((void*)tmp->bssid.data);
         g_free(tmp);
     }
 
@@ -462,7 +462,7 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
                     if (tmp->iter_valid) {
                         gtk_list_store_remove(store, &tmp->iter);
                     }
-                    free_address(&tmp->bssid);
+                    g_free((void*)tmp->bssid.data);
                     g_free(tmp);
                     break;
                 }

@@ -1479,7 +1479,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		{
 			break;
 		}
-		clear_address(&null_addr);
+		set_address(&null_addr, AT_NONE, 0, NULL);
 
 		set_address(&dst_addr, AT_IPv4, 4, &GPRS_user_data_ipv4_address);
 
@@ -1511,7 +1511,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		{
 			break;
 		}
-		clear_address(&null_addr);
+		set_address(&null_addr, AT_NONE, 0, NULL);
 
 		set_address(&dst_addr, AT_IPv4, 4, &unc_ipv4_address);
 
@@ -1541,7 +1541,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 			set_address(&src_addr, AT_IPv4, 4, &unc_ipv4_address);
 		}else{
 			/* Set Source IP = own IP */
-			copy_address_shallow(&src_addr, &pinfo->src);
+			src_addr = pinfo->src;
 		}
 		if((!pinfo->fd->flags.visited) && RTP_UDP_port!=0){
 

@@ -346,7 +346,7 @@ static void add_hsdsch_bind(packet_info *pinfo){
 	}
 
 	/* Set port to zero use that as an indication of whether we have data or not */
-	clear_address(&null_addr);
+	set_address(&null_addr, AT_NONE, 0, NULL);
 	for (i = 0; i < maxNrOfMACdFlows; i++) {
 		if (nbap_hsdsch_channel_info[i].crnc_port != 0){
 			conversation = find_conversation(pinfo->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr,

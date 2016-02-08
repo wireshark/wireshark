@@ -2202,7 +2202,7 @@ static void dcom_cleanup(void) {
 					objects->data = NULL; /* for good measure */
 				}
 				g_list_free(machine->objects);
-				free_address(&machine->ip);
+				g_free((void*)machine->ip.data);
 				machine->objects = NULL; /* for good measure */
 			}
 
