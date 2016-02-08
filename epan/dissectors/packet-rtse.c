@@ -1010,11 +1010,7 @@ void proto_register_rtse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-<<<<<<< HEAD
-#line 370 "../../asn1/rtse/packet-rtse-template.c"
-=======
-#line 365 "../../asn1/rtse/packet-rtse-template.c"
->>>>>>> Revert "RTSE and PRES relies on the TCP conversation to do reassembly, switch to the new interface."
+#line 366 "../../asn1/rtse/packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -1036,11 +1032,7 @@ void proto_register_rtse(void) {
     &ett_rtse_CallingSSuserReference,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-<<<<<<< HEAD
-#line 379 "../../asn1/rtse/packet-rtse-template.c"
-=======
-#line 374 "../../asn1/rtse/packet-rtse-template.c"
->>>>>>> Revert "RTSE and PRES relies on the TCP conversation to do reassembly, switch to the new interface."
+#line 375 "../../asn1/rtse/packet-rtse-template.c"
   };
 
   static ei_register_info ei[] = {
