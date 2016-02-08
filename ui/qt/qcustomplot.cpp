@@ -27,7 +27,9 @@
 
 #include "qcustomplot.h"
 
-
+// Set to nonzero to use device pixel scaling. Uncommenting the debug rects
+// at the bottom of QCPAxisPainterPrivate::draw can be helpful for testing.
+#define WS_ENABLE_DP_RATIO 1
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////// QCPPainter
@@ -6317,10 +6319,10 @@ int QCPAxisPainterPrivate::size() const
     QSize tickLabelsSize(0, 0);
     if (!tickLabels.isEmpty())
     {
-      for (int i=0; i<tickLabels.size(); ++i)
-        getMaxTickLabelSize(tickLabelFont, tickLabels.at(i), &tickLabelsSize);
-      result += QCPAxis::orientation(type) == Qt::Horizontal ? tickLabelsSize.height() : tickLabelsSize.width();
-    result += tickLabelPadding;
+        for (int i=0; i<tickLabels.size(); ++i)
+            getMaxTickLabelSize(tickLabelFont, tickLabels.at(i), &tickLabelsSize);
+        result += QCPAxis::orientation(type) == Qt::Horizontal ? tickLabelsSize.height() : tickLabelsSize.width();
+        result += tickLabelPadding;
     }
   }
 
@@ -6405,7 +6407,7 @@ void QCPAxisPainterPrivate::placeTickLabel(QCPPainter *painter, double position,
       CachedLabel *newCachedLabel = new CachedLabel;
       TickLabelData labelData = getTickLabelData(painter->font(), text);
       newCachedLabel->offset = getTickLabelDrawOffset(labelData)+labelData.rotatedTotalBounds.topLeft();
-#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0) && WS_ENABLE_DP_RATIO
       QSize clSize = labelData.rotatedTotalBounds.size();
       clSize *= painter->device()->devicePixelRatio();
       newCachedLabel->pixmap = QPixmap(clSize);
@@ -6438,6 +6440,9 @@ void QCPAxisPainterPrivate::placeTickLabel(QCPPainter *painter, double position,
     }
     painter->drawPixmap(labelAnchor+cachedLabel->offset, cachedLabel->pixmap);
     finalSize = cachedLabel->pixmap.size();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0) && WS_ENABLE_DP_RATIO
+    finalSize /= cachedLabel->pixmap.devicePixelRatio();
+#endif
   } else // label caching disabled, draw text directly on surface:
   {
     TickLabelData labelData = getTickLabelData(painter->font(), text);
@@ -6691,6 +6696,9 @@ void QCPAxisPainterPrivate::getMaxTickLabelSize(const QFont &font, const QString
   {
     const CachedLabel *cachedLabel = mLabelCache.object(text);
     finalSize = cachedLabel->pixmap.size();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0) && WS_ENABLE_DP_RATIO
+    finalSize /= cachedLabel->pixmap.devicePixelRatio();
+#endif
   } else // label caching disabled or no label with this text cached:
   {
     TickLabelData labelData = getTickLabelData(font, text);
@@ -9082,7 +9090,7 @@ QCustomPlot::QCustomPlot(QWidget *parent) :
   currentLocale.setNumberOptions(QLocale::OmitGroupSeparator);
   setLocale(currentLocale);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0) && WS_ENABLE_DP_RATIO
   QSize pbSize = mPaintBuffer.size();
   pbSize *= devicePixelRatio();
   mPaintBuffer = QPixmap(pbSize);
@@ -10708,7 +10716,7 @@ void QCustomPlot::paintEvent(QPaintEvent *event)
 void QCustomPlot::resizeEvent(QResizeEvent *event)
 {
   // resize and repaint the buffer:
-#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0) && WS_ENABLE_DP_RATIO
   QSize pbSize = event->size();
   pbSize *= devicePixelRatio();
   mPaintBuffer = QPixmap(pbSize);
