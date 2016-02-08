@@ -29,17 +29,12 @@
 #include "conversation.h"
 
 /* define DEBUG_CONVERSATION for pretty debug printing */
+/* #define DEBUG_CONVERSATION */
 #include "conversation_debug.h"
 
 #ifdef DEBUG_CONVERSATION
 int _debug_conversation_indent = 0;
 #endif
-
-/*
-* Hash table for conversations with no wildcards and extended keys for transport to
-* differentiate between packets with different vlan_ids etc
-*/
-static GHashTable *conversation_hashtable_exact_ext = NULL;
 
 /*
  * Hash table for conversations with no wildcards.
@@ -70,7 +65,6 @@ typedef struct conversation_key {
 	port_type ptype;
 	guint32	port1;
 	guint32	port2;
-	guint32	vlan_id;		/** Outer VLAN Id from pinfo->vlan_id, currently only used in conversation_hashtable_exact_ext*/
 } conversation_key;
 #endif
 /*
@@ -221,43 +215,6 @@ conversation_hash_exact(gconstpointer v)
 }
 
 /*
-* Compute the hash value for two given address/port pairs if the match
-* is to be exact extended with more transport parameters like vlan id
-*/
-/* http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing
-* One-at-a-Time hash
-*/
-static guint
-conversation_hash_exact_ext(gconstpointer v)
-{
-	const conversation_key *key = (const conversation_key *)v;
-	guint hash_val;
-	address tmp_addr;
-
-	hash_val = 0;
-	tmp_addr.len = 4;
-
-	hash_val = add_address_to_hash(hash_val, &key->addr1);
-
-	tmp_addr.data = &key->port1;
-	hash_val = add_address_to_hash(hash_val, &tmp_addr);
-
-	hash_val = add_address_to_hash(hash_val, &key->addr2);
-
-	tmp_addr.data = &key->port2;
-	hash_val = add_address_to_hash(hash_val, &tmp_addr);
-
-	tmp_addr.data = &key->vlan_id;
-	hash_val = add_address_to_hash(hash_val, &tmp_addr);
-
-	hash_val += (hash_val << 3);
-	hash_val ^= (hash_val >> 11);
-	hash_val += (hash_val << 15);
-
-	return hash_val;
-}
-
-/*
  * Compare two conversation keys for an exact match.
  */
 static gint
@@ -306,65 +263,6 @@ conversation_match_exact(gconstpointer v, gconstpointer w)
 	/*
 	 * The addresses or the ports don't match.
 	 */
-	return 0;
-}
-
-/*
-* Compare two conversation keys for an exact match.
-* extended with more address keys
-*/
-static gint
-conversation_match_exact_ext(gconstpointer v, gconstpointer w)
-{
-	const conversation_key *v1 = (const conversation_key *)v;
-	const conversation_key *v2 = (const conversation_key *)w;
-
-	if (v1->ptype != v2->ptype)
-		return 0;	/* different types of port */
-
-					/*
-					* Are the first and second port 1 values the same, the first and
-					* second port 2 values the same, the first and second address
-					* 1 values the same, and the first and second address 2 values
-					* the same?
-					*/
-	DPRINT(("match exact ext: %s:%d -> %s:%d (ptype=%d, vlan_id1 %u, vlan_id2 %u)",
-		address_to_str(wmem_packet_scope(), &v1->addr1), v1->port1,
-		address_to_str(wmem_packet_scope(), &v2->addr1), v2->port2, v1->ptype, v1->vlan_id, v2->vlan_id));
-
-	if (v1->port1 == v2->port1 &&
-		v1->port2 == v2->port2 &&
-		addresses_equal(&v1->addr1, &v2->addr1) &&
-		addresses_equal(&v1->addr2, &v2->addr2) &&
-		v1->vlan_id == v2->vlan_id) {
-		/*
-		* Yes.  It's the same conversation, and the two
-		* address/port pairs are going in the same direction.
-		*/
-		return 1;
-	}
-
-	/*
-	* Is the first port 2 the same as the second port 1, the first
-	* port 1 the same as the second port 2, the first address 2
-	* the same as the second address 1, and the first address 1
-	* the same as the second address 2?
-	*/
-	if (v1->port2 == v2->port1 &&
-		v1->port1 == v2->port2 &&
-		addresses_equal(&v1->addr2, &v2->addr1) &&
-		addresses_equal(&v1->addr1, &v2->addr2) &&
-		v1->vlan_id == v2->vlan_id) {
-		/*
-		* Yes.  It's the same conversation, and the two
-		* address/port pairs are going in opposite directions.
-		*/
-		return 1;
-	}
-
-	/*
-	* The addresses or the ports don't match.
-	*/
 	return 0;
 }
 
@@ -586,9 +484,6 @@ conversation_cleanup(void)
 	 *  don't have to clean them up.
 	 */
 	conversation_keys = NULL;
-	if (conversation_hashtable_exact_ext != NULL) {
-		g_hash_table_destroy(conversation_hashtable_exact_ext);
-	}
 	if (conversation_hashtable_exact != NULL) {
 		g_hash_table_destroy(conversation_hashtable_exact);
 	}
@@ -602,7 +497,6 @@ conversation_cleanup(void)
 		g_hash_table_destroy(conversation_hashtable_no_addr2_or_port2);
 	}
 
-	conversation_hashtable_exact_ext = NULL;
 	conversation_hashtable_exact = NULL;
 	conversation_hashtable_no_addr2 = NULL;
 	conversation_hashtable_no_port2 = NULL;
@@ -624,9 +518,6 @@ conversation_init(void)
 	 * pointed to by conversation data structures that were freed
 	 * above.
 	 */
-	conversation_hashtable_exact_ext =
-		g_hash_table_new_full(conversation_hash_exact_ext,
-			conversation_match_exact_ext, NULL, free_data_list);
 	conversation_hashtable_exact =
 	    g_hash_table_new_full(conversation_hash_exact,
 	      conversation_match_exact, NULL, free_data_list);
@@ -772,13 +663,10 @@ conversation_remove_from_hashtable(GHashTable *hashtable, conversation_t *conv)
  * The options field is used to specify whether the address 2 value
  * and/or port 2 value are not given and any value is acceptable
  * when searching for this conversation.
- *
- * If option USE_EXT_ADDRESS_INF is used pinfo MUST be included and only exact match of the address
- * parameters will work.
  */
 conversation_t *
-conversation_new_ext(const guint32 setup_frame, const address *addr1, const address *addr2, const port_type ptype,
-    const guint32 port1, const guint32 port2, packet_info *pinfo, const guint options)
+conversation_new(const guint32 setup_frame, const address *addr1, const address *addr2, const port_type ptype,
+    const guint32 port1, const guint32 port2, const guint options)
 {
 /*
 	DISSECTOR_ASSERT(!(options | CONVERSATION_TEMPLATE) || ((options | (NO_ADDR2 | NO_PORT2 | NO_PORT2_FORCE))) &&
@@ -788,9 +676,9 @@ conversation_new_ext(const guint32 setup_frame, const address *addr1, const addr
 	conversation_t *conversation=NULL;
 	conversation_key *new_key;
 
-	DPRINT(("creating conversation for frame #%d: %s:%d -> %s:%d (ptype=%d, options %u)",
+	DPRINT(("creating conversation for frame #%d: %s:%d -> %s:%d (ptype=%d)",
 		    setup_frame, address_to_str(wmem_packet_scope(), addr1), port1,
-		    address_to_str(wmem_packet_scope(), addr2), port2, ptype, options));
+		    address_to_str(wmem_packet_scope(), addr2), port2, ptype));
 
 	if (options & NO_ADDR2) {
 		if (options & (NO_PORT2|NO_PORT2_FORCE)) {
@@ -814,15 +702,6 @@ conversation_new_ext(const guint32 setup_frame, const address *addr1, const addr
 	new_key->ptype = ptype;
 	new_key->port1 = port1;
 	new_key->port2 = port2;
-	if (options == USE_EXT_ADDRESS_INF) {
-		DPRINT(("Extended addr inf, vlan_id %u", pinfo->vlan_id));
-		hashtable = conversation_hashtable_exact_ext;
-		new_key->vlan_id = pinfo->vlan_id;
-	}
-	else {
-		new_key->vlan_id = 0;
-	}
-
 
 	conversation = wmem_new(wmem_file_scope(), conversation_t);
 	memset(conversation, 0, sizeof(conversation_t));
@@ -846,20 +725,6 @@ conversation_new_ext(const guint32 setup_frame, const address *addr1, const addr
 	return conversation;
 }
 
-/*
-* Given two address/port pairs for a packet, create a new conversation
-* to contain packets between those address/port pairs.
-*
-* The options field is used to specify whether the address 2 value
-* and/or port 2 value are not given and any value is acceptable
-* when searching for this conversation.
-*/
-conversation_t *
-conversation_new(const guint32 setup_frame, const address *addr1, const address *addr2, const port_type ptype,
-    const guint32 port1, const guint32 port2, const guint options)
-{
-    return conversation_new_ext(setup_frame, addr1, addr2, ptype, port1, port2, NULL, options);
-}
 /*
  * Set the port 2 value in a key.  Remove the original from table,
  * update the options and port values, insert the updated key.
@@ -937,7 +802,7 @@ conversation_set_addr2(conversation_t *conv, const address *addr)
  */
 static conversation_t *
 conversation_lookup_hashtable(GHashTable *hashtable, const guint32 frame_num, const address *addr1, const address *addr2,
-    const port_type ptype, const guint32 port1, const guint32 port2, packet_info *pinfo)
+    const port_type ptype, const guint32 port1, const guint32 port2)
 {
 	conversation_t* convo=NULL;
 	conversation_t* match=NULL;
@@ -953,9 +818,6 @@ conversation_lookup_hashtable(GHashTable *hashtable, const guint32 frame_num, co
 	key.ptype = ptype;
 	key.port1 = port1;
 	key.port2 = port2;
-	if (pinfo) {
-		key.vlan_id = pinfo->vlan_id;
-	}
 
 	chain_head = (conversation_t *)g_hash_table_lookup(hashtable, &key);
 
@@ -1036,14 +898,14 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		conversation =
 			conversation_lookup_hashtable(conversation_hashtable_exact,
 			frame_num, addr_a, addr_b, ptype,
-			port_a, port_b, NULL);
+			port_a, port_b);
 		/* Didn't work, try the other direction */
 		if (conversation == NULL) {
 			DPRINT(("trying opposite direction"));
 			conversation =
 				conversation_lookup_hashtable(conversation_hashtable_exact,
 				frame_num, addr_b, addr_a, ptype,
-				port_b, port_a, NULL);
+				port_b, port_a);
 		}
 		if ((conversation == NULL) && (addr_a->type == AT_FC)) {
 			/* In Fibre channel, OXID & RXID are never swapped as
@@ -1052,7 +914,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 			conversation =
 				conversation_lookup_hashtable(conversation_hashtable_exact,
 				frame_num, addr_b, addr_a, ptype,
-				port_a, port_b, NULL);
+				port_a, port_b);
 		}
 		DPRINT(("exact match %sfound",conversation?"":"not "));
 		if (conversation != NULL)
@@ -1076,7 +938,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		DPRINT(("trying wildcarded dest address"));
 		conversation =
 			conversation_lookup_hashtable(conversation_hashtable_no_addr2,
-			frame_num, addr_a, addr_b, ptype, port_a, port_b, NULL);
+			frame_num, addr_a, addr_b, ptype, port_a, port_b);
 		if ((conversation == NULL) && (addr_a->type == AT_FC)) {
 			/* In Fibre channel, OXID & RXID are never swapped as
 			 * TCP/UDP ports are in TCP/IP.
@@ -1084,7 +946,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 			conversation =
 				conversation_lookup_hashtable(conversation_hashtable_no_addr2,
 				frame_num, addr_b, addr_a, ptype,
-				port_a, port_b, NULL);
+				port_a, port_b);
 		}
 		if (conversation != NULL) {
 			/*
@@ -1128,7 +990,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 			DPRINT(("trying dest addr:port as source addr:port with wildcarded dest addr"));
 			conversation =
 				conversation_lookup_hashtable(conversation_hashtable_no_addr2,
-				frame_num, addr_b, addr_a, ptype, port_b, port_a, NULL);
+				frame_num, addr_b, addr_a, ptype, port_b, port_a);
 			if (conversation != NULL) {
 				/*
 				 * If this is for a connection-oriented
@@ -1172,14 +1034,14 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 		DPRINT(("trying wildcarded dest port"));
 		conversation =
 			conversation_lookup_hashtable(conversation_hashtable_no_port2,
-			frame_num, addr_a, addr_b, ptype, port_a, port_b, NULL);
+			frame_num, addr_a, addr_b, ptype, port_a, port_b);
 		if ((conversation == NULL) && (addr_a->type == AT_FC)) {
 			/* In Fibre channel, OXID & RXID are never swapped as
 			 * TCP/UDP ports are in TCP/IP
 			 */
 			conversation =
 				conversation_lookup_hashtable(conversation_hashtable_no_port2,
-				frame_num, addr_b, addr_a, ptype, port_a, port_b, NULL);
+				frame_num, addr_b, addr_a, ptype, port_a, port_b);
 		}
 		if (conversation != NULL) {
 			/*
@@ -1223,7 +1085,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 			DPRINT(("trying dest addr:port as source addr:port and wildcarded dest port"));
 			conversation =
 				conversation_lookup_hashtable(conversation_hashtable_no_port2,
-				frame_num, addr_b, addr_a, ptype, port_b, port_a, NULL);
+				frame_num, addr_b, addr_a, ptype, port_b, port_a);
 			if (conversation != NULL) {
 				/*
 				 * If this is for a connection-oriented
@@ -1262,7 +1124,7 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 	DPRINT(("trying wildcarding dest addr:port"));
 	conversation =
 		conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
-		frame_num, addr_a, addr_b, ptype, port_a, port_b, NULL);
+		frame_num, addr_a, addr_b, ptype, port_a, port_b);
 	if (conversation != NULL) {
 		/*
 		 * If this is for a connection-oriented protocol:
@@ -1309,11 +1171,11 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 	if (addr_a->type == AT_FC)
 		conversation =
 			conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
-			frame_num, addr_b, addr_a, ptype, port_a, port_b, NULL);
+			frame_num, addr_b, addr_a, ptype, port_a, port_b);
 	else
 		conversation =
 			conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
-			frame_num, addr_b, addr_a, ptype, port_b, port_a, NULL);
+			frame_num, addr_b, addr_a, ptype, port_b, port_a);
 	if (conversation != NULL) {
 		/*
 		 * If this is for a connection-oriented protocol, set the
@@ -1346,55 +1208,6 @@ find_conversation(const guint32 frame_num, const address *addr_a, const address 
 	 * We found no conversation.
 	 */
 	return NULL;
-}
-
-/*
-* Try to find a conversation matching the extended address information key
-* returns NULL if not found.
-*
-*/
-conversation_t *
-find_conversation_ext_from_pinfo(packet_info *pinfo)
-{
-	conversation_t *conversation;
-
-	DPRINT(("trying exact match ext"));
-	DPRINT(("for frame #%d: %s:%d -> %s:%d vlan_id %u (ptype=%d)",
-		pinfo->num, address_to_str(wmem_packet_scope(), &pinfo->src), pinfo->srcport,
-		address_to_str(wmem_packet_scope(), &pinfo->dst), pinfo->destport, pinfo->vlan_id, pinfo->ptype));
-	conversation =
-		conversation_lookup_hashtable(conversation_hashtable_exact_ext,
-			pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-			pinfo->srcport, pinfo->destport, pinfo);
-	/* Didn't work, try the other direction */
-	if (conversation == NULL) {
-		DPRINT(("trying opposite direction"));
-		conversation =
-			conversation_lookup_hashtable(conversation_hashtable_exact_ext,
-				pinfo->num, &pinfo->dst, &pinfo->src, pinfo->ptype,
-				pinfo->destport, pinfo->srcport, pinfo);
-	}
-	if ((conversation == NULL) && (pinfo->src.type == AT_FC)) {
-		/* In Fibre channel, OXID & RXID are never swapped as
-		* TCP/UDP ports are in TCP/IP.
-		*/
-		conversation =
-			conversation_lookup_hashtable(conversation_hashtable_exact_ext,
-				pinfo->num, &pinfo->dst, &pinfo->src, pinfo->ptype,
-				pinfo->srcport, pinfo->destport, pinfo);
-	}
-	DPRINT(("exact match ext %sfound", conversation ? "" : "not "));
-	if (conversation != NULL) {
-		return conversation;
-	}
-
-	DPRINT(("no matches found"));
-
-	/*
-	* We found no conversation.
-	*/
-	return NULL;
-
 }
 
 static gint
@@ -1560,69 +1373,6 @@ find_or_create_conversation(packet_info *pinfo)
 
 	return conv;
 }
-
-conversation_t *
-find_or_create_conversation_ext(packet_info *pinfo, const guint options)
-{
-	conversation_t *conv = NULL;
-
-	DPRINT(("called for frame #%d: %s:%d -> %s:%d (ptype=%d)",
-		pinfo->num, address_to_str(wmem_packet_scope(), &pinfo->src), pinfo->srcport,
-		address_to_str(wmem_packet_scope(), &pinfo->dst), pinfo->destport, pinfo->ptype));
-	DINDENT();
-
-	if (!(options & USE_EXT_ADDRESS_INF)) {
-		/* Have we seen this conversation before? */
-		if ((conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-			pinfo->ptype, pinfo->srcport,
-			pinfo->destport, 0)) != NULL) {
-			DPRINT(("found previous conversation for frame #%d (last_frame=%d)",
-				pinfo->num, conv->last_frame));
-			if (pinfo->num > conv->last_frame) {
-				conv->last_frame = pinfo->num;
-			}
-		}
-		else {
-			/* No, this is a new conversation. */
-			DPRINT(("did not find previous conversation for frame #%d",
-				pinfo->num));
-			DINDENT();
-			conv = conversation_new(pinfo->num, &pinfo->src,
-				&pinfo->dst, pinfo->ptype,
-				pinfo->srcport, pinfo->destport, 0);
-			DENDENT();
-		}
-
-		DENDENT();
-
-		return conv;
-	}
-	/* Check in the extended key hastable */
-
-	/* Have we seen this conversation before? */
-	if ((conv = find_conversation_ext_from_pinfo(pinfo)) != NULL) {
-		DPRINT(("found previous conversation for frame #%d (last_frame=%d)",
-			pinfo->num, conv->last_frame));
-		if (pinfo->num > conv->last_frame) {
-			conv->last_frame = pinfo->num;
-		}
-	}
-	else {
-		/* No, this is a new conversation. */
-		DPRINT(("did not find previous conversation for frame #%d",
-			pinfo->num));
-		DINDENT();
-		conv = conversation_new_ext(pinfo->num, &pinfo->src,
-			&pinfo->dst, pinfo->ptype,
-			pinfo->srcport, pinfo->destport, pinfo, USE_EXT_ADDRESS_INF);
-		DENDENT();
-	}
-
-	DENDENT();
-
-	return conv;
-}
-
 
 GHashTable *
 get_conversation_hashtable_exact(void)

@@ -948,7 +948,7 @@ get_tcp_conversation_data(conversation_t *conv, packet_info *pinfo)
         /* If the caller didn't supply a conversation, don't
          * clear the analysis, it may be needed */
         clear_ta = FALSE;
-        conv = find_or_create_conversation_ext(pinfo, USE_EXT_ADDRESS_INF);
+        conv = find_or_create_conversation(pinfo);
     }
 
     /* Get the data for this conversation */
@@ -5014,7 +5014,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * in case a new conversation is found and the previous conversation needs
      * to be adjusted,
      */
-    if((conv = find_conversation_ext_from_pinfo(pinfo)) != NULL) {
+    if((conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
+                     pinfo->ptype, pinfo->srcport,
+                     pinfo->destport, 0)) != NULL) {
         /* Update how far the conversation reaches */
         if (pinfo->num > conv->last_frame) {
             save_last_frame = conv->last_frame;
@@ -5022,9 +5024,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
     }
     else {
-        conv = conversation_new_ext(pinfo->num, &pinfo->src,
+        conv = conversation_new(pinfo->num, &pinfo->src,
                      &pinfo->dst, pinfo->ptype,
-                     pinfo->srcport, pinfo->destport, pinfo, USE_EXT_ADDRESS_INF);
+                     pinfo->srcport, pinfo->destport, 0);
     }
     tcpd=get_tcp_conversation_data(conv,pinfo);
 
@@ -5044,7 +5046,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             if (save_last_frame > 0)
                 conv->last_frame = save_last_frame;
 
-            conv= conversation_new_ext(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, pinfo, USE_EXT_ADDRESS_INF);
+            conv=conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
             tcpd=get_tcp_conversation_data(conv,pinfo);
         }
         if(!tcpd->ta)
@@ -5068,7 +5070,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 conv->last_frame = save_last_frame;
         }
 
-        other_conv = find_conversation_ext_from_pinfo(pinfo);
+        other_conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->src, pinfo->ptype, pinfo->destport, pinfo->srcport, 0);
         if (other_conv != NULL)
         {
             conv = other_conv;
