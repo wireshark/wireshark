@@ -303,6 +303,7 @@ static int hf_gtp_max_mbr_apn_ambr_dl = -1;
 static int hf_gtp_ext_enb_type = -1;
 static int hf_gtp_macro_enodeb_id = -1;
 static int hf_gtp_home_enodeb_id = -1;
+static int hf_gtp_dummy_octets = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_gtp_ggsn_2_address_ipv4 = -1;
@@ -8552,10 +8553,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             break;
     }
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_gtp, tvb, 0, -1, ENC_NA);
-        gtp_tree = proto_item_add_subtree(ti, ett_gtp);
-
-        if(gtp_prime) {
+        if (gtp_prime) {
             const int * gtp_prime_flags[] = {
                 &hf_gtp_prime_flags_ver,
                 &hf_gtp_flags_pt,
@@ -8570,23 +8568,26 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 NULL
             };
 
+            ti = proto_tree_add_item(tree, proto_gtpprime, tvb, 0, -1, ENC_NA);
+            gtp_tree = proto_item_add_subtree(ti, ett_gtp);
+
             /* Octet  8    7    6    5    4    3    2    1
              * 1      Version   | PT| Spare '1 1 1 '| ' 0/1 '
              */
 
-            /* Bit 1 of octet 1 is not used in GTP' (except in v0), and it is marked '0'
-             * in the GTP' header. It is in use in GTP' v0 and distinguishes the used header-length.
-             * In the case of GTP' v0, this bit being marked one (1) indicates the usage of the 6
-             * octets header. If the bit is set to '0' (usually the case) the 20-octet header is used.
-             * For all other versions of GTP', this bit is not used and is set to '0'. However,
-             * this does not suggest the use of the 20-octet header, rather a shorter 6-octet header.
-             */
-            if(gtp_version == 0) {
+             /* Bit 1 of octet 1 is not used in GTP' (except in v0), and it is marked '0'
+              * in the GTP' header. It is in use in GTP' v0 and distinguishes the used header-length.
+              * In the case of GTP' v0, this bit being marked one (1) indicates the usage of the 6
+              * octets header. If the bit is set to '0' (usually the case) the 20-octet header is used.
+              * For all other versions of GTP', this bit is not used and is set to '0'. However,
+              * this does not suggest the use of the 20-octet header, rather a shorter 6-octet header.
+              */
+            if (gtp_version == 0) {
                 proto_tree_add_bitmask_value_with_flags(gtp_tree, tvb, offset, hf_gtp_flags,
-                                        ett_gtp_flags, gtp_prime_v0_flags, gtp_hdr->flags, BMT_NO_APPEND);
+                    ett_gtp_flags, gtp_prime_v0_flags, gtp_hdr->flags, BMT_NO_APPEND);
             } else {
                 proto_tree_add_bitmask_value_with_flags(gtp_tree, tvb, offset, hf_gtp_flags,
-                                        ett_gtp_flags, gtp_prime_flags, gtp_hdr->flags, BMT_NO_APPEND);
+                    ett_gtp_flags, gtp_prime_flags, gtp_hdr->flags, BMT_NO_APPEND);
             }
         } else {
             const int * gtp_flags[] = {
@@ -8605,13 +8606,15 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 &hf_gtp_flags_snn,
                 NULL
             };
+            ti = proto_tree_add_item(tree, proto_gtp, tvb, 0, -1, ENC_NA);
+            gtp_tree = proto_item_add_subtree(ti, ett_gtp);
 
-            if(gtp_version == 0) {
+            if (gtp_version == 0) {
                 proto_tree_add_bitmask_value_with_flags(gtp_tree, tvb, offset, hf_gtp_flags,
-                                        ett_gtp_flags, gtp_v0_flags, gtp_hdr->flags, BMT_NO_APPEND);
+                    ett_gtp_flags, gtp_v0_flags, gtp_hdr->flags, BMT_NO_APPEND);
             } else {
                 proto_tree_add_bitmask_value_with_flags(gtp_tree, tvb, offset, hf_gtp_flags,
-                                        ett_gtp_flags, gtp_flags, gtp_hdr->flags, BMT_NO_APPEND);
+                    ett_gtp_flags, gtp_flags, gtp_hdr->flags, BMT_NO_APPEND);
             }
         }
     }
@@ -8654,18 +8657,8 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         offset += 2;
         /* If GTP' version is 0 and bit 1 is 0 20 bytes header is used, dissect it */
         if( (gtp_version == 0) && ((gtp_hdr->flags & 0x01) == 0) ) {
-            /* XXX - is this just like GTPv0? */
-            flow_label = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_uint(gtp_tree, hf_gtp_flow_label, tvb, offset, 2, flow_label);
-            offset += 2;
-
-            pdu_no = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint(gtp_tree, hf_gtp_sndcp_number, tvb, offset, 1, pdu_no);
-            offset += 4;
-
-            tid_str = id_to_str(tvb, offset);
-            proto_tree_add_string(gtp_tree, hf_gtp_tid, tvb, offset, 8, tid_str);
-            offset += 8;
+            proto_tree_add_item(gtp_tree, hf_gtp_dummy_octets, tvb, offset, 14, ENC_BIG_ENDIAN);
+            offset += 14;
         }
 
         set_actual_length(tvb, offset + gtp_hdr->length);
@@ -10054,6 +10047,11 @@ proto_register_gtp(void)
       { "Home eNodeB ID", "gtp.home_enodeb_id",
       FT_UINT32, BASE_HEX, NULL, 0x0fffffff,
       NULL, HFILL }
+      },
+      { &hf_gtp_dummy_octets,
+      { "Dummy octets", "gtp.dummy_octets",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
       },
 
 };
