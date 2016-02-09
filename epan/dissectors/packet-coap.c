@@ -31,9 +31,11 @@
 #include "config.h"
 
 
+#include <epan/conversation.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 
 void proto_register_coap(void);
 
@@ -75,6 +77,10 @@ static int hf_coap_opt_block_mflag	= -1;
 static int hf_coap_opt_block_size	= -1;
 static int hf_coap_opt_uri_query	= -1;
 static int hf_coap_opt_unknown		= -1;
+
+static int hf_coap_response_in		= -1;
+static int hf_coap_response_to		= -1;
+static int hf_coap_response_time	= -1;
 
 static gint ett_coap			= -1;
 static gint ett_coap_option		= -1;
@@ -250,6 +256,16 @@ static const value_string vals_ctype[] = {
 	{ 60, "application/cbor" },
 	{ 0, NULL },
 };
+
+typedef struct _coap_transaction_t {
+	guint32 req_frame;
+	guint32 rep_frame;
+	nstime_t req_time;
+} coap_transaction_t;
+
+typedef struct _coap_conv_info_t {
+		wmem_tree_t *pdus;
+} coap_conv_info_t;
 
 static const char *nullstr = "(null)";
 
@@ -797,6 +813,12 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	guint16     mid;
 	gint        coap_length;
 	gchar      *coap_token_str;
+	conversation_t     *conversation;
+	coap_conv_info_t   *coap_info;
+	coap_transaction_t *coap_trans;
+	wmem_tree_key_t     coap_key[3];
+	guint32     key_token_length;
+	guint32     key_token[2];
 
 	/* initialize the CoAP length and the content-Format */
 	/*
@@ -857,6 +879,16 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		coap_token_str = tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, token_len, ' ');
 		proto_tree_add_item(coap_tree, hf_coap_token,
 				    tvb, offset, token_len, ENC_NA);
+
+		memset(&key_token[0], 0, sizeof(key_token));
+		if ( token_len > 8 ) {
+			/* The token is limited to a maximum length of 8 but the bits in the
+			 * protocol specifies 4 bits. Use 8 bytes at most. */
+			tvb_memcpy(tvb, key_token, offset, 8);
+		} else {
+			tvb_memcpy(tvb, key_token, offset, token_len);
+		}
+
 		offset += token_len;
 	}
 
@@ -876,6 +908,86 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 
 	if (wmem_strbuf_get_len(coap_uri_query_strbuf)> 0)
 		col_append_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(coap_uri_query_strbuf));
+
+	/*
+	 * We need to track some state for this protocol on a per conversation
+	 * basis so we can do neat things like request/response tracking
+	 */
+	conversation = find_or_create_conversation(pinfo);
+
+	key_token_length = token_len;
+
+	coap_key[0].length = 1;
+	coap_key[0].key = &key_token_length;
+	coap_key[1].length = 2;
+	coap_key[1].key = key_token;
+	coap_key[2].length = 0;
+	coap_key[2].key = NULL;
+
+	/*
+	 * Do we already have a state structure for this conv
+	 */
+	coap_info = (coap_conv_info_t *)conversation_get_proto_data(conversation, proto_coap);
+	if (!coap_info) {
+		/*
+		 * No.  Attach that information to the conversation, and add
+		 * it to the list of information structures.
+		 */
+		coap_info = wmem_new(wmem_file_scope(), coap_conv_info_t);
+		coap_info->pdus = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+
+		conversation_add_proto_data(conversation, proto_coap, coap_info);
+	}
+	if (!PINFO_FD_VISITED(pinfo)) {
+		if (code < 65) {
+			/* This is a request */
+			coap_trans=wmem_new(wmem_file_scope(), coap_transaction_t);
+			coap_trans->req_frame = pinfo->num;
+			coap_trans->rep_frame = 0;
+			coap_trans->req_time = pinfo->fd->abs_ts;
+			wmem_tree_insert32_array(coap_info->pdus, coap_key, (void *)coap_trans);
+		} else {
+			coap_trans=(coap_transaction_t *)wmem_tree_lookup32_array(coap_info->pdus, coap_key);
+			if (coap_trans) {
+				coap_trans->rep_frame = pinfo->num;
+			}
+		}
+	} else {
+		coap_trans=(coap_transaction_t *)wmem_tree_lookup32_array(coap_info->pdus, coap_key);
+	}
+	if (!coap_trans) {
+		/* create a "fake" coap_trans structure */
+		coap_trans=wmem_new(wmem_packet_scope(), coap_transaction_t);
+		coap_trans->req_frame = 0;
+		coap_trans->rep_frame = 0;
+		coap_trans->req_time = pinfo->fd->abs_ts;
+	}
+
+	/* print state tracking in the tree */
+	if (code < 65) {
+		/* This is a request */
+		if (coap_trans->rep_frame) {
+			proto_item *it;
+
+			it = proto_tree_add_uint(coap_tree, hf_coap_response_in,
+					tvb, 0, 0, coap_trans->rep_frame);
+			PROTO_ITEM_SET_GENERATED(it);
+		}
+	} else {
+		/* This is a reply */
+		if (coap_trans->req_frame) {
+			proto_item *it;
+			nstime_t ns;
+
+			it = proto_tree_add_uint(coap_tree, hf_coap_response_to,
+					tvb, 0, 0, coap_trans->req_frame);
+			PROTO_ITEM_SET_GENERATED(it);
+
+			nstime_delta(&ns, &pinfo->fd->abs_ts, &coap_trans->req_time);
+			it = proto_tree_add_time(coap_tree, hf_coap_response_time, tvb, 0, 0, &ns);
+			PROTO_ITEM_SET_GENERATED(it);
+		}
+	}
 
 	/* dissect the payload */
 	if (coap_length > offset) {
@@ -1100,6 +1212,21 @@ proto_register_coap(void)
 		  { "Unknown", "coap.opt.unknown",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
+		},
+		{ &hf_coap_response_in,
+		  { "Response In", "coap.response_in",
+		    FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"The response to this PANA request is in this frame", HFILL }
+		},
+		{ &hf_coap_response_to,
+		  { "Request In", "coap.response_to",
+		    FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"This is a response to the PANA request in this frame", HFILL }
+		},
+		{ &hf_coap_response_time,
+		  { "Response Time", "coap.response_time",
+		    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+			"The time between the Call and the Reply", HFILL }
 		},
 	};
 
