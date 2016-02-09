@@ -2390,7 +2390,7 @@ void MainWindow::colorizeWithFilter()
     if (ok) {
         // Assume "Color X"
         gchar *err_msg = NULL;
-        if (color_filters_set_tmp(color_number, filter.toUtf8().constData(), FALSE, &err_msg)) {
+        if (!color_filters_set_tmp(color_number, filter.toUtf8().constData(), FALSE, &err_msg)) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
             g_free(err_msg);
         }
