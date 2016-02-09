@@ -8492,7 +8492,7 @@ proto_register_bgp(void)
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
      { &hf_bgp_ls_sr_tlv_adjacency_sid_label,
         { "SID/Label", "bgp.ls.sr.tlv.adjacency.sid.label", FT_UINT24,
-          BASE_DEC, NULL, 0xFFFFF0, NULL, HFILL}},
+          BASE_DEC, NULL, 0x0FFFFF, NULL, HFILL}},
      { &hf_bgp_ls_sr_tlv_adjacency_sid_index,
         { "SID/Index", "bgp.ls.sr.tlv.adjacency.sid.index", FT_UINT32,
           BASE_DEC, NULL, 0x0, NULL, HFILL}}
