@@ -83,6 +83,7 @@
 #include "capsa.h"
 #include "pcap-encap.h"
 #include "nettrace_3gpp_32_423.h"
+#include "mplog.h"
 
 /*
  * Add an extension, and all compressed versions thereof, to a GSList
@@ -333,6 +334,7 @@ static struct open_info open_info_base[] = {
 	/* Gammu DCT3 trace must come before MIME files as it's XML based*/
 	{ "Gammu DCT3 trace",                       OPEN_INFO_MAGIC,     dct3trace_open,           NULL,       NULL, NULL },
 	{ "MIME Files Format",                      OPEN_INFO_MAGIC,     mime_file_open,           NULL,       NULL, NULL },
+	{ "Micropross mplog",                       OPEN_INFO_MAGIC,     mplog_open,             "mplog",      NULL, NULL },
 	{ "Novell LANalyzer",                       OPEN_INFO_HEURISTIC, lanalyzer_open,           "tr1",      NULL, NULL },
 	/*
 	 * PacketLogger must come before MPEG, because its files
@@ -1583,6 +1585,11 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	{ "3GPP TS 32.423 Trace", "3gpp32423", NULL, NULL,
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL },
+
+	/* WTAP_FILE_TYPE_MPLOG */
+	{ "Micropross mplog file", "mplog", "mplog", NULL,
+	  FALSE, FALSE, 0,
+	  NULL, NULL, NULL }
 };
 
 /*

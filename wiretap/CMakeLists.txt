@@ -54,6 +54,7 @@ set(WIRETAP_FILES
 	logcat_text.c
 	merge.c
 	mpeg.c
+	mplog.c
 	mime_file.c
 	mp2t.c
 	netmon.c

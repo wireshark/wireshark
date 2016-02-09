@@ -357,6 +357,7 @@ extern "C" {
 #define WTAP_FILE_TYPE_SUBTYPE_JSON                          77
 #define WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_5                 78
 #define WTAP_FILE_TYPE_SUBTYPE_NETTRACE_3GPP_32_423          79
+#define WTAP_FILE_TYPE_SUBTYPE_MPLOG                         80
 
 #define WTAP_NUM_FILE_TYPES_SUBTYPES  wtap_get_num_file_types_subtypes()
 

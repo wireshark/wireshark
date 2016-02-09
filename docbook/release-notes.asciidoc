@@ -83,8 +83,9 @@ DecodeAs it over USB, TCP and UDP.
 Too many protocols have been updated to list here.
 
 === New and Updated Capture File Support
+Micropross mplog
 
-_Non-empty section placeholder._
+//_Non-empty section placeholder._
 --sort-and-group--
 --sort-and-group--
 

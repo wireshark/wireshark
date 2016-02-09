@@ -60,6 +60,7 @@ NONGENERATED_C_FILES = \
 	libpcap.c		\
 	merge.c			\
 	mpeg.c			\
+	mplog.c			\
 	mp2t.c			\
 	netmon.c		\
 	netscaler.c		\
@@ -122,6 +123,7 @@ NONGENERATED_HEADER_FILES = \
 	logcat_text.h		\
 	merge.h			\
 	mpeg.h			\
+	mplog.h			\
 	mp2t.h			\
 	netmon.h		\
 	netscreen.h		\
