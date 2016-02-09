@@ -4866,19 +4866,21 @@ tcp_flags_to_str(const struct tcpheader *tcph)
 static const char *
 tcp_flags_to_str_first_letter(const struct tcpheader *tcph)
 {
-    char *buf;
+    wmem_strbuf_t *buf = wmem_strbuf_new(wmem_packet_scope(), "");
     unsigned i;
     const unsigned flags_count = 12;
+    const char first_letters[] = "RRRNCEUAPRSF";
 
     /* upper three bytes are marked as reserved ('R'). */
-    buf = wmem_strdup(wmem_packet_scope(), "RRRNCEUAPRSF");
     for (i = 0; i < flags_count; i++) {
-        if (!((tcph->th_flags >> (flags_count - 1 - i)) & 1)) {
-            buf[i] = '*';
+        if (((tcph->th_flags >> (flags_count - 1 - i)) & 1)) {
+            wmem_strbuf_append_c(buf, first_letters[i]);
+        } else {
+            wmem_strbuf_append(buf, UTF8_MIDDLE_DOT);
         }
     }
 
-    return buf;
+    return wmem_strbuf_finalize(buf);
 }
 
 static gboolean
@@ -5833,7 +5835,7 @@ proto_register_tcp(void)
             NULL, HFILL }},
 
         { &hf_tcp_flags_str,
-        { "TCP Flags",          "tcp.flags.str", FT_STRING, BASE_NONE, NULL, 0x0,
+        { "TCP Flags",          "tcp.flags.str", FT_STRING, STR_UNICODE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_tcp_window_size_value,
