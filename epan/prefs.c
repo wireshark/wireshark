@@ -4336,11 +4336,14 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             } else if (strcmp(module->name, "smpp") == 0) {
                 /* Handle preferences that moved from SMPP. */
                 module_t *new_module = prefs_find_module("gsm-sms-ud");
-                if (new_module){
-                    if (strcmp(dotp, "port_number_udh_means_wsp") == 0)
+                if (new_module) {
+                    if (strcmp(dotp, "port_number_udh_means_wsp") == 0) {
                         pref = prefs_find_preference(new_module, "port_number_udh_means_wsp");
-                    else if (strcmp(dotp, "try_dissect_1st_fragment") == 0)
+                        containing_module = new_module;
+                    } else if (strcmp(dotp, "try_dissect_1st_fragment") == 0) {
                         pref = prefs_find_preference(new_module, "try_dissect_1st_fragment");
+                        containing_module = new_module;
+                    }
                 }
             } else if (strcmp(module->name, "asn1") == 0) {
                 /* Handle old generic ASN.1 preferences (it's not really a
@@ -4400,6 +4403,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
                     module_t *new_module = prefs_find_module("vlan");
                     if (new_module) {
                         pref = prefs_find_preference(new_module, "qinq_ethertype");
+                        containing_module = new_module;
                     }
                 }
             } else if (strcmp(module->name, "taps") == 0) {
