@@ -400,6 +400,7 @@ WS_DLL_PUBLIC guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info 
             "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
             EMT_iei, \
             get_gsm_a_msg_string(EMT_pdu_type, EMT_elem_idx), \
+            /* coverity[array_null] */ \
             (EMT_elem_name_addition == NULL) ? "" : EMT_elem_name_addition \
             ); \
     } \
@@ -425,6 +426,7 @@ WS_DLL_PUBLIC guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info 
             "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
             EMT_iei, \
             get_gsm_a_msg_string(EMT_pdu_type, EMT_elem_idx), \
+            /* coverity[array_null] */ \
             (EMT_elem_name_addition == NULL) ? "" : EMT_elem_name_addition \
             ); \
     } \
@@ -445,6 +447,7 @@ WS_DLL_PUBLIC guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info 
             "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
             EMT_iei, \
             get_gsm_a_msg_string(EMT_pdu_type, EMT_elem_idx), \
+            /* coverity[array_null] */ \
             (EMT_elem_name_addition == NULL) ? "" : EMT_elem_name_addition \
             ); \
     } \
@@ -494,6 +497,7 @@ WS_DLL_PUBLIC guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info 
             "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
             EMT_iei, \
             get_gsm_a_msg_string(EMT_pdu_type, EMT_elem_idx), \
+            /* coverity[array_null] */ \
             (EMT_elem_name_addition == NULL) ? "" : EMT_elem_name_addition \
         ); \
     } \
