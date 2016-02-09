@@ -704,7 +704,7 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
           static const guint Nhtdltf[4] = {1, 2, 4, 4};
           static const guint Nhteltf[4] = {0, 1, 2, 4};
           guint Nsts, bits, Mstbc, bits_per_symbol, symbols;
-          int stbc_streams;
+          guint stbc_streams;
           guint ness;
           gboolean fec;
 
@@ -767,6 +767,10 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
           /* calculate number of HT-LTF training symbols.
            * see ieee80211n-2009 20.3.9.4.6 table 20-11 */
           Nsts = ieee80211_ht_streams[info_n->mcs_index] + stbc_streams;
+          if (Nsts == 0 || Nsts - 1 >= G_N_ELEMENTS(Nhtdltf)) {
+              /* Not usable */
+              break;
+          }
           preamble += 4 * (Nhtdltf[Nsts-1] + Nhteltf[ness]);
 
           if (info_n->has_fec) {
