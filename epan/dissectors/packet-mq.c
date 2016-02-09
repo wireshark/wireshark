@@ -77,6 +77,7 @@
 
 #include "packet-windows-common.h"
 #include "packet-tcp.h"
+#include <packet-ssl.h>
 
 #include "packet-mq.h"
 
@@ -948,7 +949,7 @@ static gint ett_mq_notif = -1;
 
 static gint ett_mq_structid = -1;
 
-static dissector_handle_t mq_tcp_handle;
+static dissector_handle_t mq_handle;
 static dissector_handle_t mq_spx_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t mqpcf_handle;
@@ -964,11 +965,6 @@ static reassembly_table mq_reassembly_table;
 
 #define MQ_PORT_TCP    1414
 #define MQ_SOCKET_SPX  0x5E86
-
-#define MQ_XPT_TCP      0x02
-#define MQ_XPT_NETBIOS  0x03
-#define MQ_XPT_SPX      0x04
-#define MQ_XPT_HTTP     0x07
 
 #define MQ_STRUCTID_NULL          0x00000000
 
@@ -4047,7 +4043,8 @@ static int dissect_mq_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     return tvb_captured_length(tvb);
 }
 
-static gboolean dissect_mq_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint iProto, void *data)
+static gboolean dissect_mq_heur(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, gboolean is_tcp, dissector_handle_t *ssl_app_handle)
 {
     if ((tvb_captured_length(tvb) >= 4) && (tvb_reported_length(tvb) >= 28))
     {
@@ -4058,11 +4055,13 @@ static gboolean dissect_mq_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             conversation_t  *conversation;
 
             conversation = find_or_create_conversation(pinfo);
-            if (iProto == MQ_XPT_TCP)
-                conversation_set_dissector(conversation, mq_tcp_handle);
+            if (is_tcp)
+                conversation_set_dissector(conversation, mq_handle);
+            else if (ssl_app_handle)
+                *ssl_app_handle = mq_handle;
 
             /* Dissect the packet */
-            reassemble_mq(tvb, pinfo, tree, data);
+            reassemble_mq(tvb, pinfo, tree, NULL);
             return TRUE;
         }
     }
@@ -4071,17 +4070,18 @@ static gboolean dissect_mq_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 static gboolean    dissect_mq_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_mq_heur(tvb, pinfo, tree, MQ_XPT_TCP, NULL);
+    return dissect_mq_heur(tvb, pinfo, tree, TRUE, NULL);
 }
 
-static gboolean    dissect_mq_heur_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static gboolean    dissect_mq_heur_nontcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_mq_heur(tvb, pinfo, tree, MQ_XPT_NETBIOS, NULL);
+    return dissect_mq_heur(tvb, pinfo, tree, FALSE, NULL);
 }
 
-static gboolean    dissect_mq_heur_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static gboolean    dissect_mq_heur_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_mq_heur(tvb, pinfo, tree, MQ_XPT_HTTP, NULL);
+    dissector_handle_t *app_handle = (dissector_handle_t *) data;
+    return dissect_mq_heur(tvb, pinfo, tree, FALSE, app_handle);
 }
 
 static void mq_init(void)
@@ -4762,6 +4762,8 @@ void proto_register_mq(void)
     register_cleanup_routine(mq_cleanup);
 
     mq_module = prefs_register_protocol(proto_mq, NULL);
+    mq_handle = register_dissector("mq", dissect_mq_tcp, proto_mq);
+
     prefs_register_bool_preference(mq_module, "desegment",
         "Reassemble MQ messages spanning multiple TCP segments",
         "Whether the MQ dissector should reassemble messages spanning multiple TCP segments."
@@ -4779,13 +4781,14 @@ void proto_reg_handoff_mq(void)
     *  class of applications (web browser, e-mail client, ...) and have a very well
     *  known port number, the MQ applications are most often specific to a business application */
 
-    mq_tcp_handle = create_dissector_handle(dissect_mq_tcp, proto_mq);
     mq_spx_handle = create_dissector_handle(dissect_mq_spx, proto_mq);
 
-    dissector_add_for_decode_as("tcp.port", mq_tcp_handle);
+    dissector_add_for_decode_as("tcp.port", mq_handle);
+    ssl_dissector_add(0, mq_handle);
     heur_dissector_add("tcp",     dissect_mq_heur_tcp, "WebSphere MQ over TCP", "mq_tcp", proto_mq, HEURISTIC_ENABLE);
-    heur_dissector_add("netbios", dissect_mq_heur_netbios, "WebSphere MQ over Netbios", "mq_netbios", proto_mq, HEURISTIC_ENABLE);
-    heur_dissector_add("http",    dissect_mq_heur_http, "WebSphere MQ over HTTP", "mq_http", proto_mq, HEURISTIC_ENABLE);
+    heur_dissector_add("netbios", dissect_mq_heur_nontcp, "WebSphere MQ over Netbios", "mq_netbios", proto_mq, HEURISTIC_ENABLE);
+    heur_dissector_add("http",    dissect_mq_heur_nontcp, "WebSphere MQ over HTTP", "mq_http", proto_mq, HEURISTIC_ENABLE);
+    heur_dissector_add("ssl",     dissect_mq_heur_ssl, "WebSphere MQ over SSL", "mq_ssl", proto_mq, HEURISTIC_ENABLE);
     dissector_add_uint("spx.socket", MQ_SOCKET_SPX, mq_spx_handle);
     data_handle  = find_dissector("data");
     mqpcf_handle = find_dissector("mqpcf");
