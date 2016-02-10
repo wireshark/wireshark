@@ -67,7 +67,7 @@
 #endif
 
 #define verbose_print(...) { if (verbose) printf(__VA_ARGS__); }
-#define errmsprintf(...) { printf(__VA_ARGS__); printf("\n"); }
+#define errmsg_print(...) { fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); }
 
 #define RANDPKT_EXTCAP_INTERFACE "randpkt"
 #define RANDPKTDUMP_VERSION_MAJOR 0
@@ -215,12 +215,12 @@ static int list_config(char *interface)
 	unsigned list_num;
 
 	if (!interface) {
-		g_fprintf(stderr, "ERROR: No interface specified.\n");
+		errmsg_print("ERROR: No interface specified.\n");
 		return EXIT_FAILURE;
 	}
 
 	if (g_strcmp0(interface, RANDPKT_EXTCAP_INTERFACE)) {
-		errmsprintf("ERROR: interface must be %s\n", RANDPKT_EXTCAP_INTERFACE);
+		errmsg_print("ERROR: interface must be %s\n", RANDPKT_EXTCAP_INTERFACE);
 		return EXIT_FAILURE;
 	}
 
@@ -255,12 +255,12 @@ static int list_config(char *interface)
 static int list_dlts(const char *interface)
 {
 	if (!interface) {
-		printf("ERROR: No interface specified.\n");
+		errmsg_print("ERROR: No interface specified.\n");
 		return EXIT_FAILURE;
 	}
 
 	if (g_strcmp0(interface, RANDPKT_EXTCAP_INTERFACE)) {
-		printf("ERROR: interface must be %s\n", RANDPKT_EXTCAP_INTERFACE);
+		errmsg_print("ERROR: interface must be %s\n", RANDPKT_EXTCAP_INTERFACE);
 		return EXIT_FAILURE;
 	}
 
@@ -355,7 +355,7 @@ int main(int argc, char *argv[])
 		case OPT_MAXBYTES:
 			maxbytes = atoi(optarg);
 			if (maxbytes > MAXBYTES_LIMIT) {
-				errmsprintf("randpktdump: Max bytes is %u\n", MAXBYTES_LIMIT);
+				errmsg_print("randpktdump: Max bytes is %u\n", MAXBYTES_LIMIT);
 				return 1;
 			}
 			break;
@@ -382,17 +382,17 @@ int main(int argc, char *argv[])
 
 		case ':':
 			/* missing option argument */
-			printf("Option '%s' requires an argument\n", argv[optind - 1]);
+			errmsg_print("Option '%s' requires an argument\n", argv[optind - 1]);
 			break;
 
 		default:
-			printf("Invalid option 1: %s\n", argv[optind - 1]);
+			errmsg_print("Invalid option 1: %s\n", argv[optind - 1]);
 			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind != argc) {
-		printf("Invalid option: %s\n", argv[optind]);
+		errmsg_print("Invalid option: %s\n", argv[optind]);
 		return EXIT_FAILURE;
 	}
 
@@ -407,7 +407,7 @@ int main(int argc, char *argv[])
 
 	/* Some sanity checks */
 	if ((random_type) && (all_random)) {
-		errmsprintf("You can specify only one between: --random-type, --all-random\n");
+		errmsg_print("You can specify only one between: --random-type, --all-random\n");
 		return EXIT_FAILURE;
 	}
 
@@ -421,19 +421,19 @@ int main(int argc, char *argv[])
 	result = WSAStartup(MAKEWORD(1,1), &wsaData);
 	if (result != 0) {
 		if (verbose)
-			errmsprintf("ERROR: WSAStartup failed with error: %d\n", result);
+			errmsg_print("ERROR: WSAStartup failed with error: %d\n", result);
 		return 1;
 	}
 #endif  /* _WIN32 */
 
 	if (do_capture) {
 		if (!fifo) {
-			errmsprintf("ERROR: No FIFO or file specified\n");
+			errmsg_print("ERROR: No FIFO or file specified\n");
 			return 1;
 		}
 
 		if (g_strcmp0(interface, RANDPKT_EXTCAP_INTERFACE)) {
-			errmsprintf("ERROR: invalid interface\n");
+			errmsg_print("ERROR: invalid interface\n");
 			return 1;
 		}
 
