@@ -57,6 +57,7 @@ static const value_string spice_link_err_vs[] =  {
     { SPICE_LINK_ERR_CHANNEL_NOT_AVAILABLE, "CHANNEL_NOT_AVAILABLE" },
     { 0, NULL } };
 
+#if 0
 typedef enum SpiceWarnCode {
     SPICE_WARN_GENERAL,
 
@@ -146,6 +147,7 @@ static const value_string spice_composite_flags_vs[] =  {
     { SPICE_COMPOSITE_MASK_OPAQUE, "MASK_OPAQUE" },
     { SPICE_COMPOSITE_DEST_OPAQUE, "DEST_OPAQUE" },
     { 0, NULL } };
+#endif
 
 typedef enum SpiceNotifySeverity {
     SPICE_NOTIFY_SEVERITY_INFO,
@@ -187,6 +189,7 @@ static const value_string spice_mouse_mode_vs[] =  {
     { SPICE_MOUSE_MODE_CLIENT, "CLIENT" },
     { 0, NULL } };
 
+#if 0
 typedef enum SpicePubkeyType {
     SPICE_PUBKEY_TYPE_INVALID,
     SPICE_PUBKEY_TYPE_RSA,
@@ -214,6 +217,7 @@ static const value_string spice_pubkey_type_vs[] =  {
     { SPICE_PUBKEY_TYPE_DH, "DH" },
     { SPICE_PUBKEY_TYPE_EC, "EC" },
     { 0, NULL } };
+#endif
 
 typedef enum SpiceClipType {
     SPICE_CLIP_TYPE_NONE,
@@ -227,6 +231,7 @@ static const value_string spice_clip_type_vs[] =  {
     { SPICE_CLIP_TYPE_RECTS, "RECTS" },
     { 0, NULL } };
 
+#if 0
 typedef enum SpicePathFlags {
     SPICE_PATH_BEGIN = (1 << 0),
     SPICE_PATH_END = (1 << 1),
@@ -242,6 +247,7 @@ static const value_string spice_path_flags_vs[] =  {
     { SPICE_PATH_CLOSE, "CLOSE" },
     { SPICE_PATH_BEZIER, "BEZIER" },
     { 0, NULL } };
+#endif
 
 typedef enum SpiceVideoCodecType {
     SPICE_VIDEO_CODEC_TYPE_MJPEG = 1,
@@ -377,6 +383,7 @@ static const value_string spice_bitmap_flags_vs[] =  {
     { SPICE_BITMAP_FLAGS_TOP_DOWN, "TOP_DOWN" },
     { 0, NULL } };
 
+#if 0
 typedef enum SpiceJpegAlphaFlags {
     SPICE_JPEG_ALPHA_FLAGS_TOP_DOWN = (1 << 0),
 
@@ -386,6 +393,7 @@ typedef enum SpiceJpegAlphaFlags {
 static const value_string spice_jpeg_alpha_flags_vs[] =  {
     { SPICE_JPEG_ALPHA_FLAGS_TOP_DOWN, "TOP_DOWN" },
     { 0, NULL } };
+#endif
 
 typedef enum SpiceImageScaleMode {
     SPICE_IMAGE_SCALE_MODE_INTERPOLATE,
@@ -429,6 +437,7 @@ static const value_string spice_ropd_vs[] =  {
     { SPICE_ROPD_INVERS_RES, "INVERS_RES" },
     { 0, NULL } };
 
+#if 0
 typedef enum SpiceLineFlags {
     SPICE_LINE_FLAGS_START_WITH_GAP = (1 << 2),
     SPICE_LINE_FLAGS_STYLED = (1 << 3),
@@ -456,6 +465,7 @@ static const value_string spice_string_flags_vs[] =  {
     { SPICE_STRING_FLAGS_RASTER_A8, "RASTER_A8" },
     { SPICE_STRING_FLAGS_RASTER_TOP_DOWN, "RASTER_TOP_DOWN" },
     { 0, NULL } };
+#endif
 
 typedef enum SpiceSurfaceFlags {
     SPICE_SURFACE_FLAGS_PRIMARY = (1 << 0),
@@ -467,6 +477,7 @@ static const value_string spice_surface_flags_vs[] =  {
     { SPICE_SURFACE_FLAGS_PRIMARY, "PRIMARY" },
     { 0, NULL } };
 
+#if 0
 typedef enum SpiceSurfaceFmt {
     SPICE_SURFACE_FMT_INVALID,
     SPICE_SURFACE_FMT_1_A,
@@ -512,6 +523,7 @@ static const value_string spice_resource_type_vs[] =  {
     { SPICE_RES_TYPE_INVALID, "INVALID" },
     { SPICE_RES_TYPE_PIXMAP, "PIXMAP" },
     { 0, NULL } };
+#endif
 
 typedef enum SpiceKeyboardModifierFlags {
     SPICE_KEYBOARD_MODIFIER_FLAGS_SCROLL_LOCK = (1 << 0),
@@ -521,6 +533,7 @@ typedef enum SpiceKeyboardModifierFlags {
     SPICE_KEYBOARD_MODIFIER_FLAGS_MASK = 0x7
 } SpiceKeyboardModifierFlags;
 
+#if 0
 static const value_string spice_keyboard_modifier_flags_vs[] =  {
     { SPICE_KEYBOARD_MODIFIER_FLAGS_SCROLL_LOCK, "SCROLL_LOCK" },
     { SPICE_KEYBOARD_MODIFIER_FLAGS_NUM_LOCK, "NUM_LOCK" },
@@ -560,6 +573,7 @@ static const value_string spice_mouse_button_mask_vs[] =  {
     { SPICE_MOUSE_BUTTON_MASK_MIDDLE, "MIDDLE" },
     { SPICE_MOUSE_BUTTON_MASK_RIGHT, "RIGHT" },
     { 0, NULL } };
+#endif
 
 typedef enum SpiceCursorType {
     SPICE_CURSOR_TYPE_ALPHA,
@@ -605,11 +619,13 @@ typedef enum SpiceAudioDataMode {
     SPICE_AUDIO_DATA_MODE_ENUM_END
 } SpiceAudioDataMode;
 
+#if 0
 static const value_string spice_audio_data_mode_vs[] =  {
     { SPICE_AUDIO_DATA_MODE_INVALID, "INVALID" },
     { SPICE_AUDIO_DATA_MODE_RAW, "RAW" },
     { SPICE_AUDIO_DATA_MODE_CELT_0_5_1, "CELT_0_5_1" },
     { 0, NULL } };
+#endif
 
 typedef enum SpiceAudioFmt {
     SPICE_AUDIO_FMT_INVALID,
@@ -623,6 +639,7 @@ static const value_string spice_audio_fmt_vs[] =  {
     { SPICE_AUDIO_FMT_S16, "S16" },
     { 0, NULL } };
 
+#if 0
 typedef enum SpiceTunnelServiceType {
     SPICE_TUNNEL_SERVICE_TYPE_INVALID,
     SPICE_TUNNEL_SERVICE_TYPE_GENERIC,
@@ -674,6 +691,7 @@ static const value_string spice_vsc_message_type_vs[] =  {
     { SPICE_VSC_MESSAGE_TYPE_FLUSH, "Flush" },
     { SPICE_VSC_MESSAGE_TYPE_FLUSHCOMPLETE, "FlushComplete" },
     { 0, NULL } };
+#endif
 
 enum {
     SPICE_CHANNEL_MAIN = 1,
@@ -1138,11 +1156,13 @@ enum {
     SPICE_MSG_END_PORT
 };
 
+#if 0
 static const value_string spice_msg_port_vs[] =  {
     { SPICE_MSG_PORT_INIT, "Server INIT" },
     { SPICE_MSG_PORT_EVENT, "Server EVENT" },
     { 0, NULL }
 };
+#endif
 
 enum {
     SPICE_MSGC_PORT_EVENT = 201,
@@ -1150,9 +1170,11 @@ enum {
     SPICE_MSGC_END_PORT
 };
 
+#if 0
 static const value_string spice_msgc_port_vs[] =  {
     { SPICE_MSGC_PORT_EVENT, "Client EVENT" },
     { 0, NULL }
 };
+#endif
 
 #endif /* _H_SPICE_ENUMS */
