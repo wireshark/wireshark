@@ -478,6 +478,34 @@ static const value_string common_control_frame_type_vals[] = {
     { 0,   NULL }
 };
 
+/* 0 to 7*/
+static const guint8 hsdsch_macdflow_id_rlc_map[] = {
+	RLC_UM,                   /*0 SRB */
+	RLC_AM,                   /*1 Interactive PS*/
+	RLC_AM,                   /*2 Interatcive PS*/
+	RLC_UNKNOWN_MODE,         /*3 ???*/
+	RLC_AM,                   /*4 Streaming PS*/
+	RLC_UNKNOWN_MODE,
+	RLC_UNKNOWN_MODE,
+	RLC_UNKNOWN_MODE
+};
+
+/* Mapping hsdsch MACd-FlowId to MAC_CONTENT, basically flowid = 1 (0) => SRB*/
+/* 1 to 8*/
+static const guint8 hsdsch_macdflow_id_mac_content_map[] = {
+	MAC_CONTENT_DCCH,	/*1 SRB */
+	MAC_CONTENT_PS_DTCH, /*2 Interactive PS*/
+	MAC_CONTENT_PS_DTCH,	/*3 Interatcive PS*/
+	RLC_UNKNOWN_MODE, /*4 ???*/
+	MAC_CONTENT_PS_DTCH,	/*5 Streaming PS*/
+	RLC_UNKNOWN_MODE,
+	RLC_UNKNOWN_MODE,
+	RLC_UNKNOWN_MODE
+	};
+
+/* Make fake logical channel id's based on MACdFlow-ID's*/
+static const guint8 fake_lchid_macd_flow[] = {1,9,14,11,0,12};
+
 /* Dissect message parts */
 static int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            int offset, struct fp_info *p_fp_info,
