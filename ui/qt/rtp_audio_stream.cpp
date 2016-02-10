@@ -250,14 +250,14 @@ void RtpAudioStream::decode()
 
         double rtp_time = (double)(rtp_packet->info->info_timestamp-start_timestamp)/sample_rate - start_rtp_time;
         double arrive_time;
-        if (timing_mode_ == Uninterrupted) {
+        if (timing_mode_ == RtpTimestamp) {
             arrive_time = rtp_time;
         } else {
-            arrive_time = (double)rtp_packet->arrive_offset/1000 - start_time;
+            arrive_time = rtp_packet->arrive_offset - start_time;
         }
 
         double diff = qAbs(arrive_time - rtp_time);
-        if (diff*1000 > jitter_buffer_size_ && timing_mode_ == Uninterrupted) {
+        if (diff*1000 > jitter_buffer_size_ && timing_mode_ != Uninterrupted) {
             // rtp_player.c:628
 
             jitter_drop_timestamps_.append(stop_rel_time_);
@@ -281,7 +281,7 @@ void RtpAudioStream::decode()
 /* XXX: if timestamps (RTP) are missing/ignored try use packet arrive time only (see also "rtp_time") */
                 start_timestamp = rtp_packet->info->info_timestamp;
                 start_rtp_time = 0;
-                start_time = (double)rtp_packet->arrive_offset/1000;
+                start_time = rtp_packet->arrive_offset;
                 rtp_time_prev = 0;
             }
 
