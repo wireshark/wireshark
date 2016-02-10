@@ -2613,6 +2613,33 @@ fi
 AC_SUBST(randpktdump_bin)
 AC_SUBST(randpktdump_man)
 
+dnl udpdump check
+AC_MSG_CHECKING(whether to build udpdump)
+
+AC_ARG_ENABLE(udpdump,
+	AC_HELP_STRING( [--enable-udpdump],
+		[build udpdump @<:@default=yes@:>@]),
+	[],[enable_udpdump=yes])
+
+if test "x$have_extcap" != xyes; then
+	AC_MSG_RESULT([no, extcap disabled])
+	enable_udpdump=no
+elif test "x$enable_udpdump" = "xyes" ; then
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_RESULT(no)
+fi
+
+if test "x$enable_udpdump" = "xyes" ; then
+	udpdump_bin="udpdump\$(EXEEXT)"
+	udpdump_man="udpdump.1"
+else
+	udpdump_bin=""
+	udpdump_man=""
+fi
+AC_SUBST(udpdump_bin)
+AC_SUBST(udpdump_man)
+
 AM_CONDITIONAL(ENABLE_STATIC, test x$enable_static = xyes)
 if test x$enable_static = xyes -a x$have_plugins = xyes
 then
@@ -2981,6 +3008,7 @@ echo "                  Build androiddump : $enable_androiddump"
 echo "                      Build sshdump : $enable_sshdump"
 echo "                    Build ciscodump : $enable_ciscodump"
 echo "                  Build randpktdump : $enable_randpktdump"
+echo "                      Build udpdump : $enable_udpdump"
 echo "                        Build echld : $have_echld"
 echo ""
 echo "   Save files as pcap-ng by default : $enable_pcap_ng_default"

@@ -1399,6 +1399,7 @@ set(INSTALL_FILES
 	${CMAKE_BINARY_DIR}/doc/AUTHORS-SHORT
 	${CMAKE_BINARY_DIR}/doc/asn2deb.html
 	${CMAKE_BINARY_DIR}/doc/androiddump.html
+	${CMAKE_BINARY_DIR}/doc/udpdump.html
 	${CMAKE_BINARY_DIR}/doc/capinfos.html
 	${CMAKE_BINARY_DIR}/doc/captype.html
 	${CMAKE_BINARY_DIR}/doc/ciscodump.html
@@ -2507,6 +2508,24 @@ elseif (BUILD_ciscodump)
 	#message( WARNING "Cannot find libssh, cannot build ciscodump" )
 endif()
 
+if(ENABLE_EXTCAP AND BUILD_udpdump)
+	set(udpdump_LIBS
+		${GLIB2_LIBRARIES}
+		${CMAKE_DL_LIBS}
+		${LIBEPAN_LIBS}
+		writecap
+	)
+	set(udpdump_FILES
+		extcap/udpdump.c
+		extcap/extcap-base.c
+	)
+
+	add_executable(udpdump WIN32 ${udpdump_FILES})
+	set_extcap_executable_properties(udpdump)
+	target_link_libraries(udpdump ${udpdump_LIBS})
+	install(TARGETS udpdump RUNTIME DESTINATION ${EXTCAP_DIR})
+endif()
+
 if(ENABLE_EXTCAP AND BUILD_randpktdump)
 	set(randpktdump_LIBS
 		randpkt_core
@@ -2589,6 +2608,7 @@ set(CLEAN_FILES
 	${dftest_FILES}
 	${randpkt_FILES}
 	${randpktdump_FILES}
+	${udpdump_FILES}
 	${text2pcap_CLEAN_FILES}
 	${mergecap_FILES}
 	${capinfos_FILES}
@@ -2598,6 +2618,7 @@ set(CLEAN_FILES
 	${androiddump_FILES}
 	${sshdump_FILES}
 	${ciscodump_FILES}
+	${udpdump_FILES}
 )
 
 if (WERROR_COMMON_FLAGS)
