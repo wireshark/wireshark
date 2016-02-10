@@ -3144,7 +3144,7 @@ call_message_dissector(tvbuff_t *tvb, tvbuff_t *rec_tvb, packet_info *pinfo,
 static int
 dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		     proto_tree *tree, rec_dissector_t dissector, gboolean is_heur,
-		     int proto, int ett, gboolean defragment, gboolean first_pdu, struct tcpinfo *tcpinfo)
+		     int proto, int ett, gboolean first_pdu, struct tcpinfo *tcpinfo)
 {
 	guint32 seq;
 	guint32 rpc_rm;
@@ -3242,8 +3242,12 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/*
 	 * If we're not defragmenting, just hand this to the
 	 * disssector.
+	 *
+	 * We defragment only if we should (rpc_defragment true) *and*
+	 * we can (tvb_len == tvb_reported_len, so that we have all the
+	 * data in the fragment).
 	 */
-	if (!defragment) {
+	if (!rpc_defragment || tvb_len != tvb_reported_len) {
 		/*
 		 * This is the first fragment we've seen, and it's also
 		 * the last fragment; that means the record wasn't
@@ -3651,7 +3655,7 @@ static int
 find_and_dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			      proto_tree *tree, rec_dissector_t dissector,
 			      gboolean is_heur,
-			      int proto, int ett, gboolean defragment, struct tcpinfo* tcpinfo)
+			      int proto, int ett, struct tcpinfo* tcpinfo)
 {
 
 	int   offReply;
@@ -3666,7 +3670,6 @@ find_and_dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	len = dissect_rpc_fragment(tvb, offReply,
 				   pinfo, tree,
 				   dissector, is_heur, proto, ett,
-				   defragment,
 				   TRUE /* force first-pdu state */, tcpinfo);
 
 	/* misses are reported as-is */
@@ -3724,7 +3727,7 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 */
 		len = dissect_rpc_fragment(tvb, offset, pinfo, tree,
 		    dissect_rpc_message, is_heur, proto_rpc, ett_rpc,
-		    rpc_defragment, first_pdu, tcpinfo);
+		    first_pdu, tcpinfo);
 
 		if ((len == 0) && first_pdu && rpc_find_fragment_start) {
 			/*
@@ -3733,7 +3736,7 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 */
 			len = find_and_dissect_rpc_fragment(tvb, offset, pinfo, tree,
 				 dissect_rpc_message, is_heur, proto_rpc, ett_rpc,
-				 rpc_defragment, tcpinfo);
+				 tcpinfo);
 		}
 
 		first_pdu = FALSE;
