@@ -70,6 +70,7 @@ private:
     enum ShowAsType {
         ShowAsASCII,
         ShowAsEBCDIC,
+        ShowAsHexDump,
         ShowAsHTML,
         ShowAsImage,
         ShowAsISO8859_1,
