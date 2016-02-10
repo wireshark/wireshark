@@ -1088,7 +1088,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			offset = offset + 4;
 
 			if ((message_type == TIPCv2_RESET_MSG)
-					|| ((message_type == TIPCv2_STATE_MSG) && ((msg_size-(orig_hdr_size*4)) != 0))) /* is allowed */
+					|| ((message_type == TIPCv2_STATE_MSG) && ((msg_size-(orig_hdr_size*4)) != 0))){ /* is allowed */
 				proto_tree_add_item(tipc_tree, hf_tipcv2_bearer_instance, tipc_tvb, offset, -1, ENC_ASCII|ENC_NA);
 				/* the bearer instance string is padded with \0 to the next word boundry */
 				b_inst_strlen = tvb_strsize(tipc_tvb, offset);
@@ -1101,6 +1101,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 					proto_tree_add_bytes_format_value(tipc_tree, hf_tipcv2_filler_mtu_discovery, tipc_tvb, offset, -1, NULL,
 													"%d byte%c", tvb_reported_length_remaining(tipc_tvb, offset), (padlen!=1?'s':0));
 				};
+			}
 			break;
 		case TIPCv2_CONN_MANAGER:
 			/* CONN_MANAGER uses the 36-byte header format of CONN_MSG payload messages */
