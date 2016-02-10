@@ -677,7 +677,7 @@ dissect_atn_cm_heur(
     proto_tree *tree,
     void *data _U_)
 {
-    atn_conversation_t *atn_cv = NULL;
+    atn_conversation_t *volatile atn_cv = NULL;
     volatile gboolean is_atn_cm = FALSE;
     int type;
 

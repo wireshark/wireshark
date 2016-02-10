@@ -5423,7 +5423,7 @@ dissect_atn_cpdlc_heur(
     proto_tree *tree,
     void *data _U_)
 {
-    atn_conversation_t *atn_cv = NULL;
+    atn_conversation_t *volatile atn_cv = NULL;
     volatile gboolean is_atn_cpdlc = FALSE;
     volatile gboolean is_pm = FALSE;
     int type;
