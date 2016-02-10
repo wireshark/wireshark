@@ -592,6 +592,13 @@ void PacketList::mousePressEvent (QMouseEvent *event)
     setAutoScroll(true);
 }
 
+void PacketList::resizeEvent(QResizeEvent *event)
+{
+    create_near_overlay_ = true;
+    create_far_overlay_ = true;
+    QTreeView::resizeEvent(event);
+}
+
 void PacketList::setColumnVisibility()
 {
     set_column_visibility_ = true;
@@ -857,7 +864,7 @@ void PacketList::clear() {
 
     QImage overlay;
     overlay_sb_->setNearOverlayImage(overlay);
-    overlay_sb_->setFarOverlayImage(overlay);
+    overlay_sb_->setMarkedPacketImage(overlay);
     create_near_overlay_ = true;
     create_far_overlay_ = true;
 
@@ -1429,7 +1436,7 @@ void PacketList::vScrollBarActionTriggered(int)
 
 // Odd (prime?) numbers resulted in fewer scaling artifacts. A multiplier
 // of 9 washed out colors a little too much.
-const int height_multiplier_ = 7;
+//const int height_multiplier_ = 7;
 void PacketList::drawNearOverlay()
 {
     if (create_near_overlay_) {
@@ -1444,18 +1451,15 @@ void PacketList::drawNearOverlay()
 #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
     dp_ratio = overlay_sb_->devicePixelRatio();
 #endif
-    int o_height = overlay_sb_->height() * dp_ratio * height_multiplier_;
+    int o_height = overlay_sb_->height() * dp_ratio;
     int o_rows = qMin(packet_list_model_->rowCount(), o_height);
+    int o_width = (wsApp->fontMetrics().height() * 2 * dp_ratio) + 2; // 2ems + 1-pixel border on either side.
     int selected_pos = -1;
 
     if (recent.packet_list_colorize && o_rows > 0) {
-        QImage overlay(1, o_height, QImage::Format_ARGB32_Premultiplied);
+        QImage overlay(o_width, o_height, QImage::Format_ARGB32_Premultiplied);
 
         QPainter painter(&overlay);
-#if 0
-        QElapsedTimer timer;
-        timer.start();
-#endif
 
         overlay.fill(Qt::transparent);
 
@@ -1469,18 +1473,6 @@ void PacketList::drawNearOverlay()
         for (int row = start; row < end; row++) {
             packet_list_model_->ensureRowColorized(row);
 
-#if 0
-            // Try to remain responsive for large captures.
-            if (timer.elapsed() > update_time_) {
-                wsApp->processEvents();
-                if (!cap_file_ || cap_file_->state != FILE_READ_DONE) {
-                    create_overlay_ = true;
-                    return;
-                }
-                timer.restart();
-            }
-#endif
-
             frame_data *fdata = packet_list_model_->getRowFdata(row);
             const color_t *bgcolor = NULL;
             if (fdata->color_filter) {
@@ -1491,9 +1483,7 @@ void PacketList::drawNearOverlay()
             int next_line = (row - start) * o_height / o_rows;
             if (bgcolor) {
                 QColor color(ColorUtils::fromColorT(bgcolor));
-
-                painter.setPen(color);
-                painter.drawLine(0, cur_line, 0, next_line);
+                painter.fillRect(0, cur_line, o_width, next_line - cur_line, color);
             }
             cur_line = next_line;
         }
@@ -1511,7 +1501,7 @@ void PacketList::drawNearOverlay()
             }
         }
 
-        overlay_sb_->setNearOverlayImage(overlay, selected_pos);
+        overlay_sb_->setNearOverlayImage(overlay, start, end, selected_pos);
     } else {
         QImage overlay;
         overlay_sb_->setNearOverlayImage(overlay);
@@ -1528,78 +1518,55 @@ void PacketList::drawFarOverlay()
 
     if (!prefs.gui_packet_list_show_minimap) return;
 
+    QSize groove_size = overlay_sb_->grooveRect().size();
     qreal dp_ratio = 1.0;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
     dp_ratio = overlay_sb_->devicePixelRatio();
+    groove_size *= dp_ratio;
 #endif
-    int o_width = 2 * dp_ratio;
-    int o_height = overlay_sb_->height() * dp_ratio;
+    int o_width = groove_size.width();
+    int o_height = groove_size.height();
     int pl_rows = packet_list_model_->rowCount();
+    QImage overlay(o_width, o_height, QImage::Format_ARGB32_Premultiplied);
 
-    if (recent.packet_list_colorize && pl_rows > 0) {
-        // Create a tall image here. OverlayScrollBar will scale it to fit.
-        QImage overlay(o_width, o_height, QImage::Format_ARGB32_Premultiplied);
+    // If only there were references from popular culture about getting into
+    // some sort of groove.
+    if (!overlay.isNull() && recent.packet_list_colorize && pl_rows > 0) {
 
         QPainter painter(&overlay);
-        painter.setRenderHint(QPainter::Antialiasing);
-#if 0
-        QElapsedTimer timer;
-        timer.start();
-#endif
 
-        // The default "marked" background is black and the default "ignored"
-        // background is white. Instead of trying to figure out if our
-        // available colors will show up, just use the palette's background
-        // here and foreground below.
-#if QT_VERSION < QT_VERSION_CHECK(4, 8, 0)
-        overlay.fill(palette().base().color().value());
-#else
-        overlay.fill(palette().base().color());
-#endif
-        QColor arrow_fg = palette().text().color();
-        arrow_fg.setAlphaF(0.3);
-        painter.setPen(arrow_fg);
-        painter.setBrush(arrow_fg);
+        // Draw text-colored tick marks on a transparent background.
+        // Hopefully no themes use the text color for the groove color.
+        overlay.fill(Qt::transparent);
+
+        QColor tick_color = palette().text().color();
+        tick_color.setAlphaF(0.3);
+        painter.setPen(tick_color);
 
         bool have_far = false;
         for (int row = 0; row < pl_rows; row++) {
-#if 0
-            // Try to remain responsive for large captures.
-            if (timer.elapsed() > update_time_) {
-                wsApp->processEvents();
-                if (!cap_file_ || cap_file_->state != FILE_READ_DONE) {
-                    create_overlay_ = true;
-                    return;
-                }
-                timer.restart();
-            }
-#endif
 
             frame_data *fdata = packet_list_model_->getRowFdata(row);
-            bool marked = false;
             if (fdata->flags.marked || fdata->flags.ref_time || fdata->flags.ignored) {
-                marked = true;
-            }
+                int new_line = row * o_height / pl_rows;
+                int tick_width = o_width / 3;
+                // Marked or ignored: left side, time refs: right side.
+                // XXX Draw ignored ticks in the middle?
+                int x1 = fdata->flags.ref_time ? o_width - tick_width : 1;
+                int x2 = fdata->flags.ref_time ? o_width - 1 : tick_width;
 
-            if (marked) {
-                int new_line = (row) * o_height / pl_rows;
-
-                QPointF points[3] = {
-                    QPointF(o_width, new_line),
-                    QPointF(0, new_line - (o_width * 0.7)),
-                    QPointF(0, new_line + (o_width * 0.7))
-                };
-                painter.drawPolygon(points, 3);
+                painter.drawLine(x1, new_line, x2, new_line);
                 have_far = true;
             }
         }
 
         if (have_far) {
-            overlay_sb_->setFarOverlayImage(overlay);
+            overlay_sb_->setMarkedPacketImage(overlay);
             return;
         }
+    } else {
         QImage null_overlay;
-        overlay_sb_->setFarOverlayImage(null_overlay);
+        overlay_sb_->setMarkedPacketImage(null_overlay);
     }
 }
 

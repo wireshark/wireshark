@@ -35,25 +35,46 @@ public:
 
     /** Set the "near" overlay image.
      * @param overlay_image An image containing a 1:1 mapping of nearby
-     *        packet colors to raster lines.
+     *        packet colors to raster lines. It should be sized in device
+     *        pixels.
+     * @param start_pos The first packet number represented by the image.
+     *        -1 means no packet is selected.
+     * @param end_pos The last packet number represented by the image. -1
+     *        means no packet is selected.
      * @param selected_pos The position of the selected packet within the
      *        image. -1 means no packet is selected.
      */
-    void setNearOverlayImage(QImage &overlay_image, int selected_pos = -1);
+    void setNearOverlayImage(QImage &overlay_image, int start_pos = -1, int end_pos = -1, int selected_pos = -1);
 
     /** Set the "far" overlay image.
      * @param overlay_image An image showing the position of marked, ignored,
-     *        and reference time packets over the entire packet list.
+     *        and reference time packets over the entire packet list. It
+     *        should be sized in device pixels.
      */
-    void setFarOverlayImage(QImage &overlay_image);
+    void setMarkedPacketImage(QImage &mp_image);
+
+
+    /** The "groove" area of the child scrollbar.
+     */
     QRect grooveRect();
 
+public slots:
+
 protected:
+    virtual void resizeEvent(QResizeEvent * event);
     virtual void paintEvent(QPaintEvent * event);
+    virtual bool eventFilter(QObject *watched, QEvent *event);
+    virtual void mousePressEvent(QMouseEvent *) { /* No-op */ }
+    virtual void mouseReleaseEvent(QMouseEvent * event);
 
 private:
-    QImage near_overlay_;
-    QImage far_overlay_;
+    QScrollBar child_sb_;
+    QImage packet_map_img_;
+    QImage marked_packet_img_;
+    int packet_map_width_;
+    int marked_packet_width_;
+    int start_pos_;
+    int end_pos_;
     int selected_pos_;
 };
 

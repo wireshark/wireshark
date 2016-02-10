@@ -21,130 +21,215 @@
 
 #include "overlay_scroll_bar.h"
 
+#include "color_utils.h"
+
+#include <QMouseEvent>
 #include <QPainter>
+#include <QProxyStyle>
 #include <QResizeEvent>
-#include <QStyle>
 #include <QStyleOptionSlider>
 
 // To do:
-// - The slider hole doesn't match up with the slider on OS X + Qt 5.3.2.
-// - Instead of drawing the map over the scrollbar we could draw it to the
-//   right of the scrollbar. Many text editors to this. It would let us
-//   widen the map a bit, which would in turn let us add frame size or
-//   timing information.
+// - We could graph something useful (e.g. delay times) in packet_map_img_.
+//   https://www.wireshark.org/lists/ethereal-dev/200011/msg00122.html
+// - Properly handle transience.
+
+// We want a normal scrollbar with space on either side on which we can draw
+// and receive mouse events. Adding space using a stylesheet loses native
+// styling on Windows. Overriding QProxyStyle::drawComplexControl (which is
+// called by QScrollBar::paintEvent) results in odd behavior on Windows.
+//
+// The best solution so far seems to be to simply create a normal-sized child
+// scrollbar, manually position it, and synchronize it with its parent. We
+// can then alter the parent's mouse and paint behavior to our heart's
+// content.
+
+class OsbProxyStyle : public QProxyStyle
+{
+  public:
+    // Hack to keep the scrollbar from disappearing on OS X. We should
+    // handle this more gracefully.
+    virtual int styleHint(StyleHint hint, const QStyleOption *option = Q_NULLPTR, const QWidget *widget = Q_NULLPTR, QStyleHintReturn *returnData = Q_NULLPTR) const {
+        if (hint == SH_ScrollBar_Transient) return false;
+
+        return QProxyStyle::styleHint(hint, option, widget, returnData);
+    }
+};
 
 OverlayScrollBar::OverlayScrollBar(Qt::Orientation orientation, QWidget *parent) :
     QScrollBar(orientation, parent = 0),
-    near_overlay_(QImage()),
-    far_overlay_(QImage()),
+    child_sb_(orientation, this),
+    packet_map_img_(QImage()),
+    packet_map_width_(0),
+    start_pos_(-1),
+    end_pos_(-1),
     selected_pos_(-1)
-{}
+{
+    setStyle(new OsbProxyStyle);
+
+    child_sb_.raise();
+    child_sb_.installEventFilter(this);
+
+    // XXX Do we need to connect anything else?
+    connect(this, SIGNAL(rangeChanged(int,int)), &child_sb_, SLOT(setRange(int,int)));
+    connect(this, SIGNAL(valueChanged(int)), &child_sb_, SLOT(setValue(int)));
+
+    connect(&child_sb_, SIGNAL(valueChanged(int)), this, SLOT(setValue(int)));
+}
 
 QSize OverlayScrollBar::sizeHint() const
 {
-    return QSize(QScrollBar::sizeHint().width() + (far_overlay_.width() * 2), QScrollBar::sizeHint().height());
+    return QSize(packet_map_width_ + child_sb_.sizeHint().width(),
+                 QScrollBar::sizeHint().height());
 }
 
-void OverlayScrollBar::setNearOverlayImage(QImage &overlay_image, int selected_pos)
+void OverlayScrollBar::setNearOverlayImage(QImage &overlay_image, int start_pos, int end_pos, int selected_pos)
 {
-    near_overlay_ = overlay_image;
+    int old_width = packet_map_img_.width();
+    packet_map_img_ = overlay_image;
+    start_pos_ = start_pos;
+    end_pos_ = end_pos;
     selected_pos_ = selected_pos;
-    update();
-}
 
-void OverlayScrollBar::setFarOverlayImage(QImage &overlay_image)
-{
-    int old_width = far_overlay_.width();
-    far_overlay_ = overlay_image;
-    if (old_width != far_overlay_.width()) {
+    if (old_width != packet_map_img_.width()) {
+        qreal dp_ratio = 1.0;
+    #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
+        dp_ratio = devicePixelRatio();
+    #endif
+
+        packet_map_width_ = packet_map_img_.width() / dp_ratio;
+
         updateGeometry();
     }
     update();
 }
 
+void OverlayScrollBar::setMarkedPacketImage(QImage &mp_image)
+{
+    qreal dp_ratio = 1.0;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
+    dp_ratio = devicePixelRatio();
+#endif
+
+    marked_packet_img_ = mp_image;
+    marked_packet_width_ = mp_image.width() / dp_ratio;
+
+    child_sb_.update();
+}
+
 QRect OverlayScrollBar::grooveRect()
 {
     QStyleOptionSlider opt;
-    initStyleOption(&opt);
 
-    return style()->subControlRect(QStyle::CC_ScrollBar, &opt, QStyle::SC_ScrollBarGroove, this);
+    initStyleOption(&opt);
+    opt.rect = child_sb_.rect();
+
+    return child_sb_.style()->subControlRect(QStyle::CC_ScrollBar, &opt, QStyle::SC_ScrollBarGroove, &child_sb_);
+}
+
+void OverlayScrollBar::resizeEvent(QResizeEvent *event)
+{
+    QScrollBar::resizeEvent(event);
+
+    child_sb_.move(packet_map_width_, 0);
+    child_sb_.resize(child_sb_.sizeHint().width(), height());
 }
 
 void OverlayScrollBar::paintEvent(QPaintEvent *event)
 {
-    QScrollBar::paintEvent(event);
-    if (!near_overlay_.isNull()) {
-        QRect groove_rect = grooveRect();
-        QSize gr_size = groove_rect.size();
-        qreal dp_ratio = 1.0;
+    qreal dp_ratio = 1.0;
+    QSize pm_size(packet_map_width_, geometry().height());
 #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
-        dp_ratio = devicePixelRatio();
-        gr_size *= dp_ratio;
+    dp_ratio = devicePixelRatio();
+    pm_size *= dp_ratio;
 #endif
-        QImage groove_overlay(gr_size, QImage::Format_ARGB32_Premultiplied);
-        groove_overlay.fill(Qt::transparent);
 
-        // Draw the image supplied by the packet list and apply a mask.
-        QPainter go_painter(&groove_overlay);
-        go_painter.setPen(Qt::NoPen);
+    QPainter painter(this);
 
-        int fo_width = far_overlay_.width();
-        QRect near_dest(fo_width, 0, gr_size.width() - (fo_width * 2), gr_size.height());
-        go_painter.drawImage(near_dest, near_overlay_.scaled(near_dest.size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-        if (fo_width > 0) {
-            QRect far_dest(0, 0, fo_width, gr_size.height());
-            go_painter.drawImage(far_dest, far_overlay_);
-            far_dest.moveLeft(gr_size.width() - fo_width);
-            go_painter.drawImage(far_dest, far_overlay_.mirrored(true, false));
-        }
+    painter.fillRect(event->rect(), palette().window());
+
+    if (!packet_map_img_.isNull()) {
+        QImage packet_map(pm_size, QImage::Format_ARGB32_Premultiplied);
+        packet_map.fill(Qt::transparent);
+
+        // Draw the image supplied by the packet list.
+        QPainter pm_painter(&packet_map);
+        pm_painter.setPen(Qt::NoPen);
+
+        QRect near_dest(0, 0, pm_size.width(), pm_size.height());
+        pm_painter.drawImage(near_dest, packet_map_img_.scaled(near_dest.size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
         // Selected packet indicator
-        if (selected_pos_ >= 0 && selected_pos_ < near_overlay_.height()) {
-            int no_pos = near_dest.height() * selected_pos_ / near_overlay_.height();
-            go_painter.save();
-            go_painter.setBrush(palette().highlight().color());
-            go_painter.drawRect(0, no_pos, gr_size.width(), dp_ratio);
-            go_painter.restore();
+        if (selected_pos_ >= 0 && selected_pos_ < packet_map_img_.height()) {
+            pm_painter.save();
+            int no_pos = near_dest.height() * selected_pos_ / packet_map_img_.height();
+            pm_painter.setBrush(palette().highlight().color());
+            pm_painter.drawRect(0, no_pos, pm_size.width(), dp_ratio);
+            pm_painter.restore();
         }
 
-        // Outline
-        QRect near_outline(near_dest);
-        near_outline.adjust(0, 0, -1, -1);
-        go_painter.save();
-        QColor no_fg(palette().text().color());
-        no_fg.setAlphaF(0.25);
-        go_painter.setPen(no_fg);
-        go_painter.drawRect(near_outline);
-        go_painter.restore();
+        // Borders
+        pm_painter.save();
+        QColor border_color(ColorUtils::alphaBlend(palette().text(), palette().window(), 0.25));
+        pm_painter.setPen(border_color);
+        pm_painter.drawLine(near_dest.topLeft(), near_dest.bottomLeft());
+        pm_painter.drawLine(near_dest.topRight(), near_dest.bottomRight());
+        pm_painter.restore();
 
-        // Punch a hole for the slider.
-        QStyleOptionSlider opt;
-        initStyleOption(&opt);
-
-        QRect slider_rect = style()->subControlRect(QStyle::CC_ScrollBar, &opt, QStyle::SC_ScrollBarSlider, this);
+        // Draw the map.
 #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
-        slider_rect.setHeight(slider_rect.height() * devicePixelRatio());
-        slider_rect.setWidth(slider_rect.width() * devicePixelRatio());
-        slider_rect.moveTop((slider_rect.top() - groove_rect.top()) * devicePixelRatio());
-#else
-        slider_rect.moveTop(slider_rect.top() - groove_rect.top());
+        packet_map.setDevicePixelRatio(dp_ratio);
 #endif
-        slider_rect.adjust(fo_width + 1, 1, -1 - fo_width, -1);
+        painter.drawImage(0, 0, packet_map);
+    }
+}
 
-        go_painter.save();
-        go_painter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
-        QColor slider_hole(Qt::white);
-        slider_hole.setAlphaF(0.1);
-        go_painter.setBrush(slider_hole);
-        go_painter.drawRect(slider_rect);
-        go_painter.restore();
+bool OverlayScrollBar::eventFilter(QObject *watched, QEvent *event)
+{
+    bool ret = false;
+    if (watched == &child_sb_ && event->type() == QEvent::Paint) {
+        // Paint the scrollbar first.
+        child_sb_.event(event);
+        ret = true;
 
-        // Draw over the groove.
-        QPainter painter(this);
+        if (!marked_packet_img_.isNull()) {
+            qreal dp_ratio = 1.0;
+            QRect groove_rect = grooveRect();
 #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
-        groove_overlay.setDevicePixelRatio(devicePixelRatio());
+            dp_ratio = devicePixelRatio();
+            groove_rect.setTopLeft(groove_rect.topLeft() * dp_ratio);
+            groove_rect.setSize(groove_rect.size() * dp_ratio);
 #endif
-        painter.drawImage(groove_rect.topLeft(), groove_overlay);
+
+            QImage marked_map(groove_rect.width(), groove_rect.height(), QImage::Format_ARGB32_Premultiplied);
+            marked_map.fill(Qt::transparent);
+
+            QPainter mm_painter(&marked_map);
+            mm_painter.setPen(Qt::NoPen);
+
+            QRect far_dest(0, 0, groove_rect.width(), groove_rect.height());
+            mm_painter.drawImage(far_dest, marked_packet_img_.scaled(far_dest.size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+
+    #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
+            marked_map.setDevicePixelRatio(dp_ratio);
+    #endif
+            QPainter painter(&child_sb_);
+            painter.drawImage(groove_rect.left(), groove_rect.top(), marked_map);
+        }
+    }
+
+    return ret;
+}
+
+void OverlayScrollBar::mouseReleaseEvent(QMouseEvent *event)
+{
+    QRect pm_r(0, 0, packet_map_width_, height());
+
+    if (pm_r.contains(event->pos())) {
+        qreal map_ratio = qreal(end_pos_ - start_pos_) / geometry().height();
+
+        // Try to put the clicked packet near but not at the top.
+        setValue((event->pos().y() * map_ratio) + start_pos_ - (pageStep() / 4));
     }
 }
 
