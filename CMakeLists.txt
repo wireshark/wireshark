@@ -267,7 +267,7 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		# -D_ALLOW_KEYWORD_MACROS           For VS2012 onwards the, C++ STL does not permit macro redefinitions of keywords
 		#                                   (see http://msdn.microsoft.com/en-us/library/bb531344(v=vs.110).aspx)
 		#                                   This definition prevents the complaint about the redefinition of inline by WinPCap
-		#                                   in pcap-stdinc.h when compiling CPP files, e.g. the Qt UI
+		#                                   in pcap-stdinc.h when compiling C++ files, e.g. the Qt UI
 		/DPSAPI_VERSION=1
 		/DBUILD_WINDOWS
 		/D_ALLOW_KEYWORD_MACROS
@@ -379,7 +379,7 @@ else()
 		-Wshorten-64-to-32
 	)
 
-	set(WIRESHARK_CPP_ONLY_FLAGS
+	set(WIRESHARK_CXX_ONLY_FLAGS
 	)
 
 	set(WIRESHARK_EXTRA_COMPILER_COMMON_FLAGS
@@ -447,7 +447,7 @@ else()
 		-Wbad-function-cast
 	)
 
-	set(WIRESHARK_EXTRA_COMPILER_CPP_ONLY_FLAGS
+	set(WIRESHARK_EXTRA_COMPILER_CXX_ONLY_FLAGS
 	)
 
 	if(CMAKE_C_COMPILER_ID MATCHES "Clang")
@@ -458,7 +458,7 @@ else()
 			-Qunused-arguments
 		)
 
-		set(WIRESHARK_CPP_ONLY_FLAGS ${WIRESHARK_CPP_ONLY_FLAGS}
+		set(WIRESHARK_CXX_ONLY_FLAGS ${WIRESHARK_CXX_ONLY_FLAGS}
 		)
 	else()
 		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS}
@@ -487,7 +487,7 @@ else()
 	if(ENABLE_EXTRA_COMPILER_WARNINGS)   # This overrides -Werror
 		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_EXTRA_COMPILER_COMMON_FLAGS})
 		set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS} ${WIRESHARK_EXTRA_COMPILER_C_ONLY_FLAGS})
-		set(WIRESHARK_CPP_ONLY_FLAGS ${WIRESHARK_CPP_ONLY_FLAGS} ${WIRESHARK_EXTRA_COMPILER_CPP_ONLY_FLAGS})
+		set(WIRESHARK_CXX_ONLY_FLAGS ${WIRESHARK_CXX_ONLY_FLAGS} ${WIRESHARK_EXTRA_COMPILER_CXX_ONLY_FLAGS})
 	endif()
 
 	add_definitions(
@@ -497,7 +497,7 @@ else()
 endif()
 
 set( C_FLAG_TESTS ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_C_ONLY_FLAGS} )
-set( CPP_FLAG_TESTS ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_CPP_ONLY_FLAGS} )
+set( CXX_FLAG_TESTS ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_CXX_ONLY_FLAGS} )
 
 # Counterhack to work around some cache magic in CHECK_C_SOURCE_COMPILES
 include(CheckCCompilerFlag)
@@ -526,10 +526,10 @@ foreach(THIS_FLAG ${C_FLAG_TESTS})
 endforeach()
 set(CMAKE_C_FLAGS "${ADDED_CMAKE_C_FLAGS} ${CMAKE_C_FLAGS}")
 
-foreach(THIS_FLAG ${CPP_FLAG_TESTS})
+foreach(THIS_FLAG ${CXX_FLAG_TESTS})
 	string( REGEX REPLACE "[^a-zA-Z0-9_]+" "_" F ${THIS_FLAG} )
 	set(${F} ${THIS_FLAG})
-	set(V CPP_${F}_VALID)
+	set(V CXX_${F}_VALID)
 	message(STATUS "Checking for c++-compiler flag: ${THIS_FLAG}")
 	check_cxx_compiler_flag("${ADDED_CMAKE_CXX_FLAGS} ${${F}}" ${V})
 	if (${${V}})
