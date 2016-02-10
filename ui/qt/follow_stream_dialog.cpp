@@ -714,7 +714,7 @@ FollowStreamDialog::showBuffer(char *buffer, size_t nchars, gboolean is_from_ser
             }
             cur += g_snprintf(cur, 20, "%08X  ", *global_pos);
             /* 49 is space consumed by hex chars */
-            ascii_start = cur + 49;
+            ascii_start = cur + 49 + 2;
             for (i = 0; i < 16 && current_pos + i < nchars; i++) {
                 *cur++ =
                         hexchars[(buffer[current_pos + i] & 0xf0) >> 4];
