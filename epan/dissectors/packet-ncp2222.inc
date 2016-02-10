@@ -317,6 +317,7 @@ static const value_string nds_tuned_tags[] = {
     {0, NULL }
 };
 
+#if 0
 static const value_string nds_scope_vals[] = {
     { 0, "Search Scope: 0x0000 - Examine base object only" },
     { 1, "Search Scope: 0x0001 - Search the immediate subordinates of the base object" },
@@ -324,6 +325,7 @@ static const value_string nds_scope_vals[] = {
     { 3, "Search Scope: 0x0003 - Search the base objects and all objects in its partition (NDS version 8 or higher)" },
     {0, NULL }
 };
+#endif
 
 static const value_string nds_tuned_item_tags[] = {
     { 0, "Single Item" },
