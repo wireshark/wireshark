@@ -181,15 +181,15 @@ WS_DLL_PUBLIC gboolean host_name_lookup_process(void);
 WS_DLL_PUBLIC const gchar *get_hostname(const guint addr);
 
 /* get_hostname6 returns the host name, or numeric addr if not found */
-WS_DLL_PUBLIC const gchar* get_hostname6(const struct e_in6_addr *ad);
+WS_DLL_PUBLIC const gchar *get_hostname6(const struct e_in6_addr *ad);
 
 /* get_ether_name returns the logical name if found in ethers files else
    "<vendor>_%02x:%02x:%02x" if the vendor code is known else
    "%02x:%02x:%02x:%02x:%02x:%02x" */
-WS_DLL_PUBLIC gchar *get_ether_name(const guint8 *addr);
+WS_DLL_PUBLIC const gchar *get_ether_name(const guint8 *addr);
 
 /* Same as get_ether_name with tvb support */
-WS_DLL_PUBLIC gchar *tvb_get_ether_name(tvbuff_t *tvb, gint offset);
+WS_DLL_PUBLIC const gchar *tvb_get_ether_name(tvbuff_t *tvb, gint offset);
 
 /* get_ether_name returns the logical name if found in ethers files else NULL */
 const gchar *get_ether_name_if_known(const guint8 *addr);
@@ -234,7 +234,7 @@ WS_DLL_PUBLIC const gchar *tvb_get_manuf_name_if_known(tvbuff_t *tvb, gint offse
 
 /* eui64_to_display returns "<vendor>_%02x:%02x:%02x:%02x:%02x:%02x" if the vendor code is known
    "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x" */
-extern const gchar *eui64_to_display(wmem_allocator_t *allocator, const guint64 addr);
+extern gchar *eui64_to_display(wmem_allocator_t *allocator, const guint64 addr);
 
 /* get_ipxnet_name returns the logical name if found in an ipxnets file,
  * or a string formatted with "%X" if not */

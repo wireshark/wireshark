@@ -16545,7 +16545,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
   gboolean         has_fcs, fcs_good, fcs_bad;
   gint             len, reported_len, ivlen;
   gint             sta_addr_offset = 0;
-  gchar           *station_name;
+  const gchar     *station_name;
   gboolean         is_amsdu    = 0;
   gboolean         save_fragmented;
   guint32          addr_type;
@@ -16818,7 +16818,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
 
       if (tree)
       {
-        gchar *ra_da_name, *ta_sa_name, *bssid_name;
+        const gchar *ra_da_name, *ta_sa_name, *bssid_name;
 
         proto_tree_add_item (hdr_tree, hf_ieee80211_addr_ra, tvb, 4, 6, ENC_NA);
         ra_da_name = tvb_get_ether_name(tvb, 4);
@@ -16939,7 +16939,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       /* Add address 1 */
       set_dst_addr_cols(pinfo, tvb, 4, addr1_str);
       if (tree) {
-        gchar* ether_name = tvb_get_ether_name(tvb, 4);
+        const gchar *ether_name = tvb_get_ether_name(tvb, 4);
         proto_tree_add_item(hdr_tree, addr1_hf, tvb, 4, 6, ENC_NA);
         hidden_item = proto_tree_add_string (hdr_tree, addr1_hf_resolved, tvb, 4, 6, ether_name);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -16987,7 +16987,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         {
           set_src_addr_cols(pinfo, tvb, offset, "BSSID");
           if (tree) {
-            gchar* ether_name = tvb_get_ether_name(tvb, offset);
+            const gchar *ether_name = tvb_get_ether_name(tvb, offset);
             proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
             hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6, ether_name);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -17004,7 +17004,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         {
           set_src_addr_cols(pinfo, tvb, offset, "TA");
           if (tree) {
-            gchar *ether_name = tvb_get_ether_name(tvb, offset);
+            const gchar *ether_name = tvb_get_ether_name(tvb, offset);
 
             proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
             hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6, ether_name);
@@ -17030,7 +17030,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
             proto_item *dialog_token_item;
             proto_tree *sta_info_tree;
             proto_item *sta_info_item;
-            gchar* ether_name = tvb_get_ether_name(tvb, offset);
+            const gchar *ether_name = tvb_get_ether_name(tvb, offset);
 
             proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
             hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6, ether_name);
@@ -17090,7 +17090,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         {
           set_src_addr_cols(pinfo, tvb, offset, "TA");
           if (tree) {
-            gchar* ether_name = tvb_get_ether_name(tvb, offset);
+            const gchar *ether_name = tvb_get_ether_name(tvb, offset);
             proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
             hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6, ether_name);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -17119,7 +17119,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
             guint8 block_ack_type;
             proto_item *bar_parent_item;
             proto_tree *bar_sub_tree;
-            gchar* ether_name = tvb_get_ether_name(tvb, offset);
+            const gchar *ether_name = tvb_get_ether_name(tvb, offset);
 
             proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
             hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6, ether_name);
@@ -17229,7 +17229,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
             guint8 block_ack_type;
             proto_item *ba_parent_item;
             proto_tree *ba_sub_tree;
-            gchar* ether_name = tvb_get_ether_name(tvb, offset);
+            const gchar *ether_name = tvb_get_ether_name(tvb, offset);
 
             proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
             hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6, ether_name);
@@ -17485,7 +17485,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       /* Now if we have a tree we start adding stuff */
       if (tree)
       {
-        gchar *ra_name, *ta_name, *sa_name, *da_name, *bssid_name = NULL;
+        const gchar *ra_name, *ta_name, *sa_name, *da_name, *bssid_name = NULL;
 
         switch (addr_type)
         {

@@ -2965,7 +2965,7 @@ port_with_resolution_to_str_buf(gchar *buf, gulong buf_size, port_type proto, gu
     return g_snprintf(buf, buf_size, "%s (%u)", port_str, port);
 }
 
-gchar *
+const gchar *
 get_ether_name(const guint8 *addr)
 {
     hashether_t *tp;
@@ -2977,7 +2977,7 @@ get_ether_name(const guint8 *addr)
 
 } /* get_ether_name */
 
-gchar *
+const gchar *
 tvb_get_ether_name(tvbuff_t *tvb, gint offset)
 {
     return get_ether_name(tvb_get_ptr(tvb, offset, 6));
@@ -3157,12 +3157,12 @@ char* get_hash_manuf_resolved_name(hashmanuf_t* manuf)
     return manuf->resolved_name;
 }
 
-const gchar *
+gchar *
 eui64_to_display(wmem_allocator_t *allocator, const guint64 addr_eui64)
 {
     guint8 *addr = (guint8 *)wmem_alloc(NULL, 8);
     hashmanuf_t *manuf_value;
-    const gchar *ret;
+    gchar *ret;
 
     /* Copy and convert the address to network byte order. */
     *(guint64 *)(void *)(addr) = pntoh64(&(addr_eui64));
