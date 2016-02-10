@@ -238,6 +238,28 @@ guint8 lchId_type_table[]= {
 	MAC_CONTENT_PS_DTCH,	/* 14 Interactive PS => DTCH*/
 	MAC_CONTENT_CCCH	/* This is CCCH? */
 };
+
+/* Mapping logicalchannel id to RLC_MODE */
+guint8 lchId_rlc_map[] = {
+        0,
+        RLC_UM, /* Logical channel id = 1 is SRB1 which uses RLC_UM*/
+        RLC_AM,
+        RLC_AM,
+        RLC_AM,
+        RLC_TM, /*5 to 7 Conv CS Speech*/
+        RLC_TM,
+        RLC_TM, /*...*/
+        RLC_AM,
+        RLC_AM,
+        RLC_AM,
+        RLC_AM,
+        RLC_AM,
+        RLC_AM,
+        RLC_AM,
+        RLC_AM, /* This is CCCH which is UM?, probably not */
+};
+
+
 /* Preference variables */
 /* Array with preference variables for easy looping, TODO: merge this with
  * lchId_type_table[] */

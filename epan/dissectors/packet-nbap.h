@@ -43,24 +43,7 @@
 extern guint8 lchId_type_table[];
 
 /* Mapping logicalchannel id to RLC_MODE */
-static const guint8 lchId_rlc_map[] = {
-	0,
-	RLC_UM,	/* Logical channel id = 1 is SRB1 which uses RLC_UM*/
-	RLC_AM,
-	RLC_AM,
-	RLC_AM,
-	RLC_TM,	/*5 to 7 Conv CS Speech*/
-	RLC_TM,
-	RLC_TM, /*...*/
-	RLC_AM,
-	RLC_AM,
-	RLC_AM,
-	RLC_AM,
-	RLC_AM,
-	RLC_AM,
-	RLC_AM,
-	RLC_AM,	/* This is CCCH which is UM?, probably not */
-	};
+extern guint8 lchId_rlc_map[];
 
 /* 1 to 8*/
 static const guint8 hsdsch_macdflow_id_rlc_map[] = {

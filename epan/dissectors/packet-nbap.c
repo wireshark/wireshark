@@ -6631,6 +6631,28 @@ guint8 lchId_type_table[]= {
 	MAC_CONTENT_PS_DTCH,	/* 14 Interactive PS => DTCH*/
 	MAC_CONTENT_CCCH	/* This is CCCH? */
 };
+
+/* Mapping logicalchannel id to RLC_MODE */
+guint8 lchId_rlc_map[] = {
+        0,
+        RLC_UM, /* Logical channel id = 1 is SRB1 which uses RLC_UM*/
+        RLC_AM,
+        RLC_AM,
+        RLC_AM,
+        RLC_TM, /*5 to 7 Conv CS Speech*/
+        RLC_TM,
+        RLC_TM, /*...*/
+        RLC_AM,
+        RLC_AM,
+        RLC_AM,
+        RLC_AM,
+        RLC_AM,
+        RLC_AM,
+        RLC_AM,
+        RLC_AM, /* This is CCCH which is UM?, probably not */
+};
+
+
 /* Preference variables */
 /* Array with preference variables for easy looping, TODO: merge this with
  * lchId_type_table[] */
@@ -55165,7 +55187,7 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-nbap-fn.c ---*/
-#line 310 "../../asn1/nbap/packet-nbap-template.c"
+#line 332 "../../asn1/nbap/packet-nbap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -68499,7 +68521,7 @@ void proto_register_nbap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 479 "../../asn1/nbap/packet-nbap-template.c"
+#line 501 "../../asn1/nbap/packet-nbap-template.c"
 	};
 
 	/* List of subtrees */
@@ -70139,7 +70161,7 @@ void proto_register_nbap(void)
     &ett_nbap_Outcome,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 488 "../../asn1/nbap/packet-nbap-template.c"
+#line 510 "../../asn1/nbap/packet-nbap-template.c"
 	};
 
 	static ei_register_info ei[] = {
@@ -71294,7 +71316,7 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 546 "../../asn1/nbap/packet-nbap-template.c"
+#line 568 "../../asn1/nbap/packet-nbap-template.c"
 }
 
 
