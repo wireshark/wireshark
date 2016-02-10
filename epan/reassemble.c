@@ -1219,7 +1219,13 @@ fragment_add_common(reassembly_table *table, tvbuff_t *tvb, const int offset,
 	gboolean already_added;
 
 
-	/* dissector shouldn't give us garbage tvb info */
+	/*
+	 * Dissector shouldn't give us garbage tvb info.
+	 *
+	 * XXX - should this code take responsibility for preventing
+	 * reassembly if data is missing due to the packets being
+	 * sliced, rather than leaving it up to dissectors?
+	 */
 	DISSECTOR_ASSERT(tvb_bytes_exist(tvb, offset, frag_data_len));
 
 	fd_head = lookup_fd_head(table, pinfo, id, data, NULL);
