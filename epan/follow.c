@@ -178,6 +178,7 @@ follow_tvb_tap_listener(void *tapdata, packet_info *pinfo,
     follow_record->data = g_byte_array_append(follow_record->data,
                                               tvb_get_ptr(next_tvb, 0, -1),
                                               tvb_captured_length(next_tvb));
+    follow_record->packet_num = pinfo->fd->num;
 
     if (follow_info->client_port == 0) {
         follow_info->client_port = pinfo->srcport;
