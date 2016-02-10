@@ -64,6 +64,7 @@ static const guint8 hsdsch_macdflow_id_mac_content_map[] = {
 /* Make fake logical channel id's based on MACdFlow-ID's*/
 static const guint8 fake_lchid_macd_flow[] = {1,9,14,11,0,12};
 
+#if 0
 static const value_string lchid_name_resolve[] = {
 	{1,"DCCH"},	/* 1 to 4 SRB => DCCH*/
 	{2,"DCCH"},
@@ -79,4 +80,5 @@ static const value_string lchid_name_resolve[] = {
 	{15,"MAC_CONTENT_UNKNOWN"},
 	{0, NULL}	/* This is CCCH? */
 };
+#endif
 #endif
