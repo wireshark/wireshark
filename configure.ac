@@ -2916,7 +2916,7 @@ AC_CHECK_FUNCS(mkstemp mkdtemp)
 AC_SEARCH_LIBS(inet_aton, [socket nsl],
   [
     INET_ATON_LO=""
-    AC_DEFINE(HAVE_INET_ATON, 0, [Define to 1 if you have the inet_aton function.])
+    AC_DEFINE(HAVE_INET_ATON, 1, [Define to 1 if you have the inet_aton function.])
   ],
   INET_ATON_LO="inet_aton.lo")
 AC_SUBST(INET_ATON_LO)

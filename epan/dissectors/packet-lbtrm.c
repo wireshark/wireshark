@@ -23,12 +23,7 @@
  */
 
 #include "config.h"
-#ifdef HAVE_ARPA_INET_H
-    #include <arpa/inet.h>
-#endif
-#if HAVE_WINSOCK2_H
-    #include <winsock2.h>
-#endif
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
@@ -36,9 +31,7 @@
 #include <epan/tap.h>
 #include <epan/conversation.h>
 #include <epan/to_str.h>
-#ifndef HAVE_INET_ATON
-    #include <wsutil/inet_aton.h>
-#endif
+#include <wsutil/inet_aton.h>
 #include <wsutil/pint.h>
 #include "packet-lbm.h"
 #include "packet-lbtrm.h"

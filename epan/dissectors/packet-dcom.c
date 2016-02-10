@@ -65,22 +65,12 @@
 
 #include "config.h"
 
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
-#endif
-
 #include <string.h>
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/addr_resolv.h>
-#ifndef HAVE_INET_ATON
 #include <wsutil/inet_aton.h>
-#endif
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include "packet-dcerpc.h"
@@ -265,17 +255,17 @@ void dcom_interface_dump(void) {
 
 	for(machines = dcom_machines; machines != NULL; machines = g_list_next(machines)) {
 		machine = (dcom_machine_t *)machines->data;
-		g_warning("Machine(#%4u): IP:%s", machine->first_packet, address_to_str(wmem_packet_scope(), &machine->ip));
+		/*g_warning("Machine(#%4u): IP:%s", machine->first_packet, address_to_str(wmem_packet_scope(), &machine->ip));*/
 
 		for(objects = machine->objects; objects != NULL; objects = g_list_next(objects)) {
 			object = (dcom_object_t *)objects->data;
-			g_warning(" Object(#%4u): OID:0x%" G_GINT64_MODIFIER "x private:%p", object->first_packet, object->oid, object->private_data);
+			/*g_warning(" Object(#%4u): OID:0x%" G_GINT64_MODIFIER "x private:%p", object->first_packet, object->oid, object->private_data);*/
 
 			for(interfaces = object->interfaces; interfaces != NULL; interfaces = g_list_next(interfaces)) {
 				interf = (dcom_interface_t *)interfaces->data;
-				g_warning("  Interface(#%4u): iid:%s",
+				/*g_warning("  Interface(#%4u): iid:%s",
 					  interf->first_packet, guids_resolve_guid_to_str(&interf->iid));
-				g_warning("   ipid:%s", guids_resolve_guid_to_str(&interf->ipid));
+				g_warning("   ipid:%s", guids_resolve_guid_to_str(&interf->ipid));*/
 			}
 		}
 	}

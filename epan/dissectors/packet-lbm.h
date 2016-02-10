@@ -94,6 +94,8 @@
 #endif
 #include <stddef.h>
 
+#include <wsutil/inet_aton.h>
+
 typedef guint8 lbm_uint8_t;
 typedef guint16 lbm_uint16_t;
 typedef guint32 lbm_uint32_t;

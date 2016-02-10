@@ -28,7 +28,25 @@
 
 #include "ws_symbol_export.h"
 
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>     /* needed to define AF_ values on UNIX */
+#endif
+
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>
+#endif
+
+#ifndef HAVE_INET_ATON
 struct in_addr;
 WS_DLL_PUBLIC int inet_aton(const char* cp_arg, struct in_addr *addr);
+#endif
 
 #endif

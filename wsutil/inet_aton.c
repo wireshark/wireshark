@@ -29,6 +29,8 @@
 
 #include "config.h"
 
+#include "inet_aton.h"
+
 #if defined(LIBC_SCCS) && !defined(lint)
 static char sccsid[] = "@(#)inet_addr.c	8.1 (Berkeley) 6/17/93";
 #endif /* LIBC_SCCS and not lint */
@@ -37,19 +39,7 @@ static char sccsid[] = "@(#)inet_addr.c	8.1 (Berkeley) 6/17/93";
 #include <sys/param.h>
 #endif
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
 
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-
-#include "inet_aton.h"
 
 /*
  * Check whether "cp" is a valid ascii representation

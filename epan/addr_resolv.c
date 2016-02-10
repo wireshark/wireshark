@@ -85,10 +85,6 @@
 #include <winsock2.h>       /* needed to define AF_ values on Windows */
 #endif
 
-#ifndef HAVE_INET_ATON
-# include "wsutil/inet_aton.h"
-#endif
-
 #ifdef NEED_INET_V6DEFS_H
 # include "wsutil/inet_v6defs.h"
 #endif
@@ -125,6 +121,7 @@
 #include <wsutil/report_err.h>
 #include <wsutil/file_util.h>
 #include <wsutil/pint.h>
+#include "wsutil/inet_aton.h"
 
 #include <epan/strutil.h>
 #include <epan/to_str-int.h>
