@@ -113,6 +113,9 @@ typedef enum {
 typedef struct _rtps_dissector_data {
   guint16 encapsulation_id;
   gboolean info_displayed;
+  /* Represents the position of a sample within a batch. Since the
+     position can be 0, we use -1 as not valid (not a batch) */
+  gint position_in_batch;
 } rtps_dissector_data;
 
 

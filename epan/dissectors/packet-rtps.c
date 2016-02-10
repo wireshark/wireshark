@@ -4828,7 +4828,7 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
   data = wmem_new(wmem_packet_scope(), rtps_dissector_data);
   data->info_displayed = FALSE;
   data->encapsulation_id = 0;
-
+  data->position_in_batch = -1;
   /* Creates the sub-tree */
   rtps_parameter_sequence_tree = proto_tree_add_subtree(tree, tvb, offset, size,
           ett_rtps_serialized_data, &ti, label);
@@ -7080,6 +7080,9 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
         return;
       }
 
+      /* We have enough bytes to dissect the next sample, so we update the rtps_dissector_data
+       * "position in the batch" value and dissect the sample */
+      data->position_in_batch = count;
       if ((sample_info_flags[count] & FLAG_SAMPLE_INFO_K) != 0) {
         proto_tree_add_bytes_format(sil_tree, hf_rtps_serialized_key,
                 tvb, offset, sample_info_length[count], NULL, "serializedKey[%d]", count);
