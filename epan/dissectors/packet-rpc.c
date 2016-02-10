@@ -3484,6 +3484,8 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * Show it as a record marker plus data, under
 				 * a top-level tree for this protocol.
 				 */
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPC");
+				col_set_str(pinfo->cinfo, COL_INFO, "Fragment");
 				make_frag_tree(frag_tvb, tree, proto, ett,rpc_rm);
 
 				/*
@@ -3551,6 +3553,8 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * a top-level tree for this protocol,
 			 * but don't hand it to the dissector
 			 */
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPC");
+			col_set_str(pinfo->cinfo, COL_INFO, "Fragment");
 			make_frag_tree(frag_tvb, tree, proto, ett, rpc_rm);
 
 			/*
@@ -3581,6 +3585,8 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * a top-level tree for this protocol,
 			 * but don't show it to the dissector.
 			 */
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPC");
+			col_set_str(pinfo->cinfo, COL_INFO, "Fragment");
 			make_frag_tree(frag_tvb, tree, proto, ett, rpc_rm);
 
 			/*
@@ -3858,12 +3864,13 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			break;
 		}
 
-		/*  Set a fence so whatever the subdissector put in the
-		 *  Info column stays there.  This is useful when the
-		 *  subdissector clears the column (which it might have to do
-		 *  if it runs over some other protocol too) and there are
-		 *  multiple PDUs in one frame.
+		/*  Set fences so whatever the subdissector put in the
+		 *  Protocol and Info columns stay there.  This is useful
+		 *  when the subdissector clears the column (which it
+		 *  might have to do if it runs over some other protocol
+		 *  too) and there are multiple PDUs in one frame.
 		 */
+		col_set_fence(pinfo->cinfo, COL_PROTOCOL);
 		col_set_fence(pinfo->cinfo, COL_INFO);
 
 		/* PDU tracking
