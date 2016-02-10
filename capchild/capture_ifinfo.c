@@ -28,22 +28,6 @@
 #include <string.h>
 #include <stdio.h>
 
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>         /* needed to define AF_ values on UNIX */
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>           /* needed to define AF_ values on Windows */
-#endif
-
-#ifdef NEED_INET_V6DEFS_H
-# include "wsutil/inet_v6defs.h"
-#endif
-
 #include <glib.h>
 
 #include "capture_opts.h"
@@ -56,6 +40,7 @@
 #include "log.h"
 
 #include <caputils/capture_ifinfo.h>
+#include <wsutil/inet_addr.h>
 
 #ifdef HAVE_PCAP_REMOTE
 static GList *remote_interface_list = NULL;
@@ -187,10 +172,9 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
         addr_parts = g_strsplit(if_parts[4], ",", 0);
         for (j = 0; addr_parts[j] != NULL; j++) {
             if_addr = g_new0(if_addr_t,1);
-            if (inet_pton(AF_INET, addr_parts[j], &if_addr->addr.ip4_addr) > 0) {
+            if (ws_inet_pton4(addr_parts[j], &if_addr->addr.ip4_addr)) {
                 if_addr->ifat_type = IF_AT_IPv4;
-            } else if (inet_pton(AF_INET6, addr_parts[j],
-                    &if_addr->addr.ip6_addr) > 0) {
+            } else if (ws_inet_pton6(addr_parts[j], (struct e_in6_addr *)&if_addr->addr.ip6_addr)) {
                 if_addr->ifat_type = IF_AT_IPv6;
             } else {
                 g_free(if_addr);

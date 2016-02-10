@@ -1,4 +1,4 @@
-/* inet_v6defs.h
+/* inet_addr-int.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,30 +19,36 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __INET_V6DEFS_H__
-#define __INET_V6DEFS_H__
+#ifndef __WS_INET_ADDR_INT_H__
+#define __WS_INET_ADDR_INT_H__
 
-#include "ws_symbol_export.h"
+#include "config.h"
+
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>		/* needed to define AF_ values on UNIX */
+#endif
+
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>	/* needed to define AF_ values on Windows */
+#if _MSC_VER < 1600	/* errno.h defines EAFNOSUPPORT in Windows VC10 (and presumably eventually in VC11 ...) */
+#define EAFNOSUPPORT    WSAEAFNOSUPPORT
+#endif
+#endif
 
 /*
  * Versions of "inet_pton()" and "inet_ntop()", for the benefit of OSes that
  * don't have it.
  */
-
-/*  Windows does not have inet_pton() and inet_ntop() until Vista.  In order
- *  to allow binaries compiled on Vista or later to work on pre-Vista Windows
- *  (without resorting to fragile link ordering tricks), we give our versions
- *  of those functions Wireshark-specific names.
- */
-#ifdef _WIN32
-#define inet_pton ws_inet_pton
-#define inet_ntop ws_inet_ntop
-WS_DLL_PUBLIC int inet_pton(int af, const char *src, void *dst);
+#ifndef HAVE_INET_PTON
+extern int inet_pton(int af, const char *src, void *dst);
 #endif
 
 #ifndef HAVE_INET_NTOP_PROTO
-WS_DLL_PUBLIC const char *inet_ntop(int af, const void *src, char *dst,
-    size_t size);
+extern const char *inet_ntop(int af, const void *src, char *dst, size_t size);
 #endif
 
 /*
@@ -51,15 +57,6 @@ WS_DLL_PUBLIC const char *inet_ntop(int af, const void *src, char *dst,
  */
 #ifndef AF_INET6
 #define	AF_INET6	127	/* pick a value unlikely to duplicate an existing AF_ value */
-#endif
-
-/*
- * And if __P isn't defined, define it here, so we can use it in
- * "inet_ntop.c" and "inet_pton.c" (rather than having to change them
- * not to use it).
- */
-#ifndef __P
-#define __P(args)	args
 #endif
 
 #endif

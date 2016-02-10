@@ -17,41 +17,18 @@
 
 #include "config.h"
 
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>		/* needed to define AF_ values on UNIX */
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>	/* needed to define AF_ values on Windows */
-#if _MSC_VER < 1600	/* errno.h defines EAFNOSUPPORT in Windows VC10 (and presumably eventually in VC11 ...) */
-#define EAFNOSUPPORT    WSAEAFNOSUPPORT
-#endif
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-
-#ifdef HAVE_ARPA_NAMESER_H
-#include <arpa/nameser.h>
-#endif
+#include "inet_addr-int.h"
 
 #include <string.h>
 #include <errno.h>
 
-#include "inet_v6defs.h"
+#include <glib.h>
+
+#include <wsutil/ws_diag_control.h>
+
+#ifndef __P
+#define __P(args)	args
+#endif
 
 #ifndef NS_INADDRSZ
 #define NS_INADDRSZ	4
@@ -62,6 +39,8 @@
 #ifndef NS_INT16SZ
 #define NS_INT16SZ	2
 #endif
+
+DIAG_OFF(c++-compat)
 
 /*
  * WARNING: Don't even consider trying to compile this on a system where
@@ -87,10 +66,7 @@ static int	inet_pton6 __P((const char *src, u_char *dst));
  *	Paul Vixie, 1996.
  */
 int
-inet_pton(af, src, dst)
-	int af;
-	const char *src;
-	void *dst;
+inet_pton(int af, const char *src, void *dst)
 {
 	switch (af) {
 #ifdef AF_INET
@@ -120,9 +96,7 @@ inet_pton(af, src, dst)
  *	Paul Vixie, 1996.
  */
 static int
-inet_pton4(src, dst)
-	const char *src;
-	u_char *dst;
+inet_pton4(const char *src, u_char *dst)
 {
 	static const char digits[] = "0123456789";
 	int saw_digit, octets, ch;
@@ -175,9 +149,7 @@ inet_pton4(src, dst)
  *	Paul Vixie, 1996.
  */
 static int
-inet_pton6(src, dst)
-	const char *src;
-	u_char *dst;
+inet_pton6(const char *src, u_char *dst)
 {
 	static const char xdigits_l[] = "0123456789abcdef",
 			  xdigits_u[] = "0123456789ABCDEF";

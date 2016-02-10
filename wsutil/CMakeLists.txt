@@ -53,6 +53,7 @@ set(WSUTIL_FILES
 	filesystem.c
 	frequency-utils.c
 	g711.c
+	inet_addr.c
 	jsmn.c
 	md4.c
 	md5.c

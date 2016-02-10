@@ -217,8 +217,6 @@
 /* Define if you have the strptime function. */
 /* #undef HAVE_STRPTIME 1 */
 
-#define NEED_INET_V6DEFS_H  1
-
 #ifndef WIN32
 #define WIN32			1
 #endif

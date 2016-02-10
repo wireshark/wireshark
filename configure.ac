@@ -2945,6 +2945,8 @@ have_inet_pton=no)
 if test "$have_inet_pton" = no; then
   INET_PTON_LO="inet_pton.lo"
 else
+  AC_DEFINE(HAVE_INET_NTOP, 1,
+    [Define to 1 if you have the `inet_pton' function.])
   INET_PTON_LO=""
 fi
 AM_CONDITIONAL(NEED_INET_PTON_LO, test "x$have_inet_pton" = "xno")
@@ -2974,9 +2976,7 @@ extern const char *inet_ntop(int, const void *, char *, socklen_t);],, [
       [Define if inet_ntop() prototype exists])], [
       AC_MSG_RESULT(no)])])
   INET_NTOP_LO=""], [
-  INET_NTOP_LO="inet_ntop.lo"
-  AC_DEFINE(NEED_INET_V6DEFS_H, 1,
-  [Define if inet/v6defs.h needs to be included])])
+  INET_NTOP_LO="inet_ntop.lo"])
 AM_CONDITIONAL(NEED_INET_NTOP_LO, test "x$INET_NTOP_LO" != "x")
 AC_SUBST(INET_NTOP_LO)
 

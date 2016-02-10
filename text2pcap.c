@@ -114,6 +114,7 @@
 #include <wsutil/crash_info.h>
 #include <wsutil/ws_diag_control.h>
 #include <wsutil/ws_version_info.h>
+#include <wsutil/inet_addr.h>
 
 #include <time.h>
 #include <glib.h>
@@ -144,22 +145,6 @@
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>       /* needed to define AF_ values on Windows */
-#endif
-
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-
-#ifdef NEED_INET_V6DEFS_H
-# include "wsutil/inet_v6defs.h"
-#endif
-
 /*--- Options --------------------------------------------------------------------*/
 
 /* File format */
@@ -182,9 +167,9 @@ static long hdr_ip_proto = 0;
 /* Destination and source addresses for IP header */
 static guint32 hdr_ip_dest_addr = 0;
 static guint32 hdr_ip_src_addr = 0;
-static guint8 hdr_ipv6_dest_addr[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-static guint8 hdr_ipv6_src_addr[16]  = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-static guint8 NO_IPv6_ADDRESS[16]    = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+static struct e_in6_addr hdr_ipv6_dest_addr = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+static struct e_in6_addr hdr_ipv6_src_addr  = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+static struct e_in6_addr NO_IPv6_ADDRESS    = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
 /* Dummy UDP header */
 static int     hdr_udp       = FALSE;
@@ -344,17 +329,6 @@ static struct {         /* pseudo header for checksum calculation */
 
 /* headers taken from glibc */
 
-/* IPv6 address */
-struct hdr_in6_addr
-{
-    union
-    {
-       guint8  __u6_addr8[16];
-       guint16 __u6_addr16[8];
-       guint32 __u6_addr32[4];
-    } __in6_u;
-};
-
 typedef struct {
     union  {
         struct ip6_hdrctl {
@@ -365,15 +339,15 @@ typedef struct {
         } ip6_un1;
         guint8 ip6_un2_vfc;       /* 4 bits version, 4 bits priority */
     } ip6_ctlun;
-    struct hdr_in6_addr ip6_src;      /* source address */
-    struct hdr_in6_addr ip6_dst;      /* destination address */
+    struct e_in6_addr ip6_src;      /* source address */
+    struct e_in6_addr ip6_dst;      /* destination address */
 } hdr_ipv6_t;
 
 static hdr_ipv6_t HDR_IPv6;
 
 static struct {                 /* pseudo header ipv6 for checksum calculation */
-    struct  hdr_in6_addr src_addr6;
-    struct  hdr_in6_addr dst_addr6;
+    struct  e_in6_addr src_addr6;
+    struct  e_in6_addr dst_addr6;
     guint32 protocol;
     guint32 zero;
 } pseudoh6;
@@ -697,10 +671,10 @@ write_current_packet (gboolean cont)
             HDR_IP.hdr_checksum = in_checksum(&HDR_IP, sizeof(HDR_IP));
             write_bytes((const char *)&HDR_IP, sizeof(HDR_IP));
         } else if (hdr_ipv6) {
-            if (memcmp(isInbound ? hdr_ipv6_dest_addr : hdr_ipv6_src_addr, NO_IPv6_ADDRESS, sizeof(struct hdr_in6_addr)))
-                memcpy(&HDR_IPv6.ip6_src, isInbound ? &hdr_ipv6_dest_addr : &hdr_ipv6_src_addr, sizeof(struct hdr_in6_addr));
-            if (memcmp(isInbound ? hdr_ipv6_src_addr : hdr_ipv6_dest_addr, NO_IPv6_ADDRESS, sizeof(struct hdr_in6_addr)))
-                memcpy(&HDR_IPv6.ip6_dst, isInbound ? &hdr_ipv6_src_addr : &hdr_ipv6_dest_addr, sizeof(struct hdr_in6_addr));
+            if (memcmp(isInbound ? &hdr_ipv6_dest_addr : &hdr_ipv6_src_addr, &NO_IPv6_ADDRESS, sizeof(struct e_in6_addr)))
+                memcpy(&HDR_IPv6.ip6_src, isInbound ? &hdr_ipv6_dest_addr : &hdr_ipv6_src_addr, sizeof(struct e_in6_addr));
+            if (memcmp(isInbound ? &hdr_ipv6_src_addr : &hdr_ipv6_dest_addr, &NO_IPv6_ADDRESS, sizeof(struct e_in6_addr)))
+                memcpy(&HDR_IPv6.ip6_dst, isInbound ? &hdr_ipv6_src_addr : &hdr_ipv6_dest_addr, sizeof(struct e_in6_addr));
 
             HDR_IPv6.ip6_ctlun.ip6_un2_vfc &= 0x0F;
             HDR_IPv6.ip6_ctlun.ip6_un2_vfc |= (6<< 4);
@@ -1762,13 +1736,13 @@ parse_options (int argc, char *argv[])
             hdr_ethernet = TRUE;
 
             if (hdr_ipv6 == TRUE) {
-                if (inet_pton( AF_INET6, optarg, hdr_ipv6_src_addr) <= 0) {
+                if (!ws_inet_pton6(optarg, &hdr_ipv6_src_addr)) {
                         fprintf(stderr, "Bad src addr -%c '%s'\n", c, p);
                         print_usage(stderr);
                         exit(1);
                 }
             } else {
-                if (inet_pton( AF_INET, optarg, &hdr_ip_src_addr) <= 0) {
+                if (!ws_inet_pton4(optarg, &hdr_ip_src_addr)) {
                         fprintf(stderr, "Bad src addr -%c '%s'\n", c, p);
                         print_usage(stderr);
                         exit(1);
@@ -1783,13 +1757,13 @@ parse_options (int argc, char *argv[])
             }
 
             if (hdr_ipv6 == TRUE) {
-                if (inet_pton( AF_INET6, p, hdr_ipv6_dest_addr) <= 0) {
+                if (!ws_inet_pton6(p, &hdr_ipv6_dest_addr)) {
                         fprintf(stderr, "Bad dest addr for -%c '%s'\n", c, p);
                         print_usage(stderr);
                         exit(1);
                 }
             } else {
-                if (inet_pton( AF_INET, p, &hdr_ip_dest_addr) <= 0) {
+                if (!ws_inet_pton4(p, &hdr_ip_dest_addr)) {
                         fprintf(stderr, "Bad dest addr for -%c '%s'\n", c, p);
                         print_usage(stderr);
                         exit(1);

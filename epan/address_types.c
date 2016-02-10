@@ -21,18 +21,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>        /* needed for <arpa/inet.h> on some platforms */
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>         /* needed to define AF_ values on UNIX */
-#endif
-
 #include <string.h>     /* for memcmp */
 #include "packet.h"
 #include "address_types.h"
@@ -41,7 +29,7 @@
 #include "addr_resolv.h"
 #include "wsutil/pint.h"
 #include "wsutil/str_util.h"
-#include "wsutil/inet_v6defs.h"
+#include "wsutil/inet_addr.h"
 
 #include <epan/dissectors/packet-mtp3.h>
 
@@ -599,7 +587,7 @@ ib_addr_to_str( const address *addr, gchar *buf, int buf_len){
         #define PREAMBLE_STR_LEN ((int)(sizeof("GID: ") - 1))
         g_strlcpy(buf, "GID: ", buf_len);
         if (buf_len < PREAMBLE_STR_LEN ||
-                inet_ntop(AF_INET6, addr->data, buf + PREAMBLE_STR_LEN,
+                ws_inet_ntop6(addr->data, buf + PREAMBLE_STR_LEN,
                           buf_len - PREAMBLE_STR_LEN) == NULL ) /* Returns NULL if no space and does not touch buf */
             g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len); /* Let the unexpected value alert user */
     } else {    /* this is a LID (16 bits) */

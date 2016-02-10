@@ -95,10 +95,6 @@
 #include <sys/un.h>
 #endif
 
-#ifdef NEED_INET_V6DEFS_H
-# include "wsutil/inet_v6defs.h"
-#endif
-
 #include <wsutil/clopts_common.h>
 #include <wsutil/privileges.h>
 
@@ -116,6 +112,7 @@
 #include "wsutil/file_util.h"
 #include "wsutil/os_version_info.h"
 #include "wsutil/str_util.h"
+#include "wsutil/inet_addr.h"
 
 #include "caputils/ws80211_utils.h"
 
@@ -859,7 +856,7 @@ print_machine_readable_interfaces(GList *if_list)
             if_addr = (if_addr_t *)addr->data;
             switch(if_addr->ifat_type) {
             case IF_AT_IPv4:
-                if (inet_ntop(AF_INET, &if_addr->addr.ip4_addr, addr_str,
+                if (ws_inet_ntop4(&if_addr->addr.ip4_addr, addr_str,
                               ADDRSTRLEN)) {
                     printf("%s", addr_str);
                 } else {
@@ -867,7 +864,7 @@ print_machine_readable_interfaces(GList *if_list)
                 }
                 break;
             case IF_AT_IPv6:
-                if (inet_ntop(AF_INET6, &if_addr->addr.ip6_addr,
+                if (ws_inet_ntop6(&if_addr->addr.ip6_addr,
                               addr_str, ADDRSTRLEN)) {
                     printf("%s", addr_str);
                 } else {
@@ -1390,7 +1387,7 @@ cap_open_socket(char *pipename, pcap_options *pcap_opts, char *errmsg, int errms
 
   g_snprintf ( buf,(gulong)len + 1, "%s", sockname );
   buf[len] = '\0';
-  if (inet_pton(AF_INET, buf, &sa.sin_addr) <= 0) {
+  if (!ws_inet_pton4(buf, (guint32 *)&sa.sin_addr)) {
     goto fail_invalid;
   }
 

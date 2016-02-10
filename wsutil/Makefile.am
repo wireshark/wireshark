@@ -82,7 +82,7 @@ EXTRA_libwsutil_la_SOURCES = \
 	inet_aton.h		\
 	inet_ntop.c		\
 	inet_pton.c		\
-	inet_v6defs.h		\
+	inet_addr-int.h		\
 	popcount.c		\
 	popcount.h		\
 	strptime.c		\

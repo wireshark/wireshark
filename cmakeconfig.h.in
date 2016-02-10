@@ -112,6 +112,9 @@
 /* Define if inet_ntop() prototype exists */
 #cmakedefine HAVE_INET_NTOP_PROTO 1
 
+/* Define to 1 if you have the `inet_pton' function. */
+#cmakedefine HAVE_INET_PTON 1
+
 /* Define to 1 if you have the `inflatePrime' function. */
 #cmakedefine HAVE_INFLATEPRIME 1
 
@@ -357,9 +360,6 @@
 /* HTML viewer, e.g. mozilla */
 #cmakedefine HTML_VIEWER "${HTML_VIEWER_EXECUTABLE}"
 
-/* Define if inet/v6defs.h needs to be included */
-#cmakedefine NEED_INET_V6DEFS_H 1
-
 /* Name of package */
 #cmakedefine PACKAGE
 
@@ -468,6 +468,5 @@
 #  define UNICODE 1
 #  define _UNICODE 1
 
-#  define NEED_INET_V6DEFS_H 1
 #  define NEED_STRPTIME_H 1
 #endif

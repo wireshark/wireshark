@@ -50,6 +50,7 @@ LIBWSUTIL_COMMON_SRC = \
 	filesystem.c	\
 	frequency-utils.c \
 	g711.c		\
+	inet_addr.c	\
 	jsmn.c		\
 	md4.c		\
 	md5.c		\
@@ -100,6 +101,7 @@ libwsutil_nonrepl_INCLUDES = \
 	filesystem.h	\
 	frequency-utils.h \
 	g711.h		\
+	inet_addr.h	\
 	jsmn.h		\
 	md4.h		\
 	md5.h		\

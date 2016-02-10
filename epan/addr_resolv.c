@@ -73,20 +73,12 @@
 #include <netdb.h>
 #endif
 
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>     /* needed to define AF_ values on UNIX */
 #endif
 
 #ifdef HAVE_WINSOCK2_H
 #include <winsock2.h>       /* needed to define AF_ values on Windows */
-#endif
-
-#ifdef NEED_INET_V6DEFS_H
-# include "wsutil/inet_v6defs.h"
 #endif
 
 #ifdef _WIN32
@@ -109,7 +101,6 @@
 # endif /* HAVE_GNU_ADNS */
 #endif  /* HAVE_C_ARES */
 
-
 #include <glib.h>
 
 #include "packet.h"
@@ -122,6 +113,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/pint.h>
 #include "wsutil/inet_aton.h"
+#include <wsutil/inet_addr.h>
 
 #include <epan/strutil.h>
 #include <epan/to_str-int.h>
@@ -1960,10 +1952,11 @@ read_hosts_file (const char *hostspath, gboolean store_entries)
     char *line = NULL;
     int size = 0;
     gchar *cp;
-    guint32 host_addr[4]; /* IPv4 or IPv6 */
-    struct e_in6_addr ip6_addr;
+    union {
+        guint32 ip4_addr;
+        struct e_in6_addr ip6_addr;
+    } host_addr;
     gboolean is_ipv6, entry_found = FALSE;
-    int ret;
 
     /*
      *  See the hosts(4) or hosts(5) man page for hosts file format
@@ -1979,17 +1972,14 @@ read_hosts_file (const char *hostspath, gboolean store_entries)
         if ((cp = strtok(line, " \t")) == NULL)
             continue; /* no tokens in the line */
 
-        ret = inet_pton(AF_INET6, cp, &host_addr);
-        if (ret < 0)
-            continue; /* error parsing */
-        if (ret > 0) {
+        if (ws_inet_pton6(cp, &host_addr.ip6_addr)) {
             /* Valid IPv6 */
             is_ipv6 = TRUE;
-        } else {
-            /* Not valid IPv6 - valid IPv4? */
-            if (!str_to_ip(cp, &host_addr))
-                continue; /* no */
+        } else if (ws_inet_pton4(cp, &host_addr.ip4_addr)) {
+            /* Valid IPv4 */
             is_ipv6 = FALSE;
+        } else {
+            continue;
         }
 
         if ((cp = strtok(NULL, " \t")) == NULL)
@@ -1998,26 +1988,10 @@ read_hosts_file (const char *hostspath, gboolean store_entries)
         entry_found = TRUE;
         if (store_entries) {
             if (is_ipv6) {
-                memcpy(&ip6_addr, host_addr, sizeof ip6_addr);
-                add_ipv6_name(&ip6_addr, cp);
-            } else
-                add_ipv4_name(host_addr[0], cp);
-
-#if 0
-            /*
-             * Add the aliases, too, if there are any.
-             * XXX - except we only store the last one added.  The name
-             * resolver returns the first name in the hosts file, we should
-             * too.
-             */
-            while ((cp = strtok(NULL, " \t")) != NULL) {
-                if (is_ipv6) {
-                    memcpy(&ip6_addr, host_addr, sizeof ip6_addr);
-                    add_ipv6_name(&ip6_addr, cp);
-                } else
-                    add_ipv4_name(host_addr[0], cp);
+                add_ipv6_name(&host_addr.ip6_addr, cp);
+            } else {
+                add_ipv4_name(host_addr.ip4_addr, cp);
             }
-#endif
         }
     }
     g_free(line);
@@ -2053,36 +2027,30 @@ add_hosts_file (const char *hosts_file)
 gboolean
 add_ip_name_from_string (const char *addr, const char *name)
 {
-    guint32 host_addr[4]; /* IPv4 */
-    struct e_in6_addr ip6_addr; /* IPv6 */
+    union {
+        guint32 ip4_addr;
+        struct e_in6_addr ip6_addr;
+    } host_addr;
     gboolean is_ipv6;
-    int ret;
     resolved_ipv4_t *resolved_ipv4_entry;
     resolved_ipv6_t *resolved_ipv6_entry;
 
-    ret = inet_pton(AF_INET6, addr, &ip6_addr);
-    if (ret < 0)
-        /* Error parsing address */
-        return FALSE;
-
-    if (ret > 0) {
-        /* Valid IPv6 */
+    if (ws_inet_pton6(addr, &host_addr.ip6_addr)) {
         is_ipv6 = TRUE;
-    } else {
-        /* Not valid IPv6 - valid IPv4? */
-        if (!str_to_ip(addr, &host_addr))
-            return FALSE; /* no */
+    } else if (ws_inet_pton4(addr, &host_addr.ip4_addr)) {
         is_ipv6 = FALSE;
+    } else {
+        return FALSE;
     }
 
     if (is_ipv6) {
         resolved_ipv6_entry = g_new(resolved_ipv6_t, 1);
-        memcpy(&(resolved_ipv6_entry->ip6_addr), &ip6_addr, 16);
+        memcpy(&(resolved_ipv6_entry->ip6_addr), &host_addr.ip6_addr, 16);
         g_strlcpy(resolved_ipv6_entry->name, name, MAXNAMELEN);
         manually_resolved_ipv6_list = g_slist_prepend(manually_resolved_ipv6_list, resolved_ipv6_entry);
     } else {
         resolved_ipv4_entry = g_new(resolved_ipv4_t, 1);
-        resolved_ipv4_entry->host_addr = host_addr[0];
+        resolved_ipv4_entry->host_addr = host_addr.ip4_addr;
         g_strlcpy(resolved_ipv4_entry->name, name, MAXNAMELEN);
         manually_resolved_ipv4_list = g_slist_prepend(manually_resolved_ipv4_list, resolved_ipv4_entry);
     }
@@ -3499,13 +3467,13 @@ addr_resolv_cleanup(void)
 gboolean
 str_to_ip(const char *str, void *dst)
 {
-    return inet_pton(AF_INET, str, dst) > 0;
+    return ws_inet_pton4(str, (guint32 *)dst);
 }
 
 gboolean
 str_to_ip6(const char *str, void *dst)
 {
-    return inet_pton(AF_INET6, str, dst) > 0;
+    return ws_inet_pton6(str, (struct e_in6_addr *)dst);
 }
 
 /*
