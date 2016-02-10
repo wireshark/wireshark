@@ -2502,10 +2502,14 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Open this capture file</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="file_set_dialog.cpp" line="126"/>
-        <source>%1 File%2 in Set</source>
-        <translation type="unfinished"></translation>
+        <source>%Ln File(s) in Set</source>
+        <oldsource>%1 File%2 in Set</oldsource>
+        <translation>
+            <numerusform>%Ln File in Set</numerusform>
+            <numerusform>%Ln Files in Set</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -2737,17 +2741,17 @@ for filter files: %2.</source>
     <message numerus="yes">
         <location filename="follow_stream_dialog.cpp" line="169"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt, </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkts, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="follow_stream_dialog.cpp" line="172"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt, </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkts, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -9188,10 +9192,14 @@ a:hover {
         <source>There are no SSL Session Keys to save.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="main_window_slots.cpp" line="1798"/>
-        <source>Export SSL Session Keys (%1 key%2</source>
-        <translation type="unfinished"></translation>
+    <message numerus="yes">
+        <location filename="main_window_slots.cpp" line="1805"/>
+        <source>Export SSL Session Keys (%Ln key(s))</source>
+        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
+        <translation>
+            <numerusform>Export SSL Session Keys (%Ln key)</numerusform>
+            <numerusform>Export SSL Session Keys (%Ln keys)</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="1803"/>

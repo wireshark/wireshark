@@ -42,7 +42,6 @@
 
 #include "wsutil/file_util.h"
 #include "wsutil/filesystem.h"
-#include "wsutil/str_util.h"
 
 #include "epan/addr_resolv.h"
 #include "epan/dissector_filters.h"
@@ -1803,8 +1802,7 @@ void MainWindow::on_actionFileExportSSLSessionKeys_triggered()
         return;
     }
 
-    save_title.append(wsApp->windowTitleString(tr("Export SSL Session Keys (%1 key%2").
-            arg(keylist_len).arg(plurality(keylist_len, "", "s"))));
+    save_title.append(wsApp->windowTitleString(tr("Export SSL Session Keys (%Ln key(s))", "", keylist_len)));
     file_name = QFileDialog::getSaveFileName(this,
                                              save_title,
                                              wsApp->lastOpenDir().canonicalPath(),
