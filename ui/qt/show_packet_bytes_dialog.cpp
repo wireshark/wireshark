@@ -49,10 +49,18 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     ui->setupUi(this);
 
     field_info *finfo = cf.capFile()->finfo_selected;
-    setWindowSubtitle (QString("%1 (%2)").arg(finfo->hfinfo->name, finfo->hfinfo->abbrev));
+    QString field_name = QString("%1 (%2)").arg(finfo->hfinfo->name, finfo->hfinfo->abbrev);
+    setWindowSubtitle (field_name);
 
     const guint8 *bytes = tvb_get_ptr(finfo->ds_tvb, 0, -1) + finfo->start;
     field_bytes_ = QByteArray((const char *)bytes, finfo->length);
+
+    QString hint = tr("Frame %1, %2, %Ln byte(s).", "", finfo->length)
+                      .arg(cf.capFile()->current_frame->num)
+                      .arg(field_name);
+    hint.prepend("<small><i>");
+    hint.append("</i></small>");
+    ui->hintLabel->setText(hint);
 
     // Try loading as image
     if (image_.loadFromData(field_bytes_)) {

@@ -31,6 +31,16 @@
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="hintLabel">
+     <property name="text">
+      <string>Hint.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_1" stretch="0,0,0,0,1,0,0">
      <item>
       <widget class="QLabel" name="lShowAs">
