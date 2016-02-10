@@ -26663,16 +26663,15 @@ dissect_lte_rrc_T_warningMessageSegmentNumber(tvbuff_t *tvb _U_, int offset _U_,
 static int
 dissect_lte_rrc_T_warningMessageSegment(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *warning_msg_seg_tvb = NULL;
-  gpointer p_dcs;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &warning_msg_seg_tvb);
 
 
 
-  p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)private_data_get_message_identifier(actx)));
-  if (warning_msg_seg_tvb && p_dcs) {
+  if (warning_msg_seg_tvb) {
     proto_tree *subtree;
     tvbuff_t *frag_tvb;
+    gpointer p_dcs;
     fragment_head *frag_data = fragment_add_seq_check(&lte_rrc_sib11_reassembly_table, warning_msg_seg_tvb, 0, actx->pinfo,
                                                       private_data_get_message_identifier(actx), NULL,
                                                       private_data_get_warning_message_segment_number(actx),
@@ -26681,7 +26680,8 @@ dissect_lte_rrc_T_warningMessageSegment(tvbuff_t *tvb _U_, int offset _U_, asn1_
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
     frag_tvb = process_reassembled_data(warning_msg_seg_tvb, 0, actx->pinfo, "Reassembled SIB11 warning message",
                                         frag_data, &lte_rrc_sib11_frag_items, NULL, subtree);
-    if (frag_tvb) {
+    p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)private_data_get_message_identifier(actx)));
+    if (frag_tvb && p_dcs) {
       dissect_lte_rrc_warningMessageSegment(frag_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
     }
   }
@@ -26814,16 +26814,15 @@ dissect_lte_rrc_T_warningMessageSegmentNumber_r9(tvbuff_t *tvb _U_, int offset _
 static int
 dissect_lte_rrc_T_warningMessageSegment_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *warning_msg_seg_tvb = NULL;
-  gpointer p_dcs;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &warning_msg_seg_tvb);
 
 
 
-  p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)private_data_get_message_identifier(actx)));
-  if (warning_msg_seg_tvb && p_dcs) {
+  if (warning_msg_seg_tvb) {
     proto_tree *subtree;
     tvbuff_t *frag_tvb;
+    gpointer p_dcs;
     fragment_head *frag_data = fragment_add_seq_check(&lte_rrc_sib12_reassembly_table, warning_msg_seg_tvb, 0, actx->pinfo,
                                                       private_data_get_message_identifier(actx), NULL,
                                                       private_data_get_warning_message_segment_number(actx),
@@ -26832,7 +26831,8 @@ dissect_lte_rrc_T_warningMessageSegment_r9(tvbuff_t *tvb _U_, int offset _U_, as
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
     frag_tvb = process_reassembled_data(warning_msg_seg_tvb, 0, actx->pinfo, "Reassembled SIB12 warning message",
                                         frag_data, &lte_rrc_sib12_frag_items, NULL, subtree);
-    if (frag_tvb) {
+    p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER((guint)private_data_get_message_identifier(actx)));
+    if (frag_tvb && p_dcs) {
       dissect_lte_rrc_warningMessageSegment(frag_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
     }
   }
