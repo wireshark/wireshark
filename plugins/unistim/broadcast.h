@@ -43,10 +43,12 @@ static const value_string broadcast_switch_msgs[]={
  {0xff,"Reserved"},
  {0,NULL}
 };
+#if 0
 static const value_string broadcast_phone_msgs[]={
  {0xff,"Reserved"},
  {0,NULL}
 };
+#endif
 
 static const value_string bcast_icon_states[]={
  {0x00,"I-Idle"},
