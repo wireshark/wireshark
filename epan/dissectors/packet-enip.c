@@ -183,7 +183,6 @@ static int hf_tcpip_config_control = -1;
 static int hf_tcpip_config_control_config = -1;
 static int hf_tcpip_config_control_dns = -1;
 static int hf_tcpip_config_control_reserved = -1;
-static int hf_tcpip_physical_link_size = -1;
 static int hf_tcpip_ic_ip_addr = -1;
 static int hf_tcpip_ic_subnet_mask = -1;
 static int hf_tcpip_ic_gateway = -1;
@@ -311,22 +310,16 @@ static int hf_eip_security_psk_identity = -1;
 static int hf_eip_security_psk_size = -1;
 static int hf_eip_security_psk = -1;
 static int hf_eip_security_num_active_certs = -1;
-static int hf_eip_security_active_cert_path_size = -1;
 static int hf_eip_security_num_trusted_auths = -1;
-static int hf_eip_security_trusted_auth_path_size = -1;
-static int hf_eip_security_cert_revocation_list_path_size = -1;
 static int hf_eip_cert_name = -1;
 static int hf_eip_cert_state = -1;
 static int hf_eip_cert_device_cert_status = -1;
-static int hf_eip_cert_device_cert_path_size = -1;
 static int hf_eip_cert_ca_cert_status = -1;
-static int hf_eip_cert_ca_cert_path_size = -1;
 static int hf_eip_cert_capflags_push = -1;
 static int hf_eip_cert_capflags_reserved = -1;
 static int hf_eip_cert_capability_flags = -1;
 static int hf_eip_cert_num_certs = -1;
 static int hf_eip_cert_cert_name = -1;
-static int hf_eip_cert_path_size = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_enip = -1;
@@ -354,7 +347,6 @@ static gint ett_eip_cert_num_certs = -1;
 static expert_field ei_mal_tcpip_status = EI_INIT;
 static expert_field ei_mal_tcpip_config_cap = EI_INIT;
 static expert_field ei_mal_tcpip_config_control = EI_INIT;
-static expert_field ei_mal_tcpip_physical_link_size = EI_INIT;
 static expert_field ei_mal_tcpip_interface_config = EI_INIT;
 static expert_field ei_mal_tcpip_mcast_config = EI_INIT;
 static expert_field ei_mal_tcpip_last_conflict = EI_INIT;
@@ -1438,23 +1430,7 @@ dissect_tcpip_physical_link(packet_info *pinfo, proto_tree *tree, proto_item *it
                             int offset, int total_len)
 
 {
-   guint16     path_size;
-   proto_tree *epath_tree;
-   proto_item *path_item;
-
-   path_size = tvb_get_letohs( tvb, offset)*2;
-   proto_tree_add_uint_format_value(tree, hf_tcpip_physical_link_size, tvb, offset, 2, path_size / 2, "%d (words)", path_size / 2);
-
-   if (total_len < path_size+2)
-   {
-      expert_add_info(pinfo, item, &ei_mal_tcpip_physical_link_size);
-      return total_len;
-   }
-
-   epath_tree = proto_tree_add_subtree(tree, tvb, offset+2, path_size, ett_path, &path_item, "Path: ");
-   dissect_epath( tvb, pinfo, epath_tree, path_item, offset+2, path_size, FALSE, FALSE, NULL, NULL, NO_DISPLAY);
-
-   return path_size+2;
+   return dissect_padded_epath_len_uint(pinfo, tree, item, tvb, offset, total_len);
 }
 
 static int
@@ -1478,6 +1454,9 @@ dissect_tcpip_interface_config(packet_info *pinfo, proto_tree *tree, proto_item 
 
    domain_length = tvb_get_letohs( tvb, offset+20);
    proto_tree_add_item(tree, hf_tcpip_ic_domain_name,  tvb, offset+22, domain_length, ENC_ASCII|ENC_NA);
+
+   /* Add padding. */
+   domain_length += domain_length % 2;
 
    return (22+domain_length);
 }
@@ -1932,7 +1911,7 @@ dissect_eip_security_active_certs(packet_info *pinfo, proto_tree *tree, proto_it
 
 {
    guint32 i, num, path_size;
-   proto_item *ti, *path_item;
+   proto_item *ti;
    proto_tree* cert_tree;
    int start_offset = offset;
 
@@ -1948,9 +1927,7 @@ dissect_eip_security_active_certs(packet_info *pinfo, proto_tree *tree, proto_it
 
    for (i = 0; i < num; i++)
    {
-      path_item = proto_tree_add_item_ret_uint(cert_tree, hf_eip_security_active_cert_path_size, tvb, offset, 1, ENC_NA, &path_size);
-      offset++;
-      dissect_epath( tvb, pinfo, cert_tree, path_item, offset, path_size, FALSE, FALSE, NULL, NULL, NO_DISPLAY);
+      path_size = dissect_padded_epath_len_usint(pinfo, cert_tree, ti, tvb, offset, total_len);
       offset += path_size;
    }
    proto_item_set_len(ti, offset-start_offset);
@@ -1963,7 +1940,7 @@ dissect_eip_security_trusted_auths(packet_info *pinfo, proto_tree *tree, proto_i
 
 {
    guint32 i, num, path_size;
-   proto_item *ti, *path_item;
+   proto_item *ti;
    proto_tree* cert_tree;
    int start_offset = offset;
 
@@ -1979,9 +1956,7 @@ dissect_eip_security_trusted_auths(packet_info *pinfo, proto_tree *tree, proto_i
 
    for (i = 0; i < num; i++)
    {
-      path_item = proto_tree_add_item_ret_uint(cert_tree, hf_eip_security_trusted_auth_path_size, tvb, offset, 1, ENC_NA, &path_size);
-      offset++;
-      dissect_epath( tvb, pinfo, cert_tree, path_item, offset, path_size, FALSE, FALSE, NULL, NULL, NO_DISPLAY);
+      path_size = dissect_padded_epath_len_usint(pinfo, cert_tree, ti, tvb, offset, total_len);
       offset += path_size;
    }
    proto_item_set_len(ti, offset-start_offset);
@@ -1989,19 +1964,11 @@ dissect_eip_security_trusted_auths(packet_info *pinfo, proto_tree *tree, proto_i
 }
 
 static int
-dissect_eip_security_cert_revocation_list(packet_info *pinfo, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
-                                   int offset, int total_len _U_)
+dissect_eip_security_cert_revocation_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                                   int offset, int total_len)
 
 {
-   guint32 path_size;
-   proto_item *path_item;
-   int start_offset = offset;
-
-   path_item = proto_tree_add_item_ret_uint(tree, hf_eip_security_cert_revocation_list_path_size, tvb, offset, 1, ENC_NA, &path_size);
-   offset++;
-   dissect_epath( tvb, pinfo, tree, path_item, offset, path_size, FALSE, FALSE, NULL, NULL, NO_DISPLAY);
-   offset += path_size;
-   return offset-start_offset;
+   return dissect_padded_epath_len_usint(pinfo, tree, item, tvb, offset, total_len);
 }
 
 static int
@@ -2026,10 +1993,10 @@ dissect_eip_cert_cap_flags(packet_info *pinfo, proto_tree *tree, proto_item *ite
 
 static int
 dissect_eip_cert_cert_list(packet_info *pinfo, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
-                                   int offset, int total_len _U_)
+                                   int offset, int total_len)
 {
    guint32 i, num, path_size;
-   proto_item *ti, *path_item;
+   proto_item *ti;
    proto_tree* cert_tree;
    int start_offset = offset;
 
@@ -2043,9 +2010,7 @@ dissect_eip_cert_cert_list(packet_info *pinfo, proto_tree *tree, proto_item *ite
       proto_tree_add_item(tree, hf_eip_cert_cert_name, tvb, offset+1, path_size, ENC_ASCII|ENC_NA);
       offset += (1+path_size);
 
-      path_item = proto_tree_add_item_ret_uint(cert_tree, hf_eip_cert_path_size, tvb, offset, 1, ENC_NA, &path_size);
-      offset++;
-      dissect_epath( tvb, pinfo, cert_tree, path_item, offset, path_size, FALSE, FALSE, NULL, NULL, NO_DISPLAY);
+      path_size = dissect_padded_epath_len_usint(pinfo, cert_tree, ti, tvb, offset, total_len);
       offset += path_size;
    }
    proto_item_set_len(ti, offset-start_offset);
@@ -2053,37 +2018,31 @@ dissect_eip_cert_cert_list(packet_info *pinfo, proto_tree *tree, proto_item *ite
 }
 
 static int
-dissect_eip_cert_device_cert(packet_info *pinfo, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
-                                   int offset, int total_len _U_)
+dissect_eip_cert_device_cert(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                                   int offset, int total_len)
 {
    guint32 path_size;
-   proto_item *path_item;
-   int start_offset = offset;
 
    proto_tree_add_item(tree, hf_eip_cert_device_cert_status, tvb, offset, 1, ENC_NA);
    offset++;
-   path_item = proto_tree_add_item_ret_uint(tree, hf_eip_cert_device_cert_path_size, tvb, offset, 1, ENC_NA, &path_size);
-   offset++;
-   dissect_epath( tvb, pinfo, tree, path_item, offset, path_size, FALSE, FALSE, NULL, NULL, NO_DISPLAY);
-   offset += path_size;
-   return offset-start_offset;
+
+   path_size = dissect_padded_epath_len_usint(pinfo, tree, item, tvb, offset, total_len);
+
+   return path_size + 1;
 }
 
 static int
-dissect_eip_cert_ca_cert(packet_info *pinfo, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
-                                   int offset, int total_len _U_)
+dissect_eip_cert_ca_cert(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                                   int offset, int total_len)
 {
    guint32 path_size;
-   proto_item *path_item;
-   int start_offset = offset;
 
    proto_tree_add_item(tree, hf_eip_cert_ca_cert_status, tvb, offset, 1, ENC_NA);
    offset++;
-   path_item = proto_tree_add_item_ret_uint(tree, hf_eip_cert_ca_cert_path_size, tvb, offset, 1, ENC_NA, &path_size);
-   offset++;
-   dissect_epath( tvb, pinfo, tree, path_item, offset, path_size, FALSE, FALSE, NULL, NULL, NO_DISPLAY);
-   offset += path_size;
-   return offset-start_offset;
+
+   path_size = dissect_padded_epath_len_usint(pinfo, tree, item, tvb, offset, total_len);
+
+   return path_size + 1;
 }
 
 
@@ -2163,6 +2122,7 @@ attribute_info_t enip_attribute_vals[99] = {
    {0x47, TRUE, 7, 6, CLASS_ATTRIBUTE_7_NAME, cip_uint, &hf_attr_class_num_inst_attr, NULL },
 
    /* DLR object (instance attributes) */
+   /* Get Attributes All is not fully parsed here because there are multiple formats. */
    {0x47, FALSE, 1, 0, "Network Topology",                 cip_usint, &hf_dlr_network_topology, NULL},
    {0x47, FALSE, 2, 1, "Network Status",                   cip_usint, &hf_dlr_network_status, NULL},
    {0x47, FALSE, 3, -1, "Ring Supervisor Status",           cip_usint, &hf_dlr_ring_supervisor_status, NULL},
@@ -2204,6 +2164,7 @@ attribute_info_t enip_attribute_vals[99] = {
    {0x5F, TRUE, 8, 4, "Capability Flags", cip_dissector_func,   NULL, dissect_eip_cert_cap_flags },
    {0x5F, TRUE, 9, 5, "Certificate List", cip_dissector_func,   NULL, dissect_eip_cert_cert_list },
 
+   /* Certificate Management Object (instance attributes) */
    {0x5F, FALSE, 1, 0, "Name", cip_short_string, &hf_eip_cert_name, NULL},
    {0x5F, FALSE, 2, 1, "State", cip_usint, &hf_eip_cert_state, NULL},
    {0x5F, FALSE, 3, 2, "Device Certificate",  cip_dissector_func,   NULL, dissect_eip_cert_device_cert},
@@ -3439,11 +3400,6 @@ proto_register_enip(void)
           FT_UINT32, BASE_HEX, NULL, 0xFFFFFFE0,
           NULL, HFILL }},
 
-      { &hf_tcpip_physical_link_size,
-        { "Size", "cip.tcpip.physical_link_size",
-          FT_UINT16, BASE_DEC, NULL, 0,
-          NULL, HFILL }},
-
       { &hf_tcpip_ic_ip_addr,
         { "IP Address", "cip.tcpip.ip_addr",
           FT_IPv4, BASE_NONE, NULL, 0,
@@ -4063,23 +4019,8 @@ proto_register_enip(void)
           FT_UINT8, BASE_DEC, NULL, 0,
           NULL, HFILL }},
 
-      { &hf_eip_security_active_cert_path_size,
-        { "Active Certificates Path Size", "cip.eip_security.active_cert_path_size",
-          FT_UINT8, BASE_DEC, NULL, 0,
-          NULL, HFILL }},
-
       { &hf_eip_security_num_trusted_auths,
         { "Number of Trusted Authorities", "cip.eip_security.num_trusted_auths",
-          FT_UINT8, BASE_DEC, NULL, 0,
-          NULL, HFILL }},
-
-      { &hf_eip_security_trusted_auth_path_size,
-        { "Trusted Authorities Path Size", "cip.eip_security.trusted_auth_path_size",
-          FT_UINT8, BASE_DEC, NULL, 0,
-          NULL, HFILL }},
-
-      { &hf_eip_security_cert_revocation_list_path_size,
-        { "Certificate Revocation List Path Size", "cip.eip_security.cert_revocation_list_path_size",
           FT_UINT8, BASE_DEC, NULL, 0,
           NULL, HFILL }},
 
@@ -4098,19 +4039,9 @@ proto_register_enip(void)
           FT_UINT8, BASE_DEC, VALS(eip_cert_status_vals), 0,
           NULL, HFILL }},
 
-      { &hf_eip_cert_device_cert_path_size,
-        { "Path size", "cip.eip_cert.device_cert.path_size",
-          FT_UINT8, BASE_DEC, NULL, 0,
-          NULL, HFILL }},
-
       { &hf_eip_cert_ca_cert_status,
         { "Certificate Status", "cip.eip_cert.ca_cert.status",
           FT_UINT8, BASE_DEC, VALS(eip_cert_status_vals), 0,
-          NULL, HFILL }},
-
-      { &hf_eip_cert_ca_cert_path_size,
-        { "Path size", "cip.eip_cert.ca_cert.path_size",
-          FT_UINT8, BASE_DEC, NULL, 0,
           NULL, HFILL }},
 
       { &hf_eip_cert_capflags_push,
@@ -4130,11 +4061,6 @@ proto_register_enip(void)
 
       { &hf_eip_cert_num_certs,
         { "Number of Certificates", "cip.eip_cert.num_certs",
-          FT_UINT8, BASE_DEC, NULL, 0,
-          NULL, HFILL }},
-
-      { &hf_eip_cert_path_size,
-        { "Certificate path size", "cip.eip_cert.cert_path_size",
           FT_UINT8, BASE_DEC, NULL, 0,
           NULL, HFILL }},
 
@@ -4173,7 +4099,6 @@ proto_register_enip(void)
       { &ei_mal_tcpip_status, { "cip.malformed.tcpip.status", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Status", EXPFILL }},
       { &ei_mal_tcpip_config_cap, { "cip.malformed.tcpip.config_cap", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Configuration Capability", EXPFILL }},
       { &ei_mal_tcpip_config_control, { "cip.malformed.tcpip.config_control", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Configuration Control", EXPFILL }},
-      { &ei_mal_tcpip_physical_link_size, { "cip.malformed.tcpip.physical_link_size", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Physical Link Object", EXPFILL }},
       { &ei_mal_tcpip_interface_config, { "cip.malformed.tcpip.interface_config", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Interface Configuration", EXPFILL }},
       { &ei_mal_tcpip_ssn, { "cip.malformed.tcpip.ssn", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Object Safety Network Number", EXPFILL }},
       { &ei_mal_tcpip_mcast_config, { "cip.malformed.tcpip.mcast_config", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Multicast Config", EXPFILL }},

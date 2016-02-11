@@ -379,6 +379,17 @@ static int hf_id_minor_rev = -1;
 static int hf_id_status = -1;
 static int hf_id_serial_number = -1;
 static int hf_id_product_name = -1;
+static int hf_id_state = -1;
+static int hf_id_config_value = -1;
+static int hf_id_heartbeat = -1;
+static int hf_id_status_owned = -1;
+static int hf_id_status_conf = -1;
+static int hf_id_status_extended1 = -1;
+static int hf_id_status_minor_fault_rec = -1;
+static int hf_id_status_minor_fault_unrec = -1;
+static int hf_id_status_major_fault_rec = -1;
+static int hf_id_status_major_fault_unrec = -1;
+static int hf_id_status_extended2 = -1;
 static int hf_msg_rout_num_classes = -1;
 static int hf_msg_rout_classes = -1;
 static int hf_msg_rout_num_available = -1;
@@ -478,7 +489,15 @@ static int hf_time_sync_steps_removed = -1;
 static int hf_time_sync_sys_time_and_offset_time = -1;
 static int hf_time_sync_sys_time_and_offset_offset = -1;
 static int hf_cip_security_state = -1;
+static int hf_port_entry_port = -1;
+static int hf_port_type = -1;
+static int hf_port_number = -1;
+static int hf_port_min_node_num = -1;
+static int hf_port_max_node_num = -1;
+static int hf_port_name = -1;
 static int hf_conn_path_class = -1;
+static int hf_path_len_usint = -1;
+static int hf_path_len_uint = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_cip = -1;
@@ -547,8 +566,10 @@ static gint ett_time_sync_clock_type = -1;
 static gint ett_time_sync_port_profile_id_info = -1;
 static gint ett_time_sync_port_phys_addr_info = -1;
 static gint ett_time_sync_port_proto_addr_info = -1;
+static gint ett_id_status = -1;
 
 static expert_field ei_mal_identity_revision = EI_INIT;
+static expert_field ei_mal_identity_status = EI_INIT;
 static expert_field ei_mal_msg_rout_num_classes = EI_INIT;
 static expert_field ei_mal_time_sync_gm_clock = EI_INIT;
 static expert_field ei_mal_time_sync_parent_clock = EI_INIT;
@@ -605,6 +626,7 @@ static expert_field ei_mal_to_size = EI_INIT;
 static expert_field ei_mal_fwd_close_missing_data = EI_INIT;
 static expert_field ei_mal_opt_attr_list = EI_INIT;
 static expert_field ei_mal_opt_service_list = EI_INIT;
+static expert_field ei_mal_padded_epath_size = EI_INIT;
 
 static dissector_table_t   subdissector_class_table;
 static dissector_table_t   subdissector_symbol_table;
@@ -2607,6 +2629,17 @@ static const value_string cip_class_names_vals[] = {
    { 0,        NULL                                    }
 };
 
+const value_string cip_id_state_vals[] = {
+   { 0, "Nonexistent" },
+   { 1, "Device Self Testing" },
+   { 2, "Standby" },
+   { 3, "Operational" },
+   { 4, "Major Recoverable Fault" },
+   { 5, "Major Unrecoverable Fault" },
+
+   { 0, NULL }
+};
+
 value_string_ext cip_class_names_vals_ext = VALUE_STRING_EXT_INIT(cip_class_names_vals);
 
 static void add_cip_class_to_info_column(packet_info *pinfo, guint32 class_id, int display_type)
@@ -2667,6 +2700,32 @@ static int dissect_id_revision(packet_info *pinfo, proto_tree *tree, proto_item 
 
    proto_tree_add_item( tree, hf_id_major_rev, tvb, offset, 1, ENC_LITTLE_ENDIAN);
    proto_tree_add_item( tree, hf_id_minor_rev, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+   return 2;
+}
+
+static int dissect_id_status(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, int total_len)
+{
+   static const int * status[] = {
+      &hf_id_status_owned,
+      &hf_id_status_conf,
+      &hf_id_status_extended1,
+      &hf_id_status_minor_fault_rec,
+      &hf_id_status_minor_fault_unrec,
+      &hf_id_status_major_fault_rec,
+      &hf_id_status_major_fault_unrec,
+      &hf_id_status_extended2,
+      NULL
+   };
+
+   if (total_len < 2)
+   {
+      expert_add_info(pinfo, item, &ei_mal_identity_status);
+      return total_len;
+   }
+
+   proto_tree_add_bitmask(tree, tvb, offset, hf_id_status, ett_id_status, status, ENC_LITTLE_ENDIAN);
+
    return 2;
 }
 
@@ -3176,9 +3235,109 @@ int dissect_optional_service_list(packet_info *pinfo, proto_tree *tree, proto_it
    return 2 + num_services * 2;
 }
 
+static int dissect_port_instance_info(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+   int offset, int total_len)
+{
+   int i;
+
+   for (i = 0; i < total_len; i += 4)
+   {
+      proto_tree_add_item(tree, hf_port_type, tvb, offset + i, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_port_number, tvb, offset + i + 2, 2, ENC_LITTLE_ENDIAN);
+   }
+
+   return total_len;
+}
+
+static int dissect_padded_epath_len(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, int total_len, gboolean one_byte_len)
+{
+   guint32     path_size;
+   proto_tree *epath_tree;
+   proto_item *path_item;
+
+   guint32 path_size_len;
+   int hf_path_len;
+   if (one_byte_len == TRUE)
+   {
+      path_size_len = 1;
+      hf_path_len = hf_path_len_usint;
+   }
+   else
+   {
+      path_size_len = 2;
+      hf_path_len = hf_path_len_uint;
+   }
+
+   path_item = proto_tree_add_item_ret_uint(tree, hf_path_len, tvb, offset, path_size_len, ENC_LITTLE_ENDIAN, &path_size);
+
+   if (total_len < (int)(path_size * 2 + path_size_len))
+   {
+      expert_add_info(pinfo, item, &ei_mal_padded_epath_size);
+      return total_len;
+   }
+
+   epath_tree = proto_tree_add_subtree(tree, tvb, offset + path_size_len, path_size * 2, ett_path, &path_item, "Path: ");
+   dissect_epath(tvb, pinfo, epath_tree, path_item, offset + path_size_len, path_size * 2, FALSE, FALSE, NULL, NULL, NO_DISPLAY);
+
+   return path_size * 2 + path_size_len;
+}
+
+/* Format: USINT (Length of EPATH in 16-bit words) + Padded EPATH */
+int dissect_padded_epath_len_usint(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, int total_len)
+{
+   return dissect_padded_epath_len(pinfo, tree, item, tvb, offset, total_len, TRUE);
+}
+
+/* Format: UINT (Length of EPATH in 16-bit words) + Padded EPATH */
+int dissect_padded_epath_len_uint(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, int total_len)
+{
+   return dissect_padded_epath_len(pinfo, tree, item, tvb, offset, total_len, FALSE);
+}
+
+int dissect_packed_epath(packet_info *pinfo, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+   int offset, int total_len)
+{
+   proto_tree *epath_tree;
+   proto_item *path_item;
+
+   epath_tree = proto_tree_add_subtree(tree, tvb, offset, total_len, ett_path, &path_item, "Path: ");
+   dissect_epath(tvb, pinfo, epath_tree, path_item, offset, total_len, FALSE, TRUE, NULL, NULL, NO_DISPLAY);
+
+   return total_len;
+}
+
+int dissect_padded_epath(packet_info *pinfo, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+   int offset, int total_len)
+{
+   proto_tree *epath_tree;
+   proto_item *path_item;
+
+   epath_tree = proto_tree_add_subtree(tree, tvb, offset, total_len, ett_path, &path_item, "Path: ");
+   dissect_epath(tvb, pinfo, epath_tree, path_item, offset, total_len, FALSE, FALSE, NULL, NULL, NO_DISPLAY);
+
+   return total_len;
+}
+
+static int dissect_port_link_object(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, int total_len)
+{
+   return dissect_padded_epath_len_uint(pinfo, tree, item, tvb, offset, total_len);
+}
+
+static int dissect_port_node_range(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+   int offset, int total_len _U_)
+{
+   proto_tree_add_item(tree, hf_port_min_node_num, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_port_max_node_num, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
+
+   return 4;
+}
+
 
 static attribute_info_t cip_attribute_vals[] = {
-
     /* Identity Object (class attributes) */
    {0x01, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
    {0x01, TRUE, 2, 1, CLASS_ATTRIBUTE_2_NAME, cip_uint, &hf_attr_class_max_instance, NULL },
@@ -3193,9 +3352,12 @@ static attribute_info_t cip_attribute_vals[] = {
    {0x01, FALSE, 2, 1, "Device Type", cip_uint, &hf_id_device_type, NULL},
    {0x01, FALSE, 3, 2, "Product Code", cip_uint, &hf_id_produce_code, NULL},
    {0x01, FALSE, 4, 3, "Revision", cip_dissector_func, NULL, dissect_id_revision},
-   {0x01, FALSE, 5, 4, "Status", cip_word, &hf_id_status, NULL},
+   {0x01, FALSE, 5, 4, "Status", cip_dissector_func, NULL, dissect_id_status},
    {0x01, FALSE, 6, 5, "Serial Number", cip_udint, &hf_id_serial_number, NULL},
    {0x01, FALSE, 7, 6, "Product Name", cip_short_string, &hf_id_product_name, NULL},
+   {0x01, FALSE, 8, 7, "State", cip_usint, &hf_id_state, NULL},
+   {0x01, FALSE, 9, 8, "Configuration Consistency Value", cip_uint, &hf_id_config_value, NULL},
+   {0x01, FALSE, 10, 9, "Heartbeat Interval", cip_usint, &hf_id_heartbeat, NULL},
 
     /* Message Router Object (class attributes) */
    {0x02, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
@@ -3272,6 +3434,26 @@ static attribute_info_t cip_attribute_vals[] = {
 
     /* CIP Security Object (instance attributes) */
    {0x5D, FALSE, 1, 0, "State", cip_usint, &hf_cip_security_state, NULL},
+
+   /* Port Object (class attributes) */
+   { 0xF4, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
+   { 0xF4, TRUE, 2, 1, CLASS_ATTRIBUTE_2_NAME, cip_uint, &hf_attr_class_max_instance, NULL },
+   { 0xF4, TRUE, 3, 2, CLASS_ATTRIBUTE_3_NAME, cip_uint, &hf_attr_class_num_instance, NULL },
+   { 0xF4, TRUE, 4, -1, CLASS_ATTRIBUTE_4_NAME, cip_dissector_func, NULL, dissect_optional_attr_list },
+   { 0xF4, TRUE, 5, -1, CLASS_ATTRIBUTE_5_NAME, cip_dissector_func, NULL, dissect_optional_service_list },
+   { 0xF4, TRUE, 6, -1, CLASS_ATTRIBUTE_6_NAME, cip_uint, &hf_attr_class_num_class_attr, NULL },
+   { 0xF4, TRUE, 7, -1, CLASS_ATTRIBUTE_7_NAME, cip_uint, &hf_attr_class_num_inst_attr, NULL },
+   { 0xF4, TRUE, 8, 3, "Entry Port", cip_uint, &hf_port_entry_port, NULL },
+   { 0xF4, TRUE, 9, 4, "Port Instance Info", cip_dissector_func, NULL, dissect_port_instance_info },
+
+   /* Port Object (instance attributes) */
+   { 0xF4, FALSE, 1, 0, "Port Type", cip_uint, &hf_port_type, NULL },
+   { 0xF4, FALSE, 2, 1, "Port Number", cip_uint, &hf_port_number, NULL },
+   { 0xF4, FALSE, 3, 2, "Link Object", cip_dissector_func, NULL, dissect_port_link_object },
+   { 0xF4, FALSE, 4, 3, "Port Name", cip_short_string, &hf_port_name, NULL },
+   { 0xF4, FALSE, 7, 4, "Port Number and Node Address", cip_dissector_func, NULL, dissect_padded_epath },
+   { 0xF4, FALSE, 8, -1, "Port Node Range", cip_dissector_func, NULL, dissect_port_node_range },
+   { 0xF4, FALSE, 9, -1, "Chassis Identity", cip_dissector_func, NULL, dissect_packed_epath },
 };
 
 typedef struct attribute_val_array {
@@ -4928,7 +5110,7 @@ dissect_cip_set_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree
          /* provide attribute data */
          att_size = dissect_cip_attribute(pinfo, att_tree, att_item, tvb, attr, offset, tvb_reported_length_remaining(tvb, offset));
          offset += att_size;
-         proto_item_set_len(att_item, att_size+4);
+         proto_item_set_len(att_item, att_size+2);
       }
       else
       {
@@ -7423,6 +7605,17 @@ proto_register_cip(void)
       { &hf_id_status, { "Status", "cip.id.status", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_id_serial_number, { "Serial Number", "cip.id.serial_number", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_id_product_name, { "Product Name", "cip.id.product_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_id_state, { "State", "cip.id.state", FT_UINT8, BASE_HEX, VALS(cip_id_state_vals), 0, NULL, HFILL } },
+      { &hf_id_config_value, { "Configuration Consistency Value", "cip.id.config_value", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
+      { &hf_id_heartbeat, { "Heartbeat Interval", "cip.id.heartbeat", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+      { &hf_id_status_owned, { "Owned", "cip.id.owned", FT_UINT16, BASE_DEC, NULL, 0x0001, NULL, HFILL } },
+      { &hf_id_status_conf, { "Configured", "cip.id.conf", FT_UINT16, BASE_DEC, NULL, 0x0004, NULL, HFILL } },
+      { &hf_id_status_extended1, { "Extended Device Status", "cip.id.ext", FT_UINT16, BASE_HEX, NULL, 0x00F0, NULL, HFILL } },
+      { &hf_id_status_minor_fault_rec, { "Minor Recoverable Fault", "cip.id.minor_fault1", FT_UINT16, BASE_DEC, NULL, 0x0100, NULL, HFILL } },
+      { &hf_id_status_minor_fault_unrec, { "Minor Unrecoverable Fault", "cip.id.minor_fault2", FT_UINT16, BASE_DEC, NULL, 0x0200, NULL, HFILL } },
+      { &hf_id_status_major_fault_rec, { "Major Recoverable Fault", "cip.id.major_fault1", FT_UINT16, BASE_DEC, NULL, 0x0400, NULL, HFILL } },
+      { &hf_id_status_major_fault_unrec, { "Major Unrecoverable Fault", "cip.id.major_fault2", FT_UINT16, BASE_DEC, NULL, 0x0800, NULL, HFILL } },
+      { &hf_id_status_extended2, { "Extended Device Status 2", "cip.id.ext2", FT_UINT16, BASE_HEX, NULL, 0xF000, NULL, HFILL } },
 
       { &hf_msg_rout_num_classes, { "Number of Classes", "cip.mr.num_classes", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_msg_rout_classes, { "Class", "cip.mr.class", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_class_names_vals_ext, 0, NULL, HFILL }},
@@ -7527,7 +7720,15 @@ proto_register_cip(void)
       { &hf_time_sync_sys_time_and_offset_time, { "System Time (Microseconds)", "cip.time_sync.sys_time_and_offset.time", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_time_sync_sys_time_and_offset_offset, { "System Offset (Microseconds)", "cip.time_sync.sys_time_and_offset.offset", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_security_state, { "State", "cip.security.state", FT_UINT8, BASE_DEC, VALS(cip_security_state_vals), 0, NULL, HFILL }},
+      { &hf_port_entry_port, { "Entry Port", "cip.port.entry_port", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_port_type, { "Port Type", "cip.port.type", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_port_number, { "Port Number", "cip.port.number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_port_min_node_num, { "Minimum Node Number", "cip.port.min_node", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_port_max_node_num, { "Maximum Node Number", "cip.port.max_node", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_port_name, { "Port Name", "cip.port.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
       { &hf_conn_path_class, { "CIP Connection Path Class", "cip.conn_path_class", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &cip_class_names_vals_ext, 0, NULL, HFILL }},
+      { &hf_path_len_usint, { "Path Length (words)", "cip.path_len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_path_len_uint, { "Path Length (words)", "cip.path_len", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
    };
 
    static hf_register_info hf_cm[] = {
@@ -7717,6 +7918,7 @@ proto_register_cip(void)
       &ett_time_sync_port_profile_id_info,
       &ett_time_sync_port_phys_addr_info,
       &ett_time_sync_port_proto_addr_info,
+      &ett_id_status,
    };
 
    static gint *ett_cm[] = {
@@ -7752,6 +7954,7 @@ proto_register_cip(void)
 
    static ei_register_info ei[] = {
       { &ei_mal_identity_revision, { "cip.malformed.id.revision", PI_MALFORMED, PI_ERROR, "Malformed Identity revision", EXPFILL }},
+      { &ei_mal_identity_status, { "cip.malformed.id.status", PI_MALFORMED, PI_ERROR, "Malformed Identity status", EXPFILL } },
       { &ei_mal_msg_rout_num_classes, { "cip.malformed.msg_rout.num_classes", PI_MALFORMED, PI_ERROR, "Malformed Message Router Attribute 1", EXPFILL }},
       { &ei_mal_time_sync_gm_clock, { "cip.malformed.time_sync.gm_clock", PI_MALFORMED, PI_ERROR, "Malformed Grandmaster clock info", EXPFILL }},
       { &ei_mal_time_sync_parent_clock, { "cip.malformed.time_sync.parent_clock", PI_MALFORMED, PI_ERROR, "Malformed Parent clock info", EXPFILL }},
@@ -7808,6 +8011,7 @@ proto_register_cip(void)
       { &ei_mal_fwd_close_missing_data, { "cip.malformed.fwd_close_missing_data", PI_MALFORMED, PI_ERROR, "Forward Close response missing application reply data", EXPFILL }},
       { &ei_mal_opt_attr_list, { "cip.malformed.opt_attr_list", PI_MALFORMED, PI_ERROR, "Optional attribute list missing data", EXPFILL }},
       { &ei_mal_opt_service_list, { "cip.malformed.opt_service_list", PI_MALFORMED, PI_ERROR, "Optional service list missing data", EXPFILL }},
+      { &ei_mal_padded_epath_size, { "cip.malformed.epath.size", PI_MALFORMED, PI_ERROR, "Malformed EPATH vs Size", EXPFILL } },
    };
 
    module_t *cip_module;
