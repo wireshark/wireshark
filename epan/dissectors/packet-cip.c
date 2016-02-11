@@ -3928,7 +3928,7 @@ void dissect_epath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *path_tree, pro
          {
             guint8 port_id;
             gboolean extended_port = FALSE;
-            int extended_port_offset;
+            int extended_port_offset = 0;
             int port_segment_len;
 
             /* Add Extended Link Address flag & Port Identifier*/
