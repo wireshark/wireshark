@@ -1332,7 +1332,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   int                        out_fd;
   int                        err      = 0;
   gchar                     *err_info = NULL;
-  int                        err_fileno;
+  guint                      err_fileno;
   merge_result               status;
   merge_progress_callback_t  cb;
 

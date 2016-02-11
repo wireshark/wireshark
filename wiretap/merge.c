@@ -119,12 +119,12 @@ add_idb_index_map(merge_in_file_t *in_file, const guint orig_index, const guint 
  * @return TRUE if all files could be opened, FALSE otherwise
  */
 static gboolean
-merge_open_in_files(int in_file_count, const char *const *in_file_names,
+merge_open_in_files(guint in_file_count, const char *const *in_file_names,
                     merge_in_file_t **in_files, int *err, gchar **err_info,
-                    int *err_fileno)
+                    guint *err_fileno)
 {
-    gint i;
-    gint j;
+    guint i;
+    guint j;
     size_t files_size = in_file_count * sizeof(merge_in_file_t);
     merge_in_file_t *files;
     gint64 size;
@@ -148,7 +148,7 @@ merge_open_in_files(int in_file_count, const char *const *in_file_names,
         }
         size = wtap_file_size(files[i].wth, err);
         if (size == -1) {
-            for (j = 0; j != G_MAXINT && j <= i; j++)
+            for (j = 0; j != G_MAXUINT && j <= i; j++)
                 cleanup_in_file(&files[j]);
             *err_fileno = i;
             return FALSE;
@@ -842,7 +842,7 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
             const char *const *in_filenames, const guint in_file_count,
             const gboolean do_append, const idb_merge_mode mode,
             guint snaplen, const gchar *app_name, merge_progress_callback_t* cb,
-            int *err, gchar **err_info, int *err_fileno)
+            int *err, gchar **err_info, guint *err_fileno)
 {
     merge_in_file_t    *in_files = NULL, *in_file = NULL;
     int                 frame_type = WTAP_ENCAP_PER_PACKET;

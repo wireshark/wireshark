@@ -144,7 +144,7 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
             const char *const *in_filenames, const guint in_file_count,
             const gboolean do_append, const idb_merge_mode mode,
             guint snaplen, const gchar *app_name, merge_progress_callback_t* cb,
-            int *err, gchar **err_info, int *err_fileno);
+            int *err, gchar **err_info, guint *err_fileno);
 
 #ifdef __cplusplus
 }
