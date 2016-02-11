@@ -60,6 +60,7 @@ my %scalars = (
 	"NTTIME_1sec"	=> "NTTIME",
 	"NTTIME_hyper"	=> "NTTIME",
 	"WERROR"	=> "WERROR",
+	"HRESULT"	=> "HRESULT",
 	"NTSTATUS"	=> "NTSTATUS",
 	"COMRESULT" => "COMRESULT",
 	"dns_string"	=> "const char *",
@@ -83,7 +84,6 @@ my %aliases = (
 	"long" => "int32",
 	"short" => "int16",
 	"HYPER_T" => "hyper",
-	"HRESULT" => "COMRESULT",
         "mode_t"        => "uint32",
 );
 

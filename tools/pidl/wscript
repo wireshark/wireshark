@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
-import os, sys, Logs
+import os, Logs
 from samba_utils import MODE_755
 
 # This function checks if a perl module is installed on the system.
 def check_system_perl_module(conf, module, version=None):
     bundle_name = module.replace('::', '_')
     module_check = module
-    found = False
 
     # Create module string with version
     if version:
@@ -64,8 +63,6 @@ def build(bld):
 
     # use perl to build the manpages
     bld.env.pidl_srcdir = os.path.join(bld.srcnode.abspath(), 'pidl')
-
-    blib_bld = os.path.join(bld.srcnode.abspath(bld.env), 'pidl/blib')
 
     bld.SET_BUILD_GROUP('final')
     if 'POD2MAN' in bld.env and bld.env['POD2MAN'] != '':

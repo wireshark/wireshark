@@ -8,6 +8,8 @@ package Parse::Pidl::Samba4::Template;
 use vars qw($VERSION);
 $VERSION = '0.01';
 
+use Parse::Pidl::Util qw(genpad);
+
 use strict;
 
 my($res);
@@ -20,24 +22,24 @@ sub Template($)
 	my($data) = $interface->{DATA};
 	my $name = $interface->{NAME};
 
-	$res .= 
-"/* 
+	$res .=
+"/*
    Unix SMB/CIFS implementation.
 
    endpoint server for the $name pipe
 
    Copyright (C) YOUR NAME HERE YEAR
-   
+
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 3 of the License, or
    (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -52,13 +54,16 @@ sub Template($)
 	foreach my $d (@{$data}) {
 		if ($d->{TYPE} eq "FUNCTION") {
 			my $fname = $d->{NAME};
+			my $pad = genpad("static $d->{RETURN_TYPE} dcesrv_$fname");
 			$res .=
 "
-/* 
-  $fname 
+/*
+  $fname
 */
-static $d->{RETURN_TYPE} dcesrv_$fname(struct dcesrv_call_state *dce_call, TALLOC_CTX *mem_ctx,
-		       struct $fname *r)
+
+static $d->{RETURN_TYPE} dcesrv_$fname(struct dcesrv_call_state *dce_call,
+$pad"."TALLOC_CTX *mem_ctx,
+$pad"."struct $fname *r)
 {
 ";
 
@@ -74,7 +79,7 @@ static $d->{RETURN_TYPE} dcesrv_$fname(struct dcesrv_call_state *dce_call, TALLO
 		}
 	}
 
-	$res .= 
+	$res .=
 "
 /* include the generated boilerplate */
 #include \"librpc/gen_ndr/ndr_$name\_s.c\"
@@ -89,7 +94,7 @@ sub Parse($)
 	my($idl) = shift;
 	$res = "";
 	foreach my $x (@{$idl}) {
-		($x->{TYPE} eq "INTERFACE") && 
+		($x->{TYPE} eq "INTERFACE") &&
 		    Template($x);
 	}
 	return $res;

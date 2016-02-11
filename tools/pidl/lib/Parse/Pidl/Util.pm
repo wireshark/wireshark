@@ -6,7 +6,7 @@ package Parse::Pidl::Util;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw(has_property property_matches ParseExpr ParseExprExt is_constant make_str unmake_str print_uuid MyDumper);
+@EXPORT = qw(has_property property_matches ParseExpr ParseExprExt is_constant make_str unmake_str print_uuid MyDumper genpad);
 use vars qw($VERSION);
 $VERSION = '0.01';
 
@@ -174,6 +174,20 @@ sub ParseExprExt($$$$$)
 			  return $x;
 		  },
 		$deref, $use);
+}
+
+=item B<genpad>
+return an empty string consisting of tabs and spaces suitable for proper indent
+of C-functions.
+
+=cut
+sub genpad($)
+{
+	my ($s) = @_;
+	my $nt = int((length($s)+1)/8);
+	my $lt = ($nt*8)-1;
+	my $ns = (length($s)-$lt);
+	return "\t"x($nt)." "x($ns);
 }
 
 =back

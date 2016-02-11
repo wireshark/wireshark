@@ -191,7 +191,7 @@ the wire representation. It does not make the array a fixed array.
 
 midl.exe would write the above array as the following C header:
 
-	typedef struct {
+   typedef struct {
 		long abc;
 		long count;
 		long foo;
@@ -381,8 +381,7 @@ usesgetlasterror, vararg, vi_progid, wire_marshal.
 
 =head1 SEE ALSO
 
-# Dead link
-# L<http://msdn.microsoft.com/library/en-us/rpc/rpc/field_attributes.asp>,
+L<https://msdn.microsoft.com/en-us/library/windows/desktop/aa373864%28v=vs.85%29.aspx>
 L<https://wiki.wireshark.org/DCE/RPC>,
 L<https://www.samba.org/>,
 L<yapp(1)>
@@ -470,6 +469,7 @@ my($opt_samba3_parser);
 my($opt_samba3_server);
 my($opt_samba3_ndr_client);
 my($opt_samba3_ndr_server);
+my($opt_samba3_template) = 0;
 my($opt_template) = 0;
 my($opt_client);
 my($opt_typelib);
@@ -530,6 +530,7 @@ Samba 3 output:
                             using Samba4's NDR code [cli_BASENAME.c]
  --samba3-ndr-server[=OUTF] create server call wrapper for Samba3
                             using Samba4's NDR code [srv_BASENAME.c]
+ --samba3-template          print a template for a pipe
 
 Wireshark parsers:
  --ws-parser[=OUTFILE]  create Wireshark parser and header
@@ -555,6 +556,7 @@ my $result = GetOptions (
 		'dump-ndr-tree:s' => \$opt_dump_ndr_tree,
 		'samba3-ndr-client:s' => \$opt_samba3_ndr_client,
 		'samba3-ndr-server:s' => \$opt_samba3_ndr_server,
+		'samba3-template' => \$opt_samba3_template,
 		'header:s' => \$opt_header,
 		'server:s' => \$opt_server,
 		'typelib:s' => \$opt_typelib,
@@ -665,17 +667,17 @@ sub process_file($)
 
 
 	if (defined($opt_ws_parser) or
-	    defined($opt_client) or
-	    defined($opt_server) or
-	    defined($opt_header) or
-	    defined($opt_ndr_parser) or
-	    defined($opt_python) or
-	    defined($opt_dump_ndr_tree) or
-	    defined($opt_samba3_header) or
-	    defined($opt_samba3_parser) or
-	    defined($opt_samba3_server) or
-	    defined($opt_samba3_ndr_client) or
-	    defined($opt_samba3_ndr_server)) {
+		defined($opt_client) or
+		defined($opt_server) or
+		defined($opt_header) or
+		defined($opt_ndr_parser) or
+		defined($opt_python) or
+		defined($opt_dump_ndr_tree) or
+		defined($opt_samba3_header) or
+		defined($opt_samba3_parser) or
+		defined($opt_samba3_server) or
+		defined($opt_samba3_ndr_client) or
+		defined($opt_samba3_ndr_server)) {
 		require Parse::Pidl::NDR;
 		$ndr = Parse::Pidl::NDR::Parse($pidl);
 	}
@@ -766,6 +768,11 @@ sub process_file($)
 	if ($opt_template) {
 		require Parse::Pidl::Samba4::Template;
 		print Parse::Pidl::Samba4::Template::Parse($pidl);
+	}
+
+	if ($opt_samba3_template) {
+		require Parse::Pidl::Samba3::Template;
+		print Parse::Pidl::Samba3::Template::Parse($pidl);
 	}
 
 	if (defined($opt_samba3_ndr_client)) {

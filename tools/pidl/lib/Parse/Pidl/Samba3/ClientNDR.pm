@@ -13,7 +13,7 @@ use Exporter;
 
 use strict;
 use Parse::Pidl qw(fatal warning error);
-use Parse::Pidl::Util qw(has_property ParseExpr);
+use Parse::Pidl::Util qw(has_property ParseExpr genpad);
 use Parse::Pidl::NDR qw(ContainsPipe);
 use Parse::Pidl::Typelist qw(mapTypeName);
 use Parse::Pidl::Samba4 qw(DeclLong);
@@ -25,17 +25,8 @@ $VERSION = '0.01';
 sub indent($) { my ($self) = @_; $self->{tabs}.="\t"; }
 sub deindent($) { my ($self) = @_; $self->{tabs} = substr($self->{tabs}, 1); }
 sub pidl($$) { my ($self,$txt) = @_; $self->{res} .= $txt ? "$self->{tabs}$txt\n" : "\n"; }
-sub pidl_hdr($$) { my ($self, $txt) = @_; $self->{res_hdr} .= "$txt\n"; } 
+sub pidl_hdr($$) { my ($self, $txt) = @_; $self->{res_hdr} .= "$txt\n"; }
 sub fn_declare($$) { my ($self,$n) = @_; $self->pidl($n); $self->pidl_hdr("$n;"); }
-
-sub genpad($)
-{
-	my ($s) = @_;
-	my $nt = int((length($s)+1)/8);
-	my $lt = ($nt*8)-1;
-	my $ns = (length($s)-$lt);
-	return "\t"x($nt)." "x($ns);
-}
 
 sub new($)
 {
