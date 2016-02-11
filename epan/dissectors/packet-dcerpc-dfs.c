@@ -580,13 +580,12 @@ netdfs_dissect_struct_dfs_Info0(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 	proto_item *item = NULL;
 	int old_offset;
 
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 	}
-	
+
 
 	proto_item_set_len(item, offset-old_offset);
 
@@ -627,15 +626,13 @@ netdfs_dissect_struct_dfs_Info1(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info1);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_Info1_path(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -805,15 +802,13 @@ netdfs_dissect_struct_dfs_Info2(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info2);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_Info2_path(tvb, offset, pinfo, tree, di, drep);
 
 	offset = netdfs_dissect_element_dfs_Info2_comment(tvb, offset, pinfo, tree, di, drep);
@@ -953,15 +948,13 @@ netdfs_dissect_struct_dfs_StorageInfo(tvbuff_t *tvb _U_, int offset _U_, packet_
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_StorageInfo);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_StorageInfo_state(tvb, offset, pinfo, tree, di, drep);
 
 	offset = netdfs_dissect_element_dfs_StorageInfo_server(tvb, offset, pinfo, tree, di, drep);
@@ -1075,15 +1068,13 @@ netdfs_dissect_struct_dfs_Info3(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info3);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_Info3_path(tvb, offset, pinfo, tree, di, drep);
 
 	offset = netdfs_dissect_element_dfs_Info3_comment(tvb, offset, pinfo, tree, di, drep);
@@ -1219,15 +1210,13 @@ netdfs_dissect_struct_dfs_Info4(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info4);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_Info4_path(tvb, offset, pinfo, tree, di, drep);
 
 	offset = netdfs_dissect_element_dfs_Info4_comment(tvb, offset, pinfo, tree, di, drep);
@@ -1436,15 +1425,13 @@ netdfs_dissect_struct_dfs_Info5(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info5);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_Info5_path(tvb, offset, pinfo, tree, di, drep);
 
 	offset = netdfs_dissect_element_dfs_Info5_comment(tvb, offset, pinfo, tree, di, drep);
@@ -1536,15 +1523,13 @@ netdfs_dissect_struct_dfs_Target_Priority(tvbuff_t *tvb _U_, int offset _U_, pac
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Target_Priority);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_Target_Priority_target_priority_class(tvb, offset, pinfo, tree, di, drep);
 
 	offset = netdfs_dissect_element_dfs_Target_Priority_target_priority_rank(tvb, offset, pinfo, tree, di, drep);
@@ -1593,15 +1578,13 @@ netdfs_dissect_struct_dfs_StorageInfo2(tvbuff_t *tvb _U_, int offset _U_, packet
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_StorageInfo2);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_StorageInfo2_info(tvb, offset, pinfo, tree, di, drep);
 
 	offset = netdfs_dissect_element_dfs_StorageInfo2_target_priority(tvb, offset, pinfo, tree, di, drep);
@@ -1749,15 +1732,13 @@ netdfs_dissect_struct_dfs_Info6(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info6);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_Info6_entry_path(tvb, offset, pinfo, tree, di, drep);
 
 	offset = netdfs_dissect_element_dfs_Info6_comment(tvb, offset, pinfo, tree, di, drep);
@@ -1809,15 +1790,13 @@ netdfs_dissect_struct_dfs_Info7(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info7);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_Info7_generation_guid(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -1864,15 +1843,13 @@ netdfs_dissect_struct_dfs_Info100(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info100);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_Info100_comment(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -1908,15 +1885,13 @@ netdfs_dissect_struct_dfs_Info101(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info101);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_Info101_state(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -1952,15 +1927,13 @@ netdfs_dissect_struct_dfs_Info102(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info102);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_Info102_timeout(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -1996,15 +1969,13 @@ netdfs_dissect_struct_dfs_Info103(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info103);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_Info103_flags(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -2040,15 +2011,13 @@ netdfs_dissect_struct_dfs_Info104(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info104);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_Info104_priority(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -2131,15 +2100,13 @@ netdfs_dissect_struct_dfs_Info105(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info105);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_Info105_comment(tvb, offset, pinfo, tree, di, drep);
 
 	offset = netdfs_dissect_element_dfs_Info105_state(tvb, offset, pinfo, tree, di, drep);
@@ -2192,15 +2159,13 @@ netdfs_dissect_struct_dfs_Info106(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info106);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_Info106_state(tvb, offset, pinfo, tree, di, drep);
 
 	offset = netdfs_dissect_element_dfs_Info106_priority(tvb, offset, pinfo, tree, di, drep);
@@ -2249,15 +2214,13 @@ netdfs_dissect_struct_dfs_Info200(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info200);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_Info200_dom_root(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -2333,15 +2296,13 @@ netdfs_dissect_struct_dfs_Info300(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_Info300);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_Info300_flavor(tvb, offset, pinfo, tree, di, drep);
 
 	offset = netdfs_dissect_element_dfs_Info300_dom_root(tvb, offset, pinfo, tree, di, drep);
@@ -2745,15 +2706,13 @@ netdfs_dissect_struct_dfs_EnumArray1(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_EnumArray1);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_EnumArray1_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = netdfs_dissect_element_dfs_EnumArray1_s(tvb, offset, pinfo, tree, di, drep);
@@ -2816,15 +2775,13 @@ netdfs_dissect_struct_dfs_EnumArray2(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_EnumArray2);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_EnumArray2_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = netdfs_dissect_element_dfs_EnumArray2_s(tvb, offset, pinfo, tree, di, drep);
@@ -2887,15 +2844,13 @@ netdfs_dissect_struct_dfs_EnumArray3(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_EnumArray3);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_EnumArray3_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = netdfs_dissect_element_dfs_EnumArray3_s(tvb, offset, pinfo, tree, di, drep);
@@ -2958,15 +2913,13 @@ netdfs_dissect_struct_dfs_EnumArray4(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_EnumArray4);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_EnumArray4_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = netdfs_dissect_element_dfs_EnumArray4_s(tvb, offset, pinfo, tree, di, drep);
@@ -3029,15 +2982,13 @@ netdfs_dissect_struct_dfs_EnumArray200(tvbuff_t *tvb _U_, int offset _U_, packet
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_EnumArray200);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_EnumArray200_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = netdfs_dissect_element_dfs_EnumArray200_s(tvb, offset, pinfo, tree, di, drep);
@@ -3100,15 +3051,13 @@ netdfs_dissect_struct_dfs_EnumArray300(tvbuff_t *tvb _U_, int offset _U_, packet
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_EnumArray300);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_EnumArray300_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = netdfs_dissect_element_dfs_EnumArray300_s(tvb, offset, pinfo, tree, di, drep);
@@ -3308,15 +3257,13 @@ netdfs_dissect_struct_dfs_EnumStruct(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_EnumStruct);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_EnumStruct_level(tvb, offset, pinfo, tree, di, drep, &level);
 
 	offset = netdfs_dissect_element_dfs_EnumStruct_e(tvb, offset, pinfo, tree, di, drep, &level);
@@ -3374,15 +3321,13 @@ netdfs_dissect_struct_dfs_UnknownStruct(tvbuff_t *tvb _U_, int offset _U_, packe
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_netdfs_dfs_UnknownStruct);
 	}
-	
+
 	offset = netdfs_dissect_element_dfs_UnknownStruct_unknown1(tvb, offset, pinfo, tree, di, drep);
 
 	offset = netdfs_dissect_element_dfs_UnknownStruct_unknown2(tvb, offset, pinfo, tree, di, drep);

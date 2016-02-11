@@ -871,15 +871,13 @@ atsvc_dissect_struct_JobInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_atsvc_atsvc_JobInfo);
 	}
-	
+
 	offset = atsvc_dissect_element_JobInfo_job_time(tvb, offset, pinfo, tree, di, drep);
 
 	offset = atsvc_dissect_element_JobInfo_days_of_month(tvb, offset, pinfo, tree, di, drep);
@@ -979,15 +977,13 @@ atsvc_dissect_struct_JobEnumInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_atsvc_atsvc_JobEnumInfo);
 	}
-	
+
 	offset = atsvc_dissect_element_JobEnumInfo_job_id(tvb, offset, pinfo, tree, di, drep);
 
 	offset = atsvc_dissect_element_JobEnumInfo_job_time(tvb, offset, pinfo, tree, di, drep);
@@ -1058,15 +1054,13 @@ atsvc_dissect_struct_enum_ctr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_atsvc_atsvc_enum_ctr);
 	}
-	
+
 	offset = atsvc_dissect_element_enum_ctr_entries_read(tvb, offset, pinfo, tree, di, drep);
 
 	offset = atsvc_dissect_element_enum_ctr_first_entry(tvb, offset, pinfo, tree, di, drep);

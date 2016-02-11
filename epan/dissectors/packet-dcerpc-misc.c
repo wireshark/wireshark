@@ -173,15 +173,13 @@ misc_dissect_struct_GUID(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_misc_GUID);
 	}
-	
+
 	offset = misc_dissect_element_GUID_time_low(tvb, offset, pinfo, tree, di, drep);
 
 	offset = misc_dissect_element_GUID_time_mid(tvb, offset, pinfo, tree, di, drep);
@@ -234,15 +232,13 @@ misc_dissect_struct_ndr_syntax_id(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_misc_ndr_syntax_id);
 	}
-	
+
 	offset = misc_dissect_element_ndr_syntax_id_uuid(tvb, offset, pinfo, tree, di, drep);
 
 	offset = misc_dissect_element_ndr_syntax_id_if_version(tvb, offset, pinfo, tree, di, drep);
@@ -289,15 +285,13 @@ misc_dissect_struct_policy_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_misc_policy_handle);
 	}
-	
+
 	offset = misc_dissect_element_policy_handle_handle_type(tvb, offset, pinfo, tree, di, drep);
 
 	offset = misc_dissect_element_policy_handle_uuid(tvb, offset, pinfo, tree, di, drep);
@@ -379,15 +373,13 @@ misc_dissect_struct_KRB5_EDATA_NTSTATUS(tvbuff_t *tvb _U_, int offset _U_, packe
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_misc_KRB5_EDATA_NTSTATUS);
 	}
-	
+
 	offset = misc_dissect_element_KRB5_EDATA_NTSTATUS_ntstatus(tvb, offset, pinfo, tree, di, drep);
 
 	offset = misc_dissect_element_KRB5_EDATA_NTSTATUS_unknown1(tvb, offset, pinfo, tree, di, drep);

@@ -791,14 +791,13 @@ frsrpc_dissect_struct_CommPktChunkGuidName(tvbuff_t *tvb _U_, int offset _U_, pa
 	proto_tree *tree = NULL;
 	int old_offset;
 
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_frsrpc_frsrpc_CommPktChunkGuidName);
 	}
-	
+
 	offset = frsrpc_dissect_element_CommPktChunkGuidName_guid(tvb, offset, pinfo, tree, di, drep);
 
 	offset = frsrpc_dissect_element_CommPktChunkGuidName_name(tvb, offset, pinfo, tree, di, drep);
@@ -841,15 +840,13 @@ frsrpc_dissect_struct_CommPktGSVN(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 	ALIGN_TO_8_BYTES;
 
-	ALIGN_TO_8_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_frsrpc_frsrpc_CommPktGSVN);
 	}
-	
+
 	offset = frsrpc_dissect_element_CommPktGSVN_vsn(tvb, offset, pinfo, tree, di, drep);
 
 	offset = frsrpc_dissect_element_CommPktGSVN_guid(tvb, offset, pinfo, tree, di, drep);
@@ -1721,15 +1718,13 @@ frsrpc_dissect_struct_CommPktChangeOrderCommand(tvbuff_t *tvb _U_, int offset _U
 
 	ALIGN_TO_8_BYTES;
 
-	ALIGN_TO_8_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_frsrpc_frsrpc_CommPktChangeOrderCommand);
 	}
-	
+
 	offset = frsrpc_dissect_element_CommPktChangeOrderCommand_sequence_number(tvb, offset, pinfo, tree, di, drep);
 
 	offset = frsrpc_dissect_element_CommPktChangeOrderCommand_flags(tvb, offset, pinfo, tree, di, drep);
@@ -1894,15 +1889,13 @@ frsrpc_dissect_struct_CommPktDataExtensionChecksum(tvbuff_t *tvb _U_, int offset
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_frsrpc_frsrpc_CommPktDataExtensionChecksum);
 	}
-	
+
 	offset = frsrpc_dissect_element_CommPktDataExtensionChecksum_prefix_size(tvb, offset, pinfo, tree, di, drep);
 
 	offset = frsrpc_dissect_element_CommPktDataExtensionChecksum_prefix_type(tvb, offset, pinfo, tree, di, drep);
@@ -1978,15 +1971,13 @@ frsrpc_dissect_struct_CommPktDataExtensionRetryTimeout(tvbuff_t *tvb _U_, int of
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_frsrpc_frsrpc_CommPktDataExtensionRetryTimeout);
 	}
-	
+
 	offset = frsrpc_dissect_element_CommPktDataExtensionRetryTimeout_prefix_size(tvb, offset, pinfo, tree, di, drep);
 
 	offset = frsrpc_dissect_element_CommPktDataExtensionRetryTimeout_prefix_type(tvb, offset, pinfo, tree, di, drep);
@@ -2095,15 +2086,13 @@ frsrpc_dissect_struct_CommPktCoRecordExtensionWin2k(tvbuff_t *tvb _U_, int offse
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_frsrpc_frsrpc_CommPktCoRecordExtensionWin2k);
 	}
-	
+
 	offset = frsrpc_dissect_element_CommPktCoRecordExtensionWin2k_field_size(tvb, offset, pinfo, tree, di, drep);
 
 	offset = frsrpc_dissect_element_CommPktCoRecordExtensionWin2k_major(tvb, offset, pinfo, tree, di, drep);
@@ -2221,15 +2210,13 @@ frsrpc_dissect_struct_CommPktChangeOrderRecordExtension(tvbuff_t *tvb _U_, int o
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_frsrpc_frsrpc_CommPktChangeOrderRecordExtension);
 	}
-	
+
 	offset = frsrpc_dissect_element_CommPktChangeOrderRecordExtension_field_size(tvb, offset, pinfo, tree, di, drep);
 
 	offset = frsrpc_dissect_element_CommPktChangeOrderRecordExtension_major(tvb, offset, pinfo, tree, di, drep);
@@ -3028,15 +3015,13 @@ frsrpc_dissect_struct_FrsSendCommPktReq(tvbuff_t *tvb _U_, int offset _U_, packe
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_frsrpc_frsrpc_FrsSendCommPktReq);
 	}
-	
+
 	offset = frsrpc_dissect_element_FrsSendCommPktReq_major(tvb, offset, pinfo, tree, di, drep);
 
 	offset = frsrpc_dissect_element_FrsSendCommPktReq_minor(tvb, offset, pinfo, tree, di, drep);

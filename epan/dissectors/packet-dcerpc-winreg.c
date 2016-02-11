@@ -732,15 +732,13 @@ winreg_dissect_struct_String(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_winreg_winreg_String);
 	}
-	
+
 	offset = winreg_dissect_element_String_name_len(tvb, offset, pinfo, tree, di, drep);
 
 	offset = winreg_dissect_element_String_name_size(tvb, offset, pinfo, tree, di, drep);
@@ -798,15 +796,13 @@ winreg_dissect_struct_KeySecurityData(tvbuff_t *tvb _U_, int offset _U_, packet_
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_winreg_KeySecurityData);
 	}
-	
+
 	offset = winreg_dissect_element_KeySecurityData_data(tvb, offset, pinfo, tree, di, drep);
 
 	offset = winreg_dissect_element_KeySecurityData_size(tvb, offset, pinfo, tree, di, drep);
@@ -864,15 +860,13 @@ winreg_dissect_struct_SecBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_winreg_winreg_SecBuf);
 	}
-	
+
 	offset = winreg_dissect_element_SecBuf_length(tvb, offset, pinfo, tree, di, drep);
 
 	offset = winreg_dissect_element_SecBuf_sd(tvb, offset, pinfo, tree, di, drep);
@@ -1034,15 +1028,13 @@ winreg_dissect_struct_StringBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_winreg_winreg_StringBuf);
 	}
-	
+
 	offset = winreg_dissect_element_StringBuf_length(tvb, offset, pinfo, tree, di, drep);
 
 	offset = winreg_dissect_element_StringBuf_size(tvb, offset, pinfo, tree, di, drep);
@@ -1116,15 +1108,13 @@ winreg_dissect_struct_ValNameBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_winreg_winreg_ValNameBuf);
 	}
-	
+
 	offset = winreg_dissect_element_ValNameBuf_length(tvb, offset, pinfo, tree, di, drep);
 
 	offset = winreg_dissect_element_ValNameBuf_size(tvb, offset, pinfo, tree, di, drep);
@@ -1316,15 +1306,13 @@ winreg_dissect_struct_KeySecurityAttribute(tvbuff_t *tvb _U_, int offset _U_, pa
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_winreg_KeySecurityAttribute);
 	}
-	
+
 	offset = winreg_dissect_element_KeySecurityAttribute_data_size(tvb, offset, pinfo, tree, di, drep);
 
 	offset = winreg_dissect_element_KeySecurityAttribute_sec_data(tvb, offset, pinfo, tree, di, drep);
@@ -1399,15 +1387,13 @@ winreg_dissect_struct_QueryMultipleValue(tvbuff_t *tvb _U_, int offset _U_, pack
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_winreg_QueryMultipleValue);
 	}
-	
+
 	offset = winreg_dissect_element_QueryMultipleValue_ve_valuename(tvb, offset, pinfo, tree, di, drep);
 
 	offset = winreg_dissect_element_QueryMultipleValue_ve_valuelen(tvb, offset, pinfo, tree, di, drep);

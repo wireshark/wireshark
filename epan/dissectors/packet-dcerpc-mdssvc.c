@@ -170,15 +170,13 @@ mdssvc_dissect_struct_blob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_mdssvc_mdssvc_blob);
 	}
-	
+
 	offset = mdssvc_dissect_element_blob_length(tvb, offset, pinfo, tree, di, drep);
 
 	offset = mdssvc_dissect_element_blob_size(tvb, offset, pinfo, tree, di, drep);

@@ -475,15 +475,13 @@ frstrans_dissect_struct_VersionVector(tvbuff_t *tvb _U_, int offset _U_, packet_
 
 	ALIGN_TO_8_BYTES;
 
-	ALIGN_TO_8_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_frstrans_frstrans_VersionVector);
 	}
-	
+
 	offset = frstrans_dissect_element_VersionVector_db_guid(tvb, offset, pinfo, tree, di, drep);
 
 	offset = frstrans_dissect_element_VersionVector_low(tvb, offset, pinfo, tree, di, drep);
@@ -690,15 +688,13 @@ frstrans_dissect_struct_Update(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 
 	ALIGN_TO_8_BYTES;
 
-	ALIGN_TO_8_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_frstrans_frstrans_Update);
 	}
-	
+
 	offset = frstrans_dissect_element_Update_present(tvb, offset, pinfo, tree, di, drep);
 
 	offset = frstrans_dissect_element_Update_name_conflict(tvb, offset, pinfo, tree, di, drep);
@@ -879,15 +875,13 @@ frstrans_dissect_struct_EpoqueVector(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_frstrans_frstrans_EpoqueVector);
 	}
-	
+
 	offset = frstrans_dissect_element_EpoqueVector_machine_guid(tvb, offset, pinfo, tree, di, drep);
 
 	offset = frstrans_dissect_element_EpoqueVector_year(tvb, offset, pinfo, tree, di, drep);
@@ -1007,15 +1001,13 @@ frstrans_dissect_struct_AsyncVersionVectorResponse(tvbuff_t *tvb _U_, int offset
 
 	ALIGN_TO_8_BYTES;
 
-	ALIGN_TO_8_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_frstrans_frstrans_AsyncVersionVectorResponse);
 	}
-	
+
 	offset = frstrans_dissect_element_AsyncVersionVectorResponse_vv_generation(tvb, offset, pinfo, tree, di, drep);
 
 	offset = frstrans_dissect_element_AsyncVersionVectorResponse_version_vector_count(tvb, offset, pinfo, tree, di, drep);
@@ -1077,15 +1069,13 @@ frstrans_dissect_struct_AsyncResponseContext(tvbuff_t *tvb _U_, int offset _U_, 
 
 	ALIGN_TO_8_BYTES;
 
-	ALIGN_TO_8_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_frstrans_frstrans_AsyncResponseContext);
 	}
-	
+
 	offset = frstrans_dissect_element_AsyncResponseContext_sequence_number(tvb, offset, pinfo, tree, di, drep);
 
 	offset = frstrans_dissect_element_AsyncResponseContext_status(tvb, offset, pinfo, tree, di, drep);
@@ -1187,15 +1177,13 @@ frstrans_dissect_struct_RdcParameterGeneric(tvbuff_t *tvb _U_, int offset _U_, p
 
 	ALIGN_TO_3_BYTES;
 
-	ALIGN_TO_3_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_frstrans_frstrans_RdcParameterGeneric);
 	}
-	
+
 	offset = frstrans_dissect_element_RdcParameterGeneric_chunker_type(tvb, offset, pinfo, tree, di, drep);
 
 	offset = frstrans_dissect_element_RdcParameterGeneric_chunker_parameters(tvb, offset, pinfo, tree, di, drep);
@@ -1242,15 +1230,13 @@ frstrans_dissect_struct_RdcParameterFilterMax(tvbuff_t *tvb _U_, int offset _U_,
 
 	ALIGN_TO_2_BYTES;
 
-	ALIGN_TO_2_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_frstrans_frstrans_RdcParameterFilterMax);
 	}
-	
+
 	offset = frstrans_dissect_element_RdcParameterFilterMax_min_horizon_size(tvb, offset, pinfo, tree, di, drep);
 
 	offset = frstrans_dissect_element_RdcParameterFilterMax_max_window_size(tvb, offset, pinfo, tree, di, drep);
@@ -1297,15 +1283,13 @@ frstrans_dissect_struct_RdcParameterFilterPoint(tvbuff_t *tvb _U_, int offset _U
 
 	ALIGN_TO_2_BYTES;
 
-	ALIGN_TO_2_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_frstrans_frstrans_RdcParameterFilterPoint);
 	}
-	
+
 	offset = frstrans_dissect_element_RdcParameterFilterPoint_min_chunk_size(tvb, offset, pinfo, tree, di, drep);
 
 	offset = frstrans_dissect_element_RdcParameterFilterPoint_max_chunk_size(tvb, offset, pinfo, tree, di, drep);
@@ -1418,15 +1402,13 @@ frstrans_dissect_struct_RdcParameters(tvbuff_t *tvb _U_, int offset _U_, packet_
 
 	ALIGN_TO_3_BYTES;
 
-	ALIGN_TO_3_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_frstrans_frstrans_RdcParameters);
 	}
-	
+
 	offset = frstrans_dissect_element_RdcParameters_rdc_chunker_algorithm(tvb, offset, pinfo, tree, di, drep, &rdc_chunker_algorithm);
 
 	offset = frstrans_dissect_element_RdcParameters_u(tvb, offset, pinfo, tree, di, drep, &rdc_chunker_algorithm);
@@ -1584,15 +1566,13 @@ frstrans_dissect_struct_RdcFileInfo(tvbuff_t *tvb _U_, int offset _U_, packet_in
 
 	ALIGN_TO_8_BYTES;
 
-	ALIGN_TO_8_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_frstrans_frstrans_RdcFileInfo);
 	}
-	
+
 	offset = frstrans_dissect_element_RdcFileInfo_on_disk_file_size(tvb, offset, pinfo, tree, di, drep);
 
 	offset = frstrans_dissect_element_RdcFileInfo_file_size_estimate(tvb, offset, pinfo, tree, di, drep);

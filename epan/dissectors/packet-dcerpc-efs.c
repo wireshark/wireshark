@@ -182,15 +182,13 @@ efs_dissect_struct_EFS_HASH_BLOB(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_efs_EFS_HASH_BLOB);
 	}
-	
+
 	offset = efs_dissect_element_EFS_HASH_BLOB_cbData(tvb, offset, pinfo, tree, di, drep);
 
 	offset = efs_dissect_element_EFS_HASH_BLOB_pbData(tvb, offset, pinfo, tree, di, drep);
@@ -282,15 +280,13 @@ efs_dissect_struct_ENCRYPTION_CERTIFICATE_HASH(tvbuff_t *tvb _U_, int offset _U_
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_efs_ENCRYPTION_CERTIFICATE_HASH);
 	}
-	
+
 	offset = efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_cbTotalLength(tvb, offset, pinfo, tree, di, drep);
 
 	offset = efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_pUserSid(tvb, offset, pinfo, tree, di, drep);
@@ -357,15 +353,13 @@ efs_dissect_struct_ENCRYPTION_CERTIFICATE_HASH_LIST(tvbuff_t *tvb _U_, int offse
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_efs_ENCRYPTION_CERTIFICATE_HASH_LIST);
 	}
-	
+
 	offset = efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_nCert_Hash(tvb, offset, pinfo, tree, di, drep);
 
 	offset = efs_dissect_element_ENCRYPTION_CERTIFICATE_HASH_LIST_pUsers(tvb, offset, pinfo, tree, di, drep);
@@ -437,15 +431,13 @@ efs_dissect_struct_EFS_CERTIFICATE_BLOB(tvbuff_t *tvb _U_, int offset _U_, packe
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_efs_EFS_CERTIFICATE_BLOB);
 	}
-	
+
 	offset = efs_dissect_element_EFS_CERTIFICATE_BLOB_dwCertEncodingType(tvb, offset, pinfo, tree, di, drep);
 
 	offset = efs_dissect_element_EFS_CERTIFICATE_BLOB_cbData(tvb, offset, pinfo, tree, di, drep);
@@ -519,15 +511,13 @@ efs_dissect_struct_ENCRYPTION_CERTIFICATE(tvbuff_t *tvb _U_, int offset _U_, pac
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_efs_ENCRYPTION_CERTIFICATE);
 	}
-	
+
 	offset = efs_dissect_element_ENCRYPTION_CERTIFICATE_TotalLength(tvb, offset, pinfo, tree, di, drep);
 
 	offset = efs_dissect_element_ENCRYPTION_CERTIFICATE_pUserSid(tvb, offset, pinfo, tree, di, drep);

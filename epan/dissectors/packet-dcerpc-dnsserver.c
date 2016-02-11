@@ -690,15 +690,13 @@ dnsserver_dissect_struct_DNS_RPC_VERSION(tvbuff_t *tvb _U_, int offset _U_, pack
 
 	ALIGN_TO_2_BYTES;
 
-	ALIGN_TO_2_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_dnsserver_DNS_RPC_VERSION);
 	}
-	
+
 	offset = dnsserver_dissect_element_DNS_RPC_VERSION_OSMajorVersion(tvb, offset, pinfo, tree, di, drep);
 
 	offset = dnsserver_dissect_element_DNS_RPC_VERSION_OSMinorVersion(tvb, offset, pinfo, tree, di, drep);
@@ -1262,14 +1260,13 @@ dnsserver_dissect_struct_DNS_RPC_RECORD_NODE_NAME(tvbuff_t *tvb _U_, int offset 
 	proto_tree *tree = NULL;
 	int old_offset;
 
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_dnsserver_DNS_RPC_RECORD_NODE_NAME);
 	}
-	
+
 	offset = dnsserver_dissect_element_DNS_RPC_RECORD_NODE_NAME_Name(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -1402,15 +1399,13 @@ dnsserver_dissect_struct_DNS_RPC_RECORD(tvbuff_t *tvb _U_, int offset _U_, packe
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_dnsserver_DNS_RPC_RECORD);
 	}
-	
+
 	offset = dnsserver_dissect_element_DNS_RPC_RECORD_DataLength(tvb, offset, pinfo, tree, di, drep);
 
 	offset = dnsserver_dissect_element_DNS_RPC_RECORD_Type(tvb, offset, pinfo, tree, di, drep, &Type);
@@ -1497,15 +1492,13 @@ dnsserver_dissect_struct_DNS_RPC_NODE(tvbuff_t *tvb _U_, int offset _U_, packet_
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_dnsserver_DNS_RPC_NODE);
 	}
-	
+
 	offset = dnsserver_dissect_element_DNS_RPC_NODE_Length(tvb, offset, pinfo, tree, di, drep);
 
 	offset = dnsserver_dissect_element_DNS_RPC_NODE_RecordCount(tvb, offset, pinfo, tree, di, drep);
@@ -1568,15 +1561,13 @@ dnsserver_dissect_struct_IP4_ARRAY(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_dnsserver_IP4_ARRAY);
 	}
-	
+
 	offset = dnsserver_dissect_element_IP4_ARRAY_AddrCount(tvb, offset, pinfo, tree, di, drep);
 
 	offset = dnsserver_dissect_element_IP4_ARRAY_AddrArray(tvb, offset, pinfo, tree, di, drep);
@@ -2331,15 +2322,13 @@ dnsserver_dissect_struct_DNS_RPC_SERVER_INFO_DOTNET(tvbuff_t *tvb _U_, int offse
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_dnsserver_DNS_RPC_SERVER_INFO_DOTNET);
 	}
-	
+
 	offset = dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RpcStructureVersion(tvb, offset, pinfo, tree, di, drep);
 
 	offset = dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserved0(tvb, offset, pinfo, tree, di, drep);
@@ -2635,15 +2624,13 @@ dnsserver_dissect_struct_DNS_RECORD_BUFFER(tvbuff_t *tvb _U_, int offset _U_, pa
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_dnsserver_DNS_RECORD_BUFFER);
 	}
-	
+
 	offset = dnsserver_dissect_element_DNS_RECORD_BUFFER_rpc_node(tvb, offset, pinfo, tree, di, drep);
 
 

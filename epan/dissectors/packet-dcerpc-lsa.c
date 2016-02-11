@@ -1678,15 +1678,13 @@ lsarpc_dissect_struct_lsa_String(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_String);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_String_length(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_String_size(tvb, offset, pinfo, tree, di, drep);
@@ -1744,15 +1742,13 @@ lsarpc_dissect_struct_lsa_StringLarge(tvbuff_t *tvb _U_, int offset _U_, packet_
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_StringLarge);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_StringLarge_length(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_StringLarge_size(tvb, offset, pinfo, tree, di, drep);
@@ -1817,15 +1813,13 @@ lsarpc_dissect_struct_lsa_Strings(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_Strings);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_Strings_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_Strings_names(tvb, offset, pinfo, tree, di, drep);
@@ -1897,15 +1891,13 @@ lsarpc_dissect_struct_lsa_AsciiString(tvbuff_t *tvb _U_, int offset _U_, packet_
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_AsciiString);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_AsciiString_length(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_AsciiString_size(tvb, offset, pinfo, tree, di, drep);
@@ -1979,15 +1971,13 @@ lsarpc_dissect_struct_lsa_AsciiStringLarge(tvbuff_t *tvb _U_, int offset _U_, pa
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_AsciiStringLarge);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_AsciiStringLarge_length(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_AsciiStringLarge_size(tvb, offset, pinfo, tree, di, drep);
@@ -2036,15 +2026,13 @@ lsarpc_dissect_struct_lsa_LUID(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_LUID);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_LUID_low(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_LUID_high(tvb, offset, pinfo, tree, di, drep);
@@ -2091,15 +2079,13 @@ lsarpc_dissect_struct_lsa_PrivEntry(tvbuff_t *tvb _U_, int offset _U_, packet_in
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_PrivEntry);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_PrivEntry_name(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_PrivEntry_luid(tvb, offset, pinfo, tree, di, drep);
@@ -2162,15 +2148,13 @@ lsarpc_dissect_struct_lsa_PrivArray(tvbuff_t *tvb _U_, int offset _U_, packet_in
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_PrivArray);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_PrivArray_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_PrivArray_privs(tvb, offset, pinfo, tree, di, drep);
@@ -2257,15 +2241,13 @@ lsarpc_dissect_struct_lsa_QosInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_QosInfo);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_QosInfo_len(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_QosInfo_impersonation_level(tvb, offset, pinfo, tree, di, drep);
@@ -2387,15 +2369,13 @@ lsarpc_dissect_struct_lsa_ObjectAttribute(tvbuff_t *tvb _U_, int offset _U_, pac
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_ObjectAttribute);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_ObjectAttribute_len(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_ObjectAttribute_root_dir(tvb, offset, pinfo, tree, di, drep);
@@ -2495,15 +2475,13 @@ lsarpc_dissect_struct_lsa_AuditLogInfo(tvbuff_t *tvb _U_, int offset _U_, packet
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_AuditLogInfo);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_AuditLogInfo_percent_full(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_AuditLogInfo_log_size(tvb, offset, pinfo, tree, di, drep);
@@ -2635,15 +2613,13 @@ lsarpc_dissect_struct_lsa_AuditEventsInfo(tvbuff_t *tvb _U_, int offset _U_, pac
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_AuditEventsInfo);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_AuditEventsInfo_auditing_mode(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_AuditEventsInfo_settings(tvb, offset, pinfo, tree, di, drep);
@@ -2700,15 +2676,13 @@ lsarpc_dissect_struct_lsa_DomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_DomainInfo);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_DomainInfo_name(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_DomainInfo_sid(tvb, offset, pinfo, tree, di, drep);
@@ -2746,15 +2720,13 @@ lsarpc_dissect_struct_lsa_PDAccountInfo(tvbuff_t *tvb _U_, int offset _U_, packe
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_PDAccountInfo);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_PDAccountInfo_name(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -2810,15 +2782,13 @@ lsarpc_dissect_struct_lsa_ServerRole(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 	ALIGN_TO_3_BYTES;
 
-	ALIGN_TO_3_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_ServerRole);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_ServerRole_role(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -2863,15 +2833,13 @@ lsarpc_dissect_struct_lsa_ReplicaSourceInfo(tvbuff_t *tvb _U_, int offset _U_, p
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_ReplicaSourceInfo);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_ReplicaSourceInfo_source(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_ReplicaSourceInfo_account(tvb, offset, pinfo, tree, di, drep);
@@ -2954,15 +2922,13 @@ lsarpc_dissect_struct_lsa_DefaultQuotaInfo(tvbuff_t *tvb _U_, int offset _U_, pa
 
 	ALIGN_TO_8_BYTES;
 
-	ALIGN_TO_8_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_DefaultQuotaInfo);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_DefaultQuotaInfo_paged_pool(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_DefaultQuotaInfo_non_paged_pool(tvb, offset, pinfo, tree, di, drep);
@@ -3017,15 +2983,13 @@ lsarpc_dissect_struct_lsa_ModificationInfo(tvbuff_t *tvb _U_, int offset _U_, pa
 
 	ALIGN_TO_8_BYTES;
 
-	ALIGN_TO_8_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_ModificationInfo);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_ModificationInfo_modified_id(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_ModificationInfo_db_create_time(tvb, offset, pinfo, tree, di, drep);
@@ -3061,14 +3025,13 @@ lsarpc_dissect_struct_lsa_AuditFullSetInfo(tvbuff_t *tvb _U_, int offset _U_, pa
 	proto_tree *tree = NULL;
 	int old_offset;
 
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_AuditFullSetInfo);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_AuditFullSetInfo_shutdown_on_full(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -3118,15 +3081,13 @@ lsarpc_dissect_struct_lsa_AuditFullQueryInfo(tvbuff_t *tvb _U_, int offset _U_, 
 
 	ALIGN_TO_2_BYTES;
 
-	ALIGN_TO_2_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_AuditFullQueryInfo);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_AuditFullQueryInfo_unknown(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_AuditFullQueryInfo_shutdown_on_full(tvb, offset, pinfo, tree, di, drep);
@@ -3210,15 +3171,13 @@ lsarpc_dissect_struct_lsa_DnsDomainInfo(tvbuff_t *tvb _U_, int offset _U_, packe
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_DnsDomainInfo);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_DnsDomainInfo_name(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_DnsDomainInfo_dns_domain(tvb, offset, pinfo, tree, di, drep);
@@ -3484,15 +3443,13 @@ lsarpc_dissect_struct_lsa_SidPtr(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_SidPtr);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_SidPtr_sid(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -3553,15 +3510,13 @@ lsarpc_dissect_struct_lsa_SidArray(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_SidArray);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_SidArray_num_sids(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_SidArray_sids(tvb, offset, pinfo, tree, di, drep);
@@ -3624,15 +3579,13 @@ lsarpc_dissect_struct_lsa_DomainList(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_DomainList);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_DomainList_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_DomainList_domains(tvb, offset, pinfo, tree, di, drep);
@@ -3716,15 +3669,13 @@ lsarpc_dissect_struct_lsa_TranslatedSid(tvbuff_t *tvb _U_, int offset _U_, packe
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TranslatedSid);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TranslatedSid_sid_type(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_TranslatedSid_rid(tvb, offset, pinfo, tree, di, drep);
@@ -3789,15 +3740,13 @@ lsarpc_dissect_struct_lsa_TransSidArray(tvbuff_t *tvb _U_, int offset _U_, packe
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TransSidArray);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TransSidArray_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_TransSidArray_sids(tvb, offset, pinfo, tree, di, drep);
@@ -3869,15 +3818,13 @@ lsarpc_dissect_struct_lsa_RefDomainList(tvbuff_t *tvb _U_, int offset _U_, packe
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_RefDomainList);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_RefDomainList_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_RefDomainList_domains(tvb, offset, pinfo, tree, di, drep);
@@ -3959,15 +3906,13 @@ lsarpc_dissect_struct_lsa_TranslatedName(tvbuff_t *tvb _U_, int offset _U_, pack
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TranslatedName);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TranslatedName_sid_type(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_TranslatedName_name(tvb, offset, pinfo, tree, di, drep);
@@ -4032,15 +3977,13 @@ lsarpc_dissect_struct_lsa_TransNameArray(tvbuff_t *tvb _U_, int offset _U_, pack
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TransNameArray);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TransNameArray_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_TransNameArray_names(tvb, offset, pinfo, tree, di, drep);
@@ -4087,15 +4030,13 @@ lsarpc_dissect_struct_lsa_LUIDAttribute(tvbuff_t *tvb _U_, int offset _U_, packe
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_LUIDAttribute);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_LUIDAttribute_luid(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_LUIDAttribute_attribute(tvb, offset, pinfo, tree, di, drep);
@@ -4159,15 +4100,13 @@ lsarpc_dissect_struct_lsa_PrivilegeSet(tvbuff_t *tvb _U_, int offset _U_, packet
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_PrivilegeSet);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_PrivilegeSet_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_PrivilegeSet_unknown(tvb, offset, pinfo, tree, di, drep);
@@ -4241,15 +4180,13 @@ lsarpc_dissect_struct_lsa_DATA_BUF(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_DATA_BUF);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_DATA_BUF_length(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_DATA_BUF_size(tvb, offset, pinfo, tree, di, drep);
@@ -4314,15 +4251,13 @@ lsarpc_dissect_struct_lsa_DATA_BUF2(tvbuff_t *tvb _U_, int offset _U_, packet_in
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_DATA_BUF2);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_DATA_BUF2_size(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_DATA_BUF2_data(tvb, offset, pinfo, tree, di, drep);
@@ -4388,15 +4323,13 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoName(tvbuff_t *tvb _U_, int offset _U_,
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TrustDomainInfoName);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TrustDomainInfoName_netbios_name(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -4432,15 +4365,13 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoPosixOffset(tvbuff_t *tvb _U_, int offs
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TrustDomainInfoPosixOffset);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TrustDomainInfoPosixOffset_posix_offset(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -4501,15 +4432,13 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoPassword(tvbuff_t *tvb _U_, int offset 
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TrustDomainInfoPassword);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TrustDomainInfoPassword_password(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_TrustDomainInfoPassword_old_password(tvb, offset, pinfo, tree, di, drep);
@@ -4564,15 +4493,13 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoBasic(tvbuff_t *tvb _U_, int offset _U_
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TrustDomainInfoBasic);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TrustDomainInfoBasic_netbios_name(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_TrustDomainInfoBasic_sid(tvb, offset, pinfo, tree, di, drep);
@@ -4663,15 +4590,13 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoInfoEx(tvbuff_t *tvb _U_, int offset _U
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TrustDomainInfoInfoEx);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_domain_name(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_netbios_name(tvb, offset, pinfo, tree, di, drep);
@@ -4735,15 +4660,13 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoBuffer(tvbuff_t *tvb _U_, int offset _U
 
 	ALIGN_TO_8_BYTES;
 
-	ALIGN_TO_8_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TrustDomainInfoBuffer);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TrustDomainInfoBuffer_last_update_time(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_TrustDomainInfoBuffer_secret_type(tvb, offset, pinfo, tree, di, drep);
@@ -4860,15 +4783,13 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoAuthInfo(tvbuff_t *tvb _U_, int offset 
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TrustDomainInfoAuthInfo);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_current_auth_info(tvb, offset, pinfo, tree, di, drep);
@@ -4932,15 +4853,13 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoFullInfo(tvbuff_t *tvb _U_, int offset 
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TrustDomainInfoFullInfo);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TrustDomainInfoFullInfo_info_ex(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_TrustDomainInfoFullInfo_posix_offset(tvb, offset, pinfo, tree, di, drep);
@@ -4989,15 +4908,13 @@ lsarpc_dissect_struct_lsa_TrustDomainInfo11(tvbuff_t *tvb _U_, int offset _U_, p
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TrustDomainInfo11);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TrustDomainInfo11_info_ex(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_TrustDomainInfo11_data1(tvb, offset, pinfo, tree, di, drep);
@@ -5062,15 +4979,13 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoInfoAll(tvbuff_t *tvb _U_, int offset _
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TrustDomainInfoInfoAll);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_info_ex(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_data1(tvb, offset, pinfo, tree, di, drep);
@@ -5263,15 +5178,13 @@ lsarpc_dissect_struct_lsa_DATA_BUF_PTR(tvbuff_t *tvb _U_, int offset _U_, packet
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_DATA_BUF_PTR);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_DATA_BUF_PTR_buf(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -5318,15 +5231,13 @@ lsarpc_dissect_struct_lsa_RightAttribute(tvbuff_t *tvb _U_, int offset _U_, pack
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_RightAttribute);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_RightAttribute_name(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -5387,15 +5298,13 @@ lsarpc_dissect_struct_lsa_RightSet(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_RightSet);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_RightSet_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_RightSet_names(tvb, offset, pinfo, tree, di, drep);
@@ -5441,15 +5350,13 @@ lsarpc_dissect_struct_lsa_StringPointer(tvbuff_t *tvb _U_, int offset _U_, packe
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_StringPointer);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_StringPointer_string(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -5510,15 +5417,13 @@ lsarpc_dissect_struct_lsa_DomainListEx(tvbuff_t *tvb _U_, int offset _U_, packet
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_DomainListEx);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_DomainListEx_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_DomainListEx_domains(tvb, offset, pinfo, tree, di, drep);
@@ -5601,15 +5506,13 @@ lsarpc_dissect_struct_lsa_DomainInfoKerberos(tvbuff_t *tvb _U_, int offset _U_, 
 
 	ALIGN_TO_8_BYTES;
 
-	ALIGN_TO_8_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_DomainInfoKerberos);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_DomainInfoKerberos_enforce_restrictions(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_DomainInfoKerberos_service_tkt_lifetime(tvb, offset, pinfo, tree, di, drep);
@@ -5664,15 +5567,13 @@ lsarpc_dissect_struct_lsa_DomainInfoEfs(tvbuff_t *tvb _U_, int offset _U_, packe
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_DomainInfoEfs);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_DomainInfoEfs_blob_size(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob(tvb, offset, pinfo, tree, di, drep);
@@ -5810,15 +5711,13 @@ lsarpc_dissect_struct_lsa_TranslatedName2(tvbuff_t *tvb _U_, int offset _U_, pac
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TranslatedName2);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TranslatedName2_sid_type(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_TranslatedName2_name(tvb, offset, pinfo, tree, di, drep);
@@ -5885,15 +5784,13 @@ lsarpc_dissect_struct_lsa_TransNameArray2(tvbuff_t *tvb _U_, int offset _U_, pac
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TransNameArray2);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TransNameArray2_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_TransNameArray2_names(tvb, offset, pinfo, tree, di, drep);
@@ -5958,15 +5855,13 @@ lsarpc_dissect_struct_lsa_TranslatedSid2(tvbuff_t *tvb _U_, int offset _U_, pack
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TranslatedSid2);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TranslatedSid2_sid_type(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_TranslatedSid2_rid(tvb, offset, pinfo, tree, di, drep);
@@ -6033,15 +5928,13 @@ lsarpc_dissect_struct_lsa_TransSidArray2(tvbuff_t *tvb _U_, int offset _U_, pack
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TransSidArray2);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TransSidArray2_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_TransSidArray2_sids(tvb, offset, pinfo, tree, di, drep);
@@ -6114,15 +6007,13 @@ lsarpc_dissect_struct_lsa_TranslatedSid3(tvbuff_t *tvb _U_, int offset _U_, pack
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TranslatedSid3);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TranslatedSid3_sid_type(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_TranslatedSid3_sid(tvb, offset, pinfo, tree, di, drep);
@@ -6189,15 +6080,13 @@ lsarpc_dissect_struct_lsa_TransSidArray3(tvbuff_t *tvb _U_, int offset _U_, pack
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_TransSidArray3);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_TransSidArray3_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_TransSidArray3_sids(tvb, offset, pinfo, tree, di, drep);
@@ -6260,15 +6149,13 @@ lsarpc_dissect_struct_lsa_ForestTrustBinaryData(tvbuff_t *tvb _U_, int offset _U
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_ForestTrustBinaryData);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_ForestTrustBinaryData_length(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_ForestTrustBinaryData_data(tvb, offset, pinfo, tree, di, drep);
@@ -6332,15 +6219,13 @@ lsarpc_dissect_struct_lsa_ForestTrustDomainInfo(tvbuff_t *tvb _U_, int offset _U
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_ForestTrustDomainInfo);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_ForestTrustDomainInfo_domain_sid(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_ForestTrustDomainInfo_dns_domain_name(tvb, offset, pinfo, tree, di, drep);
@@ -6508,15 +6393,13 @@ lsarpc_dissect_struct_lsa_ForestTrustRecord(tvbuff_t *tvb _U_, int offset _U_, p
 
 	ALIGN_TO_8_BYTES;
 
-	ALIGN_TO_8_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_ForestTrustRecord);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_ForestTrustRecord_flags(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_ForestTrustRecord_level(tvb, offset, pinfo, tree, di, drep, &level);
@@ -6591,15 +6474,13 @@ lsarpc_dissect_struct_lsa_ForestTrustInformation(tvbuff_t *tvb _U_, int offset _
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_lsa_ForestTrustInformation);
 	}
-	
+
 	offset = lsarpc_dissect_element_lsa_ForestTrustInformation_count(tvb, offset, pinfo, tree, di, drep);
 
 	offset = lsarpc_dissect_element_lsa_ForestTrustInformation_entries(tvb, offset, pinfo, tree, di, drep);

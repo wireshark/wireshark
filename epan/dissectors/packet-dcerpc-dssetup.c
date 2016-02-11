@@ -320,15 +320,13 @@ dssetup_dissect_struct_DsRolePrimaryDomInfoBasic(tvbuff_t *tvb _U_, int offset _
 
 	ALIGN_TO_5_BYTES;
 
-	ALIGN_TO_5_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_dssetup_dssetup_DsRolePrimaryDomInfoBasic);
 	}
-	
+
 	offset = dssetup_dissect_element_DsRolePrimaryDomInfoBasic_role(tvb, offset, pinfo, tree, di, drep);
 
 	offset = dssetup_dissect_element_DsRolePrimaryDomInfoBasic_flags(tvb, offset, pinfo, tree, di, drep);
@@ -424,15 +422,13 @@ dssetup_dissect_struct_DsRoleUpgradeStatus(tvbuff_t *tvb _U_, int offset _U_, pa
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_dssetup_dssetup_DsRoleUpgradeStatus);
 	}
-	
+
 	offset = dssetup_dissect_element_DsRoleUpgradeStatus_upgrading(tvb, offset, pinfo, tree, di, drep);
 
 	offset = dssetup_dissect_element_DsRoleUpgradeStatus_previous_role(tvb, offset, pinfo, tree, di, drep);
@@ -491,15 +487,13 @@ dssetup_dissect_struct_DsRoleOpStatus(tvbuff_t *tvb _U_, int offset _U_, packet_
 
 	ALIGN_TO_3_BYTES;
 
-	ALIGN_TO_3_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_dssetup_dssetup_DsRoleOpStatus);
 	}
-	
+
 	offset = dssetup_dissect_element_DsRoleOpStatus_status(tvb, offset, pinfo, tree, di, drep);
 
 

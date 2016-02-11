@@ -552,15 +552,13 @@ eventlog_dissect_struct_OpenUnknown0(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 	ALIGN_TO_2_BYTES;
 
-	ALIGN_TO_2_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_eventlog_eventlog_OpenUnknown0);
 	}
-	
+
 	offset = eventlog_dissect_element_OpenUnknown0_unknown0(tvb, offset, pinfo, tree, di, drep);
 
 	offset = eventlog_dissect_element_OpenUnknown0_unknown1(tvb, offset, pinfo, tree, di, drep);
@@ -713,15 +711,13 @@ eventlog_dissect_struct_Record(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_eventlog_eventlog_Record);
 	}
-	
+
 	offset = eventlog_dissect_element_Record_size(tvb, offset, pinfo, tree, di, drep);
 
 	offset = eventlog_dissect_element_Record_reserved(tvb, offset, pinfo, tree, di, drep);
@@ -804,15 +800,13 @@ eventlog_dissect_struct_ChangeUnknown0(tvbuff_t *tvb _U_, int offset _U_, packet
 
 	ALIGN_TO_4_BYTES;
 
-	ALIGN_TO_4_BYTES;
-
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_eventlog_eventlog_ChangeUnknown0);
 	}
-	
+
 	offset = eventlog_dissect_element_ChangeUnknown0_unknown0(tvb, offset, pinfo, tree, di, drep);
 
 	offset = eventlog_dissect_element_ChangeUnknown0_unknown1(tvb, offset, pinfo, tree, di, drep);
