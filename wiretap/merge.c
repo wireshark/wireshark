@@ -148,7 +148,7 @@ merge_open_in_files(int in_file_count, const char *const *in_file_names,
         }
         size = wtap_file_size(files[i].wth, err);
         if (size == -1) {
-            for (j = 0; j + 1 > j && j <= i; j++)
+            for (j = 0; j != G_MAXINT && j <= i; j++)
                 cleanup_in_file(&files[j]);
             *err_fileno = i;
             return FALSE;
