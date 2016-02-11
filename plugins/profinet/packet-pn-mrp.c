@@ -191,22 +191,22 @@ dissect_PNMRP_Link(tvbuff_t *tvb, int offset,
 static const char * mrp_Prio2msg(guint16 prio)
 {
 
-if (prio == 0x0000)
-    return(" Highest priority redundancy manager");
-if ((prio >= 0x1000) && (prio <= 0x7000))
-    return(" High priorities");
-if (prio == 0x8000)
-    return(" Default priority for redundancy manager");
-if ((prio >= 0x8001) && (prio <= 0x8FFF))
-    return(" Low priorities for redundancy manager");
-if ((prio >= 0x9000) && (prio <= 0x9FFF))
-    return(" High priorities for redundancy manager (auto)");
-if (prio == 0xA000)
-    return(" Default priority for redundancy manager (auto)");
-if ((prio >= 0xA001) && (prio <= 0xF000))
-    return(" Low priorities for redundancy manager (auto)");
-if (prio ==0xFFFF)
-    return(" Lowest priority for redundancy manager (auto)");
+    if (prio == 0x0000)
+        return(" Highest priority redundancy manager");
+    if ((prio >= 0x1000) && (prio <= 0x7000))
+        return(" High priorities");
+    if (prio == 0x8000)
+        return(" Default priority for redundancy manager");
+    if ((prio >= 0x8001) && (prio <= 0x8FFF))
+        return(" Low priorities for redundancy manager");
+    if ((prio >= 0x9000) && (prio <= 0x9FFF))
+        return(" High priorities for redundancy manager (auto)");
+    if (prio == 0xA000)
+        return(" Default priority for redundancy manager (auto)");
+    if ((prio >= 0xA001) && (prio <= 0xF000))
+        return(" Low priorities for redundancy manager (auto)");
+    if (prio ==0xFFFF)
+        return(" Lowest priority for redundancy manager (auto)");
 
     return(" Reserved");
 }
