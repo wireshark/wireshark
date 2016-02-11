@@ -1258,7 +1258,10 @@ void rijndael_decrypt(
  */
 void aes_cmac_encrypt_starts(aes_cmac_ctx *ctx, const guint8 *key, guint key_len)
 {
-	if (ctx == NULL || key == NULL) {
+	if (ctx == NULL) {
+		return;
+	}
+	if (key == NULL) {
 		ctx->key_len = 0;
 		return;
 	}
