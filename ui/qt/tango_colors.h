@@ -23,9 +23,14 @@
 #ifndef __TANGO_COLORS_H__
 #define __TANGO_COLORS_H__
 
+#include <wsutil/ws_diag_control.h>
+
 // http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
 // with added hues from http://emilis.info/other/extended_tango/
 // (all colors except aluminium)
+
+// avoid unused-const-variable warning with gcc6
+DIAG_OFF(unused-const-variable)
 
 const QRgb tango_aluminium_1   = 0xeeeeec;
 const QRgb tango_aluminium_2   = 0xd3d7cf;
@@ -85,5 +90,7 @@ const QRgb tango_sky_blue_6    = 0x0a3050;
 
 const QRgb ws_css_warn_background = tango_butter_2;
 const QRgb ws_css_warn_text       = tango_aluminium_6;
+
+DIAG_ON(unused-const-variable)
 
 #endif // __TANGO_COLORS_H__
