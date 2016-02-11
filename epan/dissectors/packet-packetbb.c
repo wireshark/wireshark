@@ -181,7 +181,7 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     tlvFlags = tvb_get_guint8(tvb, offset++);
 
     indexStart = 0;
-    indexEnd = addrCount;
+    indexEnd = addrCount ? (addrCount - 1) : 0;
     tlvExtType = 0;
 
     if ((tlvFlags & TLV_HAS_TYPEEXT) != 0) {
