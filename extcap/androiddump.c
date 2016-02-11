@@ -1058,7 +1058,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
 
         errno = 0;
         length = recv(sock, data + used_buffer_length, (int)(PACKET_LENGTH - used_buffer_length), 0);
-        if (errno == EAGAIN || errno == EWOULDBLOCK) continue;
+        if (errno == EAGAIN || (EWOULDBLOCK != EAGAIN && errno == EWOULDBLOCK)) continue;
         else if (errno != 0) {
             if (verbose)
                 printf("ERROR capture: %s\n", strerror(errno));
@@ -1123,7 +1123,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
 
             errno = 0;
             length = recv(sock, data + used_buffer_length, (int)(PACKET_LENGTH - used_buffer_length), 0);
-            if (errno == EAGAIN || errno == EWOULDBLOCK) continue;
+            if (errno == EAGAIN || (EWOULDBLOCK != EAGAIN && errno == EWOULDBLOCK)) continue;
             else if (errno != 0) {
                 if (verbose)
                     printf("ERROR capture: %s\n", strerror(errno));
@@ -1155,7 +1155,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
     while (endless_loop) {
         errno = 0;
         length = recv(sock, data + used_buffer_length,  (int)(PACKET_LENGTH - used_buffer_length), 0);
-        if (errno == EAGAIN || errno == EWOULDBLOCK) continue;
+        if (errno == EAGAIN || (EWOULDBLOCK != EAGAIN && errno == EWOULDBLOCK)) continue;
         else if (errno != 0) {
             if (verbose)
                 printf("ERROR capture: %s\n", strerror(errno));
@@ -1462,7 +1462,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
     while (endless_loop) {
         errno = 0;
         length = recv(sock, buffer + used_buffer_length,  (int)(PACKET_LENGTH - used_buffer_length), 0);
-        if (errno == EAGAIN || errno == EWOULDBLOCK) continue;
+        if (errno == EAGAIN || (EWOULDBLOCK != EAGAIN && errno == EWOULDBLOCK)) continue;
         else if (errno != 0) {
             if (verbose)
                 printf("ERROR capture: %s\n", strerror(errno));
@@ -1679,7 +1679,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
         errno = 0;
         length = recv(sock, packet + used_buffer_length + sizeof(own_pcap_bluetooth_h4_header),
                 (int)(PACKET_LENGTH - sizeof(own_pcap_bluetooth_h4_header) - used_buffer_length), 0);
-        if (errno == EAGAIN || errno == EWOULDBLOCK) continue;
+        if (errno == EAGAIN || (EWOULDBLOCK != EAGAIN && errno == EWOULDBLOCK)) continue;
         else if (errno != 0) {
             if (verbose)
                 printf("ERROR capture: %s\n", strerror(errno));
@@ -1850,7 +1850,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
     while (endless_loop) {
         errno = 0;
         length = recv(sock, packet + exported_pdu_headers_size + used_buffer_length,  (int)(PACKET_LENGTH - exported_pdu_headers_size - used_buffer_length), 0);
-        if (errno == EAGAIN || errno == EWOULDBLOCK) continue;
+        if (errno == EAGAIN || (EWOULDBLOCK != EAGAIN && errno == EWOULDBLOCK)) continue;
         else if (errno != 0) {
             if (verbose)
                 printf("ERROR capture: %s\n", strerror(errno));
@@ -2029,7 +2029,7 @@ static int capture_android_logcat(char *interface, char *fifo,
     while (endless_loop) {
         errno = 0;
         length = recv(sock, packet + exported_pdu_headers_size + used_buffer_length, (int)(PACKET_LENGTH - exported_pdu_headers_size - used_buffer_length), 0);
-        if (errno == EAGAIN || errno == EWOULDBLOCK) continue;
+        if (errno == EAGAIN || (EWOULDBLOCK != EAGAIN && errno == EWOULDBLOCK)) continue;
         else if (errno != 0) {
             if (verbose)
                 printf("ERROR capture: %s\n", strerror(errno));
@@ -2254,7 +2254,7 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
         char *i_position;
         errno = 0;
         length = recv(sock, data + used_buffer_length, (int)(PACKET_LENGTH - used_buffer_length), 0);
-        if (errno == EAGAIN || errno == EWOULDBLOCK)
+        if (errno == EAGAIN || (EWOULDBLOCK != EAGAIN && errno == EWOULDBLOCK))
             continue;
         else if (errno != 0) {
             if (verbose)
@@ -2366,7 +2366,7 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
         while (endless_loop) {
             errno = 0;
             length = recv(sock, data + used_buffer_length, (int)(PACKET_LENGTH -(used_buffer_length + filter_buffer_length)), 0);
-            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            if (errno == EAGAIN || (EWOULDBLOCK != EAGAIN && errno == EWOULDBLOCK)) {
                 continue;
             }
             else if (errno != 0) {
