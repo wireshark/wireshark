@@ -35,63 +35,13 @@
 
 /*--- Included file: packet-q932-exp.h ---*/
 #line 1 "../../asn1/q932/packet-q932-exp.h"
-
-static const value_string q932_PresentedAddressScreened_vals[] = {
-  {   0, "presentationAlIowedAddress" },
-  {   1, "presentationRestricted" },
-  {   2, "numberNotAvailableDueTolnterworking" },
-  {   3, "presentationRestrictedAddress" },
-  { 0, NULL }
-};
-
-static const value_string q932_PresentedAddressUnscreened_vals[] = {
-  {   0, "presentationAllowedAddress" },
-  {   1, "presentationRestricted" },
-  {   2, "numberNotAvailableDueTolnterworking" },
-  {   3, "presentationRestrictedAddress" },
-  { 0, NULL }
-};
-
-static const value_string q932_PresentedNumberScreened_vals[] = {
-  {   0, "presentationAllowedNumber" },
-  {   1, "presentationRestricted" },
-  {   2, "numberNotAvailableDueToInterworking" },
-  {   3, "presentationRestrictedNumber" },
-  { 0, NULL }
-};
-
-static const value_string q932_PresentedNumberUnscreened_vals[] = {
-  {   0, "presentationAllowedNumber" },
-  {   1, "presentationRestricted" },
-  {   2, "numberNotAvailableDueToInterworking" },
-  {   3, "presentationRestrictedNumber" },
-  { 0, NULL }
-};
-
-static const value_string q932_PartyNumber_vals[] = {
-  {   0, "unknownPartyNumber" },
-  {   1, "publicPartyNumber" },
-  {   2, "nsapEncodedNumber" },
-  {   3, "dataPartyNumber" },
-  {   4, "telexPartyNumber" },
-  {   5, "privatePartyNumber" },
-  {   8, "nationalStandardPartyNumber" },
-  { 0, NULL }
-};
-
-static const value_string q932_PartySubaddress_vals[] = {
-  {   0, "userSpecifiedSubaddress" },
-  {   1, "nSAPSubaddress" },
-  { 0, NULL }
-};
-
-static const value_string q932_ScreeningIndicator_vals[] = {
-  {   0, "userProvidedNotScreened" },
-  {   1, "userProvidedVerifiedAndPassed" },
-  {   2, "userProvidedVerifiedAndFailed" },
-  {   3, "networkProvided" },
-  { 0, NULL }
-};
+extern const value_string q932_PresentedAddressScreened_vals[];
+extern const value_string q932_PresentedAddressUnscreened_vals[];
+WS_DLL_PUBLIC const value_string q932_PresentedNumberScreened_vals[];
+WS_DLL_PUBLIC const value_string q932_PresentedNumberUnscreened_vals[];
+WS_DLL_PUBLIC const value_string q932_PartyNumber_vals[];
+WS_DLL_PUBLIC const value_string q932_PartySubaddress_vals[];
+extern const value_string q932_ScreeningIndicator_vals[];
 extern int dissect_q932_PresentedAddressScreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 extern int dissect_q932_PresentedAddressUnscreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 WS_DLL_PUBLIC int dissect_q932_PresentedNumberScreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);

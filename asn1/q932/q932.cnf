@@ -8,7 +8,7 @@ InterpretationComponent
 NetworkFacilityExtension
 NetworkProtocolProfile
 
-#.EXPORTS EXTERN VALS_WITH_TABLE
+#.EXPORTS EXTERN
 
 # Addressing-Data-Elements
 PresentedAddressScreened
