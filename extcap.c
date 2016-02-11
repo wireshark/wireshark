@@ -658,12 +658,6 @@ void extcap_cleanup(capture_options * capture_opts) {
                 "Extcap [%s] - Closing spawned PID: %d", interface_opts.name,
                 interface_opts.extcap_pid);
 
-        if (interface_opts.extcap_child_watch > 0)
-        {
-            g_source_remove(interface_opts.extcap_child_watch);
-            interface_opts.extcap_child_watch = 0;
-        }
-
         if (interface_opts.extcap_pid != INVALID_EXTCAP_PID)
         {
 #ifdef _WIN32
@@ -712,7 +706,9 @@ static void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data)
         if (interface_opts.extcap_pid == pid)
         {
             interface_opts.extcap_pid = INVALID_EXTCAP_PID;
+            g_source_remove(interface_opts.extcap_child_watch);
             interface_opts.extcap_child_watch = 0;
+
             capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, i);
             g_array_insert_val(capture_opts->ifaces, i, interface_opts);
             break;
