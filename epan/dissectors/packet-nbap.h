@@ -45,13 +45,14 @@ extern guint8 lchId_type_table[];
 /* Mapping logicalchannel id to RLC_MODE */
 extern guint8 lchId_rlc_map[];
 
-/* 1 to 8*/
+/* 0 to 7*/
 static const guint8 hsdsch_macdflow_id_rlc_map[] = {
-	RLC_UM,	           /*1 SRB */
-	RLC_AM,            /*2 Interactive PS*/
-	RLC_AM,	           /*3 Interatcive PS*/
-	RLC_UNKNOWN_MODE, /*4 ???*/
-	RLC_AM,	          /*5 Streaming PS*/
+	RLC_UM,	           /*0 SRB */
+	RLC_AM,            /*1 Interactive PS*/
+	RLC_AM,	           /*2 Interatcive PS*/
+	RLC_UNKNOWN_MODE,  /*3 ???*/
+	RLC_AM,	           /*4 Streaming PS*/
+	RLC_UNKNOWN_MODE,
 	RLC_UNKNOWN_MODE,
 	RLC_UNKNOWN_MODE
 	};
