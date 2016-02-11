@@ -74,6 +74,7 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
 
     ui->cbShowAs->blockSignals(true);
     ui->cbShowAs->addItem(tr("ASCII"), ShowAsASCII);
+    ui->cbShowAs->addItem(tr("C Array"), ShowAsCArray);
     ui->cbShowAs->addItem(tr("EBCDIC"), ShowAsEBCDIC);
     ui->cbShowAs->addItem(tr("Hex Dump"), ShowAsHexDump);
     ui->cbShowAs->addItem(tr("HTML"), ShowAsHTML);
@@ -81,6 +82,7 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     ui->cbShowAs->addItem(tr("ISO 8859-1"), ShowAsISO8859_1);
     ui->cbShowAs->addItem(tr("Raw"), ShowAsRAW);
     ui->cbShowAs->addItem(tr("UTF-8"), ShowAsUTF8);
+    ui->cbShowAs->addItem(tr("YAML"), ShowAsYAML);
     ui->cbShowAs->setCurrentIndex(show_as_);
     ui->cbShowAs->blockSignals(false);
 
@@ -153,10 +155,12 @@ void ShowPacketBytesDialog::copyBytes()
     switch (show_as_) {
 
     case ShowAsASCII:
+    case ShowAsCArray:
     case ShowAsEBCDIC:
     case ShowAsHexDump:
     case ShowAsISO8859_1:
     case ShowAsRAW:
+    case ShowAsYAML:
         wsApp->clipboard()->setText(ui->tePacketBytes->toPlainText());
         break;
 
@@ -187,9 +191,11 @@ void ShowPacketBytesDialog::saveAs()
     switch (show_as_) {
 
     case ShowAsASCII:
+    case ShowAsCArray:
     case ShowAsEBCDIC:
     case ShowAsHexDump:
     case ShowAsISO8859_1:
+    case ShowAsYAML:
     {
         QTextStream out(&file);
         out << ui->tePacketBytes->toPlainText();
@@ -299,7 +305,8 @@ static inline void sanitize_buffer(QByteArray &ba)
 
 void ShowPacketBytesDialog::updatePacketBytes(void)
 {
-    ui->tePacketBytes->clear();
+    static const gchar hexchars[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+
     ui->tePacketBytes->setCurrentFont(wsApp->monospaceFont());
     ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
 
@@ -310,6 +317,43 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         QByteArray ba(field_bytes_);
         sanitize_buffer(ba);
         ui->tePacketBytes->setPlainText(ba);
+        break;
+    }
+
+    case ShowAsCArray:
+    {
+        int pos = 0, len = field_bytes_.length();
+        QString text("char packet_bytes[] = {\n");
+
+        while (pos < len) {
+            gchar hexbuf[256];
+            char *cur = hexbuf;
+            int i;
+
+            *cur++ = ' ';
+            for (i = 0; i < 8 && pos + i < len; i++) {
+                // Prepend entries with " 0x"
+                *cur++ = ' ';
+                *cur++ = '0';
+                *cur++ = 'x';
+                *cur++ = hexchars[(field_bytes_[pos + i] & 0xf0) >> 4];
+                *cur++ = hexchars[field_bytes_[pos + i] & 0x0f];
+
+                // Delimit array entries with a comma
+                if (pos + i + 1 < len)
+                    *cur++ = ',';
+            }
+
+            pos += i;
+            *cur++ = '\n';
+            *cur = 0;
+
+            text.append(hexbuf);
+        }
+
+        text.append("};\n");
+        ui->tePacketBytes->setPlainText(text);
+        ui->tePacketBytes->setLineWrapMode(QTextEdit::NoWrap);
         break;
     }
 
@@ -324,10 +368,10 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
 
     case ShowAsHexDump:
     {
-        static const gchar hexchars[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
-        int pos = 0;
+        int pos = 0, len = field_bytes_.length();
+        QString text;
 
-        while (pos < field_bytes_.length()) {
+        while (pos < len) {
             char hexbuf[256];
             char *cur = hexbuf;
             int i;
@@ -336,7 +380,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
             cur += g_snprintf(cur, 20, "%08X  ", pos);
 
             // Dump bytes as hex
-            for (i = 0; i < 16 && pos + i < field_bytes_.length(); i++) {
+            for (i = 0; i < 16 && pos + i < len; i++) {
                 *cur++ = hexchars[(field_bytes_[pos + i] & 0xf0) >> 4];
                 *cur++ = hexchars[field_bytes_[pos + i] & 0x0f];
                 *cur++ = ' ';
@@ -348,7 +392,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
                 *cur++ = ' '; // Fill it up with space to column 61
 
             // Dump bytes as text
-            for (i = 0; i < 16 && pos + i < field_bytes_.length(); i++) {
+            for (i = 0; i < 16 && pos + i < len; i++) {
                 if (g_ascii_isprint(field_bytes_[pos + i]))
                     *cur++ = field_bytes_[pos + i];
                 else
@@ -356,12 +400,15 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
                 if (i == 7)
                     *cur++ = ' ';
             }
+
             pos += i;
             *cur++ = '\n';
             *cur = 0;
 
-            ui->tePacketBytes->insertPlainText(hexbuf);
+            text.append(hexbuf);
         }
+
+        ui->tePacketBytes->setPlainText(text);
         ui->tePacketBytes->setLineWrapMode(QTextEdit::NoWrap);
         break;
     }
@@ -375,6 +422,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         ui->lFind->setEnabled(false);
         ui->leFind->setEnabled(false);
         ui->bFind->setEnabled(false);
+        ui->tePacketBytes->clear();
 
         if (!image_.isNull()) {
             ui->tePacketBytes->textCursor().insertImage(image_);
@@ -401,6 +449,23 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         // explicitly choose one or the other.
         QString utf8 = QString::fromUtf8(field_bytes_);
         ui->tePacketBytes->setPlainText(utf8);
+        break;
+    }
+
+    case ShowAsYAML:
+    {
+        const int base64_raw_len = 57; // Encodes to 76 bytes, common in RFCs
+        int pos = 0, len = field_bytes_.length();
+        QString text("# Packet Bytes: !!binary |\n");
+
+        while (pos < len) {
+            QByteArray base64_data = field_bytes_.mid(pos, base64_raw_len);
+            pos += base64_data.length();
+            text.append("  " + base64_data.toBase64() + "\n");
+        }
+
+        ui->tePacketBytes->setPlainText(text);
+        ui->tePacketBytes->setLineWrapMode(QTextEdit::NoWrap);
         break;
     }
 

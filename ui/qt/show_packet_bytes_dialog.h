@@ -69,13 +69,15 @@ private slots:
 private:
     enum ShowAsType {
         ShowAsASCII,
+        ShowAsCArray,
         ShowAsEBCDIC,
         ShowAsHexDump,
         ShowAsHTML,
         ShowAsImage,
         ShowAsISO8859_1,
         ShowAsRAW,
-        ShowAsUTF8
+        ShowAsUTF8,
+        ShowAsYAML
     };
 
     void updateWidgets(); // Needed for WiresharkDialog?
