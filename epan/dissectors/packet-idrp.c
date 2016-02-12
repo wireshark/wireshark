@@ -713,7 +713,8 @@ static int dissect_BISPDU_UPDATE(tvbuff_t * tvb, int offset, proto_tree * tree)
                     for (i = nb_of_snpa; i > 0; i--) {
                         /* SNPS length in multiples of 4 bit */
                         length_indicator_guint8 =
-                            (guint8) ceil((float)tvb_get_guint8(tvb, offset) / (float)2.0);
+                            /* length = half the length in semi-octets rounded up */
+                            (tvb_get_guint8(tvb, offset) + 1) / 2;
                         offset += 1;
                         proto_tree_add_item(tree,
                                 hf_idrp_update_path_attr_next_hop_snpa,
