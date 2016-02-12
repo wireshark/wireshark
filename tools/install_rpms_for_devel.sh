@@ -45,10 +45,15 @@ else
 		echo
 	fi
 
-	INSTALL_CMD=yum
+	if type -p dnf > /dev/null
+	then
+		INSTALL_CMD=dnf
+	else
+		INSTALL_CMD=yum
+	fi
 	GTK2="gtk2-devel gtk2"
 	GTK3="gtk3-devel gtk3"
-	QT="qt-devel gcc-c++"
+	QT="qt-devel gcc-c++ qt5-qtbase-devel qt5-qtmultimedia-devel"
 	GLIB2="glib2-devel glib2"
 	PCAP="libpcap-devel libpcap"
 	ZLIB="zlib-devel zlib"
