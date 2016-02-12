@@ -173,7 +173,7 @@ set_conv_gui_data(gpointer data, gpointer user_data)
 
 void conversation_table_set_gui_info(conv_gui_init_cb init_cb)
 {
-    g_slist_foreach(registered_ct_tables, set_conv_gui_data, init_cb);
+    g_slist_foreach(registered_ct_tables, set_conv_gui_data, (gpointer)init_cb);
 }
 
 static void
@@ -197,7 +197,7 @@ set_host_gui_data(gpointer data, gpointer user_data)
 
 void hostlist_table_set_gui_info(host_gui_init_cb init_cb)
 {
-    g_slist_foreach(registered_ct_tables, set_host_gui_data, init_cb);
+    g_slist_foreach(registered_ct_tables, set_host_gui_data, (gpointer)init_cb);
 }
 
 void conversation_table_iterate_tables(GFunc func, gpointer user_data)

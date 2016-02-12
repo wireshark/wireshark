@@ -880,7 +880,7 @@ proto_register_prefix(const char *prefix, prefix_initializer_t pi ) {
 		prefixes = g_hash_table_new(prefix_hash, prefix_equal);
 	}
 
-	g_hash_table_insert(prefixes, (gpointer)prefix, pi);
+	g_hash_table_insert(prefixes, (gpointer)prefix, (gpointer)pi);
 }
 
 /* helper to call all prefix initializers */

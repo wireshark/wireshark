@@ -149,7 +149,7 @@ iface_mon_start(iface_mon_cb cb)
 
     nl_socket_disable_seq_check(iface_mon_sock);
 
-    nl_socket_modify_cb(iface_mon_sock, NL_CB_VALID, NL_CB_CUSTOM, iface_mon_handler, cb);
+    nl_socket_modify_cb(iface_mon_sock, NL_CB_VALID, NL_CB_CUSTOM, iface_mon_handler, (void *)cb);
 
     if (nl_connect(iface_mon_sock, NETLINK_ROUTE)) {
         fprintf(stderr, "Failed to connect to generic netlink.\n");

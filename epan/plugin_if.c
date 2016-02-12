@@ -293,7 +293,7 @@ extern void plugin_if_register_gui_cb(plugin_if_callback_t actionType, plugin_if
     plugin_if_init_hashtable();
 
     if ( ! g_hash_table_lookup_extended(plugin_if_callback_functions, key, NULL, NULL ) )
-        g_hash_table_insert(plugin_if_callback_functions, key, callback);
+        g_hash_table_insert(plugin_if_callback_functions, key, (gpointer)callback);
 }
 
 /*
