@@ -982,8 +982,12 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 		check_function(dfw, entity1);
 
 	} else {
-		dfilter_fail(dfw, "Range is not supported, details: " G_STRLOC " entity: %p of type %d",
-				entity1, entity1 ? (int) stnode_type_id(entity1) : -1);
+		if (entity1 == NULL) {
+			dfilter_fail(dfw, "Range is not supported, details: " G_STRLOC " entity: NULL");
+		} else {
+			dfilter_fail(dfw, "Range is not supported, details: " G_STRLOC " entity: %p of type %d",
+					(void *)entity1, stnode_type_id(entity1));
+		}
 		THROW(TypeError);
 	}
 
