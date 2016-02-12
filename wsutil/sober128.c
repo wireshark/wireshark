@@ -788,8 +788,8 @@ int sober128_add_entropy(const unsigned char *buf, unsigned long len, sober128_p
        /* len must be multiple of 4 bytes */
        /* assert ((len & 3) == 0); */
 
-       for (i = 0; i < len; i += 4) {
-           k = BYTE2WORD(&buf[i]);
+       for (i = 0; i < len/4; i++) {
+           k = BYTE2WORD(&buf[i*4]);
           ADDKEY(k);
           cycle(c->R);
           XORNL(nltap(c));
@@ -813,8 +813,8 @@ int sober128_add_entropy(const unsigned char *buf, unsigned long len, sober128_p
        /* len must be multiple of 4 bytes */
        /* assert ((len & 3) == 0); */
 
-       for (i = 0; i < len; i += 4) {
-           k = BYTE2WORD(&buf[i]);
+       for (i = 0; i < len/4; i++) {
+           k = BYTE2WORD(&buf[i*4]);
           ADDKEY(k);
           cycle(c->R);
           XORNL(nltap(c));
