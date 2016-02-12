@@ -1549,9 +1549,7 @@ DIAG_ON(cast-qual)
                         previous_time.nsecs = phdr->ts.nsecs;
                     }
 
-                    /* assume that if the frame's tv_sec is 0, then
-                     * the timestamp isn't supported */
-                    if (phdr->ts.secs > 0 && time_adj.tv.secs != 0) {
+                    if (time_adj.tv.secs != 0) {
                         temp_phdr = *phdr;
                         if (time_adj.is_negative)
                             temp_phdr.ts.secs -= time_adj.tv.secs;
@@ -1560,9 +1558,7 @@ DIAG_ON(cast-qual)
                         phdr = &temp_phdr;
                     }
 
-                    /* assume that if the frame's tv_sec is 0, then
-                     * the timestamp isn't supported */
-                    if (phdr->ts.secs > 0 && time_adj.tv.nsecs != 0) {
+                    if (time_adj.tv.nsecs != 0) {
                         temp_phdr = *phdr;
                         if (time_adj.is_negative) { /* subtract */
                             if (temp_phdr.ts.nsecs < time_adj.tv.nsecs) { /* borrow */
