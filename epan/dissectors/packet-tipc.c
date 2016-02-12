@@ -1096,11 +1096,11 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 				if ((padlen = (4-b_inst_strlen%4)) > 0) {
 					proto_tree_add_bytes_format_value(tipc_tree, hf_tipcv2_padding, tipc_tvb, offset, padlen, NULL, "%d byte%c", padlen, (padlen!=1?'s':0));
 					offset += padlen;
-				};
+				}
 				if ((offset-msg_size) > 0) {
 					proto_tree_add_bytes_format_value(tipc_tree, hf_tipcv2_filler_mtu_discovery, tipc_tvb, offset, -1, NULL,
 													"%d byte%c", tvb_reported_length_remaining(tipc_tvb, offset), (padlen!=1?'s':0));
-				};
+				}
 			}
 			break;
 		case TIPCv2_CONN_MANAGER:
