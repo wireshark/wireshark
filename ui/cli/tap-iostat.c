@@ -842,7 +842,7 @@ iostat_draw(void *arg)
     printf("| Col");
     for (j=0; j<num_cols; j++) {
         printf((j == 0 ? "%2u: " : "|    %2u: "), j+1);
-        if (!iot->filters[j] || (iot->filters[j] == 0)) {
+        if (!iot->filters[j]) {
             /*
             * An empty (no filter) comma field was specified */
             spaces_s = &spaces[16 + 10];
