@@ -1392,9 +1392,7 @@ main(int argc, char *argv[])
                         previous_time.nsecs = phdr->ts.nsecs;
                     }
 
-                    /* assume that if the frame's tv_sec is 0, then
-                     * the timestamp isn't supported */
-                    if (phdr->ts.secs > 0 && time_adj.tv.tv_sec != 0) {
+                    if (time_adj.tv.tv_sec != 0) {
                         snap_phdr = *phdr;
                         if (time_adj.is_negative)
                             snap_phdr.ts.secs -= time_adj.tv.tv_sec;
@@ -1403,9 +1401,7 @@ main(int argc, char *argv[])
                         phdr = &snap_phdr;
                     }
 
-                    /* assume that if the frame's tv_sec is 0, then
-                     * the timestamp isn't supported */
-                    if (phdr->ts.secs > 0 && time_adj.tv.tv_usec != 0) {
+                    if (time_adj.tv.tv_usec != 0) {
                         snap_phdr = *phdr;
                         if (time_adj.is_negative) { /* subtract */
                             if (snap_phdr.ts.nsecs/1000 < time_adj.tv.tv_usec) { /* borrow */
