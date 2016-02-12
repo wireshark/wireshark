@@ -524,13 +524,14 @@ void PreferencesDialog::on_prefsTree_currentItemChanged(QTreeWidgetItem *current
     }
 }
 
-void PreferencesDialog::on_advancedSearchLineEdit_textEdited(const QString &search_str)
+void PreferencesDialog::on_advancedSearchLineEdit_textEdited(const QString &search_re)
 {
     // Hide or show each branch
     QTreeWidgetItemIterator branch_it(pd_ui_->advancedTree);
+    QRegExp regex(search_re, Qt::CaseInsensitive);
     while (*branch_it) {
         if ((*branch_it)->data(pref_ptr_col_, Qt::UserRole).value<pref_t *>() == NULL) {
-            (*branch_it)->setHidden(!search_str.isEmpty());
+            (*branch_it)->setHidden(!search_re.isEmpty());
         }
         ++branch_it;
     }
@@ -543,9 +544,9 @@ void PreferencesDialog::on_advancedSearchLineEdit_textEdited(const QString &sear
         if ((*pref_it)->data(pref_ptr_col_, Qt::UserRole).value<pref_t *>()) {
             QTreeWidgetItem *parent = (*pref_it)->parent();
 
-            if (search_str.isEmpty() ||
-                (*pref_it)->text(0).contains(search_str, Qt::CaseInsensitive) ||
-                (*pref_it)->toolTip(0).contains(search_str, Qt::CaseInsensitive)) {
+            if (search_re.isEmpty() ||
+                (*pref_it)->text(0).contains(regex) ||
+                (*pref_it)->toolTip(0).contains(regex)) {
                 hidden = false;
             }
 

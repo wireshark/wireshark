@@ -80,7 +80,7 @@ private:
 
 private slots:
     void on_prefsTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
-    void on_advancedSearchLineEdit_textEdited(const QString &search_str);
+    void on_advancedSearchLineEdit_textEdited(const QString &search_re);
     void lineEditPrefDestroyed();
     void enumPrefDestroyed();
     void uintPrefEditingFinished();
