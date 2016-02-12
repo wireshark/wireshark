@@ -148,6 +148,8 @@ static int hf_rtps_persistence                  = -1;
 static int hf_rtps_info_ts_timestamp            = -1;
 static int hf_rtps_locator_kind                 = -1;
 static int hf_rtps_locator_port                 = -1;
+static int hf_rtps_logical_port                 = -1;
+static int hf_rtps_locator_public_address_port  = -1;
 static int hf_rtps_locator_ipv4                 = -1;
 static int hf_rtps_locator_ipv6                 = -1;
 static int hf_rtps_participant_builtin_endpoints= -1;
@@ -497,6 +499,11 @@ static const value_string rtps_locator_kind_vals[] = {
   { LOCATOR_KIND_UDPV4,        "LOCATOR_KIND_UDPV4" },
   { LOCATOR_KIND_UDPV6,        "LOCATOR_KIND_UDPV6" },
   { LOCATOR_KIND_INVALID,      "LOCATOR_KIND_INVALID" },
+  { LOCATOR_KIND_TCPV4_LAN,    "LOCATOR_KIND_TCPV4_LAN" },
+  { LOCATOR_KIND_TCPV4_WAN,    "LOCATOR_KIND_TCPV4_WAN" },
+  { LOCATOR_KIND_TLSV4_LAN,    "LOCATOR_KIND_TLSV4_LAN" },
+  { LOCATOR_KIND_TLSV4_WAN,    "LOCATOR_KIND_TLSV4_WAN" },
+  { LOCATOR_KIND_SHMEM,        "LOCATOR_KIND_SHMEM" },
   { LOCATOR_KIND_RESERVED,     "LOCATOR_KIND_RESERVED" },
   { 0, NULL }
 };
@@ -1377,20 +1384,54 @@ void rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
   gint32  kind;
   guint32 port;
 
-  locator_tree = proto_tree_add_subtree(tree, tvb, offset, 24, ett_rtps_locator, NULL, label);
+  locator_tree = proto_tree_add_subtree(tree, tvb, offset, 24, ett_rtps_locator,
+          NULL, label);
 
   kind = NEXT_guint32(tvb, offset, little_endian);
   port = NEXT_guint32(tvb, offset+4, little_endian);
-
   proto_tree_add_uint(locator_tree, hf_rtps_locator_kind, tvb, offset, 4, kind);
-  ti = proto_tree_add_int(locator_tree, hf_rtps_locator_port, tvb, offset+4, 4, port);
-  if (port == 0)
-    expert_add_info(pinfo, ti, &ei_rtps_locator_port);
-
-  if (kind == LOCATOR_KIND_UDPV4) {
-    proto_tree_add_item(locator_tree, hf_rtps_locator_ipv4, tvb, offset+20, 4, ENC_BIG_ENDIAN);
-  } else {
-    proto_tree_add_item(locator_tree, hf_rtps_locator_ipv6, tvb, offset+8, 16, ENC_NA);
+  switch (kind) {
+    case LOCATOR_KIND_UDPV4: {
+      ti = proto_tree_add_int(locator_tree, hf_rtps_locator_port, tvb, offset+4, 4, port);
+      proto_tree_add_item(locator_tree, hf_rtps_locator_ipv4, tvb, offset+20, 4,
+              ENC_BIG_ENDIAN);
+      if (port == 0)
+        expert_add_info(pinfo, ti, &ei_rtps_locator_port);
+      break;
+    }
+    case LOCATOR_KIND_TCPV4_LAN:
+    case LOCATOR_KIND_TCPV4_WAN:
+    case LOCATOR_KIND_TLSV4_LAN:
+    case LOCATOR_KIND_TLSV4_WAN: {
+      ti = proto_tree_add_int(locator_tree, hf_rtps_logical_port, tvb, offset+4, 4, port);
+      if (port == 0)
+        expert_add_info(pinfo, ti, &ei_rtps_locator_port);
+      kind = NEXT_guint16(tvb, offset+16, little_endian);
+      if (kind == 0xFFFF) { /* IPv4 format */
+        proto_tree_add_item(locator_tree, hf_rtps_locator_public_address_port,
+                tvb, offset+18, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(locator_tree, hf_rtps_locator_ipv4, tvb, offset+20,
+                4, ENC_BIG_ENDIAN);
+        } else { /* IPv6 format */
+          proto_tree_add_item(locator_tree, hf_rtps_locator_ipv6, tvb, offset+8,
+                  16, ENC_NA);
+        }
+      break;
+    }
+    case LOCATOR_KIND_SHMEM: {
+      ti = proto_tree_add_int(locator_tree, hf_rtps_locator_port, tvb, offset+4,
+              4, port);
+      if (port == 0)
+        expert_add_info(pinfo, ti, &ei_rtps_locator_port);
+      break;
+    }
+    case LOCATOR_KIND_UDPV6: {
+      proto_tree_add_item(locator_tree, hf_rtps_locator_ipv6, tvb, offset+8, 16, ENC_NA);
+      break;
+    }
+    /* Default case, we already have the locator kind so don't do anything */
+    default:
+      break;
   }
 }
 
@@ -8543,6 +8584,18 @@ void proto_register_rtps(void) {
 
     { &hf_rtps_locator_port,
       { "Port", "rtps.locator.port",
+        FT_INT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+
+    { &hf_rtps_logical_port,
+      { "RTPS Logical Port", "rtps.locator.port",
+        FT_INT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+
+    { &hf_rtps_locator_public_address_port,
+      { "Public Address Port", "rtps.locator.public_address_port",
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },

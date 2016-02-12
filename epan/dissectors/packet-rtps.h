@@ -420,11 +420,16 @@ typedef struct _rtps_dissector_data {
 #define PRESENTATION_TOPIC              (1)
 #define PRESENTATION_GROUP              (2)
 
-
 #define LOCATOR_KIND_INVALID            (-1)
 #define LOCATOR_KIND_RESERVED           (0)
 #define LOCATOR_KIND_UDPV4              (1)
 #define LOCATOR_KIND_UDPV6              (2)
+/* Vendor specific - rti */
+#define LOCATOR_KIND_TCPV4_LAN          (8)
+#define LOCATOR_KIND_TCPV4_WAN          (9)
+#define LOCATOR_KIND_TLSV4_LAN          (10)
+#define LOCATOR_KIND_TLSV4_WAN          (11)
+#define LOCATOR_KIND_SHMEM              (0x01000000)
 
 /* History Kind */
 #define HISTORY_KIND_KEEP_LAST          (0)
@@ -453,20 +458,20 @@ typedef struct _rtps_dissector_data {
 #define APPLICATION_ORDERED_ACKNOWLEDGMENT   (2)
 #define APPLICATION_EXPLICIT_ACKNOWLEDGMENT  (3)
 
-/* NDDS_TRANSPORT_CLASSID */
-#define NDDS_TRANSPORT_CLASSID_ANY          (0)
-#define NDDS_TRANSPORT_CLASSID_UDPv4        (1)
-#define NDDS_TRANSPORT_CLASSID_SHMEM        (2)
-#define NDDS_TRANSPORT_CLASSID_INTRA        (3)
-#define NDDS_TRANSPORT_CLASSID_UDPv6        (5)
-#define NDDS_TRANSPORT_CLASSID_DTLS         (6)
-#define NDDS_TRANSPORT_CLASSID_WAN          (7)
-#define NDDS_TRANSPORT_CLASSID_TCPV4_LAN    (8)
-#define NDDS_TRANSPORT_CLASSID_TCPV4_WAN    (9)
-#define NDDS_TRANSPORT_CLASSID_TLSV4_LAN    (10)
-#define NDDS_TRANSPORT_CLASSID_TLSV4_WAN    (11)
-#define NDDS_TRANSPORT_CLASSID_PCIE         (12)
-#define NDDS_TRANSPORT_CLASSID_ITP          (13)
+/* Vendor specific - rti */
+#define NDDS_TRANSPORT_CLASSID_ANY                  (0)
+#define NDDS_TRANSPORT_CLASSID_UDPv4                (1)
+#define NDDS_TRANSPORT_CLASSID_UDPv6                (2)
+#define NDDS_TRANSPORT_CLASSID_INTRA                (3)
+#define NDDS_TRANSPORT_CLASSID_DTLS                 (6)
+#define NDDS_TRANSPORT_CLASSID_WAN                  (7)
+#define NDDS_TRANSPORT_CLASSID_TCPV4_LAN            (8)
+#define NDDS_TRANSPORT_CLASSID_TCPV4_WAN            (9)
+#define NDDS_TRANSPORT_CLASSID_TLSV4_LAN            (10)
+#define NDDS_TRANSPORT_CLASSID_TLSV4_WAN            (11)
+#define NDDS_TRANSPORT_CLASSID_PCIE                 (12)
+#define NDDS_TRANSPORT_CLASSID_ITP                  (13)
+#define NDDS_TRANSPORT_CLASSID_SHMEM                (0x01000000)
 
 #define TOPIC_INFO_ADD_GUID                      (1)
 #define TOPIC_INFO_ADD_TYPE_NAME                 (2)
