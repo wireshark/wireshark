@@ -521,7 +521,7 @@ cf_read(capture_file *cf, gboolean reloading)
   int                  err = 0;
   gchar               *err_info = NULL;
   gchar               *name_ptr;
-  progdlg_t           *progbar        = NULL;
+  progdlg_t           *volatile progbar = NULL;
   GTimeVal             start_time;
   epan_dissect_t       edt;
   dfilter_t           *dfcode;
