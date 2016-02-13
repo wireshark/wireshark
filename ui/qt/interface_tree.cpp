@@ -46,7 +46,6 @@
 #include <QTimer>
 
 // To do:
-// - Add tooltips to each tree item to show addresses, filters, and other info.
 
 #ifdef HAVE_LIBPCAP
 const int stat_update_interval_ = 1000; // ms
@@ -192,6 +191,32 @@ void InterfaceTree::display()
 
         InterfaceTreeWidgetItem *ti = new InterfaceTreeWidgetItem();
         ti->setText(IFTREE_COL_NAME, QString().fromUtf8(device.display_name));
+
+        // To do:
+        // - Sync with code in CaptureInterfacesDialog.
+        // - Add more information to the tooltip.
+        QString tt_str = "<p>";
+        if (device.no_addresses > 0) {
+            tt_str += QString("%1: %2").arg(device.no_addresses > 1 ? tr("Addresses") : tr("Address")).arg(device.addresses);
+            tt_str.replace('\n', ", ");
+        } else {
+            tt_str = tr("No addresses");
+        }
+        tt_str += "<br/>";
+        QString cfilter = gchar_free_to_qstring(capture_dev_user_cfilter_find(device.name));
+        if (cfilter.isEmpty()) {
+            tt_str += tr("No capture filter");
+        } else {
+        tt_str += QString("%1: %2")
+                .arg(tr("Capture filter"))
+                .arg(cfilter);
+        }
+        tt_str += "</p>";
+
+        for (int col = 0; col < columnCount(); col++) {
+            ti->setToolTip(col, tt_str);
+        }
+
         ti->setData(IFTREE_COL_NAME, Qt::UserRole, QString(device.name));
         ti->setData(IFTREE_COL_STATS, Qt::UserRole, qVariantFromValue(&ti->points));
 #if HAVE_EXTCAP
