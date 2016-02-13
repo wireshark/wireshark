@@ -137,6 +137,7 @@ static dissector_handle_t data_handle;
  */
 const value_string sap_vals[] = {
 	{ SAP_NULL,           "NULL LSAP" },
+	{ SAP_NULL+1,         "NULL LSAP" },
 	{ SAP_LLC_SLMGMT,     "LLC Sub-Layer Management" },
 	{ SAP_SNA_PATHCTRL,   "SNA Path Control" },
 	{ SAP_IP,             "TCP/IP" },
@@ -821,7 +822,7 @@ proto_register_llc(void)
 	  "LLC SAP", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 	xid_subdissector_table = register_dissector_table("llc.xid_dsap",
 	  "LLC XID SAP", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
-    register_capture_dissector_table("llc.dsap", "LLC");
+	register_capture_dissector_table("llc.dsap", "LLC");
 
 	register_dissector("llc", dissect_llc, proto_llc);
 }
