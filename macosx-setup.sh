@@ -141,6 +141,8 @@ GEOIP_VERSION=1.4.8
 
 CARES_VERSION=1.10.0
 
+LIBSSH_VERSION=0.7.2
+
 DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
 
 #
@@ -1436,11 +1438,59 @@ uninstall_c_ares() {
     fi
 }
 
+install_libssh() {
+    if [ "$LIBSSH_VERSION" -a ! -f libssh-$LIBSSH_VERSION-done ] ; then
+        echo "Downloading, building, and installing libssh:"
+        [ -f libssh-$LIBSSH_VERSION.tar.xz ] || curl -L -O https://red.libssh.org/attachments/download/177/libssh-$LIBSSH_VERSION.tar.xz || exit 1
+        xzcat libssh-$LIBSSH_VERSION.tar.xz | tar xf - || exit 1
+        cd libssh-$LIBSSH_VERSION
+        mkdir build
+        cd build
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS"  LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" cmake -DWITH_GCRYPT=1 ../ || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ../..
+        touch libssh-$LIBSSH_VERSION-done
+    fi
+}
+
+uninstall_libssh() {
+    if [ ! -z "$installed_libssh_version" ] ; then
+        echo "Uninstalling libssh:"
+        cd libssh-$installed_libssh_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm libssh-$installed_libssh_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf libssh-$installed_libssh_version
+            rm -rf libssh-$installed_libssh_version.tar.xz
+        fi
+
+        installed_libssh_version=""
+    fi
+}
+
 install_all() {
     #
     # Check whether the versions we have installed are the versions
     # requested; if not, uninstall the installed versions.
     #
+    if [ ! -z "$installed_libssh_version" -a \
+              "$installed_libssh_version" != "$LIBSSH_VERSION" ] ; then
+        echo "Installed libssh version is $installed_libssh_version"
+        if [ -z "$LIBSSH_VERSION" ] ; then
+            echo "libssh is not requested"
+        else
+            echo "Requested libssh version is $LIBSSH_VERSION"
+        fi
+        uninstall_libssh -r
+    fi
+
     if [ ! -z "$installed_cares_version" -a \
               "$installed_cares_version" != "$CARES_VERSION" ] ; then
         echo "Installed C-Ares version is $installed_cares_version"
@@ -1828,6 +1878,8 @@ install_all() {
     install_geoip
 
     install_c_ares
+
+    install_libssh
 }
 
 uninstall_all() {
@@ -1844,6 +1896,8 @@ uninstall_all() {
         # We also do a "make distclean", so that we don't have leftovers from
         # old configurations.
         #
+        uninstall_libssh
+
         uninstall_c_ares
 
         uninstall_geoip
@@ -1998,6 +2052,7 @@ then
     installed_portaudio_version=`ls portaudio-*-done 2>/dev/null | sed 's/portaudio-\(.*\)-done/\1/'`
     installed_geoip_version=`ls geoip-*-done 2>/dev/null | sed 's/geoip-\(.*\)-done/\1/'`
     installed_cares_version=`ls c-ares-*-done 2>/dev/null | sed 's/c-ares-\(.*\)-done/\1/'`
+    installed_libssh_version=`ls libssh-*-done 2>/dev/null | sed 's/libssh-\(.*\)-done/\1/'`
 
     #
     # If we don't have a versioned -done file for portaudio, but do have
