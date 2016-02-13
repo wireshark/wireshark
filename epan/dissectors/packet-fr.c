@@ -674,6 +674,10 @@ dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
    *
    * "OSI network layer protocols" includes Q.933.
    *
+   * We check the Frame Relay table first, so that protocols for which
+   * the NLPID means something different on Frame Relay, i.e. Q.933 vs.
+   * Q.931, are handled appropriately for Frame Relay.
+   *
    * XXX - note that an NLPID of 0x08 for Q.933 could either be a
    * Q.933 signaling message or a message for a protocol
    * identified by a 2-octet layer 2 protocol type and a
@@ -699,9 +703,9 @@ dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
    * Either that, or it's Q.933 iff the DLCI is 0.
    */
   next_tvb = tvb_new_subset_remaining(tvb,offset);
-  if (dissector_try_uint(osinl_incl_subdissector_table, fr_nlpid, next_tvb,
+  if (dissector_try_uint(fr_osinl_subdissector_table, fr_nlpid, next_tvb,
                          pinfo, tree) ||
-      dissector_try_uint(fr_osinl_subdissector_table, fr_nlpid, next_tvb,
+      dissector_try_uint(osinl_incl_subdissector_table, fr_nlpid, next_tvb,
                          pinfo, tree)) {
     /*
      * Yes, we got a match.  Add the NLPID as a hidden item,

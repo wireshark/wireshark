@@ -4002,6 +4002,7 @@ proto_reg_handoff_q931(void)
 {
     dissector_add_uint("lapd.sapi", LAPD_SAPI_Q931, q931_handle);
     dissector_add_uint("sctp.ppi", H323_PAYLOAD_PROTOCOL_ID, q931_over_ip_handle);
+    dissector_add_uint("osinl.incl", NLPID_Q_931, q931_handle);
 
     /*
      * Attempt to get a handle for the H.225 dissector.
