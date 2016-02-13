@@ -1249,9 +1249,10 @@ parse_token (token_t token, char *str)
                     write_current_packet(FALSE);
                     state = INIT;
                 }
-            } else
+            } else {
                 state = READ_OFFSET;
-                pkt_lnstart = packet_buf + num;
+            }
+            pkt_lnstart = packet_buf + num;
             break;
         case T_EOL:
             state = START_OF_LINE;
