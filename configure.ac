@@ -3055,9 +3055,12 @@ WS_CPPFLAGS="$WS_CPPFLAGS '-DPLUGIN_INSTALL_DIR=\"\$(plugindir)\"'"
 PLUGIN_LIBS=""
 AC_SUBST(PLUGIN_LIBS)
 
-
-dnl Use extcap by default
-extcapdir='${datadir}/wireshark/extcap/'
+dnl
+dnl check whether extcap programs should be enabled and, if they should be,
+dnl check for extcap directory - stolen from Amanda's configure.ac
+dnl
+dnl we don't wish to expand ${datadir} yet
+extcapdir="\${datadir}/wireshark/extcap"
 AC_ARG_WITH(extcap,
   AC_HELP_STRING( [--with-extcap@<:@=DIR@:>@],
 		  [use extcap for external capture sources (installed in DIR, if supplied) @<:@default=yes, if possible@:>@]),
@@ -3077,9 +3080,9 @@ AM_CONDITIONAL(HAVE_EXTCAP, test "x$have_extcap" = "xyes")
 if test "x$have_extcap" = "xyes"
 then
   AC_DEFINE(HAVE_EXTCAP, 1, [Define if external capture sources should be enabled])
-  AC_DEFINE_UNQUOTED(EXTCAP_DIR,"$extcapdir", [Directory for extcap plugins])
 fi
 AC_SUBST(extcapdir)
+WS_CPPFLAGS="$WS_CPPFLAGS '-DEXTCAP_DIR=\"\$(extcapdir)\"'"
 
 if test "x$enable_sshdump" = "xyes" ; then
 	if  test "x$have_good_libssh" = "xyes" ; then
