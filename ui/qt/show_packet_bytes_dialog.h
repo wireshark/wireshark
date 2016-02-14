@@ -60,6 +60,7 @@ private slots:
     void on_bFind_clicked();
     void on_buttonBox_rejected();
 
+    void useRegexFind(bool use_regex);
     void findText(bool go_back = true);
     void helpButton();
     void printBytes();
@@ -90,6 +91,7 @@ private:
     QPushButton *copy_button_;
     QPushButton *save_as_button_;
     ShowAsType  show_as_;
+    bool        use_regex_find_;
     QImage      image_;
 };
 

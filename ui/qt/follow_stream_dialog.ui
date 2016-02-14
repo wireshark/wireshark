@@ -104,14 +104,14 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1,0">
      <item>
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="lFind">
        <property name="text">
         <string>Find:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="leFind"/>
+      <widget class="FindLineEdit" name="leFind"/>
      </item>
      <item>
       <widget class="QPushButton" name="bFind">
@@ -136,6 +136,11 @@
    <class>FollowStreamText</class>
    <extends>QTextEdit</extends>
    <header>follow_stream_text.h</header>
+  </customwidget>
+  <customwidget>
+   <class>FindLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>find_line_edit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

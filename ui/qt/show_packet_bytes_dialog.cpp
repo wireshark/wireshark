@@ -44,7 +44,8 @@
 ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     WiresharkDialog(parent, cf),
     ui(new Ui::ShowPacketBytesDialog),
-    show_as_(ShowAsASCII)
+    show_as_(ShowAsASCII),
+    use_regex_find_(false)
 {
     ui->setupUi(this);
 
@@ -68,6 +69,8 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     }
 
     ui->tePacketBytes->installEventFilter(this);
+
+    connect(ui->leFind, SIGNAL(useRegexFind(bool)), this, SLOT(useRegexFind(bool)));
 
     // XXX Use recent settings instead
     resize(parent.width() * 2 / 3, parent.height());
@@ -126,11 +129,30 @@ void ShowPacketBytesDialog::on_cbShowAs_currentIndexChanged(int idx)
     updatePacketBytes();
 }
 
+void ShowPacketBytesDialog::useRegexFind(bool use_regex)
+{
+    use_regex_find_ = use_regex;
+    if (use_regex_find_)
+        ui->lFind->setText("Regex Find:");
+    else
+        ui->lFind->setText("Find:");
+}
+
 void ShowPacketBytesDialog::findText(bool go_back)
 {
     if (ui->leFind->text().isEmpty()) return;
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 3, 0))
+    bool found;
+    if (use_regex_find_) {
+        QRegExp regex(ui->leFind->text());
+        found = ui->tePacketBytes->find(regex);
+    } else {
+        found = ui->tePacketBytes->find(ui->leFind->text());
+    }
+#else
     bool found = ui->tePacketBytes->find(ui->leFind->text());
+#endif
 
     if (found) {
         ui->tePacketBytes->setFocus();

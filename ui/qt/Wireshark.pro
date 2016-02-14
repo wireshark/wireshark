@@ -321,6 +321,7 @@ HEADERS += $$HEADERS_WS_C \
     filter_action.h \
     filter_expression_frame.h \
     filter_expressions_preferences_frame.h \
+    find_line_edit.h \
     follow_stream_dialog.h \
     follow_stream_text.h \
     font_color_preferences_frame.h \
@@ -713,6 +714,7 @@ SOURCES += \
     filter_dialog.cpp \
     filter_expression_frame.cpp \
     filter_expressions_preferences_frame.cpp \
+    find_line_edit.cpp \
     follow_stream_dialog.cpp \
     follow_stream_text.cpp \
     font_color_preferences_frame.cpp \

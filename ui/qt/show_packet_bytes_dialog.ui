@@ -41,7 +41,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_1" stretch="0,0,0,0,1,0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout_1" stretch="0,0,0">
      <item>
       <widget class="QLabel" name="lShowAs">
        <property name="text">
@@ -81,7 +81,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="leFind"/>
+      <widget class="FindLineEdit" name="leFind"/>
      </item>
      <item>
       <widget class="QPushButton" name="bFind">
@@ -101,6 +101,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FindLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>find_line_edit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

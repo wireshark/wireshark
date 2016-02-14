@@ -71,6 +71,7 @@ private slots:
 
     void helpButton();
     void filterOut();
+    void useRegexFind(bool use_regex);
     void findText(bool go_back = true);
     void saveAs();
     void printStream();
@@ -126,6 +127,7 @@ private:
     QMap<int,guint32>       text_pos_to_packet_;
 
     bool                    save_as_;
+    bool                    use_regex_find_;
     QFile                   file_;
 };
 
