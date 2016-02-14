@@ -406,7 +406,7 @@ rpcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 static guint
 rpcstat_param(register_srt_t* srt, const char* opt_arg, char** err)
 {
-	guint pos = 0;
+	int pos = 0;
 	int program, version;
 	rpcstat_tap_data_t* tap_data;
 

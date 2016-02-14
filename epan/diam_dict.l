@@ -286,7 +286,7 @@ description_attr description=\042
 	for (e = ents.next; e; e = e->next) {
 		if (strcmp(e->name,yytext) == 0) {
 			yyin = ddict_open(sys_dir,e->file);
-			D(("entity: %s filename: %s yyin: %p\n",e->name,e->file,yyin));
+			D(("entity: %s filename: %s yyin: %p\n",e->name,e->file,(void*)yyin));
 			if (!yyin) {
 				if (errno)
 					fprintf(stderr, "Could not open file: '%s', error: %s\n", e->file, g_strerror(errno) );
@@ -313,7 +313,7 @@ description_attr description=\042
 	if (!yyin) yyterminate();
 
 	fclose(yyin);
-	D(("closing: %p %i\n",yyin,include_stack_ptr));
+	D(("closing: %p %i\n",(void*)yyin,include_stack_ptr));
 
 	if ( --include_stack_ptr < 0 ) {
 		D(("DONE READING\n"));
@@ -640,7 +640,7 @@ ddict_open(const char* system_directory, const char* filename)
 
 	fh = ws_fopen(fname,"r");
 
-	D(("fname: %s fh: %p\n",fname,fh));
+	D(("fname: %s fh: %p\n",fname,(void*)fh));
 
 	g_free(fname);
 

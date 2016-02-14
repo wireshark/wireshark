@@ -1978,7 +1978,7 @@ dcerpcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 static guint
 dcerpcstat_param(register_srt_t* srt, const char* opt_arg, char** err)
 {
-    guint pos = 0;
+    int pos = 0;
     guint32 i, max_procs;
     dcerpcstat_tap_data_t* tap_data;
     guint d1,d2,d3,d40,d41,d42,d43,d44,d45,d46,d47;

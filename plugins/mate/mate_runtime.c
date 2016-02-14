@@ -210,7 +210,7 @@ static mate_gop* new_gop(mate_cfg_gop* cfg, mate_pdu* pdu, gchar* key) {
 }
 
 static void adopt_gop(mate_gog* gog, mate_gop* gop) {
-	dbg_print (dbg_gog,5,dbg_facility,"adopt_gop: gog=%p gop=%p",gog,gop);
+	dbg_print (dbg_gog,5,dbg_facility,"adopt_gop: gog=%p gop=%p",(void*)gog,(void*)gop);
 
 	gop->gog = gog;
 	gop->next = NULL;
