@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>594</width>
+    <width>710</width>
     <height>620</height>
    </rect>
   </property>
@@ -24,7 +24,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTextEdit" name="tePacketBytes">
+    <widget class="ShowPacketBytesTextEdit" name="tePacketBytes">
      <property name="readOnly">
       <bool>true</bool>
      </property>
@@ -41,7 +41,17 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_1" stretch="0,0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout_1" stretch="0,0,0,0,1,0,0,0,0">
+     <item>
+      <widget class="QLabel" name="lDecodeAs">
+       <property name="text">
+        <string>Decode as</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="cbDecodeAs"/>
+     </item>
      <item>
       <widget class="QLabel" name="lShowAs">
        <property name="text">
@@ -68,6 +78,26 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="lStart">
+       <property name="text">
+        <string>Start</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="sbStart"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="lEnd">
+       <property name="text">
+        <string>End</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="sbEnd"/>
      </item>
     </layout>
    </item>
@@ -106,6 +136,11 @@
    <class>FindLineEdit</class>
    <extends>QLineEdit</extends>
    <header>find_line_edit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ShowPacketBytesTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>show_packet_bytes_dialog.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

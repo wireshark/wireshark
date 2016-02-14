@@ -33,10 +33,13 @@
 #include "file.h"
 #include "wireshark_dialog.h"
 
+#include <QLineEdit>
 #include <QPushButton>
+#include <QTextEdit>
 
 namespace Ui {
 class ShowPacketBytesDialog;
+class ShowPacketBytesTextEdit;
 }
 
 class ShowPacketBytesDialog : public WiresharkDialog
@@ -55,11 +58,15 @@ protected:
     void keyPressEvent(QKeyEvent *event);
 
 private slots:
+    void on_sbStart_valueChanged(int value);
+    void on_sbEnd_valueChanged(int value);
+    void on_cbDecodeAs_currentIndexChanged(int idx);
     void on_cbShowAs_currentIndexChanged(int idx);
     void on_leFind_returnPressed();
     void on_bFind_clicked();
     void on_buttonBox_rejected();
 
+    void showSelected(int start, int end);
     void useRegexFind(bool use_regex);
     void findText(bool go_back = true);
     void helpButton();
@@ -68,6 +75,12 @@ private slots:
     void saveAs();
 
 private:
+    enum DecodeAsType {
+        DecodeAsNone,
+        DecodeAsBASE64,
+        DecodeAsCompressed,
+        DecodeAsROT13
+    };
     enum ShowAsType {
         ShowAsASCII,
         ShowAsCArray,
@@ -81,18 +94,54 @@ private:
         ShowAsYAML
     };
 
+    void setStartAndEnd(int start, int end);
+    bool enableShowSelected();
     void updateWidgets(); // Needed for WiresharkDialog?
-    void updatePacketBytes(void);
+    void updateHintLabel();
+    void sanitizeBuffer(QByteArray &ba);
+    void rot13(QByteArray &ba);
+    void updateFieldBytes(bool initialization = false);
+    void updatePacketBytes();
 
     Ui::ShowPacketBytesDialog  *ui;
 
+    const field_info  *finfo_;
     QByteArray  field_bytes_;
+    QString     hint_label_;
     QPushButton *print_button_;
     QPushButton *copy_button_;
     QPushButton *save_as_button_;
+    DecodeAsType decode_as_;
     ShowAsType  show_as_;
     bool        use_regex_find_;
+    int         start_;
+    int         end_;
     QImage      image_;
+};
+
+class ShowPacketBytesTextEdit : public QTextEdit
+{
+    Q_OBJECT
+
+public:
+    explicit ShowPacketBytesTextEdit(QWidget *parent = 0) :
+        QTextEdit(parent), show_selected_enabled_(true), menus_enabled_(true) { }
+    ~ShowPacketBytesTextEdit() { }
+
+    void setShowSelectedEnabled(bool enabled) { show_selected_enabled_ = enabled; }
+    void setMenusEnabled(bool enabled) { menus_enabled_ = enabled; }
+
+signals:
+    void showSelected(int, int);
+
+private slots:
+    void contextMenuEvent(QContextMenuEvent *event);
+    void showSelected();
+    void showAll();
+
+private:
+    bool show_selected_enabled_;
+    bool menus_enabled_;
 };
 
 #endif // SHOW_PACKET_BYTES_DIALOG_H

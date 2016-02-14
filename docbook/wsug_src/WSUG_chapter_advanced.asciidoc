@@ -90,14 +90,19 @@ You can choose to view the data in one of the following formats:
 
 === Show Packet Bytes
 
-If a selected packet field does not show all the bytes (i.e. they are truncated)
-or if they are shown as bytes rather than string or if they require more formatting
-because they contain an image or HTML then this dialog can be used.
+If a selected packet field does not show all the bytes (i.e. they are truncated
+when displayed) or if they are shown as bytes rather than string or if they require
+more formatting because they contain an image or HTML then this dialog can be used.
+
+This dialog can also be used to decode field bytes from base64 or zlib compressed
+and show the decoded bytes as configurable output.  It's also possible to select
+a subset of bytes setting the start byte and end byte.
 
 You can choose from the following actions:
 
 . __Find__: Search for the given text.  Matching text will be highlighted,
-  and the ``Find Next'' will search for more.
+  and the ``Find Next'' will search for more.  In the context menu for the
+  find text it's possible to configure to use regular expression find.
 
 . __Print__: Print the bytes in the currently selected format.
 
@@ -107,12 +112,27 @@ You can choose from the following actions:
 
 . __Close__: Close this dialog box.
 
+You can choose to decode the data from one of the following formats:
+
+. __None__: This is the default which does not decode anything.
+
+. __Base64__: This will decode from Base64.
+
+. __Compressed__: This will decompress the buffer using zlib.
+
 You can choose to view the data in one of the following formats:
 
 . __ASCII__: In this view you see the bytes as ASCII.
-  All non-ASCII bytes are replaced by dot for readability.
+  A null terminator is shown using the UTF-8 symbol for NULL, a CR is shown using
+  the UTF-8 symbol for carriage return, and all other non-ASCII bytes are replaced
+  by dot for readability.
+
+. __C Array__: This allows you to import the field data into your own C program.
 
 . __EBCDIC__: For the big-iron freaks out there.
+
+. __HEX Dump__: This allows you to see all the data. This will require a lot of
+  screen space and is best used with binary protocols.
 
 . __HTML__: This allows you to see all the data formatted as a HTML document.
   The HTML supported is what's supported by the Qt QTextEdit class.
@@ -127,6 +147,8 @@ You can choose to view the data in one of the following formats:
   ``Save As'' will result in a binary file.
 
 . __UTF8__: In this view you see the bytes as UTF-8.
+
+. __YAML__: This will show the bytes as a YAML binary dump.
 
 [[ChAdvExpert]]
 

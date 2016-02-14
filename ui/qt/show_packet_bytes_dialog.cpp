@@ -26,54 +26,53 @@
 #include "wireshark_application.h"
 
 #include "epan/charsets.h"
-#include <wsutil/utf8_entities.h>
+#include "wsutil/base64.h"
+#include "wsutil/utf8_entities.h"
 
+#include <QAction>
 #include <QImage>
 #include <QKeyEvent>
+#include <QMenu>
 #include <QPrintDialog>
 #include <QPrinter>
 #include <QTextStream>
 
 // To do:
 // - Add show as custom protocol in a Packet Details view
-// - Add show as PDF or handle PDF as Image
-// - Add decode from BASE64
 // - Use ByteViewText to ShowAsHexDump and supplementary view for custom protocol
 // - Handle large data blocks
 
 ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     WiresharkDialog(parent, cf),
     ui(new Ui::ShowPacketBytesDialog),
+    finfo_(cf.capFile()->finfo_selected),
+    decode_as_(DecodeAsNone),
     show_as_(ShowAsASCII),
     use_regex_find_(false)
 {
     ui->setupUi(this);
 
-    field_info *finfo = cf.capFile()->finfo_selected;
-    QString field_name = QString("%1 (%2)").arg(finfo->hfinfo->name, finfo->hfinfo->abbrev);
+    QString field_name = QString("%1 (%2)").arg(finfo_->hfinfo->name, finfo_->hfinfo->abbrev);
     setWindowSubtitle (field_name);
 
-    const guint8 *bytes = tvb_get_ptr(finfo->ds_tvb, 0, -1) + finfo->start;
-    field_bytes_ = QByteArray((const char *)bytes, finfo->length);
-
-    QString hint = tr("Frame %1, %2, %Ln byte(s).", "", finfo->length)
-                      .arg(cf.capFile()->current_frame->num)
-                      .arg(field_name);
-    hint.prepend("<small><i>");
-    hint.append("</i></small>");
-    ui->hintLabel->setText(hint);
-
-    // Try loading as image
-    if (image_.loadFromData(field_bytes_)) {
-        show_as_ = ShowAsImage;
-    }
+    hint_label_ = tr("Frame %1, %2, %Ln byte(s).", "", finfo_->length)
+                     .arg(cf.capFile()->current_frame->num)
+                     .arg(field_name);
 
     ui->tePacketBytes->installEventFilter(this);
 
+    connect(ui->tePacketBytes, SIGNAL(showSelected(int,int)), this, SLOT(showSelected(int,int)));
     connect(ui->leFind, SIGNAL(useRegexFind(bool)), this, SLOT(useRegexFind(bool)));
 
     // XXX Use recent settings instead
     resize(parent.width() * 2 / 3, parent.height());
+
+    ui->cbDecodeAs->blockSignals(true);
+    ui->cbDecodeAs->addItem(tr("None"), DecodeAsNone);
+    ui->cbDecodeAs->addItem(tr("Base64"), DecodeAsBASE64);
+    ui->cbDecodeAs->addItem(tr("Compressed"), DecodeAsCompressed);
+    ui->cbDecodeAs->addItem(tr("ROT13"), DecodeAsROT13);
+    ui->cbDecodeAs->blockSignals(false);
 
     ui->cbShowAs->blockSignals(true);
     ui->cbShowAs->addItem(tr("ASCII"), ShowAsASCII);
@@ -89,6 +88,9 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     ui->cbShowAs->setCurrentIndex(show_as_);
     ui->cbShowAs->blockSignals(false);
 
+    ui->sbStart->setMinimum(0);
+    ui->sbEnd->setMaximum(finfo_->length);
+
     print_button_ = ui->buttonBox->addButton(tr("Print"), QDialogButtonBox::ActionRole);
     connect(print_button_, SIGNAL(clicked()), this, SLOT(printBytes()));
 
@@ -101,7 +103,8 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     connect(ui->buttonBox, SIGNAL(helpRequested()), this, SLOT(helpButton()));
     connect(&cap_file_, SIGNAL(captureFileClosing()), this, SLOT(captureFileClosing()));
 
-    updatePacketBytes();
+    setStartAndEnd(0, finfo_->length);
+    updateFieldBytes(true);
 }
 
 ShowPacketBytesDialog::~ShowPacketBytesDialog()
@@ -109,9 +112,91 @@ ShowPacketBytesDialog::~ShowPacketBytesDialog()
     delete ui;
 }
 
+void ShowPacketBytesDialog::showSelected(int start, int end)
+{
+    if (end == -1) {
+        // end set to -1 means show all packet bytes
+        setStartAndEnd(0, finfo_->length);
+    } else {
+        setStartAndEnd(start_ + start, start_ + end);
+    }
+    updateFieldBytes();
+}
+
+void ShowPacketBytesDialog::setStartAndEnd(int start, int end)
+{
+    start_ = start;
+    end_ = end;
+
+    ui->sbStart->blockSignals(true);
+    ui->sbStart->setMaximum(end_);
+    ui->sbStart->setValue(start_);
+    ui->sbStart->blockSignals(false);
+
+    ui->sbEnd->blockSignals(true);
+    ui->sbEnd->setMinimum(start_);
+    ui->sbEnd->setValue(end_);
+    ui->sbEnd->blockSignals(false);
+
+    updateHintLabel();
+}
+
+bool ShowPacketBytesDialog::enableShowSelected()
+{
+    // "Show Selected" only works when showing all bytes:
+    // - DecodeAs must not alter the number of bytes in the buffer
+    // - ShowAs must show all bytes in the buffer
+
+    return (((decode_as_ == DecodeAsNone) ||
+             (decode_as_ == DecodeAsROT13)) &&
+            ((show_as_ == ShowAsASCII) ||
+             (show_as_ == ShowAsEBCDIC)));
+}
+
 void ShowPacketBytesDialog::updateWidgets()
 {
     WiresharkDialog::updateWidgets();
+}
+
+void ShowPacketBytesDialog::updateHintLabel()
+{
+    QString hint = hint_label_;
+
+    if (start_ > 0 || end_ < finfo_->length) {
+        hint.append(" <span style=\"color: red\">" +
+                    tr("Displaying %Ln byte(s).", "", end_ - start_) +
+                    "</span>");
+    }
+
+    ui->hintLabel->setText("<small><i>" + hint + "</i></small>");
+}
+
+void ShowPacketBytesDialog::on_sbStart_valueChanged(int value)
+{
+    start_ = value;
+    ui->sbEnd->setMinimum(value);
+
+    updateHintLabel();
+    updateFieldBytes();
+}
+
+void ShowPacketBytesDialog::on_sbEnd_valueChanged(int value)
+{
+    end_ = value;
+    ui->sbStart->setMaximum(value);
+
+    updateHintLabel();
+    updateFieldBytes();
+}
+
+void ShowPacketBytesDialog::on_cbDecodeAs_currentIndexChanged(int idx)
+{
+    if (idx < 0) return;
+    decode_as_ = static_cast<DecodeAsType>(ui->cbDecodeAs->itemData(idx).toInt());
+
+    ui->tePacketBytes->setShowSelectedEnabled(enableShowSelected());
+
+    updateFieldBytes();
 }
 
 void ShowPacketBytesDialog::on_cbShowAs_currentIndexChanged(int idx)
@@ -119,6 +204,7 @@ void ShowPacketBytesDialog::on_cbShowAs_currentIndexChanged(int idx)
     if (idx < 0) return;
     show_as_ = static_cast<ShowAsType>(ui->cbShowAs->itemData(idx).toInt());
 
+    ui->tePacketBytes->setShowSelectedEnabled(enableShowSelected());
     ui->lFind->setEnabled(true);
     ui->leFind->setEnabled(true);
     ui->bFind->setEnabled(true);
@@ -316,13 +402,86 @@ void ShowPacketBytesDialog::keyPressEvent(QKeyEvent *event)
     QDialog::keyPressEvent(event);
 }
 
-static inline void sanitize_buffer(QByteArray &ba)
+void ShowPacketBytesDialog::sanitizeBuffer(QByteArray &ba)
 {
     for (int i = 0; i < ba.length(); i++) {
-        if (!g_ascii_isspace(ba[i]) && !g_ascii_isprint(ba[i])) {
-            ba[i] = '.';
+        if (ba[i] != '\0' && ba[i] != '\r' && ba[i] != '\n') {
+            if (g_ascii_isspace(ba[i])) {
+                ba[i] = ' ';
+            } else if (!g_ascii_isprint(ba[i])) {
+                ba[i] = '.';
+            }
         }
     }
+
+    // Null and CR are replaced with UTF8 symbols to be able to show all
+    // bytes in ASCII view.  This will ensure that "Show Selected" works.
+    ba.replace('\0', UTF8_SYMBOL_FOR_NULL);
+    ba.replace('\r', UTF8_SYMBOL_FOR_CARRIAGE_RETURN);
+}
+
+void ShowPacketBytesDialog::rot13(QByteArray &ba)
+{
+    for (int i = 0; i < ba.length(); i++) {
+        gchar upper = g_ascii_toupper(ba[i]);
+        if (upper >= 'A' && upper <= 'M') ba[i] = ba[i] + 13;
+        else if (upper >= 'N' && upper <= 'Z') ba[i] = ba[i] - 13;
+    }
+}
+
+void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
+{
+    int start = finfo_->start + start_;
+    int length = end_ - start_;
+    const guint8 *bytes;
+
+    switch (decode_as_) {
+
+    case DecodeAsNone:
+        bytes = tvb_get_ptr(finfo_->ds_tvb, start, -1);
+        field_bytes_ = QByteArray((const char *)bytes, length);
+        break;
+
+    case DecodeAsBASE64:
+    {
+        bytes = tvb_get_ptr(finfo_->ds_tvb, start, -1);
+        field_bytes_ = QByteArray((const char *)bytes, length);
+        size_t len = ws_base64_decode_inplace(field_bytes_.data());
+        field_bytes_.resize(len);
+        break;
+    }
+
+    case DecodeAsCompressed:
+    {
+        tvbuff *uncompr_tvb = tvb_uncompress(finfo_->ds_tvb, start, length);
+        if (uncompr_tvb) {
+            bytes = tvb_get_ptr(uncompr_tvb, 0, -1);
+            field_bytes_ = QByteArray((const char *)bytes, tvb_reported_length(uncompr_tvb));
+            tvb_free(uncompr_tvb);
+        } else {
+            field_bytes_.clear();
+        }
+        break;
+    }
+
+    case DecodeAsROT13:
+        bytes = tvb_get_ptr(finfo_->ds_tvb, start, -1);
+        field_bytes_ = QByteArray((const char *)bytes, length);
+        rot13(field_bytes_);
+        break;
+    }
+
+    if (initialization || show_as_ == ShowAsImage) {
+        // Try loading as image
+        if (image_.loadFromData(field_bytes_) && initialization) {
+            show_as_ = ShowAsImage;
+            ui->cbShowAs->blockSignals(true);
+            ui->cbShowAs->setCurrentIndex(ShowAsImage);
+            ui->cbShowAs->blockSignals(false);
+        }
+    }
+
+    updatePacketBytes();
 }
 
 void ShowPacketBytesDialog::updatePacketBytes(void)
@@ -337,7 +496,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
     case ShowAsASCII:
     {
         QByteArray ba(field_bytes_);
-        sanitize_buffer(ba);
+        sanitizeBuffer(ba);
         ui->tePacketBytes->setPlainText(ba);
         break;
     }
@@ -383,7 +542,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
     {
         QByteArray ba(field_bytes_);
         EBCDIC_to_ASCII((guint8*)ba.data(), ba.length());
-        sanitize_buffer(ba);
+        sanitizeBuffer(ba);
         ui->tePacketBytes->setPlainText(ba);
         break;
     }
@@ -392,6 +551,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
     {
         int pos = 0, len = field_bytes_.length();
         QString text;
+        text.reserve((len / 16) * 80);
 
         while (pos < len) {
             char hexbuf[256];
@@ -458,6 +618,8 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
 
     case ShowAsISO8859_1:
     {
+        // The ISO 8859-1 string should probably also use UTF8_SYMBOL_FOR_NULL
+        // to be able to show all bytes.
         guint8 *bytes = get_8859_1_string(NULL, (const guint8 *)field_bytes_.constData(), field_bytes_.length());
         ui->tePacketBytes->setPlainText((const char *)bytes);
         wmem_free (NULL, bytes);
@@ -469,7 +631,9 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         // The QString docs say that invalid characters will be replaced with
         // replacement characters or removed. It would be nice if we could
         // explicitly choose one or the other.
-        QString utf8 = QString::fromUtf8(field_bytes_);
+        QByteArray ba(field_bytes_);
+        ba.replace('\0', UTF8_SYMBOL_FOR_NULL);
+        QString utf8 = QString::fromUtf8(ba);
         ui->tePacketBytes->setPlainText(utf8);
         break;
     }
@@ -499,7 +663,53 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
 
 void ShowPacketBytesDialog::captureFileClosing()
 {
+    // We have lost the source backend and must disable all functions
+    // for manipulating decoding and displayed range.
+
+    ui->tePacketBytes->setMenusEnabled(false);
+    ui->lDecodeAs->setEnabled(false);
+    ui->cbDecodeAs->setEnabled(false);
+    ui->lStart->setEnabled(false);
+    ui->sbStart->setEnabled(false);
+    ui->lEnd->setEnabled(false);
+    ui->sbEnd->setEnabled(false);
+
+    finfo_ = NULL;  // This will invalidate the source backend
+
     WiresharkDialog::captureFileClosing();
+}
+
+void ShowPacketBytesTextEdit::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu *menu = createStandardContextMenu();
+    QAction *action;
+
+    menu->addSeparator();
+
+    action = menu->addAction(tr("Show Selected"));
+    action->setEnabled(menus_enabled_ && show_selected_enabled_ && textCursor().hasSelection());
+    connect(action, SIGNAL(triggered()), this, SLOT(showSelected()));
+
+    action = menu->addAction(tr("Show All"));
+    action->setEnabled(menus_enabled_);
+    connect(action, SIGNAL(triggered()), this, SLOT(showAll()));
+
+    menu->exec(event->globalPos());
+    delete menu;
+}
+
+void ShowPacketBytesTextEdit::showSelected()
+{
+    QTextCursor cursor = textCursor();
+    int start = cursor.selectionStart();
+    int end = cursor.selectionEnd();
+
+    emit showSelected(start, end);
+}
+
+void ShowPacketBytesTextEdit::showAll()
+{
+    emit showSelected(0, -1);
 }
 
 /*

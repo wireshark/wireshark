@@ -2666,20 +2666,33 @@ for filter files: %2.</source>
     </message>
 </context>
 <context>
+    <name>FindLineEdit</name>
+    <message>
+        <location filename="find_line_edit.cpp" line="37"/>
+        <source>Textual Find</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="find_line_edit.cpp" line="42"/>
+        <source>Regular Expression Find</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FollowStreamDialog</name>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="116"/>
+        <location filename="follow_stream_dialog.cpp" line="119"/>
         <source>Filter Out This Stream</source>
         <oldsource>Hide this stream</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="119"/>
+        <location filename="follow_stream_dialog.cpp" line="122"/>
         <source>Print</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="122"/>
+        <location filename="follow_stream_dialog.cpp" line="125"/>
         <source>Save as</source>
         <oldsource>Save as...</oldsource>
         <translation type="unfinished"></translation>
@@ -2699,47 +2712,47 @@ for filter files: %2.</source>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="107"/>
+        <location filename="follow_stream_dialog.cpp" line="110"/>
         <source>ASCII</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="108"/>
+        <location filename="follow_stream_dialog.cpp" line="111"/>
         <source>C Arrays</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="109"/>
+        <location filename="follow_stream_dialog.cpp" line="112"/>
         <source>EBCDIC</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="110"/>
+        <location filename="follow_stream_dialog.cpp" line="113"/>
         <source>Hex Dump</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="111"/>
+        <location filename="follow_stream_dialog.cpp" line="114"/>
         <source>UTF-8</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="112"/>
+        <location filename="follow_stream_dialog.cpp" line="115"/>
         <source>YAML</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="113"/>
+        <location filename="follow_stream_dialog.cpp" line="116"/>
         <source>Raw</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="166"/>
+        <location filename="follow_stream_dialog.cpp" line="169"/>
         <source>Packet %1. </source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="169"/>
+        <location filename="follow_stream_dialog.cpp" line="172"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
         <translation>
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt, </numerusform>
@@ -2747,7 +2760,7 @@ for filter files: %2.</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="172"/>
+        <location filename="follow_stream_dialog.cpp" line="175"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
         <translation>
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt, </numerusform>
@@ -2755,7 +2768,7 @@ for filter files: %2.</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="175"/>
+        <location filename="follow_stream_dialog.cpp" line="178"/>
         <source>%Ln turn(s).</source>
         <translation>
             <numerusform>%Ln turn.</numerusform>
@@ -2763,65 +2776,65 @@ for filter files: %2.</source>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="178"/>
+        <location filename="follow_stream_dialog.cpp" line="181"/>
         <source> Click to select.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="239"/>
+        <location filename="follow_stream_dialog.cpp" line="261"/>
         <source>Save Stream Content As</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="504"/>
+        <location filename="follow_stream_dialog.cpp" line="526"/>
         <source>
 [Stream output truncated]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="769"/>
+        <location filename="follow_stream_dialog.cpp" line="791"/>
         <source>No capture file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="769"/>
+        <location filename="follow_stream_dialog.cpp" line="791"/>
         <source>Please make sure you have a capture file opened.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="775"/>
-        <location filename="follow_stream_dialog.cpp" line="781"/>
+        <location filename="follow_stream_dialog.cpp" line="797"/>
+        <location filename="follow_stream_dialog.cpp" line="803"/>
         <source>Error following stream.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="775"/>
+        <location filename="follow_stream_dialog.cpp" line="797"/>
         <source>Capture file invalid.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="781"/>
+        <location filename="follow_stream_dialog.cpp" line="803"/>
         <source>Please make sure you have a %1 packet selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="897"/>
+        <location filename="follow_stream_dialog.cpp" line="919"/>
         <source>Follow %1 Stream (%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="803"/>
+        <location filename="follow_stream_dialog.cpp" line="825"/>
         <source>Error creating filter for this stream.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="804"/>
+        <location filename="follow_stream_dialog.cpp" line="826"/>
         <source>A transport or network layer header is needed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="834"/>
-        <location filename="follow_stream_dialog.cpp" line="846"/>
+        <location filename="follow_stream_dialog.cpp" line="856"/>
+        <location filename="follow_stream_dialog.cpp" line="868"/>
         <source>%Ln total stream(s).</source>
         <translation type="unfinished">
             <numerusform>%Ln stream.</numerusform>
@@ -2829,7 +2842,7 @@ for filter files: %2.</source>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="915"/>
+        <location filename="follow_stream_dialog.cpp" line="937"/>
         <source>File closed.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13720,16 +13733,31 @@ a:hover {
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.ui" line="48"/>
+        <source>Decode as</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.ui" line="58"/>
         <source>Show as</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.ui" line="79"/>
+        <location filename="show_packet_bytes_dialog.ui" line="85"/>
+        <source>Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.ui" line="95"/>
+        <source>End</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.ui" line="109"/>
         <source>Find:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.ui" line="89"/>
+        <location filename="show_packet_bytes_dialog.ui" line="119"/>
         <source>Find &amp;Next</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13742,73 +13770,114 @@ a:hover {
         </translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="76"/>
-        <source>ASCII</source>
+        <location filename="show_packet_bytes_dialog.cpp" line="71"/>
+        <source>None</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="77"/>
-        <source>C Array</source>
+        <location filename="show_packet_bytes_dialog.cpp" line="72"/>
+        <source>Base64</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="73"/>
+        <source>Compressed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="74"/>
+        <source>ROT13</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="78"/>
-        <source>EBCDIC</source>
+        <source>ASCII</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="79"/>
-        <source>Hex Dump</source>
+        <source>C Array</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="80"/>
-        <source>HTML</source>
+        <source>EBCDIC</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="81"/>
-        <source>Image</source>
+        <source>Hex Dump</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="82"/>
-        <source>ISO 8859-1</source>
+        <source>HTML</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="83"/>
-        <source>Raw</source>
+        <source>Image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="84"/>
-        <source>UTF-8</source>
+        <source>ISO 8859-1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="85"/>
+        <source>Raw</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="86"/>
+        <source>UTF-8</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="87"/>
         <source>YAML</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="89"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="94"/>
         <source>Print</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="92"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="97"/>
         <source>Copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="95"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="100"/>
         <source>Save as</source>
         <translation type="unfinished"></translation>
     </message>
+    <message numerus="yes">
+        <location filename="show_packet_bytes_dialog.cpp" line="167"/>
+        <source>Displaying %Ln byte(s).</source>
+        <translation type="unfinished">
+            <numerusform>Displaying %Ln byte.</numerusform>
+            <numerusform>Displaying %Ln bytes.</numerusform>
+        </translation>
+    </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="183"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="291"/>
         <source>Save Selected Packet Bytes As</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ShowPacketBytesTextEdit</name>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="689"/>
+        <source>Show Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="693"/>
+        <source>Show All</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
