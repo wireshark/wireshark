@@ -1207,7 +1207,7 @@
         <location filename="capture_interfaces_dialog.ui" line="128"/>
         <source>Capture filter for selected interfaces:</source>
         <oldsource>Capture Filter for selected Interfaces:</oldsource>
-        <translation type="unfinished">選択したインタフェースのキャプチャフィルタ</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="158"/>
@@ -1915,10 +1915,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="display_filter_edit.cpp" line="389"/>
         <source>Remove this filter</source>
         <translation>このフィルタを削除</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
-        <translation type="vanished">&quot;%1&quot; は期待しない結果になったかもしれません。(ユーザーズガイドを参照ください)</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="331"/>
@@ -13420,68 +13416,68 @@ a:hover {
 <context>
     <name>SequenceDialog</name>
     <message>
-        <location filename="sequence_dialog.cpp" line="60"/>
+        <location filename="sequence_dialog.cpp" line="62"/>
         <source>Call Flow</source>
         <translation>Callフロー</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="119"/>
+        <location filename="sequence_dialog.cpp" line="121"/>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
         <translation>...として保存</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="273"/>
+        <location filename="sequence_dialog.cpp" line="275"/>
         <source>No data</source>
         <translation>データなし</translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="275"/>
+        <location filename="sequence_dialog.cpp" line="277"/>
         <source>%Ln node(s)</source>
         <translation>
             <numerusform>%Ln ノード</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="276"/>
+        <location filename="sequence_dialog.cpp" line="278"/>
         <source>%Ln item(s)</source>
         <translation>
             <numerusform>%Ln アイテム</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="296"/>
+        <location filename="sequence_dialog.cpp" line="298"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="297"/>
+        <location filename="sequence_dialog.cpp" line="299"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="298"/>
+        <location filename="sequence_dialog.cpp" line="300"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>ビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="300"/>
+        <location filename="sequence_dialog.cpp" line="302"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="301"/>
+        <location filename="sequence_dialog.cpp" line="303"/>
         <source>ASCII (*.txt)</source>
         <translation>アスキーテキスト形式 (*.txt)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="312"/>
+        <location filename="sequence_dialog.cpp" line="314"/>
         <source>Save Graph As</source>
         <oldsource>Wireshark: Save Graph As...</oldsource>
         <translation>...としてグラフを保存</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="60"/>
+        <location filename="sequence_dialog.cpp" line="62"/>
         <source>Flow</source>
         <translation>フロー</translation>
     </message>
@@ -13861,7 +13857,7 @@ a:hover {
     <message>
         <location filename="syntax_line_edit.cpp" line="180"/>
         <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
-        <translation type="unfinished">&quot;%1&quot; は期待しない結果になったかもしれません。(ユーザーズガイドを参照ください)</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

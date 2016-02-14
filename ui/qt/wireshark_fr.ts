@@ -1210,7 +1210,7 @@
         <location filename="capture_interfaces_dialog.ui" line="128"/>
         <source>Capture filter for selected interfaces:</source>
         <oldsource>Capture Filter for selected Interfaces:</oldsource>
-        <translation type="unfinished">Filtre de capture pour les interfaces sélectionnées :</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="158"/>
@@ -1920,10 +1920,6 @@ si vous voulez utiliser des fichiers multiples.</translation>
         <location filename="display_filter_edit.cpp" line="389"/>
         <source>Remove this filter</source>
         <translation>Supprimer ce filtre</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
-        <translation type="vanished">&quot;%1&quot; peut avoir des résultats inattendus (voir le Guide de l&apos;utilisateur)</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="331"/>
@@ -13434,23 +13430,23 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
 <context>
     <name>SequenceDialog</name>
     <message>
-        <location filename="sequence_dialog.cpp" line="60"/>
+        <location filename="sequence_dialog.cpp" line="62"/>
         <source>Call Flow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="119"/>
+        <location filename="sequence_dialog.cpp" line="121"/>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
         <translation>Enregistrer sous</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="273"/>
+        <location filename="sequence_dialog.cpp" line="275"/>
         <source>No data</source>
         <translation>Pas de données</translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="275"/>
+        <location filename="sequence_dialog.cpp" line="277"/>
         <source>%Ln node(s)</source>
         <translation>
             <numerusform>%n noeud</numerusform>
@@ -13458,7 +13454,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="276"/>
+        <location filename="sequence_dialog.cpp" line="278"/>
         <source>%Ln item(s)</source>
         <translation>
             <numerusform>%n item</numerusform>
@@ -13466,38 +13462,38 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         </translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="296"/>
+        <location filename="sequence_dialog.cpp" line="298"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="297"/>
+        <location filename="sequence_dialog.cpp" line="299"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="298"/>
+        <location filename="sequence_dialog.cpp" line="300"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="300"/>
+        <location filename="sequence_dialog.cpp" line="302"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>Format d&apos;échange de Fichier JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="301"/>
+        <location filename="sequence_dialog.cpp" line="303"/>
         <source>ASCII (*.txt)</source>
         <translation>ASCII (*.txt)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="312"/>
+        <location filename="sequence_dialog.cpp" line="314"/>
         <source>Save Graph As</source>
         <oldsource>Wireshark: Save Graph As...</oldsource>
         <translation>Sauvegarder le Graphique Sous</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="60"/>
+        <location filename="sequence_dialog.cpp" line="62"/>
         <source>Flow</source>
         <translation>Flux</translation>
     </message>
@@ -13877,7 +13873,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="syntax_line_edit.cpp" line="180"/>
         <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
-        <translation type="unfinished">&quot;%1&quot; peut avoir des résultats inattendus (voir le Guide de l&apos;utilisateur)</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
