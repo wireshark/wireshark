@@ -8053,27 +8053,27 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2869"/>
+        <location filename="main_window.ui" line="2874"/>
         <source>Show UTP multicast stream statistics.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2874"/>
+        <location filename="main_window.ui" line="2879"/>
         <source>WLAN Traffic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2877"/>
+        <location filename="main_window.ui" line="2882"/>
         <source>Show IEEE 802.11 wireless LAN statistics.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2886"/>
+        <location filename="main_window.ui" line="2891"/>
         <source>Add a filter button</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2892"/>
+        <location filename="main_window.ui" line="2897"/>
         <source>Add a display filter button.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8722,7 +8722,7 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="2605"/>
-        <location filename="main_window.ui" line="2889"/>
+        <location filename="main_window.ui" line="2894"/>
         <source>Expression…</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8739,32 +8739,32 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2842"/>
+        <location filename="main_window.ui" line="2847"/>
         <source>Wiki Protocol Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2845"/>
+        <location filename="main_window.ui" line="2850"/>
         <source>Open the Wireshark wiki page for this protocol.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2850"/>
+        <location filename="main_window.ui" line="2855"/>
         <source>Filter Field Reference</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2853"/>
+        <location filename="main_window.ui" line="2858"/>
         <source>Open the display filter reference page for this filter field.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2858"/>
+        <location filename="main_window.ui" line="2863"/>
         <source>Go to Linked Packet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2861"/>
+        <location filename="main_window.ui" line="2866"/>
         <source>Go to the packet referenced by the selected field.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9188,12 +9188,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1791"/>
+        <location filename="main_window_slots.cpp" line="1798"/>
         <source>No Keys</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1792"/>
+        <location filename="main_window_slots.cpp" line="1799"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9207,64 +9207,64 @@ a:hover {
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1803"/>
+        <location filename="main_window_slots.cpp" line="1809"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1941"/>
+        <location filename="main_window_slots.cpp" line="1947"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2350"/>
-        <location filename="main_window_slots.cpp" line="3424"/>
+        <location filename="main_window_slots.cpp" line="2356"/>
+        <location filename="main_window_slots.cpp" line="3430"/>
         <source>Unable to build conversation filter.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2487"/>
-        <location filename="main_window_slots.cpp" line="2500"/>
+        <location filename="main_window_slots.cpp" line="2493"/>
+        <location filename="main_window_slots.cpp" line="2506"/>
         <source> before reloading the file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2534"/>
+        <location filename="main_window_slots.cpp" line="2540"/>
         <source>No filter available. Try another </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3431"/>
+        <location filename="main_window_slots.cpp" line="3437"/>
         <source>Error compiling filter for this conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3440"/>
+        <location filename="main_window_slots.cpp" line="3446"/>
         <source>No previous/next packet in conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3517"/>
+        <location filename="main_window_slots.cpp" line="3523"/>
         <source>No Interface Selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3524"/>
+        <location filename="main_window_slots.cpp" line="3530"/>
         <source> before starting a new capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3542"/>
+        <location filename="main_window_slots.cpp" line="3548"/>
         <source> before restarting the capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3725"/>
+        <location filename="main_window_slots.cpp" line="3731"/>
         <source>Wiki Page for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3726"/>
+        <location filename="main_window_slots.cpp" line="3732"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10298,12 +10298,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="385"/>
+        <location filename="proto_tree.cpp" line="387"/>
         <source>, 1 byte</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="387"/>
+        <location filename="proto_tree.cpp" line="389"/>
         <source>, %1 bytes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13425,23 +13425,23 @@ a:hover {
 <context>
     <name>SequenceDialog</name>
     <message>
-        <location filename="sequence_dialog.cpp" line="60"/>
+        <location filename="sequence_dialog.cpp" line="62"/>
         <source>Call Flow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="119"/>
+        <location filename="sequence_dialog.cpp" line="121"/>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="273"/>
+        <location filename="sequence_dialog.cpp" line="275"/>
         <source>No data</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="275"/>
+        <location filename="sequence_dialog.cpp" line="277"/>
         <source>%Ln node(s)</source>
         <translation type="unfinished">
             <numerusform>%Ln node</numerusform>
@@ -13449,7 +13449,7 @@ a:hover {
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="276"/>
+        <location filename="sequence_dialog.cpp" line="278"/>
         <source>%Ln item(s)</source>
         <translation type="unfinished">
             <numerusform>%Ln item</numerusform>
@@ -13457,38 +13457,38 @@ a:hover {
         </translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="296"/>
+        <location filename="sequence_dialog.cpp" line="298"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="297"/>
+        <location filename="sequence_dialog.cpp" line="299"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="298"/>
+        <location filename="sequence_dialog.cpp" line="300"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="300"/>
+        <location filename="sequence_dialog.cpp" line="302"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="301"/>
+        <location filename="sequence_dialog.cpp" line="303"/>
         <source>ASCII (*.txt)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="312"/>
+        <location filename="sequence_dialog.cpp" line="314"/>
         <source>Save Graph As</source>
         <oldsource>Wireshark: Save Graph As...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="60"/>
+        <location filename="sequence_dialog.cpp" line="62"/>
         <source>Flow</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13748,56 +13748,66 @@ a:hover {
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="77"/>
-        <source>EBCDIC</source>
+        <source>C Array</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="78"/>
-        <source>Hex Dump</source>
+        <source>EBCDIC</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="79"/>
-        <source>HTML</source>
+        <source>Hex Dump</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="80"/>
-        <source>Image</source>
+        <source>HTML</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="81"/>
-        <source>ISO 8859-1</source>
+        <source>Image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="82"/>
-        <source>Raw</source>
+        <source>ISO 8859-1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="83"/>
+        <source>Raw</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="84"/>
         <source>UTF-8</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="87"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="85"/>
+        <source>YAML</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="89"/>
         <source>Print</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="90"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="92"/>
         <source>Copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="93"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="95"/>
         <source>Save as</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="179"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="183"/>
         <source>Save Selected Packet Bytes As</source>
         <translation type="unfinished"></translation>
     </message>

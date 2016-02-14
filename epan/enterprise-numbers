@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2016-02-04)
+(last updated 2016-02-13)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -14918,9 +14918,9 @@ Decimal
     Scott Smyth
       ssmyth&realminfo.com
 3729
-  Lucent Technologies
+  Nokia (formerly 'Alcatel-Lucent')
     Michael Anthony
-      msanthony&lucent.com
+      michael.anthony&nokia.com
 3730
   Westport Technologies
     Neil Lefebvre
@@ -48655,8 +48655,8 @@ Decimal
       Jacques.Eudes&ujf-grenoble.fr
 12275
   University of Southampton
-    Mark Thompson
-      m.k.thompson&ecs.soton.ac.uk
+    Cédric Devivier
+      c.devivier&soton.ac.uk
 12276
   F5 Networks Inc
     Ravi Natarajan
@@ -58887,9 +58887,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Ken Geng
       kgeng&1088.net
 14834
-  mediales GmbH
+  Konsec GmbH (formerly 'mediales GmbH')
     Andreas Mack
-      mack&mediales.net
+      registry&konsec.com
 14835
   INFOTEC
     Sergio Martinez
@@ -76332,8 +76332,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
       tom.snauwaert&interbyte.be
 19195
   TRANSRADIO SenderSysteme Berlin AG
-    Burkhard Pohler
-      b.pohler&tsb-ag.de
+    Alexander Reisig
+      a.reisig&tsb-ag.de
 19196
   Agarik
     Laurent Seror
@@ -87380,9 +87380,9 @@ Information Security of Pr
     Gianfranco Cortellazzi
       gf.cortellazzi&controlsystems-srl.it
 21956
-  MegaPath Networks
-    Ronald McClain
-      rmcclain&megapath.net
+  Megapath Cloud Company LLC
+    Hugo Aviles
+      syseng&megapath.com
 21957
   Sealed Air (NZ) ltd
     Anu Hedge
@@ -93103,9 +93103,9 @@ Télécommunications et Réseaux Informatiques
     Jesper Svensson
       snmp&aptus.se
 23385
-  GESIS mbH
-    Frank Oberrath
-      frank_oberrath&gesis.de
+  GESIS Gesellschaft für Informationssysteme mit beschraenkter Haftung (formerly 'GESIS mbH')
+    Timo Schlueter
+      timo.schlueter&gesis.de
 23386
   Pole Universitaire Leonard de Vinci
     pascal valois
@@ -130795,9 +130795,9 @@ Decentralization / Helenic Public Administra
     Csaba Oravecz
       oravecz&nytud.hu
 32804
-  Unify GmbH & Co. KG (formerly 'Siemens Enterprise Communications GmbH & Co. KG')
-    Michael Tietsch
-      michael.tietsch&unify.com
+  Unify Software and Solutions GmbH & Co. KG Unify GmbH & Co. KG (formerly 'Siemens Enterprise Communications GmbH & Co. KG')
+    Andrew Hutton
+      andrew.hutton&unify.com
 32805
   CR Host
     Jose Romeiro Filho
@@ -135991,9 +135991,9 @@ Decentralization / Helenic Public Administra
     Johannes Heyder
       viva&perversia.net
 34103
-  Bluestone S.r.l.
+  BV-Tech S.p.A. (formerly 'Bluestone S.r.l.')
     Mirko Innocenti
-      innocenti&bluestone.it
+      m.innocenti&bv-tech.it
 34104
   Ceton Corp
     Alexander Faucher
@@ -140339,9 +140339,9 @@ Decentralization / Helenic Public Administra
     John Peduzzi
       john.peduzzi&thermofisher.com
 35190
-  Great Connection
+  Trice Imaging, Inc. (formerly 'Great Connection')
     Martin Westin
-      martin&greatconnection.se
+      martin&triceimaging.com
 35191
   Applied Software Control Ltd.
     David Barker
@@ -157308,9 +157308,9 @@ Decentralization / Helenic Public Administra
     Alfredo Bartelletti
       alfredo&blt.it
 39432
-  devcoach - Fisher + Willers GbR. 
-    Daniel Fisher
-      Daniel.Fisher&devcoach.com
+  devcoach GbR - Michael Willers & Partner
+    Michael Willers
+      michael.willers&devcoach.com
 39433
   T8, LLC
     Dmitry Bondarenko
@@ -161821,8 +161821,8 @@ Decentralization / Helenic Public Administra
       alain.mazieras&bpce.fr
 40560
   Norsat International Inc.
-    Denis Londry
-      dlondry&norsat.com
+    Michael Schefter
+      mschefter&norsat.com
 40561
   Alloy Computer Products (Aust) Pty Ltd
     Scott Young
@@ -172725,8 +172725,8 @@ Decentralization / Helenic Public Administra
       www&dik.com.cn
 43286
   Keysight Technologies, Inc.
-    Elizabeth Geary
-      elizabeth_geary&agilent.com
+    Garry Marshall
+      garry_marshall&keysight.com
 43287
   Mocomsoft Inc.
     Jian Shen
@@ -188259,6 +188259,338 @@ Decentralization / Helenic Public Administra
   JSS Technologies, LLC
     Jared Szechy
       jared&jsstechllc.com
+47170
+  Skylark Technology Inc.
+    Alexey Sadovskiy
+      sadovsky&skylark.tv
+47171
+  Maximus, Inc.
+    Daniel J Dohner
+      danieljdohner&maximus.com
+47172
+  OMNITEC SOLUTIONS, Inc.
+    Mark Holmes
+      mholmes&omnitecinc.com
+47173
+  Openwave Messaging
+    Paul van Gool
+      paul.vangool&owmessaging.com
+47174
+  Compute Canada
+    Gregory Newby
+      cto&computecanada.ca
+47175
+  Cosylab d.d.
+    Rok Kosir
+      rok.kosir&cosylab.com
+47176
+  gbltech.net
+    George Lancina
+      gbl&gbltech.net
+47177
+  Diplomat Pharmacy, Inc.
+    Charles Williamson
+      cwilliamson&diplomat.is
+47178
+  Seneca Mortgage Servicing LLC
+    James Torrence
+      jtorrence&senecaservicing.com
+47179
+  Infosec Global Inc
+    Dilip Chetram
+      dilip.chetram&infosecglobal.com
+47180
+  Unite Control Sp. z o.o.
+    Semyon Krivosheev
+      sk&unitecontrol.com
+47181
+  Capella Systems, LLC
+    David Dong
+      ddong&capellasystems.net
+47182
+  Applied Micro Design Inc.
+    Eric Becker
+      ebecker&appliedmicrodesign.com
+47183
+  Studer Innotec SA
+    Vincent Bovay
+      it_manager&studer-innotec.com
+47184
+  LifeTech
+    Roman Korshakevich
+      license&life.com.by
+47185
+  TOPCON CORPORATION
+    Tomoyuki Yabe
+      t.yabe&topcon.co.jp
+47186
+  CryoWerx
+    Darwin Gosal
+      contact&cryowerx.com
+47187
+  Global Blue Service Company Austria GmbH
+    Nils Mayerhofer
+      nmayerhofer&globalblue.com
+47188
+  Slovenske elektrarne, a.s.
+    Matej Sustr
+      matej.sustr&seas.sk
+47189
+  EPICT Italy
+    Koceva Frosina
+      frosina.koceva&edu.unige.it
+47190
+  HCMI datasharing consortium
+    N.F. Ramsey
+      admin&hcmi-consortium.nl
+47191
+  Bulat LLC
+    Shubin Sergey
+      shubin&bulat-opk.ru
+47192
+  Central Bank of Ireland
+    Dan Cleary
+      information.security&centralbank.ie
+47193
+  ATICEL - Advanced Tech Cell
+    Miguel Proaño
+      miguel&advancedtechcell.com
+47194
+  Asesoria Telematica Canarias SL
+    Eric Dantie
+      edantie&atcan.es
+47195
+  Gradkell Systems, Inc.
+    Mike R. Prevost
+      mprevost&gradkell.com
+47196
+  Hewlett Packard Enterprise - HRS
+    Michael J. O'Brien
+      michael.o-brien&hpe.com
+47197
+  Rainbow Crow
+    Mike Dimitrov
+      mike.dimitrov&gmail.com
+47198
+  IVALUA SAS
+    Arnaud Khuat-Duy
+      akd&ivalua.com
+47199
+  ISEC7
+    Michael Brandt
+      michael.brandt&isec7.com
+47200
+  realraum - Verein für Technik in Kultur und Gesellschaft
+    Nicolas Braud-Santoni
+      nicoo&realraum.at
+47201
+  Vivid-Hosting, LLC
+    Kiet Chau
+      kchau&vivid-hosting.net
+47202
+  Top Down Systems Corporation
+    Jeromy Arnold
+      jeromy.arnold&topdownsystems.com
+47203
+  Reactiv Media Ltd
+    Clinton Edmondson
+      clinton.edmondson&reactiv.co.uk
+47204
+  «КВАНТЭКС» Limited liability partnership («QUANTEX»)
+    Yuriy S. Samarin
+      office&quantex.kz
+47205
+  Lake Superior State University
+    Scott Olson
+      solson&lssu.edu
+47206
+  Brnit
+    Sharagim Parvareshkhah
+      sh&brnit.com
+47207
+  DAVID Systems GmbH
+    Wolfgang Seidl
+      wseidl&davidsystems.com
+47208
+  Ensinger GmbH
+    Rupert Holzer
+      OID-Admin&de.ensinger-online.com
+47209
+  MonkZ
+    Malte Kuhn
+      admin&monkz.de
+47210
+  ug consult
+    Ulrich Greshake
+      ugreshake&ug-consult.de
+47211
+  Ecole Polytechnique Fédérale de Lausanne
+    Claude Lecommandeur
+      claude.lecommandeur&epfl.ch
+47212
+  MailInBlack
+    Antony Spera
+      aspera&mailinblack.com
+47213
+  Nechi Group
+    Yandi Naranjo Basalo
+      ynaranjo&nechigroup.com
+47214
+  4all Tecnologia
+    Gustavo Neto
+      gustavo&4all.com
+47215
+  Markus Losco
+    Markus Losco
+      markus.losco&diskstation24.de
+47216
+  Mundio Mobile Holding Limited
+    Mr Andoko Wicaksono
+      legal&mundio.com
+47217
+  Einstein Medical Center
+    Louis Esposito
+      espositol&einstein.edu
+47218
+  websix GmbH
+    Marco Eble
+      m.eble&websix.de
+47219
+  Primary Data
+    Roni Rosen
+      roni&primarydata.com
+47220
+  IUT de BEZIERS
+    Christophe BORELLY
+      Christophe.Borelly&iutbeziers.fr
+47221
+  µE Kunst
+    Stefan Dickel
+      stefan.dickel&t-online.de
+47222
+  Megapath
+    Hugo Aviles
+      syseng&megapath.com
+47223
+  IQlunch
+    Hironori Ikura
+      hikura&iqlunch.net
+47224
+  Maersk Oil
+    Henrik Hulstrøm
+      henrik.hulstrom&maerskoil.com
+47225
+  David Garner NZ
+    David Garner
+      david&davidgarner.nz
+47226
+  Walker Digital Table Systems
+    Brian Besterman
+      bbesterman&wdtablesystems.com
+47227
+  EPI-USE Systems
+    Roelof Naude
+      snmp&epiuse.com
+47228
+  Evolution Gaming, Ltd.
+    Janis Lasmanis
+      security&evolutiongaming.com
+47229
+  SIPO Global
+    David Martin
+      dmart408&gmail.com
+47230
+  Gafachi, Inc.
+    Adam Glynn
+      adam.glynn&gafachi.com
+47231
+  Foxconn Corporation
+    Alex Phan
+      houston.it&foxconn.com
+47232
+  RodNoc
+    Dominik Sliwa
+      iana&tuxtorials.de
+47233
+  TELENT TECHNOLOGY SERVICES LIMITED
+    Adrian Phillips
+      adrian.phillips&telent.com
+47234
+  Suffolk County Scouts
+    Rob Gloess
+      rob.gloess&suffolkscouts.org.uk
+47235
+  QXIP
+    Lorenzo Mangani
+      lorenzo.mangani&gmail.com
+47236
+  MarSoftware
+    Torsten Markwardt
+      tmarkwardt&marsoftware.de
+47237
+  SYSTEMES INFORMATION HARMONIE MUTUELLE  SIHM  GIE
+    Patrick Rioche
+      contact.certificat&sihm.fr
+47238
+  AIS Advanced Info Service
+    Rachot Tawornsiri
+      rachotta&ais.co.th
+47239
+  Braincarta
+    V.M.E. Kersten
+      v.m.e.kersten&braincarta.com
+47240
+  Vision Solutions, Inc.
+    Domain Registration
+      domainreg&visionsolutions.com
+47241
+  DZIECIECY SWIAT Krzysztof Pytko
+    Krzysztof Pytko
+      krzysztof.pytko&edzieciecyswiat.pl
+47242
+  CoreOS, Inc
+    Brian Harrington
+      brian.harrington&coreos.com
+47243
+  Steelcase, Inc.
+    Christian Gillen
+      ianaadmin&steelcase.com
+47244
+  Roku Inc. 
+    Gary Ellison
+      gfe&roku.com
+47245
+  Shar3d Interactive
+    Arnaud BOUTIN
+      contact&shar3d-interactive.com
+47246
+  JF Zwobada
+    JF Zwobada
+      jf&zwobada.com
+47247
+  SILKAN SA
+    Farid Ben Tekfa
+      courrier&silkan.com
+47248
+  Ramarc Innovations
+    Marc Bilodeau
+      marc&ramarc.com
+47249
+  Pjano Consulting AB
+    Johan Pellkvist
+      jope&pjano.se
+47250
+  ProMDM d.o.o.
+    Ratko Štibrić
+      stibra&promdm.com
+47251
+  Web Solutions PH
+    Pepe Mariano Jr
+      jhuntech09&gmail.com
+47252
+  City of West Lafayette
+    Brad Alexander
+      balexander&westlafayette.in.gov
 
 
 End of Document

@@ -2509,10 +2509,13 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Open this capture file</source>
         <translation>このキャプチャファイルを開く</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="file_set_dialog.cpp" line="126"/>
-        <source>%1 File%2 in Set</source>
-        <translation>セット内の %1 ファイル %2</translation>
+        <source>%Ln File(s) in Set</source>
+        <oldsource>%1 File%2 in Set</oldsource>
+        <translation type="unfinished">
+            <numerusform>セット内の %1 ファイル %2</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -8115,32 +8118,37 @@ a:hover {
         <translation>IAX2 ストリーム分析</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2866"/>
+        <location filename="main_window.ui" line="2842"/>
+        <source>Show Packet Bytes…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2871"/>
         <source>UDP Multicast Streams</source>
         <translation>UDP マルチキャスト ストリーム</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2869"/>
+        <location filename="main_window.ui" line="2874"/>
         <source>Show UTP multicast stream statistics.</source>
         <translation>UTPマルチキャストストリーム統計を表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2874"/>
+        <location filename="main_window.ui" line="2879"/>
         <source>WLAN Traffic</source>
         <translation>WLAN トラフィック</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2877"/>
+        <location filename="main_window.ui" line="2882"/>
         <source>Show IEEE 802.11 wireless LAN statistics.</source>
         <translation>IEEE802.11 無線LAN統計を表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2886"/>
+        <location filename="main_window.ui" line="2891"/>
         <source>Add a filter button</source>
         <translation>フィルタボタンを追加</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2892"/>
+        <location filename="main_window.ui" line="2897"/>
         <source>Add a display filter button.</source>
         <translation>表示フィルタボタンを追加</translation>
     </message>
@@ -8789,7 +8797,7 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="2605"/>
-        <location filename="main_window.ui" line="2889"/>
+        <location filename="main_window.ui" line="2894"/>
         <source>Expression…</source>
         <translation>書式...</translation>
     </message>
@@ -8806,32 +8814,32 @@ a:hover {
         <translation>有効化したプロトコル...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2842"/>
+        <location filename="main_window.ui" line="2847"/>
         <source>Wiki Protocol Page</source>
         <translation>Wiki プロトコルページ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2845"/>
+        <location filename="main_window.ui" line="2850"/>
         <source>Open the Wireshark wiki page for this protocol.</source>
         <translation>このプロトコルについてのWireshark Wikiページを開く</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2850"/>
+        <location filename="main_window.ui" line="2855"/>
         <source>Filter Field Reference</source>
         <translation>フィルタフィールドリファレンス</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2853"/>
+        <location filename="main_window.ui" line="2858"/>
         <source>Open the display filter reference page for this filter field.</source>
         <translation>このフィルタフィールドについての表示フィルタリファレンスを開く</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2858"/>
+        <location filename="main_window.ui" line="2863"/>
         <source>Go to Linked Packet</source>
         <translation>リンクされたパケットへ移動</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2861"/>
+        <location filename="main_window.ui" line="2866"/>
         <source>Go to the packet referenced by the selected field.</source>
         <translation>選択されたフィールドによって参照されたパケットへ移動</translation>
     </message>
@@ -9255,79 +9263,85 @@ a:hover {
         <translation>Raw形式 (*.bin *.dat *.raw);;すべてのファイル (*.*</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1791"/>
+        <location filename="main_window_slots.cpp" line="1798"/>
         <source>No Keys</source>
         <translation>キーはありません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1792"/>
+        <location filename="main_window_slots.cpp" line="1799"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>保存する SSLセッション鍵はありません</translation>
     </message>
-    <message>
-        <location filename="main_window_slots.cpp" line="1798"/>
-        <source>Export SSL Session Keys (%1 key%2</source>
-        <translation>SSLセッション鍵をエキスポート (%1 鍵%2</translation>
+    <message numerus="yes">
+        <location filename="main_window_slots.cpp" line="1805"/>
+        <source>Export SSL Session Keys (%Ln key(s))</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1803"/>
+        <source>Export SSL Session Keys (%1 key%2</source>
+        <translation type="vanished">SSLセッション鍵をエキスポート (%1 鍵%2</translation>
+    </message>
+    <message>
+        <location filename="main_window_slots.cpp" line="1809"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
         <translation>SSLセッション鍵 (*.keys *.txt);;すべてのファイル (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1941"/>
+        <location filename="main_window_slots.cpp" line="1947"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>テキストコピーできません 別に試してください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2350"/>
-        <location filename="main_window_slots.cpp" line="3424"/>
+        <location filename="main_window_slots.cpp" line="2356"/>
+        <location filename="main_window_slots.cpp" line="3430"/>
         <source>Unable to build conversation filter.</source>
         <translation>会話フィルタを作成できません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2487"/>
-        <location filename="main_window_slots.cpp" line="2500"/>
+        <location filename="main_window_slots.cpp" line="2493"/>
+        <location filename="main_window_slots.cpp" line="2506"/>
         <source> before reloading the file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2534"/>
+        <location filename="main_window_slots.cpp" line="2540"/>
         <source>No filter available. Try another </source>
         <translation>フィルタが利用できません 別に試してください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3431"/>
+        <location filename="main_window_slots.cpp" line="3437"/>
         <source>Error compiling filter for this conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3440"/>
+        <location filename="main_window_slots.cpp" line="3446"/>
         <source>No previous/next packet in conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3517"/>
+        <location filename="main_window_slots.cpp" line="3523"/>
         <source>No Interface Selected</source>
         <translation>インターフェースが選択されていません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3524"/>
+        <location filename="main_window_slots.cpp" line="3530"/>
         <source> before starting a new capture</source>
         <translation>新規キャプチャを開始する前に</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3542"/>
+        <location filename="main_window_slots.cpp" line="3548"/>
         <source> before restarting the capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3725"/>
+        <location filename="main_window_slots.cpp" line="3731"/>
         <source>Wiki Page for %1</source>
         <translation>%1 の Wikiページ</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3726"/>
+        <location filename="main_window_slots.cpp" line="3732"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;ワイヤーシャークWikiはコミュニティによって運営されています。&lt;/p&gt;&lt;p&gt;いま見ているページはすばらしかったり、不完全だったり、間違っていたり、存在しないかもしれません。&lt;/p&gt;&lt;p&gt;Wikiに移動しますか？&lt;/p&gt;</translation>
     </message>
@@ -10363,12 +10377,12 @@ a:hover {
         <translation>フィルタで色分け</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="385"/>
+        <location filename="proto_tree.cpp" line="387"/>
         <source>, 1 byte</source>
         <translation>, 1 バイト</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="387"/>
+        <location filename="proto_tree.cpp" line="389"/>
         <source>, %1 bytes</source>
         <translation>, %1 バイト</translation>
     </message>
@@ -13533,68 +13547,68 @@ a:hover {
 <context>
     <name>SequenceDialog</name>
     <message>
-        <location filename="sequence_dialog.cpp" line="60"/>
+        <location filename="sequence_dialog.cpp" line="62"/>
         <source>Call Flow</source>
         <translation>Callフロー</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="119"/>
+        <location filename="sequence_dialog.cpp" line="121"/>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
         <translation>...として保存</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="273"/>
+        <location filename="sequence_dialog.cpp" line="275"/>
         <source>No data</source>
         <translation>データなし</translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="275"/>
+        <location filename="sequence_dialog.cpp" line="277"/>
         <source>%Ln node(s)</source>
         <translation>
             <numerusform>%Ln ノード</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="276"/>
+        <location filename="sequence_dialog.cpp" line="278"/>
         <source>%Ln item(s)</source>
         <translation>
             <numerusform>%Ln アイテム</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="296"/>
+        <location filename="sequence_dialog.cpp" line="298"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="297"/>
+        <location filename="sequence_dialog.cpp" line="299"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="298"/>
+        <location filename="sequence_dialog.cpp" line="300"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>ビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="300"/>
+        <location filename="sequence_dialog.cpp" line="302"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="301"/>
+        <location filename="sequence_dialog.cpp" line="303"/>
         <source>ASCII (*.txt)</source>
         <translation>アスキーテキスト形式 (*.txt)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="312"/>
+        <location filename="sequence_dialog.cpp" line="314"/>
         <source>Save Graph As</source>
         <oldsource>Wireshark: Save Graph As...</oldsource>
         <translation>...としてグラフを保存</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="60"/>
+        <location filename="sequence_dialog.cpp" line="62"/>
         <source>Flow</source>
         <translation>フロー</translation>
     </message>
@@ -13829,6 +13843,111 @@ a:hover {
         <location filename="sequence_dialog.ui" line="344"/>
         <source>Show only TCP flow information</source>
         <translation>TCPフロー情報のみ表示</translation>
+    </message>
+</context>
+<context>
+    <name>ShowPacketBytesDialog</name>
+    <message>
+        <location filename="show_packet_bytes_dialog.ui" line="20"/>
+        <source>Show Packet Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.ui" line="36"/>
+        <source>Hint.</source>
+        <translation type="unfinished">ヒント</translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.ui" line="48"/>
+        <source>Show as</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.ui" line="79"/>
+        <source>Find:</source>
+        <translation type="unfinished">検索:</translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.ui" line="89"/>
+        <source>Find &amp;Next</source>
+        <translation type="unfinished">次を検索</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="show_packet_bytes_dialog.cpp" line="58"/>
+        <source>Frame %1, %2, %Ln byte(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="76"/>
+        <source>ASCII</source>
+        <translation type="unfinished">ASCII形式</translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="77"/>
+        <source>C Array</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="78"/>
+        <source>EBCDIC</source>
+        <translation type="unfinished">EBCDIC形式</translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="79"/>
+        <source>Hex Dump</source>
+        <translation type="unfinished">16進数ダンプ</translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="80"/>
+        <source>HTML</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="81"/>
+        <source>Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="82"/>
+        <source>ISO 8859-1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="83"/>
+        <source>Raw</source>
+        <translation type="unfinished">列</translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="84"/>
+        <source>UTF-8</source>
+        <translation type="unfinished">UTF-8形式</translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="85"/>
+        <source>YAML</source>
+        <translation type="unfinished">YAML形式</translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="89"/>
+        <source>Print</source>
+        <translation type="unfinished">印刷</translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="92"/>
+        <source>Copy</source>
+        <translation type="unfinished">コピー</translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="95"/>
+        <source>Save as</source>
+        <translation type="unfinished">として保存</translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="183"/>
+        <source>Save Selected Packet Bytes As</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
