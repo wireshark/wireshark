@@ -174,6 +174,7 @@ static int ett_iso14443_app_data = -1;
 static int ett_iso14443_prot_inf = -1;
 static int ett_iso14443_prot_type = -1;
 static int ett_iso14443_ats_t0 = -1;
+static int ett_iso14443_ats_tb1 = -1;
 static int ett_iso14443_attr_p1 = -1;
 static int ett_iso14443_attr_p2 = -1;
 static int ett_iso14443_pcb = -1;
@@ -338,7 +339,7 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
     proto_item *app_data_it, *prot_inf_it, *prot_type_it;
     proto_tree *app_data_tree, *prot_inf_tree, *prot_type_tree;
     gint app_data_offset, rem_len;
-    guint8 max_frame_size_code;
+    guint8 max_frame_size_code, fwi;
     proto_item *pi;
     gboolean iso14443_adc;
     guint8 prot_inf_len = 0;
@@ -396,8 +397,9 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
     proto_tree_add_item(prot_type_tree, hf_iso14443_4_compl_atqb,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(prot_inf_tree, hf_iso14443_fwi,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
+    fwi = (tvb_get_guint8(tvb, offset) & 0xF0) >> 4;
+    proto_tree_add_uint_bits_format_value(prot_inf_tree, hf_iso14443_fwi,
+            tvb, offset*8, 4, fwi, "%d", fwi);
     iso14443_adc = tvb_get_guint8(tvb, offset) & 0x04;
     proto_tree_add_item(prot_inf_tree, hf_iso14443_adc,
             tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -569,9 +571,9 @@ static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
 {
     proto_item *ti = proto_tree_get_parent(tree);
     circuit_t *circuit;
-    guint8 tl, t0 = 0, fsci;
-    proto_item *t0_it, *pi;
-    proto_tree *t0_tree;
+    guint8 tl, t0 = 0, fsci, fwi;
+    proto_item *t0_it, *tb1_it, *pi;
+    proto_tree *t0_tree, *tb1_tree;
     gint offset_tl, hist_len;
 
     col_set_str(pinfo->cinfo, COL_INFO, "ATS");
@@ -608,8 +610,12 @@ static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
         offset++;
     }
     if (t0 & HAVE_TB1) {
-        proto_tree_add_item(tree, hf_iso14443_tb1,
+        tb1_it = proto_tree_add_item(tree, hf_iso14443_tb1,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
+        tb1_tree = proto_item_add_subtree(tb1_it, ett_iso14443_ats_tb1);
+        fwi = (tvb_get_guint8(tvb, offset) & 0xF0) >> 4;
+        proto_tree_add_uint_bits_format_value(tb1_tree, hf_iso14443_fwi,
+                tvb, offset*8, 4, fwi, "%d", fwi);
         offset++;
     }
     if (t0 & HAVE_TA1) {
@@ -1281,7 +1287,7 @@ proto_register_iso14443(void)
         },
         { &hf_iso14443_fwi,
             { "FWI", "iso14443.fwi", FT_UINT8, BASE_DEC,
-                NULL, 0xF0, NULL, HFILL }
+                NULL, 0, NULL, HFILL }
         },
         { &hf_iso14443_adc,
             { "Application Data Coding", "iso14443.adc", FT_BOOLEAN, 8,
@@ -1477,6 +1483,7 @@ proto_register_iso14443(void)
         &ett_iso14443_prot_inf,
         &ett_iso14443_prot_type,
         &ett_iso14443_ats_t0,
+        &ett_iso14443_ats_tb1,
         &ett_iso14443_attr_p1,
         &ett_iso14443_attr_p2,
         &ett_iso14443_pcb,
