@@ -103,6 +103,7 @@ typedef struct {
 
 static const multipart_header_t multipart_headers[] = {
     { "Unknown-header", NULL },     /* Pad so that the real headers start at index 1 */
+    { "Content-Description", NULL },
     { "Content-Disposition", NULL },
     { "Content-Encoding", "e" },
     { "Content-Id", NULL },
@@ -113,14 +114,15 @@ static const multipart_header_t multipart_headers[] = {
     { "OriginalContent", NULL }
 };
 
-#define POS_CONTENT_DISPOSITION         1
-#define POS_CONTENT_ENCODING            2
-#define POS_CONTENT_ID                  3
-#define POS_CONTENT_LANGUAGE            4
-#define POS_CONTENT_LENGTH              5
-#define POS_CONTENT_TRANSFER_ENCODING   6
-#define POS_CONTENT_TYPE                7
-#define POS_ORIGINALCONTENT             8
+#define POS_CONTENT_DESCRIPTION         1
+#define POS_CONTENT_DISPOSITION         2
+#define POS_CONTENT_ENCODING            3
+#define POS_CONTENT_ID                  4
+#define POS_CONTENT_LANGUAGE            5
+#define POS_CONTENT_LENGTH              6
+#define POS_CONTENT_TRANSFER_ENCODING   7
+#define POS_CONTENT_TYPE                8
+#define POS_ORIGINALCONTENT             9
 
 /* Initialize the header fields */
 static gint hf_multipart_type = -1;
@@ -129,6 +131,7 @@ static gint hf_multipart_sec_token_len = -1;
 
 static gint hf_header_array[] = {
     -1, /* "Unknown-header" - Pad so that the real headers start at index 1 */
+    -1, /* "Content-Description" */
     -1, /* "Content-Disposition" */
     -1, /* "Content-Encoding" */
     -1, /* "Content-Id" */
@@ -1039,6 +1042,13 @@ proto_register_multipart(void)
               "mime_multipart.header.sectoken-length",
               FT_UINT32, BASE_DEC, NULL, 0x00,
               "Length of the Kerberos BLOB which follows this token", HFILL
+          }
+        },
+        { &hf_header_array[POS_CONTENT_DESCRIPTION],
+          {   "Content-Description",
+              "mime_multipart.header.content-description",
+              FT_STRING, BASE_NONE, NULL, 0x00,
+              "Content-Description Header", HFILL
           }
         },
         { &hf_header_array[POS_CONTENT_DISPOSITION],
