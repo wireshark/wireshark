@@ -197,7 +197,7 @@ dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(SMI_LIBS)
 !ENDIF
 
-randpkt_LIBS= randpkt_core\randpkt_core.lib \
+randpkt_LIBS= randpkt_core\librandpkt_core.lib \
 	wiretap\wiretap-$(WTAP_VERSION).lib \
 	user32.lib \
 	wsutil\libwsutil.lib \
@@ -419,7 +419,7 @@ dftest.exe	: $(dftest_OBJECTS) epan ui
 	mt.exe -nologo -manifest "dftest.exe.manifest" -outputresource:dftest.exe;1
 !ENDIF
 
-randpkt.exe	: $(randpkt_OBJECTS)
+randpkt.exe	: $(randpkt_OBJECTS) randpkt_core\librandpkt_core.lib
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:randpkt.exe $(conflags) $(conlibsdll) $(LDFLAGS) $(randpkt_LIBS) $(randpkt_OBJECTS)
