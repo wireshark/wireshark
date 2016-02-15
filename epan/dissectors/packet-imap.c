@@ -344,8 +344,8 @@ proto_register_imap(void)
   };
 
   static gint *ett[] = {
-  &ett_imap,
-  &ett_imap_reqresp,
+    &ett_imap,
+    &ett_imap_reqresp,
   };
 
   proto_imap = proto_register_protocol("Internet Message Access Protocol", "IMAP", "imap");
