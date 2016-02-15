@@ -503,8 +503,11 @@ static const guint8 hsdsch_macdflow_id_mac_content_map[] = {
 	RLC_UNKNOWN_MODE
 	};
 
-/* Make fake logical channel id's based on MACdFlow-ID's*/
-static const guint8 fake_lchid_macd_flow[] = {1,9,14,11,0,12};
+/* Make fake logical channel id's based on MACdFlow-ID's, 
+* XXXX Bug 12121 expanded the number of entries to 8(+2),
+* not at all sure what the proper value should be 0xfF?
+*/
+static const guint8 fake_lchid_macd_flow[] = {1,9,14,11,0,12,0,0};
 
 /* Dissect message parts */
 static int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
