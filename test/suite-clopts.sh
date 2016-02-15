@@ -43,6 +43,22 @@ test_single_char_options()
 	rm ./testout.txt
 }
 
+# check against $EXIT_OK or $EXIT_ERROR with a single char option
+# $1 command: tshark or dumpcap
+# $2 option: a
+test_D_or_L_option()
+{
+	#echo "command: "$1" opt1: "$2" opt2: "$3" opt3: "$4" opt4: "$5" opt5: "$6
+	$1 -$2 > ./testout.txt 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK -a ! $RETURNVALUE -eq $EXIT_ERROR ]; then
+		test_step_failed "exit status: $RETURNVALUE"
+	else
+		test_step_ok
+	fi
+	rm ./testout.txt
+}
+
 # dumpcap
 
 # Only with remote capture: A:ru
@@ -69,16 +85,15 @@ clopts_suite_dumpcap_valid_chars() {
 	done
 }
 
-# special case: interface-specific opts should work under Windows and fail as
-# a regular user on other systems.
+# special case: interface-specific opts might work as a regular user
+# (exit code 0) or might fail due to lack of permissions (exit code 2)
+# but shouldn't fail due to a syntax error (exit code 1).  We cannot
+# predict whether it'll be a success or failure based on the machine,
+# so allow either one.
 clopts_suite_dumpcap_interface_chars() {
 	for index in D L
 	do
-		if [ "$SKIP_CAPTURE" -eq 0 ] ; then
-			test_step_add "Valid dumpcap parameter -$index, exit status must be $EXIT_OK" "test_single_char_options $DUMPCAP $index $EXIT_OK"
-		else
-			test_step_add "Invalid permissions for dumpcap parameter -$index, exit status must be $EXIT_ERROR" "test_single_char_options $DUMPCAP $index $EXIT_ERROR"
-		fi
+		test_step_add "Valid dumpcap parameter -$index requiring capture permissions, exit status must be $EXIT_OK or $EXIT_ERROR" "test_D_or_L_option $DUMPCAP $index"
 	done
 }
 
@@ -186,16 +201,15 @@ clopts_suite_tshark_valid_chars() {
 	done
 }
 
-# special case: interface-specific opts should work under Windows and fail as
-# a regular user on other systems.
+# special case: interface-specific opts might work as a regular user
+# (exit code 0) or might fail due to lack of permissions (exit code 2)
+# but shouldn't fail due to a syntax error (exit code 1).  We cannot
+# predict whether it'll be a success or failure based on the machine,
+# so allow either one.
 clopts_suite_tshark_interface_chars() {
 	for index in D L
 	do
-		if [ "$SKIP_CAPTURE" -eq 0 ] ; then
-			test_step_add "Valid TShark parameter -$index, exit status must be $EXIT_OK" "test_single_char_options $TSHARK $index $EXIT_OK"
-		else
-			test_step_add "Invalid permissions for TShark parameter -$index, exit status must be $EXIT_ERROR" "test_single_char_options $TSHARK $index $EXIT_ERROR"
-		fi
+		test_step_add "Valid TShark parameter -$index requiring capture permissions, exit status must be $EXIT_OK or $EXIT_ERROR" "test_D_or_L_option $TSHARK $index"
 	done
 }
 
