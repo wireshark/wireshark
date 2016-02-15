@@ -223,7 +223,7 @@ RESOURCES=image\wireshark.res image\file_dlg_win32.res \
 	image\rawshark.res image\reordercap.res image\libwsutil.res
 
 
-all: $(LIBS_CHECK) config.h ui\qt\config.pri tools image $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil codecs wiretap epan $(EXECUTABLES) wireshark.bsc $(RESOURCES) help install-all
+all: $(LIBS_CHECK) config.h ui\qt\config.pri tools image $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil codecs wiretap epan randpkt_core $(EXECUTABLES) wireshark.bsc $(RESOURCES) help install-all
 
 !IFDEF MAKENSIS
 packaging: all
@@ -288,6 +288,7 @@ wireshark.bsc: \
 	plugins\wimax\*.sbr		\
 	plugins\wimaxasncp\*.sbr	\
 	plugins\wimaxmacphy\*.sbr	\
+	randpkt_core\*.sbr		\
 	ui\*.sbr			\
 	ui\cli\*.sbr			\
 	ui\gtk\*.sbr			\
@@ -419,7 +420,7 @@ dftest.exe	: $(dftest_OBJECTS) epan ui
 	mt.exe -nologo -manifest "dftest.exe.manifest" -outputresource:dftest.exe;1
 !ENDIF
 
-randpkt.exe	: $(randpkt_OBJECTS) randpkt_core\librandpkt_core.lib
+randpkt.exe	: $(randpkt_OBJECTS) randpkt_core
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:randpkt.exe $(conflags) $(conlibsdll) $(LDFLAGS) $(randpkt_LIBS) $(randpkt_OBJECTS)
@@ -605,6 +606,8 @@ clean: clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../caputils
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../randpkt_core
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../ui
@@ -661,6 +664,8 @@ distclean: distclean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../caputils
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../randpkt_core
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../ui
@@ -709,6 +714,8 @@ maintainer-clean: maintainer-clean-local
 	cd ../capchild
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../caputils
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../randpkt_core
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
@@ -826,6 +833,11 @@ capchild:: help config.h version.h doxygen
 caputils:: help config.h version.h doxygen
 	cd caputils
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libcaputils.lib
+	cd ..
+
+randpkt_core:: help config.h version.h doxygen
+	cd randpkt_core
+	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake librandpkt_core.lib
 	cd ..
 
 codecs::
@@ -1505,6 +1517,8 @@ checkapi: checkapi_local
 	cd ../capchild
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../caputils
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+	cd ../randpkt_core
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
