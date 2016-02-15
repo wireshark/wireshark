@@ -24,7 +24,7 @@
 
 #include "config.h"
 
-#include "randpkt-core.h"
+#include "randpkt_core/randpkt_core.h"
 
 #include <glib.h>
 #include <glib/gprintf.h>

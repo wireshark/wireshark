@@ -1018,6 +1018,7 @@ add_subdirectory( caputils )
 add_subdirectory( codecs )
 add_subdirectory( docbook )
 add_subdirectory( epan )
+add_subdirectory( randpkt_core )
 add_subdirectory( tools/lemon )
 add_subdirectory( ui )
 add_subdirectory( wiretap )
@@ -1205,6 +1206,7 @@ set( IN_FILES
 	packaging/macosx/Info.plist.in
 	packaging/macosx/osx-dmg.sh.in
 	packaging/macosx/Wireshark_package.pmdoc/index.xml.in
+	randpkt_core/doxygen.cfg.in
 	ui/doxygen.cfg.in
 	ui/gtk/doxygen.cfg.in
 	ui/qt/doxygen.cfg.in
@@ -1231,6 +1233,7 @@ link_directories(
 	${CMAKE_BINARY_DIR}/caputils
 	${CMAKE_BINARY_DIR}/codecs
 	${CMAKE_BINARY_DIR}/epan
+	${CMAKE_BINARY_DIR}/randpkt_core
 	${CMAKE_BINARY_DIR}/wiretap
 	${CMAKE_BINARY_DIR}/wsutil
 )
@@ -2146,6 +2149,7 @@ endif()
 
 if(BUILD_randpkt)
 	set(randpkt_LIBS
+		randpkt_core
 		wiretap
 		wsutil
 		${M_LIBRARIES}
@@ -2158,7 +2162,6 @@ if(BUILD_randpkt)
 	)
 	set(randpkt_FILES
 		randpkt.c
-		randpkt-core.c
 	)
 	add_executable(randpkt ${randpkt_FILES})
 	set_extra_executable_properties(randpkt "Executables")
@@ -2398,13 +2401,13 @@ endif()
 
 if(BUILD_randpktdump)
 	set(randpktdump_LIBS
+		randpkt_core
 		wiretap
 		${GLIB2_LIBRARIES}
 		${CMAKE_DL_LIBS}
 	)
 	set(randpktdump_FILES
 		extcap/randpktdump.c
-		randpkt-core.c
 	)
 
 	add_executable(randpktdump WIN32 ${randpktdump_FILES})

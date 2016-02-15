@@ -1,0 +1,143 @@
+## Makefile for building wireshark.exe with Microsoft C and nmake
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
+# We "Deploy using XCopy," which is described at
+# http://msdn.microsoft.com/en-us/library/ms235291.aspx
+
+include ..\config.nmake
+include ..\Makefile.nmake.inc
+
+############### no need to modify below this line #########
+
+CC = cl
+LINK= link
+
+LDFLAGS = /NOLOGO /INCREMENTAL:NO $(LOCAL_LDFLAGS)
+
+# We use GENERATED_CFLAGS to get around flex's non-LLP64-compliant output
+GENERATED_CFLAGS=\
+	$(STANDARD_CFLAGS) \
+	/I.  /Iwiretap $(GLIB_CFLAGS) \
+	$(ZLIB_CFLAGS) /I$(PCAP_DIR)\include $(AIRPCAP_CFLAGS) \
+	$(C_ARES_CFLAGS) $(ADNS_CFLAGS) $(GNUTLS_CFLAGS) \
+	$(SMI_CFLAGS) $(GEOIP_CFLAGS) $(LIBSSH_CFLAGS) $(WINSPARKLE_CFLAGS)
+
+CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
+
+.c.obj::
+	$(CC) $(CFLAGS) -Fd.\ -c $<
+
+include Makefile.common
+
+androiddump_OBJECTS = $(androiddump_SOURCES:.c=.obj)
+
+anddroiddump_WSLIBS = \
+	..\wiretap\wiretap-$(WTAP_VERSION).lib \
+	..\wsutil\libwsutil.lib
+
+androiddump_LIBS = $(anddroiddump_WSLIBS) \
+	wsock32.lib user32.lib \
+	$(GLIB_LIBS)
+
+randpktdump_OBJECTS = $(randpktdump_SOURCES:.c=.obj)
+
+randpktdump_WSLIBS = \
+	..\randpkt_core\randpkt_core.lib \
+	..\wiretap\wiretap-$(WTAP_VERSION).lib \
+	..\wsutil\libwsutil.lib
+
+randpktdump_LIBS = $(randpktdump_WSLIBS) \
+	wsock32.lib user32.lib \
+	$(GLIB_LIBS)
+
+sshdump_OBJECTS = $(sshdump_SOURCES:.c=.obj)
+
+sshdump_WSLIBS = \
+	..\wiretap\wiretap-$(WTAP_VERSION).lib \
+	..\wsutil\libwsutil.lib
+
+sshdump_LIBS = $(sshdump_WSLIBS) \
+	wsock32.lib user32.lib \
+	$(LIBSSH_LIBS) \
+	$(GLIB_LIBS)
+
+EXECUTABLES=androiddump.exe randpktdump.exe
+
+!IFDEF LIBSSH_DIR
+EXECUTABLES += sshdump.exe
+!ENDIF
+
+androiddump.exe	: $(LIBS_CHECK) config.h androiddump.obj $(anddroiddump_WSLIBS)
+	@echo Linking $@
+	$(LINK) @<<
+		/OUT:androiddump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS androiddump.obj $(androiddump_LIBS)
+<<
+!IFDEF MANIFEST_INFO_REQUIRED
+	mt.exe -nologo -manifest "androiddump.exe.manifest" -outputresource:androiddump.exe;1
+!ENDIF
+
+randpktdump.exe	: $(LIBS_CHECK) config.h randpktdump.obj $(randpktdump_WSLIBS)
+	@echo Linking $@
+	$(LINK) @<<
+		/OUT:randpktdump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS randpktdump.obj $(randpktdump_LIBS)
+<<
+!IFDEF MANIFEST_INFO_REQUIRED
+	mt.exe -nologo -manifest "randpktdump.exe.manifest" -outputresource:randpktdump.exe;1
+!ENDIF
+
+!IFDEF LIBSSH_DIR
+sshdump.exe	: $(LIBS_CHECK) config.h sshdump.obj $(sshdump_WSLIBS)
+	@echo Linking $@
+	$(LINK) @<<
+		/OUT:sshdump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS sshdump.obj $(sshdump_LIBS)
+<<
+!IFDEF MANIFEST_INFO_REQUIRED
+	mt.exe -nologo -manifest "sshdump.exe.manifest" -outputresource:sshdump.exe;1
+!ENDIF
+!ENDIF
+
+clean:
+	rm -f $(androiddump_OBJECTS) $(randpktdump_OBJECTS) $(sshdump_OBJECTS) \
+		$(EXECUTABLES) *.nativecodeanalysis.xml *.pdb *.sbr \
+		doxygen.cfg *.exe.manifest
+
+# "distclean" removes all files not part of the distribution.
+# It does not remove generated files that are part of the distribution.
+distclean: clean
+	rm -f $(BUILT_SOURCES)
+
+# Make "maintainer-clean" only if you would like to remove ALL generated
+# files.
+# Be sure to have python and perl installed to regenerate them.
+maintainer-clean: distclean
+
+# convert doxygen.cfg.in to doxygen.cfg with stamped version info
+doxygen.cfg: ..\config.nmake doxygen.cfg.in
+!IFDEF DOXYGEN
+	sed -e s/@VERSION@/$(VERSION)/ \
+	    < doxygen.cfg.in > $@
+!ENDIF
+
+doxygen-run:
+!IFDEF DOXYGEN
+	$(DOXYGEN) doxygen.cfg
+!ENDIF
+
+# MS html help compiler hhc returns 1 on success, but as nmake expects 0 it would stop here.
+# the prepended -1 will raise the accepted error levels of nmake, so it will continue
+doxygen.chm:
+!IFDEF HHC
+	-1 $(HHC) html\index.hhp
+!ENDIF
+
+doxygen: doxygen.cfg doxygen-run doxygen.chm
+
+checkapi: checkapi-base checkapi-todo
+
+checkapi-base:
+	$(PERL) ../tools/checkAPIs.pl -g deprecated-gtk -build \
+	$(androiddump_SOURCES) $(randpktdump_SOURCES) $(sshdump_SOURCES)
+
+checkapi-todo:
+	$(PERL) ../tools/checkAPIs.pl -M -g deprecated-gtk-todo -build \
+	$(androiddump_SOURCES) $(randpktdump_SOURCES) $(sshdump_SOURCES)

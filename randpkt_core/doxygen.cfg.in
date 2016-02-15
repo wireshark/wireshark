@@ -1,0 +1,81 @@
+# @configure_input@
+
+@INCLUDE = ../doxygen_global.cfg
+
+# The PROJECT_NAME tag is a single word (or a sequence of words surrounded
+# by quotes) that should identify the project.
+
+PROJECT_NAME           = "Wireshark Random Packet Generation Library"
+
+# The PROJECT_NUMBER tag can be used to enter a project or revision number.
+# This could be handy for archiving the generated documentation or
+# if some version control system is used.
+
+PROJECT_NUMBER         = @VERSION@
+
+# The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute)
+# base path where the generated documentation will be put.
+# If a relative path is entered, it will be relative to the location
+# where doxygen was started. If left blank the current directory will be used.
+
+OUTPUT_DIRECTORY       = ../wsar_html
+
+# The HTML_OUTPUT tag is used to specify where the HTML docs will be put.
+# If a relative path is entered the value of OUTPUT_DIRECTORY will be
+# put in front of it. If left blank `html' will be used as the default path.
+
+HTML_OUTPUT            = randpkt-core
+
+# The TAGFILES option can be used to specify one or more tagfiles.
+# Optionally an initial location of the external documentation
+# can be added for each tagfile. The format of a tag file without
+# this location is as follows:
+#
+# TAGFILES = file1 file2 ...
+# Adding location for the tag files is done as follows:
+#
+# TAGFILES = file1=loc1 "file2 = loc2" ...
+# where "loc1" and "loc2" can be relative or absolute paths or
+# URLs. If a location is present for each tag, the installdox tool
+# does not have to be run to correct the links.
+# Note that each tag file must have a unique name
+# (where the name does NOT include the path)
+# If a tag file is not located in the directory in which doxygen
+# is run, you must also specify the path to the tagfile here.
+
+TAGFILES               = ../doxygen-core.tag=..
+
+# When a file name is specified after GENERATE_TAGFILE, doxygen will create
+# a tag file that is based on the input files it reads.
+
+GENERATE_TAGFILE       = doxygen-randpkt-core.tag
+
+# The RECURSIVE tag can be used to turn specify whether or not subdirectories
+# should be searched for input files as well. Possible values are YES and NO.
+# If left blank NO is used.
+
+RECURSIVE              = YES
+
+# The EXCLUDE tag can be used to specify files and/or directories that should
+# excluded from the INPUT source files. This way you can easily exclude a
+# subdirectory from a directory tree whose root is specified with the INPUT tag.
+
+EXCLUDE                =
+
+# The EXCLUDE_SYMLINKS tag can be used select whether or not files or directories
+# that are symbolic links (a Unix filesystem feature) are excluded from the input.
+
+EXCLUDE_SYMLINKS       = NO
+
+# If the value of the INPUT tag contains directories, you can use the
+# EXCLUDE_PATTERNS tag to specify one or more wildcard patterns to exclude
+# certain files from those directories.
+
+EXCLUDE_PATTERNS       =
+
+# If the GENERATE_HTMLHELP tag is set to YES, the CHM_FILE tag can
+# be used to specify the file name of the resulting .chm file. You
+# can add a path in front of the file if the result should not be
+# written to the html output directory.
+
+CHM_FILE               = wireshark-randpkt-core.chm

@@ -21,8 +21,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "randpkt-core.h"
-
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,6 +35,8 @@
 #ifndef HAVE_GETOPT_LONG
 #include "wsutil/wsgetopt.h"
 #endif
+
+#include "randpkt_core/randpkt_core.h"
 
 /* Print usage statement and exit program */
 static void

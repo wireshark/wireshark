@@ -3059,8 +3059,8 @@ dnl
 dnl check whether extcap programs should be enabled and, if they should be,
 dnl check for extcap directory - stolen from Amanda's configure.ac
 dnl
-dnl we don't wish to expand ${datadir} yet
-extcapdir="\${datadir}/wireshark/extcap"
+dnl we don't wish to expand ${libdir} yet
+extcapdir="\${libdir}/wireshark/extcap"
 AC_ARG_WITH(extcap,
   AC_HELP_STRING( [--with-extcap@<:@=DIR@:>@],
 		  [use extcap for external capture sources (installed in DIR, if supplied) @<:@default=yes, if possible@:>@]),
@@ -3288,6 +3288,7 @@ AC_OUTPUT(
   epan/nghttp2/Makefile
   epan/wmem/Makefile
   epan/wslua/Makefile
+  extcap/Makefile
   codecs/Makefile
   ui/Makefile
   ui/doxygen.cfg
@@ -3324,6 +3325,7 @@ AC_OUTPUT(
   plugins/wimax/Makefile
   plugins/wimaxasncp/Makefile
   plugins/wimaxmacphy/Makefile
+  randpkt_core/Makefile
   tools/Makefile
   tools/lemon/Makefile
   wiretap/Makefile

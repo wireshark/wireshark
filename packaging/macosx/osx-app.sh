@@ -1,7 +1,9 @@
 #!/bin/bash
 #
 # USAGE
-# osx-app [-s] [-l /path/to/libraries] -bp /path/to/wireshark/bin -p /path/to/Info.plist
+# osx-app [-s] [-l /path/to/libraries] -bp /path/to/wireshark/bin
+#     -lp /path/to/wireshark/lib -ep /path/to/wireshark/extcap/binaries
+#     -pp /path/to/wireshark/plugins -p /path/to/Info.plist
 #
 # This script attempts to build an Wireshark.app bundle for OS X, resolving
 # dynamic libraries, etc.
@@ -36,6 +38,9 @@
 # Defaults
 strip=false
 binary_path="/tmp/inst/bin"
+library_path="/tmp/inst/lib"
+plugin_path="/tmp/inst/lib/wireshark/plugins"
+extcap_path="/tmp/inst/lib/wireshark/extcap"
 plist="./Info.plist"
 exclude_prefixes="/System/|/Library/|/usr/lib/|/usr/X11/|/opt/X11/|@rpath|@executable_path"
 create_bundle=false
@@ -59,12 +64,14 @@ binary_list="
 	rawshark
 	text2pcap
 	tshark
+"
+extcap_binary_list="
 	extcap/androiddump
 	extcap/randpktdump
 "
 
 if [ -x "extcap/sshdump" ]; then
-  binary_list="$binary_list extcap/sshdump"
+	extcap_binary_list="$extcap_binary_list extcap/sshdump"
 fi
 
 cs_binary_list=
@@ -103,6 +110,15 @@ OPTIONS
 	-bp,--binary-path
 		Specify the path to the Wireshark binaries. By default it
 		is /tmp/inst/bin.
+	-lp,--library-path
+		Specify the path to the Wireshark libraries. By default it
+		is /tmp/inst/lib.
+	-pp,--plugin-path
+		Specify the path to the Wireshark plugins. By default it
+		is /tmp/inst/lib/wireshark/plugins.
+	-ep,--extcap-path
+		Specify the path to the Wireshark extcap binaries. By
+		default it is /tmp/inst/lib/wireshark/extcap.
 	-p,--plist
 		Specify the path to Info.plist. Info.plist can be found
 		in the base directory of the source code once configure
@@ -132,6 +148,15 @@ do
 			shift 1 ;;
 		-bp|--binary-path)
 			binary_path="$2"
+			shift 1 ;;
+		-lp|--library-path)
+			library_path="$2"
+			shift 1 ;;
+		-pp|--plugin-path)
+			plugin_path="$2"
+			shift 1 ;;
+		-ep|--extcap-path)
+			extcap_path="$2"
 			shift 1 ;;
 		-cb|--create-bundle)
 			create_bundle=true;;
@@ -171,6 +196,14 @@ if [ "$create_bundle" = "true" ]; then
 	for binary in $wireshark_bin_name $binary_list ; do
 		binary=$( basename $binary )
 		if [ ! -x "$binary_path/$binary" ]; then
+			echo "Couldn't find $binary (or it's not executable)" >&2
+			exit 1
+		fi
+	done
+
+	for binary in $extcap_binary_list ; do
+		binary=$( basename $binary )
+		if [ ! -x "$extcap_path/$binary" ]; then
 			echo "Couldn't find $binary (or it's not executable)" >&2
 			exit 1
 		fi
@@ -308,17 +341,23 @@ create_bundle() {
 		done
 	elif [ "$ui_toolkit" = "qt" ] ; then
 		for binary in $binary_list ; do
-			bin_dest="$pkgexec"
-			if [ "$( dirname $binary )" == "extcap" ] ; then
-				binary=$( basename $binary )
-				bin_dest="$pkgexec/$( dirname $binary )"
-			fi
-
 			# Copy the binary to its destination
+			bin_dest="$pkgexec"
 			cp -v "$binary_path/$binary" "$bin_dest"
 			cs_binary_list="$cs_binary_list $bin_dest/$binary"
 		done
 	fi
+
+	#
+	# extcap binaries
+	#
+	for binary in $extcap_binary_list ; do
+		# Copy the binary to its destination
+		binary=$( basename $binary )
+		bin_dest="$pkgexec/extcap"
+		cp -v "$extcap_path/$binary" "$bin_dest"
+		cs_binary_list="$cs_binary_list $bin_dest/$binary"
+	done
 
 	# The rest of the Wireshark installation (we handled bin above)
 	rsync -av \
@@ -326,11 +365,11 @@ create_bundle() {
 		--exclude lib/ \
 		"$binary_path/.."/* "$pkgres"
 
-	rsync -av $binary_path/../lib/*.dylib "$pkglib/"
+	rsync -av $library_path/*.dylib "$pkglib/"
 
 	# Copy the plugins from the "make install" location for them
 	# to the plugin directory, removing the version number
-	find "$binary_path/../lib/wireshark/plugins" \
+	find "$plugin_path" \
 		-type f \
 		\( -name "*.so" -o -name "*.dylib" \) \
 		-exec cp -fv "{}" "$pkgplugin/" \;

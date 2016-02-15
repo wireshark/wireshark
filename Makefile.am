@@ -45,14 +45,11 @@ bin_PROGRAMS = \
 	@dumpcap_bin@		\
 	@reordercap_bin@	\
 	@rawshark_bin@		\
-	@androiddump_bin@	\
-	@sshdump_bin@		\
-	@randpktdump_bin@	\
 	@echld_test_bin@
 
-EXTRA_PROGRAMS = wireshark-gtk wireshark tshark tfshark capinfos captype editcap \
-	mergecap dftest randpkt text2pcap dumpcap reordercap rawshark androiddump \
-	sshdump	randpktdump echld_test
+EXTRA_PROGRAMS = wireshark-gtk wireshark tshark tfshark capinfos captype \
+	editcap mergecap dftest randpkt text2pcap dumpcap reordercap \
+	rawshark echld_test
 
 #
 # Wireshark configuration files are put in $(pkgdatadir).
@@ -528,46 +525,6 @@ rawshark_LDADD = \
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@
 
-if ENABLE_STATIC
-androiddump_LDFLAGS = -Wl,-static -all-static
-else
-androiddump_LDFLAGS = -export-dynamic
-endif
-
-# Libraries and plugin flags with which to link androiddump.
-androiddump_LDADD = \
-	wiretap/libwiretap.la		\
-	wsutil/libwsutil.la		\
-	@GLIB_LIBS@			\
-	@SOCKET_LIBS@
-
-if ENABLE_STATIC
-	sshdump_LDFLAGS = -Wl,-static -all-static
-else
-	sshdump_LDFLAGS = -export-dynamic
-endif
-
-# Libraries and plugin flags with which to link sshdump.
-sshdump_LDADD = \
-	wiretap/libwiretap.la		\
-	wsutil/libwsutil.la		\
-	@GLIB_LIBS@			\
-	@LIBSSH_LIBS@		\
-	@SOCKET_LIBS@
-
-if ENABLE_STATIC
-	randpktdump_LDFLAGS = -Wl,-static -all-static
-else
-	randpktdump_LDFLAGS = -export-dynamic
-endif
-
-# Libraries and plugin flags with which to link randpktdump.
-randpktdump_LDADD = \
-	wiretap/libwiretap.la		\
-	wsutil/libwsutil.la		\
-	@GLIB_LIBS@			\
-	@SOCKET_LIBS@
-
 # Libraries with which to link text2pcap.
 text2pcap_LDADD = \
 	wsutil/libwsutil.la		\
@@ -612,6 +569,7 @@ reordercap_LDADD = \
 
 # Libraries with which to link randpkt.
 randpkt_LDADD = \
+	randpkt_core/librandpkt_core.a	\
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\
@@ -1407,9 +1365,11 @@ DIST_SUBDIRS = \
 	help		\
 	packaging	\
 	plugins		\
+	randpkt_core	\
 	tools		\
 	wiretap		\
 	wsutil		\
+	extcap		\
 	docbook
 
 SUBDIRS = \
@@ -1426,6 +1386,8 @@ SUBDIRS = \
 	ui			\
 	@wireshark_SUBDIRS@	\
 	ui/cli			\
+	randpkt_core		\
+	extcap			\
 	.			\
 	doc
 
@@ -1638,7 +1600,10 @@ osx-app: $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) packaging/macosx/Info.plist
 		cd $(srcdir)/packaging/macosx ; \
 		./osx-app.sh @OSX_APP_FLAGS@ \
 			--create-bundle \
-			--binary-path ../staging/$(PACKAGE).inst$(bindir) ; \
+			--binary-path ../staging/$(PACKAGE).inst$(bindir) \
+			--plugin-path ../staging/$(PACKAGE).inst$(plugindir) \
+			--extcap-path ../staging/$(PACKAGE).inst$(extcapdir) \
+			--library-path ../staging/$(PACKAGE).inst$(libdir) ; \
 	else \
 		echo "Error: OS X packaging tools not found." ; \
 		echo "Package build abandoned." ; \
@@ -1694,6 +1659,7 @@ checkapi: checkapi_local
 	cd epan/dissectors && $(MAKE) checkapi
 	cd epan/dissectors/dcerpc && $(MAKE) checkapi
 	cd plugins && $(MAKE) checkapi
+	cd randpkt_core && $(MAKE) checkapi
 	cd wsutil && $(MAKE) checkapi
 
 wsar_html: doxygen.cfg doxygen_global.cfg FORCE
@@ -1702,6 +1668,7 @@ if HAVE_DOXYGEN
 	cd epan && $(MAKE) $@
 	cd capchild && $(MAKE) $@
 	cd caputils && $(MAKE) $@
+	cd randpkt_core && $(MAKE) $@
 	cd ui && $(MAKE) $@
 	(umask 022 ; $(DOXYGEN) doxygen.cfg)
 endif
