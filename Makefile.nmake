@@ -68,9 +68,6 @@ dftest_OBJECTS = $(dftest_SOURCES:.c=.obj)
 dumpcap_OBJECTS = $(dumpcap_SOURCES:.c=.obj)
 randpkt_OBJECTS = $(randpkt_SOURCES:.c=.obj)
 reordercap_OBJECTS = $(reordercap_SOURCES:.c=.obj)
-# this does not work because source file is in a subfolder of this makefile
-# and we end up recompiling systematically androiddump.c
-#androiddump_OBJECTS = $(androiddump_SOURCES:.c=.obj)
 
 #
 # psapi.lib see http://msdn.microsoft.com/en-us/library/windows/desktop/ms683219(v=vs.85).aspx
@@ -177,22 +174,6 @@ text2pcap_LIBS= \
 	wsutil\libwsutil.lib \
 	$(GLIB_LIBS)
 
-androiddump_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
-	wsock32.lib user32.lib \
-	wsutil\libwsutil.lib \
-	$(GLIB_LIBS)
-
-sshdump_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
-	wsock32.lib user32.lib \
-	wsutil\libwsutil.lib \
-	$(LIBSSH_LIBS) \
-
-randpktdump_LIBS= randpkt_core\randpkt_core.lib \
-	wiretap\wiretap-$(WTAP_VERSION).lib \
-	wsock32.lib user32.lib \
-	wsutil\libwsutil.lib \
-	$(GLIB_LIBS)
-
 dumpcap_LIBS= \
 	wsock32.lib user32.lib \
 	caputils\libcaputils.lib \
@@ -216,7 +197,8 @@ dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(SMI_LIBS)
 !ENDIF
 
-randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+randpkt_LIBS= randpkt_core\randpkt_core.lib \
+	wiretap\wiretap-$(WTAP_VERSION).lib \
 	user32.lib \
 	wsutil\libwsutil.lib \
 	$(GLIB_LIBS)
@@ -444,35 +426,6 @@ randpkt.exe	: $(randpkt_OBJECTS)
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "randpkt.exe.manifest" -outputresource:randpkt.exe;1
-!ENDIF
-
-androiddump.exe	: $(LIBS_CHECK) config.h androiddump.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib
-	@echo Linking $@
-	$(LINK) @<<
-		/OUT:androiddump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS androiddump.obj $(androiddump_LIBS)
-<<
-!IFDEF MANIFEST_INFO_REQUIRED
-	mt.exe -nologo -manifest "androiddump.exe.manifest" -outputresource:androiddump.exe;1
-!ENDIF
-
-randpktdump.exe	: $(LIBS_CHECK) config.h randpktdump.obj randpkt_core\randpkt_core.lib wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib
-	@echo Linking $@
-	$(LINK) @<<
-		/OUT:randpktdump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS randpktdump.obj $(randpktdump_LIBS)
-<<
-!IFDEF MANIFEST_INFO_REQUIRED
-	mt.exe -nologo -manifest "randpktdump.exe.manifest" -outputresource:randpktdump.exe;1
-!ENDIF
-
-!IFDEF LIBSSH_DIR
-sshdump.exe	: $(LIBS_CHECK) config.h sshdump.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib
-	@echo Linking $@
-	$(LINK) @<<
-		/OUT:sshdump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS sshdump.obj $(sshdump_LIBS)
-<<
-!IFDEF MANIFEST_INFO_REQUIRED
-	mt.exe -nologo -manifest "sshdump.exe.manifest" -outputresource:sshdump.exe;1
-!ENDIF
 !ENDIF
 
 dumpcap.exe	: $(LIBS_CHECK) config.h $(dumpcap_OBJECTS) caputils wsutil\libwsutil.lib image\dumpcap.res
