@@ -564,19 +564,81 @@ dissect_iso14443_cmd_type_uid(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 
+static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo, proto_tree *tree, gboolean crc_dropped)
+{
+    proto_item *ti = proto_tree_get_parent(tree);
+    circuit_t *circuit;
+    guint8 tl, t0 = 0, fsci;
+    proto_item *t0_it, *pi;
+    proto_tree *t0_tree;
+    gint offset_tl, hist_len;
+
+    col_set_str(pinfo->cinfo, COL_INFO, "ATS");
+    proto_item_append_text(ti, ": ATS");
+
+    circuit = circuit_new(CT_ISO14443, ISO14443_CIRCUIT_ID, pinfo->num);
+    circuit_add_proto_data(circuit,
+            proto_iso14443, GUINT_TO_POINTER((guint)ISO14443_A));
+
+    offset_tl = offset;
+    tl = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_iso14443_tl,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* the length in TL includes the TL byte itself */
+    if (tl >= 2) {
+        t0 = tvb_get_guint8(tvb, offset);
+        t0_it = proto_tree_add_item(tree, hf_iso14443_t0,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        t0_tree = proto_item_add_subtree(t0_it, ett_iso14443_ats_t0);
+        fsci = t0 & 0x0F;
+        proto_tree_add_item(t0_tree, hf_iso14443_fsci,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        if (fsci < LEN_CODE_MAX) {
+            pi = proto_tree_add_uint(t0_tree, hf_iso14443_fsc,
+                    tvb, offset, 1, code_to_len[fsci]);
+            PROTO_ITEM_SET_GENERATED(pi);
+        }
+        offset++;
+    }
+    if (t0 & HAVE_TC1) {
+        proto_tree_add_item(tree, hf_iso14443_tc1,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+    }
+    if (t0 & HAVE_TB1) {
+        proto_tree_add_item(tree, hf_iso14443_tb1,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+    }
+    if (t0 & HAVE_TA1) {
+        proto_tree_add_item(tree, hf_iso14443_ta1,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+    }
+    hist_len = tl - (offset - offset_tl);
+    if (hist_len > 0) {
+        proto_tree_add_item(tree, hf_iso14443_hist_bytes,
+                tvb, offset, hist_len, ENC_NA);
+        offset += hist_len;
+    }
+    if (!crc_dropped)
+        offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_A);
+
+    return offset;
+}
+
+
 static int
 dissect_iso14443_cmd_type_ats(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
 {
     gboolean crc_dropped = (gboolean)GPOINTER_TO_UINT(data);
     proto_item *ti = proto_tree_get_parent(tree);
-    gint offset = 0, offset_tl, hist_len;
+    gint offset = 0;
     guint8 fsdi, cid;
     proto_item *pi;
-    guint8 tl, t0 = 0, fsci;
-    proto_item *t0_it;
-    proto_tree *t0_tree;
-    circuit_t *circuit;
 
     if (pinfo->p2p_dir == P2P_DIR_SENT) {
         col_set_str(pinfo->cinfo, COL_INFO, "RATS");
@@ -601,57 +663,7 @@ dissect_iso14443_cmd_type_ats(tvbuff_t *tvb, packet_info *pinfo,
             offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_A);
     }
     else if (pinfo->p2p_dir == P2P_DIR_RECV) {
-        col_set_str(pinfo->cinfo, COL_INFO, "ATS");
-        proto_item_append_text(ti, ": ATS");
-
-        circuit = circuit_new(CT_ISO14443, ISO14443_CIRCUIT_ID, pinfo->num);
-        circuit_add_proto_data(circuit,
-                proto_iso14443, GUINT_TO_POINTER((guint)ISO14443_A));
-
-        offset_tl = offset;
-        tl = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_iso14443_tl,
-                tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
-        /* the length in TL includes the TL byte itself */
-        if (tl >= 2) {
-            t0 = tvb_get_guint8(tvb, offset);
-            t0_it = proto_tree_add_item(tree, hf_iso14443_t0,
-                    tvb, offset, 1, ENC_BIG_ENDIAN);
-            t0_tree = proto_item_add_subtree(t0_it, ett_iso14443_ats_t0);
-            fsci = t0 & 0x0F;
-            proto_tree_add_item(t0_tree, hf_iso14443_fsci,
-                    tvb, offset, 1, ENC_BIG_ENDIAN);
-            if (fsci < LEN_CODE_MAX) {
-                pi = proto_tree_add_uint(t0_tree, hf_iso14443_fsc,
-                        tvb, offset, 1, code_to_len[fsci]);
-                PROTO_ITEM_SET_GENERATED(pi);
-            }
-            offset++;
-        }
-        if (t0 & HAVE_TC1) {
-            proto_tree_add_item(tree, hf_iso14443_tc1,
-                    tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset++;
-        }
-        if (t0 & HAVE_TB1) {
-            proto_tree_add_item(tree, hf_iso14443_tb1,
-                    tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset++;
-        }
-        if (t0 & HAVE_TA1) {
-            proto_tree_add_item(tree, hf_iso14443_ta1,
-                    tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset++;
-        }
-        hist_len = tl - (offset - offset_tl);
-        if (hist_len > 0) {
-            proto_tree_add_item(tree, hf_iso14443_hist_bytes,
-                    tvb, offset, hist_len, ENC_NA);
-            offset += hist_len;
-        }
-        if (!crc_dropped)
-            offset += dissect_iso14443_crc(tvb, offset, tree, ISO14443_A);
+        offset = dissect_iso14443_ats(tvb, offset, pinfo, tree, crc_dropped);
     }
 
     return offset;
