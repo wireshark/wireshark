@@ -1373,7 +1373,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 				gi_length = (mcs_flags & IEEE80211_RADIOTAP_MCS_SGI) ?
 				    1 : 0;
 				phdr.phy_info.info_11n.has_short_gi = TRUE;
-				phdr.phy_info.info_11n.short_gi = (gi_length == 0);
+				phdr.phy_info.info_11n.short_gi = gi_length;
 			} else {
 				gi_length = 0;
 				can_calculate_rate = FALSE;	/* no GI width */
