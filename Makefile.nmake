@@ -205,12 +205,7 @@ randpkt_LIBS= randpkt_core\librandpkt_core.lib \
 
 EXECUTABLES=$(PROGRAM_NAME_GTK).exe tshark.exe tfshark.exe rawshark.exe \
 	capinfos.exe captype.exe editcap.exe mergecap.exe text2pcap.exe \
-	randpkt.exe reordercap.exe dumpcap.exe androiddump.exe randpktdump.exe \
-	dftest.exe
-
-!IFDEF LIBSSH_DIR
-EXECUTABLES += sshdump.exe
-!ENDIF
+	randpkt.exe reordercap.exe dumpcap.exe dftest.exe
 
 !IFDEF QT5_BASE_DIR
 EXECUTABLES=$(EXECUTABLES) $(PROGRAM_NAME).exe
@@ -561,15 +556,6 @@ text2pcap-scanner.c : text2pcap-scanner.l
 
 text2pcap-scanner.obj : text2pcap-scanner.c
 	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
-
-androiddump.obj : extcap/androiddump.c
-	$(CC) $(CFLAGS) -Fd.\ -c $?
-
-sshdump.obj : extcap/sshdump.c
-	$(CC) $(CFLAGS) -Fd.\ -c $?
-
-randpktdump.obj : extcap/randpktdump.c
-	$(CC) $(CFLAGS) -Fd.\ -c $?
 
 test-programs:
 	cd epan
@@ -1251,19 +1237,19 @@ install-generated-files: doc
 	if exist $(PROGRAM_NAME_GTK).bsc xcopy $(PROGRAM_NAME_GTK).bsc $(INSTALL_DIR) /d
 	if exist ".\docbook\user-guide.chm" xcopy ".\docbook\user-guide.chm" $(INSTALL_DIR) /d
 	if not exist $(INSTALL_DIR)\extcap mkdir $(INSTALL_DIR)\extcap
-	if exist androiddump.exe xcopy androiddump.exe $(INSTALL_DIR)\extcap /d
-	if exist androiddump.pdb xcopy androiddump.pdb $(INSTALL_DIR)\extcap /d
-	if exist sshdump.exe xcopy sshdump.exe $(INSTALL_DIR)\extcap /d
-	if exist sshdump.pdb xcopy sshdump.pdb $(INSTALL_DIR)\extcap /d
-	if exist randpktdump.exe xcopy randpktdump.exe $(INSTALL_DIR)\extcap /d
-	if exist randpktdump.pdb xcopy randpktdump.pdb $(INSTALL_DIR)\extcap /d
+	if exist ".\extcap\androiddump.exe" xcopy ".\extcap\androiddump.exe" $(INSTALL_DIR)\extcap /d
+	if exist ".\extcap\androiddump.pdb" xcopy ".\extcap\androiddump.pdb" $(INSTALL_DIR)\extcap /d
+	if exist ".\extcap\randpktdump.exe" xcopy ".\extcap\randpktdump.exe" $(INSTALL_DIR)\extcap /d
+	if exist ".\extcap\randpktdump.pdb" xcopy ".\extcap\randpktdump.pdb" $(INSTALL_DIR)\extcap /d
+	if exist ".\extcap\sshdump.exe" xcopy ".\extcap\sshdump.exe" $(INSTALL_DIR)\extcap /d
+	if exist ".\extcap\sshdump.pdb" xcopy ".\extcap\sshdump.pdb" $(INSTALL_DIR)\extcap /d
 	if not exist $(INSTALL_DIR_QT)\extcap mkdir $(INSTALL_DIR_QT)\extcap
-	if exist androiddump.exe xcopy androiddump.exe $(INSTALL_DIR_QT)\extcap /d
-	if exist androiddump.pdb xcopy androiddump.pdb $(INSTALL_DIR_QT)\extcap /d
-	if exist sshdump.exe xcopy sshdump.exe $(INSTALL_DIR_QT)\extcap /d
-	if exist sshdump.pdb xcopy sshdump.pdb $(INSTALL_DIR_QT)\extcap /d
-	if exist randpktdump.exe xcopy randpktdump.exe $(INSTALL_DIR_QT)\extcap /d
-	if exist randpktdump.pdb xcopy randpktdump.pdb $(INSTALL_DIR_QT)\extcap /d
+	if exist ".\extcap\androiddump.exe" xcopy ".\extcap\androiddump.exe" $(INSTALL_DIR_QT)\extcap /d
+	if exist ".\extcap\androiddump.pdb" xcopy ".\extcap\androiddump.pdb" $(INSTALL_DIR_QT)\extcap /d
+	if exist ".\extcap\randpktdump.exe" xcopy ".\extcap\randpktdump.exe" $(INSTALL_DIR_QT)\extcap /d
+	if exist ".\extcap\randpktdump.pdb" xcopy ".\extcap\randpktdump.pdb" $(INSTALL_DIR_QT)\extcap /d
+	if exist ".\extcap\sshdump.exe" xcopy ".\extcap\sshdump.exe" $(INSTALL_DIR_QT)\extcap /d
+	if exist ".\extcap\sshdump.pdb" xcopy ".\extcap\sshdump.pdb" $(INSTALL_DIR_QT)\extcap /d
 	if exist capinfos.exe xcopy capinfos.exe $(INSTALL_DIR) /d
 	if exist capinfos.pdb xcopy capinfos.pdb $(INSTALL_DIR) /d
 	if exist captype.exe xcopy captype.exe $(INSTALL_DIR) /d
