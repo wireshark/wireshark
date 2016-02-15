@@ -604,8 +604,8 @@ static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
         }
         offset++;
     }
-    if (t0 & HAVE_TC1) {
-        proto_tree_add_item(tree, hf_iso14443_tc1,
+    if (t0 & HAVE_TA1) {
+        proto_tree_add_item(tree, hf_iso14443_ta1,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
     }
@@ -618,8 +618,8 @@ static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
                 tvb, offset*8, 4, fwi, "%d", fwi);
         offset++;
     }
-    if (t0 & HAVE_TA1) {
-        proto_tree_add_item(tree, hf_iso14443_ta1,
+    if (t0 & HAVE_TC1) {
+        proto_tree_add_item(tree, hf_iso14443_tc1,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
     }
