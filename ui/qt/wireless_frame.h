@@ -50,6 +50,8 @@ protected:
 private:
     void getInterfaceInfo();
     void setInterfaceInfo();
+    int getCenterFrequency(int control_frequency, int bandwidth);
+    int getBandwidthFromChanType(int chan_type);
 
 private slots:
     void updateWidgets();
