@@ -3325,6 +3325,7 @@ AC_OUTPUT(
   plugins/wimax/Makefile
   plugins/wimaxasncp/Makefile
   plugins/wimaxmacphy/Makefile
+  randpkt_core/doxygen.cfg
   randpkt_core/Makefile
   tools/Makefile
   tools/lemon/Makefile
