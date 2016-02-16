@@ -42,6 +42,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
+#include <wmem/wmem_list.h>
 #include "packet-cip.h"
 #include "packet-cipsafety.h"
 #include "packet-mbtcp.h"
@@ -5336,7 +5337,7 @@ typedef struct cip_gaa_key {
 } cip_gaa_key_t;
 
 typedef struct cip_gaa_val {
-   GList *attributes;
+   wmem_list_t *attributes;
 } cip_gaa_val_t;
 
 static wmem_map_t *cip_gaa_hashtable = NULL;
@@ -5392,6 +5393,7 @@ static void build_get_attr_all_table(void)
          {
             new_key = (cip_gaa_key_t*)wmem_memdup(wmem_epan_scope(), &key, sizeof(cip_gaa_key_t));
             gaa_val = wmem_new0(wmem_epan_scope(), cip_gaa_val_t);
+            gaa_val->attributes = wmem_list_new(wmem_epan_scope());
 
             wmem_map_insert(cip_gaa_hashtable, new_key, gaa_val );
             last_attribute_index = -1;
@@ -5399,7 +5401,7 @@ static void build_get_attr_all_table(void)
 
          if ((pattr->gaa_index >= 0) && (pattr->gaa_index > last_attribute_index))
          {
-             gaa_val->attributes = g_list_append(gaa_val->attributes, pattr);
+             wmem_list_append(gaa_val->attributes, pattr);
              last_attribute_index = pattr->gaa_index;
          }
       }
@@ -5417,7 +5419,7 @@ dissect_cip_get_attribute_all_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
    proto_tree *att_tree;
    cip_gaa_key_t key;
    cip_gaa_val_t *gaa_val;
-   GList       *attribute_list;
+   wmem_list_frame_t* attribute_list;
 
    key.cip_class = req_data->iClass;
    key.class_instance = (req_data->iInstance == 0);
@@ -5429,11 +5431,11 @@ dissect_cip_get_attribute_all_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
       return;
    }
 
-   for (attribute_list = g_list_first(gaa_val->attributes);
+   for (attribute_list = wmem_list_head(gaa_val->attributes);
        (attribute_list != NULL);
-        attribute_list = g_list_next(attribute_list))
+        attribute_list = wmem_list_frame_next(attribute_list))
    {
-      attr = (attribute_info_t *)attribute_list->data;
+      attr = (attribute_info_t *)wmem_list_frame_data(attribute_list);
       len_remain = tvb_reported_length_remaining(tvb, offset);
 
       /* If there are no more attributes defined or there is no data left. */
