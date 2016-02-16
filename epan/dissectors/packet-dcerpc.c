@@ -2414,7 +2414,7 @@ dissect_ndr_ucvarray_core(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                        pinfo, tree, di, drep);
                 if (offset <= old_offset)
                     THROW(ReportedBoundsError);
-        } else {
+        } else if (fnct_bytes) {
             for (i=0 ;i<di->array_actual_count; i++) {
                 old_offset = offset;
                 offset = (*fnct_bytes)(tvb, offset, pinfo, tree, di, drep);
