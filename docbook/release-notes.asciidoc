@@ -28,6 +28,7 @@ since version 2.0.0:
 ** You can now switch between between Capture and File Format dissection of
 the current capture file via the View menu in the Qt GUI.
 ** You can now show selected packet bytes as ASCII, HTML, Image, ISO 8859-1, Raw or UTF-8.
+** You can now use regular expressions in Find Packet.
 
 //=== Removed Dissectors
 

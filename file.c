@@ -118,6 +118,8 @@ static match_result match_wide(capture_file *cf, frame_data *fdata,
     void *criterion);
 static match_result match_binary(capture_file *cf, frame_data *fdata,
     void *criterion);
+static match_result match_regex(capture_file *cf, frame_data *fdata,
+    void *criterion);
 static match_result match_dfilter(capture_file *cf, frame_data *fdata,
     void *criterion);
 static match_result match_marked(capture_file *cf, frame_data *fdata,
@@ -2896,22 +2898,30 @@ match_subtree_text(proto_node *node, gpointer data)
     proto_item_fill_label(fi, label_str);
   }
 
-  /* Does that label match? */
-  label_len = strlen(label_ptr);
-  for (i = 0; i < label_len; i++) {
-    c_char = label_ptr[i];
-    if (cf->case_type)
-      c_char = g_ascii_toupper(c_char);
-    if (c_char == string[c_match]) {
-      c_match++;
-      if (c_match == string_len) {
-        /* No need to look further; we have a match */
-        mdata->frame_matched = TRUE;
-        mdata->finfo = fi;
-        return;
-      }
-    } else
-      c_match = 0;
+  if (cf->regex) {
+    if (g_regex_match(cf->regex, label_ptr, (GRegexMatchFlags) 0, NULL)) {
+      mdata->frame_matched = TRUE;
+      mdata->finfo = fi;
+      return;
+    }
+  } else {
+    /* Does that label match? */
+    label_len = strlen(label_ptr);
+    for (i = 0; i < label_len; i++) {
+      c_char = label_ptr[i];
+      if (cf->case_type)
+        c_char = g_ascii_toupper(c_char);
+      if (c_char == string[c_match]) {
+        c_match++;
+        if (c_match == string_len) {
+          /* No need to look further; we have a match */
+          mdata->frame_matched = TRUE;
+          mdata->finfo = fi;
+          return;
+        }
+      } else
+        c_match = 0;
+    }
   }
 
   /* Recurse into the subtree, if it exists */
@@ -2963,18 +2973,25 @@ match_summary_line(capture_file *cf, frame_data *fdata, void *criterion)
       /* Found it.  See if we match. */
       info_column = edt.pi.cinfo->columns[colx].col_data;
       info_column_len = strlen(info_column);
-      for (i = 0; i < info_column_len; i++) {
-        c_char = info_column[i];
-        if (cf->case_type)
-          c_char = g_ascii_toupper(c_char);
-        if (c_char == string[c_match]) {
-          c_match++;
-          if (c_match == string_len) {
-            result = MR_MATCHED;
-            break;
-          }
-        } else
-          c_match = 0;
+      if (cf->regex) {
+        if (g_regex_match(cf->regex, info_column, (GRegexMatchFlags) 0, NULL)) {
+          result = MR_MATCHED;
+          break;
+        }
+      } else {
+        for (i = 0; i < info_column_len; i++) {
+          c_char = info_column[i];
+          if (cf->case_type)
+            c_char = g_ascii_toupper(c_char);
+          if (c_char == string[c_match]) {
+            c_match++;
+            if (c_match == string_len) {
+              result = MR_MATCHED;
+              break;
+            }
+          } else
+            c_match = 0;
+        }
       }
       break;
     }
@@ -3008,8 +3025,11 @@ cf_find_packet_data(capture_file *cf, const guint8 *string, size_t string_size,
   info.data = string;
   info.data_len = string_size;
 
-  /* String or hex search? */
-  if (cf->string) {
+  /* Regex, String or hex search? */
+  if (cf->regex) {
+    /* Regular Expression search */
+    return find_packet(cf, match_regex, NULL, dir);
+  } else if (cf->string) {
     /* String search - what type of string? */
     switch (cf->scs_type) {
 
@@ -3212,6 +3232,29 @@ match_binary(capture_file *cf, frame_data *fdata, void *criterion)
     i += 1;
   }
   return result;
+}
+
+static match_result
+match_regex(capture_file *cf, frame_data *fdata, void *criterion _U_)
+{
+    match_result  result = MR_NOTMATCHED;
+    GMatchInfo   *match_info = NULL;
+
+    /* Load the frame's data. */
+    if (!cf_read_record(cf, fdata)) {
+        /* Attempt to get the packet failed. */
+        return MR_ERROR;
+    }
+
+    if (g_regex_match_full(cf->regex, ws_buffer_start_ptr(&cf->buf), fdata->cap_len,
+                           0, (GRegexMatchFlags) 0, &match_info, NULL))
+    {
+        gint start_pos = 0, end_pos = 0;
+        g_match_info_fetch_pos (match_info, 0, &start_pos, &end_pos);
+        cf->search_pos = end_pos; /* TODO: use start_pos to show correct length for regex */
+        result = MR_MATCHED;
+    }
+    return result;
 }
 
 gboolean

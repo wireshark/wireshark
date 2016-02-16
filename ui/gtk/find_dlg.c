@@ -653,6 +653,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   cfile.string       = string_search;
   cfile.scs_type     = scs_type;
   cfile.case_type    = case_type;
+  cfile.regex        = NULL;
   cfile.packet_data  = packet_data;
   cfile.decode_data  = decode_data;
   cfile.summary_data = summary_data;

@@ -103,6 +103,7 @@ typedef struct _capture_file {
   gboolean     packet_data;     /* TRUE if "String" search in "Packet data" was last selected */
   guint32      search_pos;      /* Byte position of last byte found in a hex search */
   gboolean     case_type;       /* TRUE if case-insensitive text search */
+  GRegex      *regex;           /* Set if regular expression search */
   search_charset_t scs_type;    /* Character set for text search */
   search_direction dir;         /* Direction in which to do searches */
   gboolean     search_in_progress; /* TRUE if user just clicked OK in the Find dialog or hit <control>N/B */

@@ -40,7 +40,8 @@ enum {
 enum {
     df_search_,
     hex_search_,
-    string_search_
+    string_search_,
+    regex_search_
 };
 
 enum {
@@ -52,7 +53,8 @@ enum {
 SearchFrame::SearchFrame(QWidget *parent) :
     AccordionFrame(parent),
     sf_ui_(new Ui::SearchFrame),
-    cap_file_(NULL)
+    cap_file_(NULL),
+    regex_(NULL)
 {
     sf_ui_->setupUi(this);
 
@@ -67,6 +69,9 @@ SearchFrame::SearchFrame(QWidget *parent) :
 
 SearchFrame::~SearchFrame()
 {
+    if (regex_) {
+        g_regex_unref(regex_);
+    }
     delete sf_ui_;
 }
 
@@ -138,6 +143,33 @@ void SearchFrame::keyPressEvent(QKeyEvent *event)
     }
 }
 
+bool SearchFrame::regexCompile()
+{
+    int flags = (G_REGEX_OPTIMIZE);
+    if (!sf_ui_->caseCheckBox->isChecked()) {
+        flags |= G_REGEX_CASELESS;
+    }
+
+    if (regex_) {
+        g_regex_unref(regex_);
+    }
+
+    if (sf_ui_->searchLineEdit->text().isEmpty()) {
+        regex_ = NULL;
+        return false;
+    }
+
+    GError *g_error = NULL;
+    regex_ = g_regex_new(sf_ui_->searchLineEdit->text().toUtf8().constData(),
+                         (GRegexCompileFlags)flags, (GRegexMatchFlags) 0, &g_error);
+    if (g_error) {
+        regex_error_ = g_error->message;
+        g_error_free(g_error);
+    }
+
+    return regex_ ? true : false;
+}
+
 void SearchFrame::updateWidgets()
 {
     if (cap_file_) {
@@ -147,12 +179,12 @@ void SearchFrame::updateWidgets()
         return;
     }
 
-    bool enable = sf_ui_->searchTypeComboBox->currentIndex() == string_search_;
-    sf_ui_->searchInComboBox->setEnabled(enable);
-    sf_ui_->caseCheckBox->setEnabled(enable);
-    sf_ui_->charEncodingComboBox->setEnabled(enable);
+    int search_type = sf_ui_->searchTypeComboBox->currentIndex();
+    sf_ui_->searchInComboBox->setEnabled(search_type == string_search_ || search_type == regex_search_);
+    sf_ui_->caseCheckBox->setEnabled(search_type == string_search_ || search_type == regex_search_);
+    sf_ui_->charEncodingComboBox->setEnabled(search_type == string_search_);
 
-    switch (sf_ui_->searchTypeComboBox->currentIndex()) {
+    switch (search_type) {
     case df_search_:
         sf_ui_->searchLineEdit->checkDisplayFilter(sf_ui_->searchLineEdit->text());
         break;
@@ -178,6 +210,13 @@ void SearchFrame::updateWidgets()
             sf_ui_->searchLineEdit->setSyntaxState(SyntaxLineEdit::Valid);
         }
         break;
+    case regex_search_:
+        if (regexCompile()) {
+            sf_ui_->searchLineEdit->setSyntaxState(SyntaxLineEdit::Valid);
+        } else {
+            sf_ui_->searchLineEdit->setSyntaxState(SyntaxLineEdit::Invalid);
+        }
+        break;
     default:
         // currentIndex is probably -1. Nothing is selected or list is empty.
         return;
@@ -188,6 +227,11 @@ void SearchFrame::updateWidgets()
     } else {
         sf_ui_->findButton->setEnabled(true);
     }
+}
+
+void SearchFrame::on_caseCheckBox_toggled(bool)
+{
+    regexCompile();
 }
 
 void SearchFrame::on_searchTypeComboBox_currentIndexChanged(int)
@@ -216,12 +260,14 @@ void SearchFrame::on_findButton_clicked()
     cap_file_->hex = FALSE;
     cap_file_->string = FALSE;
     cap_file_->case_type = FALSE;
+    cap_file_->regex = NULL;
     cap_file_->packet_data  = FALSE;
     cap_file_->decode_data  = FALSE;
     cap_file_->summary_data = FALSE;
     cap_file_->scs_type = SCS_NARROW_AND_WIDE;
 
-    switch (sf_ui_->searchTypeComboBox->currentIndex()) {
+    int search_type = sf_ui_->searchTypeComboBox->currentIndex();
+    switch (search_type) {
     case df_search_:
         if (!dfilter_compile(sf_ui_->searchLineEdit->text().toUtf8().constData(), &dfp, NULL)) {
             err_string = tr("Invalid filter.");
@@ -245,6 +291,7 @@ void SearchFrame::on_findButton_clicked()
         cap_file_->hex = TRUE;
         break;
     case string_search_:
+    case regex_search_:
         if (sf_ui_->searchLineEdit->text().isEmpty()) {
             err_string = tr("You didn't specify any text for which to search.");
             emit pushFilterSyntaxStatus(err_string);
@@ -252,6 +299,7 @@ void SearchFrame::on_findButton_clicked()
         }
         cap_file_->string = TRUE;
         cap_file_->case_type = sf_ui_->caseCheckBox->isChecked() ? FALSE : TRUE;
+        cap_file_->regex = (search_type == regex_search_ ? regex_ : NULL);
         switch (sf_ui_->charEncodingComboBox->currentIndex()) {
         case narrow_and_wide_chars_:
             cap_file_->scs_type = SCS_NARROW_AND_WIDE;
@@ -305,6 +353,10 @@ void SearchFrame::on_findButton_clicked()
             return;
         }
     } else if (cap_file_->string) {
+        if (search_type == regex_search_ && !cap_file_->regex) {
+            emit pushFilterSyntaxStatus(regex_error_);
+            return;
+        }
         if (cap_file_->summary_data) {
             /* String in the Info column of the summary line */
             found_packet = cf_find_packet_summary_line(cap_file_, string, cap_file_->dir);

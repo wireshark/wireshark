@@ -55,12 +55,16 @@ protected:
     virtual void keyPressEvent(QKeyEvent *event);
 
 private:
+    bool regexCompile();
     void updateWidgets();
 
     Ui::SearchFrame *sf_ui_;
     capture_file *cap_file_;
+    GRegex *regex_;
+    QString regex_error_;
 
 private slots:
+    void on_caseCheckBox_toggled(bool);
     void on_searchTypeComboBox_currentIndexChanged(int);
     void on_searchLineEdit_textChanged(const QString &);
     void on_findButton_clicked();
