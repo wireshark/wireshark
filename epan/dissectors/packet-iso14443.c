@@ -148,7 +148,7 @@ static const true_false_string tfs_compliant_not_compliant = { "Compliant", "Not
 static const true_false_string tfs_incomplete_complete = { "Incomplete", "Complete" };
 static const true_false_string tfs_iso_propr = { "As defined in ISO14443-3", "Proprietary" };
 static const true_false_string tfs_not_required_required = { "Not required", "Required" };
-static const true_false_string tfs_ack_nak = { "ACK", "NAK" };
+static const true_false_string tfs_nak_ack = { "NAK", "ACK" };
 
 #define CT_BYTE 0x88
 
@@ -246,7 +246,7 @@ static int hf_iso14443_block_type = -1;
 static int hf_iso14443_i_blk_chaining = -1;
 static int hf_iso14443_cid_following = -1;
 static int hf_iso14443_nad_following = -1;
-static int hf_iso14443_ack_nak = -1;
+static int hf_iso14443_nak = -1;
 static int hf_iso14443_blk_num = -1;
 static int hf_iso14443_s_blk_cmd = -1;
 static int hf_iso14443_pwr_lvl_ind = -1;
@@ -839,8 +839,8 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
         case R_BLOCK_TYPE:
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
                     "%s", (pcb & 0x10) ?
-                    tfs_ack_nak.true_string : tfs_ack_nak.false_string);
-            proto_tree_add_item(pcb_tree, hf_iso14443_ack_nak,
+                    tfs_nak_ack.true_string : tfs_nak_ack.false_string);
+            proto_tree_add_item(pcb_tree, hf_iso14443_nak,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(pcb_tree, hf_iso14443_cid_following,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1445,9 +1445,9 @@ proto_register_iso14443(void)
             { "NAD following", "iso14443.nad_following", FT_BOOLEAN, 8,
                 TFS(&tfs_true_false), 0x04, NULL, HFILL }
         },
-        { &hf_iso14443_ack_nak,
-            { "ACK/NAK", "iso14443.ack_nak", FT_BOOLEAN, 8,
-                TFS(&tfs_ack_nak), 0x10, NULL, HFILL }
+        { &hf_iso14443_nak,
+            { "NAK/ACK", "iso14443.nak", FT_BOOLEAN, 8,
+                TFS(&tfs_nak_ack), 0x10, NULL, HFILL }
         },
         { &hf_iso14443_blk_num,
             { "Block number", "iso14443.block_number",
