@@ -1870,10 +1870,10 @@ tvb_find_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 		THROW(exception);
 
 	/* Only search to end of tvbuff, w/o throwing exception. */
-	if (limit > (guint) maxlength) {
+	if (maxlength >= 0 && limit > (guint) maxlength) {
 		/* Maximum length doesn't go past end of tvbuff; search
 		   to that value. */
-		limit = maxlength;
+		limit = (guint) maxlength;
 	}
 
 	/* If we have real data, perform our search now. */
