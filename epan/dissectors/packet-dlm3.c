@@ -54,7 +54,7 @@
 #define SCTP_PORT_DLM3          TCP_PORT_DLM3
 
 #define DLM3_MAJOR_VERSION      0x00030000
-#define DLM3_MINOR_VERSION      0x00000000
+#define DLM3_MINOR_VERSION_MAX  0x00000001
 
 #define DLM3_MSG                1
 #define DLM3_RCOM               2
@@ -153,6 +153,8 @@
 #define DLM3_RCOM_NAMES_REPLY   6
 #define DLM3_RCOM_LOOKUP_REPLY  7
 #define DLM3_RCOM_LOCK_REPLY    8
+
+#define DLM_RSF_NEED_SLOTS      0x00000001
 
 #define DLM3_RS_NODES           0x00000001
 #define DLM3_RS_NODES_ALL       0x00000002
@@ -259,6 +261,12 @@ static int hf_dlm3_rf_lvblen    = -1;
 DLM3_DEFINE_HF_EXFLAGS(rf_lsflags);
 static int hf_dlm3_rf_unused    = -1;
 
+/* fields for struct rcom_status(rs) */
+static int hf_dlm3_rs_flags      = -1;
+static int hf_dlm3_rs_flags_need_slots  = -1;
+static int hf_dlm3_rs_unused1    = -1;
+static int hf_dlm3_rs_unused2    = -1;
+
 /* fields for struct rcom_lock(rl) */
 static int hf_dlm3_rl_ownpid        = -1;
 static int hf_dlm3_rl_lkid          = -1;
@@ -291,8 +299,11 @@ static gint ett_dlm3_m_flags   = -1;
 static gint ett_dlm3_m_asts    = -1;
 
 static gint ett_dlm3_rcom        = -1;
+static gint ett_dlm3_rcom_status = -1;
 static gint ett_dlm3_rcom_lock   = -1;
 static gint ett_dlm3_rcom_config = -1;
+
+static gint ett_dlm3_rs_flags  = -1;
 
 static gint ett_dlm3_rf_lsflags  = -1;
 static gint ett_dlm3_rl_exflags  = -1;
@@ -418,6 +429,11 @@ static const value_string dlm3_rs[] = {
     NULL                                        \
   }
 DLM3_DEFINE_EXFLAGS_FIELDS(m_exflags);
+
+static const int* rs_flags_fields[] = {
+  &hf_dlm3_rs_flags_need_slots ,
+  NULL
+};
 
 static const int *m_sbflags_fields[] = {
   &hf_dlm3_m_sbflags_altmode     ,
@@ -549,6 +565,27 @@ dissect_dlm3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 }
 
+
+static void
+dissect_dlm3_rcom_status(tvbuff_t *tvb, proto_tree *tree,
+                         guint length, int offset)
+{
+  if ((length - offset) < ( 4 * 2 + 8 ))
+    return;
+
+
+  proto_tree_add_bitmask(tree, tvb, offset,
+                         hf_dlm3_rs_flags, ett_dlm3_rs_flags,
+                         rs_flags_fields, ENC_LITTLE_ENDIAN);
+
+  offset += 4;
+  proto_tree_add_item(tree,
+                      hf_dlm3_rs_unused1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+  offset += 4;
+  proto_tree_add_item(tree,
+                      hf_dlm3_rs_unused2, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+}
 
 
 static void
@@ -685,7 +722,7 @@ dissect_dlm3_rcom_config(tvbuff_t *tvb, proto_tree *tree,
 
 static void
 dissect_dlm3_rcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                  guint length, int offset)
+                  guint length, int offset, guint32 h_version)
 {
   guint32     rc_type;
 
@@ -733,7 +770,11 @@ dissect_dlm3_rcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                  ENC_NA);
 
   offset += 0;
-  if (rc_type == DLM3_RCOM_LOCK) {
+  if (rc_type == DLM3_RCOM_STATUS && (h_version & 0xffff) > 0) {
+    sub_tree = proto_item_add_subtree(sub_item,
+                                      ett_dlm3_rcom_status);
+    dissect_dlm3_rcom_status(tvb, sub_tree, length, offset);
+  } else if (rc_type == DLM3_RCOM_LOCK) {
     sub_tree = proto_item_add_subtree(sub_item,
                                       ett_dlm3_rcom_lock);
     dissect_dlm3_rcom_lock(tvb, sub_tree, length, offset);
@@ -764,7 +805,8 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 
   /* Check the protocol version  */
   h_version = tvb_get_letohl(tvb, 0);
-  if (h_version != (DLM3_MAJOR_VERSION|DLM3_MINOR_VERSION))
+  if ((h_version & 0xffff0000) != DLM3_MAJOR_VERSION ||
+      (h_version & 0xffff) > DLM3_MINOR_VERSION_MAX)
     return 0;
 
   /* Check the command */
@@ -834,7 +876,7 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
       dissect_dlm3_msg(tvb, pinfo, sub_tree, length, offset);
     } else if (h_cmd== DLM3_RCOM) {
       sub_tree = proto_item_add_subtree(sub_item, ett_dlm3_rcom);
-      dissect_dlm3_rcom(tvb, pinfo, sub_tree, length, offset);
+      dissect_dlm3_rcom(tvb, pinfo, sub_tree, length, offset, h_version);
     }
   }
   return tvb_captured_length(tvb);
@@ -1132,6 +1174,24 @@ proto_register_dlm3(void)
         FT_UINT64, BASE_HEX, NULL, 0x0,
         NULL, HFILL}},
 
+    /* rcom_status */
+    { &hf_dlm3_rs_flags,
+      { "Recovery Command Status Flags", "dlm3.rs.flags",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL}},
+    { &hf_dlm3_rs_flags_need_slots,
+      { "Need slots", "dlm3.rs.flags.need_slots",
+        FT_UINT32, BASE_HEX, NULL, DLM_RSF_NEED_SLOTS,
+        NULL, HFILL}},
+    { &hf_dlm3_rs_unused1,
+      { "Unused area", "dlm3.rs.unused1",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL}},
+    { &hf_dlm3_rs_unused2,
+      { "Unused area", "dlm3.rs.unused2",
+        FT_UINT64, BASE_HEX, NULL, 0x0,
+        NULL, HFILL}},
+
     /* rcom_lock */
     { &hf_dlm3_rl_ownpid,
       { "Process ID of Lock Owner", "dlm3.rl.ownpid",
@@ -1202,8 +1262,11 @@ proto_register_dlm3(void)
     &ett_dlm3_m_asts,
 
     &ett_dlm3_rcom,
+    &ett_dlm3_rcom_status,
     &ett_dlm3_rcom_lock,
     &ett_dlm3_rcom_config,
+
+    &ett_dlm3_rs_flags,
 
     &ett_dlm3_rf_lsflags,
     &ett_dlm3_rl_exflags,
