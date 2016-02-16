@@ -20,6 +20,8 @@
  */
 
 #include "find_line_edit.h"
+#include "color_utils.h"
+#include "epan/prefs.h"
 
 #include <QAction>
 #include <QKeyEvent>
@@ -49,15 +51,42 @@ void FindLineEdit::contextMenuEvent(QContextMenuEvent *event)
     delete menu;
 }
 
+void FindLineEdit::keyPressEvent(QKeyEvent *event)
+{
+    QLineEdit::keyPressEvent(event);
+
+    if (use_regex_) {
+        validateText();
+    }
+}
+
+void FindLineEdit::validateText()
+{
+    QString style("QLineEdit { background-color: %1; }");
+
+    if (!use_regex_ || text().isEmpty()) {
+        setStyleSheet(style.arg(QString("")));
+    } else {
+        QRegExp regexp(text());
+        if (regexp.isValid()) {
+            setStyleSheet(style.arg(ColorUtils::fromColorT(prefs.gui_text_valid).name()));
+        } else {
+            setStyleSheet(style.arg(ColorUtils::fromColorT(prefs.gui_text_invalid).name()));
+        }
+    }
+}
+
 void FindLineEdit::setUseTextual()
 {
     use_regex_ = false;
+    validateText();
     emit useRegexFind(use_regex_);
 }
 
 void FindLineEdit::setUseRegex()
 {
     use_regex_ = true;
+    validateText();
     emit useRegexFind(use_regex_);
 }
 

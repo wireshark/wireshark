@@ -40,11 +40,14 @@ signals:
     void useRegexFind(bool);
 
 private slots:
-    void contextMenuEvent(QContextMenuEvent *event);
     void setUseTextual();
     void setUseRegex();
 
 private:
+    void contextMenuEvent(QContextMenuEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+    void validateText();
+
     bool use_regex_;
 };
 
