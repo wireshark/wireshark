@@ -70,6 +70,7 @@
 #include <epan/expert.h>
 #include <epan/etypes.h>
 #include <epan/to_str.h>
+#include <epan/proto_data.h>
 #include <wsutil/str_util.h>
 #include "packet-ip.h"
 #include "packet-ldp.h"
@@ -625,13 +626,48 @@ static dissector_handle_t bgp_handle;
 #define BGP_LS_SR_SUBTLV_BINDING_IPV6_BAK_ERO       1167
 #define BGP_LS_SR_SUBTLV_BINDING_UNNUM_IFID_BAK_ERO 1168
 
-/* Pref/Adj-SID TLV flags, draft-gredler-idr-bgp-ls-segment-routing-ext-01 */
-#define BGP_LS_SR_SID_FLAG_R 0x80
-#define BGP_LS_SR_SID_FLAG_N 0x40
-#define BGP_LS_SR_SID_FLAG_P 0x20
-#define BGP_LS_SR_SID_FLAG_E 0x10
-#define BGP_LS_SR_SID_FLAG_V 0x08
-#define BGP_LS_SR_SID_FLAG_L 0x04
+/* Prefix-SID TLV flags, draft-gredler-idr-bgp-ls-segment-routing-ext-01:
+
+                             0  1  2  3  4  5  6  7
+                            +--+--+--+--+--+--+--+--+
+   if Protocol-ID is IS-IS  |R |N |P |E |V |L |  |  |
+                            +--+--+--+--+--+--+--+--+
+
+                             0  1  2  3  4  5  6  7
+                            +--+--+--+--+--+--+--+--+
+   if Protocol-ID is OSPF   |  |NP|M |E |V |L |  |  |
+                            +--+--+--+--+--+--+--+--+
+*/
+#define BGP_LS_SR_PREFIX_SID_FLAG_R  0x80
+#define BGP_LS_SR_PREFIX_SID_FLAG_N  0x40
+#define BGP_LS_SR_PREFIX_SID_FLAG_NP 0x40
+#define BGP_LS_SR_PREFIX_SID_FLAG_P  0x20
+#define BGP_LS_SR_PREFIX_SID_FLAG_M  0x20
+#define BGP_LS_SR_PREFIX_SID_FLAG_E  0x10
+#define BGP_LS_SR_PREFIX_SID_FLAG_V  0x08
+#define BGP_LS_SR_PREFIX_SID_FLAG_L  0x04
+
+/* Adjacency-SID TLV flags, draft-gredler-idr-bgp-ls-segment-routing-ext-01:
+
+                             0  1  2  3  4  5  6  7
+                            +--+--+--+--+--+--+--+--+
+   if Protocol-ID is IS-IS  |F |B |V |L |S |  |  |  |
+                            +--+--+--+--+--+--+--+--+
+
+                             0  1  2  3  4  5  6  7
+                            +--+--+--+--+--+--+--+--+
+   if Protocol-ID is OSPF   |B |V |L |S |  |  |  |  |
+                            +--+--+--+--+--+--+--+--+
+*/
+#define BGP_LS_SR_ADJACENCY_SID_FLAG_FI 0x80
+#define BGP_LS_SR_ADJACENCY_SID_FLAG_BO 0x80
+#define BGP_LS_SR_ADJACENCY_SID_FLAG_BI 0x40
+#define BGP_LS_SR_ADJACENCY_SID_FLAG_VO 0x40
+#define BGP_LS_SR_ADJACENCY_SID_FLAG_VI 0x20
+#define BGP_LS_SR_ADJACENCY_SID_FLAG_LO 0x20
+#define BGP_LS_SR_ADJACENCY_SID_FLAG_LI 0x10
+#define BGP_LS_SR_ADJACENCY_SID_FLAG_SO 0x10
+#define BGP_LS_SR_ADJACENCY_SID_FLAG_SI 0x08
 
 static const value_string bgptypevals[] = {
     { BGP_OPEN,                "OPEN Message" },
@@ -1192,7 +1228,6 @@ static const value_string flowspec_nlri_opvaluepair_type[] = {
 };
 #define BGPNLRI_FSPEC_FRAGMENT     12 /* RFC 5575         */
 
-
 /* Subtype Route Refresh, draft-ietf-idr-bgp-enhanced-route-refresh-02 */
 static const value_string route_refresh_subtype_vals[] = {
     { 0, "Normal route refresh request [RFC2918] with/without ORF [RFC5291]" },
@@ -1519,20 +1554,31 @@ static int hf_bgp_ls_ipv6_topology_prefix_nlri_type = -1;
 /* BGP-LS + SR */
 static int hf_bgp_ls_sr_tlv_prefix_sid = -1;
 static int hf_bgp_ls_sr_tlv_prefix_sid_flags = -1;
+static int hf_bgp_ls_sr_tlv_prefix_sid_flags_r = -1;
+static int hf_bgp_ls_sr_tlv_prefix_sid_flags_n = -1;
+static int hf_bgp_ls_sr_tlv_prefix_sid_flags_np = -1;
+static int hf_bgp_ls_sr_tlv_prefix_sid_flags_p = -1;
+static int hf_bgp_ls_sr_tlv_prefix_sid_flags_m = -1;
+static int hf_bgp_ls_sr_tlv_prefix_sid_flags_e = -1;
+static int hf_bgp_ls_sr_tlv_prefix_sid_flags_v = -1;
+static int hf_bgp_ls_sr_tlv_prefix_sid_flags_l = -1;
 static int hf_bgp_ls_sr_tlv_prefix_sid_algo = -1;
 static int hf_bgp_ls_sr_tlv_prefix_sid_label = -1;
 static int hf_bgp_ls_sr_tlv_prefix_sid_index = -1;
 static int hf_bgp_ls_sr_tlv_adjacency_sid = -1;
 static int hf_bgp_ls_sr_tlv_adjacency_sid_flags = -1;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_fi = -1;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_bi = -1;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_bo = -1;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_vi = -1;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_vo = -1;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_li = -1;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_lo = -1;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_si = -1;
+static int hf_bgp_ls_sr_tlv_adjacency_sid_flags_so = -1;
 static int hf_bgp_ls_sr_tlv_adjacency_sid_weight = -1;
 static int hf_bgp_ls_sr_tlv_adjacency_sid_label = -1;
 static int hf_bgp_ls_sr_tlv_adjacency_sid_index = -1;
-static int hf_bgp_ls_sr_tlv_sid_flags_r = -1;
-static int hf_bgp_ls_sr_tlv_sid_flags_n = -1;
-static int hf_bgp_ls_sr_tlv_sid_flags_p = -1;
-static int hf_bgp_ls_sr_tlv_sid_flags_e = -1;
-static int hf_bgp_ls_sr_tlv_sid_flags_v = -1;
-static int hf_bgp_ls_sr_tlv_sid_flags_l = -1;
 
 /* draft-ietf-idr-ls-distribution-03 TLVs */
 static int hf_bgp_ls_tlv_local_node_descriptors = -1;              /* 256 */
@@ -1822,6 +1868,73 @@ static gboolean bgp_desegment = TRUE;
 
 static gint bgp_asn_len = 0;
 
+/* FF: BGP-LS is just a collector of IGP link state information. Some
+   fields are encoded "as-is" from the IGP, hence in order to dissect
+   them properly we must be aware of their origin, e.g. IS-IS or OSPF.
+   So, *before* dissecting LINK_STATE attributes we must get the
+   'Protocol-ID' field that is present in the MP_[UN]REACH_NLRI
+   attribute. The tricky thing is that there is no strict order
+   for path attributes on the wire, hence we have to keep track
+   of 1) the 'Protocol-ID' from the MP_[UN]REACH_NLRI and 2)
+   the offset/len of the LINK_STATE attribute. We store them in
+   per-packet proto_data and once we got both we are ready for the
+   LINK_STATE attribute dissection.
+*/
+typedef struct _link_state_data {
+    /* Link/Node NLRI Protocol-ID (e.g. OSPF or IS-IS) */
+    guint8 protocol_id;
+    /* LINK_STATE attribute coordinates */
+    gint ostart;  /* offset at which the LINK_STATE path attribute starts */
+    gint oend;    /* offset at which the LINK_STATE path attribute ends */
+    guint16 tlen; /* length of the LINK_STATE path attribute */
+    /* presence flag */
+    gboolean link_state_attr_present;
+    /* tree where add LINK_STATE items */
+    proto_tree *subtree2;
+} link_state_data;
+
+#define LINK_STATE_DATA_KEY 0
+
+static void
+save_link_state_protocol_id(packet_info *pinfo, guint8 protocol_id) {
+    link_state_data *data =
+        (link_state_data*)p_get_proto_data(pinfo->pool, pinfo, proto_bgp, LINK_STATE_DATA_KEY);
+    if (!data) {
+        data = wmem_new0(pinfo->pool, link_state_data);
+        data->ostart = -1;
+        data->oend = -1;
+        data->tlen = 0;
+        data->link_state_attr_present = FALSE;
+        data->subtree2 = NULL;
+    }
+    data->protocol_id = protocol_id;
+    p_add_proto_data(pinfo->pool, pinfo, proto_bgp, LINK_STATE_DATA_KEY, data);
+    return;
+}
+
+static void
+save_link_state_attr_position(packet_info *pinfo, gint ostart, gint oend, guint16 tlen, proto_tree *subtree2) {
+    link_state_data *data =
+        (link_state_data*)p_get_proto_data(pinfo->pool, pinfo, proto_bgp, LINK_STATE_DATA_KEY);
+    if (!data) {
+        data = wmem_new0(pinfo->pool, link_state_data);
+        data->protocol_id = BGP_LS_NLRI_PROTO_ID_UNKNOWN;
+    }
+    data->ostart = ostart;
+    data->oend = oend;
+    data->tlen = tlen;
+    data->link_state_attr_present = TRUE;
+    data->subtree2 = subtree2;
+    p_add_proto_data(pinfo->pool, pinfo, proto_bgp, LINK_STATE_DATA_KEY, data);
+    return;
+}
+
+static link_state_data*
+load_link_state_data(packet_info *pinfo) {
+    link_state_data *data =
+        (link_state_data*)p_get_proto_data(pinfo->pool, pinfo, proto_bgp, LINK_STATE_DATA_KEY);
+    return data;
+}
 
 /*
  * Detect IPv4 prefixes  conform to BGP Additional Path but NOT conform to standard BGP
@@ -3089,6 +3202,7 @@ static int decode_bgp_link_node_nlri_common_fields(tvbuff_t *tvb,
     }
 
     proto_tree_add_item(tree, hf_bgp_ls_nlri_node_protocol_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    save_link_state_protocol_id(pinfo, tvb_get_guint8(tvb, offset));
     proto_tree_add_item(tree, hf_bgp_ls_nlri_node_identifier, tvb, offset + 1, 8, ENC_BIG_ENDIAN);
 
     dissected_length = 9;
@@ -3380,7 +3494,7 @@ static int decode_bgp_link_nlri_prefix_descriptors(tvbuff_t *tvb,
  * Decode a multiprotocol prefix
  */
 static int
-decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_info *pinfo)
+decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_info *pinfo, guint8 protocol_id)
 {
     guint16 type;
     guint16 length;
@@ -3743,21 +3857,46 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
 
         case BGP_LS_SR_TLV_ADJ_SID:
             {
-                static const int *adj_sid_flags[] = {
-                    &hf_bgp_ls_sr_tlv_sid_flags_r,
-                    &hf_bgp_ls_sr_tlv_sid_flags_n,
-                    &hf_bgp_ls_sr_tlv_sid_flags_p,
-                    &hf_bgp_ls_sr_tlv_sid_flags_e,
-                    &hf_bgp_ls_sr_tlv_sid_flags_v,
-                    &hf_bgp_ls_sr_tlv_sid_flags_l,
+                /*
+                   0  1  2  3  4  5  6  7
+                  +--+--+--+--+--+--+--+--+
+                  |F |B |V |L |S |  |  |  |
+                  +--+--+--+--+--+--+--+--+
+                */
+                static const int *adj_sid_isis_flags[] = {
+                    &hf_bgp_ls_sr_tlv_adjacency_sid_flags_fi,
+                    &hf_bgp_ls_sr_tlv_adjacency_sid_flags_bi,
+                    &hf_bgp_ls_sr_tlv_adjacency_sid_flags_vi,
+                    &hf_bgp_ls_sr_tlv_adjacency_sid_flags_li,
+                    &hf_bgp_ls_sr_tlv_adjacency_sid_flags_si,
                     NULL
                 };
+                /*
+                   0  1  2  3  4  5  6  7
+                  +--+--+--+--+--+--+--+--+
+                  |B |V |L |S |  |  |  |  |
+                  +--+--+--+--+--+--+--+--+
+                */
+                static const int *adj_sid_ospf_flags[] = {
+                    &hf_bgp_ls_sr_tlv_adjacency_sid_flags_bo,
+                    &hf_bgp_ls_sr_tlv_adjacency_sid_flags_vo,
+                    &hf_bgp_ls_sr_tlv_adjacency_sid_flags_lo,
+                    &hf_bgp_ls_sr_tlv_adjacency_sid_flags_so,
+                    NULL
+                };
+
                 tlv_item = proto_tree_add_item(tree, hf_bgp_ls_sr_tlv_adjacency_sid, tvb, offset, length + 4, ENC_NA);
                 tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
                 proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_bitmask(tlv_tree, tvb, offset + 4, hf_bgp_ls_sr_tlv_adjacency_sid_flags,
-                                       ett_bgp_link_state, adj_sid_flags, ENC_BIG_ENDIAN);
+                if (protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF) {
+                    proto_tree_add_bitmask(tlv_tree, tvb, offset + 4, hf_bgp_ls_sr_tlv_adjacency_sid_flags,
+                                           ett_bgp_link_state, adj_sid_ospf_flags, ENC_BIG_ENDIAN);
+                } else {
+                    /* FF: most common case is IS-IS, so if it is not OSPF we go that way */
+                    proto_tree_add_bitmask(tlv_tree, tvb, offset + 4, hf_bgp_ls_sr_tlv_adjacency_sid_flags,
+                                           ett_bgp_link_state, adj_sid_isis_flags, ENC_BIG_ENDIAN);
+                }
                 proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_adjacency_sid_weight, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
                 if (length == 7) {
                     proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_adjacency_sid_label, tvb, offset + 8, 3, ENC_BIG_ENDIAN);
@@ -3874,21 +4013,48 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
 
         case BGP_LS_SR_TLV_PREFIX_SID:
             {
-                static const int *prefix_sid_flags[] = {
-                    &hf_bgp_ls_sr_tlv_sid_flags_r,
-                    &hf_bgp_ls_sr_tlv_sid_flags_n,
-                    &hf_bgp_ls_sr_tlv_sid_flags_p,
-                    &hf_bgp_ls_sr_tlv_sid_flags_e,
-                    &hf_bgp_ls_sr_tlv_sid_flags_v,
-                    &hf_bgp_ls_sr_tlv_sid_flags_l,
+                /*
+                   0  1  2  3  4  5  6  7
+                  +--+--+--+--+--+--+--+--+
+                  |R |N |P |E |V |L |  |  |
+                  +--+--+--+--+--+--+--+--+
+                */
+                static const int *prefix_sid_isis_flags[] = {
+                    &hf_bgp_ls_sr_tlv_prefix_sid_flags_r,
+                    &hf_bgp_ls_sr_tlv_prefix_sid_flags_n,
+                    &hf_bgp_ls_sr_tlv_prefix_sid_flags_p,
+                    &hf_bgp_ls_sr_tlv_prefix_sid_flags_e,
+                    &hf_bgp_ls_sr_tlv_prefix_sid_flags_v,
+                    &hf_bgp_ls_sr_tlv_prefix_sid_flags_l,
                     NULL
                 };
+                /*
+                   0  1  2  3  4  5  6  7
+                  +--+--+--+--+--+--+--+--+
+                  |  |NP|M |E |V |L |  |  |
+                  +--+--+--+--+--+--+--+--+
+                */
+                static const int *prefix_sid_ospf_flags[] = {
+                    &hf_bgp_ls_sr_tlv_prefix_sid_flags_np,
+                    &hf_bgp_ls_sr_tlv_prefix_sid_flags_m,
+                    &hf_bgp_ls_sr_tlv_prefix_sid_flags_e,
+                    &hf_bgp_ls_sr_tlv_prefix_sid_flags_v,
+                    &hf_bgp_ls_sr_tlv_prefix_sid_flags_l,
+                    NULL
+                };
+
                 tlv_item = proto_tree_add_item(tree, hf_bgp_ls_sr_tlv_prefix_sid, tvb, offset, length + 4, ENC_NA);
                 tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
                 proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_bitmask(tlv_tree, tvb, offset + 4, hf_bgp_ls_sr_tlv_prefix_sid_flags,
-                                       ett_bgp_link_state, prefix_sid_flags, ENC_BIG_ENDIAN);
+                if (protocol_id == BGP_LS_NLRI_PROTO_ID_OSPF) {
+                    proto_tree_add_bitmask(tlv_tree, tvb, offset + 4, hf_bgp_ls_sr_tlv_prefix_sid_flags,
+                                           ett_bgp_link_state, prefix_sid_ospf_flags, ENC_BIG_ENDIAN);
+                } else {
+                    /* FF: most common case is IS-IS, so if it is not OSPF we go that way */
+                    proto_tree_add_bitmask(tlv_tree, tvb, offset + 4, hf_bgp_ls_sr_tlv_prefix_sid_flags,
+                                           ett_bgp_link_state, prefix_sid_isis_flags, ENC_BIG_ENDIAN);
+                }
                 proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_prefix_sid_algo, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
                 if (length == 7) {
                     proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_prefix_sid_label, tvb, offset + 8, 3, ENC_BIG_ENDIAN);
@@ -4317,7 +4483,6 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
 
     wmem_strbuf_t      *stack_strbuf;       /* label stack                  */
     wmem_strbuf_t      *comm_strbuf;
-
 
     switch (afi) {
 
@@ -4782,7 +4947,6 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
         } /* switch (safi) */
         break;
     case AFNUM_LINK_STATE:
-
         nlri_type = tvb_get_ntohs(tvb, offset);
         total_length = tvb_get_ntohs(tvb, offset + 2);
         length = total_length;
@@ -6489,17 +6653,9 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
             case BGPTYPE_LINK_STATE_OLD_ATTR:
                 q = o + i + aoff;
                 end = o + i + aoff + tlen;
-
-                ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_link_state, tvb, q, tlen, ENC_NA);
-                subtree3 = proto_item_add_subtree(ti, ett_bgp_link_state);
-
-                while (q < end) {
-                    advance = decode_link_state_attribute_tlv(subtree3, tvb, q, pinfo);
-                    if (advance < 0)
-                        break;
-
-                    q += advance;
-                }
+                /* FF: BGPTYPE_LINK_STATE_ATTR body dissection is moved after the while.
+                   Here we just save the TLV coordinates and the subtree. */
+                save_link_state_attr_position(pinfo, q, end, tlen, subtree2);
                 break;
 
             case BGPTYPE_PMSI_TUNNEL_ATTR:
@@ -6527,6 +6683,21 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
         } /* switch (bgpa.bgpa_type) */ /* end of second switch */
 
         i += alen + aoff;
+    }
+    {
+        /* FF: postponed BGPTYPE_LINK_STATE_ATTR dissection */
+        link_state_data *data = load_link_state_data(pinfo);
+        if (data && data->link_state_attr_present) {
+            ti = proto_tree_add_item(data->subtree2, hf_bgp_update_path_attribute_link_state, tvb, data->ostart, data->tlen, ENC_NA);
+            subtree3 = proto_item_add_subtree(ti, ett_bgp_link_state);
+            while (data->ostart < data->oend) {
+                advance = decode_link_state_attribute_tlv(subtree3, tvb, data->ostart, pinfo, data->protocol_id);
+                if (advance < 0) {
+                    break;
+                }
+                data->ostart += advance;
+            }
+        }
     }
 }
 /*
@@ -8448,36 +8619,37 @@ proto_register_bgp(void)
         { "IPv6 Gateway address", "bgp.evpn.nlri.ipv6.gtw_addr", FT_IPv6,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
      /* segment routing extentions to link state */
+     /* Prefix-SID TLV */
      { &hf_bgp_ls_sr_tlv_prefix_sid,
         { "Prefix SID TLV", "bgp.ls.sr.tlv.prefix.sid", FT_NONE,
-          BASE_NONE, NULL, 0x0, NULL, HFILL}},
-     { &hf_bgp_ls_sr_tlv_adjacency_sid,
-        { "Adjacency SID TLV", "bgp.ls.sr.tlv.adjacency.sid", FT_NONE,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
      { &hf_bgp_ls_sr_tlv_prefix_sid_flags,
         { "Flags", "bgp.ls.sr.tlv.prefix.sid.flags", FT_UINT8,
           BASE_HEX, NULL, 0x0, NULL, HFILL}},
-     { &hf_bgp_ls_sr_tlv_adjacency_sid_flags,
-        { "Flags", "bgp.ls.sr.tlv.adjacency.sid.flags", FT_UINT8,
-          BASE_HEX, NULL, 0x0, NULL, HFILL}},
-     { &hf_bgp_ls_sr_tlv_sid_flags_r,
-        { "Re-advertisement (R)", "bgp.ls.sr.tlv.sid.flags.r", FT_BOOLEAN,
-          8, TFS(&tfs_set_notset), BGP_LS_SR_SID_FLAG_R, NULL, HFILL}},
-     { &hf_bgp_ls_sr_tlv_sid_flags_n,
-        { "Node-SID (N)", "bgp.ls.sr.tlv.sid.flags.n", FT_BOOLEAN,
-          8, TFS(&tfs_set_notset), BGP_LS_SR_SID_FLAG_N, NULL, HFILL}},
-     { &hf_bgp_ls_sr_tlv_sid_flags_p,
-        { "No-PHP (P)", "bgp.ls.sr.tlv.sid.flags.p", FT_BOOLEAN,
-          8, TFS(&tfs_set_notset), BGP_LS_SR_SID_FLAG_P, NULL, HFILL}},
-     { &hf_bgp_ls_sr_tlv_sid_flags_e,
-        { "Explicit-Null (E)", "bgp.ls.sr.tlv.sid.flags.e", FT_BOOLEAN,
-          8, TFS(&tfs_set_notset), BGP_LS_SR_SID_FLAG_E, NULL, HFILL}},
-     { &hf_bgp_ls_sr_tlv_sid_flags_v,
-        { "Value (V)", "bgp.ls.sr.tlv.sid.flags.v", FT_BOOLEAN,
-          8, TFS(&tfs_set_notset), BGP_LS_SR_SID_FLAG_V, NULL, HFILL}},
-     { &hf_bgp_ls_sr_tlv_sid_flags_l,
-        { "Local (L)", "bgp.ls.sr.tlv.sid.flags.l", FT_BOOLEAN,
-          8, TFS(&tfs_set_notset), BGP_LS_SR_SID_FLAG_L, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_prefix_sid_flags_r,
+        { "Re-advertisement (R)", "bgp.ls.sr.tlv.prefix.sid.flags.r", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_PREFIX_SID_FLAG_R, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_prefix_sid_flags_n,
+        { "Node-SID (N)", "bgp.ls.sr.tlv.prefix.sid.flags.n", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_PREFIX_SID_FLAG_N, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_prefix_sid_flags_np,
+        { "No-PHP (NP)", "bgp.ls.sr.tlv.prefix.sid.flags.np", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_PREFIX_SID_FLAG_NP, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_prefix_sid_flags_p,
+        { "No-PHP (P)", "bgp.ls.sr.tlv.prefix.sid.flags.p", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_PREFIX_SID_FLAG_P, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_prefix_sid_flags_m,
+        { "Mapping Server Flag (M)", "bgp.ls.sr.tlv.prefix.sid.flags.m", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_PREFIX_SID_FLAG_M, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_prefix_sid_flags_e,
+        { "Explicit-Null (E)", "bgp.ls.sr.tlv.prefix.sid.flags.e", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_PREFIX_SID_FLAG_E, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_prefix_sid_flags_v,
+        { "Value (V)", "bgp.ls.sr.tlv.prefix.sid.flags.v", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_PREFIX_SID_FLAG_V, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_prefix_sid_flags_l,
+        { "Local (L)", "bgp.ls.sr.tlv.prefix.sid.flags.l", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_PREFIX_SID_FLAG_L, NULL, HFILL}},
      { &hf_bgp_ls_sr_tlv_prefix_sid_algo,
         { "Algorithm", "bgp.ls.sr.tlv.prefix.sid.algo", FT_UINT8,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -8487,6 +8659,40 @@ proto_register_bgp(void)
      { &hf_bgp_ls_sr_tlv_prefix_sid_index,
         { "SID/Index", "bgp.ls.sr.tlv.prefix.sid.index", FT_UINT32,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
+     /* Adjacency-SID TLV */
+     { &hf_bgp_ls_sr_tlv_adjacency_sid,
+        { "Adjacency SID TLV", "bgp.ls.sr.tlv.adjacency.sid", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_adjacency_sid_flags,
+        { "Flags", "bgp.ls.sr.tlv.adjacency.sid.flags", FT_UINT8,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_adjacency_sid_flags_fi,
+        { "Address-Family flag (F)", "bgp.ls.sr.tlv.adjacency.sid.flags.f", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_ADJACENCY_SID_FLAG_FI, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_adjacency_sid_flags_bo,
+        { "Backup Flag (B)", "bgp.ls.sr.tlv.adjacency.sid.flags.b", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_ADJACENCY_SID_FLAG_BO, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_adjacency_sid_flags_bi,
+        { "Backup Flag (B)", "bgp.ls.sr.tlv.adjacency.sid.flags.b", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_ADJACENCY_SID_FLAG_BI, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_adjacency_sid_flags_vo,
+        { "Value Flag (V)", "bgp.ls.sr.tlv.adjacency.sid.flags.v", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_ADJACENCY_SID_FLAG_VO, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_adjacency_sid_flags_vi,
+        { "Value Flag (V)", "bgp.ls.sr.tlv.adjacency.sid.flags.v", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_ADJACENCY_SID_FLAG_VI, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_adjacency_sid_flags_lo,
+        { "Local Flag (L)", "bgp.ls.sr.tlv.adjacency.sid.flags.l", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_ADJACENCY_SID_FLAG_LO, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_adjacency_sid_flags_li,
+        { "Local Flag (L)", "bgp.ls.sr.tlv.adjacency.sid.flags.l", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_ADJACENCY_SID_FLAG_LI, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_adjacency_sid_flags_so,
+        { "Set Flag (S)", "bgp.ls.sr.tlv.adjacency.sid.flags.s", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_ADJACENCY_SID_FLAG_SO, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_adjacency_sid_flags_si,
+        { "Set Flag (S)", "bgp.ls.sr.tlv.adjacency.sid.flags.s", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_ADJACENCY_SID_FLAG_SI, NULL, HFILL}},
      { &hf_bgp_ls_sr_tlv_adjacency_sid_weight,
         { "Weight", "bgp.ls.sr.tlv.adjacency.sid.weight", FT_UINT8,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
