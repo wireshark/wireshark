@@ -201,10 +201,14 @@ typedef enum {
 #define IEEE802154_HEADER_IE_EID_TERM2      0x7f
 
 /* Payload IE Group ID */
+#define IEEE802154_PAYLOAD_IE_ESDU           0x0 /* Encapsulated Service Data Unit */
+#define IEEE802154_PAYLOAD_IE_MLME           0x1 /* Media Access Control (MAC) subLayer Management Entity */
+#define IEEE802154_PAYLOAD_IE_VENDOR         0x2 /* Vendor Specific */
+/* Reserved 0x3-0xe */
 #define IEEE802154_PAYLOAD_IE_GID_TERM       0xf
 
 /* IEEE 802.15.4 cipher block size. */
-#define IEEE802154_CIPHER_SIZE              16
+#define IEEE802154_CIPHER_SIZE                16
 
 /* Macro to compute the MIC length. */
 #define IEEE802154_MIC_LENGTH(_level_) ((0x2 << ((_level_) & 0x3)) & ~0x3)

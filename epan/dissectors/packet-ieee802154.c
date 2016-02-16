@@ -234,6 +234,7 @@ static int hf_ieee802154_payload_ie_type = -1;
 static int hf_ieee802154_payload_ie_id = -1;
 static int hf_ieee802154_payload_ie_length = -1;
 static int hf_ieee802154_payload_ie_data = -1;
+static int hf_ieee802154_payload_ie_vendor_oui = -1;
 
 static int proto_zboss = -1;
 static int zboss_direction = -1;
@@ -448,6 +449,9 @@ static const value_string ieee802154_header_ie_names[] = {
 };
 
 static const value_string ieee802154_payload_ie_names[] = {
+    { IEEE802154_PAYLOAD_IE_ESDU,         "ESDU IE" },
+    { IEEE802154_PAYLOAD_IE_MLME,         "MLME IE" },
+    { IEEE802154_PAYLOAD_IE_VENDOR,       "Vendor Specific IE" },
     { IEEE802154_PAYLOAD_IE_GID_TERM,     "Payload Termination IE" },
     { 0, NULL }
 };
@@ -1669,6 +1673,7 @@ dissect_ieee802154_payload_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     guint16     payload_ie;
     guint16     id;
     guint16     length;
+    guint32     vendor_oui;
     GByteArray *gba = g_byte_array_new();
 
     static const int * fields[] = {
@@ -1691,6 +1696,14 @@ dissect_ieee802154_payload_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
                                ett_ieee802154_payload_ie, fields, ENC_LITTLE_ENDIAN);
 
         *offset += 2;
+
+        if (id == IEEE802154_PAYLOAD_IE_VENDOR) {
+            vendor_oui = tvb_get_letoh24(tvb, *offset);
+            proto_item_append_text(subtree, ", Vendor OUI: %06X", vendor_oui);
+            proto_tree_add_uint(subtree, hf_ieee802154_payload_ie_vendor_oui, tvb, *offset, 3, vendor_oui);
+            *offset += 3;
+            length -= 3;
+        }
 
         /* until the Header IEs are finalized, just use the data dissector */
         if (length > 0) {
@@ -2842,6 +2855,10 @@ void proto_register_ieee802154(void)
 
         { &hf_ieee802154_payload_ie_data,
         { "Data",                           "wpan.payload_ie.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee802154_payload_ie_vendor_oui,
+        { "Vendor OUI",                      "wpan.payload_ie.vendor_oui", FT_UINT24, BASE_HEX, NULL,
+            0x0, NULL, HFILL }},
 
         /*
          * Command Frame Specific Fields
