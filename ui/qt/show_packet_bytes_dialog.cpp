@@ -447,7 +447,7 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
         bytes = tvb_get_ptr(finfo_->ds_tvb, start, -1);
         field_bytes_ = QByteArray((const char *)bytes, length);
         size_t len = ws_base64_decode_inplace(field_bytes_.data());
-        field_bytes_.resize(len);
+        field_bytes_.resize((int)len);
         break;
     }
 
