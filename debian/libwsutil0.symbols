@@ -4,6 +4,9 @@ libwsutil.so.0 libwsutil0 #MINVER#
  add_plugin_type@Base 1.12.0~rc1
  adler32_bytes@Base 1.12.0~rc1
  adler32_str@Base 1.12.0~rc1
+ aes_cmac_encrypt_finish@Base 2.1.0
+ aes_cmac_encrypt_starts@Base 2.1.0
+ aes_cmac_encrypt_update@Base 2.1.0
  alaw2linear@Base 1.12.0~rc1
  ascii_strdown_inplace@Base 1.10.0
  ascii_strup_inplace@Base 1.10.0
@@ -21,6 +24,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  crc16_8005_noreflect_noxor@Base 1.10.0
  crc16_ccitt@Base 1.10.0
  crc16_ccitt_seed@Base 1.10.0
+ crc16_iso14443a@Base 2.1.0
  crc16_plain_update@Base 1.10.0
  crc16_x25_ccitt_seed@Base 1.99.3
  crc32_0x0AA725CF_seed@Base 1.12.0~rc1
@@ -141,6 +145,13 @@ libwsutil.so.0 libwsutil0 #MINVER#
  sha1_hmac_update@Base 1.12.0~rc1
  sha1_starts@Base 1.12.0~rc1
  sha1_update@Base 1.12.0~rc1
+ sha256_finish@Base 2.1.0
+ sha256_hmac@Base 2.1.0
+ sha256_hmac_finish@Base 2.1.0
+ sha256_hmac_starts@Base 2.1.0
+ sha256_hmac_update@Base 2.1.0
+ sha256_starts@Base 2.1.0
+ sha256_update@Base 2.1.0
  show_version@Base 1.99.2
  sober128_add_entropy@Base 1.99.0
  sober128_read@Base 1.99.0
