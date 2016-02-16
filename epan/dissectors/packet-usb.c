@@ -1444,12 +1444,9 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     int                old_offset = offset;
     guint32            protocol;
     const gchar       *description;
-    guint16            vendor_id;
+    guint32            vendor_id;
     guint32            product;
     guint16            product_id;
-    guint8            *field_description;
-    gint               field_description_length;
-    header_field_info *hfi;
 
     tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_descriptor_device, &item, "DEVICE DESCRIPTOR");
 
@@ -1489,26 +1486,18 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     }
 
     /* idVendor */
-    proto_tree_add_item(tree, hf_usb_idVendor, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    vendor_id = tvb_get_letohs(tvb, offset);
-    usb_conv_info->deviceVendor = vendor_id;
+    proto_tree_add_item_ret_uint(tree, hf_usb_idVendor, tvb, offset, 2, ENC_LITTLE_ENDIAN, &vendor_id);
+    usb_conv_info->deviceVendor = (guint16)vendor_id;
     offset += 2;
 
     /* idProduct */
-    nitem = proto_tree_add_item(tree, hf_usb_idProduct, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     product_id = tvb_get_letohs(tvb, offset);
     usb_conv_info->deviceProduct = product_id;
-    product = vendor_id << 16 | product_id;
+    product = (guint16)vendor_id << 16 | product_id;
 
-    hfi = proto_registrar_get_nth(hf_usb_idProduct);
-    field_description_length = (gint)strlen(hfi->name) + 14;
-    field_description = (guint8 *)wmem_alloc(wmem_packet_scope(), field_description_length);
-    g_strlcpy(field_description, hfi->name, field_description_length);
-    g_strlcat(field_description, ": %s (0x%04x)", field_description_length);
-
-    proto_item_set_text(nitem, field_description,
-            val_to_str_ext_const(product, &ext_usb_products_vals, "Unknown"),
-            product_id);
+    proto_tree_add_uint_format_value(tree, hf_usb_idProduct, tvb, offset, 2, product_id, "%s (0x%04x)",
+                                     val_to_str_ext_const(product, &ext_usb_products_vals, "Unknown"),
+                                     product_id);
     offset += 2;
 
     if (!pinfo->fd->flags.visited) {
