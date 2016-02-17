@@ -876,10 +876,21 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                     }
                 }
                 else { /* Frame Version 0b10 */
-                    if (packet->pan_id_compression == 0) {
-                        srcPanPresent = TRUE;
+                    if ((packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&
+                        (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT)) {
+                        if (packet->pan_id_compression == 0) {
+                            dstPanPresent = TRUE;
+                        }
                     }
-                    /* else neither present */
+                    else {
+                        if (packet->pan_id_compression == 1) {
+                            dstPanPresent = TRUE;
+                        }
+                        else {
+                            dstPanPresent = TRUE;
+                            srcPanPresent = TRUE;
+                        }
+                    }
                 }
             }
         }
@@ -916,10 +927,21 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                     }
                 }
                 else { /* Frame Version 0b10 */
-                    if (packet->pan_id_compression == 0) {
-                        dstPanPresent = TRUE;
+                    if ((packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&
+                        (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT)) {
+                        if (packet->pan_id_compression == 0) {
+                            dstPanPresent = TRUE;
+                        }
                     }
-                    /* else neither PAN Ids */
+                    else {
+                        if (packet->pan_id_compression == 1) {
+                            dstPanPresent = TRUE;
+                        }
+                        else {
+                            dstPanPresent = TRUE;
+                            srcPanPresent = TRUE;
+                        }
+                    }
                 }
             }
         }
