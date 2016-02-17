@@ -570,6 +570,7 @@ static int hf_sflow_5_extended_80211_rx_version = -1;
 static int hf_sflow_flow_sample_dropped_packets = -1;
 static int hf_sflow_counters_sample_expanded_source_id_index = -1;
 static int hf_sflow_245_header_payload_removed = -1;
+static int hf_sflow_245_original_packet_header_length = -1;
 static int hf_sflow_245_ethernet_destination_mac_address = -1;
 static int hf_sflow_counters_sample_source_id_class = -1;
 static int hf_sflow_5_extended_url_url_length = -1;
@@ -641,7 +642,7 @@ static gint
 dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
                                  proto_tree *tree, volatile gint offset) {
     guint32           version, header_proto, frame_length;
-    volatile guint32  header_length;
+    guint32  header_length;
     tvbuff_t         *next_tvb;
     proto_tree       *sflow_245_header_tree;
     proto_item       *ti;
@@ -664,7 +665,7 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
         offset += 4;
     }
 
-    header_length = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_245_original_packet_header_length, tvb, offset, 4, ENC_BIG_ENDIAN, &header_length);
     offset += 4;
 
     if (header_length % 4) /* XDR requires 4-byte alignment */
@@ -3008,6 +3009,11 @@ proto_register_sflow(void) {
       },
       { &hf_sflow_245_header_payload_removed,
         { "Payload removed", "sflow_245.header.payload_removed",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_245_original_packet_header_length,
+        { "Original packet length", "sflow_245.header.original_packet_header_length",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
