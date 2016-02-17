@@ -1,6 +1,7 @@
 /* packet-packetbb.c
  * Routines for parsing packetbb rfc 5444
  * Parser created by Henning Rogge <henning.rogge@fkie.fraunhofer.de> of Fraunhover
+ * TLV values decoding by Francois Schneider <francois.schneider_@_airbus.com>
  *
  * http://tools.ietf.org/html/rfc5444
  * http://tools.ietf.org/html/rfc5498
@@ -61,42 +62,123 @@ void proto_register_packetbb(void);
 #define TLV_CAT_MESSAGE            1
 #define TLV_CAT_ADDRESS            2
 
+/* Generic address TLV defined by IANA in RFC5497 (timetlv) */
+enum rfc5497_tlv_iana {
+  RFC5497_TLV_INTERVAL_TIME = 0,
+  RFC5497_TLV_VALIDITY_TIME = 1
+};
+
+/* Generic address TLV defined by IANA in RFC6130 (NHDP) */
+enum rfc6130_addrtlv_iana {
+  RFC6130_ADDRTLV_LOCAL_IF      = 2,
+  RFC6130_ADDRTLV_LINK_STATUS   = 3,
+  RFC6130_ADDRTLV_OTHER_NEIGH   = 4
+};
+
+/* Generic address TLVs defined by IANA in RFC7182 (rfc5444-sec) */
+enum rfc7182_tlv_iana {
+  RFC7182_TLV_ICV           = 5,
+  RFC7182_TLV_TIMESTAMP     = 6
+};
+
+/* Generic address TLV defined by IANA in RFC7181 (OLSRv2) */
+enum rfc7181_addrtlv_iana {
+  RFC7181_ADDRTLV_LINK_METRIC   = 7,
+  RFC7181_ADDRTLV_MPR           = 8,
+  RFC7181_ADDRTLV_NBR_ADDR_TYPE = 9,
+  RFC7181_ADDRTLV_GATEWAY       = 10
+};
+
+/* Generic message TLV defined by IANA in RFC7181 (OLSRv2) */
+enum rfc7181_msgtlvs_iana {
+  RFC7181_MSGTLV_MPR_WILLING    = 7,
+  RFC7181_MSGTLV_CONT_SEQ_NUM   = 8
+};
+
+/* Bit-flags for LINK_METRIC address TLV */
+enum rfc7181_linkmetric_flags {
+  RFC7181_LINKMETRIC_INCOMING_LINK  = 1<<15,
+  RFC7181_LINKMETRIC_OUTGOING_LINK  = 1<<14,
+  RFC7181_LINKMETRIC_INCOMING_NEIGH = 1<<13,
+  RFC7181_LINKMETRIC_OUTGOING_NEIGH = 1<<12
+};
+
+/* Bit-flags for MPR address TLV */
+enum rfc7181_mpr_bitmask {
+  RFC7181_MPR_FLOODING    = 1,
+  RFC7181_MPR_ROUTING     = 2,
+  RFC7181_MPR_FLOOD_ROUTE = 3
+};
+
 /* Message types defined by IANA in RFC5444 */
 const value_string msgheader_type_vals[] = {
   { 0, "HELLO (NHDP)"                   },
-  { 1, "TC (OLSRv2 Topology Control)"   },
+  { 1, "TC (OLSRv2)"                    },
   { 0, NULL                             }};
 
 /* Packet TLV types defined by IANA in RFC7182 */
 const value_string pkttlv_type_vals[] = {
-  { 5, "ICV (Integrity Check Value)"    },
-  { 6, "Timestamp"                      },
-  { 0, NULL                             }};
+  { RFC7182_TLV_ICV              , "Integrity Check Value"         },
+  { RFC7182_TLV_TIMESTAMP        , "Timestamp"                     },
+  { 0                            , NULL                            }};
 
 /* Message TLV types defined by IANA in RFC5497,7181,7182 */
 const value_string msgtlv_type_vals[] = {
-  {  0, "Interval time"                 },
-  {  1, "Validity time"                 },
-  {  5, "ICV (Integrity Check Value)"   },
-  {  6, "Timestamp"                     },
-  {  7, "MPR willingness"               },
-  {  8, "Continuous sequence number"    },
-  {  0, NULL                            }};
+  { RFC5497_TLV_INTERVAL_TIME    , "Signaling message interval"    },
+  { RFC5497_TLV_VALIDITY_TIME    , "Message validity time"         },
+  { RFC7182_TLV_ICV              , "Integrity Check Value"         },
+  { RFC7182_TLV_TIMESTAMP        , "Timestamp"                     },
+  { RFC7181_MSGTLV_MPR_WILLING   , "MPR willingness"               },
+  { RFC7181_MSGTLV_CONT_SEQ_NUM  , "Content sequence number"       },
+  { 0                            , NULL                            }};
 
 /* Address TLV types defined by IANA in RFC5497,6130,7181,7182 */
 const value_string addrtlv_type_vals[] = {
-  {  0, "Interval time"                 },
-  {  1, "Validity time"                 },
-  {  2, "Local interface status"        },
-  {  3, "Link status"                   },
-  {  4, "Other neighbor status"         },
-  {  5, "ICV (Integrity Check Value)"   },
-  {  6, "Timestamp"                     },
-  {  7, "Link metric"                   },
-  {  8, "MPR (Multipoint Relay)"        },
-  {  9, "Neighbor address type"         },
-  { 10, "Gateway"                       },
-  {  0, NULL                            }};
+  { RFC5497_TLV_INTERVAL_TIME    , "Signaling message interval"    },
+  { RFC5497_TLV_VALIDITY_TIME    , "Message validity time"         },
+  { RFC6130_ADDRTLV_LOCAL_IF     , "Local interface status"        },
+  { RFC6130_ADDRTLV_LINK_STATUS  , "Link status"                   },
+  { RFC6130_ADDRTLV_OTHER_NEIGH  , "Other neighbor status"         },
+  { RFC7182_TLV_ICV              , "Integrity Check Value"         },
+  { RFC7182_TLV_TIMESTAMP        , "Timestamp"                     },
+  { RFC7181_ADDRTLV_LINK_METRIC  , "Link metric"                   },
+  { RFC7181_ADDRTLV_MPR          , "Multipoint Relay"              },
+  { RFC7181_ADDRTLV_NBR_ADDR_TYPE, "Neighbor address type"         },
+  { RFC7181_ADDRTLV_GATEWAY      , "Gateway"                       },
+  { 0                            , NULL                            }};
+
+/* Values of LOCALIF TLV of RFC6130 */
+const value_string localif_vals[] = {
+  { 0, "THIS_IF"                        },
+  { 1, "OTHER_IF"                       },
+  { 0, NULL                             }};
+
+/* Values of LINKSTATUS TLV of RFC6130 */
+const value_string linkstatus_vals[] = {
+  { 0, "LOST"                           },
+  { 1, "SYMMETRIC"                      },
+  { 2, "HEARD"                          },
+  { 0, NULL                             }};
+
+/* Values of OTHERNEIGH TLV of RFC6130 */
+const value_string otherneigh_vals[] = {
+  { 0, "LOST"                           },
+  { 1, "SYMMETRIC"                      },
+  { 0, NULL                             }};
+
+/* Values of MPR TLV of RFC7181 */
+const value_string mpr_vals[] = {
+  { 1, "FLOODING"                       },
+  { 2, "ROUTING"                        },
+  { 3, "FLOOD_ROUTE"                    },
+  { 0, NULL                             }};
+
+/* Values of NBRADDRTYPE TLV of RFC7181 */
+const value_string nbraddrtype_vals[] = {
+  { 1, "ORIGINATOR"                     },
+  { 2, "ROUTABLE"                       },
+  { 3, "ROUTABLE_ORIG"                  },
+  { 0, NULL                             }};
 
 static int proto_packetbb = -1;
 
@@ -157,6 +239,25 @@ static int hf_packetbb_tlv_indexend = -1;
 static int hf_packetbb_tlv_length = -1;
 static int hf_packetbb_tlv_value = -1;
 static int hf_packetbb_tlv_multivalue = -1;
+static int hf_packetbb_tlv_intervaltime = -1;
+static int hf_packetbb_tlv_validitytime = -1;
+static int hf_packetbb_tlv_localifs = -1;
+static int hf_packetbb_tlv_linkstatus = -1;
+static int hf_packetbb_tlv_otherneigh = -1;
+static int hf_packetbb_tlv_icv = -1;
+static int hf_packetbb_tlv_timestamp = -1;
+static int hf_packetbb_tlv_linkmetric_flags_linkin = -1;
+static int hf_packetbb_tlv_linkmetric_flags_linkout = -1;
+static int hf_packetbb_tlv_linkmetric_flags_neighin = -1;
+static int hf_packetbb_tlv_linkmetric_flags_neighout = -1;
+static int hf_packetbb_tlv_linkmetric_value = -1;
+static int hf_packetbb_tlv_mpr = -1;
+static int hf_packetbb_tlv_nbraddrtype = -1;
+static int hf_packetbb_tlv_gateway = -1;
+static int hf_packetbb_tlv_mprwillingness = -1;
+static int hf_packetbb_tlv_mprwillingness_flooding = -1;
+static int hf_packetbb_tlv_mprwillingness_routing = -1;
+static int hf_packetbb_tlv_contseqnum = -1;
 
 static gint ett_packetbb = -1;
 static gint ett_packetbb_header = -1;
@@ -171,12 +272,101 @@ static gint ett_packetbb_tlvblock = -1;
 static gint ett_packetbb_tlv[PACKETBB_MSG_TLV_LENGTH];
 static gint ett_packetbb_tlv_flags = -1;
 static gint ett_packetbb_tlv_value = -1;
+static gint ett_packetbb_tlv_mprwillingness = -1;
+static gint ett_packetbb_tlv_linkmetric = -1;
 
 static expert_field ei_packetbb_error = EI_INIT;
 
+/* Link metric of RFC7181 */
+static guint32 uncompress_metric(guint16 val16) {
+  guint8 exp = (val16 >> 8) & 0xf;
+  return (guint32)((((guint16)257U + (val16 & 0xff)) << exp) - 256);
+}
 
-static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset,
-    guint maxoffset, gint8 addrCount, guint tlvCat) {
+/* Time metric of RFC5497 */
+static guint32 uncompress_time(guint8 val8) {
+  guint8 exp = val8 >> 3;
+  gfloat mant = (gfloat)(val8 & 0x07);
+  return (guint32)((1.00 + mant / 8) * (1U << exp));
+}
+
+static proto_item* dissect_pbb_tlvvalue(tvbuff_t *tvb, proto_tree *tlvTree, guint offset, guint len, guint tlvCat, guint tlvType) {
+  proto_tree *tlv_decoded_value_tree = NULL;
+  proto_tree *tlv_decoded_value_item = NULL;
+
+  static const int *mprwillingness_values[] = {
+    &hf_packetbb_tlv_mprwillingness_flooding,
+    &hf_packetbb_tlv_mprwillingness_routing,
+    NULL
+  };
+
+  switch (tlvCat) {
+  case TLV_CAT_MESSAGE:
+
+    if (tlvType == RFC7181_MSGTLV_MPR_WILLING) {
+      tlv_decoded_value_item = proto_tree_add_bitmask(tlvTree, tvb, offset, hf_packetbb_tlv_mprwillingness, ett_packetbb_tlv_mprwillingness, mprwillingness_values, ENC_BIG_ENDIAN);
+      break;
+    }
+    else if (tlvType == RFC7181_MSGTLV_CONT_SEQ_NUM) {
+      tlv_decoded_value_item = proto_tree_add_item(tlvTree, hf_packetbb_tlv_contseqnum, tvb, offset, len, ENC_NA);
+      break;
+    }
+
+    /* other tlvTypes are common with categories PACKET and ADDRESS,
+       do not break.
+    */
+
+  case TLV_CAT_PACKET:
+  case TLV_CAT_ADDRESS:
+
+    switch (tlvType) {
+    case RFC5497_TLV_INTERVAL_TIME:
+      tlv_decoded_value_item = proto_tree_add_item(tlvTree, hf_packetbb_tlv_intervaltime, tvb, offset, len, ENC_NA);
+      proto_item_append_text(tlv_decoded_value_item, " (%d)", uncompress_time(tvb_get_guint8(tvb, offset)));
+      break;
+    case RFC5497_TLV_VALIDITY_TIME:
+      tlv_decoded_value_item = proto_tree_add_item(tlvTree, hf_packetbb_tlv_validitytime, tvb, offset, len, ENC_NA);
+      proto_item_append_text(tlv_decoded_value_item, " (%d)", uncompress_time(tvb_get_guint8(tvb, offset)));
+      break;
+    case RFC6130_ADDRTLV_LOCAL_IF:
+      tlv_decoded_value_item = proto_tree_add_item(tlvTree, hf_packetbb_tlv_localifs, tvb, offset, 1, ENC_NA);
+      break;
+    case RFC6130_ADDRTLV_LINK_STATUS:
+      tlv_decoded_value_item = proto_tree_add_item(tlvTree, hf_packetbb_tlv_linkstatus, tvb, offset, 1, ENC_NA);
+      break;
+    case RFC6130_ADDRTLV_OTHER_NEIGH:
+      tlv_decoded_value_item = proto_tree_add_item(tlvTree, hf_packetbb_tlv_otherneigh, tvb, offset, 1, ENC_NA);
+      break;
+    case RFC7182_TLV_ICV:
+      tlv_decoded_value_item = proto_tree_add_item(tlvTree, hf_packetbb_tlv_icv, tvb, offset, len, ENC_NA);
+      break;
+    case RFC7182_TLV_TIMESTAMP:
+      tlv_decoded_value_item = proto_tree_add_item(tlvTree, hf_packetbb_tlv_timestamp, tvb, offset, len, ENC_NA);
+      break;
+    case RFC7181_ADDRTLV_LINK_METRIC:
+      tlv_decoded_value_tree = proto_tree_add_subtree(tlvTree, tvb, offset, len, ett_packetbb_tlv_linkmetric, NULL, "Link metric");
+      proto_tree_add_item(tlv_decoded_value_tree, hf_packetbb_tlv_linkmetric_flags_linkin, tvb, offset, 2, ENC_NA);
+      proto_tree_add_item(tlv_decoded_value_tree, hf_packetbb_tlv_linkmetric_flags_linkout, tvb, offset, 2, ENC_NA);
+      proto_tree_add_item(tlv_decoded_value_tree, hf_packetbb_tlv_linkmetric_flags_neighin, tvb, offset, 2, ENC_NA);
+      proto_tree_add_item(tlv_decoded_value_tree, hf_packetbb_tlv_linkmetric_flags_neighout, tvb, offset, 2, ENC_NA);
+      tlv_decoded_value_item = proto_tree_add_item(tlv_decoded_value_tree, hf_packetbb_tlv_linkmetric_value, tvb, offset, 2, ENC_NA);
+      proto_item_append_text(tlv_decoded_value_item, " (%d)", uncompress_metric(tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN)));
+      break;
+    case RFC7181_ADDRTLV_MPR:
+      tlv_decoded_value_item = proto_tree_add_item(tlvTree, hf_packetbb_tlv_mpr, tvb, offset, len, ENC_NA);
+      break;
+    case RFC7181_ADDRTLV_NBR_ADDR_TYPE:
+      tlv_decoded_value_item = proto_tree_add_item(tlvTree, hf_packetbb_tlv_nbraddrtype, tvb, offset, len, ENC_NA);
+      break;
+    case RFC7181_ADDRTLV_GATEWAY:
+      tlv_decoded_value_item = proto_tree_add_item(tlvTree, hf_packetbb_tlv_gateway, tvb, offset, len, ENC_NA);
+      break;
+    }
+  }
+  return tlv_decoded_value_item;
+}
+
+static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint maxoffset, gint8 addrCount, guint tlvCat) {
   guint16 tlvblockLength;
   guint tlvblockEnd;
 
@@ -184,9 +374,6 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   proto_item *tlvBlock_item, *tlv_item, *tlvValue_item;
 
   int tlvCount = 0;
-
-  int hf_packetbb_tlv_type = 0;
-  const value_string* tlv_type_vals = NULL;
 
   static const int *flags[] = {
     &hf_packetbb_tlv_flags_hastypext,
@@ -221,8 +408,10 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   offset += 2;
   while (offset < tlvblockEnd) {
     guint tlvStart, tlvLength;
-    guint8 tlvType, tlvFlags, tlvExtType, indexStart, indexEnd;
+    guint8 tlvType, tlvFlags, /*tlvExtType, */indexStart, indexEnd;
     guint16 length = 0;
+    int hf_packetbb_tlv_type = 0;
+    const value_string *tlv_type_vals;
 
     tlvStart = offset;
     tlvType = tvb_get_guint8(tvb, offset++);
@@ -230,11 +419,6 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     indexStart = 0;
     indexEnd = addrCount ? (addrCount - 1) : 0;
-    tlvExtType = 0;
-
-    if ((tlvFlags & TLV_HAS_TYPEEXT) != 0) {
-      tlvExtType = tvb_get_guint8(tvb, offset++);
-    }
 
     if ((tlvFlags & TLV_HAS_SINGLEINDEX) != 0) {
       indexStart = indexEnd = tvb_get_guint8(tvb, offset++);
@@ -272,15 +456,6 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       /* assume TLV_CAT_ADDRESS */
       hf_packetbb_tlv_type = hf_packetbb_addrtlv_type;
       tlv_type_vals = addrtlv_type_vals;
-    }
-
-    if ((tlvFlags & TLV_HAS_TYPEEXT) == 0) {
-      proto_item_append_text(tlv_item, " (%s)",
-        val_to_str_const(tlvType, tlv_type_vals, "Unknown type"));
-    }
-    else {
-      proto_item_append_text(tlv_item, " (%s / %d)",
-        val_to_str_const(tlvType, tlv_type_vals, "Unknown type"), tlvExtType);
     }
 
     /* add type */
@@ -326,14 +501,16 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       proto_tree_add_uint_format_value(tlv_tree, hf_packetbb_tlv_length, tvb, offset, 0, 0, "0 (implicit)");
     }
 
-    if (length > 0) {
       /* add value */
+    if (length > 0) {
       tlvValue_item = proto_tree_add_item(tlv_tree, hf_packetbb_tlv_value, tvb, offset, length, ENC_NA);
-
       if ((tlvFlags & TLV_HAS_MULTIVALUE) == 0) {
+        /* single value */
+        dissect_pbb_tlvvalue(tvb, tlv_tree, offset, length, tlvCat, tlvType);
         offset += length;
       }
       else {
+        /* multiple values */
         int i;
         guint c = indexEnd - indexStart + 1;
         if (c > 0) {
@@ -345,6 +522,10 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
           }
         }
       }
+    }
+
+    if (tlv_item) {
+      proto_item_append_text(tlv_item, " (t=%d,l=%d): %s", tlvType, length, val_to_str(tlvType, tlv_type_vals, "Unknown Type (%d)") );
     }
     tlvCount++;
   }
@@ -624,9 +805,9 @@ static int dissect_pbb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   }
 
   message_item = proto_tree_add_item(tree, hf_packetbb_msg, tvb, offset, messageLength, ENC_NA);
-  message_tree = proto_item_add_subtree(message_item, ett_packetbb_msg[messageType]);
   proto_item_append_text(message_item, " (%s)",
-    val_to_str_const(messageType, msgheader_type_vals, "Unknown type"));
+      val_to_str_const(messageType, msgheader_type_vals, "Unknown type"));
+  message_tree = proto_item_add_subtree(message_item, ett_packetbb_msg[messageType]);
 
   header_item = proto_tree_add_item(message_tree, hf_packetbb_msgheader, tvb, offset, headerLength, ENC_NA);
   header_tree = proto_item_add_subtree(header_item, ett_packetbb_msgheader);
@@ -1088,7 +1269,102 @@ void proto_register_packetbb(void) {
       { "Multivalue", "packetbb.tlv.multivalue",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }
-    }
+    },
+    { &hf_packetbb_tlv_intervaltime,
+      { "Signaling message interval", "packetbb.tlv.intervaltime",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_packetbb_tlv_validitytime,
+      { "Message validity time", "packetbb.tlv.validitytime",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_packetbb_tlv_localifs,
+      { "Local interface status", "packetbb.tlv.localifs",
+        FT_UINT8, BASE_DEC, VALS(localif_vals), 0,
+        NULL, HFILL }
+    },
+    { &hf_packetbb_tlv_linkstatus,
+      { "Link status", "packetbb.tlv.linkstatus",
+        FT_UINT8, BASE_DEC, VALS(linkstatus_vals), 0,
+        NULL, HFILL }
+    },
+    { &hf_packetbb_tlv_otherneigh,
+      { "Other neighbor status", "packetbb.tlv.otherneigh",
+        FT_UINT8, BASE_DEC, VALS(otherneigh_vals), 0,
+        NULL, HFILL }
+    },
+    { &hf_packetbb_tlv_icv,
+      { "Integrity Check Value", "packetbb.tlv.icv",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_packetbb_tlv_timestamp,
+      { "Timestamp", "packetbb.tlv.timestamp",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_packetbb_tlv_mprwillingness,
+      { "MPR willingness", "packetbb.tlv.mprwillingness",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_packetbb_tlv_mprwillingness_flooding,
+      { "Flooding", "packetbb.tlv.mprwillingnessflooding",
+        FT_UINT8, BASE_DEC, NULL, 0xF0,
+        NULL, HFILL }
+    },
+    { &hf_packetbb_tlv_mprwillingness_routing,
+      { "Routing", "packetbb.tlv.mprwillingnessrouting",
+        FT_UINT8, BASE_DEC, NULL, 0x0F,
+        NULL, HFILL }
+    },
+    { &hf_packetbb_tlv_contseqnum,
+      { "Content sequence number", "packetbb.tlv.contseqnum",
+        FT_UINT16, BASE_HEX, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_packetbb_tlv_linkmetric_flags_linkin,
+      { "Incoming link", "packetbb.tlv.linkmetriclinkin",
+        FT_BOOLEAN, 16, TFS(&tfs_true_false), RFC7181_LINKMETRIC_INCOMING_LINK,
+        NULL, HFILL }
+    },
+    { &hf_packetbb_tlv_linkmetric_flags_linkout,
+      { "Outgoing link", "packetbb.tlv.linkmetriclinkout",
+        FT_BOOLEAN, 16, TFS(&tfs_true_false), RFC7181_LINKMETRIC_OUTGOING_LINK,
+        NULL, HFILL }
+    },
+    { &hf_packetbb_tlv_linkmetric_flags_neighin,
+      { "Incoming neighbor", "packetbb.tlv.linkmetricneighin",
+        FT_BOOLEAN, 16, TFS(&tfs_true_false), RFC7181_LINKMETRIC_INCOMING_NEIGH,
+        NULL, HFILL }
+    },
+    { &hf_packetbb_tlv_linkmetric_flags_neighout,
+      { "Outgoing neighbor", "packetbb.tlv.linkmetricneighout",
+        FT_BOOLEAN, 16, TFS(&tfs_true_false), RFC7181_LINKMETRIC_OUTGOING_NEIGH,
+        NULL, HFILL }
+    },
+    { &hf_packetbb_tlv_linkmetric_value,
+      { "Link metric", "packetbb.tlv.linkmetricvalue",
+        FT_UINT16, BASE_HEX, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_packetbb_tlv_mpr,
+      { "Multipoint Relay", "packetbb.tlv.mpr",
+        FT_UINT8, BASE_DEC, VALS(mpr_vals), 0,
+        NULL, HFILL }
+    },
+    { &hf_packetbb_tlv_nbraddrtype,
+      { "Neighbor address type", "packetbb.tlv.nbraddrtype",
+        FT_UINT8, BASE_DEC, VALS(nbraddrtype_vals), 0,
+        NULL, HFILL }
+    },
+    { &hf_packetbb_tlv_gateway,
+      { "Gateway", "packetbb.tlv.gateway",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
   };
 
   /* Setup protocol subtree array */
@@ -1103,7 +1379,9 @@ void proto_register_packetbb(void) {
     &ett_packetbb_addr_value,
     &ett_packetbb_tlvblock,
     &ett_packetbb_tlv_flags,
-    &ett_packetbb_tlv_value
+    &ett_packetbb_tlv_value,
+    &ett_packetbb_tlv_mprwillingness,
+    &ett_packetbb_tlv_linkmetric
   };
 
   static ei_register_info ei[] = {
