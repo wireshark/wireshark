@@ -584,7 +584,12 @@ static expert_field ei_gtpv2_ie = EI_INIT;
 #define GTPV2_MODIFY_BEARER_RESPONSE     35
 #define GTPV2_DELETE_SESSION_REQUEST     36
 #define GTPV2_DELETE_SESSION_RESPONSE    37
+#define GTPV2_MODIFY_BEARER_COMMAND      64
+#define GTPV2_MODIFY_BEARER_FAILURE_INDICATION    65
+#define GTPV2_DELETE_BEARER_COMMAND      66
+#define GTPV2_DELETE_BEARER_FAILURE_INDICATION    67
 #define GTPV2_BEARER_RESOURCE_COMMAND    68
+#define GTPV2_BEARER_RESOURCE_FAILURE_INDICATION  69
 #define GTPV2_CREATE_BEARER_REQUEST      95
 #define GTPV2_CREATE_BEARER_RESPONSE     96
 #define GTPV2_UPDATE_BEARER_REQUEST      97
@@ -6106,6 +6111,8 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
     case GTPV2_MODIFY_BEARER_REQUEST:
     case GTPV2_DELETE_BEARER_REQUEST:
     case GTPV2_DELETE_SESSION_REQUEST:
+    case GTPV2_MODIFY_BEARER_COMMAND:
+    case GTPV2_DELETE_BEARER_COMMAND:
         gcr.is_request = TRUE;
         gcr.req_frame = pinfo->num;
         gcr.rep_frame = 0;
@@ -6116,6 +6123,8 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
     case GTPV2_MODIFY_BEARER_RESPONSE:
     case GTPV2_DELETE_BEARER_RESPONSE:
     case GTPV2_DELETE_SESSION_RESPONSE:
+    case GTPV2_MODIFY_BEARER_FAILURE_INDICATION:
+    case GTPV2_DELETE_BEARER_FAILURE_INDICATION:
         gcr.is_request = FALSE;
         gcr.req_frame = 0;
         gcr.rep_frame = pinfo->num;
@@ -6140,6 +6149,8 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
         case GTPV2_MODIFY_BEARER_REQUEST:
         case GTPV2_DELETE_BEARER_REQUEST:
         case GTPV2_DELETE_SESSION_REQUEST:
+        case GTPV2_MODIFY_BEARER_COMMAND:
+        case GTPV2_DELETE_BEARER_COMMAND:
             gcr.seq_nr = seq_nr;
 
             gcrp = (gtpv2_msg_hash_t *)wmem_map_lookup(gtpv2_info->unmatched, &gcr);
@@ -6165,6 +6176,9 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
     case GTPV2_MODIFY_BEARER_RESPONSE:
     case GTPV2_DELETE_BEARER_RESPONSE:
     case GTPV2_DELETE_SESSION_RESPONSE:
+    case GTPV2_MODIFY_BEARER_FAILURE_INDICATION:
+    case GTPV2_DELETE_BEARER_FAILURE_INDICATION:
+    case GTPV2_BEARER_RESOURCE_FAILURE_INDICATION:
             gcr.seq_nr = seq_nr;
             gcrp = (gtpv2_msg_hash_t *)wmem_map_lookup(gtpv2_info->unmatched, &gcr);
 
