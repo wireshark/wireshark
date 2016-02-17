@@ -17,7 +17,7 @@ LDFLAGS = /NOLOGO /INCREMENTAL:NO $(LOCAL_LDFLAGS)
 # We use GENERATED_CFLAGS to get around flex's non-LLP64-compliant output
 GENERATED_CFLAGS=\
 	$(STANDARD_CFLAGS) \
-	/I.  /Iwiretap $(GLIB_CFLAGS) \
+	/I. /I.. /Iwiretap $(GLIB_CFLAGS) \
 	$(ZLIB_CFLAGS) /I$(PCAP_DIR)\include $(AIRPCAP_CFLAGS) \
 	$(C_ARES_CFLAGS) $(ADNS_CFLAGS) $(GNUTLS_CFLAGS) \
 	$(SMI_CFLAGS) $(GEOIP_CFLAGS) $(LIBSSH_CFLAGS) $(WINSPARKLE_CFLAGS)
@@ -42,7 +42,7 @@ androiddump_LIBS = $(anddroiddump_WSLIBS) \
 randpktdump_OBJECTS = $(randpktdump_SOURCES:.c=.obj)
 
 randpktdump_WSLIBS = \
-	..\randpkt_core\randpkt_core.lib \
+	..\randpkt_core\librandpkt_core.lib \
 	..\wiretap\wiretap-$(WTAP_VERSION).lib \
 	..\wsutil\libwsutil.lib
 
@@ -67,7 +67,9 @@ EXECUTABLES=androiddump.exe randpktdump.exe
 EXECUTABLES += sshdump.exe
 !ENDIF
 
-androiddump.exe	: $(LIBS_CHECK) config.h androiddump.obj $(anddroiddump_WSLIBS)
+all: $(EXECUTABLES)
+
+androiddump.exe	: $(LIBS_CHECK) ..\config.h androiddump.obj $(anddroiddump_WSLIBS)
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:androiddump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS androiddump.obj $(androiddump_LIBS)
@@ -76,7 +78,7 @@ androiddump.exe	: $(LIBS_CHECK) config.h androiddump.obj $(anddroiddump_WSLIBS)
 	mt.exe -nologo -manifest "androiddump.exe.manifest" -outputresource:androiddump.exe;1
 !ENDIF
 
-randpktdump.exe	: $(LIBS_CHECK) config.h randpktdump.obj $(randpktdump_WSLIBS)
+randpktdump.exe	: $(LIBS_CHECK) ..\config.h randpktdump.obj $(randpktdump_WSLIBS)
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:randpktdump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS randpktdump.obj $(randpktdump_LIBS)
@@ -86,7 +88,7 @@ randpktdump.exe	: $(LIBS_CHECK) config.h randpktdump.obj $(randpktdump_WSLIBS)
 !ENDIF
 
 !IFDEF LIBSSH_DIR
-sshdump.exe	: $(LIBS_CHECK) config.h sshdump.obj $(sshdump_WSLIBS)
+sshdump.exe	: $(LIBS_CHECK) ..\config.h sshdump.obj $(sshdump_WSLIBS)
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:sshdump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS sshdump.obj $(sshdump_LIBS)

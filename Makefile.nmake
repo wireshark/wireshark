@@ -218,7 +218,7 @@ RESOURCES=image\wireshark.res image\file_dlg_win32.res \
 	image\rawshark.res image\reordercap.res image\libwsutil.res
 
 
-all: $(LIBS_CHECK) config.h ui\qt\config.pri tools image $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil codecs wiretap epan randpkt_core $(EXECUTABLES) wireshark.bsc $(RESOURCES) help install-all
+all: $(LIBS_CHECK) config.h ui\qt\config.pri tools image $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil codecs wiretap epan randpkt_core extcap $(EXECUTABLES) wireshark.bsc $(RESOURCES) help install-all
 
 !IFDEF MAKENSIS
 packaging: all
@@ -565,7 +565,6 @@ test-programs:
 clean-local:
 	rm -f $(wireshark_gtk_OBJECTS) $(tshark_OBJECTS) $(tfshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
 		$(EXECUTABLES) *.nativecodeanalysis.xml *.pdb *.sbr *.exe.manifest \
-		androiddump.obj sshdump.obj randpktdump.obj \
 		capinfos.obj capinfos.exp capinfos.lib \
 		captype.obj captype.exp captype.lib \
 		editcap.obj editcap.exp editcap.lib \
@@ -593,6 +592,8 @@ clean: clean-local
 	cd ../caputils
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../randpkt_core
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../extcap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
@@ -652,6 +653,8 @@ distclean: distclean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../randpkt_core
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../extcap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../ui
@@ -702,6 +705,8 @@ maintainer-clean: maintainer-clean-local
 	cd ../caputils
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../randpkt_core
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../extcap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
@@ -824,6 +829,11 @@ caputils:: help config.h version.h doxygen
 randpkt_core:: help config.h version.h doxygen
 	cd randpkt_core
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake librandpkt_core.lib
+	cd ..
+
+extcap::
+	cd extcap
+	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake all
 	cd ..
 
 codecs::
