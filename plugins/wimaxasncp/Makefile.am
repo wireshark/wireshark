@@ -24,26 +24,33 @@ include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 include ../Makefile.am.inc
 
-#
-# XXX - how to make this apply only to clean files?
-#
-#if HAVE_WARNINGS_AS_ERRORS
-#AM_CFLAGS += -Werror
-#endif
+noinst_LTLIBRARIES = wimaxasncp-generated.la
 
 plugin_LTLIBRARIES = wimaxasncp.la
 
+wimaxasncp_generated_la_SOURCES = \
+	$(FLEX_GENERATED_C_FILES)	\
+	$(FLEX_GENERATED_HEADER_FILES)
+
+wimaxasncp_generated_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
+
+wimaxasncp_generated_la_CFLAGS = $(GENERATED_CFLAGS) $(PLUGIN_CFLAGS)
+
+wimaxasncp_generated_la_LDFLAGS = $(PLUGIN_LDFLAGS)
+
 wimaxasncp_la_SOURCES = \
-	plugin.c \
-	moduleinfo.h \
-	$(SRC_FILES)	\
-	$(HEADER_FILES)
+	plugin.c	\
+	moduleinfo.h	\
+	$(CLEAN_SRC_FILES)	\
+	$(CLEAN_HEADER_FILES)
 
 wimaxasncp_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
 
-wimaxasncp_la_CFLAGS = $(GENERATED_CFLAGS) $(PLUGIN_CFLAGS)
+wimaxasncp_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
 
 wimaxasncp_la_LDFLAGS = $(PLUGIN_LDFLAGS)
+
+wimaxasncp_la_DEPENDENCIES = wimaxasncp-generated.la
 
 CLEANFILES = \
 	wimaxasncp \
