@@ -183,10 +183,10 @@ static int hf_usb_src = -1;
 static int hf_usb_dst = -1;
 static int hf_usb_addr = -1;
 
-static gint usb_hdr = -1;
-static gint usb_setup_hdr = -1;
-static gint usb_isodesc = -1;
-static gint usb_win32_iso_packet = -1;
+static gint ett_usb_hdr = -1;
+static gint ett_usb_setup_hdr = -1;
+static gint ett_usb_isodesc = -1;
+static gint ett_usb_win32_iso_packet = -1;
 static gint ett_usb_endpoint = -1;
 static gint ett_usb_setup_bmrequesttype = -1;
 static gint ett_usb_usbpcap_info = -1;
@@ -2979,7 +2979,7 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
 
     parent = proto_tree_get_parent_tree(tree);
 
-    setup_tree = proto_tree_add_subtree(parent, tvb, offset, 8, usb_setup_hdr, NULL, "URB setup");
+    setup_tree = proto_tree_add_subtree(parent, tvb, offset, 8, ett_usb_setup_hdr, NULL, "URB setup");
 
     req_type = USB_TYPE(tvb_get_guint8(tvb, offset));
     usb_trans_info->setup.requesttype = tvb_get_guint8(tvb, offset);
@@ -3366,7 +3366,7 @@ dissect_usbpcap_iso_packets(packet_info *pinfo _U_, proto_tree *urb_tree, guint8
         iso_packet_ti = proto_tree_add_protocol_format(
                 proto_tree_get_root(urb_tree), proto_usb,
                 tvb, offset, 12, "USB isochronous packet");
-        iso_packet_tree = proto_item_add_subtree(iso_packet_ti, usb_win32_iso_packet);
+        iso_packet_tree = proto_item_add_subtree(iso_packet_ti, ett_usb_win32_iso_packet);
 
         this_offset = tvb_get_letohl(tvb, offset);
         if (num_packets - i == 1) {
@@ -3496,7 +3496,7 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
                 16, "USB isodesc %u [%s]", i, val_to_str_ext(iso_status, &usb_urb_status_vals_ext, "Error %d"));
         if (iso_len > 0)
             proto_item_append_text(iso_desc_ti, " (%u bytes)", iso_len);
-        iso_desc_tree = proto_item_add_subtree(iso_desc_ti, usb_isodesc);
+        iso_desc_tree = proto_item_add_subtree(iso_desc_ti, ett_usb_isodesc);
 
         proto_tree_add_int(iso_desc_tree, hf_usb_iso_status, tvb, offset, 4, iso_status);
         offset += 4;
@@ -3562,7 +3562,7 @@ dissect_usbip_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
         iso_status = tvb_get_ntohl(tvb, desc_offset + 12);
         iso_desc_ti = proto_tree_add_protocol_format(urb_tree, proto_usb, tvb, desc_offset,
                 16, "USB isodesc %u [%s]", i, val_to_str_ext(iso_status, &usb_urb_status_vals_ext, "Error %d"));
-        iso_desc_tree = proto_item_add_subtree(iso_desc_ti, usb_isodesc);
+        iso_desc_tree = proto_item_add_subtree(iso_desc_ti, ett_usb_isodesc);
 
         proto_tree_add_item_ret_uint(iso_desc_tree, hf_usb_iso_off, tvb, desc_offset, 4, ENC_BIG_ENDIAN, &iso_off);
         desc_offset += 4;
@@ -3716,7 +3716,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
     urb_tree_ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0, -1, "USB URB");
-    tree = proto_item_add_subtree(urb_tree_ti, usb_hdr);
+    tree = proto_item_add_subtree(urb_tree_ti, ett_usb_hdr);
 
     usb_set_addr(tree, tvb, pinfo, bus_id, device_address, endpoint,
                  (urb_type == URB_SUBMIT));
@@ -4616,10 +4616,10 @@ proto_register_usb(void)
    };
 
     static gint *usb_subtrees[] = {
-        &usb_hdr,
-        &usb_setup_hdr,
-        &usb_isodesc,
-        &usb_win32_iso_packet,
+        &ett_usb_hdr,
+        &ett_usb_setup_hdr,
+        &ett_usb_isodesc,
+        &ett_usb_win32_iso_packet,
         &ett_usb_endpoint,
         &ett_usb_setup_bmrequesttype,
         &ett_usb_usbpcap_info,
