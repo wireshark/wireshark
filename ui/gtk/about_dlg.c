@@ -40,8 +40,8 @@
 #include <epan/wslua/init_wslua.h>
 #endif
 
-#include "../log.h"
-#include "../register.h"
+#include "../../log.h"
+#include "../../register.h"
 
 #include "ui/last_open_dir.h"
 

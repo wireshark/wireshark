@@ -28,7 +28,7 @@
 #include <gtk/gtk.h>
 
 
-#include "../globals.h"
+#include "../../globals.h"
 #include <epan/stat_groups.h>
 
 #include "ui/gtk/old-gtk-compat.h"

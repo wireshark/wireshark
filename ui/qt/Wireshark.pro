@@ -175,7 +175,7 @@ win32 {
 #tap_register.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += tap_register
 
-INCLUDEPATH += ../.. ../../wiretap
+INCLUDEPATH += ../..
 win32:INCLUDEPATH += \
     $${WIRESHARK_LIB_DIR}/gtk2/include/glib-2.0 $${WIRESHARK_LIB_DIR}/gtk2/lib/glib-2.0/include \
     $${WIRESHARK_LIB_DIR}/gtk3/include/glib-2.0 $${WIRESHARK_LIB_DIR}/gtk3/lib/glib-2.0/include \

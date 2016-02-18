@@ -29,7 +29,7 @@
 #include <epan/strutil.h>
 #include <epan/prefs.h>
 
-#include "../globals.h"
+#include "../../globals.h"
 #include "ui/main_statusbar.h"
 
 #include "ui/gtk/old-gtk-compat.h"

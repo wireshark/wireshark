@@ -31,7 +31,7 @@
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 
-#include "../capture_opts.h"
+#include "../../capture_opts.h"
 #include <capchild/capture_session.h>
 #include "caputils/capture_ifinfo.h"
 #include "ui/capture.h"

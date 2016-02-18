@@ -50,8 +50,8 @@
 #include <epan/tvbuff-int.h>
 #include <epan/print.h>
 
-#include "../file.h"
-#include "../summary.h"
+#include "../../file.h"
+#include "../../summary.h"
 
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"

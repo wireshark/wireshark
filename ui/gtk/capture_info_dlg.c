@@ -32,7 +32,7 @@
 #include <epan/capture_dissectors.h>
 
 #include "ui/capture.h"
-#include "../capture_info.h"
+#include "../../capture_info.h"
 
 #include "ui/capture_ui_utils.h"
 

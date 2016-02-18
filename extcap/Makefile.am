@@ -23,8 +23,6 @@ include ../Makefile.am.inc
 
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
-AM_CPPFLAGS += -I$(top_srcdir)/wiretap
-
 extcap_PROGRAMS = \
 	@androiddump_bin@	\
 	@randpktdump_bin@	\

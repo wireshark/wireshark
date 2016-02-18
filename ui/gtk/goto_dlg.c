@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 
-#include "../globals.h"
+#include "../../globals.h"
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/goto_dlg.h"

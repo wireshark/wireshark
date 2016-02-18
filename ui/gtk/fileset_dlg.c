@@ -29,7 +29,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/str_util.h>
 
-#include "../fileset.h"
+#include "../../fileset.h"
 
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"

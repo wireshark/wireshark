@@ -25,7 +25,7 @@
 #include <gtk/gtk.h>
 
 #include "globals.h"
-#include "pcap-encap.h"
+#include <wiretap/pcap-encap.h>
 
 #include <epan/exported_pdu.h>
 

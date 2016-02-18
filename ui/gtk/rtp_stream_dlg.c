@@ -32,7 +32,7 @@
 #include <epan/addr_resolv.h>
 #include "wsutil/filesystem.h"
 
-#include "../globals.h"
+#include "../../globals.h"
 #include <epan/stat_groups.h>
 
 #include "ui/last_open_dir.h"

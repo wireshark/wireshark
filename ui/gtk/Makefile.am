@@ -22,7 +22,7 @@
 include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
-AM_CPPFLAGS += -I$(top_srcdir)/wiretap $(PORTAUDIO_INCLUDES)
+AM_CPPFLAGS += $(PORTAUDIO_INCLUDES)
 
 CLEANFILES = \
 	libgtkui.a				\

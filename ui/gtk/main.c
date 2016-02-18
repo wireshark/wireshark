@@ -98,13 +98,13 @@
 #include <wsutil/plugins.h>
 
 /* general (not GTK specific) */
-#include "../file.h"
-#include "../frame_tvbuff.h"
-#include "../summary.h"
+#include "../../file.h"
+#include "../../frame_tvbuff.h"
+#include "../../summary.h"
 #include <epan/color_filters.h>
-#include "../register.h"
-#include "../ringbuffer.h"
-#include "../log.h"
+#include "../../register.h"
+#include "../../ringbuffer.h"
+#include "../../log.h"
 
 #include "gtk_iface_monitor.h"
 

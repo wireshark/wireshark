@@ -30,7 +30,7 @@
 
 #include <epan/prefs.h>
 
-#include "../cfile.h"
+#include "../../cfile.h"
 
 #include <gtk/gtk.h>
 

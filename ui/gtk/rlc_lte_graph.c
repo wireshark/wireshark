@@ -39,8 +39,8 @@
 #include <epan/dissectors/packet-rlc-lte.h>
 #include <epan/tap.h>
 
-#include "../globals.h"
-#include "../frame_tvbuff.h"
+#include "../../globals.h"
+#include "../../frame_tvbuff.h"
 #include "ui/simple_dialog.h"
 #include <epan/stat_groups.h>
 

@@ -26,7 +26,7 @@
 
 #include <gtk/gtk.h>
 
-#include "../globals.h"
+#include "../../globals.h"
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/gui_utils.h"

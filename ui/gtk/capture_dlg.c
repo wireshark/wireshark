@@ -39,7 +39,7 @@
 #include "ui/capture.h"
 #include "caputils/capture_ifinfo.h"
 #include "caputils/capture-pcap-util.h"
-#include "../ringbuffer.h"
+#include "../../ringbuffer.h"
 
 #include "ui/capture_ui_utils.h"
 #include "ui/capture_globals.h"

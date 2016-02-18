@@ -31,7 +31,7 @@
 #include "frame_tvbuff.h"
 #include "globals.h"
 
-#include "wtap-int.h" /* for ->random_fh */
+#include "wiretap/wtap-int.h" /* for ->random_fh */
 
 struct tvb_frame {
 	struct tvbuff tvb;

@@ -43,7 +43,7 @@
 
 #include <wsutil/str_util.h>
 
-#include "../globals.h"
+#include "../../globals.h"
 
 #include "ui/voip_calls.h"
 

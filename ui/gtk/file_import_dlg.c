@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #include "globals.h"
-#include "pcap-encap.h"
+#include "wiretap/pcap-encap.h"
 
 #include "ui/simple_dialog.h"
 #include "ui/alert_box.h"

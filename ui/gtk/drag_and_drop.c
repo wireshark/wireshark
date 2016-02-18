@@ -27,7 +27,7 @@
 #include <gtk/gtk.h>
 
 
-#include "../file.h"
+#include "../../file.h"
 #ifdef HAVE_LIBPCAP
 #include "ui/capture.h"
 #endif

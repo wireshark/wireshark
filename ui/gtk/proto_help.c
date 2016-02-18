@@ -34,7 +34,7 @@
 
 #include <gtk/gtk.h>
 
-#include "../file.h"
+#include "../../file.h"
 
 
 #include "ui/gtk/proto_help.h"

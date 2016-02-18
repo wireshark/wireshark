@@ -37,7 +37,7 @@
 
 #include <epan/addr_resolv.h>
 
-#include "../globals.h"
+#include "../../globals.h"
 #include <epan/stat_groups.h>
 #include "ui/simple_dialog.h"
 

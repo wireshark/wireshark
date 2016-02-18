@@ -34,10 +34,10 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 
-#include "../cfile.h"
-#include "../file.h"
+#include "../../cfile.h"
+#include "../../file.h"
 #ifdef HAVE_LIBPCAP
-#include "../capture_opts.h"
+#include "../../capture_opts.h"
 #include <capchild/capture_session.h>
 #include "ui/capture.h"
 #endif

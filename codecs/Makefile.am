@@ -22,7 +22,7 @@
 include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
-AM_CPPFLAGS += -I$(top_srcdir)/wiretap -DWS_BUILD_DLL
+AM_CPPFLAGS += -DWS_BUILD_DLL
 
 lib_LTLIBRARIES = libwscodecs.la
 

@@ -29,7 +29,7 @@
 
 #include <epan/prefs.h>
 
-#include "../globals.h"
+#include "../../globals.h"
 
 #include "ui/gtk/supported_protos_dlg.h"
 #include "ui/gtk/gui_utils.h"

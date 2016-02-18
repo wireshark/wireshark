@@ -209,7 +209,6 @@ include_directories(
 	${CMAKE_SOURCE_DIR}
 	${CMAKE_SOURCE_DIR}/epan
 	${CMAKE_SOURCE_DIR}/tools/lemon
-	${CMAKE_SOURCE_DIR}/wiretap
 )
 
 include( CMakeOptions.txt )
