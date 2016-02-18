@@ -197,6 +197,7 @@
  * opaque flag field definitions
  */
 #define EIGRP_OPAQUE_SRCWD    0x01   /*!< Route Source Withdraw */
+#define EIGRP_OPAQUE_CD       0x02   /*!< Candidate Default */
 #define EIGRP_OPAQUE_ACTIVE   0x04   /*!< Route is currently in active state */
 #define EIGRP_OPAQUE_REPL     0x08   /*!< Route is replicated from different tableid */
 
@@ -441,6 +442,7 @@ static gint hf_eigrp_routerid = -1;
 
 /* protocol dependent module route flags */
 static gint hf_eigrp_metric_flags_srcwd = -1;
+static gint hf_eigrp_metric_flags_cd = -1;
 static gint hf_eigrp_metric_flags_active = -1;
 static gint hf_eigrp_metric_flags_repl = -1;
 static gint ett_eigrp_metric_flags = -1;
@@ -1076,6 +1078,8 @@ dissect_eigrp_metric_flags (proto_tree *tree, tvbuff_t *tvb, int offset, int lim
 
     /* just care about 'flags' byte, there are no MP flags for now */
     proto_tree_add_item(sub_tree, hf_eigrp_metric_flags_srcwd, sub_tvb, 0, 1,
+                        ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_eigrp_metric_flags_cd, sub_tvb, 0, 1,
                         ENC_BIG_ENDIAN);
     proto_tree_add_item(sub_tree, hf_eigrp_metric_flags_active, sub_tvb, 0, 1,
                         ENC_BIG_ENDIAN);
@@ -2979,6 +2983,11 @@ proto_register_eigrp(void)
           { "Source Withdraw", "eigrp.metric.flags.srcwd",
             FT_BOOLEAN, 8, TFS(&tfs_true_false), EIGRP_OPAQUE_SRCWD,
             "Route Source Withdraw", HFILL }
+        },
+        { &hf_eigrp_metric_flags_cd,
+          { "Candidate Default", "eigrp.metric.flags.cd",
+            FT_BOOLEAN, 8, TFS(&tfs_true_false), EIGRP_OPAQUE_CD,
+            NULL, HFILL }
         },
         { &hf_eigrp_metric_flags_active,
           { "Route is Active", "eigrp.metric.flags.active",
