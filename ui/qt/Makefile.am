@@ -22,7 +22,7 @@
 include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
-AM_CPPFLAGS += $(LIBGCRYPT_CFLAGS) $(LIBGNUTLS_CFLAGS)
+AM_CPPFLAGS += $(LIBGCRYPT_CFLAGS) $(LIBGNUTLS_CFLAGS) $(Qt_CFLAGS)
 
 noinst_LIBRARIES = libqtui.a
 

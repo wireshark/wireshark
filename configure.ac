@@ -1644,8 +1644,8 @@ if test "x$enable_wireshark" = "xyes"; then
 		#
 		AC_WIRESHARK_QT_CHECK($QT_MIN_VERSION, "$with_qt",
 		[
-			WS_CFLAGS="$WS_CFLAGS $Qt_CFLAGS"
-			WS_CXXFLAGS="$WS_CXXFLAGS $Qt_CFLAGS"
+			AC_SUBST(Qt_CFLAGS)
+			AC_SUBST(Qt_LIBS)
 			have_qt=yes
 			GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-qt"
 

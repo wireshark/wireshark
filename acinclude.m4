@@ -2104,8 +2104,6 @@ AC_DEFUN([AC_WIRESHARK_QT_CHECK],
 
 		AC_WIRESHARK_QT_ADD_PIC_IF_NEEDED
 
-		AC_SUBST(Qt_LIBS)
-
 		# Run Action-If-Found
 		ifelse([$3], , :, [$3])
 	else

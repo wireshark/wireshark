@@ -429,6 +429,7 @@ wireshark_LDADD = \
 	ui/qt/libqtui.a \
 	$(wireshark_common_ldadd) \
 	@Qt_LIBS@
+wireshark_CPPFLAGS = $(AM_CPPFLAGS) $(Qt_CFLAGS)
 endif
 
 if HAVE_GTK
