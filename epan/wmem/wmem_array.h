@@ -59,6 +59,14 @@ G_GNUC_MALLOC;
 
 WS_DLL_PUBLIC
 void
+wmem_array_set_null_terminator(wmem_array_t *array);
+
+WS_DLL_PUBLIC
+void
+wmem_array_bzero(wmem_array_t *array);
+
+WS_DLL_PUBLIC
+void
 wmem_array_append(wmem_array_t *array, const void *in, guint count);
 
 #define wmem_array_append_one(ARRAY, VAL) \

@@ -475,6 +475,8 @@ wmem_test_array(void)
     unsigned int        i, j, k;
     guint32             val, *buf;
     guint32             vals[8];
+    guint32            *raw;
+    guint32            lastint;
 
     allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
 
@@ -498,6 +500,7 @@ wmem_test_array(void)
     }
 
     array = wmem_array_sized_new(allocator, sizeof(guint32), 73);
+    wmem_array_set_null_terminator(array);
 
     for (i=0; i<CONTAINER_ITERS; i++) {
         for (j=0; j<8; j++) {
@@ -534,6 +537,13 @@ wmem_test_array(void)
         }
     }
     g_assert(k == wmem_array_get_count(array));
+
+    lastint = 77;
+    wmem_array_append_one(array, lastint);
+
+    raw = (guint32*)wmem_array_get_raw(array);
+    g_assert(raw[wmem_array_get_count(array)] == 0);
+    g_assert(raw[wmem_array_get_count(array) - 1] == lastint);
 
     wmem_destroy_allocator(allocator);
 }

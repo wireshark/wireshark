@@ -45,6 +45,8 @@ struct _wmem_array_t {
 
     guint elem_count;
     guint alloc_count;
+
+    gboolean null_terminated;
 };
 
 wmem_array_t *
@@ -59,6 +61,7 @@ wmem_array_sized_new(wmem_allocator_t *allocator, gsize elem_size,
     array->elem_size   = elem_size;
     array->elem_count  = 0;
     array->alloc_count = alloc_count ? alloc_count : 1;
+    array->null_terminated = FALSE;
 
     array->buf = (guint8 *)wmem_alloc(array->allocator,
             array->elem_size * array->alloc_count);
@@ -98,6 +101,28 @@ wmem_array_grow(wmem_array_t *array, const guint to_add)
     array->alloc_count = new_alloc_count;
 }
 
+static void
+wmem_array_write_null_terminator(wmem_array_t *array)
+{
+    if (array->null_terminated) {
+        wmem_array_grow(array, 1);
+        memset(&array->buf[array->elem_count * array->elem_size], 0x0, array->elem_size);
+    }
+}
+
+void
+wmem_array_set_null_terminator(wmem_array_t *array)
+{
+    array->null_terminated = TRUE;
+    wmem_array_write_null_terminator(array);
+}
+
+void
+wmem_array_bzero(wmem_array_t *array)
+{
+    memset(array->buf, 0x0, array->elem_size * array->elem_count);
+}
+
 void
 wmem_array_append(wmem_array_t *array, const void *in, guint count)
 {
@@ -107,6 +132,8 @@ wmem_array_append(wmem_array_t *array, const void *in, guint count)
             count * array->elem_size);
 
     array->elem_count += count;
+
+    wmem_array_write_null_terminator(array);
 }
 
 void *
