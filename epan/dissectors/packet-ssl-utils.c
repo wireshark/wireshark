@@ -4350,6 +4350,7 @@ ssl_common_init(ssl_master_key_map_t *mk_map,
                 StringInfo *decrypted_data, StringInfo *compressed_data)
 {
     mk_map->session = g_hash_table_new(ssl_hash, ssl_equal);
+    mk_map->tickets = g_hash_table_new(ssl_hash, ssl_equal);
     mk_map->crandom = g_hash_table_new(ssl_hash, ssl_equal);
     mk_map->pre_master = g_hash_table_new(ssl_hash, ssl_equal);
     mk_map->pms = g_hash_table_new(ssl_hash, ssl_equal);
@@ -4362,6 +4363,7 @@ ssl_common_cleanup(ssl_master_key_map_t *mk_map, FILE **ssl_keylog_file,
                    StringInfo *decrypted_data, StringInfo *compressed_data)
 {
     g_hash_table_destroy(mk_map->session);
+    g_hash_table_destroy(mk_map->tickets);
     g_hash_table_destroy(mk_map->crandom);
     g_hash_table_destroy(mk_map->pre_master);
     g_hash_table_destroy(mk_map->pms);
@@ -4547,8 +4549,9 @@ ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map)
     if (!(ssl->state & (SSL_MASTER_SECRET | SSL_PRE_MASTER_SECRET)) &&
         !ssl_restore_master_key(ssl, "Session ID", FALSE,
                                 mk_map->session, &ssl->session_id) &&
-        !ssl_restore_master_key(ssl, "Session Ticket", FALSE,
-                                mk_map->session, &ssl->session_ticket) &&
+        (!ssl->session.is_session_resumed ||
+         !ssl_restore_master_key(ssl, "Session Ticket", FALSE,
+                                 mk_map->tickets, &ssl->session_ticket)) &&
         !ssl_restore_master_key(ssl, "Client Random", FALSE,
                                 mk_map->crandom, &ssl->client_random)) {
         /* how unfortunate, the master secret could not be found */
@@ -4565,8 +4568,12 @@ ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map)
                         &ssl->client_random, &ssl->master_secret);
     ssl_save_master_key("Session ID", mk_map->session,
                         &ssl->session_id, &ssl->master_secret);
-    ssl_save_master_key("Session Ticket", mk_map->session,
-                        &ssl->session_ticket, &ssl->master_secret);
+    /* Only save the new secrets if the server sent the ticket. The client
+     * ticket might have become stale. */
+    if (ssl->state & SSL_NEW_SESSION_TICKET) {
+        ssl_save_master_key("Session Ticket", mk_map->tickets,
+                            &ssl->session_ticket, &ssl->master_secret);
+    }
 } /* }}} */
 #endif /* HAVE_LIBGCRYPT */
 
@@ -5842,6 +5849,7 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
          * master key (from the first CCS), save the ticket here too. */
         ssl_save_master_key("Session Ticket", session_hash,
                             &ssl->session_ticket, &ssl->master_secret);
+        ssl->state |= SSL_NEW_SESSION_TICKET;
     }
 #endif
 } /* }}} */
