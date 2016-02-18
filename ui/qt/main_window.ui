@@ -65,6 +65,13 @@
         </spacer>
        </item>
        <item>
+        <widget class="QLabel" name="goToPacketLabel">
+         <property name="text">
+          <string>Packet:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QLineEdit" name="goToLineEdit">
          <property name="inputMask">
           <string>900000000</string>
@@ -72,14 +79,17 @@
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="goToGo">
+        <widget class="QPushButton" name="goToGo">
          <property name="text">
           <string>Go to packet</string>
+         </property>
+         <property name="default">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="goToCancel">
+        <widget class="QPushButton" name="goToCancel">
          <property name="text">
           <string>Cancel</string>
          </property>

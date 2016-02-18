@@ -55,6 +55,12 @@ PreferenceEditorFrame::PreferenceEditorFrame(QWidget *parent) :
     new_range_(NULL)
 {
     ui->setupUi(this);
+
+#ifdef Q_OS_MAC
+    foreach (QWidget *w, findChildren<QWidget *>()) {
+        w->setAttribute(Qt::WA_MacSmallSize, true);
+    }
+#endif
 }
 
 PreferenceEditorFrame::~PreferenceEditorFrame()
@@ -72,10 +78,10 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
         return;
     }
 
-    ui->modulePreferencesToolButton->setText(tr("Open %1 preferences").arg(module_->title));
+    ui->modulePreferencesToolButton->setText(tr("Open %1 preferences…").arg(module_->title));
 
     pref_stash(pref_, NULL);
-    ui->preferenceTitleLabel->setText(pref->title);
+    ui->preferenceTitleLabel->setText(QString("%1:").arg(pref->title));
 
     // Convert the pref description from plain text to rich text.
     QString description;

@@ -1467,7 +1467,7 @@ void MainWindow::showAccordionFrame(AccordionFrame *show_frame, bool toggle)
     QList<AccordionFrame *>frame_list = QList<AccordionFrame *>()
             << main_ui_->goToFrame << main_ui_->searchFrame
             << main_ui_->addressEditorFrame << main_ui_->columnEditorFrame
-            << main_ui_->preferenceEditorFrame;
+            << main_ui_->preferenceEditorFrame << main_ui_->filterExpressionFrame;
 
     frame_list.removeAll(show_frame);
     foreach (AccordionFrame *af, frame_list) af->animatedHide();

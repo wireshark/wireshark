@@ -7,17 +7,17 @@
     <x>0</x>
     <y>0</y>
     <width>1018</width>
-    <height>31</height>
+    <height>34</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Frame</string>
   </property>
   <property name="frameShape">
-   <enum>QFrame::StyledPanel</enum>
+   <enum>QFrame::NoFrame</enum>
   </property>
   <property name="frameShadow">
-   <enum>QFrame::Raised</enum>
+   <enum>QFrame::Plain</enum>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,0,0,0,0,0,0,0,0,0,2,0">
    <property name="topMargin">
@@ -29,7 +29,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Title</string>
+      <string>Title:</string>
      </property>
     </widget>
    </item>
@@ -52,7 +52,7 @@
    <item>
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Type</string>
+      <string>Type:</string>
      </property>
     </widget>
    </item>
@@ -75,7 +75,7 @@
    <item>
     <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>Fields</string>
+      <string>Fields:</string>
      </property>
     </widget>
    </item>
@@ -98,7 +98,7 @@
    <item>
     <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>Occurrence</string>
+      <string>Occurrence:</string>
      </property>
     </widget>
    </item>

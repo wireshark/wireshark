@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>FilterExpressionFrame</class>
- <widget class="QFrame" name="FilterExpressionFrame">
+ <widget class="AccordionFrame" name="FilterExpressionFrame">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>745</width>
-    <height>29</height>
+    <height>34</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -134,6 +134,12 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>AccordionFrame</class>
+   <extends>QFrame</extends>
+   <header>accordion_frame.h</header>
+   <container>1</container>
+  </customwidget>
   <customwidget>
    <class>SyntaxLineEdit</class>
    <extends>QLineEdit</extends>
