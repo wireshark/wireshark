@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>PreferenceEditorFrame</class>
- <widget class="QFrame" name="PreferenceEditorFrame">
+ <widget class="AccordionFrame" name="PreferenceEditorFrame">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>458</width>
-    <height>29</height>
+    <height>34</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -70,7 +70,7 @@
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>40</width>
+       <width>20</width>
        <height>13</height>
       </size>
      </property>
@@ -92,6 +92,12 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>AccordionFrame</class>
+   <extends>QFrame</extends>
+   <header>accordion_frame.h</header>
+   <container>1</container>
+  </customwidget>
   <customwidget>
    <class>SyntaxLineEdit</class>
    <extends>QLineEdit</extends>

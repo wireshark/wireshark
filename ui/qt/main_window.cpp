@@ -341,6 +341,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ntb->setIconSize(QSize(24, 24));
 #endif // QT_MACEXTRAS_LIB
 
+    main_ui_->goToPacketLabel->setAttribute(Qt::WA_MacSmallSize, true);
     main_ui_->goToLineEdit->setAttribute(Qt::WA_MacSmallSize, true);
     main_ui_->goToGo->setAttribute(Qt::WA_MacSmallSize, true);
     main_ui_->goToCancel->setAttribute(Qt::WA_MacSmallSize, true);

@@ -51,7 +51,6 @@ AddressEditorFrame::AddressEditorFrame(QWidget *parent) :
         w->setAttribute(Qt::WA_MacSmallSize, true);
     }
 #endif
-
 }
 
 AddressEditorFrame::~AddressEditorFrame()

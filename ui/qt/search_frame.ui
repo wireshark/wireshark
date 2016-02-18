@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1026</width>
-    <height>30</height>
+    <height>34</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -136,14 +136,17 @@
     </widget>
    </item>
    <item>
-    <widget class="QToolButton" name="findButton">
+    <widget class="QPushButton" name="findButton">
      <property name="text">
       <string>Find</string>
+     </property>
+     <property name="default">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QToolButton" name="cancelButton">
+    <widget class="QPushButton" name="cancelButton">
      <property name="text">
       <string>Cancel</string>
      </property>
@@ -164,5 +167,6 @@
    <header>syntax_line_edit.h</header>
   </customwidget>
  </customwidgets>
+ <resources/>
  <connections/>
 </ui>
