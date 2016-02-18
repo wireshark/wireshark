@@ -230,6 +230,7 @@ typedef struct _StringInfo {
 #define SSL_CLIENT_EXTENDED_MASTER_SECRET (1<<7)
 #define SSL_SERVER_EXTENDED_MASTER_SECRET (1<<8)
 #define SSL_SERVER_HELLO_DONE   (1<<9)
+#define SSL_NEW_SESSION_TICKET  (1<<10)
 
 #define SSL_EXTENDED_MASTER_SECRET_MASK (SSL_CLIENT_EXTENDED_MASTER_SECRET|SSL_SERVER_EXTENDED_MASTER_SECRET)
 
@@ -424,9 +425,8 @@ typedef struct ssl_common_options {
 
 /** Map from something to a (pre-)master secret */
 typedef struct {
-    GHashTable *session;    /* Session ID/Ticket to master secret. It uses the
-                               observation that Session IDs are 1-32 bytes and
-                               tickets are much longer */
+    GHashTable *session;    /* Session ID (1-32 bytes) to master secret. */
+    GHashTable *tickets;    /* Session Ticket to master secret. */
     GHashTable *crandom;    /* Client Random to master secret */
     GHashTable *pre_master; /* First 8 bytes of encrypted pre-master secret to
                                pre-master secret */
