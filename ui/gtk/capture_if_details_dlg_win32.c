@@ -35,7 +35,7 @@
 
 #include "wsutil/str_util.h"
 
-#include "../file.h"
+#include "../../file.h"
 #include "ui/capture.h"
 
 #include "simple_dialog.h"
