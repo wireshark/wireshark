@@ -25,9 +25,6 @@
 #include <epan/params.h>
 #include "ws_symbol_export.h"
 
-/* PPP options */
-extern gboolean ppp_vj_decomp;/* FALSE = No VJ header decompression,
-                                 TRUE  = Decompress VJ */
 extern
 gboolean capture_ppp_hdlc(const guchar *, int, int, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_);
 

@@ -469,8 +469,6 @@ const enum_val_t fcs_options[] = {
     {NULL,     NULL,     -1}
 };
 
-gboolean ppp_vj_decomp = TRUE; /* Default to VJ header decompression */
-
 /*
  * For Default Protocol ID negotiated with PPPMuxCP. We need to
  * this ID so that if the first subframe doesn't have protocol
@@ -5951,10 +5949,7 @@ proto_register_ppp(void)
         "PPP Frame Checksum Type",
         "The type of PPP frame checksum (none, 16-bit, 32-bit)",
         &ppp_fcs_decode, fcs_options, FALSE);
-    prefs_register_bool_preference(ppp_module, "decompress_vj",
-        "Decompress Van Jacobson-compressed frames",
-        "Whether Van Jacobson-compressed PPP frames should be decompressed",
-        &ppp_vj_decomp);
+    prefs_register_obsolete_preference(ppp_module, "decompress_vj");
     prefs_register_uint_preference(ppp_module, "default_proto_id",
         "PPPMuxCP Default PID (in hex)",
         "Default Protocol ID to be used for PPPMuxCP",
