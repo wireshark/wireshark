@@ -2945,7 +2945,7 @@ have_inet_pton=no)
 if test "$have_inet_pton" = no; then
   INET_PTON_LO="inet_pton.lo"
 else
-  AC_DEFINE(HAVE_INET_NTOP, 1,
+  AC_DEFINE(HAVE_INET_PTON, 1,
     [Define to 1 if you have the `inet_pton' function.])
   INET_PTON_LO=""
 fi

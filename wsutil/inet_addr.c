@@ -36,7 +36,7 @@ _inet_pton(int af, const gchar *src, gpointer dst)
 }
 
 const gchar *
-ws_inet_ntop4(gconstpointer src, gchar *dst, gsize dst_size)
+ws_inet_ntop4(gconstpointer src, gchar *dst, guint dst_size)
 {
     return inet_ntop(AF_INET, src, dst, dst_size);
 }
@@ -48,7 +48,7 @@ ws_inet_pton4(const gchar *src, guint32 *dst)
 }
 
 const gchar *
-ws_inet_ntop6(gconstpointer src, gchar *dst, gsize dst_size)
+ws_inet_ntop6(gconstpointer src, gchar *dst, guint dst_size)
 {
     return inet_ntop(AF_INET6, src, dst, dst_size);
 }

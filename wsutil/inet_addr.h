@@ -29,13 +29,13 @@
 #include <epan/ipv6.h>
 
 WS_DLL_PUBLIC const gchar *
-ws_inet_ntop4(gconstpointer src, gchar *dst, gsize dst_size);
+ws_inet_ntop4(gconstpointer src, gchar *dst, guint dst_size);
 
 WS_DLL_PUBLIC gboolean
 ws_inet_pton4(const gchar *src, guint32 *dst);
 
 WS_DLL_PUBLIC const gchar *
-ws_inet_ntop6(gconstpointer src, gchar *dst, gsize dst_size);
+ws_inet_ntop6(gconstpointer src, gchar *dst, guint dst_size);
 
 WS_DLL_PUBLIC gboolean
 ws_inet_pton6(const gchar *src, struct e_in6_addr *dst);
