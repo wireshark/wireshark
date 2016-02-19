@@ -1131,9 +1131,7 @@ int dissect_pvfs_uint64(tvbuff_t *tvb, proto_tree *tree, int offset,
 {
 	guint64 val;
 
-	val = ((guint64) tvb_get_letohl(tvb, offset + 4)) << 32 |
-		tvb_get_letohl(tvb, offset);
-
+	val = tvb_get_letoh64(tvb, offset);
 	proto_tree_add_uint64(tree, hfindex, tvb, offset, 8, val);
 
 	if (pvalue)
