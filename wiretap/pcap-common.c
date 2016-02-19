@@ -1540,8 +1540,6 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 	int phdr_len = 0;
 	guint size;
 
-	phdr->pkt_encap = wtap_encap;
-
 	switch (wtap_encap) {
 
 	case WTAP_ENCAP_ATM_PDUS:

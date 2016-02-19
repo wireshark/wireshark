@@ -198,7 +198,6 @@ static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
     ts -= KUnixTimeBase;
 
     phdr->rec_type = REC_TYPE_PACKET;
-    phdr->pkt_encap = wth->file_encap;
     phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     phdr->ts.secs = (guint)(ts / 1000000);
     phdr->ts.nsecs = (guint)((ts % 1000000) * 1000);
