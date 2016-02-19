@@ -37,8 +37,6 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 	wimaxasncp \
 	wimaxmacphy
 
-plugindir = @plugindir@
-
 EXTRA_DIST = \
 	$(_CUSTOM_EXTRA_DIST_) \
 	Makefile.common.inc \

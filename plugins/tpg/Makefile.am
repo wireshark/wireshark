@@ -22,8 +22,7 @@
 
 include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
-
-plugindir = @plugindir@
+include ../Makefile.am.inc
 
 plugin_LTLIBRARIES = tpg.la
 
@@ -33,13 +32,7 @@ tpg_la_SOURCES = \
 	http-parser.h \
 	packet-http.c
 
-tpg_la_LDFLAGS = -module -avoid-version
-tpg_la_LIBADD = @PLUGIN_LIBS@
-
-# Libs must be cleared, or else libtool won't create a shared module.
-# If your module needs to be linked against any particular libraries,
-# add them here.
-LIBS =
+tpg_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
 CLEANFILES = \
 	tpg \
