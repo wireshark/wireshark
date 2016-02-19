@@ -86,12 +86,24 @@
          <property name="default">
           <bool>true</bool>
          </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>27</height>
+          </size>
+         </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="goToCancel">
          <property name="text">
           <string>Cancel</string>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>27</height>
+          </size>
          </property>
         </widget>
        </item>
