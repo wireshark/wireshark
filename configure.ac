@@ -682,29 +682,26 @@ linux*)
 		# was requested by the user.
 		#
 		if test x$libnl_version = "xany" -o x$libnl_version = "x3"; then
-			PKG_WIRESHARK_CHECK_SYSTEM_MODULES(LIBNL3, [libnl-route-3.0 >= 3.0 libnl-genl-3.0] >= 3.0, [have_libnl3=yes], [have_libnl3=no])
+			PKG_CHECK_EXISTS([libnl-3.0 libnl-route-3.0 libnl-genl-3.0], [have_libnl3=yes], [have_libnl3=no])
 		fi
 		if test x$libnl_version = "xany" -o x$libnl_version = "x2"; then
-			PKG_WIRESHARK_CHECK_SYSTEM_MODULES(LIBNL2, libnl-2.0 >= 2.0, [have_libnl2=yes], [have_libnl2=no])
+			PKG_CHECK_EXISTS([libnl-2.0], [have_libnl2=yes], [have_libnl2=no])
 		fi
 		if test x$libnl_version = "xany" -o x$libnl_version = "x1"; then
-			PKG_WIRESHARK_CHECK_SYSTEM_MODULES(LIBNL1, libnl-1 >= 1.0, [have_libnl1=yes], [have_libnl1=no])
+			PKG_CHECK_EXISTS([libnl-1], [have_libnl1=yes], [have_libnl1=no])
 		fi
 		if (test "${have_libnl3}" = "yes"); then
-			WS_CFLAGS="$WS_CFLAGS $LIBNL3_CFLAGS"
-			LIBS="$LIBS $LIBNL3_LIBS"
+			PKG_WIRESHARK_CHECK_SYSTEM_MODULES([LIBNL], [libnl-3.0 libnl-route-3.0 libnl-genl-3.0])
 			AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
 			AC_DEFINE(HAVE_LIBNL3, 1, [libnl version 3])
 			libnl_message="yes (v3)"
 		elif (test "${have_libnl2}" = "yes"); then
-			WS_CFLAGS="$WS_CFLAGS $LIBNL2_CFLAGS"
-			LIBS="$LIBS $LIBNL2_LIBS"
+			PKG_WIRESHARK_CHECK_SYSTEM_MODULES([LIBNL], [libnl-2.0])
 			AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
 			AC_DEFINE(HAVE_LIBNL2, 1, [libnl version 2])
 			libnl_message="yes (v2)"
 		elif (test "${have_libnl1}" = "yes"); then
-			WS_CFLAGS="$WS_CFLAGS $LIBNL1_CFLAGS"
-			LIBS="$LIBS $LIBNL1_LIBS"
+			PKG_WIRESHARK_CHECK_SYSTEM_MODULES([LIBNL], [libnl-1])
 			AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
 			AC_DEFINE(HAVE_LIBNL1, 1, [libnl version 1])
 			libnl_message="yes (v1)"

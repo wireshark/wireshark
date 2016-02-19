@@ -399,7 +399,8 @@ wireshark_common_ldadd = \
 	@COREFOUNDATION_FRAMEWORKS@	\
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
-	@LIBSMI_LDFLAGS@
+	@LIBSMI_LDFLAGS@		\
+	@LIBNL_LIBS@
 
 if HAVE_Qt
 wireshark_SOURCES = $(WIRESHARK_COMMON_SRC) wireshark-qt.cpp
@@ -628,7 +629,8 @@ dumpcap_LDADD = \
 	@NSL_LIBS@			\
 	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
 	@COREFOUNDATION_FRAMEWORKS@	\
-	@LIBCAP_LIBS@
+	@LIBCAP_LIBS@			\
+	@LIBNL_LIBS@
 
 #
 # Build the version string
