@@ -1399,7 +1399,7 @@ dissect_udvm_reference_operand_memory(guint8 *buff,guint operand_address, guint1
     }
 
     if (offset >= UDVM_MEMORY_SIZE || *result_dest >= UDVM_MEMORY_SIZE - 1 )
-        THROW(ReportedBoundsError);
+        return 0;
 
     return offset;
 }
@@ -1988,6 +1988,8 @@ execute_next_instruction:
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
+        if (next_operand_address < operand_address)
+            goto decompression_failure;
         if (show_instr_detail_level == 2 ) {
             proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
                                 "Addr: %u      operand_1 %u", operand_address, operand_1);
@@ -2030,6 +2032,8 @@ execute_next_instruction:
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
+        if (next_operand_address < operand_address)
+            goto decompression_failure;
         if (show_instr_detail_level == 2 ) {
             proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
                                 "Addr: %u      operand_1 %u", operand_address, operand_1);
@@ -2072,6 +2076,8 @@ execute_next_instruction:
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
+        if (next_operand_address < operand_address)
+            goto decompression_failure;
         if (show_instr_detail_level == 2 ) {
             proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
                                 "Addr: %u      operand_1 %u", operand_address, operand_1);
@@ -2105,6 +2111,8 @@ execute_next_instruction:
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
+        if (next_operand_address < operand_address)
+            goto decompression_failure;
         if (show_instr_detail_level == 2 ) {
             proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
                                 "Addr: %u      operand_1 %u", operand_address, operand_1);
@@ -2146,6 +2154,8 @@ execute_next_instruction:
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
+        if (next_operand_address < operand_address)
+            goto decompression_failure;
         if (show_instr_detail_level == 2 ) {
             proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
                                 "Addr: %u      operand_1 %u", operand_address, operand_1);
@@ -2186,6 +2196,8 @@ execute_next_instruction:
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
+        if (next_operand_address < operand_address)
+            goto decompression_failure;
         if (show_instr_detail_level == 2 ) {
             proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
                                 "Addr: %u      operand_1 %u", operand_address, operand_1);
@@ -2226,6 +2238,8 @@ execute_next_instruction:
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
+        if (next_operand_address < operand_address)
+            goto decompression_failure;
         if (show_instr_detail_level == 2 ) {
             proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
                                 "Addr: %u      operand_1 %u", operand_address, operand_1);
@@ -2267,6 +2281,8 @@ execute_next_instruction:
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
+        if (next_operand_address < operand_address)
+            goto decompression_failure;
         if (show_instr_detail_level == 2 ) {
             proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
                                 "Addr: %u      operand_1 %u", operand_address, operand_1);
@@ -2315,6 +2331,8 @@ execute_next_instruction:
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
+        if (next_operand_address < operand_address)
+            goto decompression_failure;
         if (show_instr_detail_level == 2 ) {
             proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
                                 "Addr: %u      operand_1 %u", operand_address, operand_1);
@@ -2365,6 +2383,8 @@ execute_next_instruction:
         /* $operand_1*/
         operand_address = current_address + 1;
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &operand_1, &result_dest);
+        if (next_operand_address < operand_address)
+            goto decompression_failure;
         if (show_instr_detail_level == 2 ) {
             proto_tree_add_uint_format(udvm_tree, hf_udvm_operand_1, bytecode_tvb, offset, (next_operand_address-operand_address), operand_1,
                                 "Addr: %u      operand_1 %u", operand_address, operand_1);
@@ -2453,6 +2473,8 @@ execute_next_instruction:
 
         /* $destination */
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &ref_destination, &result_dest);
+        if (next_operand_address < operand_address)
+            goto decompression_failure;
         if (print_level_1 ) {
             proto_tree_add_uint_format(udvm_tree, hf_udvm_ref_dest, bytecode_tvb, offset, (next_operand_address-operand_address), ref_destination,
                                 "Addr: %u      $destination %u", operand_address, ref_destination);
@@ -2836,6 +2858,8 @@ execute_next_instruction:
 
         /* $destination */
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &ref_destination, &result_dest);
+        if (next_operand_address < operand_address)
+            goto decompression_failure;
         if (show_instr_detail_level == 2 ) {
             proto_tree_add_uint_format(udvm_tree, hf_udvm_ref_dest, bytecode_tvb, offset, (next_operand_address-operand_address), ref_destination,
                                 "Addr: %u      destination %u", operand_address, ref_destination);
@@ -2932,6 +2956,8 @@ execute_next_instruction:
 
         /* $destination */
         next_operand_address = dissect_udvm_reference_operand_memory(buff, operand_address, &ref_destination, &result_dest);
+        if (next_operand_address < operand_address)
+            goto decompression_failure;
         if (show_instr_detail_level == 2 ) {
             proto_tree_add_uint_format(udvm_tree, hf_udvm_ref_dest, bytecode_tvb, offset, (next_operand_address-operand_address), ref_destination,
                                 "Addr: %u      $destination %u", operand_address, ref_destination);
@@ -4401,7 +4427,6 @@ decompression_failure:
     proto_tree_add_expert_format(udvm_tree, pinfo, &ei_sigcomp_decompression_failure, bytecode_tvb, 0, -1,
                         "DECOMPRESSION FAILURE: %s", val_to_str(result_code, result_code_vals,"Unknown (%u)"));
     g_free(out_buff);
-    THROW(ReportedBoundsError);
     return NULL;
 
 }
