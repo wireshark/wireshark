@@ -125,6 +125,8 @@ static int hf_rtps_info_src_unused              = -1;
 
 static int hf_rtps_parameter_id                 = -1;
 static int hf_rtps_parameter_id_v2              = -1;
+static int hf_rtps_parameter_id_toc             = -1;
+static int hf_rtps_parameter_id_rti             = -1;
 static int hf_rtps_parameter_length             = -1;
 static int hf_rtps_param_topic_name             = -1;
 static int hf_rtps_param_strength               = -1;
@@ -717,24 +719,6 @@ static const value_string parameter_id_v2_vals[] = {
   { PID_STATUS_INFO,                    "PID_STATUS_INFO" },
   { PID_TYPE_CONSISTENCY,               "PID_TYPE_CONSISTENCY" },
 
-  /* Vendor specific: RTI */
-  { PID_PRODUCT_VERSION,                "PID_PRODUCT_VERSION" },
-  { PID_PLUGIN_PROMISCUITY_KIND,        "PID_PLUGIN_PROMISCUITY_KIND" },
-  { PID_ENTITY_VIRTUAL_GUID,            "PID_ENTITY_VIRTUAL_GUID" },
-  { PID_SERVICE_KIND,                   "PID_SERVICE_KIND" },
-  { PID_TYPECODE_RTPS2,                 "PID_TYPECODE" },
-  { PID_DISABLE_POSITIVE_ACKS,          "PID_DISABLE_POSITIVE_ACKS" },
-  { PID_LOCATOR_FILTER_LIST,            "PID_LOCATOR_FILTER_LIST" },
-  { PID_ROLE_NAME,                      "PID_ROLE_NAME"},
-  { PID_ACK_KIND,                       "PID_ACK_KIND" },
-  { PID_PEER_HOST_EPOCH,                "PID_PEER_HOST_EPOCH" },
-  { PID_TRANSPORT_INFO_LIST,            "PID_TRANSPORT_INFO_LIST" },
-  { PID_DIRECT_COMMUNICATION,           "PID_DIRECT_COMMUNICATION" },
-  { PID_EXTENDED,                       "PID_EXTENDED" },
-  { PID_TYPE_OBJECT,                    "PID_TYPE_OBJECT" },
-  { PID_EXPECTS_VIRTUAL_HB,             "PID_EXPECTS_VIRTUAL_HB" },
-  { PID_DOMAIN_ID,                      "PID_DOMAIN_ID" },
-
   /* The following PID are deprecated */
   { PID_DEADLINE_OFFERED,               "PID_DEADLINE_OFFERED [deprecated]" },
   { PID_PERSISTENCE,                    "PID_PERSISTENCE [deprecated]" },
@@ -755,6 +739,32 @@ static const value_string parameter_id_v2_vals[] = {
   { PID_DESTINATION_ORDER_OFFERED,      "PID_DESTINATION_ORDER_OFFERED [deprecated]" },
   { PID_LATENCY_BUDGET_OFFERED,         "PID_LATENCY_BUDGET_OFFERED [deprecated]" },
   { PID_PARTITION_OFFERED,              "PID_PARTITION_OFFERED [deprecated]" },
+  { PID_EXTENDED,                       "PID_EXTENDED" },
+  { 0, NULL }
+};
+
+static const value_string parameter_id_rti_vals[] = {
+  /* Vendor specific: RTI */
+  { PID_PRODUCT_VERSION,                "PID_PRODUCT_VERSION" },
+  { PID_PLUGIN_PROMISCUITY_KIND,        "PID_PLUGIN_PROMISCUITY_KIND" },
+  { PID_ENTITY_VIRTUAL_GUID,            "PID_ENTITY_VIRTUAL_GUID" },
+  { PID_SERVICE_KIND,                   "PID_SERVICE_KIND" },
+  { PID_TYPECODE_RTPS2,                 "PID_TYPECODE" },
+  { PID_DISABLE_POSITIVE_ACKS,          "PID_DISABLE_POSITIVE_ACKS" },
+  { PID_LOCATOR_FILTER_LIST,            "PID_LOCATOR_FILTER_LIST" },
+  { PID_ROLE_NAME,                      "PID_ROLE_NAME"},
+  { PID_ACK_KIND,                       "PID_ACK_KIND" },
+  { PID_PEER_HOST_EPOCH,                "PID_PEER_HOST_EPOCH" },
+  { PID_TRANSPORT_INFO_LIST,            "PID_TRANSPORT_INFO_LIST" },
+  { PID_DIRECT_COMMUNICATION,           "PID_DIRECT_COMMUNICATION" },
+  { PID_TYPE_OBJECT,                    "PID_TYPE_OBJECT" },
+  { PID_EXPECTS_VIRTUAL_HB,             "PID_EXPECTS_VIRTUAL_HB" },
+  { PID_DOMAIN_ID,                      "PID_DOMAIN_ID" },
+  { 0, NULL }
+};
+static const value_string parameter_id_toc_vals[] = {
+  /* Vendor specific: Twin Oaks Computing */
+  { PID_TYPECODE_RTPS2,                 "PID_TYPECODE_RTPS2" },
   { 0, NULL }
 };
 
@@ -4610,7 +4620,7 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
   gint       original_offset = offset;
   gboolean   dissect_return_value = FALSE;
   type_mapping * type_mapping_object = NULL;
-
+  const gchar * param_name = NULL;
   if (!pinfo->fd->flags.visited)
     type_mapping_object = wmem_new(wmem_file_scope(), type_mapping);
 
@@ -4638,10 +4648,35 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
 
       proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id, tvb, offset, 2, parameter);
     } else {
-      rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
-                        ett_rtps_parameter, &param_item, val_to_str(parameter, parameter_id_v2_vals, "Unknown (0x%04x)"));
+      switch(vendor_id) {
+        case RTPS_VENDOR_RTI_DDS: {
+          param_name = try_val_to_str(parameter, parameter_id_rti_vals);
+          if (param_name != NULL) {
+            rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
+                ett_rtps_parameter, &param_item, val_to_str(parameter, parameter_id_rti_vals, "Unknown (0x%04x)"));
 
-      proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_v2, tvb, offset, 2, parameter);
+            proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_rti, tvb, offset, 2, parameter);
+            break;
+          }
+        }
+        case RTPS_VENDOR_TOC: {
+          param_name = try_val_to_str(parameter, parameter_id_toc_vals);
+          if (param_name != NULL) {
+              rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
+                  ett_rtps_parameter, &param_item, val_to_str(parameter, parameter_id_toc_vals, "Unknown (0x%04x)"));
+
+              proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_toc, tvb, offset, 2, parameter);
+              break;
+          }
+        }
+        default: {
+          rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
+              ett_rtps_parameter, &param_item, val_to_str(parameter, parameter_id_v2_vals, "Unknown (0x%04x)"));
+          proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_v2, tvb, offset, 2, parameter);
+          break;
+        }
+      }
+
     }
     offset += 2;
 
@@ -4669,21 +4704,18 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
 
     /* This way, we can include vendor specific dissections without modifying the main ones */
     switch (vendor_id) {
-    case RTPS_VENDOR_RTI_DDS: {
-      dissect_return_value = dissect_parameter_sequence_rti(rtps_parameter_tree, pinfo, tvb,
-        param_item, param_len_item, offset,
-        little_endian, param_length, parameter);
-      break;
-                }
-    case RTPS_VENDOR_TOC: {
-      dissect_return_value = dissect_parameter_sequence_toc(rtps_parameter_tree, pinfo, tvb,
-        param_item, param_len_item, offset,
-        little_endian, param_length, parameter);
-      break;
-                }
-    default: {
-
-         }
+      case RTPS_VENDOR_RTI_DDS: {
+        dissect_return_value = dissect_parameter_sequence_rti(rtps_parameter_tree, pinfo, tvb,
+            param_item, param_len_item, offset, little_endian, param_length, parameter);
+        break;
+      }
+      case RTPS_VENDOR_TOC: {
+        dissect_return_value = dissect_parameter_sequence_toc(rtps_parameter_tree, pinfo, tvb,
+            param_item, param_len_item, offset, little_endian, param_length, parameter);
+        break;
+      }
+      default:
+        break;
     }
 
     if (!dissect_return_value) {
@@ -8372,6 +8404,28 @@ void proto_register_rtps(void) {
         FT_UINT16,
         BASE_HEX,
         VALS(parameter_id_v2_vals),
+        0,
+        "Parameter Id",
+        HFILL }
+    },
+
+    { &hf_rtps_parameter_id_toc, {
+        "parameterId",
+        "rtps.param.id",
+        FT_UINT16,
+        BASE_HEX,
+        VALS(parameter_id_toc_vals),
+        0,
+        "Parameter Id",
+        HFILL }
+    },
+
+    { &hf_rtps_parameter_id_rti, {
+        "parameterId",
+        "rtps.param.id",
+        FT_UINT16,
+        BASE_HEX,
+        VALS(parameter_id_rti_vals),
         0,
         "Parameter Id",
         HFILL }
