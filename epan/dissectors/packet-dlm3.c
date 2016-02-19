@@ -195,28 +195,27 @@ static int hf_dlm3_m_parent_lkid  = -1;
 static int hf_dlm3_m_parent_remid = -1;
 
 /* bit fields for dlm_message::exflags */
-#define DLM3_DEFINE_HF_EXFLAGS(NAME)            \
-  static int hf_dlm3_##NAME      = -1;          \
-  static int hf_dlm3_##NAME##_noqueue     = -1; \
-  static int hf_dlm3_##NAME##_cancel      = -1; \
-  static int hf_dlm3_##NAME##_convert     = -1; \
-  static int hf_dlm3_##NAME##_valblk      = -1; \
-  static int hf_dlm3_##NAME##_quecvt      = -1; \
-  static int hf_dlm3_##NAME##_ivvalblk    = -1; \
-  static int hf_dlm3_##NAME##_convdeadlk  = -1; \
-  static int hf_dlm3_##NAME##_persistent  = -1; \
-  static int hf_dlm3_##NAME##_nodlckwt    = -1; \
-  static int hf_dlm3_##NAME##_nodlckblk   = -1; \
-  static int hf_dlm3_##NAME##_expedite    = -1; \
-  static int hf_dlm3_##NAME##_noqueuebast = -1; \
-  static int hf_dlm3_##NAME##_headque     = -1; \
-  static int hf_dlm3_##NAME##_noorder     = -1; \
-  static int hf_dlm3_##NAME##_orphan      = -1; \
-  static int hf_dlm3_##NAME##_altpr       = -1; \
-  static int hf_dlm3_##NAME##_altcw       = -1; \
-  static int hf_dlm3_##NAME##_forceunlock = -1; \
-  static int hf_dlm3_##NAME##_timeout     = -1
-DLM3_DEFINE_HF_EXFLAGS(m_exflags);
+
+static int hf_dlm3_m_exflags             = -1;
+static int hf_dlm3_m_exflags_noqueue     = -1;
+static int hf_dlm3_m_exflags_cancel      = -1;
+static int hf_dlm3_m_exflags_convert     = -1;
+static int hf_dlm3_m_exflags_valblk      = -1;
+static int hf_dlm3_m_exflags_quecvt      = -1;
+static int hf_dlm3_m_exflags_ivvalblk    = -1;
+static int hf_dlm3_m_exflags_convdeadlk  = -1;
+static int hf_dlm3_m_exflags_persistent  = -1;
+static int hf_dlm3_m_exflags_nodlckwt    = -1;
+static int hf_dlm3_m_exflags_nodlckblk   = -1;
+static int hf_dlm3_m_exflags_expedite    = -1;
+static int hf_dlm3_m_exflags_noqueuebast = -1;
+static int hf_dlm3_m_exflags_headque     = -1;
+static int hf_dlm3_m_exflags_noorder     = -1;
+static int hf_dlm3_m_exflags_orphan      = -1;
+static int hf_dlm3_m_exflags_altpr       = -1;
+static int hf_dlm3_m_exflags_altcw       = -1;
+static int hf_dlm3_m_exflags_forceunlock = -1;
+static int hf_dlm3_m_exflags_timeout     = -1;
 
 /* bit fields for dlm_message::sbflags */
 static int hf_dlm3_m_sbflags             = -1;
@@ -225,11 +224,10 @@ static int hf_dlm3_m_sbflags_valnotvalid = -1;
 static int hf_dlm3_m_sbflags_altmode     = -1;
 
 /* bit fields for dlm_message::flags */
-#define DLM3_DEFINE_HF_FLAGS(NAME)              \
-  static int hf_dlm3_##NAME          = -1;      \
-  static int hf_dlm3_##NAME##_user   = -1;      \
-  static int hf_dlm3_##NAME##_orphan = -1
-DLM3_DEFINE_HF_FLAGS(m_flags);
+
+static int hf_dlm3_m_flags          = -1;
+static int hf_dlm3_m_flags_user     = -1;
+static int hf_dlm3_m_flags_orphan   = -1;
 
 static int hf_dlm3_m_lvbseq       = -1;
 static int hf_dlm3_m_hash         = -1;
@@ -239,11 +237,9 @@ static int hf_dlm3_m_rqmode       = -1;
 static int hf_dlm3_m_bastmode     = -1;
 
 /* bit fields for dlm_message::asts */
-#define DLM3_DEFINE_HF_ASTS(NAME)                       \
-  static int hf_dlm3_##NAME##_asts         = -1;        \
-  static int hf_dlm3_##NAME##_asts_comp    = -1;        \
-  static int hf_dlm3_##NAME##_asts_bast    = -1
-DLM3_DEFINE_HF_ASTS(m);
+static int hf_dlm3_m_asts         = -1;
+static int hf_dlm3_m_asts_comp    = -1;
+static int hf_dlm3_m_asts_bast    = -1;
 
 static int hf_dlm3_m_result       = -1;
 static int hf_dlm3_m_extra        = -1;
@@ -257,9 +253,28 @@ static int hf_dlm3_rc_seq_reply = -1;
 static int hf_dlm3_rc_buf       = -1;
 
 /* fields for struct rcom_config(rf) */
-static int hf_dlm3_rf_lvblen    = -1;
-DLM3_DEFINE_HF_EXFLAGS(rf_lsflags);
-static int hf_dlm3_rf_unused    = -1;
+static int hf_dlm3_rf_lvblen              = -1;
+static int hf_dlm3_rf_lsflags             = -1;
+static int hf_dlm3_rf_lsflags_noqueue     = -1;
+static int hf_dlm3_rf_lsflags_cancel      = -1;
+static int hf_dlm3_rf_lsflags_convert     = -1;
+static int hf_dlm3_rf_lsflags_valblk      = -1;
+static int hf_dlm3_rf_lsflags_quecvt      = -1;
+static int hf_dlm3_rf_lsflags_ivvalblk    = -1;
+static int hf_dlm3_rf_lsflags_convdeadlk  = -1;
+static int hf_dlm3_rf_lsflags_persistent  = -1;
+static int hf_dlm3_rf_lsflags_nodlckwt    = -1;
+static int hf_dlm3_rf_lsflags_nodlckblk   = -1;
+static int hf_dlm3_rf_lsflags_expedite    = -1;
+static int hf_dlm3_rf_lsflags_noqueuebast = -1;
+static int hf_dlm3_rf_lsflags_headque     = -1;
+static int hf_dlm3_rf_lsflags_noorder     = -1;
+static int hf_dlm3_rf_lsflags_orphan      = -1;
+static int hf_dlm3_rf_lsflags_altpr       = -1;
+static int hf_dlm3_rf_lsflags_altcw       = -1;
+static int hf_dlm3_rf_lsflags_forceunlock = -1;
+static int hf_dlm3_rf_lsflags_timeout     = -1;
+static int hf_dlm3_rf_unused              = -1;
 
 /* fields for struct rcom_status(rs) */
 static int hf_dlm3_rs_flags      = -1;
@@ -268,25 +283,48 @@ static int hf_dlm3_rs_unused1    = -1;
 static int hf_dlm3_rs_unused2    = -1;
 
 /* fields for struct rcom_lock(rl) */
-static int hf_dlm3_rl_ownpid        = -1;
-static int hf_dlm3_rl_lkid          = -1;
-static int hf_dlm3_rl_remid         = -1;
-static int hf_dlm3_rl_parent_lkid   = -1;
-static int hf_dlm3_rl_parent_remid  = -1;
-DLM3_DEFINE_HF_EXFLAGS(rl_exflags);
-DLM3_DEFINE_HF_FLAGS(rl_flags);
-static int hf_dlm3_rl_lvbseq        = -1;
-static int hf_dlm3_rl_result        = -1;
-static int hf_dlm3_rl_rqmode        = -1;
-static int hf_dlm3_rl_grmode        = -1;
-static int hf_dlm3_rl_status        = -1;
-DLM3_DEFINE_HF_ASTS(rl);
-static int hf_dlm3_rl_wait_type     = -1;
-static int hf_dlm3_rl_namelen       = -1;
-static int hf_dlm3_rl_name          = -1;
-static int hf_dlm3_rl_name_contents = -1;
-static int hf_dlm3_rl_name_padding  = -1;
-static int hf_dlm3_rl_lvb           = -1;
+static int hf_dlm3_rl_ownpid              = -1;
+static int hf_dlm3_rl_lkid                = -1;
+static int hf_dlm3_rl_remid               = -1;
+static int hf_dlm3_rl_parent_lkid         = -1;
+static int hf_dlm3_rl_parent_remid        = -1;
+static int hf_dlm3_rl_exflags             = -1;
+static int hf_dlm3_rl_exflags_noqueue     = -1;
+static int hf_dlm3_rl_exflags_cancel      = -1;
+static int hf_dlm3_rl_exflags_convert     = -1;
+static int hf_dlm3_rl_exflags_valblk      = -1;
+static int hf_dlm3_rl_exflags_quecvt      = -1;
+static int hf_dlm3_rl_exflags_ivvalblk    = -1;
+static int hf_dlm3_rl_exflags_convdeadlk  = -1;
+static int hf_dlm3_rl_exflags_persistent  = -1;
+static int hf_dlm3_rl_exflags_nodlckwt    = -1;
+static int hf_dlm3_rl_exflags_nodlckblk   = -1;
+static int hf_dlm3_rl_exflags_expedite    = -1;
+static int hf_dlm3_rl_exflags_noqueuebast = -1;
+static int hf_dlm3_rl_exflags_headque     = -1;
+static int hf_dlm3_rl_exflags_noorder     = -1;
+static int hf_dlm3_rl_exflags_orphan      = -1;
+static int hf_dlm3_rl_exflags_altpr       = -1;
+static int hf_dlm3_rl_exflags_altcw       = -1;
+static int hf_dlm3_rl_exflags_forceunlock = -1;
+static int hf_dlm3_rl_exflags_timeout     = -1;
+static int hf_dlm3_rl_flags               = -1;
+static int hf_dlm3_rl_flags_user          = -1;
+static int hf_dlm3_rl_flags_orphan        = -1;
+static int hf_dlm3_rl_lvbseq              = -1;
+static int hf_dlm3_rl_result              = -1;
+static int hf_dlm3_rl_rqmode              = -1;
+static int hf_dlm3_rl_grmode              = -1;
+static int hf_dlm3_rl_status              = -1;
+static int hf_dlm3_rl_asts                = -1;
+static int hf_dlm3_rl_asts_comp           = -1;
+static int hf_dlm3_rl_asts_bast           = -1;
+static int hf_dlm3_rl_wait_type           = -1;
+static int hf_dlm3_rl_namelen             = -1;
+static int hf_dlm3_rl_name                = -1;
+static int hf_dlm3_rl_name_contents       = -1;
+static int hf_dlm3_rl_name_padding        = -1;
+static int hf_dlm3_rl_lvb                 = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dlm3         = -1;
@@ -405,64 +443,111 @@ static const value_string dlm3_rs[] = {
 /*
  * Fields
  */
-#define DLM3_DEFINE_EXFLAGS_FIELDS(NAME)        \
-  static const int* NAME##_fields[] = {         \
-    &hf_dlm3_##NAME##_timeout ,                 \
-    &hf_dlm3_##NAME##_forceunlock ,             \
-    &hf_dlm3_##NAME##_altcw       ,             \
-    &hf_dlm3_##NAME##_altpr       ,             \
-    &hf_dlm3_##NAME##_orphan      ,             \
-    &hf_dlm3_##NAME##_noorder     ,             \
-    &hf_dlm3_##NAME##_headque     ,             \
-    &hf_dlm3_##NAME##_noqueuebast ,             \
-    &hf_dlm3_##NAME##_expedite    ,             \
-    &hf_dlm3_##NAME##_nodlckblk   ,             \
-    &hf_dlm3_##NAME##_nodlckwt    ,             \
-    &hf_dlm3_##NAME##_persistent  ,             \
-    &hf_dlm3_##NAME##_convdeadlk  ,             \
-    &hf_dlm3_##NAME##_ivvalblk    ,             \
-    &hf_dlm3_##NAME##_quecvt      ,             \
-    &hf_dlm3_##NAME##_valblk      ,             \
-    &hf_dlm3_##NAME##_convert     ,             \
-    &hf_dlm3_##NAME##_cancel      ,             \
-    &hf_dlm3_##NAME##_noqueue     ,             \
-    NULL                                        \
-  }
-DLM3_DEFINE_EXFLAGS_FIELDS(m_exflags);
 
-static const int* rs_flags_fields[] = {
-  &hf_dlm3_rs_flags_need_slots ,
+static const int *m_exflags_fields[] = {
+  &hf_dlm3_m_exflags_timeout,
+  &hf_dlm3_m_exflags_forceunlock,
+  &hf_dlm3_m_exflags_altcw,
+  &hf_dlm3_m_exflags_altpr,
+  &hf_dlm3_m_exflags_orphan,
+  &hf_dlm3_m_exflags_noorder,
+  &hf_dlm3_m_exflags_headque,
+  &hf_dlm3_m_exflags_noqueuebast,
+  &hf_dlm3_m_exflags_expedite,
+  &hf_dlm3_m_exflags_nodlckblk,
+  &hf_dlm3_m_exflags_nodlckwt,
+  &hf_dlm3_m_exflags_persistent,
+  &hf_dlm3_m_exflags_convdeadlk,
+  &hf_dlm3_m_exflags_ivvalblk,
+  &hf_dlm3_m_exflags_quecvt,
+  &hf_dlm3_m_exflags_valblk,
+  &hf_dlm3_m_exflags_convert,
+  &hf_dlm3_m_exflags_cancel,
+  &hf_dlm3_m_exflags_noqueue,
+  NULL
+};
+
+static const int *rs_flags_fields[] = {
+  &hf_dlm3_rs_flags_need_slots,
   NULL
 };
 
 static const int *m_sbflags_fields[] = {
-  &hf_dlm3_m_sbflags_altmode     ,
-  &hf_dlm3_m_sbflags_valnotvalid ,
-  &hf_dlm3_m_sbflags_demoted     ,
+  &hf_dlm3_m_sbflags_altmode,
+  &hf_dlm3_m_sbflags_valnotvalid,
+  &hf_dlm3_m_sbflags_demoted,
   NULL
 };
 
-#define DLM3_DEFINE_FLAGS_FIELDS(NAME)          \
-  static const int* NAME##_fields[] = {         \
-    &hf_dlm3_##NAME##_orphan        ,           \
-    &hf_dlm3_##NAME##_user          ,           \
-    NULL                                        \
-  }
-DLM3_DEFINE_FLAGS_FIELDS(m_flags);
+static const int *m_flags_fields[] = {
+  &hf_dlm3_m_flags_orphan,
+  &hf_dlm3_m_flags_user,
+  NULL
+};
 
-#define DLM3_DEFINE_ASTS_FIELDS(NAME)           \
-  static const int* NAME##_asts_fields[] = {    \
-    &hf_dlm3_##NAME##_asts_bast           ,     \
-    &hf_dlm3_##NAME##_asts_comp           ,     \
-    NULL                                        \
-  }
-DLM3_DEFINE_ASTS_FIELDS(m);
+static const int *m_asts_fields[] = {
+  &hf_dlm3_m_asts_bast,
+  &hf_dlm3_m_asts_comp,
+  NULL
+};
 
-DLM3_DEFINE_EXFLAGS_FIELDS(rf_lsflags);
+static const int *rf_lsflags_fields[] = {
+  &hf_dlm3_rf_lsflags_timeout,
+  &hf_dlm3_rf_lsflags_forceunlock,
+  &hf_dlm3_rf_lsflags_altcw,
+  &hf_dlm3_rf_lsflags_altpr,
+  &hf_dlm3_rf_lsflags_orphan,
+  &hf_dlm3_rf_lsflags_noorder,
+  &hf_dlm3_rf_lsflags_headque,
+  &hf_dlm3_rf_lsflags_noqueuebast,
+  &hf_dlm3_rf_lsflags_expedite,
+  &hf_dlm3_rf_lsflags_nodlckblk,
+  &hf_dlm3_rf_lsflags_nodlckwt,
+  &hf_dlm3_rf_lsflags_persistent,
+  &hf_dlm3_rf_lsflags_convdeadlk,
+  &hf_dlm3_rf_lsflags_ivvalblk,
+  &hf_dlm3_rf_lsflags_quecvt,
+  &hf_dlm3_rf_lsflags_valblk,
+  &hf_dlm3_rf_lsflags_convert,
+  &hf_dlm3_rf_lsflags_cancel,
+  &hf_dlm3_rf_lsflags_noqueue,
+  NULL
+};
 
-DLM3_DEFINE_EXFLAGS_FIELDS(rl_exflags);
-DLM3_DEFINE_FLAGS_FIELDS(rl_flags);
-DLM3_DEFINE_ASTS_FIELDS(rl);
+static const int *rl_exflags_fields[] = {
+  &hf_dlm3_rl_exflags_timeout,
+  &hf_dlm3_rl_exflags_forceunlock,
+  &hf_dlm3_rl_exflags_altcw,
+  &hf_dlm3_rl_exflags_altpr,
+  &hf_dlm3_rl_exflags_orphan,
+  &hf_dlm3_rl_exflags_noorder,
+  &hf_dlm3_rl_exflags_headque,
+  &hf_dlm3_rl_exflags_noqueuebast,
+  &hf_dlm3_rl_exflags_expedite,
+  &hf_dlm3_rl_exflags_nodlckblk,
+  &hf_dlm3_rl_exflags_nodlckwt,
+  &hf_dlm3_rl_exflags_persistent,
+  &hf_dlm3_rl_exflags_convdeadlk,
+  &hf_dlm3_rl_exflags_ivvalblk,
+  &hf_dlm3_rl_exflags_quecvt,
+  &hf_dlm3_rl_exflags_valblk,
+  &hf_dlm3_rl_exflags_convert,
+  &hf_dlm3_rl_exflags_cancel,
+  &hf_dlm3_rl_exflags_noqueue,
+  NULL
+};
+
+static const int *rl_flags_fields[] = {
+  &hf_dlm3_rl_flags_orphan,
+  &hf_dlm3_rl_flags_user,
+  NULL
+};
+
+static const int *rl_asts_fields[] = {
+  &hf_dlm3_rl_asts_bast,
+  &hf_dlm3_rl_asts_comp,
+  NULL
+};
 
 /* Code to actually dissect the packets */
 static void
@@ -885,135 +970,6 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 
 /* Register the protocol with Wireshark */
 
-#define DLM3_REGISTER_HF_LOCKID(NAME)                                   \
-  { &hf_dlm3_##NAME##_lkid,                                             \
-      { "Lock ID on Sender", "dlm3." #NAME ".lkid",                     \
-          FT_UINT32, BASE_DEC_HEX, NULL, 0x0,                           \
-          NULL, HFILL}},                                                \
-{ &hf_dlm3_##NAME##_remid,                                              \
-    { "Lock ID on Receiver", "dlm3." #NAME ".remid",                    \
-        FT_UINT32, BASE_DEC_HEX, NULL, 0x0,                             \
-        NULL, HFILL}},                                                  \
-{ &hf_dlm3_##NAME##_parent_lkid,                                        \
-    { "Parent Lock ID on Sender", "dlm3." #NAME ".parent_lkid",         \
-        FT_UINT32, BASE_DEC_HEX, NULL, 0x0,                             \
-        NULL, HFILL}},                                                  \
-{ &hf_dlm3_##NAME##_parent_remid,                                       \
-    { "Parent Lock ID on Receiver", "dlm3." #NAME ".parent_remid",      \
-        FT_UINT32, BASE_DEC_HEX, NULL, 0x0,                             \
-        NULL, HFILL}}
-
-#define DLM3_REGISTER_HF_EXFLAGS(SYMNAME,STRNAME)                       \
-{ &hf_dlm3_##SYMNAME,                                                   \
-  { "External Flags", "dlm3." STRNAME "",                               \
-    FT_UINT32, BASE_HEX, NULL, 0x0,                                     \
-    NULL, HFILL}},                                                      \
-{ &hf_dlm3_##SYMNAME##_noqueue,                                         \
-  { "Don't queue", "dlm3." STRNAME ".noqueue",                          \
-    FT_BOOLEAN, 32, NULL, DLM3_LKF_NOQUEUE,                             \
-    NULL, HFILL}},                                                      \
-{ &hf_dlm3_##SYMNAME##_cancel,                                          \
-  { "Cancel", "dlm3." STRNAME ".cancel",                                \
-    FT_BOOLEAN, 32, NULL, DLM3_LKF_CANCEL,                              \
-    NULL, HFILL}},                                                      \
-{ &hf_dlm3_##SYMNAME##_convert,                                         \
-  { "Convert", "dlm3." STRNAME ".convert",                              \
-    FT_BOOLEAN, 32, NULL, DLM3_LKF_CONVERT,                             \
-    NULL, HFILL}},                                                      \
-{ &hf_dlm3_##SYMNAME##_valblk,                                          \
-  { "Return the contents of the lock value block", "dlm3." STRNAME ".valblk", \
-    FT_BOOLEAN, 32, NULL, DLM3_LKF_VALBLK,                              \
-    NULL, HFILL}},                                                      \
-{ &hf_dlm3_##SYMNAME##_quecvt,                                          \
-  { "Force a conversion request to be queued", "dlm3." STRNAME ".quecvt", \
-    FT_BOOLEAN, 32, NULL, DLM3_LKF_QUECVT,                              \
-    NULL, HFILL}},                                                      \
-{ &hf_dlm3_##SYMNAME##_ivvalblk,                                        \
-  { "Invalidate the lock value block", "dlm3." STRNAME ".ivvalblk",     \
-    FT_BOOLEAN, 32, NULL, DLM3_LKF_IVVALBLK,                            \
-    NULL, HFILL}},                                                      \
-{ &hf_dlm3_##SYMNAME##_convdeadlk,                                      \
-  { "Forced down to NL to resolve a conversion deadlock", "dlm3." STRNAME ".convdeadlk", \
-    FT_BOOLEAN, 32, NULL, DLM3_LKF_CONVDEADLK,                          \
-    NULL, HFILL}},                                                      \
-{ &hf_dlm3_##SYMNAME##_persistent,                                      \
-  { "Persistent", "dlm3." STRNAME ".persistent",                        \
-    FT_BOOLEAN, 32, NULL, DLM3_LKF_PERSISTENT,                          \
-    NULL, HFILL}},                                                      \
-{ &hf_dlm3_##SYMNAME##_nodlckwt,                                        \
-  { "Don't cancel the lock if it gets into conversion deadlock", "dlm3." STRNAME ".nodlckwt", \
-    FT_BOOLEAN, 32, NULL, DLM3_LKF_NODLCKWT,                            \
-    NULL, HFILL}},                                                      \
-{ &hf_dlm3_##SYMNAME##_nodlckblk,                                       \
-  { "Nodlckblk", "dlm3." STRNAME ".nodlckblk",                          \
-    FT_BOOLEAN, 32, NULL, DLM3_LKF_NODLCKBLK,                           \
-    NULL, HFILL}},                                                      \
-{ &hf_dlm3_##SYMNAME##_expedite,                                        \
-  { "Grant a NL lock immediately", "dlm3." STRNAME ".expedite",         \
-    FT_BOOLEAN, 32, NULL, DLM3_LKF_EXPEDITE,                            \
-    NULL, HFILL}},                                                      \
-{ &hf_dlm3_##SYMNAME##_noqueuebast,                                     \
-  { "Send blocking ASTs even for NOQUEUE operations", "dlm3." STRNAME ".noqueuebast", \
-    FT_BOOLEAN, 32, NULL, DLM3_LKF_NOQUEUEBAST,                         \
-    NULL, HFILL}},                                                      \
-{ &hf_dlm3_##SYMNAME##_headque,                                         \
-  { "Add a lock to the head of the queue", "dlm3." STRNAME ".headque",  \
-    FT_BOOLEAN, 32, NULL, DLM3_LKF_HEADQUE,                             \
-    NULL, HFILL}},                                                      \
-{ &hf_dlm3_##SYMNAME##_noorder,                                         \
-  { "Disregard the standard grant order rules", "dlm3." STRNAME ".noorder", \
-    FT_BOOLEAN, 32, NULL, DLM3_LKF_NOORDER,                             \
-    NULL, HFILL}},                                                      \
-{ &hf_dlm3_##SYMNAME##_orphan,                                          \
-  { "Orphan", "dlm3." STRNAME ".orphan",                                \
-    FT_BOOLEAN, 32, NULL, DLM3_LKF_ORPHAN,                              \
-    NULL, HFILL}},                                                      \
-{ &hf_dlm3_##SYMNAME##_altpr,                                           \
-  { "Try to grant the lock in `protected read' mode", "dlm3." STRNAME ".altpr", \
-    FT_BOOLEAN, 32, NULL, DLM3_LKF_ALTPR,                               \
-    NULL, HFILL}},                                                      \
-{ &hf_dlm3_##SYMNAME##_altcw,                                           \
-  { "Try to grant the lock in `concurrent read' mode", "dlm3." STRNAME ".altcw", \
-    FT_BOOLEAN, 32, NULL, DLM3_LKF_ALTCW,                               \
-    NULL, HFILL}},                                                      \
-{ &hf_dlm3_##SYMNAME##_forceunlock,                                     \
-  { "Force unlock", "dlm3." STRNAME ".forceunlock",                     \
-    FT_BOOLEAN, 32, NULL, DLM3_LKF_FORCEUNLOCK,                         \
-    NULL, HFILL}},                                                      \
-{ &hf_dlm3_##SYMNAME##_timeout,                                         \
-  { "Timeout", "dlm3." STRNAME ".timeout",                              \
-    FT_BOOLEAN, 32, NULL, DLM3_LKF_TIMEOUT,                             \
-    NULL, HFILL}}
-
-
-#define DLM3_REGISTER_HF_FLAGS(SYMNAME,STRNAME)         \
-{ &hf_dlm3_##SYMNAME,                                   \
-  { "Internal Flags", "dlm3." STRNAME,                  \
-    FT_UINT32, BASE_HEX, NULL, 0x0,                     \
-    NULL, HFILL}},                                      \
-{ &hf_dlm3_##SYMNAME##_user,                            \
-  { "User space lock realted", "dlm3." STRNAME ".user", \
-    FT_BOOLEAN, 32, NULL, DLM3_IFL_USER,                \
-    NULL, HFILL}},                                      \
-{ &hf_dlm3_##SYMNAME##_orphan,                          \
-  { "Orphaned lock", "dlm3." STRNAME ".orphan",         \
-    FT_BOOLEAN, 32, NULL, DLM3_IFL_ORPHAN,              \
-    NULL, HFILL}}
-
-#define DLM3_REGISTER_HF_ASTS(NAME,SIZE)         \
-{ &hf_dlm3_##NAME##_asts,                        \
-  { "Asynchronous Traps", "dlm3." #NAME ".asts", \
-    FT_UINT##SIZE, BASE_HEX, NULL, 0x0,           \
-    NULL, HFILL}},                               \
-{ &hf_dlm3_##NAME##_asts_comp,                   \
-  { "Completion", "dlm3." #NAME ".asts.comp",    \
-    FT_BOOLEAN, SIZE, NULL, DLM3_AST_COMP,       \
-    NULL, HFILL }},                              \
-{ &hf_dlm3_##NAME##_asts_bast,                   \
-  { "Blocking", "dlm3." #NAME ".asts.bast",      \
-    FT_BOOLEAN, SIZE, NULL, DLM3_AST_BAST,       \
-    NULL, HFILL }}
-
 void
 proto_register_dlm3(void)
 {
@@ -1068,11 +1024,103 @@ proto_register_dlm3(void)
       { "Process ID of Lock Owner", "dlm3.m.pid",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
-    DLM3_REGISTER_HF_LOCKID(m),
-
+    { &hf_dlm3_m_lkid,
+      { "Lock ID on Sender", "dlm3.m.lkid",
+        FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+        NULL, HFILL}},
+    { &hf_dlm3_m_remid,
+      { "Lock ID on Receiver", "dlm3.m.remid",
+        FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+        NULL, HFILL}},
+    { &hf_dlm3_m_parent_lkid,
+      { "Parent Lock ID on Sender", "dlm3.m.parent_lkid",
+        FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+        NULL, HFILL}},
+    { &hf_dlm3_m_parent_remid,
+      { "Parent Lock ID on Receiver", "dlm3.m.parent_remid",
+        FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+        NULL, HFILL}},
     /* dlm_message::exflags */
-    DLM3_REGISTER_HF_EXFLAGS(m_exflags, "m.exflags"),
-
+    { &hf_dlm3_m_exflags,
+      { "External Flags", "dlm3.m.exflags",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL}},
+    { &hf_dlm3_m_exflags_noqueue,
+      { "Don't queue", "dlm3.m.exflags.noqueue",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_NOQUEUE,
+        NULL, HFILL}},
+    { &hf_dlm3_m_exflags_cancel,
+      { "Cancel", "dlm3.m.exflags.cancel",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_CANCEL,
+        NULL, HFILL}},
+    { &hf_dlm3_m_exflags_convert,
+      { "Convert", "dlm3.m.exflags.convert",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_CONVERT,
+        NULL, HFILL}},
+    { &hf_dlm3_m_exflags_valblk,
+      { "Return the contents of the lock value block", "dlm3.m.exflags.valblk",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_VALBLK,
+        NULL, HFILL}},
+    { &hf_dlm3_m_exflags_quecvt,
+      { "Force a conversion request to be queued", "dlm3.m.exflags.quecvt",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_QUECVT,
+        NULL, HFILL}},
+    { &hf_dlm3_m_exflags_ivvalblk,
+      { "Invalidate the lock value block", "dlm3.m.exflags.ivvalblk",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_IVVALBLK,
+        NULL, HFILL}},
+    { &hf_dlm3_m_exflags_convdeadlk,
+      { "Forced down to NL to resolve a conversion deadlock", "dlm3.m.exflags.convdeadlk",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_CONVDEADLK,
+        NULL, HFILL}},
+    { &hf_dlm3_m_exflags_persistent,
+      { "Persistent", "dlm3.m.exflags.persistent",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_PERSISTENT,
+        NULL, HFILL}},
+    { &hf_dlm3_m_exflags_nodlckwt,
+      { "Don't cancel the lock if it gets into conversion deadlock", "dlm3.m.exflags.nodlckwt",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_NODLCKWT,
+        NULL, HFILL}},
+    { &hf_dlm3_m_exflags_nodlckblk,
+      { "Nodlckblk", "dlm3.m.exflags.nodlckblk",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_NODLCKBLK,
+        NULL, HFILL}},
+    { &hf_dlm3_m_exflags_expedite,
+      { "Grant a NL lock immediately", "dlm3.m.exflags.expedite",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_EXPEDITE,
+        NULL, HFILL}},
+    { &hf_dlm3_m_exflags_noqueuebast,
+      { "Send blocking ASTs even for NOQUEUE operations", "dlm3.m.exflags.noqueuebast",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_NOQUEUEBAST,
+        NULL, HFILL}},
+    { &hf_dlm3_m_exflags_headque,
+      { "Add a lock to the head of the queue", "dlm3.m.exflags.headque",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_HEADQUE,
+        NULL, HFILL}},
+    { &hf_dlm3_m_exflags_noorder,
+      { "Disregard the standard grant order rules", "dlm3.m.exflags.noorder",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_NOORDER,
+        NULL, HFILL}},
+    { &hf_dlm3_m_exflags_orphan,
+      { "Orphan", "dlm3.m.exflags.orphan",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_ORPHAN,
+        NULL, HFILL}},
+    { &hf_dlm3_m_exflags_altpr,
+      { "Try to grant the lock in `protected read' mode", "dlm3.m.exflags.altpr",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_ALTPR,
+        NULL, HFILL}},
+    { &hf_dlm3_m_exflags_altcw,
+      { "Try to grant the lock in `concurrent read' mode", "dlm3.m.exflags.altcw",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_ALTCW,
+        NULL, HFILL}},
+    { &hf_dlm3_m_exflags_forceunlock,
+      { "Force unlock", "dlm3.m.exflags.forceunlock",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_FORCEUNLOCK,
+        NULL, HFILL}},
+    { &hf_dlm3_m_exflags_timeout,
+      { "Timeout", "dlm3.m.exflags.timeout",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_TIMEOUT,
+        NULL, HFILL}},
     /* dlm_message::sbflags */
     { &hf_dlm3_m_sbflags,
       { "Status Block Flags", "dlm3.m.sbflags",
@@ -1092,7 +1140,18 @@ proto_register_dlm3(void)
         NULL, HFILL}},
 
     /* dlm_message::flags */
-    DLM3_REGISTER_HF_FLAGS(m_flags, "m.flags"),
+    { &hf_dlm3_m_flags,
+      { "Internal Flags", "dlm3.m.flags",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL}},
+    { &hf_dlm3_m_flags_user,
+      { "User space lock realted", "dlm3.m.flags.user",
+        FT_BOOLEAN, 32, NULL, DLM3_IFL_USER,
+        NULL, HFILL}},
+    { &hf_dlm3_m_flags_orphan,
+      { "Orphaned lock", "dlm3.m.flags.orphan",
+        FT_BOOLEAN, 32, NULL, DLM3_IFL_ORPHAN,
+        NULL, HFILL}},
 
     { &hf_dlm3_m_lvbseq,
       { "Lock Value Block Sequence Number", "dlm3.m.lvbseq",
@@ -1123,7 +1182,18 @@ proto_register_dlm3(void)
         NULL, HFILL}},
 
     /* dlm_message::asts */
-    DLM3_REGISTER_HF_ASTS(m, 32),
+    { &hf_dlm3_m_asts,
+      { "Asynchronous Traps", "dlm3.m.asts",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL}},
+    { &hf_dlm3_m_asts_comp,
+      { "Completion", "dlm3.m.asts.comp",
+        FT_BOOLEAN, 32, NULL, DLM3_AST_COMP,
+        NULL, HFILL }},
+    { &hf_dlm3_m_asts_bast,
+      { "Blocking", "dlm3.m.asts.bast",
+        FT_BOOLEAN, 32, NULL, DLM3_AST_BAST,
+        NULL, HFILL }},
 
     { &hf_dlm3_m_result,
       { "Message Result(errno)", "dlm3.m.result",
@@ -1167,7 +1237,86 @@ proto_register_dlm3(void)
         NULL, HFILL}},
 
     /* rcom_config::rf_lsflags */
-    DLM3_REGISTER_HF_EXFLAGS(rf_lsflags, "rf.lsflags"),
+    { &hf_dlm3_rf_lsflags,
+      { "External Flags", "dlm3.rf.lsflags",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL}},
+    { &hf_dlm3_rf_lsflags_noqueue,
+      { "Don't queue", "dlm3.rf.lsflags.noqueue",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_NOQUEUE,
+        NULL, HFILL}},
+    { &hf_dlm3_rf_lsflags_cancel,
+      { "Cancel", "dlm3.rf.lsflags.cancel",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_CANCEL,
+        NULL, HFILL}},
+    { &hf_dlm3_rf_lsflags_convert,
+      { "Convert", "dlm3.rf.lsflags.convert",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_CONVERT,
+        NULL, HFILL}},
+    { &hf_dlm3_rf_lsflags_valblk,
+      { "Return the contents of the lock value block", "dlm3.rf.lsflags.valblk",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_VALBLK,
+        NULL, HFILL}},
+    { &hf_dlm3_rf_lsflags_quecvt,
+      { "Force a conversion request to be queued", "dlm3.rf.lsflags.quecvt",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_QUECVT,
+        NULL, HFILL}},
+    { &hf_dlm3_rf_lsflags_ivvalblk,
+      { "Invalidate the lock value block", "dlm3.rf.lsflags.ivvalblk",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_IVVALBLK,
+        NULL, HFILL}},
+    { &hf_dlm3_rf_lsflags_convdeadlk,
+      { "Forced down to NL to resolve a conversion deadlock", "dlm3.rf.lsflags.convdeadlk",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_CONVDEADLK,
+        NULL, HFILL}},
+    { &hf_dlm3_rf_lsflags_persistent,
+      { "Persistent", "dlm3.rf.lsflags.persistent",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_PERSISTENT,
+        NULL, HFILL}},
+    { &hf_dlm3_rf_lsflags_nodlckwt,
+      { "Don't cancel the lock if it gets into conversion deadlock", "dlm3.rf.lsflags.nodlckwt",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_NODLCKWT,
+        NULL, HFILL}},
+    { &hf_dlm3_rf_lsflags_nodlckblk,
+      { "Nodlckblk", "dlm3.rf.lsflags.nodlckblk",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_NODLCKBLK,
+        NULL, HFILL}},
+    { &hf_dlm3_rf_lsflags_expedite,
+      { "Grant a NL lock immediately", "dlm3.rf.lsflags.expedite",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_EXPEDITE,
+        NULL, HFILL}},
+    { &hf_dlm3_rf_lsflags_noqueuebast,
+      { "Send blocking ASTs even for NOQUEUE operations", "dlm3.rf.lsflags.noqueuebast",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_NOQUEUEBAST,
+        NULL, HFILL}},
+    { &hf_dlm3_rf_lsflags_headque,
+      { "Add a lock to the head of the queue", "dlm3.rf.lsflags.headque",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_HEADQUE,
+        NULL, HFILL}},
+    { &hf_dlm3_rf_lsflags_noorder,
+      { "Disregard the standard grant order rules", "dlm3.rf.lsflags.noorder",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_NOORDER,
+        NULL, HFILL}},
+    { &hf_dlm3_rf_lsflags_orphan,
+      { "Orphan", "dlm3.rf.lsflags.orphan",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_ORPHAN,
+        NULL, HFILL}},
+    { &hf_dlm3_rf_lsflags_altpr,
+      { "Try to grant the lock in `protected read' mode", "dlm3.rf.lsflags.altpr",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_ALTPR,
+        NULL, HFILL}},
+    { &hf_dlm3_rf_lsflags_altcw,
+      { "Try to grant the lock in `concurrent read' mode", "dlm3.rf.lsflags.altcw",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_ALTCW,
+        NULL, HFILL}},
+    { &hf_dlm3_rf_lsflags_forceunlock,
+      { "Force unlock", "dlm3.rf.lsflags.forceunlock",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_FORCEUNLOCK,
+        NULL, HFILL}},
+    { &hf_dlm3_rf_lsflags_timeout,
+      { "Timeout", "dlm3.rf.lsflags.timeout",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_TIMEOUT,
+        NULL, HFILL}},
 
     { &hf_dlm3_rf_unused,
       { "Unused area", "dlm3.rf.lsflags.unused",
@@ -1197,10 +1346,115 @@ proto_register_dlm3(void)
       { "Process ID of Lock Owner", "dlm3.rl.ownpid",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL}},
+    { &hf_dlm3_rl_lkid,
+      { "Lock ID on Sender", "dlm3.rl.lkid",
+        FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_remid,
+      { "Lock ID on Receiver", "dlm3.rl.remid",
+        FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_parent_lkid,
+      { "Parent Lock ID on Sender", "dlm3.rl.parent_lkid",
+        FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_parent_remid,
+      { "Parent Lock ID on Receiver", "dlm3.rl.parent_remid",
+        FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+        NULL, HFILL}},
 
-    DLM3_REGISTER_HF_LOCKID(rl),
-    DLM3_REGISTER_HF_EXFLAGS(rl_exflags, "rl.exflags"),
-    DLM3_REGISTER_HF_FLAGS(rl_flags, "rl.flags"),
+    { &hf_dlm3_rl_exflags,
+      { "External Flags", "dlm3.rl.exflags",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_exflags_noqueue,
+      { "Don't queue", "dlm3.rl.exflags.noqueue",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_NOQUEUE,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_exflags_cancel,
+      { "Cancel", "dlm3.rl.exflags.cancel",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_CANCEL,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_exflags_convert,
+      { "Convert", "dlm3.rl.exflags.convert",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_CONVERT,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_exflags_valblk,
+      { "Return the contents of the lock value block", "dlm3.rl.exflags.valblk",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_VALBLK,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_exflags_quecvt,
+      { "Force a conversion request to be queued", "dlm3.rl.exflags.quecvt",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_QUECVT,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_exflags_ivvalblk,
+      { "Invalidate the lock value block", "dlm3.rl.exflags.ivvalblk",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_IVVALBLK,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_exflags_convdeadlk,
+      { "Forced down to NL to resolve a conversion deadlock", "dlm3.rl.exflags.convdeadlk",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_CONVDEADLK,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_exflags_persistent,
+      { "Persistent", "dlm3.rl.exflags.persistent",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_PERSISTENT,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_exflags_nodlckwt,
+      { "Don't cancel the lock if it gets into conversion deadlock", "dlm3.rl.exflags.nodlckwt",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_NODLCKWT,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_exflags_nodlckblk,
+      { "Nodlckblk", "dlm3.rl.exflags.nodlckblk",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_NODLCKBLK,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_exflags_expedite,
+      { "Grant a NL lock immediately", "dlm3.rl.exflags.expedite",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_EXPEDITE,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_exflags_noqueuebast,
+      { "Send blocking ASTs even for NOQUEUE operations", "dlm3.rl.exflags.noqueuebast",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_NOQUEUEBAST,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_exflags_headque,
+      { "Add a lock to the head of the queue", "dlm3.rl.exflags.headque",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_HEADQUE,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_exflags_noorder,
+      { "Disregard the standard grant order rules", "dlm3.rl.exflags.noorder",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_NOORDER,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_exflags_orphan,
+      { "Orphan", "dlm3.rl.exflags.orphan",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_ORPHAN,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_exflags_altpr,
+      { "Try to grant the lock in `protected read' mode", "dlm3.rl.exflags.altpr",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_ALTPR,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_exflags_altcw,
+      { "Try to grant the lock in `concurrent read' mode", "dlm3.rl.exflags.altcw",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_ALTCW,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_exflags_forceunlock,
+      { "Force unlock", "dlm3.rl.exflags.forceunlock",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_FORCEUNLOCK,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_exflags_timeout,
+      { "Timeout", "dlm3.rl.exflags.timeout",
+        FT_BOOLEAN, 32, NULL, DLM3_LKF_TIMEOUT,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_flags,
+      { "Internal Flags", "dlm3.rl.flags",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_flags_user,
+      { "User space lock realted", "dlm3.rl.flags.user",
+        FT_BOOLEAN, 32, NULL, DLM3_IFL_USER,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_flags_orphan,
+      { "Orphaned lock", "dlm3.rl.flags.orphan",
+        FT_BOOLEAN, 32, NULL, DLM3_IFL_ORPHAN,
+        NULL, HFILL}},
 
     { &hf_dlm3_rl_lvbseq,
       { "Lock Value Block Sequence Number", "dlm3.rl.lvbseq",
@@ -1222,7 +1476,18 @@ proto_register_dlm3(void)
       { "Status", "dlm3.rl.status",
         FT_INT8, BASE_DEC, VALS(dlm3_rs), 0x0,
         NULL, HFILL}},
-    DLM3_REGISTER_HF_ASTS(rl, 8),
+    { &hf_dlm3_rl_asts,
+      { "Asynchronous Traps", "dlm3.rl.asts",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL}},
+    { &hf_dlm3_rl_asts_comp,
+      { "Completion", "dlm3.rl.asts.comp",
+        FT_BOOLEAN, 8, NULL, DLM3_AST_COMP,
+        NULL, HFILL }},
+    { &hf_dlm3_rl_asts_bast,
+      { "Blocking", "dlm3.rl.asts.bast",
+        FT_BOOLEAN, 8, NULL, DLM3_AST_BAST,
+        NULL, HFILL }},
 
     { &hf_dlm3_rl_wait_type,
       { "Message Type the waiter is waiting for", "dlm3.rl.wait_type",
