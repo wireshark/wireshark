@@ -162,7 +162,10 @@ static gint hf_krb_pac_clientid = -1;
 static gint hf_krb_pac_namelen = -1;
 static gint hf_krb_pac_clientname = -1;
 static gint hf_krb_pac_logon_info = -1;
-static gint hf_krb_pac_credential_type = -1;
+static gint hf_krb_pac_credential_data = -1;
+static gint hf_krb_pac_credential_info = -1;
+static gint hf_krb_pac_credential_info_version = -1;
+static gint hf_krb_pac_credential_info_etype = -1;
 static gint hf_krb_pac_s4u_delegation_info = -1;
 static gint hf_krb_pac_upn_dns_info = -1;
 static gint hf_krb_pac_upn_flags = -1;
@@ -197,6 +200,7 @@ static gint ett_krb_pac = -1;
 static gint ett_krb_pac_drep = -1;
 static gint ett_krb_pac_midl_blob = -1;
 static gint ett_krb_pac_logon_info = -1;
+static gint ett_krb_pac_credential_info = -1;
 static gint ett_krb_pac_s4u_delegation_info = -1;
 static gint ett_krb_pac_upn_dns_info = -1;
 static gint ett_krb_pac_server_checksum = -1;
@@ -2055,6 +2059,61 @@ dissect_krb5_PAC_LOGON_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, 
 	return offset;
 }
 
+
+static int
+dissect_krb5_PAC_CREDENTIAL_DATA(proto_tree *parent_tree, tvbuff_t *tvb, int offset, packet_info *pinfo _U_)
+{
+	proto_tree_add_item(parent_tree, hf_krb_pac_credential_data, tvb, offset, -1, ENC_NA);
+
+	return offset;
+}
+
+static int
+dissect_krb5_PAC_CREDENTIAL_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx)
+{
+	proto_item *item;
+	proto_tree *tree;
+	guint32 etype;
+	guint8 *plaintext = NULL;
+	int plainlen = 0;
+	int length;
+	tvbuff_t *next_tvb;
+#define KRB5_KU_OTHER_ENCRYPTED 16
+	int usage = KRB5_KU_OTHER_ENCRYPTED;
+
+	item = proto_tree_add_item(parent_tree, hf_krb_pac_credential_info, tvb, offset, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_krb_pac_credential_info);
+
+	/* version */
+	proto_tree_add_item(tree, hf_krb_pac_credential_info_version, tvb,
+			    offset, 4, ENC_LITTLE_ENDIAN);
+	offset+=4;
+
+	/* etype */
+	etype = tvb_get_letohl(tvb, offset);
+	proto_tree_add_item(tree, hf_krb_pac_credential_info_etype, tvb,
+			    offset, 4, ENC_LITTLE_ENDIAN);
+	offset+=4;
+
+	/* data */
+	next_tvb=tvb_new_subset_remaining(tvb, offset);
+	length=tvb_captured_length_remaining(tvb, offset);
+
+	plaintext=decrypt_krb5_data(tree, actx->pinfo, usage, next_tvb, (int)etype, &plainlen);
+
+	if (plaintext != NULL) {
+		tvbuff_t *child_tvb;
+		child_tvb = tvb_new_child_real_data(tvb, plaintext, plainlen, plainlen);
+
+		/* Add the decrypted data to the data source list. */
+		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
+
+		dissect_krb5_PAC_CREDENTIAL_DATA(tree, child_tvb, 0, actx->pinfo);
+	}
+
+	return offset + length;
+}
+
 static int
 dissect_krb5_PAC_S4U_DELEGATION_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx)
 {
@@ -2123,14 +2182,6 @@ dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 	proto_tree_add_item(tree, hf_krb_pac_upn_dns_name, tvb, dns_offset, dns_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
 	return dns_offset;
-}
-
-static int
-dissect_krb5_PAC_CREDENTIAL_TYPE(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
-{
-	proto_tree_add_item(parent_tree, hf_krb_pac_credential_type, tvb, offset, -1, ENC_NA);
-
-	return offset;
 }
 
 static int
@@ -2229,7 +2280,7 @@ dissect_krb5_AD_WIN2K_PAC_struct(proto_tree *tree, tvbuff_t *tvb, int offset, as
 		dissect_krb5_PAC_LOGON_INFO(tr, next_tvb, 0, actx);
 		break;
 	case PAC_CREDENTIAL_TYPE:
-		dissect_krb5_PAC_CREDENTIAL_TYPE(tr, next_tvb, 0, actx);
+		dissect_krb5_PAC_CREDENTIAL_INFO(tr, next_tvb, 0, actx);
 		break;
 	case PAC_SERVER_CHECKSUM:
 		dissect_krb5_PAC_SERVER_CHECKSUM(tr, next_tvb, 0, actx);
@@ -2631,9 +2682,18 @@ void proto_register_kerberos(void) {
 	{ &hf_krb_pac_logon_info, {
 		"PAC_LOGON_INFO", "kerberos.pac_logon_info", FT_BYTES, BASE_NONE,
 		NULL, 0, "PAC_LOGON_INFO structure", HFILL }},
-	{ &hf_krb_pac_credential_type, {
-		"PAC_CREDENTIAL_TYPE", "kerberos.pac_credential_type", FT_BYTES, BASE_NONE,
-		NULL, 0, "PAC_CREDENTIAL_TYPE structure", HFILL }},
+	{ &hf_krb_pac_credential_data, {
+		"PAC_CREDENTIAL_DATA", "kerberos.pac_credential_data", FT_BYTES, BASE_NONE,
+		NULL, 0, "PAC_CREDENTIAL_DATA structure", HFILL }},
+	{ &hf_krb_pac_credential_info, {
+		"PAC_CREDENTIAL_INFO", "kerberos.pac_credential_info", FT_BYTES, BASE_NONE,
+		NULL, 0, "PAC_CREDENTIAL_INFO structure", HFILL }},
+	{ &hf_krb_pac_credential_info_version, {
+		"Version", "kerberos.pac_credential_info.version", FT_UINT32, BASE_DEC,
+		NULL, 0, NULL, HFILL }},
+	{ &hf_krb_pac_credential_info_etype, {
+		"Etype", "kerberos.pac_credential_info.etype", FT_UINT32, BASE_DEC,
+		NULL, 0, NULL, HFILL }},
 	{ &hf_krb_pac_server_checksum, {
 		"PAC_SERVER_CHECKSUM", "kerberos.pac_server_checksum", FT_BYTES, BASE_NONE,
 		NULL, 0, "PAC_SERVER_CHECKSUM structure", HFILL }},
@@ -2721,6 +2781,7 @@ void proto_register_kerberos(void) {
 		&ett_krb_pac_drep,
 		&ett_krb_pac_midl_blob,
 		&ett_krb_pac_logon_info,
+		&ett_krb_pac_credential_info,
 		&ett_krb_pac_s4u_delegation_info,
 		&ett_krb_pac_upn_dns_info,
 		&ett_krb_pac_server_checksum,
