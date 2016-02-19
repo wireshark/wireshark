@@ -59,6 +59,7 @@ Ericsson IPOS Kernel Packet Header Dissector Added (IPOS)
 STANAG 5602 SIMPLE
 UserLog Protocol
 FLEXRAY Protocol dissector added (automotive bus)
+USB3 Vision Protocol (USB machine vision cameras)
 USBIP Protocol
 
 // Items in --sort-and-group-- blocks will be sorted and comma-separated.
