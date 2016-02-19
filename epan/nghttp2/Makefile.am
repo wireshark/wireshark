@@ -22,7 +22,8 @@
 include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
-AM_CPPFLAGS += $(LIBNGHTTP2_CFLAGS)
+AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(LIBNGHTTP2_CFLAGS) \
+	$(GLIB_CFLAGS)
 
 noinst_LTLIBRARIES = libnghttp2.la
 

@@ -1538,6 +1538,45 @@ else
 	AC_MSG_RESULT(no)
 fi
 
+GLIB_MIN_VERSION=2.16.0
+AC_SUBST(GLIB_MIN_VERSION)
+# GLib checks; we require GLib $GLIB_MIN_VERSION or later, and require gmodule
+# support, as we need that for dynamically loading plugins.
+#
+# Release dates for GLib versions:
+# 2.14.0: 03 Aug 2007
+# 2.16.0: 10 Mar 2008
+# 2.18.0: 02 Sep 2008
+# 2.20.0: 13 Mar 2009
+# 2.22.0: 22 Sep 2009
+# 2.24.0: 28 Mar 2010
+# 2.26.0: 27 Sep 2010
+# 2.28.0: 08 Feb 2011
+# 2.30.0: 27 Sep 2011
+# 2.32.0: 24 Mar 2012
+# 2.34.0: 24 Sep 2012
+# 2.36.0: 25 Mar 2013
+# 2.38.0: 23 Sep 2013
+# 2.40.0: 24 Mar 2014
+# 2.42.0: 22 Sep 2014
+# 2.44.0: 23 Mar 2014
+# 2.46.0: 25 Sep 2015
+
+PKG_WIRESHARK_CHECK_SYSTEM_MODULES([GLIB],
+	[glib-2.0 >= $GLIB_MIN_VERSION gthread-2.0 >= $GLIB_MIN_VERSION gmodule-2.0 >= $GLIB_MIN_VERSION],
+	[],
+	[AC_MSG_ERROR([GLib $GLIB_MIN_VERSION or later not found.])])
+
+AC_SUBST(GLIB_CFLAGS)
+AC_SUBST(GLIB_LIBS)
+
+# Check for GResource support
+PKG_CHECK_EXISTS([gio-2.0 >= 2.32 gdk-pixbuf-2.0 >= 2.26], [have_gresource=yes], [have_gresource=no])
+AM_CONDITIONAL(HAVE_GRESOURCE, test "x$have_gresource" = "xyes")
+if test "x$have_gresource" = "xyes"; then
+	AC_DEFINE(HAVE_GRESOURCE, 1, [Defined if GLib GResource is supported])
+fi
+
 GTK2_MIN_VERSION=2.12.0
 AC_SUBST(GTK2_MIN_VERSION)
 GTK3_MIN_VERSION=3.0.0
@@ -1715,66 +1754,33 @@ if test "x$enable_wireshark" = "xyes"; then
 		#
 		# Make sure we have GTK+ 3.
 		#
-		AM_PATH_GTK_3_0(3.0.0,
-		[
-			WS_CFLAGS="$WS_CFLAGS $GTK_CFLAGS"
-			WS_CXXFLAGS="$WS_CXXFLAGS $GTK_CFLAGS"
-			have_gtk=yes
-			GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-gtk3"
-		],
-		[AC_MSG_ERROR([GTK+ 3 is not available])])
+		PKG_WIRESHARK_CHECK_SYSTEM_MODULES([GTK],
+			[gtk+-3.0 >= $GTK3_MIN_VERSION glib-2.0 >= $GLIB_MIN_VERSION gthread-2.0 >= $GLIB_MIN_VERSION gmodule-2.0 >= $GLIB_MIN_VERSION],
+			[
+				have_gtk=yes
+				GTK_VERSION=`$PKG_CONFIG --modversion gtk+-3.0`
+				GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-gtk3"
+			],
+			[AC_MSG_ERROR([GTK+ 3 is not available])])
 	elif test "x$with_gtk2" = "xyes"; then
 		#
 		# GTK+ 3 wasn't specified, and GTK+ 2 was specified;
 		# make sure we have GTK+ 2.
 		#
-		AM_PATH_GTK_2_0($GTK2_MIN_VERSION,
-		[
-			WS_CFLAGS="$WS_CFLAGS $GTK_CFLAGS"
-			WS_CXXFLAGS="$WS_CXXFLAGS $GTK_CFLAGS"
-			have_gtk=yes
-			GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-gtk2"
-		],
-		[AC_MSG_ERROR([GTK+ 2 is not available])])
+		PKG_WIRESHARK_CHECK_SYSTEM_MODULES([GTK],
+			[gtk+-2.0 >= $GTK2_MIN_VERSION glib-2.0 >= $GLIB_MIN_VERSION gthread-2.0 >= $GLIB_MIN_VERSION gmodule-2.0 >= $GLIB_MIN_VERSION],
+			[
+				have_gtk=yes
+				GTK_VERSION=`$PKG_CONFIG --modversion gtk+-2.0`
+				GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-gtk2"
+			],
+			[AC_MSG_ERROR([GTK+ 2 is not available])])
 	fi
 fi
+AC_SUBST(GTK_CFLAGS)
+AC_SUBST(GTK_LIBS)
 AC_SUBST(GUI_CONFIGURE_FLAGS)
 
-GLIB_MIN_VERSION=2.16.0
-AC_SUBST(GLIB_MIN_VERSION)
-# GLib checks; we require GLib $GLIB_MIN_VERSION or later, and require gmodule
-# support, as we need that for dynamically loading plugins.
-# If we found GTK+, this doesn't add GLIB_CFLAGS to CFLAGS, because
-# AM_PATH_GTK will add GTK_CFLAGS to CFLAGS, and GTK_CFLAGS is a
-# superset of GLIB_CFLAGS.  If we didn't find GTK+, it does add
-# GLIB_CFLAGS to CFLAGS.
-# However, this means that both @GLIB_LIBS@ and @GTK_LIBS@ will be
-# set when generating the Makefile, so we can make programs that require
-# only GLib link with @GLIB_LIBS@ and make programs that require GTK+
-# link with @GTK_LIBS@ (which includes @GLIB_LIBS@).
-# We don't add $GLIB_LIBS to LIBS, because we don't want to force all
-# programs to be built with GLib.
-#
-# Release dates for GLib versions:
-# 2.14.0: 03 Aug 2007
-# 2.16.0: 10 Mar 2008
-# 2.18.0: 02 Sep 2008
-# 2.20.0: 13 Mar 2009
-# 2.22.0: 22 Sep 2009
-# 2.24.0: 28 Mar 2010
-# 2.26.0: 27 Sep 2010
-# 2.28.0: 08 Feb 2011
-# 2.30.0: 27 Sep 2011
-# 2.32.0: 24 Mar 2012
-# 2.34.0: 24 Sep 2012
-# 2.36.0: 25 Mar 2013
-# 2.38.0: 23 Sep 2013
-# 2.40.0: 24 Mar 2014
-# 2.42.0: 22 Sep 2014
-# 2.44.0: 23 Mar 2014
-# 2.46.0: 25 Sep 2015
-
-use_glib_cflags="true"
 if test "$have_gtk" = "yes" -a "$have_qt" = "yes" ; then
 	# We have both GTK and Qt and thus will be building both wireshark
 	# and wireshark-gtk.
@@ -1822,6 +1828,8 @@ fi
 
 if test "$have_gtk" = "yes" ; then
 	# If we have GTK then add flags for it.
+	gtk_config_major_version=`echo $GTK_VERSION | cut -d. -f1`
+	gtk_config_minor_version=`echo $GTK_VERSION | cut -d. -f2`
 
 	WS_CPPFLAGS="-DGDK_DISABLE_DEPRECATED $WS_CPPFLAGS"
 	if test \( $gtk_config_major_version -eq 3 -a $gtk_config_minor_version -ge 10 \) ; then
@@ -1837,26 +1845,6 @@ if test "$have_gtk" = "yes" ; then
 		# (Versions prior to 2.22 lacked some necessary accessors.)
 		WS_CPPFLAGS="-DGSEAL_ENABLE $WS_CPPFLAGS"
 	fi
-fi
-
-# XXX - Is this really necessary?  When we build with both Gtk+ and Qt it works...
-if test "$use_glib_cflags" = "true"; then
-	# Use GLIB_CFLAGS
-	AM_PATH_GLIB_2_0($GLIB_MIN_VERSION,
-	[
-		WS_CFLAGS="$WS_CFLAGS $GLIB_CFLAGS"
-		WS_CXXFLAGS="$WS_CXXFLAGS $GLIB_CFLAGS"
-	], AC_MSG_ERROR(GLib $GLIB_MIN_VERSION or later distribution not found.), gthread gmodule)
-else
-	# Don't use GLIB_CFLAGS
-	AM_PATH_GLIB_2_0($GLIB_MIN_VERSION, , AC_MSG_ERROR(GLib $GLIB_MIN_VERSION or later distribution not found.), gthread gmodule)
-fi
-
-# Check for GResource support
-PKG_CHECK_EXISTS([gio-2.0 >= 2.32 gdk-pixbuf-2.0 >= 2.26], [have_gresource=yes], [have_gresource=no])
-AM_CONDITIONAL(HAVE_GRESOURCE, test "x$have_gresource" = "xyes")
-if test "x$have_gresource" = "xyes"; then
-	AC_DEFINE(HAVE_GRESOURCE, 1, [Defined if GLib GResource is supported])
 fi
 
 # Error out if a glib header other than a "top level" header
@@ -3315,11 +3303,7 @@ dnl AC_CONFIG_FILES([tools/setuid-root.pl], [chmod +x tools/setuid-root.pl])
 # Pretty messages
 
 if test "x$have_gtk" = "xyes"; then
-	if test "x$with_gtk3" = "xyes"; then
-		gtk_lib_message=" (with GTK+ 3"
-	else
-		gtk_lib_message=" (with GTK+ 2"
-	fi
+	gtk_lib_message=" (with GTK+ v$GTK_VERSION"
 	if test "x$have_ige_mac" = "xyes"; then
 		gtk_lib_message="$gtk_lib_message and OS X integration)"
 	else

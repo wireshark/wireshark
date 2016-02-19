@@ -32,6 +32,10 @@ wimaxmacphy_la_SOURCES = \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 
+wimaxmacphy_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
+
+wimaxmacphy_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
+
 wimaxmacphy_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
 CLEANFILES = \

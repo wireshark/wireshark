@@ -33,6 +33,10 @@ unistim_la_SOURCES = \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 
+unistim_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
+
+unistim_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
+
 unistim_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
 CLEANFILES = \

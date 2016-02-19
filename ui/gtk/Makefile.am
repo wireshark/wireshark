@@ -22,7 +22,8 @@
 include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
-AM_CPPFLAGS += $(PORTAUDIO_INCLUDES)
+AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GTK_CFLAGS) \
+	$(PORTAUDIO_INCLUDES)
 
 CLEANFILES = \
 	libgtkui.a				\

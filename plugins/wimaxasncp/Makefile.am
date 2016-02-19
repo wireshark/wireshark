@@ -39,7 +39,9 @@ wimaxasncp_la_SOURCES = \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 
-wimaxasncp_la_CFLAGS = $(GENERATED_CFLAGS)
+wimaxasncp_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
+
+wimaxasncp_la_CFLAGS = $(GENERATED_CFLAGS) $(PLUGIN_CFLAGS)
 
 wimaxasncp_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 

@@ -21,7 +21,8 @@
 include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
-AM_CPPFLAGS += -I$(top_srcdir)/epan
+AM_CPPFLAGS = $(INCLUDEDIRS) -I$(top_srcdir)/epan $(WS_CPPFLAGS) \
+	$(GLIB_CFLAGS) $(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS)
 
 noinst_LTLIBRARIES = libftypes.la
 
@@ -34,8 +35,6 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 libftypes_la_SOURCES = $(NONGENERATED_C_FILES) $(NONGENERATED_HEADER_FILES)
-
-libftypes_la_LIBADD = @GLIB_LIBS@
 
 EXTRA_DIST = \
 	Makefile.common		\

@@ -22,7 +22,8 @@
 include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
-AM_CPPFLAGS += -I$(top_srcdir)/epan -I$(lemon_srcdir)
+AM_CPPFLAGS = $(INCLUDEDIRS) -I$(top_srcdir)/epan -I$(lemon_srcdir) \
+	$(WS_CPPFLAGS) $(GLIB_CFLAGS)
 
 noinst_LTLIBRARIES = libdfilter_generated.la libdfilter.la
 
@@ -54,6 +55,7 @@ libdfilter_la_SOURCES = $(NONGENERATED_C_FILES) $(NONGENERATED_HEADER_FILES)
 libdfilter_generated_la_SOURCES = \
 	$(GENERATED_C_FILES)	\
 	$(GENERATED_HEADER_FILES)
+
 libdfilter_generated_la_CFLAGS = $(GENERATED_CFLAGS)
 
 nodist_libdfilter_generated_la_SOURCES = \
@@ -61,6 +63,7 @@ nodist_libdfilter_generated_la_SOURCES = \
 	$(NODIST_GENERATED_HEADER_FILES)
 
 libdfilter_la_LIBADD = libdfilter_generated.la
+
 libdfilter_la_DEPENDENCIES = libdfilter_generated.la
 
 EXTRA_DIST = \

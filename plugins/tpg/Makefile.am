@@ -32,6 +32,10 @@ tpg_la_SOURCES = \
 	http-parser.h \
 	packet-http.c
 
+tpg_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
+
+tpg_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
+
 tpg_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
 CLEANFILES = \

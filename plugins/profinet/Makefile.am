@@ -32,6 +32,10 @@ profinet_la_SOURCES = \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 
+profinet_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
+
+profinet_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
+
 profinet_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
 CLEANFILES = \

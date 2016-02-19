@@ -20,6 +20,8 @@
 
 include $(top_srcdir)/Makefile.am.inc
 
+AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS)
+
 EXTRA_DIST = \
 	CMakeLists.txt				\
 	Makefile.inc				\
@@ -47,7 +49,7 @@ bin_PROGRAMS = idl2wrs
 
 idl2wrs_SOURCES = idl2wrs.c
 
-idl2wrs_LDADD = @GLIB_LIBS@
+idl2wrs_LDADD = $(GLIB_LIBS)
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html

@@ -32,6 +32,10 @@ ethercat_la_SOURCES = \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 
+ethercat_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
+
+ethercat_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
+
 ethercat_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
 CLEANFILES = \

@@ -30,6 +30,10 @@ stats_tree_la_SOURCES = \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 
+stats_tree_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
+
+stats_tree_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
+
 stats_tree_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
 CLEANFILES = \

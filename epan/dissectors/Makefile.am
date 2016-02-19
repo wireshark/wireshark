@@ -21,13 +21,15 @@
 include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
-AM_CPPFLAGS += -I$(top_srcdir)/epan $(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS)
+AM_CPPFLAGS = $(INCLUDEDIRS) -I$(top_srcdir)/epan $(WS_CPPFLAGS) \
+	$(GLIB_CFLAGS) $(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS)
 
 noinst_LTLIBRARIES = libdirtydissectors.la libfiledissectors.la libdissectors.la
 
 libdirtydissectors_la_SOURCES = \
 	$(DIRTY_ASN1_DISSECTOR_SRC) \
 	$(DIRTY_CORBA_IDL_DISSECTOR_SRC)
+
 libdirtydissectors_la_CFLAGS = $(GENERATED_CFLAGS)
 
 libfiledissectors_la_SOURCES = \

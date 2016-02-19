@@ -22,7 +22,8 @@
 include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
-AM_CPPFLAGS += $(LIBWMEM_CFLAGS)
+AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(LIBWMEM_CFLAGS) \
+	$(GLIB_CFLAGS)
 
 noinst_LTLIBRARIES = libwmem.la
 

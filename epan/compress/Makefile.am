@@ -22,6 +22,8 @@
 include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
+AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS)
+
 noinst_LTLIBRARIES = liblzxpress.la
 
 CLEANFILES = \

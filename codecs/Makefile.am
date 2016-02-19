@@ -22,7 +22,8 @@
 include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
-AM_CPPFLAGS += -DWS_BUILD_DLL
+AM_CPPFLAGS = -DWS_BUILD_DLL $(INCLUDEDIRS) $(WS_CPPFLAGS) \
+	$(GLIB_CFLAGS) $(SBC_CFLAGS)
 
 lib_LTLIBRARIES = libwscodecs.la
 
@@ -35,12 +36,10 @@ libwscodecs_la_SOURCES = \
 	$(LIBWSCODECS_SRC) \
 	$(noinst_HEADERS)
 
-libwscodecs_la_CFLAGS = $(AM_CFLAGS) $(SBC_CFLAGS)
-
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 libwscodecs_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
 
-libwscodecs_la_LIBADD = $(top_builddir)/wsutil/libwsutil.la $(SBC_LIBS)
+libwscodecs_la_LIBADD = $(top_builddir)/wsutil/libwsutil.la $(GLIB_LIBS) $(SBC_LIBS)
 
 libwscodecs_la_DEPENDENCIES = $(top_builddir)/wsutil/libwsutil.la
 

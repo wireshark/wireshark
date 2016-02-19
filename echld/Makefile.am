@@ -23,7 +23,8 @@ include $(top_srcdir)/Makefile.am.inc
 
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
-AM_CPPFLAGS += -DWS_BUILD_DLL
+AM_CPPFLAGS = -DWS_BUILD_DLL $(INCLUDEDIRS) $(WS_CPPFLAGS) \
+	$(GLIB_CFLAGS)
 
 # Optional objects that I know how to build. These will be
 # linked into libechld.

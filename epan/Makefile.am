@@ -40,8 +40,10 @@ DIST_SUBDIRS = $(SUBDIRS) $(wslua_dist_dir)
 
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
-AM_CPPFLAGS += -I$(builddir)/wslua $(LUA_CFLAGS) $(LIBGNUTLS_CFLAGS) \
-	$(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS) $(LIBGEOIP_CFLAGS) $(KRB5_CFLAGS)
+AM_CPPFLAGS = $(INCLUDEDIRS) -I$(builddir)/wslua $(WS_CPPFLAGS) \
+	$(GLIB_CFLAGS) $(LUA_CFLAGS) $(LIBGNUTLS_CFLAGS) \
+	$(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS) $(LIBGEOIP_CFLAGS) \
+	$(KRB5_CFLAGS)
 
 noinst_LTLIBRARIES = libwireshark_generated.la libwireshark_asmopt.la
 lib_LTLIBRARIES = libwireshark.la
@@ -55,11 +57,13 @@ libwireshark_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
 libwireshark_la_SOURCES = \
 	$(LIBWIRESHARK_SRC)	\
 	$(LIBWIRESHARK_INCLUDES)
+
 libwireshark_la_CPPFLAGS = $(AM_CPPFLAGS) -DWS_BUILD_DLL
 
 libwireshark_generated_la_SOURCES = \
 	$(LIBWIRESHARK_GENERATED_C_FILES) \
 	$(LIBWIRESHARK_GENERATED_HEADER_FILES)
+
 libwireshark_generated_la_CFLAGS = $(GENERATED_CFLAGS)
 
 nodist_libwireshark_generated_la_SOURCES = \

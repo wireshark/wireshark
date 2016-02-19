@@ -23,6 +23,8 @@ include ../Makefile.am.inc
 
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
+AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS)
+
 extcap_PROGRAMS = \
 	@androiddump_bin@	\
 	@randpktdump_bin@	\

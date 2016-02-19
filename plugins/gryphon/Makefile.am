@@ -34,6 +34,10 @@ gryphon_la_SOURCES = \
 	$(SRC_FILES)	\
 	$(HEADER_FILES)
 
+gryphon_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
+
+gryphon_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
+
 gryphon_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
 CLEANFILES = \
