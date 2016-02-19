@@ -17,74 +17,92 @@ The following vulnerabilities have been fixed:
 DLL hijacking vulnerability.
 //(ws-buglink:XXXX[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: g4a79cf2
-// Fixed in master-2.0: gb33f4c8
-// Fixed in master-1.12: gf8d67cf
+// Fixed in master: 4a79cf2
+// Fixed in master-2.0: b33f4c8
+// Fixed in master-1.12: f8d67cf
 
 * ws-salink:2016-02[]
 +
 ASN.1 BER dissector crash.
 (ws-buglink:11828[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: g9b2f3f7
-// Fixed in master-2.0: g1942c8a
+// Fixed in master: 9b2f3f7
+// Fixed in master-2.0: 1942c8a
 
 * ws-salink:2016-03[]
 +
 DNP dissector infinite loop.
 (ws-buglink:11938[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: g260afe1
-// Fixed in master-2.0: g0cc86bb
-// Fixed in master-1.12: g0ca7445
+// Fixed in master: 260afe1
+// Fixed in master-2.0: 0cc86bb
+// Fixed in master-1.12: 0ca7445
 
 * ws-salink:2016-04[]
 +
 X.509AF dissector crash.
 (ws-buglink:12002[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: g5a8020a
-// Fixed in master-2.0: g1f4977b
+// Fixed in master: 5a8020a
+// Fixed in master-2.0: 1f4977b
 
 * ws-salink:2016-05[]
 +
 HTTP/2 dissector crash.
 (ws-buglink:12077[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: g
-// Fixed in master-2.0: g
+// Fixed in master:
+// Fixed in master-2.0:
 
 * ws-salink:2016-06[]
 +
 HiQnet dissector crash.
 (ws-buglink:11983[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: g69a679c
-// Fixed in master-2.0: g325fb1a
+// Fixed in master: 69a679c
+// Fixed in master-2.0: 325fb1a
 
 * ws-salink:2016-07[]
 +
 3GPP TS 32.423 Trace file parser crash.
 (ws-buglink:11982[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: g140aad0
-// Fixed in master-2.0: g10d4c85
+// Fixed in master: 140aad0
+// Fixed in master-2.0: 10d4c85
 
 * ws-salink:2016-08[]
 +
 LBMC dissector crash.
 (ws-buglink:11984[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: g1c090e9
-// Fixed in master-2.0: g32fc1bc
+// Fixed in master: 1c090e9
+// Fixed in master-2.0: 32fc1bc
 
 * ws-salink:2016-09[]
 +
 iSeries file parser crash.
 (ws-buglink:11985[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: g96d585a
-// Fixed in master-2.0: g83dd13c
+// Fixed in master: 96d585a
+// Fixed in master-2.0: 83dd13c
+
+* ws-salink:2016-10[]
++
+RSL dissector crash.
+(ws-buglink:11829[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 2930d31, de65fd6
+// Fixed in master-2.0: aba3635, 0865707
+// Fixed in master-1.12: f899e8a, 08d1876
+
+* ws-salink:2016-11[]
++
+LLRP dissector crash.
+(ws-buglink:12048[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 4a2cd6c
+// Fixed in master-2.0: 38a01c8
+// Fixed in master-1.12: 74085a5
 
 The following bugs have been fixed:
 
@@ -106,11 +124,11 @@ The following bugs have been fixed:
 
 * Interface list doesn't show well when the list is very long. (ws-buglink:11733[])
 
-* Wireshark heap-based out-of-bounds read in dissect_ber_constrained_bitstring. (ws-buglink:11828[])
-
 * Unable to use saved Capture Filters in Qt UI. (ws-buglink:11836[])
 
-* extcap: capture interface options snaplen, buffer and promiscuous not being used. (ws-buglink:11865[])
+* extcap: Capture interface options snaplen, buffer and promiscuous not being used. (ws-buglink:11865[])
+
+* Improper RPC reassembly (ws-buglink:11913[])
 
 * GTPv1 Dual Stack with one static and one Dynamic IP. (ws-buglink:11945[])
 
@@ -134,7 +152,7 @@ The following bugs have been fixed:
 
 * Issues when closing the application with a running capture without packets. (ws-buglink:11981[])
 
-* New Qt UI lacks ability to step through multiple TCP streams with Analyze > Follow > TCP Strem. (ws-buglink:11987[])
+* New Qt UI lacks ability to step through multiple TCP streams with Analyze > Follow > TCP Stream. (ws-buglink:11987[])
 
 * GTK: plugin_if_goto_frame causes Access Violation if called before capture file is loaded. (ws-buglink:11989[])
 
@@ -160,9 +178,19 @@ The following bugs have been fixed:
 
 * Wrong interpretation of Instance ID value in OSPFv3 packet. (ws-buglink:12072[])
 
+* MP2T Dissector does parse RTP properly in 2.0.1. (ws-buglink:12099[])
+
+* editcap does not adjust time for frames with absolute timestamp 0 < t < 1 secs. (ws-buglink:12116[])
+
+* Guard Interval is not consistent between Radiotap & wlan_radio. (ws-buglink:12123[])
+
 Windows installers and PortableApps(R) packages are now dual signed using SHA-1 and SHA-256
 in order to comply with
 http://social.technet.microsoft.com/wiki/contents/articles/32288.windows-enforcement-of-authenticode-code-signing-and-timestamping.aspx[Microsoft Authenticode policy].
+Windows 7 and Windows Server 2008 R2 users should ensure that
+https://support.microsoft.com/en-us/kb/3123479[update 3123479] is installed.
+Windows Vista and Windows Server 2008 users should ensure that
+https://support.microsoft.com/en-us/kb/2763674[hotfix 2763674] is installed.
 
 === New and Updated Features
 
@@ -203,8 +231,10 @@ InfiniBand
 IPv4
 IPv6
 LBMC
+LLRP
 M3AP
 MAC LTE
+MP2T
 MPLS
 NFS
 NS Trace
@@ -212,6 +242,8 @@ OSPF
 PIM
 RLC LTE
 RoHC
+RPC
+RSL
 SSL
 TCP
 TRILL
