@@ -384,11 +384,6 @@ proto_reg_handoff_hci_usb(void)
     bthci_evt_handle = find_dissector("bthci_evt");
     bthci_acl_handle = find_dissector("bthci_acl");
     bthci_sco_handle = find_dissector("bthci_sco");
-
-    dissector_add_uint("bluetooth.encap", WTAP_ENCAP_USB,  hci_usb_handle);
-    dissector_add_uint("bluetooth.encap", WTAP_ENCAP_USB_LINUX,  hci_usb_handle);
-    dissector_add_uint("bluetooth.encap", WTAP_ENCAP_USB_LINUX_MMAPPED,  hci_usb_handle);
-    dissector_add_uint("bluetooth.encap", WTAP_ENCAP_USBPCAP,  hci_usb_handle);
 }
 
 /*

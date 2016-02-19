@@ -46,6 +46,7 @@ static int hf_bluetooth_str_addr = -1;
 static gint ett_bluetooth = -1;
 
 static dissector_handle_t btle_handle;
+static dissector_handle_t hci_usb_handle;
 static dissector_handle_t data_handle;
 
 static dissector_table_t bluetooth_table;
@@ -1798,6 +1799,13 @@ dissect_bluetooth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /*
  * Register this in the wtap_encap dissector table.
+ * It's called for WTAP_ENCAP_BLUETOOTH_H4, WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR,
+ * WTAP_ENCAP_PACKETLOGGER. WTAP_ENCAP_BLUETOOTH_LE_LL,
+ * WTAP_ENCAP_BLUETOOTH_LE_LL_WITH_PHDR, and WTAP_ENCAP_BLUETOOTH_BREDR_BB.
+ *
+ * It does work common to all Bluetooth encapsulations, and then calls
+ * the dissector registered in the bluetooth.encap table to handle the
+ * metadata header in the packet.
  */
 static gint
 dissect_bluetooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -1822,6 +1830,11 @@ dissect_bluetooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 /*
  * Register this in the wtap_encap dissector table.
+ * It's called for WTAP_ENCAP_BLUETOOTH_HCI.
+ *
+ * It does work common to all Bluetooth encapsulations, and then calls
+ * the dissector registered in the bluetooth.encap table to handle the
+ * metadata header in the packet.
  */
 static gint
 dissect_bluetooth_bthci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -1845,6 +1858,11 @@ dissect_bluetooth_bthci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 /*
  * Register this in the wtap_encap dissector table.
+ * It's called for WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR.
+ *
+ * It does work common to all Bluetooth encapsulations, and then calls
+ * the dissector registered in the bluetooth.encap table to handle the
+ * metadata header in the packet.
  */
 static gint
 dissect_bluetooth_btmon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -1882,11 +1900,7 @@ dissect_bluetooth_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     bluetooth_data->previous_protocol_data_type = BT_PD_USB_CONV_INFO;
     bluetooth_data->previous_protocol_data.usb_conv_info = (usb_conv_info_t *)data;
 
-    if (!dissector_try_uint_new(bluetooth_table, pinfo->phdr->pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
-        call_dissector(data_handle, tvb, pinfo, tree);
-    }
-
-    return tvb_captured_length(tvb);
+    return call_dissector_with_data(hci_usb_handle, tvb, pinfo, tree, bluetooth_data);
 }
 
 /*
@@ -2001,6 +2015,7 @@ proto_reg_handoff_bluetooth(void)
 
     btle_handle = find_dissector("btle");
     data_handle = find_dissector("data");
+    hci_usb_handle = find_dissector("hci_usb");
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_HCI,           bluetooth_bthci_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_H4,            bluetooth_handle);
