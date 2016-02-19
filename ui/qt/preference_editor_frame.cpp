@@ -176,11 +176,11 @@ void PreferenceEditorFrame::rangeLineEditTextEdited(const QString &new_str)
 
 void PreferenceEditorFrame::on_modulePreferencesToolButton_clicked()
 {
-    on_buttonBox_rejected();
     if (module_) {
         QString module_name = module_->name;
         emit showProtocolPreferences(module_name);
     }
+    on_buttonBox_rejected();
 }
 
 void PreferenceEditorFrame::on_preferenceLineEdit_returnPressed()
