@@ -22,7 +22,7 @@
 include $(top_srcdir)/Makefile.am.inc
 
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(LUA_CFLAGS) \
-	$(GLIB_CFLAGS)
+	$(GLIB_CFLAGS) $(ZLIB_CFLAGS)
 
 noinst_LTLIBRARIES = libwslua.la
 

@@ -2424,8 +2424,11 @@ else
     AC_WIRESHARK_PCAP_REMOTE_CHECK
 fi
 
+dnl
 dnl zlib check
+dnl
 AC_MSG_CHECKING(whether to use zlib for gzip compression and decompression)
+have_zlib=no
 
 AC_ARG_WITH(zlib,
   AC_HELP_STRING([--with-zlib@<:@=DIR@:>@],
@@ -2442,24 +2445,11 @@ AC_ARG_WITH(zlib,
 		zlib_dir="$withval"
 	fi
 ],[
-	#
-	# Use zlib if it's present, otherwise don't.
-	#
-	want_zlib=ifavailable
-	zlib_dir=
+	want_zlib="if available"
 ])
-if test "x$want_zlib" = "xno" ; then
-	AC_MSG_RESULT(no)
-else
-	AC_MSG_RESULT(yes)
+AC_MSG_RESULT([$want_zlib])
+if test "x$want_zlib" != "xno" ; then
 	AC_WIRESHARK_ZLIB_CHECK
-	if test "x$want_zlib" = "xno" ; then
-		AC_MSG_RESULT(zlib not found - disabling gzip compression and decompression)
-	else
-		if test "x$ac_cv_func_inflatePrime" = "xno" ; then
-			AC_MSG_RESULT(inflatePrime not found in zlib - disabling gzipped capture file support)
-		fi
-	fi
 fi
 
 dnl Lua check
@@ -3370,7 +3360,7 @@ else
 	dumpcap_group_message="$DUMPCAP_GROUP"
 fi
 
-if test "x$want_zlib" = "xno" ; then
+if test "x$have_zlib" = "xno" ; then
 	zlib_message="no"
 else
 	zlib_message="yes"

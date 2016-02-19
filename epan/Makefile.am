@@ -43,7 +43,7 @@ ACLOCAL_AMFLAGS = `../aclocal-flags`
 AM_CPPFLAGS = $(INCLUDEDIRS) -I$(builddir)/wslua $(WS_CPPFLAGS) \
 	$(GLIB_CFLAGS) $(LUA_CFLAGS) $(LIBGNUTLS_CFLAGS) \
 	$(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS) $(LIBGEOIP_CFLAGS) \
-	$(KRB5_CFLAGS)
+	$(KRB5_CFLAGS) $(ZLIB_CFLAGS)
 
 noinst_LTLIBRARIES = libwireshark_generated.la libwireshark_asmopt.la
 lib_LTLIBRARIES = libwireshark.la
@@ -147,6 +147,7 @@ libwireshark_la_LIBADD = \
 	@LIBSMI_LDFLAGS@	\
 	@GEOIP_LIBS@		\
 	@GLIB_LIBS@		\
+	$(ZLIB_LIBS)		\
 	-lm
 
 libwireshark_la_DEPENDENCIES = \
@@ -168,17 +169,17 @@ EXTRA_PROGRAMS = reassemble_test tvbtest oids_test
 reassemble_test_LDADD = \
 	libwireshark.la \
 	$(GLIB_LIBS) \
-	-lz
+	$(ZLIB_LIBS)
 
 tvbtest_LDADD = \
 	libwireshark.la \
 	$(GLIB_LIBS) \
-	-lz
+	$(ZLIB_LIBS)
 
 oids_test_LDADD = \
 	libwireshark.la \
 	$(GLIB_LIBS) \
-	-lz
+	$(ZLIB_LIBS)
 
 exntest: exntest.o except.o
 	$(LINK) $^ $(GLIB_LIBS)
