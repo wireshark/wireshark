@@ -657,6 +657,29 @@ has_json_value(guint8 opcode)
   }
 }
 
+/* Dissects the required extras for subdoc single-path packets */
+static void
+dissect_subdoc_spath_required_extras(tvbuff_t *tvb, proto_tree *extras_tree,
+                                     guint8 extlen, gboolean request, gint* offset,
+                                     guint16 *path_len, gboolean *illegal)
+{
+  if (request) {
+    if (extlen >= 3) {
+      *path_len = tvb_get_ntohs(tvb, *offset);
+      proto_tree_add_item(extras_tree, hf_extras_pathlen, tvb, *offset, 2,
+                          ENC_BIG_ENDIAN);
+      *offset += 2;
+
+      proto_tree_add_bitmask(extras_tree, tvb, *offset, hf_subdoc_flags,
+                             ett_extras_flags, subdoc_flags, ENC_BIG_ENDIAN);
+      *offset += 1;
+    } else {
+      /* Must always have at least 3 bytes of extras */
+      *illegal = TRUE;
+    }
+  }
+}
+
 static void
 dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                gint offset, guint8 extlen, guint8 opcode, gboolean request,
@@ -999,6 +1022,10 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   case PROTOCOL_BINARY_CMD_SUBDOC_GET:
   case PROTOCOL_BINARY_CMD_SUBDOC_EXISTS:
+    dissect_subdoc_spath_required_extras(tvb, extras_tree, extlen, request,
+                                         &offset, path_len, &illegal);
+    break;
+
   case PROTOCOL_BINARY_CMD_SUBDOC_DICT_ADD:
   case PROTOCOL_BINARY_CMD_SUBDOC_DICT_UPSERT:
   case PROTOCOL_BINARY_CMD_SUBDOC_DELETE:
@@ -1008,23 +1035,21 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_INSERT:
   case PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_ADD_UNIQUE:
   case PROTOCOL_BINARY_CMD_SUBDOC_COUNTER:
-    if (extlen) {
-        if (request) {
-          *path_len = tvb_get_ntohs(tvb, offset);
-          proto_tree_add_item(extras_tree, hf_extras_pathlen, tvb, offset, 2, ENC_BIG_ENDIAN);
-          offset += 2;
-
-          proto_tree_add_bitmask(extras_tree, tvb, offset, hf_subdoc_flags, ett_extras_flags, subdoc_flags, ENC_BIG_ENDIAN);
-          offset += 1;
-        }
-    } else if (request) {
-      /* Request must have extras */
-      missing = TRUE;
+    dissect_subdoc_spath_required_extras(tvb, extras_tree, extlen, request,
+                                         &offset, path_len, &illegal);
+    if (request) {
+      /* optional expiry only permitted for mutation requests,
+         iff extlen == 7 */
+      if (extlen == 7) {
+        proto_tree_add_item(extras_tree, hf_extras_expiration, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+      } else if (extlen != 3) {
+        illegal = TRUE;
+      }
     }
     break;
 
   case PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP:
-  case PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION:
     if (request) {
       if (extlen) {
         illegal = TRUE;
