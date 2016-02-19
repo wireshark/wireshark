@@ -1902,7 +1902,7 @@ void MainWindow::setTitlebarForCaptureFile()
                                                      NULL);
             if (utf8_filename) {
                 QFileInfo fi(utf8_filename);
-                setWSWindowTitle(fi.fileName());
+                setWSWindowTitle(QString("[*]%1").arg(fi.fileName()));
                 setWindowFilePath(utf8_filename);
                 g_free(utf8_filename);
             } else {
