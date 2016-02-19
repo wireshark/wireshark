@@ -178,7 +178,7 @@ extern "C" {
 #define WTAP_ENCAP_CATAPULT_DCT2000              89
 #define WTAP_ENCAP_BER                           90
 #define WTAP_ENCAP_JUNIPER_VP                    91
-#define WTAP_ENCAP_USB                           92
+/* 92 is not used, feel free to resuse for another purpose */
 #define WTAP_ENCAP_IEEE802_16_MAC_CPS            93
 #define WTAP_ENCAP_NETTL_RAW_TELNET              94
 #define WTAP_ENCAP_USB_LINUX                     95

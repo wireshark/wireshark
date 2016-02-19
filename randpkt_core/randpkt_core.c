@@ -505,14 +505,6 @@ static randpkt_example examples[] = {
 		1000,
 	},
 
-	{ "usb", "Universal Serial Bus",
-		PKT_USB,	WTAP_ENCAP_USB,
-		NULL,		0,
-		NULL,		0,
-		NULL,		NULL,
-		1000,
-	},
-
 	{ "usb-linux", "Universal Serial Bus with Linux specific header",
 		PKT_USB_LINUX,	WTAP_ENCAP_USB_LINUX,
 		NULL,		0,
