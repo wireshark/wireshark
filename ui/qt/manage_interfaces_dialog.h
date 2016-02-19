@@ -106,6 +106,8 @@ private slots:
     void on_pipeList_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
 
     void localAccepted();
+    void localListItemDoubleClicked(QTreeWidgetItem * item, int column);
+
 #ifdef HAVE_PCAP_REMOTE
     void on_addRemote_clicked();
     void on_delRemote_clicked();

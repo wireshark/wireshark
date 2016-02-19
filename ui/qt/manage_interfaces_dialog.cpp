@@ -102,6 +102,7 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
 #ifndef Q_OS_WIN
     ui->localList->setColumnHidden(col_l_friendly_name_, true);
 #endif
+    ui->localList->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     ui->pipeList->setItemDelegateForColumn(col_p_pipe_, &new_pipe_item_delegate_);
     new_pipe_item_delegate_.setTree(ui->pipeList);
@@ -122,6 +123,7 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
 
     connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateWidgets()));
     connect(this, SIGNAL(ifsChanged()), parent, SIGNAL(ifsChanged()));
+    connect(ui->localList, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this, SLOT(localListItemDoubleClicked(QTreeWidgetItem *, int)));
 
 #ifdef HAVE_PCAP_REMOTE
     connect(this, SIGNAL(remoteAdded(GList*, remote_options*)), this, SLOT(addRemoteInterfaces(GList*, remote_options*)));
@@ -455,13 +457,20 @@ void ManageInterfacesDialog::localAccepted()
         /* write new description string to preferences */
         if (prefs.capture_devices_descr)
             g_free(prefs.capture_devices_descr);
-        prefs.capture_devices_descr = qstring_strdup(comment_list.join(","));;
+        prefs.capture_devices_descr = qstring_strdup(comment_list.join(","));
     }
 }
 
 void ManageInterfacesDialog::on_buttonBox_helpRequested()
 {
     wsApp->helpTopicAction(HELP_CAPTURE_MANAGE_INTERFACES_DIALOG);
+}
+
+void ManageInterfacesDialog::localListItemDoubleClicked(QTreeWidgetItem * item, int column)
+{
+    if (column == col_l_comment_) {
+        ui->localList->editItem(item, column);
+    }
 }
 
 #ifdef HAVE_PCAP_REMOTE
