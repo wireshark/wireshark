@@ -44,10 +44,26 @@
 /* protocols and header fields */
 static int proto_usb = -1;
 
-/* Linux USB pseudoheader fields */
+/* USB pseudoheader fields, both FreeBSD and Linux */
+static int hf_usb_totlen = -1;
+static int hf_usb_busunit = -1;
+static int hf_usb_address = -1;
+static int hf_usb_mode = -1;
+static int hf_usb_freebsd_urb_type = -1;
+static int hf_usb_freebsd_transfer_type = -1;
+static int hf_usb_xferflags = -1;
+static int hf_usb_xferstatus = -1;
+static int hf_usb_error = -1;
+static int hf_usb_interval = -1;
+static int hf_usb_nframes = -1;
+static int hf_usb_packet_size = -1;
+static int hf_usb_packet_count = -1;
+static int hf_usb_speed = -1;
+static int hf_usb_frame_length = -1;
+static int hf_usb_frame_flags = -1;
 static int hf_usb_urb_id = -1;
-static int hf_usb_urb_type = -1;
-static int hf_usb_transfer_type = -1;
+static int hf_usb_linux_urb_type = -1;
+static int hf_usb_linux_transfer_type = -1;
 static int hf_usb_endpoint_number = -1;
 static int hf_usb_endpoint_direction = -1;
 static int hf_usb_endpoint_number_value = -1;
@@ -195,6 +211,7 @@ static gint ett_configuration_bmAttributes = -1;
 static gint ett_configuration_bEndpointAddress = -1;
 static gint ett_endpoint_bmAttributes = -1;
 static gint ett_endpoint_wMaxPacketSize = -1;
+static gint ett_usb_frame = -1;
 
 static expert_field ei_usb_bLength_even = EI_INIT;
 static expert_field ei_usb_bLength_too_short = EI_INIT;
@@ -471,7 +488,165 @@ static const value_string usb_protocols[] = {
 };
 static value_string_ext usb_protocols_ext = VALUE_STRING_EXT_INIT(usb_protocols);
 
-static const value_string usb_transfer_type_vals[] = {
+/* FreeBSD header */
+
+/* Transfer mode */
+#define FREEBSD_MODE_HOST       0
+#define FREEBSD_MODE_DEVICE     1
+static const value_string usb_freebsd_transfer_mode_vals[] = {
+    {FREEBSD_MODE_HOST,   "Host"},
+    {FREEBSD_MODE_DEVICE, "Device"},
+    {0, NULL}
+};
+
+/* Type */
+#define FREEBSD_URB_SUBMIT   0
+#define FREEBSD_URB_COMPLETE 1
+static const value_string usb_freebsd_urb_type_vals[] = {
+    {FREEBSD_URB_SUBMIT,   "URB_SUBMIT"},
+    {FREEBSD_URB_COMPLETE, "URB_COMPLETE"},
+    {0, NULL}
+};
+
+/* Transfer type */
+#define FREEBSD_URB_CONTROL     0
+#define FREEBSD_URB_ISOCHRONOUS 1
+#define FREEBSD_URB_BULK        2
+#define FREEBSD_URB_INTERRUPT   3
+
+static const value_string usb_freebsd_transfer_type_vals[] = {
+    {FREEBSD_URB_CONTROL,     "URB_CONTROL"},
+    {FREEBSD_URB_ISOCHRONOUS, "URB_ISOCHRONOUS"},
+    {FREEBSD_URB_BULK,        "URB_BULK"},
+    {FREEBSD_URB_INTERRUPT,   "URB_INTERRUPT"},
+    {0, NULL}
+};
+
+/* Transfer flags */
+#define FREEBSD_FLAG_FORCE_SHORT_XFER 0x00000001
+#define FREEBSD_FLAG_SHORT_XFER_OK    0x00000002
+#define FREEBSD_FLAG_SHORT_FRAMES_OK  0x00000004
+#define FREEBSD_FLAG_PIPE_BOF         0x00000008
+#define FREEBSD_FLAG_PROXY_BUFFER     0x00000010
+#define FREEBSD_FLAG_EXT_BUFFER       0x00000020
+#define FREEBSD_FLAG_MANUAL_STATUS    0x00000040
+#define FREEBSD_FLAG_NO_PIPE_OK       0x00000080
+#define FREEBSD_FLAG_STALL_PIPE       0x00000100
+
+/* Transfer status */
+#define FREEBSD_STATUS_OPEN              0x00000001
+#define FREEBSD_STATUS_TRANSFERRING      0x00000002
+#define FREEBSD_STATUS_DID_DMA_DELAY     0x00000004
+#define FREEBSD_STATUS_DID_CLOSE         0x00000008
+#define FREEBSD_STATUS_DRAINING          0x00000010
+#define FREEBSD_STATUS_STARTED           0x00000020
+#define FREEBSD_STATUS_BW_RECLAIMED      0x00000040
+#define FREEBSD_STATUS_CONTROL_XFR       0x00000080
+#define FREEBSD_STATUS_CONTROL_HDR       0x00000100
+#define FREEBSD_STATUS_CONTROL_ACT       0x00000200
+#define FREEBSD_STATUS_CONTROL_STALL     0x00000400
+#define FREEBSD_STATUS_SHORT_FRAMES_OK   0x00000800
+#define FREEBSD_STATUS_SHORT_XFER_OK     0x00001000
+#define FREEBSD_STATUS_BDMA_ENABLE       0x00002000
+#define FREEBSD_STATUS_BDMA_NO_POST_SYNC 0x00004000
+#define FREEBSD_STATUS_BDMA_SETUP        0x00008000
+#define FREEBSD_STATUS_ISOCHRONOUS_XFR   0x00010000
+#define FREEBSD_STATUS_CURR_DMA_SET      0x00020000
+#define FREEBSD_STATUS_CAN_CANCEL_IMMED  0x00040000
+#define FREEBSD_STATUS_DOING_CALLBACK    0x00080000
+
+/* USB errors */
+#define FREEBSD_ERR_NORMAL_COMPLETION 0
+#define FREEBSD_ERR_PENDING_REQUESTS  1
+#define FREEBSD_ERR_NOT_STARTED       2
+#define FREEBSD_ERR_INVAL             3
+#define FREEBSD_ERR_NOMEM             4
+#define FREEBSD_ERR_CANCELLED         5
+#define FREEBSD_ERR_BAD_ADDRESS       6
+#define FREEBSD_ERR_BAD_BUFSIZE       7
+#define FREEBSD_ERR_BAD_FLAG          8
+#define FREEBSD_ERR_NO_CALLBACK       9
+#define FREEBSD_ERR_IN_USE            10
+#define FREEBSD_ERR_NO_ADDR           11
+#define FREEBSD_ERR_NO_PIPE           12
+#define FREEBSD_ERR_ZERO_NFRAMES      13
+#define FREEBSD_ERR_ZERO_MAXP         14
+#define FREEBSD_ERR_SET_ADDR_FAILED   15
+#define FREEBSD_ERR_NO_POWER          16
+#define FREEBSD_ERR_TOO_DEEP          17
+#define FREEBSD_ERR_IOERROR           18
+#define FREEBSD_ERR_NOT_CONFIGURED    19
+#define FREEBSD_ERR_TIMEOUT           20
+#define FREEBSD_ERR_SHORT_XFER        21
+#define FREEBSD_ERR_STALLED           22
+#define FREEBSD_ERR_INTERRUPTED       23
+#define FREEBSD_ERR_DMA_LOAD_FAILED   24
+#define FREEBSD_ERR_BAD_CONTEXT       25
+#define FREEBSD_ERR_NO_ROOT_HUB       26
+#define FREEBSD_ERR_NO_INTR_THREAD    27
+#define FREEBSD_ERR_NOT_LOCKED        28
+
+static const value_string usb_freebsd_err_vals[] = {
+    {FREEBSD_ERR_NORMAL_COMPLETION, "Normal completion"},
+    {FREEBSD_ERR_PENDING_REQUESTS,  "Pending requests"},
+    {FREEBSD_ERR_NOT_STARTED,       "Not started"},
+    {FREEBSD_ERR_INVAL,             "Invalid"},
+    {FREEBSD_ERR_NOMEM,             "No memory"},
+    {FREEBSD_ERR_CANCELLED,         "Cancelled"},
+    {FREEBSD_ERR_BAD_ADDRESS,       "Bad address"},
+    {FREEBSD_ERR_BAD_BUFSIZE,       "Bad buffer size"},
+    {FREEBSD_ERR_BAD_FLAG,          "Bad flag"},
+    {FREEBSD_ERR_NO_CALLBACK,       "No callback"},
+    {FREEBSD_ERR_IN_USE,            "In use"},
+    {FREEBSD_ERR_NO_ADDR,           "No address"},
+    {FREEBSD_ERR_NO_PIPE,           "No pipe"},
+    {FREEBSD_ERR_ZERO_NFRAMES,      "Number of frames is zero"},
+    {FREEBSD_ERR_ZERO_MAXP,         "MAXP is zero"},
+    {FREEBSD_ERR_SET_ADDR_FAILED,   "Set address failed"},
+    {FREEBSD_ERR_NO_POWER,          "No power"},
+    {FREEBSD_ERR_TOO_DEEP,          "Too deep"},
+    {FREEBSD_ERR_IOERROR,           "I/O error"},
+    {FREEBSD_ERR_NOT_CONFIGURED,    "Not configured"},
+    {FREEBSD_ERR_TIMEOUT,           "Timeout"},
+    {FREEBSD_ERR_SHORT_XFER,        "Short transfer"},
+    {FREEBSD_ERR_STALLED,           "Stalled"},
+    {FREEBSD_ERR_INTERRUPTED,       "Interrupted"},
+    {FREEBSD_ERR_DMA_LOAD_FAILED,   "DMA load failed"},
+    {FREEBSD_ERR_BAD_CONTEXT,       "Bad context"},
+    {FREEBSD_ERR_NO_ROOT_HUB,       "No root hub"},
+    {FREEBSD_ERR_NO_INTR_THREAD,    "No interrupt thread"},
+    {FREEBSD_ERR_NOT_LOCKED,        "Not locked"},
+    {0, NULL}
+};
+
+/* USB speeds */
+#define FREEBSD_SPEED_VARIABLE 0
+#define FREEBSD_SPEED_LOW      1
+#define FREEBSD_SPEED_FULL     2
+#define FREEBSD_SPEED_HIGH     3
+#define FREEBSD_SPEED_SUPER    4
+
+static const value_string usb_freebsd_speed_vals[] = {
+    {FREEBSD_SPEED_VARIABLE, "Variable"},
+    {FREEBSD_SPEED_LOW,      "Low"},
+    {FREEBSD_SPEED_FULL,     "Full"},
+    {FREEBSD_SPEED_HIGH,     "High"},
+    {FREEBSD_SPEED_SUPER,    "Super"},
+    {0, NULL}
+};
+
+/* Frame flags */
+#define FREEBSD_FRAMEFLAG_READ         0x00000001
+#define FREEBSD_FRAMEFLAG_DATA_FOLLOWS 0x00000002
+
+static const value_string usb_linux_urb_type_vals[] = {
+    {URB_SUBMIT,   "URB_SUBMIT"},
+    {URB_COMPLETE, "URB_COMPLETE"},
+    {URB_ERROR,    "URB_ERROR"},
+    {0, NULL}
+};
+
+static const value_string usb_linux_transfer_type_vals[] = {
     {URB_CONTROL,                       "URB_CONTROL"},
     {URB_ISOCHRONOUS,                   "URB_ISOCHRONOUS"},
     {URB_INTERRUPT,                     "URB_INTERRUPT"},
@@ -494,13 +669,6 @@ static const value_string usb_transfer_type_and_direction_vals[] = {
 static const value_string usb_endpoint_direction_vals[] = {
     {0, "OUT"},
     {1, "IN"},
-    {0, NULL}
-};
-
-static const value_string usb_urb_type_vals[] = {
-    {URB_SUBMIT,   "URB_SUBMIT"},
-    {URB_COMPLETE, "URB_COMPLETE"},
-    {URB_ERROR,    "URB_ERROR"},
     {0, NULL}
 };
 
@@ -3081,10 +3249,10 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     /* show the urb type of this URB as string and as a character */
     urb_type = tvb_get_guint8(tvb, 8);
     usb_conv_info->is_request = (urb_type==URB_SUBMIT);
-    proto_tree_add_uint_format_value(tree, hf_usb_urb_type, tvb, 8, 1,
-        urb_type, "%s ('%c')", val_to_str(urb_type, usb_urb_type_vals, "Unknown %d"),
+    proto_tree_add_uint_format_value(tree, hf_usb_linux_urb_type, tvb, 8, 1,
+        urb_type, "%s ('%c')", val_to_str(urb_type, usb_linux_urb_type_vals, "Unknown %d"),
         g_ascii_isprint(urb_type) ? urb_type : '.');
-    proto_tree_add_item(tree, hf_usb_transfer_type, tvb, 9, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_linux_transfer_type, tvb, 9, 1, ENC_LITTLE_ENDIAN);
 
     transfer_type = tvb_get_guint8(tvb, 9);
     usb_conv_info->transfer_type = transfer_type;
@@ -3182,7 +3350,7 @@ dissect_usbpcap_buffer_packet_header(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     transfer_type = tvb_get_guint8(tvb, 22);
     usb_conv_info->transfer_type = transfer_type;
-    proto_tree_add_item(tree, hf_usb_transfer_type, tvb, 22, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_linux_transfer_type, tvb, 22, 1, ENC_LITTLE_ENDIAN);
 
     transfer_type_and_direction = (transfer_type & 0x7F) | (endpoint_byte & 0x80);
     col_append_str(pinfo->cinfo, COL_INFO,
@@ -3651,6 +3819,57 @@ dissect_usb_payload(tvbuff_t *tvb, packet_info *pinfo,
     return offset;
 }
 
+static int
+dissect_freebsd_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, void *data _U_)
+{
+    int offset = 0;
+    proto_item *ti;
+    proto_tree *tree = NULL, *frame_tree = NULL;
+    guint32 nframes;
+    guint32 i;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
+
+    /* add usb hdr*/
+    if (parent) {
+      ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0, 128,
+                                          "USB URB");
+      tree = proto_item_add_subtree(ti, ett_usb_hdr);
+    }
+
+    proto_tree_add_item(tree, hf_usb_totlen, tvb, 0, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_busunit, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_address, tvb, 8, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_mode, tvb, 9, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_freebsd_urb_type, tvb, 10, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_freebsd_transfer_type, tvb, 11, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_xferflags, tvb, 12, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_xferstatus, tvb, 16, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_error, tvb, 20, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_interval, tvb, 24, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_usb_nframes, tvb, 28, 4, ENC_LITTLE_ENDIAN, &nframes);
+    proto_tree_add_item(tree, hf_usb_packet_size, tvb, 32, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_packet_count, tvb, 36, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_endpoint_number, tvb, 40, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_speed, tvb, 44, 1, ENC_LITTLE_ENDIAN);
+
+    offset += 128;
+    for (i = 0; i < nframes; i++) {
+        guint32 framelen;
+        guint32 frameflags;
+
+    	frame_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_usb_frame, &ti, "Frame %u", i);
+        proto_tree_add_item_ret_uint(frame_tree, hf_usb_frame_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &framelen);
+        proto_tree_add_item_ret_uint(frame_tree, hf_usb_frame_flags, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN, &frameflags);
+        offset += 8;
+        if (frameflags & FREEBSD_FRAMEFLAG_DATA_FOLLOWS)
+            offset += (framelen + 3) & ~3;
+        proto_item_set_end(ti, tvb, offset);
+    }
+
+    return tvb_captured_length(tvb);
+}
+
 void
 dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                    usb_header_t header_type, void *extra_data)
@@ -3962,19 +4181,100 @@ proto_register_usb(void)
     static hf_register_info hf[] = {
 
     /* USB packet pseudoheader members */
+
+        { &hf_usb_totlen,
+          { "Total length", "usb.totlen",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_busunit,
+          { "Host controller unit number", "usb.busunit",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_address,
+          { "USB device index", "usb.address",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_mode,
+          { "Mode of transfer", "usb.address",
+            FT_UINT8, BASE_DEC, VALS(usb_freebsd_transfer_mode_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_freebsd_urb_type,
+          { "URB type", "usb.freebsd_type",
+            FT_UINT8, BASE_DEC, VALS(usb_freebsd_urb_type_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_freebsd_transfer_type,
+          { "URB transfer type", "usb.freebsd_transfer_type",
+            FT_UINT8, BASE_HEX, VALS(usb_freebsd_transfer_type_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_xferflags,
+          { "Transfer flags", "usb.xferflags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus,
+          { "Transfer status", "usb.xferstatus",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_error,
+          { "Error", "usb.error",
+            FT_UINT32, BASE_DEC, VALS(usb_freebsd_err_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_interval,
+          { "Interval", "usb.interval",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Interval (ms)", HFILL }},
+
+        { &hf_usb_nframes,
+          { "Number of following frames", "usb.nframes",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_packet_size,
+          { "Packet size used", "usb.packet_size",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_packet_count,
+          { "Packet count used", "usb.packet_count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_speed,
+          { "Speed", "usb.speed",
+            FT_UINT8, BASE_DEC, VALS(usb_freebsd_speed_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_frame_length,
+          { "Frame length", "usb.frame.length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_frame_flags,
+          { "Frame flags", "usb.frame.flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_usb_urb_id,
           { "URB id", "usb.urb_id",
             FT_UINT64, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_usb_urb_type,
+        { &hf_usb_linux_urb_type,
           { "URB type", "usb.urb_type",
-            FT_UINT8, BASE_DEC, VALS(usb_urb_type_vals), 0x0,
+            FT_UINT8, BASE_DEC, VALS(usb_linux_urb_type_vals), 0x0,
             NULL, HFILL }},
 
-        { &hf_usb_transfer_type,
+        { &hf_usb_linux_transfer_type,
           { "URB transfer type", "usb.transfer_type",
-            FT_UINT8, BASE_HEX, VALS(usb_transfer_type_vals), 0x0,
+            FT_UINT8, BASE_HEX, VALS(usb_linux_transfer_type_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_usb_endpoint_number,
@@ -4621,6 +4921,7 @@ proto_register_usb(void)
         &ett_usb_isodesc,
         &ett_usb_win32_iso_packet,
         &ett_usb_endpoint,
+        &ett_usb_frame,
         &ett_usb_setup_bmrequesttype,
         &ett_usb_usbpcap_info,
         &ett_descriptor_device,
@@ -4686,16 +4987,19 @@ proto_reg_handoff_usb(void)
 {
     dissector_handle_t  linux_usb_mmapped_handle;
     dissector_handle_t  win32_usb_handle;
+    dissector_handle_t  freebsd_usb_handle;
 
     data_handle = find_dissector("data");
 
     linux_usb_mmapped_handle = create_dissector_handle(dissect_linux_usb_mmapped,
                                                        proto_usb);
     win32_usb_handle = create_dissector_handle(dissect_win32_usb, proto_usb);
+    freebsd_usb_handle = create_dissector_handle(dissect_freebsd_usb, proto_usb);
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_LINUX, linux_usb_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_LINUX_MMAPPED, linux_usb_mmapped_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_USBPCAP, win32_usb_handle);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_FREEBSD, freebsd_usb_handle);
 }
 
 /*

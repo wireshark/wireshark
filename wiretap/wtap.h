@@ -178,13 +178,7 @@ extern "C" {
 #define WTAP_ENCAP_CATAPULT_DCT2000              89
 #define WTAP_ENCAP_BER                           90
 #define WTAP_ENCAP_JUNIPER_VP                    91
-/*
- * RESERVED FOR FUTURE USE WITH USB
- * NOT GUARANTEED TO CORRESPOND TO THE OLD DEPRECATED LINUX USB
- * PSEUDO-HEADER
- * DEFINED FOR NOW SOLELY TO MAKE LUA HAPPY
- */
-#define WTAP_ENCAP_USB                           92
+#define WTAP_ENCAP_USB_FREEBSD                   92
 #define WTAP_ENCAP_IEEE802_16_MAC_CPS            93
 #define WTAP_ENCAP_NETTL_RAW_TELNET              94
 #define WTAP_ENCAP_USB_LINUX                     95

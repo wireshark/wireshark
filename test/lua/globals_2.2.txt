@@ -1130,7 +1130,7 @@
         ["TOKEN_RING"] = 2,
         ["TZSP"] = 37,
         ["UNKNOWN"] = 0,
-        ["USB"] = 92,
+        ["USB_FREEBSD"] = 92,
         ["USBPCAP"] = 152,
         ["USB_LINUX"] = 95,
         ["USB_LINUX_MMAPPED"] = 115,
