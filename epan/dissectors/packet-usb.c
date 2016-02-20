@@ -3858,7 +3858,7 @@ dissect_freebsd_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, void 
         guint32 framelen;
         guint32 frameflags;
 
-    	frame_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_usb_frame, &ti, "Frame %u", i);
+        frame_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_usb_frame, &ti, "Frame %u", i);
         proto_tree_add_item_ret_uint(frame_tree, hf_usb_frame_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &framelen);
         proto_tree_add_item_ret_uint(frame_tree, hf_usb_frame_flags, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN, &frameflags);
         offset += 8;
