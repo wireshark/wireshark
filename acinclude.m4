@@ -59,10 +59,10 @@ dnl Roland McGrath, Noah Friedman, david d zuhn, and many others.
 # "-R" here.
 #
 AC_DEFUN([AC_WIRESHARK_ADD_DASH_L],
-[$1="$$1 -L$2"
+[AX_APPEND_FLAG(-L$2, $1)
 case "$host_os" in
   solaris*)
-    $1="$$1 -R$2"
+    AX_APPEND_FLAG(-R$2, $1)
   ;;
 esac
 ])

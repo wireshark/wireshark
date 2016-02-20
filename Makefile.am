@@ -704,6 +704,7 @@ EXTRA_DIST = \
 	aclocal-fallback/glib-2.0.m4 \
 	aclocal-fallback/gtk-2.0.m4 \
 	aclocal-fallback/gtk-3.0.m4 \
+	aclocal-fallback/ax_append_flag.m4	\
 	aclocal-fallback/ax_check_compile_flag.m4	\
 	aclocal-fallback/ax_gcc_x86_cpuid.m4	\
 	aclocal-fallback/ax_ext.m4	\
