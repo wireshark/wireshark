@@ -2019,7 +2019,7 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti;
 	proto_tree	*ext_tree;
 	guint8		call_ref_len;
-	guint8		call_ref[15];
+	guint8		call_ref[16];
 	guint8		message_type;
 	guint8		message_type_ext;
 	guint16		message_len;
