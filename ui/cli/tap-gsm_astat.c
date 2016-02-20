@@ -44,16 +44,16 @@
 void register_tap_listener_gsm_astat(void);
 
 typedef struct _gsm_a_stat_t {
-    int         bssmap_message_type[0xff];
-    int         dtap_mm_message_type[0xff];
-    int         dtap_rr_message_type[0xff];
-    int         dtap_cc_message_type[0xff];
-    int         dtap_gmm_message_type[0xff];
-    int         dtap_sms_message_type[0xff];
-    int         dtap_sm_message_type[0xff];
-    int         dtap_ss_message_type[0xff];
-    int         dtap_tp_message_type[0xff];
-    int         sacch_rr_message_type[0xff];
+    int         bssmap_message_type[0x100];
+    int         dtap_mm_message_type[0x100];
+    int         dtap_rr_message_type[0x100];
+    int         dtap_cc_message_type[0x100];
+    int         dtap_gmm_message_type[0x100];
+    int         dtap_sms_message_type[0x100];
+    int         dtap_sm_message_type[0x100];
+    int         dtap_ss_message_type[0x100];
+    int         dtap_tp_message_type[0x100];
+    int         sacch_rr_message_type[0x100];
 } gsm_a_stat_t;
 
 

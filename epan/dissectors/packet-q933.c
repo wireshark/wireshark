@@ -1795,7 +1795,7 @@ dissect_q933(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	proto_item	*ti;
 	proto_tree	*ie_tree = NULL;
 	guint8		call_ref_len;
-	guint8		call_ref[15];
+	guint8		call_ref[16];
 	guint8		message_type;
 	guint8		info_element;
 	guint16		info_element_len;
