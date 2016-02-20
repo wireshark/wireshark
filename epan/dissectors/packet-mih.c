@@ -2417,7 +2417,7 @@ void proto_register_mih(void)
                         &hf_mih_type_length_ext,
                         {
                                 "MIH TLV length",
-                                "mih.tlv_length",
+                                "mih.tlv_length_ext",
                                 FT_UINT64,
                                 BASE_DEC,
                                 NULL,
@@ -2441,7 +2441,7 @@ void proto_register_mih(void)
                         &hf_mihf_id_mac,
                         {
                                 "MIHF_ID",
-                                "mih.mihf_id",
+                                "mih.mihf_id.mac",
                                 FT_ETHER,
                                 BASE_NONE,
                                 NULL,
@@ -2453,7 +2453,7 @@ void proto_register_mih(void)
                         &hf_mihf_id_ipv4,
                         {
                                 "MIHF_ID",
-                                "mih.mihf_id",
+                                "mih.mihf_id.ipv4",
                                 FT_IPv4,
                                 BASE_NONE,
                                 NULL,
@@ -2465,7 +2465,7 @@ void proto_register_mih(void)
                         &hf_mihf_id_ipv6,
                         {
                                 "MIHF_ID",
-                                "mih.mihf_id",
+                                "mih.mihf_id.ipv6",
                                 FT_IPv6,
                                 BASE_NONE,
                                 NULL,
