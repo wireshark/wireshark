@@ -27,7 +27,7 @@ LEMON = $(top_builddir)/tools/lemon/lemon$(EXEEXT)
 
 RUNLEX = $(top_srcdir)/tools/runlex.sh
 
-AM_CPPFLAGS = $(WS_CPPFLAGS) -I$(top_srcdir) -DTOP_SRCDIR=\"$(abs_top_srcdir)\"
+AM_CPPFLAGS = $(WS_CPPFLAGS) -I$(top_srcdir)
 
 AM_CFLAGS = $(WS_CFLAGS)
 

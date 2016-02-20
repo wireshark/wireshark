@@ -23,7 +23,11 @@ include $(top_srcdir)/Makefile.am.inc
 
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
-AM_CPPFLAGS += $(LIBGCRYPT_CFLAGS) -DWS_BUILD_DLL
+AM_CPPFLAGS += $(LIBGCRYPT_CFLAGS) -DWS_BUILD_DLL \
+	-DTOP_SRCDIR=\"$(abs_top_srcdir)\" 	\
+	-DDATAFILE_DIR=\"$(pkgdatadir)\" 	\
+	-DEXTCAP_DIR=\"$(extcapdir)\" 		\
+	-DPLUGIN_INSTALL_DIR=\"$(plugindir)\"
 
 # Optional headers for ABI checking
 wsutil_optional_abi_includes =

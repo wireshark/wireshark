@@ -1538,29 +1538,6 @@ else
 	AC_MSG_RESULT(no)
 fi
 
-# Create DATAFILE_DIR #define for config.h
-datafiledir=$datadir/wireshark
-datafiledir=`(
-    test "x$prefix" = xNONE && prefix=$ac_default_prefix
-    test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
-    # Ugly hack, but I don't see how this problem can be solved
-    # properly that DATAFILE_DIR had a value starting with
-    # "${prefix}/" instead of e.g. "/usr/local/"
-    eval eval echo "$datafiledir"
-)`
-AC_DEFINE_UNQUOTED(DATAFILE_DIR,"$datafiledir", [Directory for data])
-
-# Create DOC_DIR #define for config.h
-docdir=`(
-    test "x$prefix" = xNONE && prefix=$ac_default_prefix
-    test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
-    # Ugly hack, but I don't see how this problem can be solved
-    # properly that DOC_DIR had a value starting with
-    # "${prefix}/" instead of e.g. "/usr/local/"
-    eval eval echo "$docdir"
-)`
-AC_DEFINE_UNQUOTED(DOC_DIR, "$docdir", [Directory for docs])
-
 GTK2_MIN_VERSION=2.12.0
 AC_SUBST(GTK2_MIN_VERSION)
 GTK3_MIN_VERSION=3.0.0
@@ -3047,7 +3024,6 @@ then
   AC_DEFINE(HAVE_PLUGINS, 1, [Define if plugins are enabled])
 fi
 AC_SUBST(plugindir)
-WS_CPPFLAGS="$WS_CPPFLAGS '-DPLUGIN_INSTALL_DIR=\"\$(plugindir)\"'"
 
 #
 # The plugin dissectors reside in ./plugins/PROTO/
@@ -3082,7 +3058,6 @@ then
   AC_DEFINE(HAVE_EXTCAP, 1, [Define if external capture sources should be enabled])
 fi
 AC_SUBST(extcapdir)
-WS_CPPFLAGS="$WS_CPPFLAGS '-DEXTCAP_DIR=\"\$(extcapdir)\"'"
 
 if test "x$enable_sshdump" = "xyes" ; then
 	if  test "x$have_good_libssh" = "xyes" ; then
