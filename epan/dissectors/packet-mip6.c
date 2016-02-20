@@ -5110,9 +5110,9 @@ proto_register_mip6(void)
     },
 
     { &hf_pmip6_lra_u,
-      { "unsolicited", "mip6.lri.reserved",
-        FT_BOOLEAN, 8, NULL, 0x80,
-        "This field is unused and MUST be set to zero", HFILL }
+      { "unsolicited", "mip6.lri.unsolicated",
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
+        "When set to 1, the LRA message is sent unsolicited", HFILL }
     },
 
     { &hf_pmip6_lra_reserved,
