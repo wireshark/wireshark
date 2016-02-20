@@ -2483,7 +2483,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item  *ti;
     guint8      prot_discr;
     guint8      call_ref_len;
-    guint8      call_ref[15];
+    guint8      call_ref[16];
     guint32     call_ref_val;
     guint8      message_type, segmented_message_type;
     guint8      info_element;

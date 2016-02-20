@@ -1494,7 +1494,7 @@ hex_from_char(gchar c)
 
 
 /* Table allowing fast lookup from a pair of ascii hex characters to a guint8 */
-static guint8 s_tableValues[255][255];
+static guint8 s_tableValues[256][256];
 
 /* Prepare table values so ready so don't need to check inside hex_byte_from_chars() */
 static void  prepare_hex_byte_from_chars_table(void)
