@@ -621,7 +621,7 @@ struct tlv_def {
 };
 
 struct tlv_definition {
-	struct tlv_def def[0xff];
+	struct tlv_def def[0x100];
 };
 
 enum abis_nm_ipacc_test_no {
