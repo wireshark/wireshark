@@ -9120,6 +9120,14 @@ add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet
     offset += 1;
   }
 
+  /* Table 8-53c Subfields of the VHT MIMO Control field (802.11ac-2013)
+   * reserves value 3 of the Grouping subfield. */
+  if (grouping == 3) {
+    expert_add_info_format(pinfo, vht_beam_item, &ei_ieee80211_inv_val,
+                           "Grouping subfield value 3 is reserved");
+    return offset;
+  }
+
   subtree = proto_tree_add_subtree(vht_beam_tree, tvb, offset, -1,
                         ett_ff_vhtmimo_beamforming_report_feedback_matrices, NULL, "Beamforming Feedback Matrics");
   if (feedback_type) {
