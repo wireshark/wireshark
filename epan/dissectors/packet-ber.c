@@ -2545,6 +2545,10 @@ printf("SET dissect_ber_set(%s) entered\n", name);
 
                 cset = set; /* reset to the beginning */
                 set_idx = 0;
+                /* If the set has no values, there is no point in trying again. */
+                if (!cset->func) {
+                    break;
+                }
             }
 
             if ((first_pass && ((cset->ber_class == ber_class) && (cset->tag == tag))) ||
