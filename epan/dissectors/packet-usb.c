@@ -267,8 +267,6 @@ static const int *usb_usbpcap_info_fields[] = {
 static int usb_tap = -1;
 static gboolean try_heuristics = TRUE;
 
-static dissector_handle_t linux_usb_handle;
-
 static dissector_handle_t data_handle;
 
 static dissector_table_t usb_bulk_dissector_table;
@@ -5184,7 +5182,6 @@ proto_register_usb(void)
     proto_usb = proto_register_protocol("USB", "USB", "usb");
     proto_register_field_array(proto_usb, hf, array_length(hf));
     proto_register_subtree_array(usb_subtrees, array_length(usb_subtrees));
-    linux_usb_handle = register_dissector("usb", dissect_linux_usb, proto_usb);
 
     expert_usb = expert_register_protocol(proto_usb);
     expert_register_field_array(expert_usb, ei, array_length(ei));
@@ -5226,12 +5223,14 @@ proto_register_usb(void)
 void
 proto_reg_handoff_usb(void)
 {
+    dissector_handle_t  linux_usb_handle;
     dissector_handle_t  linux_usb_mmapped_handle;
     dissector_handle_t  win32_usb_handle;
     dissector_handle_t  freebsd_usb_handle;
 
     data_handle = find_dissector("data");
 
+    linux_usb_handle = create_dissector_handle(dissect_linux_usb, proto_usb);
     linux_usb_mmapped_handle = create_dissector_handle(dissect_linux_usb_mmapped,
                                                        proto_usb);
     win32_usb_handle = create_dissector_handle(dissect_win32_usb, proto_usb);
