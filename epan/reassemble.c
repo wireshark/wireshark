@@ -1952,11 +1952,11 @@ fragment_add_seq(reassembly_table *table, tvbuff_t *tvb, const int offset,
  * This function assumes frag_number being a block sequence number.
  * The bsn for the first block is 0.
  *
- * If "no_frag_number" is TRUE, it uses the next expected fragment number
+ * If REASSEMBLE_FLAGS_NO_FRAG_NUMBER, it uses the next expected fragment number
  * as the fragment number if there is a reassembly in progress, otherwise
  * it uses 0.
  *
- * If "no_frag_number" is FALSE, it uses the "frag_number" argument as
+ * If not REASSEMBLE_FLAGS_NO_FRAG_NUMBER, it uses the "frag_number" argument as
  * the fragment number.
  *
  * If this is the first fragment seen for this datagram, a new
@@ -2069,6 +2069,8 @@ fragment_add_seq_next(reassembly_table *table, tvbuff_t *tvb, const int offset,
 		      const void *data, const guint32 frag_data_len,
 		      const gboolean more_frags)
 {
+	/* Use a dummy frag_number (0), it is ignored since
+	 * REASSEMBLE_FLAGS_NO_FRAG_NUMBER is set. */
 	return fragment_add_seq_check_work(table, tvb, offset, pinfo, id, data,
 					   0, frag_data_len, more_frags,
 					   REASSEMBLE_FLAGS_NO_FRAG_NUMBER);
