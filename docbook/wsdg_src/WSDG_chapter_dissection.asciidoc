@@ -653,6 +653,10 @@ and the subsequent packets don't have the expect format.
 To dissect these packets you need to wait until all the parts have
 arrived and then start the dissection.
 
+The following sections will guide you through two common cases. For a
+description of all possible functions, structures and parameters, see
+'epan/reassemble.h'.
+
 [[ChDissectReassembleUdp]]
 
 ==== How to reassemble split UDP packets
@@ -699,10 +703,9 @@ if (flags & FL_FRAGMENT) { /* fragmented */
     guint16 msg_num = tvb_get_ntohs(tvb, offset); offset += 2;
 
     pinfo->fragmented = TRUE;
-    frag_msg = fragment_add_seq_check(tvb, offset, pinfo,
-        msg_seqid, /* ID for fragments belonging together */
-        msg_fragment_table, /* list of message fragments */
-        msg_reassembled_table, /* list of reassembled messages */
+    frag_msg = fragment_add_seq_check(msg_reassembly_table,
+        tvb, offset, pinfo,
+        msg_seqid, NULL, /* ID for fragments belonging together */
         msg_num, /* fragment sequence number */
         tvb_captured_length_remaining(tvb, offset), /* fragment length - to the end */
         flags & FL_FRAG_LAST); /* More fragments? */
@@ -713,7 +716,9 @@ We start by saving the fragmented state of this packet, so we can restore it
 later. Next comes some protocol specific stuff, to dig the fragment data out of
 the stream if it's present. Having decided it is present, we let the function
 +fragment_add_seq_check()+ do its work. We need to provide this with a certain
-amount of data.
+amount of parameters:
+
+* The +msg_reassembly_table+ table is for bookkeeping and is described later.
 
 * The tvb buffer we are dissecting.
 
@@ -725,8 +730,8 @@ amount of data.
   fragments in flight, and this is used to key the relevant one to be used for
   reassembly.
 
-* The +msg_fragment_table+ and the +msg_reassembled_table+ are variables we need
-  to declare. We'll consider these in detail later.
+* Optional additional data for identifying the fragment. Can be set to +NULL+
+  (as is done in the example) for most dissectors.
 
 * msg_num is the packet number within the sequence.
 
@@ -781,25 +786,29 @@ Now the mysterious data we passed into the +fragment_add_seq_check()+.
 .Reassembling fragments - Initialisation
 ====
 ----
-static GHashTable *msg_fragment_table = NULL;
-static GHashTable *msg_reassembled_table = NULL;
+static reassembly_table reassembly_table;
 
 static void
 msg_init_protocol(void)
 {
-    fragment_table_init(&msg_fragment_table);
-    reassembled_table_init(&msg_reassembled_table);
+    reassembly_table_init(&msg_reassemble_table,
+        &addresses_ports_reassembly_table_functions);
 }
 ----
 ====
 
-First a couple of hash tables are declared, and these are initialised in the
-protocol initialisation routine. Following that, a +fragment_items+ structure is
-allocated and filled in with a series of ett items, hf data items, and a string
-tag. The ett and hf values should be included in the relevant tables like all
-the other variables your protocol may use. The hf variables need to be placed in
-the structure something like the following. Of course the names may need to be
-adjusted.
+First a +reassembly_table+ structure is declared and initialised in the protocol
+initialisation routine. The second parameter specifies the functions that should
+be used for identifying fragments. We will use
++addresses_ports_reassembly_table_functions+ in order to identify fragments by
+the given sequence number (+msg_seqid+), the source and destination addresses
+and ports from the packet.
+
+Following that, a +fragment_items+ structure is allocated and filled in with a
+series of ett items, hf data items, and a string tag. The ett and hf values
+should be included in the relevant tables like all the other variables your
+protocol may use. The hf variables need to be placed in the structure something
+like the following. Of course the names may need to be adjusted.
 
 .Reassembling fragments - Data
 ====
