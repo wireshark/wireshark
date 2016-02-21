@@ -21432,7 +21432,7 @@ proto_register_ieee80211 (void)
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_sta_info_reserved_large,
-     {"Reserved", "wlan_mgt.fixed.psmp.stainfo.reserved",
+     {"Reserved", "wlan_mgt.fixed.psmp.stainfo.reserved64",
       FT_UINT64, BASE_HEX, 0, 0,
       NULL, HFILL }},
 

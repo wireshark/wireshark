@@ -18962,7 +18962,7 @@ proto_register_smb(void)
 		NULL, 0, "Open is relative to this FID (if nonzero)", HFILL }},
 
 	{ &hf_smb_alloc_size64,
-		{ "Allocation Size", "smb.alloc_size", FT_UINT64, BASE_DEC,
+		{ "Allocation Size", "smb.alloc_size64", FT_UINT64, BASE_DEC,
 		NULL, 0, "Number of bytes to reserve on create or truncate", HFILL }},
 
 	{ &hf_smb_nt_create_disposition,

@@ -157,7 +157,7 @@ static header_field_info hfi_msg_addr_count32 BITCOIN_HFI_INIT =
   { "Count", "bitcoin.addr.count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_addr_count64 BITCOIN_HFI_INIT =
-  { "Count", "bitcoin.addr.count", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
+  { "Count", "bitcoin.addr.count64", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_bitcoin_msg_addr BITCOIN_HFI_INIT =
   { "Address message", "bitcoin.addr", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
@@ -179,7 +179,7 @@ static header_field_info hfi_msg_inv_count32 BITCOIN_HFI_INIT =
   { "Count", "bitcoin.inv.count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_inv_count64 BITCOIN_HFI_INIT =
-  { "Count", "bitcoin.inv.count", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
+  { "Count", "bitcoin.inv.count64", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_bitcoin_msg_inv BITCOIN_HFI_INIT =
   { "Inventory message", "bitcoin.inv", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
@@ -204,7 +204,7 @@ static header_field_info hfi_msg_getdata_count32 BITCOIN_HFI_INIT =
   { "Count", "bitcoin.getdata.count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_getdata_count64 BITCOIN_HFI_INIT =
-  { "Count", "bitcoin.getdata.count", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
+  { "Count", "bitcoin.getdata.count64", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_getdata_type BITCOIN_HFI_INIT =
   { "Type", "bitcoin.getdata.type", FT_UINT32, BASE_DEC, VALS(inv_types), 0x0, NULL, HFILL };
@@ -223,7 +223,7 @@ static header_field_info hfi_msg_notfound_count32 BITCOIN_HFI_INIT =
   { "Count", "bitcoin.notfound.count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_notfound_count64 BITCOIN_HFI_INIT =
-  { "Count", "bitcoin.notfound.count", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
+  { "Count", "bitcoin.notfound.count64", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_bitcoin_msg_notfound BITCOIN_HFI_INIT =
   { "Getdata message", "bitcoin.notfound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
@@ -245,7 +245,7 @@ static header_field_info hfi_msg_getblocks_count32 BITCOIN_HFI_INIT =
   { "Count", "bitcoin.getblocks.count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_getblocks_count64 BITCOIN_HFI_INIT =
-  { "Count", "bitcoin.getblocks.count", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
+  { "Count", "bitcoin.getblocks.count64", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_bitcoin_msg_getblocks BITCOIN_HFI_INIT =
   { "Getdata message", "bitcoin.getblocks", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
@@ -267,7 +267,7 @@ static header_field_info hfi_msg_getheaders_count32 BITCOIN_HFI_INIT =
   { "Count", "bitcoin.getheaders.count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_getheaders_count64 BITCOIN_HFI_INIT =
-  { "Count", "bitcoin.getheaders.count", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
+  { "Count", "bitcoin.getheaders.count64", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 #if 0
 static header_field_info hfi_msg_getheaders_version BITCOIN_HFI_INIT =
@@ -294,7 +294,7 @@ static header_field_info hfi_msg_tx_in_count32 BITCOIN_HFI_INIT =
   { "Input Count", "bitcoin.tx.input_count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_tx_in_count64 BITCOIN_HFI_INIT =
-  { "Input Count", "bitcoin.tx.input_count", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
+  { "Input Count", "bitcoin.tx.input_count64", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_bitcoin_msg_tx BITCOIN_HFI_INIT =
   { "Tx message", "bitcoin.tx", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
@@ -312,7 +312,7 @@ static header_field_info hfi_msg_tx_in_script32 BITCOIN_HFI_INIT =
   { "Script Length", "bitcoin.tx.in.script_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_tx_in_script64 BITCOIN_HFI_INIT =
-  { "Script Length", "bitcoin.tx.in.script_length", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
+  { "Script Length", "bitcoin.tx.in.script_length64", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_tx_in BITCOIN_HFI_INIT =
   { "Transaction input", "bitcoin.tx.in", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
@@ -342,7 +342,7 @@ static header_field_info hfi_msg_tx_out_count32 BITCOIN_HFI_INIT =
   { "Output Count", "bitcoin.tx.output_count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_tx_out_count64 BITCOIN_HFI_INIT =
-  { "Output Count", "bitcoin.tx.output_count", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
+  { "Output Count", "bitcoin.tx.output_count64", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_tx_out BITCOIN_HFI_INIT =
   { "Transaction output", "bitcoin.tx.out", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
@@ -360,7 +360,7 @@ static header_field_info hfi_msg_tx_out_script32 BITCOIN_HFI_INIT =
   { "Script Length", "bitcoin.tx.out.script_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_tx_out_script64 BITCOIN_HFI_INIT =
-  { "Script Length", "bitcoin.tx.out.script_length", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
+  { "Script Length", "bitcoin.tx.out.script_length64", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_tx_out_script BITCOIN_HFI_INIT =
   { "Script", "bitcoin.tx.out.script", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
@@ -379,7 +379,7 @@ static header_field_info hfi_msg_block_transactions32 BITCOIN_HFI_INIT =
   { "Number of transactions", "bitcoin.block.num_transactions", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_block_transactions64 BITCOIN_HFI_INIT =
-  { "Number of transactions", "bitcoin.block.num_transactions", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
+  { "Number of transactions", "bitcoin.block.num_transactions64", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_bitcoin_msg_block BITCOIN_HFI_INIT =
   { "Block message", "bitcoin.block", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
@@ -434,7 +434,7 @@ static header_field_info hfi_msg_headers_count32 BITCOIN_HFI_INIT =
   { "Count", "bitcoin.headers.count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_headers_count64 BITCOIN_HFI_INIT =
-  { "Count", "bitcoin.headers.count", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
+  { "Count", "bitcoin.headers.count64", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 /* ping message */
 static header_field_info hfi_bitcoin_msg_ping BITCOIN_HFI_INIT =
@@ -524,7 +524,7 @@ static header_field_info hfi_msg_merkleblock_hashes_count32 BITCOIN_HFI_INIT =
   { "Count", "bitcoin.merkleblock.hashes.count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_merkleblock_hashes_count64 BITCOIN_HFI_INIT =
-  { "Count", "bitcoin.merkleblock.hashes.count", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
+  { "Count", "bitcoin.merkleblock.hashes.count64", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_merkleblock_hashes_hash BITCOIN_HFI_INIT =
   { "Hash", "bitcoin.merkleblock.hashes.hash", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
@@ -539,7 +539,7 @@ static header_field_info hfi_msg_merkleblock_flags_size32 BITCOIN_HFI_INIT =
   { "Size", "bitcoin.merkleblock.flags.count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_merkleblock_flags_size64 BITCOIN_HFI_INIT =
-  { "Size", "bitcoin.merkleblock.flags.count", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
+  { "Size", "bitcoin.merkleblock.flags.count64", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_msg_merkleblock_flags_data BITCOIN_HFI_INIT =
   { "Data", "bitcoin.merkleblock.flags.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
@@ -572,7 +572,7 @@ static header_field_info hfi_string_varint_count32 BITCOIN_HFI_INIT =
   { "Count", "bitcoin.string.count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_string_varint_count64 BITCOIN_HFI_INIT =
-  { "Count", "bitcoin.string.count", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
+  { "Count", "bitcoin.string.count64", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 /* variable data */
 static header_field_info hfi_data_value BITCOIN_HFI_INIT =
@@ -588,7 +588,7 @@ static header_field_info hfi_data_varint_count32 BITCOIN_HFI_INIT =
   { "Count", "bitcoin.data.count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_data_varint_count64 BITCOIN_HFI_INIT =
-  { "Count", "bitcoin.data.count", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
+  { "Count", "bitcoin.data.count64", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 
 static gint ett_bitcoin = -1;

@@ -1567,7 +1567,7 @@ void proto_register_h248(void) {
             FT_STRING, BASE_NONE, NULL, 0,
             "h248.IA5String", HFILL }},
         { &hf_h248_context_id64,
-          { "contextId", "h248.contextId",
+          { "contextId", "h248.contextId64",
             FT_UINT64, BASE_HEX, NULL, 0,
             "Context ID", HFILL }},
         { &hf_h248_transactionId64,

@@ -437,7 +437,7 @@ void proto_register_hcrt(void)
             NULL, HFILL }
         },
         { &hf_hcrt_data_64,
-            { "Data", "hcrt.data32",
+            { "Data", "hcrt.data64",
             FT_UINT64, BASE_HEX,
             NULL, 0x0,
             NULL, HFILL }

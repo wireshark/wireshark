@@ -2339,7 +2339,7 @@ void proto_register_jxta(void)
           "JXTA Message Element Content Length", HFILL}
          },
         {&hf_jxta_element_content_len64,
-         {"Element Content Length", "jxta.message.element.content.length", FT_UINT64, BASE_DEC, NULL, 0x0,
+         {"Element Content Length", "jxta.message.element.content.length64", FT_UINT64, BASE_DEC, NULL, 0x0,
           "JXTA Message Element Content Length", HFILL}
          },
 #if 0

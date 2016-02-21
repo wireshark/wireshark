@@ -664,7 +664,7 @@ proto_register_trmac(void)
 
 		/* Generated from convert_proto_tree_add_text.pl */
 		{ &hf_trmac_response_code32, { "Response Code", "trmac.response_code", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		{ &hf_trmac_response_code48, { "Response Code", "trmac.response_code", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_trmac_response_code48, { "Response Code", "trmac.response_code48", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_trmac_product_instance_id, { "Product Instance ID", "trmac.product_instance_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_trmac_ring_station_version_number, { "Ring Station Version Number", "trmac.ring_station_version_number", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_trmac_wrap_data, { "Wrap Data", "trmac.wrap_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},

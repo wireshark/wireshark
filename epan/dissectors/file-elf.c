@@ -1842,7 +1842,7 @@ proto_register_elf(void)
             "This member gives the virtual address to which the system first transfers control, thus starting the process. If the file has no associated entry point, this member holds zero. ", HFILL }
         },
         { &hf_elf64_entry,
-            { "Entry",                                     "elf.entry",
+            { "Entry",                                     "elf.entry64",
             FT_UINT64, BASE_HEX, NULL, 0x00,
             "This member gives the virtual address to which the system first transfers control, thus starting the process. If the file has no associated entry point, this member holds zero. ", HFILL }
         },
@@ -1852,7 +1852,7 @@ proto_register_elf(void)
             "This member holds the program header table's file offset in bytes. If the file has no program header table, this member holds zero.", HFILL }
         },
         { &hf_elf64_phoff,
-            { "Program Header Table File Offset",          "elf.phoff",
+            { "Program Header Table File Offset",          "elf.phoff64",
             FT_UINT64, BASE_DEC_HEX, NULL, 0x00,
             "This member holds the program header table's file offset in bytes. If the file has no program header table, this member holds zero.", HFILL }
         },
@@ -1862,7 +1862,7 @@ proto_register_elf(void)
             "This member holds the section header table's file offset in bytes. If the file has no section header table, this member holds zero.", HFILL }
         },
         { &hf_elf64_shoff,
-            { "Section Header Table File Offset",          "elf.shoff",
+            { "Section Header Table File Offset",          "elf.shoff64",
             FT_UINT64, BASE_DEC_HEX, NULL, 0x00,
             "This member holds the section header table's file offset in bytes. If the file has no section header table, this member holds zero.", HFILL }
         },
@@ -1923,7 +1923,7 @@ proto_register_elf(void)
             "This member gives the offset from the beginning of the file at which the first byte of the segment resides.", HFILL }
         },
         { &hf_elf64_p_offset,
-            { "File Offset",                               "elf.p_offset",
+            { "File Offset",                               "elf.p_offset64",
             FT_UINT64, BASE_DEC_HEX, NULL, 0x00,
             "This member gives the offset from the beginning of the file at which the first byte of the segment resides.", HFILL }
         },
@@ -1933,7 +1933,7 @@ proto_register_elf(void)
             "This member gives the virtual address at which the first byte of the segment resides in memory.", HFILL }
         },
         { &hf_elf64_p_vaddr,
-            { "Virtual Address",                           "elf.p_vaddr",
+            { "Virtual Address",                           "elf.p_vaddr64",
             FT_UINT64, BASE_HEX, NULL, 0x00,
             "This member gives the virtual address at which the first byte of the segment resides in memory.", HFILL }
         },
@@ -1943,7 +1943,7 @@ proto_register_elf(void)
             "On systems for which physical addressing is relevant, this member is reserved for the segment's physical address. Because System V ignores physical addressing for application programs, this member has unspecified contents for executable files and shared objects.", HFILL }
         },
         { &hf_elf64_p_paddr,
-            { "Physical Address",                          "elf.p_paddr",
+            { "Physical Address",                          "elf.p_paddr64",
             FT_UINT64, BASE_HEX, NULL, 0x00,
             "On systems for which physical addressing is relevant, this member is reserved for the segment's physical address. Because System V ignores physical addressing for application programs, this member has unspecified contents for executable files and shared objects.", HFILL }
         },
@@ -1953,7 +1953,7 @@ proto_register_elf(void)
             "This member gives the number of bytes in the file image of the segment; it may be zero.", HFILL }
         },
         { &hf_elf64_p_filesz,
-            { "File Image Size",                           "elf.p_filesz",
+            { "File Image Size",                           "elf.p_filesz64",
             FT_UINT64, BASE_DEC_HEX, NULL, 0x00,
             "This member gives the number of bytes in the file image of the segment; it may be zero.", HFILL }
         },
@@ -1963,7 +1963,7 @@ proto_register_elf(void)
             "This member gives the number of bytes in the memory image of the segment; it may be zero.", HFILL }
         },
         { &hf_elf64_p_memsz,
-            { "Memory Image Size",                         "elf.p_memsz",
+            { "Memory Image Size",                         "elf.p_memsz64",
             FT_UINT64, BASE_DEC_HEX, NULL, 0x00,
             "This member gives the number of bytes in the memory image of the segment; it may be zero.", HFILL }
         },
@@ -2003,7 +2003,7 @@ proto_register_elf(void)
             "This member gives the value to which the segments are aligned in memory and in the file. Values 0 and 1 mean no alignment is required. Otherwise, p_align should be a positive, integral power of 2, and p_vaddr should equal p_offset, modulo p_align.", HFILL }
         },
         { &hf_elf64_p_align,
-            { "Align",                                     "elf.p_align",
+            { "Align",                                     "elf.p_align64",
             FT_UINT64, BASE_DEC_HEX, NULL, 0x00,
             "This member gives the value to which the segments are aligned in memory and in the file. Values 0 and 1 mean no alignment is required. Otherwise, p_align should be a positive, integral power of 2, and p_vaddr should equal p_offset, modulo p_align.", HFILL }
         },
@@ -2109,7 +2109,7 @@ proto_register_elf(void)
             "If the section will appear in the memory image of a process, this member gives the address at which the section's first byte should reside. Otherwise, the member contains 0.", HFILL }
         },
         { &hf_elf64_sh_addr,
-            { "Address",                                   "elf.sh_addr",
+            { "Address",                                   "elf.sh_addr64",
             FT_UINT64, BASE_HEX, NULL, 0x00,
             "If the section will appear in the memory image of a process, this member gives the address at which the section's first byte should reside. Otherwise, the member contains 0.", HFILL }
         },
@@ -2119,7 +2119,7 @@ proto_register_elf(void)
             "This member's value gives the byte offset from the beginning of the file to the first byte in the section. One section type, SHT_NOBITS, occupies no space in the file, and its sh_offset member locates the conceptual placement in the file.", HFILL }
         },
         { &hf_elf64_sh_offset,
-            { "File Offset",                               "elf.sh_offset",
+            { "File Offset",                               "elf.sh_offset64",
             FT_UINT64, BASE_DEC_HEX, NULL, 0x00,
             "This member's value gives the byte offset from the beginning of the file to the first byte in the section. One section type, SHT_NOBITS, occupies no space in the file, and its sh_offset member locates the conceptual placement in the file.", HFILL }
         },
@@ -2129,7 +2129,7 @@ proto_register_elf(void)
             "This member gives the section's size in bytes.", HFILL }
         },
         { &hf_elf64_sh_size,
-            { "Size",                                      "elf.sh_size",
+            { "Size",                                      "elf.sh_size64",
             FT_UINT64, BASE_DEC_HEX, NULL, 0x00,
             "This member gives the section's size in bytes.", HFILL }
         },
@@ -2150,7 +2150,7 @@ proto_register_elf(void)
             "Some sections have address alignment constraints. Currently, only 0 and positive integral powers of two are allowed. Values 0 and 1 mean the section has no alignment constraints.", HFILL }
         },
         { &hf_elf64_sh_addralign,
-            { "Address Alignment",                         "elf.sh_addralign",
+            { "Address Alignment",                         "elf.sh_addralign64",
             FT_UINT64, BASE_HEX, NULL, 0x00,
             "Some sections have address alignment constraints. Currently, only 0 and positive integral powers of two are allowed. Values 0 and 1 mean the section has no alignment constraints.", HFILL }
         },
@@ -2160,7 +2160,7 @@ proto_register_elf(void)
             "Some sections hold a table of fixed-size entries, such as a symbol table. For such a section, this member gives the size in bytes of each entry. The member contains 0 if the section does not hold a table of fixed-size entries.", HFILL }
         },
         { &hf_elf64_sh_entsize,
-            { "Entry Size",                                "elf.sh_entsize",
+            { "Entry Size",                                "elf.sh_entsize64",
             FT_UINT64, BASE_DEC_HEX, NULL, 0x00,
             "Some sections hold a table of fixed-size entries, such as a symbol table. For such a section, this member gives the size in bytes of each entry. The member contains 0 if the section does not hold a table of fixed-size entries.", HFILL }
         },
@@ -2344,7 +2344,7 @@ proto_register_elf(void)
             NULL, HFILL }
         },
         { &hf_elf64_symbol_table_value,
-            { "Value",                                     "elf.symbol_table.value",
+            { "Value",                                     "elf.symbol_table.value64",
             FT_UINT64, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
@@ -2354,7 +2354,7 @@ proto_register_elf(void)
             NULL, HFILL }
         },
         { &hf_elf64_symbol_table_size,
-            { "Size",                                      "elf.symbol_table.size",
+            { "Size",                                      "elf.symbol_table.size64",
             FT_UINT64, BASE_DEC_HEX, NULL, 0x00,
             NULL, HFILL }
         },
@@ -2386,27 +2386,27 @@ proto_register_elf(void)
             NULL, HFILL }
         },
         { &hf_elf64_dynamic_tag,
-            { "Tag",                                       "elf.dynamic.tag",
+            { "Tag",                                       "elf.dynamic.tag64",
             FT_UINT64, BASE_HEX /*| BASE_RANGE_STRING*/, NULL /*RVALS(dynamic_tag_rvals)*/, 0x00,
             NULL, HFILL }
         },
         { &hf_elf64_dynamic_value,
-            { "Value",                                     "elf.dynamic.value",
+            { "Value",                                     "elf.dynamic.value64",
             FT_UINT64, BASE_DEC_HEX, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_elf64_dynamic_pointer,
-            { "Pointer",                                   "elf.dynamic.pointer",
+            { "Pointer",                                   "elf.dynamic.pointer64",
             FT_UINT64, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_elf64_dynamic_ignored,
-            { "Ignored",                                   "elf.dynamic.ignored",
+            { "Ignored",                                   "elf.dynamic.ignored64",
             FT_UINT64, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_elf64_dynamic_unspecified,
-            { "Unspecified",                               "elf.dynamic.unspecified",
+            { "Unspecified",                               "elf.dynamic.unspecified64",
             FT_UINT64, BASE_DEC_HEX, NULL, 0x00,
             NULL, HFILL }
         },

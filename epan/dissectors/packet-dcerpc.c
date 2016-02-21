@@ -6512,7 +6512,7 @@ proto_register_dcerpc(void)
           { "Referent ID", "dcerpc.referent_id", FT_UINT32, BASE_HEX,
             NULL, 0, "Referent ID for this NDR encoded pointer", HFILL }},
         { &hf_dcerpc_referent_id64,
-          { "Referent ID", "dcerpc.referent_id", FT_UINT64, BASE_HEX,
+          { "Referent ID", "dcerpc.referent_id64", FT_UINT64, BASE_HEX,
             NULL, 0, "Referent ID for this NDR encoded pointer", HFILL }},
         { &hf_dcerpc_ver,
           { "Version", "dcerpc.ver", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -6914,7 +6914,7 @@ proto_register_dcerpc(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_dcerpc_fragment, { "dcerpc.fragment", PI_REASSEMBLE, PI_CHAT, "%s fragment", EXPFILL }},
+        { &ei_dcerpc_fragment, { "dcerpc.fragment.reassemble", PI_REASSEMBLE, PI_CHAT, "%s fragment", EXPFILL }},
         { &ei_dcerpc_fragment_reassembled, { "dcerpc.fragment_reassembled", PI_REASSEMBLE, PI_CHAT, "%s fragment, reassembled", EXPFILL }},
         { &ei_dcerpc_cn_ctx_id_no_bind, { "dcerpc.cn_ctx_id.no_bind", PI_UNDECODED, PI_NOTE, "No bind info for interface Context ID %u - capture start too late?", EXPFILL }},
         { &ei_dcerpc_no_request_found, { "dcerpc.no_request_found", PI_SEQUENCE, PI_NOTE, "No request to this DCE/RPC call found", EXPFILL }},
