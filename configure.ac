@@ -1564,6 +1564,15 @@ PKG_WIRESHARK_CHECK_SYSTEM_MODULES([GLIB],
 	[],
 	[AC_MSG_ERROR([GLib $GLIB_MIN_VERSION or later not found.])])
 
+# Error out if a glib header other than a "top level" header
+#  (glib.h, glib-object.h, gio.h) or certain other headers( e.g.,gmodule.h)
+#  is used.
+AX_APPEND_FLAG([-DG_DISABLE_SINGLE_INCLUDES], [GLIB_CONFIG])
+
+# Error out on the usage of deprecated glib functions
+AX_APPEND_FLAG([-DG_DISABLE_DEPRECATED], [GLIB_CONFIG])
+
+GLIB_CFLAGS="$GLIB_CONFIG $GLIB_CFLAGS"
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 
@@ -1773,7 +1782,36 @@ if test "x$enable_wireshark" = "xyes"; then
 			],
 			[AC_MSG_ERROR([GTK+ 2 is not available])])
 	fi
+
+	if test "$have_gtk" = "yes" ; then
+		# If we have GTK then add flags for it.
+		#
+		# GLib flags first
+		#
+		GTK_CONFIG="$GLIB_CONFIG"
+
+		gtk_config_major_version=`echo $GTK_VERSION | cut -d. -f1`
+		gtk_config_minor_version=`echo $GTK_VERSION | cut -d. -f2`
+
+		AX_APPEND_FLAG([-DGDK_DISABLE_DEPRECATED], [GTK_CONFIG])
+		if test \( $gtk_config_major_version -eq 3 -a $gtk_config_minor_version -ge 10 \) ; then
+			## Allow use of deprecated & disable deprecated warnings if Gtk >= 3.10;
+			##  The deprecations in Gtk 3.10 will not be fixed ...
+			AX_APPEND_FLAG([-DGDK_DISABLE_DEPRECATION_WARNINGS], [GTK_CONFIG])
+		else
+			AX_APPEND_FLAG([-DGTK_DISABLE_DEPRECATED], [GTK_CONFIG])
+		fi
+		AX_APPEND_FLAG([-DGTK_DISABLE_SINGLE_INCLUDES], [GTK_CONFIG])
+		if test ! \( $gtk_config_major_version -eq 2 -a $gtk_config_minor_version -lt 20 \) ; then
+			# Enable GSEAL when building with GTK > 2.20
+			# (Versions prior to 2.22 lacked some necessary accessors.)
+			AX_APPEND_FLAG([-DGSEAL_ENABLE], [GTK_CONFIG])
+		fi
+
+		GTK_CFLAGS="$GTK_CONFIG $GTK_CFLAGS"
+	fi
 fi
+
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
 AC_SUBST(GUI_CONFIGURE_FLAGS)
@@ -1822,35 +1860,6 @@ if test "$have_gtk" = "no" -a "$have_qt" = "no" ; then
 	wireshark_bin=""
 	wireshark_man=""
 fi
-
-if test "$have_gtk" = "yes" ; then
-	# If we have GTK then add flags for it.
-	gtk_config_major_version=`echo $GTK_VERSION | cut -d. -f1`
-	gtk_config_minor_version=`echo $GTK_VERSION | cut -d. -f2`
-
-	WS_CPPFLAGS="-DGDK_DISABLE_DEPRECATED $WS_CPPFLAGS"
-	if test \( $gtk_config_major_version -eq 3 -a $gtk_config_minor_version -ge 10 \) ; then
-		## Allow use of deprecated & disable deprecated warnings if Gtk >= 3.10;
-		##  The deprecations in Gtk 3.10 will not be fixed ...
-		WS_CPPFLAGS="-DGDK_DISABLE_DEPRECATION_WARNINGS $WS_CPPFLAGS"
-	else
-		WS_CPPFLAGS="-DGTK_DISABLE_DEPRECATED $WS_CPPFLAGS"
-	fi
-	WS_CPPFLAGS="-DGTK_DISABLE_SINGLE_INCLUDES $WS_CPPFLAGS"
-	if test ! \( $gtk_config_major_version -eq 2 -a $gtk_config_minor_version -lt 20 \) ; then
-		# Enable GSEAL when building with GTK > 2.20
-		# (Versions prior to 2.22 lacked some necessary accessors.)
-		WS_CPPFLAGS="-DGSEAL_ENABLE $WS_CPPFLAGS"
-	fi
-fi
-
-# Error out if a glib header other than a "top level" header
-#  (glib.h, glib-object.h, gio.h) or certain other headers( e.g.,gmodule.h)
-#  is used.
-WS_CPPFLAGS="-DG_DISABLE_SINGLE_INCLUDES $WS_CPPFLAGS"
-
-# Error out on the usage of deprecated glib functions
-WS_CPPFLAGS="-DG_DISABLE_DEPRECATED $WS_CPPFLAGS"
 
 #
 # Check whether GLib modules are supported, to determine whether we
