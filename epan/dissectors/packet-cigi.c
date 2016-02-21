@@ -151,17 +151,6 @@ static dissector_handle_t cigi_handle;
 /* Initialize the protocol and registered fields */
 static int proto_cigi = -1;
 
-static const true_false_string cigi_enable_tfs = {
-    "Enable",
-    "Disable"
-};
-
-static const true_false_string cigi_valid_tfs = {
-    "Valid",
-    "Invalid"
-};
-
-
 /* All CIGI Versions */
 static int hf_cigi_src_port = -1;
 static int hf_cigi_dest_port = -1;
@@ -6521,7 +6510,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_ig_control_tracking_enable,
             { "Tracking Device Enable", "cigi.ig_control.tracking_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x20,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
                 "Identifies the state of an external tracking device", HFILL }
         },
         { &hf_cigi2_ig_control_boresight,
@@ -6558,7 +6547,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_ig_control_timestamp_valid,
             { "Timestamp Valid", "cigi.ig_control.timestamp_valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x04,
                 "Indicates whether the timestamp contains a valid value", HFILL }
         },
         { &hf_cigi3_ig_control_frame_ctr,
@@ -6590,7 +6579,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_ig_control_timestamp_valid,
             { "Timestamp Valid", "cigi.ig_control.timestamp_valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x04,
                 "Indicates whether the timestamp contains a valid value", HFILL }
         },
         { &hf_cigi3_2_ig_control_minor_version,
@@ -6632,12 +6621,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_3_ig_control_timestamp_valid,
             { "Timestamp Valid", "cigi.ig_control.timestamp_valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x04,
                 "Indicates whether the timestamp contains a valid value", HFILL }
         },
         { &hf_cigi3_3_ig_control_extrapolation_enable,
             { "Extrapolation/Interpolation Enable", "cigi.ig_control.extrapolation_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x08,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
                 "Indicates whether any dead reckoning is enabled.", HFILL }
         },
         { &hf_cigi3_3_ig_control_minor_version,
@@ -6686,7 +6675,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_entity_control_collision_detect,
             { "Collision Detection Request", "cigi.entity_control.collision_detect",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
                 "Identifies if collision detection is enabled for the entity", HFILL }
         },
         { &hf_cigi2_entity_control_effect_state,
@@ -6720,12 +6709,12 @@ proto_register_cigi(void)
                 "Identifies the roll angle of the entity in degrees", HFILL }
         },
         { &hf_cigi2_entity_control_pitch,
-            { "Pitch (degrees)", "cigi.entity_control",
+            { "Pitch (degrees)", "cigi.entity_control_pitch",
                 FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies the pitch of the entity in degrees", HFILL }
         },
         { &hf_cigi2_entity_control_heading,
-            { "Heading (degrees)", "cigi.entity_control",
+            { "Heading (degrees)", "cigi.entity_control_heading",
                 FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Identifies the heading of the entity in degrees", HFILL }
         },
@@ -6897,7 +6886,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_3_entity_control_extrapolation_enable,
             { "Linear Extrapolation/Interpolation Enable", "cigi.entity_control.extrapolation_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
                 "Indicates whether the entity's motion may be smoothed by extrapolation or interpolation.", HFILL }
         },
         { &hf_cigi3_3_entity_control_alpha,
@@ -7225,32 +7214,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_articulated_parts_control_xoff_enable,
             { "X Offset Enable", "cigi.art_part_control.xoff_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x40,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
                 "Identifies whether the articulated part x offset in this data packet is manipulated from the host", HFILL }
         },
         { &hf_cigi2_articulated_parts_control_yoff_enable,
             { "Y Offset Enable", "cigi.art_part_control.yoff_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x20,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
                 "Identifies whether the articulated part y offset in this data packet is manipulated from the host", HFILL }
         },
         { &hf_cigi2_articulated_parts_control_zoff_enable,
             { "Z Offset Enable", "cigi.art_part_control.zoff_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
                 "Identifies whether the articulated part z offset in this data packet is manipulated from the host", HFILL }
         },
         { &hf_cigi2_articulated_parts_control_roll_enable,
             { "Roll Enable", "cigi.art_part_control.roll_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x08,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
                 "Identifies whether the articulated part roll enable in this data packet is manipulated from the host", HFILL }
         },
         { &hf_cigi2_articulated_parts_control_pitch_enable,
             { "Pitch Enable", "cigi.art_part_control.pitch_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
                 "Identifies whether the articulated part pitch enable in this data packet is manipulated from the host", HFILL }
         },
         { &hf_cigi2_articulated_parts_control_yaw_enable,
             { "Yaw Enable", "cigi.art_part_control.yaw_enable",
-                FT_UINT8, BASE_DEC, NULL, 0x02,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
                 "Identifies whether the articulated part yaw enable in this data packet is manipulated from the host", HFILL }
         },
         { &hf_cigi2_articulated_parts_control_x_offset,
@@ -7302,37 +7291,37 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_articulated_part_control_part_enable,
             { "Articulated Part Enable", "cigi.art_part_control.part_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
                 "Determines whether the articulated part submodel should be enabled or disabled within the scene graph", HFILL }
         },
         { &hf_cigi3_articulated_part_control_xoff_enable,
             { "X Offset Enable", "cigi.art_part_control.xoff_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x02,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
                 "Determines whether the X Offset parameter of the current packet should be applied to the articulated part", HFILL }
         },
         { &hf_cigi3_articulated_part_control_yoff_enable,
             { "Y Offset Enable", "cigi.art_part_control.yoff_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
                 "Determines whether the Y Offset parameter of the current packet should be applied to the articulated part", HFILL }
         },
         { &hf_cigi3_articulated_part_control_zoff_enable,
             { "Z Offset Enable", "cigi.art_part_control.zoff_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x08,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
                 "Determines whether the Z Offset parameter of the current packet should be applied to the articulated part", HFILL }
         },
         { &hf_cigi3_articulated_part_control_roll_enable,
             { "Roll Enable", "cigi.art_part_control.roll_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
                 "Determines whether the Roll parameter of the current packet should be applied to the articulated part", HFILL }
         },
         { &hf_cigi3_articulated_part_control_pitch_enable,
             { "Pitch Enable", "cigi.art_part_control.pitch_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x20,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
                 "Determines whether the Pitch parameter of the current packet should be applied to the articulated part", HFILL }
         },
         { &hf_cigi3_articulated_part_control_yaw_enable,
             { "Yaw Enable", "cigi.art_part_control.yaw_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x40,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
                 "Determines whether the Yaw parameter of the current packet should be applied to the articulated part", HFILL }
         },
         { &hf_cigi3_articulated_part_control_xoff,
@@ -7399,12 +7388,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_short_articulated_part_control_part_enable_1,
             { "Articulated Part Enable 1", "cigi.short_art_part_control.part_enable_1",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x40,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
                 "Determines whether the articulated part submodel specified by Articulated Part ID 1 should be enabled or disabled within the scene graph", HFILL }
         },
         { &hf_cigi3_short_articulated_part_control_part_enable_2,
             { "Articulated Part Enable 2", "cigi.short_art_part_control.part_enable_2",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x80,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
                 "Determines whether the articulated part submodel specified by Articulated Part ID 2 should be enabled or disabled within the scene graph", HFILL }
         },
         { &hf_cigi3_short_articulated_part_control_dof_1,
@@ -7431,7 +7420,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_rate_control_part_id,
             { "Articulated Part ID", "cigi.rate_control.part_id",
-                FT_INT8, BASE_DEC, NULL, 0x0,
+                FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Identifies which articulated part is controlled with this data packet", HFILL }
         },
         { &hf_cigi2_rate_control_x_rate,
@@ -7592,27 +7581,27 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_celestial_sphere_control_ephemeris_enable,
             { "Ephemeris Model Enable", "cigi.celestial_sphere_control.ephemeris_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
                 "Controls whether the time of day is static or continuous", HFILL }
         },
         { &hf_cigi3_celestial_sphere_control_sun_enable,
             { "Sun Enable", "cigi.celestial_sphere_control.sun_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x02,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
                 "Specifies whether the sun is enabled in the sky model", HFILL }
         },
         { &hf_cigi3_celestial_sphere_control_moon_enable,
             { "Moon Enable", "cigi.celestial_sphere_control.moon_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
                 "Specifies whether the moon is enabled in the sky model", HFILL }
         },
         { &hf_cigi3_celestial_sphere_control_star_enable,
             { "Star Field Enable", "cigi.celestial_sphere_control.star_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x08,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
                 "Specifies whether the start field is enabled in the sky model", HFILL }
         },
         { &hf_cigi3_celestial_sphere_control_date_time_valid,
             { "Date/Time Valid", "cigi.celestial_sphere_control.date_time_valid",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
                 "Specifies whether the Hour, Minute, and Date parameters are valid", HFILL }
         },
         { &hf_cigi3_celestial_sphere_control_date,
@@ -7634,7 +7623,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_atmosphere_control_atmospheric_model_enable,
             { "Atmospheric Model Enable", "cigi.atmosphere_control.atmospheric_model_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
                 "Specifies whether the IG should use an atmospheric model to determine spectral radiances for sensor applications", HFILL }
         },
         { &hf_cigi3_atmosphere_control_humidity,
@@ -7691,7 +7680,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_environment_control_ephemeris_enable,
             { "Ephemeris Enable", "cigi.env_control.ephemeris_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x80,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
                 "Identifies whether a continuous time of day or static time of day is used", HFILL }
         },
         { &hf_cigi2_environment_control_humidity,
@@ -7825,17 +7814,17 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_weather_control_weather_enable,
             { "Weather Enable", "cigi.weather_control.weather_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x80,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
                 "Indicates whether the phenomena specified by this data packet is visible", HFILL }
         },
         { &hf_cigi2_weather_control_scud_enable,
             { "Scud Enable", "cigi.weather_control.scud_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x40,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
                 "Indicates whether there will be scud effects applied to the phenomenon specified by this data packet", HFILL }
         },
         { &hf_cigi2_weather_control_random_winds,
             { "Random Winds Aloft", "cigi.weather_control.random_winds",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x20,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
                 "Indicates whether a random frequency and duration should be applied to the winds aloft value", HFILL }
         },
         { &hf_cigi2_weather_control_severity,
@@ -7917,17 +7906,17 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_weather_control_weather_enable,
             { "Weather Enable", "cigi.weather_control.weather_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
                 "Specifies whether a weather layer and its atmospheric effects are enabled", HFILL }
         },
         { &hf_cigi3_weather_control_scud_enable,
             { "Scud Enable", "cigi.weather_control.scud_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x02,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
                 "Specifies whether weather layer produces scud effects within its transition bands", HFILL }
         },
         { &hf_cigi3_weather_control_random_winds_enable,
             { "Random Winds Enable", "cigi.weather_control.random_winds_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
                 "Specifies whether a random frequency and duration should be applied to the local wind effects", HFILL }
         },
         { &hf_cigi3_weather_control_random_lightning_enable,
@@ -8024,12 +8013,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_maritime_surface_conditions_control_surface_conditions_enable,
             { "Surface Conditions Enable", "cigi.maritime_surface_conditions_control.surface_conditions_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
                 "Determines the state of the specified surface conditions", HFILL }
         },
         { &hf_cigi3_maritime_surface_conditions_control_whitecap_enable,
             { "Whitecap Enable", "cigi.maritime_surface_conditions_control.whitecap_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x02,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
                 "Determines whether whitecaps are enabled", HFILL }
         },
         { &hf_cigi3_maritime_surface_conditions_control_scope,
@@ -8071,7 +8060,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_wave_control_wave_enable,
             { "Wave Enable", "cigi.wave_control.wave_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
                 "Determines whether the wave is enabled or disabled", HFILL }
         },
         { &hf_cigi3_wave_control_scope,
@@ -8133,7 +8122,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_terrestrial_surface_conditions_control_surface_condition_enable,
             { "Surface Condition Enable", "cigi.terrestrial_surface_conditions_control.surface_condition_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
                 "Specifies whether the surface condition attribute identified by the Surface Condition ID parameter should be enabled", HFILL }
         },
         { &hf_cigi3_terrestrial_surface_conditions_control_scope,
@@ -8175,32 +8164,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_view_control_xoff_enable,
             { "X Offset Enable", "cigi.view_control.xoff_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x80,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
                 "Identifies whether the x offset parameter should be applied to the specified view or view group", HFILL }
         },
         { &hf_cigi2_view_control_yoff_enable,
             { "Y Offset Enable", "cigi.view_control.yoff_enable",
-                FT_UINT8, BASE_DEC, NULL, 0x40,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
                 "Identifies whether the y offset parameter should be applied to the specified view or view group", HFILL }
         },
         { &hf_cigi2_view_control_zoff_enable,
             { "Z Offset Enable", "cigi.view_control.zoff_enable",
-                FT_UINT8, BASE_DEC, NULL, 0x20,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
                 "Identifies whether the z offset parameter should be applied to the specified view or view group", HFILL }
         },
         { &hf_cigi2_view_control_roll_enable,
             { "Roll Enable", "cigi.view_control.roll_enable",
-                FT_UINT8, BASE_DEC, NULL, 0x10,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
                 "Identifies whether the roll parameter should be applied to the specified view or view group", HFILL }
         },
         { &hf_cigi2_view_control_pitch_enable,
             { "Pitch Enable", "cigi.view_control.pitch_enable",
-                FT_UINT8, BASE_DEC, NULL, 0x08,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
                 "Identifies whether the pitch parameter should be applied to the specified view or view group", HFILL }
         },
         { &hf_cigi2_view_control_yaw_enable,
             { "Yaw Enable", "cigi.view_control.yaw_enable",
-                FT_UINT8, BASE_DEC, NULL, 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
                 "Identifies whether the yaw parameter should be applied to the specified view or view group", HFILL }
         },
         { &hf_cigi2_view_control_x_offset,
@@ -8252,32 +8241,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_view_control_xoff_enable,
             { "X Offset Enable", "cigi.view_control.xoff_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
                 "Determines whether the X Offset parameter should be applied to the specified view or view group", HFILL }
         },
         { &hf_cigi3_view_control_yoff_enable,
             { "Y Offset Enable", "cigi.view_control.yoff_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x02,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
                 "Determines whether the Y Offset parameter should be applied to the specified view or view group", HFILL }
         },
         { &hf_cigi3_view_control_zoff_enable,
             { "Z Offset Enable", "cigi.view_control.zoff_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
                 "Determines whether the Z Offset parameter should be applied to the specified view or view group", HFILL }
         },
         { &hf_cigi3_view_control_roll_enable,
             { "Roll Enable", "cigi.view_control.roll_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x08,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
                 "Determines whether the Roll parameter should be applied to the specified view or view group", HFILL }
         },
         { &hf_cigi3_view_control_pitch_enable,
             { "Pitch Enable", "cigi.view_control.pitch_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
                 "Determines whether the Pitch parameter should be applied to the specified view or view group", HFILL }
         },
         { &hf_cigi3_view_control_yaw_enable,
             { "Yaw Enable", "cigi.view_control.yaw_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x20,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
                 "Determines whether the Yaw parameter should be applied to the specified view or view group", HFILL }
         },
         { &hf_cigi3_view_control_entity_id,
@@ -8411,12 +8400,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_sensor_control_line_dropout_enable,
             { "Line-by-Line Dropout Enable", "cigi.sensor_control.line_dropout_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
                 "Specifies whether line-by-line dropout is enabled", HFILL }
         },
         { &hf_cigi3_sensor_control_auto_gain,
             { "Automatic Gain", "cigi.sensor_control.auto_gain",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x08,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
                 "Specifies whether the sensor automatically adjusts the gain value to optimize the brightness and contrast of the sensor display", HFILL }
         },
         { &hf_cigi3_sensor_control_track_white_black,
@@ -8473,42 +8462,42 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_motion_tracker_control_tracker_enable,
             { "Tracker Enable", "cigi.motion_tracker_control.tracker_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
                 "Specifies whether the tracking device is enabled", HFILL }
         },
         { &hf_cigi3_motion_tracker_control_boresight_enable,
             { "Boresight Enable", "cigi.motion_tracker_control.boresight_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x02,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
                 "Sets the boresight state of the external tracking device", HFILL }
         },
         { &hf_cigi3_motion_tracker_control_x_enable,
             { "X Enable", "cigi.motion_tracker_control.x_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
                 "Used to enable or disable the X-axis position of the motion tracker", HFILL }
         },
         { &hf_cigi3_motion_tracker_control_y_enable,
             { "Y Enable", "cigi.motion_tracker_control.y_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x08,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
                 "Used to enable or disable the Y-axis position of the motion tracker", HFILL }
         },
         { &hf_cigi3_motion_tracker_control_z_enable,
             { "Z Enable", "cigi.motion_tracker_control.z_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
                 "Used to enable or disable the Z-axis position of the motion tracker", HFILL }
         },
         { &hf_cigi3_motion_tracker_control_roll_enable,
             { "Roll Enable", "cigi.motion_tracker_control.roll_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x20,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
                 "Used to enable or disable the roll of the motion tracker", HFILL }
         },
         { &hf_cigi3_motion_tracker_control_pitch_enable,
             { "Pitch Enable", "cigi.motion_tracker_control.pitch_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x40,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
                 "Used to enable or disable the pitch of the motion tracker", HFILL }
         },
         { &hf_cigi3_motion_tracker_control_yaw_enable,
             { "Yaw Enable", "cigi.motion_tracker_control.yaw_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x80,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
                 "Used to enable or disable the yaw of the motion tracker", HFILL }
         },
         { &hf_cigi3_motion_tracker_control_view_group_select,
@@ -8525,7 +8514,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_earth_reference_model_definition_erm_enable,
             { "Custom ERM Enable", "cigi.earth_ref_model_def.erm_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
                 "Specifies whether the IG should use the Earth Reference Model defined by this packet", HFILL }
         },
         { &hf_cigi3_earth_reference_model_definition_equatorial_radius,
@@ -8723,32 +8712,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_view_definition_near_enable,
             { "Field of View Near Enable", "cigi.view_def.near_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x40,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
                 "Identifies whether the field of view near value is manipulated from the Host", HFILL }
         },
         { &hf_cigi2_view_definition_far_enable,
             { "Field of View Far Enable", "cigi.view_def.far_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x20,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
                 "Identifies whether the field of view far value is manipulated from the Host", HFILL }
         },
         { &hf_cigi2_view_definition_left_enable,
             { "Field of View Left Enable", "cigi.view_def.left_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
                 "Identifies whether the field of view left value is manipulated from the Host", HFILL }
         },
         { &hf_cigi2_view_definition_right_enable,
             { "Field of View Right Enable", "cigi.view_def.right_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x08,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
                 "Identifies whether the field of view right value is manipulated from the Host", HFILL }
         },
         { &hf_cigi2_view_definition_top_enable,
             { "Field of View Top Enable", "cigi.view_def.top_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
                 "Identifies whether the field of view top value is manipulated from the Host", HFILL }
         },
         { &hf_cigi2_view_definition_bottom_enable,
             { "Field of View Bottom Enable", "cigi.view_def.bottom_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x02,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
                 "Identifies whether the field of view bottom value is manipulated from the Host", HFILL }
         },
         { &hf_cigi2_view_definition_fov_near,
@@ -8800,32 +8789,32 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_view_definition_near_enable,
             { "Near Enable", "cigi.view_def.near_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
                 "Specifies whether the near clipping plane will be set to the value of the Near parameter within this packet", HFILL }
         },
         { &hf_cigi3_view_definition_far_enable,
             { "Far Enable", "cigi.view_def.far_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x02,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
                 "Specifies whether the far clipping plane will be set to the value of the Far parameter within this packet", HFILL }
         },
         { &hf_cigi3_view_definition_left_enable,
             { "Left Enable", "cigi.view_def.left_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
                 "Specifies whether the left half-angle of the view frustum will be set according to the value of the Left parameter within this packet", HFILL }
         },
         { &hf_cigi3_view_definition_right_enable,
             { "Right Enable", "cigi.view_def.right_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x08,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
                 "Specifies whether the right half-angle of the view frustum will be set according to the value of the Right parameter within this packet", HFILL }
         },
         { &hf_cigi3_view_definition_top_enable,
             { "Top Enable", "cigi.view_def.top_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x10,
                 "Specifies whether the top half-angle of the view frustum will be set according to the value of the Top parameter within this packet", HFILL }
         },
         { &hf_cigi3_view_definition_bottom_enable,
             { "Bottom Enable", "cigi.view_def.bottom_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x20,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20,
                 "Specifies whether the bottom half-angle of the view frustum will be set according to the value of the Bottom parameter within this packet", HFILL }
         },
         { &hf_cigi3_view_definition_mirror_mode,
@@ -8897,7 +8886,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_collision_detection_segment_definition_segment_enable,
             { "Segment Enable", "cigi.coll_det_seg_def.segment_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x80,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
                 "Indicates whether the defined segment is enabled for collision testing", HFILL }
         },
         { &hf_cigi2_collision_detection_segment_definition_segment_id,
@@ -8959,7 +8948,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_collision_detection_segment_definition_segment_enable,
             { "Segment Enable", "cigi.coll_det_seg_def.segment_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
                 "Specifies whether the segment is enabled or disabled", HFILL }
         },
         { &hf_cigi3_collision_detection_segment_definition_x1,
@@ -9011,7 +9000,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_collision_detection_volume_definition_volume_enable,
             { "Volume Enable", "cigi.coll_det_vol_def.volume_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x80,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x80,
                 "Indicates whether the defined volume is enabled for collision testing", HFILL }
         },
         { &hf_cigi2_collision_detection_volume_definition_volume_id,
@@ -9068,7 +9057,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_collision_detection_volume_definition_volume_enable,
             { "Volume Enable", "cigi.coll_det_vol_def.volume_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
                 "Specifies whether the volume is enabled or disabled", HFILL }
         },
         { &hf_cigi3_collision_detection_volume_definition_volume_type,
@@ -9459,7 +9448,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_line_of_sight_segment_request_destination_entity_id_valid,
             { "Destination Entity ID Valid", "cigi.los_segment_request.destination_entity_id_valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x10,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x10,
                 "Destination Entity ID is valid.", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_segment_request_alpha_threshold,
@@ -9769,7 +9758,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_3_symbol_surface_definition_perspective_growth_enable,
             { "Perspective Growth Enable", "cigi.symbl_srfc_def.perspective_growth_enable",
-                FT_BOOLEAN, 8, TFS(&cigi_enable_tfs), 0x08,
+                FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
                 "Specifies whether the surface appears to maintain a constant size or has perspective growth", HFILL }
         },
         { &hf_cigi3_3_symbol_surface_definition_entity_view_id,
@@ -10677,22 +10666,22 @@ proto_register_cigi(void)
                 "Identifies the attribute whose value is specified in Attribute Value 2", HFILL }
         },
         { &hf_cigi3_3_short_symbol_control_attribute_value1,
-            { "Value 1", "cigi.short_symbol_control.value1",
+            { "Value 1", "cigi.short_symbol_control.value1_uint",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 "Specifies the value for attribute 1", HFILL }
         },
         { &hf_cigi3_3_short_symbol_control_attribute_value2,
-            { "Value 2", "cigi.short_symbol_control.value2",
+            { "Value 2", "cigi.short_symbol_control.value2_uint",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 "Specifies the value for attribute 2", HFILL }
         },
         { &hf_cigi3_3_short_symbol_control_attribute_value1f,
-            { "Value 1", "cigi.short_symbol_control.value1",
+            { "Value 1", "cigi.short_symbol_control.value1_float",
                 FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the value for attribute 1", HFILL }
         },
         { &hf_cigi3_3_short_symbol_control_attribute_value2f,
-            { "Value 2", "cigi.short_symbol_control.value2",
+            { "Value 2", "cigi.short_symbol_control.value2_float",
                 FT_FLOAT, BASE_NONE, NULL, 0x0,
                 "Specifies the value for attribute 2", HFILL }
         },
@@ -10792,7 +10781,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_start_of_frame_timestamp_valid,
             { "Timestamp Valid", "cigi.sof.timestamp_valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x04,
                 "Indicates whether the Timestamp parameter contains a valid value", HFILL }
         },
         { &hf_cigi3_start_of_frame_earth_reference_model,
@@ -10839,7 +10828,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_start_of_frame_timestamp_valid,
             { "Timestamp Valid", "cigi.sof.timestamp_valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x04,
                 "Indicates whether the Timestamp parameter contains a valid value", HFILL }
         },
         { &hf_cigi3_2_start_of_frame_earth_reference_model,
@@ -10876,7 +10865,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_height_above_terrain_response_valid,
             { "Valid", "cigi.hat_response.valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x80,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x80,
                 "Indicates whether the response is valid or invalid", HFILL }
         },
         { &hf_cigi2_height_above_terrain_response_material_type,
@@ -10903,7 +10892,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_hat_hot_response_valid,
             { "Valid", "cigi.hat_hot_response.valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x01,
                 "Indicates whether the Height parameter contains a valid number", HFILL }
         },
         { &hf_cigi3_hat_hot_response_type,
@@ -10930,7 +10919,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_hat_hot_response_valid,
             { "Valid", "cigi.hat_hot_response.valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x01,
                 "Indicates whether the Height parameter contains a valid number", HFILL }
         },
         { &hf_cigi3_2_hat_hot_response_type,
@@ -10962,7 +10951,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_hat_hot_extended_response_valid,
             { "Valid", "cigi.hat_hot_ext_response.valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x01,
                 "Indicates whether the remaining parameters in this packet contain valid numbers", HFILL }
         },
         { &hf_cigi3_hat_hot_extended_response_hat,
@@ -11004,7 +10993,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_hat_hot_extended_response_valid,
             { "Valid", "cigi.hat_hot_ext_response.valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x01,
                 "Indicates whether the remaining parameters in this packet contain valid numbers", HFILL }
         },
         { &hf_cigi3_2_hat_hot_extended_response_host_frame_number_lsn,
@@ -11051,7 +11040,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_line_of_sight_response_valid,
             { "Valid", "cigi.los_response.valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x80,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x80,
                 "Indicates whether the response is valid or invalid", HFILL }
         },
         { &hf_cigi2_line_of_sight_response_occult_response,
@@ -11098,12 +11087,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_line_of_sight_response_valid,
             { "Valid", "cigi.los_response.valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x01,
                 "Indicates whether the Range parameter is valid", HFILL }
         },
         { &hf_cigi3_line_of_sight_response_entity_id_valid,
             { "Entity ID Valid", "cigi.los_response.entity_id_valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x02,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x02,
                 "Indicates whether the LOS test vector or segment intersects with an entity or a non-entity", HFILL }
         },
         { &hf_cigi3_line_of_sight_response_visible,
@@ -11140,12 +11129,12 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_line_of_sight_response_valid,
             { "Valid", "cigi.los_response.valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x01,
                 "Indicates whether the Range parameter is valid", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_response_entity_id_valid,
             { "Entity ID Valid", "cigi.los_response.entity_id_valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x02,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x02,
                 "Indicates whether the LOS test vector or segment intersects with an entity or a non-entity", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_response_visible,
@@ -11187,17 +11176,17 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_line_of_sight_extended_response_valid,
             { "Valid", "cigi.los_ext_response.valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x01,
                 "Indicates whether this packet contains valid data", HFILL }
         },
         { &hf_cigi3_line_of_sight_extended_response_entity_id_valid,
             { "Entity ID Valid", "cigi.los_ext_response.entity_id_valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x02,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x02,
                 "Indicates whether the LOS test vector or segment intersects with an entity", HFILL }
         },
         { &hf_cigi3_line_of_sight_extended_response_range_valid,
             { "Range Valid", "cigi.los_ext_response.range_valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x04,
                 "Indicates whether the Range parameter is valid", HFILL }
         },
         { &hf_cigi3_line_of_sight_extended_response_visible,
@@ -11289,17 +11278,17 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_2_line_of_sight_extended_response_valid,
             { "Valid", "cigi.3_2_los_ext_response.valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x01,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x01,
                 "Indicates whether this packet contains valid data", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_extended_response_entity_id_valid,
             { "Entity ID Valid", "cigi.3_2_los_ext_response.entity_id_valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x02,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x02,
                 "Indicates whether the LOS test vector or segment intersects with an entity", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_extended_response_range_valid,
             { "Range Valid", "cigi.3_2_los_ext_response.range_valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x04,
                 "Indicates whether the Range parameter is valid", HFILL }
         },
         { &hf_cigi3_2_line_of_sight_extended_response_visible,
@@ -11537,7 +11526,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi3_sensor_extended_response_entity_id_valid,
             { "Entity ID Valid", "cigi.sensor_ext_response.entity_id_valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x04,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x04,
                 "Indicates whether the target is an entity or a non-entity object", HFILL }
         },
         { &hf_cigi3_sensor_extended_response_entity_id,
@@ -11599,7 +11588,7 @@ proto_register_cigi(void)
         },
         { &hf_cigi2_height_of_terrain_response_valid,
             { "Valid", "cigi.hot_response.valid",
-                FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x80,
+                FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x80,
                 "Indicates whether the response is valid or invalid", HFILL }
         },
         { &hf_cigi2_height_of_terrain_response_material_type,
