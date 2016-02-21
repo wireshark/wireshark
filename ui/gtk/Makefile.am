@@ -60,7 +60,7 @@ EXTRA_DIST = \
 
 BUILT_SOURCES =
 
-if HAVE_GRESOURCE
+if HAVE_GRESOURCE_PIXBUF
 BUILT_SOURCES += wireshark-gresources.h
 GENERATED_HEADER_FILES += wireshark-gresources.h
 GENERATED_C_FILES += wireshark-gresources.c
@@ -95,7 +95,7 @@ wireshark-tap-register.c:  $(WIRESHARK_TAP_SRC) Makefile.common Makefile_custom.
 	@echo Making wireshark-tap-register.c
 	@$(PYTHON) $(top_srcdir)/tools/make-tap-reg.py $(srcdir) taps $(WIRESHARK_TAP_SRC)
 
-if HAVE_GRESOURCE
+if HAVE_GRESOURCE_PIXBUF
 wireshark-gresources.c: main.gresources.xml $(shell glib-compile-resources --sourcedir=$(top_srcdir) --generate-dependencies $(srcdir)/main.gresources.xml)
 	@echo Making $@
 	@glib-compile-resources --sourcedir=$(top_srcdir) --target=$@ --generate --manual-register $<

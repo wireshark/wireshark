@@ -50,7 +50,7 @@
 #endif
 
 #include "ui/gtk/stock_icons.h"
-#ifndef HAVE_GRESOURCE
+#ifndef HAVE_GDK_GRESOURCE
 #include "ui/gtk/pixbuf-csource.h"
 #endif
 #include "ui/gtk/capture_dlg.h"

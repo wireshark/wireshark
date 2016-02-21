@@ -56,7 +56,7 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/capture_file_dlg.h"
 #include "ui/gtk/stock_icons.h"
-#ifndef HAVE_GRESOURCE
+#ifndef HAVE_GDK_GRESOURCE
 #include "ui/gtk/pixbuf-csource.h"
 #endif
 
@@ -372,7 +372,7 @@ welcome_header_new(void)
     item_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_box_pack_start(GTK_BOX(item_vb), item_hb, FALSE, FALSE, 10);
 
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
     icon = pixbuf_to_widget("/org/wireshark/image/wssplash_dev.png");
 #else
     icon = pixbuf_to_widget(wssplash_pb_data);
@@ -881,7 +881,7 @@ add_interface_to_list(guint indx)
     interface_t device;
 
     device = g_array_index(global_capture_opts.all_ifaces, interface_t, indx);
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
     icon = pixbuf_to_widget("/org/wireshark/image/toolbar/remote_sat_16.png");
 #else
     icon = pixbuf_to_widget(remote_sat_pb_data);

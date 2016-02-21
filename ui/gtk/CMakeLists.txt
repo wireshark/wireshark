@@ -303,7 +303,7 @@ if(GRESOURCE_FOUND AND NOT WIN32)
 		wireshark-gresources.c
 		wireshark-gresources.h
 	)
-	add_definitions(-DHAVE_GRESOURCE)
+	add_definitions(-DHAVE_GDK_GRESOURCE)
 else()
 	set(PIXBUF_SRC
 		pixbuf-csource.c

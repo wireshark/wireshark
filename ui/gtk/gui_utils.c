@@ -51,7 +51,7 @@
 #include "ui/gtk/font_utils.h"
 #include "ui/gtk/color_utils.h"
 #include "ui/gtk/old-gtk-compat.h"
-#ifndef HAVE_GRESOURCE
+#ifndef HAVE_GDK_GRESOURCE
 #include "ui/gtk/pixbuf-csource.h"
 #endif
 
@@ -112,7 +112,7 @@ window_icon_realize_cb(GtkWidget *win,
     GList     *ws_icon_list = NULL;
     GdkPixbuf *icon16, *icon32, *icon48, *icon64;
 
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
     icon16 = ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/wsicon16.png");
     icon32 = ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/wsicon32.png");
     icon48 = ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/wsicon48.png");
@@ -524,14 +524,14 @@ xpm_to_widget(const char **xpm) {
 
 /* Convert an pixbuf GResource to a GtkWidget */
 GtkWidget *
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
 pixbuf_to_widget(const char *pb_path) {
 #else
 pixbuf_to_widget(const guint8 *pb_data) {
 #endif
     GdkPixbuf *pixbuf;
 
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
     pixbuf = ws_gdk_pixbuf_new_from_resource(pb_path);
 #else
     pixbuf = gdk_pixbuf_new_from_inline(-1, pb_data, FALSE, NULL);
@@ -2049,7 +2049,7 @@ gdk_cairo_set_source_rgba(cairo_t *cr, const GdkRGBA *rgba)
 }
 #endif /* GTK_CHECK_VERSION(3,0,0) */
 
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
 GdkPixbuf *
 ws_gdk_pixbuf_new_from_resource(const char *path)
 {
@@ -2060,7 +2060,7 @@ ws_gdk_pixbuf_new_from_resource(const char *path)
     g_assert_no_error(err);
     return pixbuf;
 }
-#endif /* HAVE_GRESOURCE */
+#endif /* HAVE_GDK_GRESOURCE */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

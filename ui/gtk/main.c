@@ -195,7 +195,7 @@
 #include "ui/gtk/response_time_delay_table.h"
 #include "ui/gtk/simple_stattable.h"
 #include "simple_dialog.h"
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
 #include "wireshark-gresources.h"
 #else
 #include "ui/gtk/pixbuf-csource.h"
@@ -1485,7 +1485,7 @@ main_cf_cb_file_rescan_finished(capture_file *cf)
 
 #ifdef HAVE_LIBPCAP
 static GList *icon_list_create(
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
     const gchar *icon16_path,
     const gchar *icon32_path,
     const gchar *icon48_path,
@@ -1503,7 +1503,7 @@ static GList *icon_list_create(
     GdkPixbuf *pixbuf48 = NULL;
     GdkPixbuf *pixbuf64 = NULL;
 
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
     if (icon16_path != NULL)
         pixbuf16 = ws_gdk_pixbuf_new_from_resource(icon16_path);
     if (icon32_path != NULL)
@@ -1543,7 +1543,7 @@ main_capture_cb_capture_prepared(capture_session *cap_session)
     set_titlebar_for_capture_in_progress((capture_file *)cap_session->cf);
 
     if(icon_list == NULL) {
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
         icon_list = icon_list_create("/org/wireshark/image/wsiconcap16.png",
                                         "/org/wireshark/image/wsiconcap32.png",
                                         "/org/wireshark/image/wsiconcap48.png",
@@ -1613,7 +1613,7 @@ main_capture_cb_capture_update_finished(capture_session *cap_session)
     main_set_for_capture_file(TRUE);
 
     if(icon_list == NULL) {
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
         icon_list = icon_list_create("/org/wireshark/image/wsicon16.png",
                                         "/org/wireshark/image/wsicon32.png",
                                         "/org/wireshark/image/wsicon48.png",
@@ -1664,7 +1664,7 @@ main_capture_cb_capture_fixed_finished(capture_session *cap_session _U_)
     set_titlebar_for_capture_file(NULL);
 
     if(icon_list == NULL) {
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
         icon_list = icon_list_create("/org/wireshark/image/wsicon16.png",
                                         "/org/wireshark/image/wsicon32.png",
                                         "/org/wireshark/image/wsicon48.png",
@@ -1718,7 +1718,7 @@ main_capture_cb_capture_failed(capture_session *cap_session _U_)
     main_set_for_capture_file(FALSE);
 
     if(icon_list == NULL) {
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
         icon_list = icon_list_create("/org/wireshark/image/wsicon16.png",
                                         "/org/wireshark/image/wsicon32.png",
                                         "/org/wireshark/image/wsicon48.png",
@@ -1896,7 +1896,7 @@ main_capture_callback(gint event, capture_session *cap_session, gpointer user_da
         main_capture_cb_capture_update_started(cap_session);
 #ifdef HAVE_GTKOSXAPPLICATION
         theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
         gtkosx_application_set_dock_icon_pixbuf(theApp, ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/wsicon48.png"));
 #else
         gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsicon_48_pb_data, FALSE, NULL));
@@ -1927,7 +1927,7 @@ main_capture_callback(gint event, capture_session *cap_session, gpointer user_da
          * closes the capturing on its own! */
 #ifdef HAVE_GTKOSXAPPLICATION
         theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
         gtkosx_application_set_dock_icon_pixbuf(theApp, ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/wsicon64.png"));
 #else
         gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsicon_64_pb_data, FALSE, NULL));
@@ -2253,7 +2253,7 @@ main(int argc, char *argv[])
     };
     static const char optstring[] = OPTSTRING;
 
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
     main_register_resource();
 #endif
 
@@ -3356,7 +3356,7 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_GTKOSXAPPLICATION
     theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
     gtkosx_application_set_dock_icon_pixbuf(theApp, ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/wsicon64.png"));
 #else
     gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsicon_64_pb_data, FALSE, NULL));
@@ -3407,7 +3407,7 @@ main(int argc, char *argv[])
     destroy_console();
 #endif
 
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
     main_unregister_resource();
 #endif
 

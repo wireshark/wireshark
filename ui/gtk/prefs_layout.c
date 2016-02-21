@@ -34,7 +34,7 @@
 #include "ui/gtk/main_titlebar.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/main.h"
-#ifndef HAVE_GRESOURCE
+#ifndef HAVE_GDK_GRESOURCE
 #include "ui/gtk/pixbuf-csource.h"
 #endif
 
@@ -342,7 +342,7 @@ layout_prefs_show(void)
     gtk_box_pack_start (GTK_BOX(pane_vb), button_hb, FALSE, FALSE, 0);
 
     /* pane layout */
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
     pixbuf[0] = ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/layout_5.png");
     pixbuf[1] = ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/layout_2.png");
     pixbuf[2] = ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/layout_1.png");

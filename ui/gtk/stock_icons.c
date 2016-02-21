@@ -28,7 +28,7 @@
 #include <string.h>
 
 #include "ui/gtk/stock_icons.h"
-#ifndef HAVE_GRESOURCE
+#ifndef HAVE_GDK_GRESOURCE
 #include "ui/gtk/pixbuf-csource.h"
 #endif
 #include "ui/gtk/gui_utils.h"
@@ -92,7 +92,7 @@ typedef struct stock_pixmap_tag{
 
 typedef struct stock_pixbuf_tag{
     const char    * name;
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
     struct {
         const char *p16; /* Optional */
         const char *p24; /* Mandatory */
@@ -323,7 +323,7 @@ void stock_icons_init(void) {
 #endif
 
     static const stock_pixbuf_t pixbufs[] = {
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
         { WIRESHARK_STOCK_ABOUT,
             { "/org/wireshark/image/wsicon16.png",
               "/org/wireshark/image/wsicon24.png" }
@@ -454,7 +454,7 @@ void stock_icons_init(void) {
 
     /* Add pixbufs as builtin theme icons */
     for (i = 0; pixbufs[i].name != NULL; i++) {
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
         GdkPixbuf * pixbuf24 = ws_gdk_pixbuf_new_from_resource(pixbufs[i].path.p24);
 #else
         GdkPixbuf * pixbuf24 = gdk_pixbuf_new_from_inline(-1, pixbufs[i].pb_data24, FALSE, NULL);
@@ -468,7 +468,7 @@ void stock_icons_init(void) {
         /* Default image */
         gtk_icon_theme_add_builtin_icon(pixbufs[i].name, 24, pixbuf24);
 
-#ifdef HAVE_GRESOURCE
+#ifdef HAVE_GDK_GRESOURCE
         if (pixbufs[i].path.p16 != NULL) {
             GdkPixbuf * pixbuf16 = ws_gdk_pixbuf_new_from_resource(pixbufs[i].path.p16);
 #else

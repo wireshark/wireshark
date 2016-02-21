@@ -1591,13 +1591,6 @@ GLIB_CFLAGS="$GLIB_CONFIG $GLIB_CFLAGS"
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 
-# Check for GResource support
-PKG_CHECK_EXISTS([gio-2.0 >= 2.32 gdk-pixbuf-2.0 >= 2.26], [have_gresource=yes], [have_gresource=no])
-AM_CONDITIONAL(HAVE_GRESOURCE, test "x$have_gresource" = "xyes")
-if test "x$have_gresource" = "xyes"; then
-	AC_DEFINE(HAVE_GRESOURCE, 1, [Defined if GLib GResource is supported])
-fi
-
 GTK2_MIN_VERSION=2.12.0
 AC_SUBST(GTK2_MIN_VERSION)
 GTK3_MIN_VERSION=3.0.0
@@ -1830,6 +1823,20 @@ fi
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
 AC_SUBST(GUI_CONFIGURE_FLAGS)
+
+# Check for GTK GUI support for GResource pixbufs
+have_gresource_pixbuf=no
+if test "x$have_gtk" = "xyes"; then
+	AC_MSG_CHECKING(whether GDK-Pixbuf can load data using GResource)
+	PKG_CHECK_EXISTS([gio-2.0 >= 2.32 gdk-pixbuf-2.0 >= 2.26],
+	  [
+	   AC_MSG_RESULT(yes)
+	   AC_DEFINE(HAVE_GDK_GRESOURCE, 1, [Defined if GResource is supported])
+	   have_gresource_pixbuf=yes
+	  ],
+	  [AC_MSG_RESULT(no)])
+fi
+AM_CONDITIONAL(HAVE_GRESOURCE_PIXBUF, test "x$have_gresource_pixbuf" = "xyes")
 
 if test "$have_gtk" = "yes" -a "$have_qt" = "yes" ; then
 	# We have both GTK and Qt and thus will be building both wireshark
@@ -3496,4 +3503,4 @@ echo "                 Use libssh library : $libssh_message"
 echo "            Have ssh_userauth_agent : $ssh_userauth_agent_message"
 echo "                     Use nl library : $libnl_message"
 echo "              Use SBC codec library : $have_sbc"
-#echo "                      Use GResource : $have_gresource"
+#echo "       Use GDK-Pixbuf with GResource: $have_gresource_pixbuf"
