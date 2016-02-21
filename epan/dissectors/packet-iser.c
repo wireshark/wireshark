@@ -70,7 +70,6 @@ static dissector_handle_t ib_handler;
 static int proto_ib = -1;
 
 /* iSER Header */
-static int hf_iser = -1;
 static int hf_iser_flags = -1;
 static int hf_iser_opcode_f = -1;
 static int hf_iser_RSV_f = -1;
@@ -183,7 +182,7 @@ static int dissect_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
         /* create display subtree for the protocol */
-        ti = proto_tree_add_item(tree, hf_iser, tvb, 0, ISER_HDR_SZ, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_iser, tvb, 0, ISER_HDR_SZ, ENC_NA);
 
         iser_tree = proto_item_add_subtree(ti, ett_iser);
 
@@ -291,10 +290,6 @@ proto_register_iser(void)
 {
     module_t *iser_module;
     static hf_register_info hf[] = {
-        { &hf_iser, {
-            "iSER", "iser",
-            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
-        },
         { &hf_iser_flags,
             { "Flags", "iser.flags",
                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}

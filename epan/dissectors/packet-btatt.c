@@ -11809,7 +11809,7 @@ proto_register_btgatt(void)
             NULL, HFILL}
         },
         {&hf_gatt_nordic_dfu_packet,
-            {"Packet", "btgatt.nordic.dfu.packet",
+            {"Packet", "btgatt.nordic.dfu.packet.data",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },

@@ -60,7 +60,6 @@ static dissector_handle_t rpcordma_handler;
 static int proto_ib = -1;
 
 /* RPCoRDMA Header */
-static int hf_rpcordma = -1;
 static int hf_rpcordma_xid = -1;
 static int hf_rpcordma_vers = -1;
 static int hf_rpcordma_flow_control = -1;
@@ -303,7 +302,7 @@ dissect_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
         /* create display subtree for the protocol */
-        ti = proto_tree_add_item(tree, hf_rpcordma, tvb, 0, MIN_RPCRDMA_HDR_SZ, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_rpcordma, tvb, 0, MIN_RPCRDMA_HDR_SZ, ENC_NA);
 
         rpcordma_tree = proto_item_add_subtree(ti, ett_rpcordma);
 
@@ -449,11 +448,6 @@ proto_register_rpcordma(void)
 {
     module_t *rpcordma_module;
     static hf_register_info hf[] = {
-        { &hf_rpcordma,
-          { "RPCoRDMA", "rpcordma",
-            FT_NONE, BASE_NONE,
-            NULL, 0x0, NULL, HFILL}
-        },
         { &hf_rpcordma_xid,
           { "XID", "rpcordma.xid",
             FT_UINT32, BASE_HEX,

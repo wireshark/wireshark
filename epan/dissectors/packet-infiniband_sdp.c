@@ -46,8 +46,6 @@ static int proto_infiniband = -1;   /* we'll need the Infiniband protocol index 
 /* Initialize the protocol and registered fields... */
 static int proto_ib_sdp = -1;
 
-static int hf_ib_sdp = -1;
-
 /* IB SDP BSDH Header */
 static int hf_ib_sdp_bsdh = -1;
 static int hf_ib_sdp_mid = -1;
@@ -222,7 +220,7 @@ manual_override:
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SDP");
 
-    SDP_header_item = proto_tree_add_item(tree, hf_ib_sdp, tvb, local_offset, -1, ENC_NA);
+    SDP_header_item = proto_tree_add_item(tree, proto_ib_sdp, tvb, local_offset, -1, ENC_NA);
     SDP_header_tree = proto_item_add_subtree(SDP_header_item, ett_ib_sdp);
 
     SDP_BSDH_header_item = proto_tree_add_item(SDP_header_tree, hf_ib_sdp_bsdh, tvb, local_offset, 16, ENC_NA);
@@ -321,10 +319,6 @@ proto_register_ib_sdp(void)
 {
     module_t *ib_sdp_module;
     static hf_register_info hf[] = {
-        { &hf_ib_sdp, {
-            "SDP", "infiniband_sdp",
-            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
-        },
         /* SDP BSDH Header */
         { &hf_ib_sdp_bsdh, {
             "BSDH", "infiniband_sdp.bsdh",

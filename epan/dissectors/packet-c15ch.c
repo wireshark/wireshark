@@ -86,7 +86,6 @@ static int proto_c15ch = -1;
 static dissector_table_t c15ch_dissector_table;
 
 /* Fields */
-static int hf_c15ch = -1;
 static int hf_c15ch_version = -1;
 static int hf_c15ch_msgtype = -1;
 static int hf_c15ch_size = -1;
@@ -4202,7 +4201,6 @@ static int dissect_c15ch_hbeat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static int dissect_c15ch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item * ti = NULL;
-    proto_item * t_extra = NULL;
     proto_tree * c15ch_tree = NULL;
     proto_tree * src_ni_tn_tree = NULL;
     proto_tree * dest_ni_tn_tree = NULL;
@@ -4233,8 +4231,6 @@ static int dissect_c15ch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         proto_item_append_text(ti, ", Type: %s",
             val_to_str_ext(msg_type, &c15_msg_types_ext, "Unknown Type: %d"));
         c15ch_tree = proto_item_add_subtree(ti, ett_c15ch);
-        t_extra = proto_tree_add_item(c15ch_tree, hf_c15ch, tvb, 0, -1, ENC_NA);
-        PROTO_ITEM_SET_HIDDEN( t_extra ); /* allow filtering on "c15" but do not display in tree */
         proto_tree_add_item(c15ch_tree, hf_c15ch_version,  tvb, 0, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_tree, hf_c15ch_msgtype,  tvb, 4, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(c15ch_tree, hf_c15ch_size,     tvb, 8, 4, ENC_BIG_ENDIAN);
@@ -7459,12 +7455,6 @@ void proto_register_c15ch(void)
 /* fields for C15 header : base c15 dissector for non-heartbeat packets */
 /* first level of dissection */
  static hf_register_info hf[] = {
-         { &hf_c15ch,
-            {"C15 Call History", "c15",
-            FT_NONE, BASE_NONE,
-            NULL,
-            0x0, NULL, HFILL }
-        },
         { &hf_c15ch_version,
             {"Version", "c15.ch.version",
             FT_UINT32, BASE_DEC,
