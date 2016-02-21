@@ -10015,6 +10015,8 @@ pando-sec        8276/tcp # Pando Media Controlled Distribution [Laird_Popkin] [
 pando-sec        8276/udp # Pando Media Controlled Distribution [Laird_Popkin] [Laird_Popkin] 2008-02-27
 synapse-nhttp    8280/tcp # Synapse Non Blocking HTTP [Ruwan_Linton] [Ruwan_Linton] 2008-06-05
 synapse-nhttp    8280/udp # Synapse Non Blocking HTTP [Ruwan_Linton] [Ruwan_Linton] 2008-06-05
+libelle          8282/tcp # Libelle EnterpriseBus [Libelle_AG] [Hans-Joachim_Krueger] 2016-02-17
+libelle-disc     8282/udp # Libelle EnterpriseBus discovery [Libelle_AG] [Hans-Joachim_Krueger] 2016-02-17
 blp3             8292/tcp # Bloomberg professional [Albert_Hou] [Albert_Hou] 2006-05
 blp3             8292/udp # Bloomberg professional [Albert_Hou] [Albert_Hou] 2006-05
 hiperscan-id     8293/tcp # Hiperscan Identification Service [Thomas_Klose] [Thomas_Klose] 2009-12-15
