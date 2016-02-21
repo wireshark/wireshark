@@ -85,6 +85,7 @@
 #endif
 #include "ui/util.h"
 #include "ui/ui_util.h"
+#include "ui/decode_as_utils.h"
 #include "ui/cli/tshark-tap.h"
 #include "register.h"
 #include "filter_files.h"
@@ -1296,6 +1297,9 @@ main(int argc, char *argv[])
     }
     return 0;
   }
+
+  /* load the decode as entries of this profile */
+  load_decode_as_entries();
 
   tshark_debug("tshark reading preferences");
 

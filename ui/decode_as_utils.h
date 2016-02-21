@@ -41,7 +41,7 @@ void load_decode_as_entries(void);
 
 /** Write out the "decode as" entries of the current profile.
  */
-void save_decode_as_entries(void);
+int save_decode_as_entries(gchar** err);
 
 /** This routine creates one entry in the list of protocol dissector
  * that need to be reset. It is called by the g_hash_table_foreach

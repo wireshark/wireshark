@@ -441,7 +441,13 @@ decode_show_destroy_cb (GtkWidget *win _U_, gpointer user_data _U_)
 static void
 decode_show_save_cb (GtkWidget *win _U_, gpointer user_data _U_)
 {
-    save_decode_as_entries();
+    gchar* err = NULL;
+
+    if (save_decode_as_entries(&err) < 0)
+    {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err);
+        g_free(err);
+    }
 }
 
 /* add a single binding to the Show list */

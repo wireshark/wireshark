@@ -312,28 +312,26 @@ decode_as_write_entry (const gchar *table_name, ftenum_t selector_type,
     }
 }
 
-void
-save_decode_as_entries(void)
+int
+save_decode_as_entries(gchar** err)
 {
     char *pf_dir_path;
     char *daf_path;
     FILE *da_file;
 
     if (create_persconffile_dir(&pf_dir_path) == -1) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "Can't create directory\n\"%s\"\nfor recent file: %s.", pf_dir_path,
-                g_strerror(errno));
+        *err = g_strdup_printf("Can't create directory\n\"%s\"\nfor recent file: %s.",
+                                pf_dir_path, g_strerror(errno));
         g_free(pf_dir_path);
-        return;
+        return -1;
     }
 
     daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE);
     if ((da_file = ws_fopen(daf_path, "w")) == NULL) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-            "Can't open decode_as_entries file\n\"%s\": %s.", daf_path,
-            g_strerror(errno));
+        *err = g_strdup_printf("Can't open decode_as_entries file\n\"%s\": %s.",
+                                daf_path, g_strerror(errno));
         g_free(daf_path);
-        return;
+        return -1;
     }
 
     fputs("# \"Decode As\" entries file for Wireshark " VERSION ".\n"
@@ -344,6 +342,7 @@ save_decode_as_entries(void)
 
     dissector_all_tables_foreach_changed(decode_as_write_entry, da_file);
     fclose(da_file);
+    return 0;
 }
 
 /*

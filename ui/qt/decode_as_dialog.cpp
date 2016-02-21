@@ -27,6 +27,7 @@
 #include "epan/epan_dissect.h"
 
 #include "ui/decode_as_utils.h"
+#include "ui/simple_dialog.h"
 #include <wsutil/utf8_entities.h>
 
 #include "qt_ui_utils.h"
@@ -640,8 +641,15 @@ void DecodeAsDialog::on_buttonBox_clicked(QAbstractButton *button)
         applyChanges();
         break;
     case QDialogButtonBox::Save:
+        {
+        gchar* err = NULL;
+
         applyChanges();
-        save_decode_as_entries();
+        if (save_decode_as_entries(&err) < 0) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err);
+            g_free(err);
+        }
+        }
         break;
     case QDialogButtonBox::Help:
         wsApp->helpTopicAction(HELP_DECODE_AS_SHOW_DIALOG);
