@@ -1432,7 +1432,7 @@ if test "x$ac_cv_enable_usr_local" = "xyes" ; then
 		# as various packages we use ("libpcap", "zlib", "adns")
 		# may have been installed under "/usr/local/include".
 		#
-		WS_CPPFLAGS="$WS_CPPFLAGS -I/usr/local/include"
+		AX_APPEND_FLAG([-I/usr/local/include], [WS_CPPFLAGS])
 
 		#
 		# Arrange that we search for libraries in "/usr/local/lib".
@@ -3423,6 +3423,17 @@ if test "x$have_ssh_userauth_agent" = "xyes" ; then
 else
 	ssh_userauth_agent_message="no"
 fi
+
+echo ""
+echo "  CPPFLAGS: $WS_CPPFLAGS $CPPFLAGS"
+echo ""
+echo "  CFLAGS: $WS_CFLAGS $CFLAGS"
+echo ""
+echo "  CXXFLAGS: $WS_CXXFLAGS $CXXFLAGS"
+echo ""
+echo "  LDFLAGS: $WS_LDFLAGS $LDFLAGS"
+echo ""
+echo "  LIBS: $LIBS"
 
 echo ""
 echo "The Wireshark package has been configured with the following options."
