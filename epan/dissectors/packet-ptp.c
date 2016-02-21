@@ -1357,7 +1357,7 @@ static int hf_ptp_as_fu_tlv_organization_subtype = -1;
 static int hf_ptp_as_fu_tlv_cumulative_offset = -1;
 static int hf_ptp_as_fu_tlv_gm_base_indicator = -1;
 static int hf_ptp_as_fu_tlv_last_gm_phase_change = -1;
-static int hf_ptp_as_fu_tlv_scaled_last_gm_phase_change = -1;
+static int hf_ptp_as_fu_tlv_scaled_last_gm_freq_change = -1;
 
 /* Fields for PTP_DelayResponse (=dr) messages */
 /* static int hf_ptp_v2_dr_receivetimestamp = -1; */ /* Field for seconds & nanoseconds */
@@ -2861,7 +2861,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                                         ENC_NA);
 
                     proto_tree_add_item(ptp_tlv_tree,
-                                        hf_ptp_as_fu_tlv_scaled_last_gm_phase_change,
+                                        hf_ptp_as_fu_tlv_scaled_last_gm_freq_change,
                                         tvb,
                                         PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_SCALEDLASTGMFREQCHANGE_OFFSET,
                                         4,
@@ -5130,8 +5130,8 @@ proto_register_ptp(void)
             FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &hf_ptp_as_fu_tlv_scaled_last_gm_phase_change,
-          { "scaledLastGMPhaseChange", "ptp.as.fu.scaledLastGmPhaseChange",
+        { &hf_ptp_as_fu_tlv_scaled_last_gm_freq_change,
+          { "scaledLastGmFreqChange", "ptp.as.fu.scaledLastGmFreqChange",
             FT_INT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
