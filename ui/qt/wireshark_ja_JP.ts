@@ -77,7 +77,7 @@
         <translation>名前:</translation>
     </message>
     <message>
-        <location filename="address_editor_frame.cpp" line="147"/>
+        <location filename="address_editor_frame.cpp" line="146"/>
         <source>Can&apos;t assign %1 to %2</source>
         <translation>%1 を %2 へ割り当てることができません。</translation>
     </message>
@@ -1647,23 +1647,27 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <location filename="column_editor_frame.ui" line="32"/>
-        <source>Title</source>
-        <translation>題名</translation>
+        <source>Title:</source>
+        <oldsource>Title</oldsource>
+        <translation type="unfinished">題名</translation>
     </message>
     <message>
         <location filename="column_editor_frame.ui" line="55"/>
-        <source>Type</source>
-        <translation>種別</translation>
+        <source>Type:</source>
+        <oldsource>Type</oldsource>
+        <translation type="unfinished">種別</translation>
     </message>
     <message>
         <location filename="column_editor_frame.ui" line="78"/>
-        <source>Field Name</source>
-        <translation>フィールド名</translation>
+        <source>Field Name:</source>
+        <oldsource>Field Name</oldsource>
+        <translation type="unfinished">フィールド名</translation>
     </message>
     <message>
         <location filename="column_editor_frame.ui" line="101"/>
-        <source>Occurrence</source>
-        <translation>オカレンス</translation>
+        <source>Occurrence:</source>
+        <oldsource>Occurrence</oldsource>
+        <translation type="unfinished">オカレンス</translation>
     </message>
 </context>
 <context>
@@ -2633,7 +2637,7 @@ for filter files: %2.</source>
         <translation>フィルタ:</translation>
     </message>
     <message>
-        <location filename="filter_expression_frame.cpp" line="52"/>
+        <location filename="filter_expression_frame.cpp" line="58"/>
         <source>Apply this filter</source>
         <translation>このフィルタを適用</translation>
     </message>
@@ -6427,2431 +6431,2434 @@ a:hover {
     <name>MainWindow</name>
     <message>
         <location filename="main_window.ui" line="17"/>
-        <location filename="main_window.ui" line="826"/>
+        <location filename="main_window.ui" line="848"/>
         <source>Wireshark</source>
         <translation>Wireshark</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="77"/>
+        <location filename="main_window.ui" line="84"/>
         <source>Go to packet</source>
         <translation>パケットに移動</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="84"/>
+        <location filename="main_window.ui" line="100"/>
         <source>Cancel</source>
         <translation>キャンセル</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="131"/>
+        <location filename="main_window.ui" line="153"/>
         <source>Open Recent</source>
         <translation>最近のを開く</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="137"/>
+        <location filename="main_window.ui" line="159"/>
         <source>File Set</source>
         <translation>ファイルセット</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="145"/>
+        <location filename="main_window.ui" line="167"/>
         <source>Export Packet Dissections</source>
         <translation>エキスパートパケット解析</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="156"/>
+        <location filename="main_window.ui" line="178"/>
         <source>Export Objects</source>
         <translation>オブジェクトをエキスポート</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="252"/>
+        <location filename="main_window.ui" line="274"/>
         <source>&amp;Zoom</source>
         <translation>&amp;ズーム</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="260"/>
+        <location filename="main_window.ui" line="282"/>
         <source>&amp;Time Display Format</source>
         <translation>&amp;時刻表示形式</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="285"/>
+        <location filename="main_window.ui" line="307"/>
         <source>Name Resolution</source>
         <translation>名前解決</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="579"/>
+        <location filename="main_window.ui" line="601"/>
         <source>Copy</source>
         <translation>コピー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="203"/>
+        <location filename="main_window.ui" line="225"/>
         <source>Manual pages</source>
         <translation>マニュアルページ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="354"/>
+        <location filename="main_window.ui" line="376"/>
         <source>Apply as Filter</source>
         <translation>フィルタとして適用</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="365"/>
+        <location filename="main_window.ui" line="387"/>
         <source>Prepare a Filter</source>
         <translation>フィルタを準備</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="376"/>
-        <location filename="main_window.ui" line="531"/>
+        <location filename="main_window.ui" line="398"/>
+        <location filename="main_window.ui" line="553"/>
         <source>SCTP</source>
         <translation>SCTP</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="420"/>
+        <location filename="main_window.ui" line="442"/>
         <source>TCP Stream Graphs</source>
         <translation>TCP ストリームグラフ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="430"/>
+        <location filename="main_window.ui" line="452"/>
         <source>BACnet</source>
         <translation>BACnet</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="439"/>
+        <location filename="main_window.ui" line="461"/>
         <source>HTTP</source>
         <translation>HTTP</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="70"/>
+        <location filename="main_window.ui" line="77"/>
         <source>900000000</source>
         <translation>900000000</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="127"/>
+        <location filename="main_window.ui" line="149"/>
         <source>&amp;File</source>
         <translation>&amp;ファイル</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="187"/>
+        <location filename="main_window.ui" line="209"/>
         <source>&amp;Capture</source>
         <translation>&amp;キャプチャ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="199"/>
+        <location filename="main_window.ui" line="221"/>
         <source>&amp;Help</source>
         <translation>&amp;ヘルプ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="232"/>
+        <location filename="main_window.ui" line="254"/>
         <source>&amp;Go</source>
         <translation>&amp;移動</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="248"/>
+        <location filename="main_window.ui" line="270"/>
         <source>&amp;View</source>
         <translation>&amp;ビュー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="350"/>
+        <location filename="main_window.ui" line="372"/>
         <source>&amp;Analyze</source>
         <translation>&amp;分析</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="383"/>
+        <location filename="main_window.ui" line="405"/>
         <source>Follow</source>
         <translation>追跡</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="416"/>
+        <location filename="main_window.ui" line="438"/>
         <source>&amp;Statistics</source>
         <translation>&amp;統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="447"/>
-        <location filename="main_window.ui" line="1892"/>
+        <location filename="main_window.ui" line="469"/>
+        <location filename="main_window.ui" line="1914"/>
         <source>29West</source>
         <translation>29West</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="451"/>
+        <location filename="main_window.ui" line="473"/>
         <source>Topics</source>
         <translation>トピック</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="463"/>
+        <location filename="main_window.ui" line="485"/>
         <source>Queues</source>
         <translation>キュー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="472"/>
+        <location filename="main_window.ui" line="494"/>
         <source>UIM</source>
         <translation>UIM</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="514"/>
+        <location filename="main_window.ui" line="536"/>
         <source>Telephon&amp;y</source>
         <translation>テレフォニー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="518"/>
+        <location filename="main_window.ui" line="540"/>
         <source>RTSP</source>
         <translation>RTSP</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="524"/>
+        <location filename="main_window.ui" line="546"/>
         <source>RTP</source>
         <translation>RTP</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="575"/>
+        <location filename="main_window.ui" line="597"/>
         <source>&amp;Edit</source>
         <translation>&amp;編集</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="652"/>
+        <location filename="main_window.ui" line="674"/>
         <source>Main Toolbar</source>
         <translation>メインツールバー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="700"/>
+        <location filename="main_window.ui" line="722"/>
         <source>Display Filter Toolbar</source>
         <translation>表示フィルタツールバー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="737"/>
+        <location filename="main_window.ui" line="759"/>
         <source>Open</source>
         <translation>開く</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="740"/>
+        <location filename="main_window.ui" line="762"/>
         <source>Open a capture file</source>
         <translation>キャプチャファイルを開く</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="743"/>
+        <location filename="main_window.ui" line="765"/>
         <source>Ctrl+O</source>
         <translation>Ctrl+O</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="751"/>
+        <location filename="main_window.ui" line="773"/>
         <source>Quit</source>
         <translation>終了</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="754"/>
+        <location filename="main_window.ui" line="776"/>
         <source>Quit Wireshark</source>
         <translation>Wiresharkを終了</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="757"/>
+        <location filename="main_window.ui" line="779"/>
         <source>Ctrl+Q</source>
         <translation>Ctrl+Q</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="768"/>
+        <location filename="main_window.ui" line="790"/>
         <source>&amp;Start</source>
         <translation>&amp;開始</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="771"/>
+        <location filename="main_window.ui" line="793"/>
         <source>Start capturing packets</source>
         <translation>パケットキャプチャを開始</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="774"/>
-        <location filename="main_window.ui" line="785"/>
+        <location filename="main_window.ui" line="796"/>
+        <location filename="main_window.ui" line="807"/>
         <source>Ctrl+E</source>
         <translation>Ctrl+E</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="779"/>
+        <location filename="main_window.ui" line="801"/>
         <source>S&amp;top</source>
         <translation>ストップ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="782"/>
+        <location filename="main_window.ui" line="804"/>
         <source>Stop capturing packets</source>
         <translation>パケットキャプチャを停止</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="790"/>
+        <location filename="main_window.ui" line="812"/>
         <source>Close</source>
         <translation>閉じる</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="796"/>
+        <location filename="main_window.ui" line="818"/>
         <source>Ctrl+W</source>
         <translation>Ctrl+W</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="807"/>
+        <location filename="main_window.ui" line="829"/>
         <source>No files found</source>
         <translation>ファイルが見つかりませんでした</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="812"/>
+        <location filename="main_window.ui" line="834"/>
         <source>&amp;Contents</source>
         <translation>&amp;コンテンツ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="818"/>
+        <location filename="main_window.ui" line="840"/>
         <source>F1</source>
         <translation>F1</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="831"/>
+        <location filename="main_window.ui" line="853"/>
         <source>Wireshark Filter</source>
         <translation>Wireshark フィルタ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="836"/>
+        <location filename="main_window.ui" line="858"/>
         <source>TShark</source>
         <translation>Tshark</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="841"/>
+        <location filename="main_window.ui" line="863"/>
         <source>RawShark</source>
         <translation>RawShark</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="846"/>
+        <location filename="main_window.ui" line="868"/>
         <source>Dumpcap</source>
         <translation>Dumpcap</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="851"/>
+        <location filename="main_window.ui" line="873"/>
         <source>Mergecap</source>
         <translation>Mergecap</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="856"/>
+        <location filename="main_window.ui" line="878"/>
         <source>Editcap</source>
         <translation>Mergecap</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="861"/>
+        <location filename="main_window.ui" line="883"/>
         <source>Text2cap</source>
         <translation>Text2cap</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="870"/>
+        <location filename="main_window.ui" line="892"/>
         <source>Website</source>
         <translation>ウェブサイト</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="875"/>
+        <location filename="main_window.ui" line="897"/>
         <source>FAQ&apos;s</source>
         <translation>FAQ&apos;s</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="880"/>
+        <location filename="main_window.ui" line="902"/>
         <source>Downloads</source>
         <translation>ダウンロード</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="889"/>
+        <location filename="main_window.ui" line="911"/>
         <source>Wiki</source>
         <translation>Wiki</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="897"/>
+        <location filename="main_window.ui" line="919"/>
         <source>Sample Captures</source>
         <translation>サンプルキャプチャ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="902"/>
+        <location filename="main_window.ui" line="924"/>
         <source>&amp;About Wireshark</source>
         <translation>wiresharkについて</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="914"/>
+        <location filename="main_window.ui" line="936"/>
         <source>Ask (Q&amp;&amp;A)</source>
         <translation>問い合わせ (Q&amp;&amp;A)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="922"/>
+        <location filename="main_window.ui" line="944"/>
         <source>Next Packet</source>
         <translation>次のパケット</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="925"/>
+        <location filename="main_window.ui" line="947"/>
         <source>Go to the next packet</source>
         <translation>次のパケットに移動</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="928"/>
+        <location filename="main_window.ui" line="950"/>
         <source>Ctrl+Down</source>
         <translation>Ctrl+Down</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="933"/>
+        <location filename="main_window.ui" line="955"/>
         <source>Previous Packet</source>
         <translation>前のパケット</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="936"/>
+        <location filename="main_window.ui" line="958"/>
         <source>Go to the previous packet</source>
         <translation>前のパケットに移動</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="939"/>
+        <location filename="main_window.ui" line="961"/>
         <source>Ctrl+Up</source>
         <translation>Ctrl+Up</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="966"/>
+        <location filename="main_window.ui" line="988"/>
         <source>First Packet</source>
         <translation>最初のパケット</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="969"/>
+        <location filename="main_window.ui" line="991"/>
         <source>Go to the first packet</source>
         <translation>最初のパケットに移動</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="972"/>
+        <location filename="main_window.ui" line="994"/>
         <source>Ctrl+Home</source>
         <translation>Ctrl+Home</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="977"/>
+        <location filename="main_window.ui" line="999"/>
         <source>Last Packet</source>
         <translation>パケット一覧</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="980"/>
+        <location filename="main_window.ui" line="1002"/>
         <source>Go to the last packet</source>
         <translation>最後のパケットに移動</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="983"/>
+        <location filename="main_window.ui" line="1005"/>
         <source>Ctrl+End</source>
         <translation>Ctrl+End</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="991"/>
+        <location filename="main_window.ui" line="1013"/>
         <source>E&amp;xpand Subtrees</source>
         <translation>サブツリーを展開</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="994"/>
+        <location filename="main_window.ui" line="1016"/>
         <source>Expand the current packet detail</source>
         <translation>現在のパケット詳細を展開</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="997"/>
+        <location filename="main_window.ui" line="1019"/>
         <source>Shift+Right</source>
         <translation>Shift+Right</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1002"/>
+        <location filename="main_window.ui" line="1024"/>
         <source>&amp;Expand All</source>
         <translation>&amp;すべて展開</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1005"/>
+        <location filename="main_window.ui" line="1027"/>
         <source>Expand packet details</source>
         <translation>パケット詳細を展開</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1008"/>
+        <location filename="main_window.ui" line="1030"/>
         <source>Ctrl+Right</source>
         <translation>Ctrl+Right</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1013"/>
+        <location filename="main_window.ui" line="1035"/>
         <source>Collapse &amp;All</source>
         <translation>すべて閉じる</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1016"/>
+        <location filename="main_window.ui" line="1038"/>
         <source>Collapse all packet details</source>
         <translation>すべてのパケット詳細を閉じる</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1019"/>
+        <location filename="main_window.ui" line="1041"/>
         <source>Ctrl+Left</source>
         <translation>Ctrl+Left</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1030"/>
+        <location filename="main_window.ui" line="1052"/>
         <source>Go to specified packet</source>
         <translation>特定のパケットへ移動</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1033"/>
+        <location filename="main_window.ui" line="1055"/>
         <source>Ctrl+G</source>
         <translation>Ctrl+G</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1041"/>
+        <location filename="main_window.ui" line="1063"/>
         <source>Merge one or more files</source>
         <translation>１つそれ以上のファイルをマージ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1049"/>
+        <location filename="main_window.ui" line="1071"/>
         <source>Import a file</source>
         <translation>ファイルをインポート</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1054"/>
+        <location filename="main_window.ui" line="1076"/>
         <source>&amp;Save</source>
         <translation>&amp;保存</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1060"/>
+        <location filename="main_window.ui" line="1082"/>
         <source>Ctrl+S</source>
         <translation>Ctrl+S</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1071"/>
+        <location filename="main_window.ui" line="1093"/>
         <source>Save as a different file</source>
         <translation>異なるファイルとして保存</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1074"/>
+        <location filename="main_window.ui" line="1096"/>
         <source>Ctrl+Shift+S</source>
         <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1082"/>
+        <location filename="main_window.ui" line="1104"/>
         <source>Export specified packets</source>
         <translation>特定のパケットを出力</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1090"/>
+        <location filename="main_window.ui" line="1112"/>
         <source>Ctrl+H</source>
         <translation>Ctrl+H</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1103"/>
+        <location filename="main_window.ui" line="1125"/>
         <source>Ctrl+P</source>
         <translation>Ctrl+P</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1108"/>
+        <location filename="main_window.ui" line="1130"/>
         <source>List Files</source>
         <translation>ファイルリスト</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1113"/>
+        <location filename="main_window.ui" line="1135"/>
         <source>Next File</source>
         <translation>次のファイル</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1118"/>
+        <location filename="main_window.ui" line="1140"/>
         <source>Previous File</source>
         <translation>前のファイル</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1123"/>
+        <location filename="main_window.ui" line="1145"/>
         <source>&amp;Reload</source>
         <translation>&amp;再読込</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1129"/>
-        <location filename="main_window.ui" line="1179"/>
+        <location filename="main_window.ui" line="1151"/>
+        <location filename="main_window.ui" line="1201"/>
         <source>Ctrl+R</source>
         <translation>Ctrl+R</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1140"/>
+        <location filename="main_window.ui" line="1162"/>
         <source>Options</source>
         <translation>オプション</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1143"/>
+        <location filename="main_window.ui" line="1165"/>
         <source>Capture options</source>
         <translation>キャプチャオプション</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1146"/>
+        <location filename="main_window.ui" line="1168"/>
         <source>Ctrl+K</source>
         <translation>Ctrl+K</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1157"/>
+        <location filename="main_window.ui" line="1179"/>
         <source>Capture filters</source>
         <translation>キャプチャフィルタ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1162"/>
+        <location filename="main_window.ui" line="1184"/>
         <source>Refresh Interfaces</source>
         <translation>インタフェースを更新</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1165"/>
+        <location filename="main_window.ui" line="1187"/>
         <source>Refresh interfaces</source>
         <translation>インタフェースを更新</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1173"/>
+        <location filename="main_window.ui" line="1195"/>
         <source>&amp;Restart</source>
         <translation>&amp;再キャプチャ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1176"/>
+        <location filename="main_window.ui" line="1198"/>
         <source>Restart current capture</source>
         <translation>現在のキャプチャを再起動</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1224"/>
+        <location filename="main_window.ui" line="1246"/>
         <source>Description</source>
         <translation>記述</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1230"/>
-        <location filename="main_window.ui" line="1494"/>
+        <location filename="main_window.ui" line="1252"/>
+        <location filename="main_window.ui" line="1516"/>
         <source>Ctrl+Shift+D</source>
         <translation>Ctrl+Shift+D</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1245"/>
+        <location filename="main_window.ui" line="1267"/>
         <source>Field Name</source>
         <translation>フィールド名</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1251"/>
+        <location filename="main_window.ui" line="1273"/>
         <source>Ctrl+Shift+F</source>
         <translation>Ctrl+Shift+F</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1256"/>
+        <location filename="main_window.ui" line="1278"/>
         <source>Value</source>
         <translation>値</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1262"/>
+        <location filename="main_window.ui" line="1284"/>
         <source>Ctrl+Shift+V</source>
         <translation>Ctrl+Shift+V</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1267"/>
+        <location filename="main_window.ui" line="1289"/>
         <source>As Filter</source>
         <translation>フィルタとして</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1273"/>
+        <location filename="main_window.ui" line="1295"/>
         <source>Ctrl+Shift+C</source>
         <translation>Ctrl+Shift+C</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1278"/>
-        <location filename="main_window.ui" line="1323"/>
+        <location filename="main_window.ui" line="1300"/>
+        <location filename="main_window.ui" line="1345"/>
         <source>&amp;Selected</source>
         <translation>&amp;選択済</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1283"/>
-        <location filename="main_window.ui" line="1328"/>
+        <location filename="main_window.ui" line="1305"/>
+        <location filename="main_window.ui" line="1350"/>
         <source>&amp;Not Selected</source>
         <translation>&amp;選択されていません</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1286"/>
-        <location filename="main_window.ui" line="1331"/>
+        <location filename="main_window.ui" line="1308"/>
+        <location filename="main_window.ui" line="1353"/>
         <source>Not Selected</source>
         <translation>選択されていません</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="793"/>
+        <location filename="main_window.ui" line="815"/>
         <source>Close this capture file</source>
         <translation>このキャプチャファイルを閉じる</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="295"/>
+        <location filename="main_window.ui" line="70"/>
+        <source>Packet:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="317"/>
         <source>Colorize Conversation</source>
         <translation>会話に色をつける</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="313"/>
+        <location filename="main_window.ui" line="335"/>
         <source>Internals</source>
         <translation>内部</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="391"/>
+        <location filename="main_window.ui" line="413"/>
         <source>Conversation Filter</source>
         <translation>会話フィルタ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="485"/>
+        <location filename="main_window.ui" line="507"/>
         <source>Service Response Time</source>
         <translation>サービス応答時間</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="538"/>
+        <location filename="main_window.ui" line="560"/>
         <source>ANSI</source>
         <translation>ANSI</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="544"/>
+        <location filename="main_window.ui" line="566"/>
         <source>GSM</source>
         <translation>GSM</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="550"/>
+        <location filename="main_window.ui" line="572"/>
         <source>LTE</source>
         <translation>LTE</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="556"/>
+        <location filename="main_window.ui" line="578"/>
         <source>MTP3</source>
         <translation>MTP3</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="628"/>
+        <location filename="main_window.ui" line="650"/>
         <source>&amp;Tools</source>
         <oldsource>Tools</oldsource>
         <translation>&amp;ツール</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="723"/>
+        <location filename="main_window.ui" line="745"/>
         <source>Wireless Toolbar</source>
         <translation>ワイヤレスツールバー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="815"/>
+        <location filename="main_window.ui" line="837"/>
         <source>Help contents</source>
         <translation>ヘルプコンテンツ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="944"/>
+        <location filename="main_window.ui" line="966"/>
         <source>Next Packet in Conversation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="947"/>
+        <location filename="main_window.ui" line="969"/>
         <source>Go to the next packet in this conversation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="950"/>
+        <location filename="main_window.ui" line="972"/>
         <source>Ctrl+.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="955"/>
+        <location filename="main_window.ui" line="977"/>
         <source>Previous Packet in Conversation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="958"/>
+        <location filename="main_window.ui" line="980"/>
         <source>Go to the previous packet in this conversation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="961"/>
+        <location filename="main_window.ui" line="983"/>
         <source>Ctrl+,</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1027"/>
+        <location filename="main_window.ui" line="1049"/>
         <source>Go to Packet…</source>
         <translation>...パケットへ移動</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1038"/>
+        <location filename="main_window.ui" line="1060"/>
         <source>&amp;Merge…</source>
         <translation>&amp;マージ...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1046"/>
+        <location filename="main_window.ui" line="1068"/>
         <source>&amp;Import from Hex Dump…</source>
         <translation>&amp;16進数ダンプからインポート</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1057"/>
+        <location filename="main_window.ui" line="1079"/>
         <source>Save this capture file</source>
         <translation>このキャプチャファイルを保存</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1068"/>
+        <location filename="main_window.ui" line="1090"/>
         <source>Save &amp;As…</source>
         <translation>...として保存</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1079"/>
+        <location filename="main_window.ui" line="1101"/>
         <source>Export Specified Packets…</source>
         <translation>...特定のパケットをエキスポート</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1087"/>
+        <location filename="main_window.ui" line="1109"/>
         <source>Export Packet &amp;Bytes…</source>
         <translation>...パケット &amp;バイトをエキスポート</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1095"/>
+        <location filename="main_window.ui" line="1117"/>
         <source>Export SSL Session Keys…</source>
         <translation>SSLセションキーをエキスポート...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1100"/>
+        <location filename="main_window.ui" line="1122"/>
         <source>&amp;Print…</source>
         <translation>&amp;印刷...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1126"/>
+        <location filename="main_window.ui" line="1148"/>
         <source>Reload this file</source>
         <translation>このファイルをリロード</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1168"/>
+        <location filename="main_window.ui" line="1190"/>
         <source>F5</source>
         <translation>F5</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1227"/>
+        <location filename="main_window.ui" line="1249"/>
         <source>Copy this item&apos;s description</source>
         <translation>このアイテムの記述をコピー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1248"/>
+        <location filename="main_window.ui" line="1270"/>
         <source>Copy this item&apos;s field name</source>
         <translation>このアイテムのフィールド名をコピー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1259"/>
+        <location filename="main_window.ui" line="1281"/>
         <source>Copy this item&apos;s value</source>
         <translation>このアイテムの値をコピー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1270"/>
+        <location filename="main_window.ui" line="1292"/>
         <source>Copy this item as a display filter</source>
         <translation>このアイテムの表示フィルタをコピー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1378"/>
+        <location filename="main_window.ui" line="1400"/>
         <source>Apply as Column</source>
         <translation>列名として適用</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1381"/>
+        <location filename="main_window.ui" line="1403"/>
         <source>Create a packet list column from the selected field.</source>
         <translation>選択したフィールドからパケット一覧の列を作成</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1392"/>
+        <location filename="main_window.ui" line="1414"/>
         <source>Find a packet</source>
         <translation>パケットの検索</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1395"/>
+        <location filename="main_window.ui" line="1417"/>
         <source>Ctrl+F</source>
         <translation>Ctrl+F</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1403"/>
+        <location filename="main_window.ui" line="1425"/>
         <source>Find the next packet</source>
         <translation>次のパケットを検索</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1406"/>
+        <location filename="main_window.ui" line="1428"/>
         <source>Ctrl+N</source>
         <translation>Ctrl+N</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1414"/>
+        <location filename="main_window.ui" line="1436"/>
         <source>Find the previous packet</source>
         <translation>前のパケットを検索&gt;</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1417"/>
+        <location filename="main_window.ui" line="1439"/>
         <source>Ctrl+B</source>
         <translation>Ctrl+B</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1422"/>
+        <location filename="main_window.ui" line="1444"/>
         <source>&amp;Mark/Unmark Packet</source>
         <translation>パケットをマーク/マーク解除</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1425"/>
+        <location filename="main_window.ui" line="1447"/>
         <source>Mark or unmark this packet</source>
         <translation>このパケットをマーク/マーク解除</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1428"/>
+        <location filename="main_window.ui" line="1450"/>
         <source>Ctrl+M</source>
         <translation>Ctrl+M</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1433"/>
+        <location filename="main_window.ui" line="1455"/>
         <source>Mark All Displayed</source>
         <translation>表示されているものをすべてマーク</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1436"/>
+        <location filename="main_window.ui" line="1458"/>
         <source>Mark all displayed packets</source>
         <translation>すべての表示されているものをマーク</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1439"/>
+        <location filename="main_window.ui" line="1461"/>
         <source>Ctrl+Shift+M</source>
         <translation>Ctrl+Shift+M</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1444"/>
+        <location filename="main_window.ui" line="1466"/>
         <source>Unmark All Displayed</source>
         <translation>表示されているものをすべてマーク解除</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1447"/>
+        <location filename="main_window.ui" line="1469"/>
         <source>Unmark all displayed packets</source>
         <translation>すべての表示されているパケットをマーク解除</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1450"/>
+        <location filename="main_window.ui" line="1472"/>
         <source>Ctrl+Alt+M</source>
         <oldsource>Meta+Alt+M</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1455"/>
+        <location filename="main_window.ui" line="1477"/>
         <source>Next Mark</source>
         <translation>次のマーク</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1458"/>
+        <location filename="main_window.ui" line="1480"/>
         <source>Go to the next marked packet</source>
         <translation>次にマークされたパケットに移動</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1461"/>
+        <location filename="main_window.ui" line="1483"/>
         <source>Ctrl+Shift+N</source>
         <oldsource>Meta+Shift+N</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1466"/>
+        <location filename="main_window.ui" line="1488"/>
         <source>Previous Mark</source>
         <translation>前のマーク</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1469"/>
+        <location filename="main_window.ui" line="1491"/>
         <source>Go to the previous marked packet</source>
         <translation>前にマークしたパケットに移動</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1472"/>
+        <location filename="main_window.ui" line="1494"/>
         <source>Ctrl+Shift+B</source>
         <oldsource>Meta+Shift+B</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1477"/>
+        <location filename="main_window.ui" line="1499"/>
         <source>&amp;Ignore/Unignore Packet</source>
         <translation>&amp;パケットを無視/無視を解除</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1480"/>
+        <location filename="main_window.ui" line="1502"/>
         <source>Ignore or unignore this packet</source>
         <translation>このパケットを無視するかどうか</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1483"/>
+        <location filename="main_window.ui" line="1505"/>
         <source>Ctrl+D</source>
         <translation>Ctrl+D</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1488"/>
+        <location filename="main_window.ui" line="1510"/>
         <source>Ignore All Displayed</source>
         <translation>表示されているものすべてを無視</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1491"/>
+        <location filename="main_window.ui" line="1513"/>
         <source>Ignore all displayed packets</source>
         <translation>すべての表示されたパケットを無視</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1499"/>
+        <location filename="main_window.ui" line="1521"/>
         <source>Unignore All Displayed</source>
         <translation>すべての表示されたものの無視を解除</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1502"/>
+        <location filename="main_window.ui" line="1524"/>
         <source>Unignore all displayed packets</source>
         <translation>すべての表示されたものの無視を解除</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1505"/>
+        <location filename="main_window.ui" line="1527"/>
         <source>Ctrl+Alt+D</source>
         <translation>Ctrl+Alt+D</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1510"/>
+        <location filename="main_window.ui" line="1532"/>
         <source>Set/Unset Time Reference</source>
         <translation>時刻参照を設定/設定解除</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1513"/>
+        <location filename="main_window.ui" line="1535"/>
         <source>Set or unset a time reference for this packet</source>
         <translation>このパケットに対して時刻参照を設定または設定解除</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1516"/>
+        <location filename="main_window.ui" line="1538"/>
         <source>Ctrl+T</source>
         <translation>Ctrl+T</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1521"/>
+        <location filename="main_window.ui" line="1543"/>
         <source>Unset All Time References</source>
         <translation>すべての時刻参照を設定解除</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1524"/>
+        <location filename="main_window.ui" line="1546"/>
         <source>Remove all time references</source>
         <translation>すべての時刻参照を削除</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1527"/>
+        <location filename="main_window.ui" line="1549"/>
         <source>Ctrl+Alt+T</source>
         <translation>Ctrl+Alt+T</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1532"/>
+        <location filename="main_window.ui" line="1554"/>
         <source>Next Time Reference</source>
         <translation>次の時刻参照</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1535"/>
+        <location filename="main_window.ui" line="1557"/>
         <source>Go to the next time reference</source>
         <translation>次の時刻参照へ移動</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1538"/>
+        <location filename="main_window.ui" line="1560"/>
         <source>Ctrl+Alt+N</source>
         <translation>Ctrl+Alt+N</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1543"/>
+        <location filename="main_window.ui" line="1565"/>
         <source>Previous Time Reference</source>
         <translation>前の時刻参照</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1546"/>
+        <location filename="main_window.ui" line="1568"/>
         <source>Go to the previous time reference</source>
         <translation>前の時刻参照へ移動</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1549"/>
+        <location filename="main_window.ui" line="1571"/>
         <source>Ctrl+Alt+B</source>
         <translation>Ctrl+Alt+B</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1557"/>
+        <location filename="main_window.ui" line="1579"/>
         <source>Shift or change packet timestamps</source>
         <translation>パケットの時刻印をシフトもしくは変更</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1560"/>
+        <location filename="main_window.ui" line="1582"/>
         <source>Ctrl+Shift+T</source>
         <translation>Ctrl+Shift+T</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1568"/>
+        <location filename="main_window.ui" line="1590"/>
         <source>Add or change a packet comment</source>
         <translation>パケットのコメントを追加または変更</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1579"/>
+        <location filename="main_window.ui" line="1601"/>
         <source>Configuration profiles</source>
         <translation>設定プロファイル</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1582"/>
+        <location filename="main_window.ui" line="1604"/>
         <source>Manage your configuration profiles</source>
         <translation>設定プロファイルの管理</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1585"/>
+        <location filename="main_window.ui" line="1607"/>
         <source>Ctrl+Shift+A</source>
         <translation>Ctrl+Shift+A</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1596"/>
+        <location filename="main_window.ui" line="1618"/>
         <source>Manage Wireshark&apos;s preferences</source>
         <translation>Wiresharkの設定を管理</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1599"/>
+        <location filename="main_window.ui" line="1621"/>
         <source>Ctrl+Shift+P</source>
         <translation>Ctrl+Shift+P</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1610"/>
+        <location filename="main_window.ui" line="1632"/>
         <source>Capture File Properties</source>
         <translation>キャプチャファイルプロパティ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1613"/>
+        <location filename="main_window.ui" line="1635"/>
         <source>Capture file properties</source>
         <translation>キャプチャファイルプロパティ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1621"/>
+        <location filename="main_window.ui" line="1643"/>
         <source>&amp;Protocol Hierarchy</source>
         <translation>&amp;プロトコル階層</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1624"/>
+        <location filename="main_window.ui" line="1646"/>
         <source>Show a summary of protocols present in the capture file.</source>
         <translation>キャプチャファイルに現在の統計を表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1629"/>
+        <location filename="main_window.ui" line="1651"/>
         <source>Capinfos</source>
         <translation>Capinfos</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1634"/>
+        <location filename="main_window.ui" line="1656"/>
         <source>Reordercap</source>
         <translation>Reordercap</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1639"/>
+        <location filename="main_window.ui" line="1661"/>
         <source>Time Sequence (Stevens)</source>
         <translation>時間 シーケンス番号 (Stevens)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1642"/>
+        <location filename="main_window.ui" line="1664"/>
         <source>TCP time sequence graph (Stevens)</source>
         <translation>TCP 時間 シーケンス番号 グラフ (Stevens)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1647"/>
+        <location filename="main_window.ui" line="1669"/>
         <source>Throughput</source>
         <translation>スループット</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1650"/>
+        <location filename="main_window.ui" line="1672"/>
         <source>TCP througput</source>
         <translation>TCPスループット</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1655"/>
+        <location filename="main_window.ui" line="1677"/>
         <source>Round Trip Time</source>
         <translation>往復遅延時間</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1658"/>
+        <location filename="main_window.ui" line="1680"/>
         <source>TCP round trip time</source>
         <translation>TCP往復遅延時間</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1663"/>
+        <location filename="main_window.ui" line="1685"/>
         <source>Window Scaling</source>
         <translation>ウインドウスケーリング</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1666"/>
+        <location filename="main_window.ui" line="1688"/>
         <source>TCP window scaling</source>
         <translation>TCPウインドウスケーリング</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1695"/>
+        <location filename="main_window.ui" line="1717"/>
         <source>Time Sequence (tcptrace)</source>
         <translation>時間 シーケンス (tcptrace)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1698"/>
+        <location filename="main_window.ui" line="1720"/>
         <source>TCP time sequence graph (tcptrace)</source>
         <translation>TCP 時間 ストリーム グラフ (tcptrace)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1703"/>
+        <location filename="main_window.ui" line="1725"/>
         <source>Analyse this Association</source>
         <translation>このアソシエーションを分析</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1708"/>
+        <location filename="main_window.ui" line="1730"/>
         <source>Show All Associations</source>
         <translation>すべてのアソシエーションを表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1713"/>
+        <location filename="main_window.ui" line="1735"/>
         <source>Flow Graph</source>
         <translation>フローグラフ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1716"/>
+        <location filename="main_window.ui" line="1738"/>
         <source>Flow sequence diagram</source>
         <translation>フローシーケンス図</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1721"/>
+        <location filename="main_window.ui" line="1743"/>
         <source>ANCP</source>
         <translation>ANCP</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1724"/>
+        <location filename="main_window.ui" line="1746"/>
         <source>ANCP statistics</source>
         <translation>ANCP 統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1729"/>
+        <location filename="main_window.ui" line="1751"/>
         <source>Packets sorted by Instance ID</source>
         <translation>インスタンスIDごとに並べたパケット</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1732"/>
+        <location filename="main_window.ui" line="1754"/>
         <source>BACapp statistics sorted by instance ID</source>
         <translation>インスタンスIDごとに並べたBACapp統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1737"/>
+        <location filename="main_window.ui" line="1759"/>
         <source>Packets sorted by IP</source>
         <translation>IPで並べたパケット</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1740"/>
+        <location filename="main_window.ui" line="1762"/>
         <source>BACapp statistics sorted by IP</source>
         <translation>IPごとに並べたBACapp統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1745"/>
+        <location filename="main_window.ui" line="1767"/>
         <source>Packets sorted by object type</source>
         <translation>オブジェクト種別ごとに並べたパケット</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1748"/>
+        <location filename="main_window.ui" line="1770"/>
         <source>BACapp statistics sorted by object type</source>
         <translation>オブジェクト種別ごとに並べたBACapp統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1753"/>
+        <location filename="main_window.ui" line="1775"/>
         <source>Packets sorted by service</source>
         <translation>サービスごとに並べたパケット</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1756"/>
+        <location filename="main_window.ui" line="1778"/>
         <source>BACapp statistics sorted by service</source>
         <translation>サービスごとに並べたBACapp</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1761"/>
+        <location filename="main_window.ui" line="1783"/>
         <source>Collectd</source>
         <translation>集めたもの</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1764"/>
+        <location filename="main_window.ui" line="1786"/>
         <source>Collectd statistics</source>
         <translation>集めたものの統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1769"/>
+        <location filename="main_window.ui" line="1791"/>
         <source>DNS</source>
         <translation>DNS</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1772"/>
+        <location filename="main_window.ui" line="1794"/>
         <source>DNS statistics</source>
         <translation>DNS 統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1777"/>
+        <location filename="main_window.ui" line="1799"/>
         <source>HART-IP</source>
         <translation>HART-IP</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1780"/>
+        <location filename="main_window.ui" line="1802"/>
         <source>HART-IP statistics</source>
         <translation>HART-IP統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1785"/>
+        <location filename="main_window.ui" line="1807"/>
         <source>HPFEEDS</source>
         <translation>HPFEEDS</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1788"/>
+        <location filename="main_window.ui" line="1810"/>
         <source>hpfeeds statistics</source>
         <translation>hpfeeds 統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1793"/>
+        <location filename="main_window.ui" line="1815"/>
         <source>HTTP2</source>
         <translation>HTTP2</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1796"/>
+        <location filename="main_window.ui" line="1818"/>
         <source>HTTP2 statistics</source>
         <translation>HTTP2 統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1801"/>
-        <location filename="main_window.ui" line="1849"/>
+        <location filename="main_window.ui" line="1823"/>
+        <location filename="main_window.ui" line="1871"/>
         <source>Packet Counter</source>
         <translation>パケットカウンタ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1804"/>
+        <location filename="main_window.ui" line="1826"/>
         <source>HTTP packet counter</source>
         <translation>HTTPパケットカウンタ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1809"/>
+        <location filename="main_window.ui" line="1831"/>
         <source>Requests</source>
         <translation>要求</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1812"/>
+        <location filename="main_window.ui" line="1834"/>
         <source>HTTP requests</source>
         <translation>HTTP要求</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1817"/>
+        <location filename="main_window.ui" line="1839"/>
         <source>Load Distribution</source>
         <translation>負荷分散</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1820"/>
+        <location filename="main_window.ui" line="1842"/>
         <source>HTTP load distribution</source>
         <translation>HTTP負荷分散</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1825"/>
+        <location filename="main_window.ui" line="1847"/>
         <source>Packet Lengths</source>
         <translation>パケット長</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1828"/>
+        <location filename="main_window.ui" line="1850"/>
         <source>Packet length statistics</source>
         <translation>パケット長統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1833"/>
+        <location filename="main_window.ui" line="1855"/>
         <source>Sametime</source>
         <translation>Sametime</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1836"/>
+        <location filename="main_window.ui" line="1858"/>
         <source>Sametime statistics</source>
         <translation>Sametime統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1841"/>
+        <location filename="main_window.ui" line="1863"/>
         <source>&amp;ISUP Messages</source>
         <translation>&amp;ISUPメッセージ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1844"/>
+        <location filename="main_window.ui" line="1866"/>
         <source>ISUP message statistics</source>
         <translation>ISUPメッセージ統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1852"/>
+        <location filename="main_window.ui" line="1874"/>
         <source>RTSP packet counts</source>
         <translation>RTSPパケット数</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1857"/>
+        <location filename="main_window.ui" line="1879"/>
         <source>SM&amp;PP Operations</source>
         <translation>SMPP操作</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1860"/>
+        <location filename="main_window.ui" line="1882"/>
         <source>SMPP operation statistics</source>
         <translation>SMPP操作統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1865"/>
+        <location filename="main_window.ui" line="1887"/>
         <source>&amp;UCP Messages</source>
         <translation>&amp;UCPメッセージ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1868"/>
+        <location filename="main_window.ui" line="1890"/>
         <source>UCP message statistics</source>
         <translation>UCPメッセージ統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1876"/>
+        <location filename="main_window.ui" line="1898"/>
         <source>Change the way packets are dissected</source>
         <translation>パケットが解析された際の方法を変更</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1881"/>
+        <location filename="main_window.ui" line="1903"/>
         <source>Reload Lua Plugins</source>
         <translation>Luaプラグインを再読込</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1884"/>
+        <location filename="main_window.ui" line="1906"/>
         <source>Reload Lua plugins</source>
         <translation>Luaプラグインを再読込</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1887"/>
+        <location filename="main_window.ui" line="1909"/>
         <source>Ctrl+Shift+L</source>
         <translation>Ctrl+Shift+L</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1897"/>
+        <location filename="main_window.ui" line="1919"/>
         <source>Advertisements by Topic</source>
         <translation>トピック毎の通知</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1902"/>
-        <location filename="main_window.ui" line="1937"/>
+        <location filename="main_window.ui" line="1924"/>
+        <location filename="main_window.ui" line="1959"/>
         <source>Advertisements by Source</source>
         <translation>送信元毎の通知</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1907"/>
+        <location filename="main_window.ui" line="1929"/>
         <source>Advertisements by Transport</source>
         <translation>トランスポート毎の通知</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1912"/>
+        <location filename="main_window.ui" line="1934"/>
         <source>Queries by Topic</source>
         <translation>トピック毎のクエリ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1917"/>
-        <location filename="main_window.ui" line="1947"/>
+        <location filename="main_window.ui" line="1939"/>
+        <location filename="main_window.ui" line="1969"/>
         <source>Queries by Receiver</source>
         <translation>受信者毎のクエリ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1922"/>
+        <location filename="main_window.ui" line="1944"/>
         <source>Wildcard Queries by Pattern</source>
         <translation>パターン毎のワイルドカードクエリ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1927"/>
+        <location filename="main_window.ui" line="1949"/>
         <source>Wildcard Queries by Receiver</source>
         <translation>受信者毎のワイルドカードクエリ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1932"/>
+        <location filename="main_window.ui" line="1954"/>
         <source>Advertisements by Queue</source>
         <translation>キュー毎の通知</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1942"/>
+        <location filename="main_window.ui" line="1964"/>
         <source>Queries by Queue</source>
         <translation>キュー毎のクエリ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1952"/>
+        <location filename="main_window.ui" line="1974"/>
         <source>Streams</source>
         <translation>ストリーム</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1957"/>
+        <location filename="main_window.ui" line="1979"/>
         <source>Stream Flow Graph</source>
         <translation>ストリームフローグラフ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1962"/>
+        <location filename="main_window.ui" line="1984"/>
         <source>LBT-RM</source>
         <translation>LBT-RM</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1967"/>
+        <location filename="main_window.ui" line="1989"/>
         <source>LBT-RU</source>
         <translation>LBT-RU</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1972"/>
-        <location filename="main_window.ui" line="1975"/>
+        <location filename="main_window.ui" line="1994"/>
+        <location filename="main_window.ui" line="1997"/>
         <source>Filter this Association</source>
         <translation>この アソシエーションをフィルタ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2067"/>
+        <location filename="main_window.ui" line="2089"/>
         <source>Shrink the main window text</source>
         <translation>メインウインドウのテキストを縮小</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2078"/>
+        <location filename="main_window.ui" line="2100"/>
         <source>Return the main window text to its normal size</source>
         <translation>メインウインドウのテキストを標準サイズに戻す</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2401"/>
+        <location filename="main_window.ui" line="2423"/>
         <source>Conversation Hash Tables</source>
         <translation>会話ハッシュテーブル</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2404"/>
+        <location filename="main_window.ui" line="2426"/>
         <source>Show each conversation hash table</source>
         <translation>各々の会話ハッシュ表を表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2409"/>
+        <location filename="main_window.ui" line="2431"/>
         <source>Dissector Tables</source>
         <translation>ダイセクター表</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2412"/>
+        <location filename="main_window.ui" line="2434"/>
         <source>Show each dissector table and its entries</source>
         <translation>各々のダイセクター表とエントリを表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2417"/>
+        <location filename="main_window.ui" line="2439"/>
         <source>Supported Protocols</source>
         <translation>サポートしているプロトコル</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2420"/>
+        <location filename="main_window.ui" line="2442"/>
         <source>Show the currently supported protocols and display filter fields</source>
         <translation>サポートしているプロトコルと表示フィルタフィールドを表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2473"/>
+        <location filename="main_window.ui" line="2495"/>
         <source>MAC Statistics</source>
         <translation>MAC統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2476"/>
+        <location filename="main_window.ui" line="2498"/>
         <source>LTE MAC statistics</source>
         <translation>LTE MAC 統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2481"/>
+        <location filename="main_window.ui" line="2503"/>
         <source>RLC Statistics</source>
         <translation>RLC 統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2484"/>
+        <location filename="main_window.ui" line="2506"/>
         <source>LTE RLC statistics</source>
         <translation>LTE RLC 統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2489"/>
+        <location filename="main_window.ui" line="2511"/>
         <source>RLC Graph</source>
         <translation>RLC グラフ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2492"/>
+        <location filename="main_window.ui" line="2514"/>
         <source>LTE RLC graph</source>
         <translation>LTE RLC グラフ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2497"/>
+        <location filename="main_window.ui" line="2519"/>
         <source>MTP3 Summary</source>
         <translation>MTP3 概要</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2500"/>
+        <location filename="main_window.ui" line="2522"/>
         <source>MTP3 summary statistics</source>
         <translation>MTP3 概要 統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2539"/>
+        <location filename="main_window.ui" line="2561"/>
         <source>Bluetooth Devices</source>
         <translation>Bluetooth デバイス</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2544"/>
+        <location filename="main_window.ui" line="2566"/>
         <source>Bluetooth HCI Summary</source>
         <translation>Bluetooth HCI 概要</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2634"/>
+        <location filename="main_window.ui" line="2656"/>
         <source>No GSM statistics registered</source>
         <translation>GSM統計が登録されていません</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2642"/>
+        <location filename="main_window.ui" line="2664"/>
         <source>No LTE statistics registered</source>
         <translation>LTE統計が登録されていません</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2650"/>
+        <location filename="main_window.ui" line="2672"/>
         <source>No MTP3 statistics registered</source>
         <translation>MTP3 統計が登録されていません</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2669"/>
+        <location filename="main_window.ui" line="2691"/>
         <source>Ctrl+1</source>
         <translation type="unfinished">Ctrl+O {1?}</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2680"/>
+        <location filename="main_window.ui" line="2702"/>
         <source>Ctrl+2</source>
         <translation type="unfinished">Ctrl+O {2?}</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2691"/>
+        <location filename="main_window.ui" line="2713"/>
         <source>Ctrl+3</source>
         <translation type="unfinished">Ctrl+O {3?}</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2702"/>
+        <location filename="main_window.ui" line="2724"/>
         <source>Ctrl+4</source>
         <translation type="unfinished">Ctrl+O {4?}</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2713"/>
+        <location filename="main_window.ui" line="2735"/>
         <source>Ctrl+5</source>
         <translation type="unfinished">Ctrl+O {5?}</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2724"/>
+        <location filename="main_window.ui" line="2746"/>
         <source>Ctrl+6</source>
         <translation type="unfinished">Ctrl+O {6?}</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2735"/>
+        <location filename="main_window.ui" line="2757"/>
         <source>Ctrl+7</source>
         <translation type="unfinished">Ctrl+O {7?}</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2746"/>
+        <location filename="main_window.ui" line="2768"/>
         <source>Ctrl+8</source>
         <translation type="unfinished">Ctrl+O {8?}</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2757"/>
+        <location filename="main_window.ui" line="2779"/>
         <source>Ctrl+9</source>
         <translation type="unfinished">Ctrl+O {9?}</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2789"/>
+        <location filename="main_window.ui" line="2811"/>
         <source>Stream Analysis</source>
         <translation>ストリーム分析</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2797"/>
-        <location filename="main_window.ui" line="2800"/>
+        <location filename="main_window.ui" line="2819"/>
+        <location filename="main_window.ui" line="2822"/>
         <source>IAX2 Stream Analysis</source>
         <translation>IAX2 ストリーム分析</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2848"/>
+        <location filename="main_window.ui" line="2870"/>
         <source>UDP Multicast Streams</source>
         <translation>UDP マルチキャスト ストリーム</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2851"/>
+        <location filename="main_window.ui" line="2873"/>
         <source>Show UTP multicast stream statistics.</source>
         <translation>UTPマルチキャストストリーム統計を表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2856"/>
+        <location filename="main_window.ui" line="2878"/>
         <source>WLAN Traffic</source>
         <translation>WLAN トラフィック</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2859"/>
+        <location filename="main_window.ui" line="2881"/>
         <source>Show IEEE 802.11 wireless LAN statistics.</source>
         <translation>IEEE802.11 無線LAN統計を表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2868"/>
+        <location filename="main_window.ui" line="2890"/>
         <source>Add a filter button</source>
         <translation>フィルタボタンを追加</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2874"/>
+        <location filename="main_window.ui" line="2896"/>
         <source>Add a display filter button.</source>
         <translation>表示フィルタボタンを追加</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1137"/>
+        <location filename="main_window.ui" line="1159"/>
         <source>&amp;Options…</source>
         <translation>&amp;オプション...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="618"/>
+        <location filename="main_window.ui" line="640"/>
         <source>&amp;Wireless</source>
         <translation>&amp;ワイヤレス</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1154"/>
+        <location filename="main_window.ui" line="1176"/>
         <source>Capture &amp;Filters…</source>
         <translation>キャプチャ &amp;フィルタ...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1184"/>
+        <location filename="main_window.ui" line="1206"/>
         <source>As Plain &amp;Text…</source>
         <translation>プレイン&amp;テキストとして...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1189"/>
+        <location filename="main_window.ui" line="1211"/>
         <source>As CSV…</source>
         <translation>CSVとして...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1194"/>
+        <location filename="main_window.ui" line="1216"/>
         <source>As &quot;C&quot; Arrays…</source>
         <translation>C言語配列として...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1199"/>
+        <location filename="main_window.ui" line="1221"/>
         <source>As PSML XML…</source>
         <translation>PSML XMLとして...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1204"/>
+        <location filename="main_window.ui" line="1226"/>
         <source>As PDML XML…</source>
         <translation>PDML XMLとして...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1209"/>
+        <location filename="main_window.ui" line="1231"/>
         <source>&amp;HTTP…</source>
         <translation>&amp;HTTP...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1214"/>
+        <location filename="main_window.ui" line="1236"/>
         <source>&amp;DICOM…</source>
         <translation>&amp;DICOM...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1219"/>
+        <location filename="main_window.ui" line="1241"/>
         <source>&amp;SMB…</source>
         <translation>&amp;SMB...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1235"/>
+        <location filename="main_window.ui" line="1257"/>
         <source>All Visible Items</source>
         <translation>すべての見えているアイテム</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1240"/>
+        <location filename="main_window.ui" line="1262"/>
         <source>All Visible Selected Tree Items</source>
         <translation>すべての見えている選択したツリーアイテム</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1291"/>
-        <location filename="main_window.ui" line="1336"/>
+        <location filename="main_window.ui" line="1313"/>
+        <location filename="main_window.ui" line="1358"/>
         <source>…&amp;and Selected</source>
         <translation>...かつ選択したもの</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1294"/>
-        <location filename="main_window.ui" line="1339"/>
+        <location filename="main_window.ui" line="1316"/>
+        <location filename="main_window.ui" line="1361"/>
         <source>…and Selected</source>
         <translation>...かつ選択したもの</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1299"/>
-        <location filename="main_window.ui" line="1344"/>
+        <location filename="main_window.ui" line="1321"/>
+        <location filename="main_window.ui" line="1366"/>
         <source>…&amp;or Selected</source>
         <translation>...または選択したもの</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1302"/>
-        <location filename="main_window.ui" line="1347"/>
+        <location filename="main_window.ui" line="1324"/>
+        <location filename="main_window.ui" line="1369"/>
         <source>…or Selected</source>
         <translation>...または選択したもの</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1307"/>
-        <location filename="main_window.ui" line="1352"/>
+        <location filename="main_window.ui" line="1329"/>
+        <location filename="main_window.ui" line="1374"/>
         <source>…a&amp;nd not Selected</source>
         <translation>...かつ選択していないもの</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1310"/>
-        <location filename="main_window.ui" line="1355"/>
+        <location filename="main_window.ui" line="1332"/>
+        <location filename="main_window.ui" line="1377"/>
         <source>…and not Selected</source>
         <translation>...かつ選択していないもの</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1315"/>
-        <location filename="main_window.ui" line="1360"/>
+        <location filename="main_window.ui" line="1337"/>
+        <location filename="main_window.ui" line="1382"/>
         <source>…o&amp;r not Selected</source>
         <translation>...または選択していないもの</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1318"/>
-        <location filename="main_window.ui" line="1363"/>
+        <location filename="main_window.ui" line="1340"/>
+        <location filename="main_window.ui" line="1385"/>
         <source>…or not Selected</source>
         <translation>...または選択していないもの</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1368"/>
+        <location filename="main_window.ui" line="1390"/>
         <source>Display Filters…</source>
         <translation>表示フィルタ...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1373"/>
+        <location filename="main_window.ui" line="1395"/>
         <source>Display Filter &amp;Macros…</source>
         <translation>表示フィルタマクロ...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1389"/>
+        <location filename="main_window.ui" line="1411"/>
         <source>&amp;Find Packet…</source>
         <translation>パケットの検索...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1400"/>
+        <location filename="main_window.ui" line="1422"/>
         <source>Find Ne&amp;xt</source>
         <translation>次を検索</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1411"/>
+        <location filename="main_window.ui" line="1433"/>
         <source>Find Pre&amp;vious</source>
         <translation>前を検索</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1554"/>
+        <location filename="main_window.ui" line="1576"/>
         <source>Time Shift…</source>
         <translation>時間シフト...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1565"/>
+        <location filename="main_window.ui" line="1587"/>
         <source>Packet Comment…</source>
         <translation>パケットコメント...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1576"/>
+        <location filename="main_window.ui" line="1598"/>
         <source>Configuration Profiles…</source>
         <translation>設定プロファイル...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1593"/>
+        <location filename="main_window.ui" line="1615"/>
         <source>&amp;Preferences…</source>
         <translation>設定...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1674"/>
+        <location filename="main_window.ui" line="1696"/>
         <source>TCP Stream</source>
         <translation>TCPストリーム</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1682"/>
+        <location filename="main_window.ui" line="1704"/>
         <source>UDP Stream</source>
         <translation>UDPストリーム</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1690"/>
+        <location filename="main_window.ui" line="1712"/>
         <source>SSL Stream</source>
         <translation>SSLストリーム</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1873"/>
+        <location filename="main_window.ui" line="1895"/>
         <source>Decode &amp;As…</source>
         <translation>...としてデコード</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1980"/>
+        <location filename="main_window.ui" line="2002"/>
         <source>Export PDUs to File…</source>
         <translation>PDUをファイルにエクスポート...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1985"/>
+        <location filename="main_window.ui" line="2007"/>
         <source>&amp;I/O Graph</source>
         <translation>&amp;I/Oグラフ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1988"/>
+        <location filename="main_window.ui" line="2010"/>
         <source>Create graphs based on display filter fields</source>
         <translation>表示フィルタのフィールドに基づいてグラフ作成</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1999"/>
+        <location filename="main_window.ui" line="2021"/>
         <source>&amp;Main Toolbar</source>
         <translation>メインツールバー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2002"/>
+        <location filename="main_window.ui" line="2024"/>
         <source>Show or hide the main toolbar</source>
         <translation>メインツールバーを表示もしくは非表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2013"/>
+        <location filename="main_window.ui" line="2035"/>
         <source>&amp;Filter Toolbar</source>
         <translation>&amp;フィルタツールバー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2016"/>
+        <location filename="main_window.ui" line="2038"/>
         <source>Show or hide the display filter toolbar</source>
         <translation>表示フィルタツールバーを表示もしくは非表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2021"/>
+        <location filename="main_window.ui" line="2043"/>
         <source>&amp;TFTP</source>
         <translation>&amp;TFTP</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2026"/>
+        <location filename="main_window.ui" line="2048"/>
         <source>Conversations</source>
         <translation>カンバセーション</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2029"/>
+        <location filename="main_window.ui" line="2051"/>
         <source>Conversations at different protocol levels</source>
         <translation>異なるプロトコルレベルのカンバセーション</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2034"/>
+        <location filename="main_window.ui" line="2056"/>
         <source>Endpoints</source>
         <translation>端末</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2037"/>
+        <location filename="main_window.ui" line="2059"/>
         <source>Endpoints at different protocol levels</source>
         <translation>異なるプロトコルレベルの端末</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2045"/>
+        <location filename="main_window.ui" line="2067"/>
         <source>Colorize Packet List</source>
         <translation>パケット一覧を色分けする</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2048"/>
+        <location filename="main_window.ui" line="2070"/>
         <source>Draw packets using your coloring rules</source>
         <translation>色分けルールを用いてパケットを描画</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2053"/>
+        <location filename="main_window.ui" line="2075"/>
         <source>&amp;Zoom In</source>
         <translation>&amp;ズームイン</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2056"/>
+        <location filename="main_window.ui" line="2078"/>
         <source>Enlarge the main window text</source>
         <translation>メインウインドウのテキストを拡大</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2059"/>
+        <location filename="main_window.ui" line="2081"/>
         <source>Ctrl++</source>
         <translation>Ctrl++</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2064"/>
+        <location filename="main_window.ui" line="2086"/>
         <source>Zoom Out</source>
         <translation>縮小</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2070"/>
+        <location filename="main_window.ui" line="2092"/>
         <source>Ctrl+-</source>
         <translation>Ctrl+-</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2075"/>
+        <location filename="main_window.ui" line="2097"/>
         <source>Normal Size</source>
         <translation>標準サイズ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2081"/>
+        <location filename="main_window.ui" line="2103"/>
         <source>Ctrl+0</source>
         <translation>Ctrl+O</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2086"/>
+        <location filename="main_window.ui" line="2108"/>
         <source>Resize Columns</source>
         <translation>列幅を再調整</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2089"/>
+        <location filename="main_window.ui" line="2111"/>
         <source>Resize packet list columns to fit contents</source>
         <translation>列の内容に合わせてパケット一覧の列幅を調整</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2092"/>
+        <location filename="main_window.ui" line="2114"/>
         <source>Ctrl+Shift+R</source>
         <translation>Ctrl+Shift+R</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2100"/>
+        <location filename="main_window.ui" line="2122"/>
         <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
         <translation>日付と時間 (1973-06-14 01:02:03.123456)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2103"/>
-        <location filename="main_window.ui" line="2128"/>
-        <location filename="main_window.ui" line="2156"/>
+        <location filename="main_window.ui" line="2125"/>
+        <location filename="main_window.ui" line="2150"/>
+        <location filename="main_window.ui" line="2178"/>
         <source>Show packet times as the date and time of day.</source>
         <translation>パケットの時刻を日付と時間で表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2106"/>
+        <location filename="main_window.ui" line="2128"/>
         <source>Ctrl+Alt+1</source>
         <oldsource>Meta+Alt+1</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2114"/>
+        <location filename="main_window.ui" line="2136"/>
         <source>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
         <translation>年および一年の中の日付、時間 (1970/001 01:02:03.123456)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2117"/>
+        <location filename="main_window.ui" line="2139"/>
         <source>Show packet times as the year, day of the year and time of day.</source>
         <translation>パケットの時間を年および一年の中の日付、時間として表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2125"/>
+        <location filename="main_window.ui" line="2147"/>
         <source>Time of Day (01:02:03.123456)</source>
         <translation>時刻 (01:02:03.123456)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2131"/>
+        <location filename="main_window.ui" line="2153"/>
         <source>Ctrl+Alt+2</source>
         <oldsource>Meta+Alt+2</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2139"/>
+        <location filename="main_window.ui" line="2161"/>
         <source>Seconds Since 1970-01-01</source>
         <translation>1970年1月1日以来の秒数</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2142"/>
+        <location filename="main_window.ui" line="2164"/>
         <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
         <translation>パケットの時間をUNIX / POSIX 基準以来の秒数で表示(1970-01-01)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2145"/>
+        <location filename="main_window.ui" line="2167"/>
         <source>Ctrl+Alt+3</source>
         <oldsource>Meta+Alt+3</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2153"/>
+        <location filename="main_window.ui" line="2175"/>
         <source>Seconds Since Beginning of Capture</source>
         <translation>キャプチャ開始からの秒数</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2159"/>
+        <location filename="main_window.ui" line="2181"/>
         <source>Ctrl+Alt+4</source>
         <oldsource>Meta+Alt+4</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2167"/>
+        <location filename="main_window.ui" line="2189"/>
         <source>Seconds Since Previous Captured Packet</source>
         <translation>前にキャプチャしたパケットからの秒数</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2170"/>
+        <location filename="main_window.ui" line="2192"/>
         <source>Show packet times as the seconds since the previous captured packet.</source>
         <translation>パケットの時間を前にキャプチャしたパケットからの秒数で表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2173"/>
+        <location filename="main_window.ui" line="2195"/>
         <source>Ctrl+Alt+5</source>
         <oldsource>Meta+Alt+5</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2181"/>
+        <location filename="main_window.ui" line="2203"/>
         <source>Seconds Since Previous Displayed Packet</source>
         <translation>前に表示されたパケットからの秒数</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2184"/>
+        <location filename="main_window.ui" line="2206"/>
         <source>Show packet times as the seconds since the previous displayed packet.</source>
         <translation>パケットの時間を前に表示されたパケットからの秒数で表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2187"/>
+        <location filename="main_window.ui" line="2209"/>
         <source>Ctrl+Alt+6</source>
         <oldsource>Meta+Alt+6</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2195"/>
+        <location filename="main_window.ui" line="2217"/>
         <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
         <translation>UTC日付および時刻 (1973-06-14 01:02:03.123456)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2198"/>
+        <location filename="main_window.ui" line="2220"/>
         <source>Show packet times as the UTC date and time of day.</source>
         <translation>パケットの時刻をUTC日付および時刻で表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2201"/>
+        <location filename="main_window.ui" line="2223"/>
         <source>Ctrl+Alt+7</source>
         <oldsource>Meta+Alt+7</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2209"/>
+        <location filename="main_window.ui" line="2231"/>
         <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
         <translation>UTC 年 一年の中の日付 時間</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2212"/>
+        <location filename="main_window.ui" line="2234"/>
         <source>Show packet times as the UTC year, day of the year and time of day.</source>
         <translation>パケットの時刻をUTC 年 一年の中の日付 時間として表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2220"/>
+        <location filename="main_window.ui" line="2242"/>
         <source>UTC Time of Day (01:02:03.123456)</source>
         <translation>UTC 時間 (01:02:03.123456)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2223"/>
+        <location filename="main_window.ui" line="2245"/>
         <source>Show packet times as the UTC time of day.</source>
         <translation>パケットの時刻をUTC時間として表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2226"/>
+        <location filename="main_window.ui" line="2248"/>
         <source>Ctrl+Alt+8</source>
         <oldsource>Meta+Alt+8</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2234"/>
+        <location filename="main_window.ui" line="2256"/>
         <source>Automatic (from capture file)</source>
         <translation>自動(キャプチャファイルより)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2237"/>
+        <location filename="main_window.ui" line="2259"/>
         <source>Use the time precision indicated in the capture file.</source>
         <translation>キャプチャファイルに記述された正確な時刻を利用</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2245"/>
+        <location filename="main_window.ui" line="2267"/>
         <source>Seconds</source>
         <translation>秒</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2253"/>
+        <location filename="main_window.ui" line="2275"/>
         <source>Tenths of a second</source>
         <translation>10秒</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2261"/>
+        <location filename="main_window.ui" line="2283"/>
         <source>Hundredths of a second</source>
         <translation>100秒</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2269"/>
+        <location filename="main_window.ui" line="2291"/>
         <source>Milliseconds</source>
         <translation>ミリ秒</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2277"/>
+        <location filename="main_window.ui" line="2299"/>
         <source>Microseconds</source>
         <translation>マイクロ秒</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2285"/>
+        <location filename="main_window.ui" line="2307"/>
         <source>Nanoseconds</source>
         <translation>ナノ秒</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2293"/>
+        <location filename="main_window.ui" line="2315"/>
         <source>Display Seconds With Hours and Minutes</source>
         <translation>時分秒表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2296"/>
+        <location filename="main_window.ui" line="2318"/>
         <source>Display seconds with hours and minutes</source>
         <translation>時分秒表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2304"/>
+        <location filename="main_window.ui" line="2326"/>
         <source>Resolve &amp;Physical Addresses</source>
         <translation>物理アドレスを解決</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2307"/>
+        <location filename="main_window.ui" line="2329"/>
         <source>Show names for known MAC addresses. Lookups use a local database.</source>
         <translation>既知のMACアドレスの名前を表示 ローカルデータベースを利用します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2315"/>
+        <location filename="main_window.ui" line="2337"/>
         <source>Resolve &amp;Network Addresses</source>
         <translation>ネットワークアドレスを解決</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2318"/>
+        <location filename="main_window.ui" line="2340"/>
         <source>Show names for known IPv4, IPv6, and IPX addresses. Lookups can generate network traffic.</source>
         <translation>既知のIPv4、IPv6およびIPXアドレスの名前を表示 解決にはネットワークトラフィックを生成します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2326"/>
+        <location filename="main_window.ui" line="2348"/>
         <source>Resolve &amp;Transport Addresses</source>
         <translation>トランスポート層アドレスを解決</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2329"/>
+        <location filename="main_window.ui" line="2351"/>
         <source>Show names for known TCP, UDP, and SCTP services. Lookups can generate traffic on some systems.</source>
         <translation>既知のTCP UDPおよびSCTPサービスの名前を表示 解決にはいくつかのシステムではトラフィックを生成します。</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2337"/>
+        <location filename="main_window.ui" line="2359"/>
         <source>Wire&amp;less Toolbar</source>
         <translation>ワイヤレスツールバー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2340"/>
+        <location filename="main_window.ui" line="2362"/>
         <source>Show or hide the wireless toolbar</source>
         <translation>ワイヤレスツールバーを表示または非表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2351"/>
+        <location filename="main_window.ui" line="2373"/>
         <source>&amp;Status Bar</source>
         <translation>ステータスバー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2354"/>
+        <location filename="main_window.ui" line="2376"/>
         <source>Show or hide the status bar</source>
         <translation>ステータスバーの表示または非表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2365"/>
+        <location filename="main_window.ui" line="2387"/>
         <source>Packet &amp;List</source>
         <translation>パケット一覧部</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2368"/>
+        <location filename="main_window.ui" line="2390"/>
         <source>Show or hide the packet list</source>
         <translation>パケット一覧部を表示または非表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2379"/>
+        <location filename="main_window.ui" line="2401"/>
         <source>Packet &amp;Details</source>
         <translation>パケット詳細部</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2382"/>
+        <location filename="main_window.ui" line="2404"/>
         <source>Show or hide the packet details</source>
         <translation>パケット詳細部を表示または非表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2393"/>
+        <location filename="main_window.ui" line="2415"/>
         <source>Packet &amp;Bytes</source>
         <translation>パケットデータ部</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2396"/>
+        <location filename="main_window.ui" line="2418"/>
         <source>Show or hide the packet bytes</source>
         <translation>パケットデータ部を表示または非表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2425"/>
+        <location filename="main_window.ui" line="2447"/>
         <source>Bytes as Hex + ASCII Dump</source>
         <translation>１６進数およびASCII形式ダンプ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2428"/>
+        <location filename="main_window.ui" line="2450"/>
         <source>Copy packet bytes as a hex and ASCII dump.</source>
         <translation>１６進数およびASCII形式ダンプとしてパケットデータ部をコピー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2433"/>
+        <location filename="main_window.ui" line="2455"/>
         <source>…as Hex Dump</source>
         <translation>１６進数ダンプとして...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2436"/>
+        <location filename="main_window.ui" line="2458"/>
         <source>Copy packet bytes as a hex dump.</source>
         <translation>１６進数ダンプとしてパケットをコピー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2441"/>
+        <location filename="main_window.ui" line="2463"/>
         <source>…as Printable Text</source>
         <translation>印刷可能なテキストとして...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2444"/>
+        <location filename="main_window.ui" line="2466"/>
         <source>Copy only the printable text in the packet.</source>
         <translation>パケット内の印刷可能なテキストだけをコピー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2449"/>
+        <location filename="main_window.ui" line="2471"/>
         <source>…as a Hex Stream</source>
         <translation>１６進数ストリームとして...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2452"/>
+        <location filename="main_window.ui" line="2474"/>
         <source>Copy packet bytes as a stream of hex.</source>
         <translation>１６進数のストリームとしてパケットデータ部をコピー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2457"/>
+        <location filename="main_window.ui" line="2479"/>
         <source>…as Raw Binary</source>
         <translation>生のバイナリ形式として...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2460"/>
+        <location filename="main_window.ui" line="2482"/>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
         <translation>MIME形式データ(application/octet-stream)としてパケットデータをコピー</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2465"/>
+        <location filename="main_window.ui" line="2487"/>
         <source>MAP Summary</source>
         <translation>MAP概要</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2468"/>
+        <location filename="main_window.ui" line="2490"/>
         <source>GSM MAP summary statistics</source>
         <translation>GSM MAP 概要 統計</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2526"/>
+        <location filename="main_window.ui" line="2548"/>
         <source>&amp;Coloring Rules…</source>
         <translation>色分けルール...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2557"/>
+        <location filename="main_window.ui" line="2579"/>
         <source>Show Linked Packet in New Window</source>
         <translation>新規ウインドウでリンクされたパケットを表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2584"/>
+        <location filename="main_window.ui" line="2606"/>
         <source>&amp;Expression…</source>
         <translation>書式...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2587"/>
-        <location filename="main_window.ui" line="2871"/>
+        <location filename="main_window.ui" line="2609"/>
+        <location filename="main_window.ui" line="2893"/>
         <source>Expression…</source>
         <translation>書式...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2770"/>
+        <location filename="main_window.ui" line="2792"/>
         <source>New Conversation Rule…</source>
         <translation>新規会話ルール...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2813"/>
+        <location filename="main_window.ui" line="2835"/>
         <source>Enabled Protocols…</source>
         <oldsource>Enable Protocols…</oldsource>
         <translation>有効化したプロトコル...</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2824"/>
+        <location filename="main_window.ui" line="2846"/>
         <source>Wiki Protocol Page</source>
         <translation>Wiki プロトコルページ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2827"/>
+        <location filename="main_window.ui" line="2849"/>
         <source>Open the Wireshark wiki page for this protocol.</source>
         <translation>このプロトコルについてのWireshark Wikiページを開く</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2832"/>
+        <location filename="main_window.ui" line="2854"/>
         <source>Filter Field Reference</source>
         <translation>フィルタフィールドリファレンス</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2835"/>
+        <location filename="main_window.ui" line="2857"/>
         <source>Open the display filter reference page for this filter field.</source>
         <translation>このフィルタフィールドについての表示フィルタリファレンスを開く</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2840"/>
+        <location filename="main_window.ui" line="2862"/>
         <source>Go to Linked Packet</source>
         <translation>リンクされたパケットへ移動</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2843"/>
+        <location filename="main_window.ui" line="2865"/>
         <source>Go to the packet referenced by the selected field.</source>
         <translation>選択されたフィールドによって参照されたパケットへ移動</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2505"/>
+        <location filename="main_window.ui" line="2527"/>
         <source>&amp;VoIP Calls</source>
         <translation>VoIP 通話</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2508"/>
+        <location filename="main_window.ui" line="2530"/>
         <source>All VoIP Calls</source>
         <translation>すべてのVoIP通話</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2513"/>
+        <location filename="main_window.ui" line="2535"/>
         <source>SIP &amp;Flows</source>
         <translation>SIP Flows</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2516"/>
+        <location filename="main_window.ui" line="2538"/>
         <source>SIP Flows</source>
         <translation>SIP Flows</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2521"/>
+        <location filename="main_window.ui" line="2543"/>
         <source>RTP Streams</source>
         <translation>RTP ストリーム</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2529"/>
+        <location filename="main_window.ui" line="2551"/>
         <source>Edit the packet list coloring rules.</source>
         <translation>パケット一覧の色分けルールを編集</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2534"/>
+        <location filename="main_window.ui" line="2556"/>
         <source>Bluetooth ATT Server Attributes</source>
         <oldsource>ATT Server Attributes</oldsource>
         <translation>ATTサーバ属性</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2549"/>
+        <location filename="main_window.ui" line="2571"/>
         <source>Show Packet in New &amp;Window</source>
         <translation>新規ウインドウでパケットを表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2552"/>
+        <location filename="main_window.ui" line="2574"/>
         <source>Show this packet in a separate window.</source>
         <translation>個別のウィンドウでこのパケットを表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2560"/>
+        <location filename="main_window.ui" line="2582"/>
         <source>Show the linked packet in a separate window.</source>
         <translation>個別のウインドウでリンクされたパケットを表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2568"/>
+        <location filename="main_window.ui" line="2590"/>
         <source>Auto Scroll in Li&amp;ve Capture</source>
         <translation>生のキャプチャを自動スクロール</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2571"/>
+        <location filename="main_window.ui" line="2593"/>
         <source>Automatically scroll to the last packet during a live capture.</source>
         <translation>生キャプチャ中の最後のパケットを自動スクロールします</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2576"/>
+        <location filename="main_window.ui" line="2598"/>
         <source>Expert Information</source>
         <translation>エキスパート情報</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2579"/>
+        <location filename="main_window.ui" line="2601"/>
         <source>Show expert notifications</source>
         <translation>エキスパート通知を表示</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2590"/>
+        <location filename="main_window.ui" line="2612"/>
         <source>Add an expression to the display filter.</source>
         <translation>表示フィルタの書式を追加</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2595"/>
+        <location filename="main_window.ui" line="2617"/>
         <source>REGISTER_STAT_GROUP_UNSORTED</source>
         <translation>REGISTER_STAT_GROUP_UNSORTED このダイアログはまだ見えないはずだよ竹下</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2598"/>
+        <location filename="main_window.ui" line="2620"/>
         <source>Start of &quot;REGISTER_STAT_GROUP_UNSORTED&quot;</source>
         <translation>REGISTER_STAT_GROUP_UNSORTEDの開始</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2612"/>
+        <location filename="main_window.ui" line="2634"/>
         <source>No tools registered</source>
         <translation>ツールが登録されていません</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2615"/>
+        <location filename="main_window.ui" line="2637"/>
         <source>No tools have been registered.</source>
         <translation>何もツールが登録されていません</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2626"/>
+        <location filename="main_window.ui" line="2648"/>
         <source>No ANSI statistics registered</source>
         <translation>ANSI統計は登録されていません</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2655"/>
+        <location filename="main_window.ui" line="2677"/>
         <source>Resolved Addresses</source>
         <translation>解決したアドレス</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2658"/>
+        <location filename="main_window.ui" line="2680"/>
         <source>Show each table of resolved addresses as copyable text.</source>
         <translation>コピー可能なテキストとして解決したアドレスの表を表示します。</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2663"/>
+        <location filename="main_window.ui" line="2685"/>
         <source>Color &amp;1</source>
         <translation>色 &amp;1</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2666"/>
-        <location filename="main_window.ui" line="2677"/>
         <location filename="main_window.ui" line="2688"/>
         <location filename="main_window.ui" line="2699"/>
         <location filename="main_window.ui" line="2710"/>
@@ -8860,128 +8867,130 @@ a:hover {
         <location filename="main_window.ui" line="2743"/>
         <location filename="main_window.ui" line="2754"/>
         <location filename="main_window.ui" line="2765"/>
+        <location filename="main_window.ui" line="2776"/>
+        <location filename="main_window.ui" line="2787"/>
         <source>Mark the current conversation with its own color.</source>
         <oldsource>Mark the current coversation with its own color.</oldsource>
         <translation>独自の色で現在の会話をマークします</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2674"/>
+        <location filename="main_window.ui" line="2696"/>
         <source>Color &amp;2</source>
         <translation>色 &amp;2</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2685"/>
+        <location filename="main_window.ui" line="2707"/>
         <source>Color &amp;3</source>
         <translation>色 &amp;3</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2696"/>
+        <location filename="main_window.ui" line="2718"/>
         <source>Color &amp;4</source>
         <translation>色 &amp;4</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2707"/>
+        <location filename="main_window.ui" line="2729"/>
         <source>Color &amp;5</source>
         <translation>色 &amp;5</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2718"/>
+        <location filename="main_window.ui" line="2740"/>
         <source>Color &amp;6</source>
         <translation>色 &amp;6</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2729"/>
+        <location filename="main_window.ui" line="2751"/>
         <source>Color &amp;7</source>
         <translation>色 &amp;7</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2740"/>
+        <location filename="main_window.ui" line="2762"/>
         <source>Color &amp;8</source>
         <translation>色 &amp;8</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2751"/>
+        <location filename="main_window.ui" line="2773"/>
         <source>Color &amp;9</source>
         <translation>色 &amp;9</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2762"/>
+        <location filename="main_window.ui" line="2784"/>
         <source>Color 1&amp;0</source>
         <translation>色 1&amp;0</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2773"/>
+        <location filename="main_window.ui" line="2795"/>
         <source>Create a new coloring rule based on this conversation.</source>
         <translation>この会話に基づいた新しい色分けルールを作成</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2778"/>
+        <location filename="main_window.ui" line="2800"/>
         <source>Reset Colorization</source>
         <translation>色分けをリセット</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2781"/>
+        <location filename="main_window.ui" line="2803"/>
         <source>Reset colorized conversations.</source>
         <translation>会話の色分けをリセット</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2784"/>
+        <location filename="main_window.ui" line="2806"/>
         <source>Ctrl+Space</source>
         <translation>Ctrl+Space</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2792"/>
+        <location filename="main_window.ui" line="2814"/>
         <source>RTP Stream Analysis</source>
         <translation>RTP ストリーム分析</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2805"/>
+        <location filename="main_window.ui" line="2827"/>
         <source>Edit Resolved Name</source>
         <translation>解決した名前を編集</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2808"/>
+        <location filename="main_window.ui" line="2830"/>
         <source>Manually edit a name resolution entry.</source>
         <translation>名前解決エントリを手動で編集</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2816"/>
+        <location filename="main_window.ui" line="2838"/>
         <source>Enable and disable specific protocols</source>
         <translation>特定のプロトコルを有効および無効化</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2819"/>
+        <location filename="main_window.ui" line="2841"/>
         <source>Ctrl+Shift+E</source>
         <translation>Ctrl+Shift+E</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="354"/>
+        <location filename="main_window.cpp" line="355"/>
         <source>Check for Updates</source>
         <oldsource>Check for Updates...</oldsource>
         <translation>更新を確認...</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="737"/>
+        <location filename="main_window.cpp" line="738"/>
         <source> before quitting</source>
         <translation>終了前</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="913"/>
+        <location filename="main_window.cpp" line="914"/>
         <source>Save packets before merging?</source>
         <translation>結合する前にパケットを保存しますか？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="914"/>
+        <location filename="main_window.cpp" line="915"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>一時的なキャプチャファイルは結合することができません</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="920"/>
+        <location filename="main_window.cpp" line="921"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>結合する前に変更を保存しますか？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="922"/>
+        <location filename="main_window.cpp" line="923"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>ファイルを結合する前に変更を保存する必要があります</translation>
     </message>
@@ -8991,115 +9000,115 @@ a:hover {
         <translation>無効な表示フィルタ</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="979"/>
+        <location filename="main_window.cpp" line="980"/>
         <source>Invalid Read Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="980"/>
+        <location filename="main_window.cpp" line="981"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1070"/>
+        <location filename="main_window.cpp" line="1071"/>
         <source> before importing a new capture</source>
         <translation>新しいキャプチャファイルのインポートする前</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1383"/>
+        <location filename="main_window.cpp" line="1384"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>&quot;%1&quot; エクスポートすることができません。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1384"/>
+        <location filename="main_window.cpp" line="1385"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>現在のキャプチャファイルへパケットをエクスポートすることはできません。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1471"/>
-        <location filename="main_window.cpp" line="1496"/>
+        <location filename="main_window.cpp" line="1472"/>
+        <location filename="main_window.cpp" line="1497"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1537"/>
+        <location filename="main_window.cpp" line="1538"/>
         <source>You have unsaved packets</source>
         <translation>保存していないパケットがあります。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1538"/>
+        <location filename="main_window.cpp" line="1539"/>
         <source>They will be lost if you don&apos;t save them.</source>
         <translation>保存しない場合、これらは失われます。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1541"/>
-        <location filename="main_window.cpp" line="1554"/>
+        <location filename="main_window.cpp" line="1542"/>
+        <location filename="main_window.cpp" line="1555"/>
         <source>Do you want to stop the capture and save the captured packets</source>
         <translation>キャプチャは停止してキャプチャされたパケットを保存しますか</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1543"/>
+        <location filename="main_window.cpp" line="1544"/>
         <source>Do you want to save the captured packets</source>
         <translation>キャプチャされたパケットを保存したいですか</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1545"/>
-        <location filename="main_window.cpp" line="1555"/>
+        <location filename="main_window.cpp" line="1546"/>
+        <location filename="main_window.cpp" line="1556"/>
         <source>?</source>
         <translation>？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1557"/>
+        <location filename="main_window.cpp" line="1558"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>保存しない場合キャプチャしたパケットは失われます</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1560"/>
+        <location filename="main_window.cpp" line="1561"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>キャプチャスタイルに行った変更を保存しますか</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1566"/>
+        <location filename="main_window.cpp" line="1567"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>保存しない場合変更は失われます</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1578"/>
+        <location filename="main_window.cpp" line="1579"/>
         <source>Stop and Save</source>
         <translation>停止して保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1586"/>
+        <location filename="main_window.cpp" line="1587"/>
         <source>Stop and Quit without Saving</source>
         <translation>停止して保存しないで終了</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1589"/>
+        <location filename="main_window.cpp" line="1590"/>
         <source>Quit without Saving</source>
         <translation>保存しないで終了</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1594"/>
+        <location filename="main_window.cpp" line="1595"/>
         <source>Stop and Continue without Saving</source>
         <translation>停止して保存しないで続ける</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1597"/>
+        <location filename="main_window.cpp" line="1598"/>
         <source>Continue &amp;without Saving</source>
         <translation>保存しないで続ける</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1849"/>
+        <location filename="main_window.cpp" line="1850"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>ファイル名をUTF-8形式に割り当てできません</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1862"/>
+        <location filename="main_window.cpp" line="1863"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>ワイヤーシャーク ネットワークアナライザ</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1881"/>
+        <location filename="main_window.cpp" line="1882"/>
         <source>Capturing from %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9434,27 +9443,27 @@ a:hover {
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="169"/>
+        <location filename="manage_interfaces_dialog.cpp" line="171"/>
         <source>This version of Wireshark does not save pipe settings.</source>
         <translation>このバージョンの Wireshark はパイプの設定を保存できません</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="173"/>
+        <location filename="manage_interfaces_dialog.cpp" line="175"/>
         <source>This version of Wireshark does not save remote settings.</source>
         <translation>このバージョンの Wireshark はリモートの設定は保存できません</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="175"/>
+        <location filename="manage_interfaces_dialog.cpp" line="177"/>
         <source>This version of Wireshark does not support remote interfaces.</source>
         <translation>このバージョンの Wireshark はリモートインターフェイスをサポートしません</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="418"/>
+        <location filename="manage_interfaces_dialog.cpp" line="420"/>
         <source>Error</source>
         <translation>エラー</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="419"/>
+        <location filename="manage_interfaces_dialog.cpp" line="421"/>
         <source>Default interface cannot be hidden.</source>
         <translation>デフォルトのインターフェースは非表示にできません</translation>
     </message>
@@ -9977,12 +9986,12 @@ a:hover {
 <context>
     <name>PathChooserDelegate</name>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="800"/>
+        <location filename="manage_interfaces_dialog.cpp" line="809"/>
         <source>Browse</source>
         <translation>ブラウズ</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="853"/>
+        <location filename="manage_interfaces_dialog.cpp" line="862"/>
         <source>Open Pipe</source>
         <translation>パイプを開く</translation>
     </message>
@@ -10005,9 +10014,13 @@ a:hover {
         <translation>設定</translation>
     </message>
     <message>
-        <location filename="preference_editor_frame.cpp" line="73"/>
         <source>Open %1 preferences</source>
-        <translation>%1 設定を開く</translation>
+        <translation type="vanished">%1 設定を開く</translation>
+    </message>
+    <message>
+        <location filename="preference_editor_frame.cpp" line="79"/>
+        <source>Open %1 preferences…</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10629,7 +10642,7 @@ a:hover {
         <translation>このメッセージは見えないはずだよ</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="219"/>
+        <location filename="manage_interfaces_dialog.cpp" line="221"/>
         <source>New Pipe</source>
         <translation>新規パイプ</translation>
     </message>
@@ -13348,7 +13361,7 @@ a:hover {
         <translation>検索</translation>
     </message>
     <message>
-        <location filename="search_frame.ui" line="148"/>
+        <location filename="search_frame.ui" line="157"/>
         <source>Cancel</source>
         <translation>キャンセル</translation>
     </message>
