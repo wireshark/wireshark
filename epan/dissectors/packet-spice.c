@@ -2886,58 +2886,49 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
     for(i = 0; i < caps_len; i++) {
         switch (spice_info->channel_type) {
             case SPICE_CHANNEL_PLAYBACK:
-                switch (i) {
-                    case 0:
-                        {
-                        const int * playback[] = {
-                            &hf_common_cap_auth_select,
-                            &hf_common_cap_auth_spice,
-                            NULL
-                        };
+                {
+                const int * playback[] = {
+                    &hf_common_cap_auth_select,
+                    &hf_common_cap_auth_spice,
+                    NULL
+                };
 
-                        proto_tree_add_bitmask_list(tree, tvb, offset, 4, playback, ENC_LITTLE_ENDIAN);
-                        }
-                        break;
-                    default:
-                        break;
+                if (i != 0)
+                    return;
+
+                proto_tree_add_bitmask_list(tree, tvb, offset, 4, playback, ENC_LITTLE_ENDIAN);
                 }
                 break;
             case SPICE_CHANNEL_MAIN:
-                switch (i) {
-                    case 0:
-                        {
-                        const int * main_cap[] = {
-                            &hf_main_cap_semi_migrate,
-                            &hf_main_cap_vm_name_uuid, /*Note: only relevant for client. TODO: dissect only for client */
-                            &hf_main_cap_agent_connected_tokens,
-                            &hf_main_cap_seamless_migrate,
-                            NULL
-                        };
+                {
+                const int * main_cap[] = {
+                    &hf_main_cap_semi_migrate,
+                    &hf_main_cap_vm_name_uuid, /*Note: only relevant for client. TODO: dissect only for client */
+                    &hf_main_cap_agent_connected_tokens,
+                    &hf_main_cap_seamless_migrate,
+                    NULL
+                };
 
-                        proto_tree_add_bitmask_list(tree, tvb, offset, 4, main_cap, ENC_LITTLE_ENDIAN);
-                        }
-                        break;
-                    default:
-                        break;
+                if (i != 0)
+                    return;
+
+                proto_tree_add_bitmask_list(tree, tvb, offset, 4, main_cap, ENC_LITTLE_ENDIAN);
                 }
                 break;
             case SPICE_CHANNEL_DISPLAY:
-                switch (i) {
-                    case 0:
-                        {
-                        const int * display_cap[] = {
-                            &hf_display_cap_sized_stream,
-                            &hf_display_cap_monitors_config,
-                            &hf_display_cap_composite,
-                            &hf_display_cap_a8_surface,
-                            NULL
-                        };
+                {
+                const int * display_cap[] = {
+                    &hf_display_cap_sized_stream,
+                    &hf_display_cap_monitors_config,
+                    &hf_display_cap_composite,
+                    &hf_display_cap_a8_surface,
+                    NULL
+                };
 
-                        proto_tree_add_bitmask_list(tree, tvb, offset, 4, display_cap, ENC_LITTLE_ENDIAN);
-                        }
-                        break;
-                    default:
-                        break;
+                if (i != 0)
+                    return;
+
+                proto_tree_add_bitmask_list(tree, tvb, offset, 4, display_cap, ENC_LITTLE_ENDIAN);
                 }
                 break;
             case SPICE_CHANNEL_INPUTS:
@@ -2947,25 +2938,22 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
                 proto_tree_add_item(tree, hf_cursor_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 break;
             case SPICE_CHANNEL_RECORD:
-                switch (i) {
-                    case 0:
-                        {
-                        const int * record_cap[] = {
-                            &hf_record_cap_celt,
-                            &hf_record_cap_volume,
-                            NULL
-                        };
+                {
+                const int * record_cap[] = {
+                    &hf_record_cap_celt,
+                    &hf_record_cap_volume,
+                    NULL
+                };
 
-                        proto_tree_add_bitmask_list(tree, tvb, offset, 4, record_cap, ENC_LITTLE_ENDIAN);
-                        }
-                        break;
-                    default:
-                        break;
+                if (i != 0)
+                    return;
+
+                proto_tree_add_bitmask_list(tree, tvb, offset, 4, record_cap, ENC_LITTLE_ENDIAN);
                 }
                 break;
             default:
                 proto_tree_add_expert(tree, pinfo, &ei_spice_unknown_channel, tvb, offset, -1);
-                break;
+                return;
         }
         offset += 4;
     }
