@@ -52,7 +52,36 @@ static int hf_usb_mode = -1;
 static int hf_usb_freebsd_urb_type = -1;
 static int hf_usb_freebsd_transfer_type = -1;
 static int hf_usb_xferflags = -1;
+static int hf_usb_xferflags_force_short_xfer = -1;
+static int hf_usb_xferflags_short_xfer_ok = -1;
+static int hf_usb_xferflags_short_frames_ok = -1;
+static int hf_usb_xferflags_pipe_bof = -1;
+static int hf_usb_xferflags_proxy_buffer = -1;
+static int hf_usb_xferflags_ext_buffer = -1;
+static int hf_usb_xferflags_manual_status = -1;
+static int hf_usb_xferflags_no_pipe_ok = -1;
+static int hf_usb_xferflags_stall_pipe = -1;
 static int hf_usb_xferstatus = -1;
+static int hf_usb_xferstatus_open = -1;
+static int hf_usb_xferstatus_transferring = -1;
+static int hf_usb_xferstatus_did_dma_delay = -1;
+static int hf_usb_xferstatus_did_close = -1;
+static int hf_usb_xferstatus_draining = -1;
+static int hf_usb_xferstatus_started = -1;
+static int hf_usb_xferstatus_bw_reclaimed = -1;
+static int hf_usb_xferstatus_control_xfr = -1;
+static int hf_usb_xferstatus_control_hdr = -1;
+static int hf_usb_xferstatus_control_act = -1;
+static int hf_usb_xferstatus_control_stall = -1;
+static int hf_usb_xferstatus_short_frames_ok = -1;
+static int hf_usb_xferstatus_short_xfer_ok = -1;
+static int hf_usb_xferstatus_bdma_enable = -1;
+static int hf_usb_xferstatus_bdma_no_post_sync = -1;
+static int hf_usb_xferstatus_bdma_setup = -1;
+static int hf_usb_xferstatus_isochronous_xfr = -1;
+static int hf_usb_xferstatus_curr_dma_set = -1;
+static int hf_usb_xferstatus_can_cancel_immed = -1;
+static int hf_usb_xferstatus_doing_callback = -1;
 static int hf_usb_error = -1;
 static int hf_usb_interval = -1;
 static int hf_usb_nframes = -1;
@@ -61,6 +90,8 @@ static int hf_usb_packet_count = -1;
 static int hf_usb_speed = -1;
 static int hf_usb_frame_length = -1;
 static int hf_usb_frame_flags = -1;
+static int hf_usb_frame_flags_read = -1;
+static int hf_usb_frame_flags_data_follows = -1;
 static int hf_usb_urb_id = -1;
 static int hf_usb_linux_urb_type = -1;
 static int hf_usb_linux_transfer_type = -1;
@@ -211,7 +242,10 @@ static gint ett_configuration_bmAttributes = -1;
 static gint ett_configuration_bEndpointAddress = -1;
 static gint ett_endpoint_bmAttributes = -1;
 static gint ett_endpoint_wMaxPacketSize = -1;
+static gint ett_usb_xferflags = -1;
+static gint ett_usb_xferstatus = -1;
 static gint ett_usb_frame = -1;
+static gint ett_usb_frame_flags = -1;
 
 static expert_field ei_usb_bLength_even = EI_INIT;
 static expert_field ei_usb_bLength_too_short = EI_INIT;
@@ -533,6 +567,19 @@ static const value_string usb_freebsd_transfer_type_vals[] = {
 #define FREEBSD_FLAG_NO_PIPE_OK       0x00000080
 #define FREEBSD_FLAG_STALL_PIPE       0x00000100
 
+static const int *usb_xferflags_fields[] = {
+    &hf_usb_xferflags_force_short_xfer,
+    &hf_usb_xferflags_short_xfer_ok,
+    &hf_usb_xferflags_short_frames_ok,
+    &hf_usb_xferflags_pipe_bof,
+    &hf_usb_xferflags_proxy_buffer,
+    &hf_usb_xferflags_ext_buffer,
+    &hf_usb_xferflags_manual_status,
+    &hf_usb_xferflags_no_pipe_ok,
+    &hf_usb_xferflags_stall_pipe,
+    NULL
+};
+
 /* Transfer status */
 #define FREEBSD_STATUS_OPEN              0x00000001
 #define FREEBSD_STATUS_TRANSFERRING      0x00000002
@@ -554,6 +601,30 @@ static const value_string usb_freebsd_transfer_type_vals[] = {
 #define FREEBSD_STATUS_CURR_DMA_SET      0x00020000
 #define FREEBSD_STATUS_CAN_CANCEL_IMMED  0x00040000
 #define FREEBSD_STATUS_DOING_CALLBACK    0x00080000
+
+static const int *usb_xferstatus_fields[] = {
+    &hf_usb_xferstatus_open,
+    &hf_usb_xferstatus_transferring,
+    &hf_usb_xferstatus_did_dma_delay,
+    &hf_usb_xferstatus_did_close,
+    &hf_usb_xferstatus_draining,
+    &hf_usb_xferstatus_started,
+    &hf_usb_xferstatus_bw_reclaimed,
+    &hf_usb_xferstatus_control_xfr,
+    &hf_usb_xferstatus_control_hdr,
+    &hf_usb_xferstatus_control_act,
+    &hf_usb_xferstatus_control_stall,
+    &hf_usb_xferstatus_short_frames_ok,
+    &hf_usb_xferstatus_short_xfer_ok,
+    &hf_usb_xferstatus_bdma_enable,
+    &hf_usb_xferstatus_bdma_no_post_sync,
+    &hf_usb_xferstatus_bdma_setup,
+    &hf_usb_xferstatus_isochronous_xfr,
+    &hf_usb_xferstatus_curr_dma_set,
+    &hf_usb_xferstatus_can_cancel_immed,
+    &hf_usb_xferstatus_doing_callback,
+    NULL
+};
 
 /* USB errors */
 #define FREEBSD_ERR_NORMAL_COMPLETION 0
@@ -638,6 +709,12 @@ static const value_string usb_freebsd_speed_vals[] = {
 /* Frame flags */
 #define FREEBSD_FRAMEFLAG_READ         0x00000001
 #define FREEBSD_FRAMEFLAG_DATA_FOLLOWS 0x00000002
+
+static const int *usb_frame_flags_fields[] = {
+    &hf_usb_frame_flags_read,
+    &hf_usb_frame_flags_data_follows,
+    NULL
+};
 
 static const value_string usb_linux_urb_type_vals[] = {
     {URB_SUBMIT,   "URB_SUBMIT"},
@@ -3843,8 +3920,10 @@ dissect_freebsd_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, void 
     proto_tree_add_item(tree, hf_usb_mode, tvb, 9, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_usb_freebsd_urb_type, tvb, 10, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_usb_freebsd_transfer_type, tvb, 11, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, hf_usb_xferflags, tvb, 12, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, hf_usb_xferstatus, tvb, 16, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, 12, hf_usb_xferflags, ett_usb_xferflags,
+                           usb_xferflags_fields, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, 16, hf_usb_xferstatus, ett_usb_xferstatus,
+                           usb_xferstatus_fields, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_usb_error, tvb, 20, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_usb_interval, tvb, 24, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item_ret_uint(tree, hf_usb_nframes, tvb, 28, 4, ENC_LITTLE_ENDIAN, &nframes);
@@ -3856,11 +3935,15 @@ dissect_freebsd_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, void 
     offset += 128;
     for (i = 0; i < nframes; i++) {
         guint32 framelen;
-        guint32 frameflags;
+        guint64 frameflags;
 
         frame_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_usb_frame, &ti, "Frame %u", i);
         proto_tree_add_item_ret_uint(frame_tree, hf_usb_frame_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &framelen);
-        proto_tree_add_item_ret_uint(frame_tree, hf_usb_frame_flags, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN, &frameflags);
+        proto_tree_add_bitmask_ret_uint64(frame_tree, tvb, offset + 4,
+                                          hf_usb_frame_flags,
+                                          ett_usb_frame_flags,
+                                          usb_frame_flags_fields,
+                                          ENC_LITTLE_ENDIAN, &frameflags);
         offset += 8;
         if (frameflags & FREEBSD_FRAMEFLAG_DATA_FOLLOWS)
             offset += (framelen + 3) & ~3;
@@ -4217,9 +4300,154 @@ proto_register_usb(void)
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_usb_xferflags_force_short_xfer,
+          { "Force short transfer", "usb.xferflags.force_short_xfer",
+            FT_BOOLEAN, 32, NULL, FREEBSD_FLAG_FORCE_SHORT_XFER,
+            NULL, HFILL }},
+
+        { &hf_usb_xferflags_short_xfer_ok,
+          { "Short transfer OK", "usb.xferflags.short_xfer_ok",
+            FT_BOOLEAN, 32, NULL, FREEBSD_FLAG_SHORT_XFER_OK,
+            NULL, HFILL }},
+
+        { &hf_usb_xferflags_short_frames_ok,
+          { "Short frames OK", "usb.xferflags.short_frames_ok",
+            FT_BOOLEAN, 32, NULL, FREEBSD_FLAG_SHORT_FRAMES_OK,
+            NULL, HFILL }},
+
+        { &hf_usb_xferflags_pipe_bof,
+          { "Pipe BOF", "usb.xferflags.pipe_bof",
+            FT_BOOLEAN, 32, NULL, FREEBSD_FLAG_PIPE_BOF,
+            NULL, HFILL }},
+
+        { &hf_usb_xferflags_proxy_buffer,
+          { "Proxy buffer", "usb.xferflags.proxy_buffer",
+            FT_BOOLEAN, 32, NULL, FREEBSD_FLAG_PROXY_BUFFER,
+            NULL, HFILL }},
+
+        { &hf_usb_xferflags_ext_buffer,
+          { "External buffer", "usb.xferflags.ext_buffer",
+            FT_BOOLEAN, 32, NULL, FREEBSD_FLAG_EXT_BUFFER,
+            NULL, HFILL }},
+
+        { &hf_usb_xferflags_manual_status,
+          { "Manual status", "usb.xferflags.manual_status",
+            FT_BOOLEAN, 32, NULL, FREEBSD_FLAG_MANUAL_STATUS,
+            NULL, HFILL }},
+
+        { &hf_usb_xferflags_no_pipe_ok,
+          { "No pipe OK", "usb.xferflags.no_pipe_ok",
+            FT_BOOLEAN, 32, NULL, FREEBSD_FLAG_NO_PIPE_OK,
+            NULL, HFILL }},
+
+        { &hf_usb_xferflags_stall_pipe,
+          { "Stall pipe", "usb.xferflags.stall_pipe",
+            FT_BOOLEAN, 32, NULL, FREEBSD_FLAG_STALL_PIPE,
+            NULL, HFILL }},
+
         { &hf_usb_xferstatus,
           { "Transfer status", "usb.xferstatus",
             FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus_open,
+          { "Pipe has been opened", "usb.xferstatus.open",
+            FT_BOOLEAN, 32, NULL, FREEBSD_STATUS_OPEN,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus_transferring,
+          { "Transfer in progress", "usb.xferstatus.transferring",
+            FT_BOOLEAN, 32, NULL, FREEBSD_STATUS_TRANSFERRING,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus_did_dma_delay,
+          { "Waited for hardware DMA", "usb.xferstatus.did_dma_delay",
+            FT_BOOLEAN, 32, NULL, FREEBSD_STATUS_DID_DMA_DELAY,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus_did_close,
+          { "Transfer closed", "usb.xferstatus.did_close",
+            FT_BOOLEAN, 32, NULL, FREEBSD_STATUS_DID_CLOSE,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus_draining,
+          { "Draining transfer", "usb.xferstatus.draining",
+            FT_BOOLEAN, 32, NULL, FREEBSD_STATUS_DRAINING,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus_started,
+          { "Transfer started", "usb.xferstatus.started",
+            FT_BOOLEAN, 32, NULL, FREEBSD_STATUS_STARTED,
+            "Whether the transfer is started or stopped", HFILL }},
+
+        { &hf_usb_xferstatus_bw_reclaimed,
+          { "Bandwidth reclaimed", "usb.xferstatus.bw_reclaimed",
+            FT_BOOLEAN, 32, NULL, FREEBSD_STATUS_BW_RECLAIMED,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus_control_xfr,
+          { "Control transfer", "usb.xferstatus.control_xfr",
+            FT_BOOLEAN, 32, NULL, FREEBSD_STATUS_CONTROL_XFR,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus_control_hdr,
+          { "Control header being sent", "usb.xferstatus.control_hdr",
+            FT_BOOLEAN, 32, NULL, FREEBSD_STATUS_CONTROL_HDR,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus_control_act,
+          { "Control transfer active", "usb.xferstatus.control_act",
+            FT_BOOLEAN, 32, NULL, FREEBSD_STATUS_CONTROL_ACT,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus_control_stall,
+          { "Control transfer should be stalled", "usb.xferstatus.control_stall",
+            FT_BOOLEAN, 32, NULL, FREEBSD_STATUS_CONTROL_STALL,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus_short_frames_ok,
+          { "Short frames OK", "usb.xferstatus.short_frames_ok",
+            FT_BOOLEAN, 32, NULL, FREEBSD_STATUS_SHORT_FRAMES_OK,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus_short_xfer_ok,
+          { "Short transfer OK", "usb.xferstatus.short_xfer_ok",
+            FT_BOOLEAN, 32, NULL, FREEBSD_STATUS_SHORT_XFER_OK,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus_bdma_enable,
+          { "BUS-DMA enabled", "usb.xferstatus.bdma_enable",
+            FT_BOOLEAN, 32, NULL, FREEBSD_STATUS_BDMA_ENABLE,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus_bdma_no_post_sync,
+          { "BUS-DMA post sync op not done", "usb.xferstatus.bdma_no_post_sync",
+            FT_BOOLEAN, 32, NULL, FREEBSD_STATUS_BDMA_NO_POST_SYNC,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus_bdma_setup,
+          { "BUS-DMA set up", "usb.xferstatus.bdma_setup",
+            FT_BOOLEAN, 32, NULL, FREEBSD_STATUS_BDMA_SETUP,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus_isochronous_xfr,
+          { "Isochronous transfer", "usb.xferstatus.isochronous_xfr",
+            FT_BOOLEAN, 32, NULL, FREEBSD_STATUS_ISOCHRONOUS_XFR,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus_curr_dma_set,
+          { "Current DMA set", "usb.xferstatus.curr_dma_set",
+            FT_UINT32, BASE_DEC, NULL, FREEBSD_STATUS_CURR_DMA_SET,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus_can_cancel_immed,
+          { "Transfer can be cancelled immediately", "usb.xferstatus.can_cancel_immed",
+            FT_BOOLEAN, 32, NULL, FREEBSD_STATUS_CAN_CANCEL_IMMED,
+            NULL, HFILL }},
+
+        { &hf_usb_xferstatus_doing_callback,
+          { "Executing the callback", "usb.xferstatus.doing_callback",
+            FT_BOOLEAN, 32, NULL, FREEBSD_STATUS_DOING_CALLBACK,
             NULL, HFILL }},
 
         { &hf_usb_error,
@@ -4260,6 +4488,16 @@ proto_register_usb(void)
         { &hf_usb_frame_flags,
           { "Frame flags", "usb.frame.flags",
             FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_frame_flags_read,
+          { "Data direction is read", "usb.frame.read",
+            FT_BOOLEAN, 32, NULL, FREEBSD_FRAMEFLAG_READ,
+            NULL, HFILL }},
+
+        { &hf_usb_frame_flags_data_follows,
+          { "Frame contains data", "usb.frame.data_follows",
+            FT_BOOLEAN, 32, NULL, FREEBSD_FRAMEFLAG_DATA_FOLLOWS,
             NULL, HFILL }},
 
         { &hf_usb_urb_id,
@@ -4921,7 +5159,10 @@ proto_register_usb(void)
         &ett_usb_isodesc,
         &ett_usb_win32_iso_packet,
         &ett_usb_endpoint,
+        &ett_usb_xferflags,
+        &ett_usb_xferstatus,
         &ett_usb_frame,
+        &ett_usb_frame_flags,
         &ett_usb_setup_bmrequesttype,
         &ett_usb_usbpcap_info,
         &ett_descriptor_device,
