@@ -6190,7 +6190,7 @@ proto_register_bootp(void)
 		    NULL, HFILL }},
 
 		{ &hf_bootp_client_identifier_enterprise_num,
-		  { "Enterprise-number", "bootp.client_id.iaid",
+		  { "Enterprise-number", "bootp.client_id.enterprise_num",
 		    FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0,
 		    NULL, HFILL }},
 

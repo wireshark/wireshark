@@ -5242,13 +5242,13 @@ proto_register_17221(void)
 
       /* SET_CLOCK_SOURCE / GET_CLOCK_SOURCE */
       { &hf_aecp_clock_source_id,
-         { "Clock Source ID", "ieee17221.clock_source_id",
+         { "Clock Source ID", "ieee17221.clock_source_id64",
             FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
 
       /* SET_STREAM_FORMAT */
       { &hf_aecp_stream_format,
-         {"Stream Format", "ieee17221.stream_format",
+         {"Stream Format", "ieee17221.stream_format64",
             FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
       /* GET_STREAM_FORMAT */

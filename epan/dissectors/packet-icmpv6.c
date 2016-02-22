@@ -5247,13 +5247,13 @@ proto_register_icmpv6(void)
           { "Num of Locs", "icmpv6.ilnp.nb_locs", FT_UINT8, BASE_DEC, NULL, 0x0,
             "The number of 64-bit Locator values that are advertised in this message", HFILL }},
         { &hf_icmpv6_ilnp_locator,
-          { "Locator", "icmpv6.ilnp.nb_locs", FT_UINT64, BASE_HEX, NULL, 0x0,
+          { "Locator", "icmpv6.ilnp.nb_locator", FT_UINT64, BASE_HEX, NULL, 0x0,
             "The 64-bit Locator values currently valid for the sending ILNPv6 node", HFILL }},
         { &hf_icmpv6_ilnp_preference,
-          { "Preference", "icmpv6.ilnp.nb_locs", FT_UINT32, BASE_DEC, NULL, 0x0,
+          { "Preference", "icmpv6.ilnp.nb_preference", FT_UINT32, BASE_DEC, NULL, 0x0,
             "The preferability of each Locator relative to other valid Locator values", HFILL }},
         { &hf_icmpv6_ilnp_lifetime,
-          { "Lifetime", "icmpv6.ilnp.nb_locs", FT_UINT32, BASE_DEC, NULL, 0x0,
+          { "Lifetime", "icmpv6.ilnp.nb_lifetime", FT_UINT32, BASE_DEC, NULL, 0x0,
             "The maximum number of seconds that this particular Locator may be considered valid", HFILL }},
 
         /* 6lowpan-nd: Neighbour Discovery for 6LoWPAN Networks */

@@ -7050,7 +7050,7 @@ proto_register_afp(void)
 		    NULL, HFILL }},
 
 		{ &hf_afp_unknown,
-		  { "Unknown parameter",         "afp.unknown",
+		  { "Unknown parameter",         "afp.unknown_bytes",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
@@ -7253,7 +7253,7 @@ proto_register_afp(void)
 		{ &ei_afp_abnormal_num_subqueries, { "afp.abnormal_num_subqueries", PI_PROTOCOL, PI_WARN, "Abnormal number of subqueries", EXPFILL }},
 		{ &ei_afp_too_many_acl_entries, { "afp.too_many_acl_entries", PI_UNDECODED, PI_WARN, "Too many ACL entries", EXPFILL }},
 		{ &ei_afp_ip_port_reused, { "afp.ip_port_reused", PI_SEQUENCE, PI_WARN, "IP port reused, you need to split the capture file", EXPFILL }},
-		{ &ei_afp_toc_offset, { "afp.toc_offset", PI_PROTOCOL, PI_WARN, "ToC offset bogus", EXPFILL }},
+		{ &ei_afp_toc_offset, { "afp.toc_offset.bogus", PI_PROTOCOL, PI_WARN, "ToC offset bogus", EXPFILL }},
 	};
 	expert_module_t* expert_afp;
 

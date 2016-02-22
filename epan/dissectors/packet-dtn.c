@@ -2175,7 +2175,7 @@ proto_register_bundle(void)
           FT_BOOLEAN, 8, NULL, BUNDLE_PROCFLAGS_APP_ACK_MASK, NULL, HFILL}
         },
         {&hf_bundle_control_flags,
-         {"Bundle Processing Control Flags", "bundle.primary.proc.flag",
+         {"Bundle Processing Control Flags", "bundle.control.flag",
           FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_procflags_general,
@@ -2243,7 +2243,7 @@ proto_register_bundle(void)
           FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_primary_timestamp_seq_num64,
-         {"Timestamp Sequence Number", "bundle.primary.timestamp_seq_num",
+         {"Timestamp Sequence Number", "bundle.primary.timestamp_seq_num64",
           FT_INT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_primary_timestamp_seq_num32,
@@ -2255,67 +2255,67 @@ proto_register_bundle(void)
           FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_dest_scheme_offset_u16,
-         {"Destination Scheme Offset", "bundle.primary.destschemeoff",
+         {"Destination Scheme Offset", "bundle.primary.destschemeoff_u16",
           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_dest_scheme_offset_i32,
-         {"Destination Scheme Offset", "bundle.primary.destschemeoff",
+         {"Destination Scheme Offset", "bundle.primary.destschemeoff_i32",
           FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_dest_ssp_offset_u16,
-         {"Destination SSP Offset", "bundle.primary.destssspoff",
+         {"Destination SSP Offset", "bundle.primary.destssspoff_u16",
           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_dest_ssp_offset_i32,
-         {"Destination SSP Offset", "bundle.primary.destssspoff",
+         {"Destination SSP Offset", "bundle.primary.destssspoff_i32",
           FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_source_scheme_offset_u16,
-         {"Source Scheme Offset", "bundle.primary.srcschemeoff",
+         {"Source Scheme Offset", "bundle.primary.srcschemeoff_u16",
           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_source_scheme_offset_i32,
-         {"Source Scheme Offset", "bundle.primary.srcschemeoff",
+         {"Source Scheme Offset", "bundle.primary.srcschemeoff_i32",
           FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_source_ssp_offset_u16,
-         {"Source SSP Offset", "bundle.primary.srcsspoff",
+         {"Source SSP Offset", "bundle.primary.srcsspoff_u16",
           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_source_ssp_offset_i32,
-         {"Source SSP Offset", "bundle.primary.srcsspoff",
+         {"Source SSP Offset", "bundle.primary.srcsspoff_i32",
           FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_report_scheme_offset_u16,
-         {"Report Scheme Offset", "bundle.primary.rptschemeoff",
+         {"Report Scheme Offset", "bundle.primary.rptschemeoff_u16",
           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_report_scheme_offset_i32,
-         {"Report Scheme Offset", "bundle.primary.rptschemeoff",
+         {"Report Scheme Offset", "bundle.primary.rptschemeoff_i32",
           FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_report_ssp_offset_u16,
-         {"Report SSP Offset", "bundle.primary.rptsspoff",
+         {"Report SSP Offset", "bundle.primary.rptsspoff_u16",
           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_report_ssp_offset_i32,
-         {"Report SSP Offset", "bundle.primary.rptsspoff",
+         {"Report SSP Offset", "bundle.primary.rptsspoff_i32",
           FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_cust_scheme_offset_u16,
-         {"Custodian Scheme Offset", "bundle.primary.custschemeoff",
+         {"Custodian Scheme Offset", "bundle.primary.custschemeoff_u16",
           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_cust_scheme_offset_i32,
-         {"Custodian Scheme Offset", "bundle.primary.custschemeoff",
+         {"Custodian Scheme Offset", "bundle.primary.custschemeoff_i32",
           FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_cust_ssp_offset_u16,
-         {"Custodian SSP Offset", "bundle.primary.custsspoff",
+         {"Custodian SSP Offset", "bundle.primary.custsspoff_u16",
           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_cust_ssp_offset_i32,
-         {"Custodian SSP Offset", "bundle.primary.custsspoff",
+         {"Custodian SSP Offset", "bundle.primary.custsspoff_i32",
           FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_dest_scheme,
@@ -2359,7 +2359,7 @@ proto_register_bundle(void)
           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_lifetime_sdnv,
-         {"Lifetime", "bundle.primary.lifetime",
+         {"Lifetime", "bundle.primary.lifetime_sdnv",
           FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_payload_length,
@@ -2435,7 +2435,7 @@ proto_register_bundle(void)
           FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_admin_timestamp_seq_num64,
-         {"Timestamp Sequence Number", "bundle.admin.timestamp_seq_num",
+         {"Timestamp Sequence Number", "bundle.admin.timestamp_seq_num64",
           FT_INT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_bundle_admin_timestamp_seq_num32,

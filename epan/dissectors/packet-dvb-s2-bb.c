@@ -1031,7 +1031,7 @@ void proto_register_dvb_s2_modeadapt(void)
                 "Protocol Type", HFILL}
         },
         {&hf_dvb_s2_gse_label6, {
-                "Label", "dvb-s2_gse.label",
+                "Label", "dvb-s2_gse.label_ether",
                 FT_ETHER, BASE_NONE, NULL, 0x0,
                 "Label Field", HFILL}
         },

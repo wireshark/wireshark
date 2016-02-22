@@ -1000,7 +1000,7 @@ ssl_common_dissect_t name = {   \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_cert_url_url,                                   \
-      { "URL", prefix ".handshake.cert_url.url_hash_len",               \
+      { "URL", prefix ".handshake.cert_url.url",                        \
         FT_STRING, BASE_NONE, NULL, 0x0,                                \
         "URL used to fetch the certificate(s)", HFILL }                 \
     },                                                                  \

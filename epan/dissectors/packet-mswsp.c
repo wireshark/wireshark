@@ -6981,14 +6981,14 @@ proto_register_mswsp(void)
 		{
 			&hf_mswsp_rangeboundry_cclabel,
 			{
-				"ccLabel", "mswsp.rangeboundry.ultype",
+				"ccLabel", "mswsp.rangeboundry.cclabel",
 				FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL
 			}
 		},
 		{
 			&hf_mswsp_rangeboundry_label,
 			{
-				"Label", "mswsp.rangeboundry.ultype",
+				"Label", "mswsp.rangeboundry.label",
 				FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
 			}
 		},
@@ -7233,7 +7233,7 @@ proto_register_mswsp(void)
 		{
 			&hf_mswsp_arrayvector_address32,
 			{
-				"address of array", "mswsp.arrayvector.address64",
+				"address of array", "mswsp.arrayvector.address",
 				FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL
 			}
 		},

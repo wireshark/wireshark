@@ -1460,7 +1460,7 @@ proto_register_mikey(void)
 		    FT_UINT8, BASE_DEC, VALS(payload_vals), 0x0,
 		    NULL, HFILL }},
 		{ &hf_mikey[POS_HDR_V],
-		  { "V", "mikey.v",
+		  { "V", "mikey.v.set",
 		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
 		    NULL, HFILL }},
 		{ &hf_mikey[POS_HDR_PRF_FUNC],

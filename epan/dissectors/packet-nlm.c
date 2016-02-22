@@ -1137,13 +1137,13 @@ proto_register_nlm(void)
 			"svid", "nlm.lock.svid", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_lock_l_offset64, {
-			"l_offset", "nlm.lock.l_offset", FT_UINT64, BASE_DEC,
+			"l_offset", "nlm.lock.l_offset64", FT_UINT64, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_lock_l_offset, {
 			"l_offset", "nlm.lock.l_offset", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_lock_l_len64, {
-			"l_len", "nlm.lock.l_len", FT_UINT64, BASE_DEC,
+			"l_len", "nlm.lock.l_len64", FT_UINT64, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_lock_l_len, {
 			"l_len", "nlm.lock.l_len", FT_UINT32, BASE_DEC,

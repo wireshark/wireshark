@@ -7508,7 +7508,7 @@ proto_register_ceph(void)
 			NULL, HFILL
 		} },
 		{ &hf_pgpool_tier, {
-			"Tier", "ceph.msg.",
+			"Tier", "ceph.msg.tier",
 			FT_UINT64, BASE_HEX, NULL, 0,
 			"A pool that is a tier of this tier.", HFILL
 		} },
@@ -7578,7 +7578,7 @@ proto_register_ceph(void)
 			"Fraction of cache to leave dirty.", HFILL
 		} },
 		{ &hf_pgpool_cache_targetfullratio, {
-			"Cache Target Full Ratio", "ceph.msg.",
+			"Cache Target Full Ratio", "ceph.msg.targetfullratio",
 			FT_UINT32, BASE_DEC, NULL, 0,
 			"Fraction of target to fill before evicting in earnest.", HFILL
 		} },
@@ -8889,7 +8889,7 @@ proto_register_ceph(void)
 			"The priority of this message, higher the more urgent.", HFILL
 		} },
 		{ &hf_head_version, {
-			"Version", "ceph.version",
+			"Version", "ceph.head_version",
 			FT_UINT16, BASE_DEC, NULL, 0,
 			NULL, HFILL
 		} },

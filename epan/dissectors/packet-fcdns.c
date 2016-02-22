@@ -282,7 +282,7 @@ static header_field_info hfi_fcdns_rply_nname FCDNS_HFI_INIT =
            HFILL};
 
 static header_field_info hfi_fcdns_rply_gft FCDNS_HFI_INIT =
-          {"FC-4 Types Supported", "fcdns.rply.fc4type", FT_NONE, BASE_NONE,
+          {"FC-4 Types Supported", "fcdns.rply.gft", FT_NONE, BASE_NONE,
            NULL, 0x0, NULL, HFILL};
 
 static header_field_info hfi_fcdns_rply_snamelen FCDNS_HFI_INIT =
@@ -302,7 +302,7 @@ static header_field_info hfi_fcdns_rply_fpname FCDNS_HFI_INIT =
            0x0, NULL, HFILL};
 
 static header_field_info hfi_fcdns_fc4type FCDNS_HFI_INIT =
-          {"FC-4 Types", "fcdns.req.fc4type", FT_NONE, BASE_NONE,
+          {"FC-4 Types", "fcdns.req.fc4types", FT_NONE, BASE_NONE,
            NULL, 0x0, NULL, HFILL};
 
 static header_field_info hfi_fcdns_rply_fc4type FCDNS_HFI_INIT =

@@ -3987,49 +3987,49 @@ proto_register_dnp3(void)
     },
 
     { &hf_dnp3_al_ana16,
-      { "Value (16 bit)", "dnp3.al.ana",
+      { "Value (16 bit)", "dnp3.al.ana.int",
           FT_INT16, BASE_DEC, NULL, 0x0,
           "Analog Value (16 bit)", HFILL }
     },
 
     { &hf_dnp3_al_ana32,
-      { "Value (32 bit)", "dnp3.al.ana",
+      { "Value (32 bit)", "dnp3.al.ana.int",
           FT_INT32, BASE_DEC, NULL, 0x0,
           "Analog Value (32 bit)", HFILL }
     },
 
     { &hf_dnp3_al_anaflt,
-      { "Value (float)", "dnp3.al.ana",
+      { "Value (float)", "dnp3.al.ana.float",
           FT_FLOAT, BASE_NONE, NULL, 0x0,
           "Analog Value (float)", HFILL }
     },
 
     { &hf_dnp3_al_anadbl,
-      { "Value (double)", "dnp3.al.ana",
+      { "Value (double)", "dnp3.al.ana.double",
           FT_DOUBLE, BASE_NONE, NULL, 0x0,
           "Analog Value (double)", HFILL }
     },
 
     { &hf_dnp3_al_anaout16,
-      { "Output Value (16 bit)", "dnp3.al.anaout",
+      { "Output Value (16 bit)", "dnp3.al.anaout.int",
           FT_INT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
     },
 
     { &hf_dnp3_al_anaout32,
-      { "Output Value (32 bit)", "dnp3.al.anaout",
+      { "Output Value (32 bit)", "dnp3.al.anaout.int",
           FT_INT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
     },
 
     { &hf_dnp3_al_anaoutflt,
-      { "Output Value (float)", "dnp3.al.anaout",
+      { "Output Value (float)", "dnp3.al.anaout.float",
           FT_FLOAT, BASE_NONE, NULL, 0x0,
           NULL, HFILL }
     },
 
     { &hf_dnp3_al_anaoutdbl,
-      { "Output (double)", "dnp3.al.anaout",
+      { "Output (double)", "dnp3.al.anaout.double",
           FT_DOUBLE, BASE_NONE, NULL, 0x0,
           "Output Value (double)", HFILL }
     },

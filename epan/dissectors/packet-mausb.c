@@ -2106,7 +2106,7 @@ proto_register_mausb(void)
             }
         },
         { &hf_mausb_clear_transfers_status_block,
-            { "Cancel Transfers Status Block", "mausb.clear_transfers.status", FT_NONE, 0,
+            { "Cancel Transfers Status Block", "mausb.clear_transfers.status_block", FT_NONE, 0,
               NULL, 0, NULL, HFILL
             }
         },

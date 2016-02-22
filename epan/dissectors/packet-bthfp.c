@@ -2525,7 +2525,7 @@ proto_register_bthfp(void)
            NULL, HFILL}
         },
         { &hf_chld_mode,
-           { "Mode",                             "bthfp.chld.mode",
+           { "Mode",                             "bthfp.chld.mode_value",
            FT_UINT8, BASE_DEC, VALS(chld_vals), 0,
            NULL, HFILL}
         },

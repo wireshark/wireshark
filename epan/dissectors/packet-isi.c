@@ -2058,7 +2058,7 @@ proto_register_isi(void)
 		{ &hf_isi_network_status_sub_cid,
 		  { "Cell ID (CID)", "isi.network.sub.cid", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_isi_network_status_sub_msg_len,
-		  { "Message Length", "isi.network.sub.msg", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		  { "Message Length", "isi.network.sub.msg_len", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_isi_network_status_sub_msg,
 		  { "Message", "isi.network.sub.msg", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_isi_network_cell_info_sub_type,
