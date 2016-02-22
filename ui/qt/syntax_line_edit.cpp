@@ -331,6 +331,7 @@ void SyntaxLineEdit::insertFieldCompletion(const QString &completion_text)
     QString new_text = text().replace(field_coords.x(), field_coords.y(), completion_text);
     setText(new_text);
     setCursorPosition(field_coords.x() + completion_text.length());
+    emit textEdited(new_text);
 }
 
 QPoint SyntaxLineEdit::getTokenUnderCursor()
