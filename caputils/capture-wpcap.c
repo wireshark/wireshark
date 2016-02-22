@@ -813,7 +813,8 @@ get_interface_list(int *err, char **err_str)
 		 * interfaces.
 		 */
 		*err = DONT_HAVE_PCAP;
-		*err_str = cant_load_winpcap_err("you");
+		if (err_str != NULL)
+			*err_str = cant_load_winpcap_err("you");
 		return NULL;
 	}
 
