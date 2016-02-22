@@ -54,12 +54,12 @@ static header_field_info cisco_erspan_info CISCO_ERSPAN_MARKER_HFI_INIT =
 
 static header_field_info cisco_erspan_version CISCO_ERSPAN_MARKER_HFI_INIT =
 { "Version", "cisco_erspan_marker.version",
-  FT_UINT16, BASE_DEC, NULL, 0xf000,
+  FT_UINT16, BASE_DEC, NULL, 0x0f00,
   NULL, HFILL };
 
 static header_field_info cisco_erspan_type CISCO_ERSPAN_MARKER_HFI_INIT =
 { "Type", "cisco_erspan_marker.type",
-  FT_UINT16, BASE_DEC, NULL, 0x0f00,
+  FT_UINT16, BASE_DEC, NULL, 0xf000,
   NULL, HFILL };
 
 static header_field_info cisco_erspan_ssid CISCO_ERSPAN_MARKER_HFI_INIT =
@@ -135,16 +135,16 @@ dissect_marker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_tree_add_item(marker_tree, &cisco_erspan_info, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(marker_tree, &cisco_erspan_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(marker_tree, &cisco_erspan_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(marker_tree, &cisco_erspan_ssid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(marker_tree, &cisco_erspan_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(marker_tree, &cisco_erspan_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(marker_tree, &cisco_erspan_ssid, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(marker_tree, &cisco_erspan_granularity, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(marker_tree, &cisco_erspan_utcoffset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(marker_tree, &cisco_erspan_granularity, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(marker_tree, &cisco_erspan_utcoffset, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+= 2;
 
-    proto_tree_add_item(marker_tree, &cisco_erspan_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(marker_tree, &cisco_erspan_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
     proto_tree_add_item(marker_tree, &cisco_erspan_utc_sec, tvb, offset, 4, ENC_LITTLE_ENDIAN);
