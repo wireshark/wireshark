@@ -41152,6 +41152,7 @@ dissect_lte_rrc_T_gnss_TOD_msec_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
     asn1_ctx_t asn1_ctx;
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, actx->pinfo);
     dissect_per_constrained_integer(gnss_tod_msec_tvb, 0, &asn1_ctx, tree, hf_index, 0U, 3599999U, NULL, FALSE);
+    proto_item_append_text(actx->created_item, "ms");
   }
 
 
