@@ -24,12 +24,11 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <glib/gprintf.h>
+#include "extcap-base.h"
+
 #include <glib/gstdio.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
@@ -104,19 +103,16 @@
 
 #define DEFAULT_CAPTURE_BIN "dumpcap"
 
+#define verbose_print(...) { if (verbose) printf(__VA_ARGS__); }
+#define errmsg_print(...) { fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); }
+
 static gboolean verbose = FALSE;
 
 enum {
-	OPT_HELP = 1,
+	EXTCAP_BASE_OPTIONS_ENUM,
+	OPT_HELP,
 	OPT_VERSION,
 	OPT_VERBOSE,
-	OPT_LIST_INTERFACES,
-	OPT_LIST_DLTS,
-	OPT_INTERFACE,
-	OPT_CONFIG,
-	OPT_CAPTURE,
-	OPT_FIFO,
-	OPT_EXTCAP_FILTER,
 	OPT_REMOTE_HOST,
 	OPT_REMOTE_PORT,
 	OPT_REMOTE_USERNAME,
@@ -130,17 +126,10 @@ enum {
 };
 
 static struct option longopts[] = {
-/* Generic application options */
+	EXTCAP_BASE_OPTIONS,
 	{ "help", no_argument, NULL, OPT_HELP},
 	{ "version", no_argument, NULL, OPT_VERSION},
 	{ "verbose", optional_argument, NULL, OPT_VERBOSE},
-	{ "extcap-interfaces", no_argument, NULL, OPT_LIST_INTERFACES},
-	{ "extcap-dlts", no_argument, NULL, OPT_LIST_DLTS},
-	{ "extcap-interface", required_argument, NULL, OPT_INTERFACE},
-	{ "extcap-config", no_argument, NULL, OPT_CONFIG},
-	{ "extcap-capture-filter", required_argument, NULL, OPT_EXTCAP_FILTER},
-	{ "capture", no_argument, NULL, OPT_CAPTURE},
-	{ "fifo", required_argument, NULL, OPT_FIFO},
 	{ "remote-host", required_argument, NULL, OPT_REMOTE_HOST},
 	{ "remote-port", required_argument, NULL, OPT_REMOTE_PORT},
 	{ "remote-username", required_argument, NULL, OPT_REMOTE_USERNAME},
@@ -153,9 +142,6 @@ static struct option longopts[] = {
 	{ "sshkey-passphrase", required_argument, NULL, OPT_SSHKEY_PASSPHRASE},
 	{ 0, 0, 0, 0}
 };
-
-#define verbose_print(...) { if (verbose) printf(__VA_ARGS__); }
-#define errmsg_print(...) { fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); }
 
 static char* local_interfaces_to_filter(unsigned int remote_port);
 
@@ -189,13 +175,13 @@ static ssh_session create_ssh_connection(const char* hostname, const unsigned in
 		return NULL;
 
 	if (ssh_options_set(sshs, SSH_OPTIONS_HOST, hostname)) {
-		errmsg_print("Can't set the hostname: %s\n", hostname);
+		errmsg_print("Can't set the hostname: %s", hostname);
 		goto failure;
 	}
 
 	if (port != 0) {
 		if (ssh_options_set(sshs, SSH_OPTIONS_PORT, &port)) {
-			errmsg_print("Can't set the port: %d\n", port);
+			errmsg_print("Can't set the port: %d", port);
 			goto failure;
 		}
 	}
@@ -204,15 +190,15 @@ static ssh_session create_ssh_connection(const char* hostname, const unsigned in
 		username = g_get_user_name();
 
 	if (ssh_options_set(sshs, SSH_OPTIONS_USER, username)) {
-		errmsg_print("Can't set the username: %s\n", username);
+		errmsg_print("Can't set the username: %s", username);
 		goto failure;
 	}
 
-	verbose_print("Opening ssh connection to %s@%s:%u\n", username, hostname, port);
+	verbose_print("Opening ssh connection to %s@%s:%u", username, hostname, port);
 
 	/* Connect to server */
 	if (ssh_connect(sshs) != SSH_OK) {
-		errmsg_print("Error connecting to %s@%s:%u (%s)\n", username, hostname, port,
+		errmsg_print("Error connecting to %s@%s:%u (%s)", username, hostname, port,
 			ssh_get_error(sshs));
 		goto failure;
 	}
@@ -264,7 +250,7 @@ static ssh_session create_ssh_connection(const char* hostname, const unsigned in
 		verbose_print("failed\n");
 	}
 
-	errmsg_print("Can't find a valid authentication. Disconnecting.\n");
+	errmsg_print("Can't find a valid authentication. Disconnecting.");
 
 	/* All authentication failed. Disconnect and return */
 	ssh_disconnect(sshs);
@@ -283,7 +269,7 @@ static void ssh_loop_read(ssh_channel channel, int fd)
 	do {
 		nbytes = ssh_channel_read(channel, buffer, SSH_READ_BLOCK_SIZE, 0);
 		if (write(fd, buffer, nbytes) != nbytes) {
-			errmsg_print("ERROR reading: %s\n", g_strerror(errno));
+			errmsg_print("ERROR reading: %s", g_strerror(errno));
 			return;
 		}
 	} while(nbytes > 0);
@@ -375,7 +361,7 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 		if (fd == -1) {
 			fd = open(fifo, O_WRONLY | O_CREAT, 0640);
 			if (fd == -1) {
-				errmsg_print("Error creating output file: %s\n", g_strerror(errno));
+				errmsg_print("Error creating output file: %s", g_strerror(errno));
 				return EXIT_FAILURE;
 			}
 		}
@@ -445,12 +431,12 @@ static int list_interfaces(void)
 static int list_dlts(const char *interface)
 {
 	if (!interface) {
-		printf("ERROR: No interface specified.\n");
+		errmsg_print("ERROR: No interface specified.");
 		return EXIT_FAILURE;
 	}
 
 	if (g_strcmp0(interface, SSH_EXTCAP_INTERFACE)) {
-		printf("ERROR: interface must be %s\n", SSH_EXTCAP_INTERFACE);
+		errmsg_print("ERROR: interface must be %s", SSH_EXTCAP_INTERFACE);
 		return EXIT_FAILURE;
 	}
 
@@ -531,12 +517,12 @@ static int list_config(char *interface, unsigned int remote_port)
 	char* ipfilter;
 
 	if (!interface) {
-		g_fprintf(stderr, "ERROR: No interface specified.\n");
+		errmsg_print("ERROR: No interface specified.");
 		return EXIT_FAILURE;
 	}
 
 	if (g_strcmp0(interface, SSH_EXTCAP_INTERFACE)) {
-		errmsg_print("ERROR: interface must be %s\n", SSH_EXTCAP_INTERFACE);
+		errmsg_print("ERROR: interface must be %s", SSH_EXTCAP_INTERFACE);
 		return EXIT_FAILURE;
 	}
 
@@ -732,7 +718,7 @@ int main(int argc, char **argv)
 		case OPT_REMOTE_PORT:
 			remote_port = (unsigned int)strtoul(optarg, NULL, 10);
 			if (remote_port > 65535 || remote_port == 0) {
-				printf("Invalid port: %s\n", optarg);
+				errmsg_print("Invalid port: %s", optarg);
 				return EXIT_FAILURE;
 			}
 			break;
@@ -775,7 +761,7 @@ int main(int argc, char **argv)
 			remote_capture_bin = g_strdup(optarg);
 			break;
 
-		case OPT_EXTCAP_FILTER:
+		case OPT_CAPTURE_FILTER:
 			if (extcap_filter)
 				g_free(extcap_filter);
 			extcap_filter = g_strdup(optarg);
@@ -793,17 +779,17 @@ int main(int argc, char **argv)
 
 		case ':':
 			/* missing option argument */
-			printf("Option '%s' requires an argument\n", argv[optind - 1]);
+			errmsg_print("Option '%s' requires an argument", argv[optind - 1]);
 			break;
 
 		default:
-			printf("Invalid option: %s\n", argv[optind - 1]);
+			errmsg_print("Invalid option: %s", argv[optind - 1]);
 			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind != argc) {
-		printf("Unexpected extra option: %s\n", argv[optind]);
+		errmsg_print("Unexpected extra option: %s", argv[optind]);
 		return EXIT_FAILURE;
 	}
 
@@ -820,7 +806,7 @@ int main(int argc, char **argv)
 	result = WSAStartup(MAKEWORD(1,1), &wsaData);
 	if (result != 0) {
 		if (verbose)
-			errmsg_print("ERROR: WSAStartup failed with error: %d\n", result);
+			errmsg_print("ERROR: WSAStartup failed with error: %d", result);
 		return 1;
 	}
 #endif  /* _WIN32 */
@@ -829,11 +815,11 @@ int main(int argc, char **argv)
 		char* filter;
 		int ret = 0;
 		if (!fifo) {
-			errmsg_print("ERROR: No FIFO or file specified\n");
+			errmsg_print("ERROR: No FIFO or file specified");
 			return 1;
 		}
 		if (g_strcmp0(interface, SSH_EXTCAP_INTERFACE)) {
-			errmsg_print("ERROR: invalid interface\n");
+			errmsg_print("ERROR: invalid interface");
 			return 1;
 		}
 		if (!remote_host) {

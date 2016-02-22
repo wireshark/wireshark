@@ -24,11 +24,10 @@
 
 #include "config.h"
 
+#include "extcap-base.h"
+
 #include "randpkt_core/randpkt_core.h"
 
-#include <glib.h>
-#include <glib/gprintf.h>
-#include <stdlib.h>
 
 #ifdef HAVE_GETOPT_H
 	#include <getopt.h>
@@ -66,27 +65,21 @@
 #define SOCKET_ERROR (-1)
 #endif
 
-#define verbose_print(...) { if (verbose) printf(__VA_ARGS__); }
-#define errmsg_print(...) { fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); }
-
 #define RANDPKT_EXTCAP_INTERFACE "randpkt"
 #define RANDPKTDUMP_VERSION_MAJOR 0
 #define RANDPKTDUMP_VERSION_MINOR 1
 #define RANDPKTDUMP_VERSION_RELEASE 0
 
+#define verbose_print(...) { if (verbose) printf(__VA_ARGS__); }
+#define errmsg_print(...) { fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); }
+
 static gboolean verbose = TRUE;
 
 enum {
-	OPT_HELP = 1,
+	EXTCAP_BASE_OPTIONS_ENUM,
+	OPT_HELP,
 	OPT_VERSION,
 	OPT_VERBOSE,
-	OPT_LIST_INTERFACES,
-	OPT_LIST_DLTS,
-	OPT_INTERFACE,
-	OPT_CONFIG,
-	OPT_CAPTURE,
-	OPT_CAPTURE_FILTER,
-	OPT_FIFO,
 	OPT_MAXBYTES,
 	OPT_COUNT,
 	OPT_RANDOM_TYPE,
@@ -95,19 +88,10 @@ enum {
 };
 
 static struct option longopts[] = {
-	/* Generic application options */
-	{ "help",					no_argument,      	NULL, OPT_HELP},
-	{ "version",				no_argument,      	NULL, OPT_VERSION},
+	EXTCAP_BASE_OPTIONS,
+	{ "help",					no_argument,		NULL, OPT_HELP},
+	{ "version",				no_argument,		NULL, OPT_VERSION},
 	{ "verbose",				optional_argument,	NULL, OPT_VERBOSE},
-	/* Extcap options */
-	{ "extcap-interfaces",		no_argument,      	NULL, OPT_LIST_INTERFACES},
-	{ "extcap-dlts",			no_argument,      	NULL, OPT_LIST_DLTS},
-	{ "extcap-interface",		required_argument,	NULL, OPT_INTERFACE},
-	{ "extcap-config",			no_argument,      	NULL, OPT_CONFIG},
-	{ "capture",				no_argument,      	NULL, OPT_CAPTURE},
-	{ "extcap-capture-filter	",	required_argument,	NULL, OPT_CAPTURE_FILTER},
-	{ "fifo",					required_argument,	NULL, OPT_FIFO},
-	/* Interfaces options */
 	{ "maxbytes",				required_argument,	NULL, OPT_MAXBYTES},
 	{ "count",					required_argument,	NULL, OPT_COUNT},
 	{ "random-type",			required_argument, 	NULL, OPT_RANDOM_TYPE},
@@ -215,12 +199,12 @@ static int list_config(char *interface)
 	unsigned list_num;
 
 	if (!interface) {
-		errmsg_print("ERROR: No interface specified.\n");
+		errmsg_print("ERROR: No interface specified.");
 		return EXIT_FAILURE;
 	}
 
 	if (g_strcmp0(interface, RANDPKT_EXTCAP_INTERFACE)) {
-		errmsg_print("ERROR: interface must be %s\n", RANDPKT_EXTCAP_INTERFACE);
+		errmsg_print("ERROR: interface must be %s", RANDPKT_EXTCAP_INTERFACE);
 		return EXIT_FAILURE;
 	}
 
@@ -255,12 +239,12 @@ static int list_config(char *interface)
 static int list_dlts(const char *interface)
 {
 	if (!interface) {
-		errmsg_print("ERROR: No interface specified.\n");
+		errmsg_print("ERROR: No interface specified.");
 		return EXIT_FAILURE;
 	}
 
 	if (g_strcmp0(interface, RANDPKT_EXTCAP_INTERFACE)) {
-		errmsg_print("ERROR: interface must be %s\n", RANDPKT_EXTCAP_INTERFACE);
+		errmsg_print("ERROR: interface must be %s", RANDPKT_EXTCAP_INTERFACE);
 		return EXIT_FAILURE;
 	}
 
@@ -355,7 +339,7 @@ int main(int argc, char *argv[])
 		case OPT_MAXBYTES:
 			maxbytes = atoi(optarg);
 			if (maxbytes > MAXBYTES_LIMIT) {
-				errmsg_print("randpktdump: Max bytes is %u\n", MAXBYTES_LIMIT);
+				errmsg_print("randpktdump: Max bytes is %u", MAXBYTES_LIMIT);
 				return 1;
 			}
 			break;
@@ -382,17 +366,17 @@ int main(int argc, char *argv[])
 
 		case ':':
 			/* missing option argument */
-			errmsg_print("Option '%s' requires an argument\n", argv[optind - 1]);
+			errmsg_print("Option '%s' requires an argument", argv[optind - 1]);
 			break;
 
 		default:
-			errmsg_print("Invalid option 1: %s\n", argv[optind - 1]);
+			errmsg_print("Invalid option 1: %s", argv[optind - 1]);
 			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind != argc) {
-		errmsg_print("Invalid option: %s\n", argv[optind]);
+		errmsg_print("Invalid option: %s", argv[optind]);
 		return EXIT_FAILURE;
 	}
 
@@ -407,7 +391,7 @@ int main(int argc, char *argv[])
 
 	/* Some sanity checks */
 	if ((random_type) && (all_random)) {
-		errmsg_print("You can specify only one between: --random-type, --all-random\n");
+		errmsg_print("You can specify only one between: --random-type, --all-random");
 		return EXIT_FAILURE;
 	}
 
@@ -421,19 +405,19 @@ int main(int argc, char *argv[])
 	result = WSAStartup(MAKEWORD(1,1), &wsaData);
 	if (result != 0) {
 		if (verbose)
-			errmsg_print("ERROR: WSAStartup failed with error: %d\n", result);
+			errmsg_print("ERROR: WSAStartup failed with error: %d", result);
 		return 1;
 	}
 #endif  /* _WIN32 */
 
 	if (do_capture) {
 		if (!fifo) {
-			errmsg_print("ERROR: No FIFO or file specified\n");
+			errmsg_print("ERROR: No FIFO or file specified");
 			return 1;
 		}
 
 		if (g_strcmp0(interface, RANDPKT_EXTCAP_INTERFACE)) {
-			errmsg_print("ERROR: invalid interface\n");
+			errmsg_print("ERROR: invalid interface");
 			return 1;
 		}
 
