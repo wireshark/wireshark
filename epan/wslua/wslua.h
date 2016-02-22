@@ -57,7 +57,7 @@
 #include <epan/epan.h>
 #include <epan/expert.h>
 
-#include "declare_wslua.h"
+#include <epan/wslua/declare_wslua.h>
 
 /** @file
  * @ingroup wslua_group

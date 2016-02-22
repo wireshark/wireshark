@@ -19,6 +19,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+include_directories(
+	${CMAKE_CURRENT_BINARY_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 set(WSLUA_MODULES
 	${CMAKE_CURRENT_SOURCE_DIR}/lrexlib.c
 	${CMAKE_CURRENT_SOURCE_DIR}/lrexlib_glib.c
@@ -51,69 +56,73 @@ set(WSLUA_MODULES
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua_tvb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua_util.c
 )
-set (WSLUA_MODULES ${WSLUA_MODULES} PARENT_SCOPE)
 
 set(WSLUA_FILES
 	${WSLUA_MODULES}
 	${CMAKE_CURRENT_BINARY_DIR}/taps_wslua.c
 	${CMAKE_CURRENT_BINARY_DIR}/register_wslua.c
 	${CMAKE_CURRENT_SOURCE_DIR}/init_wslua.c
-	PARENT_SCOPE
 )
+source_group(wslua FILES ${WSLUA_FILES})
+
+if(WERROR_COMMON_FLAGS)
+	set_source_files_properties(
+		${WSLUA_FILES}
+		PROPERTIES
+		COMPILE_FLAGS ${WERROR_COMMON_FLAGS}
+	)
+endif()
 
 # make-taps.pl depends on the current working directory
 # to find the dissector files (contents of taps file
 # depend on this actually, so just changing the paths
 # in these lists won't help).
 
-macro(WSLUA_GENERATE_TAP_SRC)
-	# Used with untypical CWD
-	set(WSLUA_TAPS_USED
-		${CMAKE_SOURCE_DIR}/epan/dissectors/packet-http.h
-		${CMAKE_SOURCE_DIR}/epan/dissectors/packet-ip.h
-		${CMAKE_SOURCE_DIR}/epan/dissectors/packet-udp.h
-		${CMAKE_SOURCE_DIR}/epan/dissectors/packet-h225.h
-		${CMAKE_SOURCE_DIR}/epan/dissectors/packet-ieee80211.h
-	)
+# Used with untypical CWD
+set(WSLUA_TAPS_USED
+	${CMAKE_SOURCE_DIR}/epan/dissectors/packet-http.h
+	${CMAKE_SOURCE_DIR}/epan/dissectors/packet-ip.h
+	${CMAKE_SOURCE_DIR}/epan/dissectors/packet-udp.h
+	${CMAKE_SOURCE_DIR}/epan/dissectors/packet-h225.h
+	${CMAKE_SOURCE_DIR}/epan/dissectors/packet-ieee80211.h
+)
 
-	add_custom_command(
-		OUTPUT
-			${CMAKE_BINARY_DIR}/epan/wslua/taps_wslua.c
-			${CMAKE_BINARY_DIR}/epan/wslua/taps.txt
-		COMMAND
-			${PERL_EXECUTABLE}
-			${CMAKE_SOURCE_DIR}/epan/wslua/make-taps.pl
-			${CMAKE_SOURCE_DIR}/epan/wslua/taps
-			${CMAKE_BINARY_DIR}/epan/wslua/taps_wslua.c
-			${CMAKE_BINARY_DIR}/epan/wslua/taps.txt
-			${CMAKE_SOURCE_DIR}/epan/wslua
-		WORKING_DIRECTORY
-			${CMAKE_SOURCE_DIR}/epan/wslua
-		DEPENDS
-			${CMAKE_SOURCE_DIR}/epan/wslua/taps
-			${CMAKE_SOURCE_DIR}/epan/wslua/make-taps.pl
-			# Only here to add dependencies for the taps "source"files
-			${WSLUA_TAPS_USED}
-	)
-endmacro()
+add_custom_command(
+	OUTPUT
+		${CMAKE_BINARY_DIR}/epan/wslua/taps_wslua.c
+		${CMAKE_BINARY_DIR}/epan/wslua/taps.txt
+	COMMAND
+		${PERL_EXECUTABLE}
+		${CMAKE_SOURCE_DIR}/epan/wslua/make-taps.pl
+		${CMAKE_SOURCE_DIR}/epan/wslua/taps
+		${CMAKE_BINARY_DIR}/epan/wslua/taps_wslua.c
+		${CMAKE_BINARY_DIR}/epan/wslua/taps.txt
+		${CMAKE_SOURCE_DIR}/epan/wslua
+	WORKING_DIRECTORY
+		${CMAKE_SOURCE_DIR}/epan/wslua
+	DEPENDS
+		${CMAKE_SOURCE_DIR}/epan/wslua/taps
+		${CMAKE_SOURCE_DIR}/epan/wslua/make-taps.pl
+		# Only here to add dependencies for the taps "source"files
+		${WSLUA_TAPS_USED}
+)
 
-macro(WSLUA_GENERATE_REG_SRC)
-	add_custom_command(
-		OUTPUT
-			${CMAKE_BINARY_DIR}/epan/wslua/declare_wslua.h
-			${CMAKE_BINARY_DIR}/epan/wslua/register_wslua.c
-		COMMAND
-			${PERL_EXECUTABLE}
-			${CMAKE_SOURCE_DIR}/epan/wslua/make-reg.pl
-			${WSLUA_MODULES}
-		WORKING_DIRECTORY
-			${CMAKE_BINARY_DIR}/epan/wslua
-		DEPENDS
-			${CMAKE_SOURCE_DIR}/epan/wslua/make-reg.pl
-			${WSLUA_MODULES}
-			# ${CMAKE_CURRENT_BINARY_DIR}/taps_wslua.c
-	)
-endmacro()
+
+add_custom_command(
+	OUTPUT
+		${CMAKE_BINARY_DIR}/epan/wslua/declare_wslua.h
+		${CMAKE_BINARY_DIR}/epan/wslua/register_wslua.c
+	COMMAND
+		${PERL_EXECUTABLE}
+		${CMAKE_SOURCE_DIR}/epan/wslua/make-reg.pl
+		${WSLUA_MODULES}
+	WORKING_DIRECTORY
+		${CMAKE_BINARY_DIR}/epan/wslua
+	DEPENDS
+		${CMAKE_SOURCE_DIR}/epan/wslua/make-reg.pl
+		${WSLUA_MODULES}
+		# ${CMAKE_CURRENT_BINARY_DIR}/taps_wslua.c
+)
 
 add_custom_command(
 	OUTPUT init.lua
@@ -136,6 +145,7 @@ add_custom_target(
 	DEPENDS
 		init.lua
 )
+
 set_target_properties(wsluaauxiliary PROPERTIES FOLDER "Auxiliary")
 
 install(
@@ -146,3 +156,25 @@ install(
 	DESTINATION
 		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
 )
+
+add_library(wslua OBJECT
+	${WSLUA_FILES}
+)
+
+set_target_properties(wslua PROPERTIES
+	FOLDER "Libs/epan/wslua"
+	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+)
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#

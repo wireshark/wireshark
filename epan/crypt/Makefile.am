@@ -43,7 +43,8 @@ libairpdcap_la_SOURCES =	\
 EXTRA_DIST = \
 	Custom.common \
 	Makefile.common	\
-	Makefile.nmake
+	Makefile.nmake	\
+	CMakeLists.txt
 
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \

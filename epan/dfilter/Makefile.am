@@ -69,7 +69,8 @@ libdfilter_la_DEPENDENCIES = libdfilter_generated.la
 EXTRA_DIST = \
 	$(GENERATOR_FILES)	\
 	Makefile.common		\
-	Makefile.nmake
+	Makefile.nmake		\
+	CMakeLists.txt
 
 scanner_lex.h : scanner.c
 

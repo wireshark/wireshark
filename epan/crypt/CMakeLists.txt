@@ -1,5 +1,4 @@
-# Makefile.am
-# Automake file for libnghttp2 library
+# CMakeLists.txt
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -18,37 +17,42 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
 
-include Makefile.common
-include $(top_srcdir)/Makefile.am.inc
+include_directories(
+	${CMAKE_CURRENT_BINARY_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(LIBNGHTTP2_CFLAGS) \
-	$(GLIB_CFLAGS)
+set(CRYPT_FILES
+	airpdcap.c
+	airpdcap_ccmp.c
+	airpdcap_debug.c
+	airpdcap_rijndael.c
+	airpdcap_tkip.c
+	${CUSTOM_CRYPT_SRC}
+)
+source_group(crypt FILES ${CRYPT_FILES})
 
-noinst_LTLIBRARIES = libnghttp2.la
+if(WERROR_COMMON_FLAGS)
+	set_source_files_properties(
+		${CRYPT_FILES}
+		PROPERTIES
+		COMPILE_FLAGS ${WERROR_COMMON_FLAGS}
+	)
+endif()
 
-CLEANFILES = \
-	libnghttp2.a	\
-	libnghttp2.la	\
-	*~
+add_library(crypt OBJECT
+	${CRYPT_FILES}
+)
 
-DISTCLEANFILES =
-
-MAINTAINERCLEANFILES =	\
-	Makefile.in
-
-libnghttp2_la_SOURCES =	\
-	$(LIBNGHTTP2_SRC)	\
-	$(LIBNGHTTP2_INCLUDES)
-
-EXTRA_DIST = \
-	Makefile.common	\
-	Makefile.nmake	\
-	README.nghttp2	\
-	CMakeLists.txt
+set_target_properties(crypt PROPERTIES
+	FOLDER "Libs/epan/crypt"
+	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+)
 
 #
-# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

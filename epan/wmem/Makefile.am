@@ -50,8 +50,9 @@ libwmem_la_SOURCES =	\
 
 EXTRA_DIST = \
 	Makefile.common	\
-	Makefile.nmake \
-	wmem_test.c
+	Makefile.nmake	\
+	wmem_test.c	\
+	CMakeLists.txt
 
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \

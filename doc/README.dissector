@@ -628,7 +628,7 @@ be called at startup:
 
     the file containing a dissector's "register" routine must be
     added to "DISSECTOR_SRC" in "epan/dissectors/Makefile.common"
-    (and in "epan/CMakeLists.txt");
+    (and in "epan/dissectors/CMakeLists.txt");
 
     the "register" routine must have a name of the form
     "proto_register_XXX";
@@ -2233,7 +2233,7 @@ tarballs are built (otherwise, the source in the release tarballs won't
 compile).
 
 In addition to the above, you should add your dissector source file name
-to the DISSECTOR_SRC section of epan/CMakeLists.txt
+to the DISSECTOR_SRC section of epan/dissectors/CMakeLists.txt
 
 
 1.9 Using the git source code tree.

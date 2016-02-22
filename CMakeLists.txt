@@ -28,7 +28,7 @@ if(WIN32)
 	# 3.1.3 is the currently supported version
 	cmake_minimum_required(VERSION 3.1.3)
 else()
-	cmake_minimum_required(VERSION 2.8.3)
+	cmake_minimum_required(VERSION 2.8.8)
 endif()
 
 # Needs to be set after cmake_minimum_required or cmake_policy(VERSION)
