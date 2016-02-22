@@ -28,43 +28,6 @@
 
 #include "randpkt_core/randpkt_core.h"
 
-
-#ifdef HAVE_GETOPT_H
-	#include <getopt.h>
-#endif
-
-#ifndef HAVE_GETOPT_LONG
-	#include "wsutil/wsgetopt.h"
-#endif
-
-#ifdef _WIN32
-#include <io.h>
-#endif
-
-#if defined(_WIN32) && !defined(__CYGWIN__)
-	#ifdef HAVE_WINDOWS_H
-		#include <windows.h>
-	#endif
-
-	#include <ws2tcpip.h>
-
-	#ifdef HAVE_WINSOCK2_H
-		#include <winsock2.h>
-	#endif
-
-	#include <process.h>
-
-	#define socket_handle_t SOCKET
-#else
-/*
- * UN*X, or Windows pretending to be UN*X with the aid of Cygwin.
- */
-#define closesocket(socket)  close(socket)
-#define socket_handle_t int
-#define INVALID_SOCKET (-1)
-#define SOCKET_ERROR (-1)
-#endif
-
 #define RANDPKT_EXTCAP_INTERFACE "randpkt"
 #define RANDPKTDUMP_VERSION_MAJOR 0
 #define RANDPKTDUMP_VERSION_MINOR 1
