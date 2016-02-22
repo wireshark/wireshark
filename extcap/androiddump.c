@@ -104,7 +104,6 @@
 #define PACKET_LENGTH 65535
 
 #define verbose_print(...) { if (verbose) printf(__VA_ARGS__); }
-#define errmsg_print(...) { fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); }
 
 enum {
     EXTCAP_BASE_OPTIONS_ENUM,
@@ -1990,52 +1989,7 @@ static int capture_android_logcat(char *interface, char *fifo,
 
 /*============================================================================*/
 
-#ifdef _WIN32
-BOOLEAN IsHandleRedirected(DWORD handle)
-{
-    HANDLE h = GetStdHandle(handle);
-    if (h) {
-        BY_HANDLE_FILE_INFORMATION fi;
-        if (GetFileInformationByHandle(h, &fi)) {
-            return TRUE;
-        }
-    }
-    return FALSE;
-}
 
-static void attach_parent_console()
-{
-    BOOL outRedirected, errRedirected;
-
-    outRedirected = IsHandleRedirected(STD_OUTPUT_HANDLE);
-    errRedirected = IsHandleRedirected(STD_ERROR_HANDLE);
-
-    if (outRedirected && errRedirected) {
-        /* Both standard output and error handles are redirected.
-         * There is no point in attaching to parent process console.
-         */
-        return;
-    }
-
-    if (AttachConsole(ATTACH_PARENT_PROCESS) == 0) {
-        /* Console attach failed. */
-        return;
-    }
-
-    /* Console attach succeeded */
-    if (outRedirected == FALSE) {
-        if (!freopen("CONOUT$", "w", stdout)) {
-            errmsg_print("WARNING: Cannot redirect to stdout.");
-        }
-    }
-
-    if (errRedirected == FALSE) {
-        if (!freopen("CONOUT$", "w", stderr)) {
-            errmsg_print("WARNING: Cannot redirect to strerr.");
-        }
-    }
-}
-#endif
 
 /*----------------------------------------------------------------------------*/
 /* Android Wifi Tcpdump                                                       */

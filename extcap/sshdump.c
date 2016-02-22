@@ -68,7 +68,6 @@
 #define DEFAULT_CAPTURE_BIN "dumpcap"
 
 #define verbose_print(...) { if (verbose) printf(__VA_ARGS__); }
-#define errmsg_print(...) { fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); }
 
 static gboolean verbose = FALSE;
 
@@ -543,49 +542,6 @@ static char* concat_filters(const char* extcap_filter, const char* remote_filter
 
 	return g_strdup_printf("(%s) and (%s)", extcap_filter, remote_filter);
 }
-
-#ifdef _WIN32
-BOOLEAN IsHandleRedirected(DWORD handle)
-{
-	HANDLE h = GetStdHandle(handle);
-	if (h) {
-		BY_HANDLE_FILE_INFORMATION fi;
-		if (GetFileInformationByHandle(h, &fi)) {
-			return TRUE;
-		}
-	}
-	return FALSE;
-}
-
-static void attach_parent_console()
-{
-	BOOL outRedirected, errRedirected;
-
-	outRedirected = IsHandleRedirected(STD_OUTPUT_HANDLE);
-	errRedirected = IsHandleRedirected(STD_ERROR_HANDLE);
-
-	if (outRedirected && errRedirected) {
-		/* Both standard output and error handles are redirected.
-		 * There is no point in attaching to parent process console.
-		 */
-		return;
-	}
-
-	if (AttachConsole(ATTACH_PARENT_PROCESS) == 0) {
-		/* Console attach failed. */
-		return;
-	}
-
-	/* Console attach succeeded */
-	if (outRedirected == FALSE) {
-		freopen("CONOUT$", "w", stdout);
-	}
-
-	if (errRedirected == FALSE) {
-		freopen("CONOUT$", "w", stderr);
-	}
-}
-#endif
 
 int main(int argc, char **argv)
 {

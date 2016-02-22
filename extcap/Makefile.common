@@ -23,15 +23,18 @@
 
 # androiddump specifics
 androiddump_SOURCES =	\
-	androiddump.c
+	androiddump.c	\
+	extcap-base.c
 
 # randpktdump specifics
 randpktdump_SOURCES =	\
-	randpktdump.c
+	randpktdump.c	\
+	extcap-base.c
 
 # sshdump specifics
 sshdump_SOURCES =	\
-	sshdump.c
+	sshdump.c	\
+	extcap-base.c
 
 noinst_HEADERS = \
-	extcap-base.h
+	extcap-base.c

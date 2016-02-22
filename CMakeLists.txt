@@ -209,6 +209,7 @@ include_directories(
 	${CMAKE_SOURCE_DIR}
 	${CMAKE_SOURCE_DIR}/epan
 	${CMAKE_SOURCE_DIR}/tools/lemon
+	${CMAKE_SOURCE_DIR}/extcap
 )
 
 include( CMakeOptions.txt )
@@ -2367,6 +2368,7 @@ if(BUILD_androiddump)
 	endif()
 	set(androiddump_FILES
 		extcap/androiddump.c
+		extcap/extcap-base.c
 	)
 
 	add_executable(androiddump WIN32 ${androiddump_FILES})
@@ -2387,6 +2389,7 @@ if(BUILD_sshdump AND LIBSSH_FOUND)
 	endif()
 	set(sshdump_FILES
 		extcap/sshdump.c
+		extcap/extcap-base.c
 	)
 
 	add_executable(sshdump WIN32 ${sshdump_FILES})
@@ -2407,6 +2410,7 @@ if(BUILD_randpktdump)
 	)
 	set(randpktdump_FILES
 		extcap/randpktdump.c
+		extcap/extcap-base.c
 	)
 
 	add_executable(randpktdump WIN32 ${randpktdump_FILES})

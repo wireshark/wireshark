@@ -83,6 +83,13 @@
 	{ "extcap-capture-filter",	required_argument,	NULL, OPT_CAPTURE_FILTER}, \
 	{ "fifo",			required_argument,	NULL, OPT_FIFO} \
 
+#ifdef _WIN32
+BOOLEAN IsHandleRedirected(DWORD handle);
+void attach_parent_console();
+#endif
+
+#define errmsg_print(...) { fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); }
+
 #endif
 
 /*
