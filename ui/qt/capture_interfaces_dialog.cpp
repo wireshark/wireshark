@@ -155,6 +155,8 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
     connect(ui->captureFilterComboBox, SIGNAL(captureFilterSyntaxChanged(bool)), this, SLOT(updateWidgets()));
     connect(ui->captureFilterComboBox->lineEdit(), SIGNAL(textEdited(QString)),
             this, SLOT(filterEdited()));
+    connect(ui->captureFilterComboBox, SIGNAL(activated(QString)),
+            this, SLOT(filterEdited()));
     connect(&interface_item_delegate_, SIGNAL(filterChanged(QString)),
             ui->captureFilterComboBox->lineEdit(), SLOT(setText(QString)));
     connect(this, SIGNAL(interfacesChanged()), ui->captureFilterComboBox, SIGNAL(interfacesChanged()));
