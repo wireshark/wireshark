@@ -95,7 +95,7 @@ static dissector_table_t gtp_cdr_fmt_dissector_table;
 #define GTP_TPDU_AS_SYNC 2
 
 static gboolean g_gtp_over_tcp = TRUE;
-static gboolean g_gtp_session = FALSE;
+gboolean g_gtp_session = FALSE;
 
 static guint g_gtpv0_port  = GTPv0_PORT;
 static guint g_gtpv1c_port = GTPv1C_PORT;
@@ -1838,26 +1838,191 @@ static dissector_handle_t data_handle;
 static dissector_handle_t gtpv2_handle;
 static dissector_handle_t bssgp_handle;
 static dissector_table_t bssap_pdu_type_table;
-static guint32 gtp_session_count;
-
-/* Data structures to keep track of sessions */
-typedef struct gtp_info {
-    guint32 teid;
-    guint32 frame;
-} gtp_info_t;
-
-typedef struct session_args {
-    wmem_list_t *teid_list;
-    wmem_list_t *ip_list;
-    guint32 last_teid;
-    address last_ip;
-    guint8 last_cause;
-} session_args_t;
+guint32 gtp_session_count;
 
 /* Relation between frame -> session */
 GHashTable* session_table;
 /* Relation between <teid,ip> -> frame */
 wmem_tree_t* frame_tree;
+
+typedef struct gtp_info {
+    guint32 teid;
+    guint32 frame;
+} gtp_info_t;
+
+/* GTP Session funcs*/
+guint32
+get_frame(address ip, guint32 teid, guint32 *frame) {
+    gboolean found = FALSE;
+    wmem_list_frame_t *elem;
+    gtp_info_t *info;
+    wmem_list_t *info_list;
+    gchar *ip_str;
+
+    /* First we get the teid list*/
+    ip_str = address_to_str(wmem_packet_scope(), &ip);
+    info_list = (wmem_list_t*)wmem_tree_lookup_string(frame_tree, ip_str, 0);
+    if (info_list != NULL) {
+        elem = wmem_list_head(info_list);
+        while (!found && elem) {
+            info = (gtp_info_t*)wmem_list_frame_data(elem);
+            if (teid == info->teid) {
+                *frame = info->frame;
+                return 1;
+            }
+            elem = wmem_list_frame_next(elem);
+        }
+    }
+    return 0;
+}
+
+static void
+call_foreach_ip(const void *key _U_, void *value, void *data){
+    wmem_list_frame_t * elem;
+    wmem_list_t *info_list = (wmem_list_t *)value;
+    gtp_info_t *info;
+    guint32* frame = (guint32*)data;
+
+    /* We loop over the <teid, frame> list */
+    elem = wmem_list_head(info_list);
+    while (elem) {
+        info = (gtp_info_t*)wmem_list_frame_data(elem);
+        if (info->frame == *frame) {
+            wmem_list_frame_t * del = elem;
+            /* proceed to next request */
+            elem = wmem_list_frame_next(elem);
+            /* If we find the frame we remove its information from the list */
+            wmem_list_remove_frame(info_list, del);
+            wmem_free(wmem_file_scope(), info);
+        }
+        else {
+            elem = wmem_list_frame_next(elem);
+        }
+    }
+}
+
+void
+remove_frame_info(guint32 *f) {
+    /* For each ip node */
+    wmem_tree_foreach(frame_tree, (wmem_foreach_func)call_foreach_ip, (void *)f);
+}
+
+void
+add_gtp_session(guint32 frame, guint32 session) {
+    guint32 *f, *session_count;
+
+    f = wmem_new0(wmem_file_scope(), guint32);
+    session_count = wmem_new0(wmem_file_scope(), guint32);
+    *f = frame;
+    *session_count = session;
+    g_hash_table_insert(session_table, f, session_count);
+}
+
+gboolean
+teid_exists(guint32 teid, wmem_list_t *teid_list) {
+    wmem_list_frame_t *elem;
+    guint32 *info;
+    gboolean found;
+    found = FALSE;
+    elem = wmem_list_head(teid_list);
+    while (!found && elem) {
+        info = (guint32*)wmem_list_frame_data(elem);
+        found = *info == teid;
+        elem = wmem_list_frame_next(elem);
+    }
+    return found;
+}
+
+gboolean
+ip_exists(address ip, wmem_list_t *ip_list) {
+    wmem_list_frame_t *elem;
+    address *info;
+    gboolean found;
+    found = FALSE;
+    elem = wmem_list_head(ip_list);
+    while (!found && elem) {
+        info = (address*)wmem_list_frame_data(elem);
+        found = addresses_equal(info, &ip);
+        elem = wmem_list_frame_next(elem);
+    }
+    return found;
+}
+
+static gboolean
+info_exists(gtp_info_t *wanted, wmem_list_t *info_list) {
+    wmem_list_frame_t *elem;
+    gtp_info_t *info;
+    gboolean found;
+    found = FALSE;
+    elem = wmem_list_head(info_list);
+    while (!found && elem) {
+        info = (gtp_info_t*)wmem_list_frame_data(elem);
+        found = wanted->teid == info->teid;
+        elem = wmem_list_frame_next(elem);
+    }
+    return found;
+}
+
+void
+fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, guint32 frame) {
+    wmem_list_frame_t *elem_ip, *elem_teid;
+    gtp_info_t *gtp_info;
+    wmem_list_t * info_list; /* List of <teids,frames>*/
+    guint32 *f, *session, *fr, *session_count;
+    GHashTableIter iter;
+    guint32 teid;
+    gchar *ip;
+
+    elem_ip = wmem_list_head(ip_list);
+    while (elem_ip) {
+        ip = address_to_str(wmem_file_scope(), (address*)wmem_list_frame_data(elem_ip));
+        /* We check if a teid list exists for this ip */
+        info_list = (wmem_list_t*)wmem_tree_lookup_string(frame_tree, ip, 0);
+        if (info_list == NULL) {
+            info_list = wmem_list_new(wmem_file_scope());
+        }
+        /* We loop over the teid list */
+        elem_teid = wmem_list_head(teid_list);
+        while (elem_teid) {
+            teid = *(guint32*)wmem_list_frame_data(elem_teid);
+            f = wmem_new0(wmem_file_scope(), guint32);
+            *f = frame;
+            gtp_info = wmem_new0(wmem_file_scope(), gtp_info_t);
+            gtp_info->teid = teid;
+            gtp_info->frame = *f;
+            if (info_exists(gtp_info, info_list)) {
+                /* If the teid and ip already existed, that means that we need to remove old info about that session */
+                /* We look for its session ID */
+                session = (guint32 *)g_hash_table_lookup(session_table, f);
+                if (session) {
+                    g_hash_table_iter_init(&iter, session_table);
+                    while (g_hash_table_iter_next(&iter, (gpointer*)&fr, (gpointer*)&session_count)) {
+                        /* If the msg has the same session ID and it's not the upd req we have to remove its info */
+                        if (*session_count == *session) {
+                            /* If it's the session we are looking for, we remove all the frame information */
+                            remove_frame_info(fr);
+                        }
+                    }
+                }
+            }
+            wmem_list_prepend(info_list, gtp_info);
+            elem_teid = wmem_list_frame_next(elem_teid);
+        }
+        wmem_tree_insert_string(frame_tree, ip, info_list, 0);
+        elem_ip = wmem_list_frame_next(elem_ip);
+    }
+}
+
+gboolean
+is_cause_accepted(guint8 cause, guint32 version) {
+    if (version == 1) {
+        return cause == 128;
+    }
+    else if (version == 2) {
+        return cause == 16;
+    }
+    return FALSE;
+}
 
 static int decode_gtp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args);
 static int decode_gtp_imsi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
@@ -2130,12 +2295,6 @@ static const gtp_opt_t gtpopt[] = {
 
 #define NUM_GTP_IES 255
 static gint ett_gtp_ies[NUM_GTP_IES];
-
-/*struct _gtp_hdr {
-    guint8 flags;
-    guint8 message;
-    guint16 length;
-    };*/
 
 static guint8 gtp_version = 0;
 
@@ -3216,173 +3375,6 @@ gtp_sn_equal_unmatched(gconstpointer k1, gconstpointer k2)
     return key1->seq_nr == key2->seq_nr;
 }
 
-/* GTP Session funcs*/
-static guint32
-get_frame(address ip, guint32 teid, guint32 *frame) {
-    gboolean found = FALSE;
-    wmem_list_frame_t *elem;
-    gtp_info_t *info;
-    wmem_list_t *info_list;
-    gchar *ip_str;
-
-    /* First we get the teid list*/
-    ip_str = address_to_str(wmem_packet_scope(), &ip);
-    info_list = (wmem_list_t*)wmem_tree_lookup_string(frame_tree, ip_str, 0);
-    if (info_list != NULL) {
-        elem = wmem_list_head(info_list);
-        while (!found && elem) {
-            info = (gtp_info_t*)wmem_list_frame_data(elem);
-            if (teid == info->teid) {
-                *frame = info->frame;
-                return 1;
-            }
-            elem = wmem_list_frame_next(elem);
-        }
-    }
-    return 0;
-}
-
-static void
-call_foreach_ip(const void *key _U_, void *value, void *data){
-    wmem_list_frame_t * elem;
-    wmem_list_t *info_list = (wmem_list_t *)value;
-    gtp_info_t *info;
-    guint32* frame = (guint32*)data;
-
-    /* We loop over the <teid, frame> list */
-    elem = wmem_list_head(info_list);
-    while (elem) {
-        info = (gtp_info_t*)wmem_list_frame_data(elem);
-        if (info->frame == *frame) {
-            wmem_list_frame_t * del = elem;
-            /* proceed to next request */
-            elem = wmem_list_frame_next(elem);
-            /* If we find the frame we remove its information from the list */
-            wmem_list_remove_frame(info_list, del);
-            wmem_free(wmem_file_scope(), info);
-        } else {
-            elem = wmem_list_frame_next(elem);
-        }
-    }
-}
-
-static void
-remove_frame_info(guint32 *f) {
-    /* For each ip node */
-    wmem_tree_foreach(frame_tree, (wmem_foreach_func)call_foreach_ip, (void *)f);
-}
-
-static void
-add_gtp_session(guint32 frame, guint32 session) {
-    guint32 *f, *session_count;
-
-    f = wmem_new0(wmem_file_scope(), guint32);
-    session_count = wmem_new0(wmem_file_scope(), guint32);
-    *f = frame;
-    *session_count = session;
-    g_hash_table_insert(session_table, f, session_count);
-}
-
-static gboolean
-teid_exists(guint32 teid, wmem_list_t *teid_list) {
-    wmem_list_frame_t *elem;
-    guint32 *info;
-    gboolean found;
-    found = FALSE;
-    elem = wmem_list_head(teid_list);
-    while (!found && elem) {
-        info = (guint32*)wmem_list_frame_data(elem);
-        found = *info == teid;
-        elem = wmem_list_frame_next(elem);
-    }
-    return found;
-}
-
-static gboolean
-ip_exists(address ip, wmem_list_t *ip_list) {
-    wmem_list_frame_t *elem;
-    address *info;
-    gboolean found;
-    found = FALSE;
-    elem = wmem_list_head(ip_list);
-    while (!found && elem) {
-        info = (address*)wmem_list_frame_data(elem);
-        found = addresses_equal(info, &ip);
-        elem = wmem_list_frame_next(elem);
-    }
-    return found;
-}
-
-static gboolean
-info_exists(gtp_info_t *wanted, wmem_list_t *info_list) {
-    wmem_list_frame_t *elem;
-    gtp_info_t *info;
-    gboolean found;
-    found = FALSE;
-    elem = wmem_list_head(info_list);
-    while (!found && elem) {
-        info = (gtp_info_t*)wmem_list_frame_data(elem);
-        found = wanted->teid == info->teid;
-        elem = wmem_list_frame_next(elem);
-    }
-    return found;
-}
-
-static void
-fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, guint32 frame) {
-    wmem_list_frame_t *elem_ip, *elem_teid;
-    gtp_info_t *gtp_info;
-    wmem_list_t * info_list; /* List of <teids,frames>*/
-    guint32 *f, *session, *fr, *session_count;
-    GHashTableIter iter;
-    guint32 teid;
-    gchar *ip;
-
-    elem_ip = wmem_list_head(ip_list);
-    while (elem_ip) {
-        ip = address_to_str(wmem_file_scope(), (address*)wmem_list_frame_data(elem_ip));
-        /* We check if a teid list exists for this ip */
-        info_list = (wmem_list_t*)wmem_tree_lookup_string(frame_tree, ip, 0);
-        if (info_list == NULL) {
-            info_list = wmem_list_new(wmem_file_scope());
-        }
-        /* We loop over the teid list */
-        elem_teid = wmem_list_head(teid_list);
-        while (elem_teid) {
-            teid = *(guint32*)wmem_list_frame_data(elem_teid);
-            f = wmem_new0(wmem_file_scope(), guint32);
-            *f = frame;
-            gtp_info = wmem_new0(wmem_file_scope(), gtp_info_t);
-            gtp_info->teid = teid;
-            gtp_info->frame = *f;
-            if (info_exists(gtp_info, info_list)) {
-                /* If the teid and ip already existed, that means that we need to remove old info about that session */
-                /* We look for its session ID */
-                session = (guint32 *)g_hash_table_lookup(session_table, f);
-                if (session) {
-                    g_hash_table_iter_init(&iter, session_table);
-                    while (g_hash_table_iter_next(&iter, (gpointer*)&fr, (gpointer*)&session_count)) {
-                        /* If the msg has the same session ID and it's not the upd req we have to remove its info */
-                        if (*session_count == *session) {
-                            /* If it's the session we are looking for, we remove all the frame information */
-                            remove_frame_info(fr);
-                        }
-                    }
-                }
-            }
-            wmem_list_prepend(info_list, gtp_info);
-            elem_teid = wmem_list_frame_next(elem_teid);
-        }
-        wmem_tree_insert_string(frame_tree, ip, info_list, 0);
-        elem_ip = wmem_list_frame_next(elem_ip);
-    }
-}
-
-static gboolean
-is_cause_accepted(guint8 cause) {
-    return cause == 128;
-}
-
 static gtp_msg_hash_t *
 gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint seq_nr, guint msgtype, gtp_conv_info_t *gtp_info, guint8 last_cause)
 {
@@ -3487,7 +3479,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
             if (g_gtp_session) {
                 if (!PINFO_FD_VISITED(pinfo) && gtp_version == 1) {
                     /* GTP session */
-                    /* If it's not already in the list */
+                    /* If it does not have any session assigned yet */
                     session = (guint32 *)g_hash_table_lookup(session_table, &pinfo->num);
                     if (!session) {
                         session = (guint32 *)g_hash_table_lookup(session_table, &gcrp->req_frame);
@@ -3496,7 +3488,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
                         }
                     }
 
-                    if (!is_cause_accepted(last_cause)){
+                    if (!is_cause_accepted(last_cause, gtp_version)){
                         /* If the cause is not accepted then we have to remove all the session information about its corresponding request */
                         remove_frame_info(&gcrp->req_frame);
                     }
@@ -8401,19 +8393,18 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
 
 
     if (!PINFO_FD_VISITED(pinfo) && gtp_version == 1) {
-        /* If the message is not a CPDPCRES, CPDPCREQ, UPDPREQ, UPDPRES then we remove its information from teid_cp
-        and gsn_ipv4 lists */
-        if ((gtp_hdr->message != GTP_MSG_CREATE_PDP_RESP && gtp_hdr->message != GTP_MSG_CREATE_PDP_REQ && gtp_hdr->message != GTP_MSG_UPDATE_PDP_RESP
-            && gtp_hdr->message != GTP_MSG_UPDATE_PDP_REQ)) {
-            /* If the lists are not empty*/
-            if (wmem_list_count(teid_list) && wmem_list_count(ip_list)) {
-                remove_frame_info(&pinfo->num);
-            }
-        }
-
         /* If the message does not have any session ID */
         session = (guint32*)g_hash_table_lookup(session_table, &pinfo->num);
         if (!session) {
+            /* If the message is not a CPDPCRES, CPDPCREQ, UPDPREQ, UPDPRES then we remove its information from teid and ip lists */
+            if ((gtp_hdr->message != GTP_MSG_CREATE_PDP_RESP && gtp_hdr->message != GTP_MSG_CREATE_PDP_REQ && gtp_hdr->message != GTP_MSG_UPDATE_PDP_RESP
+                && gtp_hdr->message != GTP_MSG_UPDATE_PDP_REQ)) {
+                /* If the lists are not empty*/
+                if (wmem_list_count(teid_list) && wmem_list_count(ip_list)) {
+                    remove_frame_info(&pinfo->num);
+                }
+            }
+
             if (gtp_hdr->message == GTP_MSG_CREATE_PDP_REQ) {
                 /* If CPDPCREQ and not already in the list then we create a new session*/
                 add_gtp_session(pinfo->num, gtp_session_count++);
@@ -8657,7 +8648,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         offset += 2;
         /* If GTP' version is 0 and bit 1 is 0 20 bytes header is used, dissect it */
         if( (gtp_version == 0) && ((gtp_hdr->flags & 0x01) == 0) ) {
-            proto_tree_add_item(gtp_tree, hf_gtp_dummy_octets, tvb, offset, 14, ENC_BIG_ENDIAN);
+            proto_tree_add_item(gtp_tree, hf_gtp_dummy_octets, tvb, offset, 14, ENC_NA);
             offset += 14;
         }
 

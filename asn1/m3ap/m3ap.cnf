@@ -176,7 +176,7 @@ ProtocolIE-Field/value ie_field_value
 
   tvb_len = tvb_reported_length(parameter_tvb);
 
-  dissect_gtpv2_mbms_service_area(parameter_tvb, actx->pinfo, tree, actx->created_item, tvb_len, 0, 0);
+  dissect_gtpv2_mbms_service_area(parameter_tvb, actx->pinfo, tree, actx->created_item, tvb_len, 0, 0, NULL);
 #.END
 
 #.FN_BODY MBMS-Session-Duration VAL_PTR = &parameter_tvb
@@ -192,7 +192,7 @@ ProtocolIE-Field/value ie_field_value
   tvb_len = tvb_reported_length(parameter_tvb);
 
   proto_item_append_text(actx->created_item, " ");
-  dissect_gtpv2_mbms_session_duration(parameter_tvb, actx->pinfo, tree, actx->created_item, tvb_len, 0, 0);
+  dissect_gtpv2_mbms_session_duration(parameter_tvb, actx->pinfo, tree, actx->created_item, tvb_len, 0, 0, NULL);
 #.END
 
 #.FN_BODY MinimumTimeToMBMSDataTransfer VAL_PTR = &parameter_tvb
@@ -205,7 +205,7 @@ ProtocolIE-Field/value ie_field_value
     return offset;
 
   tvb_len = tvb_reported_length(parameter_tvb);
-  dissect_gtpv2_mbms_time_to_data_xfer(parameter_tvb, actx->pinfo, tree, actx->created_item, tvb_len, 0, 0);
+  dissect_gtpv2_mbms_time_to_data_xfer(parameter_tvb, actx->pinfo, tree, actx->created_item, tvb_len, 0, 0, NULL);
 #.END
 
 #------ Pretify info column -----

@@ -146,4 +146,30 @@ typedef struct _gtp_hdr {
 
 extern value_string_ext cause_type_ext;
 
+/* Data structures to keep track of sessions */
+extern guint32 gtp_session_count;
+extern gboolean g_gtp_session;
+
+typedef struct session_args {
+    wmem_list_t *teid_list;
+    wmem_list_t *ip_list;
+    guint32 last_teid;
+    address last_ip;
+    guint8 last_cause;
+} session_args_t;
+
+guint32 get_frame(address ip, guint32 teid, guint32 *frame);
+
+void remove_frame_info(guint32 *f);
+
+void add_gtp_session(guint32 frame, guint32 session);
+
+gboolean teid_exists(guint32 teid, wmem_list_t *teid_list);
+
+gboolean ip_exists(address ip, wmem_list_t *ip_list);
+
+void fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, guint32 frame);
+
+gboolean is_cause_accepted(guint8 cause, guint32 version);
+
 #endif /* __PACKET_GTP_H*/

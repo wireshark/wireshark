@@ -1064,7 +1064,7 @@ dissect_m3ap_MBMS_Service_Area(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
   tvb_len = tvb_reported_length(parameter_tvb);
 
-  dissect_gtpv2_mbms_service_area(parameter_tvb, actx->pinfo, tree, actx->created_item, tvb_len, 0, 0);
+  dissect_gtpv2_mbms_service_area(parameter_tvb, actx->pinfo, tree, actx->created_item, tvb_len, 0, 0, NULL);
 
 
   return offset;
@@ -1087,7 +1087,7 @@ dissect_m3ap_MBMS_Session_Duration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   tvb_len = tvb_reported_length(parameter_tvb);
 
   proto_item_append_text(actx->created_item, " ");
-  dissect_gtpv2_mbms_session_duration(parameter_tvb, actx->pinfo, tree, actx->created_item, tvb_len, 0, 0);
+  dissect_gtpv2_mbms_session_duration(parameter_tvb, actx->pinfo, tree, actx->created_item, tvb_len, 0, 0, NULL);
 
 
   return offset;
@@ -1129,7 +1129,7 @@ dissect_m3ap_MinimumTimeToMBMSDataTransfer(tvbuff_t *tvb _U_, int offset _U_, as
     return offset;
 
   tvb_len = tvb_reported_length(parameter_tvb);
-  dissect_gtpv2_mbms_time_to_data_xfer(parameter_tvb, actx->pinfo, tree, actx->created_item, tvb_len, 0, 0);
+  dissect_gtpv2_mbms_time_to_data_xfer(parameter_tvb, actx->pinfo, tree, actx->created_item, tvb_len, 0, 0, NULL);
 
 
   return offset;
