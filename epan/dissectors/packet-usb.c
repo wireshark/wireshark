@@ -92,6 +92,7 @@ static int hf_usb_frame_length = -1;
 static int hf_usb_frame_flags = -1;
 static int hf_usb_frame_flags_read = -1;
 static int hf_usb_frame_flags_data_follows = -1;
+static int hf_usb_frame_data = -1;
 static int hf_usb_urb_id = -1;
 static int hf_usb_linux_urb_type = -1;
 static int hf_usb_linux_transfer_type = -1;
@@ -3935,16 +3936,27 @@ dissect_freebsd_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, void 
         guint32 framelen;
         guint64 frameflags;
 
-        frame_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_usb_frame, &ti, "Frame %u", i);
-        proto_tree_add_item_ret_uint(frame_tree, hf_usb_frame_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &framelen);
-        proto_tree_add_bitmask_ret_uint64(frame_tree, tvb, offset + 4,
+        frame_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                   ett_usb_frame, &ti,
+                                                   "Frame %u", i);
+        proto_tree_add_item_ret_uint(frame_tree, hf_usb_frame_length,
+                                     tvb, offset, 4, ENC_LITTLE_ENDIAN,
+                                     &framelen);
+        offset += 4;
+        proto_tree_add_bitmask_ret_uint64(frame_tree, tvb, offset,
                                           hf_usb_frame_flags,
                                           ett_usb_frame_flags,
                                           usb_frame_flags_fields,
                                           ENC_LITTLE_ENDIAN, &frameflags);
-        offset += 8;
-        if (frameflags & FREEBSD_FRAMEFLAG_DATA_FOLLOWS)
+        offset += 4;
+        if (frameflags & FREEBSD_FRAMEFLAG_DATA_FOLLOWS) {
+            /*
+             * XXX - ultimately, we should dissect this data.
+             */
+            proto_tree_add_item(frame_tree, hf_usb_frame_data, tvb, offset, 
+                                framelen, ENC_NA);
             offset += (framelen + 3) & ~3;
+        }
         proto_item_set_end(ti, tvb, offset);
     }
 
@@ -4496,6 +4508,11 @@ proto_register_usb(void)
         { &hf_usb_frame_flags_data_follows,
           { "Frame contains data", "usb.frame.data_follows",
             FT_BOOLEAN, 32, NULL, FREEBSD_FRAMEFLAG_DATA_FOLLOWS,
+            NULL, HFILL }},
+
+        { &hf_usb_frame_data,
+          { "Frame data", "usb.frame.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_usb_urb_id,
