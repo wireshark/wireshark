@@ -24,13 +24,13 @@
 
 #include "config.h"
 
-#include "extcap-base.h"
+#include <extcap/extcap-base.h>
+#include <wsutil/interface.h>
 
 #include <glib/gstdio.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdarg.h>
-#include <string.h>
 #include <errno.h>
 #include <time.h>
 #include <string.h>
@@ -38,17 +38,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <libssh/libssh.h>
-
-#ifdef HAVE_ARPA_INET_H
-	#include <arpa/inet.h>
-#endif
-
-#include "log.h"
-
-#if defined(__FreeBSD__) || defined(BSD) || defined(__APPLE__) || defined(__linux__)
-#define USE_GETIFADDRS 1
-#include <ifaddrs.h>
-#endif
 
 #ifndef STDERR_FILENO
 #define STDERR_FILENO 2
@@ -106,7 +95,7 @@ static struct option longopts[] = {
 	{ 0, 0, 0, 0}
 };
 
-static char* local_interfaces_to_filter(unsigned int remote_port);
+static char* interfaces_list_to_filter(GSList* if_list, const unsigned int remote_port);
 
 static void ssh_cleanup(ssh_session sshs, ssh_channel channel)
 {
@@ -249,6 +238,14 @@ static void ssh_loop_read(ssh_channel channel, int fd)
 		return;
 }
 
+static char* local_interfaces_to_filter(const unsigned int remote_port)
+{
+	GSList* interfaces = local_interfaces_to_list();
+	char* filter = interfaces_list_to_filter(interfaces, remote_port);
+	g_slist_free_full(interfaces, g_free);
+	return filter;
+}
+
 static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_bin, const char* iface, const char* cfilter,
 		unsigned long int count)
 {
@@ -384,70 +381,23 @@ static void help(const char* binname)
 	printf("  --remote-filter <filter>: a filter for remote capture (default: don't listen on local local interfaces IPs)\n");
 }
 
-static char* local_interfaces_to_filter(unsigned int remote_port)
+static char* interfaces_list_to_filter(GSList* interfaces, unsigned int remote_port)
 {
-	char* filter = NULL;
-#ifdef USE_GETIFADDRS
-	struct ifaddrs* ifap;
-	struct ifaddrs* ifa;
-	GString* interfaces;
-	int family;
-	char ip[INET6_ADDRSTRLEN];
+	GString* filter = g_string_new(NULL);
+	GSList* cur;
 
-	if (getifaddrs(&ifap)) {
-		goto end;
-	}
-
-	interfaces = g_string_new(NULL);
-
-	for (ifa = ifap; ifa != NULL; ifa = ifa->ifa_next) {
-		if (ifa->ifa_addr == NULL)
-			continue;
-
-		family = ifa->ifa_addr->sa_family;
-
-		memset(&ip, 0x0, INET6_ADDRSTRLEN);
-
-		switch (family) {
-			case AF_INET:
-				{
-					struct sockaddr_in *addr4 = (struct sockaddr_in *)ifa->ifa_addr;
-					inet_ntop(family, (char *)&addr4->sin_addr, ip, sizeof(ip));
-					break;
-				}
-
-			case AF_INET6:
-				{
-					struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *)ifa->ifa_addr;
-					inet_ntop(family, (char *)&addr6->sin6_addr, ip, sizeof(ip));
-					break;
-				}
-
-			default:
-				break;
+	if (!interfaces) {
+		g_string_append_printf(filter, "not port %u", remote_port);
+	} else {
+		g_string_append_printf(filter, "not ((host %s", (char*)interfaces->data);
+		cur = g_slist_next(interfaces);
+		while (cur->next != NULL) {
+			g_string_append_printf(filter, " or host %s", (char*)cur->data);
+			cur = cur->next;
 		}
-
-		/* skip loopback addresses */
-		if (!g_strcmp0(ip, "127.0.0.1") || !g_strcmp0(ip, "::1"))
-			continue;
-
-		if (*ip) {
-			if (interfaces->len)
-				g_string_append(interfaces, " or ");
-			g_string_append_printf(interfaces, "host %s", ip);
-		}
+		g_string_append_printf(filter, ") and port %u)", remote_port);
 	}
-	freeifaddrs(ifap);
-
-	if (interfaces->len)
-		filter = g_strdup_printf("not ((%s) and port %u)", interfaces->str, remote_port);
-
-	g_string_free(interfaces, TRUE);
-end:
-#endif
-	if (!filter)
-		filter = g_strdup_printf("not port %u", remote_port);
-	return filter;
+	return g_string_free(filter, FALSE);
 }
 
 static int list_config(char *interface, unsigned int remote_port)

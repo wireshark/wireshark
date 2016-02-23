@@ -64,6 +64,12 @@
 /* Define if GeoIP supports IPv6 (GeoIP 1.4.5 and later) */
 #cmakedefine HAVE_GEOIP_V6 1
 
+/* Define to 1 if you have the <ifaddrs.h> header file. */
+#cmakedefine HAVE_IFADDRS_H 1
+
+/* Define to 1 if you have the `getifaddrs' function. */
+#cmakedefine HAVE_GETIFADDRS 1
+
 /* Define if LIBSSH support is enabled */
 #cmakedefine HAVE_LIBSSH 1
 

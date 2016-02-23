@@ -2380,6 +2380,7 @@ endif()
 
 if(BUILD_sshdump AND LIBSSH_FOUND)
 	set(sshdump_LIBS
+		wsutil
 		${GLIB2_LIBRARIES}
 		${CMAKE_DL_LIBS}
 		${LIBSSH_LIBRARIES}

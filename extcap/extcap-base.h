@@ -24,6 +24,8 @@
 #ifndef __EXTCAP_BASE_H__
 #define __EXTCAP_BASE_H__
 
+#include "config.h"
+
 #include <glib.h>
 #include <glib/gprintf.h>
 #include <stdlib.h>
@@ -63,6 +65,10 @@
 	#define socket_handle_t		int
 	#define INVALID_SOCKET		(-1)
 	#define SOCKET_ERROR		(-1)
+#endif
+
+#ifdef HAVE_ARPA_INET_H
+	#include <arpa/inet.h>
 #endif
 
 #define EXTCAP_BASE_OPTIONS_ENUM \
