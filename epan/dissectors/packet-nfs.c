@@ -1058,7 +1058,7 @@ void
 nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, int parent_offset,
 			int parent_len, const char *name)
 {
-	nfs_name_snoop_t *nns, *old_nns;
+	nfs_name_snoop_t *nns;
 	const char	 *ptr;
 
 	if (name_len <= 0) {
@@ -1111,24 +1111,7 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 	nns->full_name_len = 0;
 	nns->full_name = NULL;
 
-	/* remove any old entry for this */
-	old_nns = (nfs_name_snoop_t *)g_hash_table_lookup(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
-	if (old_nns) {
-		/* if we haven't seen the reply yet, then there are no
-		   matched entries for it, thus we can dealloc the arrays*/
-		if (!old_nns->fh) {
-			g_free(old_nns->name);
-			old_nns->name = NULL;
-			old_nns->name_len = 0;
-
-			g_free(old_nns->parent);
-			old_nns->parent = NULL;
-			old_nns->parent_len = 0;
-		}
-		g_free(old_nns);
-		g_hash_table_remove(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
-	}
-
+	/* any old entry will be deallocated and removed */
 	g_hash_table_insert(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid), nns);
 }
 
