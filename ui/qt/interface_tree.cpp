@@ -45,7 +45,21 @@
 #include <QHeaderView>
 #include <QTimer>
 
-// To do:
+// The interface list and capture filter editor in the main window and
+// the capture interfaces dialog should have the following behavior:
+//
+// - The global capture options are the source of truth for selected
+//   interfaces.
+// - The global capture options are the source of truth for the capture
+//   filter for an interface.
+// - If multiple interfaces with different filters are selected, the
+//   CaptureFilterEdit should be cleared and show a corresponding
+//   placeholder message. Device cfilters should not be changed.
+// - Entering a filter in a CaptureFilterEdit should update the device
+//   cfilter for each selected interface. This should happen even when
+//   conflicting filters are selected, as described above.
+// - Interface selections and cfilter changes in CaptureInterfacesDialog
+//   should be reflected in MainWelcome.
 
 #ifdef HAVE_LIBPCAP
 const int stat_update_interval_ = 1000; // ms
@@ -81,7 +95,7 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
 
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(getInterfaceList()));
     connect(wsApp, SIGNAL(localInterfaceListChanged()), this, SLOT(interfaceListChanged()));
-    connect(this, SIGNAL(itemSelectionChanged()), this, SLOT(updateSelectedInterfaces()));
+    connect(this, SIGNAL(itemSelectionChanged()), this, SLOT(selectedInterfaceChanged()));
 }
 
 InterfaceTree::~InterfaceTree() {
@@ -181,6 +195,7 @@ void InterfaceTree::display()
     QList<QTreeWidgetItem *> phys_ifaces;
     QList<QTreeWidgetItem *> virt_ifaces;
 
+    global_capture_opts.num_selected = 0;
     for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
 
@@ -191,31 +206,6 @@ void InterfaceTree::display()
 
         InterfaceTreeWidgetItem *ti = new InterfaceTreeWidgetItem();
         ti->setText(IFTREE_COL_NAME, QString().fromUtf8(device.display_name));
-
-        // To do:
-        // - Sync with code in CaptureInterfacesDialog.
-        // - Add more information to the tooltip.
-        QString tt_str = "<p>";
-        if (device.no_addresses > 0) {
-            tt_str += QString("%1: %2").arg(device.no_addresses > 1 ? tr("Addresses") : tr("Address")).arg(device.addresses);
-            tt_str.replace('\n', ", ");
-        } else {
-            tt_str = tr("No addresses");
-        }
-        tt_str += "<br/>";
-        QString cfilter = gchar_free_to_qstring(capture_dev_user_cfilter_find(device.name));
-        if (cfilter.isEmpty()) {
-            tt_str += tr("No capture filter");
-        } else {
-        tt_str += QString("%1: %2")
-                .arg(tr("Capture filter"))
-                .arg(cfilter);
-        }
-        tt_str += "</p>";
-
-        for (int col = 0; col < columnCount(); col++) {
-            ti->setToolTip(col, tt_str);
-        }
 
         ti->setData(IFTREE_COL_NAME, Qt::UserRole, QString(device.name));
         ti->setData(IFTREE_COL_STATS, Qt::UserRole, qVariantFromValue(&ti->points));
@@ -251,7 +241,8 @@ void InterfaceTree::display()
 
     if (!phys_ifaces.isEmpty()) addTopLevelItems(phys_ifaces);
     if (!virt_ifaces.isEmpty()) addTopLevelItems(virt_ifaces);
-    setSelectedInterfaces();
+    updateSelectedInterfaces();
+    updateToolTips();
 
     // XXX Add other device information
     resizeColumnToContents(IFTREE_COL_NAME);
@@ -358,15 +349,19 @@ void InterfaceTree::updateStatistics(void) {
 #endif // HAVE_LIBPCAP
 }
 
-void InterfaceTree::updateSelectedInterfaces()
+// Update our global device selections based on the given TreeWidget.
+// This is shared with CaptureInterfacesDialog.
+// Column name_col UserRole data MUST be set to the interface name.
+void InterfaceTree::updateGlobalDeviceSelections(QTreeWidget *if_tree, int name_col)
 {
+    if (!if_tree) return;
 #ifdef HAVE_LIBPCAP
-    QTreeWidgetItemIterator iter(this);
+    QTreeWidgetItemIterator iter(if_tree);
 
     global_capture_opts.num_selected = 0;
 
     while (*iter) {
-        QString device_name = (*iter)->data(IFTREE_COL_NAME, Qt::UserRole).value<QString>();
+        QString device_name = (*iter)->data(name_col, Qt::UserRole).value<QString>();
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
             interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
             if (device_name.compare(QString().fromUtf8(device.name)) == 0) {
@@ -388,18 +383,21 @@ void InterfaceTree::updateSelectedInterfaces()
                 break;
             }
         }
-        iter++;
+        ++iter;
     }
 
-    emit interfacesUpdated();
 #endif // HAVE_LIBPCAP
 }
 
-void InterfaceTree::setSelectedInterfaces()
+// Update selected interfaces based on the global interface list..
+// Must not change any interface data.
+// Must not emit itemSelectionChanged.
+void InterfaceTree::updateSelectedInterfaces()
 {
 #ifdef HAVE_LIBPCAP
     interface_t *device;
     QTreeWidgetItemIterator iter(this);
+    bool blocking = blockSignals(true);
 
     while (*iter) {
         QString device_name = (*iter)->data(IFTREE_COL_NAME, Qt::UserRole).value<QString>();
@@ -411,6 +409,50 @@ void InterfaceTree::setSelectedInterfaces()
             }
         }
         iter++;
+    }
+    blockSignals(blocking);
+#endif // HAVE_LIBPCAP
+}
+
+// Update the tooltip for each interface based on the global interface list..
+// Must not change any interface data.
+void InterfaceTree::updateToolTips()
+{
+#ifdef HAVE_LIBPCAP
+    QTreeWidgetItemIterator iter(this);
+
+    while (*iter) {
+        QString device_name = (*iter)->data(IFTREE_COL_NAME, Qt::UserRole).value<QString>();
+        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+            interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if (device_name.compare(QString().fromUtf8(device.name)) == 0) {
+                // To do:
+                // - Sync with code in CaptureInterfacesDialog.
+                // - Add more information to the tooltip.
+                QString tt_str = "<p>";
+                if (device.no_addresses > 0) {
+                    tt_str += QString("%1: %2").arg(device.no_addresses > 1 ? tr("Addresses") : tr("Address")).arg(device.addresses);
+                    tt_str.replace('\n', ", ");
+                } else {
+                    tt_str = tr("No addresses");
+                }
+                tt_str += "<br/>";
+                QString cfilter = device.cfilter;
+                if (cfilter.isEmpty()) {
+                    tt_str += tr("No capture filter");
+                } else {
+                    tt_str += QString("%1: %2")
+                            .arg(tr("Capture filter"))
+                            .arg(cfilter);
+                }
+                tt_str += "</p>";
+
+                for (int col = 0; col < columnCount(); col++) {
+                    (*iter)->setToolTip(col, tt_str);
+                }
+            }
+        }
+        ++iter;
     }
 #endif // HAVE_LIBPCAP
 }

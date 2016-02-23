@@ -126,10 +126,7 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
     setCompleter(new QCompleter(completion_model_, this));
     setCompletionTokenChars(libpcap_primitive_chars_);
 
-    placeholder_text_ = QString(tr("Enter a capture filter %1")).arg(UTF8_HORIZONTAL_ELLIPSIS);
-#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
-    setPlaceholderText(placeholder_text_);
-#endif
+    setConflict(false);
 
     if (!plain_) {
         bookmark_button_ = new StockIconToolButton(this, "x-capture-filter-bookmark");
@@ -215,7 +212,7 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
     QThread *syntax_thread = new QThread;
     syntax_worker_ = new CaptureFilterSyntaxWorker;
     syntax_worker_->moveToThread(syntax_thread);
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(initCaptureFilter()));
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(updateBookmarkMenu()));
     connect(wsApp, SIGNAL(captureFilterListChanged()), this, SLOT(updateBookmarkMenu()));
     connect(syntax_thread, SIGNAL(started()), syntax_worker_, SLOT(start()));
     connect(syntax_thread, SIGNAL(started()), this, SLOT(checkFilter()));
@@ -294,12 +291,55 @@ void CaptureFilterEdit::resizeEvent(QResizeEvent *)
     }
 }
 
+void CaptureFilterEdit::setConflict(bool conflict)
+{
+    if (conflict) {
+        //: This is a very long concept that needs to fit into a short space.
+        placeholder_text_ = tr("Multiple filters selected. Override them here or leave this blank to preserve them.");
+        setToolTip(tr("<p>The interfaces you have selected have different capture filters."
+                      " Typing a filter here will override them. Doing nothing will"
+                      " preserve them.</p>"));
+    } else {
+        placeholder_text_ = QString(tr("Enter a capture filter %1")).arg(UTF8_HORIZONTAL_ELLIPSIS);
+        setToolTip(QString());
+    }
+#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
+    setPlaceholderText(placeholder_text_);
+#endif
+}
+
+// XXX Make this private along with setConflict.
+QPair<const QString, bool> CaptureFilterEdit::getSelectedFilter()
+{
+    QString user_filter;
+    bool filter_conflict = false;
+#ifdef HAVE_LIBPCAP
+    int selected_devices = 0;
+
+    for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if (device.selected) {
+            selected_devices++;
+            if (selected_devices == 1) {
+                user_filter = device.cfilter;
+            } else {
+                if (user_filter.compare(device.cfilter)) {
+                    filter_conflict = true;
+                }
+            }
+        }
+    }
+#endif // HAVE_LIBPCAP
+    return QPair<const QString, bool>(user_filter, filter_conflict);
+}
+
 void CaptureFilterEdit::checkFilter(const QString& filter)
 {
     setSyntaxState(Busy);
     popFilterSyntaxStatus();
     bool empty = filter.isEmpty();
 
+    setConflict(false);
     if (bookmark_button_) {
         bool match = false;
 
@@ -383,15 +423,6 @@ void CaptureFilterEdit::updateBookmarkMenu()
     }
 
     checkFilter();
-}
-
-void CaptureFilterEdit::initCaptureFilter()
-{
-#ifdef HAVE_LIBPCAP
-    setText(global_capture_opts.default_options.cfilter);
-#endif // HAVE_LIBPCAP
-
-    updateBookmarkMenu();
 }
 
 void CaptureFilterEdit::setFilterSyntaxState(QString filter, int state, QString err_msg)

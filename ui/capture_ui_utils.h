@@ -98,6 +98,8 @@ gboolean capture_dev_user_pmode_find(const gchar *if_name, gboolean *pmode);
  * Find user-specified capture filter that matches interface
  * name, if any.
  *
+ * This is deprecated and should not be used in new code.
+ *
  * @param if_name The name of the interface.
  *
  * @return The capture filter (must be g_free'd later) or NULL if not found.

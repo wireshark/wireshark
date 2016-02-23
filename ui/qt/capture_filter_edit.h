@@ -34,6 +34,11 @@ class CaptureFilterEdit : public SyntaxLineEdit
     Q_OBJECT
 public:
     explicit CaptureFilterEdit(QWidget *parent = 0, bool plain = false);
+    void setConflict(bool conflict = false);
+    // No selections: (QString(), false)
+    // Selections, same filter: (filter, false)
+    // Selections, different filters (QString(), true)
+    static QPair<const QString, bool> getSelectedFilter();
 
 protected:
     void paintEvent(QPaintEvent *evt);
@@ -50,7 +55,6 @@ public slots:
     void prepareFilter();
 
 private slots:
-    void initCaptureFilter();
     void applyCaptureFilter();
     void checkFilter(const QString &filter);
     void setFilterSyntaxState(QString filter, int state, QString err_msg);

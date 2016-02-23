@@ -653,10 +653,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(&capture_interfaces_dialog_, SIGNAL(getPoints(int,PointList*)),
             this->main_welcome_->getInterfaceTree(), SLOT(getPoints(int,PointList*)));
-    connect(&capture_interfaces_dialog_, SIGNAL(setSelectedInterfaces()),
-            this->main_welcome_->getInterfaceTree(), SLOT(setSelectedInterfaces()));
+    // Changes in interface selections or capture filters should be propagated
+    // to the main welcome screen where they will be applied to the global
+    // capture options.
     connect(&capture_interfaces_dialog_, SIGNAL(interfaceListChanged()),
             this->main_welcome_->getInterfaceTree(), SLOT(interfaceListChanged()));
+    connect(&capture_interfaces_dialog_, SIGNAL(interfacesChanged()),
+            this->main_welcome_, SLOT(interfaceSelected()));
+    connect(&capture_interfaces_dialog_, SIGNAL(interfacesChanged()),
+            this->main_welcome_->getInterfaceTree(), SLOT(updateSelectedInterfaces()));
+    connect(&capture_interfaces_dialog_, SIGNAL(interfacesChanged()),
+            this->main_welcome_->getInterfaceTree(), SLOT(updateToolTips()));
+    connect(&capture_interfaces_dialog_, SIGNAL(captureFilterTextEdited(QString)),
+            this->main_welcome_, SLOT(setCaptureFilterText(QString)));
 #endif
 
     /* Create plugin_if hooks */

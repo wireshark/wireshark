@@ -79,6 +79,9 @@ public:
     void SetTab(int index);
     void updateInterfaces();
 
+protected:
+    virtual void showEvent(QShowEvent *);
+
 private slots:
     void on_capturePromModeCheckBox_toggled(bool checked);
     void on_gbStopCaptureAuto_toggled(bool checked);
@@ -94,7 +97,6 @@ private slots:
     void start_button_clicked();
     void on_buttonBox_rejected();
     void on_buttonBox_helpRequested();
-    void interfaceClicked(QTreeWidgetItem *item, int column);
     void interfaceSelected();
     void filterEdited();
     void updateWidgets();
@@ -113,6 +115,7 @@ signals:
     void interfacesChanged();
     void ifsChanged();
     void interfaceListChanged();
+    void captureFilterTextEdited(const QString & text);
 
 private:
     Ui::CaptureInterfacesDialog *ui;
@@ -124,7 +127,9 @@ private:
     QTimer *stat_timer_;
     InterfaceTreeDelegate interface_item_delegate_;
 
+    interface_t *getDeviceByName(const QString device_name);
     bool saveOptionsToPreferences();
+    void updateSelectedFilter();
 };
 
 #endif /* HAVE_LIBPCAP */

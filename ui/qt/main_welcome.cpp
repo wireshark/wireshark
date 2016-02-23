@@ -171,8 +171,9 @@ MainWelcome::MainWelcome(QWidget *parent) :
     connect(welcome_ui_->interfaceTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
             this, SLOT(interfaceClicked(QTreeWidgetItem*,int)));
 #endif
-    connect(welcome_ui_->interfaceTree, SIGNAL(interfacesUpdated()),
+    connect(welcome_ui_->interfaceTree, SIGNAL(itemSelectionChanged()),
             welcome_ui_->captureFilterComboBox, SIGNAL(interfacesChanged()));
+    connect(welcome_ui_->interfaceTree, SIGNAL(itemSelectionChanged()), this, SLOT(interfaceSelected()));
     connect(welcome_ui_->captureFilterComboBox->lineEdit(), SIGNAL(textEdited(QString)),
             this, SLOT(captureFilterTextEdited(QString)));
     connect(welcome_ui_->captureFilterComboBox, SIGNAL(pushFilterSyntaxStatus(const QString&)),
@@ -242,6 +243,13 @@ void MainWelcome::appInitialized()
     welcome_ui_->childContainer->setGraphicsEffect(NULL);
 #endif
 
+#ifdef HAVE_LIBPCAP
+    welcome_ui_->captureFilterComboBox->lineEdit()->setText(global_capture_opts.default_options.cfilter);
+#endif // HAVE_LIBPCAP
+
+    // Trigger interfacesUpdated.
+    welcome_ui_->interfaceTree->selectedInterfaceChanged();
+
     delete splash_overlay_;
     splash_overlay_ = NULL;
 }
@@ -274,6 +282,26 @@ void MainWelcome::captureFilterTextEdited(const QString capture_filter)
             g_array_insert_val(global_capture_opts.all_ifaces, i, device);
             //                update_filter_string(device.name, filter_text);
         }
+    }
+    welcome_ui_->interfaceTree->updateToolTips();
+}
+
+// The interface list selection has changed. At this point the user might
+// have entered a filter or we might have pre-filled one from a number of
+// sources such as our remote connection, the command line, or a previous
+// selection.
+// Must not change any interface data.
+void MainWelcome::interfaceSelected()
+{
+    QPair <const QString, bool> sf_pair = CaptureFilterEdit::getSelectedFilter();
+    const QString user_filter = sf_pair.first;
+    bool conflict = sf_pair.second;
+
+    if (conflict) {
+        welcome_ui_->captureFilterComboBox->lineEdit()->clear();
+        welcome_ui_->captureFilterComboBox->setConflict(true);
+    } else {
+        welcome_ui_->captureFilterComboBox->lineEdit()->setText(user_filter);
     }
 }
 
@@ -380,6 +408,12 @@ void MainWelcome::resizeEvent(QResizeEvent *event)
 //    event->accept();
 
     QFrame::resizeEvent(event);
+}
+
+void MainWelcome::setCaptureFilterText(const QString capture_filter)
+{
+    welcome_ui_->captureFilterComboBox->lineEdit()->setText(capture_filter);
+    captureFilterTextEdited(capture_filter);
 }
 
 void MainWelcome::changeEvent(QEvent* event)
