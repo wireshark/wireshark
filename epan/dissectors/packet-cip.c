@@ -354,7 +354,6 @@ static int hf_cip_sc_create_data = -1;
 static int hf_cip_sc_delete_data = -1;
 static int hf_cip_sc_mult_serv_pack_num_services = -1;
 static int hf_cip_sc_mult_serv_pack_offset = -1;
-static int hf_cip_sc_mult_serv_pack_num_replies = -1;
 static int hf_cip_sc_apply_attributes_data = -1;
 static int hf_cip_sc_set_attr_single_data = -1;
 static int hf_cip_sc_get_attr_single_data = -1;
@@ -534,6 +533,7 @@ static gint ett_cip_get_attribute_list_item = -1;
 static gint ett_cip_set_attribute_list = -1;
 static gint ett_cip_set_attribute_list_item = -1;
 static gint ett_cip_mult_service_packet = -1;
+static gint ett_cip_msp_offset = -1;
 
 static gint ett_cm_rrsc = -1;
 static gint ett_cm_ncp = -1;
@@ -617,7 +617,6 @@ static expert_field ei_mal_serv_sal_count = EI_INIT;
 static expert_field ei_mal_msp_services = EI_INIT;
 static expert_field ei_mal_msp_inv_offset = EI_INIT;
 static expert_field ei_mal_msp_missing_services = EI_INIT;
-static expert_field ei_mal_msp_resp_offset = EI_INIT;
 static expert_field ei_mal_serv_find_next_object = EI_INIT;
 static expert_field ei_mal_serv_find_next_object_count = EI_INIT;
 static expert_field ei_mal_rpi_no_data = EI_INIT;
@@ -628,6 +627,7 @@ static expert_field ei_mal_fwd_close_missing_data = EI_INIT;
 static expert_field ei_mal_opt_attr_list = EI_INIT;
 static expert_field ei_mal_opt_service_list = EI_INIT;
 static expert_field ei_mal_padded_epath_size = EI_INIT;
+static expert_field ei_mal_missing_string_data = EI_INIT;
 
 static dissector_table_t   subdissector_class_table;
 static dissector_table_t   subdissector_symbol_table;
@@ -4894,13 +4894,30 @@ dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tv
       break;
    case cip_short_string:
       temp_data = tvb_get_guint8( tvb, offset );
-      proto_tree_add_item(tree, *(attr->phf), tvb, offset+1, temp_data, ENC_ASCII|ENC_NA);
-      consumed = 1+temp_data;
+      if (total_len < temp_data + 1)
+      {
+         expert_add_info(pinfo, item, &ei_mal_missing_string_data);
+         consumed = total_len;
+      }
+      else
+      {
+         proto_tree_add_item(tree, *(attr->phf), tvb, offset+1, temp_data, ENC_ASCII|ENC_NA);
+         consumed = 1+temp_data;
+      }
       break;
    case cip_string:
       temp_data = tvb_get_letohs( tvb, offset );
-      proto_tree_add_item(tree, *(attr->phf), tvb, offset+2, temp_data, ENC_ASCII|ENC_NA);
-      consumed = 2+temp_data;
+      if (total_len < temp_data + 2)
+      {
+         expert_add_info(pinfo, item, &ei_mal_missing_string_data);
+         consumed = total_len;
+      }
+      else
+      {
+         proto_tree_add_item(tree, *(attr->phf), tvb, offset+2, temp_data, ENC_ASCII|ENC_NA);
+         consumed = 2+temp_data;
+      }
+
       break;
    case cip_dissector_func:
       consumed = attr->pdissect(pinfo, tree, item, tvb, offset, total_len);
@@ -4953,48 +4970,36 @@ dissect_cip_generic_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int 
    proto_tree *cmd_data_tree;
    int req_path_size;
    unsigned char add_stat_size;
+   int cmd_data_len;
+   int cmd_data_offset;
    guint8 service = tvb_get_guint8( tvb, offset );
 
    if (service & CIP_SC_RESPONSE_MASK)
    {
       /* Response message */
       add_stat_size = tvb_get_guint8( tvb, offset+3 ) * 2;
-
-      /* If there is any command specific data create a sub-tree for it */
-      if( ( item_length-4-add_stat_size ) != 0 )
-      {
-         cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size,
-                                                            ett_cmd_data, NULL, "Command Specific Data" );
-
-         /* Add data */
-         proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, ENC_NA);
-      }
-      else
-      {
-         PROTO_ITEM_SET_HIDDEN( ti );
-      }
-
-   } /* End of if reply */
+      cmd_data_len = item_length - 4 - add_stat_size;
+      cmd_data_offset = offset + 4 + add_stat_size;
+   }
    else
    {
       /* Request message */
-
       req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
+      cmd_data_len = item_length - req_path_size - 2;
+      cmd_data_offset = offset + 2 + req_path_size;
+   }
 
-      /* If there is any command specific data creat a sub-tree for it */
-      if( (item_length-req_path_size-2) != 0 )
-      {
-         cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+2+req_path_size, item_length-req_path_size-2,
-                                                 ett_cmd_data, NULL, "Command Specific Data" );
-
-         proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset+2+req_path_size, item_length-req_path_size-2, ENC_NA);
-      }
-      else
-      {
-         PROTO_ITEM_SET_HIDDEN( ti );
-      } /* End of if command-specific data present */
-
-   } /* End of if-else( request ) */
+   /* If there is any command specific data create a sub-tree for it */
+   if (cmd_data_len > 0)
+   {
+      cmd_data_tree = proto_tree_add_subtree(item_tree, tvb, cmd_data_offset, cmd_data_len,
+         ett_cmd_data, NULL, "Command Specific Data");
+      proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, cmd_data_offset, cmd_data_len, ENC_NA);
+   }
+   else
+   {
+      PROTO_ITEM_SET_HIDDEN(ti);
+   }
 
    add_cip_service_to_info_column(pinfo, service, cip_sc_vals);
 } /* End of dissect_cip_generic_data() */
@@ -5131,50 +5136,62 @@ dissect_cip_set_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 static void
-dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item, int offset)
+dissect_cip_multiple_service_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item, int offset, gboolean request)
 {
-   proto_item *mult_serv_item, *ti;
-   proto_tree *mult_serv_tree;
+   proto_tree *mult_serv_tree, *offset_tree;
    int i, num_services, serv_offset, prev_offset = 0;
    cip_req_info_t *cip_req_info, *mr_single_req_info;
    mr_mult_req_info_t *mr_mult_req_info = NULL;
 
-   /* Add number of services */
+   if (tvb_reported_length_remaining(tvb, offset) < 2)
+   {
+      expert_add_info(pinfo, item, &ei_mal_msp_missing_services);
+      return;
+   }
+
    num_services = tvb_get_letohs( tvb, offset);
-   ti = proto_tree_add_item(tree, hf_cip_sc_mult_serv_pack_num_services, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_cip_sc_mult_serv_pack_num_services, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
    /* Ensure a rough sanity check */
    if (num_services*2 > tvb_reported_length_remaining(tvb, offset+2))
    {
-        expert_add_info(pinfo, ti, &ei_mal_msp_services);
+      expert_add_info(pinfo, item, &ei_mal_msp_services);
    }
-   else
+
+   offset_tree = proto_tree_add_subtree(tree, tvb, offset + 2, num_services * 2, ett_cip_msp_offset, NULL, "Offset List");
+   for (i = 0; i < num_services; i++)
    {
-       /* Add services */
-       cip_req_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0 );
-       if ( cip_req_info )
-       {
-          if ( cip_req_info->pData == NULL )
-          {
-             mr_mult_req_info = wmem_new(wmem_file_scope(), mr_mult_req_info_t);
-             mr_mult_req_info->service = SC_MULT_SERV_PACK;
-             mr_mult_req_info->num_services = num_services;
-             mr_mult_req_info->requests = (cip_req_info_t *)wmem_alloc0(wmem_file_scope(), sizeof(cip_req_info_t)*num_services);
-             cip_req_info->pData = mr_mult_req_info;
-          }
-          else
-          {
-             mr_mult_req_info = (mr_mult_req_info_t*)cip_req_info->pData;
-             if ( mr_mult_req_info && mr_mult_req_info->num_services != num_services )
-                mr_mult_req_info = NULL;
-          }
-       }
+      proto_tree_add_item(offset_tree, hf_cip_sc_mult_serv_pack_offset, tvb, offset + 2 + i * 2, 2, ENC_LITTLE_ENDIAN);
+   }
+
+   cip_req_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0 );
+   if ( cip_req_info )
+   {
+      /* Only allocate memory for requests. */
+      if (cip_req_info->pData == NULL && request == TRUE)
+      {
+         mr_mult_req_info = wmem_new(wmem_file_scope(), mr_mult_req_info_t);
+         mr_mult_req_info->service = SC_MULT_SERV_PACK;
+         mr_mult_req_info->num_services = num_services;
+         mr_mult_req_info->requests = (cip_req_info_t *)wmem_alloc0(wmem_file_scope(), sizeof(cip_req_info_t)*num_services);
+         cip_req_info->pData = mr_mult_req_info;
+      }
+
+      mr_mult_req_info = (mr_mult_req_info_t*)cip_req_info->pData;
+
+      if (mr_mult_req_info
+         && (mr_mult_req_info->service != SC_MULT_SERV_PACK
+         || mr_mult_req_info->num_services != num_services))
+      {
+         mr_mult_req_info = NULL;
+      }
    }
 
    col_append_str(pinfo->cinfo, COL_INFO, ": ");
 
    for( i=0; i < num_services; i++ )
    {
+      proto_item *mult_serv_item;
       int serv_length;
       tvbuff_t *next_tvb;
 
@@ -5233,7 +5250,6 @@ dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto
           col_append_str(pinfo->cinfo, COL_INFO, ", ");
       }
    }
-
 }
 
 static int
@@ -5288,7 +5304,7 @@ dissect_cip_generic_service_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       proto_tree_add_item(cmd_data_tree, hf_cip_sc_delete_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
       break;
    case SC_MULT_SERV_PACK:
-      dissect_cip_multiple_service_packet_req(tvb, pinfo, cmd_data_tree, cmd_data_item, offset);
+      dissect_cip_multiple_service_packet(tvb, pinfo, cmd_data_tree, cmd_data_item, offset, TRUE);
       break;
    case SC_APPLY_ATTRIBUTES:
       proto_tree_add_item(cmd_data_tree, hf_cip_sc_apply_attributes_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
@@ -5596,94 +5612,6 @@ dissect_cip_get_attribute_single_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 }
 
 static void
-dissect_cip_multiple_service_packet_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item, int offset)
-{
-   proto_tree *mult_serv_tree;
-   int i, num_services, serv_offset;
-   cip_req_info_t *cip_req_info, *mr_single_req_info;
-   mr_mult_req_info_t *mr_mult_req_info = NULL;
-
-   if (tvb_reported_length_remaining(tvb, offset) < 2)
-   {
-      expert_add_info(pinfo, item, &ei_mal_msp_missing_services);
-      return;
-   }
-
-   num_services = tvb_get_letohs( tvb, offset);
-   proto_tree_add_item(tree, hf_cip_sc_mult_serv_pack_num_replies, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-
-   if (tvb_reported_length_remaining(tvb, offset+((num_services+1)*2)) <= 0)
-   {
-      expert_add_info(pinfo, item, &ei_mal_msp_resp_offset);
-      return;
-   }
-
-   cip_req_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0 );
-   if ( cip_req_info )
-   {
-      mr_mult_req_info = (mr_mult_req_info_t*)cip_req_info->pData;
-
-      if (  mr_mult_req_info
-         && (  mr_mult_req_info->service != SC_MULT_SERV_PACK
-            || mr_mult_req_info->num_services != num_services
-            )
-         )
-         mr_mult_req_info = NULL;
-   }
-
-   col_append_str(pinfo->cinfo, COL_INFO, ": ");
-
-   /* Add number of replies */
-   for( i=0; i < num_services; i++ )
-   {
-      int serv_length;
-      tvbuff_t *next_tvb;
-
-      serv_offset = tvb_get_letohs( tvb, offset+2+(i*2) );
-
-      if (tvb_reported_length_remaining(tvb, serv_offset) <= 0)
-      {
-         expert_add_info(pinfo, item, &ei_mal_msp_inv_offset);
-         continue;
-      }
-
-      if( i == (num_services-1) )
-      {
-         /* Last service to add */
-         serv_length = tvb_reported_length_remaining(tvb, offset)-serv_offset;
-      }
-      else
-      {
-         serv_length = tvb_get_letohs( tvb, offset+2+((i+1)*2) ) - serv_offset;
-      }
-
-      mult_serv_tree = proto_tree_add_subtree_format( tree, tvb, offset+serv_offset, serv_length,
-                                            ett_cip_mult_service_packet, NULL, "Service Reply #%d", i+1 );
-      proto_tree_add_item(mult_serv_tree, hf_cip_sc_mult_serv_pack_offset, tvb, offset+2+(i*2) , 2, ENC_LITTLE_ENDIAN);
-
-      /*
-      ** We call ourselves again to dissect embedded packet
-      */
-
-      next_tvb = tvb_new_subset_length(tvb, offset+serv_offset, serv_length);
-      if ( mr_mult_req_info )
-      {
-         mr_single_req_info = mr_mult_req_info->requests + i;
-         dissect_cip_data( mult_serv_tree, next_tvb, 0, pinfo, mr_single_req_info );
-      }
-      else
-      {
-         dissect_cip_data( mult_serv_tree, next_tvb, 0, pinfo, NULL );
-      }
-
-      if (i != num_services - 1)
-      {
-          col_append_str(pinfo->cinfo, COL_INFO, ", ");
-      }
-   }
-}
-
-static void
 dissect_cip_find_next_object_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item, int offset)
 {
    guint8 i, num_instances;
@@ -5782,7 +5710,7 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       proto_tree_add_item(cmd_data_tree, hf_cip_sc_delete_data, tvb, offset+4+add_stat_size, tvb_reported_length_remaining(tvb, offset+4+add_stat_size), ENC_NA);
       break;
    case SC_MULT_SERV_PACK:
-      dissect_cip_multiple_service_packet_rsp(tvb, pinfo, cmd_data_tree, cmd_data_item, offset+4+add_stat_size);
+      dissect_cip_multiple_service_packet(tvb, pinfo, cmd_data_tree, cmd_data_item, offset+4+add_stat_size, FALSE);
       break;
    case SC_APPLY_ATTRIBUTES:
       proto_tree_add_item(cmd_data_tree, hf_cip_sc_apply_attributes_data, tvb, offset+4+add_stat_size, tvb_reported_length_remaining(tvb, offset+4+add_stat_size), ENC_NA);
@@ -7580,7 +7508,6 @@ proto_register_cip(void)
       { &hf_cip_sc_create_data, { "Data", "cip.create.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_mult_serv_pack_num_services, { "Number of Services", "cip.msp.num_services", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_mult_serv_pack_offset, { "Offset", "cip.msp.offset", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_cip_sc_mult_serv_pack_num_replies, { "Number of Replies", "cip.msp.num_replies", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_delete_data, { "Data", "cip.delete.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_apply_attributes_data, { "Data", "cip.apply_attributes.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_get_attr_single_data, { "Data", "cip.getsingle.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -7910,6 +7837,7 @@ proto_register_cip(void)
       &ett_cip_set_attribute_list,
       &ett_cip_set_attribute_list_item,
       &ett_cip_mult_service_packet,
+      &ett_cip_msp_offset,
       &ett_time_sync_gm_clock_flags,
       &ett_time_sync_local_clock_flags,
       &ett_time_sync_port_state_info,
@@ -8003,7 +7931,6 @@ proto_register_cip(void)
       { &ei_mal_msp_services, { "cip.malformed.msp.services", PI_MALFORMED, PI_WARN, "Multiple Service Packet too many services for packet", EXPFILL }},
       { &ei_mal_msp_inv_offset, { "cip.malformed.msp.inv_offset", PI_MALFORMED, PI_WARN, "Multiple Service Packet service invalid offset", EXPFILL }},
       { &ei_mal_msp_missing_services, { "cip.malformed.msp.missing_services", PI_MALFORMED, PI_ERROR, "Multiple Service Packet service missing Number of Services field", EXPFILL }},
-      { &ei_mal_msp_resp_offset, { "cip.malformed.msp.resp_offset", PI_MALFORMED, PI_ERROR, "Multiple Service Packet service too many response offsets for packet size", EXPFILL }},
       { &ei_mal_serv_find_next_object, { "cip.malformed.find_next_object", PI_MALFORMED, PI_ERROR, "Find Next Object service missing Number of List Members field", EXPFILL }},
       { &ei_mal_serv_find_next_object_count, { "cip.malformed.find_next_object.count", PI_MALFORMED, PI_ERROR, "Find Next Object instance list count greater than packet size", EXPFILL }},
       { &ei_mal_rpi_no_data, { "cip.malformed.rpi_no_data", PI_MALFORMED, PI_WARN, "RPI not acceptable - missing extended data", EXPFILL }},
@@ -8014,6 +7941,7 @@ proto_register_cip(void)
       { &ei_mal_opt_attr_list, { "cip.malformed.opt_attr_list", PI_MALFORMED, PI_ERROR, "Optional attribute list missing data", EXPFILL }},
       { &ei_mal_opt_service_list, { "cip.malformed.opt_service_list", PI_MALFORMED, PI_ERROR, "Optional service list missing data", EXPFILL }},
       { &ei_mal_padded_epath_size, { "cip.malformed.epath.size", PI_MALFORMED, PI_ERROR, "Malformed EPATH vs Size", EXPFILL } },
+      { &ei_mal_missing_string_data, { "cip.malformed.missing_str_data", PI_MALFORMED, PI_ERROR, "Missing string data", EXPFILL } },
    };
 
    module_t *cip_module;
