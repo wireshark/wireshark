@@ -1894,40 +1894,6 @@ fragment_add_seq_common(reassembly_table *table, tvbuff_t *tvb,
 		}
 	}
 
-	/*
-	 * XXX I've copied this over from the old separate
-	 * fragment_add_seq_check_work, but I'm not convinced it's doing the
-	 * right thing -- rav
-	 *
-	 * If we don't have all the data that is in this fragment,
-	 * then we can't, and don't, do reassembly on it.
-	 *
-	 * If it's the first frame, handle it as an unfragmented packet.
-	 * Otherwise, just handle it as a fragment.
-	 *
-	 * If "more_frags" isn't set, we get rid of the entry in the
-	 * hash table for this reassembly, as we don't need it any more.
-	 */
-	if ((flags & REASSEMBLE_FLAGS_CHECK_DATA_PRESENT) &&
-		!tvb_bytes_exist(tvb, offset, frag_data_len)) {
-		fd_head -> flags |= FD_DATA_NOT_PRESENT;
-		if (frag_number == 0) {
-			return fd_head;
-		}
-		else {
-			if (!more_frags) {
-				/*
-				 * Remove this from the table of in-progress
-				 * reassemblies, and free up any memory used for
-				 * it in that table.
-				 */
-				fragment_unhash(table, *orig_keyp);
-				free_all_fragments(NULL, fd_head, NULL);
-			}
-			return NULL;
-		}
-	}
-
 	if (fragment_add_seq_work(fd_head, tvb, offset, pinfo,
 				  frag_number, frag_data_len, more_frags)) {
 		/*
@@ -2012,16 +1978,9 @@ fragment_add_seq_check_work(reassembly_table *table, tvbuff_t *tvb,
 	fd_head = fragment_add_seq_common(table, tvb, offset, pinfo, id, data,
 					  frag_number, frag_data_len,
 					  more_frags,
-					  flags|REASSEMBLE_FLAGS_CHECK_DATA_PRESENT,
+					  flags,
 					  &orig_key);
 	if (fd_head) {
-		if(fd_head->flags & FD_DATA_NOT_PRESENT) {
-			/* this is the first fragment of a datagram with
-			 * truncated fragments. Don't move it to the
-			 * reassembled table. */
-			return fd_head;
-		}
-
 		/*
 		 * Reassembly is complete.
 		 *
@@ -2139,11 +2098,6 @@ fragment_end_seq_next(reassembly_table *table, const packet_info *pinfo,
 	fd_head = lookup_fd_head(table, pinfo, id, data, &orig_key);
 
 	if (fd_head) {
-		if (fd_head->flags & FD_DATA_NOT_PRESENT) {
-			/* No data added */
-			return NULL;
-		}
-
 		fd_head->datalen = fd_head->offset;
 		fd_head->flags |= FD_DATALEN_SET;
 

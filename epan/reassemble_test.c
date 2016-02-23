@@ -110,7 +110,6 @@ static struct _fd_flags {
     {FD_DATALEN_SET          ,"DS"},
     {FD_SUBSET_TVB,          ,"ST"},
     {FD_BLOCKSEQUENCE        ,"BS"},
-    {FD_DATA_NOT_PRESENT     ,"NP"},
     {FD_PARTIAL_REASSEMBLY   ,"PR"},
     {FD_OVERLAP              ,"OL"},
     {FD_OVERLAPCONFLICT      ,"OC"},
@@ -1341,6 +1340,9 @@ test_simple_fragment_add_seq_next(void)
 }
 
 
+#if 0
+/* XXX remove this? fragment_add_seq does not have the special case for
+ * fragments having truncated tvbs anymore! */
 /* This tests the case where some data is missing from one of the fragments.
  * It should prevent reassembly.
  */
@@ -1513,6 +1515,7 @@ test_missing_data_fragment_add_seq_next_3(void)
     ASSERT_EQ(NULL,fd_head->tvb_data);
     ASSERT_EQ(NULL,fd_head->next);
 }
+#endif
 
 
 /**********************************************************************************
@@ -1539,9 +1542,11 @@ main(int argc _U_, char **argv _U_)
         test_fragment_add_seq_802_11_0,
         test_fragment_add_seq_802_11_1,
         test_simple_fragment_add_seq_next,
+#if 0
         test_missing_data_fragment_add_seq_next,
         test_missing_data_fragment_add_seq_next_2,
         test_missing_data_fragment_add_seq_next_3,
+#endif
 #if 0
         test_fragment_add_seq_check_multiple
 #endif

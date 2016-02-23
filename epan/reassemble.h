@@ -55,13 +55,6 @@
    into the defragmented packet */
 #define FD_BLOCKSEQUENCE        0x0100
 
-/* if REASSEMBLE_FLAGS_CHECK_DATA_PRESENT is set, and the first fragment is
- * incomplete, this flag is set in the flags word on the fd_head returned.
- *
- * It's all a fudge to preserve historical behaviour.
- */
-#define FD_DATA_NOT_PRESENT	0x0200
-
 /* This flag is set in (only) fd_head to denote that datalen has been set to a valid value.
  * It's implied by FD_DEFRAGMENTED (we must know the total length of the
  * datagram if we have defragmented it...)
@@ -116,10 +109,6 @@ typedef struct _fragment_item {
 
 /* a special fudge for the 802.11 dissector */
 #define REASSEMBLE_FLAGS_802_11_HACK		0x0002
-
-/* causes fragment_add_seq_key to check that all the fragment data is present
- * in the tvb, and if not, do something a bit odd. */
-#define REASSEMBLE_FLAGS_CHECK_DATA_PRESENT	0x0004
 
 /*
  * Generates a fragment identifier based on the given parameters. "data" is an
