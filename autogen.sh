@@ -59,10 +59,10 @@ esac
 
 ACVER=`$AUTOCONF --version | grep '^autoconf' | sed 's/.*) *//'`
 case "$ACVER" in
-'' | 0.* | 1.* | 2.[0-5]* )
+'' | 0.* | 1.* | 2.[0-5]* | 2.6[0123]* )
   cat >&2 <<_EOF_
 
-	You must have autoconf 2.60 or later installed to compile $PROJECT.
+	You must have autoconf 2.64 or later installed to compile $PROJECT.
 	Download the appropriate package for your distribution/OS,
 	or get the source tarball at ftp://ftp.gnu.org/pub/gnu/autoconf/
 _EOF_

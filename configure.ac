@@ -16,9 +16,9 @@ CONFIG_ARGS="$*"
 AC_SUBST(CONFIG_ARGS)
 
 # Minimum autoconf version we require.
-AC_PREREQ(2.60)
+AC_PREREQ(2.64)
 # Variable expansion doesn't work in AC_PREREQ()
-AC_MIN_VERSION=2.60
+AC_MIN_VERSION=2.64
 AC_SUBST(AC_MIN_VERSION)
 
 dnl Make sure to keep ACLOCAL_AMFLAGS in Makefile.am and AC_CONFIG_MACRO_DIRS
