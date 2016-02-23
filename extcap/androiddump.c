@@ -95,9 +95,9 @@
 #define INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET         "android-bluetooth-btsnoop-net"
 #define INTERFACE_ANDROID_WIFI_TCPDUMP                  "android-wifi-tcpdump"
 
-#define ANDROIDDUMP_VERSION_MAJOR    1U
-#define ANDROIDDUMP_VERSION_MINOR    0U
-#define ANDROIDDUMP_VERSION_RELEASE  1U
+#define ANDROIDDUMP_VERSION_MAJOR    "1"
+#define ANDROIDDUMP_VERSION_MINOR    "0"
+#define ANDROIDDUMP_VERSION_RELEASE  "1"
 
 #define SERIAL_NUMER_LENGTH_MAX  512
 
@@ -505,15 +505,34 @@ static int adb_send(socket_handle_t sock, const char *adb_service) {
     return 0;
 }
 
-static void new_interface(const gchar *interface_id,
+static void new_interface(extcap_parameters * extcap_conf, const gchar *interface_id,
         const gchar *serial_number, const gchar *display_name)
 {
-    printf("interface {display=%s %s}{value=%s-%s}\n",
-            display_name, serial_number, interface_id, serial_number);
+    char * interface = g_strdup_printf("%s-%s", interface_id, serial_number);
+    char * ifdisplay = g_strdup_printf("%s %s", display_name, serial_number);
+
+    if (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) ||
+            is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER) ||
+            is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET)) {
+
+        extcap_base_register_interface_ext(extcap_conf, interface, ifdisplay, 99, "BluetoothH4", "Bluetooth HCI UART transport layer plus pseudo-header" );
+    } else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_MAIN) ||
+            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_SYSTEM) ||
+            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_RADIO) ||
+            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_EVENTS) ||
+            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN) ||
+            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM) ||
+            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_RADIO) ||
+            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS) ||
+            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_CRASH)) {
+        extcap_base_register_interface(extcap_conf, interface, ifdisplay, 252, "Upper PDU" );
+    } else if (is_specified_interface(interface, INTERFACE_ANDROID_WIFI_TCPDUMP)) {
+        extcap_base_register_interface(extcap_conf, interface, ifdisplay, 1, "Ethernet");
+    }
 }
 
 
-static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server_tcp_port) {
+static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_server_ip, unsigned short *adb_server_tcp_port) {
     static char            packet[PACKET_LENGTH];
     static char            helpful_packet[PACKET_LENGTH];
     char                  *response;
@@ -536,9 +555,6 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
     char                  *prev_pos;
     int                    api_level;
     int                    disable_interface;
-
-    /* This is done here, so that androiddump get's listed in the about dialog */
-    printf ( "extcap {version=%u.%u.%u}\n", ANDROIDDUMP_VERSION_MAJOR, ANDROIDDUMP_VERSION_MINOR, ANDROIDDUMP_VERSION_RELEASE );
 
 /* NOTE: It seems that "adb devices" and "adb shell" closed connection
          so cannot send next command after them, there is need to reconnect */
@@ -584,7 +600,7 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
 
         /* If tcpdump is found in the android device, add Android Wifi Tcpdump as an interface  */
         if (strstr(response,"tcpdump version")) {
-            new_interface(INTERFACE_ANDROID_WIFI_TCPDUMP, serial_number, "Android WiFi");
+            new_interface(extcap_conf, INTERFACE_ANDROID_WIFI_TCPDUMP, serial_number, "Android WiFi");
         }
 
         sock = adb_connect(adb_server_ip, adb_server_tcp_port);
@@ -606,16 +622,16 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
         errmsg_print("VERBOSE: Android API Level for %s is %i", serial_number, api_level);
 
         if (api_level < 21) {
-            new_interface(INTERFACE_ANDROID_LOGCAT_MAIN,   serial_number, "Android Logcat Main");
-            new_interface(INTERFACE_ANDROID_LOGCAT_SYSTEM, serial_number, "Android Logcat System");
-            new_interface(INTERFACE_ANDROID_LOGCAT_RADIO,  serial_number, "Android Logcat Radio");
-            new_interface(INTERFACE_ANDROID_LOGCAT_EVENTS, serial_number, "Android Logcat Events");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_MAIN,   serial_number, "Android Logcat Main");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_SYSTEM, serial_number, "Android Logcat System");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_RADIO,  serial_number, "Android Logcat Radio");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_EVENTS, serial_number, "Android Logcat Events");
         } else {
-            new_interface(INTERFACE_ANDROID_LOGCAT_TEXT_MAIN,   serial_number, "Android Logcat Main");
-            new_interface(INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM, serial_number, "Android Logcat System");
-            new_interface(INTERFACE_ANDROID_LOGCAT_TEXT_RADIO,  serial_number, "Android Logcat Radio");
-            new_interface(INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS, serial_number, "Android Logcat Events");
-            new_interface(INTERFACE_ANDROID_LOGCAT_TEXT_CRASH,  serial_number, "Android Logcat Crash");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN,   serial_number, "Android Logcat Main");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM, serial_number, "Android Logcat System");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_RADIO,  serial_number, "Android Logcat Radio");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS, serial_number, "Android Logcat Events");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_CRASH,  serial_number, "Android Logcat Crash");
         }
 
         if (api_level >= 5 && api_level < 17) {
@@ -651,7 +667,7 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
             }
 
             if (!disable_interface) {
-                new_interface(INTERFACE_ANDROID_BLUETOOTH_HCIDUMP, serial_number, "Android Bluetooth Hcidump");
+                new_interface(extcap_conf, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP, serial_number, "Android Bluetooth Hcidump");
             }
         }
 
@@ -717,7 +733,7 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
             }
 
             if (!disable_interface) {
-                new_interface(INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER, serial_number, "Android Bluetooth External Parser");
+                new_interface(extcap_conf, INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER, serial_number, "Android Bluetooth External Parser");
             }
         }
 
@@ -786,45 +802,13 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
             }
 
             if (!disable_interface) {
-                new_interface(INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET, serial_number, "Android Bluetooth Btsnoop Net");
+                new_interface(extcap_conf, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET, serial_number, "Android Bluetooth Btsnoop Net");
             }
         }
     }
 
     return 0;
 }
-
-static int list_dlts(char *interface) {
-    if (!interface) {
-        errmsg_print("ERROR: No interface specified.");
-        return 1;
-    }
-
-    if (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET)) {
-        printf("dlt {number=99}{name=BluetoothH4}{display=Bluetooth HCI UART transport layer plus pseudo-header}\n");
-        return 0;
-    } else if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_MAIN) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_SYSTEM) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_RADIO) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_EVENTS) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_RADIO) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS) ||
-            is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_CRASH)) {
-        printf("dlt {number=252}{name=Upper PDU}{display=Upper PDU}\n");
-        return 0;
-    } else if (is_specified_interface(interface, INTERFACE_ANDROID_WIFI_TCPDUMP)) {
-        printf("dlt {number=1}{name=Ethernet}{display=Ethernet}\n");
-        return 0;
-    }
-
-    errmsg_print("ERROR: Invalid interface: <%s>", interface);
-    return 1;
-}
-
 
 static int list_config(char *interface) {
     if (!interface) {
@@ -1984,6 +1968,7 @@ static int capture_android_logcat(char *interface, char *fifo,
     }
 
     closesocket(sock);
+
     return 0;
 }
 
@@ -2194,13 +2179,7 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
 
 int main(int argc, char **argv) {
     int              option_idx = 0;
-    int              do_capture = 0;
-    int              do_config = 0;
-    int              do_list_interfaces = 0;
-    int              do_dlts = 0;
     int              result;
-    char            *fifo = NULL;
-    char            *interface = NULL;
     const char      *adb_server_ip       = NULL;
     unsigned short  *adb_server_tcp_port = NULL;
     unsigned int     logcat_text   = 0;
@@ -2216,6 +2195,8 @@ int main(int argc, char **argv) {
     unsigned short   default_bt_server_tcp_port = 4330;
     const char      *default_bt_local_ip = "127.0.0.1";
     unsigned short   default_bt_local_tcp_port  = 4330;
+    extcap_parameters * extcap_conf = NULL;
+
 #ifdef _WIN32
     WSADATA          wsaData;
 
@@ -2229,12 +2210,18 @@ int main(int argc, char **argv) {
         help();
         return 0;
     }
+    extcap_conf = g_new0(extcap_parameters, 1);
+
+    extcap_base_set_util_info(extcap_conf,ANDROIDDUMP_VERSION_MAJOR, ANDROIDDUMP_VERSION_MINOR, ANDROIDDUMP_VERSION_RELEASE, NULL);
+
+    /* For extcap, no other ports can be configured anyway */
+    register_interfaces(extcap_conf, default_adb_server_ip, &default_adb_server_tcp_port);
 
     while ((result = getopt_long(argc, argv, "", longopts, &option_idx)) != -1) {
         switch (result) {
 
         case OPT_VERSION:
-            printf("%u.%u.%u\n", ANDROIDDUMP_VERSION_MAJOR, ANDROIDDUMP_VERSION_MINOR, ANDROIDDUMP_VERSION_RELEASE);
+            printf("%s.%s.%s\n", ANDROIDDUMP_VERSION_MAJOR, ANDROIDDUMP_VERSION_MINOR, ANDROIDDUMP_VERSION_RELEASE);
             return 0;
         case OPT_VERBOSE:
             if (optarg)
@@ -2252,27 +2239,6 @@ int main(int argc, char **argv) {
                 }
                 verbose_print("\n");
             }
-            break;
-        case OPT_LIST_INTERFACES:
-            do_list_interfaces = 1;
-            break;
-        case OPT_LIST_DLTS:
-            do_dlts = 1;
-            break;
-        case OPT_INTERFACE:
-            interface = optarg;
-            break;
-        case OPT_CONFIG:
-            do_config = 1;
-            break;
-        case OPT_CAPTURE:
-            do_capture = 1;
-            break;
-        case OPT_CAPTURE_FILTER:
-            /* currently unused */
-            break;
-        case OPT_FIFO:
-            fifo = optarg;
             break;
         case OPT_HELP:
             help();
@@ -2314,8 +2280,11 @@ int main(int argc, char **argv) {
             *bt_local_tcp_port = (unsigned short) g_ascii_strtoull(optarg, NULL, 10);
             break;
         default:
-            printf("Invalid argument <%s>. Try --help.\n", argv[optind - 1]);
-            return -1;
+            if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg))
+            {
+                printf("Invalid argument <%s>. Try --help.\n", argv[optind - 1]);
+                return -1;
+            }
         }
     }
 
@@ -2334,12 +2303,6 @@ int main(int argc, char **argv) {
     if (!bt_local_tcp_port)
         bt_local_tcp_port = &default_bt_local_tcp_port;
 
-    if (do_config)
-        return list_config(interface);
-
-    if (do_dlts)
-        return list_dlts(interface);
-
 #ifdef _WIN32
     result = WSAStartup(MAKEWORD(1,1), &wsaData);
     if (result != 0) {
@@ -2348,44 +2311,42 @@ int main(int argc, char **argv) {
     }
 #endif  /* _WIN32 */
 
-    if (do_list_interfaces)
-    {
-        list_interfaces(adb_server_ip, adb_server_tcp_port);
+    if (extcap_base_handle_interface(extcap_conf))
         return 0;
-    }
 
-    if (fifo == NULL) {
-        errmsg_print("ERROR: No FIFO or file specified");
-        return 1;
-    }
+    if (extcap_conf->show_config)
+        return list_config(extcap_conf->interface);
 
-    if (do_capture) {
-        if (interface && (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_MAIN) ||
-                is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_SYSTEM) ||
-                is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_RADIO) ||
-                is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_EVENTS)))
+    if (extcap_conf->capture) {
+        if (extcap_conf->interface && (is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_MAIN) ||
+                is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_SYSTEM) ||
+                is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_RADIO) ||
+                is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_EVENTS)))
             if (logcat_text)
-                return capture_android_logcat_text(interface, fifo, adb_server_ip, adb_server_tcp_port);
+                return capture_android_logcat_text(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
             else
-                return capture_android_logcat(interface, fifo, adb_server_ip, adb_server_tcp_port);
-        else if (interface && (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN) ||
-                is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM) ||
-                is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_RADIO) ||
-                is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS) ||
-                (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_TEXT_CRASH))))
-            return capture_android_logcat_text(interface, fifo, adb_server_ip, adb_server_tcp_port);
-        else if (interface && is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP))
-            return capture_android_bluetooth_hcidump(interface, fifo, adb_server_ip, adb_server_tcp_port);
-        else if (interface && is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER))
-            return capture_android_bluetooth_external_parser(interface, fifo, adb_server_ip, adb_server_tcp_port,
+                return capture_android_logcat(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
+        else if (extcap_conf->interface && (is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN) ||
+                is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM) ||
+                is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_RADIO) ||
+                is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS) ||
+                (is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_LOGCAT_TEXT_CRASH))))
+            return capture_android_logcat_text(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
+        else if (extcap_conf->interface && is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP))
+            return capture_android_bluetooth_hcidump(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
+        else if (extcap_conf->interface && is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER))
+            return capture_android_bluetooth_external_parser(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port,
                     bt_server_tcp_port, bt_forward_socket, bt_local_ip, bt_local_tcp_port);
-        else if (interface && (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET)))
-            return capture_android_bluetooth_btsnoop_net(interface, fifo, adb_server_ip, adb_server_tcp_port);
-        else if (interface && (is_specified_interface(interface,INTERFACE_ANDROID_WIFI_TCPDUMP)))
-            return capture_android_wifi_tcpdump(interface, fifo, adb_server_ip,adb_server_tcp_port);
+        else if (extcap_conf->interface && (is_specified_interface(extcap_conf->interface, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET)))
+            return capture_android_bluetooth_btsnoop_net(extcap_conf->interface, extcap_conf->fifo, adb_server_ip, adb_server_tcp_port);
+        else if (extcap_conf->interface && (is_specified_interface(extcap_conf->interface,INTERFACE_ANDROID_WIFI_TCPDUMP)))
+            return capture_android_wifi_tcpdump(extcap_conf->interface, extcap_conf->fifo, adb_server_ip,adb_server_tcp_port);
         else
             return 2;
     }
+
+    /* clean up stuff */
+    extcap_base_cleanup(&extcap_conf);
 
     return 0;
 }

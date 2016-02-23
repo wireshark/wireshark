@@ -2409,8 +2409,8 @@ if(BUILD_randpktdump)
 		${CMAKE_DL_LIBS}
 	)
 	set(randpktdump_FILES
-		extcap/randpktdump.c
 		extcap/extcap-base.c
+		extcap/randpktdump.c
 	)
 
 	add_executable(randpktdump WIN32 ${randpktdump_FILES})

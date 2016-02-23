@@ -27,6 +27,7 @@
 #include <glib.h>
 #include <glib/gprintf.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #ifdef HAVE_GETOPT_H
 	#include <getopt.h>
@@ -65,30 +66,58 @@
 #endif
 
 #define EXTCAP_BASE_OPTIONS_ENUM \
-	OPT_LIST_INTERFACES, \
-	OPT_LIST_DLTS, \
-	OPT_INTERFACE, \
-	OPT_CONFIG, \
-	OPT_CAPTURE, \
-	OPT_CAPTURE_FILTER, \
-	OPT_FIFO \
+	EXTCAP_OPT_LIST_INTERFACES, \
+	EXTCAP_OPT_VERSION, \
+	EXTCAP_OPT_LIST_DLTS, \
+	EXTCAP_OPT_INTERFACE, \
+	EXTCAP_OPT_CONFIG, \
+	EXTCAP_OPT_CAPTURE, \
+	EXTCAP_OPT_CAPTURE_FILTER, \
+	EXTCAP_OPT_FIFO \
 
 
 #define EXTCAP_BASE_OPTIONS \
-	{ "extcap-interfaces",		no_argument,		NULL, OPT_LIST_INTERFACES}, \
-	{ "extcap-dlts",		no_argument,		NULL, OPT_LIST_DLTS}, \
-	{ "extcap-interface",		required_argument,	NULL, OPT_INTERFACE}, \
-	{ "extcap-config",		no_argument,		NULL, OPT_CONFIG}, \
-	{ "capture",			no_argument,		NULL, OPT_CAPTURE}, \
-	{ "extcap-capture-filter",	required_argument,	NULL, OPT_CAPTURE_FILTER}, \
-	{ "fifo",			required_argument,	NULL, OPT_FIFO} \
+	{ "extcap-interfaces",		no_argument,		NULL, EXTCAP_OPT_LIST_INTERFACES}, \
+	{ "extcap-version", 		optional_argument,	NULL, EXTCAP_OPT_VERSION}, \
+	{ "extcap-dlts",		no_argument,		NULL, EXTCAP_OPT_LIST_DLTS}, \
+	{ "extcap-interface",		required_argument,	NULL, EXTCAP_OPT_INTERFACE}, \
+	{ "extcap-config",		no_argument,		NULL, EXTCAP_OPT_CONFIG}, \
+	{ "capture",			no_argument,		NULL, EXTCAP_OPT_CAPTURE}, \
+	{ "extcap-capture-filter",	required_argument,	NULL, EXTCAP_OPT_CAPTURE_FILTER}, \
+	{ "fifo",			required_argument,	NULL, EXTCAP_OPT_FIFO} \
 
-#ifdef _WIN32
-BOOLEAN IsHandleRedirected(DWORD handle);
-void attach_parent_console();
+#if defined(_WIN32)
+	BOOLEAN IsHandleRedirected(DWORD handle);
+	void attach_parent_console();
 #endif
 
 #define errmsg_print(...) { fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); }
+
+typedef struct _extcap_parameters
+{
+	char * fifo;
+	char * interface;
+	char * capture_filter;
+
+	char * version;
+	char * helppage;
+	uint8_t capture;
+	uint8_t show_config;
+
+	/* private content */
+	GList * interfaces;
+	uint8_t do_version;
+	uint8_t do_list_dlts;
+	uint8_t do_list_interfaces;
+
+} extcap_parameters;
+
+void extcap_base_register_interface(extcap_parameters * extcap, const char * interface, const char * ifdescription, uint16_t dlt, const char * dltdescription );
+void extcap_base_register_interface_ext(extcap_parameters * extcap, const char * interface, const char * ifdescription, uint16_t dlt, const char * dltname, const char * dltdescription );
+void extcap_base_set_util_info(extcap_parameters * extcap, const char * major, const char * minor, const char * release, const char * helppage);
+uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char * optargument);
+uint8_t extcap_base_handle_interface(extcap_parameters * extcap);
+void extcap_base_cleanup(extcap_parameters ** extcap);
 
 #endif
 

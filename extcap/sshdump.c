@@ -58,9 +58,9 @@
 #define STDOUT_FILENO 1
 #endif
 
-#define SSHDUMP_VERSION_MAJOR 1U
-#define SSHDUMP_VERSION_MINOR 0U
-#define SSHDUMP_VERSION_RELEASE 0U
+#define SSHDUMP_VERSION_MAJOR "1"
+#define SSHDUMP_VERSION_MINOR "0"
+#define SSHDUMP_VERSION_RELEASE "0"
 
 #define SSH_EXTCAP_INTERFACE "ssh"
 #define SSH_READ_BLOCK_SIZE 256
@@ -384,30 +384,6 @@ static void help(const char* binname)
 	printf("  --remote-filter <filter>: a filter for remote capture (default: don't listen on local local interfaces IPs)\n");
 }
 
-static int list_interfaces(void)
-{
-	printf("extcap {version=%u.%u.%u}\n", SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR, SSHDUMP_VERSION_RELEASE);
-	printf("interface {value=%s}{display=SSH remote capture}\n", SSH_EXTCAP_INTERFACE);
-	return EXIT_SUCCESS;
-}
-
-static int list_dlts(const char *interface)
-{
-	if (!interface) {
-		errmsg_print("ERROR: No interface specified.");
-		return EXIT_FAILURE;
-	}
-
-	if (g_strcmp0(interface, SSH_EXTCAP_INTERFACE)) {
-		errmsg_print("ERROR: interface must be %s", SSH_EXTCAP_INTERFACE);
-		return EXIT_FAILURE;
-	}
-
-	printf("dlt {number=147}{name=%s}{display=Remote capture dependant DLT}\n", SSH_EXTCAP_INTERFACE);
-	return EXIT_SUCCESS;
-}
-
-
 static char* local_interfaces_to_filter(unsigned int remote_port)
 {
 	char* filter = NULL;
@@ -547,24 +523,24 @@ int main(int argc, char **argv)
 {
 	int result;
 	int option_idx = 0;
-	int do_list_interfaces = 0;
-	int do_config = 0;
-	int do_capture = 0;
 	int i;
-	char* interface = NULL;
 	char* remote_host = NULL;
 	unsigned int remote_port = 22;
 	char* remote_username = NULL;
 	char* remote_password = NULL;
-	int do_dlts = 0;
-	char* fifo = NULL;
 	char* remote_interface = NULL;
 	char* remote_capture_bin = NULL;
-	char* extcap_filter = NULL;
 	char* sshkey = NULL;
 	char* sshkey_passphrase = NULL;
 	char* remote_filter = NULL;
 	unsigned long int count = 0;
+	int ret = 0;
+
+	extcap_parameters * extcap_conf = g_new0(extcap_parameters, 1);
+
+	extcap_base_set_util_info(extcap_conf, SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR, SSHDUMP_VERSION_RELEASE, NULL);
+	extcap_base_register_interface(extcap_conf, SSH_EXTCAP_INTERFACE, "SSH remote capture", 147, "Remote capture dependant DLT");
+
 
 #ifdef _WIN32
 	WSADATA wsaData;
@@ -598,36 +574,8 @@ int main(int argc, char **argv)
 			break;
 
 		case OPT_VERSION:
-			printf("%u.%u.%u\n", SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR, SSHDUMP_VERSION_RELEASE);
+			printf("%s.%s.%s\n", SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR, SSHDUMP_VERSION_RELEASE);
 			return EXIT_SUCCESS;
-
-		case OPT_LIST_INTERFACES:
-			do_list_interfaces = 1;
-			break;
-
-		case OPT_LIST_DLTS:
-			do_dlts = 1;
-			break;
-
-		case OPT_INTERFACE:
-			if (interface)
-				g_free(interface);
-			interface = g_strdup(optarg);
-			break;
-
-		case OPT_CONFIG:
-			do_config = 1;
-			break;
-
-		case OPT_CAPTURE:
-			do_capture = 1;
-			break;
-
-		case OPT_FIFO:
-			if (fifo)
-				g_free(fifo);
-			fifo = g_strdup(optarg);
-			break;
 
 		case OPT_REMOTE_HOST:
 			if (remote_host)
@@ -681,12 +629,6 @@ int main(int argc, char **argv)
 			remote_capture_bin = g_strdup(optarg);
 			break;
 
-		case OPT_CAPTURE_FILTER:
-			if (extcap_filter)
-				g_free(extcap_filter);
-			extcap_filter = g_strdup(optarg);
-			break;
-
 		case OPT_REMOTE_FILTER:
 			if (remote_filter)
 				g_free(remote_filter);
@@ -703,8 +645,11 @@ int main(int argc, char **argv)
 			break;
 
 		default:
-			errmsg_print("Invalid option: %s", argv[optind - 1]);
-			return EXIT_FAILURE;
+			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg))
+			{
+				errmsg_print("Invalid option: %s", argv[optind - 1]);
+				return EXIT_FAILURE;
+			}
 		}
 	}
 
@@ -713,14 +658,11 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	if (do_list_interfaces)
-		return list_interfaces();
+	if (extcap_base_handle_interface(extcap_conf))
+		return EXIT_SUCCESS;
 
-	if (do_config)
-		return list_config(interface, remote_port);
-
-	if (do_dlts)
-		return list_dlts(interface);
+	if (extcap_conf->show_config)
+		return list_config(extcap_conf->interface, remote_port);
 
 #ifdef _WIN32
 	result = WSAStartup(MAKEWORD(1,1), &wsaData);
@@ -731,31 +673,26 @@ int main(int argc, char **argv)
 	}
 #endif  /* _WIN32 */
 
-	if (do_capture) {
+	if (extcap_conf->capture) {
 		char* filter;
-		int ret = 0;
-		if (!fifo) {
-			errmsg_print("ERROR: No FIFO or file specified");
-			return 1;
-		}
-		if (g_strcmp0(interface, SSH_EXTCAP_INTERFACE)) {
-			errmsg_print("ERROR: invalid interface");
-			return 1;
-		}
+
 		if (!remote_host) {
 			errmsg_print("Missing parameter: --remote-host");
 			return 1;
 		}
-		filter = concat_filters(extcap_filter, remote_filter);
+		filter = concat_filters(extcap_conf->capture_filter, remote_filter);
 		ret = ssh_open_remote_connection(remote_host, remote_port, remote_username,
 			remote_password, sshkey, sshkey_passphrase, remote_interface,
-			filter, remote_capture_bin, count, fifo);
+			filter, remote_capture_bin, count, extcap_conf->fifo);
 		g_free(filter);
-		return ret;
+	} else {
+		verbose_print("You should not come here... maybe some parameter missing?\n");
+		ret = 1;
 	}
 
-	verbose_print("You should not come here... maybe some parameter missing?\n");
-	return 1;
+	/* clean up stuff */
+	extcap_base_cleanup(&extcap_conf);
+	return ret;
 }
 
 
