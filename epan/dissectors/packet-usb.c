@@ -3953,7 +3953,7 @@ dissect_freebsd_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, void 
             /*
              * XXX - ultimately, we should dissect this data.
              */
-            proto_tree_add_item(frame_tree, hf_usb_frame_data, tvb, offset, 
+            proto_tree_add_item(frame_tree, hf_usb_frame_data, tvb, offset,
                                 framelen, ENC_NA);
             offset += (framelen + 3) & ~3;
         }
