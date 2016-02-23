@@ -342,9 +342,11 @@ void ManageInterfacesDialog::showLocalInterfaces()
             if (comment) {
                 item->setText(col_l_comment_, comment);
                 g_free(comment);
+            } else if (device.if_info.vendor_description) {
+                item->setText(col_l_comment_, device.if_info.vendor_description);
             }
         } else {
-          continue;
+            continue;
         }
     }
     g_free(pr_descr);
