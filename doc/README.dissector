@@ -98,9 +98,11 @@ PROTOSHORTNAME  An abbreviated name for the protocol; this is displayed
                 and in the dialog box for filter fields when constructing
                 a filter expression.
 PROTOABBREV     A name for the protocol for use in filter expressions;
-                it shall contain only lower-case letters, digits, and hyphens.
+                it may contain only lower-case letters, digits, and hyphens,
+                underscores, and periods.
 FIELDNAME       The displayed name for the header field.
-FIELDABBREV     The abbreviated name for the header field. (NO SPACES)
+FIELDABBREV     The abbreviated name for the header field; it may contain
+                only letters, digits, hyphens, underscores, and periods.
 FIELDTYPE       FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
                 FT_UINT32, FT_UINT40, FT_UINT48, FT_UINT56, FT_UINT64,
                 FT_INT8, FT_INT16, FT_INT24, FT_INT32, FT_INT40, FT_INT48,
@@ -158,9 +160,6 @@ FIELDCONVERT    VALS(x), VALS64(x), RVALS(x), TFS(x), CF_FUNC(x), NULL
 BITMASK         Used to mask a field not 8-bit aligned or with a size other
                 than a multiple of 8 bits
 FIELDDESCR      A brief description of the field, or NULL. [Please do not use ""].
-PARENT_SUBFIELD Lower level protocol field used for lookup, i.e. "tcp.port"
-ID_VALUE        Lower level protocol field value that identifies this protocol
-                For example the TCP or UDP port number
 
 If, for example, PROTONAME is "Internet Bogosity Discovery Protocol",
 PROTOSHORTNAME would be "IBDP", and PROTOABBREV would be "ibdp".  Try to
@@ -700,28 +699,27 @@ struct header_field_info {
     .....
 };
 
-name
-----
+name (FIELDNAME)
+----------------
 A string representing the name of the field. This is the name
 that will appear in the graphical protocol tree.  It must be a non-empty
 string.
 
-abbrev
-------
-A string with an abbreviation of the field. We concatenate the
-abbreviation of the parent protocol with an abbreviation for the field,
-using a period as a separator. For example, the "src" field in an IP packet
-would have "ip.src" as an abbreviation. It is acceptable to have
-multiple levels of periods if, for example, you have fields in your
-protocol that are then subdivided into subfields. For example, TRMAC
-has multiple error fields, so the abbreviations follow this pattern:
-"trmac.errors.iso", "trmac.errors.noniso", etc.
+abbrev (FIELDABBREV)
+--------------------
+A string with an abbreviation of the field.  The abbreviation should start
+with the abbreviation of the parent protocol followed by a period as a
+separator.  For example, the "src" field in an IP packet would have "ip.src"
+as an abbreviation. It is acceptable to have multiple levels of periods if,
+for example, you have fields in your protocol that are then subdivided into
+subfields. For example, TRMAC has multiple error fields, so the abbreviations
+follow this pattern: "trmac.errors.iso", "trmac.errors.noniso", etc.
 
-The abbreviation is the identifier used in a display filter.  If it is
-an empty string then the field will not be filterable.
+The abbreviation is the identifier used in a display filter.  As such it
+cannot be an empty string.
 
-type
-----
+type (FIELDTYPE)
+----------------
 The type of value this field holds. The current field types are:
 
     FT_NONE     No field type. Used for fields that
@@ -825,8 +823,8 @@ types (i.e.. types that are _not_ FT_INT* and FT_UINT*) must use
 fields.  The reason is simply that the type itself implicitly defines the
 nature of 'display', 'strings', 'bitmask'.
 
-display
--------
+display (FIELDDISPLAY)
+----------------------
 The display field has a couple of overloaded uses. This is unfortunate,
 but since we're using C as an application programming language, this sometimes
 makes for cleaner programs. Right now I still think that overloading
@@ -898,8 +896,8 @@ no endianness is specified, such as the X11 protocol and the DCE RPC
 protocol, so it would not be possible to record the endianness of all
 integral fields.
 
-strings
--------
+strings (FIELDCONVERT)
+----------------------
 -- value_string
 Some integer fields, of type FT_UINT*, need labels to represent the true
 value of a field.  You could think of those fields as having an
@@ -1031,8 +1029,8 @@ in tfs.h, included via packet.h.
 Custom fields (BASE_CUSTOM) should use CF_FUNC(&custom_format_func) for the
 'strings' field.
 
-bitmask
--------
+bitmask (BITMASK)
+-----------------
 If the field is a bitfield, then the bitmask is the mask which will
 leave only the bits needed to make the field when ANDed with a value.
 The proto_tree routines will calculate 'bitshift' automatically
@@ -1042,8 +1040,8 @@ filtering.
 
 If the field is not a bitfield, then bitmask should be set to 0.
 
-blurb
------
+blurb (FIELDDESCR)
+------------------
 This is a string giving a proper description of the field.  It should be
 at least one grammatically complete sentence, or NULL in which case the
 name field is used. (Please do not use "").
@@ -3260,7 +3258,7 @@ The arguments to udp_dissect_pdus are:
     pointer and an offset value representing the offset into the tvbuff
     at which a PDU begins, and a void pointer for user data, and should
     return the total length of the PDU in bytes. If return value is 0,
-	it's treated the same as a failed heuristic.
+    it's treated the same as a failed heuristic.
     The routine must not throw exceptions (it is guaranteed that the
     number of bytes specified by the previous argument to
     tcp_dissect_pdus is available, but more data might not be available,
