@@ -488,8 +488,8 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
 {
     static const gchar hexchars[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 
+    ui->tePacketBytes->clear();
     ui->tePacketBytes->setCurrentFont(wsApp->monospaceFont());
-    ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
 
     switch (show_as_) {
 
@@ -497,6 +497,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
     {
         QByteArray ba(field_bytes_);
         sanitizeBuffer(ba);
+        ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
         ui->tePacketBytes->setPlainText(ba);
         break;
     }
@@ -533,8 +534,8 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         }
 
         text.append("};\n");
-        ui->tePacketBytes->setPlainText(text);
         ui->tePacketBytes->setLineWrapMode(QTextEdit::NoWrap);
+        ui->tePacketBytes->setPlainText(text);
         break;
     }
 
@@ -543,6 +544,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         QByteArray ba(field_bytes_);
         EBCDIC_to_ASCII((guint8*)ba.data(), ba.length());
         sanitizeBuffer(ba);
+        ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
         ui->tePacketBytes->setPlainText(ba);
         break;
     }
@@ -550,6 +552,8 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
     case ShowAsHexDump:
     {
         int pos = 0, len = field_bytes_.length();
+        // Use 16-bit offset if there are <= 65536 bytes, 32-bit offset if there are more
+        unsigned int offset_chars = (len - 1 <= 0xFFFF) ? 4 : 8;
         QString text;
         text.reserve((len / 16) * 80);
 
@@ -559,7 +563,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
             int i;
 
             // Dump offset
-            cur += g_snprintf(cur, 20, "%08X  ", pos);
+            cur += g_snprintf(cur, 20, "%0*X  ", offset_chars, pos);
 
             // Dump bytes as hex
             for (i = 0; i < 16 && pos + i < len; i++) {
@@ -570,8 +574,8 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
                     *cur++ = ' ';
             }
 
-            while (cur < hexbuf + 61)
-                *cur++ = ' '; // Fill it up with space to column 61
+            while (cur < hexbuf + offset_chars + 53)
+                *cur++ = ' '; // Fill it up with space to ascii column
 
             // Dump bytes as text
             for (i = 0; i < 16 && pos + i < len; i++) {
@@ -590,12 +594,13 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
             text.append(hexbuf);
         }
 
-        ui->tePacketBytes->setPlainText(text);
         ui->tePacketBytes->setLineWrapMode(QTextEdit::NoWrap);
+        ui->tePacketBytes->setPlainText(text);
         break;
     }
 
     case ShowAsHTML:
+        ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
         ui->tePacketBytes->setHtml(field_bytes_);
         break;
 
@@ -604,9 +609,9 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         ui->lFind->setEnabled(false);
         ui->leFind->setEnabled(false);
         ui->bFind->setEnabled(false);
-        ui->tePacketBytes->clear();
 
         if (!image_.isNull()) {
+            ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
             ui->tePacketBytes->textCursor().insertImage(image_);
         } else {
             print_button_->setEnabled(false);
@@ -621,6 +626,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         // The ISO 8859-1 string should probably also use UTF8_SYMBOL_FOR_NULL
         // to be able to show all bytes.
         guint8 *bytes = get_8859_1_string(NULL, (const guint8 *)field_bytes_.constData(), field_bytes_.length());
+        ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
         ui->tePacketBytes->setPlainText((const char *)bytes);
         wmem_free (NULL, bytes);
         break;
@@ -634,6 +640,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         QByteArray ba(field_bytes_);
         ba.replace('\0', UTF8_SYMBOL_FOR_NULL);
         QString utf8 = QString::fromUtf8(ba);
+        ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
         ui->tePacketBytes->setPlainText(utf8);
         break;
     }
@@ -650,12 +657,13 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
             text.append("  " + base64_data.toBase64() + "\n");
         }
 
-        ui->tePacketBytes->setPlainText(text);
         ui->tePacketBytes->setLineWrapMode(QTextEdit::NoWrap);
+        ui->tePacketBytes->setPlainText(text);
         break;
     }
 
     case ShowAsRAW:
+        ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
         ui->tePacketBytes->setPlainText(field_bytes_.toHex());
         break;
     }
