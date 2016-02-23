@@ -344,7 +344,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     switch (type) {
 
     case ETHERTYPE_PPP:
-        if (flags_and_ver & GRE_ACK)
+        if (flags_and_ver & GRE_VERSION)
             is_ppp = TRUE;
         break;
     case ETHERTYPE_3GPP2:
