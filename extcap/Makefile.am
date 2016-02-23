@@ -25,6 +25,9 @@ ACLOCAL_AMFLAGS = `../aclocal-flags`
 
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS)
 
+MAINTAINERCLEANFILES = \
+	Makefile.in
+
 extcap_PROGRAMS = \
 	@androiddump_bin@	\
 	@randpktdump_bin@	\
