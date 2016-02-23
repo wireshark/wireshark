@@ -267,20 +267,10 @@ void ByteViewTab::protoTreeItemChanged(QTreeWidgetItem *current) {
                 }
 
                 if (cap_file_->search_in_progress && (cap_file_->hex || (cap_file_->string && cap_file_->packet_data))) {
-                    /* In the hex view, only highlight the target bytes or string. The entire
-                       field can then be displayed by clicking on any of the bytes in the field. */
-                    if (cap_file_->hex) {
-                        const char *p = cap_file_->sfilter;
-                        f_len = 0;
-                        while (*p) {
-                            if (g_ascii_isxdigit(*p++))
-                                f_len++;
-                        }
-                        f_len = (f_len + 1) / 2;
-                    } else {
-                        f_len = (int)strlen(cap_file_->sfilter);
-                    }
-                    f_start = cap_file_->search_pos - (f_len-1);
+                    // In the hex view, only highlight the target bytes or string. The entire
+                    // field can then be displayed by clicking on any of the bytes in the field.
+                    f_start = cap_file_->search_pos - cap_file_->search_len + 1;
+                    f_len = cap_file_->search_len;
                 } else {
                     f_start = fi->start;
                     f_len = fi->length;

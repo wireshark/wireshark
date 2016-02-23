@@ -102,6 +102,7 @@ typedef struct _capture_file {
   gboolean     decode_data;     /* TRUE if "String" search in "Packet details" was last selected */
   gboolean     packet_data;     /* TRUE if "String" search in "Packet data" was last selected */
   guint32      search_pos;      /* Byte position of last byte found in a hex search */
+  guint32      search_len;      /* Length of bytes matching the search */
   gboolean     case_type;       /* TRUE if case-insensitive text search */
   GRegex      *regex;           /* Set if regular expression search */
   search_charset_t scs_type;    /* Character set for text search */

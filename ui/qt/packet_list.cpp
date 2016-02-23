@@ -35,6 +35,7 @@
 #include <epan/ipproto.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/proto.h>
 
 #include "ui/main_statusbar.h"
 #include "ui/packet_list_utils.h"
@@ -479,6 +480,29 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
             wmem_free(NULL, source_name);
         }
         byte_view_tab_->setCurrentIndex(0);
+    }
+
+    if (cap_file_->search_in_progress &&
+        (cap_file_->search_pos != 0 || (cap_file_->string && cap_file_->decode_data)))
+    {
+        match_data  mdata;
+        field_info *fi = NULL;
+
+        if (cap_file_->string && cap_file_->decode_data) {
+            // The tree where the target string matched one of the labels was discarded in
+            // match_protocol_tree() so we have to search again in the latest tree.
+            if (cf_find_string_protocol_tree(cap_file_, cap_file_->edt->tree, &mdata)) {
+                fi = mdata.finfo;
+            }
+        } else {
+            // Find the finfo that corresponds to our byte.
+            fi = proto_find_field_from_offset(cap_file_->edt->tree, cap_file_->search_pos,
+                                              cap_file_->edt->tvb);
+        }
+
+        if (fi && proto_tree_) {
+            proto_tree_->selectField(fi);
+        }
     }
 }
 

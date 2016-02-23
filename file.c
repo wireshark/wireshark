@@ -3084,6 +3084,7 @@ match_narrow_and_wide(capture_file *cf, frame_data *fdata, void *criterion)
           result = MR_MATCHED;
           cf->search_pos = i; /* Save the position of the last character
                                  for highlighting the field. */
+          cf->search_len = (guint32)textlen;
           break;
         }
       }
@@ -3131,6 +3132,7 @@ match_narrow(capture_file *cf, frame_data *fdata, void *criterion)
         result = MR_MATCHED;
         cf->search_pos = i; /* Save the position of the last character
                                for highlighting the field. */
+        cf->search_len = (guint32)textlen;
         break;
       }
     }
@@ -3178,6 +3180,7 @@ match_wide(capture_file *cf, frame_data *fdata, void *criterion)
         result = MR_MATCHED;
         cf->search_pos = i; /* Save the position of the last character
                                for highlighting the field. */
+        cf->search_len = (guint32)textlen;
         break;
       }
       i += 1;
@@ -3221,6 +3224,7 @@ match_binary(capture_file *cf, frame_data *fdata, void *criterion)
         result = MR_MATCHED;
         cf->search_pos = i; /* Save the position of the last character
                                for highlighting the field. */
+        cf->search_len = (guint32)datalen;
         break;
       }
     }
@@ -3251,7 +3255,8 @@ match_regex(capture_file *cf, frame_data *fdata, void *criterion _U_)
     {
         gint start_pos = 0, end_pos = 0;
         g_match_info_fetch_pos (match_info, 0, &start_pos, &end_pos);
-        cf->search_pos = end_pos; /* TODO: use start_pos to show correct length for regex */
+        cf->search_pos = end_pos - 1;
+        cf->search_len = end_pos - start_pos;
         result = MR_MATCHED;
     }
     return result;
@@ -3493,6 +3498,7 @@ find_packet(capture_file *cf,
     found = packet_list_select_row_from_data(new_fd);
     cf->search_in_progress = FALSE;
     cf->search_pos = 0; /* Reset the position */
+    cf->search_len = 0; /* Reset length */
     if (!found) {
       /* We didn't find a row corresponding to this frame.
          This means that the frame isn't being displayed currently,
