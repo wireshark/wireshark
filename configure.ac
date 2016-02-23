@@ -844,6 +844,16 @@ AC_CHECK_PROG(have_sw_vers, sw_vers, "yes", "no")
 AM_CONDITIONAL(NOT_OS_X, test "x$have_sw_vers" = "xno")
 
 #
+# Check compiler vendor. For GCC this will be 'gnu' and for Clang 'clang'.
+#
+AX_COMPILER_VENDOR
+if test "x$CXX" != "x" ; then
+	AC_LANG_PUSH(C++)
+	AX_COMPILER_VENDOR
+	AC_LANG_POP
+fi
+
+#
 # Some compilers have to be told to fail when passed an unknown -W flag;
 # make sure we do that.
 #
@@ -1039,7 +1049,12 @@ AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wshorten-64-to-32, C)
 # Clang only. Avoid "argument unused during compilation" warnings
 # (for example, when getting the -gsplit-dwarf option or
 # when combining -fwrapv with -fno-strict-overflow)
-AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Qunused-arguments)
+if test x"$ax_cv_c_compiler_vendor" = xclang; then
+	AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Qunused-arguments, C)
+fi
+if test x"$ax_cv_cxx_compiler_vendor" = xclang; then
+	AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Qunused-arguments, CXX)
+fi
 
 #
 # Use the faster pre gcc 4.5 floating point precision if available.
