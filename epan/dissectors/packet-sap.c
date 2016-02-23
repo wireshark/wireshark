@@ -344,7 +344,7 @@ void proto_register_sap(void)
         { &hf_sap_auth_len, { "Authentication Length", "sap.auth.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_sap_message_identifier_hash, { "Message Identifier Hash", "sap.message_identifier_hash", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_sap_originating_source_ipv4, { "Originating Source", "sap.originating_source", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_sap_originating_source_ipv6, { "Originating Source", "sap.originating_source", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_sap_originating_source_ipv6, { "Originating Source", "sap.originating_source.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_sap_auth_subheader, { "Authentication subheader", "sap.auth.subheader", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_sap_auth_data_padding, { "Authentication data padding", "sap.auth.data_padding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_sap_auth_data_padding_len, { "Authentication data pad count (bytes)", "sap.auth.data_padding.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},

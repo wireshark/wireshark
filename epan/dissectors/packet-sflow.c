@@ -2474,7 +2474,7 @@ proto_register_sflow(void) {
                 FT_IPv4, BASE_NONE, NULL, 0x0,
                 "Destination IPv4 address", HFILL}},
         { &hf_sflow_245_nexthop_v6,
-            { "Next hop", "sflow_245.nexthop",
+            { "Next hop", "sflow_245.nexthop.v6",
                 FT_IPv6, BASE_NONE, NULL, 0x0,
                 "Next hop address", HFILL}},
         { &hf_sflow_245_ipv6_src,

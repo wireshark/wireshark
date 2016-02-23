@@ -1117,7 +1117,7 @@ proto_register_rsip(void)
 			  NULL, HFILL }
 		},
 		{ &hf_rsip_parameter_address_ipv6,
-			{ "IPv6 Address",	"rsip.parameter.address",
+			{ "IPv6 Address",	"rsip.parameter.address.ipv6",
 			  FT_IPv6, BASE_NONE, NULL, 0x0,
 			  NULL, HFILL }
 		},
