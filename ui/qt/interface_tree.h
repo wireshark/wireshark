@@ -58,6 +58,9 @@ public:
 
     void resetColumnCount();
 
+    // Used by CaptureInterfacesDialog.
+    static void updateGlobalDeviceSelections(QTreeWidget *if_tree, int name_col);
+
 protected:
     void hideEvent(QHideEvent *evt);
     void showEvent(QShowEvent *evt);
@@ -71,7 +74,6 @@ private:
 #endif // HAVE_LIBPCAP
 
 signals:
-    void interfacesUpdated();
 
 public slots:
     // add_interface_to_list
@@ -79,13 +81,14 @@ public slots:
     // change_interface_selection_for_all
     //void getPoints(int row, QList<int> *pts);
     void getPoints(int row, PointList *pts);
-    void setSelectedInterfaces();
     void interfaceListChanged();
+    void selectedInterfaceChanged() { updateGlobalDeviceSelections(this, IFTREE_COL_NAME); }
+    void updateSelectedInterfaces();
+    void updateToolTips();
 
 private slots:
     void getInterfaceList();
     void updateStatistics(void);
-    void updateSelectedInterfaces();
 };
 
 

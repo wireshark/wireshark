@@ -45,6 +45,9 @@ public:
     const QString captureFilter();
     void setCaptureFilter(const QString capture_filter);
 
+public slots:
+    void interfaceSelected();
+
 protected:
     void resizeEvent(QResizeEvent *event);
 
@@ -68,6 +71,9 @@ signals:
 #if HAVE_EXTCAP
     void showExtcapOptions(QString &device_name);
 #endif
+
+public slots:
+    void setCaptureFilterText(const QString capture_filter);
 
 private slots:
     void appInitialized();

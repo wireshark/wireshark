@@ -34,6 +34,7 @@ public:
     explicit CaptureFilterCombo(QWidget *parent = 0, bool plain = false);
     bool addRecentCapture(const char *filter);
     void writeRecent(FILE *rf);
+    void setConflict(bool conflict = false) { cf_edit_->setConflict(conflict); }
 
 signals:
     void interfacesChanged();
