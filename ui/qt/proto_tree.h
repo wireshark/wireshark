@@ -42,6 +42,7 @@ public:
     void fillProtocolTree(proto_tree *protocol_tree);
     void emitRelatedFrame(int related_frame, ft_framenum_type_t framenum_type = FT_FRAMENUM_NONE);
     void goToField(int hf_id);
+    void selectField(field_info *fi);
     void closeContextMenu();
     void clear();
 

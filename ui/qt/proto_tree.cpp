@@ -542,6 +542,19 @@ void ProtoTree::itemDoubleClick(QTreeWidgetItem *item, int) {
     }
 }
 
+void ProtoTree::selectField(field_info *fi)
+{
+    QTreeWidgetItemIterator iter(this);
+    while (*iter) {
+        if (fi == (*iter)->data(0, Qt::UserRole).value<field_info *>()) {
+            setCurrentItem(*iter);
+            scrollToItem(*iter);
+            break;
+        }
+        iter++;
+    }
+}
+
 /*
  * Editor modelines
  *
