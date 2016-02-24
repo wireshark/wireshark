@@ -1465,8 +1465,8 @@ static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
      *
      * We include the length of the metadata headers in the packet lengths.
      */
-    phdr->len = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + 17 + actual_octets;
-    phdr->caplen = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + 17 + actual_octets;
+    phdr->len = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + 1 + 16 + actual_octets;
+    phdr->caplen = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + 1 + 16 + actual_octets;
 
     phdr->ts.secs   = (time_t)s_sec;
     phdr->ts.nsecs  = (int)(s_usec * 1000);
