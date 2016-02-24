@@ -1025,22 +1025,19 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
         sig_ts = 0;
 
     /*
-     * We also copy over 16 bytes of PLCP header + 1 byte of L1P for user
+     * Fill up the per-packet header.
+     *
+     * We also zero out 16 bytes PLCP header and 1 byte of L1P for user
      * position.
      *
      * XXX - for S1, do we even have that?  The current Veriwave dissector
      * just blindly assumes there's a 17-byte blob before the 802.11
-     * header.
-     */
-    actual_octets = actual_octets + 17;
-
-    /*
-     * Fill up the per-packet header.
+     * header, which is why we fill in those extra zero bytes.
      *
      * We include the length of the metadata headers in the packet lengths.
      */
-    phdr->len = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + actual_octets;
-    phdr->caplen = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + actual_octets;
+    phdr->len = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + 1 + 16 + actual_octets;
+    phdr->caplen = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + 1 + 16 + actual_octets;
 
     phdr->ts.secs   = (time_t)s_sec;
     phdr->ts.nsecs  = (int)(s_usec * 1000);
@@ -1148,7 +1145,12 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     phtolel(&data_ptr[bytes_written], errors);
     bytes_written += 4;
 
-    /* No VHT, no VHT NDP flag, so just zero. */
+    /*
+     * No VHT, no VHT NDP flag, so just zero.
+     *
+     * XXX - is this supposed to be the RX L1 info, i.e. the "1 byte of L1P
+     * for user position"?
+     */
     data_ptr[bytes_written] = 0;
     bytes_written += 1;
 
