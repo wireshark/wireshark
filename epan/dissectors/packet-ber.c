@@ -1441,7 +1441,10 @@ static void ber_defragment_cleanup(void) {
 }
 
 static int
-reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, gint hf_id, tvbuff_t *tvb, int offset, guint32 con_len, gboolean ind, tvbuff_t **out_tvb)
+dissect_ber_constrained_octet_string_impl(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, gint hf_id, tvbuff_t **out_tvb, guint nest_level);
+
+static int
+reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, gint hf_id, tvbuff_t *tvb, int offset, guint32 con_len, gboolean ind, tvbuff_t **out_tvb, guint nest_level)
 {
     fragment_head *fd_head         = NULL;
     tvbuff_t      *next_tvb        = NULL;
@@ -1450,6 +1453,11 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, gint hf_id, tvbuff_t
     int            start_offset    = offset;
     gboolean       fragment        = TRUE;
     gboolean       firstFragment   = TRUE;
+
+    if (nest_level > BER_MAX_NESTING) {
+        /* Assume that we have a malformed packet. */
+        THROW(ReportedBoundsError);
+    }
 
     /* so we need to consume octet strings for the given length */
 
@@ -1464,7 +1472,8 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, gint hf_id, tvbuff_t
 
     while(!fd_head) {
 
-        offset = dissect_ber_octet_string(FALSE, actx, NULL, tvb, offset, hf_id, &next_tvb);
+        offset = dissect_ber_constrained_octet_string_impl(FALSE, actx, NULL,
+                tvb, offset, NO_BOUND, NO_BOUND, hf_id, &next_tvb, nest_level + 1);
 
         if (next_tvb == NULL) {
             /* Assume that we have a malformed packet. */
@@ -1540,6 +1549,11 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, gint hf_id, tvbuff_t
 /* 8.7 Encoding of an octetstring value */
 int
 dissect_ber_constrained_octet_string(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, gint hf_id, tvbuff_t **out_tvb) {
+  return dissect_ber_constrained_octet_string_impl(implicit_tag, actx, tree, tvb, offset, min_len, max_len, hf_id, out_tvb, 0);
+}
+
+static int
+dissect_ber_constrained_octet_string_impl(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, gint hf_id, tvbuff_t **out_tvb, guint nest_level) {
     gint8       ber_class;
     gboolean    pc, ind;
     gint32      tag;
@@ -1633,7 +1647,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n", name);
 
     if (pc) {
         /* constructed */
-        end_offset = reassemble_octet_string(actx, tree, hf_id, tvb, offset, len, ind, out_tvb);
+        end_offset = reassemble_octet_string(actx, tree, hf_id, tvb, offset, len, ind, out_tvb, nest_level);
     } else {
         /* primitive */
         gint length_remaining;
