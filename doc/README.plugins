@@ -104,6 +104,21 @@ DLL to CUSTOM_PLUGINS:
 CUSTOM_PLUGINS= \
 	../../plugins/foo/foo.dll
 
+For CMake builds, either pass the custom plugin dir on the CMake generation
+step command line:
+
+CMake ... -DCUSTOM_PLUGIN_SRC_DIR="plugins/foo"
+
+or copy the top-level file CMakeListsCustom.txt.example to CMakeListsCustom.txt
+(also in the top-level source dir) and edit so that CUSTOM_PLUGIN_SRC_DIR is
+set() to the releative path of your plugin, e.g.
+
+set(CUSTOM_PLUGIN_SRC_DIR plugins/foo)
+
+and re-run the CMake generation step.
+
+To build the plugin run your normal Wireshark build step.
+
 3.2 Permanent addition
 
 In order to be able to permanently add a plugin take the following steps.
