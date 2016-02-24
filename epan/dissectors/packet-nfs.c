@@ -1120,7 +1120,7 @@ static void
 nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 {
 	unsigned char	     *fh;
-	nfs_name_snoop_t     *nns, *old_nns;
+	nfs_name_snoop_t     *nns;
 	nfs_name_snoop_key_t *key;
 
 	/* find which request we correspond to */
@@ -1144,13 +1144,6 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 	key->key = 0;
 	key->fh_length = nns->fh_length;
 	key->fh = nns->fh;
-
-	/* already have something matched for this fh, remove it from
-	   the table */
-	old_nns = (nfs_name_snoop_t *)g_hash_table_lookup(nfs_name_snoop_matched, key);
-	if (old_nns) {
-		g_hash_table_remove(nfs_name_snoop_matched, key);
-	}
 
 	g_hash_table_steal(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
 	g_hash_table_insert(nfs_name_snoop_matched, key, nns);
