@@ -123,24 +123,45 @@ BUILT_SOURCES = \
 # Add the object files for missing routines, if any.
 #
 libwireshark_la_LIBADD = \
-	libwireshark_generated.la \
-	libwireshark_asmopt.la crypt/libairpdcap.la \
-	ftypes/libftypes.la dfilter/libdfilter.la dissectors/libdissectors.la \
-	dissectors/libdirtydissectors.la dissectors/libfiledissectors.la \
-	nghttp2/libnghttp2.la wmem/libwmem.la $(wslua_lib) \
-	@SOCKET_LIBS@ @NSL_LIBS@ \
-	@C_ARES_LIBS@ @ADNS_LIBS@ @LIBGCRYPT_LIBS@ @LIBGNUTLS_LIBS@ \
-	@KRB5_LIBS@ @SSL_LIBS@ @LIBSMI_LDFLAGS@ @GEOIP_LIBS@ \
-	${top_builddir}/wiretap/libwiretap.la @GLIB_LIBS@ \
-	${top_builddir}/wsutil/libwsutil.la -lm
+	libwireshark_generated.la		\
+	libwireshark_asmopt.la			\
+	crypt/libairpdcap.la			\
+	ftypes/libftypes.la			\
+	dfilter/libdfilter.la			\
+	dissectors/libdissectors.la		\
+	dissectors/libdirtydissectors.la	\
+	dissectors/libfiledissectors.la		\
+	nghttp2/libnghttp2.la			\
+	wmem/libwmem.la				\
+	$(wslua_lib)				\
+	${top_builddir}/wiretap/libwiretap.la	\
+	${top_builddir}/wsutil/libwsutil.la	\
+	@SOCKET_LIBS@		\
+	@NSL_LIBS@		\
+	@C_ARES_LIBS@		\
+	@ADNS_LIBS@ 		\
+	@LIBGCRYPT_LIBS@	\
+	@LIBGNUTLS_LIBS@	\
+	@KRB5_LIBS@		\
+	@SSL_LIBS@		\
+	@LIBSMI_LDFLAGS@	\
+	@GEOIP_LIBS@		\
+	@GLIB_LIBS@		\
+	-lm
 
 libwireshark_la_DEPENDENCIES = \
-	libwireshark_generated.la compress/liblzxpress.la\
-	libwireshark_asmopt.la crypt/libairpdcap.la \
-	ftypes/libftypes.la dfilter/libdfilter.la dissectors/libdissectors.la \
-	dissectors/libdirtydissectors.la nghttp2/libnghttp2.la \
-	wmem/libwmem.la $(wslua_lib) \
-	${top_builddir}/wsutil/libwsutil.la \
+	libwireshark_generated.la		\
+	compress/liblzxpress.la			\
+	libwireshark_asmopt.la			\
+	crypt/libairpdcap.la			\
+	ftypes/libftypes.la			\
+	dfilter/libdfilter.la			\
+	dissectors/libdissectors.la		\
+	dissectors/libdirtydissectors.la	\
+	nghttp2/libnghttp2.la			\
+	wmem/libwmem.la				\
+	$(wslua_lib)				\
+	${top_builddir}/wsutil/libwsutil.la	\
 	${top_builddir}/wiretap/libwiretap.la
 
 EXTRA_PROGRAMS = reassemble_test tvbtest oids_test
