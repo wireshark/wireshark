@@ -84,6 +84,7 @@ static gboolean global_analyze_samp_ip_headers = FALSE;
 #define COUNTERSSAMPLE 2
 #define EXPANDED_FLOWSAMPLE 3
 #define EXPANDED_COUNTERSSAMPLE 4
+#define LAG_PORT_STATS 7
 
 static const value_string sflow_agent_address_types[] = {
     { ADDR_TYPE_IPV4, "IPv4" },
@@ -96,6 +97,7 @@ static const value_string sflow_245_sampletype[] = {
     { COUNTERSSAMPLE,          "Counters sample"},
     { EXPANDED_FLOWSAMPLE,     "Expanded flow sample"},
     { EXPANDED_COUNTERSSAMPLE, "Expanded counters sample"},
+    { LAG_PORT_STATS,          "Lag Port stats"},
     { 0, NULL}
 };
 
@@ -595,6 +597,24 @@ static int hf_sflow_5_extended_url_direction = -1;
 static int hf_sflow_5_extended_mpls_ftn_description = -1;
 static int hf_sflow_245_ip_protocol = -1;
 
+static int hf_sflow_lag_port_actorsystemid = -1;
+static int hf_sflow_lag_port_partneropersystemid = -1;
+static int hf_sflow_lag_port_attachedaggid = -1;
+static int hf_sflow_lag_port_state = -1;
+static int hf_sflow_lag_port_actoradminstate = -1;
+static int hf_sflow_lag_port_actoroperstate = -1;
+static int hf_sflow_lag_port_partneradminstate = -1;
+static int hf_sflow_lag_port_partneroperstate = -1;
+static int hf_sflow_lag_port_reserved = -1;
+static int hf_sflow_lag_port_stats_lacpdusrx = -1;
+static int hf_sflow_lag_port_stats_markerpdusrx = -1;
+static int hf_sflow_lag_port_stats_markerresponsepdusrx = -1;
+static int hf_sflow_lag_port_stats_unknownrx = -1;
+static int hf_sflow_lag_port_stats_illegalrx = -1;
+static int hf_sflow_lag_port_stats_lacpdustx = -1;
+static int hf_sflow_lag_port_stats_markerpdustx = -1;
+static int hf_sflow_lag_port_stats_markerresponsepdustx = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_sflow_245 = -1;
 static gint ett_sflow_245_sample = -1;
@@ -607,6 +627,7 @@ static gint ett_sflow_245_gw_as_dst = -1;
 static gint ett_sflow_245_gw_as_dst_seg = -1;
 static gint ett_sflow_245_gw_community = -1;
 static gint ett_sflow_245_sampled_header = -1;
+static gint ett_sflow_lag_port_state_flags = -1;
 
 static expert_field ei_sflow_invalid_address_type = EI_INIT;
 
@@ -2164,6 +2185,57 @@ dissect_sflow_5_expanded_counters_sample(tvbuff_t *tvb, proto_tree *tree, gint o
     }
 }
 
+static const int *sflow_lag_port_state_flags[] = {
+    &hf_sflow_lag_port_actoradminstate,
+    &hf_sflow_lag_port_actoroperstate,
+    &hf_sflow_lag_port_partneradminstate,
+    &hf_sflow_lag_port_partneroperstate,
+    &hf_sflow_lag_port_reserved,
+    NULL
+};
+
+
+/* dissect an LAG Port Stats ( http://www.sflow.org/sflow_lag.txt ) */
+static void
+dissect_sflow_5_lag_port_stats(tvbuff_t *tvb, proto_tree *tree, gint offset, proto_item *parent _U_) {
+
+    proto_tree_add_item(tree, hf_sflow_lag_port_actorsystemid, tvb, offset, 6, ENC_NA);
+    offset += 6;
+
+    proto_tree_add_item(tree, hf_sflow_lag_port_partneropersystemid, tvb, offset, 6, ENC_NA);
+    offset += 6;
+
+    proto_tree_add_item(tree, hf_sflow_lag_port_attachedaggid, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_sflow_lag_port_state, ett_sflow_lag_port_state_flags, sflow_lag_port_state_flags, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_sflow_lag_port_stats_lacpdusrx, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_sflow_lag_port_stats_markerpdusrx, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_sflow_lag_port_stats_markerresponsepdusrx, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_sflow_lag_port_stats_unknownrx, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_sflow_lag_port_stats_illegalrx, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_sflow_lag_port_stats_lacpdustx, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_sflow_lag_port_stats_markerpdustx, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_sflow_lag_port_stats_markerresponsepdustx, tvb, offset, 4, ENC_BIG_ENDIAN);
+    /*offset += 4;*/
+}
+
 /* Code to dissect the sflow v2/4/5 samples */
 static gint
 dissect_sflow_245_samples(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, guint32 version) {
@@ -2201,6 +2273,9 @@ dissect_sflow_245_samples(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                     break;
                 case EXPANDED_COUNTERSSAMPLE:
                     dissect_sflow_5_expanded_counters_sample(tvb, sflow_245_sample_tree, offset, ti);
+                    break;
+                case LAG_PORT_STATS:
+                    dissect_sflow_5_lag_port_stats(tvb, sflow_245_sample_tree, offset, ti);
                     break;
                 default:
                     break;
@@ -3357,6 +3432,93 @@ proto_register_sflow(void) {
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
+
+      { &hf_sflow_lag_port_actorsystemid,
+        { "Actor System ID", "sflow.lag_port.actor_system_id",
+          FT_ETHER, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_lag_port_partneropersystemid,
+        { "Partner Oper System ID", "sflow.lag_port.partner_oper_system_id",
+          FT_ETHER, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_lag_port_attachedaggid,
+        { "Port Attached Agg ID", "sflow.lag_port.attached_agg_id",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_lag_port_state,
+        { "State", "sflow.lag_port.state",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_lag_port_actoradminstate,
+        { "Actor Admin State", "sflow.lag_port.actor_admin_state",
+          FT_BOOLEAN, 32, NULL, 0x00000001,
+          NULL, HFILL }
+      },
+      { &hf_sflow_lag_port_actoroperstate,
+        { "Actor Oper State", "sflow.lag_port.actor_oper_state",
+          FT_BOOLEAN, 32, NULL, 0x00000002,
+          NULL, HFILL }
+      },
+      { &hf_sflow_lag_port_partneradminstate,
+        { "Partner Admin State", "sflow.lag_port.partner_admin_state",
+          FT_BOOLEAN, 32, NULL, 0x00000004,
+          NULL, HFILL }
+      },
+      { &hf_sflow_lag_port_partneroperstate,
+        { "Partner Oper State", "sflow.lag_port.partner_oper_state",
+          FT_BOOLEAN, 32, NULL, 0x00000008,
+          NULL, HFILL }
+      },
+      { &hf_sflow_lag_port_reserved,
+        { "Reserved", "sflow.lag_port.reserved",
+          FT_UINT32, BASE_HEX, NULL, 0xFFFFFFF0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_lag_port_stats_lacpdusrx,
+        { "LACPDUs Rx", "sflow.lag_port.lacpdus.rx",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_lag_port_stats_markerpdusrx,
+        { "Marker PDUs Rx", "sflow.lag_port.marker_pdus.rx",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_lag_port_stats_markerresponsepdusrx,
+        { "Marker Response PDUs Rx", "sflow.lag_port.marker_response_pdus.rx",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_lag_port_stats_unknownrx,
+        { "Unknown Rx", "sflow.lag_port.unknown.rx",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_lag_port_stats_illegalrx,
+        { "Illegal Rx", "sflow.lag_port.illegal.rx",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_lag_port_stats_lacpdustx,
+        { "LACPDUs Tx", "sflow.lag_port.lacpdus.tx",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_lag_port_stats_markerpdustx,
+        { "Marker PDUs Tx", "sflow.lag_port.marker_pdus.tx",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_lag_port_stats_markerresponsepdustx,
+        { "Marker Response PDUs Tx", "sflow.lag_port.marker_response_pdus.tx",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+
       { &hf_sflow_245_as_type,
         { "AS Type", "sflow.as_type",
           FT_UINT32, BASE_DEC, VALS(sflow_245_as_types), 0x0,
@@ -3447,6 +3609,7 @@ proto_register_sflow(void) {
         &ett_sflow_245_gw_as_dst_seg,
         &ett_sflow_245_gw_community,
         &ett_sflow_245_sampled_header,
+        &ett_sflow_lag_port_state_flags,
     };
 
     static ei_register_info ei[] = {
