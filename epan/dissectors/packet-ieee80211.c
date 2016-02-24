@@ -11515,6 +11515,7 @@ dissect_ric_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
   guint8       desc_cnt = 0;
   guint32      next_ie;
   int          offset_r = 0;
+  const guint8 ids[] = { TAG_RIC_DESCRIPTOR };
 
   if (tag_len !=  4)  {
     expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length,
@@ -11551,7 +11552,7 @@ dissect_ric_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     next_ie = tvb_get_guint8(tvb,offset);
     proto_item_append_text(ti, " :(%d:%s)", desc_cnt,val_to_str_ext(next_ie, &tag_num_vals_ext, "Reserved (%d)"));
     /* Recursive call to avoid duplication of code*/
-    offset_r = add_tagged_field(pinfo, sub_tree, tvb, offset, ftype);
+    offset_r = add_tagged_field(pinfo, sub_tree, tvb, offset, ftype, ids, G_N_ELEMENTS(ids));
     if (offset_r == 0 )/* should never happen, returns a min of 2*/
       break;
     /* This will ensure that the IE after RIC is processed
@@ -11639,6 +11640,8 @@ dissect_channel_switch_wrapper(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
                          guint32 tag_len)
 {
   int tmp_sublen;
+  const guint8 ids[] = { TAG_COUNTRY_INFO, TAG_WIDE_BW_CHANNEL_SWITCH,
+    TAG_VHT_TX_PWR_ENVELOPE };
 
   /*
   Decode three subelement in IE-196(Channel Switch Wrapper element):
@@ -11647,12 +11650,12 @@ dissect_channel_switch_wrapper(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
         (3) New VHT Transmit Power Envelope subelement
   */
   while (tag_len > 0){
-        tmp_sublen = tvb_get_guint8(tvb, offset + 1);
-        if(add_tagged_field(pinfo, tree, tvb, offset, 0) == 0){
-          break;
-        }
-        tag_len -= (tmp_sublen + 2);
-        offset += (tmp_sublen + 2);
+    tmp_sublen = tvb_get_guint8(tvb, offset + 1);
+    if(add_tagged_field(pinfo, tree, tvb, offset, 0, ids, G_N_ELEMENTS(ids)) == 0){
+      break;
+    }
+    tag_len -= (tmp_sublen + 2);
+    offset += (tmp_sublen + 2);
   }
   return offset;
 }
@@ -12033,6 +12036,10 @@ static int dissect_tfs_request(packet_info *pinfo, proto_tree *tree,
                                int ftype)
 {
   int end = offset + tag_len;
+  const guint8 ids[] = {
+    1, /* TFS Subelement */
+    TAG_VENDOR_SPECIFIC_IE
+  };
 
   proto_tree_add_item(tree, hf_ieee80211_tag_tfs_request_id,
                       tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -12070,7 +12077,8 @@ static int dissect_tfs_request(packet_info *pinfo, proto_tree *tree,
       s_offset = offset;
       s_end = offset + len;
       while (s_offset < s_end) {
-        int tlen = add_tagged_field(pinfo, tree, tvb, s_offset, ftype);
+        /* TODO 1 is interpreted as TAG_SUPP_RATES, fix this! */
+        int tlen = add_tagged_field(pinfo, tree, tvb, s_offset, ftype, ids, G_N_ELEMENTS(ids));
         if (tlen==0)
           break;
         s_offset += tlen;
@@ -12110,6 +12118,11 @@ static int dissect_tfs_response(packet_info *pinfo, proto_tree *tree,
                                 int ftype)
 {
   int end = offset + tag_len;
+  const guint8 ids[] = {
+    1, /* TFS Status subelement*/
+    2, /* TFS subelement */
+    TAG_VENDOR_SPECIFIC_IE
+  };
 
   while (offset + 3 <= end) {
     guint8 id, len;
@@ -12139,7 +12152,8 @@ static int dissect_tfs_response(packet_info *pinfo, proto_tree *tree,
       s_offset = offset;
       s_end = offset + len;
       while (s_offset < s_end) {
-        int tlen = add_tagged_field(pinfo, tree, tvb, s_offset, ftype);
+        /* TODO Element IDs 1 and 2 are misinterpreted! */
+        int tlen = add_tagged_field(pinfo, tree, tvb, s_offset, ftype, ids, G_N_ELEMENTS(ids));
         if (tlen==0)
           break;
         s_offset += tlen;
@@ -13823,7 +13837,8 @@ ieee80211_tag_fh_hopping_table(packet_info *pinfo, proto_tree *tree,
 }
 
 int
-add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, int ftype)
+add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, int ftype,
+                 const guint8 *valid_element_ids, guint valid_element_ids_count)
 {
   guint32       oui;
   tvbuff_t     *tag_tvb;
@@ -13857,6 +13872,25 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
   if (tag_len > (guint)tvb_reported_length_remaining(tvb, offset)) {
     expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "Tag Length is longer than remaining payload");
+  }
+
+  /* If the list of valid elements is restricted, require an Element ID to be
+   * present in that list. Otherwise stop decoding the value to prevent possible
+   * infinite recursions due to unexpected elements. */
+  if (valid_element_ids_count) {
+    gboolean valid_tag_no;
+    guint i;
+
+    for (i = 0; i < valid_element_ids_count; i++) {
+      valid_tag_no = valid_element_ids[i] == tag_no;
+      if (valid_tag_no)
+        break;
+    }
+    if (!valid_tag_no) {
+      expert_add_info_format(pinfo, ti_tag, &ei_ieee80211_tag_number,
+          "Unexpected Element ID %d", tag_no);
+      goto end_of_tag;
+    }
   }
 
   switch (tag_no) {
@@ -16135,6 +16169,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     /* TODO: add Expert info to indicate there is unknown data ! but all tagged option don't yet return offset.
       For the moment, this code only remove Clang Warnings about not used offset... */
   }
+end_of_tag:
   return tag_len + 1 + 1;
 }
 
@@ -16145,7 +16180,8 @@ ieee_80211_add_tagged_parameters (tvbuff_t *tvb, int offset, packet_info *pinfo,
   int next_len;
   beacon_padding = 0; /* this is for the beacon padding confused with ssid fix */
   while (tagged_parameters_len > 0) {
-    if ((next_len=add_tagged_field (pinfo, tree, tvb, offset, ftype)) == 0)
+    /* TODO make callers optionally specify the list of valid IE IDs? */
+    if ((next_len=add_tagged_field (pinfo, tree, tvb, offset, ftype, NULL, 0)) == 0)
       break;
     if (next_len > tagged_parameters_len) {
       /* XXX - flag this as an error? */
@@ -26997,7 +27033,7 @@ proto_register_ieee80211 (void)
     { &ei_ieee80211_inv_val,
       { "ieee80211.invalid_value", PI_MALFORMED, PI_WARN,
         "Invalid value", EXPFILL }},
-    { &ei_ieee80211_tag_number, { "wlan_mgt.tag.number.unexpected_ie", PI_MALFORMED, PI_ERROR, "Unexpected IE (expected Advertisement Protocol)", EXPFILL }},
+    { &ei_ieee80211_tag_number, { "wlan_mgt.tag.number.unexpected_ie", PI_MALFORMED, PI_ERROR, "Unexpected Information Element ID", EXPFILL }},
     { &ei_ieee80211_tag_length, { "wlan_mgt.tag.length.bad", PI_MALFORMED, PI_ERROR, "Bad tag length", EXPFILL }},
     { &ei_ieee80211_extra_data, { "ieee80211.extra_data", PI_MALFORMED, PI_WARN, "Unexpected extra data in the end", EXPFILL }},
     { &ei_ieee80211_ff_anqp_capability, { "wlan_mgt.fixed.anqp.capability.invalid", PI_MALFORMED, PI_ERROR, "Invalid vendor-specific ANQP capability", EXPFILL }},
