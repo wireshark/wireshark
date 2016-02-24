@@ -130,7 +130,8 @@ static int
 dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti;
-	proto_tree *flexray_tree, *type_info_tree, *error_flags_tree, *flexray_frame_tree;
+	proto_tree *flexray_tree, *type_info_tree, *error_flags_tree;
+	proto_tree *flexray_frame_tree = NULL;
 	tvbuff_t* next_tvb;
 	gint frame_length;
 	gint flexray_frame_length;
