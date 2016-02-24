@@ -76,71 +76,73 @@ macro(WSLUA_GENERATE_TAP_SRC)
 		${CMAKE_SOURCE_DIR}/epan/dissectors/packet-ieee80211.h
 	)
 
-	ADD_CUSTOM_COMMAND(
-	    OUTPUT
-	      ${CMAKE_BINARY_DIR}/epan/wslua/taps_wslua.c
-	      ${CMAKE_BINARY_DIR}/epan/wslua/taps.txt
-	    COMMAND ${PERL_EXECUTABLE}
-	      ${CMAKE_SOURCE_DIR}/epan/wslua/make-taps.pl
-	      ${CMAKE_SOURCE_DIR}/epan/wslua/taps
-	      ${CMAKE_BINARY_DIR}/epan/wslua/taps_wslua.c
-	      ${CMAKE_BINARY_DIR}/epan/wslua/taps.txt
-	      ${CMAKE_SOURCE_DIR}/epan/wslua
-	    WORKING_DIRECTORY
-	      ${CMAKE_SOURCE_DIR}/epan/wslua
-	    DEPENDS
-	      ${CMAKE_SOURCE_DIR}/epan/wslua/taps
-	      ${CMAKE_SOURCE_DIR}/epan/wslua/make-taps.pl
-	      # Only here to add dependencies for the taps "source"files
-	      ${WSLUA_TAPS_USED}
+	add_custom_command(
+		OUTPUT
+			${CMAKE_BINARY_DIR}/epan/wslua/taps_wslua.c
+			${CMAKE_BINARY_DIR}/epan/wslua/taps.txt
+		COMMAND
+			${PERL_EXECUTABLE}
+			${CMAKE_SOURCE_DIR}/epan/wslua/make-taps.pl
+			${CMAKE_SOURCE_DIR}/epan/wslua/taps
+			${CMAKE_BINARY_DIR}/epan/wslua/taps_wslua.c
+			${CMAKE_BINARY_DIR}/epan/wslua/taps.txt
+			${CMAKE_SOURCE_DIR}/epan/wslua
+		WORKING_DIRECTORY
+			${CMAKE_SOURCE_DIR}/epan/wslua
+		DEPENDS
+			${CMAKE_SOURCE_DIR}/epan/wslua/taps
+			${CMAKE_SOURCE_DIR}/epan/wslua/make-taps.pl
+			# Only here to add dependencies for the taps "source"files
+			${WSLUA_TAPS_USED}
 	)
 endmacro()
 
 macro(WSLUA_GENERATE_REG_SRC)
-	ADD_CUSTOM_COMMAND(
-	    OUTPUT
-	      ${CMAKE_BINARY_DIR}/epan/wslua/declare_wslua.h
-	      ${CMAKE_BINARY_DIR}/epan/wslua/register_wslua.c
-	    COMMAND ${PERL_EXECUTABLE}
-	      ${CMAKE_SOURCE_DIR}/epan/wslua/make-reg.pl
-	      ${WSLUA_MODULES}
-	    WORKING_DIRECTORY
-	      ${CMAKE_BINARY_DIR}/epan/wslua
-	    DEPENDS
-	      ${CMAKE_SOURCE_DIR}/epan/wslua/make-reg.pl
-	      ${WSLUA_MODULES}
-	      # ${CMAKE_CURRENT_BINARY_DIR}/taps_wslua.c
+	add_custom_command(
+		OUTPUT
+			${CMAKE_BINARY_DIR}/epan/wslua/declare_wslua.h
+			${CMAKE_BINARY_DIR}/epan/wslua/register_wslua.c
+		COMMAND
+			${PERL_EXECUTABLE}
+			${CMAKE_SOURCE_DIR}/epan/wslua/make-reg.pl
+			${WSLUA_MODULES}
+		WORKING_DIRECTORY
+			${CMAKE_BINARY_DIR}/epan/wslua
+		DEPENDS
+			${CMAKE_SOURCE_DIR}/epan/wslua/make-reg.pl
+			${WSLUA_MODULES}
+			# ${CMAKE_CURRENT_BINARY_DIR}/taps_wslua.c
 	)
 endmacro()
 
-ADD_CUSTOM_COMMAND(
-    OUTPUT init.lua
-    COMMAND ${PERL_EXECUTABLE}
-      ${CMAKE_CURRENT_SOURCE_DIR}/make-init-lua.pl
-      ${CMAKE_SOURCE_DIR}
-      ${CMAKE_CURRENT_SOURCE_DIR}/template-init.lua
-      > init.lua
-    DEPENDS
-      ${CMAKE_CURRENT_SOURCE_DIR}/make-init-lua.pl
-      ${CMAKE_CURRENT_SOURCE_DIR}/template-init.lua
-      ${CMAKE_SOURCE_DIR}/epan/ftypes/ftypes.h
-      ${CMAKE_SOURCE_DIR}/wiretap/wtap.h
-      ${CMAKE_SOURCE_DIR}/epan/epan.h
-      ${CMAKE_SOURCE_DIR}/epan/stat_groups.h
+add_custom_command(
+	OUTPUT init.lua
+	COMMAND ${PERL_EXECUTABLE}
+		${CMAKE_CURRENT_SOURCE_DIR}/make-init-lua.pl
+		${CMAKE_SOURCE_DIR}
+		${CMAKE_CURRENT_SOURCE_DIR}/template-init.lua
+		> init.lua
+	DEPENDS
+		${CMAKE_CURRENT_SOURCE_DIR}/make-init-lua.pl
+		${CMAKE_CURRENT_SOURCE_DIR}/template-init.lua
+		${CMAKE_SOURCE_DIR}/epan/ftypes/ftypes.h
+		${CMAKE_SOURCE_DIR}/wiretap/wtap.h
+		${CMAKE_SOURCE_DIR}/epan/epan.h
+		${CMAKE_SOURCE_DIR}/epan/stat_groups.h
 )
 
 add_custom_target(
-     wsluaauxiliary ALL
-     DEPENDS
-	init.lua
+	wsluaauxiliary ALL
+	DEPENDS
+		init.lua
 )
 set_target_properties(wsluaauxiliary PROPERTIES FOLDER "Auxiliary")
 
 install(
-    FILES
-	console.lua
-	dtd_gen.lua
-	${CMAKE_CURRENT_BINARY_DIR}/init.lua
-    DESTINATION
-	${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
+	FILES
+		console.lua
+		dtd_gen.lua
+		${CMAKE_CURRENT_BINARY_DIR}/init.lua
+	DESTINATION
+		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
 )

@@ -1572,7 +1572,7 @@ set(NGHTTP2_FILES
 )
 source_group(nghttp2 FILES ${NGHTTP2_FILES})
 
-ADD_CUSTOM_TARGET(
+add_custom_target(
 	update-sminmpec
 	COMMAND ${PERL_EXECUTABLE}
 		${CMAKE_SOURCE_DIR}/tools/make-sminmpec.pl
@@ -1582,9 +1582,9 @@ ADD_CUSTOM_TARGET(
 )
 set_target_properties(update-sminmpec PROPERTIES FOLDER "tools")
 
-ADD_CUSTOM_COMMAND(
-	OUTPUT	ps.c
-	COMMAND	${PYTHON_EXECUTABLE}
+add_custom_command(
+	OUTPUT ps.c
+	COMMAND ${PYTHON_EXECUTABLE}
 		${CMAKE_SOURCE_DIR}/tools/rdps.py
 		${CMAKE_CURRENT_SOURCE_DIR}/print.ps
 		ps.c
@@ -1699,15 +1699,11 @@ add_lemon_files(LIBWIRESHARK_FILES
 set(epan_LIBS
 	wiretap
 	wsutil
-#	@SSL_LIBS@
 	${GLIB2_LIBRARIES}
 	${PCAP_LIBRARIES}
-#	@SOCKET_LIBS@
-#	@NSL_LIBS@
 	${CARES_LIBRARIES}
 	${ADNS_LIBRARIES}
 	${KERBEROS_LIBRARIES}
-#	@FRAMEWORKS@
 	${GEOIP_LIBRARIES}
 	${GCRYPT_LIBRARIES}
 	${GNUTLS_LIBRARIES}
@@ -1827,7 +1823,7 @@ add_custom_command(OUTPUT libwireshark.abi.tar.gz
 
 # By default the name for a library with target name epan will be libepan,
 # but Ethereal is now named Wireshark
-SET_TARGET_PROPERTIES(epan PROPERTIES
+set_target_properties(epan PROPERTIES
 	OUTPUT_NAME "wireshark"
 	PREFIX "lib"
 	FOLDER "DLLs"
