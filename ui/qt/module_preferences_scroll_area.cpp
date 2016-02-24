@@ -502,7 +502,7 @@ void ModulePreferencesScrollArea::filenamePushButtonPressed()
 
     if (!filename.isEmpty()) {
         g_free((void *)pref->stashed_val.string);
-        pref->stashed_val.string = qstring_strdup(filename);
+        pref->stashed_val.string = qstring_strdup(QDir::toNativeSeparators(filename));
         updateWidgets();
     }
 }
@@ -520,7 +520,7 @@ void ModulePreferencesScrollArea::dirnamePushButtonPressed()
 
     if (!dirname.isEmpty()) {
         g_free((void *)pref->stashed_val.string);
-        pref->stashed_val.string = qstring_strdup(dirname);
+        pref->stashed_val.string = qstring_strdup(QDir::toNativeSeparators(dirname));
         updateWidgets();
     }
 }

@@ -627,7 +627,7 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
             }
             if (!filename.isEmpty()) {
                 g_free((void *)pref->stashed_val.string);
-                pref->stashed_val.string = qstring_strdup(filename);
+                pref->stashed_val.string = qstring_strdup(QDir::toNativeSeparators(filename));
                 updateItem(*item);
             }
             break;
