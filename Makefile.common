@@ -31,6 +31,7 @@ BUILT_SOURCES =	$(BUILT_C_FILES) $(BUILT_HEADER_FILES)
 
 # Header files generated from source files.
 GENERATED_HEADER_FILES = \
+	text2pcap-scanner_lex.h \
 	$(BUILT_HEADER_FILES)
 
 # C source files generated from source files.
