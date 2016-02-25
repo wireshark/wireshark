@@ -17,7 +17,7 @@ The following vulnerabilities have been fixed:
 +
 DLL hijacking vulnerability.
 //(ws-buglink:XXXX[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2016-2521[]
 // Fixed in master: 4a79cf2
 // Fixed in master-2.0: b33f4c8
 // Fixed in master-1.12: f8d67cf
@@ -26,7 +26,7 @@ DLL hijacking vulnerability.
 +
 DNP dissector infinite loop.
 (ws-buglink:11938[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2016-2523[]
 // Fixed in master: 260afe1
 // Fixed in master-2.0: 0cc86bb
 // Fixed in master-1.12: 0ca7445
@@ -35,7 +35,8 @@ DNP dissector infinite loop.
 +
 RSL dissector crash.
 (ws-buglink:11829[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2016-2530[]
+cve-idlink:2016-2531[]
 // Fixed in master: 2930d31, de65fd6
 // Fixed in master-2.0: aba3635, 0865707
 // Fixed in master-1.12: f899e8a, 08d1876
@@ -44,10 +45,37 @@ RSL dissector crash.
 +
 LLRP dissector crash.
 (ws-buglink:12048[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2016-2532[]
 // Fixed in master: 4a2cd6c
 // Fixed in master-2.0: 38a01c8
 // Fixed in master-1.12: 74085a5
+
+* ws-salink:2016-14[]
++
+GSM A-bis OML dissector crash.
+(ws-buglink:11825[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: c31425f
+// Fixed in master-2.0: 9bc329b
+// Fixed in master-1.12: 1d5f600
+
+* ws-salink:2016-15[]
++
+ASN.1 BER dissector crash.
+(ws-buglink:12106[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 55b5b7c
+// Fixed in master-2.0: 271b10d
+// Fixed in master-1.12: c43f94f
+
+* ws-salink:2016-18[]
++
+ASN.1 BER dissector crash.
+(ws-buglink:11822[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 9ff932b
+// Fixed in master-2.0: 307bbd2
+// Fixed in master-1.12: 8f7a26e
 
 The following bugs have been fixed:
 
@@ -88,6 +116,7 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+ASN.1 BER
 BATADV
 DNP3
 E100
