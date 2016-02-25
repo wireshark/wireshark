@@ -22,6 +22,23 @@
 include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
+#
+# The gresource files are part of the distribution tarball (but can be rebuilt
+# using glib-compile-resources). They're not checked in to the VCS tree.
+# The pixbuf-csource files are also generated files but they're (currently)
+# checked in to the VCS tree. From the point of view of the build system
+# they're not considered generated source (they are never to be cleaned).
+# Finally 'wireshark-tap-register.c' is generated source not part of the
+# distribution tarball. It has no external dependencies and is to be built
+# during compilation.
+#
+
+if HAVE_GRESOURCE_PIXBUF
+LIBGTKUI_PIXBUF_SRC = wireshark-gresources.h wireshark-gresources.c
+else
+LIBGTKUI_PIXBUF_SRC = pixbuf-csource.h pixbuf-csource.c
+endif
+
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GTK_CFLAGS) \
 	$(PORTAUDIO_INCLUDES)
 
@@ -31,14 +48,13 @@ CLEANFILES = \
 	wireshark-tap-register-cache.pkl	\
 	*~
 
-MAINTAINERCLEANFILES = \
-	$(GENERATED_FILES)	\
-	Makefile.in
+DISTCLEANFILES = \
+	$(GENERATED_FILES)
 
-WIRESHARK_CLEAN_LIBGTKUI_SRC = \
-	$(WIRESHARK_COMMON_GTK_SRC)	\
-	$(WIRESHARK_TAP_SRC)		\
-	$(GENERATED_C_FILES)
+MAINTAINERCLEANFILES = \
+	wireshark-gresources.h	\
+	wireshark-gresources.c	\
+	Makefile.in
 
 EXTRA_DIST = \
 	$(GENERATOR_FILES)		\
@@ -61,18 +77,19 @@ EXTRA_DIST = \
 BUILT_SOURCES =
 
 if HAVE_GRESOURCE_PIXBUF
-BUILT_SOURCES += wireshark-gresources.h
-GENERATED_HEADER_FILES += wireshark-gresources.h
-GENERATED_C_FILES += wireshark-gresources.c
-else
-WIRESHARK_CLEAN_LIBGTKUI_SRC += pixbuf-csource.c
+BUILT_SOURCES += $(LIBGTKUI_PIXBUF_SRC)
 endif
 
 noinst_LIBRARIES = libgtkui.a
 
 libgtkui_a_SOURCES = \
-	$(WIRESHARK_CLEAN_LIBGTKUI_SRC)	\
-	$(noinst_HEADERS)		\
+	$(WIRESHARK_COMMON_GTK_SRC)	\
+	$(WIRESHARK_COMMON_GTK_HDRS)	\
+	$(WIRESHARK_TAP_SRC)		\
+	$(LIBGTKUI_PIXBUF_SRC)
+
+nodist_libgtkui_a_SOURCES = \
+	$(GENERATED_C_FILES)		\
 	$(GENERATED_HEADER_FILES)
 
 libgtkui_a_DEPENDENCIES =
@@ -95,7 +112,6 @@ wireshark-tap-register.c:  $(WIRESHARK_TAP_SRC) Makefile.common Makefile_custom.
 	@echo Making wireshark-tap-register.c
 	@$(PYTHON) $(top_srcdir)/tools/make-tap-reg.py $(srcdir) taps $(WIRESHARK_TAP_SRC)
 
-if HAVE_GRESOURCE_PIXBUF
 wireshark-gresources.c: main.gresources.xml $(shell glib-compile-resources --sourcedir=$(top_srcdir) --generate-dependencies $(srcdir)/main.gresources.xml)
 	@echo Making $@
 	@glib-compile-resources --sourcedir=$(top_srcdir) --target=$@ --generate --manual-register $<
@@ -103,7 +119,6 @@ wireshark-gresources.c: main.gresources.xml $(shell glib-compile-resources --sou
 wireshark-gresources.h: main.gresources.xml
 	@echo Making $@
 	@glib-compile-resources --sourcedir=$(top_srcdir) --target=$@ --generate --manual-register $<
-endif
 
 doxygen:
 if HAVE_DOXYGEN

@@ -162,7 +162,7 @@ WIRESHARK_TAP_SRC = \
 	wlan_stat_dlg.c		\
 	$(WIRESHARK_CUSTOM_TAP_SRC)
 
-noinst_HEADERS = \
+WIRESHARK_COMMON_GTK_HDRS = \
 	about_dlg.h		\
 	addr_resolution_dlg.h	\
 	bytes_view.h		\
