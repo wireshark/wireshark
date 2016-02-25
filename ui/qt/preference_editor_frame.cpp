@@ -32,6 +32,7 @@
 #include <ui_preference_editor_frame.h>
 
 #include "qt_ui_utils.h"
+#include <wsutil/utf8_entities.h>
 
 #include "wireshark_application.h"
 
@@ -78,7 +79,7 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
         return;
     }
 
-    ui->modulePreferencesToolButton->setText(tr("Open %1 preferences…").arg(module_->title));
+    ui->modulePreferencesToolButton->setText(tr("Open %1 preferences" UTF8_HORIZONTAL_ELLIPSIS).arg(module_->title));
 
     pref_stash(pref_, NULL);
     ui->preferenceTitleLabel->setText(QString("%1:").arg(pref->title));
