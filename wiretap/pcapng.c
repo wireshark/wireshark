@@ -506,6 +506,9 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
                                  int *err, gchar **err_info)
 {
     int     bytes_read;
+    gboolean byte_swapped;
+    guint16 version_major;
+    guint16 version_minor;
     guint to_read, opt_cont_buf_len;
     pcapng_section_header_block_t shb;
     pcapng_option_header_t oh;
@@ -536,24 +539,24 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     switch (shb.magic) {
         case(0x1A2B3C4D):
             /* this seems pcapng with correct byte order */
-            pn->byte_swapped                = FALSE;
-            pn->version_major               = shb.version_major;
-            pn->version_minor               = shb.version_minor;
+            byte_swapped                = FALSE;
+            version_major               = shb.version_major;
+            version_minor               = shb.version_minor;
 
             pcapng_debug("pcapng_read_section_header_block: SHB (little endian) V%u.%u, len %u",
-                          pn->version_major, pn->version_minor, bh->block_total_length);
+                          version_major, version_minor, bh->block_total_length);
             break;
         case(0x4D3C2B1A):
             /* this seems pcapng with swapped byte order */
-            pn->byte_swapped                = TRUE;
-            pn->version_major               = GUINT16_SWAP_LE_BE(shb.version_major);
-            pn->version_minor               = GUINT16_SWAP_LE_BE(shb.version_minor);
+            byte_swapped                = TRUE;
+            version_major               = GUINT16_SWAP_LE_BE(shb.version_major);
+            version_minor               = GUINT16_SWAP_LE_BE(shb.version_minor);
 
             /* tweak the block length to meet current swapping that we know now */
             bh->block_total_length  = GUINT32_SWAP_LE_BE(bh->block_total_length);
 
             pcapng_debug("pcapng_read_section_header_block: SHB (big endian) V%u.%u, len %u",
-                          pn->version_major, pn->version_minor, bh->block_total_length);
+                          version_major, version_minor, bh->block_total_length);
             break;
         default:
             /* Not a "pcapng" magic number we know about. */
@@ -604,12 +607,16 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     }
 
     /* we currently only understand SHB V1.0 */
-    if (pn->version_major != 1 || pn->version_minor > 0) {
+    if (version_major != 1 || version_minor > 0) {
         *err = WTAP_ERR_UNSUPPORTED;
         *err_info = g_strdup_printf("pcapng_read_section_header_block: unknown SHB version %u.%u",
                                     pn->version_major, pn->version_minor);
         return PCAPNG_BLOCK_ERROR;
     }
+
+    pn->byte_swapped  = byte_swapped;
+    pn->version_major = version_major;
+    pn->version_minor = version_minor;
 
     wblock->block = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_SECTION);
     section_data = (wtapng_mandatory_section_t*)wtap_optionblock_get_mandatory_data(wblock->block);
@@ -2319,26 +2326,36 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, in
         return PCAPNG_BLOCK_ERROR;
     }
 
-    if (pn->byte_swapped) {
-        bh.block_type         = GUINT32_SWAP_LE_BE(bh.block_type);
-        bh.block_total_length = GUINT32_SWAP_LE_BE(bh.block_total_length);
-    }
-
-    wblock->type = bh.block_type;
-
-    pcapng_debug("pcapng_read_block: block_type 0x%x", bh.block_type);
-
     /*
      * SHBs have to be treated differently from other blocks, as we
      * might be doing an open and attempting to read a block at the
-     * beginning of the file to see if it's a pcap-ng file or not.
+     * beginning of the file to see if it's a pcap-ng file or not,
+     * and as they do not necessarily have the same byte order as
+     * previous blocks.
      */
     if (bh.block_type == BLOCK_TYPE_SHB) {
+        /*
+         * BLOCK_TYPE_SHB has the same value regardless of byte order,
+         * so we don't need to byte-swap it.
+         */
+        wblock->type = bh.block_type;
+
+        pcapng_debug("pcapng_read_block: block_type 0x%x", bh.block_type);
+
         ret = pcapng_read_section_header_block(fh, &bh, pn, wblock, err, err_info);
         if (ret != PCAPNG_BLOCK_OK) {
             return ret;
         }
     } else {
+        if (pn->byte_swapped) {
+            bh.block_type         = GUINT32_SWAP_LE_BE(bh.block_type);
+            bh.block_total_length = GUINT32_SWAP_LE_BE(bh.block_total_length);
+        }
+
+        wblock->type = bh.block_type;
+
+        pcapng_debug("pcapng_read_block: block_type 0x%x", bh.block_type);
+
         if (!pn->shb_read) {
             /*
              * No SHB seen yet, so we're trying to read the first block
