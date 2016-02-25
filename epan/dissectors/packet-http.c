@@ -1082,9 +1082,16 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_item *e_ti;
 		gchar      *uri;
 
-		uri = wmem_strdup_printf(wmem_packet_scope(), "%s://%s%s",
-			    is_ssl ? "https" : "http",
-			    g_strstrip(wmem_strdup(wmem_packet_scope(), stat_info->http_host)), stat_info->request_uri);
+		if ((g_ascii_strncasecmp(stat_info->request_uri, "http://", 7) == 0) ||
+		    (g_ascii_strncasecmp(stat_info->request_uri, "https://", 8) == 0) ||
+		    (g_ascii_strncasecmp(conv_data->request_method, "CONNECT", 7) == 0)) {
+			uri = wmem_strdup(wmem_packet_scope(), stat_info->request_uri);
+		}
+		else {
+			uri = wmem_strdup_printf(wmem_packet_scope(), "%s://%s%s",
+				    is_ssl ? "https" : "http",
+				    g_strstrip(wmem_strdup(wmem_packet_scope(), stat_info->http_host)), stat_info->request_uri);
+		}
 
 		e_ti = proto_tree_add_string(http_tree,
 					     hf_http_request_full_uri, tvb, 0,
