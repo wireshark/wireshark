@@ -2560,8 +2560,8 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
     pcapng_t *pcapng = (pcapng_t *)wth->priv;
     wtapng_block_t wblock;
-    wtap_optionblock_t wtapng_if_descr = wtap_optionblock_create(WTAP_OPTION_BLOCK_IF_DESCR);
-    wtap_optionblock_t if_stats = wtap_optionblock_create(WTAP_OPTION_BLOCK_IF_STATS);
+    wtap_optionblock_t wtapng_if_descr;
+    wtap_optionblock_t if_stats;
     wtapng_if_stats_mandatory_t *if_stats_mand_block, *if_stats_mand;
     wtapng_if_descr_mandatory_t *wtapng_if_descr_mand;
 
@@ -2626,6 +2626,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                         wtapng_if_descr_mand->interface_statistics = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
                     }
 
+                    if_stats = wtap_optionblock_create(WTAP_OPTION_BLOCK_IF_STATS);
                     if_stats_mand = (wtapng_if_stats_mandatory_t*)wtap_optionblock_get_mandatory_data(if_stats);
                     if_stats_mand->interface_id  = if_stats_mand_block->interface_id;
                     if_stats_mand->ts_high       = if_stats_mand_block->ts_high;
