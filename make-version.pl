@@ -59,6 +59,7 @@ use strict;
 
 use Time::Local;
 use File::Basename;
+use File::Spec;
 use POSIX qw(strftime);
 use Getopt::Long;
 use Pod::Usage;
@@ -124,6 +125,7 @@ sub read_repo_info {
 	my $repo_version;
 	my $do_hack = 1;
 	my $info_source = "Unknown";
+	my $devnull = File::Spec->devnull();
 
 	# Make sure git is available.
 	if (!`$git_executable --version`) {
@@ -191,7 +193,7 @@ sub read_repo_info {
 
 			# This will break in some cases. Hopefully not during
 			# official package builds.
-			chomp($line = qx{$git_executable --git-dir="$srcdir"/.git rev-parse --abbrev-ref --symbolic-full-name \@\{upstream\}});
+			chomp($line = qx{$git_executable --git-dir="$srcdir"/.git rev-parse --abbrev-ref --symbolic-full-name \@\{upstream\} 2> $devnull});
 			if ($? == 0 && length($line) > 1) {
 				$repo_branch = basename($line);
 			}
