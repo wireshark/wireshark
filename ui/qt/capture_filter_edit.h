@@ -55,6 +55,7 @@ private slots:
     void checkFilter(const QString &filter);
     void setFilterSyntaxState(QString filter, int state, QString err_msg);
     void bookmarkClicked();
+    void clearFilter();
 
 private:
     bool plain_;

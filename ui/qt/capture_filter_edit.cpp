@@ -162,7 +162,7 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
                 "  margin-left: 1px;"
                 "}"
                 );
-        connect(clear_button_, SIGNAL(clicked()), this, SLOT(clear()));
+        connect(clear_button_, SIGNAL(clicked()), this, SLOT(clearFilter()));
     }
 
     connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(checkFilter(const QString&)));
@@ -206,6 +206,11 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
             .arg(bksz.width())
             .arg(cbsz.width() + apsz.width() + frameWidth + 1)
             );
+
+    QComboBox *cf_combo = qobject_cast<QComboBox *>(parent);
+    if (cf_combo) {
+        connect(cf_combo, SIGNAL(activated(QString)), this, SIGNAL(textEdited(QString)));
+    }
 
     QThread *syntax_thread = new QThread;
     syntax_worker_ = new CaptureFilterSyntaxWorker;
@@ -415,6 +420,12 @@ void CaptureFilterEdit::setFilterSyntaxState(QString filter, int state, QString 
 void CaptureFilterEdit::bookmarkClicked()
 {
     emit addBookmark(text());
+}
+
+void CaptureFilterEdit::clearFilter()
+{
+    clear();
+    emit textEdited(text());
 }
 
 void CaptureFilterEdit::buildCompletionList(const QString &primitive_word)
