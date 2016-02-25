@@ -19,10 +19,10 @@
 # If the commit identifier is not given, use HEAD instead.
 COMMIT_ID="${1:-HEAD}"
 
-UNAME=`uname -o`
+UNAME=`uname -a`
 
 case "$UNAME" in
-    Msys)
+    *\ Msys)
         pyvar="pythonw.exe"
         ;;
     *)
