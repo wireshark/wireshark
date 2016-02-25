@@ -117,8 +117,7 @@ decryption_step_80211_wpa_psk_mfp() {
 	RETURNVALUE=$?
 	frames=$(echo "$out" | wc -l)
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		echo "$out" > ./wpa_psk_mfp.txt
-		test_step_failed "Error during test execution: see $PWD/wpa_psk_mfp.txt"
+		test_step_failed "Error during test execution: $out"
 		return
 	elif [ $frames -ne 3 ]; then
 		test_step_failed "Not able to decode All Management frames ($frames/3)"
@@ -139,8 +138,7 @@ decryption_step_80211_wpa_tdls() {
 	RETURNVALUE=$?
 	frames=$(echo "$out" | wc -l)
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		echo "$out" > ./wpa_tdls.txt
-		test_step_failed "Error during test execution: see $PWD/wpa_tdls.txt"
+		test_step_failed "Error during test execution: $out"
 		return
 	elif [ $frames -ne 2 ]; then
 		test_step_failed "Not able to decode all TDLS traffic ($frames/2)"
