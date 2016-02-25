@@ -1,0 +1,2 @@
+# those long lines are examples which we can't break
+wireshark-qt: manpage-has-errors-from-man usr/share/man/man1/wireshark.1.gz 752: warning [p 9, 10.5i]: can't break line

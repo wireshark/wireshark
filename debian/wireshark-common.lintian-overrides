@@ -1,0 +1,4 @@
+# those long lines are examples which we can't break
+wireshark-common: manpage-has-errors-from-man usr/share/man/man1/dumpcap.1.gz 156: warning [p 1, 2.0i]: can't break line
+# this is just a check for the delgroup command
+wireshark-common: command-with-path-in-maintainer-script postrm:9 /usr/sbin/delgroup

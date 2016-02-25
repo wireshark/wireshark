@@ -1,0 +1,2 @@
+# those long lines are examples which we can't break
+tshark: manpage-has-errors-from-man usr/share/man/man1/tshark.1.gz 1034: warning [p 13, 1.3i]: can't break line
