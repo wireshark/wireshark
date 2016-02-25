@@ -16,7 +16,7 @@ The following vulnerabilities have been fixed:
 +
 DLL hijacking vulnerability.
 //(ws-buglink:XXXX[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2016-2521[]
 // Fixed in master: 4a79cf2
 // Fixed in master-2.0: b33f4c8
 // Fixed in master-1.12: f8d67cf
@@ -25,7 +25,7 @@ DLL hijacking vulnerability.
 +
 ASN.1 BER dissector crash.
 (ws-buglink:11828[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2016-2522[]
 // Fixed in master: 9b2f3f7
 // Fixed in master-2.0: 1942c8a
 
@@ -33,7 +33,7 @@ ASN.1 BER dissector crash.
 +
 DNP dissector infinite loop.
 (ws-buglink:11938[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2016-2523[]
 // Fixed in master: 260afe1
 // Fixed in master-2.0: 0cc86bb
 // Fixed in master-1.12: 0ca7445
@@ -42,7 +42,7 @@ DNP dissector infinite loop.
 +
 X.509AF dissector crash.
 (ws-buglink:12002[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2016-2524[]
 // Fixed in master: 5a8020a
 // Fixed in master-2.0: 1f4977b
 
@@ -50,15 +50,15 @@ X.509AF dissector crash.
 +
 HTTP/2 dissector crash.
 (ws-buglink:12077[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master:
-// Fixed in master-2.0:
+cve-idlink:2016-2525[]
+// Fixed in master: 3fe16e1
+// Fixed in master-2.0: 22a24bc
 
 * ws-salink:2016-06[]
 +
 HiQnet dissector crash.
 (ws-buglink:11983[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2016-2526[]
 // Fixed in master: 69a679c
 // Fixed in master-2.0: 325fb1a
 
@@ -66,7 +66,7 @@ HiQnet dissector crash.
 +
 3GPP TS 32.423 Trace file parser crash.
 (ws-buglink:11982[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2016-2527[]
 // Fixed in master: 140aad0
 // Fixed in master-2.0: 10d4c85
 
@@ -74,7 +74,7 @@ HiQnet dissector crash.
 +
 LBMC dissector crash.
 (ws-buglink:11984[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2016-2528[]
 // Fixed in master: 1c090e9
 // Fixed in master-2.0: 32fc1bc
 
@@ -82,7 +82,7 @@ LBMC dissector crash.
 +
 iSeries file parser crash.
 (ws-buglink:11985[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2016-2529[]
 // Fixed in master: 96d585a
 // Fixed in master-2.0: 83dd13c
 
@@ -90,7 +90,8 @@ iSeries file parser crash.
 +
 RSL dissector crash.
 (ws-buglink:11829[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2016-2530[]
+cve-idlink:2016-2531[]
 // Fixed in master: 2930d31, de65fd6
 // Fixed in master-2.0: aba3635, 0865707
 // Fixed in master-1.12: f899e8a, 08d1876
@@ -99,10 +100,69 @@ RSL dissector crash.
 +
 LLRP dissector crash.
 (ws-buglink:12048[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2016-2532[]
 // Fixed in master: 4a2cd6c
 // Fixed in master-2.0: 38a01c8
 // Fixed in master-1.12: 74085a5
+
+* ws-salink:2016-12[]
++
+Ixia IxVeriWave file parser crash.
+(ws-buglink:11795[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: e395633, 40fe88d
+// Fixed in master-2.0: 5124ebb, 14ee62e
+
+* ws-salink:2016-13[]
++
+IEEE 802.11 dissector crash.
+(ws-buglink:11818[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 8276a88
+// Fixed in master-2.0: 6c91f52
+
+* ws-salink:2016-14[]
++
+GSM A-bis OML dissector crash.
+(ws-buglink:11825[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: c31425f
+// Fixed in master-2.0: 9bc329b
+// Fixed in master-1.12: 1d5f600
+
+* ws-salink:2016-15[]
++
+ASN.1 BER dissector crash.
+(ws-buglink:12106[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 55b5b7c
+// Fixed in master-2.0: 271b10d
+// Fixed in master-1.12: c43f94f
+
+* ws-salink:2016-16[]
++
+SPICE dissector large loop.
+(ws-buglink:12151[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 48de5c5
+// Fixed in master-2.0: ddeba68
+
+* ws-salink:2016-17[]
++
+NFS dissector crash.
+//(ws-buglink:xxxxx[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: f897899
+// Fixed in master-2.0: 20304a4
+
+* ws-salink:2016-18[]
++
+ASN.1 BER dissector crash.
+(ws-buglink:11822[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 9ff932b
+// Fixed in master-2.0: 307bbd2
+// Fixed in master-1.12: 8f7a26e
 
 The following bugs have been fixed:
 
@@ -184,6 +244,22 @@ The following bugs have been fixed:
 
 * Guard Interval is not consistent between Radiotap & wlan_radio. (ws-buglink:12123[])
 
+* Calling dumpcap -i- results in access violation. (ws-buglink:12143[])
+
+* Qt: Friendly Name and Interface Name columns should not be editable. (ws-buglink:12146[])
+
+* PPTP GRE call ID not always decoded. (ws-buglink:12149[])
+
+* Interface list does not show device description anymore. (ws-buglink:12156[])
+
+* Find Packet does not highlight the matching tree item or packet bytes. (ws-buglink:12157[])
+
+* "total block length ... is too large" error when opening pcapng file with multiple SHB sections. (ws-buglink:12167[])
+
+* http.request.full_uri is malformed if an HTTP Proxy is used. (ws-buglink:12176[])
+
+* SNMP dissector fails at msgSecurityParameters with long length encoding. (ws-buglink:12181[])
+
 Windows installers and PortableApps(R) packages are now dual signed using SHA-1 and SHA-256
 in order to comply with
 http://social.technet.microsoft.com/wiki/contents/articles/32288.windows-enforcement-of-authenticode-code-signing-and-timestamping.aspx[Microsoft Authenticode policy].
@@ -240,10 +316,13 @@ NFS
 NS Trace
 OSPF
 PIM
+PPTP
 RLC LTE
 RoHC
 RPC
 RSL
+SNMP
+SPICE
 SSL
 TCP
 TRILL
@@ -258,6 +337,7 @@ X.509AF
 --sort-and-group--
 3GPP TS 32.423 Trace
 iSeries
+Ixia IxVeriWave
 pcap
 pcapng
 --sort-and-group--
