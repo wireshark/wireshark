@@ -19,6 +19,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+include Makefile.common
 include ../Makefile.am.inc
 
 ACLOCAL_AMFLAGS = `../aclocal-flags`
@@ -27,6 +28,9 @@ AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS)
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
+
+EXTRA_DIST = \
+	Makefile.common
 
 extcap_PROGRAMS = \
 	@androiddump_bin@	\
