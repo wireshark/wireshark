@@ -345,7 +345,7 @@ void EnabledProtocolsDialog::on_buttonBox_helpRequested()
  *
  * Local Variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *

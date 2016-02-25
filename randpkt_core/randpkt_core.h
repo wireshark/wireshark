@@ -74,11 +74,11 @@ gboolean randpkt_example_close(randpkt_example* example);
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
- * c-basic-offset: 4
- * tab-width: 4
+ * c-basic-offset: 8
+ * tab-width: 8
  * indent-tabs-mode: t
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 noexpandtab:
- * :indentSize=4:tabSize=4:noTabs=false:
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
  */

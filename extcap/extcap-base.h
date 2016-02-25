@@ -76,12 +76,12 @@
 
 #define EXTCAP_BASE_OPTIONS \
 	{ "extcap-interfaces",		no_argument,		NULL, OPT_LIST_INTERFACES}, \
-	{ "extcap-dlts",			no_argument,		NULL, OPT_LIST_DLTS}, \
+	{ "extcap-dlts",		no_argument,		NULL, OPT_LIST_DLTS}, \
 	{ "extcap-interface",		required_argument,	NULL, OPT_INTERFACE}, \
-	{ "extcap-config",			no_argument,		NULL, OPT_CONFIG}, \
-	{ "capture",				no_argument,		NULL, OPT_CAPTURE}, \
+	{ "extcap-config",		no_argument,		NULL, OPT_CONFIG}, \
+	{ "capture",			no_argument,		NULL, OPT_CAPTURE}, \
 	{ "extcap-capture-filter",	required_argument,	NULL, OPT_CAPTURE_FILTER}, \
-	{ "fifo",					required_argument,	NULL, OPT_FIFO} \
+	{ "fifo",			required_argument,	NULL, OPT_FIFO} \
 
 #endif
 
@@ -89,11 +89,11 @@
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
- * c-basic-offset: 4
- * tab-width: 4
+ * c-basic-offset: 8
+ * tab-width: 8
  * indent-tabs-mode: t
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 noexpandtab:
- * :indentSize=4:tabSize=4:noTabs=false:
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
  */

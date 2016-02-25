@@ -109,11 +109,11 @@ WS_DLL_PUBLIC gboolean jsmn_is_json(const guint8* buf, const size_t len);
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
- * c-basic-offset: 4
- * tab-width: 4
+ * c-basic-offset: 8
+ * tab-width: 8
  * indent-tabs-mode: t
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 noexpandtab:
- * :indentSize=4:tabSize=8:noTabs=false:
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
  */

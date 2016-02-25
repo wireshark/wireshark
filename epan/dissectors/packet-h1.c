@@ -50,44 +50,44 @@ static dissector_handle_t data_handle;
 #define RESPONSE_BLOCK  0x0F
 
 static const value_string block_type_vals[] = {
-  { EMPTY_BLOCK,    "Empty Block" },
-  { OPCODE_BLOCK,   "Opcode Block" },
-  { REQUEST_BLOCK,  "Request Block" },
-  { RESPONSE_BLOCK, "Response Block" },
-  {0, NULL}
+    { EMPTY_BLOCK,    "Empty Block" },
+    { OPCODE_BLOCK,   "Opcode Block" },
+    { REQUEST_BLOCK,  "Request Block" },
+    { RESPONSE_BLOCK, "Response Block" },
+    {0, NULL}
 };
 
 
 static const value_string opcode_vals[] = {
-  {3, "Write Request"},
-  {4, "Write Response"},
-  {5, "Read Request"},
-  {6, "Read Response"},
-  {0, NULL}
+    {3, "Write Request"},
+    {4, "Write Response"},
+    {5, "Read Request"},
+    {6, "Read Response"},
+    {0, NULL}
 };
 
 static const value_string org_vals[] = {
-  {0x01, "DB"},
-  {0x02, "MB"},
-  {0x03, "EB"},
-  {0x04, "AB"},
-  {0x05, "PB"},
-  {0x06, "ZB"},
-  {0x07, "TB"},
-  {0x08, "BS"},
-  {0x09, "AS"},
-  {0x0a, "DX"},
-  {0x10, "DE"},
-  {0x11, "QB"},
-  {0, NULL}
+    {0x01, "DB"},
+    {0x02, "MB"},
+    {0x03, "EB"},
+    {0x04, "AB"},
+    {0x05, "PB"},
+    {0x06, "ZB"},
+    {0x07, "TB"},
+    {0x08, "BS"},
+    {0x09, "AS"},
+    {0x0a, "DX"},
+    {0x10, "DE"},
+    {0x11, "QB"},
+    {0, NULL}
 };
 
 static const value_string returncode_vals[] = {
-  {0x00, "No error"},
-  {0x02, "Requested block does not exist"},
-  {0x03, "Requested block too small"},
-  {0xFF, "Error, reason unknown"},
-  {0, NULL}
+    {0x00, "No error"},
+    {0x02, "Requested block does not exist"},
+    {0x03, "Requested block too small"},
+    {0xFF, "Error, reason unknown"},
+    {0, NULL}
 };
 
 static gint ett_h1 = -1;
@@ -273,10 +273,10 @@ proto_reg_handoff_h1(void)
  *
  * Local Variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=4 tabstop=4 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */

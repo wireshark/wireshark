@@ -140,7 +140,7 @@ wtap_open_return_val json_open(wtap *wth, int *err, gchar **err_info)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
