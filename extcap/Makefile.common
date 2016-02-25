@@ -32,3 +32,6 @@ randpktdump_SOURCES =	\
 # sshdump specifics
 sshdump_SOURCES =	\
 	sshdump.c
+
+noinst_HEADERS = \
+	extcap-base.h
