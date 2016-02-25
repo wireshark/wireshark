@@ -579,7 +579,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
             version_major               = shb.version_major;
             version_minor               = shb.version_minor;
 
-            pcapng_debug("pcapng_read_section_header_block: SHB (little endian) V%u.%u, len %u",
+            pcapng_debug("pcapng_read_section_header_block: SHB (our byte order) V%u.%u, len %u",
                           version_major, version_minor, bh->block_total_length);
             break;
         case(0x4D3C2B1A):
@@ -591,7 +591,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
             /* tweak the block length to meet current swapping that we know now */
             bh->block_total_length  = GUINT32_SWAP_LE_BE(bh->block_total_length);
 
-            pcapng_debug("pcapng_read_section_header_block: SHB (big endian) V%u.%u, len %u",
+            pcapng_debug("pcapng_read_section_header_block: SHB (byte-swapped) V%u.%u, len %u",
                           version_major, version_minor, bh->block_total_length);
             break;
         default:
