@@ -64,7 +64,6 @@
 // - Fix InterfaceTreeDelegate method names.
 // - You can edit filters via the main CaptureFilterCombo and via each
 //   individual interface row. We should probably do one or the other.
-// - resizeColumnToContents isn't shrinking some columns properly.
 
 const int stat_update_interval_ = 1000; // ms
 
@@ -148,7 +147,6 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
     ui->interfaceTree->setItemDelegateForColumn(col_filter_, &interface_item_delegate_);
 
     interface_item_delegate_.setTree(ui->interfaceTree);
-    ui->interfaceTree->setColumnWidth(col_link_, 100);
 
 #if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
     ui->filenameLineEdit->setPlaceholderText(tr("Leave blank to use a temporary file"));
@@ -583,8 +581,35 @@ void CaptureInterfacesDialog::updateInterfaces()
         }
     }
 
-    for (int i = 0; i < ui->interfaceTree->topLevelItemCount(); i++) {
-        ui->interfaceTree->resizeColumnToContents(i);
+    //        col_interface_ = 0,
+    //        col_traffic_,
+    //        col_link_,
+    //        col_pmode_,
+    //        col_snaplen_,
+    //        col_buffer_,
+    //        col_monitor_,
+    //        col_filter_,
+    //        col_num_columns_
+    // Manually or automatically size some columns as needed.
+    int one_em = fontMetrics().height();
+    for (int col = 0; col < ui->interfaceTree->topLevelItemCount(); col++) {
+        switch (col) {
+        case col_pmode_:
+            ui->interfaceTree->setColumnWidth(col, one_em * 6);
+            break;
+        case col_snaplen_:
+            ui->interfaceTree->setColumnWidth(col, one_em * 4.25);
+            break;
+        case col_buffer_:
+            ui->interfaceTree->setColumnWidth(col, one_em * 4.25);
+            break;
+        case col_monitor_:
+            ui->interfaceTree->setColumnWidth(col, one_em * 5.25);
+            break;
+        default:
+            ui->interfaceTree->resizeColumnToContents(col);
+        }
+
     }
 
     start_bt_->setEnabled((global_capture_opts.num_selected > 0)? true: false);
