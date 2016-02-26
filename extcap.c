@@ -346,7 +346,7 @@ extcap_interface_list(char **err_str) {
     GList *ret = NULL;
 
     if (err_str != NULL)
-    *err_str = NULL;
+        *err_str = NULL;
 
     extcap_if_cleanup();
 
