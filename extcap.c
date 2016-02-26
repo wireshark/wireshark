@@ -394,7 +394,7 @@ extcap_interface_list(char **err_str) {
     GList *ret = NULL;
 
     if (err_str != NULL)
-    *err_str = NULL;
+        *err_str = NULL;
 
     /* ifaces is used as cache, do not destroy its contents when
      * returning or no extcap interfaces can be queried for options */
