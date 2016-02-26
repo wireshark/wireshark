@@ -2545,7 +2545,9 @@ dissect_snmp_T_msgSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 	switch(MsgSecurityModel){
 		case SNMP_SEC_USM:	/* 3 */
-			offset = dissect_snmp_UsmSecurityParameters(FALSE, tvb, offset+2, actx, tree, -1);
+			offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
+			offset = get_ber_length(tvb, offset, NULL, NULL);
+			offset = dissect_snmp_UsmSecurityParameters(FALSE, tvb, offset, actx, tree, -1);
 			usm_p.user_assoc = get_user_assoc(usm_p.engine_tvb, usm_p.user_tvb);
 			break;
 		case SNMP_SEC_ANY:	/* 0 */
