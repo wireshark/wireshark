@@ -1609,7 +1609,7 @@ name_resolution_block_find_name_end(const char *p, guint record_len, int *err,
 }
 
 static gboolean
-pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock _U_,int *err, gchar **err_info)
+pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info)
 {
     int block_read;
     int to_read;
@@ -1658,6 +1658,11 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
     to_read = bh->block_total_length - 8 - 4; /* We have read the header and should not read the final block_total_length */
 
     pcapng_debug("pcapng_read_name_resolution_block, total %d bytes", bh->block_total_length);
+
+    /* Ensure we have a name resolution block */
+    if (wblock->block == NULL) {
+        wblock->block = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_NRB);
+    }
 
     /*
      * Start out with a buffer big enough for an IPv6 address and one
