@@ -37,4 +37,4 @@ sshdump_SOURCES =	\
 	extcap-base.c
 
 noinst_HEADERS = \
-	extcap-base.c
+	extcap-base.h
