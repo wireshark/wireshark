@@ -155,16 +155,21 @@ static void wtap_optionblock_free_options(wtap_optionblock_t block)
 
 void wtap_optionblock_free(wtap_optionblock_t block)
 {
+    guint j;
+    wtap_optionblock_t if_stats;
+
     if (block != NULL)
     {
         /* Need special consideration for freeing of the interface_statistics member */
         if (block->type == WTAP_OPTION_BLOCK_IF_DESCR)
         {
             wtapng_if_descr_mandatory_t* mand = (wtapng_if_descr_mandatory_t*)block->mandatory_data;
-            if (mand->num_stat_entries != 0)
-            {
-                g_array_free(mand->interface_statistics, TRUE);
+            for(j = 0; j < mand->num_stat_entries; j++) {
+                if_stats = g_array_index(mand->interface_statistics, wtap_optionblock_t, j);
+                wtap_optionblock_free(if_stats);
             }
+
+            g_array_free(mand->interface_statistics, TRUE);
         }
 
         g_free(block->mandatory_data);

@@ -2487,6 +2487,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     case PCAPNG_BLOCK_NOT_SHB:
         /* An error indicating that this isn't a pcap-ng file. */
         wtap_optionblock_free(wblock.block);
+        wblock.block = NULL;
         *err = 0;
         *err_info = NULL;
         return WTAP_OPEN_NOT_MINE;
@@ -2494,6 +2495,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     case PCAPNG_BLOCK_ERROR:
         /* An I/O error, or this probably *is* a pcap-ng file but not a valid one. */
         wtap_optionblock_free(wblock.block);
+        wblock.block = NULL;
         return WTAP_OPEN_ERROR;
     }
 
@@ -2506,6 +2508,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
          */
         pcapng_debug("pcapng_open: first block type %u not SHB", wblock.type);
         wtap_optionblock_free(wblock.block);
+        wblock.block = NULL;
         return WTAP_OPEN_NOT_MINE;
     }
     pn.shb_read = TRUE;
@@ -2561,10 +2564,12 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
             if (*err == 0) {
                 pcapng_debug("No more IDBs available...");
                 wtap_optionblock_free(wblock.block);
+                wblock.block = NULL;
                 break;
             } else {
                 pcapng_debug("pcapng_open: couldn't read IDB");
                 wtap_optionblock_free(wblock.block);
+                wblock.block = NULL;
                 return WTAP_OPEN_ERROR;
             }
         }

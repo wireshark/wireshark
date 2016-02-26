@@ -1180,10 +1180,8 @@ wtap_fdclose(wtap *wth)
 void
 wtap_close(wtap *wth)
 {
-	guint i, j;
+	guint i;
 	wtap_optionblock_t wtapng_if_descr;
-	wtap_optionblock_t if_stats;
-	wtapng_if_descr_mandatory_t* wtapng_if_descr_mand;
 
 	wtap_sequential_close(wth);
 
@@ -1205,11 +1203,6 @@ wtap_close(wtap *wth)
 
 	for(i = 0; i < wth->interface_data->len; i++) {
 		wtapng_if_descr = g_array_index(wth->interface_data, wtap_optionblock_t, i);
-		wtapng_if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(wtapng_if_descr);
-		for(j = 0; j < wtapng_if_descr_mand->num_stat_entries; j++) {
-			if_stats = g_array_index(wtapng_if_descr_mand->interface_statistics, wtap_optionblock_t, j);
-			wtap_optionblock_free(if_stats);
-		}
 		wtap_optionblock_free(wtapng_if_descr);
 	}
 	g_array_free(wth->interface_data, TRUE);
