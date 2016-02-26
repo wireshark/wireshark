@@ -354,6 +354,10 @@ void InterfaceTree::updateStatistics(void) {
 // Column name_col UserRole data MUST be set to the interface name.
 void InterfaceTree::updateGlobalDeviceSelections(QTreeWidget *if_tree, int name_col)
 {
+#ifndef HAVE_LIBPCAP
+    Q_UNUSED(name_col)
+#endif
+
     if (!if_tree) return;
 #ifdef HAVE_LIBPCAP
     QTreeWidgetItemIterator iter(if_tree);
@@ -385,7 +389,6 @@ void InterfaceTree::updateGlobalDeviceSelections(QTreeWidget *if_tree, int name_
         }
         ++iter;
     }
-
 #endif // HAVE_LIBPCAP
 }
 
