@@ -363,7 +363,7 @@ proto_reg_handoff_nsh(void)
 
 	dissector_ip = find_dissector("ip");
 	dissector_ipv6 = find_dissector("ipv6");
-	dissector_eth = find_dissector("eth");
+	dissector_eth = find_dissector("eth_maybefcs");
 
 
 }
