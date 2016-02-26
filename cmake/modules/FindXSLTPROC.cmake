@@ -127,7 +127,7 @@ MACRO(XML2HTML _target_dep _dir_pfx _mode _dbk_source _gfx_sources)
             ${_STYLESHEET}
             ${_dbk_source}
         DEPENDS
-            ${_dbk_source}
+            generate_${_dbk_source}
             ${_dbk_dep}
             #${_validated}
             ${_gfx_deps}
@@ -173,7 +173,7 @@ MACRO(XML2PDF _target_dep _output _dbk_source _stylesheet _paper)
             ${_output}.fo
             ${_output}
         DEPENDS
-            ${_dbk_source}
+            generate_${_dbk_source}
             ${_dbk_dep}
             ${_stylesheet}
     )
@@ -219,7 +219,7 @@ MACRO(XML2HHP _target_dep _guide _docbooksource)
             --nonet custom_layer_chm.xsl
             ${_docbook_plain_title}
         DEPENDS
-            ${_docbooksource}
+            generate_${_docbooksource}
             ${_dbk_dep}
             # AsciiDoc uses UTF-8 by default, which is unsupported by HTML
             # Help. We may want to render an ISO-8859-1 version, or get rid

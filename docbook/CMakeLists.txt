@@ -312,11 +312,11 @@ if(ENABLE_HTML_GUIDES OR ENABLE_PDF_GUIDES OR ENABLE_CHM_GUIDES)
 	set( ASCIIDOC_CONF_FILES asciidoc.conf asciidoctor-asciidoc.conf )
 
 	ASCIIDOC2DOCBOOK(user-guide.asciidoc ASCIIDOC_CONF_FILES WSUG_SOURCE WSUG_BUILT_DEPS)
-	add_custom_target(user_guide_docbook DEPENDS user-guide.xml)
+	add_custom_target(user_guide_docbook DEPENDS generate_user-guide.xml)
 	set_target_properties(user_guide_docbook PROPERTIES FOLDER "Docbook")
 
 	ASCIIDOC2DOCBOOK(developer-guide.asciidoc ASCIIDOC_WSLUARM_CONF_FILES WSDG_SOURCE WSDG_BUILT_DEPS)
-	add_custom_target(developer_guide_docbook DEPENDS developer-guide.xml)
+	add_custom_target(developer_guide_docbook DEPENDS generate_developer-guide.xml)
 	set_target_properties(developer_guide_docbook PROPERTIES FOLDER "Docbook")
 
 	# Top-level guide targets.
