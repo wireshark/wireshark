@@ -644,7 +644,7 @@ void TCPStreamDialog::fillThroughput()
 
     QVector<double> rel_time, seg_len, tput_time, tput;
     int oldest = 0;
-    int sum = 0;
+    guint64 sum = 0;
     // Financial charts don't show MA data until a full period has elapsed.
     // The Rosetta Code MA examples start spitting out values immediately.
     // For now use not-really-correct initial values just to keep our vector
