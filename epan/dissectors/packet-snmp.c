@@ -2593,7 +2593,7 @@ dissect_snmp_INTEGER_484_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_snmp_T_msgFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 217 "../../asn1/snmp/snmp.cnf"
+#line 219 "../../asn1/snmp/snmp.cnf"
 	tvbuff_t *parameter_tvb = NULL;
 
    offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2652,7 +2652,9 @@ dissect_snmp_T_msgSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 	switch(MsgSecurityModel){
 		case SNMP_SEC_USM:	/* 3 */
-			offset = dissect_snmp_UsmSecurityParameters(FALSE, tvb, offset+2, actx, tree, -1);
+			offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
+			offset = get_ber_length(tvb, offset, NULL, NULL);
+			offset = dissect_snmp_UsmSecurityParameters(FALSE, tvb, offset, actx, tree, -1);
 			usm_p.user_assoc = get_user_assoc(usm_p.engine_tvb, usm_p.user_tvb);
 			break;
 		case SNMP_SEC_ANY:	/* 0 */
@@ -2773,7 +2775,7 @@ dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SNMPv3Message_sequence, hf_index, ett_snmp_SNMPv3Message);
 
-#line 180 "../../asn1/snmp/snmp.cnf"
+#line 182 "../../asn1/snmp/snmp.cnf"
 
 	if( usm_p.authenticated
 		&& usm_p.user_assoc
