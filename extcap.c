@@ -282,7 +282,7 @@ extcap_get_if_dlts(const gchar *ifname, char **err_str) {
     gint i;
     if_capabilities_t *caps = NULL;
 
-    if (ifname != NULL && err_str != NULL)
+    if (err_str != NULL)
         *err_str = NULL;
 
     if ( extcap_if_exists(ifname) )
@@ -291,8 +291,6 @@ extcap_get_if_dlts(const gchar *ifname, char **err_str) {
         argv[1] = g_strdup(EXTCAP_ARGUMENT_INTERFACE);
         argv[2] = g_strdup(ifname);
 
-        if (err_str)
-            *err_str = NULL;
         extcap_foreach(3, argv, dlt_cb, &caps, err_str, ifname);
 
         for (i = 0; i < 3; ++i)
@@ -410,8 +408,6 @@ extcap_interface_list(char **err_str) {
 
     argv = g_strdup(EXTCAP_ARGUMENT_LIST_INTERFACES);
 
-    if (err_str)
-    *err_str = NULL;
     extcap_foreach(1, &argv, interfaces_cb, &ret, err_str, NULL);
 
     g_free(argv);
