@@ -69,19 +69,19 @@ EXECUTABLES += sshdump.exe
 
 all: $(EXECUTABLES)
 
-androiddump.exe	: $(LIBS_CHECK) ..\config.h androiddump.obj $(anddroiddump_WSLIBS)
+androiddump.exe	: $(LIBS_CHECK) ..\config.h androiddump.obj extcap-base.obj $(anddroiddump_WSLIBS)
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:androiddump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS androiddump.obj $(androiddump_LIBS)
+		/OUT:androiddump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS androiddump.obj extcap-base.obj $(androiddump_LIBS)
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "androiddump.exe.manifest" -outputresource:androiddump.exe;1
 !ENDIF
 
-randpktdump.exe	: $(LIBS_CHECK) ..\config.h randpktdump.obj $(randpktdump_WSLIBS)
+randpktdump.exe	: $(LIBS_CHECK) ..\config.h randpktdump.obj extcap-base.obj $(randpktdump_WSLIBS)
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:randpktdump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS randpktdump.obj $(randpktdump_LIBS)
+		/OUT:randpktdump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS randpktdump.obj extcap-base.obj $(randpktdump_LIBS)
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "randpktdump.exe.manifest" -outputresource:randpktdump.exe;1
