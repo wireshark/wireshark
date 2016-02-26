@@ -720,10 +720,21 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 		# work reliably (some package names are not searched for).
 		for pkg in "lua < 5.3" lua5.2 lua-5.2 lua52 lua5.1 lua-5.1 lua51 lua5.0 lua-5.0 lua50
 		do
-			PKG_CHECK_MODULES(LUA, $pkg, [have_lua=yes], [true])
+			AC_MSG_CHECKING(if you have $pkg)
+			PKG_CHECK_EXISTS($pkg,
+			[
+			 AC_MSG_RESULT(yes)
+			 have_lua=yes
+			],
+			[
+			 AC_MSG_RESULT(no)
+			])
 
 			if test "x$have_lua" = "xyes"
 			then
+				PKG_WIRESHARK_CHECK_SYSTEM_MODULES(LUA, $pkg)
+				CPPFLAGS="$LUA_CFLAGS $CPPFLAGS"
+				AC_CHECK_HEADERS(lua.h lualib.h lauxlib.h)
 				break
 			fi
 		done
