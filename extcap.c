@@ -331,14 +331,16 @@ static gboolean interfaces_cb(const gchar *extcap, const gchar *ifname _U_, gcha
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "  Extcap [%s] ", int_iter->call);
 
         if ( int_iter->if_type == EXTCAP_SENTENCE_INTERFACE ) {
-            if_info = g_new0(if_info_t, 1);
-            if_info->name = g_strdup(int_iter->call);
-            if_info->friendly_name = g_strdup(int_iter->display);
+            if (il != NULL) {
+                if_info = g_new0(if_info_t, 1);
+                if_info->name = g_strdup(int_iter->call);
+                if_info->friendly_name = g_strdup(int_iter->display);
 
-            if_info->type = IF_EXTCAP;
+                if_info->type = IF_EXTCAP;
 
-            if_info->extcap = g_strdup(extcap);
-            *il = g_list_append(*il, if_info);
+                if_info->extcap = g_strdup(extcap);
+                *il = g_list_append(*il, if_info);
+            }
 
             extcap_if_add(int_iter->call, extcap);
         }
@@ -370,7 +372,7 @@ if_info_compare(gconstpointer a, gconstpointer b)
 GHashTable *
 extcap_tools_list(void) {
     if ( tools == NULL || g_hash_table_size(tools) == 0 )
-        extcap_interface_list(NULL);
+        extcap_interface_list(NULL, NULL);
 
     return tools;
 }
@@ -385,11 +387,13 @@ extcap_free_info (gpointer data) {
     g_free (info);
 }
 
-GList *
-extcap_interface_list(char **err_str) {
+void
+extcap_interface_list(GList **listp, char **err_str) {
     gchar *argv;
     /* gint i; */
     GList *ret = NULL;
+    GList *entry;
+    void *data;
 
     if (err_str != NULL)
         *err_str = NULL;
@@ -408,11 +412,22 @@ extcap_interface_list(char **err_str) {
 
     argv = g_strdup(EXTCAP_ARGUMENT_LIST_INTERFACES);
 
-    extcap_foreach(1, &argv, interfaces_cb, &ret, err_str, NULL);
+    extcap_foreach(1, &argv, interfaces_cb, (listp != NULL) ? &ret : NULL, err_str, NULL);
 
     g_free(argv);
 
-    return g_list_sort ( ret, if_info_compare );
+    if (listp != NULL) {
+        /* Sort the list */
+        ret = g_list_sort(ret, if_info_compare);
+
+        /* Append the interfaces to the list. */
+        while (ret != NULL) {
+            entry = g_list_first(ret);
+            data = entry->data;
+            ret = g_list_delete_link(ret, entry);
+            *listp = g_list_append(*listp, data);
+        }
+    }
 }
 
 static void extcap_free_arg_elem(gpointer data, gpointer user_data _U_) {
@@ -430,7 +445,7 @@ void extcap_register_preferences(void)
         return;
 
     if ( ! ifaces || g_hash_table_size(ifaces) == 0 )
-        extcap_interface_list(NULL);
+        extcap_interface_list(NULL, NULL);
 
     interfaces = g_hash_table_get_keys(ifaces);
 
