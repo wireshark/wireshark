@@ -337,8 +337,8 @@ static gboolean interfaces_cb(const gchar *extcap, gchar *output, void *data,
     return TRUE;
 }
 
-void
-extcap_interface_list(GList **listp, char **err_str) {
+GList *
+append_extcap_interface_list(GList *list, char **err_str) {
     gchar *argv;
     /* gint i; */
     GList *ret = NULL;
@@ -361,8 +361,9 @@ extcap_interface_list(GList **listp, char **err_str) {
         entry = g_list_first(ret);
         data = entry->data;
         ret = g_list_delete_link(ret, entry);
-        *listp = g_list_append(*listp, data);
+        list = g_list_append(list, data);
     }
+    return list;
 }
 
 static void g_free_1(gpointer data, gpointer user_data _U_)
