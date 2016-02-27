@@ -234,6 +234,11 @@ static int hf_ieee_802_3_aggregation_status_cap = -1;
 static int hf_ieee_802_3_aggregation_status_enabled = -1;
 static int hf_ieee_802_3_aggregated_port_id = -1;
 static int hf_ieee_802_3_max_frame_size = -1;
+static int hf_ieee_802_3_eee_transmit = -1;
+static int hf_ieee_802_3_eee_receive = -1;
+static int hf_ieee_802_3_eee_fallback_receive = -1;
+static int hf_ieee_802_3_eee_echo_transmit = -1;
+static int hf_ieee_802_3_eee_echo_receive = -1;
 static int hf_ieee_802_1qbg_subtype = -1;
 static int hf_ieee_802_1qbg_evb_support_caps = -1;
 static int hf_ieee_802_1qbg_evb_support_caps_std = -1;
@@ -391,6 +396,7 @@ static gint ett_org_spc_ieee_802_3_1 = -1;
 static gint ett_org_spc_ieee_802_3_2 = -1;
 static gint ett_org_spc_ieee_802_3_3 = -1;
 static gint ett_org_spc_ieee_802_3_4 = -1;
+static gint ett_org_spc_ieee_802_3_5 = -1;
 
 static gint ett_org_spc_media_1 = -1;
 static gint ett_org_spc_media_2 = -1;
@@ -567,6 +573,7 @@ static const value_string ieee_802_3_subtypes[] = {
 	{ 0x02,	"Power Via MDI" },
 	{ 0x03,	"Link Aggregation" },
 	{ 0x04, "Maximum Frame Size" },
+	{ 0x05, "EEE (Energy-Efficient Ethernet)" },
 	{ 0, NULL }
 };
 
@@ -2512,6 +2519,25 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		offset+=2;
 		break;
 	}
+	case 0x05:	/* Energy-Efficient Ethernet */
+	{
+		proto_tree_add_item(tree, hf_ieee_802_3_eee_transmit, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset+=2;
+
+		proto_tree_add_item(tree, hf_ieee_802_3_eee_receive, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset+=2;
+
+		proto_tree_add_item(tree, hf_ieee_802_3_eee_fallback_receive, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset+=2;
+
+		proto_tree_add_item(tree, hf_ieee_802_3_eee_echo_transmit, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset+=2;
+
+		proto_tree_add_item(tree, hf_ieee_802_3_eee_echo_receive, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset+=2;
+
+		break;
+	}
 	}
 
 	return offset;
@@ -3473,6 +3499,8 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		case 3:	tempTree = ett_org_spc_ieee_802_3_3;
 			break;
 		case 4:	tempTree = ett_org_spc_ieee_802_3_4;
+			break;
+		case 5:	tempTree = ett_org_spc_ieee_802_3_5;
 			break;
 		}
 		break;
@@ -4488,6 +4516,26 @@ proto_register_lldp(void)
 			{ "Maximum Frame Size", "lldp.ieee.802_3.max_frame_size", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }
 		},
+		{ &hf_ieee_802_3_eee_transmit,
+			{ "Transmit", "lldp.ieee.802_3.eee.transmit", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_eee_receive,
+			{ "Receive", "lldp.ieee.802_3.eee.receive", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_eee_fallback_receive,
+			{ "Fallback Receive", "lldp.ieee.802_3.eee.fallback_receive", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_eee_echo_transmit,
+			{ "Echo Transmit", "lldp.ieee.802_3.eee.echo_transmit", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_eee_echo_receive,
+			{ "Echo Receive", "lldp.ieee.802_3.eee.echo_receive", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
 		{ &hf_ieee_802_1qbg_subtype,
 			{ "IEEE 802.1Qbg Subtype", "lldp.ieee.802_1qbg.subtype", FT_UINT8, BASE_HEX,
 			VALS(ieee_802_1qbg_subtypes), 0x0, NULL, HFILL }
@@ -5002,6 +5050,7 @@ proto_register_lldp(void)
 		&ett_org_spc_ieee_802_3_2,
 		&ett_org_spc_ieee_802_3_3,
 		&ett_org_spc_ieee_802_3_4,
+		&ett_org_spc_ieee_802_3_5,
 		&ett_org_spc_media_1,
 		&ett_org_spc_media_2,
 		&ett_org_spc_media_3,
