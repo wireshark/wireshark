@@ -325,7 +325,7 @@ static int hf_sprt_ack_field_items =            -1;
 static int hf_sprt_transport_channel_item =     -1;
 static int hf_sprt_sequence_item =              -1;
 
-static int hf_sprt_payload =                    -1;
+static int hf_sprt_payload_length =             -1;
 static int hf_sprt_payload_no_data =            -1;
 static int hf_sprt_payload_reserved_bit =       -1;
 static int hf_sprt_payload_message_id =         -1;
@@ -885,7 +885,7 @@ dissect_sprt_data(tvbuff_t *tvb,
 
     if (payload_length > 0)
     {
-        ti = proto_tree_add_uint(sprt_tree, hf_sprt_payload, tvb, offset, 1, payload_length);
+        ti = proto_tree_add_uint(sprt_tree, hf_sprt_payload_length, tvb, offset, 1, payload_length);
         proto_item_set_len(ti, payload_length);
 
         sprt_payload_tree = proto_item_add_subtree(ti, ett_payload);
@@ -1694,10 +1694,10 @@ proto_register_sprt(void)
         },
         /* SPRT payload, if any: */
         {
-            &hf_sprt_payload,
+            &hf_sprt_payload_length,
             {
                 "Payload (in bytes)",
-                "sprt.payload",
+                "sprt.payload.length",
                 FT_UINT32,
                 BASE_DEC,
                 NULL,
