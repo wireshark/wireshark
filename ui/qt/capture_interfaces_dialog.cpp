@@ -128,7 +128,9 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
     start_bt_->setEnabled((global_capture_opts.num_selected > 0)? true: false);
     connect(start_bt_, SIGNAL(clicked(bool)), this, SLOT(start_button_clicked()));
 
-    ui->interfaceTree->sortByColumn(col_interface_, Qt::AscendingOrder);
+    // Start out with the list *not* sorted, so they show up in the order
+    // in which they were provided
+    ui->interfaceTree->sortByColumn(-1, Qt::AscendingOrder);
     ui->interfaceTree->setItemDelegateForColumn(col_interface_, &interface_item_delegate_);
     ui->interfaceTree->setItemDelegateForColumn(col_traffic_, new SparkLineDelegate());
     ui->interfaceTree->setItemDelegateForColumn(col_link_, &interface_item_delegate_);
