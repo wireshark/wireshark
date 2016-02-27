@@ -200,7 +200,7 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
 #ifdef HAVE_EXTCAP
     /* Add the extcap interfaces after the native and remote interfaces */
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Loading External Capture Interface List ...");
-    extcap_interface_list(&if_list, err_str);
+    if_list = append_extcap_interface_list(if_list, err_str);
 #endif
 
     return if_list;

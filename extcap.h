@@ -72,8 +72,8 @@ if_capabilities_t *
 extcap_get_if_dlts(const gchar * ifname, char ** err_str);
 
 /* append a list of all extcap capture interfaces to the specified list */
-void
-extcap_interface_list(GList **listp, char **err_str);
+GList *
+append_extcap_interface_list(GList *list, char **err_str);
 
 /* get a list of all available extcap tools */
 GHashTable *
