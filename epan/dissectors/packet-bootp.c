@@ -755,6 +755,14 @@ static const value_string duidtype_vals[] =
 
 static gboolean novell_string = FALSE;
 
+static guint bootp_uuid_endian = ENC_LITTLE_ENDIAN;
+
+static const enum_val_t bootp_uuid_endian_vals[] = {
+	{ "Little Endian", "Little Endian",	ENC_LITTLE_ENDIAN},
+	{ "Big Endian",	 "Big Endian", ENC_BIG_ENDIAN },
+	{ NULL, NULL, 0 }
+};
+
 #define UDP_PORT_BOOTPS	 67
 #define UDP_PORT_BOOTPC	 68
 
@@ -1978,8 +1986,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 					tvb_arphrdaddr_to_str(tvb, optoff+1, 6, byte));
 		} else if (optlen == 17 && byte == 0) {
 			/* Identifier is a UUID */
-			proto_tree_add_item(v_tree, hf_bootp_client_identifier_uuid,
-					    tvb, optoff + 1, 16, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(v_tree, hf_bootp_client_identifier_uuid, tvb, optoff + 1, 16, bootp_uuid_endian);
+
 		/* From RFC 4361 paragraph 6.1 DHCPv4 Client Behavior:
 			To send an RFC 3315-style binding identifier in a DHCPv4 'client
 			identifier' option, the type of the 'client identifier' option is set
@@ -2107,8 +2115,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 					tvb_arphrdaddr_to_str(tvb, optoff+1, 6, byte));
 		} else if (optlen == 17 && byte == 0) {
 			/* Identifier is a UUID */
-			proto_tree_add_item(v_tree, hf_bootp_client_identifier_uuid,
-					    tvb, optoff + 1, 16, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(v_tree, hf_bootp_client_identifier_uuid, tvb, optoff + 1, 16, bootp_uuid_endian);
 		} else {
 			/* otherwise, it's opaque data */
 		}
@@ -7880,6 +7887,13 @@ proto_register_bootp(void)
 				       "Option Number for PacketCable CableLabs Client Configuration",
 				       10,
 				       &pkt_ccc_option);
+
+	prefs_register_enum_preference(bootp_module, "uuid.endian",
+				       "Endianness of UUID",
+				       "Endianness applied to UUID fields",
+				       &bootp_uuid_endian,
+				       bootp_uuid_endian_vals,
+				       FALSE);
 
 	prefs_register_obsolete_preference(bootp_module, "displayasstring");
 
