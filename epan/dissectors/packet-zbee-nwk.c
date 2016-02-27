@@ -1602,7 +1602,7 @@ void proto_register_zbee_nwk(void)
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_mcast,
-            { "Multicast Control Field",         "zbee_nwk.multicast", FT_UINT8, BASE_HEX, NULL, 0x0,
+            { "Multicast Control Field",         "zbee_nwk.multicast.cf", FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_mcast_mode,
