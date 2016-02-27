@@ -1824,7 +1824,7 @@ proto_register_zbee_zcl_ke(void)
             0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ke_cert_serialno,
-            { "Serial No", "zbee_zcl_se.ke.cert.type", FT_UINT64, BASE_HEX, NULL,
+            { "Serial No", "zbee_zcl_se.ke.cert.serialno", FT_UINT64, BASE_HEX, NULL,
             0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ke_cert_curve,
