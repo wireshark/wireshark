@@ -60,7 +60,7 @@
 #ifdef HAVE_PCAP_REMOTE
 static GList *remote_interface_list = NULL;
 
-static void append_remote_list(GList *iflist)
+static GList * append_remote_list(GList *iflist)
 {
     GSList *list;
     GList *rlist;
@@ -94,6 +94,7 @@ static void append_remote_list(GList *iflist)
         temp->loopback = if_info->loopback;
         iflist = g_list_append(iflist, temp);
    }
+   return iflist;
 }
 #endif
 
@@ -209,7 +210,7 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
 
 #ifdef HAVE_PCAP_REMOTE
     if (remote_interface_list && g_list_length(remote_interface_list) > 0) {
-        append_remote_list(if_list);
+        if_list = append_remote_list(if_list);
     }
 #endif
 
