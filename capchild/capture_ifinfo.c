@@ -121,10 +121,6 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List ...");
 
     *err = 0;
-#ifdef HAVE_EXTCAP
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Loading External Capture Interface List ...");
-    if_list = extcap_interface_list(err_str);
-#endif
 
     /* Try to get our interface list */
     ret = sync_interface_list_open(&data, &primary_msg, &secondary_msg, update_cb);
@@ -216,6 +212,13 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
         append_remote_list(if_list);
     }
 #endif
+
+#ifdef HAVE_EXTCAP
+    /* Add the extcap interfaces after the native and remote interfaces */
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Loading External Capture Interface List ...");
+    extcap_interface_list(&if_list, err_str);
+#endif
+
     return if_list;
 }
 

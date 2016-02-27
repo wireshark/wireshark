@@ -337,11 +337,13 @@ static gboolean interfaces_cb(const gchar *extcap, gchar *output, void *data,
     return TRUE;
 }
 
-GList *
-extcap_interface_list(char **err_str) {
+void
+extcap_interface_list(GList **listp, char **err_str) {
     gchar *argv;
     /* gint i; */
     GList *ret = NULL;
+    GList *entry;
+    void *data;
 
     if (err_str != NULL)
         *err_str = NULL;
@@ -354,7 +356,13 @@ extcap_interface_list(char **err_str) {
 
     g_free(argv);
 
-    return ret;
+    /* Append the interfaces to the list. */
+    while (ret != NULL) {
+        entry = g_list_first(ret);
+        data = entry->data;
+        ret = g_list_delete_link(ret, entry);
+        *listp = g_list_append(*listp, data);
+    }
 }
 
 static void g_free_1(gpointer data, gpointer user_data _U_)
