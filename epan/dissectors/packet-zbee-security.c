@@ -242,7 +242,7 @@ void zbee_security_register(module_t *zbee_prefs, int proto)
             0x0, NULL, HFILL }},
 
         { &hf_zbee_sec_key_id,
-          { "Key Id",                    "zbee.sec.key", FT_UINT8, BASE_HEX, VALS(zbee_sec_key_names),
+          { "Key Id",                    "zbee.sec.key_id", FT_UINT8, BASE_HEX, VALS(zbee_sec_key_names),
             ZBEE_SEC_CONTROL_KEY, NULL, HFILL }},
 
         { &hf_zbee_sec_nonce,
