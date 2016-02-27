@@ -2009,7 +2009,7 @@ void proto_register_irda(void)
                 FT_STRING, BASE_NONE, NULL, 0,
                 NULL, HFILL }},
         { &hf_lmp_xid_name_no_ascii,
-            { "Device Nickname (unsupported character set)", "irlmp.xid.name",
+            { "Device Nickname (unsupported character set)", "irlmp.xid.name.no_ascii",
                 FT_BYTES, BASE_NONE, NULL, 0,
                 NULL, HFILL }},
         { &hf_lmp_dst,
