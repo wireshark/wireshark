@@ -248,3 +248,4 @@ WS_DLL_PUBLIC int wtap_optionblock_get_option_custom(wtap_optionblock_t block, g
 void wtap_optionblock_copy_options(wtap_optionblock_t dest_block, wtap_optionblock_t src_block);
 
 #endif /* WTAP_OPT_TYPES_H */
+
