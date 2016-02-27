@@ -292,7 +292,7 @@ void proto_register_zep(void)
             "The length (in bytes) of the encapsulated IEEE 802.15.4 MAC frame.", HFILL }},
 
         { &hf_zep_protocol_id,
-        { "Protocol ID String",            "zep.seqno", FT_STRING, BASE_NONE, NULL, 0x0,
+        { "Protocol ID String",            "zep.protocol_id", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zep_reserved_field,
