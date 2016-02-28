@@ -1682,3 +1682,8 @@ if HAVE_DOXYGEN
 	rm -f wsar_html.zip
 	zip -rq wsar_html.zip wsar_html
 endif
+
+gen-authors:
+#Generate list of AUTHORS (Name + E-Mail) sort by number of commit
+	git shortlog -sne | cut -c8- > $(top_srcdir)/AUTHORS.git
+	$(PERL) $(top_srcdir)/tools/generate_authors.pl $(top_srcdir)/AUTHORS.src $(top_srcdir)/AUTHORS.git > $(top_srcdir)/AUTHORS
