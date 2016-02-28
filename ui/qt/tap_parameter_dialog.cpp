@@ -80,9 +80,6 @@ TapParameterDialog::TapParameterDialog(QWidget &parent, CaptureFile &cf, int hel
 {
     ui->setupUi(this);
 
-    // XXX Use recent settings instead
-    resize(parent.width() * 2 / 3, parent.height() * 3 / 4);
-
     // Only show a hint label if a subclass provides a hint.
     ui->hintLabel->hide();
 

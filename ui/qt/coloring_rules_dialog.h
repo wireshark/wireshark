@@ -22,7 +22,7 @@
 #ifndef COLORING_RULES_DIALOG_H
 #define COLORING_RULES_DIALOG_H
 
-#include <QDialog>
+#include "geometry_state_dialog.h"
 
 class QAbstractButton;
 class QTreeWidget;
@@ -54,7 +54,7 @@ private slots:
     void ruleNameChanged(const QString name);
 };
 
-class ColoringRulesDialog : public QDialog
+class ColoringRulesDialog : public GeometryStateDialog
 {
     Q_OBJECT
 

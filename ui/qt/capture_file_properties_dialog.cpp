@@ -45,9 +45,7 @@ CaptureFilePropertiesDialog::CaptureFilePropertiesDialog(QWidget &parent, Captur
     ui(new Ui::CaptureFilePropertiesDialog)
 {
     ui->setupUi(this);
-
-    // XXX Use recent settings instead
-    resize(parent.width() * 2 / 3, parent.height());
+    loadGeometry(parent.width() * 2 / 3, parent.height());
 
     ui->detailsTextEdit->setAcceptRichText(true);
 

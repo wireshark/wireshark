@@ -33,15 +33,13 @@
 #include "wireshark_application.h"
 
 ConversationHashTablesDialog::ConversationHashTablesDialog(QWidget *parent) :
-    QDialog(parent),
+    GeometryStateDialog(parent),
     ui(new Ui::ConversationHashTablesDialog)
 {
     ui->setupUi(this);
+    if (parent) loadGeometry(parent->width() * 3 / 4, parent->height() * 3 / 4);
 
     setWindowTitle(wsApp->windowTitleString(tr("Dissector Tables")));
-
-    // XXX Use recent settings instead
-    if (parent) resize(parent->width() * 3 / 4, parent->height() * 3 / 4);
 
     QString html;
 

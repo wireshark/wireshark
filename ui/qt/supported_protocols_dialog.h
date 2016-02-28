@@ -22,13 +22,13 @@
 #ifndef SUPPORTED_PROTOCOLS_DIALOG_H
 #define SUPPORTED_PROTOCOLS_DIALOG_H
 
-#include <QDialog>
+#include "geometry_state_dialog.h"
 
 namespace Ui {
 class SupportedProtocolsDialog;
 }
 
-class SupportedProtocolsDialog : public QDialog
+class SupportedProtocolsDialog : public GeometryStateDialog
 {
     Q_OBJECT
 

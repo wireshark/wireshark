@@ -22,13 +22,13 @@
 #ifndef CONVERSATION_HASH_TABLES_DIALOG_H
 #define CONVERSATION_HASH_TABLES_DIALOG_H
 
-#include <QDialog>
+#include "geometry_state_dialog.h"
 
 namespace Ui {
 class ConversationHashTablesDialog;
 }
 
-class ConversationHashTablesDialog : public QDialog
+class ConversationHashTablesDialog : public GeometryStateDialog
 {
     Q_OBJECT
 

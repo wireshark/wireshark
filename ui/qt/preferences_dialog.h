@@ -30,7 +30,7 @@
 
 #include "wireshark_application.h"
 
-#include <QDialog>
+#include "geometry_state_dialog.h"
 #include <QTreeWidgetItem>
 
 class QComboBox;
@@ -42,7 +42,7 @@ namespace Ui {
 class PreferencesDialog;
 }
 
-class PreferencesDialog : public QDialog
+class PreferencesDialog : public GeometryStateDialog
 {
     Q_OBJECT
 

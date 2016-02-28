@@ -26,7 +26,7 @@
 
 #include <epan/ftypes/ftypes.h>
 
-#include <QDialog>
+#include "geometry_state_dialog.h"
 
 namespace Ui {
 class DissectorTablesDialog;
@@ -34,7 +34,7 @@ class DissectorTablesDialog;
 
 class QTreeWidgetItem;
 
-class DissectorTablesDialog : public QDialog
+class DissectorTablesDialog : public GeometryStateDialog
 {
     Q_OBJECT
 

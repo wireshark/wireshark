@@ -26,7 +26,7 @@
 
 #include <epan/ftypes/ftypes.h>
 
-#include <QDialog>
+#include "geometry_state_dialog.h"
 
 class QTreeWidgetItem;
 struct true_false_string;
@@ -37,7 +37,7 @@ namespace Ui {
 class DisplayFilterExpressionDialog;
 }
 
-class DisplayFilterExpressionDialog : public QDialog
+class DisplayFilterExpressionDialog : public GeometryStateDialog
 {
     Q_OBJECT
 

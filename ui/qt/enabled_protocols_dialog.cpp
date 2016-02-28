@@ -123,10 +123,11 @@ private:
 };
 
 EnabledProtocolsDialog::EnabledProtocolsDialog(QWidget *parent) :
-    QDialog(parent),
+    GeometryStateDialog(parent),
     ui(new Ui::EnabledProtocolsDialog)
 {
     ui->setupUi(this);
+    loadGeometry();
     setWindowTitle(wsApp->windowTitleString(tr("Enabled Protocols")));
 
     void *cookie;

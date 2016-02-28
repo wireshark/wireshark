@@ -49,10 +49,8 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     packet_data_(NULL)
 {
     ui->setupUi(this);
+    loadGeometry(parent.width() * 4 / 5, parent.height() * 4 / 5);
     ui->hintLabel->setSmallText();
-
-    // XXX Use recent settings instead
-    resize(parent.width() * 4 / 5, parent.height() * 4 / 5);
 
     setWindowSubtitle(tr("Packet %1").arg(fdata->num));
 

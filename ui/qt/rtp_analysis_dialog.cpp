@@ -258,10 +258,9 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, struct _r
     num_streams_(0)
 {
     ui->setupUi(this);
+    loadGeometry(parent.width() * 4 / 5, parent.height() * 4 / 5);
     setWindowSubtitle(tr("RTP Stream Analysis"));
 
-    // XXX Use recent settings instead
-    resize(parent.width() * 4 / 5, parent.height() * 4 / 5);
     ui->progressFrame->hide();
 
     player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox);

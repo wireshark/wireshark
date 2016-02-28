@@ -45,13 +45,14 @@
 #include <QDebug>
 
 UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
-    QDialog(parent),
+    GeometryStateDialog(parent),
     ui(new Ui::UatDialog),
     uat_(NULL),
     cur_line_edit_(NULL),
     cur_combo_box_(NULL)
 {
     ui->setupUi(this);
+    if (uat) loadGeometry(0, 0, uat->name);
 
     ui->deleteToolButton->setEnabled(false);
     ui->copyToolButton->setEnabled(false);

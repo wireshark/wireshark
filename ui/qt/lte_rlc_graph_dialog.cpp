@@ -64,9 +64,7 @@ LteRlcGraphDialog::LteRlcGraphDialog(QWidget &parent, CaptureFile &cf, bool chan
     packet_num_(0)
 {
     ui->setupUi(this);
-
-    // XXX Use recent settings instead
-    resize(parent.width() * 4 / 5, parent.height() * 3 / 4);
+    loadGeometry(parent.width() * 4 / 5, parent.height() * 3 / 4);
 
     QCustomPlot *rp = ui->rlcPlot;
     rp->xAxis->setLabel(tr("Time"));

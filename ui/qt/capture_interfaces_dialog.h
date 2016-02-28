@@ -27,7 +27,7 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include <QDialog>
+#include "geometry_state_dialog.h"
 #include <QPushButton>
 
 typedef struct if_stat_cache_s if_stat_cache_t;
@@ -68,7 +68,7 @@ private slots:
     void buffer_changed(int value);
 };
 
-class CaptureInterfacesDialog : public QDialog
+class CaptureInterfacesDialog : public GeometryStateDialog
 {
     Q_OBJECT
 

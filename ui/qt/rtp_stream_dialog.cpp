@@ -221,11 +221,9 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     need_redraw_(false)
 {
     ui->setupUi(this);
+    loadGeometry(parent.width() * 4 / 5, parent.height() * 2 / 3);
     setWindowSubtitle(tr("RTP Streams"));
     ui->streamTreeWidget->installEventFilter(this);
-
-    // XXX Use recent settings instead
-    resize(parent.width() * 4 / 5, parent.height() * 2 / 3);
 
     ctx_menu_.addAction(ui->actionSelectNone);
     ctx_menu_.addAction(ui->actionFindReverse);

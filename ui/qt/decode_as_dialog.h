@@ -28,7 +28,7 @@
 
 #include "cfile.h"
 
-#include <QDialog>
+#include "geometry_state_dialog.h"
 #include <QMap>
 #include <QAbstractButton>
 
@@ -39,7 +39,7 @@ namespace Ui {
 class DecodeAsDialog;
 }
 
-class DecodeAsDialog : public QDialog
+class DecodeAsDialog : public GeometryStateDialog
 {
     Q_OBJECT
 

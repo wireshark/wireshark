@@ -71,7 +71,7 @@ typedef struct _table_item_t {
 Q_DECLARE_METATYPE(table_item_t)
 
 DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_new) :
-    QDialog(parent),
+    GeometryStateDialog(parent),
     ui(new Ui::DecodeAsDialog),
     cap_file_(cf),
     table_names_combo_box_(NULL),
@@ -79,6 +79,8 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
     cur_proto_combo_box_(NULL)
 {
     ui->setupUi(this);
+    loadGeometry();
+
     setWindowTitle(wsApp->windowTitleString(tr("Decode As" UTF8_HORIZONTAL_ELLIPSIS)));
     ui->deleteToolButton->setEnabled(false);
 

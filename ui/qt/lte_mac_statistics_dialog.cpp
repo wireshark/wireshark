@@ -469,6 +469,7 @@ LteMacStatisticsDialog::LteMacStatisticsDialog(QWidget &parent, CaptureFile &cf,
     commonStatsCurrent_(false)
 {
     setWindowSubtitle(tr("LTE Mac Statistics"));
+    loadGeometry(parent.width() * 1, parent.height() * 3 / 4, "LTEMacStatisticsDialog");
 
     clearCommonStats();
 
@@ -506,10 +507,6 @@ LteMacStatisticsDialog::LteMacStatisticsDialog(QWidget &parent, CaptureFile &cf,
     filter_controls_grid->addWidget(showSRFilterCheckBox_);
     showRACHFilterCheckBox_ = new QCheckBox(tr("Include RACH frames in filter"));
     filter_controls_grid->addWidget(showRACHFilterCheckBox_);
-
-
-    // XXX Use recent settings instead
-    resize(parent.width() * 1, parent.height() * 3 / 4);
 
     // Will set whole-UE headings originally.
     updateHeaderLabels();

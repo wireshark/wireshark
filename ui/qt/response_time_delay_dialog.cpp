@@ -164,6 +164,7 @@ ResponseTimeDelayDialog::ResponseTimeDelayDialog(QWidget &parent, CaptureFile &c
     QString subtitle = tr("%1 Response Time Delay Statistics")
             .arg(proto_get_protocol_short_name(find_protocol_by_id(get_rtd_proto_id(rtd))));
     setWindowSubtitle(subtitle);
+    loadGeometry(0, 0, "ResponseTimeDelayDialog");
 
     QStringList header_names = QStringList()
             << tr("Type") << tr("Messages")

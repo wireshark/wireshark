@@ -84,10 +84,11 @@ enum {
 };
 
 ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
-    QDialog(parent),
+    GeometryStateDialog(parent),
     ui(new Ui::ManageInterfacesDialog)
 {
     ui->setupUi(this);
+    loadGeometry();
 
 #ifdef Q_OS_MAC
     ui->addPipe->setAttribute(Qt::WA_MacSmallSize, true);

@@ -58,6 +58,8 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     node_label_w_(20)
 {
     ui->setupUi(this);
+    loadGeometry(parent.width(), parent.height() * 4 / 5);
+
     QCustomPlot *sp = ui->sequencePlot;
     setWindowSubtitle(info_ ? tr("Call Flow") : tr("Flow"));
 
@@ -119,9 +121,6 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
 
     QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
     save_bt->setText(tr("Save As" UTF8_HORIZONTAL_ELLIPSIS));
-
-    // XXX Use recent settings instead
-    resize(parent.width(), parent.height() * 4 / 5);
 
     ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
 

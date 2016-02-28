@@ -78,14 +78,13 @@ private:
 };
 
 DissectorTablesDialog::DissectorTablesDialog(QWidget *parent) :
-    QDialog(parent),
+    GeometryStateDialog(parent),
     ui(new Ui::DissectorTablesDialog)
 {
     ui->setupUi(this);
-    setWindowTitle(wsApp->windowTitleString(tr("Dissector Tables")));
+    if (parent) loadGeometry(parent->width() * 3 / 4, parent->height() * 3 / 4);
 
-    // XXX Use recent settings instead
-    if (parent) resize(parent->width() * 3 / 4, parent->height() * 3 / 4);
+    setWindowTitle(wsApp->windowTitleString(tr("Dissector Tables")));
 
     on_tableTreeWidget_itemSelectionChanged();
 

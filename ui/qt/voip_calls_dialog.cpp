@@ -178,6 +178,8 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
     parent_(parent)
 {
     ui->setupUi(this);
+    loadGeometry(parent.width() * 4 / 5, parent.height() * 2 / 3);
+
     ui->callTreeWidget->sortByColumn(start_time_col_, Qt::AscendingOrder);
     setWindowSubtitle(all_flows ? tr("SIP Flows") : tr("VoIP Calls"));
 
@@ -186,9 +188,6 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
     prepare_button_ = ui->buttonBox->addButton(tr("Prepare Filter"), QDialogButtonBox::ApplyRole);
     sequence_button_ = ui->buttonBox->addButton(tr("Flow Sequence"), QDialogButtonBox::ApplyRole);
     player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox);
-
-    // XXX Use recent settings instead
-    resize(parent.width() * 4 / 5, parent.height() * 2 / 3);
 
     memset (&tapinfo_, 0, sizeof(tapinfo_));
     tapinfo_.tap_packet = tapPacket;

@@ -52,7 +52,7 @@ enum {
 };
 
 FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, const QString new_filter) :
-    QDialog(parent),
+    GeometryStateDialog(parent),
     ui(new Ui::FilterDialog),
     filter_type_(filter_type),
 //    syntax_worker_(NULL),
@@ -60,10 +60,8 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, const QStrin
     new_filter_(new_filter)
 {
     ui->setupUi(this);
+    if (parent) loadGeometry(parent->width() * 2 / 3, parent->height() * 2 / 3);
     setWindowIcon(wsApp->normalIcon());
-
-    // XXX Use recent settings instead
-    resize(parent->width() * 2 / 3, parent->height() * 2 / 3);
 
     ui->filterTreeWidget->setDragEnabled(true);
     ui->filterTreeWidget->viewport()->setAcceptDrops(true);

@@ -22,7 +22,7 @@
 #ifndef RESOLVED_ADDRESSES_DIALOG_H
 #define RESOLVED_ADDRESSES_DIALOG_H
 
-#include <QDialog>
+#include "geometry_state_dialog.h"
 
 class CaptureFile;
 class QTextBlock;
@@ -31,7 +31,7 @@ namespace Ui {
 class ResolvedAddressesDialog;
 }
 
-class ResolvedAddressesDialog : public QDialog
+class ResolvedAddressesDialog : public GeometryStateDialog
 {
     Q_OBJECT
 

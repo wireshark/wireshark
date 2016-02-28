@@ -113,10 +113,11 @@ public:
 };
 
 CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
-    QDialog(parent),
+    GeometryStateDialog(parent),
     ui(new Ui::CaptureInterfacesDialog)
 {
     ui->setupUi(this);
+    loadGeometry();
     setWindowTitle(wsApp->windowTitleString(tr("Capture Interfaces")));
 
     stat_timer_ = NULL;

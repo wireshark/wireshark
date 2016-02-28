@@ -172,11 +172,12 @@ const QString no_entries_ = QObject::tr("No entries.");
 const QString entry_count_ = QObject::tr("%1 entries.");
 
 ResolvedAddressesDialog::ResolvedAddressesDialog(QWidget *parent, CaptureFile *capture_file) :
-    QDialog(NULL),
+    GeometryStateDialog(NULL),
     ui(new Ui::ResolvedAddressesDialog),
     file_name_(tr("[no file]"))
 {
     ui->setupUi(this);
+    if (parent) loadGeometry(parent->width() * 2 / 3, parent->height());
     setAttribute(Qt::WA_DeleteOnClose, true);
 
     QStringList title_parts = QStringList() << tr("Resolved Addresses");
@@ -186,9 +187,6 @@ ResolvedAddressesDialog::ResolvedAddressesDialog(QWidget *parent, CaptureFile *c
         title_parts << file_name_;
     }
     setWindowTitle(wsApp->windowTitleString(title_parts));
-
-    // XXX Use recent settings instead
-    resize(parent->width() * 2 / 3, parent->height());
 
     ui->plainTextEdit->setFont(wsApp->monospaceFont());
     ui->plainTextEdit->setReadOnly(true);

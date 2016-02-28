@@ -22,8 +22,9 @@
 #ifndef COMPILEDFILTEROUTPUT_H
 #define COMPILEDFILTEROUTPUT_H
 
+#include "geometry_state_dialog.h"
+
 #include <config.h>
-#include <QDialog>
 #include <QList>
 #include <QHash>
 #include <QListWidgetItem>
@@ -34,7 +35,7 @@ namespace Ui {
 class CompiledFilterOutput;
 }
 
-class CompiledFilterOutput : public QDialog
+class CompiledFilterOutput : public GeometryStateDialog
 {
     Q_OBJECT
 

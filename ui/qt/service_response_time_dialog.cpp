@@ -180,6 +180,7 @@ ServiceResponseTimeDialog::ServiceResponseTimeDialog(QWidget &parent, CaptureFil
     QString subtitle = QString("%1 Service Response Time Statistics")
             .arg(proto_get_protocol_short_name(find_protocol_by_id(get_srt_proto_id(srt))));
     setWindowSubtitle(subtitle);
+    loadGeometry(0, 0, "ServiceResponseTimeDialog");
 
     // Add number of columns for this stats_tree
     QStringList header_labels;

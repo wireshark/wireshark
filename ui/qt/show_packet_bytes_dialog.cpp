@@ -51,6 +51,7 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     use_regex_find_(false)
 {
     ui->setupUi(this);
+    loadGeometry(parent.width() * 2 / 3, parent.height() * 3 / 4);
 
     QString field_name = QString("%1 (%2)").arg(finfo_->hfinfo->name, finfo_->hfinfo->abbrev);
     setWindowSubtitle (field_name);
@@ -63,9 +64,6 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
 
     connect(ui->tePacketBytes, SIGNAL(showSelected(int,int)), this, SLOT(showSelected(int,int)));
     connect(ui->leFind, SIGNAL(useRegexFind(bool)), this, SLOT(useRegexFind(bool)));
-
-    // XXX Use recent settings instead
-    resize(parent.width() * 2 / 3, parent.height());
 
     ui->cbDecodeAs->blockSignals(true);
     ui->cbDecodeAs->addItem(tr("None"), DecodeAsNone);

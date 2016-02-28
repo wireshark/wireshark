@@ -71,15 +71,14 @@ enum {
 static const QString new_rule_name_ = QObject::tr("New coloring rule");
 
 ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
-    QDialog(parent),
+    GeometryStateDialog(parent),
     ui(new Ui::ColoringRulesDialog),
     conversation_colors_(NULL)
 {
     ui->setupUi(this);
-    setWindowTitle(wsApp->windowTitleString(QStringList() << tr("Coloring Rules") << get_profile_name()));
+    if (parent) loadGeometry(parent->width() * 2 / 3, parent->height() * 4 / 5);
 
-    // XXX Use recent settings instead
-    resize(parent->width() * 2 / 3, parent->height() * 4 / 5);
+    setWindowTitle(wsApp->windowTitleString(QStringList() << tr("Coloring Rules") << get_profile_name()));
 
     ui->coloringRulesTreeWidget->setDragEnabled(true);
     ui->coloringRulesTreeWidget->viewport()->setAcceptDrops(true);

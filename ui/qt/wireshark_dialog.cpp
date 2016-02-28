@@ -28,19 +28,21 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 
+#include "wireshark_application.h"
 #include "wireshark_dialog.h"
+#include "qt_ui_utils.h"
+#include "ui/recent.h"
+#include "ui/ui_util.h"
 
 #include <QMessageBox>
 
-#include "wireshark_application.h"
 
 // To do:
 // - Use a dynamic property + Q_PROPERTY for the subtitle.
-// - Save and load recent geometry.
 // - Make our nested event loop more robust. See tryDeleteLater for details.
 
 WiresharkDialog::WiresharkDialog(QWidget &, CaptureFile &capture_file) :
-    QDialog(NULL, Qt::Window),
+    GeometryStateDialog(NULL, Qt::Window),
     cap_file_(capture_file),
     file_closed_(false),
     retap_depth_(0),

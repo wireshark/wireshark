@@ -62,12 +62,10 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const c
     filter_(filter)
 {
     ui->setupUi(this);
+    loadGeometry(parent.width(), parent.height() * 3 / 4);
 
     ui->enabledTypesPushButton->setText(tr("%1 Types").arg(table_name));
     setWindowSubtitle(QString("%1s").arg(table_name));
-
-    // XXX Use recent settings instead
-    resize(parent.width(), parent.height() * 3 / 4);
 
     QMenu *copy_menu = new QMenu();
     QAction *ca;

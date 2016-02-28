@@ -143,10 +143,9 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file) :
 
     // Clicking on an item jumps to its associated packet. Make the dialog
     // narrow so that we avoid obscuring the packet list.
-    // XXX Use recent settings instead
     int dlg_width = parent.width() * 3 / 5;
     if (dlg_width < width()) dlg_width = width();
-    resize(dlg_width, parent.height());
+    loadGeometry(dlg_width, parent.height());
 
     int one_em = fontMetrics().height();
     ui->expertInfoTreeWidget->setColumnWidth(severity_col_, one_em * 25); // Arbitrary

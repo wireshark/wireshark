@@ -22,7 +22,7 @@
 #ifndef PROFILE_DIALOG_H
 #define PROFILE_DIALOG_H
 
-#include <QDialog>
+#include "geometry_state_dialog.h"
 
 class QPushButton;
 class QTreeWidgetItem;
@@ -31,7 +31,7 @@ namespace Ui {
 class ProfileDialog;
 }
 
-class ProfileDialog : public QDialog
+class ProfileDialog : public GeometryStateDialog
 {
     Q_OBJECT
 

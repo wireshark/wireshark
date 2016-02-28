@@ -109,7 +109,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
 {
     ui->setupUi(this);
     setWindowTitle(wsApp->windowTitleString(tr("RTP Player")));
-    resize(parent.size());
+    loadGeometry(parent.width(), parent.height());
 
 #ifdef QT_MULTIMEDIA_LIB
     ui->splitter->setStretchFactor(0, 3);

@@ -35,12 +35,13 @@
 #include <QPushButton>
 
 CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, QStringList &intList, QString &compile_filter) :
-    QDialog(parent),
+    GeometryStateDialog(parent),
     intList_(intList),
     compile_filter_(compile_filter),
     ui(new Ui::CompiledFilterOutput)
 {
     ui->setupUi(this);
+    loadGeometry();
     setAttribute(Qt::WA_DeleteOnClose, true);
     ui->filterList->setCurrentFont(wsApp->monospaceFont());
 

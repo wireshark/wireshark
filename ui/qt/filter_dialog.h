@@ -22,7 +22,7 @@
 #ifndef FILTER_DIALOG_H
 #define FILTER_DIALOG_H
 
-#include <QDialog>
+#include "geometry_state_dialog.h"
 
 //class CaptureFilterSyntaxWorker;
 class FilterTreeDelegate;
@@ -31,7 +31,7 @@ namespace Ui {
 class FilterDialog;
 }
 
-class FilterDialog : public QDialog
+class FilterDialog : public GeometryStateDialog
 {
     Q_OBJECT
 

@@ -212,10 +212,9 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     port_dst_rev_(0)
 {
     ui->setupUi(this);
+    loadGeometry(parent.width() * 4 / 5, parent.height() * 4 / 5);
     setWindowSubtitle(tr("IAX2 Stream Analysis"));
 
-    // XXX Use recent settings instead
-    resize(parent.width() * 4 / 5, parent.height() * 4 / 5);
     ui->progressFrame->hide();
 
     stream_ctx_menu_.addAction(ui->actionGoToPacket);

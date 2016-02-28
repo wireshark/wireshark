@@ -190,6 +190,8 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     colors_(ColorUtils::graphColors())
 {
     ui->setupUi(this);
+    loadGeometry();
+
     setWindowSubtitle(tr("IO Graphs"));
     setAttribute(Qt::WA_DeleteOnClose, true);
     QCustomPlot *iop = ui->ioPlot;

@@ -1,4 +1,4 @@
-/* wireshark_dialog.cpp
+/* wireshark_dialog.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -39,10 +39,9 @@
 // TapDialog might make sense as well.
 
 #include "capture_file.h"
+#include "geometry_state_dialog.h"
 
-#include <QDialog>
-
-class WiresharkDialog : public QDialog
+class WiresharkDialog : public GeometryStateDialog
 {
     Q_OBJECT
 
@@ -134,6 +133,7 @@ protected slots:
 
 private:
     void setWindowTitleFromSubtitle();
+
     void tryDeleteLater();
 
     QString subtitle_;

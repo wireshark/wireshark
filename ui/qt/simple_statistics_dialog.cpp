@@ -159,6 +159,7 @@ SimpleStatisticsDialog::SimpleStatisticsDialog(QWidget &parent, CaptureFile &cf,
     stu_(stu)
 {
     setWindowSubtitle(stu_->title);
+    loadGeometry(0, 0, stu_->title);
 
     QStringList header_labels;
     for (int col = 0; col < (int) stu_->nfields; col++) {

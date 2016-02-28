@@ -34,9 +34,9 @@
 
 #include "ui/tap-sequence-analysis.h"
 
+#include "geometry_state_dialog.h"
 #include "sequence_diagram.h"
 
-#include <QDialog>
 #include <QMenu>
 
 namespace Ui
@@ -44,7 +44,7 @@ namespace Ui
     class LBMUIMFlowDialog;
 }
 
-class LBMUIMFlowDialog : public QDialog
+class LBMUIMFlowDialog : public GeometryStateDialog
 {
         Q_OBJECT
 

@@ -101,7 +101,7 @@ BluetoothHciSummaryDialog::BluetoothHciSummaryDialog(QWidget &parent, CaptureFil
     ui(new Ui::BluetoothHciSummaryDialog)
 {
     ui->setupUi(this);
-    resize(parent.width() * 4 / 5, parent.height() * 2 / 3);
+    loadGeometry(parent.width() * 4 / 5, parent.height() * 2 / 3);
 
     connect(ui->tableTreeWidget, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(tableContextMenu(const QPoint &)));
     connect(ui->tableTreeWidget, SIGNAL(itemExpanded(QTreeWidgetItem *)), this, SLOT(tableItemExpanded(QTreeWidgetItem *)));

@@ -643,9 +643,7 @@ LteRlcStatisticsDialog::LteRlcStatisticsDialog(QWidget &parent, CaptureFile &cf,
     packet_count_(0)
 {
     setWindowSubtitle(tr("LTE RLC Statistics"));
-
-    // XXX Use recent settings instead
-    resize((parent.width() * 5) / 5, (parent.height() * 3) / 4);
+    loadGeometry((parent.width() * 5) / 5, (parent.height() * 3) / 4, "LTERLCStatisticsDialog");
 
     // Create a grid for filtering-related widgetsto also appear in layout.
     int filter_controls_layout_idx = verticalLayout()->indexOf(filterLayout()->widget());

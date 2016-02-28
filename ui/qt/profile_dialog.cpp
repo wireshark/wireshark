@@ -45,7 +45,7 @@
 Q_DECLARE_METATYPE(GList *)
 
 ProfileDialog::ProfileDialog(QWidget *parent) :
-    QDialog(parent),
+    GeometryStateDialog(parent),
     pd_ui_(new Ui::ProfileDialog),
     ok_button_(NULL)
 {
@@ -54,6 +54,7 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     const gchar *profile_name = get_profile_name();
 
     pd_ui_->setupUi(this);
+    loadGeometry();
     setWindowTitle(wsApp->windowTitleString(tr("Configuration Profiles")));
     ok_button_ = pd_ui_->buttonBox->button(QDialogButtonBox::Ok);
 

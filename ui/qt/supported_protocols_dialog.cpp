@@ -47,15 +47,13 @@
 enum { name_col_, filter_col_, type_col_, descr_col_ };
 
 SupportedProtocolsDialog::SupportedProtocolsDialog(QWidget *parent) :
-    QDialog(parent),
+    GeometryStateDialog(parent),
     ui(new Ui::SupportedProtocolsDialog),
     field_count_(0)
 {
     ui->setupUi(this);
+    if (parent) loadGeometry(parent->width() * 3 / 4, parent->height());
     setWindowTitle(wsApp->windowTitleString(tr("Supported Protocols")));
-
-    // XXX Use recent settings instead
-    if (parent) resize(parent->width() * 3 / 4, parent->height());
 
     // Some of our names are unreasonably long.
     int one_em = fontMetrics().height();

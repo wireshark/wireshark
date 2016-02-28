@@ -209,7 +209,7 @@ static void lbm_uimflow_get_analysis(capture_file * cfile, seq_analysis_info_t *
 // - Help button and text
 
 LBMUIMFlowDialog::LBMUIMFlowDialog(QWidget * parent, capture_file * cfile) :
-    QDialog(parent),
+    GeometryStateDialog(parent),
     m_ui(new Ui::LBMUIMFlowDialog),
     m_capture_file(cfile),
     m_num_items(0),
@@ -217,6 +217,8 @@ LBMUIMFlowDialog::LBMUIMFlowDialog(QWidget * parent, capture_file * cfile) :
     m_node_label_width(20)
 {
     m_ui->setupUi(this);
+    if (parent) loadGeometry(parent->width(), parent->height() * 4 / 5);
+
     QCustomPlot * sp = m_ui->sequencePlot;
 
     m_sequence_diagram = new SequenceDiagram(sp->yAxis, sp->xAxis2, sp->yAxis2);
@@ -262,12 +264,6 @@ LBMUIMFlowDialog::LBMUIMFlowDialog(QWidget * parent, capture_file * cfile) :
 
     QPushButton * save_bt = m_ui->buttonBox->button(QDialogButtonBox::Save);
     save_bt->setText(tr("Save As" UTF8_HORIZONTAL_ELLIPSIS));
-
-    // XXX Use recent settings instead
-    if (parent)
-    {
-        resize(parent->width(), parent->height() * 4 / 5);
-    }
 
     connect(m_ui->horizontalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(hScrollBarChanged(int)));
     connect(m_ui->verticalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(vScrollBarChanged(int)));

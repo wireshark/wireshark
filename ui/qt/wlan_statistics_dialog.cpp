@@ -467,9 +467,7 @@ WlanStatisticsDialog::WlanStatisticsDialog(QWidget &parent, CaptureFile &cf, con
     packet_count_(0)
 {
     setWindowSubtitle(tr("Wireless LAN Statistics"));
-
-    // XXX Use recent settings instead
-    resize(parent.width() * 4 / 5, parent.height() * 3 / 4);
+    loadGeometry(parent.width() * 4 / 5, parent.height() * 3 / 4, "WlanStatisticsDialog");
 
     QStringList header_labels = QStringList()
             << "" << tr("Channel") << tr("SSID") << tr("Percent Packets") << "" << ""

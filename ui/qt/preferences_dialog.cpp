@@ -255,7 +255,7 @@ const int capture_item_    = 1;
 const int pref_ptr_col_ = 0;
 
 PreferencesDialog::PreferencesDialog(QWidget *parent) :
-    QDialog(parent),
+    GeometryStateDialog(parent),
     pd_ui_(new Ui::PreferencesDialog),
     cur_line_edit_(NULL),
     cur_combo_box_(NULL)
@@ -266,6 +266,8 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     // Some classes depend on pref_ptr_to_pref_ so this MUST be called after
     // fill_advanced_prefs.
     pd_ui_->setupUi(this);
+    loadGeometry();
+
     setWindowTitle(wsApp->windowTitleString(tr("Preferences")));
     pd_ui_->advancedTree->invisibleRootItem()->addChildren(tmp_item.takeChildren());
     QTreeWidgetItemIterator pref_it(pd_ui_->advancedTree, QTreeWidgetItemIterator::NoChildren);

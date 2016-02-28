@@ -80,7 +80,7 @@ BluetoothDevicesDialog::BluetoothDevicesDialog(QWidget &parent, CaptureFile &cf)
     ui(new Ui::BluetoothDevicesDialog)
 {
     ui->setupUi(this);
-    resize(parent.width() * 4 / 5, parent.height() * 2 / 3);
+    loadGeometry(parent.width() * 4 / 5, parent.height() * 2 / 3);
 
     connect(ui->tableTreeWidget, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(tableContextMenu(const QPoint &)));
     connect(ui->interfaceComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(interfaceCurrentIndexChanged(int)));

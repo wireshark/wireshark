@@ -22,13 +22,13 @@
 #ifndef PACKET_COMMENT_DIALOG_H
 #define PACKET_COMMENT_DIALOG_H
 
-#include <QDialog>
+#include "geometry_state_dialog.h"
 
 namespace Ui {
 class PacketCommentDialog;
 }
 
-class PacketCommentDialog : public QDialog
+class PacketCommentDialog : public GeometryStateDialog
 {
     Q_OBJECT
 

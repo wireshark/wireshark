@@ -53,11 +53,12 @@ fileset_dlg_add_file(fileset_entry *entry, void *window) {
 }
 
 FileSetDialog::FileSetDialog(QWidget *parent) :
-    QDialog(parent),
+    GeometryStateDialog(parent),
     fs_ui_(new Ui::FileSetDialog),
     close_button_(NULL)
 {
     fs_ui_->setupUi(this);
+    loadGeometry ();
 
     fs_ui_->fileSetTree->headerItem();
 

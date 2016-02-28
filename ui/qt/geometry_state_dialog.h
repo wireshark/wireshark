@@ -1,4 +1,4 @@
-/* fileset_dialog.h
+/* geometry_state_dialog.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,51 +19,29 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef FILE_SET_DIALOG_H
-#define FILE_SET_DIALOG_H
+#ifndef GEOMETRY_STATE_DIALOG_H
+#define GEOMETRY_STATE_DIALOG_H
 
-#include <config.h>
+#include <QDialog>
 
-#include <glib.h>
-
-#include "file.h"
-#include "fileset.h"
-
-#include "geometry_state_dialog.h"
-
-class QTreeWidgetItem;
-
-namespace Ui {
-class FileSetDialog;
-}
-
-class FileSetDialog : public GeometryStateDialog
+class GeometryStateDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit FileSetDialog(QWidget *parent = 0);
-    ~FileSetDialog();
+    explicit GeometryStateDialog(QWidget *parent, Qt::WindowFlags f = 0);
+    ~GeometryStateDialog();
 
-    void fileOpened(const capture_file *cf);
-    void fileClosed();
-    void addFile(fileset_entry *entry = NULL);
-
-signals:
-    void fileSetOpenCaptureFile(QString);
-
-private slots:
-    void on_buttonBox_helpRequested();
-    void on_fileSetTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+protected:
+    void loadGeometry(int width = 0, int height = 0, const QString &dialog_name = QString());
 
 private:
-    QString nameToDate(const char *name);
+    void saveGeometry();
 
-    Ui::FileSetDialog *fs_ui_;
-    QPushButton *close_button_;
+    QString dialog_name_;
 };
 
-#endif // FILE_SET_DIALOG_H
+#endif // GEOMETRY_STATE_DIALOG_H
 
 /*
  * Editor modelines

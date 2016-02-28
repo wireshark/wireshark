@@ -76,6 +76,7 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
     use_regex_find_(false)
 {
     ui->setupUi(this);
+    loadGeometry(parent.width() * 2 / 3, parent.height());
 
     switch(type)
     {
@@ -101,9 +102,6 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
     ui->teStreamContent->installEventFilter(this);
 
     connect(ui->leFind, SIGNAL(useRegexFind(bool)), this, SLOT(useRegexFind(bool)));
-
-    // XXX Use recent settings instead
-    resize(parent.width() * 2 / 3, parent.height());
 
     QComboBox *cbcs = ui->cbCharset;
     cbcs->blockSignals(true);

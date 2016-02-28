@@ -61,17 +61,16 @@ enum {
 Q_DECLARE_METATYPE(header_field_info *)
 
 DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
-    QDialog(parent),
+    GeometryStateDialog(parent),
     ui(new Ui::DisplayFilterExpressionDialog),
     ftype_(FT_NONE),
     field_(NULL)
 {
     ui->setupUi(this);
+    if (parent) loadGeometry(parent->width() * 2 / 3, parent->height());
+
     setWindowTitle(wsApp->windowTitleString(tr("Display Filter Expression")));
     setWindowIcon(wsApp->normalIcon());
-
-    // XXX Use recent settings instead
-    resize(parent->width() * 2 / 3, parent->height());
 
     ui->fieldTreeWidget->setToolTip(ui->fieldLabel->toolTip());
     ui->searchLineEdit->setToolTip(ui->searchLabel->toolTip());

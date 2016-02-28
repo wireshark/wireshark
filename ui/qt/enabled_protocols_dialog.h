@@ -22,6 +22,7 @@
 #ifndef ENABLED_PROTOCOLS_DIALOG_H
 #define ENABLED_PROTOCOLS_DIALOG_H
 
+#include "geometry_state_dialog.h"
 #include "wireshark_dialog.h"
 
 namespace Ui {
@@ -32,7 +33,7 @@ struct _protocol;
 
 class QAbstractButton;
 
-class EnabledProtocolsDialog : public QDialog
+class EnabledProtocolsDialog : public GeometryStateDialog
 {
     Q_OBJECT
 

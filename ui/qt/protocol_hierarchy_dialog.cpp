@@ -175,10 +175,8 @@ ProtocolHierarchyDialog::ProtocolHierarchyDialog(QWidget &parent, CaptureFile &c
     ui(new Ui::ProtocolHierarchyDialog)
 {
     ui->setupUi(this);
+    loadGeometry(parent.width() * 4 / 5, parent.height() * 4 / 5);
     setWindowSubtitle(tr("Protocol Hierarchy Statistics"));
-
-    // XXX Use recent settings instead
-    resize(parent.width() * 4 / 5, parent.height() * 4 / 5);
 
     ui->hierStatsTreeWidget->setItemDelegateForColumn(pct_packets_col_, &percent_bar_delegate_);
     ui->hierStatsTreeWidget->setItemDelegateForColumn(pct_bytes_col_, &percent_bar_delegate_);

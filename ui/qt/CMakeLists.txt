@@ -72,6 +72,7 @@ set(WIRESHARK_QT_HEADERS
 	funnel_string_dialog.h
 	funnel_text_dialog.h
 	funnel_statistics.h
+	geometry_state_dialog.h
 	gsm_map_summary_dialog.h
 	iax2_analysis_dialog.h
 	import_text_dialog.h
@@ -222,6 +223,7 @@ set(WIRESHARK_QT_SRC
 	font_color_preferences_frame.cpp
 	funnel_string_dialog.cpp
 	funnel_text_dialog.cpp
+	geometry_state_dialog.cpp
 	iax2_analysis_dialog.cpp
 	import_text_dialog.cpp
 	interface_tree.cpp

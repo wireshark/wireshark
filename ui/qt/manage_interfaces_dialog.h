@@ -27,7 +27,7 @@
 #include <glib.h>
 #include "capture_opts.h"
 
-#include <QDialog>
+#include "geometry_state_dialog.h"
 #include <QStyledItemDelegate>
 
 class QTreeWidget;
@@ -66,7 +66,7 @@ namespace Ui {
 class ManageInterfacesDialog;
 }
 
-class ManageInterfacesDialog : public QDialog
+class ManageInterfacesDialog : public GeometryStateDialog
 {
     Q_OBJECT
 
