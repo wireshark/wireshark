@@ -1002,42 +1002,53 @@
         <translation>キャプチャフィルタ入力</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="129"/>
+        <location filename="capture_filter_edit.cpp" line="303"/>
         <source>Enter a capture filter %1</source>
         <translation>キャプチャフィルタを入力 %1</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="139"/>
+        <location filename="capture_filter_edit.cpp" line="136"/>
         <source>Manage saved bookmarks.</source>
         <translation>保存したブックマークを管理</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="176"/>
+        <location filename="capture_filter_edit.cpp" line="173"/>
         <source>Apply this filter string to the display.</source>
         <translation>このフィルタ文字列を表示に適用</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="358"/>
+        <location filename="capture_filter_edit.cpp" line="298"/>
+        <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
+        <extracomment>This is a very long concept that needs to fit into a short space.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_filter_edit.cpp" line="299"/>
+        <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_filter_edit.cpp" line="403"/>
         <source>Save this filter</source>
         <translation type="unfinished">このフィルタを保存</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="360"/>
+        <location filename="capture_filter_edit.cpp" line="405"/>
         <source>Remove this filter</source>
         <translation type="unfinished">このフィルタを削除</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="362"/>
+        <location filename="capture_filter_edit.cpp" line="407"/>
         <source>Manage Capture Filters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="498"/>
+        <location filename="capture_filter_edit.cpp" line="540"/>
         <source>Unable to save capture filter settings.</source>
         <translation type="unfinished">キャプチャフィルタ設定を保存できません。</translation>
     </message>
     <message>
-        <location filename="capture_filter_edit.cpp" line="499"/>
+        <location filename="capture_filter_edit.cpp" line="541"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
         <translation type="unfinished">キャプチャフィルタファイルを保存できません &quot;%1&quot;: %2.</translation>
@@ -1365,12 +1376,12 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;指定した数のファイルを作成した後キャプチャを停止します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="121"/>
+        <location filename="capture_interfaces_dialog.cpp" line="120"/>
         <source>Capture Interfaces</source>
         <translation>キャプチャインタフェース</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="127"/>
+        <location filename="capture_interfaces_dialog.cpp" line="126"/>
         <source>Start</source>
         <translation>開始</translation>
     </message>
@@ -1380,83 +1391,83 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="276"/>
-        <location filename="capture_interfaces_dialog.cpp" line="554"/>
-        <location filename="capture_interfaces_dialog.cpp" line="560"/>
+        <location filename="capture_interfaces_dialog.cpp" line="238"/>
+        <location filename="capture_interfaces_dialog.cpp" line="519"/>
+        <location filename="capture_interfaces_dialog.cpp" line="525"/>
         <source>enabled</source>
         <translation>有効</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="276"/>
-        <location filename="capture_interfaces_dialog.cpp" line="554"/>
-        <location filename="capture_interfaces_dialog.cpp" line="560"/>
+        <location filename="capture_interfaces_dialog.cpp" line="238"/>
+        <location filename="capture_interfaces_dialog.cpp" line="519"/>
+        <location filename="capture_interfaces_dialog.cpp" line="525"/>
         <source>disabled</source>
         <translation>無効</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="295"/>
+        <location filename="capture_interfaces_dialog.cpp" line="257"/>
         <source>Specify a Capture File</source>
         <translation>キャプチャファイルを指定してください</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="492"/>
+        <location filename="capture_interfaces_dialog.cpp" line="457"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="492"/>
+        <location filename="capture_interfaces_dialog.cpp" line="457"/>
         <source>Addresses</source>
         <translation>アドレス</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="492"/>
+        <location filename="capture_interfaces_dialog.cpp" line="457"/>
         <source>Address</source>
         <translation>アドレス</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="502"/>
+        <location filename="capture_interfaces_dialog.cpp" line="467"/>
         <source>no addresses</source>
         <translation>アドレスがありません</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="553"/>
+        <location filename="capture_interfaces_dialog.cpp" line="518"/>
         <source>default</source>
         <translation>デフォルト</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="543"/>
-        <location filename="capture_interfaces_dialog.cpp" line="544"/>
-        <location filename="capture_interfaces_dialog.cpp" line="546"/>
-        <location filename="capture_interfaces_dialog.cpp" line="549"/>
-        <location filename="capture_interfaces_dialog.cpp" line="560"/>
+        <location filename="capture_interfaces_dialog.cpp" line="508"/>
+        <location filename="capture_interfaces_dialog.cpp" line="509"/>
+        <location filename="capture_interfaces_dialog.cpp" line="511"/>
+        <location filename="capture_interfaces_dialog.cpp" line="514"/>
+        <location filename="capture_interfaces_dialog.cpp" line="525"/>
         <source>n/a</source>
         <translation>割当なし</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="699"/>
-        <location filename="capture_interfaces_dialog.cpp" line="707"/>
+        <location filename="capture_interfaces_dialog.cpp" line="682"/>
+        <location filename="capture_interfaces_dialog.cpp" line="690"/>
+        <location filename="capture_interfaces_dialog.cpp" line="701"/>
+        <location filename="capture_interfaces_dialog.cpp" line="705"/>
         <location filename="capture_interfaces_dialog.cpp" line="718"/>
-        <location filename="capture_interfaces_dialog.cpp" line="722"/>
-        <location filename="capture_interfaces_dialog.cpp" line="735"/>
-        <location filename="capture_interfaces_dialog.cpp" line="743"/>
+        <location filename="capture_interfaces_dialog.cpp" line="726"/>
         <source>Error</source>
         <translation>エラー</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="700"/>
-        <location filename="capture_interfaces_dialog.cpp" line="708"/>
-        <location filename="capture_interfaces_dialog.cpp" line="736"/>
-        <location filename="capture_interfaces_dialog.cpp" line="744"/>
+        <location filename="capture_interfaces_dialog.cpp" line="683"/>
+        <location filename="capture_interfaces_dialog.cpp" line="691"/>
+        <location filename="capture_interfaces_dialog.cpp" line="719"/>
+        <location filename="capture_interfaces_dialog.cpp" line="727"/>
         <source>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</source>
         <translation>複数ファイル:要求したファイルサイズが大きすぎます! ファイルサイズは2GB より大きくできません</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="719"/>
+        <location filename="capture_interfaces_dialog.cpp" line="702"/>
         <source>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</source>
         <translation>キャプチャファイル名が指定されていません! 複数ファイルを利用したい場合にはファイル名を指定しなくてはいけません</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="723"/>
+        <location filename="capture_interfaces_dialog.cpp" line="706"/>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <translation>複数ファイル:ファイルの限界が指定されていません 次のキャプチャファイルへ切り替えるためのファイルサイズか間隔を指定する必要があります。</translation>
@@ -1644,13 +1655,13 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="column_editor_frame.ui" line="32"/>
         <source>Title:</source>
         <oldsource>Title</oldsource>
-        <translation type="unfinished">題名</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="column_editor_frame.ui" line="55"/>
         <source>Type:</source>
         <oldsource>Type</oldsource>
-        <translation type="unfinished">種別</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="column_editor_frame.ui" line="78"/>
@@ -1662,7 +1673,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="column_editor_frame.ui" line="101"/>
         <source>Occurrence:</source>
         <oldsource>Occurrence</oldsource>
-        <translation type="unfinished">オカレンス</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1819,22 +1830,22 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>この解読の振る舞いをコピー</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="81"/>
+        <location filename="decode_as_dialog.cpp" line="82"/>
         <source>Decode As</source>
         <translation>としてでコード</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="380"/>
+        <location filename="decode_as_dialog.cpp" line="381"/>
         <source>String</source>
         <translation>文字列</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="382"/>
+        <location filename="decode_as_dialog.cpp" line="383"/>
         <source>Integer, base </source>
         <translation>整数型, ベース</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="394"/>
+        <location filename="decode_as_dialog.cpp" line="395"/>
         <source>unknown</source>
         <translation>不明</translation>
     </message>
@@ -4292,34 +4303,59 @@ for filter files: %2.</source>
 <context>
     <name>InterfaceTree</name>
     <message>
-        <location filename="interface_tree.cpp" line="73"/>
+        <location filename="interface_tree.cpp" line="86"/>
         <source>Welcome screen list</source>
         <translation>ウェルカムスクリーンリスト</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="79"/>
+        <location filename="interface_tree.cpp" line="92"/>
         <source>Waiting for startup%1</source>
         <translation>開始までお待ちください%1</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="244"/>
+        <location filename="interface_tree.cpp" line="260"/>
         <source>Interface information not available</source>
         <translation>インタフェース情報が利用できません</translation>
+    </message>
+    <message>
+        <location filename="interface_tree.cpp" line="436"/>
+        <source>Addresses</source>
+        <translation type="unfinished">アドレス</translation>
+    </message>
+    <message>
+        <location filename="interface_tree.cpp" line="436"/>
+        <source>Address</source>
+        <translation type="unfinished">アドレス</translation>
+    </message>
+    <message>
+        <location filename="interface_tree.cpp" line="439"/>
+        <source>No addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="interface_tree.cpp" line="444"/>
+        <source>No capture filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="interface_tree.cpp" line="447"/>
+        <source>Capture filter</source>
+        <translation type="unfinished">キャプチャフィルタ</translation>
     </message>
 </context>
 <context>
     <name>InterfaceTreeDelegate</name>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="1010"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1042"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1091"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1111"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1020"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1052"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1101"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1121"/>
         <source>enabled</source>
         <translation>有効</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="1011"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1043"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1021"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1053"/>
         <source>disabled</source>
         <translation>無効</translation>
     </message>
@@ -6502,32 +6538,32 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="225"/>
+        <location filename="main_welcome.cpp" line="226"/>
         <source>You are running Wireshark </source>
         <translation>Wiresharkを起動中です</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="227"/>
+        <location filename="main_welcome.cpp" line="228"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="230"/>
+        <location filename="main_welcome.cpp" line="231"/>
         <source> You receive automatic updates.</source>
         <translation>自動アップデートを受信します</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="232"/>
+        <location filename="main_welcome.cpp" line="233"/>
         <source> You have disabled automatic updates.</source>
         <translation>自動アップデートを無効にしました。</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="346"/>
+        <location filename="main_welcome.cpp" line="374"/>
         <source>not found</source>
         <translation>見つかりません</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="419"/>
+        <location filename="main_welcome.cpp" line="453"/>
         <source>Copy file path</source>
         <translation>ファイルパスをコピー</translation>
     </message>
@@ -9093,27 +9129,27 @@ a:hover {
         <translation>更新を確認...</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="792"/>
+        <location filename="main_window.cpp" line="801"/>
         <source> before quitting</source>
         <translation>終了前</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="968"/>
+        <location filename="main_window.cpp" line="977"/>
         <source>Save packets before merging?</source>
         <translation>結合する前にパケットを保存しますか？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="969"/>
+        <location filename="main_window.cpp" line="978"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>一時的なキャプチャファイルは結合することができません</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="975"/>
+        <location filename="main_window.cpp" line="984"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>結合する前に変更を保存しますか？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="977"/>
+        <location filename="main_window.cpp" line="986"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>ファイルを結合する前に変更を保存する必要があります</translation>
     </message>
@@ -9123,113 +9159,113 @@ a:hover {
         <translation>無効な表示フィルタ</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1034"/>
+        <location filename="main_window.cpp" line="1043"/>
         <source>Invalid Read Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1035"/>
+        <location filename="main_window.cpp" line="1044"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1125"/>
+        <location filename="main_window.cpp" line="1134"/>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1438"/>
+        <location filename="main_window.cpp" line="1447"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>&quot;%1&quot; エクスポートすることができません。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1439"/>
+        <location filename="main_window.cpp" line="1448"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>現在のキャプチャファイルへパケットをエクスポートすることはできません。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1526"/>
-        <location filename="main_window.cpp" line="1551"/>
+        <location filename="main_window.cpp" line="1535"/>
+        <location filename="main_window.cpp" line="1560"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1598"/>
+        <location filename="main_window.cpp" line="1607"/>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1594"/>
-        <location filename="main_window.cpp" line="1602"/>
+        <location filename="main_window.cpp" line="1603"/>
+        <location filename="main_window.cpp" line="1611"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>保存しない場合キャプチャしたパケットは失われます</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1607"/>
+        <location filename="main_window.cpp" line="1616"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>キャプチャスタイルに行った変更を保存しますか</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1599"/>
         <location filename="main_window.cpp" line="1608"/>
+        <location filename="main_window.cpp" line="1617"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>保存しない場合変更は失われます</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1593"/>
+        <location filename="main_window.cpp" line="1602"/>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1601"/>
+        <location filename="main_window.cpp" line="1610"/>
         <source>Do you want to save the captured packets%1?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1625"/>
+        <location filename="main_window.cpp" line="1634"/>
         <source>Save before Continue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1627"/>
+        <location filename="main_window.cpp" line="1636"/>
         <source>Stop and Save</source>
         <translation>停止して保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1639"/>
+        <location filename="main_window.cpp" line="1648"/>
         <source>Stop and Quit without Saving</source>
         <translation>停止して保存しないで終了</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1651"/>
+        <location filename="main_window.cpp" line="1660"/>
         <source>Quit without Saving</source>
         <translation>保存しないで終了</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1642"/>
-        <location filename="main_window.cpp" line="1655"/>
+        <location filename="main_window.cpp" line="1651"/>
+        <location filename="main_window.cpp" line="1664"/>
         <source>Continue without Saving</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1645"/>
+        <location filename="main_window.cpp" line="1654"/>
         <source>Stop and Continue without Saving</source>
         <translation>停止して保存しないで続ける</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1910"/>
+        <location filename="main_window.cpp" line="1919"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>ファイル名をUTF-8形式に割り当てできません</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1931"/>
+        <location filename="main_window.cpp" line="1940"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>ワイヤーシャーク ネットワークアナライザ</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1956"/>
+        <location filename="main_window.cpp" line="1965"/>
         <source>Capturing from %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9603,12 +9639,12 @@ a:hover {
         <translation>このバージョンの Wireshark はリモートインターフェイスをサポートしません</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="422"/>
+        <location filename="manage_interfaces_dialog.cpp" line="424"/>
         <source>Error</source>
         <translation>エラー</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="423"/>
+        <location filename="manage_interfaces_dialog.cpp" line="425"/>
         <source>Default interface cannot be hidden.</source>
         <translation>デフォルトのインターフェースは非表示にできません</translation>
     </message>
@@ -9987,52 +10023,52 @@ a:hover {
 <context>
     <name>PacketList</name>
     <message>
-        <location filename="packet_list.cpp" line="337"/>
+        <location filename="packet_list.cpp" line="338"/>
         <source>Summary as Text</source>
         <translation>テキストとしての概要</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="627"/>
+        <location filename="packet_list.cpp" line="651"/>
         <source>Align Left</source>
         <translation>左揃え</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="628"/>
+        <location filename="packet_list.cpp" line="652"/>
         <source>Align Center</source>
         <translation>中央揃え</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="629"/>
+        <location filename="packet_list.cpp" line="653"/>
         <source>Align Right</source>
         <translation>右揃え</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="631"/>
+        <location filename="packet_list.cpp" line="655"/>
         <source>Column Preferences</source>
         <translation>列の設定</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="632"/>
+        <location filename="packet_list.cpp" line="656"/>
         <source>Edit Column</source>
         <translation>列の編集</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="633"/>
+        <location filename="packet_list.cpp" line="657"/>
         <source>Resize To Contents</source>
         <translation>内容にあわせて列幅を揃える</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="634"/>
+        <location filename="packet_list.cpp" line="658"/>
         <source>Resolve Names</source>
         <translation>名前を解決</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="639"/>
+        <location filename="packet_list.cpp" line="663"/>
         <source>Remove This Column</source>
         <translation>この列を削除</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="995"/>
+        <location filename="packet_list.cpp" line="1019"/>
         <source>Frame %1: %2
 
 </source>
@@ -10041,7 +10077,7 @@ a:hover {
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="999"/>
+        <location filename="packet_list.cpp" line="1023"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ コメントテキスト %1 停止中 ]</translation>
     </message>
@@ -10131,12 +10167,12 @@ a:hover {
 <context>
     <name>PathChooserDelegate</name>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="812"/>
+        <location filename="manage_interfaces_dialog.cpp" line="814"/>
         <source>Browse</source>
         <translation>ブラウズ</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="865"/>
+        <location filename="manage_interfaces_dialog.cpp" line="867"/>
         <source>Open Pipe</source>
         <translation>パイプを開く</translation>
     </message>
@@ -10159,13 +10195,9 @@ a:hover {
         <translation>設定</translation>
     </message>
     <message>
+        <location filename="preference_editor_frame.cpp" line="82"/>
         <source>Open %1 preferences</source>
-        <translation type="vanished">%1 設定を開く</translation>
-    </message>
-    <message>
-        <location filename="preference_editor_frame.cpp" line="81"/>
-        <source>Open %1 preferences…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 設定を開く</translation>
     </message>
 </context>
 <context>
@@ -11107,12 +11139,12 @@ a:hover {
         <translation>優先度</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="402"/>
+        <location filename="main_welcome.cpp" line="436"/>
         <source>Show in Finder</source>
         <translation>ファインダーで表示</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="404"/>
+        <location filename="main_welcome.cpp" line="438"/>
         <source>Show in Folder</source>
         <translation>フォルダで表示</translation>
     </message>
@@ -13479,7 +13511,7 @@ a:hover {
         <location filename="search_frame.ui" line="109"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5), a plain string (e.g. My String) or a regular expression (e.g. colou?r).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5) or a plain string (e.g. My String).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;以下を用いて検索します  表示フィルタの文法 (例えば ip.addr==10.1.1.1), １６進数表記文字列 (例えば fffffda5), 平文テキスト文字列 (例えば My String)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="search_frame.ui" line="113"/>
@@ -14023,12 +14055,12 @@ a:hover {
 <context>
     <name>ShowPacketBytesTextEdit</name>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="689"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="697"/>
         <source>Show Selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="693"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="701"/>
         <source>Show All</source>
         <translation type="unfinished">すべて表示</translation>
     </message>
