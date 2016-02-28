@@ -4974,12 +4974,12 @@ proto_register_usb(void)
             NULL, HFILL }},
 
         { &hf_usb_bInterfaceSubClass_misc,
-          { "bInterfaceProtocol", "usb.bInterfaceSubClass",
+          { "bInterfaceSubClass", "usb.bInterfaceSubClass",
             FT_UINT8, BASE_HEX | BASE_EXT_STRING, &usb_misc_subclass_vals_ext, 0x0,
             NULL, HFILL }},
 
         { &hf_usb_bInterfaceSubClass_app,
-          { "bInterfaceProtocol", "usb.bInterfaceSubClass",
+          { "bInterfaceSubClass", "usb.bInterfaceSubClass",
             FT_UINT8, BASE_HEX | BASE_EXT_STRING, &usb_app_subclass_vals_ext, 0x0,
             NULL, HFILL }},
 
