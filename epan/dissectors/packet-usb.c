@@ -188,6 +188,7 @@ static int hf_usb_bInterfaceClass = -1;
 static int hf_usb_bInterfaceSubClass = -1;
 static int hf_usb_bInterfaceSubClass_cdc = -1;
 static int hf_usb_bInterfaceSubClass_hid = -1;
+static int hf_usb_bInterfaceSubClass_misc = -1;
 static int hf_usb_bInterfaceSubClass_app = -1;
 static int hf_usb_bInterfaceProtocol = -1;
 static int hf_usb_bInterfaceProtocol_cdc = -1;
@@ -1213,6 +1214,16 @@ static const value_string usb_hid_boot_protocol_vals[] = {
 };
 static value_string_ext usb_hid_boot_protocol_vals_ext = VALUE_STRING_EXT_INIT(usb_hid_boot_protocol_vals);
 
+static const value_string usb_misc_subclass_vals[] = {
+    {0x03, "Cable Based Association Framework"},
+    {0x04, "RNDIS"},
+    {0x05, "USB3 Vision"},
+    {0x06, "Stream Transport Efficient Protocol"},
+    {0, NULL}
+};
+static value_string_ext usb_misc_subclass_vals_ext = VALUE_STRING_EXT_INIT(usb_misc_subclass_vals);
+
+
 static const value_string usb_app_subclass_vals[] = {
     {0x01, "Device Firmware Upgrade"},
     {0x02, "IRDA Bridge"},
@@ -1945,6 +1956,9 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
         break;
     case IF_CLASS_HID:
         proto_tree_add_item(tree, hf_usb_bInterfaceSubClass_hid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        break;
+    case IF_CLASS_MISCELLANEOUS:
+        proto_tree_add_item(tree, hf_usb_bInterfaceSubClass_misc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         break;
     case IF_CLASS_APPLICATION_SPECIFIC:
         proto_tree_add_item(tree, hf_usb_bInterfaceSubClass_app, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -4957,6 +4971,11 @@ proto_register_usb(void)
         { &hf_usb_bInterfaceSubClass_hid,
           { "bInterfaceSubClass", "usb.bInterfaceSubClass",
             FT_UINT8, BASE_HEX | BASE_EXT_STRING, &usb_hid_subclass_vals_ext, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_bInterfaceSubClass_misc,
+          { "bInterfaceProtocol", "usb.bInterfaceSubClass",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &usb_misc_subclass_vals_ext, 0x0,
             NULL, HFILL }},
 
         { &hf_usb_bInterfaceSubClass_app,
