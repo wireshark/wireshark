@@ -896,6 +896,7 @@ void wslua_init(register_cb cb, gpointer client_data) {
         lua_close(L);
         L = NULL;
         first_time = FALSE;
+        return;
     }
     lua_pop(L,1);  /* pop the getglobal result */
 
