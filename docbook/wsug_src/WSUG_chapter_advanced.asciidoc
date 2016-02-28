@@ -112,6 +112,8 @@ You can choose from the following actions:
 
 . __Close__: Close this dialog box.
 
+==== Decode as
+
 You can choose to decode the data from one of the following formats:
 
 . __None__: This is the default which does not decode anything.
@@ -120,12 +122,15 @@ You can choose to decode the data from one of the following formats:
 
 . __Compressed__: This will decompress the buffer using zlib.
 
+==== Show as
+
 You can choose to view the data in one of the following formats:
 
 . __ASCII__: In this view you see the bytes as ASCII.
-  A null terminator is shown using the UTF-8 symbol for NULL, a CR is shown using
-  the UTF-8 symbol for carriage return, and all other non-ASCII bytes are replaced
-  by dot for readability.
+  All control characters and non-ASCII bytes are replaced by dot.
+
+. __ASCII & Control__: In this view all control characters are shown using a
+  UTF-8 symbol and all non-ASCII bytes are replaced by dot.
 
 . __C Array__: This allows you to import the field data into your own C program.
 

@@ -46,7 +46,6 @@
 #define UTF8_PLACE_OF_INTEREST_SIGN     "\xe2\x8c\x98"      /*  8984 / 0x2318 */
 
 #define UTF8_SYMBOL_FOR_NULL            "\xe2\x90\x80"      /*  9216 / 0x2400 */
-#define UTF8_SYMBOL_FOR_CARRIAGE_RETURN "\xe2\x90\x8d"      /*  9229 / 0x240d */
 
 #define UTF8_CHECK_MARK                 "\xe2\x9c\x93"      /* 10003 / 0x2713 */
 #define UTF8_BALLOT_X                   "\xe2\x9c\x97"      /* 10007 / 0x2717 */

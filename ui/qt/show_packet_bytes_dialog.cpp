@@ -74,6 +74,7 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
 
     ui->cbShowAs->blockSignals(true);
     ui->cbShowAs->addItem(tr("ASCII"), ShowAsASCII);
+    ui->cbShowAs->addItem(tr("ASCII & Control"), ShowAsASCIIandControl);
     ui->cbShowAs->addItem(tr("C Array"), ShowAsCArray);
     ui->cbShowAs->addItem(tr("EBCDIC"), ShowAsEBCDIC);
     ui->cbShowAs->addItem(tr("Hex Dump"), ShowAsHexDump);
@@ -116,6 +117,10 @@ void ShowPacketBytesDialog::showSelected(int start, int end)
         // end set to -1 means show all packet bytes
         setStartAndEnd(0, finfo_->length);
     } else {
+        if (show_as_ == ShowAsRAW) {
+            start /= 2;
+            end = (end + 1) / 2;
+        }
         setStartAndEnd(start_ + start, start_ + end);
     }
     updateFieldBytes();
@@ -148,7 +153,9 @@ bool ShowPacketBytesDialog::enableShowSelected()
     return (((decode_as_ == DecodeAsNone) ||
              (decode_as_ == DecodeAsROT13)) &&
             ((show_as_ == ShowAsASCII) ||
-             (show_as_ == ShowAsEBCDIC)));
+             (show_as_ == ShowAsASCIIandControl) ||
+             (show_as_ == ShowAsEBCDIC) ||
+             (show_as_ == ShowAsRAW)));
 }
 
 void ShowPacketBytesDialog::updateWidgets()
@@ -261,6 +268,14 @@ void ShowPacketBytesDialog::copyBytes()
     switch (show_as_) {
 
     case ShowAsASCII:
+    {
+        QByteArray ba(field_bytes_);
+        sanitizeBuffer(ba, true);
+        wsApp->clipboard()->setText(ba);
+        break;
+    }
+
+    case ShowAsASCIIandControl:
     case ShowAsCArray:
     case ShowAsEBCDIC:
     case ShowAsHexDump:
@@ -297,6 +312,14 @@ void ShowPacketBytesDialog::saveAs()
     switch (show_as_) {
 
     case ShowAsASCII:
+    {
+        QByteArray ba(field_bytes_);
+        sanitizeBuffer(ba, true);
+        file.write(ba);
+        break;
+    }
+
+    case ShowAsASCIIandControl:
     case ShowAsCArray:
     case ShowAsEBCDIC:
     case ShowAsHexDump:
@@ -400,22 +423,36 @@ void ShowPacketBytesDialog::keyPressEvent(QKeyEvent *event)
     QDialog::keyPressEvent(event);
 }
 
-void ShowPacketBytesDialog::sanitizeBuffer(QByteArray &ba)
+void ShowPacketBytesDialog::sanitizeBuffer(QByteArray &ba, bool keep_CR)
 {
     for (int i = 0; i < ba.length(); i++) {
-        if (ba[i] != '\0' && ba[i] != '\r' && ba[i] != '\n') {
-            if (g_ascii_isspace(ba[i])) {
-                ba[i] = ' ';
-            } else if (!g_ascii_isprint(ba[i])) {
-                ba[i] = '.';
-            }
+        if (ba[i] == '\n' || (keep_CR && ba[i] == '\r'))
+            // Keep LF and optionally CR
+            continue;
+
+        if (ba[i] == '\0' || g_ascii_isspace(ba[i])) {
+            ba[i] = ' ';
+        } else if (!g_ascii_isprint(ba[i])) {
+            ba[i] = '.';
+        }
+    }
+}
+
+void ShowPacketBytesDialog::symbolizeBuffer(QByteArray &ba)
+{
+    for (int i = 0; i < ba.length(); i++) {
+        if ((ba[i] < '\0' || ba[i] >= ' ') && ba[i] != (char)0x7f && !g_ascii_isprint(ba[i])) {
+            ba[i] = '.';
         }
     }
 
-    // Null and CR are replaced with UTF8 symbols to be able to show all
-    // bytes in ASCII view.  This will ensure that "Show Selected" works.
-    ba.replace('\0', UTF8_SYMBOL_FOR_NULL);
-    ba.replace('\r', UTF8_SYMBOL_FOR_CARRIAGE_RETURN);
+    QByteArray symbol(UTF8_SYMBOL_FOR_NULL);
+    for (char i = 0; i < ' '; i++) {
+        ba.replace(i, symbol);
+        symbol[2] = symbol[2] + 1;
+    }
+    symbol[2] = symbol[2] + 1;      // Skip SP
+    ba.replace((char)0x7f, symbol); // DEL
 }
 
 void ShowPacketBytesDialog::rot13(QByteArray &ba)
@@ -494,7 +531,16 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
     case ShowAsASCII:
     {
         QByteArray ba(field_bytes_);
-        sanitizeBuffer(ba);
+        sanitizeBuffer(ba, false);
+        ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
+        ui->tePacketBytes->setPlainText(ba);
+        break;
+    }
+
+    case ShowAsASCIIandControl:
+    {
+        QByteArray ba(field_bytes_);
+        symbolizeBuffer(ba);
         ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
         ui->tePacketBytes->setPlainText(ba);
         break;
@@ -541,7 +587,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
     {
         QByteArray ba(field_bytes_);
         EBCDIC_to_ASCII((guint8*)ba.data(), ba.length());
-        sanitizeBuffer(ba);
+        sanitizeBuffer(ba, false);
         ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
         ui->tePacketBytes->setPlainText(ba);
         break;
@@ -621,12 +667,9 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
 
     case ShowAsISO8859_1:
     {
-        // The ISO 8859-1 string should probably also use UTF8_SYMBOL_FOR_NULL
-        // to be able to show all bytes.
-        guint8 *bytes = get_8859_1_string(NULL, (const guint8 *)field_bytes_.constData(), field_bytes_.length());
+        QString latin1 = QString::fromLatin1(field_bytes_.constData(), (int)field_bytes_.length());
         ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
-        ui->tePacketBytes->setPlainText((const char *)bytes);
-        wmem_free (NULL, bytes);
+        ui->tePacketBytes->setPlainText(latin1);
         break;
     }
 
@@ -635,9 +678,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         // The QString docs say that invalid characters will be replaced with
         // replacement characters or removed. It would be nice if we could
         // explicitly choose one or the other.
-        QByteArray ba(field_bytes_);
-        ba.replace('\0', UTF8_SYMBOL_FOR_NULL);
-        QString utf8 = QString::fromUtf8(ba);
+        QString utf8 = QString::fromUtf8(field_bytes_.constData(), (int)field_bytes_.length());
         ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
         ui->tePacketBytes->setPlainText(utf8);
         break;

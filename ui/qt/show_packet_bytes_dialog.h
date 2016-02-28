@@ -83,6 +83,7 @@ private:
     };
     enum ShowAsType {
         ShowAsASCII,
+        ShowAsASCIIandControl,
         ShowAsCArray,
         ShowAsEBCDIC,
         ShowAsHexDump,
@@ -98,7 +99,8 @@ private:
     bool enableShowSelected();
     void updateWidgets(); // Needed for WiresharkDialog?
     void updateHintLabel();
-    void sanitizeBuffer(QByteArray &ba);
+    void sanitizeBuffer(QByteArray &ba, bool handle_CR);
+    void symbolizeBuffer(QByteArray &ba);
     void rot13(QByteArray &ba);
     void updateFieldBytes(bool initialization = false);
     void updatePacketBytes();
