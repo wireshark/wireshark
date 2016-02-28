@@ -1292,7 +1292,7 @@ dissect_u3v_read_mem_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_in
         item = proto_tree_add_uint64(u3v_telegram_tree, hf_u3v_address, tvb, offset, 8, addr);
         proto_item_append_text(item, " %s", address_string);
     } else {
-        item = proto_tree_add_item(u3v_telegram_tree, hf_u3v_custom_memory_addr, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(u3v_telegram_tree, hf_u3v_custom_memory_addr, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     }
     offset += 8;
 
@@ -1423,7 +1423,7 @@ dissect_u3v_read_mem_ack(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_in
         if (is_known_bootstrap_register(addr, u3v_conv_info)) {
             dissect_u3v_register(addr, u3v_telegram_tree, tvb, offset, byte_count, u3v_conv_info);
         } else {
-            item = proto_tree_add_item(u3v_telegram_tree, hf_u3v_custom_memory_data, tvb, startoffset, length, ENC_NA);
+            proto_tree_add_item(u3v_telegram_tree, hf_u3v_custom_memory_data, tvb, startoffset, length, ENC_NA);
         }
     }
 }
