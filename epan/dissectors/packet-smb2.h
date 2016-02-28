@@ -54,7 +54,6 @@ typedef struct _smb2_fid_info_t {
 	guint64 fid_volatile;
 	guint64 sesid;
 	guint32 tid;
-	guint32 open_frame;
 	char *name;
 } smb2_fid_info_t;
 

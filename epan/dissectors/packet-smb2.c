@@ -1713,7 +1713,6 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 			} else {
 				sfi->name = wmem_strdup_printf(wmem_file_scope(), "[unknown]");
 			}
-			sfi->open_frame = pinfo->num;
 
 			if (si->saved && si->saved->extra_info_type == SMB2_EI_FILENAME) {
 				fid_name = wmem_strdup_printf(wmem_file_scope(), "File: %s", (char *)si->saved->extra_info);
