@@ -1882,27 +1882,28 @@ static gboolean
 dissect_u3v_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     guint32 prefix;
-    usb_conv_info_t *usb_conv_info =NULL;
-    u3v_conv_info_t *u3v_conv_info =NULL;
+    usb_conv_info_t *usb_conv_info;
+    u3v_conv_info_t *u3v_conv_info;
+
+    /* all control and meta data packets of U3V contain at least the prefix */
+    if (tvb_reported_length(tvb) < 4)
+        return FALSE;
+    prefix = tvb_get_letohl(tvb, 0);
 
     /* check if stream endpoint has been already set up for this conversation */
     usb_conv_info = (usb_conv_info_t *)data;
+    if (!usb_conv_info)
+        return FALSE;
     u3v_conv_info = (u3v_conv_info_t *)usb_conv_info->class_data;
 
-
-    /* all control and meta data packets of U3V contain at least the prefix */
-    if (tvb_reported_length(tvb) < 4) {
-        return FALSE;
-    }
-
     /* either right prefix or the endpoint of the current transfer has been recognized as stream endpoint already */
-    prefix = tvb_get_letohl(tvb, 0);
     if ((U3V_STREAM_LEADER_PREFIX  == prefix) || (U3V_STREAM_TRAILER_PREFIX == prefix) ||
         (U3V_CONTROL_PREFIX        == prefix) || (U3V_EVENT_PREFIX          == prefix) ||
         ( u3v_conv_info && (usb_conv_info->endpoint == u3v_conv_info->ep_stream))) {
         dissect_u3v(tvb, pinfo, tree, data);
         return TRUE;
     }
+
     return FALSE;
 }
 
