@@ -9607,6 +9607,8 @@ fodms            7200/tcp # FODMS FLIP [David_Anthony] [David_Anthony]
 fodms            7200/udp # FODMS FLIP [David_Anthony] [David_Anthony]
 dlip             7201/tcp # DLIP [Albert_Manfredi] [Albert_Manfredi]
 dlip             7201/udp # DLIP [Albert_Manfredi] [Albert_Manfredi]
+PS-Server        7215/tcp # Communication ports for PaperStream Server services [PFU_Systems_Inc.] [Hari_Asuri] 2016-02-26
+PS-Capture-Pro   7216/tcp # PaperStream Capture Professional [PFU_Systems_Inc.] [Hari_Asuri] 2016-02-26
 ramp             7227/tcp # Registry A & M Protocol [John_Havard] [John_Havard] 2003-11
 ramp             7227/udp # Registry A $ M Protocol [John_Havard] [John_Havard] 2003-11
 citrixupp        7228/tcp # Citrix Universal Printing Port [Gary_Barton] [Gary_Barton] 2011-02-24
@@ -9727,6 +9729,8 @@ coherence        7574/tcp # Oracle Coherence Cluster Service [Oracle_5] [Mark_Fa
 coherence-disc   7574/udp # Oracle Coherence Cluster discovery service [Oracle_5] [Mark_Falco] 2014-07-09
 sun-lm           7588/tcp # Sun License Manager [Sophie_Deng] [Sophie_Deng]
 sun-lm           7588/udp # Sun License Manager [Sophie_Deng] [Sophie_Deng]
+mipi-debug       7606/tcp # MIPI Alliance Debug [MIPI_Alliance] [Peter_Lefkin] 2016-02-26
+mipi-debug       7606/udp # MIPI Alliance Debug [MIPI_Alliance] [Peter_Lefkin] 2016-02-26
 indi             7624/tcp # Instrument Neutral Distributed Interface [Elwood_Downey] [Elwood_Downey] 2002-04
 indi             7624/udp # Instrument Neutral Distributed Interface [Elwood_Downey] [Elwood_Downey] 2002-04
 simco            7626/tcp # SImple Middlebox COnfiguration (SIMCO) Server [RFC4540]
