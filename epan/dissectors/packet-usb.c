@@ -1217,7 +1217,7 @@ static value_string_ext usb_hid_boot_protocol_vals_ext = VALUE_STRING_EXT_INIT(u
 static const value_string usb_misc_subclass_vals[] = {
     {0x03, "Cable Based Association Framework"},
     {0x04, "RNDIS"},
-    {0x05, "USB3 Vision"},
+    {IF_SUBCLASS_MISC_U3V, "USB3 Vision"},
     {0x06, "Stream Transport Efficient Protocol"},
     {0, NULL}
 };

@@ -184,6 +184,8 @@ typedef struct _usb_tap_data_t {
 #define DEV_VENDOR_UNKNOWN            0x0000  /* this id is unassigned */
 #define DEV_PRODUCT_UNKNOWN           0xfffffff /* 0x0000 and 0xffff are used values by vendors, so MSBs encode unknown */
 
+#define IF_SUBCLASS_MISC_U3V          0x05
+
 /* bmRequestType values */
 #define USB_DIR_OUT                     0               /* to device */
 #define USB_DIR_IN                      0x80            /* to host */
