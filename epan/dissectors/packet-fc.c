@@ -1046,9 +1046,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         }
         frag_size -= MDSHDR_TRAILER_SIZE;
     } else if (fc_data->ethertype == ETHERTYPE_BRDWALK) {
-        if ((frag_size <= 8) ||
-            ((frag_size == MDSHDR_TRAILER_SIZE) && (ftype != FC_FTYPE_LINKCTL) &&
-             (ftype != FC_FTYPE_BLS) && (ftype != FC_FTYPE_OHMS))) {
+        if (frag_size <= 8) {
             proto_tree_add_expert(fc_tree, pinfo, &ei_short_hdr,
                     tvb, FC_HEADER_SIZE, frag_size);
             return;
