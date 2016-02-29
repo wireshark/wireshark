@@ -3419,6 +3419,17 @@ static int hf_dis_proto_fam = -1;
 static int hf_dis_header_rel_ts = -1;
 static int hf_dis_pdu_length = -1;
 static int hf_dis_padding = -1;
+static int hf_dis_pdu_status = -1;
+static int hf_pdu_status_tei = -1;
+static int hf_pdu_status_lvc = -1;
+static int hf_pdu_status_cei = -1;
+static int hf_pdu_status_fti = -1;
+static int hf_pdu_status_dti = -1;
+static int hf_pdu_status_rai = -1;
+static int hf_pdu_status_iai = -1;
+static int hf_pdu_status_ism = -1;
+static int hf_pdu_status_aii = -1;
+static int hf_pdu_status_field = -1;
 static int hf_dis_event_type = -1;
 static int hf_dis_model_type = -1;
 static int hf_dis_po_ver = -1;
@@ -3846,6 +3857,7 @@ static int hf_dis_iff_mode_malfunction = -1;
 
 static gint ett_dis = -1;
 static gint ett_dis_header = -1;
+static gint ett_pdu_status = -1;
 static gint ett_dis_po_header = -1;
 static gint ett_dis_payload = -1;
 static gint ett_entity = -1;
@@ -5022,6 +5034,68 @@ static const value_string intercom_control_communications_channel_type_vals[] =
     {2, "Connection HDX - Destination is Receive Only"     },
     {3, "Connection HDX - Destination is Transmit Only"},
     {4, "Connection HDX"},
+    { 0, NULL }
+};
+
+static const value_string dis_pdu_status_tei_vals[] = {
+    { 0x0, "Entity owned by this simulation" },
+    { 0x1, "Entity owned by different simulation" },
+    { 0, NULL }
+};
+
+static const value_string dis_pdu_status_lvc_vals[] = {
+    { 0x0, "No Statement" },
+    { 0x1, "Live" },
+    { 0x2, "Virtual" },
+    { 0x3, "Constructive" },
+    { 0, NULL }
+};
+
+static const value_string dis_pdu_status_cei_vals[] = {
+    { 0x0, "Not Coupled" },
+    { 0x1, "Coupled" },
+    { 0, NULL }
+};
+
+static const value_string dis_pdu_status_fti_vals[] = {
+    { 0x0, "Munition" },
+    { 0x1, "Expendable" },
+    { 0, NULL }
+};
+
+static const value_string dis_pdu_status_dti_vals[] = {
+    { 0x0, "Munition" },
+    { 0x1, "Expendable" },
+    { 0x2, "Munition Explosion" },
+    { 0x3, "undefined" },
+    { 0, NULL }
+};
+
+static const value_string dis_pdu_status_rai_vals[] = {
+    { 0x0, "No Statement" },
+    { 0x1, "Unattached" },
+    { 0x2, "Attached" },
+    { 0x3, "undefined" },
+    { 0, NULL }
+};
+
+static const value_string dis_pdu_status_iai_vals[] = {
+    { 0x0, "No Statement" },
+    { 0x1, "Unattached" },
+    { 0x2, "Attached" },
+    { 0x3, "undefined" },
+    { 0, NULL }
+};
+
+static const value_string dis_pdu_status_ism_vals[] = {
+    { 0x0, "Regeneration" },
+    { 0x1, "Interactive" },
+    { 0, NULL }
+};
+
+static const value_string dis_pdu_status_aii_vals[] = {
+    { 0x0, "Not Active" },
+    { 0x1, "Active" },
     { 0, NULL }
 };
 
@@ -6865,8 +6939,79 @@ typedef struct dis_header
 }
 dis_header_t;
 
+static int parsePDUStatus(tvbuff_t *tvb, proto_tree *tree, int offset, dis_header_t* header)
+{
+    if ((header->pduType == DIS_PDUTYPE_ENTITY_STATE)
+     || (header->pduType == DIS_PDUTYPE_ELECTROMAGNETIC_EMISSION)
+     || (header->pduType == DIS_PDUTYPE_DESIGNATOR)
+     || (header->pduType == DIS_PDUTYPE_ENVIRONMENTAL_PROCESS)
+     || (header->pduType == DIS_PDUTYPE_ENTITY_STATE_UPDATE))
+    {
+        proto_tree_add_item(tree, hf_pdu_status_cei, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pdu_status_lvc, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pdu_status_tei, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+    else if (header->pduType == DIS_PDUTYPE_FIRE)
+    {
+        proto_tree_add_item(tree, hf_pdu_status_fti, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pdu_status_cei, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pdu_status_lvc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+    else if (header->pduType == DIS_PDUTYPE_DETONATION)
+    {
+        proto_tree_add_item(tree, hf_pdu_status_dti, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pdu_status_cei, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pdu_status_lvc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+    else if (((header->pduType >= DIS_PDUTYPE_COLLISION)  && (header->pduType <= DIS_PDUTYPE_COMMENT))
+          || ((header->pduType >= DIS_PDUTYPE_UNDERWATER_ACOUSTIC)  && (header->pduType <= DIS_PDUTYPE_SUPPLEMENTAL_EMISSION_ENTITY_STATE))
+          || ((header->pduType >= DIS_PDUTYPE_AGGREGATE_STATE)  && (header->pduType <= DIS_PDUTYPE_MINEFIELD_RESPONSE_NACK))
+          || ((header->pduType >= DIS_PDUTYPE_GRIDDED_DATA)  && (header->pduType <= DIS_PDUTYPE_COLLISION_ELASTIC))
+          || ((header->pduType >= DIS_PDUTYPE_DIRECTED_ENERGY_FIRE)  && (header->pduType <= DIS_PDUTYPE_INFORMATION_OPERATIONS_REPORT)))
+    {
+        proto_tree_add_item(tree, hf_pdu_status_cei, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pdu_status_lvc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+    else if ((header->pduType >= DIS_PDUTYPE_TRANSMITTER) && (header->pduType <= DIS_PDUTYPE_RECEIVER))
+    {
+        proto_tree_add_item(tree, hf_pdu_status_rai, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pdu_status_cei, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pdu_status_lvc, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pdu_status_tei, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+    else if (header->pduType == DIS_PDUTYPE_IFF)
+    {
+        proto_tree_add_item(tree, hf_pdu_status_aii, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pdu_status_ism, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pdu_status_cei, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pdu_status_lvc, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pdu_status_tei, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+    else if ((header->pduType == DIS_PDUTYPE_INTERCOM_SIGNAL)
+          || (header->pduType == DIS_PDUTYPE_INTERCOM_CONTROL))
+    {
+        proto_tree_add_item(tree, hf_pdu_status_iai, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pdu_status_cei, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pdu_status_lvc, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_pdu_status_tei, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+    else if (header->pduType == DIS_PDUTYPE_ATTRIBUTE)
+    {
+        proto_tree_add_item(tree, hf_pdu_status_lvc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+    else
+    {
+        proto_tree_add_item(tree, hf_pdu_status_field, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+
+    return ++offset;
+}
+
 static int parseDISHeader(tvbuff_t *tvb, proto_tree *tree, int offset, dis_header_t* header)
 {
+    proto_tree *pdu_status;
+    proto_tree *pdu_status_tree;
+
     proto_tree_add_item(tree, hf_dis_proto_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
     header->version = tvb_get_guint8(tvb, offset);
     offset++;
@@ -6887,8 +7032,23 @@ static int parseDISHeader(tvbuff_t *tvb, proto_tree *tree, int offset, dis_heade
     proto_tree_add_item(tree, hf_dis_pdu_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
-    offset += 2;
+    /* starting in DIS v7, the high-order byte of padding is
+    *  converted to a status bitmap field
+    */
+    if (header->version < DIS_VERSION_IEEE_1278_1_2012) {
+        proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
+        offset += 2;
+    } else {
+        /* add a node to contain the PDU status fields
+        */
+        pdu_status = proto_tree_add_item(tree, hf_dis_pdu_status, tvb, offset, 1, ENC_NA);
+        pdu_status_tree = proto_item_add_subtree(pdu_status, ett_pdu_status);
+        offset = parsePDUStatus(tvb, pdu_status_tree, offset, header);
+
+        /* ... and now, the one-byte of padding */
+        proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 1, ENC_NA);
+        offset++;
+    }
 
     return offset;
 }
@@ -7214,6 +7374,61 @@ void proto_register_dis(void)
             { &hf_dis_pdu_length,
               { "PDU Length",         "dis.pdu_length",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_pdu_status,
+              { "PDU Status",       "dis.pdu_status",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pdu_status_tei,
+              { "TEI", "dis.pdustatus.tei",
+                FT_UINT8, BASE_HEX, VALS(dis_pdu_status_tei_vals), 0x01,
+                NULL, HFILL }
+            },
+            { &hf_pdu_status_lvc,
+              { "LVC", "dis.pdustatus.lvc",
+                FT_UINT8, BASE_HEX, VALS(dis_pdu_status_lvc_vals), 0x06,
+                NULL, HFILL }
+            },
+            { &hf_pdu_status_cei,
+              { "CEI", "dis.pdustatus.cei",
+                FT_UINT8, BASE_HEX, VALS(dis_pdu_status_cei_vals), 0x08,
+                NULL, HFILL }
+            },
+            { &hf_pdu_status_fti,
+              { "FTI", "dis.pdustatus.fti",
+                FT_UINT8, BASE_HEX, VALS(dis_pdu_status_fti_vals), 0x10,
+                NULL, HFILL }
+            },
+            { &hf_pdu_status_dti,
+              { "DTI", "dis.pdustatus.dti",
+                FT_UINT8, BASE_HEX, VALS(dis_pdu_status_dti_vals), 0x30,
+                NULL, HFILL }
+            },
+            { &hf_pdu_status_rai,
+              { "RAI", "dis.pdustatus.rai",
+                FT_UINT8, BASE_HEX, VALS(dis_pdu_status_rai_vals), 0x30,
+                NULL, HFILL }
+            },
+            { &hf_pdu_status_iai,
+              { "IAI", "dis.pdustatus.iai",
+                FT_UINT8, BASE_HEX, VALS(dis_pdu_status_iai_vals), 0x30,
+                NULL, HFILL }
+            },
+            { &hf_pdu_status_ism,
+              { "ISM", "dis.pdustatus.ism",
+                FT_UINT8, BASE_HEX, VALS(dis_pdu_status_ism_vals), 0x10,
+                NULL, HFILL }
+            },
+            { &hf_pdu_status_aii,
+              { "AII", "dis.pdustatus.aii",
+                FT_UINT8, BASE_HEX, VALS(dis_pdu_status_aii_vals), 0x20,
+                NULL, HFILL }
+            },
+            { &hf_pdu_status_field,
+              { "not implemented for this PDU type",       "dis.pdu_status.field",
+                FT_UINT8, BASE_HEX, NULL, 0xff,
                 NULL, HFILL }
             },
             { &hf_dis_padding,
@@ -9254,6 +9469,7 @@ void proto_register_dis(void)
     {
         &ett_dis,
         &ett_dis_header,
+        &ett_pdu_status,
         &ett_dis_po_header,
         &ett_dis_ens,
         &ett_dis_crypto_key,
