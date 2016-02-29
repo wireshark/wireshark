@@ -315,5 +315,6 @@ EXTRA_DIST =				\
 	text2pcap.pod			\
 	tshark.pod			\
 	wireshark-filter.pod    	\
-	wireshark.pod.template
+	wireshark.pod.template		\
+	CMakeLists.txt
 

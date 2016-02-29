@@ -1020,6 +1020,7 @@ add_subdirectory( asn1 EXCLUDE_FROM_ALL )
 add_subdirectory( capchild )
 add_subdirectory( caputils )
 add_subdirectory( codecs )
+add_subdirectory( doc )
 add_subdirectory( docbook )
 add_subdirectory( epan )
 add_subdirectory( randpkt_core )
@@ -1312,35 +1313,14 @@ set(INSTALL_DIRS
 )
 
 set(INSTALL_FILES
-	${CMAKE_BINARY_DIR}/androiddump.html
-	${CMAKE_BINARY_DIR}/sshdump.html
-	${CMAKE_BINARY_DIR}/AUTHORS-SHORT
-	${CMAKE_BINARY_DIR}/capinfos.html
-	${CMAKE_BINARY_DIR}/captype.html
 	cfilters
 	colorfilters
 	dfilters
-	${CMAKE_BINARY_DIR}/dftest.html
-	${CMAKE_BINARY_DIR}/dumpcap.html
-	${CMAKE_BINARY_DIR}/editcap.html
-	${CMAKE_BINARY_DIR}/extcap.html
-	${CMAKE_BINARY_DIR}/asn2deb.html
-	${CMAKE_BINARY_DIR}/idl2deb.html
-	${CMAKE_BINARY_DIR}/idl2wrs.html
 	ipmap.html
 	manuf
-	${CMAKE_BINARY_DIR}/mergecap.html
 	pdml2html.xsl
-	${CMAKE_BINARY_DIR}/randpkt.html
-	${CMAKE_BINARY_DIR}/randpktdump.html
-	${CMAKE_BINARY_DIR}/rawshark.html
-	${CMAKE_BINARY_DIR}/reordercap.html
 	services
 	smi_modules
-	${CMAKE_BINARY_DIR}/text2pcap.html
-	${CMAKE_BINARY_DIR}/tshark.html
-	${CMAKE_BINARY_DIR}/wireshark-filter.html
-	${CMAKE_BINARY_DIR}/wireshark.html
 	docbook/ws.css
 )
 
@@ -1352,30 +1332,6 @@ if(WIN32)
 else()
 	set(INSTALL_FILES COPYING ${INSTALL_FILES})
 endif()
-
-set(MAN1_FILES
-	${CMAKE_BINARY_DIR}/androiddump.1
-	${CMAKE_BINARY_DIR}/capinfos.1
-	${CMAKE_BINARY_DIR}/captype.1
-	${CMAKE_BINARY_DIR}/dftest.1
-	${CMAKE_BINARY_DIR}/dumpcap.1
-	${CMAKE_BINARY_DIR}/editcap.1
-	${CMAKE_BINARY_DIR}/extcap.4
-	${CMAKE_BINARY_DIR}/idl2wrs.1
-	${CMAKE_BINARY_DIR}/mergecap.1
-	${CMAKE_BINARY_DIR}/randpkt.1
-	${CMAKE_BINARY_DIR}/androiddump.1
-	${CMAKE_BINARY_DIR}/rawshark.1
-	${CMAKE_BINARY_DIR}/reordercap.1
-	${CMAKE_BINARY_DIR}/sshdump.1
-	${CMAKE_BINARY_DIR}/text2pcap.1
-	${CMAKE_BINARY_DIR}/tshark.1
-	${CMAKE_BINARY_DIR}/wireshark.1
-)
-
-set(MAN4_FILES
-	${CMAKE_BINARY_DIR}/wireshark-filter.4
-)
 
 set(LIBEPAN_LIBS
 #		@NSL_LIBS@	# -lnsl
@@ -1611,7 +1567,6 @@ foreach(_install_file ${INSTALL_FILES})
 			"${_output_file}"
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 		DEPENDS
-			html_docs
 			"${_install_file}"
 	)
 	list(APPEND copy_data_files_depends "${_output_file}")
@@ -2426,57 +2381,6 @@ if(BUILD_randpktdump)
 	install(TARGETS randpktdump RUNTIME DESTINATION ${EXTCAP_DIR})
 endif()
 
-ADD_CUSTOM_COMMAND(
-	OUTPUT	${CMAKE_BINARY_DIR}/AUTHORS-SHORT
-	COMMAND ${PERL_EXECUTABLE}
-		${CMAKE_SOURCE_DIR}/doc/perlnoutf.pl
-		${CMAKE_SOURCE_DIR}/doc/make-authors-short.pl
-		< ${CMAKE_SOURCE_DIR}/AUTHORS
-		> ${CMAKE_BINARY_DIR}/AUTHORS-SHORT
-	DEPENDS
-		${CMAKE_SOURCE_DIR}/doc/perlnoutf.pl
-		${CMAKE_SOURCE_DIR}/doc/make-authors-short.pl
-		${CMAKE_SOURCE_DIR}/AUTHORS
-)
-
-ADD_CUSTOM_COMMAND(
-	OUTPUT	${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
-	COMMAND ${PERL_EXECUTABLE}
-		${CMAKE_SOURCE_DIR}/doc/perlnoutf.pl
-		${CMAKE_SOURCE_DIR}/doc/make-authors-format.pl
-		< ${CMAKE_BINARY_DIR}/AUTHORS-SHORT
-		> ${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
-	DEPENDS
-		${CMAKE_SOURCE_DIR}/doc/perlnoutf.pl
-		${CMAKE_SOURCE_DIR}/doc/make-authors-format.pl
-		${CMAKE_BINARY_DIR}/AUTHORS-SHORT
-)
-
-if(WIN32)
-FILE(TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template WPT_WIN_PATH)
-FILE(TO_NATIVE_PATH ${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT ASF_WIN_PATH)
-FILE(TO_NATIVE_PATH ${CMAKE_BINARY_DIR}/wireshark.pod WP_WIN_PATH)
-ADD_CUSTOM_COMMAND(
-	OUTPUT	${CMAKE_BINARY_DIR}/wireshark.pod
-	COMMAND copy /B ${WPT_WIN_PATH} + ${ASF_WIN_PATH} ${WP_WIN_PATH}
-	DEPENDS
-		${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
-		${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
-)
-else()
-
-ADD_CUSTOM_COMMAND(
-	OUTPUT	${CMAKE_BINARY_DIR}/wireshark.pod
-	COMMAND cat
-		${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
-		${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
-		> ${CMAKE_BINARY_DIR}/wireshark.pod
-	DEPENDS
-		${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
-		${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
-)
-endif()
-
 if(ENABLE_APPLICATION_BUNDLE)
 	add_custom_target(app_bundle)
 	set_target_properties(app_bundle PROPERTIES FOLDER "Copy Tasks")
@@ -2533,53 +2437,6 @@ if(ENABLE_APPLICATION_BUNDLE)
 
 endif()
 
-pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/androiddump 1 )
-pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/capinfos 1 )
-pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/captype 1 )
-pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/dftest 1 )
-pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/dumpcap 1 )
-pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/editcap 1 )
-pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/extcap 4 )
-pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/asn2deb 1 )
-pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/idl2deb 1 )
-pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/idl2wrs 1 )
-pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/mergecap 1 )
-pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/randpkt 1 )
-pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/randpktdump 1 )
-pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/rawshark 1 )
-pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/reordercap 1 )
-pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/sshdump 1 )
-pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/text2pcap 1 )
-pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/tshark 1 )
-pod2manhtml( ${CMAKE_BINARY_DIR}/wireshark 1 )
-pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/wireshark-filter 4 )
-
-add_custom_target(
-	html_docs ALL
-	DEPENDS
-		${CMAKE_BINARY_DIR}/AUTHORS-SHORT
-		androiddump.html
-		capinfos.html
-		captype.html
-		dftest.html
-		dumpcap.html
-		editcap.html
-		asn2deb.html
-		idl2deb.html
-		idl2wrs.html
-		mergecap.html
-		randpkt.html
-		randpktdump.html
-		rawshark.html
-		reordercap.html
-		sshdump.html
-		text2pcap.html
-		tshark.html
-		wireshark.html
-		wireshark-filter.html
-)
-set_target_properties(html_docs PROPERTIES FOLDER "Docs")
-
 set(CLEAN_FILES
 	${wireshark_FILES}
 	${tshark_FILES}
@@ -2610,20 +2467,6 @@ install(
 		${INSTALL_FILES}
 	DESTINATION
 		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
-)
-
-install(
-	FILES
-		${MAN1_FILES}
-	DESTINATION
-		${CMAKE_INSTALL_MANDIR}/man1
-)
-
-install(
-	FILES
-		${MAN4_FILES}
-	DESTINATION
-		${CMAKE_INSTALL_MANDIR}/man4
 )
 
 install(
