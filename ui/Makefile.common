@@ -83,6 +83,7 @@ WIRESHARK_UI_SRC = \
 
 noinst_HEADERS = \
 	alert_box.h		\
+	all_files_wildcard.h	\
 	capture.h		\
 	capture_globals.h	\
 	capture_ui_utils.h	\

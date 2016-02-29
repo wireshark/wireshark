@@ -50,6 +50,7 @@
 #include "ui/ssl_key_export.h"
 #include "ui/util.h"
 #include "ui/ui_util.h"
+#include "ui/all_files_wildcard.h"
 
 #include "file_dlg_win32.h"
 
@@ -67,19 +68,19 @@
 
 #define FILE_TYPES_RAW \
     _T("Raw data (*.bin, *.dat, *.raw)\0")               _T("*.bin;*.dat;*.raw\0") \
-    _T("All Files (*.*)\0")                              _T("*.*\0")
+    _T("All Files (") _T(ALL_FILES_WILDCARD) _T(")\0")   _T(ALL_FILES_WILDCARD) _T("\0")
 
 #define FILE_RAW_DEFAULT 1
 
 #define FILE_TYPES_SSLKEYS \
     _T("SSL Session Keys (*.keys)\0")                    _T("*.keys\0") \
-    _T("All Files (*.*)\0")                              _T("*.*\0")
+    _T("All Files (") _T(ALL_FILES_WILDCARD) _T(")\0")   _T(ALL_FILES_WILDCARD) _T("\0")
 
 #define FILE_SSLKEYS_DEFAULT 1
 
 #define FILE_TYPES_COLOR \
     _T("Text Files (*.txt)\0")                           _T("*.txt\0")   \
-    _T("All Files (*.*)\0")                              _T("*.*\0")
+    _T("All Files (") _T(ALL_FILES_WILDCARD) _T(")\0")   _T(ALL_FILES_WILDCARD) _T("\0")
 
 #define FILE_DEFAULT_COLOR 2
 
@@ -1501,8 +1502,8 @@ build_file_open_type_list(void) {
     str16 = utf_8to16("All Files");
     sa = g_array_append_vals(sa, str16, (guint) strlen("All Files"));
     sa = g_array_append_val(sa, zero);
-    str16 = utf_8to16("*.*");
-    sa = g_array_append_vals(sa, str16, (guint) strlen("*.*"));
+    str16 = utf_8to16(ALL_FILES_WILDCARD);
+    sa = g_array_append_vals(sa, str16, (guint) strlen(ALL_FILES_WILDCARD));
     sa = g_array_append_val(sa, zero);
 
     /*
@@ -1570,13 +1571,11 @@ append_file_type(GArray *sa, int ft)
     extensions_list = wtap_get_file_extensions_list(ft, TRUE);
     if (extensions_list == NULL) {
         /* This file type doesn't have any particular extension
-           conventionally used for it, so we'll just use "*.*"
-           as the pattern; on Windows, that matches all file names
-           - even those with no extension -  so we don't need to
-           worry about compressed file extensions.  (It does not
-           do so on UN*X; the right pattern on UN*X would just
-           be "*".) */
-           g_string_printf(pattern_str, "*.*");
+           conventionally used for it, so we'll just use a
+           wildcard that matches all file names - even those with
+           no extension, so we don't need to worry about compressed
+           file extensions. */
+           g_string_printf(pattern_str, ALL_FILES_WILDCARD);
     } else {
         /* Construct the list of patterns. */
         g_string_printf(pattern_str, "");
@@ -1657,7 +1656,7 @@ build_file_format_list(HWND sf_hwnd) {
         if(wtap_file_extensions_string(ft) != NULL) {
             s = g_strdup_printf("%s (%s)", wtap_file_type_string(ft), wtap_file_extensions_string(ft));
         } else {
-            s = g_strdup_printf("%s (*.*)", wtap_file_type_string(ft));
+            s = g_strdup_printf("%s (" ALL_FILES_WILDCARD ")", wtap_file_type_string(ft));
         }
         SendMessage(format_cb, CB_ADDSTRING, 0, (LPARAM) utf_8to16(s));
         g_free(s);

@@ -38,6 +38,8 @@
 #include <epan/prefs.h>
 #include <color_utils.h>
 
+#include <ui/all_files_wildcard.h>
+
 #include <extcap_parser.h>
 
 ExtcapArgumentFileSelection::ExtcapArgumentFileSelection (extcap_arg * argument) :
@@ -107,7 +109,7 @@ void ExtcapArgumentFileSelection::openFileDialog()
     if (QFileInfo(filename).exists())
         workingDir = QFileInfo(filename).dir();
 
-    QString fileExt(tr("Any File (*.*)"));
+    QString fileExt(tr("All Files (" ALL_FILES_WILDCARD ")"));
     if ( _argument->fileextension != NULL )
     {
         QString givenExt = QString().fromUtf8(_argument->fileextension);
