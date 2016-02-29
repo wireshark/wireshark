@@ -80,6 +80,7 @@
 #include "ui/recent_utils.h"
 #include "ui/ssl_key_export.h"
 #include "ui/ui_util.h"
+#include "ui/all_files_wildcard.h"
 #include "ui/qt/simple_dialog.h"
 
 #ifdef HAVE_SOFTWARE_UPDATE
@@ -1703,7 +1704,7 @@ void MainWindow::on_actionFileExportPacketBytes_triggered()
     file_name = QFileDialog::getSaveFileName(this,
                                              wsApp->windowTitleString(tr("Export Selected Packet Bytes")),
                                              wsApp->lastOpenDir().canonicalPath(),
-                                             tr("Raw data (*.bin *.dat *.raw);;Any File (*.*)")
+                                             tr("Raw data (*.bin *.dat *.raw);;All Files (" ALL_FILES_WILDCARD ")")
                                              );
 
     if (file_name.length() > 0) {
@@ -1772,7 +1773,7 @@ void MainWindow::on_actionFileExportSSLSessionKeys_triggered()
     file_name = QFileDialog::getSaveFileName(this,
                                              save_title,
                                              wsApp->lastOpenDir().canonicalPath(),
-                                             tr("SSL Session Keys (*.keys *.txt);;Any File (*.*)")
+                                             tr("SSL Session Keys (*.keys *.txt);;All Files (" ALL_FILES_WILDCARD ")")
                                              );
     if (file_name.length() > 0) {
         gchar *keylist;

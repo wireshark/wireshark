@@ -35,6 +35,8 @@
 #include <QFileInfo>
 #include <QVariant>
 
+#include <ui/all_files_wildcard.h>
+
 #include <extcap_parser.h>
 
 
@@ -94,7 +96,7 @@ void ExtcapArgumentFileSelection::openFileDialog()
 
     filename = QFileDialog::getOpenFileName((QWidget *)(textBox->parent()),
         QString().fromUtf8(_argument->display) + " " + tr("Open File"),
-        workingDir.absolutePath(), tr("All Files (*.*)"));
+        workingDir.absolutePath(), tr("All Files (" ALL_FILES_WILDCARD "*.*)"));
 
     if ( QFileInfo(filename).exists() )
         textBox->setText(filename);

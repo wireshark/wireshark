@@ -36,6 +36,7 @@
 #include "../../epan/prefs.h"
 #include "../../wsutil/filesystem.h"
 #include "../../wsutil/nstime.h"
+#include "ui/all_files_wildcard.h"
 
 #include <wireshark_application.h>
 
@@ -344,11 +345,11 @@ QString CaptureFileDialog::fileType(int ft, bool extension_globs)
     extensions_list = wtap_get_file_extensions_list(ft, TRUE);
     if (extensions_list == NULL) {
         /* This file type doesn't have any particular extension
-           conventionally used for it, so we'll just use "*"
-           as the pattern, as this is UN*X, where "*.*" only
-           matches files that have an extension. (On Windows,
-           it matches all files, but this isn't Windows.) */
-           filter += "*";
+           conventionally used for it, so we'll just use a
+           wildcard that matches all file names - even those
+           with no extension, so we don't need to worry about
+           compressed file extensions. */
+           filter += ALL_FILES_WILDCARD;
     } else {
         GSList *extension;
         /* Construct the list of patterns. */
@@ -388,10 +389,7 @@ QStringList CaptureFileDialog::buildFileOpenTypeList() {
      * the filter will be a bit long, so it *really* shouldn't be shown.
      * What about other platforms?
      */
-    /*
-     * Add the "All Files" entry.  As per the above, we use *, not *.*.
-     */
-    filters << QString(tr("All Files (*)"));
+    filters << QString(tr("All Files (" ALL_FILES_WILDCARD ")"));
 
     /*
      * Add an "All Capture Files" entry, with all the extensions we
