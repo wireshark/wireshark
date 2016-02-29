@@ -163,14 +163,14 @@ int main(int argc, char *argv[])
 	wtap_dumper* savedump;
 	int i;
 
+#ifdef _WIN32
+	WSADATA wsaData;
+#endif  /* _WIN32 */
+
 	extcap_parameters * extcap_conf = g_new0(extcap_parameters, 1);
 
 	extcap_base_set_util_info(extcap_conf, RANDPKTDUMP_VERSION_MAJOR, RANDPKTDUMP_VERSION_MINOR, RANDPKTDUMP_VERSION_RELEASE, NULL);
 	extcap_base_register_interface(extcap_conf, RANDPKT_EXTCAP_INTERFACE, "Random packet generator", 147, "Generator dependent DLT");
-
-#ifdef _WIN32
-	WSADATA wsaData;
-#endif  /* _WIN32 */
 
 	if (argc == 1) {
 		help(argv[0]);
