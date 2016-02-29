@@ -133,16 +133,16 @@ set_address_tvb(address *addr, int addr_type, int addr_len, tvbuff_t *tvb, int o
 static inline void
 alloc_address_wmem(wmem_allocator_t *scope, address *addr,
                         int addr_type, int addr_len, const void *addr_data) {
-    if (addr == NULL)
-        return;
+    g_assert(addr);
+    clear_address(addr);
     addr->type = addr_type;
-    addr->len  = addr_len;
-    if (addr_type == AT_NONE || addr->len <= 0) {
-        addr->data = addr->priv = NULL;
+    if (addr_type == AT_NONE || addr_len <= 0 || addr_data == NULL) {
+        g_assert(addr_len <= 0);
+        g_assert(addr_data == NULL);
         return;
     }
-    addr->priv = wmem_memdup(scope, addr_data, addr->len);
-    addr->data = addr->priv;
+    addr->data = addr->priv = wmem_memdup(scope, addr_data, addr_len);
+    addr->len = addr_len;
 }
 
 /** Allocate an address from TVB data.
