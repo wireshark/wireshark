@@ -62,6 +62,7 @@
 #define VENDOR_NETSCREEN             3224
 #define VENDOR_NOMADIX               3309
 #define VENDOR_T_MOBILE              3414 /* Former VoiceStream Wireless, Inc. */
+#define VENDOR_BROADBAND_FORUM       3561 /* Former ADSL Forum */
 #define VENDOR_ZTE                   3902
 #define VENDOR_SIEMENS               4329
 #define VENDOR_CABLELABS             4491
