@@ -132,7 +132,7 @@ if [ $ASAN -ne 0 ]; then
     echo -n "ASan enabled. Virtual memory limit is "
     ulimit -v
 else
-    echo -n "ASan disabled. Virtual memory limit is $MAX_VMEM"
+    echo "ASan disabled. Virtual memory limit is $MAX_VMEM"
 fi
 
 HOWMANY="forever"
