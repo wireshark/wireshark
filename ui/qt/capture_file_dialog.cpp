@@ -218,6 +218,7 @@ int CaptureFileDialog::exec() {
 
 
 // Windows
+// We use native file dialogs here, rather than the Qt dialog
 #ifdef Q_OS_WIN
 int CaptureFileDialog::selectedFileType() {
     return file_type_;
@@ -295,6 +296,8 @@ int CaptureFileDialog::mergeType() {
 }
 
 #else // not Q_OS_WINDOWS
+// Not Windows
+// We use the Qt dialogs here
 QString CaptureFileDialog::fileExtensionType(int et, bool extension_globs)
 {
     QString filter;
@@ -341,13 +344,11 @@ QString CaptureFileDialog::fileType(int ft, bool extension_globs)
     extensions_list = wtap_get_file_extensions_list(ft, TRUE);
     if (extensions_list == NULL) {
         /* This file type doesn't have any particular extension
-           conventionally used for it, so we'll just use "*.*"
-           as the pattern; on Windows, that matches all file names
-           - even those with no extension -  so we don't need to
-           worry about compressed file extensions.  (It does not
-           do so on UN*X; the right pattern on UN*X would just
-           be "*".) */
-           filter += "*.*";
+           conventionally used for it, so we'll just use "*"
+           as the pattern, as this is UN*X, where "*.*" only
+           matches files that have an extension. (On Windows,
+           it matches all files, but this isn't Windows.) */
+           filter += "*";
     } else {
         GSList *extension;
         /* Construct the list of patterns. */
@@ -387,8 +388,10 @@ QStringList CaptureFileDialog::buildFileOpenTypeList() {
      * the filter will be a bit long, so it *really* shouldn't be shown.
      * What about other platforms?
      */
-    /* Add the "All Files" entry. */
-    filters << QString(tr("All Files (*.*)"));
+    /*
+     * Add the "All Files" entry.  As per the above, we use *, not *.*.
+     */
+    filters << QString(tr("All Files (*)"));
 
     /*
      * Add an "All Capture Files" entry, with all the extensions we
