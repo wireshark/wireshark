@@ -1603,9 +1603,11 @@ add_eth_name(const guint8 *addr, const gchar *name)
         tp = eth_hash_new_entry(addr, FALSE);
     }
 
-    g_strlcpy(tp->resolved_name, name, MAXNAMELEN);
-    tp->status = HASHETHER_STATUS_RESOLVED_NAME;
-    new_resolved_objects = TRUE;
+    if (strcmp(tp->resolved_name, name) != 0) {
+        g_strlcpy(tp->resolved_name, name, MAXNAMELEN);
+        tp->status = HASHETHER_STATUS_RESOLVED_NAME;
+        new_resolved_objects = TRUE;
+    }
 
     return tp;
 } /* add_eth_name */
