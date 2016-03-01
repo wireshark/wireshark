@@ -759,7 +759,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         /*********************************************************************
         **********************************************************************/
       case EAP_TYPE_ID:
-        if (tree) {
+        if (tree && size > 0) {
           proto_tree_add_item(eap_tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
         }
         if(!pinfo->fd->flags.visited) {
