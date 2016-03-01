@@ -50,20 +50,23 @@
 #include "progress_frame.h"
 #include "qt_ui_utils.h"
 
+#include <QElapsedTimer>
 #include <QKeyEvent>
 #include <QMessageBox>
 #include <QPrintDialog>
 #include <QPrinter>
+#include <QScrollBar>
 #include <QTextEdit>
 #include <QTextStream>
 
 // To do:
+// - Show text while tapping.
 // - Instead of calling QMessageBox, display the error message in the text
 //   box and disable the appropriate controls.
-// - Draw text by hand similar to ByteViewText. This would let us add
-//   extra information, e.g. a timestamp column and get rid of the data
-//   limit.
 // - Add a progress bar and connect captureCaptureUpdateContinue to it
+
+// Matches SplashOverlay.
+static int info_update_freq_ = 100;
 
 FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_type_t type) :
     WiresharkDialog(parent, cf),
@@ -72,6 +75,9 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
     follower_(NULL),
     show_type_(SHOW_ASCII),
     truncated_(false),
+    client_packet_count_(0),
+    server_packet_count_(0),
+    turns_(0),
     save_as_(false),
     use_regex_find_(false)
 {
@@ -217,6 +223,8 @@ void FollowStreamDialog::updateWidgets(bool follow_in_progress)
     ui->leFind->setEnabled(enable);
     ui->bFind->setEnabled(enable);
     b_filter_out_->setEnabled(enable);
+    b_print_->setEnabled(enable);
+    b_save_->setEnabled(enable);
 
     WiresharkDialog::updateWidgets();
 }
@@ -358,7 +366,11 @@ void FollowStreamDialog::resetStream()
         ws_unlink(data_out_filename_.toUtf8().constData());
     }
     for (cur = follow_info_.payload; cur; cur = g_list_next(cur)) {
-        g_free(cur->data);
+        follow_record_t *follow_record = (follow_record_t *)cur->data;
+        if(follow_record->data) {
+            g_byte_array_free(follow_record->data, TRUE);
+        }
+        g_free(follow_record);
     }
     g_list_free(follow_info_.payload);
     follow_info_.payload = NULL;
@@ -424,8 +436,13 @@ FollowStreamDialog::readSslStream()
     guint32 *    global_pos;
     GList *      cur;
     frs_return_t frs_return;
+    QElapsedTimer elapsed_timer;
+
+    elapsed_timer.start();
 
     for (cur = follow_info_.payload; cur; cur = g_list_next(cur)) {
+        if (dialogClosed()) break;
+
         SslDecryptedRecord * rec = (SslDecryptedRecord*) cur->data;
         gboolean             include_rec = FALSE;
 
@@ -439,15 +456,22 @@ FollowStreamDialog::readSslStream()
                     (follow_info_.show_stream == FROM_CLIENT);
         }
 
+        QByteArray buffer;
         if (include_rec) {
             size_t nchars = rec->data.data_len;
-            gchar *buffer = (gchar *)g_memdup(rec->data.data, (guint) nchars);
+            // We want a deep copy.
+            buffer.clear();
+            buffer.append((const char *) rec->data.data, nchars);
 
-            frs_return = showBuffer(buffer, nchars,
+            frs_return = showBuffer(buffer.data(), nchars,
                                      rec->is_from_server, rec->packet_num, global_pos);
-            g_free(buffer);
             if (frs_return == FRS_PRINT_ERROR)
                 return frs_return;
+            if (elapsed_timer.elapsed() > info_update_freq_) {
+                fillHintLabel(ui->teStreamContent->textCursor().position());
+                wsApp->processEvents();
+                elapsed_timer.start();
+            }
         }
     }
 
@@ -460,14 +484,11 @@ FollowStreamDialog::followStream()
     readStream();
 }
 
-
-
-const int FollowStreamDialog::max_document_length_ = 2 * 1000 * 1000; // Just a guess
+const int FollowStreamDialog::max_document_length_ = 500 * 1000 * 1000; // Just a guess
 void FollowStreamDialog::addText(QString text, gboolean is_from_server, guint32 packet_num)
 {
     if (save_as_ == true)
     {
-        //FILE *fh = (FILE *)arg;
         size_t nwritten;
         int FileDescriptor = file_.handle();
         FILE* fh = fdopen(dup(FileDescriptor), "wb");
@@ -496,34 +517,32 @@ void FollowStreamDialog::addText(QString text, gboolean is_from_server, guint32 
         truncated_ = true;
     }
 
-    QColor tagserver_fg = ColorUtils::fromColorT(prefs.st_server_fg);
-    QColor tagserver_bg = ColorUtils::fromColorT(prefs.st_server_bg);
-
-    QColor tagclient_fg = ColorUtils::fromColorT(prefs.st_client_fg);
-    QColor tagclient_bg = ColorUtils::fromColorT(prefs.st_client_bg);
-
+    setUpdatesEnabled(false);
+    int cur_pos = ui->teStreamContent->verticalScrollBar()->value();
     ui->teStreamContent->moveCursor(QTextCursor::End);
-    ui->teStreamContent->setCurrentFont(wsApp->monospaceFont());
-    if (is_from_server)
-    {
-        ui->teStreamContent->setTextColor(tagserver_fg);
-        ui->teStreamContent->setTextBackgroundColor(tagserver_bg);
+    QTextCharFormat tcf = ui->teStreamContent->currentCharFormat();
+    if (is_from_server) {
+        tcf.setForeground(ColorUtils::fromColorT(prefs.st_server_fg));
+        tcf.setBackground(ColorUtils::fromColorT(prefs.st_server_bg));
+    } else {
+        tcf.setForeground(ColorUtils::fromColorT(prefs.st_client_fg));
+        tcf.setBackground(ColorUtils::fromColorT(prefs.st_client_bg));
     }
-    else
-    {
-        ui->teStreamContent->setTextColor(tagclient_fg);
-        ui->teStreamContent->setTextBackgroundColor(tagclient_bg);
-    }
+    ui->teStreamContent->setCurrentCharFormat(tcf);
+
     ui->teStreamContent->insertPlainText(text);
-    ui->teStreamContent->moveCursor(QTextCursor::End);
     text_pos_to_packet_[ui->teStreamContent->textCursor().anchor()] = packet_num;
 
     if (truncated_) {
-        ui->teStreamContent->setTextBackgroundColor(ui->teStreamContent->palette().window().color());
-        ui->teStreamContent->setTextColor(ui->teStreamContent->palette().windowText().color());
+        tcf = ui->teStreamContent->currentCharFormat();
+        tcf.setBackground(palette().window().color());
+        tcf.setForeground(palette().windowText().color());
         ui->teStreamContent->insertPlainText(tr("\n[Stream output truncated]"));
         ui->teStreamContent->moveCursor(QTextCursor::End);
+    } else {
+        ui->teStreamContent->verticalScrollBar()->setValue(cur_pos);
     }
+    setUpdatesEnabled(true);
 }
 
 // The following keyboard shortcuts should work (although
@@ -609,7 +628,6 @@ FollowStreamDialog::showBuffer(char *buffer, size_t nchars, gboolean is_from_ser
         /* If our native arch is EBCDIC, call:
          * ASCII_TO_EBCDIC(buffer, nchars);
          */
-        sanitize_buffer(buffer, nchars);
         sanitize_buffer(buffer, nchars);
         QByteArray ba = QByteArray(buffer, (int)nchars);
         addText(ba, is_from_server, packet_num);
@@ -917,10 +935,12 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     setWindowSubtitle(tr("Follow %1 Stream (%2)").arg(proto_get_protocol_short_name(find_protocol_by_id(get_follow_proto_id(follower_))))
                                                  .arg(follow_filter));
 
+    ui->cbDirections->blockSignals(true);
     ui->cbDirections->clear();
     ui->cbDirections->addItem(both_directions_string);
     ui->cbDirections->addItem(client_to_server_string);
     ui->cbDirections->addItem(server_to_client_string);
+    ui->cbDirections->blockSignals(false);
 
     followStream();
     fillHintLabel(-1);
@@ -964,9 +984,13 @@ FollowStreamDialog::readFollowStream()
     GList* cur;
     frs_return_t frs_return;
     follow_record_t *follow_record;
-    char *buffer;
+    QElapsedTimer elapsed_timer;
+
+    elapsed_timer.start();
 
     for (cur = follow_info_.payload; cur; cur = g_list_next(cur)) {
+        if (dialogClosed()) break;
+
         follow_record = (follow_record_t *)cur->data;
         skip = FALSE;
         if (!follow_record->is_server) {
@@ -981,19 +1005,25 @@ FollowStreamDialog::readFollowStream()
             }
         }
 
+        QByteArray buffer;
         if (!skip) {
-            buffer = (char *)g_memdup(follow_record->data->data,
-                                      follow_record->data->len);
-
+            // We want a deep copy.
+            buffer.clear();
+            buffer.append((const char *) follow_record->data->data,
+                                     follow_record->data->len);
             frs_return = showBuffer(
-                        buffer,
+                        buffer.data(),
                         follow_record->data->len,
                         follow_record->is_server,
                         follow_record->packet_num,
                         global_pos);
-            g_free(buffer);
             if(frs_return == FRS_PRINT_ERROR)
                 return frs_return;
+            if (elapsed_timer.elapsed() > info_update_freq_) {
+                fillHintLabel(ui->teStreamContent->textCursor().position());
+                wsApp->processEvents();
+                elapsed_timer.start();
+            }
         }
     }
 

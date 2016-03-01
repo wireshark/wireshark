@@ -122,6 +122,12 @@ protected:
     // XXX Needs a getter?
     bool file_closed_;
 
+    /**
+     * @brief Check to see if the user has closed (and not minimized) the dialog.
+     * @return true if the dialog has been closed, false otherwise.
+     */
+    bool dialogClosed() { return dialog_closed_; }
+
 protected slots:
     /**
      * @brief Called when the capture file is about to close. This can be
@@ -139,7 +145,7 @@ private:
     QString subtitle_;
     QList<void *> tap_listeners_;
     int retap_depth_;
-    int dialog_closed_;
+    bool dialog_closed_;
 
 private slots:
 };

@@ -22,9 +22,9 @@
 #ifndef FOLLOW_STREAM_TEXT_H
 #define FOLLOW_STREAM_TEXT_H
 
-#include <QTextEdit>
+#include <QPlainTextEdit>
 
-class FollowStreamText : public QTextEdit
+class FollowStreamText : public QPlainTextEdit
 {
     Q_OBJECT
 public:

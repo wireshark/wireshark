@@ -115,7 +115,7 @@ follow_common_read_stream(follow_info_t *follow_info,
     GList* cur;
     frs_return_t frs_return;
     follow_record_t *follow_record;
-    char *buffer;
+    GByteArray *buffer = g_byte_array_new();
 
 
     for (cur = follow_info->payload; cur; cur = g_list_next(cur)) {
@@ -134,22 +134,25 @@ follow_common_read_stream(follow_info_t *follow_info,
         }
 
         if (!skip) {
-            buffer = (char *)g_memdup(follow_record->data->data,
+            g_byte_array_set_size(buffer, 0);
+            g_byte_array_append(buffer, follow_record->data->data,
                                      follow_record->data->len);
 
             frs_return = follow_show(follow_info, follow_print,
-                                     buffer,
+                                     buffer->data,
                                      follow_record->data->len,
                                      follow_record->is_server, arg,
                                      global_pos,
                                      &server_packet_count,
                                      &client_packet_count);
-            g_free(buffer);
-            if(frs_return == FRS_PRINT_ERROR)
+            if(frs_return == FRS_PRINT_ERROR) {
+                g_byte_array_free(buffer, TRUE);
                 return frs_return;
+            }
         }
     }
 
+    g_byte_array_free(buffer, TRUE);
     return FRS_OK;
 }
 
