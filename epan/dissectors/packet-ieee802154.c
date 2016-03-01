@@ -1806,7 +1806,7 @@ dissect_ieee802154_payload_mlme_sub_ie(tvbuff_t *tvb, packet_info *pinfo _U_, pr
             {
                 guint8  filter;
                 guint8  attr_len;
-                guint32 attr_bitmap;
+                guint32 attr_bitmap = 0;
 
                 if (psie_remaining == 0)  {
                     expert_add_info(pinfo, tree, &ei_ieee802154_ie_format_invalid);
