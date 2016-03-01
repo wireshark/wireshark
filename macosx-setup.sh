@@ -52,7 +52,7 @@ TARGET_PLATFORM=macx-clang
 # Some packages need xz to unpack their current source.
 # xz is not yet provided with OS X.
 #
-XZ_VERSION=5.0.4
+XZ_VERSION=5.0.8
 
 #
 # In case we want to build with cmake.
