@@ -2391,6 +2391,7 @@ if(BUILD_sshdump AND LIBSSH_FOUND)
 	set(sshdump_FILES
 		extcap/sshdump.c
 		extcap/extcap-base.c
+		extcap/ssh-base.c
 	)
 
 	add_executable(sshdump WIN32 ${sshdump_FILES})

@@ -88,10 +88,10 @@ randpktdump.exe	: $(LIBS_CHECK) ..\config.h randpktdump.obj extcap-base.obj $(ra
 !ENDIF
 
 !IFDEF LIBSSH_DIR
-sshdump.exe	: $(LIBS_CHECK) ..\config.h sshdump.obj extcap-base.obj $(sshdump_WSLIBS)
+sshdump.exe	: $(LIBS_CHECK) ..\config.h sshdump.obj extcap-base.obj ssh-base.obj $(sshdump_WSLIBS)
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:sshdump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS sshdump.obj extcap-base.obj $(sshdump_LIBS)
+		/OUT:sshdump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS sshdump.obj extcap-base.obj ssh-base.obj $(sshdump_LIBS)
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "sshdump.exe.manifest" -outputresource:sshdump.exe;1

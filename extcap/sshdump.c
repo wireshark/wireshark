@@ -26,18 +26,11 @@
 
 #include <extcap/extcap-base.h>
 #include <wsutil/interface.h>
+#include <extcap/ssh-base.h>
 
-#include <glib/gstdio.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <stdarg.h>
 #include <errno.h>
-#include <time.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <libssh/libssh.h>
 
 #ifndef STDERR_FILENO
 #define STDERR_FILENO 2
@@ -96,121 +89,6 @@ static struct option longopts[] = {
 };
 
 static char* interfaces_list_to_filter(GSList* if_list, const unsigned int remote_port);
-
-static void ssh_cleanup(ssh_session sshs, ssh_channel channel)
-{
-	if (channel) {
-		ssh_channel_send_eof(channel);
-		ssh_channel_close(channel);
-		ssh_channel_free(channel);
-	}
-
-	if (sshs) {
-		ssh_disconnect(sshs);
-		ssh_free(sshs);
-	}
-}
-
-static ssh_session create_ssh_connection(const char* hostname, const unsigned int port, const char* username,
-	const char* password, const char* sshkey_path, const char* sshkey_passphrase)
-{
-	ssh_session sshs;
-
-	/* Open session and set options */
-	sshs = ssh_new();
-	if (sshs == NULL) {
-		errmsg_print("Can't create ssh session");
-		return NULL;
-	}
-
-	if (!hostname)
-		return NULL;
-
-	if (ssh_options_set(sshs, SSH_OPTIONS_HOST, hostname)) {
-		errmsg_print("Can't set the hostname: %s", hostname);
-		goto failure;
-	}
-
-	if (port != 0) {
-		if (ssh_options_set(sshs, SSH_OPTIONS_PORT, &port)) {
-			errmsg_print("Can't set the port: %d", port);
-			goto failure;
-		}
-	}
-
-	if (!username)
-		username = g_get_user_name();
-
-	if (ssh_options_set(sshs, SSH_OPTIONS_USER, username)) {
-		errmsg_print("Can't set the username: %s", username);
-		goto failure;
-	}
-
-	verbose_print("Opening ssh connection to %s@%s:%u", username, hostname, port);
-
-	/* Connect to server */
-	if (ssh_connect(sshs) != SSH_OK) {
-		errmsg_print("Error connecting to %s@%s:%u (%s)", username, hostname, port,
-			ssh_get_error(sshs));
-		goto failure;
-	}
-
-#ifdef HAVE_LIBSSH_USERAUTH_AGENT
-	verbose_print("Connecting using ssh-agent...");
-	/* Try to authenticate using ssh agent */
-	if (ssh_userauth_agent(sshs, NULL) == SSH_AUTH_SUCCESS) {
-		verbose_print("done\n");
-		return sshs;
-	}
-	verbose_print("failed\n");
-#endif
-
-	/* If a public key path has been provided, try to authenticate using it */
-	if (sshkey_path) {
-		ssh_key pkey = ssh_key_new();
-		int ret;
-
-		verbose_print("Connecting using public key in %s...", sshkey_path);
-		ret = ssh_pki_import_privkey_file(sshkey_path, sshkey_passphrase, NULL, NULL, &pkey);
-
-		if (ret == SSH_OK) {
-			if (ssh_userauth_publickey(sshs, NULL, pkey) == SSH_AUTH_SUCCESS) {
-				verbose_print("done\n");
-				ssh_key_free(pkey);
-				return sshs;
-			}
-		}
-		ssh_key_free(pkey);
-		verbose_print("failed (%s)\n", ssh_get_error(sshs));
-	}
-
-	/* Try to authenticate using standard public key */
-	verbose_print("Connecting using standard public key...");
-	if (ssh_userauth_publickey_auto(sshs, NULL, NULL) == SSH_AUTH_SUCCESS) {
-		verbose_print("done\n");
-		return sshs;
-	}
-	verbose_print("failed\n");
-
-	/* If a password has been provided and all previous attempts failed, try to use it */
-	if (password) {
-		verbose_print("Connecting using password...");
-		if (ssh_userauth_password(sshs, username, password) == SSH_AUTH_SUCCESS) {
-			verbose_print("done\n");
-			return sshs;
-		}
-		verbose_print("failed\n");
-	}
-
-	errmsg_print("Can't find a valid authentication. Disconnecting.");
-
-	/* All authentication failed. Disconnect and return */
-	ssh_disconnect(sshs);
-
-failure:
-	ssh_free(sshs);
-	return NULL;
-}
 
 static void ssh_loop_read(ssh_channel channel, int fd)
 {
@@ -314,6 +192,7 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 	ssh_channel channel = NULL;
 	int fd = STDOUT_FILENO;
 	int ret = EXIT_FAILURE;
+	char* err_info = NULL;
 
 	if (g_strcmp0(fifo, "-")) {
 		/* Open or create the output file */
@@ -327,7 +206,7 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 		}
 	}
 
-	sshs = create_ssh_connection(hostname, port, username, password, sshkey, sshkey_passphrase);
+	sshs = create_ssh_connection(hostname, port, username, password, sshkey, sshkey_passphrase, &err_info);
 
 	if (!sshs)
 		goto cleanup;
@@ -341,8 +220,12 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 
 	ret = EXIT_SUCCESS;
 cleanup:
+	if (err_info)
+		errmsg_print("%s", err_info);
+	g_free(err_info);
+
 	/* clean up and exit */
-	ssh_cleanup(sshs, channel);
+	ssh_cleanup(&sshs, &channel);
 
 	if (g_strcmp0(fifo, "-"))
 		close(fd);
