@@ -420,9 +420,11 @@ void cf_timestamp_auto_precision(capture_file *cf);
  *
  * @param cf the capture file
  * @param print_args the arguments what and how to print
+ * @param show_progress_bar TRUE if a progress bar is to be shown
  * @return one of cf_print_status_t
  */
-cf_print_status_t cf_print_packets(capture_file *cf, print_args_t *print_args);
+cf_print_status_t cf_print_packets(capture_file *cf, print_args_t *print_args,
+                                   gboolean show_progress_bar);
 
 /**
  * Print (export) the capture file into PDML format.

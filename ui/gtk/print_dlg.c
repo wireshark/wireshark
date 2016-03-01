@@ -1109,7 +1109,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
       g_assert_not_reached();
       return;
     }
-    status = cf_print_packets(&cfile, args);
+    status = cf_print_packets(&cfile, args, TRUE);
   }
   switch (status) {
 

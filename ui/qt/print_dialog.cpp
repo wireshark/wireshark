@@ -145,6 +145,8 @@ gboolean PrintDialog::printHeader()
 
     if (page_pos_ > page_top) {
         if (in_preview_) {
+            // When generating a preview, only generate the first page;
+            // if we're past the first page, stop the printing process.
             return FALSE;
         }
         // Second and subsequent pages only
@@ -178,6 +180,8 @@ gboolean PrintDialog::printLine(int indent, const char *line)
 
     if (cur_printer_->pageRect().height() < page_pos_ + out_rect.height()) {
         if (in_preview_) {
+            // When generating a preview, only generate the first page;
+            // if we're past the first page, stop the printing process.
             return FALSE;
         }
         if (*line == '\0') { // Separator
@@ -257,12 +261,10 @@ void PrintDialog::printPackets(QPrinter *printer, bool in_preview)
                              QMessageBox::Ok);
         close();
     }
-    // cf_print_packets updates the progress bar which in turn calls
-    // WiresharkApplication::processEvents(), which can make the preview trip
-    // over itself.
-    preview_->setUpdatesEnabled(false);
-    cf_print_packets(cap_file_, &print_args_);
-    preview_->setUpdatesEnabled(true);
+    // Don't show a progress bar if we're previewing; if it takes a
+    // significant amount of time to generate a preview of the first
+    // page, We Have A Real Problem
+    cf_print_packets(cap_file_, &print_args_, in_preview ? FALSE : TRUE);
     cur_printer_ = NULL;
     cur_painter_ = NULL;
     painter.end();
