@@ -1977,7 +1977,8 @@ process_specified_records(capture_file *cf, packet_range_t *range,
     const char *string1, const char *string2, gboolean terminate_is_stop,
     gboolean (*callback)(capture_file *, frame_data *,
                          struct wtap_pkthdr *, const guint8 *, void *),
-    void *callback_args)
+    void *callback_args,
+    gboolean show_progress_bar)
 {
   guint32          framenum;
   frame_data      *fdata;
@@ -2023,7 +2024,7 @@ process_specified_records(capture_file *cf, packet_range_t *range,
        longer than the standard time to create it (otherwise, for a
        large file, we might take considerably longer than that standard
        time in order to get to the next progress bar step). */
-    if (progbar == NULL)
+    if (show_progress_bar && progbar == NULL)
       progbar = delayed_create_progress_dlg(cf->window, string1, string2,
                                             terminate_is_stop,
                                             &cf->stop_flag,
@@ -2158,7 +2159,7 @@ cf_retap_packets(capture_file *cf)
 
   ret = process_specified_records(cf, &range, "Recalculating statistics on",
                                   "all packets", TRUE, retap_packet,
-                                  &callback_args);
+                                  &callback_args, TRUE);
 
   epan_dissect_cleanup(&callback_args.edt);
 
@@ -2347,7 +2348,8 @@ fail:
 }
 
 cf_print_status_t
-cf_print_packets(capture_file *cf, print_args_t *print_args)
+cf_print_packets(capture_file *cf, print_args_t *print_args,
+                 gboolean show_progress_bar)
 {
   print_callback_args_t callback_args;
   gint          data_width;
@@ -2475,7 +2477,7 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
      told to print. */
   ret = process_specified_records(cf, &print_args->range, "Printing",
                                   "selected packets", TRUE, print_packet,
-                                  &callback_args);
+                                  &callback_args, show_progress_bar);
   epan_dissect_cleanup(&callback_args.edt);
   g_free(callback_args.header_line_buf);
   g_free(callback_args.line_buf);
@@ -2566,7 +2568,7 @@ cf_write_pdml_packets(capture_file *cf, print_args_t *print_args)
      told to print. */
   ret = process_specified_records(cf, &print_args->range, "Writing PDML",
                                   "selected packets", TRUE,
-                                  write_pdml_packet, &callback_args);
+                                  write_pdml_packet, &callback_args, TRUE);
 
   epan_dissect_cleanup(&callback_args.edt);
 
@@ -2648,7 +2650,7 @@ cf_write_psml_packets(capture_file *cf, print_args_t *print_args)
      told to print. */
   ret = process_specified_records(cf, &print_args->range, "Writing PSML",
                                   "selected packets", TRUE,
-                                  write_psml_packet, &callback_args);
+                                  write_psml_packet, &callback_args, TRUE);
 
   epan_dissect_cleanup(&callback_args.edt);
 
@@ -2728,7 +2730,7 @@ cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
      told to print. */
   ret = process_specified_records(cf, &print_args->range, "Writing CSV",
                                   "selected packets", TRUE,
-                                  write_csv_packet, &callback_args);
+                                  write_csv_packet, &callback_args, TRUE);
 
   epan_dissect_cleanup(&callback_args.edt);
 
@@ -2791,9 +2793,9 @@ cf_write_carrays_packets(capture_file *cf, print_args_t *print_args)
   /* Iterate through the list of packets, printing the packets we were
      told to print. */
   ret = process_specified_records(cf, &print_args->range,
-                  "Writing C Arrays",
-                  "selected packets", TRUE,
-                                  carrays_write_packet, &callback_args);
+                                  "Writing C Arrays",
+                                  "selected packets", TRUE,
+                                  carrays_write_packet, &callback_args, TRUE);
 
   epan_dissect_cleanup(&callback_args.edt);
 
@@ -4525,7 +4527,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
     callback_args.fname = fname;
     callback_args.file_type = save_format;
     switch (process_specified_records(cf, NULL, "Saving", "packets",
-                                      TRUE, save_record, &callback_args)) {
+                                      TRUE, save_record, &callback_args, TRUE)) {
 
     case PSP_FINISHED:
       /* Completed successfully. */
@@ -4763,7 +4765,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
   callback_args.fname = fname;
   callback_args.file_type = save_format;
   switch (process_specified_records(cf, range, "Writing", "specified records",
-                                    TRUE, save_record, &callback_args)) {
+                                    TRUE, save_record, &callback_args, TRUE)) {
 
   case PSP_FINISHED:
     /* Completed successfully. */

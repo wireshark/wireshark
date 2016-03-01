@@ -168,7 +168,7 @@ int ExportDissectionDialog::exec()
                 open_failure_alert_box(print_args_.file, errno, TRUE);
                 return QDialog::Rejected;
             }
-            status = cf_print_packets(cap_file_, &print_args_);
+            status = cf_print_packets(cap_file_, &print_args_, TRUE);
             break;
         case export_type_csv:       /* CSV */
             status = cf_write_csv_packets(cap_file_, &print_args_);
