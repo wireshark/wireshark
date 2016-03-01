@@ -690,8 +690,7 @@ static gint dissect_rtitcp_common(tvbuff_t *tvb, packet_info *pinfo,
 
     rtitcp_msg_length = tvb_get_guint16(tvb, offset+2, ENC_BIG_ENDIAN);
 
-    ti = proto_tree_add_item(tree, proto_rtitcp, tvb, offset,
-            rtitcp_msg_length + 8, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_rtitcp, tvb, offset, -1, ENC_NA);
     rtitcp_tree = proto_item_add_subtree(ti, ett_rtitcp);
 
     offset_header = 0; /* Remember the offset that delimits the header */
@@ -706,6 +705,7 @@ static gint dissect_rtitcp_common(tvbuff_t *tvb, packet_info *pinfo,
         header_length += 8; /* header increases in 8 bytes */
         offset += 8; /* Because of 0xCRC32 + actual CRC (4 bytes) */
     }
+    proto_item_set_len(ti, rtitcp_msg_length + header_length);
 
     /* At this point, offset is 8 or 16 bytes and we have now data.
        This data can be RTPS or RTI TCP Signaling messages */
@@ -743,7 +743,7 @@ static gint dissect_rtitcp_common(tvbuff_t *tvb, packet_info *pinfo,
 static guint get_rtitcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
         gint offset, void * data _U_) {
     guint16 plen;
-
+    guint16 header_length = 8;
     /*
     * Get the length of the RTITCP packet.
     */
@@ -751,13 +751,14 @@ static guint get_rtitcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
     /*
     * That length doesn't include the header field itself; add that in.
     */
-
+    if (tvb_get_ntohl(tvb, offset+8) == RTITCP_CRC_MAGIC_NUMBER)
+        header_length += 8;
     /* We don't expect plen to be greater than 0xfff8 since adding the header
      * exceeds the size */
     if (plen >= 0xfff8)
         return 1;
 
-    return plen + 8;
+    return plen + header_length;
 }
 static gint dissect_rtitcp(tvbuff_t *tvb, packet_info *pinfo,
                             proto_tree *tree, void *data _U_) {
