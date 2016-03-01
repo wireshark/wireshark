@@ -62,6 +62,7 @@ FLEXRAY Protocol dissector added (automotive bus)
 USB3 Vision Protocol (USB machine vision cameras)
 USBIP Protocol
 Open Mobile Alliance Lightweight Machine to Machine TLV payload Added (LwM2M TLV)
+Metamako trailers
 
 // Items in --sort-and-group-- blocks will be sorted and comma-separated.
 --sort-and-group--

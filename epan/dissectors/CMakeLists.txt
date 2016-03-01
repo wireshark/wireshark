@@ -914,6 +914,7 @@ set(DISSECTOR_SRC
 	packet-memcache.c
 	packet-mesh.c
 	packet-meta.c
+	packet-metamako.c
 	packet-mgcp.c
 	packet-mih.c
 	packet-mikey.c
