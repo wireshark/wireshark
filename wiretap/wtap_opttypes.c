@@ -169,7 +169,8 @@ void wtap_optionblock_free(wtap_optionblock_t block)
                 wtap_optionblock_free(if_stats);
             }
 
-            g_array_free(mand->interface_statistics, TRUE);
+            if (mand->interface_statistics)
+                g_array_free(mand->interface_statistics, TRUE);
         }
 
         g_free(block->mandatory_data);
