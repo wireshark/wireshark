@@ -21,31 +21,41 @@
 
 #include "follow_stream_text.h"
 
+#include <wireshark_application.h>
+
 #include <QMouseEvent>
 #include <QTextCursor>
 
+// To do:
+// - Draw text by hand similar to ByteViewText. This would let us add
+//   extra information, e.g. a timestamp column and get rid of
+//   max_document_length_ in FollowStreamDialog.
+
 FollowStreamText::FollowStreamText(QWidget *parent) :
-    QTextEdit(parent)
+    QPlainTextEdit(parent)
 {
     setMouseTracking(true);
+//    setMaximumBlockCount(1);
+    QTextDocument *text_doc = document();
+    text_doc->setDefaultFont(wsApp->monospaceFont());
 }
 
 void FollowStreamText::mouseMoveEvent(QMouseEvent *event)
 {
     emit mouseMovedToTextCursorPosition(cursorForPosition(event->pos()).position());
-    QTextEdit::mouseMoveEvent(event);
+    QPlainTextEdit::mouseMoveEvent(event);
 }
 
 void FollowStreamText::mousePressEvent(QMouseEvent *event)
 {
     emit mouseClickedOnTextCursorPosition(cursorForPosition(event->pos()).position());
-    QTextEdit::mousePressEvent(event);
+    QPlainTextEdit::mousePressEvent(event);
 }
 
 void FollowStreamText::leaveEvent(QEvent *event)
 {
     emit mouseMovedToTextCursorPosition(-1);
-    QTextEdit::leaveEvent(event);
+    QPlainTextEdit::leaveEvent(event);
 }
 
 /*
