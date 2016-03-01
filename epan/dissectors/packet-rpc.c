@@ -2638,7 +2638,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += 4;
 
 		/* Indicate the frame to which this is a reply. */
-		if(rpc_call && rpc_call->req_num){
+		if (rpc_call->req_num) {
 			proto_item *tmp_item;
 
 			tmp_item=proto_tree_add_uint_format(rpc_tree, hf_rpc_repframe,
@@ -2656,7 +2656,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 
-		if ((!rpc_call) || (rpc_call->rep_num == 0)) {
+		if (rpc_call->rep_num == 0) {
 			/* We have not yet seen a reply to that call, so
 			   this must be the first reply; remember its
 			   frame number. */
