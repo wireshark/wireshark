@@ -357,7 +357,7 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
             return INVALID_SOCKET;
         }
 #else
-    errmsg_print("ERROR: Cannot connect to ADB: <%s> Please check that adb daemon is running.", strerror(errno));
+    verbose_print("Cannot connect to ADB: <%s> Please check that adb daemon is running.", strerror(errno));
     closesocket(sock);
     return INVALID_SOCKET;
 #endif
