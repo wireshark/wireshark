@@ -119,7 +119,7 @@ static int hf_llcgprs_tom_data 	  = -1;
 static gint ett_llcgprs = -1;
 static gint ett_llcgprs_adf = -1;
 static gint ett_llcgprs_ctrlf = -1;
-static gint ett_ui = -1;
+static gint ett_llcgprs_ui = -1;
 static gint ett_llcgprs_sframe = -1;
 
 static expert_field ei_llcgprs_no_info_field = EI_INIT;
@@ -315,10 +315,8 @@ typedef enum {
 
 
 /* sub-dissector for XID data */
-static void llc_gprs_dissect_xid(tvbuff_t *tvb,
-								 packet_info *pinfo,
-								 proto_item *llcgprs_tree)
-
+static void
+llc_gprs_dissect_xid(tvbuff_t *tvb, packet_info *pinfo, proto_item *llcgprs_tree)
 {
 	guint8 xid_param_len = 0, byte1 = 0, byte2 = 0, item_len = 0, tmp = 0;
 	guint16 location = 0;
@@ -330,7 +328,7 @@ static void llc_gprs_dissect_xid(tvbuff_t *tvb,
 	info_len = tvb_reported_length(tvb);
 
 	xid_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, 0, info_len,
-				ett_ui, NULL, "Information Field: Length = %u", info_len);
+				ett_llcgprs_ui, NULL, "Information Field: Length = %u", info_len);
 
 	while (location < info_len)
 	{
@@ -374,7 +372,7 @@ static void llc_gprs_dissect_xid(tvbuff_t *tvb,
 			guint8 sndcp_xid_offset;
 
 			uinfo_tree = proto_tree_add_subtree(xid_tree, tvb, location, item_len,
-				ett_ui, NULL, "XID parameter Type: L3 parameters");
+				ett_llcgprs_ui, NULL, "XID parameter Type: L3 parameters");
 			proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_xl, tvb, location, 1, byte1);
 			proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_type, tvb, location, 1, byte1);
 			proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_len1, tvb, location, 1, byte1);
@@ -412,13 +410,13 @@ static void llc_gprs_dissect_xid(tvbuff_t *tvb,
 					value |= (guint32)tvb_get_guint8(tvb, location+i );
 				}
 				uinfo_tree = proto_tree_add_subtree_format(xid_tree, tvb, location, item_len,
-					ett_ui, NULL, "XID Parameter Type: %s - Value: %u",
+					ett_llcgprs_ui, NULL, "XID Parameter Type: %s - Value: %u",
 					val_to_str_ext_const(tmp, &xid_param_type_str_ext, "Reserved Type:%X"), value);
 			}
 			else
 			{
 				uinfo_tree = proto_tree_add_subtree_format(xid_tree, tvb, location, item_len,
-					ett_ui, NULL, "XID Parameter Type: %s",
+					ett_llcgprs_ui, NULL, "XID Parameter Type: %s",
 					val_to_str_ext_const(tmp, &xid_param_type_str_ext, "Reserved Type:%X"));
 			}
 			proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_xl, tvb, location,
@@ -457,7 +455,7 @@ static int
 dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint8 addr_fld=0, sapi=0, ctrl_fld_fb=0, frame_format, tmp=0;
-	guint16 offset=0 , epm = 0, nu=0, ctrl_fld_ui_s=0;
+	guint16 offset=0, epm = 0, nu=0, ctrl_fld_ui_s=0;
 	guint16 crc_length=0, llc_data_length=0;
 	proto_item *ti, *addres_field_item;
 	proto_tree *llcgprs_tree=NULL , *ad_f_tree =NULL, *ctrl_f_tree=NULL, *ui_tree=NULL;
@@ -736,7 +734,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			       val_to_str(tmp, cr_formats_unnumb, "Unknown/invalid code:%X"));
 
 		ui_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset, (llc_data_length-1),
-						    ett_ui, NULL, "Unnumbered frame: %s",
+						    ett_llcgprs_ui, NULL, "Unnumbered frame: %s",
 						    val_to_str(tmp, cr_formats_unnumb, "Unknown/invalid code:%X"));
 
 		proto_tree_add_uint(ui_tree, hf_llcgprs_Un, tvb, offset, 1, ctrl_fld_fb);
@@ -1065,10 +1063,10 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 				int location = 0;
 
 				ui_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset, (llc_data_length-2),
-							    ett_ui, NULL, "Information Field: Length = %u", info_len);
+							    ett_llcgprs_ui, NULL, "Information Field: Length = %u", info_len);
 
 				uinfo_tree = proto_tree_add_subtree(ui_tree, tvb, offset, 6,
-								  ett_ui, NULL, "Rejected Frame Control Field");
+								  ett_llcgprs_ui, NULL, "Rejected Frame Control Field");
 
 				location = offset;
 				for (loop_counter = 0; loop_counter < 3; loop_counter++)
@@ -1082,7 +1080,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 				}
 
 				uinfo_tree = proto_tree_add_subtree(ui_tree, tvb, location, 4,
-								  ett_ui, NULL, "Information Field Data");
+								  ett_llcgprs_ui, NULL, "Information Field Data");
 
 				fld_vars = tvb_get_ntohl(tvb, location);
 				proto_tree_add_uint(uinfo_tree, hf_llcgprs_frmr_spare, tvb, location,
@@ -1150,7 +1148,7 @@ proto_register_llcgprs(void)
 		    NULL, UI_MASK_FMT, "UI frame format", HFILL}},
 
 		{ &hf_llcgprs_Un,
-		  { "U format", "llcgprs.u", FT_UINT8, BASE_DEC,
+		  { "U format", "llcgprs.u", FT_UINT8, BASE_HEX,
 		    NULL, 0xe0, "U frame format", HFILL}},
 
 		{ &hf_llcgprs_sp_bits,
@@ -1186,7 +1184,7 @@ proto_register_llcgprs(void)
 		    NULL, UI_MASK_NU, "Receive sequence number N(R)", HFILL }},
 
 		{&hf_llcgprs_S_fmt,
-		 { "S format", "llcgprs.s", FT_UINT16, BASE_DEC,
+		 { "S format", "llcgprs.s", FT_UINT16, BASE_HEX,
 		   NULL, 0xc000, "Supervisory format S", HFILL}},
 
 		{&hf_llcgprs_kmask,
@@ -1313,7 +1311,7 @@ proto_register_llcgprs(void)
 		&ett_llcgprs,
 		&ett_llcgprs_adf,
 		&ett_llcgprs_ctrlf,
-		&ett_ui,
+		&ett_llcgprs_ui,
 		&ett_llcgprs_sframe,
 	};
 
