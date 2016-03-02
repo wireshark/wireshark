@@ -6,6 +6,7 @@
 INCLUDE(FindCygwin)
 
 INCLUDE(FindWSWinLibs)
+FindWSWinLibs("fop-2.1" "FOP21_HINTS")
 FindWSWinLibs("fop-2.0" "FOP20_HINTS")
 FindWSWinLibs("fop-1.1" "FOP11_HINTS")
 FindWSWinLibs("fop-1.0" "FOP10_HINTS")
