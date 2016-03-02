@@ -145,6 +145,7 @@ static int hf_usb_device_wFeatureSelector = -1;
 static int hf_usb_interface_wFeatureSelector = -1;
 static int hf_usb_endpoint_wFeatureSelector = -1;
 static int hf_usb_wInterface = -1;
+static int hf_usb_wEndpoint = -1;
 static int hf_usb_wStatus = -1;
 static int hf_usb_wFrameNumber = -1;
 
@@ -1509,34 +1510,39 @@ dissect_usb_setup_clear_feature_request(packet_info *pinfo _U_, proto_tree *tree
     if (usb_conv_info) {
         recip = USB_RECIPIENT(usb_conv_info->usb_trans_info->setup.requesttype);
 
-        /* feature selector */
+        /* feature selector, zero/interface/endpoint */
         switch (recip) {
         case RQT_SETUP_RECIPIENT_DEVICE:
             proto_tree_add_item(tree, hf_usb_device_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(tree, hf_usb_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             break;
 
         case RQT_SETUP_RECIPIENT_INTERFACE:
             proto_tree_add_item(tree, hf_usb_interface_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(tree, hf_usb_wInterface, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             break;
 
         case RQT_SETUP_RECIPIENT_ENDPOINT:
             proto_tree_add_item(tree, hf_usb_endpoint_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(tree, hf_usb_wEndpoint, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             break;
 
         case RQT_SETUP_RECIPIENT_OTHER:
         default:
             proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(tree, hf_usb_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             break;
         }
     } else {
         /* No conversation information, so recipient type is unknown */
         proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+        proto_tree_add_item(tree, hf_usb_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     }
-    offset += 2;
-
-    /* zero/interface/endpoint */
-    /* XXX - check based on request type */
-    proto_tree_add_item(tree, hf_usb_wInterface, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     /* length */
@@ -2482,8 +2488,29 @@ dissect_usb_setup_get_status_request(packet_info *pinfo _U_, proto_tree *tree,
     offset += 2;
 
     /* zero/interface/endpoint */
-    /* XXX - check based on request type */
-    proto_tree_add_item(tree, hf_usb_wInterface, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    if (usb_conv_info) {
+        guint8 recip;
+
+        recip = USB_RECIPIENT(usb_conv_info->usb_trans_info->setup.requesttype);
+
+        switch (recip) {
+        case RQT_SETUP_RECIPIENT_INTERFACE:
+            proto_tree_add_item(tree, hf_usb_wInterface, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            break;
+
+        case RQT_SETUP_RECIPIENT_ENDPOINT:
+            proto_tree_add_item(tree, hf_usb_wEndpoint, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            break;
+
+        case RQT_SETUP_RECIPIENT_DEVICE:
+        case RQT_SETUP_RECIPIENT_OTHER:
+        default:
+            proto_tree_add_item(tree, hf_usb_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            break;
+        }
+    } else {
+        proto_tree_add_item(tree, hf_usb_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    }
     offset += 2;
 
     /* length */
@@ -2596,34 +2623,39 @@ dissect_usb_setup_set_feature_request(packet_info *pinfo _U_, proto_tree *tree,
     if (usb_conv_info) {
         recip = USB_RECIPIENT(usb_conv_info->usb_trans_info->setup.requesttype);
 
-        /* feature selector */
+        /* feature selector, zero/interface/endpoint */
         switch (recip) {
         case RQT_SETUP_RECIPIENT_DEVICE:
             proto_tree_add_item(tree, hf_usb_device_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(tree, hf_usb_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             break;
 
         case RQT_SETUP_RECIPIENT_INTERFACE:
             proto_tree_add_item(tree, hf_usb_interface_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(tree, hf_usb_wInterface, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             break;
 
         case RQT_SETUP_RECIPIENT_ENDPOINT:
             proto_tree_add_item(tree, hf_usb_endpoint_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(tree, hf_usb_wEndpoint, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             break;
 
         case RQT_SETUP_RECIPIENT_OTHER:
         default:
             proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(tree, hf_usb_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             break;
         }
     } else {
         /* No conversation information, so recipient type is unknown */
         proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+        proto_tree_add_item(tree, hf_usb_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     }
-    offset += 2;
-
-    /* zero/interface/endpoint or test selector */
-    /* XXX - check based on request type */
-    proto_tree_add_item(tree, hf_usb_wInterface, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     /* zero */
@@ -2717,8 +2749,7 @@ dissect_usb_setup_synch_frame_request(packet_info *pinfo _U_, proto_tree *tree,
     offset += 2;
 
     /* endpoint */
-    /* XXX */
-    proto_tree_add_item(tree, hf_usb_wInterface, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_usb_wEndpoint, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     /* two */
@@ -4760,6 +4791,11 @@ proto_register_usb(void)
 
         { &hf_usb_wInterface,
           { "wInterface", "usb.setup.wInterface",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_wEndpoint,
+          { "wEndpoint", "usb.setup.wEndpoint",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
