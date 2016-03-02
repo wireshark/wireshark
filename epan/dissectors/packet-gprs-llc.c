@@ -73,7 +73,7 @@ static int hf_llcgprs_isack_sfb   = -1;
 static int hf_llcgprs_rbyte 	  = -1;
 static int hf_llcgprs_kmask 	  = -1;
 static int hf_llcgprs_ifmt 	  = -1;
-static int hf_llcgprs_ia 	  = -1;
+static int hf_llcgprs_Ai 	  = -1;
 static int hf_llcgprs_izerobit 	  = -1;
 static int hf_llcgprs_sspare 	  = -1;
 static int hf_llcgprs_xid_xl 	  = -1;
@@ -200,62 +200,62 @@ static const value_string pme[] = {
 	{ 1, "protected, non-ciphered information" },
 	{ 2, "unprotected,ciphered information"},
 	{ 3, "protected, ciphered information" },
-	{ 0, NULL},
+	{ 0, NULL }
 };
 
 static const value_string xid_param_type_str[] = {
-	{0x0, "Version (LLC version number)"},
-	{0x1, "IOV-UI (ciphering Input offset value for UI frames)"},
-	{0x2, "IOV-I (ciphering Input offset value for I frames)"},
-	{0x3, "T200 (retransmission timeout)"},
-	{0x4, "N200 (max number of retransmissions)"},
-	{0x5, "N201-U (max info field length for U and UI frames)"},
-	{0x6, "N201-I (max info field length for I frames)"},
-	{0x7, "mD (I frame buffer size in the DL direction)"},
-	{0x8, "mU (I frame buffer size in the UL direction)"},
-	{0x9, "kD (window size in the DL direction)"},
-	{0xA, "kU (window size in the UL direction)"},
-	{0xB, "Layer-3 Parameters"},
-	{0xC, "Reset"},
-	{0, NULL}
+	{ 0x0, "Version (LLC version number)" },
+	{ 0x1, "IOV-UI (ciphering Input offset value for UI frames)" },
+	{ 0x2, "IOV-I (ciphering Input offset value for I frames)" },
+	{ 0x3, "T200 (retransmission timeout)" },
+	{ 0x4, "N200 (max number of retransmissions)" },
+	{ 0x5, "N201-U (max info field length for U and UI frames)" },
+	{ 0x6, "N201-I (max info field length for I frames)" },
+	{ 0x7, "mD (I frame buffer size in the DL direction)" },
+	{ 0x8, "mU (I frame buffer size in the UL direction)" },
+	{ 0x9, "kD (window size in the DL direction)" },
+	{ 0xA, "kU (window size in the UL direction)" },
+	{ 0xB, "Layer-3 Parameters" },
+	{ 0xC, "Reset" },
+	{ 0, NULL }
 };
 static value_string_ext xid_param_type_str_ext = VALUE_STRING_EXT_INIT(xid_param_type_str);
 
 static const value_string tompd_formats[] = {
-	{0x0, "Not specified"},
-	{0x1, "TIA/EIA-136"},
-	{0x2, "RRLP"},
-	{0x3, "Reserved value 3"},
-	{0x4, "Reserved value 4"},
-	{0x5, "Reserved value 5"},
-	{0x6, "Reserved value 6"},
-	{0x7, "Reserved value 7"},
-	{0x8, "Reserved value 8"},
-	{0x9, "Reserved value 9"},
-	{0xA, "Reserved value 10"},
-	{0xB, "Reserved value 11"},
-	{0xC, "Reserved value 12"},
-	{0xD, "Reserved value 13"},
-	{0xE, "Reserved value 14"},
-	{0xF, "Reserved for extension"},
-	{0, NULL}
+	{ 0x0, "Not specified" },
+	{ 0x1, "TIA/EIA-136" },
+	{ 0x2, "RRLP" },
+	{ 0x3, "Reserved value 3" },
+	{ 0x4, "Reserved value 4" },
+	{ 0x5, "Reserved value 5" },
+	{ 0x6, "Reserved value 6" },
+	{ 0x7, "Reserved value 7" },
+	{ 0x8, "Reserved value 8" },
+	{ 0x9, "Reserved value 9" },
+	{ 0xA, "Reserved value 10" },
+	{ 0xB, "Reserved value 11" },
+	{ 0xC, "Reserved value 12" },
+	{ 0xD, "Reserved value 13" },
+	{ 0xE, "Reserved value 14" },
+	{ 0xF, "Reserved for extension" },
+	{ 0, NULL }
 };
 
 static const value_string cr_formats_unnumb[]= {
-	{  0x1, "DM-response" },
-	{  0x4, "DISC-command" },
-	{  0x6, "UA-response" },
-	{  0x7, "SABM" },
-	{  0x8, "FRMR" },
+	{ 0x1, "DM-response" },
+	{ 0x4, "DISC-command" },
+	{ 0x6, "UA-response" },
+	{ 0x7, "SABM" },
+	{ 0x8, "FRMR" },
 	{ 0xb, "XID" },
-	{ 0, NULL },
+	{ 0, NULL }
 };
 static const value_string cr_formats_ipluss[] = {
 	{ 0x0, "RR" },
 	{ 0x1, "ACK" },
 	{ 0x2, "RNR" },
 	{ 0x3, "SACK" },
-	{ 0, NULL },
+	{ 0, NULL }
 };
 
 /* CRC24 table - FCS */
@@ -568,7 +568,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			/* retrieve the second octet */
 			tmpx = tvb_get_ntohs(tvb, offset)  << 16;
 			proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_ifmt, tvb, offset, 3, tmpx);
-			proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_ia, tvb, offset, 3, tmpx);
+			proto_tree_add_boolean(ctrl_f_tree, hf_llcgprs_Ai, tvb, offset, 3, tmpx);
 			proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_izerobit, tvb, offset, 3, tmpx);
 
 			tmpx = ns << 12;
@@ -1131,13 +1131,13 @@ proto_register_llcgprs(void)
 		  { "FCS", "llcgprs.fcs", FT_UINT24, BASE_HEX,
 		    NULL, 0, NULL, HFILL }},
 
-		{&hf_llcgprs_sjsd,
-		 { "Supervisory function bits", "llcgprs.s1s2", FT_UINT16, BASE_HEX,
-		   VALS(cr_formats_ipluss), 0x3, NULL, HFILL }},
+		{ &hf_llcgprs_sjsd,
+		  { "Supervisory function bits", "llcgprs.s1s2", FT_UINT16, BASE_HEX,
+		    VALS(cr_formats_ipluss), 0x3, NULL, HFILL }},
 
 		{ &hf_llcgprs_cr,
 		  { "Command/Response bit", "llcgprs.cr", FT_BOOLEAN, 8,
-		    TFS(&cr_bit), 0x40, NULL, HFILL}},
+		    TFS(&cr_bit), 0x40, NULL, HFILL }},
 
 		{ &hf_llcgprs_sapib,
 		  { "SAPI", "llcgprs.sapib", FT_UINT8, BASE_DEC|BASE_EXT_STRING ,
@@ -1145,19 +1145,19 @@ proto_register_llcgprs(void)
 
 		{ &hf_llcgprs_U_fmt,
 		  { "UI format", "llcgprs.ui", FT_UINT16, BASE_HEX,
-		    NULL, UI_MASK_FMT, "UI frame format", HFILL}},
+		    NULL, UI_MASK_FMT, "UI frame format", HFILL }},
 
 		{ &hf_llcgprs_Un,
 		  { "U format", "llcgprs.u", FT_UINT8, BASE_HEX,
-		    NULL, 0xe0, "U frame format", HFILL}},
+		    NULL, 0xe0, "U frame format", HFILL }},
 
 		{ &hf_llcgprs_sp_bits,
 		  { "Spare bits", "llcgprs.ui_sp_bit", FT_UINT16, BASE_HEX,
-		    NULL, UI_MASK_SPB, NULL, HFILL}},
+		    NULL, UI_MASK_SPB, NULL, HFILL }},
 
 		{ &hf_llcgprs_NU,
 		  { "N(U)", "llcgprs.nu", FT_UINT16, BASE_DEC,
-		    NULL, UI_MASK_NU, "Transmitted unconfirmed sequence number", HFILL}},
+		    NULL, UI_MASK_NU, "Transmitted unconfirmed sequence number", HFILL }},
 
 		{ &hf_llcgprs_E_bit,
 		  { "E bit", "llcgprs.e", FT_BOOLEAN, 16,
@@ -1165,15 +1165,15 @@ proto_register_llcgprs(void)
 
 		{ &hf_llcgprs_PM_bit,
 		  { "PM bit", "llcgprs.pm", FT_BOOLEAN, 16,
-		    TFS(&pm_bit), UI_MASK_PM, "Protected mode bit", HFILL}},
+		    TFS(&pm_bit), UI_MASK_PM, "Protected mode bit", HFILL }},
 
 		{ &hf_llcgprs_As,
 		  { "Ackn request bit", "llcgprs.as", FT_BOOLEAN, 16,
-		    TFS(&a_bit), 0x2000 , "Acknowledgement request bit A", HFILL}},
+		    TFS(&a_bit), 0x2000 , "Acknowledgement request bit A", HFILL }},
 
 		{ &hf_llcgprs_PF,
 		  { "P/F bit", "llcgprs.pf", FT_BOOLEAN, 8,
-		    NULL, 0x10, "Poll/Final bit", HFILL}},
+		    NULL, 0x10, "Poll/Final bit", HFILL }},
 
 		{ &hf_llcgprs_ucom,
 		  { "Command/Response", "llcgprs.ucom", FT_UINT8, BASE_HEX,
@@ -1183,127 +1183,127 @@ proto_register_llcgprs(void)
 		  { "Receive sequence number", "llcgprs.nr", FT_UINT16, BASE_DEC,
 		    NULL, UI_MASK_NU, "Receive sequence number N(R)", HFILL }},
 
-		{&hf_llcgprs_S_fmt,
-		 { "S format", "llcgprs.s", FT_UINT16, BASE_HEX,
-		   NULL, 0xc000, "Supervisory format S", HFILL}},
+		{ &hf_llcgprs_S_fmt,
+		  { "S format", "llcgprs.s", FT_UINT16, BASE_HEX,
+		    NULL, 0xc000, "Supervisory format S", HFILL }},
 
-		{&hf_llcgprs_kmask,
-		 { "ignored", "llcgprs.kmask", FT_UINT8,
-		   BASE_DEC, NULL, 0xE0, NULL, HFILL}},
+		{ &hf_llcgprs_kmask,
+		  { "ignored", "llcgprs.kmask", FT_UINT8, BASE_DEC,
+		    NULL, 0xE0, NULL, HFILL }},
 
-		{&hf_llcgprs_k,
-		 { "k", "llcgprs.k", FT_UINT8, BASE_DEC,
-		   NULL, 0x1F, "k counter", HFILL}},
+		{ &hf_llcgprs_k,
+		  { "k", "llcgprs.k", FT_UINT8, BASE_DEC,
+		    NULL, 0x1F, "k counter", HFILL }},
 
-		{&hf_llcgprs_isack_ns,
-		 { "N(S)", "llcgprs.sackns", FT_UINT24, BASE_DEC,
-		   NULL, 0x1FF000, NULL, HFILL}},
+		{ &hf_llcgprs_isack_ns,
+		  { "N(S)", "llcgprs.sackns", FT_UINT24, BASE_DEC,
+		    NULL, 0x1FF000, NULL, HFILL }},
 
-		{&hf_llcgprs_isack_nr,
-		 { "N(R)", "llcgprs.sacknr", FT_UINT24, BASE_DEC,
-		   NULL, 0x0007FC, NULL, HFILL}},
+		{ &hf_llcgprs_isack_nr,
+		  { "N(R)", "llcgprs.sacknr", FT_UINT24, BASE_DEC,
+		    NULL, 0x0007FC, NULL, HFILL }},
 
-		{&hf_llcgprs_isack_sfb,
-		 { "Supervisory function bits", "llcgprs.sacksfb", FT_UINT24, BASE_HEX,
-		   VALS(cr_formats_ipluss), 0x000003, NULL, HFILL }},
+		{ &hf_llcgprs_isack_sfb,
+		  { "Supervisory function bits", "llcgprs.sacksfb", FT_UINT24, BASE_HEX,
+		    VALS(cr_formats_ipluss), 0x000003, NULL, HFILL }},
 
-		{&hf_llcgprs_ifmt,
-		 { "I Format", "llcgprs.ifmt", FT_UINT24, BASE_DEC,
-		   NULL, 0x800000, "I Fmt Bit", HFILL}},
+		{ &hf_llcgprs_ifmt,
+		  { "I Format", "llcgprs.ifmt", FT_UINT24, BASE_HEX,
+		    NULL, 0x800000, "I Fmt Bit", HFILL }},
 
-		{&hf_llcgprs_ia,
-		 { "Ack Bit", "llcgprs.ia", FT_UINT24, BASE_DEC,
-		   NULL, 0x400000, "I A Bit", HFILL}},
+		{ &hf_llcgprs_Ai,
+		  { "Ackn request bit", "llcgprs.ai", FT_BOOLEAN, 24,
+		    TFS(&a_bit), 0x400000, "Acknowledgement request bit A", HFILL }},
 
-		{&hf_llcgprs_izerobit,
-		 { "Spare", "llcgprs.iignore", FT_UINT24, BASE_DEC,
-		   NULL, 0x200000, "Ignore Bit", HFILL}},
+		{ &hf_llcgprs_izerobit,
+		  { "Spare", "llcgprs.iignore", FT_UINT24, BASE_DEC,
+		    NULL, 0x200000, "Ignore Bit", HFILL }},
 
-		{&hf_llcgprs_sspare,
-		 { "Spare", "llcgprs.sspare", FT_UINT16, BASE_DEC,
-		   NULL, 0x1800, "Ignore Bit", HFILL}},
+		{ &hf_llcgprs_sspare,
+		  { "Spare", "llcgprs.sspare", FT_UINT16, BASE_DEC,
+		    NULL, 0x1800, "Ignore Bit", HFILL }},
 
-		{&hf_llcgprs_rbyte,
-		 { "R Bitmap Bits", "llcgprs.sackrbits", FT_UINT8, BASE_HEX,
-		   NULL, 0xFF, "R Bitmap", HFILL}},
+		{ &hf_llcgprs_rbyte,
+		  { "R Bitmap Bits", "llcgprs.sackrbits", FT_UINT8, BASE_HEX,
+		    NULL, 0xFF, "R Bitmap", HFILL }},
 
 		/* XID Parameter Parsing Info */
-		{&hf_llcgprs_xid_xl,
-		 { "XL Bit", "llcgprs.xidxl", FT_UINT8,
-		   BASE_HEX, NULL, 0x80, "XL", HFILL}},
+		{ &hf_llcgprs_xid_xl,
+		  { "XL Bit", "llcgprs.xidxl", FT_UINT8, BASE_HEX,
+		    NULL, 0x80, "XL", HFILL }},
 
-		{&hf_llcgprs_xid_type,
-		 { "Type", "llcgprs.xidtype", FT_UINT8, BASE_DEC,
-		   NULL, 0x7C, NULL, HFILL}},
+		{ &hf_llcgprs_xid_type,
+		  { "Type", "llcgprs.xidtype", FT_UINT8, BASE_DEC,
+		    NULL, 0x7C, NULL, HFILL }},
 
-		{&hf_llcgprs_xid_len1,
-		 { "Length", "llcgprs.xidlen1", FT_UINT8, BASE_DEC,
-		   NULL, 0x03, NULL, HFILL}},
+		{ &hf_llcgprs_xid_len1,
+		  { "Length", "llcgprs.xidlen1", FT_UINT8, BASE_DEC,
+		    NULL, 0x03, NULL, HFILL }},
 
-		{&hf_llcgprs_xid_len2,
-		 { "Length continued", "llcgprs.xidlen2", FT_UINT8, BASE_DEC,
-		   NULL, 0xFC, NULL, HFILL}},
+		{ &hf_llcgprs_xid_len2,
+		  { "Length continued", "llcgprs.xidlen2", FT_UINT8, BASE_DEC,
+		    NULL, 0xFC, NULL, HFILL }},
 
-		{&hf_llcgprs_xid_spare,
-		 { "Spare", "llcgprs.xidspare", FT_UINT8, BASE_HEX,
-		   NULL, 0x03, "Ignore", HFILL}},
+		{ &hf_llcgprs_xid_spare,
+		  { "Spare", "llcgprs.xidspare", FT_UINT8, BASE_HEX,
+		    NULL, 0x03, "Ignore", HFILL }},
 
-		{&hf_llcgprs_xid_byte,
-		 { "Parameter Byte", "llcgprs.xidbyte", FT_UINT8, BASE_HEX,
-		   NULL, 0xFF, "Data", HFILL}},
+		{ &hf_llcgprs_xid_byte,
+		  { "Parameter Byte", "llcgprs.xidbyte", FT_UINT8, BASE_HEX,
+		    NULL, 0xFF, "Data", HFILL }},
 
 		/* FRMR Parsing Information */
-		{&hf_llcgprs_frmr_cf,
-		 { "Control Field Octet", "llcgprs.frmrrfcf", FT_UINT16,
-		   BASE_DEC, NULL, 0xFFFF, "Rejected Frame CF", HFILL}},
+		{ &hf_llcgprs_frmr_cf,
+		  { "Control Field Octet", "llcgprs.frmrrfcf", FT_UINT16, BASE_DEC,
+		    NULL, 0xFFFF, "Rejected Frame CF", HFILL }},
 
-		{&hf_llcgprs_frmr_spare,
-		 { "X", "llcgprs.frmrspare", FT_UINT32, BASE_HEX,
-		   NULL, 0xF00400F0, "Filler", HFILL}},
+		{ &hf_llcgprs_frmr_spare,
+		  { "X", "llcgprs.frmrspare", FT_UINT32, BASE_HEX,
+		    NULL, 0xF00400F0, "Filler", HFILL }},
 
-		{&hf_llcgprs_frmr_vs,
-		 { "V(S)", "llcgprs.frmrvs", FT_UINT32, BASE_DEC,
-		   NULL, 0x0FF80000, "Current send state variable", HFILL}},
+		{ &hf_llcgprs_frmr_vs,
+		  { "V(S)", "llcgprs.frmrvs", FT_UINT32, BASE_DEC,
+		    NULL, 0x0FF80000, "Current send state variable", HFILL }},
 
-		{&hf_llcgprs_frmr_vr,
-		 { "V(R)", "llcgprs.frmrvr", FT_UINT32, BASE_DEC,
-		   NULL, 0x0003FE00, "Current receive state variable", HFILL}},
+		{ &hf_llcgprs_frmr_vr,
+		  { "V(R)", "llcgprs.frmrvr", FT_UINT32, BASE_DEC,
+		    NULL, 0x0003FE00, "Current receive state variable", HFILL }},
 
-		{&hf_llcgprs_frmr_cr,
-		 { "C/R", "llcgprs.frmrcr", FT_UINT32, BASE_DEC,
-		   NULL, 0x00000100, "Rejected command response", HFILL}},
+		{ &hf_llcgprs_frmr_cr,
+		  { "C/R", "llcgprs.frmrcr", FT_UINT32, BASE_DEC,
+		    NULL, 0x00000100, "Rejected command response", HFILL }},
 
-		{&hf_llcgprs_frmr_w4,
-		 { "W4", "llcgprs.frmrw4", FT_UINT32, BASE_DEC,
-		   NULL, 0x00000008, "LLE was in ABM when rejecting", HFILL}},
+		{ &hf_llcgprs_frmr_w4,
+		  { "W4", "llcgprs.frmrw4", FT_UINT32, BASE_DEC,
+		    NULL, 0x00000008, "LLE was in ABM when rejecting", HFILL }},
 
-		{&hf_llcgprs_frmr_w3,
-		 { "W3", "llcgprs.frmrw3", FT_UINT32, BASE_DEC,
-		   NULL, 0x00000004, "Undefined control field", HFILL}},
+		{ &hf_llcgprs_frmr_w3,
+		  { "W3", "llcgprs.frmrw3", FT_UINT32, BASE_DEC,
+		    NULL, 0x00000004, "Undefined control field", HFILL }},
 
-		{&hf_llcgprs_frmr_w2,
-		 { "W2", "llcgprs.frmrw2", FT_UINT32, BASE_DEC,
-		   NULL, 0x00000002, "Info exceeded N201", HFILL}},
+		{ &hf_llcgprs_frmr_w2,
+		  { "W2", "llcgprs.frmrw2", FT_UINT32, BASE_DEC,
+		    NULL, 0x00000002, "Info exceeded N201", HFILL }},
 
-		{&hf_llcgprs_frmr_w1,
-		 { "W1", "llcgprs.frmrw1", FT_UINT32, BASE_DEC,
-		   NULL, 0x00000001, "Invalid - info not permitted", HFILL}},
+		{ &hf_llcgprs_frmr_w1,
+		  { "W1", "llcgprs.frmrw1", FT_UINT32, BASE_DEC,
+		    NULL, 0x00000001, "Invalid - info not permitted", HFILL }},
 
-		{&hf_llcgprs_tom_rl,
-		 { "Remaining Length of TOM Protocol Header", "llcgprs.romrl", FT_UINT8, BASE_DEC,
-		   NULL, 0xF0, "RL", HFILL}},
+		{ &hf_llcgprs_tom_rl,
+		  { "Remaining Length of TOM Protocol Header", "llcgprs.romrl", FT_UINT8, BASE_DEC,
+		    NULL, 0xF0, "RL", HFILL }},
 
-		{&hf_llcgprs_tom_pd,
-		 { "TOM Protocol Discriminator", "llcgprs.tompd", FT_UINT8, BASE_HEX,
-		   NULL, 0x0F, "TPD", HFILL}},
+		{ &hf_llcgprs_tom_pd,
+		  { "TOM Protocol Discriminator", "llcgprs.tompd", FT_UINT8, BASE_HEX,
+		    NULL, 0x0F, "TPD", HFILL }},
 
-		{&hf_llcgprs_tom_header,
-		 { "TOM Header Byte", "llcgprs.tomhead", FT_UINT8, BASE_HEX,
-		   NULL, 0xFF, "thb", HFILL}},
+		{ &hf_llcgprs_tom_header,
+		  { "TOM Header Byte", "llcgprs.tomhead", FT_UINT8, BASE_HEX,
+		    NULL, 0xFF, "thb", HFILL }},
 
-		{&hf_llcgprs_tom_data,
-		 { "TOM Message Capsule Byte", "llcgprs.tomdata", FT_UINT8, BASE_HEX,
-		   NULL, 0xFF, "tdb", HFILL}},
+		{ &hf_llcgprs_tom_data,
+		  { "TOM Message Capsule Byte", "llcgprs.tomdata", FT_UINT8, BASE_HEX,
+		    NULL, 0xFF, "tdb", HFILL }},
 	};
 
 /* Setup protocol subtree array */
