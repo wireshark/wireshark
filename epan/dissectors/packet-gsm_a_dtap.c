@@ -7718,7 +7718,7 @@ proto_register_gsm_a_dtap(void)
             NULL, HFILL }
         },
         { &hf_gsm_a_dtap_bearer_cap_coding_standard,
-          { "Coding standard", "gsm_a.dtap.coding_standard",
+          { "Coding standard", "gsm_a.dtap.cap_coding_standard",
             FT_BOOLEAN, 8, TFS(&tfs_bearer_cap_coding_standard), 0x10,
             NULL, HFILL }
         },

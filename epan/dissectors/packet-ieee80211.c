@@ -12588,7 +12588,7 @@ dissect_rm_enabled_capabilities_ie(packet_info *pinfo, proto_tree *tree,
 
   if (tag_len != 5)
   {
-    expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "RM Enabled Capabilities length %u wrong, must = 4", tag_len);
+    expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "RM Enabled Capabilities length %u wrong, must = 5", tag_len);
     return offset;
   }
   proto_item_append_text(ti, " (%d octets)", tag_len);
