@@ -12500,7 +12500,7 @@ dissect_bss_ac_access_delay_ie(tvbuff_t *tvb, packet_info *pinfo,
                                     proto_tree *tree, int offset, guint32 tag_len, proto_item *ti_len)
 {
 
-  if (tag_len == 4) {
+  if (tag_len != 4) {
     expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "BSS AC Access Delay length %u wrong, must = 4", tag_len);
     return offset;
