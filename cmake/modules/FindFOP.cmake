@@ -21,6 +21,7 @@ FIND_PROGRAM(FOP_EXECUTABLE
     /usr/local/bin
     /sbin
   HINTS
+    ${FOP21_HINTS}
     ${FOP20_HINTS}
     ${FOP11_HINTS}
     ${FOP10_HINTS}
