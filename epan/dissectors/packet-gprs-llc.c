@@ -318,12 +318,13 @@ typedef enum {
 static void
 llc_gprs_dissect_xid(tvbuff_t *tvb, packet_info *pinfo, proto_item *llcgprs_tree)
 {
-	guint8 xid_param_len = 0, byte1 = 0, byte2 = 0, item_len = 0, tmp = 0;
-	guint16 location = 0;
-	guint16 loop_counter = 0;
+	guint8 xid_param_len = 0, byte1 = 0, byte2 = 0, tmp = 0;
+	guint item_len = 0;
+	guint location = 0;
+	guint loop_counter = 0;
 	proto_tree *uinfo_tree = NULL;
 	proto_tree *xid_tree = NULL;
-	guint16 info_len;
+	guint info_len;
 
 	info_len = tvb_reported_length(tvb);
 
@@ -454,13 +455,14 @@ llc_gprs_dissect_xid(tvbuff_t *tvb, packet_info *pinfo, proto_item *llcgprs_tree
 static int
 dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+	guint offset = 0;
 	guint8 addr_fld=0, sapi=0, ctrl_fld_fb=0, frame_format, tmp=0;
-	guint16 offset=0, epm = 0, nu=0, ctrl_fld_ui_s=0;
-	guint16 crc_length=0, llc_data_length=0;
+	guint16 epm = 0, nu=0, ctrl_fld_ui_s=0;
 	proto_item *ti, *addres_field_item;
 	proto_tree *llcgprs_tree=NULL , *ad_f_tree =NULL, *ctrl_f_tree=NULL, *ui_tree=NULL;
 	tvbuff_t *next_tvb;
 	guint length, captured_length;
+	guint crc_length = 0, llc_data_length;
 	guint32 fcs=0;
 	guint32 fcs_calc=0;
 	fcs_status_t fcs_status;
@@ -468,7 +470,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	guint16 nr = 0;
 	guint8 k = 0;
 	guint8 m_bits = 0;
-	guint8 info_len = 0;
+	guint info_len;
 	proto_tree *uinfo_tree = NULL;
 	gboolean ciphered_ui_frame = FALSE;
 
@@ -603,7 +605,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			{
 				guint8 loop_count = 0;
 				guint8 r_byte = 0;
-				guint16 location = offset;
+				guint location = offset;
 
 				ctrl_f_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, (offset-1),
 								      (k+1), ett_llcgprs_sframe, NULL, "SACK FRAME: k = %u", k);
@@ -1104,7 +1106,6 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		default:
 			break;
 		}
-		crc_length = llc_data_length;
 		break;
 	}
 
