@@ -463,7 +463,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 {
 	guint8 addr_fld=0, sapi=0, ctrl_fld_fb=0, frame_format, tmp=0;
 	guint16 offset=0 , epm = 0, nu=0, ctrl_fld_ui_s=0;
-	guint16 crc_length=0, llc_data_reported_length=0, llc_data_length = 0;
+	guint16 crc_length=0, llc_data_length=0, llc_data_captured_length = 0;
 	proto_item *ti, *addres_field_item;
 	proto_tree *llcgprs_tree=NULL , *ad_f_tree =NULL, *ctrl_f_tree=NULL, *ui_tree=NULL;
 	tvbuff_t *next_tvb;
@@ -507,11 +507,11 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		frame_format = (ctrl_fld_fb < 0xe0 )? UI_FORMAT : U_FORMAT;
 	}
 	length = tvb_reported_length(tvb);
-	captured_length = llc_data_length = tvb_captured_length(tvb);
-	if(llc_data_length==length){
-		llc_data_length = length - CRC_LENGTH;
+	captured_length = llc_data_captured_length = tvb_captured_length(tvb);
+	if(llc_data_captured_length==length){
+		llc_data_captured_length = length - CRC_LENGTH;
 	}
-	llc_data_reported_length = length - CRC_LENGTH; /* llc_data_reported_length includes the header and the payload */
+	llc_data_length = length - CRC_LENGTH; /* llc_data_length includes the header and the payload */
 	if (captured_length >= length && length >= CRC_LENGTH)
 	{
 		/*
@@ -544,16 +544,16 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		if ((epm & UI_MASK_PM)== 0)
 		{
 			/* FCS covers at maximum the LLC header and N202 bytes */
-			crc_length = MIN(UI_HDR_LENGTH + N202, llc_data_reported_length);
+			crc_length = MIN(UI_HDR_LENGTH + N202, llc_data_length);
 		}
 		else
 		{
-			crc_length = llc_data_reported_length;
+			crc_length = llc_data_length;
 		}
 	}
 	else
 	{
-		crc_length = llc_data_reported_length;
+		crc_length = llc_data_length;
 	}
 	if(fcs_status == FCS_VALID)
 	{
@@ -561,7 +561,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		fcs_calc = ~fcs_calc;
 		fcs_calc &= 0xffffff;
 
-		fcs = tvb_get_letoh24(tvb, llc_data_reported_length);
+		fcs = tvb_get_letoh24(tvb, llc_data_length);
 		if ( fcs_calc == fcs )
 		{
 			fcs_status = FCS_VALID;
@@ -595,17 +595,17 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		switch (fcs_status) {
 
 		case FCS_VALID:
-			proto_tree_add_uint_format_value(llcgprs_tree, hf_llcgprs_fcs, tvb, llc_data_reported_length, CRC_LENGTH,
+			proto_tree_add_uint_format_value(llcgprs_tree, hf_llcgprs_fcs, tvb, llc_data_length, CRC_LENGTH,
 				fcs_calc&0xffffff, "0x%06x (correct)", fcs_calc&0xffffff);
 			break;
 
 		case FCS_NOT_VALID:
-			proto_tree_add_uint_format_value(llcgprs_tree, hf_llcgprs_fcs, tvb, llc_data_reported_length, CRC_LENGTH,
+			proto_tree_add_uint_format_value(llcgprs_tree, hf_llcgprs_fcs, tvb, llc_data_length, CRC_LENGTH,
 				fcs, "0x%06x  (incorrect, should be 0x%06x)", fcs, fcs_calc );
 			break;
 
 		case FCS_NOT_VALID_DUE_TO_CIPHERING:
-			proto_tree_add_uint_format_value(llcgprs_tree, hf_llcgprs_fcs, tvb, llc_data_reported_length, CRC_LENGTH,
+			proto_tree_add_uint_format_value(llcgprs_tree, hf_llcgprs_fcs, tvb, llc_data_length, CRC_LENGTH,
 				fcs, "0x%06x  (incorrect, maybe due to ciphering, calculated 0x%06x)", fcs, fcs_calc );
 			break;
 
@@ -723,7 +723,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 				tom_pd = tom_byte & 0x0F;
 
 				ctrl_f_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset,
-								      (llc_data_reported_length-offset), ett_llcgprs_sframe, NULL,
+								      (llc_data_length-offset), ett_llcgprs_sframe, NULL,
 								      "TOM Envelope - Protocol: %s",
 								      val_to_str(tom_pd, tompd_formats, "Unknown (%d)"));
 
@@ -748,7 +748,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 						offset++;
 					}
 
-					remaining_length = llc_data_reported_length - offset;
+					remaining_length = llc_data_length - offset;
 
 					/* parse the TOM message capsule */
 					for (loop_counter = 0; loop_counter < remaining_length; loop_counter++)
@@ -767,7 +767,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		else
 		{
 			/* otherwise - call a subdissector */
-			next_tvb = tvb_new_subset(tvb, offset, (llc_data_length-offset), (llc_data_reported_length-offset));
+			next_tvb = tvb_new_subset(tvb, offset, (llc_data_captured_length-offset), (llc_data_length-offset));
 			if (!dissector_try_uint(llcgprs_subdissector_table, sapi, next_tvb, pinfo, tree))
 				/* if no subdissector is found, call the data dissector */
 			{
@@ -808,7 +808,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			/* It is a SACK frame */
 		{
 			/* TODO: length is fudged - it is not correct */
-			guint32 sack_length = llc_data_reported_length - offset;
+			guint32 sack_length = llc_data_length - offset;
 
 			if (tree)
 			{
@@ -847,7 +847,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 				tom_pd = tom_byte & 0x0F;
 
 				ctrl_f_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset,
-								      (llc_data_reported_length-offset), ett_llcgprs_sframe, NULL,
+								      (llc_data_length-offset), ett_llcgprs_sframe, NULL,
 								      "TOM Envelope - Protocol: %s",
 								      val_to_str(tom_pd, tompd_formats, "Unknown (%d)"));
 
@@ -872,7 +872,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 					}
 
 					/* Amount of frame left from offset to crc */
-					remaining_length = llc_data_reported_length - offset;
+					remaining_length = llc_data_length - offset;
 
 					/* parse the TOM message capsule */
 					for (loop_counter = 0; loop_counter < remaining_length; loop_counter++)
@@ -887,10 +887,10 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 				}
 			}
 		}
-		else if (llc_data_reported_length>offset)
+		else if (llc_data_length>offset)
 		{
 			/* otherwise - call a subdissector */
-			next_tvb = tvb_new_subset(tvb, offset, (llc_data_length-offset), (llc_data_reported_length-offset));
+			next_tvb = tvb_new_subset(tvb, offset, (llc_data_captured_length-offset), (llc_data_length-offset));
 			if (!dissector_try_uint(llcgprs_subdissector_table, sapi, next_tvb, pinfo, tree))
 			{
 				call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -921,7 +921,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		}
 
 		/* MLT CHANGES - TOM parsing added */
-		next_tvb = tvb_new_subset(tvb, offset, (llc_data_length-offset), (llc_data_reported_length-offset));
+		next_tvb = tvb_new_subset(tvb, offset, (llc_data_captured_length-offset), (llc_data_length-offset));
 
 		if ((ignore_cipher_bit && (fcs_status == FCS_VALID)) || !(epm & 0x2))
 		{
@@ -948,7 +948,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 					tom_pd = tom_byte & 0x0F;
 
 					ctrl_f_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset,
-									      (llc_data_reported_length-offset), ett_llcgprs_sframe, NULL,
+									      (llc_data_length-offset), ett_llcgprs_sframe, NULL,
 									      "TOM Envelope - Protocol: %s",
 									      val_to_str(tom_pd, tompd_formats, "Unknown (%d)"));
 
@@ -974,7 +974,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 						}
 
 						/* Amount of frame left from offset to crc */
-						remaining_length = llc_data_reported_length - offset;
+						remaining_length = llc_data_length - offset;
 
 						/* parse the TOM message capsule */
 						for (loop_counter = 0; loop_counter < remaining_length; loop_counter++)
@@ -990,7 +990,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 					}
 				}
 			}
-			else if (llc_data_reported_length>offset)
+			else if (llc_data_length>offset)
 			{
 				/* otherwise - call a subdissector */
 				if (!dissector_try_uint(llcgprs_subdissector_table, sapi, next_tvb, pinfo, tree))
@@ -1015,7 +1015,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		col_append_str(pinfo->cinfo, COL_INFO,
 			       val_to_str(tmp, cr_formats_unnumb, "Unknown/invalid code:%X"));
 
-		ui_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, (offset-1), (llc_data_reported_length-1),
+		ui_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, (offset-1), (llc_data_length-1),
 						    ett_ui, NULL, "Unnumbered frame: %s",
 						    val_to_str(tmp, cr_formats_unnumb, "Unknown/invalid code:%X"));
 
@@ -1026,7 +1026,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		/* MLT CHANGES - parse rest of the message based on type (M Bits) */
 		m_bits = ctrl_fld_fb & 0x0F;
 
-		info_len = llc_data_reported_length - offset;
+		info_len = llc_data_length - offset;
 
 		switch (m_bits)
 		{
@@ -1034,7 +1034,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		case U_DISC:
 		case U_NULL:
 			/* These frames SHOULD NOT have an info field */
-			proto_tree_add_expert(llcgprs_tree, pinfo, &ei_llcgprs_no_info_field, tvb, offset, (llc_data_reported_length-2));
+			proto_tree_add_expert(llcgprs_tree, pinfo, &ei_llcgprs_no_info_field, tvb, offset, (llc_data_length-2));
 			break;
 		case U_UA:
 			/* This frame MAY or MAY NOT have an info field */
@@ -1068,7 +1068,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 				int loop_counter = 0;
 				int location = 0;
 
-				ui_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset, (llc_data_reported_length-2),
+				ui_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset, (llc_data_length-2),
 							    ett_ui, NULL, "Information Field: Length = %u", info_len);
 
 				uinfo_tree = proto_tree_add_subtree(ui_tree, tvb, offset, 6,
