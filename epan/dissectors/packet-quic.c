@@ -666,7 +666,7 @@ static guint32 get_len_offset(guint8 frame_type){
             len = 5;
         break;
         case 5:
-            len = 5;
+            len = 6;
         break;
         case 6:
             len = 7;
