@@ -195,11 +195,13 @@ static void extcap_print_version(extcap_parameters * extcap)
 static gint extcap_iface_listall(extcap_parameters * extcap, uint8_t list_ifs)
 {
     if (list_ifs) {
-	extcap_print_version(extcap);
-	g_list_foreach(extcap->interfaces, extcap_iface_print, extcap);
+        if (g_list_length(extcap->interfaces) > 0) {
+            extcap_print_version(extcap);
+            g_list_foreach(extcap->interfaces, extcap_iface_print, extcap);
+        }
     } else {
-	if (extcap->do_version) {
-	    extcap_print_version(extcap);
+        if (extcap->do_version) {
+            extcap_print_version(extcap);
 	} else {
 	    GList * element = NULL;
 	    extcap_interface * iface = NULL;
