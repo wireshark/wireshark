@@ -1288,7 +1288,7 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
 /* Close a file */
 void
 file_close_cmd_cb(GtkWidget *widget _U_, gpointer data _U_) {
-  do_file_close(&cfile, FALSE, "");
+  (void)do_file_close(&cfile, FALSE, "");
 }
 
 #define RESPONSE_DISCARD_COMMENTS_AND_SAVE 1
