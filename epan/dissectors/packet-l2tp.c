@@ -1622,7 +1622,7 @@ static int dissect_l2tp_broadband_avps(tvbuff_t *tvb, packet_info *pinfo _U_, pr
         l2tp_avp_ale_tree = proto_item_add_subtree(ta, ett_l2tp_ale_sub);
         proto_tree_add_item(l2tp_avp_ale_tree, hf_l2tp_broadband_access_loop_encapsulation_data_link, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(l2tp_avp_ale_tree, hf_l2tp_broadband_access_loop_encapsulation_enc1, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(l2tp_avp_ale_tree, hf_l2tp_broadband_access_loop_encapsulation_enc1, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(l2tp_avp_ale_tree, hf_l2tp_broadband_access_loop_encapsulation_enc2, tvb, offset+2, 1, ENC_BIG_ENDIAN);
         }
         break;
 
@@ -2260,7 +2260,7 @@ static void process_control_avps(tvbuff_t *tvb,
             l2tp_avp_csu_tree = proto_item_add_subtree(tc, ett_l2tp_csu);
             if (avp_len == 12) {
                 /* L2TPv2 */
-                proto_tree_add_item(l2tp_avp_csu_tree, hf_l2tp_avp_csu_res, tvb, idx, 2, ENC_NA);
+                proto_tree_add_item(l2tp_avp_csu_tree, hf_l2tp_avp_csu_res, tvb, idx, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(l2tp_avp_csu_tree, hf_l2tp_avp_csu_remote_session_id_v2, tvb, idx+2, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(l2tp_avp_csu_tree, hf_l2tp_avp_csu_current_tx_speed_v2, tvb, idx+4, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(l2tp_avp_csu_tree, hf_l2tp_avp_csu_current_rx_speed_v2, tvb, idx+8, 4, ENC_BIG_ENDIAN);
@@ -3284,7 +3284,7 @@ proto_register_l2tp(void)
             NULL, HFILL }},
 
         { &hf_l2tp_avp_csu_remote_session_id_v2,
-          { "Remote Session ID", "l2tp.avp.csu.res", FT_UINT16, BASE_HEX, NULL, 0x0,
+          { "Remote Session ID", "l2tp.avp.csu.res", FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_l2tp_avp_csu_current_tx_speed_v2,
@@ -3296,7 +3296,7 @@ proto_register_l2tp(void)
             "Current RX Connect Speed in bps", HFILL }},
 
         { &hf_l2tp_avp_csu_remote_session_id_v3,
-          { "Remote Session ID", "l2tp.avp.csu.res", FT_UINT32, BASE_HEX, NULL, 0x0,
+          { "Remote Session ID", "l2tp.avp.csu.res", FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_l2tp_avp_csu_current_tx_speed_v3,
