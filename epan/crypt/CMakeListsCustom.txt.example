@@ -20,14 +20,6 @@
 #
 # You can add custom builtin dissectors here by replaceing foo with your dissectors name.
 
-set(CUSTOM_DISSECTOR_SRC
-#	dissectors/packet-foo.c
-)
-
-set(CUSTOM_DIRTY_ASN1_DISSECTOR_SRC
-#	dissectors/packet-foo.c
-)
-
 set(CUSTOM_CRYPT_SRC
-#	crypt/foo.c
+#	foo.c
 )

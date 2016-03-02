@@ -19,6 +19,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+ADD_CUSTOM_CMAKE_INCLUDE()
+
 add_subdirectory(dcerpc)
 
 include_directories(

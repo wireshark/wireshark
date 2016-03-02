@@ -1,4 +1,4 @@
-# CMakeLists.txt
+# CMakeListsCustom.txt
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -18,50 +18,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
+# You can add custom builtin dissectors here by replaceing foo with your dissectors name.
 
-ADD_CUSTOM_CMAKE_INCLUDE()
-
-include_directories(
-	${CMAKE_CURRENT_BINARY_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}
+set(CUSTOM_DISSECTOR_SRC
+#	packet-foo.c
 )
 
-set(CRYPT_FILES
-	airpdcap.c
-	airpdcap_ccmp.c
-	airpdcap_debug.c
-	airpdcap_rijndael.c
-	airpdcap_tkip.c
-	${CUSTOM_CRYPT_SRC}
+set(CUSTOM_DIRTY_ASN1_DISSECTOR_SRC
+#	packet-bar.c
 )
-source_group(crypt FILES ${CRYPT_FILES})
-
-if(WERROR_COMMON_FLAGS)
-	set_source_files_properties(
-		${CRYPT_FILES}
-		PROPERTIES
-		COMPILE_FLAGS ${WERROR_COMMON_FLAGS}
-	)
-endif()
-
-add_library(crypt OBJECT
-	${CRYPT_FILES}
-)
-
-set_target_properties(crypt PROPERTIES
-	FOLDER "Libs/epan/crypt"
-	COMPILE_DEFINITIONS "WS_BUILD_DLL"
-)
-
-#
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
-#
-# Local variables:
-# c-basic-offset: 8
-# tab-width: 8
-# indent-tabs-mode: t
-# End:
-#
-# vi: set shiftwidth=8 tabstop=8 noexpandtab:
-# :indentSize=8:tabSize=8:noTabs=false:
-#

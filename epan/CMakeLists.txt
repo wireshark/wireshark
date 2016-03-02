@@ -21,8 +21,6 @@
 
 include(UseABICheck)
 
-ADD_CUSTOM_CMAKE_INCLUDE()
-
 if (HAVE_HFI_SECTION_INIT)
 	add_definitions(
 		-DHAVE_HFI_SECTION_INIT
