@@ -427,12 +427,10 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
     set_address_tvb(&pinfo->net_src, get_osi_address_type(), src_len, tvb, offset);
     copy_address_shallow(&pinfo->src, &pinfo->net_src);
-    proto_tree_add_bytes_format_value(clnp_tree, hf_clnp_src, tvb,
-            offset, src_len,
+    proto_tree_add_bytes_format_value(clnp_tree, hf_clnp_src, tvb, offset, src_len,
             NULL,
             "%s",
             print_nsap_net(tvb, offset, src_len));
-
     offset += src_len;
     opt_len -= src_len;
 
