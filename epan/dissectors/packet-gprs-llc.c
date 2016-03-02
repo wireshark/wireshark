@@ -914,6 +914,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 		/* END MLT CHANGES */
+		break;
 
 	case UI_FORMAT:
 		/* nu and epm calculated before FCS check for UI frame */
