@@ -49,10 +49,17 @@
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
+#include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/strnatcmp.h>
 #include <wsutil/ws_diag_control.h>
 #include <wsutil/ws_version_info.h>
+
+#ifdef HAVE_PLUGINS
+#include <wsutil/plugins.h>
+#endif
+
+#include <wsutil/report_err.h>
 
 #include <wiretap/merge.h>
 #include <wiretap/pcap-encap.h>
@@ -124,6 +131,19 @@ string_elem_print(gpointer data, gpointer not_used _U_)
   fprintf(stderr, "    %s - %s\n", ((struct string_elem *)data)->sstr,
           ((struct string_elem *)data)->lstr);
 }
+
+#ifdef HAVE_PLUGINS
+/*
+ *  Don't report failures to load plugins because most (non-wiretap) plugins
+ *  *should* fail to load (because we're not linked against libwireshark and
+ *  dissector plugins need libwireshark).
+ */
+static void
+failure_message(const char *msg_format _U_, va_list ap _U_)
+{
+  return;
+}
+#endif
 
 static void
 list_capture_types(void) {
@@ -279,6 +299,10 @@ main(int argc, char *argv[])
   gboolean            use_stdout         = FALSE;
   merge_progress_callback_t cb;
 
+#ifdef HAVE_PLUGINS
+  char  *init_progfile_dir_error;
+#endif
+
   cmdarg_err_init(mergecap_cmdarg_err, mergecap_cmdarg_err_cont);
 
 #ifdef _WIN32
@@ -299,6 +323,25 @@ main(int argc, char *argv[])
        "\n"
        "%s",
     get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
+
+#ifdef HAVE_PLUGINS
+  if ((init_progfile_dir_error = init_progfile_dir(argv[0], main))) {
+    g_warning("captype: init_progfile_dir(): %s", init_progfile_dir_error);
+    g_free(init_progfile_dir_error);
+  } else {
+    /* Register all the plugin types we have. */
+    wtap_register_plugin_types(); /* Types known to libwiretap */
+
+    init_report_err(failure_message,NULL,NULL,NULL);
+
+    /* Scan for plugins.  This does *not* call their registration routines;
+       that's done later. */
+    scan_plugins();
+
+    /* Register all libwiretap plugin modules. */
+    register_all_wiretap_modules();
+  }
+#endif
 
   /* Process the options first */
   while ((opt = getopt_long(argc, argv, "aF:hI:s:vVw:", long_options, NULL)) != -1) {

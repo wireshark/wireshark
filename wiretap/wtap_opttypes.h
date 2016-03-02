@@ -29,7 +29,8 @@ typedef enum {
     WTAP_OPTION_BLOCK_IF_DESCR = 0,
     WTAP_OPTION_BLOCK_IF_STATS,
     WTAP_OPTION_BLOCK_NG_SECTION,
-    WTAP_OPTION_BLOCK_NG_NRB
+    WTAP_OPTION_BLOCK_NG_NRB,
+    WTAP_OPTION_BLOCK_MAX_TYPE
 } wtap_optionblock_type_t;
 
 /* Currently supported option types */
