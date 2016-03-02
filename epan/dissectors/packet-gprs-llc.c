@@ -767,7 +767,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		else
 		{
 			/* otherwise - call a subdissector */
-			next_tvb = tvb_new_subset(tvb, offset, (llc_data_captured_length-offset), (llc_data_length-offset));
+			next_tvb = tvb_new_subset_length(tvb, offset, (llc_data_length-offset));
 			if (!dissector_try_uint(llcgprs_subdissector_table, sapi, next_tvb, pinfo, tree))
 				/* if no subdissector is found, call the data dissector */
 			{
@@ -890,7 +890,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		else if (llc_data_length>offset)
 		{
 			/* otherwise - call a subdissector */
-			next_tvb = tvb_new_subset(tvb, offset, (llc_data_captured_length-offset), (llc_data_length-offset));
+			next_tvb = tvb_new_subset_length(tvb, offset, (llc_data_length-offset));
 			if (!dissector_try_uint(llcgprs_subdissector_table, sapi, next_tvb, pinfo, tree))
 			{
 				call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -921,7 +921,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		}
 
 		/* MLT CHANGES - TOM parsing added */
-		next_tvb = tvb_new_subset(tvb, offset, (llc_data_captured_length-offset), (llc_data_length-offset));
+		next_tvb = tvb_new_subset_length(tvb, offset, (llc_data_length-offset));
 
 		if ((ignore_cipher_bit && (fcs_status == FCS_VALID)) || !(epm & 0x2))
 		{
