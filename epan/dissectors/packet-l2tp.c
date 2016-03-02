@@ -143,9 +143,19 @@ static int hf_l2tp_broadband_actual_interleaving_delay_up = -1;
 static int hf_l2tp_broadband_maximum_interleaving_delay_down = -1;
 static int hf_l2tp_broadband_actual_interleaving_delay_down = -1;
 static int hf_l2tp_broadband_access_loop_encapsulation = -1;
+static int hf_l2tp_broadband_access_loop_encapsulation_data_link = -1;
+static int hf_l2tp_broadband_access_loop_encapsulation_enc1 = -1;
+static int hf_l2tp_broadband_access_loop_encapsulation_enc2 = -1;
 static int hf_l2tp_broadband_ancp_access_line_type = -1;
 static int hf_l2tp_broadband_iwf_session = -1;
-
+static int hf_l2tp_avp_csu = -1;
+static int hf_l2tp_avp_csu_res = -1;
+static int hf_l2tp_avp_csu_remote_session_id_v2 = -1;
+static int hf_l2tp_avp_csu_current_tx_speed_v2 = -1;
+static int hf_l2tp_avp_csu_current_rx_speed_v2 = -1;
+static int hf_l2tp_avp_csu_remote_session_id_v3 = -1;
+static int hf_l2tp_avp_csu_current_tx_speed_v3 = -1;
+static int hf_l2tp_avp_csu_current_rx_speed_v3 = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_l2tp_cisco_pw_type = -1;
@@ -261,8 +271,10 @@ static gint ett_l2tp = -1;
 static gint ett_l2tp_ctrl = -1;
 static gint ett_l2tp_avp = -1;
 static gint ett_l2tp_avp_sub = -1;
+static gint ett_l2tp_ale_sub = -1;
 static gint ett_l2tp_lcp = -1;
 static gint ett_l2tp_l2_spec = -1;
+static gint ett_l2tp_csu = -1;
 
 static expert_field ei_l2tp_incorrect_digest = EI_INIT;
 /* Generated from convert_proto_tree_add_text.pl */
@@ -327,6 +339,8 @@ static gint l2tpv3_l2_specific = -1;
 #define MESSAGE_TYPE_MSE          25
 #define MESSAGE_TYPE_MSI          26
 #define MESSAGE_TYPE_MSEN         27
+#define MESSAGE_TYPE_CSUN         28
+#define MESSAGE_TYPE_CSURQ        29
 
 static const value_string message_type_vals[] = {
     { MESSAGE_TYPE_SCCRQ,       "Start_Control_Request" },
@@ -358,6 +372,8 @@ static const value_string message_type_vals[] = {
     { MESSAGE_TYPE_MSE,         "Multicast-Session-Establishment" },
     { MESSAGE_TYPE_MSI,         "Multicast-Session-Information" },
     { MESSAGE_TYPE_MSEN,        "Multicast-Session-End-Notify" },
+    { MESSAGE_TYPE_CSUN,        "Connect-Speed-Update-Notification" },
+    { MESSAGE_TYPE_CSURQ,       "Connect-Speed-Update-Request" },
     { 0,                        NULL },
 };
 static value_string_ext message_type_vals_ext = VALUE_STRING_EXT_INIT(message_type_vals);
@@ -392,6 +408,8 @@ static const value_string l2tp_message_type_short_str_vals[] = {
     { MESSAGE_TYPE_MSE,         "MSE" },
     { MESSAGE_TYPE_MSI,         "MSI" },
     { MESSAGE_TYPE_MSEN,        "MSEN" },
+    { MESSAGE_TYPE_CSUN,        "CSUN" },
+    { MESSAGE_TYPE_CSURQ,       "CSURQ" },
     { 0,                        NULL },
 };
 static value_string_ext l2tp_message_type_short_str_vals_ext = VALUE_STRING_EXT_INIT(l2tp_message_type_short_str_vals);
@@ -579,6 +597,7 @@ static const value_string error_code_vals[] = {
 #define  CTL_MSG_AUTH_NONCE           73
 #define  TX_CONNECT_SPEED_V3          74
 #define  RX_CONNECT_SPEED_V3          75
+#define  CONNECT_SPEED_UPDATE         97
 
 /* http://www.iana.org/assignments/l2tp-parameters/l2tp-parameters.xhtml */
 #define NUM_AVP_TYPES                 102
@@ -663,7 +682,7 @@ static const value_string avp_type_vals[] = {
     { 94,                           "Maximum Receive Unit (MRU)" },                     /*[RFC4623] */
     { 95,                           "Maximum Reassembled Receive Unit (MRRU)" },        /*[RFC4623] */
     { 96,                           "VCCV Capability" },                                /*[RFC5085] */
-    { 97,                           "Connect Speed Update" },                           /*[RFC5515] */
+    { CONNECT_SPEED_UPDATE,         "Connect Speed Update" },                           /*[RFC5515] */
     { 98,                           "Connect Speed Update Enable" },                    /*[RFC5515] */
     { 99,                           "TDM Pseudowire" },                                 /*[RFC5611] */
     { 100,                          "RTP AVP" },                                        /*[RFC5611] */
@@ -805,6 +824,49 @@ static const value_string pw_types_vals[] = {
     { 0x0017,  "CESoPSN TDM with CAS" },                /* [RFC5611]  */
 
     { 0,  NULL },
+};
+
+static const value_string ale_datalink_types_vals[] = {
+    { 0x00,  "ATM AAL5" },
+    { 0x01,  "Ethernet" },
+    { 0,     NULL },
+};
+
+static const value_string ale_enc1_types_vals[] = {
+    { 0x00,  "NA - Not Available" },
+    { 0x01,  "Untagged Ethernet" },
+    { 0x02,  "Single-Tagged Ethernet" },
+    { 0,     NULL },
+};
+
+static const value_string ale_enc2_types_vals[] = {
+    { 0x00,  "NA - Not Available" },
+    { 0x01,  "PPPoA LLC" },
+    { 0x02,  "PPPoA Null" },
+    { 0x03,  "IP over ATM (IPoA) LLC" },
+    { 0x04,  "IPoA Null" },
+    { 0x05,  "Ethernet over AAL5 LLC with Frame Check Sequence (FCS)" },
+    { 0x06,  "Ethernet over AAL5 LLC without FCS" },
+    { 0x07,  "Ethernet over AAL5 Null with FCS" },
+    { 0x08,  "Ethernet over AAL5 Null without FCS" },
+    { 0,     NULL },
+};
+
+static const value_string ancp_types_vals[] = {
+    { 0x01,  "ADSL1" },
+    { 0x02,  "ADSL2" },
+    { 0x03,  "ADSL2+" },
+    { 0x04,  "VDSL1" },
+    { 0x05,  "VDSL2" },
+    { 0x06,  "SDSL" },
+    { 0x07,  "UNKNOWN" },
+    { 0,     NULL },
+};
+
+static const value_string iwf_types_vals[] = {
+    { 0x00,  "IWF not performed" },
+    { 0x01,  "IWF performed" },
+    { 0,     NULL },
 };
 
 static const true_false_string tfs_up_down = { "Up", "Down" };
@@ -1455,7 +1517,8 @@ static int dissect_l2tp_broadband_avps(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     guint32     avp_vendor_id;
     guint16     avp_len;
     guint16     ver_len_hidden;
-    proto_tree *l2tp_avp_tree;
+    proto_tree *l2tp_avp_tree, *l2tp_avp_ale_tree;
+    proto_item *ta;
 
     ver_len_hidden  = tvb_get_ntohs(tvb, offset);
     avp_len         = AVP_LENGTH(ver_len_hidden);
@@ -1554,15 +1617,21 @@ static int dissect_l2tp_broadband_avps(tvbuff_t *tvb, packet_info *pinfo _U_, pr
         break;
 
     case BROADBAND_ACCESS_LOOP_ENCAPSULATION:
-        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_broadband_access_loop_encapsulation, tvb, offset, avp_len, ENC_NA);
+        {
+        ta = proto_tree_add_item(l2tp_avp_tree, hf_l2tp_broadband_access_loop_encapsulation, tvb, offset, avp_len, ENC_NA);
+        l2tp_avp_ale_tree = proto_item_add_subtree(ta, ett_l2tp_ale_sub);
+        proto_tree_add_item(l2tp_avp_ale_tree, hf_l2tp_broadband_access_loop_encapsulation_data_link, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(l2tp_avp_ale_tree, hf_l2tp_broadband_access_loop_encapsulation_enc1, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(l2tp_avp_ale_tree, hf_l2tp_broadband_access_loop_encapsulation_enc1, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        }
         break;
 
     case BROADBAND_ANCP_ACCESS_LINE_TYPE:
-        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_broadband_ancp_access_line_type, tvb, offset, avp_len, ENC_NA);
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_broadband_ancp_access_line_type, tvb, offset, avp_len, ENC_BIG_ENDIAN);
         break;
 
     case BROADBAND_IWF_SESSION:
-        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_broadband_iwf_session, tvb, offset, avp_len, ENC_NA);
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_broadband_iwf_session, tvb, offset, avp_len, ENC_BIG_ENDIAN);
         break;
 
     default:
@@ -1669,8 +1738,8 @@ static void process_control_avps(tvbuff_t *tvb,
                                  guint32 ccid,
                                  l2tpv3_tunnel_t *tunnel)
 {
-    proto_tree *l2tp_lcp_avp_tree, *l2tp_avp_tree = NULL, *l2tp_avp_tree_sub;
-    proto_item *tf, *te;
+    proto_tree *l2tp_lcp_avp_tree, *l2tp_avp_tree = NULL, *l2tp_avp_tree_sub, *l2tp_avp_csu_tree;
+    proto_item *tf, *te, *tc;
 
     int                msg_type  = 0;
     gboolean           isStopCcn = FALSE;
@@ -2185,6 +2254,26 @@ static void process_control_avps(tvbuff_t *tvb,
             }
             break;
         }
+        case CONNECT_SPEED_UPDATE:
+        {
+            tc = proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_csu, tvb, idx, avp_len, ENC_NA);
+            l2tp_avp_csu_tree = proto_item_add_subtree(tc, ett_l2tp_csu);
+            if (avp_len == 12) {
+                /* L2TPv2 */
+                proto_tree_add_item(l2tp_avp_csu_tree, hf_l2tp_avp_csu_res, tvb, idx, 2, ENC_NA);
+                proto_tree_add_item(l2tp_avp_csu_tree, hf_l2tp_avp_csu_remote_session_id_v2, tvb, idx+2, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(l2tp_avp_csu_tree, hf_l2tp_avp_csu_current_tx_speed_v2, tvb, idx+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(l2tp_avp_csu_tree, hf_l2tp_avp_csu_current_rx_speed_v2, tvb, idx+8, 4, ENC_BIG_ENDIAN);
+            }
+            else if (avp_len == 20) {
+                /* L2TPv3 */
+                proto_tree_add_item(l2tp_avp_csu_tree, hf_l2tp_avp_csu_remote_session_id_v3, tvb, idx, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(l2tp_avp_csu_tree, hf_l2tp_avp_csu_current_tx_speed_v3, tvb, idx+4, 8, ENC_BIG_ENDIAN);
+                proto_tree_add_item(l2tp_avp_csu_tree, hf_l2tp_avp_csu_current_rx_speed_v3, tvb, idx+12, 8, ENC_BIG_ENDIAN);
+            }
+            break;
+        }
+
         default:
             if(avp_len>0)
                 proto_tree_add_expert(l2tp_avp_tree, pinfo, &ei_l2tp_vendor_specific_avp_data, tvb, idx, avp_len);
@@ -3163,16 +3252,60 @@ proto_register_l2tp(void)
             "Actual Interleaving Dalay Downstream in ms", HFILL }},
 
         { &hf_l2tp_broadband_access_loop_encapsulation,
-          { "Access Loop Encapsulation", "l2tp.broadband.access_loop_encapsulation", FT_BYTES, BASE_NONE, NULL, 0x0,
+          { "Access Loop Encapsulation", "l2tp.broadband.access_loop_encapsulation", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_broadband_access_loop_encapsulation_data_link,
+          { "Data Link", "l2tp.broadband.access_loop_encapsulation.data_link", FT_UINT8, BASE_HEX, VALS(ale_datalink_types_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_broadband_access_loop_encapsulation_enc1,
+          { "Encaps 1", "l2tp.broadband.access_loop_encapsulation.enc1", FT_UINT8, BASE_HEX, VALS(ale_enc1_types_vals), 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_broadband_access_loop_encapsulation_enc2,
+          { "Encaps 2", "l2tp.broadband.access_loop_encapsulation.enc2", FT_UINT8, BASE_HEX, VALS(ale_enc2_types_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_l2tp_broadband_ancp_access_line_type,
-          { "ANCP Access Line Type", "l2tp.broadband.ancp_access_line_type", FT_BYTES, BASE_NONE, NULL, 0x0,
+          { "ANCP Access Line Type", "l2tp.broadband.ancp_access_line_type", FT_UINT32, BASE_HEX, VALS(ancp_types_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_l2tp_broadband_iwf_session,
-          { "IWF Session", "l2tp.broadband.iwf_session", FT_BYTES, BASE_NONE, NULL, 0x0,
+          { "IWF Session", "l2tp.broadband.iwf_session", FT_UINT32, BASE_HEX, VALS(iwf_types_vals), 0x0,
             NULL, HFILL }},
+
+        { &hf_l2tp_avp_csu,
+          { "Connect Speed Update","l2tp.avp.csu", FT_NONE, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+
+        { &hf_l2tp_avp_csu_res,
+          { "Reserved", "l2tp.avp.csu.res", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_avp_csu_remote_session_id_v2,
+          { "Remote Session ID", "l2tp.avp.csu.res", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_avp_csu_current_tx_speed_v2,
+          { "Current TX Connect Speed", "l2tp.avp.csu.current_tx_speed", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Current TX Connect Speed in bps", HFILL }},
+
+        { &hf_l2tp_avp_csu_current_rx_speed_v2,
+          { "Current RX Connect Speed", "l2tp.avp.csu.current_rx_speed", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Current RX Connect Speed in bps", HFILL }},
+
+        { &hf_l2tp_avp_csu_remote_session_id_v3,
+          { "Remote Session ID", "l2tp.avp.csu.res", FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_avp_csu_current_tx_speed_v3,
+          { "Current TX Connect Speed", "l2tp.avp.csu.current_tx_speed", FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Current TX Connect Speed in bps", HFILL }},
+
+        { &hf_l2tp_avp_csu_current_rx_speed_v3,
+          { "Current RX Connect Speed", "l2tp.avp.csu.current_rx_speed", FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Current RX Connect Speed in bps", HFILL }},
 
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_l2tp_cisco_assigned_control_connection_id, { "Assigned Control Connection ID", "l2tp.cisco.assigned_control_connection_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -3265,8 +3398,10 @@ proto_register_l2tp(void)
         &ett_l2tp_ctrl,
         &ett_l2tp_avp,
         &ett_l2tp_avp_sub,
+        &ett_l2tp_ale_sub,
         &ett_l2tp_l2_spec,
         &ett_l2tp_lcp,
+        &ett_l2tp_csu,
     };
 
     static ei_register_info ei[] = {
