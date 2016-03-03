@@ -818,6 +818,7 @@ set(DISSECTOR_SRC
 	packet-isns.c
 	packet-iso14443.c
 	packet-iso7816.c
+	packet-iso8583.c
 	packet-isup.c
 	packet-itdm.c
 	packet-iua.c
