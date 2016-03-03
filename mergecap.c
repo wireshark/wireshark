@@ -324,9 +324,16 @@ main(int argc, char *argv[])
        "%s",
     get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
 
+  /*
+   * Get credential information for later use.
+   */
+  init_process_policies();
+  init_open_routines();
+
 #ifdef HAVE_PLUGINS
+  /* Register wiretap plugins */
   if ((init_progfile_dir_error = init_progfile_dir(argv[0], main))) {
-    g_warning("captype: init_progfile_dir(): %s", init_progfile_dir_error);
+    g_warning("mergecap: init_progfile_dir(): %s", init_progfile_dir_error);
     g_free(init_progfile_dir_error);
   } else {
     /* Register all the plugin types we have. */
