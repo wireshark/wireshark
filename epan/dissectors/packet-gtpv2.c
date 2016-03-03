@@ -56,6 +56,7 @@ static int proto_gtpv2 = -1;
 
 static int hf_gtpv2_response_in = -1;
 static int hf_gtpv2_response_to = -1;
+static int hf_gtpv2_response_time = -1;
 static int hf_gtpv2_spare_half_octet = -1;
 static int hf_gtpv2_spare_bits = -1;
 static int hf_gtpv2_flags = -1;
@@ -6247,7 +6248,12 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
             it = proto_tree_add_uint(tree, hf_gtpv2_response_in, tvb, 0, 0, gcrp->rep_frame);
             PROTO_ITEM_SET_GENERATED(it);
         } else {
+            nstime_t ns;
+
             it = proto_tree_add_uint(tree, hf_gtpv2_response_to, tvb, 0, 0, gcrp->req_frame);
+            PROTO_ITEM_SET_GENERATED(it);
+            nstime_delta(&ns, &pinfo->abs_ts, &gcrp->req_time);
+            it = proto_tree_add_time(tree, hf_gtpv2_response_time, tvb, 0, 0, &ns);
             PROTO_ITEM_SET_GENERATED(it);
             if (g_gtp_session && !PINFO_FD_VISITED(pinfo)) {
                 /* GTP session */
@@ -6545,6 +6551,11 @@ void proto_register_gtpv2(void)
         { "Response To", "gtpv2.response_to",
         FT_FRAMENUM, BASE_NONE, NULL, 0x0,
         "This is a response to the GTP request in this frame", HFILL }
+        },
+        { &hf_gtpv2_response_time,
+        { "Response Time", "gtpv2.response_time",
+        FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+        "The time between the Request and the Response", HFILL }
         },
         { &hf_gtpv2_spare_half_octet,
           {"Spare half octet", "gtpv2.spare_half_octet",
