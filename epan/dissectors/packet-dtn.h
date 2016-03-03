@@ -143,11 +143,21 @@
 /* ECOS Flags */
 #define ECOS_FLAGS_CRITICAL             0x01
 #define ECOS_FLAGS_STREAMING            0x02
-#define ECOS_FLAGS_ORDINAL              0x04
+#define ECOS_FLAGS_FLOWLABEL            0x04
+#define ECOS_FLAGS_RELIABLE             0x08
 
+#define DTN_SCHEME_STR			"dtn"
 #define IPN_SCHEME_STR			"ipn"
 
 int evaluate_sdnv(tvbuff_t *tvb, int offset, int *bytecount);
 gint64 evaluate_sdnv_64(tvbuff_t *tvb, int offset, int *bytecount);
 
 
+/* Special Functions to evaluate unsigned SDNVs with error indication
+ *    bytecount returns the number bytes consumed
+ *    value returns the actual value
+ *
+ *    result is TRUE (1) on success else FALSE (0)
+ */
+int evaluate_sdnv32(tvbuff_t *tvb, int offset, int *bytecount, guint32 *value);
+int evaluate_sdnv64(tvbuff_t *tvb, int offset, int *bytecount, guint64 *value);
