@@ -895,7 +895,7 @@ void proto_register_packetbb(void) {
     },
     { &hf_packetbb_msgheader_size,
       { "Size", "packetbb.msg.size",
-        FT_UINT8, BASE_DEC, NULL, 0,
+        FT_UINT16, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
     { &hf_packetbb_msgheader_origaddripv4,
