@@ -167,8 +167,8 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     findStream();
 
     ui->streamNumberSpinBox->blockSignals(true);
-    ui->streamNumberSpinBox->setValue(graph_.stream);
     ui->streamNumberSpinBox->setMaximum(get_tcp_stream_count() - 1);
+    ui->streamNumberSpinBox->setValue(graph_.stream);
     ui->streamNumberSpinBox->blockSignals(false);
 
     QCustomPlot *sp = ui->streamPlot;
