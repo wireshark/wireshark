@@ -27,7 +27,8 @@ AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(LIBWMEM_CFLAGS) \
 
 noinst_LTLIBRARIES = libwmem.la
 
-noinst_PROGRAMS = wmem_test
+EXTRA_PROGRAMS = wmem_test
+
 wmem_test_LDADD = \
 	libwmem.la \
 	$(GLIB_LIBS)
@@ -51,7 +52,6 @@ libwmem_la_SOURCES =	\
 EXTRA_DIST = \
 	Makefile.common	\
 	Makefile.nmake	\
-	wmem_test.c	\
 	CMakeLists.txt
 
 checkapi:

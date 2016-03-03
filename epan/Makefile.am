@@ -86,11 +86,7 @@ EXTRA_DIST = \
 	Makefile.common		\
 	Makefile.nmake		\
 	radius_dict.l		\
-	tvbtest.c		\
-	reassemble_test.c	\
 	uat_load.l		\
-	exntest.c		\
-	oids_test.c		\
 	doxygen.cfg.in		\
 	CMakeLists.txt		\
 	print.ps
@@ -160,7 +156,8 @@ libwireshark_la_DEPENDENCIES = \
 	${top_builddir}/wsutil/libwsutil.la	\
 	${top_builddir}/wiretap/libwiretap.la
 
-EXTRA_PROGRAMS = reassemble_test tvbtest oids_test
+EXTRA_PROGRAMS = reassemble_test tvbtest oids_test exntest
+
 reassemble_test_LDADD = \
 	libwireshark.la \
 	$(GLIB_LIBS) \
@@ -176,11 +173,12 @@ oids_test_LDADD = \
 	$(GLIB_LIBS) \
 	-lz
 
-exntest: exntest.o except.o
-	$(LINK) $^ $(GLIB_LIBS)
+exntest_SOURCES = exntest.c except.c
 
-test-programs: $(EXTRA_PROGRAMS) exntest
-	cd wmem && $(MAKE) $@
+exntest_LDADD = $(GLIB_LIBS)
+
+test-programs: $(EXTRA_PROGRAMS)
+	$(MAKE) -C wmem $@
 
 diam_dict_lex.h: diam_dict.c
 
