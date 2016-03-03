@@ -1143,8 +1143,10 @@ const value_string tls_hello_extension_types[] = {
     { 18, "signed_certificate_timestamp" }, /* RFC 6962 */
     { SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE, "client_certificate_type" }, /* RFC 7250 */
     { SSL_HND_HELLO_EXT_SERVER_CERT_TYPE, "server_certificate_type" }, /* RFC 7250 */
-    { SSL_HND_HELLO_EXT_PADDING, "Padding" }, /* http://tools.ietf.org/html/draft-agl-tls-padding */
-    { SSL_HND_HELLO_EXT_EXTENDED_MASTER_SECRET_TYPE, "Extended Master Secret" }, /* https://tools.ietf.org/html/draft-ietf-tls-session-hash-01 */
+    { SSL_HND_HELLO_EXT_PADDING, "Padding" }, /* RFC7685 */
+    { 22, "encrypt then mac" }, /* RFC7366 */
+    { SSL_HND_HELLO_EXT_EXTENDED_MASTER_SECRET_TYPE, "Extended Master Secret" }, /* RFC7627 */
+    { 24, "token binding" }, /* https://tools.ietf.org/html/draft-ietf-tokbind-negotiation */
     { SSL_HND_HELLO_EXT_SESSION_TICKET, "SessionTicket TLS" },  /* RFC 4507 */
     { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* http://technotes.googlecode.com/git/nextprotoneg.html */
     { SSL_HND_HELLO_EXT_RENEG_INFO, "renegotiation_info" }, /* RFC 5746 */
