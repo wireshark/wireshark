@@ -2029,6 +2029,11 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     col_add_fstr(pinfo->cinfo, COL_INFO,
                  "Bogus IPv4 version (%u, must be 4)", hi_nibble(iph->ip_v_hl));
     expert_add_info_format(pinfo, tf, &ei_ip_bogus_ip_version, "Bogus IPv4 version");
+    /* I have a Linux cooked capture with ethertype IPv4 containing an IPv6 packet, continnue dissection in that case*/
+    if (hi_nibble(iph->ip_v_hl) == 6) {
+        call_dissector(ipv6_handle, tvb, pinfo, tree);
+    }
+
     return tvb_captured_length(tvb);
   }
 
