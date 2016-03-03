@@ -447,7 +447,7 @@ void wtap_optionblock_copy_options(wtap_optionblock_t dest_block, wtap_optionblo
         memcpy(dest_mand, src_mand, sizeof(wtapng_if_descr_mandatory_t));
         if (src_mand->num_stat_entries != 0)
         {
-            dest_mand->interface_statistics = NULL;
+            dest_mand->interface_statistics = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
             dest_mand->interface_statistics = g_array_append_vals(dest_mand->interface_statistics, src_mand->interface_statistics->data, src_mand->interface_statistics->len);
         }
         }
