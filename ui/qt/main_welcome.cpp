@@ -23,8 +23,6 @@
 
 #include <glib.h>
 
-#include "version.h"
-
 #include <epan/prefs.h>
 
 #include "ui/capture_globals.h"
