@@ -158,6 +158,12 @@ typedef struct session_args {
     guint8 last_cause;
 } session_args_t;
 
+/* Relation between frame -> session */
+extern GHashTable* session_table;
+
+/* Relation between <teid,ip> -> frame */
+extern wmem_tree_t* frame_tree;
+
 guint32 get_frame(address ip, guint32 teid, guint32 *frame);
 
 void remove_frame_info(guint32 *f);

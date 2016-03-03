@@ -1031,11 +1031,6 @@ static const value_string gtpv2_element_type_vals[] = {
 };
 static value_string_ext gtpv2_element_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_element_type_vals);
 
-/* Relation between frame -> session */
-GHashTable* session_table;
-/* Relation between <teid,ip> -> frame */
-wmem_tree_t* frame_tree;
-
 typedef struct _gtpv2_hdr {
     guint8 flags;   /* GTP header flags */
     guint8 message; /* Message type */
