@@ -509,11 +509,9 @@ dissect_ppcap_sctp_assoc(tvbuff_t *tvb _U_, proto_tree * tree _U_, int offset)
 
 	proto_tree_add_item(tree, hf_ppcap_sctp_assoc, tvb, offset, length, ENC_ASCII | ENC_NA);
 
-	if (length % 4)
-		length = length + (4 - (length % 4));
-	offset += length;
+	/* The string can be 1 -15 characters long but the IE is padded to 16 bytes*/
 
-	return offset;
+	return offset + 16;
 }
 
 /* Dissecting the function Payload Data to call the protocol that based upon the type decided in the Payload Type */
