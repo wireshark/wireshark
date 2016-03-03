@@ -328,10 +328,20 @@ static const value_string ssl_20_cipher_suites[] = {
             0xFF,0x00-FF Reserved for Private Use [RFC5246]
             */
 
-    /* http://tools.ietf.org/html/draft-agl-tls-chacha20poly1305 */
+    /* old numbers used in the beginning
+     * http://tools.ietf.org/html/draft-agl-tls-chacha20poly1305 */
     { 0x00CC13, "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256" },
     { 0x00CC14, "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256" },
     { 0x00CC15, "TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256" },
+
+    /* http://tools.ietf.org/html/draft-ietf-tls-chacha20-poly1305 */
+    { 0x00CCA8, "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256" },
+    { 0x00CCA9, "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256" },
+    { 0x00CCAA, "TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256" },
+    { 0x00CCAB, "TLS_PSK_WITH_CHACHA20_POLY1305_SHA256" },
+    { 0x00CCAC, "TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256" },
+    { 0x00CCAD, "TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256" },
+    { 0x00CCAE, "TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256" },
 
     /* http://tools.ietf.org/html/draft-josefsson-salsa20-tls */
     { 0x00E410, "TLS_RSA_WITH_ESTREAM_SALSA20_SHA1" },
@@ -992,10 +1002,20 @@ static const value_string ssl_31_ciphersuite[] = {
 0xFF,0x00-FF Reserved for Private Use [RFC5246]
 */
 
-    /* http://tools.ietf.org/html/draft-agl-tls-chacha20poly1305 */
+    /* old numbers used in the beginning
+     * http://tools.ietf.org/html/draft-agl-tls-chacha20poly1305 */
     { 0xCC13, "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256" },
     { 0xCC14, "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256" },
     { 0xCC15, "TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256" },
+
+    /* http://tools.ietf.org/html/draft-ietf-tls-chacha20-poly1305 */
+    { 0xCCA8, "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256" },
+    { 0xCCA9, "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256" },
+    { 0xCCAA, "TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256" },
+    { 0xCCAB, "TLS_PSK_WITH_CHACHA20_POLY1305_SHA256" },
+    { 0xCCAC, "TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256" },
+    { 0xCCAD, "TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256" },
+    { 0xCCAE, "TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256" },
 
     /* http://tools.ietf.org/html/draft-josefsson-salsa20-tls */
     { 0xE410, "TLS_RSA_WITH_ESTREAM_SALSA20_SHA1" },
