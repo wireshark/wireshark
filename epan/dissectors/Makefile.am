@@ -55,7 +55,8 @@ EXTRA_DIST = \
 	packet-ncp2222.inc	\
 	README.X11		\
 	x11-fields		\
-	CMakeLists.txt
+	CMakeLists.txt		\
+	CMakeListsCustom.txt.example
 
 packet-ncp2222.c : $(top_srcdir)/tools/ncp2222.py
 	$(AM_V_python)$(PYTHON) $(top_srcdir)/tools/ncp2222.py -o $@

@@ -44,7 +44,8 @@ EXTRA_DIST = \
 	Custom.common \
 	Makefile.common	\
 	Makefile.nmake	\
-	CMakeLists.txt
+	CMakeLists.txt	\
+	CMakeListsCustom.txt.example
 
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \

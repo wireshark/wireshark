@@ -93,8 +93,7 @@ EXTRA_DIST = \
 	exntest.c		\
 	oids_test.c		\
 	doxygen.cfg.in		\
-	CMakeLists.txt	\
-	CMakeListsCustom.txt.example
+	CMakeLists.txt
 
 CLEANFILES = \
 	doxygen-epan.tag		\
