@@ -566,10 +566,6 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
    {
       /* Request message */
 
-      /* Add service to info column */
-      col_append_str( pinfo->cinfo, COL_INFO,
-               val_to_str( ( service & 0x7F ),
-                  cip_sc_vals_ssupervisor , "Unknown Service (0x%02x)") );
       req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
 
       /* If there is any command specific data create a sub-tree for it */
@@ -723,6 +719,7 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
 
    } /* End of if-else( request ) */
 
+   add_cip_service_to_info_column(pinfo, service, cip_sc_vals_ssupervisor);
 }
 
 static int
@@ -948,7 +945,7 @@ static int dissect_s_supervisor_output_connection_point_owners(packet_info *pinf
 
          epath_tree = proto_tree_add_subtree(entry_tree,
                          tvb, offset+attr_len, app_path_size, ett_path, &app_path_item, "Application Resource: ");
-         dissect_epath( tvb, pinfo, epath_tree, app_path_item, offset+attr_len, app_path_size, FALSE, TRUE, NULL, NULL, NO_DISPLAY);
+         dissect_epath( tvb, pinfo, epath_tree, app_path_item, offset+attr_len, app_path_size, FALSE, TRUE, NULL, NULL, NO_DISPLAY, NULL);
          attr_len += app_path_size;
       }
    }
@@ -1100,7 +1097,7 @@ static int dissect_s_validator_app_data_path(packet_info *pinfo, proto_tree *tre
 {
    proto_item* pi;
    proto_tree* epath_tree = proto_tree_add_subtree(tree, NULL, 0, 0, ett_path, &pi, "Application Data Path: ");
-   dissect_epath(tvb, pinfo, epath_tree, pi, offset, total_len, FALSE, FALSE, NULL, NULL, NO_DISPLAY);
+   dissect_epath(tvb, pinfo, epath_tree, pi, offset, total_len, FALSE, FALSE, NULL, NULL, NO_DISPLAY, NULL);
    return total_len;
 }
 
@@ -1258,10 +1255,6 @@ dissect_cip_s_validator_data( proto_tree *item_tree,
    {
       /* Request message */
 
-      /* Add service to info column */
-      col_append_str( pinfo->cinfo, COL_INFO,
-               val_to_str( ( service & 0x7F ),
-                  cip_sc_vals_svalidator , "Unknown Service (0x%02x)") );
       req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
 
       /* If there is any command specific data create a sub-tree for it */
@@ -1275,6 +1268,7 @@ dissect_cip_s_validator_data( proto_tree *item_tree,
 
    }
 
+   add_cip_service_to_info_column(pinfo, service, cip_sc_vals_svalidator);
 }
 
 static int
