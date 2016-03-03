@@ -518,8 +518,7 @@ text2pcap_CFLAGS = $(GENERATED_CFLAGS)
 # Libraries with which to link text2pcap.
 text2pcap_LDADD = \
 	wsutil/libwsutil.la		\
-	@GLIB_LIBS@			\
-	@ZLIB_LIBS@
+	@GLIB_LIBS@
 
 mergecap_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -527,8 +526,7 @@ mergecap_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 mergecap_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
-	@GLIB_LIBS@			\
-	@ZLIB_LIBS@
+	@GLIB_LIBS@
 
 capinfos_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -537,8 +535,7 @@ capinfos_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\
-	@LIBGCRYPT_LIBS@		\
-	@ZLIB_LIBS@
+	@LIBGCRYPT_LIBS@
 
 captype_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -546,8 +543,7 @@ captype_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 captype_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
-	@GLIB_LIBS@			\
-	@ZLIB_LIBS@
+	@GLIB_LIBS@
 
 editcap_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -555,8 +551,7 @@ editcap_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 editcap_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
-	@GLIB_LIBS@			\
-	@ZLIB_LIBS@
+	@GLIB_LIBS@
 
 reordercap_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -564,8 +559,7 @@ reordercap_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 reordercap_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
-	@GLIB_LIBS@			\
-	@ZLIB_LIBS@
+	@GLIB_LIBS@
 
 randpkt_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -579,8 +573,7 @@ randpkt_LDADD = \
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
 	@C_ARES_LIBS@			\
-	@ADNS_LIBS@			\
-	@ZLIB_LIBS@
+	@ADNS_LIBS@
 
 dftest_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -637,8 +630,7 @@ dumpcap_LDADD = \
 	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
 	@COREFOUNDATION_FRAMEWORKS@	\
 	@LIBCAP_LIBS@			\
-	@LIBNL_LIBS@			\
-	@ZLIB_LIBS@
+	@LIBNL_LIBS@
 
 #
 # Build the version string

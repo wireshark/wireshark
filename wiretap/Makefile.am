@@ -24,8 +24,7 @@ include $(top_srcdir)/Makefile.am.inc
 
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
-AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) -DWS_BUILD_DLL $(GLIB_CFLAGS) \
-	$(ZLIB_CFLAGS)
+AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) -DWS_BUILD_DLL $(GLIB_CFLAGS)
 
 noinst_LTLIBRARIES = libwiretap_generated.la
 lib_LTLIBRARIES = libwiretap.la
@@ -64,11 +63,7 @@ EXTRA_DIST = \
 	$(GENERATOR_FILES) 	\
 	$(GENERATED_FILES)
 
-libwiretap_la_LIBADD = \
-	libwiretap_generated.la		\
-	${top_builddir}/wsutil/libwsutil.la \
-	$(GLIB_LIBS)			\
-	$(ZLIB_LIBS)
+libwiretap_la_LIBADD = libwiretap_generated.la ${top_builddir}/wsutil/libwsutil.la $(GLIB_LIBS)
 
 libwiretap_la_DEPENDENCIES = libwiretap_generated.la ${top_builddir}/wsutil/libwsutil.la
 

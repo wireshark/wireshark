@@ -593,45 +593,31 @@ AC_DEFUN([AC_WIRESHARK_PCAP_REMOTE_CHECK],
 AC_DEFUN([AC_WIRESHARK_ZLIB_CHECK],
 [
 	AC_WIRESHARK_PUSH_FLAGS
-	ac_ws_saved_LIBS="$LIBS"
 
-	if test "x$zlib_dir" = "x"
+	if test "x$zlib_dir" != "x"
 	then
-	  PKG_WIRESHARK_CHECK_SYSTEM_MODULES(ZLIB, [zlib], [zlib_found=yes], [zlib_found=no])
-	fi
-
-	if test x"$zlib_found" != xyes; then
-	  if test "x$zlib_dir" != "x"; then
-	    #
-	    # The user specified a directory in which zlib resides,
-	    # so add the "include" subdirectory of that directory to
-	    # the include file search path and the "lib" subdirectory
-	    # of that directory to the library search path.
-	    #
-	    ZLIB_CFLAGS="-I$zlib_dir/include"
-	    AC_WIRESHARK_ADD_DASH_L(ZLIB_LIBS, [$zlib_dir/lib])
-	  fi
-	  AX_APPEND_FLAG(-lz, ZLIB_LIBS)
+	  #
+	  # The user specified a directory in which zlib resides,
+	  # so add the "include" subdirectory of that directory to
+	  # the include file search path and the "lib" subdirectory
+	  # of that directory to the library search path.
+	  #
+	  # XXX - if there's also a zlib in a directory that's
+	  # already in CPPFLAGS or LDFLAGS, this won't make us find
+	  # the version in the specified directory, as the compiler
+	  # and/or linker will search that other directory before it
+	  # searches the specified directory.
+	  #
+	  CPPFLAGS="$CPPFLAGS -I$zlib_dir/include"
+	  AC_WIRESHARK_ADD_DASH_L(LDFLAGS, $zlib_dir/lib)
 	fi
 
 	#
-	# Make sure we have "zlib.h".
+	# Make sure we have "zlib.h".  If we don't, it means we probably
+	# don't have zlib, so don't use it.
 	#
-	CPPFLAGS="$ZLIB_CFLAGS $CPPFLAGS"
-	AC_CHECK_HEADERS(zlib.h,
+	AC_CHECK_HEADER(zlib.h,,
 	  [
-	    #
-	    # We link with zlib to support uncompression of
-	    # gzipped network traffic, e.g. in an HTTP request
-	    # or response body.
-	    #
-	    have_zlib=yes
-	  ],
-	  [
-	    have_zlib=no
-	    ZLIB_CFLAGS=""
-	    ZLIB_LIBS=""
-
 	    if test "x$zlib_dir" != "x"
 	    then
 	      #
@@ -655,24 +641,58 @@ AC_DEFUN([AC_WIRESHARK_ZLIB_CHECK],
 		# We couldn't find the header file; don't use the
 		# library, as it's probably not present.
 		#
-		AC_MSG_NOTICE(zlib.h not found - disabling gzip compression and decompression)
+		want_zlib=no
 	      fi
 	    fi
 	  ])
 
-	if test "x$have_zlib" != "xno"
+	if test "x$want_zlib" != "xno"
 	then
+		#
+		# Well, we at least have the zlib header file.
+		# We link with zlib to support uncompression of
+		# gzipped network traffic, e.g. in an HTTP request
+		# or response body.
+		#
+		if test "x$zlib_dir" != "x"
+		then
+		  WS_CPPFLAGS="$WS_CPPFLAGS -I$zlib_dir/include"
+		  AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, $zlib_dir/lib)
+		fi
+		LIBS="$LIBS -lz"
+		AC_DEFINE(HAVE_LIBZ, 1, [Define to use libz library])
 		#
 		# Check for "inflatePrime()" in zlib, which we need
 		# in order to read compressed capture files.
 		#
-		LIBS="$ZLIB_LIBS $LIBS"
-		AC_CHECK_FUNCS(inflatePrime,[],
-		  [AC_MSG_NOTICE(inflatePrime not found - disabling gzipped capture file support)])
+		AC_CHECK_FUNCS(inflatePrime)
+
+		if test "x$ac_cv_func_inflatePrime" = "xyes" ; then
+			#
+			# Now check for "inflatePrime()" in zlib when
+			# linking with the linker flags for GTK+
+			# applications; people often grab XFree86 source
+			# and build and install it on their systems,
+			# and they appear sometimes to misconfigure
+			# XFree86 so that, even on systems with zlib,
+			# it assumes there is no zlib, so the XFree86
+			# build process builds and installs its
+			# own zlib in the X11 library directory.
+			#
+			# The zlib in at least some versions of XFree86
+			# is an older version that may lack "inflatePrime()",
+			# and that's the zlib with which Wireshark gets
+			# linked, so the build of Wireshark fails.
+			#
+			AC_MSG_CHECKING([for inflatePrime missing when linking with X11])
+			AC_TRY_LINK_FUNC(inflatePrime, AC_MSG_RESULT(no),
+			  [
+			    AC_MSG_RESULT(yes)
+			    AC_MSG_ERROR(old zlib found when linking with X11 - get rid of old zlib.)
+			  ])
+		fi
 	fi
-	AC_SUBST(ZLIB_CFLAGS)
-	AC_SUBST(ZLIB_LIBS)
-	LIBS="$ac_ws_saved_LIBS"
+
 	AC_WIRESHARK_POP_FLAGS
 ])
 
