@@ -195,11 +195,7 @@ typedef struct _capture_info {
   int            file_encap;
   int            file_tsprec;
   gint64         filesize;
-  gchar         *comment;
-  gchar         *hardware;
-  gchar         *os;
-  gchar         *usr_appl;
-
+  wtap_optionblock_t shb;
   guint64        packet_bytes;
   gboolean       times_known;
   nstime_t       start_time;
@@ -549,6 +545,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
 {
   const gchar           *file_type_string, *file_encap_string;
   gchar                 *size_string;
+  gchar                 *opt_str;
 
   /* Build printable strings for various stats */
   file_type_string = wtap_file_type_subtype_string(cf_info->file_type);
@@ -666,15 +663,21 @@ print_stats(const gchar *filename, capture_info *cf_info)
   }
 #endif /* HAVE_LIBGCRYPT */
   if (cap_order)          printf     ("Strict time order:   %s\n", order_string(cf_info->order));
-  if (cap_comment && cf_info->comment)
-    printf     ("Capture comment:     %s\n", cf_info->comment);
+  if (cap_comment) {
+    wtap_optionblock_get_option_string(cf_info->shb, OPT_COMMENT, &opt_str);
+    if (opt_str)
+      printf     ("Capture comment:     %s\n", opt_str);
+  }
   if (cap_file_more_info) {
-    if (cf_info->hardware)
-      printf   ("Capture hardware:    %s\n", cf_info->hardware);
-    if (cf_info->os)
-      printf   ("Capture oper-sys:    %s\n", cf_info->os);
-    if (cf_info->usr_appl)
-      printf   ("Capture application: %s\n", cf_info->usr_appl);
+    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_HARDWARE, &opt_str);
+    if (opt_str)
+      printf   ("Capture hardware:    %s\n", opt_str);
+    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_OS, &opt_str);
+    if (opt_str)
+      printf   ("Capture oper-sys:    %s\n", opt_str);
+    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_USERAPPL, &opt_str);
+    if (opt_str)
+      printf   ("Capture application: %s\n", opt_str);
   }
 
   if (cap_file_idb && cf_info->num_interfaces != 0) {
@@ -756,6 +759,7 @@ static void
 print_stats_table(const gchar *filename, capture_info *cf_info)
 {
   const gchar           *file_type_string, *file_encap_string;
+  gchar                 *str;
 
   /* Build printable strings for various stats */
   file_type_string = wtap_file_type_subtype_string(cf_info->file_type);
@@ -932,24 +936,28 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
   if (cap_comment) {
     putsep();
     putquote();
-    printf("%s", cf_info->comment);
+    wtap_optionblock_get_option_string(cf_info->shb, OPT_COMMENT, &str);
+    printf("%s", str);
     putquote();
   }
 
   if (cap_file_more_info) {
     putsep();
     putquote();
-    printf("%s", cf_info->hardware);
+    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_HARDWARE, &str);
+    printf("%s", str);
     putquote();
 
     putsep();
     putquote();
-    printf("%s", cf_info->os);
+    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_OS, &str);
+    printf("%s", str);
     putquote();
 
     putsep();
     putquote();
-    printf("%s", cf_info->usr_appl);
+    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_USERAPPL, &str);
+    printf("%s", str);
     putquote();
   }
 
@@ -962,17 +970,7 @@ cleanup_capture_info(capture_info *cf_info)
   guint i;
   g_assert(cf_info != NULL);
 
-  g_free(cf_info->comment);
-  cf_info->comment = NULL;
-
-  g_free(cf_info->hardware);
-  cf_info->hardware = NULL;
-
-  g_free(cf_info->os);
-  cf_info->os = NULL;
-
-  g_free(cf_info->usr_appl);
-  cf_info->usr_appl = NULL;
+  wtap_optionblock_free(cf_info->shb);
 
   g_free(cf_info->encap_counts);
   cf_info->encap_counts = NULL;
@@ -1037,7 +1035,7 @@ process_cap_file(wtap *wth, const char *filename)
   wtap_optionblock_t    shb_inf;
   guint                 i;
   wtapng_iface_descriptions_t *idb_info;
-  char                  *shb_str;
+  char                  *shb_str, *shb_str_no_newlines;
 
   g_assert(wth != NULL);
   g_assert(filename != NULL);
@@ -1049,10 +1047,7 @@ process_cap_file(wtap *wth, const char *filename)
   nstime_set_zero(&cur_time);
   nstime_set_zero(&prev_time);
 
-  cf_info.comment  = NULL;
-  cf_info.hardware = NULL;
-  cf_info.os       = NULL;
-  cf_info.usr_appl = NULL;
+  cf_info.shb = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_SECTION);
 
   cf_info.encap_counts = g_new0(int,WTAP_NUM_ENCAP_TYPES);
 
@@ -1243,19 +1238,29 @@ process_cap_file(wtap *wth, const char *filename)
   if (shb_inf) {
     /* opt_comment is always 0-terminated by pcapng_read_section_header_block */
     wtap_optionblock_get_option_string(shb_inf, OPT_COMMENT, &shb_str);
-    cf_info.comment  = g_strdup(shb_str);
-    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_HARDWARE, &shb_str);
-    cf_info.hardware = g_strdup(shb_str);
-    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_OS, &shb_str);
-    cf_info.os       = g_strdup(shb_str);
-    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_USERAPPL, &shb_str);
-    cf_info.usr_appl = g_strdup(shb_str);
-  }
+    shb_str_no_newlines = g_strdup(shb_str);
+    string_replace_newlines(shb_str_no_newlines);
+    wtap_optionblock_set_option_string(cf_info.shb, OPT_COMMENT, shb_str_no_newlines);
+    g_free(shb_str_no_newlines);
 
-  string_replace_newlines(cf_info.comment);
-  string_replace_newlines(cf_info.hardware);
-  string_replace_newlines(cf_info.os);
-  string_replace_newlines(cf_info.usr_appl);
+    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_HARDWARE, &shb_str);
+    shb_str_no_newlines = g_strdup(shb_str);
+    string_replace_newlines(shb_str_no_newlines);
+    wtap_optionblock_set_option_string(cf_info.shb, OPT_SHB_HARDWARE, shb_str_no_newlines);
+    g_free(shb_str_no_newlines);
+
+    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_OS, &shb_str);
+    shb_str_no_newlines = g_strdup(shb_str);
+    string_replace_newlines(shb_str_no_newlines);
+    wtap_optionblock_set_option_string(cf_info.shb, OPT_SHB_OS, shb_str_no_newlines);
+    g_free(shb_str_no_newlines);
+
+    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_USERAPPL, &shb_str);
+    shb_str_no_newlines = g_strdup(shb_str);
+    string_replace_newlines(shb_str_no_newlines);
+    wtap_optionblock_set_option_string(cf_info.shb, OPT_SHB_USERAPPL, shb_str_no_newlines);
+    g_free(shb_str_no_newlines);
+  }
 
   if (long_report) {
     print_stats(filename, &cf_info);
