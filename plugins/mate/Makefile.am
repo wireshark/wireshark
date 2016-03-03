@@ -24,37 +24,30 @@ include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 include ../Makefile.am.inc
 
-noinst_LTLIBRARIES = mate-generated.la
+#
+# XXX - how to make this apply only to clean files?
+#
+#if HAVE_WARNINGS_AS_ERRORS
+#AM_CFLAGS += -Werror
+#endif
 
 plugin_LTLIBRARIES = mate.la
-
-mate_generated_la_SOURCES = \
-	$(FLEX_GENERATED_C_FILES)	\
-	$(FLEX_GENERATED_HEADER_FILES)
-
-nodist_mate_generated_la_SOURCES = \
-	$(LEMON_GENERATED_C_FILES)	\
-	$(LEMON_GENERATED_HEADER_FILES)
-
-mate_generated_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
-
-mate_generated_la_CFLAGS = $(GENERATED_CFLAGS) $(PLUGIN_CFLAGS)
-
-mate_generated_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 
 mate_la_SOURCES = \
 	plugin.c	\
 	moduleinfo.h	\
-	$(CLEAN_SRC_FILES)	\
-	$(CLEAN_HEADER_FILES)
+	$(SRC_FILES)	\
+	$(HEADER_FILES)
+
+nodist_mate_la_SOURCES = \
+	$(NODIST_SRC_FILES) \
+	$(NODIST_HEADER_FILES)
 
 mate_la_CPPFLAGS = $(AM_CPPFLAGS) $(PLUGIN_CPPFLAGS)
 
-mate_la_CFLAGS = $(AM_CFLAGS) $(PLUGIN_CFLAGS)
+mate_la_CFLAGS = $(GENERATED_CFLAGS) $(PLUGIN_CFLAGS)
 
 mate_la_LDFLAGS = $(PLUGIN_LDFLAGS)
-
-mate_la_DEPENDENCIES = mate-generated.la
 
 BUILT_SOURCES = \
 	$(LEMON_GENERATED_HEADER_FILES)
