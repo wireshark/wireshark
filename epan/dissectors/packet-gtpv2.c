@@ -6153,6 +6153,7 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
     case GTPV2_DELETE_SESSION_REQUEST:
     case GTPV2_MODIFY_BEARER_COMMAND:
     case GTPV2_DELETE_BEARER_COMMAND:
+    case GTPV2_BEARER_RESOURCE_COMMAND:
         gcr.is_request = TRUE;
         gcr.req_frame = pinfo->num;
         gcr.rep_frame = 0;
@@ -6165,6 +6166,7 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
     case GTPV2_DELETE_SESSION_RESPONSE:
     case GTPV2_MODIFY_BEARER_FAILURE_INDICATION:
     case GTPV2_DELETE_BEARER_FAILURE_INDICATION:
+    case GTPV2_BEARER_RESOURCE_FAILURE_INDICATION:
         gcr.is_request = FALSE;
         gcr.req_frame = 0;
         gcr.rep_frame = pinfo->num;
@@ -6191,6 +6193,7 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
         case GTPV2_DELETE_SESSION_REQUEST:
         case GTPV2_MODIFY_BEARER_COMMAND:
         case GTPV2_DELETE_BEARER_COMMAND:
+        case GTPV2_BEARER_RESOURCE_COMMAND:
             gcr.seq_nr = seq_nr;
 
             gcrp = (gtpv2_msg_hash_t *)wmem_map_lookup(gtpv2_info->unmatched, &gcr);
