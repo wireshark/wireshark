@@ -2056,6 +2056,21 @@ while ($_ = $ARGV[0])
                 print STDERR "Warning: ".$filename." has an SVN Id tag. Please remove it!\n";
         }
 
+        if (($fileContents =~ m{ tab-width:\s*[0-7|9]+ | tabstop=[0-7|9]+ | tabSize=[0-7|9]+ }xo))
+        {
+                # To quote Icf0831717de10fc615971fa1cf75af2f1ea2d03d :
+                # HT tab stops are set every 8 spaces on UN*X; UN*X tools that treat an HT character
+                # as tabbing to 4-space tab stops, or that even are configurable but *default* to
+                # 4-space tab stops (I'm looking at *you*, Xcode!) are broken. tab-width: 4,
+                # tabstop=4, and tabSize=4 are errors if you ever expect anybody to look at your file
+                # with a UN*X tool, and every text file will probably be looked at by a UN*X tool at
+                # some point, so Don't Do That.
+                #
+                # Can I get an "amen!"?
+                print STDERR "Error: Found modelines with tabstops set to something other than 8 in " .$filename."\n";
+                $errorCount++;
+        }
+
         # Remove all the C-comments
         $fileContents =~ s{ $CComment } []xog;
 
