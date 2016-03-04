@@ -24,6 +24,9 @@
 
 #include "ws_symbol_export.h"
 
+struct wtap_optionblock;
+typedef struct wtap_optionblock *wtap_optionblock_t;
+
 /* Currently supported option blocks */
 typedef enum {
     WTAP_OPTION_BLOCK_IF_DESCR = 0,
@@ -57,27 +60,27 @@ struct wtap_opttype_custom
     wtap_opttype_free_custom_func free_func;
 };
 
-typedef struct wtap_opttype {
+typedef union {
+    guint8 uint8val;
+    guint64 uint64val;
+    char *stringval;
+    struct wtap_opttype_custom customval;
+} wtap_option_type;
+
+struct wtap_dumper;
+
+typedef guint32 (*wtap_opttype_option_write_size)(wtap_option_type* data); /**< does the option have data worth writing (Ex string option != NULL */
+typedef gboolean (*wtap_opttype_option_write)(struct wtap_dumper* wdh, wtap_option_type* data, int *err); /**< does the option have data worth writing (Ex string option != NULL */
+
+typedef struct wtap_optblock_reg {
     const char *name;                /**< name of option */
     const char *description;         /**< human-readable description of option */
-    guint number;                    /**< Option index */
     wtap_opttype_e type;             /**< type of that option */
-    union {
-        guint8 uint8val;
-        guint64 uint64val;
-        char *stringval;
-        struct wtap_opttype_custom customval;
-    } option;                          /**< pointer to variable storing the value */
-    union {
-        guint8 uint8val;
-        guint64 uint64val;
-        char *stringval;
-        struct wtap_opttype_custom customval;
-    } default_val;                   /**< the default value of the option */
-} wtap_opttype_t;
-
-struct wtap_optionblock;
-typedef struct wtap_optionblock *wtap_optionblock_t;
+    wtap_opttype_option_write_size write_size_func; /**< Size of option in file (0 to not write option) */
+    wtap_opttype_option_write write_func; /**< write option data to dumper */
+    wtap_option_type option;         /**< pointer to variable storing the value */
+    wtap_option_type default_val;    /**< the default value of the option */
+} wtap_optblock_reg_t;
 
 /** Initialize option block types.
  *
@@ -111,132 +114,86 @@ WS_DLL_PUBLIC void wtap_optionblock_free(wtap_optionblock_t block);
  */
 WS_DLL_PUBLIC void* wtap_optionblock_get_mandatory_data(wtap_optionblock_t block);
 
-/** Add a string option to the option block
+/** Add an option to the option block
  *
  * @param[in] block Block to add option
  * @param[in] option_id Identifier value for option
- * @param[in] name Name of option
- * @param[in] description Description of option
- * @param[in] opt_value Current value of option
- * @param[in] default_value Default value of option
+ * @param[in] option structure explaining it
  * @return 0 if successful
  */
-int wtap_optionblock_add_option_string(wtap_optionblock_t block, guint option_id,
-                                       const char *name, const char *description, char* opt_value, char* default_value);
+int wtap_optionblock_add_option(wtap_optionblock_t block, guint option_id, wtap_optblock_reg_t* option);
 
 /** Set string option value to an option block
  *
  * @param[in] block Block to add option
  * @param[in] option_id Identifier value for option
- * @param[in] opt_value New value of option
+ * @param[in] value New value of option
  * @return 0 if successful
  */
-WS_DLL_PUBLIC int wtap_optionblock_set_option_string(wtap_optionblock_t block, guint option_id, char* opt_value);
+WS_DLL_PUBLIC int wtap_optionblock_set_option_string(wtap_optionblock_t block, guint option_id, char* value);
 
 /** Get string option value from an option block
  *
  * @param[in] block Block to add option
  * @param[in] option_id Identifier value for option
- * @param[out] opt_value Returned value of option
+ * @param[out] value Returned value of option
  * @return 0 if successful
  */
-WS_DLL_PUBLIC int wtap_optionblock_get_option_string(wtap_optionblock_t block, guint option_id, char** opt_value);
-
-/** Add UINT64 option to the option block
- *
- * @param[in] block Block to add option
- * @param[in] option_id Identifier value for option
- * @param[in] name Name of option
- * @param[in] description Description of option
- * @param[in] opt_value Current value of option
- * @param[in] default_value Default value of option
- * @return 0 if successful
- */
-int wtap_optionblock_add_option_uint64(wtap_optionblock_t block, guint option_id,
-                                       const char *name, const char *description, guint64 opt_value, guint64 default_value);
+WS_DLL_PUBLIC int wtap_optionblock_get_option_string(wtap_optionblock_t block, guint option_id, char** value);
 
 /** Set UINT64 option value to an option block
  *
  * @param[in] block Block to add option
  * @param[in] option_id Identifier value for option
- * @param[in] opt_value New value of option
+ * @param[in] value New value of option
  * @return 0 if successful
  */
-WS_DLL_PUBLIC int wtap_optionblock_set_option_uint64(wtap_optionblock_t block, guint option_id, guint64 opt_value);
+WS_DLL_PUBLIC int wtap_optionblock_set_option_uint64(wtap_optionblock_t block, guint option_id, guint64 value);
 
 /** Get UINT64 option value from an option block
  *
  * @param[in] block Block to add option
  * @param[in] option_id Identifier value for option
- * @param[out] opt_value Returned value of option
+ * @param[out] value Returned value of option
  * @return 0 if successful
  */
-WS_DLL_PUBLIC int wtap_optionblock_get_option_uint64(wtap_optionblock_t block, guint option_id, guint64* opt_value);
-
-/** Add UINT8 option to the option block
- *
- * @param[in] block Block to add option
- * @param[in] option_id Identifier value for option
- * @param[in] name Name of option
- * @param[in] description Description of option
- * @param[in] opt_value Current value of option
- * @param[in] default_value Default value of option
- * @return 0 if successful
- */
-int wtap_optionblock_add_option_uint8(wtap_optionblock_t block, guint option_id,
-                                       const char *name, const char *description, guint8 opt_value, guint8 default_value);
+WS_DLL_PUBLIC int wtap_optionblock_get_option_uint64(wtap_optionblock_t block, guint option_id, guint64* value);
 
 /** Set UINT8 option value to an option block
  *
  * @param[in] block Block to add option
  * @param[in] option_id Identifier value for option
- * @param[in] opt_value New value of option
+ * @param[in] value New value of option
  * @return 0 if successful
  */
-WS_DLL_PUBLIC int wtap_optionblock_set_option_uint8(wtap_optionblock_t block, guint option_id, guint8 opt_value);
+WS_DLL_PUBLIC int wtap_optionblock_set_option_uint8(wtap_optionblock_t block, guint option_id, guint8 value);
 
 /** Get UINT8 option value from an option block
  *
  * @param[in] block Block to add option
  * @param[in] option_id Identifier value for option
- * @param[out] opt_value Returned value of option
+ * @param[out] value Returned value of option
  * @return 0 if successful
  */
-WS_DLL_PUBLIC int wtap_optionblock_get_option_uint8(wtap_optionblock_t block, guint option_id, guint8* opt_value);
-
-/** Add a "custom" option to the option block
- *
- * @param[in] block Block to add option
- * @param[in] option_id Identifier value for option
- * @param[in] name Name of option
- * @param[in] description Description of option
- * @param[in] opt_value Current value of option
- * @param[in] default_value Default value of option
- * @param[in] size Size of the option structure
- * @param[in] free_func Function to free to the option structure
- * @return 0 if successful
- */
-int wtap_optionblock_add_option_custom(wtap_optionblock_t block, guint option_id,
-                                       const char *name, const char *description, void* opt_value, void* default_value,
-                                       guint size, wtap_opttype_free_custom_func free_func);
+WS_DLL_PUBLIC int wtap_optionblock_get_option_uint8(wtap_optionblock_t block, guint option_id, guint8* value);
 
 /** Set a "custom" option value to an option block
  *
  * @param[in] block Block to add option
  * @param[in] option_id Identifier value for option
- * @param[in] opt_value New value of option
+ * @param[in] value New value of option
  * @return 0 if successful
  */
-WS_DLL_PUBLIC int wtap_optionblock_set_option_custom(wtap_optionblock_t block, guint option_id, void* opt_value);
+WS_DLL_PUBLIC int wtap_optionblock_set_option_custom(wtap_optionblock_t block, guint option_id, void* value);
 
 /** Get a "custom" option value from an option block
  *
  * @param[in] block Block to add option
  * @param[in] option_id Identifier value for option
- * @param[out] opt_value Returned value of option
+ * @param[out] value Returned value of option
  * @return 0 if successful
  */
-WS_DLL_PUBLIC int wtap_optionblock_get_option_custom(wtap_optionblock_t block, guint option_id, void** opt_value);
+WS_DLL_PUBLIC int wtap_optionblock_get_option_custom(wtap_optionblock_t block, guint option_id, void** value);
 
 /** Copy an option block to another.
  *
@@ -247,6 +204,32 @@ WS_DLL_PUBLIC int wtap_optionblock_get_option_custom(wtap_optionblock_t block, g
  * @param[in] src_block Block to be copied from
  */
 void wtap_optionblock_copy_options(wtap_optionblock_t dest_block, wtap_optionblock_t src_block);
+
+/** Write an option block
+ *
+ * Will write all mandatory data as well as "valid" options
+ *
+ * @param[in] wdh writing assistant
+ * @param[in] block Block to be written
+ * @param[in] err Any errors that occurred
+ * @return TRUE if successful, FALSE will populate err
+ */
+gboolean wtap_optionblock_write(struct wtap_dumper *wdh, wtap_optionblock_t block, int *err);
+
+/* Some utility functions for option types */
+
+guint32 wtap_opttype_write_size_string(wtap_option_type* data);
+gboolean wtap_opttype_write_data_string(struct wtap_dumper* wdh, wtap_option_type* data, int *err);
+
+/* if option value = 0, write size = 0, otherwise 4 */
+guint32 wtap_opttype_write_uint8_not0(wtap_option_type* data);
+gboolean wtap_opttype_write_data_uint8(struct wtap_dumper* wdh, wtap_option_type* data, int *err);
+
+/* if option value = 0, write size = 0, otherwise 8 */
+guint32 wtap_opttype_write_uint64_not0(wtap_option_type* data);
+/* if option value = -1 (0xFFFFFFFFFFFFFFFF), write size = 0, otherwise 8 */
+guint32 wtap_opttype_write_uint64_not_minus1(wtap_option_type* data);
+gboolean wtap_opttype_write_data_uint64(struct wtap_dumper* wdh, wtap_option_type* data, int *err);
 
 #endif /* WTAP_OPT_TYPES_H */
 
