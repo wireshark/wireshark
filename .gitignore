@@ -147,6 +147,7 @@ packaging/rpm/SRPMS
 ########
 *.html
 *.[14]
+AUTHORS.git
 AUTHORS-SHORT
 AUTHORS-SHORT-FORMAT
 doxygen.cfg

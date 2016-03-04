@@ -2700,7 +2700,7 @@ add_custom_target(test-sh
 )
 
 ADD_CUSTOM_TARGET(
-	gen-authors ALL
+	gen-authors
 	COMMAND git shortlog -sne | cut -c8- > ${CMAKE_SOURCE_DIR}/AUTHORS.git
 	COMMAND ${PERL_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/generate_authors.pl ${CMAKE_SOURCE_DIR}/AUTHORS.src ${CMAKE_SOURCE_DIR}/AUTHORS.git > ${CMAKE_SOURCE_DIR}/AUTHORS
 
