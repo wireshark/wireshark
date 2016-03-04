@@ -1527,13 +1527,13 @@ checkapi: checkapi_local
 	cd ../../epan
 ##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../epan/crypt
-##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../dfilter
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../ftypes
 ##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../wslua
-##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../dissectors
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ..
