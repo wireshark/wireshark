@@ -5,18 +5,11 @@
 	Pidl is a perl based IDL compiler for DCE/RPC idl files.
 	It is maintained by the Samba team, not the Wireshark team.
 	Instructions on how to download and install Pidl can be
-	found at http://wiki.wireshark.org/Pidl
+	found at https://wiki.wireshark.org/Pidl
 */
 
 
 #include "config.h"
-#ifdef _MSC_VER
-#pragma warning(disable:4005)
-#pragma warning(disable:4013)
-#pragma warning(disable:4018)
-#pragma warning(disable:4101)
-#endif
-
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
@@ -60,116 +53,116 @@ static gint ett_nspi_SRowSet = -1;
 
 
 /* Header field declarations */
-static gint hf_nspi_NspiGetHierarchyInfo_unknown1 = -1;
-static gint hf_nspi_SPropValue_CTR_ft = -1;
-static gint hf_nspi_SPropValue_CTR_object = -1;
-static gint hf_nspi_input_locale_language = -1;
-static gint hf_nspi_SPropValue_CTR_MVft = -1;
-static gint hf_nspi_SDateTimeArray_lpft = -1;
-static gint hf_nspi_SSortOrderSet_aSort = -1;
-static gint hf_nspi_SGuidArray_lpguid = -1;
-static gint hf_nspi_SPropValue_dwAlignPad = -1;
-static gint hf_nspi_NspiQueryRows_instance_key = -1;
-static gint hf_nspi_SSortOrderSet_cCategories = -1;
-static gint hf_nspi_MAPINAMEID_ulKind = -1;
-static gint hf_nspi_NspiDNToEph_server_dn = -1;
-static gint hf_nspi_MAPIUID_ab = -1;
-static gint hf_nspi_SPropValue_CTR_b = -1;
-static gint hf_nspi_SRow_ulAdrEntryPad = -1;
-static gint hf_nspi_SPropValue_CTR_null = -1;
-static gint hf_nspi_SBinary_cb = -1;
-static gint hf_nspi_SBinaryArray_lpbin = -1;
-static gint hf_nspi_SShortArray_cValues = -1;
-static gint hf_nspi_SRowSet_aRow = -1;
-static gint hf_nspi_NspiBind_mapiuid = -1;
-static gint hf_nspi_SGuidArray_cValues = -1;
-static gint hf_nspi_instance_key_cValues = -1;
-static gint hf_nspi_SRestriction_CTR_resProperty = -1;
-static gint hf_nspi_NspiQueryRows_lRows = -1;
-static gint hf_nspi_MV_UNICODE_STRUCT_cValues = -1;
-static gint hf_nspi_SSortOrder_ulOrder = -1;
-static gint hf_nspi_NspiGetHierarchyInfo_RowSet = -1;
-static gint hf_nspi_MAPINAMEID_lID = -1;
-static gint hf_nspi_NspiQueryRows_settings = -1;
-static gint hf_nspi_SBinaryArray_cValues = -1;
-static gint hf_nspi_NspiGetMatches_unknown2 = -1;
-static gint hf_nspi_SLPSTRArray_strings = -1;
 static gint hf_nspi_FILETIME_dwHighDateTime = -1;
-static gint hf_nspi_NspiGetProps_REPL_values = -1;
-static gint hf_nspi_SRow_cValues = -1;
-static gint hf_nspi_SPropValue_ulPropTag = -1;
-static gint hf_nspi_NspiGetProps_settings = -1;
-static gint hf_nspi_NspiDNToEph_instance_key = -1;
-static gint hf_nspi_SRestriction_CTR_resAnd = -1;
-static gint hf_nspi_NspiGetMatches_RowSet = -1;
-static gint hf_nspi_MV_UNICODE_STRUCT_lpi = -1;
-static gint hf_nspi_SSortOrderSet_cSorts = -1;
-static gint hf_nspi_SSortOrder_ulPropTag = -1;
-static gint hf_nspi_SPropValue_CTR_MVbin = -1;
-static gint hf_nspi_opnum = -1;
-static gint hf_nspi_NspiUnbind_status = -1;
-static gint hf_nspi_SAndRestriction_lpRes = -1;
-static gint hf_nspi_NspiDNToEph_size = -1;
-static gint hf_nspi_SPropValue_CTR_MVi = -1;
-static gint hf_nspi_SPropertyRestriction_lpProp = -1;
-static gint hf_nspi_NspiGetMatches_unknown3 = -1;
-static gint hf_nspi_MAPI_SETTINGS_flag = -1;
-static gint hf_nspi_instance_key_value = -1;
-static gint hf_nspi_NspiGetMatches_settings = -1;
-static gint hf_nspi_MV_LONG_STRUCT_cValues = -1;
-static gint hf_nspi_SRowSet_cRows = -1;
-static gint hf_nspi_MAPI_SETTINGS_service_provider = -1;
-static gint hf_nspi_SPropValue_CTR_l = -1;
-static gint hf_nspi_SAndRestriction_cRes = -1;
-static gint hf_nspi_NspiQueryRows_flag = -1;
-static gint hf_nspi_NspiQueryRows_REQ_properties = -1;
-static gint hf_nspi_SPropValue_CTR_MVl = -1;
-static gint hf_nspi_NspiGetProps_flag = -1;
-static gint hf_nspi_MAPISTATUS_status = -1;
-static gint hf_nspi_SPropValue_CTR_MVszW = -1;
-static gint hf_nspi_LPSTR_lppszA = -1;
-static gint hf_nspi_SPropValue_CTR_MVszA = -1;
-static gint hf_nspi_property_type = -1;
-static gint hf_nspi_handle = -1;
-static gint hf_nspi_NspiGetMatches_restrictions = -1;
-static gint hf_nspi_NspiQueryRows_RowSet = -1;
-static gint hf_nspi_SRow_lpProps = -1;
-static gint hf_nspi_MAPI_SETTINGS_input_locale = -1;
-static gint hf_nspi_SPropertyRestriction_ulPropTag = -1;
-static gint hf_nspi_SPropTagArray_aulPropTag = -1;
-static gint hf_nspi_NspiGetHierarchyInfo_unknown2 = -1;
-static gint hf_nspi_SBinary_lpb = -1;
-static gint hf_nspi_NspiGetHierarchyInfo_settings = -1;
-static gint hf_nspi_SSortOrderSet_cExpanded = -1;
-static gint hf_nspi_NspiQueryRows_unknown = -1;
-static gint hf_nspi_input_locale_method = -1;
-static gint hf_nspi_NspiGetMatches_instance_key = -1;
-static gint hf_nspi_SPropValue_CTR_lpszA = -1;
-static gint hf_nspi_SPropValue_CTR_bin = -1;
-static gint hf_nspi_SShortArray_lpi = -1;
-static gint hf_nspi_SPropValue_CTR_lpszW = -1;
-static gint hf_nspi_NspiGetMatches_PropTagArray = -1;
-static gint hf_nspi_SLPSTRArray_cValues = -1;
-static gint hf_nspi_SPropValue_CTR_err = -1;
-static gint hf_nspi_SRestriction_PTTYPE = -1;
-static gint hf_nspi_NAME_STRING_str = -1;
-static gint hf_nspi_SPropertyRestriction_relop = -1;
-static gint hf_nspi_SPropValue_CTR_MVguid = -1;
-static gint hf_nspi_MAPINAMEID_lpguid = -1;
 static gint hf_nspi_FILETIME_dwLowDateTime = -1;
-static gint hf_nspi_NspiGetMatches_REQ_properties = -1;
-static gint hf_nspi_SPropTagArray_cValues = -1;
-static gint hf_nspi_SPropValue_CTR_lpguid = -1;
-static gint hf_nspi_SPropValue_CTR_i = -1;
+static gint hf_nspi_LPSTR_lppszA = -1;
+static gint hf_nspi_MAPINAMEID_lID = -1;
+static gint hf_nspi_MAPINAMEID_lpguid = -1;
+static gint hf_nspi_MAPINAMEID_ulKind = -1;
+static gint hf_nspi_MAPISTATUS_status = -1;
+static gint hf_nspi_MAPIUID_ab = -1;
 static gint hf_nspi_MAPI_SETTINGS_codepage = -1;
-static gint hf_nspi_NspiDNToEph_flag = -1;
-static gint hf_nspi_NspiBind_unknown = -1;
+static gint hf_nspi_MAPI_SETTINGS_flag = -1;
 static gint hf_nspi_MAPI_SETTINGS_handle = -1;
-static gint hf_nspi_NspiGetProps_REQ_properties = -1;
+static gint hf_nspi_MAPI_SETTINGS_input_locale = -1;
+static gint hf_nspi_MAPI_SETTINGS_service_provider = -1;
+static gint hf_nspi_MV_LONG_STRUCT_cValues = -1;
 static gint hf_nspi_MV_LONG_STRUCT_lpl = -1;
-static gint hf_nspi_NspiGetMatches_unknown1 = -1;
-static gint hf_nspi_SDateTimeArray_cValues = -1;
+static gint hf_nspi_MV_UNICODE_STRUCT_cValues = -1;
+static gint hf_nspi_MV_UNICODE_STRUCT_lpi = -1;
+static gint hf_nspi_NAME_STRING_str = -1;
+static gint hf_nspi_NspiBind_mapiuid = -1;
 static gint hf_nspi_NspiBind_settings = -1;
+static gint hf_nspi_NspiBind_unknown = -1;
+static gint hf_nspi_NspiDNToEph_flag = -1;
+static gint hf_nspi_NspiDNToEph_instance_key = -1;
+static gint hf_nspi_NspiDNToEph_server_dn = -1;
+static gint hf_nspi_NspiDNToEph_size = -1;
+static gint hf_nspi_NspiGetHierarchyInfo_RowSet = -1;
+static gint hf_nspi_NspiGetHierarchyInfo_settings = -1;
+static gint hf_nspi_NspiGetHierarchyInfo_unknown1 = -1;
+static gint hf_nspi_NspiGetHierarchyInfo_unknown2 = -1;
+static gint hf_nspi_NspiGetMatches_PropTagArray = -1;
+static gint hf_nspi_NspiGetMatches_REQ_properties = -1;
+static gint hf_nspi_NspiGetMatches_RowSet = -1;
+static gint hf_nspi_NspiGetMatches_instance_key = -1;
+static gint hf_nspi_NspiGetMatches_restrictions = -1;
+static gint hf_nspi_NspiGetMatches_settings = -1;
+static gint hf_nspi_NspiGetMatches_unknown1 = -1;
+static gint hf_nspi_NspiGetMatches_unknown2 = -1;
+static gint hf_nspi_NspiGetMatches_unknown3 = -1;
+static gint hf_nspi_NspiGetProps_REPL_values = -1;
+static gint hf_nspi_NspiGetProps_REQ_properties = -1;
+static gint hf_nspi_NspiGetProps_flag = -1;
+static gint hf_nspi_NspiGetProps_settings = -1;
+static gint hf_nspi_NspiQueryRows_REQ_properties = -1;
+static gint hf_nspi_NspiQueryRows_RowSet = -1;
+static gint hf_nspi_NspiQueryRows_flag = -1;
+static gint hf_nspi_NspiQueryRows_instance_key = -1;
+static gint hf_nspi_NspiQueryRows_lRows = -1;
+static gint hf_nspi_NspiQueryRows_settings = -1;
+static gint hf_nspi_NspiQueryRows_unknown = -1;
+static gint hf_nspi_NspiUnbind_status = -1;
+static gint hf_nspi_SAndRestriction_cRes = -1;
+static gint hf_nspi_SAndRestriction_lpRes = -1;
+static gint hf_nspi_SBinaryArray_cValues = -1;
+static gint hf_nspi_SBinaryArray_lpbin = -1;
+static gint hf_nspi_SBinary_cb = -1;
+static gint hf_nspi_SBinary_lpb = -1;
+static gint hf_nspi_SDateTimeArray_cValues = -1;
+static gint hf_nspi_SDateTimeArray_lpft = -1;
+static gint hf_nspi_SGuidArray_cValues = -1;
+static gint hf_nspi_SGuidArray_lpguid = -1;
+static gint hf_nspi_SLPSTRArray_cValues = -1;
+static gint hf_nspi_SLPSTRArray_strings = -1;
+static gint hf_nspi_SPropTagArray_aulPropTag = -1;
+static gint hf_nspi_SPropTagArray_cValues = -1;
+static gint hf_nspi_SPropValue_CTR_MVbin = -1;
+static gint hf_nspi_SPropValue_CTR_MVft = -1;
+static gint hf_nspi_SPropValue_CTR_MVguid = -1;
+static gint hf_nspi_SPropValue_CTR_MVi = -1;
+static gint hf_nspi_SPropValue_CTR_MVl = -1;
+static gint hf_nspi_SPropValue_CTR_MVszA = -1;
+static gint hf_nspi_SPropValue_CTR_MVszW = -1;
+static gint hf_nspi_SPropValue_CTR_b = -1;
+static gint hf_nspi_SPropValue_CTR_bin = -1;
+static gint hf_nspi_SPropValue_CTR_err = -1;
+static gint hf_nspi_SPropValue_CTR_ft = -1;
+static gint hf_nspi_SPropValue_CTR_i = -1;
+static gint hf_nspi_SPropValue_CTR_l = -1;
+static gint hf_nspi_SPropValue_CTR_lpguid = -1;
+static gint hf_nspi_SPropValue_CTR_lpszA = -1;
+static gint hf_nspi_SPropValue_CTR_lpszW = -1;
+static gint hf_nspi_SPropValue_CTR_null = -1;
+static gint hf_nspi_SPropValue_CTR_object = -1;
+static gint hf_nspi_SPropValue_dwAlignPad = -1;
+static gint hf_nspi_SPropValue_ulPropTag = -1;
+static gint hf_nspi_SPropertyRestriction_lpProp = -1;
+static gint hf_nspi_SPropertyRestriction_relop = -1;
+static gint hf_nspi_SPropertyRestriction_ulPropTag = -1;
+static gint hf_nspi_SRestriction_CTR_resAnd = -1;
+static gint hf_nspi_SRestriction_CTR_resProperty = -1;
+static gint hf_nspi_SRestriction_PTTYPE = -1;
+static gint hf_nspi_SRowSet_aRow = -1;
+static gint hf_nspi_SRowSet_cRows = -1;
+static gint hf_nspi_SRow_cValues = -1;
+static gint hf_nspi_SRow_lpProps = -1;
+static gint hf_nspi_SRow_ulAdrEntryPad = -1;
+static gint hf_nspi_SShortArray_cValues = -1;
+static gint hf_nspi_SShortArray_lpi = -1;
+static gint hf_nspi_SSortOrderSet_aSort = -1;
+static gint hf_nspi_SSortOrderSet_cCategories = -1;
+static gint hf_nspi_SSortOrderSet_cExpanded = -1;
+static gint hf_nspi_SSortOrderSet_cSorts = -1;
+static gint hf_nspi_SSortOrder_ulOrder = -1;
+static gint hf_nspi_SSortOrder_ulPropTag = -1;
+static gint hf_nspi_handle = -1;
+static gint hf_nspi_input_locale_language = -1;
+static gint hf_nspi_input_locale_method = -1;
+static gint hf_nspi_instance_key_cValues = -1;
+static gint hf_nspi_instance_key_value = -1;
+static gint hf_nspi_opnum = -1;
+static gint hf_nspi_property_type = -1;
 
 static gint proto_dcerpc_nspi = -1;
 /* Version information */
@@ -3798,7 +3791,7 @@ static int nspi_dissect_element_SPropValue_CTR_MVszW(tvbuff_t *tvb _U_, int offs
 static int nspi_dissect_element_SPropValue_CTR_MVft(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int nspi_dissect_element_SPropValue_CTR_null(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int nspi_dissect_element_SPropValue_CTR_object(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int nspi_dissect_element_SPropValue_ulPropTag(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, guint32 *ulPropTag);
+static int nspi_dissect_element_SPropValue_ulPropTag(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int nspi_dissect_element_SPropValue_dwAlignPad(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int nspi_dissect_element_SPropValue_value(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int nspi_dissect_element_SRow_ulAdrEntryPad(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -7283,12 +7276,12 @@ int
 nspi_dissect_enum_MAPITAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
 	guint32 parameter=0;
-	if(param){
-		parameter=(guint32)*param;
+	if (param) {
+		parameter = *param;
 	}
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, &parameter);
-	if(param){
-		*param=(guint32)parameter;
+	if (param) {
+		*param = parameter;
 	}
 	return offset;
 }
@@ -7372,12 +7365,12 @@ int
 nspi_dissect_enum_MAPISTATUS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
 	guint32 parameter=0;
-	if(param){
-		parameter=(guint32)*param;
+	if (param) {
+		parameter = *param;
 	}
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, &parameter);
-	if(param){
-		*param=(guint32)parameter;
+	if (param) {
+		*param = parameter;
 	}
 	return offset;
 }
@@ -7420,7 +7413,7 @@ nspi_dissect_struct_MAPIUID(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_MAPIUID);
 	}
-	
+
 	offset = nspi_dissect_element_MAPIUID_ab(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -7471,7 +7464,7 @@ nspi_dissect_struct_input_locale(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_input_locale);
 	}
-	
+
 	offset = nspi_dissect_element_input_locale_language(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_input_locale_method(tvb, offset, pinfo, tree, di, drep);
@@ -7541,8 +7534,10 @@ nspi_dissect_struct_MAPI_SETTINGS(tvbuff_t *tvb _U_, int offset _U_, packet_info
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	gboolean oldalign = di->no_align;
 	int old_offset;
 
+	di->no_align = TRUE;
 
 	old_offset = offset;
 
@@ -7550,7 +7545,7 @@ nspi_dissect_struct_MAPI_SETTINGS(tvbuff_t *tvb _U_, int offset _U_, packet_info
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_MAPI_SETTINGS);
 	}
-	
+
 	offset = nspi_dissect_element_MAPI_SETTINGS_handle(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_MAPI_SETTINGS_flag(tvb, offset, pinfo, tree, di, drep);
@@ -7565,16 +7560,14 @@ nspi_dissect_struct_MAPI_SETTINGS(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	proto_item_set_len(item, offset-old_offset);
 
 
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_4_BYTES;
-	}
+	di->no_align = oldalign;
 
 	return offset;
 }
 
 
 /* IDL: struct { */
-/* IDL: 	[unique(1)] [length_is(cValues-1)] [size_is(cValues-1)] MAPITAGS *aulPropTag; */
+/* IDL: 	[length_is(cValues-1)] [size_is(cValues-1)] [unique(1)] MAPITAGS *aulPropTag; */
 /* IDL: 	uint32 cValues; */
 /* IDL: } */
 
@@ -7625,7 +7618,7 @@ nspi_dissect_struct_SPropTagArray(tvbuff_t *tvb _U_, int offset _U_, packet_info
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_SPropTagArray);
 	}
-	
+
 	offset = nspi_dissect_element_SPropTagArray_aulPropTag(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_SPropTagArray_cValues(tvb, offset, pinfo, tree, di, drep);
@@ -7643,7 +7636,7 @@ nspi_dissect_struct_SPropTagArray(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 
 /* IDL: struct { */
-/* IDL: 	[unique(1)] [length_is(cValues-1)] [size_is(cValues-1)] uint32 *value; */
+/* IDL: 	[length_is(cValues-1)] [size_is(cValues-1)] [unique(1)] uint32 *value; */
 /* IDL: 	uint32 cValues; */
 /* IDL: } */
 
@@ -7694,7 +7687,7 @@ nspi_dissect_struct_instance_key(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_instance_key);
 	}
-	
+
 	offset = nspi_dissect_element_instance_key_value(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_instance_key_cValues(tvb, offset, pinfo, tree, di, drep);
@@ -7764,7 +7757,7 @@ nspi_dissect_struct_MAPINAMEID(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_MAPINAMEID);
 	}
-	
+
 	offset = nspi_dissect_element_MAPINAMEID_lpguid(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_MAPINAMEID_ulKind(tvb, offset, pinfo, tree, di, drep);
@@ -7801,12 +7794,12 @@ int
 nspi_dissect_enum_RestrictionType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
 	guint32 parameter=0;
-	if(param){
-		parameter=(guint32)*param;
+	if (param) {
+		parameter = *param;
 	}
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, &parameter);
-	if(param){
-		*param=(guint32)parameter;
+	if (param) {
+		*param = parameter;
 	}
 	return offset;
 }
@@ -7865,7 +7858,7 @@ nspi_dissect_struct_SPropertyRestriction(tvbuff_t *tvb _U_, int offset _U_, pack
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_SPropertyRestriction);
 	}
-	
+
 	offset = nspi_dissect_element_SPropertyRestriction_relop(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_SPropertyRestriction_ulPropTag(tvb, offset, pinfo, tree, di, drep);
@@ -7886,7 +7879,7 @@ nspi_dissect_struct_SPropertyRestriction(tvbuff_t *tvb _U_, int offset _U_, pack
 
 /* IDL: struct { */
 /* IDL: 	uint32 cRes; */
-/* IDL: 	[unique(1)] [size_is(cRes)] SRestriction *lpRes; */
+/* IDL: 	[size_is(cRes)] [unique(1)] SRestriction *lpRes; */
 /* IDL: } */
 
 static int
@@ -7936,7 +7929,7 @@ nspi_dissect_struct_SAndRestriction(tvbuff_t *tvb _U_, int offset _U_, packet_in
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_SAndRestriction);
 	}
-	
+
 	offset = nspi_dissect_element_SAndRestriction_cRes(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_SAndRestriction_lpRes(tvb, offset, pinfo, tree, di, drep);
@@ -8042,7 +8035,7 @@ nspi_dissect_struct_SRestriction(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_SRestriction);
 	}
-	
+
 	offset = nspi_dissect_element_SRestriction_rt(tvb, offset, pinfo, tree, di, drep, &rt);
 
 	offset = nspi_dissect_element_SRestriction_res(tvb, offset, pinfo, tree, di, drep, &rt);
@@ -8095,7 +8088,7 @@ nspi_dissect_struct_SSortOrder(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_SSortOrder);
 	}
-	
+
 	offset = nspi_dissect_element_SSortOrder_ulPropTag(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_SSortOrder_ulOrder(tvb, offset, pinfo, tree, di, drep);
@@ -8116,7 +8109,7 @@ nspi_dissect_struct_SSortOrder(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: 	uint32 cSorts; */
 /* IDL: 	uint32 cCategories; */
 /* IDL: 	uint32 cExpanded; */
-/* IDL: 	[unique(1)] [size_is(cSorts)] SSortOrder *aSort; */
+/* IDL: 	[size_is(cSorts)] [unique(1)] SSortOrder *aSort; */
 /* IDL: } */
 
 static int
@@ -8182,7 +8175,7 @@ nspi_dissect_struct_SSortOrderSet(tvbuff_t *tvb _U_, int offset _U_, packet_info
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_SSortOrderSet);
 	}
-	
+
 	offset = nspi_dissect_element_SSortOrderSet_cSorts(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_SSortOrderSet_cCategories(tvb, offset, pinfo, tree, di, drep);
@@ -8204,7 +8197,7 @@ nspi_dissect_struct_SSortOrderSet(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 
 /* IDL: struct { */
-/* IDL: 	[unique(1)] [charset(DOS)] uint8 *str; */
+/* IDL: 	[charset(DOS)] [unique(1)] uint8 *str; */
 /* IDL: } */
 
 static int
@@ -8241,7 +8234,7 @@ nspi_dissect_struct_NAME_STRING(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_NAME_STRING);
 	}
-	
+
 	offset = nspi_dissect_element_NAME_STRING_str(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -8293,12 +8286,12 @@ int
 nspi_dissect_enum_property_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
 	guint32 parameter=0;
-	if(param){
-		parameter=(guint32)*param;
+	if (param) {
+		parameter = *param;
 	}
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, &parameter);
-	if(param){
-		*param=(guint32)parameter;
+	if (param) {
+		*param = parameter;
 	}
 	return offset;
 }
@@ -8306,7 +8299,7 @@ nspi_dissect_enum_property_types(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 
 /* IDL: struct { */
 /* IDL: 	uint32 cb; */
-/* IDL: 	[unique(1)] [size_is(cb)] uint8 *lpb; */
+/* IDL: 	[size_is(cb)] [unique(1)] uint8 *lpb; */
 /* IDL: } */
 
 static int
@@ -8356,7 +8349,7 @@ nspi_dissect_struct_SBinary(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_SBinary);
 	}
-	
+
 	offset = nspi_dissect_element_SBinary_cb(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_SBinary_lpb(tvb, offset, pinfo, tree, di, drep);
@@ -8409,7 +8402,7 @@ nspi_dissect_struct_FILETIME(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_FILETIME);
 	}
-	
+
 	offset = nspi_dissect_element_FILETIME_dwLowDateTime(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_FILETIME_dwHighDateTime(tvb, offset, pinfo, tree, di, drep);
@@ -8428,7 +8421,7 @@ nspi_dissect_struct_FILETIME(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 
 /* IDL: struct { */
 /* IDL: 	uint32 cValues; */
-/* IDL: 	[unique(1)] [size_is(cValues)] uint16 *lpi; */
+/* IDL: 	[size_is(cValues)] [unique(1)] uint16 *lpi; */
 /* IDL: } */
 
 static int
@@ -8478,7 +8471,7 @@ nspi_dissect_struct_SShortArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_SShortArray);
 	}
-	
+
 	offset = nspi_dissect_element_SShortArray_cValues(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_SShortArray_lpi(tvb, offset, pinfo, tree, di, drep);
@@ -8497,7 +8490,7 @@ nspi_dissect_struct_SShortArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 
 /* IDL: struct { */
 /* IDL: 	uint32 cValues; */
-/* IDL: 	[unique(1)] [size_is(cValues)] uint32 *lpl; */
+/* IDL: 	[size_is(cValues)] [unique(1)] uint32 *lpl; */
 /* IDL: } */
 
 static int
@@ -8547,7 +8540,7 @@ nspi_dissect_struct_MV_LONG_STRUCT(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_MV_LONG_STRUCT);
 	}
-	
+
 	offset = nspi_dissect_element_MV_LONG_STRUCT_cValues(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_MV_LONG_STRUCT_lpl(tvb, offset, pinfo, tree, di, drep);
@@ -8594,7 +8587,7 @@ nspi_dissect_struct_LPSTR(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo 
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_LPSTR);
 	}
-	
+
 	offset = nspi_dissect_element_LPSTR_lppszA(tvb, offset, pinfo, tree, di, drep);
 
 
@@ -8611,7 +8604,7 @@ nspi_dissect_struct_LPSTR(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo 
 
 /* IDL: struct { */
 /* IDL: 	uint32 cValues; */
-/* IDL: 	[unique(1)] [size_is(cValues)] LPSTR **strings; */
+/* IDL: 	[size_is(cValues)] [unique(1)] LPSTR **strings; */
 /* IDL: } */
 
 static int
@@ -8669,7 +8662,7 @@ nspi_dissect_struct_SLPSTRArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_SLPSTRArray);
 	}
-	
+
 	offset = nspi_dissect_element_SLPSTRArray_cValues(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_SLPSTRArray_strings(tvb, offset, pinfo, tree, di, drep);
@@ -8688,7 +8681,7 @@ nspi_dissect_struct_SLPSTRArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 
 /* IDL: struct { */
 /* IDL: 	uint32 cValues; */
-/* IDL: 	[unique(1)] [size_is(cValues)] SBinary *lpbin; */
+/* IDL: 	[size_is(cValues)] [unique(1)] SBinary *lpbin; */
 /* IDL: } */
 
 static int
@@ -8738,7 +8731,7 @@ nspi_dissect_struct_SBinaryArray(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_SBinaryArray);
 	}
-	
+
 	offset = nspi_dissect_element_SBinaryArray_cValues(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_SBinaryArray_lpbin(tvb, offset, pinfo, tree, di, drep);
@@ -8757,7 +8750,7 @@ nspi_dissect_struct_SBinaryArray(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 
 /* IDL: struct { */
 /* IDL: 	uint32 cValues; */
-/* IDL: 	[unique(1)] [size_is(cValues)] uint32 *lpguid; */
+/* IDL: 	[size_is(cValues)] [unique(1)] uint32 *lpguid; */
 /* IDL: } */
 
 static int
@@ -8797,8 +8790,10 @@ nspi_dissect_struct_SGuidArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	gboolean oldalign = di->no_align;
 	int old_offset;
 
+	di->no_align = TRUE;
 
 	old_offset = offset;
 
@@ -8806,7 +8801,7 @@ nspi_dissect_struct_SGuidArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_SGuidArray);
 	}
-	
+
 	offset = nspi_dissect_element_SGuidArray_cValues(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_SGuidArray_lpguid(tvb, offset, pinfo, tree, di, drep);
@@ -8815,9 +8810,7 @@ nspi_dissect_struct_SGuidArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	proto_item_set_len(item, offset-old_offset);
 
 
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_5_BYTES;
-	}
+	di->no_align = oldalign;
 
 	return offset;
 }
@@ -8825,7 +8818,7 @@ nspi_dissect_struct_SGuidArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 
 /* IDL: struct { */
 /* IDL: 	uint32 cValues; */
-/* IDL: 	[unique(1)] [size_is(cValues)] uint32 *lpi; */
+/* IDL: 	[size_is(cValues)] [unique(1)] uint32 *lpi; */
 /* IDL: } */
 
 static int
@@ -8875,7 +8868,7 @@ nspi_dissect_struct_MV_UNICODE_STRUCT(tvbuff_t *tvb _U_, int offset _U_, packet_
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_MV_UNICODE_STRUCT);
 	}
-	
+
 	offset = nspi_dissect_element_MV_UNICODE_STRUCT_cValues(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_MV_UNICODE_STRUCT_lpi(tvb, offset, pinfo, tree, di, drep);
@@ -8894,7 +8887,7 @@ nspi_dissect_struct_MV_UNICODE_STRUCT(tvbuff_t *tvb _U_, int offset _U_, packet_
 
 /* IDL: struct { */
 /* IDL: 	uint32 cValues; */
-/* IDL: 	[unique(1)] [size_is(cValues)] FILETIME *lpft; */
+/* IDL: 	[size_is(cValues)] [unique(1)] FILETIME *lpft; */
 /* IDL: } */
 
 static int
@@ -8944,7 +8937,7 @@ nspi_dissect_struct_SDateTimeArray(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_SDateTimeArray);
 	}
-	
+
 	offset = nspi_dissect_element_SDateTimeArray_cValues(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_SDateTimeArray_lpft(tvb, offset, pinfo, tree, di, drep);
@@ -8965,10 +8958,10 @@ nspi_dissect_struct_SDateTimeArray(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 /* IDL: [case(PT_I2)] [case(PT_I2)] uint16 i; */
 /* IDL: [case(PT_LONG)] [case(PT_LONG)] uint32 l; */
 /* IDL: [case(PT_BOOLEAN)] [case(PT_BOOLEAN)] uint16 b; */
-/* IDL: [case(PT_STRING8)] [unique(1)] [charset(DOS)] [case(PT_STRING8)] uint8 *lpszA; */
+/* IDL: [case(PT_STRING8)] [case(PT_STRING8)] [charset(DOS)] [unique(1)] uint8 *lpszA; */
 /* IDL: [case(PT_BINARY)] [case(PT_BINARY)] SBinary bin; */
-/* IDL: [case(PT_UNICODE)] [unique(1)] [charset(UTF16)] [case(PT_UNICODE)] uint16 *lpszW; */
-/* IDL: [case(PT_CLSID)] [unique(1)] [case(PT_CLSID)] MAPIUID *lpguid; */
+/* IDL: [case(PT_UNICODE)] [case(PT_UNICODE)] [charset(UTF16)] [unique(1)] uint16 *lpszW; */
+/* IDL: [case(PT_CLSID)] [case(PT_CLSID)] [unique(1)] MAPIUID *lpguid; */
 /* IDL: [case(PT_SYSTIME)] [case(PT_SYSTIME)] FILETIME ft; */
 /* IDL: [case(PT_ERROR)] [case(PT_ERROR)] MAPISTATUS err; */
 /* IDL: [case(PT_MV_I2)] [case(PT_MV_I2)] SShortArray MVi; */
@@ -9258,9 +9251,9 @@ nspi_dissect_SPropValue_CTR(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 /* IDL: } */
 
 static int
-nspi_dissect_element_SPropValue_ulPropTag(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, guint32 *ulPropTag)
+nspi_dissect_element_SPropValue_ulPropTag(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = nspi_dissect_enum_MAPITAGS(tvb, offset, pinfo, tree, di, drep, hf_nspi_SPropValue_ulPropTag, ulPropTag);
+	offset = nspi_dissect_enum_MAPITAGS(tvb, offset, pinfo, tree, di, drep, hf_nspi_SPropValue_ulPropTag, 0);
 
 	return offset;
 }
@@ -9284,7 +9277,6 @@ nspi_dissect_element_SPropValue_value(tvbuff_t *tvb _U_, int offset _U_, packet_
 int
 nspi_dissect_struct_SPropValue(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	guint32 ulPropTag = 0;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
@@ -9297,8 +9289,8 @@ nspi_dissect_struct_SPropValue(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_SPropValue);
 	}
-	
-	offset = nspi_dissect_element_SPropValue_ulPropTag(tvb, offset, pinfo, tree, di, drep, &ulPropTag);
+
+	offset = nspi_dissect_element_SPropValue_ulPropTag(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_SPropValue_dwAlignPad(tvb, offset, pinfo, tree, di, drep);
 
@@ -9319,7 +9311,7 @@ nspi_dissect_struct_SPropValue(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: struct { */
 /* IDL: 	uint32 ulAdrEntryPad; */
 /* IDL: 	uint32 cValues; */
-/* IDL: 	[unique(1)] [size_is(cValues)] SPropValue *lpProps; */
+/* IDL: 	[size_is(cValues)] [unique(1)] SPropValue *lpProps; */
 /* IDL: } */
 
 static int
@@ -9377,7 +9369,7 @@ nspi_dissect_struct_SRow(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_SRow);
 	}
-	
+
 	offset = nspi_dissect_element_SRow_ulAdrEntryPad(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_SRow_cValues(tvb, offset, pinfo, tree, di, drep);
@@ -9440,7 +9432,7 @@ nspi_dissect_struct_SRowSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_nspi_SRowSet);
 	}
-	
+
 	offset = nspi_dissect_element_SRowSet_cRows(tvb, offset, pinfo, tree, di, drep);
 
 	offset = nspi_dissect_element_SRowSet_aRow(tvb, offset, pinfo, tree, di, drep);
@@ -9514,8 +9506,8 @@ nspi_dissect_element_NspiBind_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_
 
 /* IDL: MAPISTATUS NspiBind( */
 /* IDL: [in] uint32 unknown, */
-/* IDL: [ref] [in] MAPI_SETTINGS *settings, */
-/* IDL: [out] [unique(1)] [in] GUID *mapiuid, */
+/* IDL: [in] [ref] MAPI_SETTINGS *settings, */
+/* IDL: [in] [out] [unique(1)] GUID *mapiuid, */
 /* IDL: [out] [ref] policy_handle *handle */
 /* IDL: ); */
 
@@ -9576,7 +9568,7 @@ nspi_dissect_element_NspiUnbind_status(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 /* IDL: MAPISTATUS NspiUnbind( */
-/* IDL: [out] [ref] [in] policy_handle *handle, */
+/* IDL: [in] [out] [ref] policy_handle *handle, */
 /* IDL: [in] uint32 status */
 /* IDL: ); */
 
@@ -9746,13 +9738,13 @@ nspi_dissect_element_NspiQueryRows_RowSet__(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 /* IDL: MAPISTATUS NspiQueryRows( */
-/* IDL: [ref] [in] policy_handle *handle, */
+/* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] uint32 flag, */
-/* IDL: [out] [ref] [in] MAPI_SETTINGS *settings, */
+/* IDL: [in] [out] [ref] MAPI_SETTINGS *settings, */
 /* IDL: [in] uint32 lRows, */
-/* IDL: [unique(1)] [in] [size_is(lRows)] uint32 *instance_key, */
+/* IDL: [in] [size_is(lRows)] [unique(1)] uint32 *instance_key, */
 /* IDL: [in] uint32 unknown, */
-/* IDL: [ref] [in] SPropTagArray *REQ_properties, */
+/* IDL: [in] [ref] SPropTagArray *REQ_properties, */
 /* IDL: [out] [ref] SRowSet **RowSet */
 /* IDL: ); */
 
@@ -9959,15 +9951,15 @@ nspi_dissect_element_NspiGetMatches_RowSet__(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 /* IDL: MAPISTATUS NspiGetMatches( */
-/* IDL: [ref] [in] policy_handle *handle, */
+/* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] uint32 unknown1, */
-/* IDL: [out] [ref] [in] MAPI_SETTINGS *settings, */
-/* IDL: [unique(1)] [in] SPropTagArray *PropTagArray, */
+/* IDL: [in] [out] [ref] MAPI_SETTINGS *settings, */
+/* IDL: [in] [unique(1)] SPropTagArray *PropTagArray, */
 /* IDL: [in] uint32 unknown2, */
-/* IDL: [unique(1)] [in] SRestriction *restrictions, */
+/* IDL: [in] [unique(1)] SRestriction *restrictions, */
 /* IDL: [in] uint32 unknown3, */
 /* IDL: [out] [ref] instance_key *instance_key, */
-/* IDL: [unique(1)] [in] SPropTagArray *REQ_properties, */
+/* IDL: [in] [unique(1)] SPropTagArray *REQ_properties, */
 /* IDL: [out] [ref] SRowSet **RowSet */
 /* IDL: ); */
 
@@ -10107,10 +10099,10 @@ nspi_dissect_element_NspiDNToEph_instance_key_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 /* IDL: MAPISTATUS NspiDNToEph( */
-/* IDL: [ref] [in] policy_handle *handle, */
+/* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] uint32 flag, */
 /* IDL: [in] uint32 size, */
-/* IDL: [ref] [in] [size_is(size)] NAME_STRING *server_dn, */
+/* IDL: [in] [ref] [size_is(size)] NAME_STRING *server_dn, */
 /* IDL: [out] [ref] instance_key *instance_key */
 /* IDL: ); */
 
@@ -10244,10 +10236,10 @@ nspi_dissect_element_NspiGetProps_REPL_values__(tvbuff_t *tvb _U_, int offset _U
 }
 
 /* IDL: MAPISTATUS NspiGetProps( */
-/* IDL: [ref] [in] policy_handle *handle, */
+/* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] uint32 flag, */
-/* IDL: [ref] [in] MAPI_SETTINGS *settings, */
-/* IDL: [ref] [in] SPropTagArray *REQ_properties, */
+/* IDL: [in] [ref] MAPI_SETTINGS *settings, */
+/* IDL: [in] [ref] SPropTagArray *REQ_properties, */
 /* IDL: [out] [ref] SRow **REPL_values */
 /* IDL: ); */
 
@@ -10399,10 +10391,10 @@ nspi_dissect_element_NspiGetHierarchyInfo_RowSet__(tvbuff_t *tvb _U_, int offset
 }
 
 /* IDL: MAPISTATUS NspiGetHierarchyInfo( */
-/* IDL: [ref] [in] policy_handle *handle, */
+/* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] uint32 unknown1, */
-/* IDL: [ref] [in] MAPI_SETTINGS *settings, */
-/* IDL: [out] [ref] [in] uint32 *unknown2, */
+/* IDL: [in] [ref] MAPI_SETTINGS *settings, */
+/* IDL: [in] [out] [ref] uint32 *unknown2, */
 /* IDL: [out] [ref] SRowSet **RowSet */
 /* IDL: ); */
 
@@ -10634,226 +10626,226 @@ static dcerpc_sub_dissector nspi_dissectors[] = {
 void proto_register_dcerpc_nspi(void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_nspi_NspiGetHierarchyInfo_unknown1,
-		{ "Unknown1", "nspi.NspiGetHierarchyInfo.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_CTR_ft,
-		{ "Ft", "nspi.SPropValue_CTR.ft", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_CTR_object,
-		{ "Object", "nspi.SPropValue_CTR.object", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_input_locale_language,
-		{ "Language", "nspi.input_locale.language", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_CTR_MVft,
-		{ "Mvft", "nspi.SPropValue_CTR.MVft", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SDateTimeArray_lpft,
-		{ "Lpft", "nspi.SDateTimeArray.lpft", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SSortOrderSet_aSort,
-		{ "Asort", "nspi.SSortOrderSet.aSort", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SGuidArray_lpguid,
-		{ "Lpguid", "nspi.SGuidArray.lpguid", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_dwAlignPad,
-		{ "Dwalignpad", "nspi.SPropValue.dwAlignPad", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiQueryRows_instance_key,
-		{ "Instance Key", "nspi.NspiQueryRows.instance_key", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SSortOrderSet_cCategories,
-		{ "Ccategories", "nspi.SSortOrderSet.cCategories", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_MAPINAMEID_ulKind,
-		{ "Ulkind", "nspi.MAPINAMEID.ulKind", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiDNToEph_server_dn,
-		{ "Server Dn", "nspi.NspiDNToEph.server_dn", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_MAPIUID_ab,
-		{ "Ab", "nspi.MAPIUID.ab", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_CTR_b,
-		{ "B", "nspi.SPropValue_CTR.b", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SRow_ulAdrEntryPad,
-		{ "Uladrentrypad", "nspi.SRow.ulAdrEntryPad", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_CTR_null,
-		{ "Null", "nspi.SPropValue_CTR.null", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SBinary_cb,
-		{ "Cb", "nspi.SBinary.cb", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SBinaryArray_lpbin,
-		{ "Lpbin", "nspi.SBinaryArray.lpbin", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SShortArray_cValues,
-		{ "Cvalues", "nspi.SShortArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SRowSet_aRow,
-		{ "Arow", "nspi.SRowSet.aRow", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiBind_mapiuid,
-		{ "Mapiuid", "nspi.NspiBind.mapiuid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SGuidArray_cValues,
-		{ "Cvalues", "nspi.SGuidArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_instance_key_cValues,
-		{ "Cvalues", "nspi.instance_key.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SRestriction_CTR_resProperty,
-		{ "Resproperty", "nspi.SRestriction_CTR.resProperty", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiQueryRows_lRows,
-		{ "Lrows", "nspi.NspiQueryRows.lRows", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_MV_UNICODE_STRUCT_cValues,
-		{ "Cvalues", "nspi.MV_UNICODE_STRUCT.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SSortOrder_ulOrder,
-		{ "Ulorder", "nspi.SSortOrder.ulOrder", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiGetHierarchyInfo_RowSet,
-		{ "Rowset", "nspi.NspiGetHierarchyInfo.RowSet", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_MAPINAMEID_lID,
-		{ "Lid", "nspi.MAPINAMEID.lID", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiQueryRows_settings,
-		{ "Settings", "nspi.NspiQueryRows.settings", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SBinaryArray_cValues,
-		{ "Cvalues", "nspi.SBinaryArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiGetMatches_unknown2,
-		{ "Unknown2", "nspi.NspiGetMatches.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SLPSTRArray_strings,
-		{ "Strings", "nspi.SLPSTRArray.strings", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_nspi_FILETIME_dwHighDateTime,
 		{ "Dwhighdatetime", "nspi.FILETIME.dwHighDateTime", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiGetProps_REPL_values,
-		{ "Repl Values", "nspi.NspiGetProps.REPL_values", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SRow_cValues,
-		{ "Cvalues", "nspi.SRow.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_ulPropTag,
-		{ "Ulproptag", "nspi.SPropValue.ulPropTag", FT_UINT32, BASE_DEC, VALS(nspi_MAPITAGS_vals), 0, NULL, HFILL }},
-	{ &hf_nspi_NspiGetProps_settings,
-		{ "Settings", "nspi.NspiGetProps.settings", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiDNToEph_instance_key,
-		{ "Instance Key", "nspi.NspiDNToEph.instance_key", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SRestriction_CTR_resAnd,
-		{ "Resand", "nspi.SRestriction_CTR.resAnd", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiGetMatches_RowSet,
-		{ "Rowset", "nspi.NspiGetMatches.RowSet", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_MV_UNICODE_STRUCT_lpi,
-		{ "Lpi", "nspi.MV_UNICODE_STRUCT.lpi", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SSortOrderSet_cSorts,
-		{ "Csorts", "nspi.SSortOrderSet.cSorts", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SSortOrder_ulPropTag,
-		{ "Ulproptag", "nspi.SSortOrder.ulPropTag", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_CTR_MVbin,
-		{ "Mvbin", "nspi.SPropValue_CTR.MVbin", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_opnum,
-		{ "Operation", "nspi.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiUnbind_status,
-		{ "Status", "nspi.NspiUnbind.status", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SAndRestriction_lpRes,
-		{ "Lpres", "nspi.SAndRestriction.lpRes", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiDNToEph_size,
-		{ "Size", "nspi.NspiDNToEph.size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_CTR_MVi,
-		{ "Mvi", "nspi.SPropValue_CTR.MVi", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropertyRestriction_lpProp,
-		{ "Lpprop", "nspi.SPropertyRestriction.lpProp", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiGetMatches_unknown3,
-		{ "Unknown3", "nspi.NspiGetMatches.unknown3", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_MAPI_SETTINGS_flag,
-		{ "Flag", "nspi.MAPI_SETTINGS.flag", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_instance_key_value,
-		{ "Value", "nspi.instance_key.value", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiGetMatches_settings,
-		{ "Settings", "nspi.NspiGetMatches.settings", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_MV_LONG_STRUCT_cValues,
-		{ "Cvalues", "nspi.MV_LONG_STRUCT.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SRowSet_cRows,
-		{ "Crows", "nspi.SRowSet.cRows", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_MAPI_SETTINGS_service_provider,
-		{ "Service Provider", "nspi.MAPI_SETTINGS.service_provider", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_CTR_l,
-		{ "L", "nspi.SPropValue_CTR.l", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SAndRestriction_cRes,
-		{ "Cres", "nspi.SAndRestriction.cRes", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiQueryRows_flag,
-		{ "Flag", "nspi.NspiQueryRows.flag", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiQueryRows_REQ_properties,
-		{ "Req Properties", "nspi.NspiQueryRows.REQ_properties", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_CTR_MVl,
-		{ "Mvl", "nspi.SPropValue_CTR.MVl", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiGetProps_flag,
-		{ "Flag", "nspi.NspiGetProps.flag", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_MAPISTATUS_status,
-		{ "MAPISTATUS", "nspi.MAPISTATUS_status", FT_UINT32, BASE_HEX, VALS(nspi_MAPISTATUS_vals), 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_CTR_MVszW,
-		{ "Mvszw", "nspi.SPropValue_CTR.MVszW", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_LPSTR_lppszA,
-		{ "Lppsza", "nspi.LPSTR.lppszA", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_CTR_MVszA,
-		{ "Mvsza", "nspi.SPropValue_CTR.MVszA", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_property_type,
-		{ "Value", "nspi.SPropValue.value", FT_UINT32, BASE_HEX, VALS(nspi_property_types_vals), 0, NULL, HFILL }},
-	{ &hf_nspi_handle,
-		{ "Handle", "nspi.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiGetMatches_restrictions,
-		{ "Restrictions", "nspi.NspiGetMatches.restrictions", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiQueryRows_RowSet,
-		{ "Rowset", "nspi.NspiQueryRows.RowSet", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SRow_lpProps,
-		{ "Lpprops", "nspi.SRow.lpProps", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_MAPI_SETTINGS_input_locale,
-		{ "Input Locale", "nspi.MAPI_SETTINGS.input_locale", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropertyRestriction_ulPropTag,
-		{ "Ulproptag", "nspi.SPropertyRestriction.ulPropTag", FT_UINT32, BASE_DEC, VALS(nspi_MAPITAGS_vals), 0, NULL, HFILL }},
-	{ &hf_nspi_SPropTagArray_aulPropTag,
-		{ "Aulproptag", "nspi.SPropTagArray.aulPropTag", FT_UINT32, BASE_DEC, VALS(nspi_MAPITAGS_vals), 0, NULL, HFILL }},
-	{ &hf_nspi_NspiGetHierarchyInfo_unknown2,
-		{ "Unknown2", "nspi.NspiGetHierarchyInfo.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SBinary_lpb,
-		{ "Lpb", "nspi.SBinary.lpb", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiGetHierarchyInfo_settings,
-		{ "Settings", "nspi.NspiGetHierarchyInfo.settings", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SSortOrderSet_cExpanded,
-		{ "Cexpanded", "nspi.SSortOrderSet.cExpanded", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiQueryRows_unknown,
-		{ "Unknown", "nspi.NspiQueryRows.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_input_locale_method,
-		{ "Method", "nspi.input_locale.method", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiGetMatches_instance_key,
-		{ "Instance Key", "nspi.NspiGetMatches.instance_key", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_CTR_lpszA,
-		{ "Lpsza", "nspi.SPropValue_CTR.lpszA", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_CTR_bin,
-		{ "Bin", "nspi.SPropValue_CTR.bin", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SShortArray_lpi,
-		{ "Lpi", "nspi.SShortArray.lpi", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_CTR_lpszW,
-		{ "Lpszw", "nspi.SPropValue_CTR.lpszW", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiGetMatches_PropTagArray,
-		{ "Proptagarray", "nspi.NspiGetMatches.PropTagArray", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SLPSTRArray_cValues,
-		{ "Cvalues", "nspi.SLPSTRArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_CTR_err,
-		{ "Err", "nspi.SPropValue_CTR.err", FT_UINT32, BASE_DEC, VALS(nspi_MAPISTATUS_vals), 0, NULL, HFILL }},
-	{ &hf_nspi_SRestriction_PTTYPE,
-		{ "Restriction Type", "nspi.property_type", FT_UINT32, BASE_HEX, VALS(nspi_nspi_RestrictionType_vals), 0, NULL, HFILL }},
-	{ &hf_nspi_NAME_STRING_str,
-		{ "Str", "nspi.NAME_STRING.str", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropertyRestriction_relop,
-		{ "Relop", "nspi.SPropertyRestriction.relop", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_CTR_MVguid,
-		{ "Mvguid", "nspi.SPropValue_CTR.MVguid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_MAPINAMEID_lpguid,
-		{ "Lpguid", "nspi.MAPINAMEID.lpguid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_nspi_FILETIME_dwLowDateTime,
 		{ "Dwlowdatetime", "nspi.FILETIME.dwLowDateTime", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiGetMatches_REQ_properties,
-		{ "Req Properties", "nspi.NspiGetMatches.REQ_properties", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropTagArray_cValues,
-		{ "Cvalues", "nspi.SPropTagArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_CTR_lpguid,
-		{ "Lpguid", "nspi.SPropValue_CTR.lpguid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SPropValue_CTR_i,
-		{ "I", "nspi.SPropValue_CTR.i", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_LPSTR_lppszA,
+		{ "Lppsza", "nspi.LPSTR.lppszA", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_MAPINAMEID_lID,
+		{ "Lid", "nspi.MAPINAMEID.lID", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_MAPINAMEID_lpguid,
+		{ "Lpguid", "nspi.MAPINAMEID.lpguid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_MAPINAMEID_ulKind,
+		{ "Ulkind", "nspi.MAPINAMEID.ulKind", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_MAPISTATUS_status,
+		{ "MAPISTATUS", "nspi.MAPISTATUS_status", FT_UINT32, BASE_HEX, VALS(nspi_MAPISTATUS_vals), 0, NULL, HFILL }},
+	{ &hf_nspi_MAPIUID_ab,
+		{ "Ab", "nspi.MAPIUID.ab", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_nspi_MAPI_SETTINGS_codepage,
 		{ "Codepage", "nspi.MAPI_SETTINGS.codepage", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiDNToEph_flag,
-		{ "Flag", "nspi.NspiDNToEph.flag", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiBind_unknown,
-		{ "Unknown", "nspi.NspiBind.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_MAPI_SETTINGS_flag,
+		{ "Flag", "nspi.MAPI_SETTINGS.flag", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_nspi_MAPI_SETTINGS_handle,
 		{ "Handle", "nspi.MAPI_SETTINGS.handle", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiGetProps_REQ_properties,
-		{ "Req Properties", "nspi.NspiGetProps.REQ_properties", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_MAPI_SETTINGS_input_locale,
+		{ "Input Locale", "nspi.MAPI_SETTINGS.input_locale", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_MAPI_SETTINGS_service_provider,
+		{ "Service Provider", "nspi.MAPI_SETTINGS.service_provider", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_MV_LONG_STRUCT_cValues,
+		{ "Cvalues", "nspi.MV_LONG_STRUCT.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_nspi_MV_LONG_STRUCT_lpl,
 		{ "Lpl", "nspi.MV_LONG_STRUCT.lpl", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_NspiGetMatches_unknown1,
-		{ "Unknown1", "nspi.NspiGetMatches.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_nspi_SDateTimeArray_cValues,
-		{ "Cvalues", "nspi.SDateTimeArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_MV_UNICODE_STRUCT_cValues,
+		{ "Cvalues", "nspi.MV_UNICODE_STRUCT.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_MV_UNICODE_STRUCT_lpi,
+		{ "Lpi", "nspi.MV_UNICODE_STRUCT.lpi", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NAME_STRING_str,
+		{ "Str", "nspi.NAME_STRING.str", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiBind_mapiuid,
+		{ "Mapiuid", "nspi.NspiBind.mapiuid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_nspi_NspiBind_settings,
 		{ "Settings", "nspi.NspiBind.settings", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiBind_unknown,
+		{ "Unknown", "nspi.NspiBind.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiDNToEph_flag,
+		{ "Flag", "nspi.NspiDNToEph.flag", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiDNToEph_instance_key,
+		{ "Instance Key", "nspi.NspiDNToEph.instance_key", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiDNToEph_server_dn,
+		{ "Server Dn", "nspi.NspiDNToEph.server_dn", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiDNToEph_size,
+		{ "Size", "nspi.NspiDNToEph.size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiGetHierarchyInfo_RowSet,
+		{ "Rowset", "nspi.NspiGetHierarchyInfo.RowSet", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiGetHierarchyInfo_settings,
+		{ "Settings", "nspi.NspiGetHierarchyInfo.settings", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiGetHierarchyInfo_unknown1,
+		{ "Unknown1", "nspi.NspiGetHierarchyInfo.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiGetHierarchyInfo_unknown2,
+		{ "Unknown2", "nspi.NspiGetHierarchyInfo.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiGetMatches_PropTagArray,
+		{ "Proptagarray", "nspi.NspiGetMatches.PropTagArray", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiGetMatches_REQ_properties,
+		{ "Req Properties", "nspi.NspiGetMatches.REQ_properties", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiGetMatches_RowSet,
+		{ "Rowset", "nspi.NspiGetMatches.RowSet", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiGetMatches_instance_key,
+		{ "Instance Key", "nspi.NspiGetMatches.instance_key", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiGetMatches_restrictions,
+		{ "Restrictions", "nspi.NspiGetMatches.restrictions", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiGetMatches_settings,
+		{ "Settings", "nspi.NspiGetMatches.settings", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiGetMatches_unknown1,
+		{ "Unknown1", "nspi.NspiGetMatches.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiGetMatches_unknown2,
+		{ "Unknown2", "nspi.NspiGetMatches.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiGetMatches_unknown3,
+		{ "Unknown3", "nspi.NspiGetMatches.unknown3", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiGetProps_REPL_values,
+		{ "Repl Values", "nspi.NspiGetProps.REPL_values", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiGetProps_REQ_properties,
+		{ "Req Properties", "nspi.NspiGetProps.REQ_properties", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiGetProps_flag,
+		{ "Flag", "nspi.NspiGetProps.flag", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiGetProps_settings,
+		{ "Settings", "nspi.NspiGetProps.settings", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiQueryRows_REQ_properties,
+		{ "Req Properties", "nspi.NspiQueryRows.REQ_properties", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiQueryRows_RowSet,
+		{ "Rowset", "nspi.NspiQueryRows.RowSet", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiQueryRows_flag,
+		{ "Flag", "nspi.NspiQueryRows.flag", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiQueryRows_instance_key,
+		{ "Instance Key", "nspi.NspiQueryRows.instance_key", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiQueryRows_lRows,
+		{ "Lrows", "nspi.NspiQueryRows.lRows", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiQueryRows_settings,
+		{ "Settings", "nspi.NspiQueryRows.settings", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiQueryRows_unknown,
+		{ "Unknown", "nspi.NspiQueryRows.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_NspiUnbind_status,
+		{ "Status", "nspi.NspiUnbind.status", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SAndRestriction_cRes,
+		{ "Cres", "nspi.SAndRestriction.cRes", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SAndRestriction_lpRes,
+		{ "Lpres", "nspi.SAndRestriction.lpRes", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SBinaryArray_cValues,
+		{ "Cvalues", "nspi.SBinaryArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SBinaryArray_lpbin,
+		{ "Lpbin", "nspi.SBinaryArray.lpbin", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SBinary_cb,
+		{ "Cb", "nspi.SBinary.cb", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SBinary_lpb,
+		{ "Lpb", "nspi.SBinary.lpb", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SDateTimeArray_cValues,
+		{ "Cvalues", "nspi.SDateTimeArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SDateTimeArray_lpft,
+		{ "Lpft", "nspi.SDateTimeArray.lpft", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SGuidArray_cValues,
+		{ "Cvalues", "nspi.SGuidArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SGuidArray_lpguid,
+		{ "Lpguid", "nspi.SGuidArray.lpguid", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SLPSTRArray_cValues,
+		{ "Cvalues", "nspi.SLPSTRArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SLPSTRArray_strings,
+		{ "Strings", "nspi.SLPSTRArray.strings", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropTagArray_aulPropTag,
+		{ "Aulproptag", "nspi.SPropTagArray.aulPropTag", FT_UINT32, BASE_DEC, VALS(nspi_MAPITAGS_vals), 0, NULL, HFILL }},
+	{ &hf_nspi_SPropTagArray_cValues,
+		{ "Cvalues", "nspi.SPropTagArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_CTR_MVbin,
+		{ "Mvbin", "nspi.SPropValue_CTR.MVbin", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_CTR_MVft,
+		{ "Mvft", "nspi.SPropValue_CTR.MVft", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_CTR_MVguid,
+		{ "Mvguid", "nspi.SPropValue_CTR.MVguid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_CTR_MVi,
+		{ "Mvi", "nspi.SPropValue_CTR.MVi", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_CTR_MVl,
+		{ "Mvl", "nspi.SPropValue_CTR.MVl", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_CTR_MVszA,
+		{ "Mvsza", "nspi.SPropValue_CTR.MVszA", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_CTR_MVszW,
+		{ "Mvszw", "nspi.SPropValue_CTR.MVszW", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_CTR_b,
+		{ "B", "nspi.SPropValue_CTR.b", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_CTR_bin,
+		{ "Bin", "nspi.SPropValue_CTR.bin", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_CTR_err,
+		{ "Err", "nspi.SPropValue_CTR.err", FT_UINT32, BASE_DEC, VALS(nspi_MAPISTATUS_vals), 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_CTR_ft,
+		{ "Ft", "nspi.SPropValue_CTR.ft", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_CTR_i,
+		{ "I", "nspi.SPropValue_CTR.i", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_CTR_l,
+		{ "L", "nspi.SPropValue_CTR.l", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_CTR_lpguid,
+		{ "Lpguid", "nspi.SPropValue_CTR.lpguid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_CTR_lpszA,
+		{ "Lpsza", "nspi.SPropValue_CTR.lpszA", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_CTR_lpszW,
+		{ "Lpszw", "nspi.SPropValue_CTR.lpszW", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_CTR_null,
+		{ "Null", "nspi.SPropValue_CTR.null", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_CTR_object,
+		{ "Object", "nspi.SPropValue_CTR.object", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_dwAlignPad,
+		{ "Dwalignpad", "nspi.SPropValue.dwAlignPad", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropValue_ulPropTag,
+		{ "Ulproptag", "nspi.SPropValue.ulPropTag", FT_UINT32, BASE_DEC, VALS(nspi_MAPITAGS_vals), 0, NULL, HFILL }},
+	{ &hf_nspi_SPropertyRestriction_lpProp,
+		{ "Lpprop", "nspi.SPropertyRestriction.lpProp", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropertyRestriction_relop,
+		{ "Relop", "nspi.SPropertyRestriction.relop", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SPropertyRestriction_ulPropTag,
+		{ "Ulproptag", "nspi.SPropertyRestriction.ulPropTag", FT_UINT32, BASE_DEC, VALS(nspi_MAPITAGS_vals), 0, NULL, HFILL }},
+	{ &hf_nspi_SRestriction_CTR_resAnd,
+		{ "Resand", "nspi.SRestriction_CTR.resAnd", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SRestriction_CTR_resProperty,
+		{ "Resproperty", "nspi.SRestriction_CTR.resProperty", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SRestriction_PTTYPE,
+		{ "Restriction Type", "nspi.property_type", FT_UINT32, BASE_HEX, VALS(nspi_nspi_RestrictionType_vals), 0, NULL, HFILL }},
+	{ &hf_nspi_SRowSet_aRow,
+		{ "Arow", "nspi.SRowSet.aRow", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SRowSet_cRows,
+		{ "Crows", "nspi.SRowSet.cRows", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SRow_cValues,
+		{ "Cvalues", "nspi.SRow.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SRow_lpProps,
+		{ "Lpprops", "nspi.SRow.lpProps", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SRow_ulAdrEntryPad,
+		{ "Uladrentrypad", "nspi.SRow.ulAdrEntryPad", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SShortArray_cValues,
+		{ "Cvalues", "nspi.SShortArray.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SShortArray_lpi,
+		{ "Lpi", "nspi.SShortArray.lpi", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SSortOrderSet_aSort,
+		{ "Asort", "nspi.SSortOrderSet.aSort", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SSortOrderSet_cCategories,
+		{ "Ccategories", "nspi.SSortOrderSet.cCategories", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SSortOrderSet_cExpanded,
+		{ "Cexpanded", "nspi.SSortOrderSet.cExpanded", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SSortOrderSet_cSorts,
+		{ "Csorts", "nspi.SSortOrderSet.cSorts", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SSortOrder_ulOrder,
+		{ "Ulorder", "nspi.SSortOrder.ulOrder", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SSortOrder_ulPropTag,
+		{ "Ulproptag", "nspi.SSortOrder.ulPropTag", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_handle,
+		{ "Handle", "nspi.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_input_locale_language,
+		{ "Language", "nspi.input_locale.language", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_input_locale_method,
+		{ "Method", "nspi.input_locale.method", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_instance_key_cValues,
+		{ "Cvalues", "nspi.instance_key.cValues", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_instance_key_value,
+		{ "Value", "nspi.instance_key.value", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_opnum,
+		{ "Operation", "nspi.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_property_type,
+		{ "Value", "nspi.SPropValue.value", FT_UINT32, BASE_HEX, VALS(nspi_property_types_vals), 0, NULL, HFILL }},
 	};
 
 
