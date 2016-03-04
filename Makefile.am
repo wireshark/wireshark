@@ -748,7 +748,6 @@ EXTRA_DIST = \
 	debian/patches/04_asn2wrs_ply.patch	\
 	debian/patches/05_note-README-when-running-as-root.patch	\
 	debian/patches/06_release-version.patch	\
-	debian/patches/08_wireshark-desktop-menu.patch	\
 	debian/patches/09_idl2wrs.patch	\
 	debian/patches/16_licence_about_location.patch	\
 	debian/patches/series	\
