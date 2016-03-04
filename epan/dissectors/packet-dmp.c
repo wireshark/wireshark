@@ -489,6 +489,7 @@ static expert_field ei_checksum_bad = EI_INIT;
 static expert_field ei_message_body_uncompress = EI_INIT;
 static expert_field ei_addr_ext_rec_no_generated = EI_INIT;
 static expert_field ei_envelope_msg_id = EI_INIT;
+static expert_field ei_7bit_string_unused_bits = EI_INIT;
 static expert_field ei_analysis_ack_missing = EI_INIT;
 static expert_field ei_analysis_ack_dup_no = EI_INIT;
 static expert_field ei_analysis_ack_unexpected = EI_INIT;
@@ -1650,7 +1651,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
   }
 }
 
-static gchar *dissect_7bit_string (tvbuff_t *tvb, gint offset, gint length)
+static gchar *dissect_7bit_string (tvbuff_t *tvb, gint offset, gint length, guchar *byte_rest)
 {
   guchar *encoded = (guchar *)tvb_memdup (wmem_packet_scope(), tvb, offset, length);
   guchar *decoded = (guchar *)wmem_alloc0 (wmem_packet_scope(), (size_t)(length * 1.2) + 1);
@@ -1669,15 +1670,19 @@ static gchar *dissect_7bit_string (tvbuff_t *tvb, gint offset, gint length)
     }
   }
 
+  if (byte_rest) {
+    *byte_rest = rest;
+  }
+
   return (gchar *) decoded;
 }
 
-static const gchar *dissect_thales_mts_id (tvbuff_t *tvb, gint offset, gint length)
+static const gchar *dissect_thales_mts_id (tvbuff_t *tvb, gint offset, gint length, guchar *byte_rest)
 {
   /* Thales XOmail uses this format: "MTA-NAME/000000000000" */
   if (length >= 7 && length <= 22) {
     return wmem_strdup_printf (wmem_packet_scope(), "%s/%08X%04X",
-                               dissect_7bit_string (tvb, offset, length - 6),
+                               dissect_7bit_string (tvb, offset, length - 6, byte_rest),
                                tvb_get_ntohl (tvb, offset + length - 6),
                                tvb_get_ntohs (tvb, offset + length - 2));
   }
@@ -1685,7 +1690,7 @@ static const gchar *dissect_thales_mts_id (tvbuff_t *tvb, gint offset, gint leng
   return ILLEGAL_FORMAT;
 }
 
-static const gchar *dissect_thales_ipm_id (tvbuff_t *tvb, gint offset, gint length, gint modifier)
+static const gchar *dissect_thales_ipm_id (tvbuff_t *tvb, gint offset, gint length, gint modifier, guchar *byte_rest)
 {
   /* Thales XOmail uses this format: "<prefix>0000 YYMMDDhhmmssZ" */
   if (length >= 6 && length <= 20 && modifier >= 0 && modifier <= 2) {
@@ -1704,7 +1709,7 @@ static const gchar *dissect_thales_ipm_id (tvbuff_t *tvb, gint offset, gint leng
     }
 
     return wmem_strdup_printf (wmem_packet_scope(), "%s%0*d %02d%02d%02d%02d%02d%02dZ",
-                               (length == 6) ? "" : dissect_7bit_string (tvb, offset, length - 6),
+                               (length == 6) ? "" : dissect_7bit_string (tvb, offset, length - 6, byte_rest),
                                number_len, number,
                                tmp->tm_year % 100, tmp->tm_mon + 1, tmp->tm_mday,
                                tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
@@ -2680,28 +2685,29 @@ static gint dissect_dmp_ack (tvbuff_t *tvb, packet_info *pinfo,
   return offset;
 }
 
-static gint dissect_mts_identifier (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+static gint dissect_mts_identifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                     gint offset, gboolean subject)
 {
-  proto_item *hidden_item;
+  proto_item *ti, *hidden_item;
   const gchar *mts_id;
+  guchar byte_rest = 0;
 
   if (dmp.msg_id_type == X400_MSG_ID || dmp_nat_decode == NAT_DECODE_DMP) {
-    mts_id = dissect_7bit_string (tvb, offset, dmp.mts_id_length);
+    mts_id = dissect_7bit_string (tvb, offset, dmp.mts_id_length, &byte_rest);
   } else if (dmp_nat_decode == NAT_DECODE_THALES) {
-    mts_id = dissect_thales_mts_id (tvb, offset, dmp.mts_id_length);
+    mts_id = dissect_thales_mts_id (tvb, offset, dmp.mts_id_length, &byte_rest);
   } else {
     mts_id = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, dmp.mts_id_length);
   }
   proto_item_append_text (dmp.mts_id_item, " (%zu bytes decompressed)", strlen(mts_id));
   mts_id = format_text (mts_id, strlen(mts_id));
   if (subject) {
-    proto_tree_add_string (tree, hf_message_subj_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
+    ti = proto_tree_add_string (tree, hf_message_subj_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     hidden_item = proto_tree_add_string (tree, hf_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     /* Read from hash, for analysis */
     dmp.subj_id = GPOINTER_TO_UINT (g_hash_table_lookup (dmp_long_id_hash_table, mts_id));
   } else {
-    proto_tree_add_string (tree, hf_envelope_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
+    ti = proto_tree_add_string (tree, hf_envelope_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     hidden_item = proto_tree_add_string (tree, hf_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     /* Insert into hash, for analysis */
     g_hash_table_insert (dmp_long_id_hash_table, g_strdup (mts_id), GUINT_TO_POINTER ((guint)dmp.msg_id));
@@ -2709,16 +2715,21 @@ static gint dissect_mts_identifier (tvbuff_t *tvb, packet_info *pinfo _U_, proto
   PROTO_ITEM_SET_HIDDEN (hidden_item);
   offset += dmp.mts_id_length;
 
+  if (byte_rest) {
+    expert_add_info (pinfo, ti, &ei_7bit_string_unused_bits);
+  }
+
   return offset;
 }
 
-static gint dissect_ipm_identifier (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+static gint dissect_ipm_identifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                     gint offset, gboolean subject)
 {
   proto_tree *field_tree;
-  proto_item *tf, *hidden_item;
+  proto_item *ti, *tf, *hidden_item;
   const gchar *ipm_id;
   gint        length, modifier, ipm_id_length;
+  guchar      byte_rest = 0;
 
   length = tvb_get_guint8 (tvb, offset);
   modifier = (length & 0xC0) >> 6;
@@ -2738,27 +2749,31 @@ static gint dissect_ipm_identifier (tvbuff_t *tvb, packet_info *pinfo _U_, proto
   offset += 1;
 
   if (modifier == IPM_MODIFIER_X400 || dmp_nat_decode == NAT_DECODE_DMP) {
-    ipm_id = dissect_7bit_string (tvb, offset, ipm_id_length);
+    ipm_id = dissect_7bit_string (tvb, offset, ipm_id_length, &byte_rest);
   } else if (dmp_nat_decode == NAT_DECODE_THALES) {
-    ipm_id = dissect_thales_ipm_id (tvb, offset, ipm_id_length, modifier);
+    ipm_id = dissect_thales_ipm_id (tvb, offset, ipm_id_length, modifier, &byte_rest);
   } else {
     ipm_id = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, ipm_id_length);
   }
   proto_item_append_text (tf, " (%zu bytes decompressed)", strlen(ipm_id));
   ipm_id = format_text (ipm_id, strlen(ipm_id));
   if (subject) {
-    proto_tree_add_string (tree, hf_message_subj_ipm_id, tvb, offset, ipm_id_length, ipm_id);
+    ti = proto_tree_add_string (tree, hf_message_subj_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     hidden_item = proto_tree_add_string (tree, hf_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     /* Read from hash, for analysis */
     dmp.subj_id = GPOINTER_TO_UINT (g_hash_table_lookup (dmp_long_id_hash_table, ipm_id));
   } else {
-    proto_tree_add_string (tree, hf_envelope_ipm_id, tvb, offset, ipm_id_length, ipm_id);
+    ti = proto_tree_add_string (tree, hf_envelope_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     hidden_item = proto_tree_add_string (tree, hf_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     /* Insert into hash, for analysis */
     g_hash_table_insert (dmp_long_id_hash_table, g_strdup (ipm_id), GUINT_TO_POINTER ((guint)dmp.msg_id));
   }
   PROTO_ITEM_SET_HIDDEN (hidden_item);
   offset += ipm_id_length;
+
+  if (byte_rest) {
+    expert_add_info (pinfo, ti, &ei_7bit_string_unused_bits);
+  }
 
   return offset;
 }
@@ -4965,6 +4980,7 @@ void proto_register_dmp (void)
      { &ei_ack_reason, { "dmp.ack_reason.expert", PI_RESPONSE_CODE, PI_NOTE, "ACK reason: %s", EXPFILL }},
      { &ei_envelope_version_value, { "dmp.version_value.unsupported", PI_UNDECODED, PI_ERROR, "Unsupported DMP Version", EXPFILL }},
      { &ei_envelope_msg_id, { "dmp.msg_id.short_id", PI_PROTOCOL, PI_NOTE, "Id < 4096 - should use ShortId", EXPFILL }},
+     { &ei_7bit_string_unused_bits, { "dmp.7bit_string.unused_bits", PI_PROTOCOL, PI_WARN, "Unused bits in last byte shall be null", EXPFILL }},
      { &ei_message_compr, { "dmp.body.compression.unknown", PI_UNDECODED, PI_WARN, "Unknown compression algorithm", EXPFILL }},
      { &ei_message_body_uncompress, { "dmp.body.uncompress.fail", PI_UNDECODED, PI_WARN, "Error: Unable to uncompress content", EXPFILL }},
      { &ei_checksum_bad, { "dmp.checksum_bad.expert", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
