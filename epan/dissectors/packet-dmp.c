@@ -3191,7 +3191,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
         add_new_data_source (pinfo, body_tvb, "Uncompressed User data");
         tf = proto_tree_add_item (message_tree, hf_message_body_data,
                                   body_tvb, 0, body_len, ENC_NA);
-        proto_item_set_text (tf, "User data, Length: %d", len);
+        proto_item_set_text (tf, "User data, Length: %d", body_len);
         PROTO_ITEM_SET_GENERATED (tf);
       } else {
         proto_tree_add_expert (message_tree, pinfo, &ei_message_body_uncompress, tvb, offset, len);
