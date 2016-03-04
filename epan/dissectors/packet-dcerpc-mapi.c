@@ -3988,7 +3988,7 @@ static int mapi_dissect_element_request_handles_cnf(tvbuff_t *tvb _U_, int offse
 	}
 	return offset;
 }
-int
+static int
 mapi_dissect_struct_EcDoRpc_MAPI_REQ(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item	*item = NULL;
@@ -4086,7 +4086,8 @@ static int mapi_dissect_element_EcDoRpc_request__(tvbuff_t *tvb _U_, int offset 
 	}
 	return offset;
 }
-int
+/*
+static int
 mapi_dissect_struct_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item	*item = NULL;
@@ -4098,6 +4099,7 @@ mapi_dissect_struct_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 	offset = mapi_dissect_struct_EcDoRpc_MAPI_REQ(tvb, offset, pinfo, tree, di, drep, hf_mapi_mapi_request_mapi_req, 0);
 	return offset;
 }
+*/
 /*************************/
 /* EcDoRpc Function 0x2  */
 static int
