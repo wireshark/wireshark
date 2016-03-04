@@ -124,7 +124,8 @@ sub parse_git_name {
 	my $replace = "[AT]";
 	my $email;
 
-	if ($full_name =~ /^([^<]*)\s*<([^>]*)>/) {
+	#  4321	Navin R. Johnson <nrjohnson@example.com>
+	if ($full_name =~ /^\s*\d+\s+([^<]*)\s*<([^>]*)>/) {
 		$name = $1;
 		#Convert real email address to "spam proof" one
 		$email = $2;
@@ -182,6 +183,7 @@ close $author_fh;
 $git_log_text =~ s/$crlf_find/$crlf_replace/g;
 print $git_log_text;
 
+# XXX open "git shortlog ... |" instead?
 open( my $git_author_fh, '<', $ARGV[1] ) or die "Can't open $ARGV[1]: $!";
 
 while ( my $git_line = <$git_author_fh> ) {
