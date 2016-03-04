@@ -208,8 +208,10 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 
 	sshs = create_ssh_connection(hostname, port, username, password, sshkey, sshkey_passphrase, &err_info);
 
-	if (!sshs)
+	if (!sshs) {
+		errmsg_print("Error creating connection: %s", err_info);
 		goto cleanup;
+	}
 
 	channel = run_ssh_command(sshs, capture_bin, iface, cfilter, count);
 	if (!channel)
@@ -368,18 +370,16 @@ int main(int argc, char **argv)
 	char* remote_filter = NULL;
 	unsigned long int count = 0;
 	int ret = 0;
-
 	extcap_parameters * extcap_conf = g_new0(extcap_parameters, 1);
-
-	extcap_base_set_util_info(extcap_conf, SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR, SSHDUMP_VERSION_RELEASE, NULL);
-	extcap_base_register_interface(extcap_conf, SSH_EXTCAP_INTERFACE, "SSH remote capture", 147, "Remote capture dependant DLT");
-
 
 #ifdef _WIN32
 	WSADATA wsaData;
 
 	attach_parent_console();
 #endif  /* _WIN32 */
+
+	extcap_base_set_util_info(extcap_conf, SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR, SSHDUMP_VERSION_RELEASE, NULL);
+	extcap_base_register_interface(extcap_conf, SSH_EXTCAP_INTERFACE, "SSH remote capture", 147, "Remote capture dependent DLT");
 
 	opterr = 0;
 	optind = 0;
@@ -478,8 +478,7 @@ int main(int argc, char **argv)
 			break;
 
 		default:
-			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg))
-			{
+			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg)) {
 				errmsg_print("Invalid option: %s", argv[optind - 1]);
 				return EXIT_FAILURE;
 			}
@@ -502,7 +501,7 @@ int main(int argc, char **argv)
 	if (result != 0) {
 		if (verbose)
 			errmsg_print("ERROR: WSAStartup failed with error: %d", result);
-		return 1;
+		return EXIT_FAILURE;
 	}
 #endif  /* _WIN32 */
 
@@ -511,7 +510,7 @@ int main(int argc, char **argv)
 
 		if (!remote_host) {
 			errmsg_print("Missing parameter: --remote-host");
-			return 1;
+			return EXIT_FAILURE;
 		}
 		filter = concat_filters(extcap_conf->capture_filter, remote_filter);
 		ret = ssh_open_remote_connection(remote_host, remote_port, remote_username,
@@ -520,14 +519,13 @@ int main(int argc, char **argv)
 		g_free(filter);
 	} else {
 		verbose_print("You should not come here... maybe some parameter missing?\n");
-		ret = 1;
+		ret = EXIT_FAILURE;
 	}
 
 	/* clean up stuff */
 	extcap_base_cleanup(&extcap_conf);
 	return ret;
 }
-
 
 #ifdef _WIN32
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
