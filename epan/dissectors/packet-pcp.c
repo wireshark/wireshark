@@ -2605,6 +2605,6 @@ void proto_reg_handoff_pcp(void)
 * indent-tabs-mode: nil
 * End:
 *
-* vi: set shiftwidth=4 tabstop=4 expandtab:
+* vi: set shiftwidth=4 tabstop=8 expandtab:
 * :indentSize=4:tabSize=8:noTabs=true:
 */

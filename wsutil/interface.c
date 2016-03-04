@@ -30,66 +30,66 @@
 #include <wsutil/inet_addr.h>
 
 #ifdef HAVE_ARPA_INET_H
-	#include <arpa/inet.h>
+    #include <arpa/inet.h>
 #endif
 
 #ifdef HAVE_IFADDRS_H
-	#include <ifaddrs.h>
+    #include <ifaddrs.h>
 #endif
 
 GSList *local_interfaces_to_list(void)
 {
-	GSList *interfaces = NULL;
+    GSList *interfaces = NULL;
 #ifdef HAVE_GETIFADDRS
-	struct ifaddrs *ifap;
-	struct ifaddrs *ifa;
-	int family;
-	char ip[INET6_ADDRSTRLEN];
+    struct ifaddrs *ifap;
+    struct ifaddrs *ifa;
+    int family;
+    char ip[INET6_ADDRSTRLEN];
 
-	if (getifaddrs(&ifap)) {
-		goto end;
-	}
+    if (getifaddrs(&ifap)) {
+	goto end;
+    }
 
-	interfaces = g_slist_alloc();
+    interfaces = g_slist_alloc();
 
-	for (ifa = ifap; ifa != NULL; ifa = ifa->ifa_next) {
-		if (ifa->ifa_addr == NULL)
-			continue;
+    for (ifa = ifap; ifa != NULL; ifa = ifa->ifa_next) {
+	if (ifa->ifa_addr == NULL)
+	    continue;
 
-		family = ifa->ifa_addr->sa_family;
+	family = ifa->ifa_addr->sa_family;
 
-		memset(ip, 0x0, INET6_ADDRSTRLEN);
+	memset(ip, 0x0, INET6_ADDRSTRLEN);
 
-		switch (family) {
-			case AF_INET:
-				{
-					struct sockaddr_in *addr4 = (struct sockaddr_in *)ifa->ifa_addr;
-					ws_inet_ntop4(&addr4->sin_addr, ip, sizeof(ip));
-					break;
-				}
-
-			case AF_INET6:
-				{
-					struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *)ifa->ifa_addr;
-					ws_inet_ntop6(&addr6->sin6_addr, ip, sizeof(ip));
-					break;
-				}
-
-			default:
-				break;
+	switch (family) {
+	    case AF_INET:
+		{
+		    struct sockaddr_in *addr4 = (struct sockaddr_in *)ifa->ifa_addr;
+		    ws_inet_ntop4(&addr4->sin_addr, ip, sizeof(ip));
+		    break;
 		}
 
-		/* skip loopback addresses */
-		if (!g_strcmp0(ip, "127.0.0.1") || !g_strcmp0(ip, "::1"))
-			continue;
-
-		if (*ip) {
-			interfaces = g_slist_prepend(interfaces, g_strdup(ip));
+	    case AF_INET6:
+		{
+		    struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *)ifa->ifa_addr;
+		    ws_inet_ntop6(&addr6->sin6_addr, ip, sizeof(ip));
+		    break;
 		}
+
+	    default:
+		break;
 	}
+
+	/* skip loopback addresses */
+	if (!g_strcmp0(ip, "127.0.0.1") || !g_strcmp0(ip, "::1"))
+	    continue;
+
+	if (*ip) {
+	    interfaces = g_slist_prepend(interfaces, g_strdup(ip));
+	}
+    }
 end:
 #endif /* HAVE_GETIFADDRS */
-	return interfaces;
+    return interfaces;
 }
 
 /*
@@ -97,10 +97,10 @@ end:
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: t
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 noexpandtab:
- * :indentSize=4:tabSize=4:noTabs=false:
+ * vi: set shiftwidth=4 tabstop=8 noexpandtab:
+ * :indentSize=4:tabSize=8:noTabs=false:
  */
