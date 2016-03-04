@@ -61,10 +61,21 @@ sshdump_LIBS = $(sshdump_WSLIBS) \
 	$(LIBSSH_LIBS) \
 	$(GLIB_LIBS)
 
+ciscodump_OBJECTS = $(ciscodump_SOURCES:.c=.obj)
+
+ciscodump_WSLIBS = \
+	..\wiretap\wiretap-$(WTAP_VERSION).lib \
+	..\wsutil\libwsutil.lib
+
+ciscodump_LIBS = $(ciscodump_WSLIBS) \
+	wsock32.lib user32.lib \
+	$(LIBSSH_LIBS) \
+	$(GLIB_LIBS)
+
 EXECUTABLES=androiddump.exe randpktdump.exe
 
 !IFDEF LIBSSH_DIR
-EXECUTABLES += sshdump.exe
+EXECUTABLES += sshdump.exe ciscodump.exe
 !ENDIF
 
 all: $(EXECUTABLES)
@@ -96,11 +107,19 @@ sshdump.exe	: $(LIBS_CHECK) ..\config.h sshdump.obj extcap-base.obj ssh-base.obj
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "sshdump.exe.manifest" -outputresource:sshdump.exe;1
 !ENDIF
+ciscodump.exe	: $(LIBS_CHECK) ..\config.h ciscodump.obj extcap-base.obj ssh-base.obj $(ciscodump_WSLIBS)
+	@echo Linking $@
+	$(LINK) @<<
+		/OUT:ciscodump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS ciscodump.obj extcap-base.obj ssh-base.obj $(ciscodump_LIBS)
+<<
+!IFDEF MANIFEST_INFO_REQUIRED
+	mt.exe -nologo -manifest "ciscodump.exe.manifest" -outputresource:ciscodump.exe;1
+!ENDIF
 !ENDIF
 
 clean:
 	rm -f $(androiddump_OBJECTS) $(randpktdump_OBJECTS) $(sshdump_OBJECTS) \
-		$(EXECUTABLES) *.nativecodeanalysis.xml *.pdb *.sbr \
+		${ciscodump_OBJECTS} $(EXECUTABLES) *.nativecodeanalysis.xml *.pdb *.sbr \
 		doxygen.cfg *.exe.manifest
 
 # "distclean" removes all files not part of the distribution.
@@ -138,8 +157,8 @@ checkapi: checkapi-base checkapi-todo
 
 checkapi-base:
 	$(PERL) ../tools/checkAPIs.pl -g deprecated-gtk -build \
-	$(androiddump_SOURCES) $(randpktdump_SOURCES) $(sshdump_SOURCES)
+	$(androiddump_SOURCES) $(randpktdump_SOURCES) $(sshdump_SOURCES) ${ciscodump_SOURCES}
 
 checkapi-todo:
 	$(PERL) ../tools/checkAPIs.pl -M -g deprecated-gtk-todo -build \
-	$(androiddump_SOURCES) $(randpktdump_SOURCES) $(sshdump_SOURCES)
+	$(androiddump_SOURCES) $(randpktdump_SOURCES) $(sshdump_SOURCES) ${ciscodump_SOURCES}

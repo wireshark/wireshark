@@ -26,6 +26,7 @@
 
 #include <extcap/extcap-base.h>
 #include <log.h>
+#include <string.h>
 
 #define verbose_print(...) { if (verbose) printf(__VA_ARGS__); }
 
@@ -130,6 +131,22 @@ ssh_session create_ssh_connection(const char* hostname, const unsigned int port,
 failure:
 	ssh_free(sshs);
 	return NULL;
+}
+
+int ssh_channel_printf(ssh_channel channel, const char* fmt, ...)
+{
+	gchar* buf;
+	va_list arg;
+	int ret = EXIT_SUCCESS;
+
+	va_start(arg, fmt);
+	buf = g_strdup_vprintf(fmt, arg);
+	if (ssh_channel_write(channel, buf, (guint32)strlen(buf)) == SSH_ERROR)
+		ret = EXIT_FAILURE;
+	va_end(arg);
+	g_free(buf);
+
+	return ret;
 }
 
 void ssh_cleanup(ssh_session* sshs, ssh_channel* channel)

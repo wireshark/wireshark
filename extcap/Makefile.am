@@ -34,9 +34,10 @@ EXTRA_DIST = \
 extcap_PROGRAMS = \
 	@androiddump_bin@	\
 	@randpktdump_bin@	\
-	@sshdump_bin@
+	@sshdump_bin@	\
+	@ciscodump_bin@
 
-EXTRA_PROGRAMS = androiddump randpktdump sshdump
+EXTRA_PROGRAMS = androiddump randpktdump sshdump ciscodump
 
 if ENABLE_STATIC
 androiddump_LDFLAGS = -Wl,-static -all-static
@@ -73,6 +74,20 @@ endif
 
 # Libraries and plugin flags with which to link sshdump.
 sshdump_LDADD = \
+	../wiretap/libwiretap.la	\
+	../wsutil/libwsutil.la		\
+	@GLIB_LIBS@			\
+	@LIBSSH_LIBS@		\
+	@SOCKET_LIBS@
+
+if ENABLE_STATIC
+	ciscodump_LDFLAGS = -Wl,-static -all-static
+else
+	ciscodump_LDFLAGS = -export-dynamic
+endif
+
+# Libraries and plugin flags with which to link ciscodump.
+ciscodump_LDADD = \
 	../wiretap/libwiretap.la	\
 	../wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\

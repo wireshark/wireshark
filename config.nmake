@@ -416,7 +416,7 @@ GNUTLS_PKG=3.2.15-2.7
 GPGERROR_DLL=libgpg-error-0.dll
 GCC_DLL=libgcc_s_sjlj-1.dll
 
-# Optional: libssh library is required for sshdump support
+# Optional: libssh library is required for sshdump and ciscodump support
 #
 # If you don't have libssh, comment this line out so that LIBSSH_DIR
 # isn't defined.

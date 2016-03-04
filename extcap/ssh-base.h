@@ -27,9 +27,23 @@
 
 #include <libssh/libssh.h>
 
+#define SSH_BASE_OPTIONS \
+	{ "remote-host", required_argument, NULL, OPT_REMOTE_HOST}, \
+	{ "remote-port", required_argument, NULL, OPT_REMOTE_PORT}, \
+	{ "remote-username", required_argument, NULL, OPT_REMOTE_USERNAME}, \
+	{ "remote-password", required_argument, NULL, OPT_REMOTE_PASSWORD}, \
+	{ "remote-interface", required_argument, NULL, OPT_REMOTE_INTERFACE}, \
+	{ "remote-filter", required_argument, NULL, OPT_REMOTE_FILTER}, \
+	{ "remote-count", required_argument, NULL, OPT_REMOTE_COUNT}, \
+	{ "sshkey", required_argument, NULL, OPT_SSHKEY}, \
+	{ "sshkey-passphrase", required_argument, NULL, OPT_SSHKEY_PASSPHRASE}
+
 /* Create a ssh connection using all the possible authentication menthods */
 ssh_session create_ssh_connection(const char* hostname, const unsigned int port, const char* username,
 	const char* password, const char* sshkey_path, const char* sshkey_passphrase, char** err_info);
+
+/* Write a formatted message in the channel */
+int ssh_channel_printf(ssh_channel channel, const char* fmt, ...);
 
 /* Clean the current ssh session and channel. */
 void ssh_cleanup(ssh_session* sshs, ssh_channel* channel);

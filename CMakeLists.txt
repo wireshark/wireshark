@@ -1218,7 +1218,7 @@ endforeach()
 include(FeatureSummary)
 #SET_FEATURE_INFO(NAME DESCRIPTION [URL [COMMENT] ])
 SET_FEATURE_INFO(SBC "SBC Codec for Bluetooth A2DP stream playing" "www: http://git.kernel.org/cgit/bluetooth/sbc.git" )
-SET_FEATURE_INFO(LIBSSH "libssh is library for ssh connections and it is needed to build sshdump" "www: https://www.libssh.org/get-it/" )
+SET_FEATURE_INFO(LIBSSH "libssh is library for ssh connections and it is needed to build sshdump/ciscodump" "www: https://www.libssh.org/get-it/" )
 
 FEATURE_SUMMARY(WHAT ALL)
 
@@ -2374,6 +2374,32 @@ elseif (BUILD_sshdump)
 	#message( WARNING "Cannot find libssh, cannot build sshdump" )
 endif()
 
+if(ENABLE_EXTCAP AND BUILD_ciscodump AND LIBSSH_FOUND)
+	set(ciscodump_LIBS
+		wsutil
+		${GLIB2_LIBRARIES}
+		${CMAKE_DL_LIBS}
+		${LIBSSH_LIBRARIES}
+	)
+	if (WIN32)
+	        set(ciscodump_LIBS wsutil ${ciscodump_LIBS})
+	endif()
+	set(ciscodump_FILES
+		extcap/ciscodump.c
+		extcap/extcap-base.c
+		extcap/ssh-base.c
+		pcapio.c
+	)
+
+	add_executable(ciscodump WIN32 ${ciscodump_FILES})
+	set_extcap_executable_properties(ciscodump)
+	target_link_libraries(ciscodump ${ciscodump_LIBS})
+	target_include_directories(ciscodump PUBLIC ${LIBSSH_INCLUDE_DIR})
+	install(TARGETS ciscodump RUNTIME DESTINATION ${EXTCAP_DIR})
+elseif (BUILD_ciscodump)
+	#message( WARNING "Cannot find libssh, cannot build ciscodump" )
+endif()
+
 if(ENABLE_EXTCAP AND BUILD_randpktdump)
 	set(randpktdump_LIBS
 		randpkt_core
@@ -2464,6 +2490,7 @@ set(CLEAN_FILES
 	${dumpcap_FILES}
 	${androiddump_FILES}
 	${sshdump_FILES}
+	${ciscodump_FILES}
 )
 
 if (WERROR_COMMON_FLAGS)

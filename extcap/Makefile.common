@@ -37,6 +37,12 @@ sshdump_SOURCES =	\
 	extcap-base.c \
 	ssh-base.c
 
+# ciscodump specifics
+ciscodump_SOURCES =	\
+	ciscodump.c	\
+	extcap-base.c	\
+	ssh-base.c
+
 noinst_HEADERS = \
-	extcap-base.h \
+	extcap-base.h	\
 	ssh-base.h

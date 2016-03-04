@@ -3016,12 +3016,15 @@ dnl sshdump check
 AC_MSG_CHECKING(whether to build sshdump)
 
 AC_ARG_ENABLE(sshdump,
-  AC_HELP_STRING( [--enable-sshdump],
-		  [build sshdump @<:@default=yes@:>@]),
-    sshdump=$enableval,enable_sshdump=yes)
+	AC_HELP_STRING( [--enable-sshdump],
+		[build sshdump @<:@default=yes@:>@]),
+	[],[enable_sshdump=yes])
 
 if test "x$have_extcap" != xyes; then
 	AC_MSG_RESULT(no, extcap disabled)
+	enable_sshdump=no
+elif test "x$have_good_libssh" != xyes; then
+	AC_MSG_RESULT(no, libssh not available)
 	enable_sshdump=no
 elif test "x$enable_sshdump" = "xyes" ; then
 	AC_MSG_RESULT(yes)
@@ -3030,15 +3033,8 @@ else
 fi
 
 if test "x$enable_sshdump" = "xyes" ; then
-	if  test "x$have_good_libssh" = "xyes" ; then
-		sshdump_bin="sshdump\$(EXEEXT)"
-		sshdump_man="sshdump.1"
-	else
-		echo "Can't find libssh. Disabling sshdump."
-		enable_sshdump=no
-		sshdump_bin=""
-		sshdump_man=""
-	fi
+	sshdump_bin="sshdump\$(EXEEXT)"
+	sshdump_man="sshdump.1"
 else
 	sshdump_bin=""
 	sshdump_man=""
@@ -3046,13 +3042,43 @@ fi
 AC_SUBST(sshdump_bin)
 AC_SUBST(sshdump_man)
 
+dnl ciscodump check
+AC_MSG_CHECKING(whether to build ciscodump)
+
+AC_ARG_ENABLE(ciscodump,
+	AC_HELP_STRING( [--enable-ciscodump],
+		[build ciscodump @<:@default=yes@:>@]),
+	[],[enable_ciscodump=yes])
+
+if test "x$have_extcap" != xyes; then
+	AC_MSG_RESULT(no, extcap disabled)
+	enable_ciscodump=no
+elif test "x$have_good_libssh" != xyes; then
+	AC_MSG_RESULT(no, libssh not available)
+	enable_ciscodump=no
+elif test "x$enable_ciscodump" = "xyes" ; then
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_RESULT(no)
+fi
+
+if test "x$enable_ciscodump" = "xyes" ; then
+	ciscodump_bin="ciscodump\$(EXEEXT)"
+	ciscodump_man="ciscodump.1"
+else
+	ciscodump_bin=""
+	ciscodump_man=""
+fi
+AC_SUBST(ciscodump_bin)
+AC_SUBST(ciscodump_man)
+
 dnl randpktdump check
 AC_MSG_CHECKING(whether to build randpktdump)
 
 AC_ARG_ENABLE(randpktdump,
-  AC_HELP_STRING( [--enable-randpktdump],
-		  [build androiddump @<:@default=yes@:>@]),
-    randpktdump=$enableval,enable_randpktdump=yes)
+	AC_HELP_STRING( [--enable-randpktdump],
+		[build androiddump @<:@default=yes@:>@]),
+	randpktdump=$enableval,enable_randpktdump=yes)
 
 if test "x$have_extcap" != xyes; then
 	AC_MSG_RESULT(no, extcap disabled)
@@ -3443,6 +3469,7 @@ echo "                       Build dftest : $enable_dftest"
 echo "                     Build rawshark : $enable_rawshark"
 echo "                  Build androiddump : $enable_androiddump"
 echo "                      Build sshdump : $enable_sshdump"
+echo "                    Build ciscodump : $enable_ciscodump"
 echo "                  Build randpktdump : $enable_randpktdump"
 echo "                        Build echld : $have_echld"
 echo ""

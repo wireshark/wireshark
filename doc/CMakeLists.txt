@@ -84,6 +84,7 @@ pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/randpktdump 1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/rawshark    1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/reordercap  1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/sshdump     1)
+pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/ciscodump   1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/text2pcap   1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/tshark      1)
 pod2manhtml(${CMAKE_CURRENT_BINARY_DIR}/wireshark   1)
@@ -107,6 +108,7 @@ set(MAN1_INSTALL_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/rawshark.1
 	${CMAKE_CURRENT_BINARY_DIR}/reordercap.1
 	${CMAKE_CURRENT_BINARY_DIR}/sshdump.1
+	${CMAKE_CURRENT_BINARY_DIR}/ciscodump.1
 	${CMAKE_CURRENT_BINARY_DIR}/text2pcap.1
 	${CMAKE_CURRENT_BINARY_DIR}/tshark.1
 	${CMAKE_CURRENT_BINARY_DIR}/wireshark.1
@@ -134,6 +136,7 @@ set(HTML_INSTALL_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/rawshark.html
 	${CMAKE_CURRENT_BINARY_DIR}/reordercap.html
 	${CMAKE_CURRENT_BINARY_DIR}/sshdump.html
+	${CMAKE_CURRENT_BINARY_DIR}/ciscodump.html
 	${CMAKE_CURRENT_BINARY_DIR}/text2pcap.html
 	${CMAKE_CURRENT_BINARY_DIR}/tshark.html
 	${CMAKE_CURRENT_BINARY_DIR}/wireshark.html

@@ -1,0 +1,231 @@
+
+=head1 NAME
+
+ciscodump - Provide interfaces to capture from a remote Cisco router through SSH.
+
+=head1 SYNOPSIS
+
+B<ciscodump>
+S<[ B<--help> ]>
+S<[ B<--version> ]>
+S<[ B<--extcap-interfaces> ]>
+S<[ B<--extcap-dlts> ]>
+S<[ B<--extcap-interface>=E<lt>interfaceE<gt> ]>
+S<[ B<--extcap-config> ]>
+S<[ B<--extcap-capture-filter>=E<lt>capture filterE<gt> ]>
+S<[ B<--capture> ]>
+S<[ B<--fifo>=E<lt>path to file or pipeE<gt> ]>
+S<[ B<--remote-host>=E<lt>IP addressE<gt> ]>
+S<[ B<--remote-port>=E<lt>TCP portE<gt> ]>
+S<[ B<--remote-username>=E<lt>usernameE<gt> ]>
+S<[ B<--remote-password>=E<lt>passwordE<gt> ]>
+S<[ B<--remote-filter>=E<lt>filter<gt> ]>
+S<[ B<--sshkey>=E<lt>public key path<gt> ]>
+S<[ B<--remote-interface>=E<lt>interfaceE<gt> ]>
+
+
+B<ciscodump>
+S<B<--extcap-interfaces>>
+
+B<ciscodump>
+S<B<--extcap-interface>=E<lt>interfaceE<gt>>
+S<B<--extcap-dlts>>
+
+B<ciscodump>
+S<B<--extcap-interface>=E<lt>interfaceE<gt>>
+S<B<--extcap-config>>
+
+B<ciscodump>
+S<B<--extcap-interface>=E<lt>interfaceE<gt>>
+S<B<--fifo>=E<lt>path to file or pipeE<gt>>
+S<B<--capture>>
+S<B<--remote-host=remoterouter>>
+S<B<--remote-port=22>>
+S<B<--remote-username=user>>
+S<B<--remote-interface>=E<lt>the router interfaceE<gt>>
+
+=head1 DESCRIPTION
+
+B<ciscodump> is an extcap tool that relys on Cisco EPC to allow a user to run a remote capture
+on a Cisco router in a SSH connection. The minimum IOS version supporting this feature is 12.4(20)T. More details can be
+found here:
+http://www.cisco.com/c/en/us/products/collateral/ios-nx-os-software/ios-embedded-packet-capture/datasheet_c78-502727.html
+
+Supported interfaces:
+
+=over 4
+
+=item 1. cisco
+
+=back
+
+=head1 OPTIONS
+
+=over 4
+
+=item --help
+
+Print program arguments.
+
+=item --version
+
+Print program version.
+
+=item --extcap-interfaces
+
+List available interfaces.
+
+=item --extcap-interface=E<lt>interfaceE<gt>
+
+Use specified interfaces.
+
+=item --extcap-dlts
+
+List DLTs of specified interface.
+
+=item --extcap-config
+
+List configuration options of specified interface.
+
+=item --capture
+
+Start capturing from specified interface and save it in place specified by --fifo.
+
+=item --fifo=E<lt>path to file or pipeE<gt>
+
+Save captured packet to file or send it through pipe.
+
+=item --remote-host=E<lt>remote hostE<gt>
+
+The address of the remote host for capture.
+
+=item --remote-port=E<lt>remote portE<gt>
+
+The SSH port of the remote host.
+
+=item --remote-username=E<lt>usernameE<gt>
+
+The username for ssh authentication.
+
+=item --remote-password=E<lt>passwordE<gt>
+
+The password to use (if not ssh-agent and pubkey are used). WARNING: the
+passwords are stored in plaintext and visible to all users on this system. It is
+recommended to use keyfiles with a SSH agent.
+
+=item --remote-filter=E<lt>filterE<gt>
+
+The remote filter on the router. This is a capture filter that follows the Cisco IOS standards (http://www.cisco.com/c/en/us/support/docs/ip/access-lists/26448-ACLsamples.html). Multiple filters can be specified using a comma between them. BEWARE: when using a filter, the default behavior is to drop all the packets except the ones that fall into the filter.
+
+Examples:
+
+    permit ip host MYHOST any, permit ip any host MYHOST (capture the traffic for MYHOST)
+
+    deny ip host MYHOST any, deny ip any host MYHOST, permit ip any any (capture all the traffic except MYHOST)
+
+=item --sshkey=E<lt>SSH private key pathE<gt>
+
+The path to a private key for authentication.
+
+=item --remote-interface=E<lt>remote interfaceE<gt>
+
+The remote network interface to capture from.
+
+=item --extcap-capture-filter=E<lt>capture filterE<gt>
+
+Unused (compatibility only).
+
+=back
+
+=head1 EXAMPLES
+
+To see program arguments:
+
+    ciscodump --help
+
+To see program version:
+
+    ciscodump --version
+
+To see interfaces:
+
+    ciscodump --extcap-interfaces
+
+Only one interface (cisco) is supported.
+
+  Output:
+    interface {value=cisco}{display=SSH remote capture}
+
+To see interface DLTs:
+
+    ciscodump --extcap-interface=cisco --extcap-dlts
+
+  Output:
+    dlt {number=147}{name=cisco}{display=Remote capture dependant DLT}
+
+To see interface configuration options:
+
+    ciscodump --extcap-interface=cisco --extcap-config
+
+  Output:
+    ciscodump --extcap-interface=cisco --extcap-config
+    arg {number=0}{call=--remote-host}{display=Remote SSH server address}
+        {type=string}{tooltip=The remote SSH host. It can be both an IP address or a hostname}
+        {required=true}
+    arg {number=1}{call=--remote-port}{display=Remote SSH server port}{type=unsigned}
+        {default=22}{tooltip=The remote SSH host port (1-65535)}{range=1,65535}
+    arg {number=2}{call=--remote-username}{display=Remote SSH server username}{type=string}
+        {default=<current user>}{tooltip=The remote SSH username. If not provided, the current
+        user will be used}
+    arg {number=3}{call=--remote-password}{display=Remote SSH server password}{type=string}
+        {tooltip=The SSH password, used when other methods (SSH agent or key files) are unavailable.}
+    arg {number=4}{call=--sshkey}{display=Path to SSH private key}{type=fileselect}
+        {tooltip=The path on the local filesystem of the private ssh key}
+    arg {number=5}{call--sshkey-passphrase}{display=SSH key passphrase}
+        {type=string}{tooltip=Passphrase to unlock the SSH private key}
+    arg {number=6}{call=--remote-interface}{display=Remote interface}{type=string}
+        {required=true}{tooltip=The remote network interface used for capture}
+    arg {number=7}{call=--remote-filter}{display=Remote capture filter}{type=string}
+        {default=(null)}{tooltip=The remote capture filter}
+    arg {number=8}{call=--remote-count}{display=Packets to capture}{type=unsigned}{required=true}
+        {tooltip=The number of remote packets to capture.}
+
+
+To capture:
+
+    ciscodump --extcap-interface cisco --fifo=/tmp/cisco.pcap --capture --remote-host 192.168.1.10
+        --remote-username user --remote-interface gigabit0/0
+        --remote-filter "permit ip host 192.168.1.1 any, permit ip any host 192.168.1.1"
+
+NOTE: Packet count is mandatory, hence the capture will start after this number.
+
+=head1 KNOWN ISSUES
+
+The configuration of the capture on the routers is a multi-step process. If the SSH connection is interrupted during
+it, the configuration can be in an inconsistent state. That can happen also if the capture is stopped and ciscodump
+can't clean the configuration up. In this case it is necessary to log into the router and manually clean the
+configuration, removing both the capture point (WIRESHARK_CAPTURE_POINT), the capture buffer (WIRESHARK_CAPTURE_BUFFER)
+and the capture filter (WIRESHARK_CAPTURE_FILTER).
+
+Another known issues is related to the number of captured packets (--remote-count). Due to the nature of the capture
+buffer, ciscodump waits for the capture to complete and then issues the command to show it. It means that if the user
+specifies a number of packets above the currently captured, the show command is never shown. Not only is the count of
+the maximum number of captured packets, but it is also the _exact_ number of expected packets.
+
+=head1 SEE ALSO
+
+wireshark(1), tshark(1), dumpcap(1), extcap(4), sshdump(1)
+
+=head1 NOTES
+
+B<ciscodump> is part of the B<Wireshark> distribution.  The latest version
+of B<Wireshark> can be found at L<https://www.wireshark.org>.
+
+HTML versions of the Wireshark project man pages are available at:
+L<https://www.wireshark.org/docs/man-pages>.
+
+=head1 AUTHORS
+
+  Original Author
+  -------- ------
+  Dario Lombardo             <lomato[AT]gmail.com>
