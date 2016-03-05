@@ -131,7 +131,7 @@ Jun-ichiro itojun Hagino <itojun[AT]itojun.org> {
 	BGP (Border Gateway Protocol) support
 }
 
-Richard Sharpe          <sharpe[AT]ns.aus.com> {
+Richard Sharpe          <realrichardsharpe[AT]gmail.com> {
 	TFTP, FTP, POP, Telnet support
 	Infrastructure changes for the benefit of TFTP
 	SMB support
@@ -469,7 +469,7 @@ Dug Song                <dugsong[AT]monkey.org> {
 	RPCSEC_GSS credential/verifier dissection for ONC RPC
 }
 
-Michael Tüxen           <tuexen[AT]fh-muenster.de> {
+Michael Tüxen           <tuexen[AT]wireshark.org> {
 	SCTP support
 	M3UA support
 	ISDN Q.921-User Adaptation Layer (IUA) support
@@ -624,7 +624,7 @@ Kent Engström           <kent[AT]unit.liu.se> {
 	CDP VTP Management Domain item support
 }
 
-Ronnie Sahlberg         <ronnie_sahlberg[AT]ozemail.com.au> {
+Ronnie Sahlberg         <ronniesahlberg[AT]gmail.com> {
 	NLM dissector enhancements
 	Mount dissector enhancements
 	Support for status monitor protocol and status monitor callback
@@ -1079,7 +1079,7 @@ Andrew C. Feren         <acferen[AT]yahoo.com> {
 	ntop nProbe and Plixer Mailinizer extensions for the Netflow dissector
 }
 
-Tomas Kukosa            <tomas.kukosa[AT]unify.com> {
+Tomas Kukosa            <tomas.kukosa[AT]siemens.com> {
 	Additional routines made available to plugins
 	Support for registering subdissectors for Q.931 IEs and codesets
 	Reassembly of segmented Q.931 messages
@@ -2299,7 +2299,7 @@ Jeff Connelly		<shellreef+mp2p[AT]gmail.com> {
 	MANOLITO support
 }
 
-Irene Rüngeler		<i.ruengeler[AT]fh-muenster.de> {
+Irene Rüngeler		<ruengeler[AT]wireshark.org> {
 	Graphical SCTP analysis
 	Support PPID and SCTP port based selection in Decode as
 }
@@ -3198,7 +3198,7 @@ Juha Siltanen		<juha.siltanen[AT]nsn.com> {
 	FLIP dissector
 }
 
-Cal Turney		<turney_cal[AT]emc.com> {
+Cal Turney		<cturney[AT]charter.net> {
 	NFS access tracking
 	tshark version of the SCSI tap
 }
@@ -3282,7 +3282,7 @@ Grzegorz Szczytowski	<Grzegorz.Szczytowski[AT]gmail.com>  {
 	E212 dissector MCC 260 upgrade and modification
 }
 
-Martin Kaiser		<martin[AT]kaiser.cx> {
+Martin Kaiser		<wireshark[AT]kaiser.cx> {
 	DVB-CI (Common Interface) dissector
 	HDCP dissector
 }
@@ -3293,7 +3293,7 @@ Jakub Zawadzki		<darkjames-ws[AT]darkjames.pl> {
 	    files
 }
 
-Roland Knall		<rknall[AT]gmail.com> {
+Roland Knall		<roland.knall[AT]br-automation.com> {
 	Support for heuristic subdissectors for SERCOS III
 	openSAFETY dissector
 }
@@ -3570,7 +3570,7 @@ Juan Antonio Montesinos <juan.mondl[AT]gmail.com> {
 	Dissector for the CCSDS CFDP protocol
 }
 
-Anish Bhatt		<anish[at]chelsio.com> {
+Anish Bhatt		<anish[AT]chelsio.com> {
 	Dissector for CIN DCBx
 	Dissector for CEE DCBx
 	Dissector for IEEE DCBx (802.1az)
@@ -3603,7 +3603,7 @@ Kevin Cox		<kevincox[AT]kevincox.ca> {
 	Dissector for Ceph
 }
 
-David Ameiss		<netshark[AT]ameissnet.com> {
+David Ameiss		<dameiss[AT]29west.com> {
 	29West/LBM dissectors
 }
 
@@ -3897,7 +3897,7 @@ Mike Garratt		<mg.wireshark[AT]evn.co.nz>
 Fabio Tarabelloni	<fabio.tarabelloni[AT]reloc.it>
 Chas Williams		<chas[AT]cmf.nrl.navy.mil>
 Javier Godoy		<uce[AT]rjgodoy.com.ar>
-Matt Texier		<mtexier[AT]arbor.net>
+Matt Texier		<matthieu[AT]texier.tv>
 Linas Vepstas		<linasvepstas[AT]gmail.com>
 Simon Zhong		<szhong[AT]juniper.net>
 Bart Van Assche		<bvanassche[AT]acm.org>
@@ -3908,7 +3908,7 @@ Stephen Ludin		<sludin[AT]ludin.org>
 Andreas Urke		<andurke[AT]gmail.com>
 Patrik Lundquist	<patrik.lundquist[AT]gmail.com>
 Mark Vitale		<mvitale[AT]sinenomine.net>
-Peter Wu		<lekensteyn[AT]gmail.com>
+Peter Wu		<peter[AT]lekensteyn.nl>
 Jerry Negele		<jerry.negele[AT]arrisi.com>
 Hannes Hofer		<hhofer[AT]barracuda.com>
 Luca Coelho		<luca[AT]coelho.fi>
