@@ -35,6 +35,7 @@ my $debug = 0;
 use warnings;
 use strict;
 use Getopt::Long;
+use Encode qw(encode decode);
 
 my $state = "";
 my %contributors = ();
@@ -109,11 +110,11 @@ sub parse_author_name {
 		#Make an exception for Gerald because he's part of the header
 		if ($3 ne "gerald[AT]wireshark.org") {
 			$contributors{$3} = $1;
-			print "$full_name\n";
+			print encode('UTF-8', "$full_name\n");
 		}
 	} elsif ($full_name =~ /^([\w\.\-\'\x80-\xff]+(\s*[\w+\.\-\'\x80-\xff])*)\s+\(/) {
 		$contributors{"<no_email>"} = $1;
-		print "$full_name\n";
+		print encode('UTF-8', "$full_name\n");
 	}
 }
 
@@ -123,18 +124,25 @@ sub parse_git_name {
 	my $find = "\@";
 	my $replace = "[AT]";
 	my $email;
+	my $len;
+	my $ntab = 4;
+	my $line;
 
 	#  4321	Navin R. Johnson <nrjohnson@example.com>
 	if ($full_name =~ /^\s*\d+\s+([^<]*)\s*<([^>]*)>/) {
-		$name = $1;
+		$name = trim($1);
 		#Convert real email address to "spam proof" one
-		$email = $2;
+		$email = trim($2);
 		$email =~ s/$find/$replace/g;
 
 		if (!exists($contributors{ $email })) {
 			#Make an exception for Gerald because he's part of the header
 			if ($email ne "gerald[AT]wireshark.org") {
-				print "$name\t\t$email\r\n";
+				$len = length $name;
+				$ntab -= $len / 8;
+				$ntab +=1 if ($len % 8);
+				$line = $name . "\t" x $ntab . $email;
+				print encode('UTF-8', "$line\r\n");
 			}
 		}
 	}
@@ -149,7 +157,7 @@ $header =~ s/$crlf_find/$crlf_replace/g;
 print $header;
 
 open( my $author_fh, '<', $ARGV[0] ) or die "Can't open $ARGV[0]: $!";
-while ( my $line = <$author_fh> ) {
+while ( my $line = decode('UTF-8', <$author_fh>) ) {
 	chomp $line;
 
 	last if ($line =~ "Acknowledgements");
@@ -165,17 +173,17 @@ while ( my $line = <$author_fh> ) {
 		$state = "s_in_bracket";
 	} elsif ($state eq "s_in_bracket") {
 		if ($line =~ /([^\}]*)\}/) {
-			print "$line\n";
+			print encode('UTF-8', "$line\n");
 			$state = "";
 		} else {
-			print "$line\n";
+			print encode('UTF-8', "$line\n");
 		}
 	} elsif ($line =~ /</) {
 		parse_author_name($line);
 	} elsif ($line =~ "(e-mail address removed at contributor's request)") {
 		parse_author_name($line);
 	} else {
-		print "$line\n";
+		print encode('UTF-8', "$line\n");
 	}
 }
 close $author_fh;
@@ -186,7 +194,7 @@ print $git_log_text;
 # XXX open "git shortlog ... |" instead?
 open( my $git_author_fh, '<', $ARGV[1] ) or die "Can't open $ARGV[1]: $!";
 
-while ( my $git_line = <$git_author_fh> ) {
+while ( my $git_line = decode('UTF-8', <$git_author_fh>) ) {
 	chomp $git_line;
 
 	parse_git_name($git_line);
