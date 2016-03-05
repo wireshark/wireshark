@@ -48,6 +48,7 @@ DIST_SUBDIRS = pidl dcerpc
 SUBDIRS = dcerpc
 
 EXTRA_DIST = \
+	.editorconfig		\
 	Custom.common		\
 	Makefile.common		\
 	Makefile.nmake		\
