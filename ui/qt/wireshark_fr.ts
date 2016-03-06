@@ -537,211 +537,215 @@
 <context>
     <name>CaptureFileDialog</name>
     <message>
-        <location filename="capture_file_dialog.cpp" line="152"/>
+        <location filename="capture_file_dialog.cpp" line="153"/>
         <source>This capture file contains comments.</source>
         <translation>Le fichier de capture contient des commentaires.</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="162"/>
+        <location filename="capture_file_dialog.cpp" line="163"/>
         <source>The file format you chose doesn&apos;t support comments. Do you want to save the capture in a format that supports comments or discard the comments and save in the format you chose?</source>
         <translation>Le format de fichier que vous avez choisi ne supporte pas les commentaires. Voulez-vous enregistrer la capture dans un format qui prend en charge les commentaires ou ignorer les commentaires et les enregistrer dans le format que vous avez choisi?</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="166"/>
-        <location filename="capture_file_dialog.cpp" line="175"/>
+        <location filename="capture_file_dialog.cpp" line="167"/>
+        <location filename="capture_file_dialog.cpp" line="176"/>
         <source>Discard comments and save</source>
         <translation>Ignorer commentaires et sauvegarder</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="167"/>
+        <location filename="capture_file_dialog.cpp" line="168"/>
         <source>Save in another format</source>
         <translation>Sauvegarder dans un autre format</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="172"/>
+        <location filename="capture_file_dialog.cpp" line="173"/>
         <source>No file format in which it can be saved supports comments. Do you want to discard the comments and save in the format you chose?</source>
         <translation>Le format de fichier dans lequel vous voulez sauvegarder ne prendre pas en charge les commentaires. Voulez-vous supprimer les commentaires et enregistrer dans le format que vous avez choisi?</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="391"/>
         <source>All Files (*.*)</source>
-        <translation>Tous les fichiers (*.*)</translation>
+        <translation type="vanished">Tous les fichiers (*.*)</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="397"/>
+        <location filename="capture_file_dialog.cpp" line="392"/>
+        <source>All Files (</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="398"/>
         <source>All Capture Files</source>
         <translation>Tous les fichiers de capture</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="433"/>
+        <location filename="capture_file_dialog.cpp" line="434"/>
         <source>Format:</source>
         <translation>Format:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="438"/>
+        <location filename="capture_file_dialog.cpp" line="439"/>
         <source>Size:</source>
         <translation>Taille:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="443"/>
+        <location filename="capture_file_dialog.cpp" line="444"/>
         <source>Packets:</source>
         <translation>Paquets:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="448"/>
+        <location filename="capture_file_dialog.cpp" line="449"/>
         <source>First Packet:</source>
         <translation>Premier Paquet:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="453"/>
+        <location filename="capture_file_dialog.cpp" line="454"/>
         <source>Elapsed Time:</source>
         <translation>Heure:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="465"/>
+        <location filename="capture_file_dialog.cpp" line="466"/>
         <source>Prepend packets</source>
         <translation>Ajout de paquets</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="466"/>
+        <location filename="capture_file_dialog.cpp" line="467"/>
         <source>Insert packets from the selected file before the current file. Packet timestamps will be ignored.</source>
         <translation>Insérer les paquets à partir du fichier sélectionné avant que le fichier actuel. Horodatage des paquets seront ignorés.</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="469"/>
+        <location filename="capture_file_dialog.cpp" line="470"/>
         <source>Merge chronologically</source>
         <translation>Fusionner chronologiquement</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="470"/>
+        <location filename="capture_file_dialog.cpp" line="471"/>
         <source>Insert packets in chronological order.</source>
         <translation>Insérer des paquets dans l&apos;ordre chronologique.</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="474"/>
+        <location filename="capture_file_dialog.cpp" line="475"/>
         <source>Append packets</source>
         <translation>Ajout de paquets</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="475"/>
+        <location filename="capture_file_dialog.cpp" line="476"/>
         <source>Insert packets from the selected file after the current file. Packet timestamps will be ignored.</source>
         <translation>Insérer des paquets à partir du fichier sélectionné après le fichier en cours. Horodatage des paquets seront ignorés.</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="490"/>
+        <location filename="capture_file_dialog.cpp" line="491"/>
         <source>Read filter:</source>
         <translation>Filtre de lecture:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="499"/>
+        <location filename="capture_file_dialog.cpp" line="500"/>
         <source>Automatic</source>
         <translation>Automatique</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="508"/>
+        <location filename="capture_file_dialog.cpp" line="509"/>
         <source>&amp;MAC name resolution</source>
         <translation>Résolution d&apos;adresse &amp;MAC</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="512"/>
+        <location filename="capture_file_dialog.cpp" line="513"/>
         <source>&amp;Transport name resolution</source>
         <translation>Résolution du nom de &amp;Transport</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="516"/>
+        <location filename="capture_file_dialog.cpp" line="517"/>
         <source>&amp;Network name resolution</source>
         <translation>Résolution de nom &amp;Réseau</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="520"/>
+        <location filename="capture_file_dialog.cpp" line="521"/>
         <source>&amp;External name resolver</source>
         <translation>Résolution de nom &amp;externe</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="526"/>
+        <location filename="capture_file_dialog.cpp" line="527"/>
         <source>Compress with g&amp;zip</source>
         <translation>Compresser avec g&amp;zip</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="557"/>
+        <location filename="capture_file_dialog.cpp" line="558"/>
         <source>Open Capture File</source>
         <oldsource>Wireshark: Open Capture File</oldsource>
         <translation>Ouvrir un fichier de capture</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="593"/>
+        <location filename="capture_file_dialog.cpp" line="594"/>
         <source>Save Capture File As</source>
         <oldsource>Wireshark: Save Capture File As</oldsource>
         <translation>Wireshark: Sauvegarder le fichier de capture sous </translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="599"/>
+        <location filename="capture_file_dialog.cpp" line="600"/>
         <source>Save as:</source>
         <translation>Sauvegarder sous:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="621"/>
+        <location filename="capture_file_dialog.cpp" line="622"/>
         <source>Export Specified Packets</source>
         <oldsource>Wireshark: Export Specified Packets</oldsource>
         <translation>Exporter les paquets séléctionnés</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="625"/>
+        <location filename="capture_file_dialog.cpp" line="626"/>
         <source>Export as:</source>
         <translation>Exporter sous:</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="654"/>
+        <location filename="capture_file_dialog.cpp" line="655"/>
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
         <translation>Fusionner des captures</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="756"/>
         <location filename="capture_file_dialog.cpp" line="757"/>
         <location filename="capture_file_dialog.cpp" line="758"/>
         <location filename="capture_file_dialog.cpp" line="759"/>
         <location filename="capture_file_dialog.cpp" line="760"/>
+        <location filename="capture_file_dialog.cpp" line="761"/>
         <source>-</source>
         <translation>-</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="767"/>
+        <location filename="capture_file_dialog.cpp" line="768"/>
         <source>directory</source>
         <translation>dossier</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="774"/>
+        <location filename="capture_file_dialog.cpp" line="775"/>
         <source>unknown file format</source>
         <translation>Format du fichier inconnu</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="776"/>
+        <location filename="capture_file_dialog.cpp" line="777"/>
         <source>error opening file</source>
         <translation>erreur pour ouvrir le fichier</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="790"/>
+        <location filename="capture_file_dialog.cpp" line="791"/>
         <source>%1 bytes</source>
         <translation>%1 octets</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="819"/>
+        <location filename="capture_file_dialog.cpp" line="820"/>
         <source>error after reading %1 packets</source>
         <translation>erreur après avoir lu %1 paquets</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="825"/>
+        <location filename="capture_file_dialog.cpp" line="826"/>
         <source>more than %1 (preview timeout)</source>
         <translation>plus de %1 (aperçu timeout)</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="844"/>
+        <location filename="capture_file_dialog.cpp" line="845"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="capture_file_dialog.cpp" line="850"/>
+        <location filename="capture_file_dialog.cpp" line="851"/>
         <source>unknown</source>
         <translation>inconnu</translation>
     </message>
@@ -1027,7 +1031,7 @@
     <message>
         <location filename="capture_filter_edit.cpp" line="299"/>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Les interfaces séléctionnées ont des filtres de capture différents. Entrer un filtre ici va les écraser. Ne rien entrer va les préserver.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="capture_filter_edit.cpp" line="403"/>
@@ -1391,7 +1395,7 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="154"/>
         <source>Leave blank to use a temporary file</source>
-        <translation type="unfinished"></translation>
+        <translation>Laisser vide pour utiliser un fichier temporaire</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="238"/>
@@ -2462,14 +2466,18 @@ si vous voulez utiliser des fichiers multiples.</translation>
 <context>
     <name>ExtcapArgumentFileSelection</name>
     <message>
-        <location filename="extcap_argument_file.cpp" line="96"/>
+        <location filename="extcap_argument_file.cpp" line="98"/>
         <source>Open File</source>
         <translation>Ouvrir un fichier</translation>
     </message>
     <message>
-        <location filename="extcap_argument_file.cpp" line="97"/>
+        <location filename="extcap_argument_file.cpp" line="99"/>
+        <source>All Files (</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>All Files (*.*)</source>
-        <translation>Tous les fichiers (*.*)</translation>
+        <translation type="vanished">Tous les fichiers (*.*)</translation>
     </message>
 </context>
 <context>
@@ -2772,17 +2780,17 @@ pour fichiers de filtre : %2.</translation>
     <message numerus="yes">
         <location filename="follow_stream_dialog.cpp" line="152"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pqt(s),</numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pqt(s),</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="follow_stream_dialog.cpp" line="155"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;serveur&lt;/span&gt; pqt(s),</numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;serveur&lt;/span&gt; pqt(s),</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -4376,27 +4384,27 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="interface_tree.cpp" line="443"/>
         <source>Addresses</source>
-        <translation type="unfinished">Adresses</translation>
+        <translation>Adresses</translation>
     </message>
     <message>
         <location filename="interface_tree.cpp" line="443"/>
         <source>Address</source>
-        <translation type="unfinished">Adresse</translation>
+        <translation>Adresse</translation>
     </message>
     <message>
         <location filename="interface_tree.cpp" line="446"/>
         <source>No addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Pas d&apos;adresse</translation>
     </message>
     <message>
         <location filename="interface_tree.cpp" line="451"/>
         <source>No capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Pas de filtre de capture</translation>
     </message>
     <message>
         <location filename="interface_tree.cpp" line="454"/>
         <source>Capture filter</source>
-        <translation type="unfinished">Filtre de capture</translation>
+        <translation>Filtre de capture</translation>
     </message>
 </context>
 <context>
@@ -6801,7 +6809,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="883"/>
         <source>Text2cap</source>
-        <translation type="unfinished"></translation>
+        <translation>Text2cap</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="892"/>
@@ -7580,7 +7588,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1656"/>
         <source>Reordercap</source>
-        <translation type="unfinished"></translation>
+        <translation>Réoragnisercap</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1661"/>
@@ -7705,7 +7713,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1783"/>
         <source>Collectd</source>
-        <translation type="unfinished"></translation>
+        <translation>Collectd</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1786"/>
@@ -7740,7 +7748,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1810"/>
         <source>hpfeeds statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>statistiques hpfeeds</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1815"/>
@@ -8024,17 +8032,17 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2656"/>
         <source>No GSM statistics registered</source>
-        <translation type="unfinished"></translation>
+        <translation>Aucune statistique GSM enregistrée</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2664"/>
         <source>No LTE statistics registered</source>
-        <translation type="unfinished"></translation>
+        <translation>Aucune statistique LTE enregistrée</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2672"/>
         <source>No MTP3 statistics registered</source>
-        <translation type="unfinished"></translation>
+        <translation>Aucune statistique MTP3 enregistrée</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2691"/>
@@ -8150,7 +8158,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1216"/>
         <source>As &quot;C&quot; Arrays…</source>
-        <translation type="unfinished"></translation>
+        <translation>En Tableau &quot;C&quot;...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1221"/>
@@ -8805,7 +8813,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2862"/>
         <source>Go to Linked Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Aller au Paquet Lié</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2865"/>
@@ -9065,7 +9073,7 @@ a:hover {
         <translation>Les changements doivent etre sauvegarder avant la fusion de fichier.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="224"/>
+        <location filename="main_window_slots.cpp" line="225"/>
         <source>Invalid Display Filter</source>
         <translation>Filtre d&apos;affichage invalide</translation>
     </message>
@@ -9184,108 +9192,116 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <translation>Capture en cours de %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="700"/>
+        <location filename="main_window_slots.cpp" line="701"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="790"/>
+        <location filename="main_window_slots.cpp" line="791"/>
         <source>Saving %1</source>
         <translation>Sauvegarde en cours %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="829"/>
+        <location filename="main_window_slots.cpp" line="830"/>
         <source>No interface selected</source>
         <translation>Aucune interface sélectionnée</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="839"/>
+        <location filename="main_window_slots.cpp" line="840"/>
         <source>Invalid capture filter</source>
         <translation>Filtre de capture invalide</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1053"/>
+        <location filename="main_window_slots.cpp" line="1054"/>
         <source>Clear Menu</source>
         <translation>Effacer les fichiers récemment ouverts</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1547"/>
+        <location filename="main_window_slots.cpp" line="1548"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Veuillez patienter pendant que Wireshark s&apos;initialise. . .</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1704"/>
+        <location filename="main_window_slots.cpp" line="1705"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Exporter Octets de Paquets Sélectionnés</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1706"/>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
-        <translation>Raw data (*.bin *.dat *.raw);;Tous les fichiers (*.*)</translation>
+        <translation type="vanished">Raw data (*.bin *.dat *.raw);;Tous les fichiers (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1763"/>
+        <location filename="main_window_slots.cpp" line="1764"/>
         <source>No Keys</source>
         <translation>Aucune clés</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1764"/>
+        <location filename="main_window_slots.cpp" line="1765"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Il y a aucune clé de Session SSL à sauvegarder.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1770"/>
+        <location filename="main_window_slots.cpp" line="1771"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation>Exporter Clés de session SSL (%1 key%2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1775"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
-        <translation>Clé de Session SSL (*.keys *.txt);;Tous les fichiers (*.*)</translation>
+        <translation type="vanished">Clé de Session SSL (*.keys *.txt);;Tous les fichiers (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1913"/>
+        <location filename="main_window_slots.cpp" line="1707"/>
+        <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window_slots.cpp" line="1776"/>
+        <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window_slots.cpp" line="1914"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Impossible de copier le texte. Essayer un autre item.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2322"/>
-        <location filename="main_window_slots.cpp" line="3357"/>
+        <location filename="main_window_slots.cpp" line="2323"/>
+        <location filename="main_window_slots.cpp" line="3358"/>
         <source>Unable to build conversation filter.</source>
         <translation>Impossible de construire un filtre de conversation.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2467"/>
+        <location filename="main_window_slots.cpp" line="2468"/>
         <source>No filter available. Try another </source>
         <translation>Aucun filtre disponible. Essayer un autre</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3364"/>
+        <location filename="main_window_slots.cpp" line="3365"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Erreur dans la compilation du filtre pour cette conversation.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3373"/>
+        <location filename="main_window_slots.cpp" line="3374"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Aucun paquet précédent/suivant dans la conversation</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3450"/>
+        <location filename="main_window_slots.cpp" line="3451"/>
         <source>No Interface Selected</source>
         <translation>Aucune Interface Sélectionnée</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3457"/>
+        <location filename="main_window_slots.cpp" line="3458"/>
         <source> before starting a new capture</source>
         <translation>avant de commencer une nouvelle capture</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3663"/>
+        <location filename="main_window_slots.cpp" line="3664"/>
         <source>Wiki Page for %1</source>
         <translation>Page Wiki pour %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3664"/>
+        <location filename="main_window_slots.cpp" line="3665"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Le Wiki Wireshark est maintenu par la communauté&lt;/p&gt;
 &lt;p&gt;La page que vous vous apprêtez à charger peut être magnifique, incomplète, fausse ou inexistante&lt;/p&gt;
@@ -10087,13 +10103,9 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <translation>une préférence</translation>
     </message>
     <message>
-        <source>Open %1 preferences…</source>
-        <translation type="vanished">Ouvrir %1 préférences…</translation>
-    </message>
-    <message>
         <location filename="preference_editor_frame.cpp" line="80"/>
         <source>Open %1 preferences</source>
-        <translation type="unfinished">Ouvrir les préférences %1</translation>
+        <translation>Ouvrir les préférences %1</translation>
     </message>
 </context>
 <context>
@@ -10223,17 +10235,17 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <translation>&amp;Mise en Page</translation>
     </message>
     <message>
-        <location filename="print_dialog.cpp" line="155"/>
+        <location filename="print_dialog.cpp" line="157"/>
         <source>%1 %2 total packets, %3 shown</source>
         <translation>%1 %2 paques totales, %3 affichés</translation>
     </message>
     <message>
-        <location filename="print_dialog.cpp" line="255"/>
+        <location filename="print_dialog.cpp" line="259"/>
         <source>Print Error</source>
         <translation>Erreur d&apos;impression</translation>
     </message>
     <message>
-        <location filename="print_dialog.cpp" line="256"/>
+        <location filename="print_dialog.cpp" line="260"/>
         <source>Unable to print to %1.</source>
         <translation>Impossible d&apos;imprimer sur %1.</translation>
     </message>
@@ -14998,7 +15010,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="wireless_frame.ui" line="190"/>
         <source>External Helper</source>
-        <translation type="unfinished"></translation>
+        <translation>Helper Externe</translation>
     </message>
     <message>
         <location filename="wireless_frame.ui" line="197"/>
