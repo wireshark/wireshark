@@ -89,6 +89,7 @@
 #include <wsutil/str_util.h>
 #include <wsutil/ws_diag_control.h>
 #include <wsutil/ws_version_info.h>
+#include <wsutil/pint.h>
 #include <wiretap/wtap_opttypes.h>
 #include <wiretap/pcapng.h>
 
@@ -554,7 +555,7 @@ set_rel_time(char *optarg_str_p)
 #define VLAN_SIZE 4
 static void
 sll_remove_vlan_info(guint8* fd, guint32* len) {
-    if (g_ntohs(*(fd + LINUX_SLL_OFFSETP)) == ETHERTYPE_VLAN) {
+    if (pntoh16(fd + LINUX_SLL_OFFSETP) == ETHERTYPE_VLAN) {
         int rest_len;
         /* point to start of vlan */
         fd = fd + LINUX_SLL_OFFSETP;
