@@ -1013,32 +1013,32 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 #undef GENERATE_CASE_FULL
 #undef GENERATE_CASE_PART
 
-            case NSPR_ABSTIME_V10:
-            {
-                nspr_pktracefull_v10_t *fp = (nspr_pktracefull_v10_t *) &nstrace_buf[nstrace_buf_offset];
-                ns_setabstime(nstrace, pletoh32(((nspr_abstime_v10_t *) fp)->abs_Time), pletoh32(&((nspr_abstime_v10_t *) fp)->abs_RelTime));
-                nstrace_buf_offset += pletoh16(&fp->nsprRecordSize);
-                break;
-            }
+                case NSPR_ABSTIME_V10:
+                {
+                    nspr_pktracefull_v10_t *fp = (nspr_pktracefull_v10_t *) &nstrace_buf[nstrace_buf_offset];
+                    ns_setabstime(nstrace, pletoh32(((nspr_abstime_v10_t *) fp)->abs_Time), pletoh32(&((nspr_abstime_v10_t *) fp)->abs_RelTime));
+                    nstrace_buf_offset += pletoh16(&fp->nsprRecordSize);
+                    break;
+                }
 
-            case NSPR_RELTIME_V10:
-            {
-                nspr_pktracefull_v10_t *fp = (nspr_pktracefull_v10_t *) &nstrace_buf[nstrace_buf_offset];
-                ns_setrelativetime(nstrace, pletoh32(((nspr_abstime_v10_t *) fp)->abs_RelTime));
-                nstrace_buf_offset += pletoh16(&fp->nsprRecordSize);
-                break;
-            }
+                case NSPR_RELTIME_V10:
+                {
+                    nspr_pktracefull_v10_t *fp = (nspr_pktracefull_v10_t *) &nstrace_buf[nstrace_buf_offset];
+                    ns_setrelativetime(nstrace, pletoh32(((nspr_abstime_v10_t *) fp)->abs_RelTime));
+                    nstrace_buf_offset += pletoh16(&fp->nsprRecordSize);
+                    break;
+                }
 
-            case NSPR_UNUSEDSPACE_V10:
-                nstrace_buf_offset = nstrace_buflen;
-                break;
+                case NSPR_UNUSEDSPACE_V10:
+                    nstrace_buf_offset = nstrace_buflen;
+                    break;
 
-            default:
-            {
-                nspr_pktracefull_v10_t *fp = (nspr_pktracefull_v10_t *) &nstrace_buf[nstrace_buf_offset];
-                nstrace_buf_offset += pletoh16(&fp->nsprRecordSize);
-                break;
-            }
+                default:
+                {
+                    nspr_pktracefull_v10_t *fp = (nspr_pktracefull_v10_t *) &nstrace_buf[nstrace_buf_offset];
+                    nstrace_buf_offset += pletoh16(&fp->nsprRecordSize);
+                    break;
+                }
             }
         }
 
