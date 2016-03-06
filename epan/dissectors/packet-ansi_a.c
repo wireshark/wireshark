@@ -769,7 +769,7 @@ static ansi_a_dgt_set_t Dgt_meid = {
  */
 static int
 my_dgt_tbcd_unpack(
-    char        *out,           /* ASCII pattern out */
+    char        *out,           /* ASCII pattern out, always global a_bigbuf */
     guchar      *in,            /* packed pattern in */
     int         num_octs,       /* Number of octets to unpack */
     ansi_a_dgt_set_t   *dgt            /* Digit definitions */
@@ -778,7 +778,13 @@ my_dgt_tbcd_unpack(
     int cnt = 0;
     unsigned char i;
 
-    while (num_octs)
+    /* Fix for CVE-2015-8728
+     * Since we always write to a_bigbuf we need to limit num_octs to not
+     * overflow it
+     */
+    if (num_octs > 510) num_octs = 510;
+
+    while (num_octs > 0)
     {
         /*
          * unpack first value in byte

@@ -1904,7 +1904,13 @@ my_dgt_tbcd_unpack(
     int cnt = 0;
     unsigned char i;
 
-    while (num_octs)
+    /* Fix for CVE-2015-8728
+     * Since we always write to a_bigbuf we need to limit num_octs to not
+     * overflow it
+     */
+    if (num_octs > 510) num_octs = 510;
+
+    while (num_octs > 0)
     {
         /*
          * unpack first value in byte
