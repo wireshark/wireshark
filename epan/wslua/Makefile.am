@@ -95,6 +95,7 @@ MAINTAINERCLEANFILES = \
 	declare_wslua.h
 
 EXTRA_DIST = \
+	.editorconfig		\
 	declare_wslua.h		\
 	lua_bitop.h		\
 	lrexlib.h 		\

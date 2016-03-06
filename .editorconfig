@@ -23,8 +23,51 @@ indent_style = space
 indent_size = 4
 charset = utf-8
 
-# Dissectors
-[epan/dissectors/*.[ch]]
+# C
+[**.[ch]]
 indent_style = space
 indent_size = 4
 charset = utf-8
+
+[{capinfos,captype,mergecap,mkcap,tfshark,tshark}.c]
+indent_size = 2
+
+[{dftest,echld_test,randpkt,trigcap}.c]
+indent_style = tab
+indent_size = tab
+
+[capture_stop_conditions.[ch]]
+indent_size = 2
+
+[cfile.[ch]]
+indent_size = 2
+
+[conditions.[ch]]
+indent_size = 2
+
+[file.[ch]]
+indent_size = 2
+
+[filter_files.[ch]]
+indent_size = 2
+
+[frame_tvbuff.[ch]]
+indent_style = tab
+indent_size = tab
+
+[pcapio.[ch]]
+indent_size = 8
+
+[ringbuffer.[ch]]
+indent_size = 2
+
+[summary.[ch]]
+indent_size = 2
+
+[randpkt_core/randpkt_core.[ch]]
+indent_style = tab
+indent_size = tab
+
+[extcap/{extcap-base,randpktdump,ssh-base,sshdump}.[ch]]
+indent_style = tab
+indent_size = tab

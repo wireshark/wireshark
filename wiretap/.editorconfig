@@ -1,0 +1,145 @@
+#
+# Editor configuration
+#
+# http://editorconfig.org/
+#
+
+[5views.[ch]]
+indent_style = tab
+indent_size = tab
+
+[aethra.[ch]]
+indent_style = tab
+indent_size = tab
+
+[ascendtext.[ch]]
+indent_size = 2
+
+[atm.[ch]]
+indent_style = tab
+indent_size = tab
+
+[ber.[ch]]
+indent_size = 2
+
+[capsa.[ch]]
+indent_style = tab
+indent_size = tab
+
+[commview.[ch]]
+indent_style = tab
+indent_size = tab
+
+[cosine.[ch]]
+indent_style = tab
+indent_size = tab
+
+[csids.[ch]]
+indent_size = 2
+
+[daintree-sna.[ch]]
+indent_style = tab
+indent_size = tab
+
+[dct3trace.[ch]]
+indent_style = tab
+indent_size = tab
+
+[erf.[ch]]
+indent_size = 2
+
+[eyesdn.[ch]]
+indent_style = tab
+indent_size = tab
+
+[file_access.[ch]]
+indent_style = tab
+indent_size = tab
+
+[hcidump.[ch]]
+indent_style = tab
+indent_size = tab
+
+[i4btrace.[ch]]
+indent_style = tab
+indent_size = tab
+
+[iptrace.[ch]]
+indent_style = tab
+indent_size = tab
+
+[iseries.[ch]]
+indent_size = 2
+
+[lanalyzer.[ch]]
+indent_size = 6
+
+[libpcap.[ch]]
+indent_style = tab
+indent_size = tab
+
+[mime_file.[ch]]
+indent_style = tab
+indent_size = tab
+
+[mpeg.[ch]]
+indent_style = tab
+indent_size = tab
+
+[netmon.[ch]]
+indent_style = tab
+indent_size = tab
+
+[netscreen.[ch]]
+indent_style = tab
+indent_size = tab
+
+[nettrace_3gpp_32_423.[ch]]
+indent_style = tab
+indent_size = tab
+
+[netxray.[ch]]
+indent_style = tab
+indent_size = tab
+
+[ngsniffer.[ch]]
+indent_style = tab
+indent_size = tab
+
+[packetlogger.[ch]]
+indent_style = tab
+indent_size = tab
+
+[pcap-common.[ch]]
+indent_style = tab
+indent_size = tab
+
+[peekclassic.[ch]]
+indent_style = tab
+indent_size = tab
+
+[pppdump.[ch]]
+indent_style = tab
+indent_size = tab
+
+[radcom.[ch]]
+indent_style = tab
+indent_size = tab
+
+[snoop.[ch]]
+indent_style = tab
+indent_size = tab
+
+[stanag4607.[ch]]
+indent_size = 2
+
+[tnef.[ch]]
+indent_size = 2
+
+[toshiba.[ch]]
+indent_style = tab
+indent_size = tab
+
+[wtap.[ch]]
+indent_style = tab
+indent_size = tab

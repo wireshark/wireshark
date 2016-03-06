@@ -57,6 +57,7 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 EXTRA_DIST = \
+	.editorconfig			\
 	$(GENERATOR_FILES)		\
 	airpcap_dlg.c			\
 	airpcap_dlg.h			\

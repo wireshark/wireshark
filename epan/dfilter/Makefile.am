@@ -67,6 +67,7 @@ libdfilter_la_LIBADD = libdfilter_generated.la
 libdfilter_la_DEPENDENCIES = libdfilter_generated.la
 
 EXTRA_DIST = \
+	.editorconfig		\
 	$(GENERATOR_FILES)	\
 	Makefile.common		\
 	Makefile.nmake		\

@@ -1,0 +1,140 @@
+#
+# Editor configuration
+#
+# http://editorconfig.org/
+#
+
+[adler32.[ch]]
+indent_size = 2
+
+[aes.[ch]]
+indent_style = tab
+indent_size = tab
+
+[airpdcap_wep.[ch]]
+indent_style = tab
+indent_size = tab
+
+[base64.[ch]]
+indent_style = tab
+indent_size = tab
+
+[bitswap.[ch]]
+indent_size = 2
+
+[buffer.[ch]]
+indent_style = tab
+indent_size = tab
+
+[cfutils.[ch]]
+indent_style = tab
+indent_size = tab
+
+[clopts_common.[ch]]
+indent_size = 2
+
+[copyright_info.[ch]]
+indent_style = tab
+indent_size = tab
+
+[crash_info.[ch]]
+indent_style = tab
+indent_size = tab
+
+[crc10.[ch]]
+indent_style = tab
+indent_size = tab
+
+[crc32.[ch]]
+indent_style = tab
+indent_size = tab
+
+[des.[ch]]
+indent_style = tab
+indent_size = tab
+
+[file_util.[ch]]
+indent_size = 6
+
+[g711.[ch]]
+indent_style = tab
+indent_size = tab
+
+[inet_aton.[ch]]
+indent_style = tab
+indent_size = tab
+
+[inet_ntop.[ch]]
+indent_style = tab
+indent_size = tab
+
+[inet_pton.[ch]]
+indent_style = tab
+indent_size = tab
+
+[interface.[ch]]
+indent_style = tab
+indent_size = tab
+
+[jsmn.[ch]]
+indent_size = 8
+
+[md4.[ch]]
+indent_style = tab
+indent_size = tab
+
+[mpeg-audio.[ch]]
+indent_style = tab
+indent_size = tab
+
+[os_version_info.[ch]]
+indent_style = tab
+indent_size = tab
+
+[privileges.[ch]]
+indent_style = tab
+indent_size = tab
+
+[rc4.[ch]]
+indent_size = 2
+
+[report_err.[ch]]
+indent_style = tab
+indent_size = tab
+
+[str_util.[ch]]
+indent_style = tab
+indent_size = tab
+
+[strptime.[ch]]
+indent_size = 2
+
+[tempfile.[ch]]
+indent_size = 2
+
+[time_util.[ch]]
+indent_style = tab
+indent_size = tab
+
+[type_util.[ch]]
+indent_size = 2
+
+[u3.[ch]]
+indent_size = 2
+
+[unicode-utils.[ch]]
+indent_size = 2
+
+[ws_mempbrk.[ch]]
+indent_style = tab
+indent_size = tab
+
+[ws_mempbrk_sse42.[ch]]
+indent_size = 2
+
+[ws_version_info.[ch]]
+indent_style = tab
+indent_size = tab
+
+[wsgetopt.[ch]]
+indent_size = 2

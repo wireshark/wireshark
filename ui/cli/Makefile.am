@@ -82,6 +82,7 @@ checkapi-todo:
 	$(TSHARK_TAP_SRC)
 
 EXTRA_DIST = \
+	.editorconfig		\
 	$(GENERATOR_FILES)	\
 	Makefile.common			\
 	Makefile.nmake

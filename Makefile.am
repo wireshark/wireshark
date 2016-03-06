@@ -1328,6 +1328,7 @@ EXTRA_DIST = \
 	cmake/TestFileOffsetBits.c	\
 	cmake/TestLargeFiles.c.cmakein	\
 	cmake/TestWindowsFSeek.c	\
+	ui/win32/.editorconfig			\
 	ui/win32/Makefile.nmake			\
 	ui/win32/console_win32.c		\
 	ui/win32/console_win32.h		\

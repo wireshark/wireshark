@@ -1,0 +1,21 @@
+#
+# Editor configuration
+#
+# http://editorconfig.org/
+#
+
+[capture-pcap-util-unix.[ch]]
+indent_style = tab
+indent_size = tab
+
+[capture-pcap-util.[ch]]
+indent_style = tab
+indent_size = tab
+
+[capture-wpcap.[ch]]
+indent_style = tab
+indent_size = tab
+
+[ws80211_utils.[ch]]
+indent_style = tab
+indent_size = tab

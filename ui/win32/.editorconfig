@@ -1,0 +1,8 @@
+#
+# Editor configuration
+#
+# http://editorconfig.org/
+#
+
+[console_win32.[ch]]
+indent_size = 2

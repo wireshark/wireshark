@@ -1,0 +1,57 @@
+#
+# Editor configuration
+#
+# http://editorconfig.org/
+#
+
+[dfilter-macro.[ch]]
+indent_style = tab
+indent_size = tab
+
+[dfilter.[ch]]
+indent_style = tab
+indent_size = tab
+
+[dfvm.[ch]]
+indent_style = tab
+indent_size = tab
+
+[gencode.[ch]]
+indent_style = tab
+indent_size = tab
+
+[semcheck.[ch]]
+indent_style = tab
+indent_size = tab
+
+[sttype-function.[ch]]
+indent_style = tab
+indent_size = tab
+
+[sttype-integer.[ch]]
+indent_style = tab
+indent_size = tab
+
+[sttype-pointer.[ch]]
+indent_style = tab
+indent_size = tab
+
+[sttype-range.[ch]]
+indent_style = tab
+indent_size = tab
+
+[sttype-set.[ch]]
+indent_style = tab
+indent_size = tab
+
+[sttype-string.[ch]]
+indent_style = tab
+indent_size = tab
+
+[sttype-test.[ch]]
+indent_style = tab
+indent_size = tab
+
+[syntax-tree.[ch]]
+indent_style = tab
+indent_size = tab

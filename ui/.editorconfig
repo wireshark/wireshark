@@ -1,0 +1,29 @@
+#
+# Editor configuration
+#
+# http://editorconfig.org/
+#
+
+[capture.[ch]]
+indent_size = 2
+
+[capture_ui_utils.[ch]]
+indent_size = 2
+
+[preference_utils.[ch]]
+indent_size = 2
+
+[proto_hier_stats.[ch]]
+indent_style = tab
+indent_size = tab
+
+[recent.[ch]]
+indent_size = 2
+
+[tap-rtp-common.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap-sctp-analysis.[ch]]
+indent_style = tab
+indent_size = tab

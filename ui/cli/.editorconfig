@@ -1,0 +1,87 @@
+#
+# Editor configuration
+#
+# http://editorconfig.org/
+#
+
+[tap-camelsrt.[ch]]
+indent_size = 2
+
+[tap-comparestat.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap-diameter-avp.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap-endpoints.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap-follow.[ch]]
+indent_size = 2
+
+[tap-hosts.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap-httpstat.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap-iousers.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap-protocolinfo.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap-protohierstat.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap-rpcprogs.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap-rtd.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap-rtspstat.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap-sctpchunkstat.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap-simple_stattable.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap-sipstat.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap-smbsids.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap-srt.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap-stats_tree.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap-sv.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap-wspstat.[ch]]
+indent_style = tab
+indent_size = tab

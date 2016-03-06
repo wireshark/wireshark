@@ -1,0 +1,221 @@
+#
+# Editor configuration
+#
+# http://editorconfig.org/
+#
+
+[about_dlg.[ch]]
+indent_size = 2
+
+[bytes_view.[ch]]
+indent_style = tab
+indent_size = tab
+
+[capture_dlg.[ch]]
+indent_size = 2
+
+[capture_file_dlg.[ch]]
+indent_size = 2
+
+[capture_if_dlg.[ch]]
+indent_size = 2
+
+[capture_info_dlg.[ch]]
+indent_size = 2
+
+[color_dlg.[ch]]
+indent_size = 2
+
+[color_edit_dlg.[ch]]
+indent_size = 2
+
+[color_utils.[ch]]
+indent_style = tab
+indent_size = tab
+
+[compare_stat.[ch]]
+indent_style = tab
+indent_size = tab
+
+[dcerpc_stat.[ch]]
+indent_style = tab
+indent_size = tab
+
+[edit_packet_comment_dlg.[ch]]
+indent_size = 2
+
+[export_object_dlg.[ch]]
+indent_style = tab
+indent_size = tab
+
+[filter_autocomplete.[ch]]
+indent_size = 2
+
+[filter_expression_save_dlg.[ch]]
+indent_style = tab
+indent_size = tab
+
+[filter_utils.[ch]]
+indent_style = tab
+indent_size = tab
+
+[find_dlg.[ch]]
+indent_size = 2
+
+[flow_graph.[ch]]
+indent_style = tab
+indent_size = tab
+
+[goto_dlg.[ch]]
+indent_size = 2
+
+[graph_analysis.[ch]]
+indent_style = tab
+indent_size = tab
+
+[gsm_map_summary.[ch]]
+indent_size = 2
+
+[gui_stat_util.[ch]]
+indent_style = tab
+indent_size = tab
+
+[iax2_analysis.[ch]]
+indent_style = tab
+indent_size = tab
+
+[macros_dlg.[ch]]
+indent_style = tab
+indent_size = tab
+
+[manual_addr_resolv.[ch]]
+indent_size = 2
+
+[packet_list.[ch]]
+indent_style = tab
+indent_size = tab
+
+[packet_list_store.[ch]]
+indent_style = tab
+indent_size = tab
+
+[packet_win.[ch]]
+indent_style = tab
+indent_size = tab
+
+[pixmap_save.[ch]]
+indent_style = tab
+indent_size = tab
+
+[prefs_capture.[ch]]
+indent_style = tab
+indent_size = tab
+
+[prefs_dlg.[ch]]
+indent_size = 2
+
+[prefs_font_color.[ch]]
+indent_size = 2
+
+[prefs_gui.[ch]]
+indent_style = tab
+indent_size = tab
+
+[print_dlg.[ch]]
+indent_size = 2
+
+[profile_dlg.[ch]]
+indent_size = 2
+
+[proto_dlg.[ch]]
+indent_size = 2
+
+[proto_help.[ch]]
+indent_style = tab
+indent_size = tab
+
+[proto_hier_tree_model.[ch]]
+indent_style = tab
+indent_size = tab
+
+[proto_tree_model.[ch]]
+indent_style = tab
+indent_size = tab
+
+[range_utils.[ch]]
+indent_size = 2
+
+[response_time_delay_table.[ch]]
+indent_style = tab
+indent_size = tab
+
+[rpc_stat.[ch]]
+indent_style = tab
+indent_size = tab
+
+[rtp_analysis.[ch]]
+indent_style = tab
+indent_size = tab
+
+[rtp_player.[ch]]
+indent_style = tab
+indent_size = tab
+
+[sctp_assoc_analyse.[ch]]
+indent_style = tab
+indent_size = tab
+
+[sctp_byte_graph_dlg.[ch]]
+indent_style = tab
+indent_size = tab
+
+[sctp_chunk_stat.[ch]]
+indent_style = tab
+indent_size = tab
+
+[sctp_error_dlg.[ch]]
+indent_style = tab
+indent_size = tab
+
+[sctp_graph_dlg.[ch]]
+indent_style = tab
+indent_size = tab
+
+[sctp_stat_dlg.[ch]]
+indent_style = tab
+indent_size = tab
+
+[service_response_time_table.[ch]]
+indent_style = tab
+indent_size = tab
+
+[simple_dialog.[ch]]
+indent_size = 2
+
+[simple_stattable.[ch]]
+indent_style = tab
+indent_size = tab
+
+[stats_tree_stat.[ch]]
+indent_style = tab
+indent_size = tab
+
+[summary_dlg.[ch]]
+indent_size = 2
+
+[supported_protos_dlg.[ch]]
+indent_size = 2
+
+[time_shift_dlg.[ch]]
+indent_size = 2
+
+[uat_gui.[ch]]
+indent_style = tab
+indent_size = tab
+
+[voip_calls_dlg.[ch]]
+indent_style = tab
+indent_size = tab
+
+[webbrowser.[ch]]
+indent_size = 2

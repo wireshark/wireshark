@@ -1,0 +1,8 @@
+#
+# Editor configuration
+#
+# http://editorconfig.org/
+#
+
+[*.[ch]]
+indent_size = 2

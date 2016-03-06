@@ -56,6 +56,7 @@ libwiretap_generated_la_SOURCES = \
 libwiretap_generated_la_CFLAGS = $(GENERATED_CFLAGS)
 
 EXTRA_DIST = \
+	.editorconfig		\
 	README.airmagnet	\
 	README.developer	\
 	Makefile.common		\

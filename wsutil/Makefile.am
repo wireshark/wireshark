@@ -106,6 +106,7 @@ libwsutil_la_LIBADD = \
 	$(wsutil_optional_objects)
 
 EXTRA_DIST = \
+	.editorconfig	\
 	cfutils.c	\
 	cfutils.h	\
 	CMakeLists.txt	\

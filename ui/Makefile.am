@@ -79,6 +79,7 @@ checkapi-todo:
 	$(WIRESHARK_UI_SRC)
 
 EXTRA_DIST = \
+	.editorconfig			\
 	$(GENERATOR_FILES)		\
 	CMakeLists.txt			\
 	doxygen.cfg.in			\
