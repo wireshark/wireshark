@@ -186,7 +186,10 @@ static int hf_iso14443_len_field = -1;
 static int hf_iso14443_resp_to = -1;
 static int hf_iso14443_resp_in = -1;
 static int hf_iso14443_short_frame = -1;
+static int hf_iso14443_atqa_rfu1 = -1;
+static int hf_iso14443_atqa_rfu2 = -1;
 static int hf_iso14443_propr_coding = -1;
+static int hf_iso14443_uid_bits = -1;
 static int hf_iso14443_uid_size = -1;
 static int hf_iso14443_max_frame_size = -1;
 static int hf_iso14443_bit_frame_anticoll = -1;
@@ -306,14 +309,18 @@ dissect_iso14443_cmd_type_wupa(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
     else if (pinfo->p2p_dir == P2P_DIR_RECV) {
+        guint16 atqa;
+
+        atqa = tvb_get_letohs(tvb, offset);
         col_set_str(pinfo->cinfo, COL_INFO, "ATQA");
-        proto_item_append_text(ti, ": ATQA");
+        proto_item_append_text(ti, ": ATQA 0x%04x", atqa);
 
+        proto_tree_add_item(tree, hf_iso14443_atqa_rfu1,
+                tvb, offset, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_iso14443_propr_coding,
-                tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
+                tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
-        uid_bits = (tvb_get_guint8(tvb, offset) & 0xC0) >> 6;
+        uid_bits = (atqa & 0xC0) >> 6;
         if (uid_bits == 0x00)
             uid_size = 4;
         else if (uid_bits == 0x01)
@@ -321,11 +328,17 @@ dissect_iso14443_cmd_type_wupa(tvbuff_t *tvb, packet_info *pinfo,
         else if (uid_bits == 0x02)
             uid_size = 10;
         /* XXX- expert info for invalid uid size */
-        proto_tree_add_uint_bits_format_value(tree, hf_iso14443_uid_size,
-                tvb, offset*8, 2, uid_size, "%d", uid_size);
+        proto_tree_add_item(tree, hf_iso14443_uid_bits,
+                tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_uint(tree, hf_iso14443_uid_size,
+                tvb, offset+1, 1, uid_size);
+
+        proto_tree_add_item(tree, hf_iso14443_atqa_rfu2,
+                tvb, offset, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_iso14443_bit_frame_anticoll,
-                tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
+                tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+        offset += 2;
     }
 
     return offset;
@@ -1209,13 +1222,25 @@ proto_register_iso14443(void)
             { "Short frame", "iso14443.short_frame",
                 FT_UINT8, BASE_HEX, VALS(iso14443_short_frame), 0, NULL, HFILL }
         },
+        { &hf_iso14443_atqa_rfu1,
+            { "RFU", "iso14443.atqa_rfu",
+                FT_UINT16, BASE_HEX, NULL, 0xF000, NULL, HFILL }
+        },
+        { &hf_iso14443_atqa_rfu2,
+            { "RFU", "iso14443.atqa_rfu",
+                FT_UINT16, BASE_HEX, NULL, 0x0020, NULL, HFILL }
+        },
         { &hf_iso14443_propr_coding,
             { "Proprietary coding", "iso14443.propr_coding",
-                FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL }
+                FT_UINT16, BASE_HEX, NULL, 0x0F00, NULL, HFILL }
+        },
+        { &hf_iso14443_uid_bits,
+            { "UID bits", "iso14443.uid_bits",
+                FT_UINT16, BASE_HEX, NULL, 0x00C0, NULL, HFILL }
         },
         { &hf_iso14443_uid_size,
             { "UID size", "iso14443.uid_size",
-                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_iso14443_max_frame_size,
             { "Maximum frame size", "iso14443.max_frame_size",
@@ -1223,7 +1248,7 @@ proto_register_iso14443(void)
         },
         { &hf_iso14443_bit_frame_anticoll,
             { "Bit frame anticollision", "iso14443.bit_frame_anticoll",
-                FT_UINT8, BASE_HEX, NULL, 0x1F, NULL, HFILL }
+                FT_UINT16, BASE_HEX, NULL, 0x001F, NULL, HFILL }
         },
         { &hf_iso14443_apf,
             { "Anticollision prefix", "iso14443.apf",
