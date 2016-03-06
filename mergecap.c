@@ -383,7 +383,7 @@ main(int argc, char *argv[])
   }
 
   /* open the outfile */
-  if (strncmp(out_filename, "-", 2) == 0) {
+  if (strcmp(out_filename, "-") == 0) {
     /* use stdout as the outfile */
     out_fd = 1 /*stdout*/;
   } else {
