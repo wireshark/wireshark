@@ -129,6 +129,7 @@ function ws_exit_error() {
     echo -e "Processing failed. Capture info follows:\n"
     echo "  Input file: $CF"
     echo "  Output file: $TMP_DIR/$TMP_FILE"
+    echo "  Pass: $PASS"
     echo
 
     # Fill in build information
