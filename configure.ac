@@ -1279,9 +1279,11 @@ AC_ARG_ENABLE(warnings-as-errors,
     with_warnings_as_errors="no"
     AC_MSG_RESULT(no)
   fi
-]
-)
-AM_CONDITIONAL(HAVE_WARNINGS_AS_ERRORS, test "x$with_warnings_as_errors" = "xyes")
+])
+
+AS_IF([test "x$with_warnings_as_errors" = "xyes"], [WERROR="-Werror"], [WERROR=""])
+AC_SUBST(WERROR)
+AM_CONDITIONAL(HAVE_WARNINGS_AS_ERRORS, [test "x$with_warnings_as_errors" = "xyes"])
 
 #
 # Add any platform-specific compiler flags needed.

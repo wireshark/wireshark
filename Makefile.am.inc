@@ -27,12 +27,6 @@ LEMON = $(top_builddir)/tools/lemon/lemon$(EXEEXT)
 
 RUNLEX = $(top_srcdir)/tools/runlex.sh
 
-if HAVE_WARNINGS_AS_ERRORS
-WERROR = -Werror
-else
-WERROR =
-endif
-
 INCLUDEDIRS = -I$(top_srcdir)
 
 #AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS)
