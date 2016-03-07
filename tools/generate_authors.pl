@@ -121,7 +121,7 @@ sub parse_git_name {
 	my $name;
 	my $email;
 	my $len;
-	my $ntab = 4;
+	my $ntab = 3;
 	my $line;
 
 	#  4321	Navin R. Johnson <nrjohnson@example.com>
@@ -135,9 +135,13 @@ sub parse_git_name {
 			#Make an exception for Gerald because he's part of the header
 			if ($email ne "gerald[AT]wireshark.org") {
 				$len = length $name;
-				$ntab -= $len / 8;
-				$ntab +=1 if ($len % 8);
-				$line = $name . "\t" x $ntab . "<$email>";
+				if ($len >= 8 * $ntab) {
+					$line = "$name <$email>";
+				} else {
+					$ntab -= $len / 8;
+					$ntab +=1 if ($len % 8);
+					$line = $name . "\t" x $ntab . "<$email>";
+				}
 				print encode('UTF-8', "$line\n");
 			}
 		}
