@@ -40,8 +40,6 @@ use Encode qw(encode decode);
 my $state = "";
 my %contributors = ();
 my $is_contributing = 0;
-my $crlf_find = "\n";
-my $crlf_replace = "\r\n";
 
 my $header = "
 
@@ -140,7 +138,7 @@ sub parse_git_name {
 				$ntab -= $len / 8;
 				$ntab +=1 if ($len % 8);
 				$line = $name . "\t" x $ntab . "<$email>";
-				print encode('UTF-8', "$line\r\n");
+				print encode('UTF-8', "$line\n");
 			}
 		}
 	}
@@ -151,7 +149,6 @@ sub parse_git_name {
 # MAIN
 #
 
-$header =~ s/$crlf_find/$crlf_replace/g;
 print $header;
 
 open( my $author_fh, '<', $ARGV[0] ) or die "Can't open $ARGV[0]: $!";
@@ -186,7 +183,6 @@ while ( my $line = decode('UTF-8', <$author_fh>) ) {
 }
 close $author_fh;
 
-$git_log_text =~ s/$crlf_find/$crlf_replace/g;
 print $git_log_text;
 
 # XXX open "git shortlog ... |" instead?
@@ -199,7 +195,6 @@ while ( my $git_line = decode('UTF-8', <$git_author_fh>) ) {
 }
 close $git_author_fh;
 
-$trailer =~ s/$crlf_find/$crlf_replace/g;
 print $trailer;
 
 __END__
