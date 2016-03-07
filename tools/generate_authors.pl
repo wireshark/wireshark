@@ -139,7 +139,7 @@ sub parse_git_name {
 				$len = length $name;
 				$ntab -= $len / 8;
 				$ntab +=1 if ($len % 8);
-				$line = $name . "\t" x $ntab . $email;
+				$line = $name . "\t" x $ntab . "<$email>";
 				print encode('UTF-8', "$line\r\n");
 			}
 		}
