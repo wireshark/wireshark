@@ -3934,25 +3934,25 @@ static int dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
     dmp_add_seq_ack_analysis (tvb, pinfo, dmp_tree, offset);
   }
 
-    if (((dmp.msg_type == STANAG) || (dmp.msg_type == IPM) ||
-         (dmp.msg_type == REPORT) || (dmp.msg_type == NOTIF)) &&
-        dmp.id_val && dmp.id_val->msg_resend_count)
-    {
-      guint retrans_num;
-      if (dmp.msg_type == REPORT) {
-        retrans_num = dmp.id_val->rep_id;
-      } else if (dmp.msg_type == NOTIF) {
-        retrans_num = dmp.id_val->not_id;
-      } else {
-        retrans_num = dmp.id_val->msg_id;
-      }
-      col_append_fstr (pinfo->cinfo, COL_INFO, "[Retrans %d#%d] ",
-                       retrans_num, dmp.id_val->msg_resend_count);
-      retrans_or_dup_ack = TRUE;
-    } else if (dmp.msg_type == ACK && dmp.id_val && dmp.id_val->ack_resend_count) {
-      col_append_fstr (pinfo->cinfo, COL_INFO, "[Dup ACK %d#%d] ",
-                       dmp.id_val->ack_id, dmp.id_val->ack_resend_count);
-      retrans_or_dup_ack = TRUE;
+  if (((dmp.msg_type == STANAG) || (dmp.msg_type == IPM) ||
+       (dmp.msg_type == REPORT) || (dmp.msg_type == NOTIF)) &&
+      dmp.id_val && dmp.id_val->msg_resend_count)
+  {
+    guint retrans_num;
+    if (dmp.msg_type == REPORT) {
+      retrans_num = dmp.id_val->rep_id;
+    } else if (dmp.msg_type == NOTIF) {
+      retrans_num = dmp.id_val->not_id;
+    } else {
+      retrans_num = dmp.id_val->msg_id;
+    }
+    col_append_fstr (pinfo->cinfo, COL_INFO, "[Retrans %d#%d] ",
+                     retrans_num, dmp.id_val->msg_resend_count);
+    retrans_or_dup_ack = TRUE;
+  } else if (dmp.msg_type == ACK && dmp.id_val && dmp.id_val->ack_resend_count) {
+    col_append_fstr (pinfo->cinfo, COL_INFO, "[Dup ACK %d#%d] ",
+                     dmp.id_val->ack_id, dmp.id_val->ack_resend_count);
+    retrans_or_dup_ack = TRUE;
   }
   if (dmp_align && !retrans_or_dup_ack) {
     if (dmp.msg_type == ACK) {
@@ -4015,7 +4015,7 @@ void proto_register_dmp (void)
     */
     { &hf_dmp_id,
       { "DMP Identifier", "dmp.id", FT_UINT16, BASE_DEC,
-        NULL, 0x0, NULL, HFILL}},
+        NULL, 0x0, NULL, HFILL} },
 
     /* MTS Identifier */
     { &hf_mts_id,
@@ -4032,12 +4032,12 @@ void proto_register_dmp (void)
     */
     { &hf_envelope,
       { "Envelope", "dmp.envelope", FT_NONE, BASE_NONE,
-        NULL, 0x0, NULL, HFILL}},
+        NULL, 0x0, NULL, HFILL} },
 
     /* Protocol data */
     { &hf_envelope_protocol_id,
       { "Protocol Identifier", "dmp.protocol_id", FT_UINT8,
-        BASE_HEX, NULL, 0xF8, NULL, HFILL}},
+        BASE_HEX, NULL, 0xF8, NULL, HFILL} },
     { &hf_envelope_version,
       { "Protocol Version", "dmp.version", FT_UINT8, BASE_DEC,
         VALS(version_vals), 0x07, NULL, HFILL } },
@@ -4074,7 +4074,7 @@ void proto_register_dmp (void)
         VALS(msg_id_type_vals), 0x60, NULL, HFILL } },
     { &hf_envelope_msg_id_length,
       { "Message Identifier Length", "dmp.msg_id_short", FT_UINT8, BASE_DEC,
-        VALS(msg_id_length_vals), 0x10, NULL, HFILL}},
+        VALS(msg_id_length_vals), 0x10, NULL, HFILL} },
     { &hf_envelope_mts_id_length,
       { "MTS Identifier Length", "dmp.mts_id_length", FT_UINT8, BASE_DEC,
         NULL, 0x1F, NULL, HFILL } },
@@ -4092,10 +4092,10 @@ void proto_register_dmp (void)
     /* Message identifier */
     { &hf_envelope_msg_id,
       { "Message Identifier", "dmp.msg_id", FT_UINT16, BASE_DEC,
-        NULL, 0x0, NULL, HFILL}},
+        NULL, 0x0, NULL, HFILL} },
     { &hf_envelope_msg_id_12bit,
       { "Message Identifier", "dmp.msg_id", FT_UINT16, BASE_DEC,
-        NULL, 0x0FFF, NULL, HFILL}},
+        NULL, 0x0FFF, NULL, HFILL} },
 
     /* MTS Identifier */
     { &hf_envelope_mts_id,
@@ -4110,13 +4110,13 @@ void proto_register_dmp (void)
     /* Extensions */
     { &hf_extensions,
       { "Extensions", "dmp.extensions", FT_NONE, BASE_NONE,
-        NULL, 0x0, NULL, HFILL}},
+        NULL, 0x0, NULL, HFILL} },
     { &hf_extension,
       { "Extension", "dmp.extension", FT_NONE, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
     { &hf_extension_header,
       { "Extension Header", "dmp.extension_header", FT_NONE, BASE_NONE,
-        NULL, 0x0, NULL, HFILL}},
+        NULL, 0x0, NULL, HFILL} },
     { &hf_extension_more,
       { "More Extensions", "dmp.extension_more", FT_BOOLEAN, 8,
         TFS (&tfs_present_absent), 0x80, NULL, HFILL } },
@@ -4147,7 +4147,7 @@ void proto_register_dmp (void)
     /* Envelope flags */
     { &hf_envelope_flags,
       { "Flags", "dmp.envelope_flags", FT_UINT8, BASE_DEC,
-        NULL, 0x0, "Envelope Flags", HFILL}},
+        NULL, 0x0, "Envelope Flags", HFILL} },
     { &hf_envelope_content_id_discarded,
       { "Content Identifier discarded", "dmp.cont_id_discarded",
         FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
@@ -4155,7 +4155,7 @@ void proto_register_dmp (void)
     { &hf_envelope_recip_reassign_prohib,
       { "Recipient reassign prohibited","dmp.recip_reassign_prohib",
         FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
-        NULL, HFILL }},
+        NULL, HFILL } },
     { &hf_envelope_dl_expansion_prohib,
       { "DL expansion prohibited", "dmp.dl_expansion_prohib",
         FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20, NULL,
@@ -4164,10 +4164,10 @@ void proto_register_dmp (void)
     /* Recipient Count */
     { &hf_envelope_recipients,
       { "Recipient Count", "dmp.rec_count", FT_UINT8, BASE_DEC,
-        NULL, 0x1F, NULL, HFILL}},
+        NULL, 0x1F, NULL, HFILL} },
     { &hf_envelope_ext_recipients,
       { "Extended Recipient Count", "dmp.ext_rec_count", FT_UINT16,
-        BASE_DEC, NULL, 0x7FFF, NULL, HFILL}},
+        BASE_DEC, NULL, 0x7FFF, NULL, HFILL} },
 
     /*
     ** Address
@@ -4346,7 +4346,7 @@ void proto_register_dmp (void)
         NULL, 0x0, NULL, HFILL } },
     { &hf_message_sec_class_val,
       { "Security Classification", "dmp.sec_class", FT_UINT8,
-        BASE_DEC, NULL, 0xE0, NULL, HFILL}},
+        BASE_DEC, NULL, 0xE0, NULL, HFILL} },
     { &hf_message_sec_pol,
       { "Security Policy", "dmp.sec_pol", FT_UINT8, BASE_DEC,
         VALS (sec_pol), 0x1C, NULL, HFILL } },
@@ -4356,7 +4356,7 @@ void proto_register_dmp (void)
     { &hf_message_auth_users,
       { "Authorizing users discarded", "dmp.auth_discarded",
         FT_BOOLEAN, 8, TFS (&tfs_yes_no), 0x02,
-        NULL, HFILL }},
+        NULL, HFILL } },
     { &hf_message_subject_disc,
       { "Subject discarded", "dmp.subject_discarded", FT_BOOLEAN, 8,
         TFS (&tfs_yes_no), 0x01, NULL, HFILL } },
@@ -4499,7 +4499,7 @@ void proto_register_dmp (void)
     */
     { &hf_message_body,
       { "Message Body", "dmp.body", FT_NONE, BASE_NONE, NULL,
-        0x0, NULL, HFILL}},
+        0x0, NULL, HFILL} },
 
     /* Body Id */
     { &hf_message_eit,
@@ -4533,10 +4533,10 @@ void proto_register_dmp (void)
     */
     { &hf_delivery_report,
       { "Delivery Report", "dmp.dr", FT_NONE, BASE_NONE, NULL,
-        0x0, NULL, HFILL}},
+        0x0, NULL, HFILL} },
     { &hf_non_delivery_report,
       { "Non-Delivery Report", "dmp.ndr", FT_NONE, BASE_NONE, NULL,
-        0x0, NULL, HFILL}},
+        0x0, NULL, HFILL} },
 
     { &hf_report_type,
       { "Report Type", "dmp.report_type", FT_BOOLEAN, 8,
@@ -4836,22 +4836,54 @@ void proto_register_dmp (void)
   };
 
   static ei_register_info ei[] = {
-     { &ei_reserved_value, { "dmp.reserved.expert", PI_UNDECODED, PI_WARN, "Reserved value", EXPFILL }},
-     { &ei_message_sic_illegal, { "dmp.sic.illegal", PI_UNDECODED, PI_NOTE, "Illegal SIC", EXPFILL }},
-     { &ei_analysis_ack_unexpected, { "dmp.analysis.ack_unexpected", PI_SEQUENCE, PI_NOTE, "Unexpected ACK", EXPFILL }},
-     { &ei_analysis_ack_missing, { "dmp.analysis.ack_missing.expert", PI_SEQUENCE, PI_NOTE, "Acknowledgement missing", EXPFILL }},
-     { &ei_analysis_msg_missing, { "dmp.analysis.msg_missing", PI_SEQUENCE, PI_NOTE, "Message missing", EXPFILL }},
-     { &ei_analysis_retrans_no, { "dmp.analysis.retrans_no.expert", PI_SEQUENCE, PI_NOTE, "Retransmission #", EXPFILL }},
-     { &ei_analysis_ack_dup_no, { "dmp.analysis.dup_ack_no.expert", PI_SEQUENCE, PI_NOTE, "Dup ACK #", EXPFILL }},
-     { &ei_addr_dir_rec_no_generated, { "dmp.rec_no.expert", PI_MALFORMED, PI_WARN, "Recipient number too big", EXPFILL }},
-     { &ei_addr_ext_rec_no_generated, { "dmp.rec_no.expert", PI_MALFORMED, PI_WARN, "Recipient number too big", EXPFILL }},
-     { &ei_ack_reason, { "dmp.ack_reason.expert", PI_RESPONSE_CODE, PI_NOTE, "ACK reason: %s", EXPFILL }},
-     { &ei_envelope_version_value, { "dmp.version_value.unsupported", PI_UNDECODED, PI_ERROR, "Unsupported DMP Version", EXPFILL }},
-     { &ei_envelope_msg_id, { "dmp.msg_id.short_id", PI_PROTOCOL, PI_NOTE, "Id < 4096 - should use ShortId", EXPFILL }},
-     { &ei_7bit_string_unused_bits, { "dmp.7bit_string.unused_bits", PI_PROTOCOL, PI_WARN, "Unused bits in last byte shall be null", EXPFILL }},
-     { &ei_message_compr, { "dmp.body.compression.unknown", PI_UNDECODED, PI_WARN, "Unknown compression algorithm", EXPFILL }},
-     { &ei_message_body_uncompress, { "dmp.body.uncompress.fail", PI_UNDECODED, PI_WARN, "Error: Unable to uncompress content", EXPFILL }},
-     { &ei_checksum_bad, { "dmp.checksum_bad.expert", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
+    { &ei_reserved_value,
+      { "dmp.reserved.expert", PI_UNDECODED, PI_WARN,
+        "Reserved value", EXPFILL } },
+    { &ei_message_sic_illegal,
+      { "dmp.sic.illegal", PI_UNDECODED, PI_NOTE,
+        "Illegal SIC", EXPFILL } },
+    { &ei_analysis_ack_unexpected,
+      { "dmp.analysis.ack_unexpected", PI_SEQUENCE, PI_NOTE,
+        "Unexpected ACK", EXPFILL } },
+    { &ei_analysis_ack_missing,
+      { "dmp.analysis.ack_missing.expert", PI_SEQUENCE, PI_NOTE,
+        "Acknowledgement missing", EXPFILL } },
+    { &ei_analysis_msg_missing,
+      { "dmp.analysis.msg_missing", PI_SEQUENCE, PI_NOTE,
+        "Message missing", EXPFILL } },
+    { &ei_analysis_retrans_no,
+      { "dmp.analysis.retrans_no.expert", PI_SEQUENCE, PI_NOTE,
+        "Retransmission #", EXPFILL } },
+    { &ei_analysis_ack_dup_no,
+      { "dmp.analysis.dup_ack_no.expert", PI_SEQUENCE, PI_NOTE,
+        "Dup ACK #", EXPFILL } },
+    { &ei_addr_dir_rec_no_generated,
+      { "dmp.rec_no.expert", PI_MALFORMED, PI_WARN,
+        "Recipient number too big", EXPFILL } },
+    { &ei_addr_ext_rec_no_generated,
+      { "dmp.rec_no.expert", PI_MALFORMED, PI_WARN,
+        "Recipient number too big", EXPFILL } },
+    { &ei_ack_reason,
+      { "dmp.ack_reason.expert", PI_RESPONSE_CODE, PI_NOTE,
+        "ACK reason: %s", EXPFILL } },
+    { &ei_envelope_version_value,
+      { "dmp.version_value.unsupported", PI_UNDECODED, PI_ERROR,
+        "Unsupported DMP Version", EXPFILL } },
+    { &ei_envelope_msg_id,
+      { "dmp.msg_id.short_id", PI_PROTOCOL, PI_NOTE,
+        "Id < 4096 - should use ShortId", EXPFILL } },
+    { &ei_7bit_string_unused_bits,
+      { "dmp.7bit_string.unused_bits", PI_PROTOCOL, PI_WARN,
+        "Unused bits in last byte shall be null", EXPFILL } },
+    { &ei_message_compr,
+      { "dmp.body.compression.unknown", PI_UNDECODED, PI_WARN,
+        "Unknown compression algorithm", EXPFILL } },
+    { &ei_message_body_uncompress,
+      { "dmp.body.uncompress.fail", PI_UNDECODED, PI_WARN,
+        "Error: Unable to uncompress content", EXPFILL } },
+    { &ei_checksum_bad,
+      { "dmp.checksum_bad.expert", PI_CHECKSUM, PI_WARN,
+        "Bad checksum", EXPFILL } },
   };
 
   static uat_field_t attributes_flds[] = {
