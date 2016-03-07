@@ -2703,10 +2703,11 @@ add_custom_target(test-sh
 	DEPENDS ${CMAKE_SOURCE_DIR}/cmake/modules/GenerateTestSh.cmake
 )
 
+#Generate list of AUTHORS (Name + E-Mail) sort by name
 if (GIT_EXECUTABLE)
 	ADD_CUSTOM_TARGET(
 		gen-authors
-		COMMAND ${GIT_EXECUTABLE} --no-pager shortlog -sne HEAD > ${CMAKE_SOURCE_DIR}/AUTHORS.git
+		COMMAND ${GIT_EXECUTABLE} --no-pager shortlog -se HEAD > ${CMAKE_SOURCE_DIR}/AUTHORS.git
 		COMMAND ${PERL_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/generate_authors.pl ${CMAKE_SOURCE_DIR}/AUTHORS.src ${CMAKE_SOURCE_DIR}/AUTHORS.git > ${CMAKE_SOURCE_DIR}/AUTHORS
 	)
 else (GIT_EXECUTABLE)

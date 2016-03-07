@@ -1685,5 +1685,5 @@ endif
 
 gen-authors:
 #Generate list of AUTHORS (Name + E-Mail) sort by number of commit
-	git --no-pager shortlog -sne HEAD > $(top_srcdir)/AUTHORS.git
+	git --no-pager shortlog -se HEAD > $(top_srcdir)/AUTHORS.git
 	$(PERL) $(top_srcdir)/tools/generate_authors.pl $(top_srcdir)/AUTHORS.src $(top_srcdir)/AUTHORS.git > $(top_srcdir)/AUTHORS
