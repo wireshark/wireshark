@@ -121,8 +121,6 @@ sub parse_author_name {
 sub parse_git_name {
 	my $full_name = $_[0];
 	my $name;
-	my $find = "\@";
-	my $replace = "[AT]";
 	my $email;
 	my $len;
 	my $ntab = 4;
@@ -133,7 +131,7 @@ sub parse_git_name {
 		$name = trim($1);
 		#Convert real email address to "spam proof" one
 		$email = trim($2);
-		$email =~ s/$find/$replace/g;
+		$email =~ s/@/[AT]/g;
 
 		if (!exists($contributors{ $email })) {
 			#Make an exception for Gerald because he's part of the header
