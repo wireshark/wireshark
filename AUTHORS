@@ -3932,11 +3932,11 @@ João Valverde			joao.valverde[AT]tecnico.ulisboa.pt
 Tom Haynes			loghyr[AT]primarydata.com
 Juanjo Martin			juanjo[AT]rti.com
 Maarten Bezemer			maarten.bezemer[AT]gmail.com
+Petr Gotthard			petr.gotthard[AT]honeywell.com
 Marian Ďurkovič			md[AT]bts.sk
-AdrianSimionov			daniel.simionov[AT]gmail.com
+Adrian Simionov			daniel.simionov[AT]gmail.com
 Mikael Kanstrup			mikael.kanstrup[AT]gmail.com
 Luke Mewburn			luke[AT]mewburn.net
-Petr Gotthard			petr.gotthard[AT]honeywell.com
 dsrsupport			eugene.exarevsky[AT]dsr-company.com
 Diederik de Groot		ddegroot[AT]talon.nl
 D. Ulis				daulis0[AT]gmail.com
@@ -3959,7 +3959,6 @@ Sergey Avseyev			sergey.avseyev[AT]gmail.com
 Darshan Nevgi			darshan.sn[AT]samsung.com
 Jeffrey Smith			whydoubt[AT]gmail.com
 Peter Ross			peter.ross[AT]dsto.defence.gov.au
-Petr Gotthard			petr.gotthard[AT]centrum.cz
 Richard Sharpe			rsharpe[AT]samba.org
 Yan Burman			yanb[AT]mellanox.com
 anilkumar911			anilkumar911[AT]gmail.com
@@ -3991,6 +3990,7 @@ Jérôme LAFORGE			jerome.laforge[AT]gmail.com
 Nicolas S. Dade			nic.dade[AT]gmail.com
 Paul Offord			paul.offord[AT]advance7.com
 Simon Barber			simon.barber[AT]meraki.net
+Thies Moeller			thies.moeller[AT]baslerweb.com
 Wasim Abu Moch			wasim[AT]mellanox.com
 YFdyh000			yfdyh000[AT]gmail.com
 Christoph Schlosser		christoph.schlosser[AT]br-automation.com
@@ -4035,9 +4035,9 @@ Luke Chou			luke.chou[AT]gmail.com
 Marcel Essig			marcel.essig[AT]gmx.de
 Marius				mareko.paliga[AT]gmail.com
 Michael Oed			michael.oed[AT]gmail.com
+Michal Prívozník		mprivozn[AT]redhat.com
 Michele Baldessari		michele[AT]acksyn.org
 Mike Gerschefske		msgersch2[AT]gmail.com
-Moeller, Thies			thies.moeller[AT]baslerweb.com
 Moraney Jalil			moraney.jalil[AT]outlook.com
 Noel Power			noel.power[AT]suse.com
 Owen Williams			williams.owen[AT]gmail.com
@@ -4049,7 +4049,6 @@ Robert Cragie			robert.cragie[AT]arm.com
 Shinjo Park			peremen[AT]gmail.com
 Slava Shwartsman		slavash[AT]mellanox.com
 Sven Eckelmann			sven[AT]open-mesh.com
-Thies Moeller			thies.moeller[AT]baslerweb.com
 Tobias Brunner			tobias[AT]strongswan.org
 Vikhyat Umrao			vumrao[AT]redhat.com
 Vikram Hegde			vikram.h[AT]samsung.com
@@ -4061,7 +4060,6 @@ anonsvn				anonsvn[AT]localhost
 Дмитрий Цветцих			dmitrycvet[AT]gmail.com
 Adam Goldman			adam.goldman[AT]intel.com
 Adam Pridgen			adam.pridgen[AT]thecoverofnight.com
-Adrian Simionov			daniel.simionov[AT]gmail.com
 Adrian-Ken Rueegsegger		ken[AT]codelabs.ch
 Alex Tessmer			dev[AT]tessmer.me
 AlexL				loginov.alex.valer[AT]gmail.com
@@ -4137,6 +4135,7 @@ Juan Jose Martin Carrascosa	juanjo[AT]rti.com
 Juan Matias			jmrepetti[AT]gmail.com
 Jun Wang			sdn_app[AT]163.com
 JustinKu			jiunrong[AT]gmail.com
+Kary Rogers			kary.rogers[AT]gmail.com
 Krishna Chaitanya		chaitanya.mgit[AT]gmail.com
 Lars Sundström			lars.x.sundstrom[AT]ericsson.com
 Lasse Luttermann Poulsen	lasse.luttermann[AT]gmail.com
@@ -4152,8 +4151,6 @@ Micha Reiser			michafamreiser.ch
 Michael Adam			obnox[AT]samba.org
 Michael McConville		mmcco[AT]mykolab.com
 Michael Pergament		mpergament[AT]googlemail.com
-Michal Privoznik		miso.privoznik[AT]gmail.com
-Michal Privoznik		mprivozn[AT]redhat.com
 Mike Frysinger			vapier[AT]chromium.org
 Miltos Patsiouras		mipatsio[AT]gmail.com
 Moshe Kaplan			me[AT]moshekaplan.com
@@ -4188,7 +4185,7 @@ Robert P			tehownt[AT]gmail.com
 Roman Leonhartsberger		ro.leonhartsberger[AT]gmail.com
 Roman Volkov			volkoff_roman[AT]ukr.net
 Russel Howe			russel[AT]appliedinvention.com
-Rustam S			rustam.safargalin[AT]sifox.ru
+Rustam Safargalin		rustam.safargalin[AT]sifox.ru
 Sebastian Kloeppel		sk[AT]nakedape.net
 Sebastian Schildt		sebastian[AT]frozenlight.de
 Selva Kumar			v.selvamuthukumar[AT]gmail.com
@@ -4223,7 +4220,6 @@ Xavier Brouckaert		xabrouck[AT]cisco.com
 Yasuyuki Tanaka			yatch[AT]isl.rdc.toshiba.co.jp
 cff339				cff339[AT]gmail.com
 kardam				netkardam[AT]gmail.com
-karyrogers			kary.rogers[AT]gmail.com
 kkoizumi			kkoizumi46[AT]gmail.com
 Øyvind Rønningstad		ronningstad[AT]gmail.com
 
