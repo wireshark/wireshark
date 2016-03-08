@@ -1365,6 +1365,9 @@ indent_size = 2
 [packet-mesh.[ch]]
 indent_size = 2
 
+[packet-metamako.[ch]]
+indent_size = 2
+
 [packet-mgcp.[ch]]
 indent_style = tab
 indent_size = tab
