@@ -399,13 +399,12 @@ set_time_adjustment(char *optarg_str_p)
 
     /* adjust fractional portion from fractional to numerator
      * e.g., in "1.5" from 5 to 500000000 since .5*10^9 = 500000000 */
-    if (frac && end) {            /* both are valid */
-        frac_digits = end - frac - 1;   /* fractional digit count (remember '.') */
-        while(frac_digits < 9) {    /* this is frac of 10^9 */
-            val *= 10;
-            frac_digits++;
-        }
+    frac_digits = end - frac - 1;   /* fractional digit count (remember '.') */
+    while(frac_digits < 9) {    /* this is frac of 10^9 */
+        val *= 10;
+        frac_digits++;
     }
+
     time_adj.tv.nsecs = (int)val;
 }
 
@@ -473,13 +472,12 @@ set_strict_time_adj(char *optarg_str_p)
 
     /* adjust fractional portion from fractional to numerator
      * e.g., in "1.5" from 5 to 500000000 since .5*10^9 = 500000000 */
-    if (frac && end) {            /* both are valid */
-        frac_digits = end - frac - 1;   /* fractional digit count (remember '.') */
-        while(frac_digits < 9) {    /* this is frac of 10^9 */
-            val *= 10;
-            frac_digits++;
-        }
+    frac_digits = end - frac - 1;   /* fractional digit count (remember '.') */
+    while(frac_digits < 9) {    /* this is frac of 10^9 */
+        val *= 10;
+        frac_digits++;
     }
+
     strict_time_adj.tv.nsecs = (int)val;
 }
 
@@ -541,13 +539,12 @@ set_rel_time(char *optarg_str_p)
 
     /* adjust fractional portion from fractional to numerator
      * e.g., in "1.5" from 5 to 500000000 since .5*10^9 = 500000000 */
-    if (frac && end) {            /* both are valid */
-        frac_digits = end - frac - 1;   /* fractional digit count (remember '.') */
-        while(frac_digits < 9) {    /* this is frac of 10^9 */
-            val *= 10;
-            frac_digits++;
-        }
+    frac_digits = end - frac - 1;   /* fractional digit count (remember '.') */
+    while(frac_digits < 9) {    /* this is frac of 10^9 */
+        val *= 10;
+        frac_digits++;
     }
+
     relative_time_window.nsecs = (int)val;
 }
 
