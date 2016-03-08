@@ -1971,7 +1971,7 @@ detect_add_path_prefix4(tvbuff_t *tvb, gint offset, gint end) {
     /* Must NOT be compatible with standard BGP */
     for (o = offset; o < end; ) {
         prefix_len = tvb_get_guint8(tvb, o);
-        if( prefix_len == 0) {
+        if( prefix_len == 0 && end - offset > 1 ) {
             return 1; /* prefix length is zero (i.e. matching all IP prefixes) and remaining bytes within the NLRI is greater than or equal to 1 - may be BGP add-path */
         }
         if( prefix_len > 32) {
