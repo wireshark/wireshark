@@ -73,7 +73,7 @@ find_stat_node(GNode *parent_stat_node, header_field_info *needle_hfinfo)
 
 
 static void
-process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps, guint pkt_len)
+process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps)
 {
 	field_info		*finfo;
 	ph_stats_node_t		*stats;
@@ -97,7 +97,7 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps, gu
 
 		stats = STAT_NODE_STATS(stat_node);
 		stats->num_pkts_total++;
-		stats->num_bytes_total += pkt_len;
+		stats->num_bytes_total += finfo->length;
 	}
 
 	proto_sibling_node = ptree_node->next;
@@ -110,17 +110,17 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps, gu
 		if(strlen(PNODE_FINFO(proto_sibling_node)->hfinfo->name) == 0 && ptree_node->next)
 			proto_sibling_node = proto_sibling_node->next;
 
-		process_node(proto_sibling_node, stat_node, ps, pkt_len);
+		process_node(proto_sibling_node, stat_node, ps);
 	} else {
 		stats->num_pkts_last++;
-		stats->num_bytes_last += pkt_len;
+		stats->num_bytes_last += finfo->length;
 	}
 }
 
 
 
 static void
-process_tree(proto_tree *protocol_tree, ph_stats_t* ps, guint pkt_len)
+process_tree(proto_tree *protocol_tree, ph_stats_t* ps)
 {
 	proto_node	*ptree_node;
 
@@ -138,7 +138,7 @@ process_tree(proto_tree *protocol_tree, ph_stats_t* ps, guint pkt_len)
 		return;
 	}
 
-	process_node(ptree_node, ps->stats_tree, ps, pkt_len);
+	process_node(ptree_node, ps->stats_tree, ps);
 }
 
 static gboolean
@@ -163,7 +163,7 @@ process_record(capture_file *cf, frame_data *frame, column_info *cinfo, ph_stats
 	epan_dissect_run(&edt, cf->cd_t, &phdr, frame_tvbuff_new_buffer(frame, &buf), frame, cinfo);
 
 	/* Get stats from this protocol tree */
-	process_tree(edt.tree, ps, frame->pkt_len);
+	process_tree(edt.tree, ps);
 
 	if (frame->flags.has_ts) {
 		/* Update times */
