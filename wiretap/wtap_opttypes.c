@@ -194,6 +194,8 @@ void wtap_optionblock_copy_options(wtap_optionblock_t dest_block, wtap_optionblo
             reg_optblock.name = src_internal->name;
             reg_optblock.description = src_internal->description;
             reg_optblock.type = src_internal->type;
+            reg_optblock.write_size_func = src_internal->write_size;
+            reg_optblock.write_func = src_internal->write_data;
             reg_optblock.option = src_value->option;
             reg_optblock.default_val = src_value->default_val;
 
