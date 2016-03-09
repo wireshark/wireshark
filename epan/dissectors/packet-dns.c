@@ -2768,6 +2768,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
             rropt_len  -= 8;
             optlen -= 8;
             proto_tree_add_item(rropt_tree, hf_dns_opt_cookie_server, tvb, cur_offset, optlen, ENC_NA);
+            cur_offset += optlen;
             rropt_len  -= optlen;
         break;
           default:
