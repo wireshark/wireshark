@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-h501.c                                                              */
-/* ../../tools/asn2wrs.py -p h501 -c ./h501.cnf -s ./packet-h501-template -D . -O ../../epan/dissectors H501-MESSAGES.asn */
+/* asn2wrs.py -p h501 -c ./h501.cnf -s ./packet-h501-template -D . -O ../.. H501-MESSAGES.asn */
 
 /* Input file: packet-h501-template.c */
 
-#line 1 "../../asn1/h501/packet-h501-template.c"
+#line 1 "./asn1/h501/packet-h501-template.c"
 /* packet-h501.c
  * Routines for H.501 packet dissection
  * 2007  Tomas Kukosa
@@ -51,7 +51,7 @@ void proto_register_h501(void);
 static int proto_h501 = -1;
 
 /*--- Included file: packet-h501-hf.c ---*/
-#line 1 "../../asn1/h501/packet-h501-hf.c"
+#line 1 "./asn1/h501/packet-h501-hf.c"
 static int hf_h501_Message_PDU = -1;              /* Message */
 static int hf_h501_body = -1;                     /* MessageBody */
 static int hf_h501_common = -1;                   /* MessageCommonInfo */
@@ -304,13 +304,13 @@ static int hf_h501_releaseCompleteReason = -1;    /* ReleaseCompleteReason */
 static int hf_h501_causeIE = -1;                  /* INTEGER_1_65535 */
 
 /*--- End of included file: packet-h501-hf.c ---*/
-#line 45 "../../asn1/h501/packet-h501-template.c"
+#line 45 "./asn1/h501/packet-h501-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_h501 = -1;
 
 /*--- Included file: packet-h501-ett.c ---*/
-#line 1 "../../asn1/h501/packet-h501-ett.c"
+#line 1 "./asn1/h501/packet-h501-ett.c"
 static gint ett_h501_Message = -1;
 static gint ett_h501_MessageBody = -1;
 static gint ett_h501_MessageCommonInfo = -1;
@@ -412,7 +412,7 @@ static gint ett_h501_Role = -1;
 static gint ett_h501_TerminationCause = -1;
 
 /*--- End of included file: packet-h501-ett.c ---*/
-#line 49 "../../asn1/h501/packet-h501-template.c"
+#line 49 "./asn1/h501/packet-h501-template.c"
 
 /* Dissectors */
 static dissector_handle_t h501_pdu_handle;
@@ -426,7 +426,7 @@ void proto_reg_handoff_h501(void);
 
 
 /*--- Included file: packet-h501-fn.c ---*/
-#line 1 "../../asn1/h501/packet-h501-fn.c"
+#line 1 "./asn1/h501/packet-h501-fn.c"
 
 
 static int
@@ -2355,7 +2355,7 @@ static const per_choice_t MessageBody_choice[] = {
 
 static int
 dissect_h501_MessageBody(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 20 "../../asn1/h501/h501.cnf"
+#line 20 "./asn1/h501/h501.cnf"
   gint32 msg_type = -1;
   const gchar *p = NULL;
 
@@ -2363,7 +2363,7 @@ dissect_h501_MessageBody(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                                  ett_h501_MessageBody, MessageBody_choice,
                                  &msg_type);
 
-#line 23 "../../asn1/h501/h501.cnf"
+#line 23 "./asn1/h501/h501.cnf"
   p = try_val_to_str(msg_type, VALS(h501_MessageBody_vals));
   if (p )
     col_set_str(actx->pinfo->cinfo, COL_INFO, p);
@@ -2514,7 +2514,7 @@ static int dissect_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-h501-fn.c ---*/
-#line 61 "../../asn1/h501/packet-h501-template.c"
+#line 61 "./asn1/h501/packet-h501-template.c"
 
 static int
 dissect_h501_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -2552,7 +2552,7 @@ void proto_register_h501(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-h501-hfarr.c ---*/
-#line 1 "../../asn1/h501/packet-h501-hfarr.c"
+#line 1 "./asn1/h501/packet-h501-hfarr.c"
     { &hf_h501_Message_PDU,
       { "Message", "h501.Message_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -3555,7 +3555,7 @@ void proto_register_h501(void) {
         "INTEGER_1_65535", HFILL }},
 
 /*--- End of included file: packet-h501-hfarr.c ---*/
-#line 97 "../../asn1/h501/packet-h501-template.c"
+#line 97 "./asn1/h501/packet-h501-template.c"
   };
 
   /* List of subtrees */
@@ -3563,7 +3563,7 @@ void proto_register_h501(void) {
     &ett_h501,
 
 /*--- Included file: packet-h501-ettarr.c ---*/
-#line 1 "../../asn1/h501/packet-h501-ettarr.c"
+#line 1 "./asn1/h501/packet-h501-ettarr.c"
     &ett_h501_Message,
     &ett_h501_MessageBody,
     &ett_h501_MessageCommonInfo,
@@ -3665,7 +3665,7 @@ void proto_register_h501(void) {
     &ett_h501_TerminationCause,
 
 /*--- End of included file: packet-h501-ettarr.c ---*/
-#line 103 "../../asn1/h501/packet-h501-template.c"
+#line 103 "./asn1/h501/packet-h501-template.c"
   };
 
   /* Register protocol */

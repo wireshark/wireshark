@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-atn-cpdlc.c                                                         */
-/* ../../tools/asn2wrs.py -u -L -p atn-cpdlc -c ./atn-cpdlc.cnf -s ./packet-atn-cpdlc-template -D . -O ../../epan/dissectors atn-cpdlc.asn */
+/* asn2wrs.py -u -L -p atn-cpdlc -c ./atn-cpdlc.cnf -s ./packet-atn-cpdlc-template -D . -O ../.. atn-cpdlc.asn */
 
 /* Input file: packet-atn-cpdlc-template.c */
 
-#line 1 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 1 "./asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 /* packet-atn-cpdlc-template.c
  * By Mathias Guettler <guettler@web.de>
  * Copyright 2013
@@ -103,7 +103,7 @@ static int dissect_ProtectedAircraftPDUs_PDU(
 
 
 /*--- Included file: packet-atn-cpdlc-hf.c ---*/
-#line 1 "../../asn1/atn-cpdlc/packet-atn-cpdlc-hf.c"
+#line 1 "./asn1/atn-cpdlc/packet-atn-cpdlc-hf.c"
 static int hf_atn_cpdlc_GroundPDUs_PDU = -1;      /* GroundPDUs */
 static int hf_atn_cpdlc_AircraftPDUs_PDU = -1;    /* AircraftPDUs */
 static int hf_atn_cpdlc_ProtectedGroundPDUs_PDU = -1;  /* ProtectedGroundPDUs */
@@ -707,11 +707,11 @@ static int hf_atn_cpdlc_windSpeedEnglish = -1;    /* WindSpeedEnglish */
 static int hf_atn_cpdlc_windSpeedMetric = -1;     /* WindSpeedMetric */
 
 /*--- End of included file: packet-atn-cpdlc-hf.c ---*/
-#line 97 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 97 "./asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 
 
 /*--- Included file: packet-atn-cpdlc-ett.c ---*/
-#line 1 "../../asn1/atn-cpdlc/packet-atn-cpdlc-ett.c"
+#line 1 "./asn1/atn-cpdlc/packet-atn-cpdlc-ett.c"
 static gint ett_atn_cpdlc_GroundPDUs = -1;
 static gint ett_atn_cpdlc_UplinkMessage = -1;
 static gint ett_atn_cpdlc_AircraftPDUs = -1;
@@ -856,12 +856,12 @@ static gint ett_atn_cpdlc_Winds = -1;
 static gint ett_atn_cpdlc_WindSpeed = -1;
 
 /*--- End of included file: packet-atn-cpdlc-ett.c ---*/
-#line 99 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 99 "./asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 static gint ett_atn_cpdlc = -1;
 
 
 /*--- Included file: packet-atn-cpdlc-fn.c ---*/
-#line 1 "../../asn1/atn-cpdlc/packet-atn-cpdlc-fn.c"
+#line 1 "./asn1/atn-cpdlc/packet-atn-cpdlc-fn.c"
 
 static const value_string atn_cpdlc_CPDLCUserAbortReason_vals[] = {
   {   0, "undefined" },
@@ -5307,7 +5307,7 @@ static int dissect_ProtectedAircraftPDUs_PDU(tvbuff_t *tvb _U_, packet_info *pin
 
 
 /*--- End of included file: packet-atn-cpdlc-fn.c ---*/
-#line 102 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 102 "./asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 
 /* Wireshark ID of CPDLC protocol */
 static int proto_atn_cpdlc = -1;
@@ -5524,7 +5524,7 @@ void proto_register_atn_cpdlc (void)
     static hf_register_info hf_atn_cpdlc[] = {
 
 /*--- Included file: packet-atn-cpdlc-hfarr.c ---*/
-#line 1 "../../asn1/atn-cpdlc/packet-atn-cpdlc-hfarr.c"
+#line 1 "./asn1/atn-cpdlc/packet-atn-cpdlc-hfarr.c"
     { &hf_atn_cpdlc_GroundPDUs_PDU,
       { "GroundPDUs", "atn-cpdlc.GroundPDUs",
         FT_UINT32, BASE_DEC, VALS(atn_cpdlc_GroundPDUs_vals), 0,
@@ -7931,13 +7931,13 @@ void proto_register_atn_cpdlc (void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-atn-cpdlc-hfarr.c ---*/
-#line 317 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 317 "./asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
       };
 
     static gint *ett[] = {
 
 /*--- Included file: packet-atn-cpdlc-ettarr.c ---*/
-#line 1 "../../asn1/atn-cpdlc/packet-atn-cpdlc-ettarr.c"
+#line 1 "./asn1/atn-cpdlc/packet-atn-cpdlc-ettarr.c"
     &ett_atn_cpdlc_GroundPDUs,
     &ett_atn_cpdlc_UplinkMessage,
     &ett_atn_cpdlc_AircraftPDUs,
@@ -8082,7 +8082,7 @@ void proto_register_atn_cpdlc (void)
     &ett_atn_cpdlc_WindSpeed,
 
 /*--- End of included file: packet-atn-cpdlc-ettarr.c ---*/
-#line 321 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 321 "./asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
         &ett_atn_cpdlc
     };
 

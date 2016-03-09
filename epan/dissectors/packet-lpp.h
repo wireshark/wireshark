@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-lpp.h                                                               */
-/* ../../tools/asn2wrs.py -p lpp -c ./lpp.cnf -s ./packet-lpp-template -D . -O ../../epan/dissectors LPP.asn */
+/* asn2wrs.py -p lpp -c ./lpp.cnf -s ./packet-lpp-template -D . -O ../.. LPP.asn */
 
 /* Input file: packet-lpp-template.h */
 
-#line 1 "../../asn1/lpp/packet-lpp-template.h"
+#line 1 "./asn1/lpp/packet-lpp-template.h"
 /* packet-lpp.h
  * Routines for 3GPP LTE Positioning Protocol (LPP) packet dissection
  * Copyright 2011-2016 Pascal Quantin <pascal.quantin@gmail.com>
@@ -37,7 +37,7 @@
 
 
 /*--- Included file: packet-lpp-exp.h ---*/
-#line 1 "../../asn1/lpp/packet-lpp-exp.h"
+#line 1 "./asn1/lpp/packet-lpp-exp.h"
 int dissect_lpp_LPP_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_lpp_ARFCN_ValueEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_lpp_ARFCN_ValueUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -71,6 +71,6 @@ int dissect_lpp_HorizontalVelocity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 int dissect_lpp_Polygon_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-lpp-exp.h ---*/
-#line 31 "../../asn1/lpp/packet-lpp-template.h"
+#line 31 "./asn1/lpp/packet-lpp-template.h"
 
 #endif  /* PACKET_LPP_H */

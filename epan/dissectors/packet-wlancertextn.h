@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-wlancertextn.h                                                      */
-/* ../../tools/asn2wrs.py -b -p wlancertextn -c ./wlancertextn.cnf -s ./packet-wlancertextn-template -D . -O ../../epan/dissectors WLANCERTEXTN.asn */
+/* asn2wrs.py -b -p wlancertextn -c ./wlancertextn.cnf -s ./packet-wlancertextn-template -D . -O ../.. WLANCERTEXTN.asn */
 
 /* Input file: packet-wlancertextn-template.h */
 
-#line 1 "../../asn1/wlancertextn/packet-wlancertextn-template.h"
+#line 1 "./asn1/wlancertextn/packet-wlancertextn-template.h"
 /* packet-wlancertextn.h
  * Routines for Wireless Certificate Extensions (RFC3770) packet dissection
  *  Ronnie Sahlberg 2005

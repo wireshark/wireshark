@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-ns_cert_exts.c                                                      */
-/* ../../tools/asn2wrs.py -b -p ns_cert_exts -c ./ns_cert_exts.cnf -s ./packet-ns_cert_exts-template -D . -O ../../epan/dissectors NETSCAPE-CERT-EXTS.asn */
+/* asn2wrs.py -b -p ns_cert_exts -c ./ns_cert_exts.cnf -s ./packet-ns_cert_exts-template -D . -O ../.. NETSCAPE-CERT-EXTS.asn */
 
 /* Input file: packet-ns_cert_exts-template.c */
 
-#line 1 "../../asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
+#line 1 "./asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
 /* packet-ns_cert_exts.c
  * Routines for NetScape Certificate Extensions packet dissection
  *   Ronnie Sahlberg 2004
@@ -46,7 +46,7 @@ void proto_reg_handoff_ns_cert_exts(void);
 static int proto_ns_cert_exts = -1;
 
 /*--- Included file: packet-ns_cert_exts-hf.c ---*/
-#line 1 "../../asn1/ns_cert_exts/packet-ns_cert_exts-hf.c"
+#line 1 "./asn1/ns_cert_exts/packet-ns_cert_exts-hf.c"
 static int hf_ns_cert_exts_BaseUrl_PDU = -1;      /* BaseUrl */
 static int hf_ns_cert_exts_RevocationUrl_PDU = -1;  /* RevocationUrl */
 static int hf_ns_cert_exts_CaRevocationUrl_PDU = -1;  /* CaRevocationUrl */
@@ -66,20 +66,20 @@ static int hf_ns_cert_exts_CertType_smime_ca = -1;
 static int hf_ns_cert_exts_CertType_object_signing_ca = -1;
 
 /*--- End of included file: packet-ns_cert_exts-hf.c ---*/
-#line 40 "../../asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
+#line 40 "./asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-ns_cert_exts-ett.c ---*/
-#line 1 "../../asn1/ns_cert_exts/packet-ns_cert_exts-ett.c"
+#line 1 "./asn1/ns_cert_exts/packet-ns_cert_exts-ett.c"
 static gint ett_ns_cert_exts_CertType = -1;
 
 /*--- End of included file: packet-ns_cert_exts-ett.c ---*/
-#line 43 "../../asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
+#line 43 "./asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
 
 
 /*--- Included file: packet-ns_cert_exts-fn.c ---*/
-#line 1 "../../asn1/ns_cert_exts/packet-ns_cert_exts-fn.c"
+#line 1 "./asn1/ns_cert_exts/packet-ns_cert_exts-fn.c"
 
 
 static int
@@ -240,7 +240,7 @@ static int dissect_CertType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-ns_cert_exts-fn.c ---*/
-#line 45 "../../asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
+#line 45 "./asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
 
 
 /*--- proto_register_ns_cert_exts -------------------------------------------*/
@@ -250,7 +250,7 @@ void proto_register_ns_cert_exts(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-ns_cert_exts-hfarr.c ---*/
-#line 1 "../../asn1/ns_cert_exts/packet-ns_cert_exts-hfarr.c"
+#line 1 "./asn1/ns_cert_exts/packet-ns_cert_exts-hfarr.c"
     { &hf_ns_cert_exts_BaseUrl_PDU,
       { "BaseUrl", "ns_cert_exts.BaseUrl",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -317,18 +317,18 @@ void proto_register_ns_cert_exts(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ns_cert_exts-hfarr.c ---*/
-#line 53 "../../asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
+#line 53 "./asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-ns_cert_exts-ettarr.c ---*/
-#line 1 "../../asn1/ns_cert_exts/packet-ns_cert_exts-ettarr.c"
+#line 1 "./asn1/ns_cert_exts/packet-ns_cert_exts-ettarr.c"
     &ett_ns_cert_exts_CertType,
 
 /*--- End of included file: packet-ns_cert_exts-ettarr.c ---*/
-#line 58 "../../asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
+#line 58 "./asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
   };
 
   /* Register protocol */
@@ -345,7 +345,7 @@ void proto_register_ns_cert_exts(void) {
 void proto_reg_handoff_ns_cert_exts(void) {
 
 /*--- Included file: packet-ns_cert_exts-dis-tab.c ---*/
-#line 1 "../../asn1/ns_cert_exts/packet-ns_cert_exts-dis-tab.c"
+#line 1 "./asn1/ns_cert_exts/packet-ns_cert_exts-dis-tab.c"
   register_ber_oid_dissector("2.16.840.1.113730.1.1", dissect_CertType_PDU, proto_ns_cert_exts, "ns_cert_exts.cert_type");
   register_ber_oid_dissector("2.16.840.1.113730.1.2", dissect_BaseUrl_PDU, proto_ns_cert_exts, "ns_cert_exts.base_url");
   register_ber_oid_dissector("2.16.840.1.113730.1.3", dissect_RevocationUrl_PDU, proto_ns_cert_exts, "ns_cert_exts.revocation-url");
@@ -357,6 +357,6 @@ void proto_reg_handoff_ns_cert_exts(void) {
 
 
 /*--- End of included file: packet-ns_cert_exts-dis-tab.c ---*/
-#line 73 "../../asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
+#line 73 "./asn1/ns_cert_exts/packet-ns_cert_exts-template.c"
 }
 

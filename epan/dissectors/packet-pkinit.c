@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-pkinit.c                                                            */
-/* ../../tools/asn2wrs.py -b -p pkinit -c ./pkinit.cnf -s ./packet-pkinit-template -D . -O ../../epan/dissectors PKINIT.asn */
+/* asn2wrs.py -b -p pkinit -c ./pkinit.cnf -s ./packet-pkinit-template -D . -O ../.. PKINIT.asn */
 
 /* Input file: packet-pkinit-template.c */
 
-#line 1 "../../asn1/pkinit/packet-pkinit-template.c"
+#line 1 "./asn1/pkinit/packet-pkinit-template.c"
 /* packet-pkinit.c
  * Routines for PKINIT packet dissection
  *  Ronnie Sahlberg 2004
@@ -51,7 +51,7 @@ void proto_reg_handoff_pkinit(void);
 static int proto_pkinit = -1;
 
 /*--- Included file: packet-pkinit-hf.c ---*/
-#line 1 "../../asn1/pkinit/packet-pkinit-hf.c"
+#line 1 "./asn1/pkinit/packet-pkinit-hf.c"
 static int hf_pkinit_AuthPack_PDU = -1;           /* AuthPack */
 static int hf_pkinit_KRB5PrincipalName_PDU = -1;  /* KRB5PrincipalName */
 static int hf_pkinit_KDCDHKeyInfo_PDU = -1;       /* KDCDHKeyInfo */
@@ -78,12 +78,12 @@ static int hf_pkinit_dhNonce = -1;                /* INTEGER */
 static int hf_pkinit_dhKeyExpiration = -1;        /* KerberosTime */
 
 /*--- End of included file: packet-pkinit-hf.c ---*/
-#line 45 "../../asn1/pkinit/packet-pkinit-template.c"
+#line 45 "./asn1/pkinit/packet-pkinit-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-pkinit-ett.c ---*/
-#line 1 "../../asn1/pkinit/packet-pkinit-ett.c"
+#line 1 "./asn1/pkinit/packet-pkinit-ett.c"
 static gint ett_pkinit_PaPkAsReq = -1;
 static gint ett_pkinit_SEQUENCE_OF_TrustedCA = -1;
 static gint ett_pkinit_TrustedCA = -1;
@@ -95,7 +95,7 @@ static gint ett_pkinit_PaPkAsRep = -1;
 static gint ett_pkinit_KDCDHKeyInfo = -1;
 
 /*--- End of included file: packet-pkinit-ett.c ---*/
-#line 48 "../../asn1/pkinit/packet-pkinit-template.c"
+#line 48 "./asn1/pkinit/packet-pkinit-template.c"
 
 static int dissect_KerberosV5Spec2_KerberosTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 static int dissect_KerberosV5Spec2_Checksum(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
@@ -104,7 +104,7 @@ static int dissect_KerberosV5Spec2_PrincipalName(gboolean implicit_tag _U_, tvbu
 
 
 /*--- Included file: packet-pkinit-fn.c ---*/
-#line 1 "../../asn1/pkinit/packet-pkinit-fn.c"
+#line 1 "./asn1/pkinit/packet-pkinit-fn.c"
 
 static const value_string pkinit_TrustedCA_vals[] = {
   {   0, "caName" },
@@ -312,7 +312,7 @@ static int dissect_KDCDHKeyInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 
 /*--- End of included file: packet-pkinit-fn.c ---*/
-#line 55 "../../asn1/pkinit/packet-pkinit-template.c"
+#line 55 "./asn1/pkinit/packet-pkinit-template.c"
 
 int
 dissect_pkinit_PA_PK_AS_REQ(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
@@ -358,7 +358,7 @@ void proto_register_pkinit(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-pkinit-hfarr.c ---*/
-#line 1 "../../asn1/pkinit/packet-pkinit-hfarr.c"
+#line 1 "./asn1/pkinit/packet-pkinit-hfarr.c"
     { &hf_pkinit_AuthPack_PDU,
       { "AuthPack", "pkinit.AuthPack_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -457,14 +457,14 @@ void proto_register_pkinit(void) {
         "KerberosTime", HFILL }},
 
 /*--- End of included file: packet-pkinit-hfarr.c ---*/
-#line 99 "../../asn1/pkinit/packet-pkinit-template.c"
+#line 99 "./asn1/pkinit/packet-pkinit-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-pkinit-ettarr.c ---*/
-#line 1 "../../asn1/pkinit/packet-pkinit-ettarr.c"
+#line 1 "./asn1/pkinit/packet-pkinit-ettarr.c"
     &ett_pkinit_PaPkAsReq,
     &ett_pkinit_SEQUENCE_OF_TrustedCA,
     &ett_pkinit_TrustedCA,
@@ -476,7 +476,7 @@ void proto_register_pkinit(void) {
     &ett_pkinit_KDCDHKeyInfo,
 
 /*--- End of included file: packet-pkinit-ettarr.c ---*/
-#line 104 "../../asn1/pkinit/packet-pkinit-template.c"
+#line 104 "./asn1/pkinit/packet-pkinit-template.c"
   };
 
   /* Register protocol */
@@ -493,13 +493,13 @@ void proto_register_pkinit(void) {
 void proto_reg_handoff_pkinit(void) {
 
 /*--- Included file: packet-pkinit-dis-tab.c ---*/
-#line 1 "../../asn1/pkinit/packet-pkinit-dis-tab.c"
+#line 1 "./asn1/pkinit/packet-pkinit-dis-tab.c"
   register_ber_oid_dissector("1.3.6.1.5.2.3.1", dissect_AuthPack_PDU, proto_pkinit, "id-pkauthdata");
   register_ber_oid_dissector("1.3.6.1.5.2.3.2", dissect_KDCDHKeyInfo_PDU, proto_pkinit, "id-pkdhkeydata");
   register_ber_oid_dissector("1.3.6.1.5.2.2", dissect_KRB5PrincipalName_PDU, proto_pkinit, "id-pkinit-san");
 
 
 /*--- End of included file: packet-pkinit-dis-tab.c ---*/
-#line 119 "../../asn1/pkinit/packet-pkinit-template.c"
+#line 119 "./asn1/pkinit/packet-pkinit-template.c"
 }
 

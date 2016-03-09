@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-pkixqualified.c                                                     */
-/* ../../tools/asn2wrs.py -b -p pkixqualified -c ./pkixqualified.cnf -s ./packet-pkixqualified-template -D . -O ../../epan/dissectors PKIXqualified.asn */
+/* asn2wrs.py -b -p pkixqualified -c ./pkixqualified.cnf -s ./packet-pkixqualified-template -D . -O ../.. PKIXqualified.asn */
 
 /* Input file: packet-pkixqualified-template.c */
 
-#line 1 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
+#line 1 "./asn1/pkixqualified/packet-pkixqualified-template.c"
 /* packet-pkixqualified.c
  * Routines for RFC3739 PKIXqualified packet dissection
  *  Ronnie Sahlberg 2004
@@ -52,7 +52,7 @@ void proto_reg_handoff_pkixqualified(void);
 static int proto_pkixqualified = -1;
 
 /*--- Included file: packet-pkixqualified-hf.c ---*/
-#line 1 "../../asn1/pkixqualified/packet-pkixqualified-hf.c"
+#line 1 "./asn1/pkixqualified/packet-pkixqualified-hf.c"
 static int hf_pkixqualified_Generalizedtime_PDU = -1;  /* Generalizedtime */
 static int hf_pkixqualified_Directorystring_PDU = -1;  /* Directorystring */
 static int hf_pkixqualified_Printablestring_PDU = -1;  /* Printablestring */
@@ -75,12 +75,12 @@ static int hf_pkixqualified_nameRegistrationAuthorities = -1;  /* NameRegistrati
 static int hf_pkixqualified_NameRegistrationAuthorities_item = -1;  /* GeneralName */
 
 /*--- End of included file: packet-pkixqualified-hf.c ---*/
-#line 46 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
+#line 46 "./asn1/pkixqualified/packet-pkixqualified-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-pkixqualified-ett.c ---*/
-#line 1 "../../asn1/pkixqualified/packet-pkixqualified-ett.c"
+#line 1 "./asn1/pkixqualified/packet-pkixqualified-ett.c"
 static gint ett_pkixqualified_BiometricSyntax = -1;
 static gint ett_pkixqualified_BiometricData = -1;
 static gint ett_pkixqualified_TypeOfBiometricData = -1;
@@ -90,13 +90,13 @@ static gint ett_pkixqualified_SemanticsInformation = -1;
 static gint ett_pkixqualified_NameRegistrationAuthorities = -1;
 
 /*--- End of included file: packet-pkixqualified-ett.c ---*/
-#line 49 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
+#line 49 "./asn1/pkixqualified/packet-pkixqualified-template.c"
 
 static const char *object_identifier_id;
 
 
 /*--- Included file: packet-pkixqualified-fn.c ---*/
-#line 1 "../../asn1/pkixqualified/packet-pkixqualified-fn.c"
+#line 1 "./asn1/pkixqualified/packet-pkixqualified-fn.c"
 
 
 static int
@@ -237,7 +237,7 @@ dissect_pkixqualified_T_statementId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_pkixqualified_T_statementInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 32 "../../asn1/pkixqualified/pkixqualified.cnf"
+#line 32 "./asn1/pkixqualified/pkixqualified.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -366,7 +366,7 @@ static int dissect_XmppAddr_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-pkixqualified-fn.c ---*/
-#line 53 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
+#line 53 "./asn1/pkixqualified/packet-pkixqualified-template.c"
 
 
 /*--- proto_register_pkixqualified ----------------------------------------------*/
@@ -376,7 +376,7 @@ void proto_register_pkixqualified(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-pkixqualified-hfarr.c ---*/
-#line 1 "../../asn1/pkixqualified/packet-pkixqualified-hfarr.c"
+#line 1 "./asn1/pkixqualified/packet-pkixqualified-hfarr.c"
     { &hf_pkixqualified_Generalizedtime_PDU,
       { "Generalizedtime", "pkixqualified.Generalizedtime",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -459,14 +459,14 @@ void proto_register_pkixqualified(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pkixqualified-hfarr.c ---*/
-#line 61 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
+#line 61 "./asn1/pkixqualified/packet-pkixqualified-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-pkixqualified-ettarr.c ---*/
-#line 1 "../../asn1/pkixqualified/packet-pkixqualified-ettarr.c"
+#line 1 "./asn1/pkixqualified/packet-pkixqualified-ettarr.c"
     &ett_pkixqualified_BiometricSyntax,
     &ett_pkixqualified_BiometricData,
     &ett_pkixqualified_TypeOfBiometricData,
@@ -476,7 +476,7 @@ void proto_register_pkixqualified(void) {
     &ett_pkixqualified_NameRegistrationAuthorities,
 
 /*--- End of included file: packet-pkixqualified-ettarr.c ---*/
-#line 66 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
+#line 66 "./asn1/pkixqualified/packet-pkixqualified-template.c"
   };
 
   /* Register protocol */
@@ -493,7 +493,7 @@ void proto_register_pkixqualified(void) {
 void proto_reg_handoff_pkixqualified(void) {
 
 /*--- Included file: packet-pkixqualified-dis-tab.c ---*/
-#line 1 "../../asn1/pkixqualified/packet-pkixqualified-dis-tab.c"
+#line 1 "./asn1/pkixqualified/packet-pkixqualified-dis-tab.c"
   register_ber_oid_dissector("1.3.6.1.5.5.7.1.2", dissect_BiometricSyntax_PDU, proto_pkixqualified, "id-pe-biometricInfo");
   register_ber_oid_dissector("1.3.6.1.5.5.7.1.3", dissect_QCStatements_PDU, proto_pkixqualified, "id-pe-qcStatements");
   register_ber_oid_dissector("1.3.6.1.5.5.7.11.1", dissect_SemanticsInformation_PDU, proto_pkixqualified, "id-qcs-pkixQCSyntax-v1");
@@ -507,6 +507,6 @@ void proto_reg_handoff_pkixqualified(void) {
 
 
 /*--- End of included file: packet-pkixqualified-dis-tab.c ---*/
-#line 81 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
+#line 81 "./asn1/pkixqualified/packet-pkixqualified-template.c"
 }
 

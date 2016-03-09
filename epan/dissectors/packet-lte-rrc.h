@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-lte-rrc.h                                                           */
-/* ../../tools/asn2wrs.py -L -p lte-rrc -c ./lte-rrc.cnf -s ./packet-lte-rrc-template -D . -O ../../epan/dissectors EUTRA-InterNodeDefinitions.asn EUTRA-RRC-Definitions.asn EUTRA-Sidelink-Preconf.asn EUTRA-UE-Variables.asn PC5-RRC-Definitions.asn */
+/* asn2wrs.py -L -p lte-rrc -c ./lte-rrc.cnf -s ./packet-lte-rrc-template -D . -O ../.. EUTRA-InterNodeDefinitions.asn EUTRA-RRC-Definitions.asn EUTRA-Sidelink-Preconf.asn EUTRA-UE-Variables.asn PC5-RRC-Definitions.asn */
 
 /* Input file: packet-lte-rrc-template.h */
 
-#line 1 "../../asn1/lte-rrc/packet-lte-rrc-template.h"
+#line 1 "./asn1/lte-rrc/packet-lte-rrc-template.h"
 /* packet-llc-rrc-template.h
  * Copyright 2009, Anders Broman <anders.broman@ericsson.com>
  *
@@ -33,7 +33,7 @@
 
 
 /*--- Included file: packet-lte-rrc-exp.h ---*/
-#line 1 "../../asn1/lte-rrc/packet-lte-rrc-exp.h"
+#line 1 "./asn1/lte-rrc/packet-lte-rrc-exp.h"
 int dissect_lte_rrc_HandoverCommand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_lte_rrc_HandoverPreparationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_lte_rrc_UERadioAccessCapabilityInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -44,6 +44,6 @@ int dissect_lte_rrc_UERadioAccessCapabilityInformation_PDU(tvbuff_t *tvb _U_, pa
 int dissect_lte_rrc_UE_EUTRA_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-lte-rrc-exp.h ---*/
-#line 27 "../../asn1/lte-rrc/packet-lte-rrc-template.h"
+#line 27 "./asn1/lte-rrc/packet-lte-rrc-template.h"
 
 #endif  /* PACKET_LTE_RRC_H */

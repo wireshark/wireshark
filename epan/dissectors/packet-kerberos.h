@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-kerberos.h                                                          */
-/* ../../tools/asn2wrs.py -b -p kerberos -c ./kerberos.cnf -s ./packet-kerberos-template -D . -O ../../epan/dissectors KerberosV5Spec2.asn k5.asn RFC3244.asn */
+/* asn2wrs.py -b -p kerberos -c ./kerberos.cnf -s ./packet-kerberos-template -D . -O ../.. KerberosV5Spec2.asn k5.asn RFC3244.asn */
 
 /* Input file: packet-kerberos-template.h */
 
-#line 1 "../../asn1/kerberos/packet-kerberos-template.h"
+#line 1 "./asn1/kerberos/packet-kerberos-template.h"
 /* packet-kerberos.h
  * Routines for kerberos packet dissection
  * Copyright 2007, Anders Broman <anders.broman@ericsson.com>
@@ -146,11 +146,11 @@ void read_keytab_file_from_preferences(void);
 
 
 /*--- Included file: packet-kerberos-exp.h ---*/
-#line 1 "../../asn1/kerberos/packet-kerberos-exp.h"
+#line 1 "./asn1/kerberos/packet-kerberos-exp.h"
 int dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-kerberos-exp.h ---*/
-#line 140 "../../asn1/kerberos/packet-kerberos-template.h"
+#line 140 "./asn1/kerberos/packet-kerberos-template.h"
 
 #ifdef __cplusplus
 }

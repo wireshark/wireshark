@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-h235.c                                                              */
-/* ../../tools/asn2wrs.py -p h235 -c ./h235.cnf -s ./packet-h235-template -D . -O ../../epan/dissectors H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
+/* asn2wrs.py -p h235 -c ./h235.cnf -s ./packet-h235-template -D . -O ../.. H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
 
 /* Input file: packet-h235-template.c */
 
-#line 1 "../../asn1/h235/packet-h235-template.c"
+#line 1 "./asn1/h235/packet-h235-template.c"
 /* packet-h235.c
  * Routines for H.235 packet dissection
  * 2004  Tomas Kukosa
@@ -58,7 +58,7 @@ void proto_reg_handoff_h235(void);
 static int proto_h235 = -1;
 
 /*--- Included file: packet-h235-hf.c ---*/
-#line 1 "../../asn1/h235/packet-h235-hf.c"
+#line 1 "./asn1/h235/packet-h235-hf.c"
 static int hf_h235_SrtpCryptoCapability_PDU = -1;  /* SrtpCryptoCapability */
 static int hf_h235_nonStandardIdentifier = -1;    /* OBJECT_IDENTIFIER */
 static int hf_h235_data = -1;                     /* OCTET_STRING */
@@ -162,12 +162,12 @@ static int hf_h235_fecBeforeSrtp = -1;            /* NULL */
 static int hf_h235_fecAfterSrtp = -1;             /* NULL */
 
 /*--- End of included file: packet-h235-hf.c ---*/
-#line 52 "../../asn1/h235/packet-h235-template.c"
+#line 52 "./asn1/h235/packet-h235-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-h235-ett.c ---*/
-#line 1 "../../asn1/h235/packet-h235-ett.c"
+#line 1 "./asn1/h235/packet-h235-ett.c"
 static gint ett_h235_NonStandardParameter = -1;
 static gint ett_h235_DHset = -1;
 static gint ett_h235_ECpoint = -1;
@@ -202,7 +202,7 @@ static gint ett_h235_SEQUENCE_OF_GenericData = -1;
 static gint ett_h235_FecOrder = -1;
 
 /*--- End of included file: packet-h235-ett.c ---*/
-#line 55 "../../asn1/h235/packet-h235-template.c"
+#line 55 "./asn1/h235/packet-h235-template.c"
 
 
 static int
@@ -213,7 +213,7 @@ dissect_xxx_ToBeSigned(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *
 
 
 /*--- Included file: packet-h235-fn.c ---*/
-#line 1 "../../asn1/h235/packet-h235-fn.c"
+#line 1 "./asn1/h235/packet-h235-fn.c"
 
 
 static int
@@ -555,7 +555,7 @@ static const per_sequence_t ENCRYPTED_sequence[] = {
 
 int
 dissect_h235_ENCRYPTED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 63 "../../asn1/h235/h235.cnf"
+#line 63 "./asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -587,7 +587,7 @@ static const per_sequence_t SIGNED_sequence[] = {
 
 int
 dissect_h235_SIGNED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 58 "../../asn1/h235/h235.cnf"
+#line 58 "./asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -752,7 +752,7 @@ static const per_sequence_t ClearToken_sequence[] = {
 
 int
 dissect_h235_ClearToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 74 "../../asn1/h235/h235.cnf"
+#line 74 "./asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -773,7 +773,7 @@ static const per_sequence_t HASHED_sequence[] = {
 
 int
 dissect_h235_HASHED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 68 "../../asn1/h235/h235.cnf"
+#line 68 "./asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -849,7 +849,7 @@ static const per_choice_t CryptoToken_choice[] = {
 
 int
 dissect_h235_CryptoToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 80 "../../asn1/h235/h235.cnf"
+#line 80 "./asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -1048,7 +1048,7 @@ static int dissect_SrtpCryptoCapability_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 
 
 /*--- End of included file: packet-h235-fn.c ---*/
-#line 64 "../../asn1/h235/packet-h235-template.c"
+#line 64 "./asn1/h235/packet-h235-template.c"
 
 
 /*--- proto_register_h235 ----------------------------------------------*/
@@ -1058,7 +1058,7 @@ void proto_register_h235(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-h235-hfarr.c ---*/
-#line 1 "../../asn1/h235/packet-h235-hfarr.c"
+#line 1 "./asn1/h235/packet-h235-hfarr.c"
     { &hf_h235_SrtpCryptoCapability_PDU,
       { "SrtpCryptoCapability", "h235.SrtpCryptoCapability",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -1465,14 +1465,14 @@ void proto_register_h235(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h235-hfarr.c ---*/
-#line 72 "../../asn1/h235/packet-h235-template.c"
+#line 72 "./asn1/h235/packet-h235-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 
 /*--- Included file: packet-h235-ettarr.c ---*/
-#line 1 "../../asn1/h235/packet-h235-ettarr.c"
+#line 1 "./asn1/h235/packet-h235-ettarr.c"
     &ett_h235_NonStandardParameter,
     &ett_h235_DHset,
     &ett_h235_ECpoint,
@@ -1507,7 +1507,7 @@ void proto_register_h235(void) {
     &ett_h235_FecOrder,
 
 /*--- End of included file: packet-h235-ettarr.c ---*/
-#line 77 "../../asn1/h235/packet-h235-template.c"
+#line 77 "./asn1/h235/packet-h235-template.c"
   };
 
   /* Register protocol */

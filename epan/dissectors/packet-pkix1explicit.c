@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-pkix1explicit.c                                                     */
-/* ../../tools/asn2wrs.py -b -p pkix1explicit -c ./pkix1explicit.cnf -s ./packet-pkix1explicit-template -D . -O ../../epan/dissectors PKIX1EXPLICIT93.asn IPAddrAndASCertExtn.asn */
+/* asn2wrs.py -b -p pkix1explicit -c ./pkix1explicit.cnf -s ./packet-pkix1explicit-template -D . -O ../.. PKIX1EXPLICIT93.asn IPAddrAndASCertExtn.asn */
 
 /* Input file: packet-pkix1explicit-template.c */
 
-#line 1 "../../asn1/pkix1explicit/packet-pkix1explicit-template.c"
+#line 1 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
 #define BER_UNI_TAG_TeletexString	    20  /* workaround bug in asn2wrs */
 
 /* packet-pkix1explicit.c
@@ -60,7 +60,7 @@ static int ett_pkix1explicit_addressFamily = -1;
 
 
 /*--- Included file: packet-pkix1explicit-hf.c ---*/
-#line 1 "../../asn1/pkix1explicit/packet-pkix1explicit-hf.c"
+#line 1 "./asn1/pkix1explicit/packet-pkix1explicit-hf.c"
 static int hf_pkix1explicit_DomainParameters_PDU = -1;  /* DomainParameters */
 static int hf_pkix1explicit_DirectoryString_PDU = -1;  /* DirectoryString */
 static int hf_pkix1explicit_IPAddrBlocks_PDU = -1;  /* IPAddrBlocks */
@@ -106,12 +106,12 @@ static int hf_pkix1explicit_min_01 = -1;          /* ASId */
 static int hf_pkix1explicit_max_01 = -1;          /* ASId */
 
 /*--- End of included file: packet-pkix1explicit-hf.c ---*/
-#line 54 "../../asn1/pkix1explicit/packet-pkix1explicit-template.c"
+#line 54 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
 
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-pkix1explicit-ett.c ---*/
-#line 1 "../../asn1/pkix1explicit/packet-pkix1explicit-ett.c"
+#line 1 "./asn1/pkix1explicit/packet-pkix1explicit-ett.c"
 static gint ett_pkix1explicit_Time = -1;
 static gint ett_pkix1explicit_Extensions = -1;
 static gint ett_pkix1explicit_Extension = -1;
@@ -136,7 +136,7 @@ static gint ett_pkix1explicit_ASIdOrRange = -1;
 static gint ett_pkix1explicit_ASRange = -1;
 
 /*--- End of included file: packet-pkix1explicit-ett.c ---*/
-#line 57 "../../asn1/pkix1explicit/packet-pkix1explicit-template.c"
+#line 57 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
 
 int
 dissect_pkix1explicit_Certificate(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
@@ -179,7 +179,7 @@ dissect_pkix1explicit_SubjectPublicKeyInfo(gboolean implicit_tag, tvbuff_t *tvb,
 
 
 /*--- Included file: packet-pkix1explicit-fn.c ---*/
-#line 1 "../../asn1/pkix1explicit/packet-pkix1explicit-fn.c"
+#line 1 "./asn1/pkix1explicit/packet-pkix1explicit-fn.c"
 
 
 int
@@ -262,7 +262,7 @@ dissect_pkix1explicit_Time(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_pkix1explicit_T_extnId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 58 "../../asn1/pkix1explicit/pkix1explicit.cnf"
+#line 58 "./asn1/pkix1explicit/pkix1explicit.cnf"
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_pkix1explicit_object_identifier_id, &actx->external.direct_reference);
 
   actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
@@ -285,7 +285,7 @@ dissect_pkix1explicit_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_pkix1explicit_T_extnValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 62 "../../asn1/pkix1explicit/pkix1explicit.cnf"
+#line 62 "./asn1/pkix1explicit/pkix1explicit.cnf"
   gint8 appclass;
   gboolean pc, ind;
   gint32 tag;
@@ -399,7 +399,7 @@ dissect_pkix1explicit_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_pkix1explicit_T_values_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 42 "../../asn1/pkix1explicit/pkix1explicit.cnf"
+#line 42 "./asn1/pkix1explicit/pkix1explicit.cnf"
   if (actx->external.direct_ref_present) {
     offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
   }
@@ -441,7 +441,7 @@ dissect_pkix1explicit_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_pkix1explicit_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 50 "../../asn1/pkix1explicit/pkix1explicit.cnf"
+#line 50 "./asn1/pkix1explicit/pkix1explicit.cnf"
   if (actx->external.direct_ref_present) {
     offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
   }
@@ -496,7 +496,7 @@ dissect_pkix1explicit_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 int
 dissect_pkix1explicit_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 36 "../../asn1/pkix1explicit/pkix1explicit.cnf"
+#line 36 "./asn1/pkix1explicit/pkix1explicit.cnf"
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
 
@@ -554,7 +554,7 @@ dissect_pkix1explicit_TeletexDomainDefinedAttribute(gboolean implicit_tag _U_, t
 
 static int
 dissect_pkix1explicit_T_addressFamily(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 76 "../../asn1/pkix1explicit/pkix1explicit.cnf"
+#line 76 "./asn1/pkix1explicit/pkix1explicit.cnf"
 	tvbuff_t	*parameter_tvb;
 	proto_tree *subtree;
 
@@ -825,7 +825,7 @@ static int dissect_ASIdentifiers_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-pkix1explicit-fn.c ---*/
-#line 98 "../../asn1/pkix1explicit/packet-pkix1explicit-template.c"
+#line 98 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
 
 
 /*--- proto_register_pkix1explicit ----------------------------------------------*/
@@ -846,7 +846,7 @@ void proto_register_pkix1explicit(void) {
 	"Subsequent Address Family Identifiers (SAFI) RFC4760", HFILL }},
 
 /*--- Included file: packet-pkix1explicit-hfarr.c ---*/
-#line 1 "../../asn1/pkix1explicit/packet-pkix1explicit-hfarr.c"
+#line 1 "./asn1/pkix1explicit/packet-pkix1explicit-hfarr.c"
     { &hf_pkix1explicit_DomainParameters_PDU,
       { "DomainParameters", "pkix1explicit.DomainParameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1021,7 +1021,7 @@ void proto_register_pkix1explicit(void) {
         "ASId", HFILL }},
 
 /*--- End of included file: packet-pkix1explicit-hfarr.c ---*/
-#line 117 "../../asn1/pkix1explicit/packet-pkix1explicit-template.c"
+#line 117 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
   };
 
   /* List of subtrees */
@@ -1029,7 +1029,7 @@ void proto_register_pkix1explicit(void) {
 	  &ett_pkix1explicit_addressFamily,
 
 /*--- Included file: packet-pkix1explicit-ettarr.c ---*/
-#line 1 "../../asn1/pkix1explicit/packet-pkix1explicit-ettarr.c"
+#line 1 "./asn1/pkix1explicit/packet-pkix1explicit-ettarr.c"
     &ett_pkix1explicit_Time,
     &ett_pkix1explicit_Extensions,
     &ett_pkix1explicit_Extension,
@@ -1054,7 +1054,7 @@ void proto_register_pkix1explicit(void) {
     &ett_pkix1explicit_ASRange,
 
 /*--- End of included file: packet-pkix1explicit-ettarr.c ---*/
-#line 123 "../../asn1/pkix1explicit/packet-pkix1explicit-template.c"
+#line 123 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
   };
 
   /* Register protocol */
@@ -1073,7 +1073,7 @@ void proto_reg_handoff_pkix1explicit(void) {
 	oid_add_from_string("id-dsa-with-sha1","1.2.840.10040.4.3");
 
 /*--- Included file: packet-pkix1explicit-dis-tab.c ---*/
-#line 1 "../../asn1/pkix1explicit/packet-pkix1explicit-dis-tab.c"
+#line 1 "./asn1/pkix1explicit/packet-pkix1explicit-dis-tab.c"
   register_ber_oid_dissector("1.3.6.1.5.5.7.2.1", dissect_DirectoryString_PDU, proto_pkix1explicit, "id-qt-cps");
   register_ber_oid_dissector("1.2.840.10046.2.1", dissect_DomainParameters_PDU, proto_pkix1explicit, "dhpublicnumber");
   register_ber_oid_dissector("1.3.6.1.5.5.7.1.7", dissect_IPAddrBlocks_PDU, proto_pkix1explicit, "id-pe-ipAddrBlocks");
@@ -1081,6 +1081,6 @@ void proto_reg_handoff_pkix1explicit(void) {
 
 
 /*--- End of included file: packet-pkix1explicit-dis-tab.c ---*/
-#line 140 "../../asn1/pkix1explicit/packet-pkix1explicit-template.c"
+#line 140 "./asn1/pkix1explicit/packet-pkix1explicit-template.c"
 }
 

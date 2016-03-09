@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-dsp.h                                                               */
-/* ../../tools/asn2wrs.py -b -p dsp -c ./dsp.cnf -s ./packet-dsp-template -D . -O ../../epan/dissectors dsp.asn */
+/* asn2wrs.py -b -p dsp -c ./dsp.cnf -s ./packet-dsp-template -D . -O ../.. dsp.asn */
 
 /* Input file: packet-dsp-template.h */
 
-#line 1 "../../asn1/dsp/packet-dsp-template.h"
+#line 1 "./asn1/dsp/packet-dsp-template.h"
 /* packet-dsp.h
  * Routines for X.511 (X.500 Directory Access Protocol) packet dissection
  * Graeme Lunt 2005
@@ -34,7 +34,7 @@
 
 
 /*--- Included file: packet-dsp-exp.h ---*/
-#line 1 "../../asn1/dsp/packet-dsp-exp.h"
+#line 1 "./asn1/dsp/packet-dsp-exp.h"
 extern const value_string dsp_ReferenceType_vals[];
 int dissect_dsp_OperationProgress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_dsp_ReferenceType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -45,6 +45,6 @@ int dissect_dsp_Exclusions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 int dissect_dsp_ContinuationReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-dsp-exp.h ---*/
-#line 28 "../../asn1/dsp/packet-dsp-template.h"
+#line 28 "./asn1/dsp/packet-dsp-template.h"
 
 #endif  /* PACKET_DSP_H */

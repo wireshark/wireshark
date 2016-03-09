@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-spnego.c                                                            */
-/* ../../tools/asn2wrs.py -b -p spnego -c ./spnego.cnf -s ./packet-spnego-template -D . -O ../../epan/dissectors spnego.asn */
+/* asn2wrs.py -b -p spnego -c ./spnego.cnf -s ./packet-spnego-template -D . -O ../.. spnego.asn */
 
 /* Input file: packet-spnego-template.c */
 
-#line 1 "../../asn1/spnego/packet-spnego-template.c"
+#line 1 "./asn1/spnego/packet-spnego-template.c"
 /* packet-spnego-template.c
  * Routines for the simple and protected GSS-API negotiation mechanism
  * as described in RFC 2478.
@@ -82,7 +82,7 @@ static int hf_spnego_krb5_cfx_seq = -1;
 
 
 /*--- Included file: packet-spnego-hf.c ---*/
-#line 1 "../../asn1/spnego/packet-spnego-hf.c"
+#line 1 "./asn1/spnego/packet-spnego-hf.c"
 static int hf_spnego_negTokenInit = -1;           /* T_negTokenInit */
 static int hf_spnego_negTokenTarg = -1;           /* NegTokenTarg */
 static int hf_spnego_MechTypeList_item = -1;      /* MechType */
@@ -109,7 +109,7 @@ static int hf_spnego_ContextFlags_confFlag = -1;
 static int hf_spnego_ContextFlags_integFlag = -1;
 
 /*--- End of included file: packet-spnego-hf.c ---*/
-#line 76 "../../asn1/spnego/packet-spnego-template.c"
+#line 76 "./asn1/spnego/packet-spnego-template.c"
 
 /* Global variables */
 static const char *MechType_oid;
@@ -125,7 +125,7 @@ static gint ett_spnego_krb5_cfx_flags = -1;
 
 
 /*--- Included file: packet-spnego-ett.c ---*/
-#line 1 "../../asn1/spnego/packet-spnego-ett.c"
+#line 1 "./asn1/spnego/packet-spnego-ett.c"
 static gint ett_spnego_NegotiationToken = -1;
 static gint ett_spnego_MechTypeList = -1;
 static gint ett_spnego_NegTokenInit = -1;
@@ -136,7 +136,7 @@ static gint ett_spnego_NegTokenTarg = -1;
 static gint ett_spnego_InitialContextToken_U = -1;
 
 /*--- End of included file: packet-spnego-ett.c ---*/
-#line 90 "../../asn1/spnego/packet-spnego-template.c"
+#line 90 "./asn1/spnego/packet-spnego-template.c"
 
 static expert_field ei_spnego_decrypted_keytype = EI_INIT;
 static expert_field ei_spnego_unknown_header = EI_INIT;
@@ -155,12 +155,12 @@ static int dissect_spnego_NegTokenInit2(gboolean implicit_tag, tvbuff_t *tvb,
 
 
 /*--- Included file: packet-spnego-fn.c ---*/
-#line 1 "../../asn1/spnego/packet-spnego-fn.c"
+#line 1 "./asn1/spnego/packet-spnego-fn.c"
 
 
 static int
 dissect_spnego_MechType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 33 "../../asn1/spnego/spnego.cnf"
+#line 33 "./asn1/spnego/spnego.cnf"
 
   gssapi_oid_value *value;
 
@@ -198,7 +198,7 @@ static const ber_sequence_t MechTypeList_sequence_of[1] = {
 
 static int
 dissect_spnego_MechTypeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 101 "../../asn1/spnego/spnego.cnf"
+#line 101 "./asn1/spnego/spnego.cnf"
 
   conversation_t *conversation;
 
@@ -247,7 +247,7 @@ dissect_spnego_ContextFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_spnego_T_mechToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 122 "../../asn1/spnego/spnego.cnf"
+#line 122 "./asn1/spnego/spnego.cnf"
 
   tvbuff_t *mechToken_tvb = NULL;
 
@@ -298,7 +298,7 @@ dissect_spnego_NegTokenInit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_spnego_T_negTokenInit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 12 "../../asn1/spnego/spnego.cnf"
+#line 12 "./asn1/spnego/spnego.cnf"
   gboolean is_response = actx->pinfo->ptype == PT_TCP &&
                          actx->pinfo->srcport < 1024;
 
@@ -341,7 +341,7 @@ dissect_spnego_T_negResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_spnego_T_supportedMech(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 135 "../../asn1/spnego/spnego.cnf"
+#line 135 "./asn1/spnego/spnego.cnf"
 
   conversation_t *conversation;
 
@@ -370,7 +370,7 @@ dissect_spnego_T_supportedMech(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_spnego_T_responseToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 158 "../../asn1/spnego/spnego.cnf"
+#line 158 "./asn1/spnego/spnego.cnf"
 
   tvbuff_t *responseToken_tvb;
 
@@ -480,7 +480,7 @@ dissect_spnego_NegTokenInit2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_spnego_InnerContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 58 "../../asn1/spnego/spnego.cnf"
+#line 58 "./asn1/spnego/spnego.cnf"
 
   gssapi_oid_value *next_level_value_lcl;
   proto_item *item;
@@ -555,7 +555,7 @@ dissect_spnego_InitialContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 /*--- End of included file: packet-spnego-fn.c ---*/
-#line 107 "../../asn1/spnego/packet-spnego-template.c"
+#line 107 "./asn1/spnego/packet-spnego-template.c"
 /*
  * This is the SPNEGO KRB5 dissector. It is not true KRB5, but some ASN.1
  * wrapped blob with an OID, USHORT token ID, and a Ticket, that is also
@@ -1867,7 +1867,7 @@ void proto_register_spnego(void) {
 
 
 /*--- Included file: packet-spnego-hfarr.c ---*/
-#line 1 "../../asn1/spnego/packet-spnego-hfarr.c"
+#line 1 "./asn1/spnego/packet-spnego-hfarr.c"
     { &hf_spnego_negTokenInit,
       { "negTokenInit", "spnego.negTokenInit_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1962,7 +1962,7 @@ void proto_register_spnego(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1417 "../../asn1/spnego/packet-spnego-template.c"
+#line 1417 "./asn1/spnego/packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -1974,7 +1974,7 @@ void proto_register_spnego(void) {
 
 
 /*--- Included file: packet-spnego-ettarr.c ---*/
-#line 1 "../../asn1/spnego/packet-spnego-ettarr.c"
+#line 1 "./asn1/spnego/packet-spnego-ettarr.c"
     &ett_spnego_NegotiationToken,
     &ett_spnego_MechTypeList,
     &ett_spnego_NegTokenInit,
@@ -1985,7 +1985,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken_U,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1427 "../../asn1/spnego/packet-spnego-template.c"
+#line 1427 "./asn1/spnego/packet-spnego-template.c"
 	};
 
 	static ei_register_info ei[] = {

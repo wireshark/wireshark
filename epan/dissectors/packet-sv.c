@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-sv.c                                                                */
-/* ../../tools/asn2wrs.py -b -p sv -c ./sv.cnf -s ./packet-sv-template -D . -O ../../epan/dissectors sv.asn */
+/* asn2wrs.py -b -p sv -c ./sv.cnf -s ./packet-sv-template -D . -O ../.. sv.asn */
 
 /* Input file: packet-sv-template.c */
 
-#line 1 "../../asn1/sv/packet-sv-template.c"
+#line 1 "./asn1/sv/packet-sv-template.c"
 /* packet-sv.c
  * Routines for IEC 61850 Sampled Values packet dissection
  * Michael Bernhard 2008
@@ -104,7 +104,7 @@ static int hf_sv_phsmeas_q_derived = -1;
 
 
 /*--- Included file: packet-sv-hf.c ---*/
-#line 1 "../../asn1/sv/packet-sv-hf.c"
+#line 1 "./asn1/sv/packet-sv-hf.c"
 static int hf_sv_savPdu = -1;                     /* SavPdu */
 static int hf_sv_noASDU = -1;                     /* INTEGER_0_65535 */
 static int hf_sv_seqASDU = -1;                    /* SEQUENCE_OF_ASDU */
@@ -120,7 +120,7 @@ static int hf_sv_seqData = -1;                    /* Data */
 static int hf_sv_smpMod = -1;                     /* T_smpMod */
 
 /*--- End of included file: packet-sv-hf.c ---*/
-#line 98 "../../asn1/sv/packet-sv-template.c"
+#line 98 "./asn1/sv/packet-sv-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_sv = -1;
@@ -129,14 +129,14 @@ static int ett_phsmeas_q = -1;
 
 
 /*--- Included file: packet-sv-ett.c ---*/
-#line 1 "../../asn1/sv/packet-sv-ett.c"
+#line 1 "./asn1/sv/packet-sv-ett.c"
 static gint ett_sv_SampledValues = -1;
 static gint ett_sv_SavPdu = -1;
 static gint ett_sv_SEQUENCE_OF_ASDU = -1;
 static gint ett_sv_ASDU = -1;
 
 /*--- End of included file: packet-sv-ett.c ---*/
-#line 105 "../../asn1/sv/packet-sv-template.c"
+#line 105 "./asn1/sv/packet-sv-template.c"
 
 static expert_field ei_sv_mal_utctime = EI_INIT;
 static expert_field ei_sv_zero_pdu = EI_INIT;
@@ -218,7 +218,7 @@ dissect_PhsMeas1(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tv
 
 
 /*--- Included file: packet-sv-fn.c ---*/
-#line 1 "../../asn1/sv/packet-sv-fn.c"
+#line 1 "./asn1/sv/packet-sv-fn.c"
 
 
 static int
@@ -244,7 +244,7 @@ dissect_sv_VisibleString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_sv_T_smpCnt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 18 "../../asn1/sv/sv.cnf"
+#line 18 "./asn1/sv/sv.cnf"
 	guint32 value;
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &value);
@@ -269,7 +269,7 @@ dissect_sv_INTEGER_0_4294967295(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_sv_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 24 "../../asn1/sv/sv.cnf"
+#line 24 "./asn1/sv/sv.cnf"
 	guint32 len;
 	guint32 seconds;
 	guint32	fraction;
@@ -321,7 +321,7 @@ static const value_string sv_T_smpSynch_vals[] = {
 
 static int
 dissect_sv_T_smpSynch(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 65 "../../asn1/sv/sv.cnf"
+#line 65 "./asn1/sv/sv.cnf"
 	guint32 value;
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &value);
@@ -336,7 +336,7 @@ dissect_sv_T_smpSynch(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_sv_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 77 "../../asn1/sv/sv.cnf"
+#line 77 "./asn1/sv/sv.cnf"
 	if (sv_decode_data_as_phsmeas) {
 		offset = dissect_PhsMeas1(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
 	} else {
@@ -358,7 +358,7 @@ static const value_string sv_T_smpMod_vals[] = {
 
 static int
 dissect_sv_T_smpMod(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 71 "../../asn1/sv/sv.cnf"
+#line 71 "./asn1/sv/sv.cnf"
 	guint32 value;
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &value);
@@ -436,7 +436,7 @@ dissect_sv_SampledValues(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 /*--- End of included file: packet-sv-fn.c ---*/
-#line 185 "../../asn1/sv/packet-sv-template.c"
+#line 185 "./asn1/sv/packet-sv-template.c"
 
 /*
 * Dissect SV PDUs inside a PPDU.
@@ -550,7 +550,7 @@ void proto_register_sv(void) {
 
 
 /*--- Included file: packet-sv-hfarr.c ---*/
-#line 1 "../../asn1/sv/packet-sv-hfarr.c"
+#line 1 "./asn1/sv/packet-sv-hfarr.c"
     { &hf_sv_savPdu,
       { "savPdu", "sv.savPdu_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -605,7 +605,7 @@ void proto_register_sv(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-sv-hfarr.c ---*/
-#line 297 "../../asn1/sv/packet-sv-template.c"
+#line 297 "./asn1/sv/packet-sv-template.c"
 	};
 
 	/* List of subtrees */
@@ -615,14 +615,14 @@ void proto_register_sv(void) {
 		&ett_phsmeas_q,
 
 /*--- Included file: packet-sv-ettarr.c ---*/
-#line 1 "../../asn1/sv/packet-sv-ettarr.c"
+#line 1 "./asn1/sv/packet-sv-ettarr.c"
     &ett_sv_SampledValues,
     &ett_sv_SavPdu,
     &ett_sv_SEQUENCE_OF_ASDU,
     &ett_sv_ASDU,
 
 /*--- End of included file: packet-sv-ettarr.c ---*/
-#line 305 "../../asn1/sv/packet-sv-template.c"
+#line 305 "./asn1/sv/packet-sv-template.c"
 	};
 
 	static ei_register_info ei[] = {

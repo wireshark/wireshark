@@ -42,8 +42,8 @@ libdissectors_la_SOURCES = \
 	$(PIDL_DISSECTOR_SRC) \
 	$(DISSECTOR_SUPPORT_SRC)
 
-# include pidl in the source tarball. But nothing to build...
-DIST_SUBDIRS = pidl dcerpc
+# include asn1 and pidl in the source tarball. But nothing to build...
+DIST_SUBDIRS = asn1 pidl dcerpc
 
 SUBDIRS = dcerpc
 

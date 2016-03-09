@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-pkixtsp.h                                                           */
-/* ../../tools/asn2wrs.py -b -p pkixtsp -c ./pkixtsp.cnf -s ./packet-pkixtsp-template -D . -O ../../epan/dissectors PKIXTSP.asn */
+/* asn2wrs.py -b -p pkixtsp -c ./pkixtsp.cnf -s ./packet-pkixtsp-template -D . -O ../.. PKIXTSP.asn */
 
 /* Input file: packet-pkixtsp-template.h */
 
-#line 1 "../../asn1/pkixtsp/packet-pkixtsp-template.h"
+#line 1 "./asn1/pkixtsp/packet-pkixtsp-template.h"
 /* packet-pkixtsp.h
  * Routines for RFC3161 Time-Stamp Protocol packet dissection
  *    Ronnie Sahlberg 2004

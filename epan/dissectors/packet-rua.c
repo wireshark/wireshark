@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-rua.c                                                               */
-/* ../../tools/asn2wrs.py -p rua -c ./rua.cnf -s ./packet-rua-template -D . -O ../../epan/dissectors RUA-CommonDataTypes.asn RUA-Constants.asn RUA-Containers.asn RUA-IEs.asn RUA-PDU-Contents.asn RUA-PDU-Descriptions.asn */
+/* asn2wrs.py -p rua -c ./rua.cnf -s ./packet-rua-template -D . -O ../.. RUA-CommonDataTypes.asn RUA-Constants.asn RUA-Containers.asn RUA-IEs.asn RUA-PDU-Contents.asn RUA-PDU-Descriptions.asn */
 
 /* Input file: packet-rua-template.c */
 
-#line 1 "../../asn1/rua/packet-rua-template.c"
+#line 1 "./asn1/rua/packet-rua-template.c"
 /* packet-rua-template.c
  * Routines for UMTS Home Node B RANAP User Adaptation (RUA) packet dissection
  * Copyright 2010 Neil Piercy, ip.access Limited <Neil.Piercy@ipaccess.com>
@@ -55,7 +55,7 @@ void proto_register_rua(void);
 
 
 /*--- Included file: packet-rua-val.h ---*/
-#line 1 "../../asn1/rua/packet-rua-val.h"
+#line 1 "./asn1/rua/packet-rua-val.h"
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
@@ -82,14 +82,14 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-rua-val.h ---*/
-#line 49 "../../asn1/rua/packet-rua-template.c"
+#line 49 "./asn1/rua/packet-rua-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_rua = -1;
 
 
 /*--- Included file: packet-rua-hf.c ---*/
-#line 1 "../../asn1/rua/packet-rua-hf.c"
+#line 1 "./asn1/rua/packet-rua-hf.c"
 static int hf_rua_CN_DomainIndicator_PDU = -1;    /* CN_DomainIndicator */
 static int hf_rua_CSGMembershipStatus_PDU = -1;   /* CSGMembershipStatus */
 static int hf_rua_Establishment_Cause_PDU = -1;   /* Establishment_Cause */
@@ -159,7 +159,7 @@ static int hf_rua_successfulOutcome_value = -1;   /* SuccessfulOutcome_value */
 static int hf_rua_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-rua-hf.c ---*/
-#line 54 "../../asn1/rua/packet-rua-template.c"
+#line 54 "./asn1/rua/packet-rua-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_rua = -1;
@@ -169,7 +169,7 @@ static int ett_rua = -1;
 
 
 /*--- Included file: packet-rua-ett.c ---*/
-#line 1 "../../asn1/rua/packet-rua-ett.c"
+#line 1 "./asn1/rua/packet-rua-ett.c"
 static gint ett_rua_PrivateIE_ID = -1;
 static gint ett_rua_ProtocolIE_Container = -1;
 static gint ett_rua_ProtocolIE_Field = -1;
@@ -208,7 +208,7 @@ static gint ett_rua_SuccessfulOutcome = -1;
 static gint ett_rua_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-rua-ett.c ---*/
-#line 62 "../../asn1/rua/packet-rua-template.c"
+#line 62 "./asn1/rua/packet-rua-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -232,7 +232,7 @@ void proto_reg_handoff_rua(void);
 
 
 /*--- Included file: packet-rua-fn.c ---*/
-#line 1 "../../asn1/rua/packet-rua-fn.c"
+#line 1 "./asn1/rua/packet-rua-fn.c"
 
 static const value_string rua_Criticality_vals[] = {
   {   0, "reject" },
@@ -267,7 +267,7 @@ dissect_rua_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 52 "../../asn1/rua/rua.cnf"
+#line 52 "./asn1/rua/rua.cnf"
   if (strcmp(val_to_str(ProcedureCode, rua_ProcedureCode_vals, "Unknown"), "Unknown") == 0) {
     col_set_str(actx->pinfo->cinfo, COL_INFO,
                       "Unknown Message ");
@@ -337,7 +337,7 @@ dissect_rua_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, maxProtocolIEs, &ProtocolIE_ID, FALSE);
 
-#line 41 "../../asn1/rua/rua.cnf"
+#line 41 "./asn1/rua/rua.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(rua_ProtocolIE_ID_vals), "unknown (%d)"));
   }
@@ -827,7 +827,7 @@ dissect_rua_IntraDomainNasNodeSelector(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_rua_RANAP_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 95 "../../asn1/rua/rua.cnf"
+#line 95 "./asn1/rua/rua.cnf"
   tvbuff_t *ranap_message_tvb=NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &ranap_message_tvb);
@@ -1016,7 +1016,7 @@ static const per_sequence_t Connect_sequence[] = {
 
 static int
 dissect_rua_Connect(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 64 "../../asn1/rua/rua.cnf"
+#line 64 "./asn1/rua/rua.cnf"
     col_set_str(actx->pinfo->cinfo, COL_INFO,
              "CONNECT ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -1037,7 +1037,7 @@ static const per_sequence_t DirectTransfer_sequence[] = {
 
 static int
 dissect_rua_DirectTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 69 "../../asn1/rua/rua.cnf"
+#line 69 "./asn1/rua/rua.cnf"
     col_set_str(actx->pinfo->cinfo, COL_INFO,
              "DIRECT_TRANSFER ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -1058,7 +1058,7 @@ static const per_sequence_t Disconnect_sequence[] = {
 
 static int
 dissect_rua_Disconnect(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 74 "../../asn1/rua/rua.cnf"
+#line 74 "./asn1/rua/rua.cnf"
     col_set_str(actx->pinfo->cinfo, COL_INFO,
              "DISCONNECT ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -1079,7 +1079,7 @@ static const per_sequence_t ConnectionlessTransfer_sequence[] = {
 
 static int
 dissect_rua_ConnectionlessTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 79 "../../asn1/rua/rua.cnf"
+#line 79 "./asn1/rua/rua.cnf"
     col_set_str(actx->pinfo->cinfo, COL_INFO,
              "CONNECTIONLESS_TRANSFER ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -1100,7 +1100,7 @@ static const per_sequence_t ErrorIndication_sequence[] = {
 
 static int
 dissect_rua_ErrorIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 84 "../../asn1/rua/rua.cnf"
+#line 84 "./asn1/rua/rua.cnf"
     col_set_str(actx->pinfo->cinfo, COL_INFO,
              "ERROR_INDICATION ");
     col_set_fence(actx->pinfo->cinfo, COL_INFO); /* Protect info from CriticalityDiagnostics decodes */
@@ -1121,7 +1121,7 @@ static const per_sequence_t PrivateMessage_sequence[] = {
 
 static int
 dissect_rua_PrivateMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 90 "../../asn1/rua/rua.cnf"
+#line 90 "./asn1/rua/rua.cnf"
     col_set_str(actx->pinfo->cinfo, COL_INFO,
              "PRIVATE_MESSAGE ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -1357,7 +1357,7 @@ static int dissect_RUA_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-rua-fn.c ---*/
-#line 84 "../../asn1/rua/packet-rua-template.c"
+#line 84 "./asn1/rua/packet-rua-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -1410,7 +1410,7 @@ module_t *rua_module;
 
 
 /*--- Included file: packet-rua-hfarr.c ---*/
-#line 1 "../../asn1/rua/packet-rua-hfarr.c"
+#line 1 "./asn1/rua/packet-rua-hfarr.c"
     { &hf_rua_CN_DomainIndicator_PDU,
       { "CN-DomainIndicator", "rua.CN_DomainIndicator",
         FT_UINT32, BASE_DEC, VALS(rua_CN_DomainIndicator_vals), 0,
@@ -1681,7 +1681,7 @@ module_t *rua_module;
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-rua-hfarr.c ---*/
-#line 135 "../../asn1/rua/packet-rua-template.c"
+#line 135 "./asn1/rua/packet-rua-template.c"
   };
 
   /* List of subtrees */
@@ -1689,7 +1689,7 @@ module_t *rua_module;
           &ett_rua,
 
 /*--- Included file: packet-rua-ettarr.c ---*/
-#line 1 "../../asn1/rua/packet-rua-ettarr.c"
+#line 1 "./asn1/rua/packet-rua-ettarr.c"
     &ett_rua_PrivateIE_ID,
     &ett_rua_ProtocolIE_Container,
     &ett_rua_ProtocolIE_Field,
@@ -1728,7 +1728,7 @@ module_t *rua_module;
     &ett_rua_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-rua-ettarr.c ---*/
-#line 141 "../../asn1/rua/packet-rua-template.c"
+#line 141 "./asn1/rua/packet-rua-template.c"
   };
 
 
@@ -1769,7 +1769,7 @@ proto_reg_handoff_rua(void)
                 initialized = TRUE;
 
 /*--- Included file: packet-rua-dis-tab.c ---*/
-#line 1 "../../asn1/rua/packet-rua-dis-tab.c"
+#line 1 "./asn1/rua/packet-rua-dis-tab.c"
   dissector_add_uint("rua.ies", id_Cause, create_dissector_handle(dissect_Cause_PDU, proto_rua));
   dissector_add_uint("rua.ies", id_CriticalityDiagnostics, create_dissector_handle(dissect_CriticalityDiagnostics_PDU, proto_rua));
   dissector_add_uint("rua.ies", id_Context_ID, create_dissector_handle(dissect_Context_ID_PDU, proto_rua));
@@ -1787,7 +1787,7 @@ proto_reg_handoff_rua(void)
 
 
 /*--- End of included file: packet-rua-dis-tab.c ---*/
-#line 180 "../../asn1/rua/packet-rua-template.c"
+#line 180 "./asn1/rua/packet-rua-template.c"
 
         } else {
                 dissector_delete_uint("sctp.port", sctp_port, rua_handle);

@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-lppa.c                                                              */
-/* ../../tools/asn2wrs.py -p lppa -c ./lppa.cnf -s ./packet-lppa-template -D . -O ../../epan/dissectors LPPA-Common.asn LPPA-Constant.asn LPPA-Container.asn LPPA-ElementaryProcedure.asn LPPA-InformationElement.asn LPPA-PDU.asn */
+/* asn2wrs.py -p lppa -c ./lppa.cnf -s ./packet-lppa-template -D . -O ../.. LPPA-Common.asn LPPA-Constant.asn LPPA-Container.asn LPPA-ElementaryProcedure.asn LPPA-InformationElement.asn LPPA-PDU.asn */
 
 /* Input file: packet-lppa-template.c */
 
-#line 1 "../../asn1/lppa/packet-lppa-template.c"
+#line 1 "./asn1/lppa/packet-lppa-template.c"
 /* packet-lppa.c
  * Routines for 3GPP LTE Positioning Protocol A (LLPa) packet dissection
  * Copyright 2011, Pascal Quantin <pascal.quantin@gmail.com>
@@ -51,7 +51,7 @@ static int proto_lppa = -1;
 
 
 /*--- Included file: packet-lppa-hf.c ---*/
-#line 1 "../../asn1/lppa/packet-lppa-hf.c"
+#line 1 "./asn1/lppa/packet-lppa-hf.c"
 static int hf_lppa_LPPA_PDU_PDU = -1;             /* LPPA_PDU */
 static int hf_lppa_Cause_PDU = -1;                /* Cause */
 static int hf_lppa_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
@@ -186,13 +186,13 @@ static int hf_lppa_oTDOA_Information_Type_Item = -1;  /* OTDOA_Information_Item 
 static int hf_lppa_privateIEs = -1;               /* PrivateIE_Container */
 
 /*--- End of included file: packet-lppa-hf.c ---*/
-#line 45 "../../asn1/lppa/packet-lppa-template.c"
+#line 45 "./asn1/lppa/packet-lppa-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_lppa = -1;
 
 /*--- Included file: packet-lppa-ett.c ---*/
-#line 1 "../../asn1/lppa/packet-lppa-ett.c"
+#line 1 "./asn1/lppa/packet-lppa-ett.c"
 static gint ett_lppa_PrivateIE_ID = -1;
 static gint ett_lppa_ProtocolIE_Container = -1;
 static gint ett_lppa_ProtocolIE_Field = -1;
@@ -247,7 +247,7 @@ static gint ett_lppa_ErrorIndication = -1;
 static gint ett_lppa_PrivateMessage = -1;
 
 /*--- End of included file: packet-lppa-ett.c ---*/
-#line 49 "../../asn1/lppa/packet-lppa-template.c"
+#line 49 "./asn1/lppa/packet-lppa-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -262,7 +262,7 @@ static dissector_table_t lppa_proc_uout_dissector_table;
 /* Include constants */
 
 /*--- Included file: packet-lppa-val.h ---*/
-#line 1 "../../asn1/lppa/packet-lppa-val.h"
+#line 1 "./asn1/lppa/packet-lppa-val.h"
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
@@ -303,7 +303,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-lppa-val.h ---*/
-#line 62 "../../asn1/lppa/packet-lppa-template.c"
+#line 62 "./asn1/lppa/packet-lppa-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
@@ -312,7 +312,7 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 
 
 /*--- Included file: packet-lppa-fn.c ---*/
-#line 1 "../../asn1/lppa/packet-lppa-fn.c"
+#line 1 "./asn1/lppa/packet-lppa-fn.c"
 
 static const value_string lppa_Criticality_vals[] = {
   {   0, "reject" },
@@ -401,7 +401,7 @@ dissect_lppa_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 44 "../../asn1/lppa/lppa.cnf"
+#line 44 "./asn1/lppa/lppa.cnf"
      col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                  val_to_str(ProcedureCode, lppa_ProcedureCode_vals,
                             "unknown message"));
@@ -434,7 +434,7 @@ dissect_lppa_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, maxProtocolIEs, &ProtocolIE_ID, FALSE);
 
-#line 37 "../../asn1/lppa/lppa.cnf"
+#line 37 "./asn1/lppa/lppa.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(lppa_ProtocolIE_ID_vals), "unknown (%d)"));
   }
@@ -680,7 +680,7 @@ static const per_choice_t LPPA_PDU_choice[] = {
 
 static int
 dissect_lppa_LPPA_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 58 "../../asn1/lppa/lppa.cnf"
+#line 58 "./asn1/lppa/lppa.cnf"
 
   proto_tree_add_item(tree, proto_lppa, tvb, 0, -1, ENC_NA);
 
@@ -2303,7 +2303,7 @@ static int dissect_PrivateMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-lppa-fn.c ---*/
-#line 69 "../../asn1/lppa/packet-lppa-template.c"
+#line 69 "./asn1/lppa/packet-lppa-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -2333,7 +2333,7 @@ void proto_register_lppa(void) {
 
 
 /*--- Included file: packet-lppa-hfarr.c ---*/
-#line 1 "../../asn1/lppa/packet-lppa-hfarr.c"
+#line 1 "./asn1/lppa/packet-lppa-hfarr.c"
     { &hf_lppa_LPPA_PDU_PDU,
       { "LPPA-PDU", "lppa.LPPA_PDU",
         FT_UINT32, BASE_DEC, VALS(lppa_LPPA_PDU_vals), 0,
@@ -2864,7 +2864,7 @@ void proto_register_lppa(void) {
         "PrivateIE_Container", HFILL }},
 
 /*--- End of included file: packet-lppa-hfarr.c ---*/
-#line 97 "../../asn1/lppa/packet-lppa-template.c"
+#line 97 "./asn1/lppa/packet-lppa-template.c"
   };
 
   /* List of subtrees */
@@ -2872,7 +2872,7 @@ void proto_register_lppa(void) {
 	  &ett_lppa,
 
 /*--- Included file: packet-lppa-ettarr.c ---*/
-#line 1 "../../asn1/lppa/packet-lppa-ettarr.c"
+#line 1 "./asn1/lppa/packet-lppa-ettarr.c"
     &ett_lppa_PrivateIE_ID,
     &ett_lppa_ProtocolIE_Container,
     &ett_lppa_ProtocolIE_Field,
@@ -2927,7 +2927,7 @@ void proto_register_lppa(void) {
     &ett_lppa_PrivateMessage,
 
 /*--- End of included file: packet-lppa-ettarr.c ---*/
-#line 103 "../../asn1/lppa/packet-lppa-template.c"
+#line 103 "./asn1/lppa/packet-lppa-template.c"
   };
 
   /* Register protocol */
@@ -2951,7 +2951,7 @@ proto_reg_handoff_lppa(void)
 {
 
 /*--- Included file: packet-lppa-dis-tab.c ---*/
-#line 1 "../../asn1/lppa/packet-lppa-dis-tab.c"
+#line 1 "./asn1/lppa/packet-lppa-dis-tab.c"
   dissector_add_uint("lppa.ies", id_MeasurementQuantities_Item, create_dissector_handle(dissect_MeasurementQuantities_Item_PDU, proto_lppa));
   dissector_add_uint("lppa.ies", id_ReportCharacteristics, create_dissector_handle(dissect_ReportCharacteristics_PDU, proto_lppa));
   dissector_add_uint("lppa.ies", id_MeasurementPeriodicity, create_dissector_handle(dissect_MeasurementPeriodicity_PDU, proto_lppa));
@@ -2984,5 +2984,5 @@ proto_reg_handoff_lppa(void)
 
 
 /*--- End of included file: packet-lppa-dis-tab.c ---*/
-#line 125 "../../asn1/lppa/packet-lppa-template.c"
+#line 125 "./asn1/lppa/packet-lppa-template.c"
 }

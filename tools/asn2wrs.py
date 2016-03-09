@@ -594,8 +594,7 @@ def rel_dissector_path(filename):
     path_parts = os.path.abspath(filename).split(os.sep)
     while (len(path_parts) > 3 and path_parts[0] != 'asn1'):
         path_parts.pop(0)
-    path_parts.insert(0, '..')
-    path_parts.insert(0, '..')
+    path_parts.insert(0, '.')
     return '/'.join(path_parts)
 
 
@@ -2923,13 +2922,13 @@ class EthOut:
         out += self.outcomment('Do not modify this file. Changes will be overwritten.', comment)
         out += self.outcomment('Generated automatically by the ASN.1 to Wireshark dissector compiler', comment)
         out += self.outcomment(os.path.basename(fn), comment)
-        out += self.outcomment(' '.join(sys.argv), comment)
+        out += self.outcomment(' '.join(['asn2wrs.py'] + sys.argv[1:]), comment)
         out += '\n'
         # Make Windows path separator look like Unix path separator
         out = out.replace('\\', '/')
         # Change absolute paths and relative paths generated outside
         # source directory to paths relative to asn1/<proto> subdir.
-        out = re.sub(r'(\s)[./A-Z]\S*(/tools/|/epan/)', r'\1../..\2', out)
+        out = re.sub(r'(\s)[./A-Z]\S*/dissectors\b', r'\1../..', out)
         out = re.sub(r'(\s)[./A-Z]\S*/asn1/\S*?([\s/])', r'\1.\2', out)
         return out
 

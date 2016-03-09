@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-h282.c                                                              */
-/* ../../tools/asn2wrs.py -p h282 -c ./h282.cnf -s ./packet-h282-template -D . -O ../../epan/dissectors RDC-PROTOCOL.asn */
+/* asn2wrs.py -p h282 -c ./h282.cnf -s ./packet-h282-template -D . -O ../.. RDC-PROTOCOL.asn */
 
 /* Input file: packet-h282-template.c */
 
-#line 1 "../../asn1/h282/packet-h282-template.c"
+#line 1 "./asn1/h282/packet-h282-template.c"
 /* packet-h282.c
  * Routines for H.282 packet dissection
  * 2007  Tomas Kukosa
@@ -48,7 +48,7 @@ void proto_reg_handoff_h282(void);
 static int proto_h282 = -1;
 
 /*--- Included file: packet-h282-hf.c ---*/
-#line 1 "../../asn1/h282/packet-h282-hf.c"
+#line 1 "./asn1/h282/packet-h282-hf.c"
 static int hf_h282_NonCollapsingCapabilities_PDU = -1;  /* NonCollapsingCapabilities */
 static int hf_h282_RDCPDU_PDU = -1;               /* RDCPDU */
 static int hf_h282_object = -1;                   /* OBJECT_IDENTIFIER */
@@ -484,13 +484,13 @@ static int hf_h282_deviceEventNotifyIndication = -1;  /* DeviceEventNotifyIndica
 static int hf_h282_nonStandardIndication = -1;    /* NonStandardPDU */
 
 /*--- End of included file: packet-h282-hf.c ---*/
-#line 42 "../../asn1/h282/packet-h282-template.c"
+#line 42 "./asn1/h282/packet-h282-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_h282 = -1;
 
 /*--- Included file: packet-h282-ett.c ---*/
-#line 1 "../../asn1/h282/packet-h282-ett.c"
+#line 1 "./asn1/h282/packet-h282-ett.c"
 static gint ett_h282_Key = -1;
 static gint ett_h282_NonStandardParameter = -1;
 static gint ett_h282_NonStandardIdentifier = -1;
@@ -636,7 +636,7 @@ static gint ett_h282_ResponsePDU = -1;
 static gint ett_h282_IndicationPDU = -1;
 
 /*--- End of included file: packet-h282-ett.c ---*/
-#line 46 "../../asn1/h282/packet-h282-template.c"
+#line 46 "./asn1/h282/packet-h282-template.c"
 
 /* Dissectors */
 
@@ -644,7 +644,7 @@ static gint ett_h282_IndicationPDU = -1;
 
 
 /*--- Included file: packet-h282-fn.c ---*/
-#line 1 "../../asn1/h282/packet-h282-fn.c"
+#line 1 "./asn1/h282/packet-h282-fn.c"
 
 
 static int
@@ -4256,7 +4256,7 @@ static const per_choice_t RequestPDU_choice[] = {
 
 static int
 dissect_h282_RequestPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 22 "../../asn1/h282/h282.cnf"
+#line 22 "./asn1/h282/h282.cnf"
   gint32 msg_type = -1;
   const gchar *p = NULL;
 
@@ -4264,7 +4264,7 @@ dissect_h282_RequestPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
                                  ett_h282_RequestPDU, RequestPDU_choice,
                                  &msg_type);
 
-#line 25 "../../asn1/h282/h282.cnf"
+#line 25 "./asn1/h282/h282.cnf"
   p = try_val_to_str(msg_type, VALS(h282_RequestPDU_vals));
   if (p)
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "RequestPDU/%s", p);
@@ -4299,7 +4299,7 @@ static const per_choice_t ResponsePDU_choice[] = {
 
 static int
 dissect_h282_ResponsePDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 33 "../../asn1/h282/h282.cnf"
+#line 33 "./asn1/h282/h282.cnf"
   gint32 msg_type = -1;
   const gchar *p = NULL;
 
@@ -4307,7 +4307,7 @@ dissect_h282_ResponsePDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                                  ett_h282_ResponsePDU, ResponsePDU_choice,
                                  &msg_type);
 
-#line 36 "../../asn1/h282/h282.cnf"
+#line 36 "./asn1/h282/h282.cnf"
   p = try_val_to_str(msg_type, VALS(h282_ResponsePDU_vals));
   if (p)
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "ResponsePDU/%s", p);
@@ -4334,7 +4334,7 @@ static const per_choice_t IndicationPDU_choice[] = {
 
 static int
 dissect_h282_IndicationPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 44 "../../asn1/h282/h282.cnf"
+#line 44 "./asn1/h282/h282.cnf"
   gint32 msg_type = -1;
   const gchar *p = NULL;
 
@@ -4342,7 +4342,7 @@ dissect_h282_IndicationPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                  ett_h282_IndicationPDU, IndicationPDU_choice,
                                  &msg_type);
 
-#line 47 "../../asn1/h282/h282.cnf"
+#line 47 "./asn1/h282/h282.cnf"
   p = try_val_to_str(msg_type, VALS(h282_IndicationPDU_vals));
   if (p)
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "IndicationPDU/%s", p);
@@ -4395,7 +4395,7 @@ static int dissect_RDCPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 
 
 /*--- End of included file: packet-h282-fn.c ---*/
-#line 52 "../../asn1/h282/packet-h282-template.c"
+#line 52 "./asn1/h282/packet-h282-template.c"
 
 static int
 dissect_h282(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -4418,7 +4418,7 @@ void proto_register_h282(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-h282-hfarr.c ---*/
-#line 1 "../../asn1/h282/packet-h282-hfarr.c"
+#line 1 "./asn1/h282/packet-h282-hfarr.c"
     { &hf_h282_NonCollapsingCapabilities_PDU,
       { "NonCollapsingCapabilities", "h282.NonCollapsingCapabilities",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -6153,7 +6153,7 @@ void proto_register_h282(void) {
         "NonStandardPDU", HFILL }},
 
 /*--- End of included file: packet-h282-hfarr.c ---*/
-#line 73 "../../asn1/h282/packet-h282-template.c"
+#line 73 "./asn1/h282/packet-h282-template.c"
   };
 
   /* List of subtrees */
@@ -6161,7 +6161,7 @@ void proto_register_h282(void) {
     &ett_h282,
 
 /*--- Included file: packet-h282-ettarr.c ---*/
-#line 1 "../../asn1/h282/packet-h282-ettarr.c"
+#line 1 "./asn1/h282/packet-h282-ettarr.c"
     &ett_h282_Key,
     &ett_h282_NonStandardParameter,
     &ett_h282_NonStandardIdentifier,
@@ -6307,7 +6307,7 @@ void proto_register_h282(void) {
     &ett_h282_IndicationPDU,
 
 /*--- End of included file: packet-h282-ettarr.c ---*/
-#line 79 "../../asn1/h282/packet-h282-template.c"
+#line 79 "./asn1/h282/packet-h282-template.c"
   };
 
   /* Register protocol */

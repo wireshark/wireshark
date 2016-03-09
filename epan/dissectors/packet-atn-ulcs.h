@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-atn-ulcs.h                                                          */
-/* ../../tools/asn2wrs.py -u -L -p atn-ulcs -c ./atn-ulcs.cnf -s ./packet-atn-ulcs-template -D . -O ../../epan/dissectors atn-ulcs.asn */
+/* asn2wrs.py -u -L -p atn-ulcs -c ./atn-ulcs.cnf -s ./packet-atn-ulcs-template -D . -O ../.. atn-ulcs.asn */
 
 /* Input file: packet-atn-ulcs-template.h */
 
-#line 1 "../../asn1/atn-ulcs/packet-atn-ulcs-template.h"
+#line 1 "./asn1/atn-ulcs/packet-atn-ulcs-template.h"
 /* packet-atn-ulcs.h
  * Definitions for atn packet disassembly structures and routines
  *

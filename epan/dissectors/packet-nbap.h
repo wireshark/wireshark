@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-nbap.h                                                              */
-/* ../../tools/asn2wrs.py -p nbap -c ./nbap.cnf -s ./packet-nbap-template -D . -O ../../epan/dissectors NBAP-CommonDataTypes.asn NBAP-Constants.asn NBAP-Containers.asn NBAP-IEs.asn NBAP-PDU-Contents.asn NBAP-PDU-Descriptions.asn */
+/* asn2wrs.py -p nbap -c ./nbap.cnf -s ./packet-nbap-template -D . -O ../.. NBAP-CommonDataTypes.asn NBAP-Constants.asn NBAP-Containers.asn NBAP-IEs.asn NBAP-PDU-Contents.asn NBAP-PDU-Descriptions.asn */
 
 /* Input file: packet-nbap-template.h */
 
-#line 1 "../../asn1/nbap/packet-nbap-template.h"
+#line 1 "./asn1/nbap/packet-nbap-template.h"
 /* packet-nbap-template.h
  *
  * Wireshark - Network traffic analyzer

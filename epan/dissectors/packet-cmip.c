@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-cmip.c                                                              */
-/* ../../tools/asn2wrs.py -b -p cmip -c ./cmip.cnf -s ./packet-cmip-template -D . -O ../../epan/dissectors CMIP-1.asn CMIP-A-ABORT-Information.asn CMIP-A-ASSOCIATE-Information.asn ../x721/Attribute-ASN1Module.asn ../ros/Remote-Operations-Information-Objects.asn ../ros/Remote-Operations-Generic-ROS-PDUs.asn */
+/* asn2wrs.py -b -p cmip -c ./cmip.cnf -s ./packet-cmip-template -D . -O ../.. CMIP-1.asn CMIP-A-ABORT-Information.asn CMIP-A-ASSOCIATE-Information.asn ../x721/Attribute-ASN1Module.asn ../ros/Remote-Operations-Information-Objects.asn ../ros/Remote-Operations-Generic-ROS-PDUs.asn */
 
 /* Input file: packet-cmip-template.c */
 
-#line 1 "../../asn1/cmip/packet-cmip-template.c"
+#line 1 "./asn1/cmip/packet-cmip-template.c"
 /* packet-cmip.c
  * Routines for X.711 CMIP packet dissection
  *   Ronnie Sahlberg 2004
@@ -64,7 +64,7 @@ static int hf_NameBinding = -1;
 static int hf_ObjectClass = -1;
 
 /*--- Included file: packet-cmip-hf.c ---*/
-#line 1 "../../asn1/cmip/packet-cmip-hf.c"
+#line 1 "./asn1/cmip/packet-cmip-hf.c"
 static int hf_cmip_BaseManagedObjectId_PDU = -1;  /* BaseManagedObjectId */
 static int hf_cmip_EventTypeId_PDU = -1;          /* EventTypeId */
 static int hf_cmip_ObjectClass_PDU = -1;          /* ObjectClass */
@@ -343,13 +343,13 @@ static int hf_cmip_T_daysOfWeek_friday = -1;
 static int hf_cmip_T_daysOfWeek_saturday = -1;
 
 /*--- End of included file: packet-cmip-hf.c ---*/
-#line 58 "../../asn1/cmip/packet-cmip-template.c"
+#line 58 "./asn1/cmip/packet-cmip-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_cmip = -1;
 
 /*--- Included file: packet-cmip-ett.c ---*/
-#line 1 "../../asn1/cmip/packet-cmip-ett.c"
+#line 1 "./asn1/cmip/packet-cmip-ett.c"
 static gint ett_cmip_PAR_missingAttributeValue = -1;
 static gint ett_cmip_ActionArgument = -1;
 static gint ett_cmip_ActionError = -1;
@@ -473,7 +473,7 @@ static gint ett_cmip_T_modificationList = -1;
 static gint ett_cmip_T_modificationList_item = -1;
 
 /*--- End of included file: packet-cmip-ett.c ---*/
-#line 62 "../../asn1/cmip/packet-cmip-template.c"
+#line 62 "./asn1/cmip/packet-cmip-template.c"
 
 static expert_field ei_wrong_spdu_type = EI_INIT;
 
@@ -484,7 +484,7 @@ static dissector_table_t attribute_id_dissector_table;
 
 
 /*--- Included file: packet-cmip-table.c ---*/
-#line 1 "../../asn1/cmip/packet-cmip-table.c"
+#line 1 "./asn1/cmip/packet-cmip-table.c"
 
 /* CMIP OPERATIONS */
 static const value_string cmip_Opcode_vals[] = {
@@ -534,7 +534,7 @@ static const value_string cmip_error_code_vals[] = {
 
 
 /*--- End of included file: packet-cmip-table.c ---*/
-#line 71 "../../asn1/cmip/packet-cmip-template.c"
+#line 71 "./asn1/cmip/packet-cmip-template.c"
 
 static int opcode_type;
 #define OPCODE_INVOKE        1
@@ -546,7 +546,7 @@ static const char *object_identifier_id;
 
 
 /*--- Included file: packet-cmip-val.h ---*/
-#line 1 "../../asn1/cmip/packet-cmip-val.h"
+#line 1 "./asn1/cmip/packet-cmip-val.h"
 #define smi2AttributeID                "2.9.3.2.7"
 #define smi2AttributeGroup             "2.9.3.2.8"
 #define arfProbableCause               "2.9.3.2.0.0"
@@ -633,10 +633,10 @@ static const char *object_identifier_id;
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-cmip-val.h ---*/
-#line 81 "../../asn1/cmip/packet-cmip-template.c"
+#line 81 "./asn1/cmip/packet-cmip-template.c"
 
 /*--- Included file: packet-cmip-fn.c ---*/
-#line 1 "../../asn1/cmip/packet-cmip-fn.c"
+#line 1 "./asn1/cmip/packet-cmip-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* CMISFilter -> CMISFilter/and -> CMISFilter */
@@ -648,7 +648,7 @@ static int dissect_cmip_CMISFilter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_cmip_T_attributeId_globalForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 267 "../../asn1/cmip/cmip.cnf"
+#line 267 "./asn1/cmip/cmip.cnf"
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
 
   actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
@@ -662,7 +662,7 @@ dissect_cmip_T_attributeId_globalForm(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 static int
 dissect_cmip_T_attributeIdlocalForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 271 "../../asn1/cmip/cmip.cnf"
+#line 271 "./asn1/cmip/cmip.cnf"
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &actx->external.indirect_reference);
 
@@ -764,7 +764,7 @@ static int
 dissect_cmip_T_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
 
-#line 288 "../../asn1/cmip/cmip.cnf"
+#line 288 "./asn1/cmip/cmip.cnf"
   actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
 
 
@@ -775,7 +775,7 @@ dissect_cmip_T_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_cmip_T_attributeValueAssertionvalue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 291 "../../asn1/cmip/cmip.cnf"
+#line 291 "./asn1/cmip/cmip.cnf"
   if (actx->external.direct_ref_present) {
     offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, actx->private_data);
   }
@@ -930,7 +930,7 @@ dissect_cmip_Scope(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_cmip_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 275 "../../asn1/cmip/cmip.cnf"
+#line 275 "./asn1/cmip/cmip.cnf"
   if(actx->external.direct_ref_present){
     offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, actx->private_data);
   } else if (actx->external.indirect_ref_present &&
@@ -1105,7 +1105,7 @@ dissect_cmip_ActionTypeId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_cmip_T_actionInfoArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 443 "../../asn1/cmip/cmip.cnf"
+#line 443 "./asn1/cmip/cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
@@ -1262,7 +1262,7 @@ dissect_cmip_NoSuchArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_cmip_T_eventInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 474 "../../asn1/cmip/cmip.cnf"
+#line 474 "./asn1/cmip/cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
@@ -1367,7 +1367,7 @@ dissect_cmip_ActionError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_cmip_T_actionReplyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 477 "../../asn1/cmip/cmip.cnf"
+#line 477 "./asn1/cmip/cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
@@ -1449,7 +1449,7 @@ dissect_cmip_ModifyOperator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_cmip_T_attributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 471 "../../asn1/cmip/cmip.cnf"
+#line 471 "./asn1/cmip/cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
@@ -1677,7 +1677,7 @@ dissect_cmip_DeleteResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_cmip_T_eventReplyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 452 "../../asn1/cmip/cmip.cnf"
+#line 452 "./asn1/cmip/cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
@@ -1704,7 +1704,7 @@ dissect_cmip_EventReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_cmip_EventReportArgumentEventInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 449 "../../asn1/cmip/cmip.cnf"
+#line 449 "./asn1/cmip/cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
@@ -1971,7 +1971,7 @@ dissect_cmip_T_errorId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_cmip_T_errorInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 468 "../../asn1/cmip/cmip.cnf"
+#line 468 "./asn1/cmip/cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
@@ -2067,7 +2067,7 @@ dissect_cmip_NoSuchEventType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_cmip_T_attributevalue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 455 "../../asn1/cmip/cmip.cnf"
+#line 455 "./asn1/cmip/cmip.cnf"
   if(actx->external.direct_ref_present){
     offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
   } else if (actx->external.indirect_ref_present &&
@@ -2141,7 +2141,7 @@ static const value_string cmip_CMIPAbortSource_vals[] = {
 
 static int
 dissect_cmip_CMIPAbortSource(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 231 "../../asn1/cmip/cmip.cnf"
+#line 231 "./asn1/cmip/cmip.cnf"
   guint32 value;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2171,7 +2171,7 @@ static const ber_sequence_t CMIPAbortInfo_sequence[] = {
 
 int
 dissect_cmip_CMIPAbortInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 223 "../../asn1/cmip/cmip.cnf"
+#line 223 "./asn1/cmip/cmip.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, "CMIP-A-ABORT");
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -2226,7 +2226,7 @@ static const ber_sequence_t CMIPUserInfo_sequence[] = {
 
 int
 dissect_cmip_CMIPUserInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 227 "../../asn1/cmip/cmip.cnf"
+#line 227 "./asn1/cmip/cmip.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, "CMIP-A-ASSOCIATE");
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -2312,7 +2312,7 @@ dissect_cmip_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_cmip_T_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 484 "../../asn1/cmip/cmip.cnf"
+#line 484 "./asn1/cmip/cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
@@ -2409,7 +2409,7 @@ dissect_cmip_AttributeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_cmip_T_oldAttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 487 "../../asn1/cmip/cmip.cnf"
+#line 487 "./asn1/cmip/cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
@@ -2421,7 +2421,7 @@ dissect_cmip_T_oldAttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_cmip_T_newAttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 490 "../../asn1/cmip/cmip.cnf"
+#line 490 "./asn1/cmip/cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
@@ -3197,7 +3197,7 @@ dissect_cmip_T_serviceUseridentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 static int
 dissect_cmip_T_details(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 495 "../../asn1/cmip/cmip.cnf"
+#line 495 "./asn1/cmip/cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
@@ -3320,7 +3320,7 @@ dissect_cmip_T_featureIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_cmip_T_featureInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 500 "../../asn1/cmip/cmip.cnf"
+#line 500 "./asn1/cmip/cmip.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
@@ -3570,7 +3570,7 @@ dissect_cmip_WeekMask(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_cmip_T_local(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 238 "../../asn1/cmip/cmip.cnf"
+#line 238 "./asn1/cmip/cmip.cnf"
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &opcode);
 
@@ -3651,7 +3651,7 @@ dissect_cmip_T_linkedId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_cmip_InvokeArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 296 "../../asn1/cmip/cmip.cnf"
+#line 296 "./asn1/cmip/cmip.cnf"
     switch(opcode){
     case 0: /* M-eventreport */
       offset = dissect_cmip_EventReportArgument(FALSE, tvb, offset, actx, tree, -1);
@@ -3705,7 +3705,7 @@ static const ber_sequence_t Invoke_sequence[] = {
 
 static int
 dissect_cmip_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 247 "../../asn1/cmip/cmip.cnf"
+#line 247 "./asn1/cmip/cmip.cnf"
   opcode_type=OPCODE_INVOKE;
   col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "Invoke ");
 
@@ -3719,7 +3719,7 @@ dissect_cmip_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_cmip_ResultArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 334 "../../asn1/cmip/cmip.cnf"
+#line 334 "./asn1/cmip/cmip.cnf"
 
     switch(opcode){
     case 0: /* M-eventreport*/
@@ -3782,7 +3782,7 @@ static const ber_sequence_t ReturnResult_sequence[] = {
 
 static int
 dissect_cmip_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 252 "../../asn1/cmip/cmip.cnf"
+#line 252 "./asn1/cmip/cmip.cnf"
   opcode_type=OPCODE_RETURN_RESULT;
   col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "ReturnResult ");
 
@@ -3796,7 +3796,7 @@ dissect_cmip_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_cmip_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 368 "../../asn1/cmip/cmip.cnf"
+#line 368 "./asn1/cmip/cmip.cnf"
 
     switch(opcode){
 	case 19: /* classInstanceConflict */
@@ -3880,7 +3880,7 @@ static const ber_sequence_t ReturnError_sequence[] = {
 
 static int
 dissect_cmip_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 257 "../../asn1/cmip/cmip.cnf"
+#line 257 "./asn1/cmip/cmip.cnf"
   opcode_type=OPCODE_RETURN_ERROR;
   col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "ReturnError ");
 
@@ -4000,7 +4000,7 @@ static const ber_sequence_t Reject_sequence[] = {
 
 static int
 dissect_cmip_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 262 "../../asn1/cmip/cmip.cnf"
+#line 262 "./asn1/cmip/cmip.cnf"
   opcode_type=OPCODE_REJECT;
   col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "Reject ");
 
@@ -4468,7 +4468,7 @@ static int dissect_WeekMask_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-cmip-fn.c ---*/
-#line 82 "../../asn1/cmip/packet-cmip-template.c"
+#line 82 "./asn1/cmip/packet-cmip-template.c"
 
 
 
@@ -4562,7 +4562,7 @@ void proto_register_cmip(void) {
 
 
 /*--- Included file: packet-cmip-hfarr.c ---*/
-#line 1 "../../asn1/cmip/packet-cmip-hfarr.c"
+#line 1 "./asn1/cmip/packet-cmip-hfarr.c"
     { &hf_cmip_BaseManagedObjectId_PDU,
       { "BaseManagedObjectId", "cmip.BaseManagedObjectId_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5665,7 +5665,7 @@ void proto_register_cmip(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmip-hfarr.c ---*/
-#line 174 "../../asn1/cmip/packet-cmip-template.c"
+#line 174 "./asn1/cmip/packet-cmip-template.c"
   };
 
   /* List of subtrees */
@@ -5673,7 +5673,7 @@ void proto_register_cmip(void) {
     &ett_cmip,
 
 /*--- Included file: packet-cmip-ettarr.c ---*/
-#line 1 "../../asn1/cmip/packet-cmip-ettarr.c"
+#line 1 "./asn1/cmip/packet-cmip-ettarr.c"
     &ett_cmip_PAR_missingAttributeValue,
     &ett_cmip_ActionArgument,
     &ett_cmip_ActionError,
@@ -5797,7 +5797,7 @@ void proto_register_cmip(void) {
     &ett_cmip_T_modificationList_item,
 
 /*--- End of included file: packet-cmip-ettarr.c ---*/
-#line 180 "../../asn1/cmip/packet-cmip-template.c"
+#line 180 "./asn1/cmip/packet-cmip-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -5818,7 +5818,7 @@ void proto_register_cmip(void) {
 
 
 /*--- Included file: packet-cmip-dis-tab.c ---*/
-#line 1 "../../asn1/cmip/packet-cmip-dis-tab.c"
+#line 1 "./asn1/cmip/packet-cmip-dis-tab.c"
   register_ber_oid_dissector("2.9.2.21.7.13", dissect_BaseManagedObjectId_PDU, proto_cmip, "BaseManagedObjectId(13)");
   register_ber_oid_dissector("2.9.3.2.7.1", dissect_SimpleNameType_PDU, proto_cmip, "discriminatorId(1)");
   register_ber_oid_dissector("2.9.3.2.7.2", dissect_SimpleNameType_PDU, proto_cmip, "logId(2)");
@@ -5892,7 +5892,7 @@ void proto_register_cmip(void) {
 
 
 /*--- End of included file: packet-cmip-dis-tab.c ---*/
-#line 199 "../../asn1/cmip/packet-cmip-template.c"
+#line 199 "./asn1/cmip/packet-cmip-template.c"
     oid_add_from_string("discriminatorId(1)","2.9.3.2.7.1");
 
   attribute_id_dissector_table = register_dissector_table("cmip.attribute_id", "CMIP Attribute Id", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);

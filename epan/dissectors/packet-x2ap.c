@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-x2ap.c                                                              */
-/* ../../tools/asn2wrs.py -p x2ap -c ./x2ap.cnf -s ./packet-x2ap-template -D . -O ../../epan/dissectors X2AP-CommonDataTypes.asn X2AP-Constants.asn X2AP-Containers.asn X2AP-IEs.asn X2AP-PDU-Contents.asn X2AP-PDU-Descriptions.asn */
+/* asn2wrs.py -p x2ap -c ./x2ap.cnf -s ./packet-x2ap-template -D . -O ../.. X2AP-CommonDataTypes.asn X2AP-Constants.asn X2AP-Containers.asn X2AP-IEs.asn X2AP-PDU-Contents.asn X2AP-PDU-Descriptions.asn */
 
 /* Input file: packet-x2ap-template.c */
 
-#line 1 "../../asn1/x2ap/packet-x2ap-template.c"
+#line 1 "./asn1/x2ap/packet-x2ap-template.c"
 /* packet-x2ap.c
  * Routines for dissecting Evolved Universal Terrestrial Radio Access Network (EUTRAN);
  * X2 Application Protocol (X2AP);
@@ -62,7 +62,7 @@ void proto_register_x2ap(void);
 
 
 /*--- Included file: packet-x2ap-val.h ---*/
-#line 1 "../../asn1/x2ap/packet-x2ap-val.h"
+#line 1 "./asn1/x2ap/packet-x2ap-val.h"
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
@@ -217,7 +217,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-x2ap-val.h ---*/
-#line 56 "../../asn1/x2ap/packet-x2ap-template.c"
+#line 56 "./asn1/x2ap/packet-x2ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_x2ap = -1;
@@ -225,7 +225,7 @@ static int hf_x2ap_transportLayerAddressIPv4 = -1;
 static int hf_x2ap_transportLayerAddressIPv6 = -1;
 
 /*--- Included file: packet-x2ap-hf.c ---*/
-#line 1 "../../asn1/x2ap/packet-x2ap-hf.c"
+#line 1 "./asn1/x2ap/packet-x2ap-hf.c"
 static int hf_x2ap_ABSInformation_PDU = -1;       /* ABSInformation */
 static int hf_x2ap_ABS_Status_PDU = -1;           /* ABS_Status */
 static int hf_x2ap_AdditionalSpecialSubframe_Info_PDU = -1;  /* AdditionalSpecialSubframe_Info */
@@ -588,14 +588,14 @@ static int hf_x2ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_x2ap_value = -1;                    /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-x2ap-hf.c ---*/
-#line 62 "../../asn1/x2ap/packet-x2ap-template.c"
+#line 62 "./asn1/x2ap/packet-x2ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_x2ap = -1;
 static int ett_x2ap_TransportLayerAddress = -1;
 
 /*--- Included file: packet-x2ap-ett.c ---*/
-#line 1 "../../asn1/x2ap/packet-x2ap-ett.c"
+#line 1 "./asn1/x2ap/packet-x2ap-ett.c"
 static gint ett_x2ap_PrivateIE_ID = -1;
 static gint ett_x2ap_ProtocolIE_Container = -1;
 static gint ett_x2ap_ProtocolIE_Field = -1;
@@ -756,7 +756,7 @@ static gint ett_x2ap_SuccessfulOutcome = -1;
 static gint ett_x2ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-x2ap-ett.c ---*/
-#line 67 "../../asn1/x2ap/packet-x2ap-template.c"
+#line 67 "./asn1/x2ap/packet-x2ap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -779,7 +779,7 @@ void proto_reg_handoff_x2ap(void);
 
 
 /*--- Included file: packet-x2ap-fn.c ---*/
-#line 1 "../../asn1/x2ap/packet-x2ap-fn.c"
+#line 1 "./asn1/x2ap/packet-x2ap-fn.c"
 
 static const value_string x2ap_Criticality_vals[] = {
   {   0, "reject" },
@@ -864,13 +864,13 @@ static const value_string x2ap_ProcedureCode_vals[] = {
 
 static int
 dissect_x2ap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 66 "../../asn1/x2ap/x2ap.cnf"
+#line 66 "./asn1/x2ap/x2ap.cnf"
   ProcedureCode = 0xFFFF;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 60 "../../asn1/x2ap/x2ap.cnf"
+#line 60 "./asn1/x2ap/x2ap.cnf"
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                 val_to_str(ProcedureCode, x2ap_ProcedureCode_vals,
                            "unknown message"));
@@ -990,7 +990,7 @@ dissect_x2ap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, maxProtocolIEs, &ProtocolIE_ID, FALSE);
 
-#line 49 "../../asn1/x2ap/x2ap.cnf"
+#line 49 "./asn1/x2ap/x2ap.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(x2ap_ProtocolIE_ID_vals), "unknown (%d)"));
   }
@@ -1520,7 +1520,7 @@ dissect_x2ap_AllocationAndRetentionPriority(tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_x2ap_PLMN_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 77 "../../asn1/x2ap/x2ap.cnf"
+#line 77 "./asn1/x2ap/x2ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -2720,7 +2720,7 @@ dissect_x2ap_GlobalENB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_x2ap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 107 "../../asn1/x2ap/x2ap.cnf"
+#line 107 "./asn1/x2ap/x2ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   proto_tree *subtree;
   gint tvb_len;
@@ -3926,7 +3926,7 @@ dissect_x2ap_ReportCharacteristics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_x2ap_RRC_Context(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 131 "../../asn1/x2ap/x2ap.cnf"
+#line 131 "./asn1/x2ap/x2ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -4087,7 +4087,7 @@ dissect_x2ap_TargetCellInUTRAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_x2ap_TargeteNBtoSource_eNBTransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 90 "../../asn1/x2ap/x2ap.cnf"
+#line 90 "./asn1/x2ap/x2ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -6220,7 +6220,7 @@ static int dissect_X2AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-x2ap-fn.c ---*/
-#line 88 "../../asn1/x2ap/packet-x2ap-template.c"
+#line 88 "./asn1/x2ap/packet-x2ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -6280,7 +6280,7 @@ void proto_register_x2ap(void) {
 
 
 /*--- Included file: packet-x2ap-hfarr.c ---*/
-#line 1 "../../asn1/x2ap/packet-x2ap-hfarr.c"
+#line 1 "./asn1/x2ap/packet-x2ap-hfarr.c"
     { &hf_x2ap_ABSInformation_PDU,
       { "ABSInformation", "x2ap.ABSInformation",
         FT_UINT32, BASE_DEC, VALS(x2ap_ABSInformation_vals), 0,
@@ -7723,7 +7723,7 @@ void proto_register_x2ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-x2ap-hfarr.c ---*/
-#line 146 "../../asn1/x2ap/packet-x2ap-template.c"
+#line 146 "./asn1/x2ap/packet-x2ap-template.c"
   };
 
   /* List of subtrees */
@@ -7732,7 +7732,7 @@ void proto_register_x2ap(void) {
 		  &ett_x2ap_TransportLayerAddress,
 
 /*--- Included file: packet-x2ap-ettarr.c ---*/
-#line 1 "../../asn1/x2ap/packet-x2ap-ettarr.c"
+#line 1 "./asn1/x2ap/packet-x2ap-ettarr.c"
     &ett_x2ap_PrivateIE_ID,
     &ett_x2ap_ProtocolIE_Container,
     &ett_x2ap_ProtocolIE_Field,
@@ -7893,7 +7893,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-x2ap-ettarr.c ---*/
-#line 153 "../../asn1/x2ap/packet-x2ap-template.c"
+#line 153 "./asn1/x2ap/packet-x2ap-template.c"
   };
 
   module_t *x2ap_module;
@@ -7941,7 +7941,7 @@ proto_reg_handoff_x2ap(void)
 		Initialized=TRUE;
 
 /*--- Included file: packet-x2ap-dis-tab.c ---*/
-#line 1 "../../asn1/x2ap/packet-x2ap-dis-tab.c"
+#line 1 "./asn1/x2ap/packet-x2ap-dis-tab.c"
   dissector_add_uint("x2ap.ies", id_E_RABs_Admitted_Item, create_dissector_handle(dissect_E_RABs_Admitted_Item_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_E_RABs_Admitted_List, create_dissector_handle(dissect_E_RABs_Admitted_List_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_E_RAB_Item, create_dissector_handle(dissect_E_RAB_Item_PDU, proto_x2ap));
@@ -8076,7 +8076,7 @@ proto_reg_handoff_x2ap(void)
 
 
 /*--- End of included file: packet-x2ap-dis-tab.c ---*/
-#line 199 "../../asn1/x2ap/packet-x2ap-template.c"
+#line 199 "./asn1/x2ap/packet-x2ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, x2ap_handle);

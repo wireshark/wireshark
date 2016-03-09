@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-sbc-ap.c                                                            */
-/* ../../tools/asn2wrs.py -p sbc-ap -c ./sbc-ap.cnf -s ./packet-sbc-ap-template -D . -O ../../epan/dissectors SBC-AP-CommonDataTypes.asn SBC-AP-Constants.asn SBC-AP-Containers.asn SBC-AP-IEs.asn SBC-AP-PDU-Contents.asn SBC-AP-PDU-Descriptions.asn */
+/* asn2wrs.py -p sbc-ap -c ./sbc-ap.cnf -s ./packet-sbc-ap-template -D . -O ../.. SBC-AP-CommonDataTypes.asn SBC-AP-Constants.asn SBC-AP-Containers.asn SBC-AP-IEs.asn SBC-AP-PDU-Contents.asn SBC-AP-PDU-Descriptions.asn */
 
 /* Input file: packet-sbc-ap-template.c */
 
-#line 1 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 1 "./asn1/sbc-ap/packet-sbc-ap-template.c"
 /* packet-sbc-ap.c
  * Routines for SBc Application Part (SBc-AP) packet dissection
  *
@@ -57,7 +57,7 @@ static dissector_handle_t sbc_ap_handle=NULL;
 
 
 /*--- Included file: packet-sbc-ap-val.h ---*/
-#line 1 "../../asn1/sbc-ap/packet-sbc-ap-val.h"
+#line 1 "./asn1/sbc-ap/packet-sbc-ap-val.h"
 #define maxNrOfErrors                  256
 #define maxnoofCellID                  65535
 #define maxNrOfTAIs                    65535
@@ -98,14 +98,14 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-sbc-ap-val.h ---*/
-#line 51 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 51 "./asn1/sbc-ap/packet-sbc-ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_sbc_ap = -1;
 
 
 /*--- Included file: packet-sbc-ap-hf.c ---*/
-#line 1 "../../asn1/sbc-ap/packet-sbc-ap-hf.c"
+#line 1 "./asn1/sbc-ap/packet-sbc-ap-hf.c"
 static int hf_sbc_ap_Cause_PDU = -1;              /* Cause */
 static int hf_sbc_ap_Concurrent_Warning_Message_Indicator_PDU = -1;  /* Concurrent_Warning_Message_Indicator */
 static int hf_sbc_ap_Criticality_Diagnostics_PDU = -1;  /* Criticality_Diagnostics */
@@ -163,14 +163,14 @@ static int hf_sbc_ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value *
 static int hf_sbc_ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-sbc-ap-hf.c ---*/
-#line 56 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 56 "./asn1/sbc-ap/packet-sbc-ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_sbc_ap = -1;
 
 
 /*--- Included file: packet-sbc-ap-ett.c ---*/
-#line 1 "../../asn1/sbc-ap/packet-sbc-ap-ett.c"
+#line 1 "./asn1/sbc-ap/packet-sbc-ap-ett.c"
 static gint ett_sbc_ap_ProtocolIE_Container = -1;
 static gint ett_sbc_ap_ProtocolIE_Field = -1;
 static gint ett_sbc_ap_ProtocolExtensionContainer = -1;
@@ -196,7 +196,7 @@ static gint ett_sbc_ap_SuccessfulOutcome = -1;
 static gint ett_sbc_ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-sbc-ap-ett.c ---*/
-#line 61 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 61 "./asn1/sbc-ap/packet-sbc-ap-template.c"
 
 enum{
 	INITIATING_MESSAGE,
@@ -225,7 +225,7 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 
 
 /*--- Included file: packet-sbc-ap-fn.c ---*/
-#line 1 "../../asn1/sbc-ap/packet-sbc-ap-fn.c"
+#line 1 "./asn1/sbc-ap/packet-sbc-ap-fn.c"
 
 static const value_string sbc_ap_Criticality_vals[] = {
   {   0, "reject" },
@@ -256,7 +256,7 @@ dissect_sbc_ap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 62 "../../asn1/sbc-ap/sbc-ap.cnf"
+#line 62 "./asn1/sbc-ap/sbc-ap.cnf"
    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, sbc_ap_ProcedureCode_vals,
                               "unknown message"));
@@ -307,7 +307,7 @@ dissect_sbc_ap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &ProtocolIE_ID, FALSE);
 
-#line 45 "../../asn1/sbc-ap/sbc-ap.cnf"
+#line 45 "./asn1/sbc-ap/sbc-ap.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(sbc_ap_ProtocolIE_ID_vals), "unknown (%d)"));
   }
@@ -549,7 +549,7 @@ dissect_sbc_ap_Data_Coding_Scheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_sbc_ap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 99 "../../asn1/sbc-ap/sbc-ap.cnf"
+#line 99 "./asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -1125,7 +1125,7 @@ static int dissect_SBC_AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-sbc-ap-fn.c ---*/
-#line 88 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 88 "./asn1/sbc-ap/packet-sbc-ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -1190,7 +1190,7 @@ void proto_register_sbc_ap(void) {
 
 
 /*--- Included file: packet-sbc-ap-hfarr.c ---*/
-#line 1 "../../asn1/sbc-ap/packet-sbc-ap-hfarr.c"
+#line 1 "./asn1/sbc-ap/packet-sbc-ap-hfarr.c"
     { &hf_sbc_ap_Cause_PDU,
       { "Cause", "sbc-ap.Cause",
         FT_UINT32, BASE_DEC, VALS(sbc_ap_Cause_vals), 0,
@@ -1413,7 +1413,7 @@ void proto_register_sbc_ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-sbc-ap-hfarr.c ---*/
-#line 151 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 151 "./asn1/sbc-ap/packet-sbc-ap-template.c"
   };
 
   /* List of subtrees */
@@ -1421,7 +1421,7 @@ void proto_register_sbc_ap(void) {
                   &ett_sbc_ap,
 
 /*--- Included file: packet-sbc-ap-ettarr.c ---*/
-#line 1 "../../asn1/sbc-ap/packet-sbc-ap-ettarr.c"
+#line 1 "./asn1/sbc-ap/packet-sbc-ap-ettarr.c"
     &ett_sbc_ap_ProtocolIE_Container,
     &ett_sbc_ap_ProtocolIE_Field,
     &ett_sbc_ap_ProtocolExtensionContainer,
@@ -1447,7 +1447,7 @@ void proto_register_sbc_ap(void) {
     &ett_sbc_ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-sbc-ap-ettarr.c ---*/
-#line 157 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 157 "./asn1/sbc-ap/packet-sbc-ap-template.c"
   };
 
 
@@ -1482,7 +1482,7 @@ proto_reg_handoff_sbc_ap(void)
         inited = TRUE;
 
 /*--- Included file: packet-sbc-ap-dis-tab.c ---*/
-#line 1 "../../asn1/sbc-ap/packet-sbc-ap-dis-tab.c"
+#line 1 "./asn1/sbc-ap/packet-sbc-ap-dis-tab.c"
   dissector_add_uint("sbc_ap.ies", id_Cause, create_dissector_handle(dissect_Cause_PDU, proto_sbc_ap));
   dissector_add_uint("sbc_ap.ies", id_Criticality_Diagnostics, create_dissector_handle(dissect_Criticality_Diagnostics_PDU, proto_sbc_ap));
   dissector_add_uint("sbc_ap.ies", id_Data_Coding_Scheme, create_dissector_handle(dissect_Data_Coding_Scheme_PDU, proto_sbc_ap));
@@ -1505,7 +1505,7 @@ proto_reg_handoff_sbc_ap(void)
 
 
 /*--- End of included file: packet-sbc-ap-dis-tab.c ---*/
-#line 190 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 190 "./asn1/sbc-ap/packet-sbc-ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, sbc_ap_handle);

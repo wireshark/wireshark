@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-qsig.c                                                              */
-/* ../../tools/asn2wrs.py -c ./qsig.cnf -s ./packet-qsig-template -D . -O ../../epan/dissectors General-Error-List.asn qsig-gf-ext.asn qsig-gf-gp.asn qsig-gf-ade.asn QSIG-NA.asn QSIG-CF.asn QSIG-PR.asn QSIG-CT.asn QSIG-CC.asn QSIG-CO.asn QSIG-DND.asn QSIG-CI.asn QSIG-AOC.asn QSIG-RE.asn SYNC-SIG.asn QSIG-CINT.asn QSIG-CMN.asn QSIG-CPI.asn QSIG-PUMR.asn QSIG-PUMCH.asn QSIG-SSCT.asn QSIG-WTMLR.asn QSIG-WTMCH.asn QSIG-WTMAU.asn QSIG-SD.asn QSIG-CIDL.asn QSIG-SMS.asn QSIG-MCR.asn QSIG-MCM.asn QSIG-MID.asn */
+/* asn2wrs.py -c ./qsig.cnf -s ./packet-qsig-template -D . -O ../.. General-Error-List.asn qsig-gf-ext.asn qsig-gf-gp.asn qsig-gf-ade.asn QSIG-NA.asn QSIG-CF.asn QSIG-PR.asn QSIG-CT.asn QSIG-CC.asn QSIG-CO.asn QSIG-DND.asn QSIG-CI.asn QSIG-AOC.asn QSIG-RE.asn SYNC-SIG.asn QSIG-CINT.asn QSIG-CMN.asn QSIG-CPI.asn QSIG-PUMR.asn QSIG-PUMCH.asn QSIG-SSCT.asn QSIG-WTMLR.asn QSIG-WTMCH.asn QSIG-WTMAU.asn QSIG-SD.asn QSIG-CIDL.asn QSIG-SMS.asn QSIG-MCR.asn QSIG-MCM.asn QSIG-MID.asn */
 
 /* Input file: packet-qsig-template.c */
 
-#line 1 "../../asn1/qsig/packet-qsig-template.c"
+#line 1 "./asn1/qsig/packet-qsig-template.c"
 /* packet-qsig.c
  * Routines for QSIG packet dissection
  * 2007  Tomas Kukosa
@@ -278,7 +278,7 @@ static const gint32 op2srv_tab[] = {
 static const value_string qsig_str_operation[] = {
 
 /*--- Included file: packet-qsig-table10.c ---*/
-#line 1 "../../asn1/qsig/packet-qsig-table10.c"
+#line 1 "./asn1/qsig/packet-qsig-table10.c"
 
 /* --- Module General-Error-List --- --- ---                                  */
 
@@ -489,14 +489,14 @@ static const value_string qsig_str_operation[] = {
   { 120, "mIDMailboxID" },
 
 /*--- End of included file: packet-qsig-table10.c ---*/
-#line 272 "../../asn1/qsig/packet-qsig-template.c"
+#line 272 "./asn1/qsig/packet-qsig-template.c"
   {   0, NULL}
 };
 
 static const value_string qsig_str_error[] = {
 
 /*--- Included file: packet-qsig-table20.c ---*/
-#line 1 "../../asn1/qsig/packet-qsig-table20.c"
+#line 1 "./asn1/qsig/packet-qsig-table20.c"
 
 /* --- Module General-Error-List --- --- ---                                  */
 
@@ -682,7 +682,7 @@ static const value_string qsig_str_error[] = {
   { 1008, "unspecified" },
 
 /*--- End of included file: packet-qsig-table20.c ---*/
-#line 277 "../../asn1/qsig/packet-qsig-template.c"
+#line 277 "./asn1/qsig/packet-qsig-template.c"
   {   0, NULL}
 };
 
@@ -700,7 +700,7 @@ static int hf_qsig_tc = -1;
 static int hf_qsig_pc = -1;
 
 /*--- Included file: packet-qsig-hf.c ---*/
-#line 1 "../../asn1/qsig/packet-qsig-hf.c"
+#line 1 "./asn1/qsig/packet-qsig-hf.c"
 
 /* --- Modules Manufacturer-specific-service-extension-class-asn1-97 PSS1-generic-parameters-definition-asn1-97 Addressing-Data-Elements-asn1-97 --- --- --- */
 
@@ -1577,7 +1577,7 @@ static int hf_qsig_mid_multipleExtension = -1;    /* SEQUENCE_OF_Extension */
 static int hf_qsig_mid_multipleExtension_item = -1;  /* Extension */
 
 /*--- End of included file: packet-qsig-hf.c ---*/
-#line 293 "../../asn1/qsig/packet-qsig-template.c"
+#line 293 "./asn1/qsig/packet-qsig-template.c"
 
 static int *hf_qsig_ie_type_arr[] = {
   NULL,
@@ -1596,7 +1596,7 @@ static gint ett_qsig_ie = -1;
 static gint ett_qsig_unknown_extension = -1;
 
 /*--- Included file: packet-qsig-ett.c ---*/
-#line 1 "../../asn1/qsig/packet-qsig-ett.c"
+#line 1 "./asn1/qsig/packet-qsig-ett.c"
 
 /* --- Modules Manufacturer-specific-service-extension-class-asn1-97 PSS1-generic-parameters-definition-asn1-97 Addressing-Data-Elements-asn1-97 --- --- --- */
 
@@ -2037,7 +2037,7 @@ static gint ett_qsig_mid_MIDExtensions = -1;
 static gint ett_qsig_mid_SEQUENCE_OF_Extension = -1;
 
 /*--- End of included file: packet-qsig-ett.c ---*/
-#line 310 "../../asn1/qsig/packet-qsig-template.c"
+#line 310 "./asn1/qsig/packet-qsig-template.c"
 static gint ett_cnq_PSS1InformationElement = -1;
 
 static expert_field ei_qsig_unsupported_arg_type = EI_INIT;
@@ -2059,7 +2059,7 @@ static dissector_table_t extension_dissector_table;
 
 
 /*--- Included file: packet-qsig-fn.c ---*/
-#line 1 "../../asn1/qsig/packet-qsig-fn.c"
+#line 1 "./asn1/qsig/packet-qsig-fn.c"
 
 /* --- Modules Manufacturer-specific-service-extension-class-asn1-97 PSS1-generic-parameters-definition-asn1-97 Addressing-Data-Elements-asn1-97 --- --- --- */
 
@@ -2076,7 +2076,7 @@ dissect_qsig_T_extensionId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_qsig_T_extensionArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 144 "../../asn1/qsig/qsig.cnf"
+#line 144 "./asn1/qsig/qsig.cnf"
     tvbuff_t *next_tvb;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -2104,7 +2104,7 @@ static const ber_sequence_t qsig_Extension_sequence[] = {
 
 static int
 dissect_qsig_Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 141 "../../asn1/qsig/qsig.cnf"
+#line 141 "./asn1/qsig/qsig.cnf"
   extension_oid = NULL;
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -2117,7 +2117,7 @@ dissect_qsig_Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_qsig_PSS1InformationElement_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 164 "../../asn1/qsig/qsig.cnf"
+#line 164 "./asn1/qsig/qsig.cnf"
   tvbuff_t *out_tvb = NULL;
   proto_tree *data_tree;
 
@@ -9205,7 +9205,7 @@ dissect_qsig_wtmau_DefinedIDs(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_qsig_wtmau_T_param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 160 "../../asn1/qsig/qsig.cnf"
+#line 160 "./asn1/qsig/qsig.cnf"
 
 
 
@@ -11931,7 +11931,7 @@ static int dissect_qsig_mid_Extension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-qsig-fn.c ---*/
-#line 330 "../../asn1/qsig/packet-qsig-template.c"
+#line 330 "./asn1/qsig/packet-qsig-template.c"
 
 typedef struct _qsig_op_t {
   gint32 opcode;
@@ -11942,7 +11942,7 @@ typedef struct _qsig_op_t {
 static const qsig_op_t qsig_op_tab[] = {
 
 /*--- Included file: packet-qsig-table11.c ---*/
-#line 1 "../../asn1/qsig/packet-qsig-table11.c"
+#line 1 "./asn1/qsig/packet-qsig-table11.c"
 
 /* --- Module General-Error-List --- --- ---                                  */
 
@@ -12153,7 +12153,7 @@ static const qsig_op_t qsig_op_tab[] = {
   /* mIDMailboxID             */ { 120, dissect_qsig_mid_MIDMailboxIDArg_PDU, dissect_qsig_mid_MIDDummyRes_PDU },
 
 /*--- End of included file: packet-qsig-table11.c ---*/
-#line 339 "../../asn1/qsig/packet-qsig-template.c"
+#line 339 "./asn1/qsig/packet-qsig-template.c"
 };
 
 typedef struct _qsig_err_t {
@@ -12164,7 +12164,7 @@ typedef struct _qsig_err_t {
 static const qsig_err_t qsig_err_tab[] = {
 
 /*--- Included file: packet-qsig-table21.c ---*/
-#line 1 "../../asn1/qsig/packet-qsig-table21.c"
+#line 1 "./asn1/qsig/packet-qsig-table21.c"
 
 /* --- Module General-Error-List --- --- ---                                  */
 
@@ -12350,7 +12350,7 @@ static const qsig_err_t qsig_err_tab[] = {
   /* unspecified              */ { 1008, dissect_qsig_mid_Extension_PDU },
 
 /*--- End of included file: packet-qsig-table21.c ---*/
-#line 348 "../../asn1/qsig/packet-qsig-template.c"
+#line 348 "./asn1/qsig/packet-qsig-template.c"
 };
 
 static const qsig_op_t *get_op(gint32 opcode) {
@@ -12671,7 +12671,7 @@ void proto_register_qsig(void) {
                           NULL, HFILL }},
 
 /*--- Included file: packet-qsig-hfarr.c ---*/
-#line 1 "../../asn1/qsig/packet-qsig-hfarr.c"
+#line 1 "./asn1/qsig/packet-qsig-hfarr.c"
 
 /* --- Modules Manufacturer-specific-service-extension-class-asn1-97 PSS1-generic-parameters-definition-asn1-97 Addressing-Data-Elements-asn1-97 --- --- --- */
 
@@ -15907,7 +15907,7 @@ void proto_register_qsig(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-qsig-hfarr.c ---*/
-#line 667 "../../asn1/qsig/packet-qsig-template.c"
+#line 667 "./asn1/qsig/packet-qsig-template.c"
   };
 
   /* List of subtrees */
@@ -15917,7 +15917,7 @@ void proto_register_qsig(void) {
     &ett_qsig_unknown_extension,
 
 /*--- Included file: packet-qsig-ettarr.c ---*/
-#line 1 "../../asn1/qsig/packet-qsig-ettarr.c"
+#line 1 "./asn1/qsig/packet-qsig-ettarr.c"
 
 /* --- Modules Manufacturer-specific-service-extension-class-asn1-97 PSS1-generic-parameters-definition-asn1-97 Addressing-Data-Elements-asn1-97 --- --- --- */
 
@@ -16358,7 +16358,7 @@ void proto_register_qsig(void) {
     &ett_qsig_mid_SEQUENCE_OF_Extension,
 
 /*--- End of included file: packet-qsig-ettarr.c ---*/
-#line 675 "../../asn1/qsig/packet-qsig-template.c"
+#line 675 "./asn1/qsig/packet-qsig-template.c"
     &ett_cnq_PSS1InformationElement,
   };
 

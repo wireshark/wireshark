@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-lte-rrc.c                                                           */
-/* ../../tools/asn2wrs.py -L -p lte-rrc -c ./lte-rrc.cnf -s ./packet-lte-rrc-template -D . -O ../../epan/dissectors EUTRA-InterNodeDefinitions.asn EUTRA-RRC-Definitions.asn EUTRA-Sidelink-Preconf.asn EUTRA-UE-Variables.asn PC5-RRC-Definitions.asn */
+/* asn2wrs.py -L -p lte-rrc -c ./lte-rrc.cnf -s ./packet-lte-rrc-template -D . -O ../.. EUTRA-InterNodeDefinitions.asn EUTRA-RRC-Definitions.asn EUTRA-Sidelink-Preconf.asn EUTRA-UE-Variables.asn PC5-RRC-Definitions.asn */
 
 /* Input file: packet-lte-rrc-template.c */
 
-#line 1 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 1 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
@@ -88,7 +88,7 @@ extern int proto_pdcp_lte;
 /* Include constants */
 
 /*--- Included file: packet-lte-rrc-val.h ---*/
-#line 1 "../../asn1/lte-rrc/packet-lte-rrc-val.h"
+#line 1 "./asn1/lte-rrc/packet-lte-rrc-val.h"
 #define maxReestabInfo                 32
 #define maxACDC_Cat_r13                16
 #define maxBandComb_r10                128
@@ -225,14 +225,14 @@ typedef enum _SI_OrPSI_GERAN_enum {
 } SI_OrPSI_GERAN_enum;
 
 /*--- End of included file: packet-lte-rrc-val.h ---*/
-#line 82 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 82 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lte_rrc = -1;
 
 
 /*--- Included file: packet-lte-rrc-hf.c ---*/
-#line 1 "../../asn1/lte-rrc/packet-lte-rrc-hf.c"
+#line 1 "./asn1/lte-rrc/packet-lte-rrc-hf.c"
 static int hf_lte_rrc_lte_rrc_HandoverCommand_PDU = -1;  /* HandoverCommand */
 static int hf_lte_rrc_lte_rrc_HandoverPreparationInformation_PDU = -1;  /* HandoverPreparationInformation */
 static int hf_lte_rrc_lte_rrc_UERadioAccessCapabilityInformation_PDU = -1;  /* UERadioAccessCapabilityInformation */
@@ -3699,7 +3699,7 @@ static int hf_lte_rrc_reserved_r12 = -1;          /* BIT_STRING_SIZE_19 */
 static int dummy_hf_lte_rrc_eag_field = -1; /* never registered */
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
-#line 87 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 87 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int hf_lte_rrc_eutra_cap_feat_group_ind_1 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_2 = -1;
@@ -3885,7 +3885,7 @@ static int ett_lte_rrc = -1;
 
 
 /*--- Included file: packet-lte-rrc-ett.c ---*/
-#line 1 "../../asn1/lte-rrc/packet-lte-rrc-ett.c"
+#line 1 "./asn1/lte-rrc/packet-lte-rrc-ett.c"
 static gint ett_lte_rrc_HandoverCommand = -1;
 static gint ett_lte_rrc_T_criticalExtensions = -1;
 static gint ett_lte_rrc_T_c1 = -1;
@@ -5541,7 +5541,7 @@ static gint ett_lte_rrc_SBCCH_SL_BCH_Message = -1;
 static gint ett_lte_rrc_MasterInformationBlock_SL = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 271 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 271 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
@@ -8035,7 +8035,7 @@ static void sr_lookup_configindex(guint32 config_index, guint16 *periodicity, gu
 
 
 /*--- Included file: packet-lte-rrc-fn.c ---*/
-#line 1 "../../asn1/lte-rrc/packet-lte-rrc-fn.c"
+#line 1 "./asn1/lte-rrc/packet-lte-rrc-fn.c"
 /*--- PDUs declarations ---*/
 static int dissect_HandoverPreparationInformation_v9j0_IEs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_SystemInformationBlockType1_v890_IEs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -53424,7 +53424,7 @@ static int dissect_UE_EUTRA_Capability_v9a0_IEs_PDU(tvbuff_t *tvb _U_, packet_in
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 2763 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2763 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -53627,7 +53627,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- Included file: packet-lte-rrc-hfarr.c ---*/
-#line 1 "../../asn1/lte-rrc/packet-lte-rrc-hfarr.c"
+#line 1 "./asn1/lte-rrc/packet-lte-rrc-hfarr.c"
     { &hf_lte_rrc_lte_rrc_HandoverCommand_PDU,
       { "HandoverCommand", "lte-rrc.HandoverCommand_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -67482,7 +67482,7 @@ void proto_register_lte_rrc(void) {
         "BIT_STRING_SIZE_19", HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2964 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2964 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -68203,7 +68203,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc,
 
 /*--- Included file: packet-lte-rrc-ettarr.c ---*/
-#line 1 "../../asn1/lte-rrc/packet-lte-rrc-ettarr.c"
+#line 1 "./asn1/lte-rrc/packet-lte-rrc-ettarr.c"
     &ett_lte_rrc_HandoverCommand,
     &ett_lte_rrc_T_criticalExtensions,
     &ett_lte_rrc_T_c1,
@@ -69859,7 +69859,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_MasterInformationBlock_SL,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 3683 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3683 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -69926,7 +69926,7 @@ void proto_register_lte_rrc(void) {
   /* Register the dissectors defined in lte-rrc.conf */
 
 /*--- Included file: packet-lte-rrc-dis-reg.c ---*/
-#line 1 "../../asn1/lte-rrc/packet-lte-rrc-dis-reg.c"
+#line 1 "./asn1/lte-rrc/packet-lte-rrc-dis-reg.c"
   register_dissector("lte-rrc.bcch.bch", dissect_BCCH_BCH_Message_PDU, proto_lte_rrc);
   register_dissector("lte-rrc.bcch.dl.sch", dissect_BCCH_DL_SCH_Message_PDU, proto_lte_rrc);
   register_dissector("lte-rrc.mcch", dissect_MCCH_Message_PDU, proto_lte_rrc);
@@ -69942,7 +69942,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 3748 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3748 "./asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
   register_cleanup_routine(&lte_rrc_cleanup_protocol);

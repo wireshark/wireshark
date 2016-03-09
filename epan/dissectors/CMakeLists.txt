@@ -21,6 +21,7 @@
 
 ADD_CUSTOM_CMAKE_INCLUDE()
 
+add_subdirectory(asn1 EXCLUDE_FROM_ALL)
 add_subdirectory(dcerpc)
 
 include_directories(

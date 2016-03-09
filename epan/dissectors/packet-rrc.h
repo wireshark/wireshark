@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-rrc.h                                                               */
-/* ../../tools/asn2wrs.py -p rrc -c ./rrc.cnf -s ./packet-rrc-template -D . -O ../../epan/dissectors Class-definitions.asn PDU-definitions.asn InformationElements.asn Constant-definitions.asn Internode-definitions.asn */
+/* asn2wrs.py -p rrc -c ./rrc.cnf -s ./packet-rrc-template -D . -O ../.. Class-definitions.asn PDU-definitions.asn InformationElements.asn Constant-definitions.asn Internode-definitions.asn */
 
 /* Input file: packet-rrc-template.h */
 
-#line 1 "../../asn1/rrc/packet-rrc-template.h"
+#line 1 "./asn1/rrc/packet-rrc-template.h"
 /* packet-rrc-template.h
  * Copyright 2009, Anders Broman <anders.broman@ericsson.com>
  *
@@ -36,7 +36,7 @@
 extern int proto_rrc;
 
 /*--- Included file: packet-rrc-exp.h ---*/
-#line 1 "../../asn1/rrc/packet-rrc-exp.h"
+#line 1 "./asn1/rrc/packet-rrc-exp.h"
 int dissect_rrc_InterRATHandoverInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_rrc_HandoverToUTRANCommand_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 int dissect_rrc_InterRATHandoverInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -50,7 +50,7 @@ int dissect_rrc_ToTargetRNC_Container_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 int dissect_rrc_TargetRNC_ToSourceRNC_Container_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-rrc-exp.h ---*/
-#line 30 "../../asn1/rrc/packet-rrc-template.h"
+#line 30 "./asn1/rrc/packet-rrc-template.h"
 
 enum rrc_message_type {
   RRC_MESSAGE_TYPE_INVALID    = 0,

@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-sv.h                                                                */
-/* ../../tools/asn2wrs.py -b -p sv -c ./sv.cnf -s ./packet-sv-template -D . -O ../../epan/dissectors sv.asn */
+/* asn2wrs.py -b -p sv -c ./sv.cnf -s ./packet-sv-template -D . -O ../.. sv.asn */
 
 /* Input file: packet-sv-template.h */
 
-#line 1 "../../asn1/sv/packet-sv-template.h"
+#line 1 "./asn1/sv/packet-sv-template.h"
 /* packet-sv.h
  * Routines for IEC 61850 Sampled Vales packet dissection
  * Michael Bernhard 2008

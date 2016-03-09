@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-x509af.c                                                            */
-/* ../../tools/asn2wrs.py -b -p x509af -c ./x509af.cnf -s ./packet-x509af-template -D . -O ../../epan/dissectors AuthenticationFramework.asn */
+/* asn2wrs.py -b -p x509af -c ./x509af.cnf -s ./packet-x509af-template -D . -O ../.. AuthenticationFramework.asn */
 
 /* Input file: packet-x509af-template.c */
 
-#line 1 "../../asn1/x509af/packet-x509af-template.c"
+#line 1 "./asn1/x509af/packet-x509af-template.c"
 /* packet-x509af.c
  * Routines for X.509 Authentication Framework packet dissection
  *  Ronnie Sahlberg 2004
@@ -59,7 +59,7 @@ static int hf_x509af_algorithm_id = -1;
 static int hf_x509af_extension_id = -1;
 
 /*--- Included file: packet-x509af-hf.c ---*/
-#line 1 "../../asn1/x509af/packet-x509af-hf.c"
+#line 1 "./asn1/x509af/packet-x509af-hf.c"
 static int hf_x509af_x509af_Certificate_PDU = -1;  /* Certificate */
 static int hf_x509af_CertificatePair_PDU = -1;    /* CertificatePair */
 static int hf_x509af_CertificateList_PDU = -1;    /* CertificateList */
@@ -136,13 +136,13 @@ static int hf_x509af_q = -1;                      /* INTEGER */
 static int hf_x509af_g = -1;                      /* INTEGER */
 
 /*--- End of included file: packet-x509af-hf.c ---*/
-#line 53 "../../asn1/x509af/packet-x509af-template.c"
+#line 53 "./asn1/x509af/packet-x509af-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pkix_crl = -1;
 
 /*--- Included file: packet-x509af-ett.c ---*/
-#line 1 "../../asn1/x509af/packet-x509af-ett.c"
+#line 1 "./asn1/x509af/packet-x509af-ett.c"
 static gint ett_x509af_Certificate = -1;
 static gint ett_x509af_T_signedCertificate = -1;
 static gint ett_x509af_SubjectName = -1;
@@ -177,13 +177,13 @@ static gint ett_x509af_SET_OF_AttributeType = -1;
 static gint ett_x509af_DSS_Params = -1;
 
 /*--- End of included file: packet-x509af-ett.c ---*/
-#line 57 "../../asn1/x509af/packet-x509af-template.c"
+#line 57 "./asn1/x509af/packet-x509af-template.c"
 static const char *algorithm_id = NULL;
 static void
 x509af_export_publickey(tvbuff_t *tvb, asn1_ctx_t *actx, int offset, int len);
 
 /*--- Included file: packet-x509af-fn.c ---*/
-#line 1 "../../asn1/x509af/packet-x509af-fn.c"
+#line 1 "./asn1/x509af/packet-x509af-fn.c"
 
 const value_string x509af_Version_vals[] = {
   {   0, "v1" },
@@ -215,7 +215,7 @@ dissect_x509af_CertificateSerialNumber(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_x509af_T_algorithmId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 69 "../../asn1/x509af/x509af.cnf"
+#line 69 "./asn1/x509af/x509af.cnf"
   const char *name;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509af_algorithm_id, &actx->external.direct_reference);
@@ -244,7 +244,7 @@ dissect_x509af_T_algorithmId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_x509af_T_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 88 "../../asn1/x509af/x509af.cnf"
+#line 88 "./asn1/x509af/x509af.cnf"
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -335,7 +335,7 @@ static const ber_choice_t SubjectName_choice[] = {
 
 static int
 dissect_x509af_SubjectName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 147 "../../asn1/x509af/x509af.cnf"
+#line 147 "./asn1/x509af/x509af.cnf"
 
   const char* str;
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -355,7 +355,7 @@ dissect_x509af_SubjectName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_x509af_T_subjectPublicKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 97 "../../asn1/x509af/x509af.cnf"
+#line 97 "./asn1/x509af/x509af.cnf"
   tvbuff_t *bs_tvb = NULL;
 
   dissect_ber_bitstring(FALSE, actx, NULL, tvb, offset,
@@ -385,13 +385,13 @@ static const ber_sequence_t SubjectPublicKeyInfo_sequence[] = {
 
 int
 dissect_x509af_SubjectPublicKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 91 "../../asn1/x509af/x509af.cnf"
+#line 91 "./asn1/x509af/x509af.cnf"
   int orig_offset = offset;
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SubjectPublicKeyInfo_sequence, hf_index, ett_x509af_SubjectPublicKeyInfo);
 
-#line 93 "../../asn1/x509af/x509af.cnf"
+#line 93 "./asn1/x509af/x509af.cnf"
   x509af_export_publickey(tvb, actx, orig_offset, offset - orig_offset);
 
   return offset;
@@ -401,7 +401,7 @@ dissect_x509af_SubjectPublicKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_x509af_T_extnId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 126 "../../asn1/x509af/x509af.cnf"
+#line 126 "./asn1/x509af/x509af.cnf"
   const char *name;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509af_extension_id, &actx->external.direct_reference);
@@ -431,7 +431,7 @@ dissect_x509af_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_x509af_T_extnValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 137 "../../asn1/x509af/x509af.cnf"
+#line 137 "./asn1/x509af/x509af.cnf"
   gint8 ber_class;
   gboolean pc, ind;
   gint32 tag;
@@ -939,7 +939,7 @@ static int dissect_DSS_Params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-x509af-fn.c ---*/
-#line 61 "../../asn1/x509af/packet-x509af-template.c"
+#line 61 "./asn1/x509af/packet-x509af-template.c"
 
 /* Exports the SubjectPublicKeyInfo structure as gnutls_datum_t.
  * actx->private_data is assumed to be a gnutls_datum_t pointer which will be
@@ -1000,7 +1000,7 @@ void proto_register_x509af(void) {
         NULL, HFILL }},
 
 /*--- Included file: packet-x509af-hfarr.c ---*/
-#line 1 "../../asn1/x509af/packet-x509af-hfarr.c"
+#line 1 "./asn1/x509af/packet-x509af-hfarr.c"
     { &hf_x509af_x509af_Certificate_PDU,
       { "Certificate", "x509af.Certificate_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1299,7 +1299,7 @@ void proto_register_x509af(void) {
         "INTEGER", HFILL }},
 
 /*--- End of included file: packet-x509af-hfarr.c ---*/
-#line 120 "../../asn1/x509af/packet-x509af-template.c"
+#line 120 "./asn1/x509af/packet-x509af-template.c"
   };
 
   /* List of subtrees */
@@ -1307,7 +1307,7 @@ void proto_register_x509af(void) {
     &ett_pkix_crl,
 
 /*--- Included file: packet-x509af-ettarr.c ---*/
-#line 1 "../../asn1/x509af/packet-x509af-ettarr.c"
+#line 1 "./asn1/x509af/packet-x509af-ettarr.c"
     &ett_x509af_Certificate,
     &ett_x509af_T_signedCertificate,
     &ett_x509af_SubjectName,
@@ -1342,7 +1342,7 @@ void proto_register_x509af(void) {
     &ett_x509af_DSS_Params,
 
 /*--- End of included file: packet-x509af-ettarr.c ---*/
-#line 126 "../../asn1/x509af/packet-x509af-template.c"
+#line 126 "./asn1/x509af/packet-x509af-template.c"
   };
 
   /* Register protocol */
@@ -1373,7 +1373,7 @@ void proto_reg_handoff_x509af(void) {
 
 
 /*--- Included file: packet-x509af-dis-tab.c ---*/
-#line 1 "../../asn1/x509af/packet-x509af-dis-tab.c"
+#line 1 "./asn1/x509af/packet-x509af-dis-tab.c"
   register_ber_oid_dissector("2.5.4.36", dissect_x509af_Certificate_PDU, proto_x509af, "id-at-userCertificate");
   register_ber_oid_dissector("2.5.4.37", dissect_x509af_Certificate_PDU, proto_x509af, "id-at-cAcertificate");
   register_ber_oid_dissector("2.5.4.38", dissect_CertificateList_PDU, proto_x509af, "id-at-authorityRevocationList");
@@ -1386,7 +1386,7 @@ void proto_reg_handoff_x509af(void) {
 
 
 /*--- End of included file: packet-x509af-dis-tab.c ---*/
-#line 155 "../../asn1/x509af/packet-x509af-template.c"
+#line 155 "./asn1/x509af/packet-x509af-template.c"
 
 	/*XXX these should really go to a better place but since
 	  I have not that ITU standard, I'll put it here for the time

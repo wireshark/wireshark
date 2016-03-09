@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-ros.h                                                               */
-/* ../../tools/asn2wrs.py -b -p ros -c ./ros.cnf -s ./packet-ros-template -D . -O ../../epan/dissectors ros.asn Remote-Operations-Information-Objects.asn */
+/* asn2wrs.py -b -p ros -c ./ros.cnf -s ./packet-ros-template -D . -O ../.. ros.asn Remote-Operations-Information-Objects.asn */
 
 /* Input file: packet-ros-template.h */
 
-#line 1 "../../asn1/ros/packet-ros-template.h"
+#line 1 "./asn1/ros/packet-ros-template.h"
 /* packet-ros.h
  * Routines for ROS packet dissection
  * Graeme Lunt 2005
@@ -34,7 +34,7 @@
 
 
 /*--- Included file: packet-ros-exp.h ---*/
-#line 1 "../../asn1/ros/packet-ros-exp.h"
+#line 1 "./asn1/ros/packet-ros-exp.h"
 extern const value_string ros_ROS_vals[];
 extern const value_string ros_InvokeId_vals[];
 extern const value_string ros_Code_vals[];
@@ -43,7 +43,7 @@ int dissect_ros_InvokeId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 int dissect_ros_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-ros-exp.h ---*/
-#line 28 "../../asn1/ros/packet-ros-template.h"
+#line 28 "./asn1/ros/packet-ros-template.h"
 
 # include "packet-ses.h"
 

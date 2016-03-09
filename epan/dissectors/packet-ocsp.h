@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-ocsp.h                                                              */
-/* ../../tools/asn2wrs.py -b -p ocsp -c ./ocsp.cnf -s ./packet-ocsp-template -D . -O ../../epan/dissectors OCSP.asn */
+/* asn2wrs.py -b -p ocsp -c ./ocsp.cnf -s ./packet-ocsp-template -D . -O ../.. OCSP.asn */
 
 /* Input file: packet-ocsp-template.h */
 
-#line 1 "../../asn1/ocsp/packet-ocsp-template.h"
+#line 1 "./asn1/ocsp/packet-ocsp-template.h"
 /* packet-ocsp.h
  * Routines for Online Certificate Status Protocol (RFC2560) packet dissection
  *  Ronnie Sahlberg 2004

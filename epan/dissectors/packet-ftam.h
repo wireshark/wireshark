@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-ftam.h                                                              */
-/* ../../tools/asn2wrs.py -b -p ftam -c ./ftam.cnf -s ./packet-ftam-template -D . -O ../../epan/dissectors ISO8571-FTAM.asn */
+/* asn2wrs.py -b -p ftam -c ./ftam.cnf -s ./packet-ftam-template -D . -O ../.. ISO8571-FTAM.asn */
 
 /* Input file: packet-ftam-template.h */
 
-#line 1 "../../asn1/ftam/packet-ftam-template.h"
+#line 1 "./asn1/ftam/packet-ftam-template.h"
 /* packet-ftam.h
  * Routine to dissect OSI ISO 8571 FTAM Protocol packets
  * based on the ASN.1 specification from http://www.itu.int/ITU-T/asn1/database/iso/8571-4/1988/
@@ -39,7 +39,7 @@
 
 
 /*--- Included file: packet-ftam-exp.h ---*/
-#line 1 "../../asn1/ftam/packet-ftam-exp.h"
+#line 1 "./asn1/ftam/packet-ftam-exp.h"
 extern const value_string ftam_Date_and_Time_Attribute_vals[];
 extern const value_string ftam_Object_Availability_Attribute_vals[];
 extern const value_string ftam_Object_Size_Attribute_vals[];
@@ -56,6 +56,6 @@ int dissect_ftam_Attribute_Extensions(gboolean implicit_tag _U_, tvbuff_t *tvb _
 int dissect_ftam_Pathname(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-ftam-exp.h ---*/
-#line 33 "../../asn1/ftam/packet-ftam-template.h"
+#line 33 "./asn1/ftam/packet-ftam-template.h"
 
 #endif  /* PACKET_FTAM_H */

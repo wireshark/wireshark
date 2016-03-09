@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-novell_pkis.c                                                       */
-/* ../../tools/asn2wrs.py -b -u -p novell_pkis -c ./novell_pkis.cnf -s ./packet-novell_pkis-template -D . -O ../../epan/dissectors novell_pkis.asn */
+/* asn2wrs.py -b -u -p novell_pkis -c ./novell_pkis.cnf -s ./packet-novell_pkis-template -D . -O ../.. novell_pkis.asn */
 
 /* Input file: packet-novell_pkis-template.c */
 
-#line 1 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 1 "./asn1/novell_pkis/packet-novell_pkis-template.c"
 /* packet-novell_pkis.c
  *
  * Wireshark - Network traffic analyzer
@@ -41,7 +41,7 @@
 
 
 /*--- Included file: packet-novell_pkis-hf.c ---*/
-#line 1 "../../asn1/novell_pkis/packet-novell_pkis-hf.c"
+#line 1 "./asn1/novell_pkis/packet-novell_pkis-hf.c"
 static int hf_novell_pkis_SecurityAttributes_PDU = -1;  /* SecurityAttributes */
 static int hf_novell_pkis_RelianceLimits_PDU = -1;  /* RelianceLimits */
 static int hf_novell_pkis_versionNumber = -1;     /* OCTET_STRING_SIZE_2 */
@@ -89,10 +89,10 @@ static int hf_novell_pkis_amount = -1;            /* INTEGER */
 static int hf_novell_pkis_amtExp10 = -1;          /* INTEGER */
 
 /*--- End of included file: packet-novell_pkis-hf.c ---*/
-#line 35 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 35 "./asn1/novell_pkis/packet-novell_pkis-template.c"
 
 /*--- Included file: packet-novell_pkis-ett.c ---*/
-#line 1 "../../asn1/novell_pkis/packet-novell_pkis-ett.c"
+#line 1 "./asn1/novell_pkis/packet-novell_pkis-ett.c"
 static gint ett_novell_pkis_SecurityAttributes = -1;
 static gint ett_novell_pkis_GLBExtensions = -1;
 static gint ett_novell_pkis_Quality = -1;
@@ -111,10 +111,10 @@ static gint ett_novell_pkis_RelianceLimits = -1;
 static gint ett_novell_pkis_MonetaryValue = -1;
 
 /*--- End of included file: packet-novell_pkis-ett.c ---*/
-#line 36 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 36 "./asn1/novell_pkis/packet-novell_pkis-template.c"
 
 /*--- Included file: packet-novell_pkis-fn.c ---*/
-#line 1 "../../asn1/novell_pkis/packet-novell_pkis-fn.c"
+#line 1 "./asn1/novell_pkis/packet-novell_pkis-fn.c"
 
 
 static int
@@ -509,7 +509,7 @@ static int dissect_RelianceLimits_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-novell_pkis-fn.c ---*/
-#line 37 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 37 "./asn1/novell_pkis/packet-novell_pkis-template.c"
 
 void proto_register_novell_pkis (void);
 void proto_reg_handoff_novell_pkis(void);
@@ -520,13 +520,13 @@ void proto_reg_handoff_novell_pkis(void)
 {
 
 /*--- Included file: packet-novell_pkis-dis-tab.c ---*/
-#line 1 "../../asn1/novell_pkis/packet-novell_pkis-dis-tab.c"
+#line 1 "./asn1/novell_pkis/packet-novell_pkis-dis-tab.c"
   register_ber_oid_dissector("2.16.840.1.113719.1.9.4.1", dissect_SecurityAttributes_PDU, proto_novell_pkis, "pa-sa");
   register_ber_oid_dissector("2.16.840.1.113719.1.9.4.2", dissect_RelianceLimits_PDU, proto_novell_pkis, "pa-rl");
 
 
 /*--- End of included file: packet-novell_pkis-dis-tab.c ---*/
-#line 46 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 46 "./asn1/novell_pkis/packet-novell_pkis-template.c"
 }
 
 void proto_register_novell_pkis (void)
@@ -534,7 +534,7 @@ void proto_register_novell_pkis (void)
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-novell_pkis-hfarr.c ---*/
-#line 1 "../../asn1/novell_pkis/packet-novell_pkis-hfarr.c"
+#line 1 "./asn1/novell_pkis/packet-novell_pkis-hfarr.c"
     { &hf_novell_pkis_SecurityAttributes_PDU,
       { "SecurityAttributes", "novell_pkis.SecurityAttributes_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -717,12 +717,12 @@ void proto_register_novell_pkis (void)
         "INTEGER", HFILL }},
 
 /*--- End of included file: packet-novell_pkis-hfarr.c ---*/
-#line 52 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 52 "./asn1/novell_pkis/packet-novell_pkis-template.c"
   };
   static gint *ett[] = {
 
 /*--- Included file: packet-novell_pkis-ettarr.c ---*/
-#line 1 "../../asn1/novell_pkis/packet-novell_pkis-ettarr.c"
+#line 1 "./asn1/novell_pkis/packet-novell_pkis-ettarr.c"
     &ett_novell_pkis_SecurityAttributes,
     &ett_novell_pkis_GLBExtensions,
     &ett_novell_pkis_Quality,
@@ -741,7 +741,7 @@ void proto_register_novell_pkis (void)
     &ett_novell_pkis_MonetaryValue,
 
 /*--- End of included file: packet-novell_pkis-ettarr.c ---*/
-#line 55 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 55 "./asn1/novell_pkis/packet-novell_pkis-template.c"
   };
 
   /* execute protocol initialization only once */

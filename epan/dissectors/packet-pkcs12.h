@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-pkcs12.h                                                            */
-/* ../../tools/asn2wrs.py -b -p pkcs12 -c ./pkcs12.cnf -s ./packet-pkcs12-template -D . -O ../../epan/dissectors pkcs12.asn */
+/* asn2wrs.py -b -p pkcs12 -c ./pkcs12.cnf -s ./packet-pkcs12-template -D . -O ../.. pkcs12.asn */
 
 /* Input file: packet-pkcs12-template.h */
 
-#line 1 "../../asn1/pkcs12/packet-pkcs12-template.h"
+#line 1 "./asn1/pkcs12/packet-pkcs12-template.h"
 /* packet-pkcs12.h
  * Routines for PKCS#12 Personal Information Exchange packet dissection
  * Graeme Lunt 2006

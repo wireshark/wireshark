@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-ansi_tcap.h                                                         */
-/* ../../tools/asn2wrs.py -b -p ansi_tcap -c ./ansi_tcap.cnf -s ./packet-ansi_tcap-template -D . -O ../../epan/dissectors TCAP-Remote-Operations-Information-Objects.asn TCAPPackage.asn */
+/* asn2wrs.py -b -p ansi_tcap -c ./ansi_tcap.cnf -s ./packet-ansi_tcap-template -D . -O ../.. TCAP-Remote-Operations-Information-Objects.asn TCAPPackage.asn */
 
 /* Input file: packet-ansi_tcap-template.h */
 
-#line 1 "../../asn1/ansi_tcap/packet-ansi_tcap-template.h"
+#line 1 "./asn1/ansi_tcap/packet-ansi_tcap-template.h"
 /* packet-ansi_tcap.h
  *
  * Copyright 2007 Anders Broman <anders.broman@ericsson.com>

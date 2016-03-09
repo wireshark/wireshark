@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-ldap.h                                                              */
-/* ../../tools/asn2wrs.py -b -p ldap -c ./ldap.cnf -s ./packet-ldap-template -D . -O ../../epan/dissectors Lightweight-Directory-Access-Protocol-V3.asn */
+/* asn2wrs.py -b -p ldap -c ./ldap.cnf -s ./packet-ldap-template -D . -O ../.. Lightweight-Directory-Access-Protocol-V3.asn */
 
 /* Input file: packet-ldap-template.h */
 
-#line 1 "../../asn1/ldap/packet-ldap-template.h"
+#line 1 "./asn1/ldap/packet-ldap-template.h"
 /* packet-ldap.h
  * Routines for ros packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>

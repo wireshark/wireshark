@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-p1.c                                                                */
-/* ../../tools/asn2wrs.py -b -C -p p1 -c ./p1.cnf -s ./packet-p1-template -D . -O ../../epan/dissectors MTAAbstractService.asn MTSAbstractService.asn MTSAccessProtocol.asn MHSProtocolObjectIdentifiers.asn MTSUpperBounds.asn */
+/* asn2wrs.py -b -C -p p1 -c ./p1.cnf -s ./packet-p1-template -D . -O ../.. MTAAbstractService.asn MTSAbstractService.asn MTSAccessProtocol.asn MHSProtocolObjectIdentifiers.asn MTSUpperBounds.asn */
 
 /* Input file: packet-p1-template.c */
 
-#line 1 "../../asn1/p1/packet-p1-template.c"
+#line 1 "./asn1/p1/packet-p1-template.c"
 /* packet-p1.c
  * Routines for X.411 (X.400 Message Transfer)  packet dissection
  * Graeme Lunt 2005
@@ -69,7 +69,7 @@ static int hf_p1_MTABindError_PDU = -1;
 
 
 /*--- Included file: packet-p1-hf.c ---*/
-#line 1 "../../asn1/p1/packet-p1-hf.c"
+#line 1 "./asn1/p1/packet-p1-hf.c"
 static int hf_p1_InternalTraceInformation_PDU = -1;  /* InternalTraceInformation */
 static int hf_p1_InternalTraceInformationElement_PDU = -1;  /* InternalTraceInformationElement */
 static int hf_p1_TraceInformation_PDU = -1;       /* TraceInformation */
@@ -634,7 +634,7 @@ static int hf_p1_G3FacsimileNonBasicParameters_jpeg = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_processable_mode_26 = -1;
 
 /*--- End of included file: packet-p1-hf.c ---*/
-#line 63 "../../asn1/p1/packet-p1-template.c"
+#line 63 "./asn1/p1/packet-p1-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_p1 = -1;
@@ -647,7 +647,7 @@ static gint ett_p1_unknown_extension_attribute_type = -1;
 static gint ett_p1_unknown_tokendata_type = -1;
 
 /*--- Included file: packet-p1-ett.c ---*/
-#line 1 "../../asn1/p1/packet-p1-ett.c"
+#line 1 "./asn1/p1/packet-p1-ett.c"
 static gint ett_p1_MTABindArgument = -1;
 static gint ett_p1_AuthenticatedArgument = -1;
 static gint ett_p1_MTABindResult = -1;
@@ -829,7 +829,7 @@ static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientMessageSubmissio
 static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields = -1;
 
 /*--- End of included file: packet-p1-ett.c ---*/
-#line 74 "../../asn1/p1/packet-p1-template.c"
+#line 74 "./asn1/p1/packet-p1-template.c"
 
 static expert_field ei_p1_unknown_extension_attribute_type = EI_INIT;
 static expert_field ei_p1_unknown_standard_extension = EI_INIT;
@@ -845,7 +845,7 @@ static dissector_table_t p1_tokendata_dissector_table;
 
 
 /*--- Included file: packet-p1-table.c ---*/
-#line 1 "../../asn1/p1/packet-p1-table.c"
+#line 1 "./asn1/p1/packet-p1-table.c"
 
 /* P3 ABSTRACT-OPERATIONS */
 const value_string p3_opr_code_string_vals[] = {
@@ -887,7 +887,7 @@ static const value_string p3_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-p1-table.c ---*/
-#line 88 "../../asn1/p1/packet-p1-template.c"
+#line 88 "./asn1/p1/packet-p1-template.c"
 
 #define P1_ADDRESS_CTX "p1-address-ctx"
 typedef struct p1_address_ctx {
@@ -966,7 +966,7 @@ static void do_address_str_tree(const char* addr, tvbuff_t* tvb_string, asn1_ctx
 
 
 /*--- Included file: packet-p1-fn.c ---*/
-#line 1 "../../asn1/p1/packet-p1-fn.c"
+#line 1 "./asn1/p1/packet-p1-fn.c"
 
 
 static int
@@ -980,7 +980,7 @@ dissect_p1_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
 
 static int
 dissect_p1_MTAName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 705 "../../asn1/p1/p1.cnf"
+#line 705 "./asn1/p1/p1.cnf"
 	tvbuff_t	*mtaname = NULL;
 	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
@@ -1058,7 +1058,7 @@ dissect_p1_TokenTypeIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_p1_TokenTypeData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1165 "../../asn1/p1/p1.cnf"
+#line 1165 "./asn1/p1/p1.cnf"
 
 	if(actx->external.direct_reference)
 		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, actx->private_data);
@@ -1169,7 +1169,7 @@ static const ber_choice_t Credentials_choice[] = {
 
 int
 dissect_p1_Credentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1173 "../../asn1/p1/p1.cnf"
+#line 1173 "./asn1/p1/p1.cnf"
   gint credentials = -1;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1248,7 +1248,7 @@ dissect_p1_SecurityCategoryIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 static int
 dissect_p1_SecurityCategoryValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 568 "../../asn1/p1/p1.cnf"
+#line 568 "./asn1/p1/p1.cnf"
 	const char *name;
 
 	if (actx->external.direct_reference) {
@@ -1428,7 +1428,7 @@ static const value_string p1_MTABindError_vals[] = {
 
 static int
 dissect_p1_MTABindError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1156 "../../asn1/p1/p1.cnf"
+#line 1156 "./asn1/p1/p1.cnf"
   int error = -1;
     offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             0U, ub_integer_options, hf_index, &error);
@@ -1445,7 +1445,7 @@ dissect_p1_MTABindError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_p1_T_x121_dcc_code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 853 "../../asn1/p1/p1.cnf"
+#line 853 "./asn1/p1/p1.cnf"
 	tvbuff_t	*nstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
@@ -1464,7 +1464,7 @@ dissect_p1_T_x121_dcc_code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_p1_T_iso_3166_alpha2_code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 811 "../../asn1/p1/p1.cnf"
+#line 811 "./asn1/p1/p1.cnf"
 	tvbuff_t	*nstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1505,7 +1505,7 @@ dissect_p1_CountryName_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_p1_CountryName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 606 "../../asn1/p1/p1.cnf"
+#line 606 "./asn1/p1/p1.cnf"
 	do_address("/C=", NULL, actx);
 
 	  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
@@ -1521,7 +1521,7 @@ dissect_p1_CountryName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_p1_T_numeric(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 860 "../../asn1/p1/p1.cnf"
+#line 860 "./asn1/p1/p1.cnf"
 	tvbuff_t	*nstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
@@ -1540,7 +1540,7 @@ dissect_p1_T_numeric(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_p1_T_printable(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 818 "../../asn1/p1/p1.cnf"
+#line 818 "./asn1/p1/p1.cnf"
 	tvbuff_t	*nstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1581,7 +1581,7 @@ dissect_p1_AdministrationDomainName_U(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 static int
 dissect_p1_AdministrationDomainName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 611 "../../asn1/p1/p1.cnf"
+#line 611 "./asn1/p1/p1.cnf"
 	do_address("/A=", NULL, actx);
 
 	  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
@@ -1597,7 +1597,7 @@ dissect_p1_AdministrationDomainName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_p1_T_numeric_private_domain_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 874 "../../asn1/p1/p1.cnf"
+#line 874 "./asn1/p1/p1.cnf"
 	tvbuff_t	*nstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
@@ -1616,7 +1616,7 @@ dissect_p1_T_numeric_private_domain_identifier(gboolean implicit_tag _U_, tvbuff
 
 static int
 dissect_p1_T_printable_private_domain_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 832 "../../asn1/p1/p1.cnf"
+#line 832 "./asn1/p1/p1.cnf"
 	tvbuff_t	*nstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1646,7 +1646,7 @@ static const ber_choice_t PrivateDomainIdentifier_choice[] = {
 
 static int
 dissect_p1_PrivateDomainIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 745 "../../asn1/p1/p1.cnf"
+#line 745 "./asn1/p1/p1.cnf"
 
 	do_address("/P=", NULL, actx);
 
@@ -1680,7 +1680,7 @@ dissect_p1_GlobalDomainIdentifier_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_p1_GlobalDomainIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1035 "../../asn1/p1/p1.cnf"
+#line 1035 "./asn1/p1/p1.cnf"
 	p1_address_ctx_t* ctx;
 
 	if (actx->subtree.tree_ctx == NULL) {
@@ -1714,7 +1714,7 @@ dissect_p1_GlobalDomainIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_p1_LocalIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1061 "../../asn1/p1/p1.cnf"
+#line 1061 "./asn1/p1/p1.cnf"
 	tvbuff_t	*id = NULL;
 	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
@@ -1755,7 +1755,7 @@ dissect_p1_MTSIdentifier_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_p1_MTSIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1075 "../../asn1/p1/p1.cnf"
+#line 1075 "./asn1/p1/p1.cnf"
 
 	set_do_address(actx, TRUE);
 
@@ -1774,7 +1774,7 @@ dissect_p1_MTSIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_p1_MessageIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1030 "../../asn1/p1/p1.cnf"
+#line 1030 "./asn1/p1/p1.cnf"
 	actx->subtree.tree = NULL;
 
 	  offset = dissect_p1_MTSIdentifier(implicit_tag, tvb, offset, actx, tree, hf_index);
@@ -1789,7 +1789,7 @@ dissect_p1_MessageIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_p1_X121Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 722 "../../asn1/p1/p1.cnf"
+#line 722 "./asn1/p1/p1.cnf"
 	tvbuff_t	*string = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
@@ -1817,7 +1817,7 @@ dissect_p1_NetworkAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_p1_TerminalIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 732 "../../asn1/p1/p1.cnf"
+#line 732 "./asn1/p1/p1.cnf"
 	tvbuff_t	*string = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1836,7 +1836,7 @@ dissect_p1_TerminalIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_p1_T_numeric_private_domain_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 867 "../../asn1/p1/p1.cnf"
+#line 867 "./asn1/p1/p1.cnf"
 	tvbuff_t	*nstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
@@ -1855,7 +1855,7 @@ dissect_p1_T_numeric_private_domain_name(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_p1_T_printable_private_domain_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 825 "../../asn1/p1/p1.cnf"
+#line 825 "./asn1/p1/p1.cnf"
 	tvbuff_t	*nstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1885,7 +1885,7 @@ static const ber_choice_t PrivateDomainName_choice[] = {
 
 static int
 dissect_p1_PrivateDomainName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 739 "../../asn1/p1/p1.cnf"
+#line 739 "./asn1/p1/p1.cnf"
 
 	do_address("/P=", NULL, actx);
 
@@ -1903,7 +1903,7 @@ dissect_p1_PrivateDomainName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_p1_OrganizationName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 754 "../../asn1/p1/p1.cnf"
+#line 754 "./asn1/p1/p1.cnf"
 	tvbuff_t	*string = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1933,7 +1933,7 @@ dissect_p1_NumericUserIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_p1_T_printable_surname(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 915 "../../asn1/p1/p1.cnf"
+#line 915 "./asn1/p1/p1.cnf"
 	tvbuff_t	*pstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1952,7 +1952,7 @@ dissect_p1_T_printable_surname(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_p1_T_printable_given_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 922 "../../asn1/p1/p1.cnf"
+#line 922 "./asn1/p1/p1.cnf"
 	tvbuff_t	*pstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1971,7 +1971,7 @@ dissect_p1_T_printable_given_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_p1_T_printable_initials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 929 "../../asn1/p1/p1.cnf"
+#line 929 "./asn1/p1/p1.cnf"
 	tvbuff_t	*pstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -1990,7 +1990,7 @@ dissect_p1_T_printable_initials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_p1_T_printable_generation_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 936 "../../asn1/p1/p1.cnf"
+#line 936 "./asn1/p1/p1.cnf"
 	tvbuff_t	*pstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -2026,7 +2026,7 @@ dissect_p1_PersonalName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_p1_OrganizationalUnitName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 774 "../../asn1/p1/p1.cnf"
+#line 774 "./asn1/p1/p1.cnf"
 	tvbuff_t	*string = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -2070,7 +2070,7 @@ static const ber_sequence_t BuiltInStandardAttributes_sequence[] = {
 
 static int
 dissect_p1_BuiltInStandardAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1092 "../../asn1/p1/p1.cnf"
+#line 1092 "./asn1/p1/p1.cnf"
 	actx->subtree.tree = tree;
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -2086,7 +2086,7 @@ dissect_p1_BuiltInStandardAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 static int
 dissect_p1_T_printable_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 971 "../../asn1/p1/p1.cnf"
+#line 971 "./asn1/p1/p1.cnf"
 	tvbuff_t	*pstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -2105,7 +2105,7 @@ dissect_p1_T_printable_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_p1_T_printable_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 978 "../../asn1/p1/p1.cnf"
+#line 978 "./asn1/p1/p1.cnf"
 	tvbuff_t	*pstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -2129,7 +2129,7 @@ static const ber_sequence_t BuiltInDomainDefinedAttribute_sequence[] = {
 
 static int
 dissect_p1_BuiltInDomainDefinedAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 985 "../../asn1/p1/p1.cnf"
+#line 985 "./asn1/p1/p1.cnf"
 	actx->value_ptr = wmem_strbuf_new(wmem_packet_scope(), "");
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -2212,7 +2212,7 @@ dissect_p1_ExtensionAttributeType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_p1_T_extension_attribute_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 582 "../../asn1/p1/p1.cnf"
+#line 582 "./asn1/p1/p1.cnf"
 
 	proto_item_append_text(tree, " (%s)", val_to_str(actx->external.indirect_reference, p1_ExtensionAttributeType_vals, "extension-attribute-type %d"));
 	if (!actx->pinfo->private_table) {
@@ -2287,7 +2287,7 @@ dissect_p1_ORName_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 int
 dissect_p1_ORName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1011 "../../asn1/p1/p1.cnf"
+#line 1011 "./asn1/p1/p1.cnf"
 	p1_address_ctx_t* ctx;
 
 	if (actx->subtree.tree_ctx == NULL) {
@@ -2503,7 +2503,7 @@ static const value_string p1_BuiltInContentType_U_vals[] = {
 
 static int
 dissect_p1_BuiltInContentType_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 653 "../../asn1/p1/p1.cnf"
+#line 653 "./asn1/p1/p1.cnf"
 	static guint32	ict = -1;
 	p1_address_ctx_t* ctx;
 
@@ -2548,7 +2548,7 @@ dissect_p1_BuiltInContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 int
 dissect_p1_ExtendedContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 632 "../../asn1/p1/p1.cnf"
+#line 632 "./asn1/p1/p1.cnf"
 	const char *name = NULL;
 	p1_address_ctx_t* ctx;
 
@@ -2679,7 +2679,7 @@ dissect_p1_PerMessageIndicators(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_p1_Time(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1134 "../../asn1/p1/p1.cnf"
+#line 1134 "./asn1/p1/p1.cnf"
 	tvbuff_t *arrival = NULL;
 	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
@@ -2744,7 +2744,7 @@ dissect_p1_T_bilateral_domain(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_p1_T_bilateral_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1200 "../../asn1/p1/p1.cnf"
+#line 1200 "./asn1/p1/p1.cnf"
 	proto_item *item = NULL;
 	int	    loffset = 0;
 	guint32	    len = 0;
@@ -2812,7 +2812,7 @@ static const value_string p1_RoutingAction_vals[] = {
 
 static int
 dissect_p1_RoutingAction(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1146 "../../asn1/p1/p1.cnf"
+#line 1146 "./asn1/p1/p1.cnf"
 	int action = 0;
 
 	  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2873,7 +2873,7 @@ static const ber_sequence_t DomainSuppliedInformation_set[] = {
 
 static int
 dissect_p1_DomainSuppliedInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1113 "../../asn1/p1/p1.cnf"
+#line 1113 "./asn1/p1/p1.cnf"
 
 	set_do_address(actx, FALSE);
 
@@ -2898,7 +2898,7 @@ static const ber_sequence_t TraceInformationElement_sequence[] = {
 
 static int
 dissect_p1_TraceInformationElement(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1097 "../../asn1/p1/p1.cnf"
+#line 1097 "./asn1/p1/p1.cnf"
 
 	set_do_address(actx, TRUE);
 
@@ -2989,7 +2989,7 @@ static const value_string p1_StandardExtension_vals[] = {
 
 static int
 dissect_p1_StandardExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 618 "../../asn1/p1/p1.cnf"
+#line 618 "./asn1/p1/p1.cnf"
 	actx->external.indirect_ref_present = TRUE;
 	actx->external.direct_ref_present = FALSE;
 	  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -3005,7 +3005,7 @@ dissect_p1_StandardExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_p1_T_private_extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 623 "../../asn1/p1/p1.cnf"
+#line 623 "./asn1/p1/p1.cnf"
 	actx->external.indirect_ref_present = FALSE;
 	actx->external.direct_reference = NULL;
 	  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
@@ -3060,7 +3060,7 @@ dissect_p1_Criticality(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_p1_ExtensionValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 542 "../../asn1/p1/p1.cnf"
+#line 542 "./asn1/p1/p1.cnf"
 	const char *name;
 
 	if(actx->external.indirect_ref_present) {
@@ -3242,7 +3242,7 @@ dissect_p1_MessageTransferEnvelope(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 int
 dissect_p1_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 677 "../../asn1/p1/p1.cnf"
+#line 677 "./asn1/p1/p1.cnf"
 	tvbuff_t *next_tvb;
 	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
@@ -3436,7 +3436,7 @@ dissect_p1_SubjectIntermediateTraceInformation(gboolean implicit_tag _U_, tvbuff
 
 static int
 dissect_p1_AdditionalInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 524 "../../asn1/p1/p1.cnf"
+#line 524 "./asn1/p1/p1.cnf"
    proto_item *item = NULL;
    int         loffset = 0;
    guint32     len = 0;
@@ -3656,7 +3656,7 @@ static const ber_choice_t ReportType_choice[] = {
 
 static int
 dissect_p1_ReportType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1232 "../../asn1/p1/p1.cnf"
+#line 1232 "./asn1/p1/p1.cnf"
 	gint report = -1;
 
 	  offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -3796,7 +3796,7 @@ static const ber_choice_t MTS_APDU_choice[] = {
 
 static int
 dissect_p1_MTS_APDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1218 "../../asn1/p1/p1.cnf"
+#line 1218 "./asn1/p1/p1.cnf"
 	gint apdu = -1;
 
 	  offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -3853,7 +3853,7 @@ static const ber_sequence_t MTASuppliedInformation_set[] = {
 
 static int
 dissect_p1_MTASuppliedInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1122 "../../asn1/p1/p1.cnf"
+#line 1122 "./asn1/p1/p1.cnf"
 
 	set_do_address(actx, FALSE);
 
@@ -3879,7 +3879,7 @@ static const ber_sequence_t InternalTraceInformationElement_sequence[] = {
 
 static int
 dissect_p1_InternalTraceInformationElement(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1105 "../../asn1/p1/p1.cnf"
+#line 1105 "./asn1/p1/p1.cnf"
 
 	set_do_address(actx, TRUE);
 
@@ -4013,7 +4013,7 @@ static const ber_sequence_t MTSBindResult_set[] = {
 
 static int
 dissect_p1_MTSBindResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1256 "../../asn1/p1/p1.cnf"
+#line 1256 "./asn1/p1/p1.cnf"
 	/* TODO: there may be other entry points where this global should be initialized... */
 	actx->subtree.tree = NULL;
 
@@ -4146,7 +4146,7 @@ static const ber_sequence_t MessageSubmissionArgument_sequence[] = {
 
 static int
 dissect_p1_MessageSubmissionArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1241 "../../asn1/p1/p1.cnf"
+#line 1241 "./asn1/p1/p1.cnf"
 	p1_initialize_content_globals(actx, tree, TRUE);
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MessageSubmissionArgument_sequence, hf_index, ett_p1_MessageSubmissionArgument);
@@ -4720,7 +4720,7 @@ static const ber_sequence_t MessageDeliveryArgument_sequence[] = {
 
 static int
 dissect_p1_MessageDeliveryArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1246 "../../asn1/p1/p1.cnf"
+#line 1246 "./asn1/p1/p1.cnf"
 	p1_initialize_content_globals(actx, tree, TRUE);
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MessageDeliveryArgument_sequence, hf_index, ett_p1_MessageDeliveryArgument);
@@ -4830,7 +4830,7 @@ static const ber_sequence_t ReportDeliveryArgument_set[] = {
 
 static int
 dissect_p1_ReportDeliveryArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1251 "../../asn1/p1/p1.cnf"
+#line 1251 "./asn1/p1/p1.cnf"
 	p1_initialize_content_globals(actx, tree, TRUE);
 	  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               ReportDeliveryArgument_set, hf_index, ett_p1_ReportDeliveryArgument);
@@ -4968,7 +4968,7 @@ dissect_p1_RefusedArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_p1_T_refused_extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 603 "../../asn1/p1/p1.cnf"
+#line 603 "./asn1/p1/p1.cnf"
 /*XXX not implemented yet */
 
 
@@ -5043,7 +5043,7 @@ dissect_p1_UserName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_p1_T_x121_address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 846 "../../asn1/p1/p1.cnf"
+#line 846 "./asn1/p1/p1.cnf"
 	tvbuff_t	*nstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
@@ -5361,7 +5361,7 @@ dissect_p1_T_standard_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_p1_T_type_extensions_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 539 "../../asn1/p1/p1.cnf"
+#line 539 "./asn1/p1/p1.cnf"
 /*XXX not implemented yet */
 
 
@@ -5748,7 +5748,7 @@ static const ber_sequence_t ORAddress_sequence[] = {
 
 int
 dissect_p1_ORAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 990 "../../asn1/p1/p1.cnf"
+#line 990 "./asn1/p1/p1.cnf"
 	p1_address_ctx_t* ctx;
 
 	if (actx->subtree.tree_ctx == NULL) {
@@ -6191,7 +6191,7 @@ dissect_p1_CertificateSelectors(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_p1_CommonName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 794 "../../asn1/p1/p1.cnf"
+#line 794 "./asn1/p1/p1.cnf"
 	tvbuff_t	*string = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -6210,7 +6210,7 @@ dissect_p1_CommonName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_p1_TeletexCommonName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 804 "../../asn1/p1/p1.cnf"
+#line 804 "./asn1/p1/p1.cnf"
 	tvbuff_t	*string = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -6308,7 +6308,7 @@ dissect_p1_UniversalCommonName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_p1_TeletexOrganizationName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 764 "../../asn1/p1/p1.cnf"
+#line 764 "./asn1/p1/p1.cnf"
 	tvbuff_t	*string = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -6336,7 +6336,7 @@ dissect_p1_UniversalOrganizationName(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 static int
 dissect_p1_T_teletex_surname(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 943 "../../asn1/p1/p1.cnf"
+#line 943 "./asn1/p1/p1.cnf"
 	tvbuff_t	*tstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -6355,7 +6355,7 @@ dissect_p1_T_teletex_surname(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_p1_T_teletex_given_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 950 "../../asn1/p1/p1.cnf"
+#line 950 "./asn1/p1/p1.cnf"
 	tvbuff_t	*tstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -6374,7 +6374,7 @@ dissect_p1_T_teletex_given_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_p1_T_teletex_initials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 957 "../../asn1/p1/p1.cnf"
+#line 957 "./asn1/p1/p1.cnf"
 	tvbuff_t	*tstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -6393,7 +6393,7 @@ dissect_p1_T_teletex_initials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_p1_T_teletex_generation_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 964 "../../asn1/p1/p1.cnf"
+#line 964 "./asn1/p1/p1.cnf"
 	tvbuff_t	*tstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -6446,7 +6446,7 @@ dissect_p1_UniversalPersonalName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_p1_TeletexOrganizationalUnitName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 784 "../../asn1/p1/p1.cnf"
+#line 784 "./asn1/p1/p1.cnf"
 	tvbuff_t	*string = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -6511,7 +6511,7 @@ dissect_p1_PDSName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_p1_T_x121_dcc_code_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 881 "../../asn1/p1/p1.cnf"
+#line 881 "./asn1/p1/p1.cnf"
 	tvbuff_t	*nstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
@@ -6530,7 +6530,7 @@ dissect_p1_T_x121_dcc_code_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_p1_T_iso_3166_alpha2_code_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 839 "../../asn1/p1/p1.cnf"
+#line 839 "./asn1/p1/p1.cnf"
 	tvbuff_t	*nstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
@@ -6571,7 +6571,7 @@ dissect_p1_PhysicalDeliveryCountryName(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_p1_T_numeric_code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 888 "../../asn1/p1/p1.cnf"
+#line 888 "./asn1/p1/p1.cnf"
 	tvbuff_t	*nstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
@@ -6995,7 +6995,7 @@ dissect_p1_TerminalType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_p1_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 896 "../../asn1/p1/p1.cnf"
+#line 896 "./asn1/p1/p1.cnf"
 	tvbuff_t	*tstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -7014,7 +7014,7 @@ dissect_p1_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_p1_T_teletex_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 903 "../../asn1/p1/p1.cnf"
+#line 903 "./asn1/p1/p1.cnf"
 	tvbuff_t	*tstring = NULL;
 
 	  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -7038,7 +7038,7 @@ static const ber_sequence_t TeletexDomainDefinedAttribute_sequence[] = {
 
 static int
 dissect_p1_TeletexDomainDefinedAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 910 "../../asn1/p1/p1.cnf"
+#line 910 "./asn1/p1/p1.cnf"
 	actx->value_ptr = wmem_strbuf_new(wmem_packet_scope(), "");
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -7101,7 +7101,7 @@ static const ber_sequence_t MTANameAndOptionalGDI_sequence[] = {
 
 static int
 dissect_p1_MTANameAndOptionalGDI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1083 "../../asn1/p1/p1.cnf"
+#line 1083 "./asn1/p1/p1.cnf"
 
 	set_do_address(actx, TRUE);
 
@@ -7161,7 +7161,7 @@ dissect_p1_TokenDataType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_p1_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1185 "../../asn1/p1/p1.cnf"
+#line 1185 "./asn1/p1/p1.cnf"
 
 	proto_item_append_text(tree, " (%s)", val_to_str(actx->external.indirect_reference, p1_TokenDataType_vals, "tokendata-type %d"));
 	if (dissector_try_uint(p1_tokendata_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
@@ -8386,11 +8386,11 @@ static int dissect_SecurityClassification_PDU(tvbuff_t *tvb _U_, packet_info *pi
 
 
 /*--- End of included file: packet-p1-fn.c ---*/
-#line 165 "../../asn1/p1/packet-p1-template.c"
+#line 165 "./asn1/p1/packet-p1-template.c"
 
 
 /*--- Included file: packet-p1-table11.c ---*/
-#line 1 "../../asn1/p1/packet-p1-table11.c"
+#line 1 "./asn1/p1/packet-p1-table11.c"
 
 static const ros_opr_t p3_opr_tab[] = {
   /* mts-bind */
@@ -8418,10 +8418,10 @@ static const ros_opr_t p3_opr_tab[] = {
 
 
 /*--- End of included file: packet-p1-table11.c ---*/
-#line 167 "../../asn1/p1/packet-p1-template.c"
+#line 167 "./asn1/p1/packet-p1-template.c"
 
 /*--- Included file: packet-p1-table21.c ---*/
-#line 1 "../../asn1/p1/packet-p1-table21.c"
+#line 1 "./asn1/p1/packet-p1-table21.c"
 
 static const ros_err_t p3_err_tab[] = {
   /* mts-bind-error*/
@@ -8463,7 +8463,7 @@ static const ros_err_t p3_err_tab[] = {
 
 
 /*--- End of included file: packet-p1-table21.c ---*/
-#line 168 "../../asn1/p1/packet-p1-template.c"
+#line 168 "./asn1/p1/packet-p1-template.c"
 
 static const ros_info_t p3_ros_info = {
   "P3",
@@ -8634,7 +8634,7 @@ void proto_register_p1(void) {
 
 
 /*--- Included file: packet-p1-hfarr.c ---*/
-#line 1 "../../asn1/p1/packet-p1-hfarr.c"
+#line 1 "./asn1/p1/packet-p1-hfarr.c"
     { &hf_p1_InternalTraceInformation_PDU,
       { "InternalTraceInformation", "p1.InternalTraceInformation",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -10881,7 +10881,7 @@ void proto_register_p1(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p1-hfarr.c ---*/
-#line 337 "../../asn1/p1/packet-p1-template.c"
+#line 337 "./asn1/p1/packet-p1-template.c"
   };
 
   /* List of subtrees */
@@ -10896,7 +10896,7 @@ void proto_register_p1(void) {
     &ett_p1_unknown_tokendata_type,
 
 /*--- Included file: packet-p1-ettarr.c ---*/
-#line 1 "../../asn1/p1/packet-p1-ettarr.c"
+#line 1 "./asn1/p1/packet-p1-ettarr.c"
     &ett_p1_MTABindArgument,
     &ett_p1_AuthenticatedArgument,
     &ett_p1_MTABindResult,
@@ -11078,7 +11078,7 @@ void proto_register_p1(void) {
     &ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields,
 
 /*--- End of included file: packet-p1-ettarr.c ---*/
-#line 350 "../../asn1/p1/packet-p1-template.c"
+#line 350 "./asn1/p1/packet-p1-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -11121,13 +11121,13 @@ void proto_register_p1(void) {
   register_ber_syntax_dissector("P1 Message", proto_p1, dissect_p1_mts_apdu);
 
 /*--- Included file: packet-p1-syn-reg.c ---*/
-#line 1 "../../asn1/p1/packet-p1-syn-reg.c"
+#line 1 "./asn1/p1/packet-p1-syn-reg.c"
   /*--- Syntax registrations ---*/
   register_ber_syntax_dissector("ORAddress", proto_p1, dissect_ORAddress_PDU);
   register_ber_syntax_dissector("ORName", proto_p1, dissect_ORName_PDU);
 
 /*--- End of included file: packet-p1-syn-reg.c ---*/
-#line 391 "../../asn1/p1/packet-p1-template.c"
+#line 391 "./asn1/p1/packet-p1-template.c"
 }
 
 
@@ -11137,7 +11137,7 @@ void proto_reg_handoff_p1(void) {
 
 
 /*--- Included file: packet-p1-dis-tab.c ---*/
-#line 1 "../../asn1/p1/packet-p1-dis-tab.c"
+#line 1 "./asn1/p1/packet-p1-dis-tab.c"
   dissector_add_uint("p1.extension", 1, create_dissector_handle(dissect_RecipientReassignmentProhibited_PDU, proto_p1));
   dissector_add_uint("p1.extension", 2, create_dissector_handle(dissect_OriginatorRequestedAlternateRecipient_PDU, proto_p1));
   dissector_add_uint("p1.extension", 3, create_dissector_handle(dissect_DLExpansionProhibited_PDU, proto_p1));
@@ -11293,7 +11293,7 @@ void proto_reg_handoff_p1(void) {
 
 
 /*--- End of included file: packet-p1-dis-tab.c ---*/
-#line 399 "../../asn1/p1/packet-p1-template.c"
+#line 399 "./asn1/p1/packet-p1-template.c"
 
   /* APPLICATION CONTEXT */
 

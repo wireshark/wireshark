@@ -1016,7 +1016,6 @@ test_big_endian(WORDS_BIGENDIAN)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-add_subdirectory( asn1 EXCLUDE_FROM_ALL )
 add_subdirectory( capchild )
 add_subdirectory( caputils )
 add_subdirectory( codecs )

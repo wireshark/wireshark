@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-x509if.h                                                            */
-/* ../../tools/asn2wrs.py -b -p x509if -c ./x509if.cnf -s ./packet-x509if-template -D . -O ../../epan/dissectors InformationFramework.asn ServiceAdministration.asn */
+/* asn2wrs.py -b -p x509if -c ./x509if.cnf -s ./packet-x509if-template -D . -O ../.. InformationFramework.asn ServiceAdministration.asn */
 
 /* Input file: packet-x509if-template.h */
 
-#line 1 "../../asn1/x509if/packet-x509if-template.h"
+#line 1 "./asn1/x509if/packet-x509if-template.h"
 /* packet-x509if.h
  * Routines for X.509 Information Framework packet dissection
  *  Ronnie Sahlberg 2004
@@ -34,7 +34,7 @@
 
 
 /*--- Included file: packet-x509if-exp.h ---*/
-#line 1 "../../asn1/x509if/packet-x509if-exp.h"
+#line 1 "./asn1/x509if/packet-x509if-exp.h"
 extern const value_string x509if_Name_vals[];
 extern const value_string x509if_Refinement_vals[];
 extern const value_string x509if_AttributeUsage_vals[];
@@ -81,7 +81,7 @@ int dissect_x509if_Mapping(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 int dissect_x509if_MRSubstitution(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-x509if-exp.h ---*/
-#line 28 "../../asn1/x509if/packet-x509if-template.h"
+#line 28 "./asn1/x509if/packet-x509if-template.h"
 
 extern const char * x509if_get_last_dn(void);
 

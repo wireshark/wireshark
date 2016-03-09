@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-tetra.h                                                             */
-/* ../../tools/asn2wrs.py -u -p tetra -c ./tetra.cnf -s ./packet-tetra-template -D . -O ../../epan/dissectors tetra.asn */
+/* asn2wrs.py -u -p tetra -c ./tetra.cnf -s ./packet-tetra-template -D . -O ../.. tetra.asn */
 
 /* Input file: packet-tetra-template.h */
 
-#line 1 "../../asn1/tetra/packet-tetra-template.h"
+#line 1 "./asn1/tetra/packet-tetra-template.h"
 /* packet-tetra.h
  * Routines for TETRA packet dissection
  *

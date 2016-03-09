@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-pkixac.c                                                            */
-/* ../../tools/asn2wrs.py -b -p pkixac -c ./pkixac.cnf -s ./packet-pkixac-template -D . -O ../../epan/dissectors PKIXAttributeCertificate.asn */
+/* asn2wrs.py -b -p pkixac -c ./pkixac.cnf -s ./packet-pkixac-template -D . -O ../.. PKIXAttributeCertificate.asn */
 
 /* Input file: packet-pkixac-template.c */
 
-#line 1 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 1 "./asn1/pkixac/packet-pkixac-template.c"
 /* packet-pkixac.c
  *
  * Routines for PKIXAttributeCertificate (RFC3281) packet dissection.
@@ -53,7 +53,7 @@ void proto_reg_handoff_pkixac(void);
 static int proto_pkixac = -1;
 
 /*--- Included file: packet-pkixac-hf.c ---*/
-#line 1 "../../asn1/pkixac/packet-pkixac-hf.c"
+#line 1 "./asn1/pkixac/packet-pkixac-hf.c"
 static int hf_pkixac_Targets_PDU = -1;            /* Targets */
 static int hf_pkixac_IetfAttrSyntax_PDU = -1;     /* IetfAttrSyntax */
 static int hf_pkixac_SvceAuthInfo_PDU = -1;       /* SvceAuthInfo */
@@ -107,13 +107,13 @@ static int hf_pkixac_ClassList_secret = -1;
 static int hf_pkixac_ClassList_topSecret = -1;
 
 /*--- End of included file: packet-pkixac-hf.c ---*/
-#line 47 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 47 "./asn1/pkixac/packet-pkixac-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pkixac = -1;
 
 /*--- Included file: packet-pkixac-ett.c ---*/
-#line 1 "../../asn1/pkixac/packet-pkixac-ett.c"
+#line 1 "./asn1/pkixac/packet-pkixac-ett.c"
 static gint ett_pkixac_ObjectDigestInfo = -1;
 static gint ett_pkixac_IssuerSerial = -1;
 static gint ett_pkixac_Targets = -1;
@@ -134,13 +134,13 @@ static gint ett_pkixac_AttrSpec = -1;
 static gint ett_pkixac_ProxyInfo = -1;
 
 /*--- End of included file: packet-pkixac-ett.c ---*/
-#line 51 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 51 "./asn1/pkixac/packet-pkixac-template.c"
 
 static const char *object_identifier_id;
 
 
 /*--- Included file: packet-pkixac-fn.c ---*/
-#line 1 "../../asn1/pkixac/packet-pkixac-fn.c"
+#line 1 "./asn1/pkixac/packet-pkixac-fn.c"
 
 static const value_string pkixac_T_digestedObjectType_vals[] = {
   {   0, "publicKey" },
@@ -401,7 +401,7 @@ dissect_pkixac_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_pkixac_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 59 "../../asn1/pkixac/pkixac.cnf"
+#line 59 "./asn1/pkixac/pkixac.cnf"
    if (object_identifier_id)
       offset = call_ber_oid_callback (object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -419,7 +419,7 @@ static const ber_sequence_t SecurityCategory_sequence[] = {
 
 static int
 dissect_pkixac_SecurityCategory(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 52 "../../asn1/pkixac/pkixac.cnf"
+#line 52 "./asn1/pkixac/pkixac.cnf"
   object_identifier_id = NULL;
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SecurityCategory_sequence, hf_index, ett_pkixac_SecurityCategory);
@@ -598,7 +598,7 @@ static int dissect_ProxyInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-pkixac-fn.c ---*/
-#line 55 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 55 "./asn1/pkixac/packet-pkixac-template.c"
 
 /*--- proto_register_pkixac ----------------------------------------------*/
 void proto_register_pkixac(void) {
@@ -607,7 +607,7 @@ void proto_register_pkixac(void) {
   static hf_register_info hf[] = {
 
 /*--- Included file: packet-pkixac-hfarr.c ---*/
-#line 1 "../../asn1/pkixac/packet-pkixac-hfarr.c"
+#line 1 "./asn1/pkixac/packet-pkixac-hfarr.c"
     { &hf_pkixac_Targets_PDU,
       { "Targets", "pkixac.Targets",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -810,7 +810,7 @@ void proto_register_pkixac(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pkixac-hfarr.c ---*/
-#line 62 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 62 "./asn1/pkixac/packet-pkixac-template.c"
   };
 
   /* List of subtrees */
@@ -818,7 +818,7 @@ void proto_register_pkixac(void) {
 	&ett_pkixac,
 
 /*--- Included file: packet-pkixac-ettarr.c ---*/
-#line 1 "../../asn1/pkixac/packet-pkixac-ettarr.c"
+#line 1 "./asn1/pkixac/packet-pkixac-ettarr.c"
     &ett_pkixac_ObjectDigestInfo,
     &ett_pkixac_IssuerSerial,
     &ett_pkixac_Targets,
@@ -839,7 +839,7 @@ void proto_register_pkixac(void) {
     &ett_pkixac_ProxyInfo,
 
 /*--- End of included file: packet-pkixac-ettarr.c ---*/
-#line 68 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 68 "./asn1/pkixac/packet-pkixac-template.c"
   };
 
   /* Register protocol */
@@ -851,13 +851,13 @@ void proto_register_pkixac(void) {
 
 
 /*--- Included file: packet-pkixac-syn-reg.c ---*/
-#line 1 "../../asn1/pkixac/packet-pkixac-syn-reg.c"
+#line 1 "./asn1/pkixac/packet-pkixac-syn-reg.c"
   /*--- Syntax registrations ---*/
   register_ber_syntax_dissector("Clearance", proto_pkixac, dissect_Clearance_PDU);
   register_ber_syntax_dissector("RFC3281Clearance", proto_pkixac, dissect_RFC3281Clearance_PDU);
 
 /*--- End of included file: packet-pkixac-syn-reg.c ---*/
-#line 78 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 78 "./asn1/pkixac/packet-pkixac-template.c"
 
 }
 
@@ -866,7 +866,7 @@ void proto_register_pkixac(void) {
 void proto_reg_handoff_pkixac(void) {
 
 /*--- Included file: packet-pkixac-dis-tab.c ---*/
-#line 1 "../../asn1/pkixac/packet-pkixac-dis-tab.c"
+#line 1 "./asn1/pkixac/packet-pkixac-dis-tab.c"
   register_ber_oid_dissector("1.3.6.1.5.5.7.1.6", dissect_AAControls_PDU, proto_pkixac, "id-pe-aaControls");
   register_ber_oid_dissector("1.3.6.1.5.5.7.1.10", dissect_ProxyInfo_PDU, proto_pkixac, "id-pe-ac-proxying");
   register_ber_oid_dissector("1.3.6.1.5.5.7.10.1", dissect_SvceAuthInfo_PDU, proto_pkixac, "id-aca-authenticationInfo");
@@ -880,6 +880,6 @@ void proto_reg_handoff_pkixac(void) {
 
 
 /*--- End of included file: packet-pkixac-dis-tab.c ---*/
-#line 85 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 85 "./asn1/pkixac/packet-pkixac-template.c"
 }
 

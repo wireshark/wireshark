@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-goose.c                                                             */
-/* ../../tools/asn2wrs.py -b -p goose -c ./goose.cnf -s ./packet-goose-template -D . -O ../../epan/dissectors goose.asn */
+/* asn2wrs.py -b -p goose -c ./goose.cnf -s ./packet-goose-template -D . -O ../.. goose.asn */
 
 /* Input file: packet-goose-template.c */
 
-#line 1 "../../asn1/goose/packet-goose-template.c"
+#line 1 "./asn1/goose/packet-goose-template.c"
 /* packet-goose.c
  * Routines for IEC 61850 GOOSE packet dissection
  * Martin Lutz 2008
@@ -58,7 +58,7 @@ static expert_field ei_goose_zero_pdu = EI_INIT;
 
 
 /*--- Included file: packet-goose-hf.c ---*/
-#line 1 "../../asn1/goose/packet-goose-hf.c"
+#line 1 "./asn1/goose/packet-goose-hf.c"
 static int hf_goose_gseMngtPdu = -1;              /* GSEMngtPdu */
 static int hf_goose_goosePdu = -1;                /* IECGoosePdu */
 static int hf_goose_stateID = -1;                 /* INTEGER */
@@ -120,14 +120,14 @@ static int hf_goose_mMSString = -1;               /* MMSString */
 static int hf_goose_utc_time = -1;                /* UtcTime */
 
 /*--- End of included file: packet-goose-hf.c ---*/
-#line 52 "../../asn1/goose/packet-goose-template.c"
+#line 52 "./asn1/goose/packet-goose-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_goose = -1;
 
 
 /*--- Included file: packet-goose-ett.c ---*/
-#line 1 "../../asn1/goose/packet-goose-ett.c"
+#line 1 "./asn1/goose/packet-goose-ett.c"
 static gint ett_goose_GOOSEpdu = -1;
 static gint ett_goose_GSEMngtPdu = -1;
 static gint ett_goose_RequestResponse = -1;
@@ -147,11 +147,11 @@ static gint ett_goose_SEQUENCE_OF_Data = -1;
 static gint ett_goose_Data = -1;
 
 /*--- End of included file: packet-goose-ett.c ---*/
-#line 57 "../../asn1/goose/packet-goose-template.c"
+#line 57 "./asn1/goose/packet-goose-template.c"
 
 
 /*--- Included file: packet-goose-fn.c ---*/
-#line 1 "../../asn1/goose/packet-goose-fn.c"
+#line 1 "./asn1/goose/packet-goose-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* Data -> Data/array -> Data */
@@ -474,7 +474,7 @@ dissect_goose_GSEMngtPdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_goose_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 17 "../../asn1/goose/goose.cnf"
+#line 17 "./asn1/goose/goose.cnf"
 
 	guint32 len;
 	guint32 seconds;
@@ -704,7 +704,7 @@ dissect_goose_GOOSEpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 /*--- End of included file: packet-goose-fn.c ---*/
-#line 59 "../../asn1/goose/packet-goose-template.c"
+#line 59 "./asn1/goose/packet-goose-template.c"
 
 /*
 * Dissect GOOSE PDUs inside a PPDU.
@@ -774,7 +774,7 @@ void proto_register_goose(void) {
 
 
 /*--- Included file: packet-goose-hfarr.c ---*/
-#line 1 "../../asn1/goose/packet-goose-hfarr.c"
+#line 1 "./asn1/goose/packet-goose-hfarr.c"
     { &hf_goose_gseMngtPdu,
       { "gseMngtPdu", "goose.gseMngtPdu_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1013,7 +1013,7 @@ void proto_register_goose(void) {
         "UtcTime", HFILL }},
 
 /*--- End of included file: packet-goose-hfarr.c ---*/
-#line 127 "../../asn1/goose/packet-goose-template.c"
+#line 127 "./asn1/goose/packet-goose-template.c"
   };
 
   /* List of subtrees */
@@ -1021,7 +1021,7 @@ void proto_register_goose(void) {
 	  &ett_goose,
 
 /*--- Included file: packet-goose-ettarr.c ---*/
-#line 1 "../../asn1/goose/packet-goose-ettarr.c"
+#line 1 "./asn1/goose/packet-goose-ettarr.c"
     &ett_goose_GOOSEpdu,
     &ett_goose_GSEMngtPdu,
     &ett_goose_RequestResponse,
@@ -1041,7 +1041,7 @@ void proto_register_goose(void) {
     &ett_goose_Data,
 
 /*--- End of included file: packet-goose-ettarr.c ---*/
-#line 133 "../../asn1/goose/packet-goose-template.c"
+#line 133 "./asn1/goose/packet-goose-template.c"
   };
 
   static ei_register_info ei[] = {

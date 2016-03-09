@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-pkixqualified.h                                                     */
-/* ../../tools/asn2wrs.py -b -p pkixqualified -c ./pkixqualified.cnf -s ./packet-pkixqualified-template -D . -O ../../epan/dissectors PKIXqualified.asn */
+/* asn2wrs.py -b -p pkixqualified -c ./pkixqualified.cnf -s ./packet-pkixqualified-template -D . -O ../.. PKIXqualified.asn */
 
 /* Input file: packet-pkixqualified-template.h */
 
-#line 1 "../../asn1/pkixqualified/packet-pkixqualified-template.h"
+#line 1 "./asn1/pkixqualified/packet-pkixqualified-template.h"
 /* packet-pkixqualified.h
  * Routines for RFC3739 PKIXqualified packet dissection
  *  Ronnie Sahlberg 2004

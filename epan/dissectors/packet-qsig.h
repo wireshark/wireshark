@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-qsig.h                                                              */
-/* ../../tools/asn2wrs.py -c ./qsig.cnf -s ./packet-qsig-template -D . -O ../../epan/dissectors General-Error-List.asn qsig-gf-ext.asn qsig-gf-gp.asn qsig-gf-ade.asn QSIG-NA.asn QSIG-CF.asn QSIG-PR.asn QSIG-CT.asn QSIG-CC.asn QSIG-CO.asn QSIG-DND.asn QSIG-CI.asn QSIG-AOC.asn QSIG-RE.asn SYNC-SIG.asn QSIG-CINT.asn QSIG-CMN.asn QSIG-CPI.asn QSIG-PUMR.asn QSIG-PUMCH.asn QSIG-SSCT.asn QSIG-WTMLR.asn QSIG-WTMCH.asn QSIG-WTMAU.asn QSIG-SD.asn QSIG-CIDL.asn QSIG-SMS.asn QSIG-MCR.asn QSIG-MCM.asn QSIG-MID.asn */
+/* asn2wrs.py -c ./qsig.cnf -s ./packet-qsig-template -D . -O ../.. General-Error-List.asn qsig-gf-ext.asn qsig-gf-gp.asn qsig-gf-ade.asn QSIG-NA.asn QSIG-CF.asn QSIG-PR.asn QSIG-CT.asn QSIG-CC.asn QSIG-CO.asn QSIG-DND.asn QSIG-CI.asn QSIG-AOC.asn QSIG-RE.asn SYNC-SIG.asn QSIG-CINT.asn QSIG-CMN.asn QSIG-CPI.asn QSIG-PUMR.asn QSIG-PUMCH.asn QSIG-SSCT.asn QSIG-WTMLR.asn QSIG-WTMCH.asn QSIG-WTMAU.asn QSIG-SD.asn QSIG-CIDL.asn QSIG-SMS.asn QSIG-MCR.asn QSIG-MCM.asn QSIG-MID.asn */
 
 /* Input file: packet-qsig-template.h */
 
-#line 1 "../../asn1/qsig/packet-qsig-template.h"
+#line 1 "./asn1/qsig/packet-qsig-template.h"
 /* packet-qsig.h
  * Routines for QSIG packet dissection
  * 2007  Tomas Kukosa
@@ -34,7 +34,7 @@
 
 
 /*--- Included file: packet-qsig-exp.h ---*/
-#line 1 "../../asn1/qsig/packet-qsig-exp.h"
+#line 1 "./asn1/qsig/packet-qsig-exp.h"
 
 /* --- Module General-Error-List --- --- ---                                  */
 
@@ -129,7 +129,7 @@ WS_DLL_PUBLIC int dissect_qsig_na_Name(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 
 /*--- End of included file: packet-qsig-exp.h ---*/
-#line 28 "../../asn1/qsig/packet-qsig-template.h"
+#line 28 "./asn1/qsig/packet-qsig-template.h"
 
 #endif  /* PACKET_QSIG_H */
 

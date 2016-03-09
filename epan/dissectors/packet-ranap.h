@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-ranap.h                                                             */
-/* ../../tools/asn2wrs.py -p ranap -c ./ranap.cnf -s ./packet-ranap-template -D . -O ../../epan/dissectors RANAP-CommonDataTypes.asn RANAP-Constants.asn RANAP-Containers.asn RANAP-IEs.asn RANAP-PDU-Contents.asn RANAP-PDU-Descriptions.asn */
+/* asn2wrs.py -p ranap -c ./ranap.cnf -s ./packet-ranap-template -D . -O ../.. RANAP-CommonDataTypes.asn RANAP-Constants.asn RANAP-Containers.asn RANAP-IEs.asn RANAP-PDU-Contents.asn RANAP-PDU-Descriptions.asn */
 
 /* Input file: packet-ranap-template.h */
 
-#line 1 "../../asn1/ranap/packet-ranap-template.h"
+#line 1 "./asn1/ranap/packet-ranap-template.h"
 /* packet-ranap-template.h
  * Routines for GSM Supplementary Services dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
@@ -33,7 +33,7 @@
 #define PACKET_RANAP_H
 
 /*--- Included file: packet-ranap-exp.h ---*/
-#line 1 "../../asn1/ranap/packet-ranap-exp.h"
+#line 1 "./asn1/ranap/packet-ranap-exp.h"
 extern const value_string ranap_Service_Handover_vals[];
 int dissect_ranap_EncryptionInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_ranap_IntegrityProtectionInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -47,6 +47,6 @@ int dissect_ranap_TargetRNC_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 int dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-ranap-exp.h ---*/
-#line 27 "../../asn1/ranap/packet-ranap-template.h"
+#line 27 "./asn1/ranap/packet-ranap-template.h"
 
 #endif  /* PACKET_RANAP_H */

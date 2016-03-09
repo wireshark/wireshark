@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-h235.h                                                              */
-/* ../../tools/asn2wrs.py -p h235 -c ./h235.cnf -s ./packet-h235-template -D . -O ../../epan/dissectors H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
+/* asn2wrs.py -p h235 -c ./h235.cnf -s ./packet-h235-template -D . -O ../.. H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
 
 /* Input file: packet-h235-template.h */
 
-#line 1 "../../asn1/h235/packet-h235-template.h"
+#line 1 "./asn1/h235/packet-h235-template.h"
 /* packet-h235.h
  * Routines for H.235 packet dissection
  * 2004  Tomas Kukosa
@@ -34,7 +34,7 @@
 
 
 /*--- Included file: packet-h235-exp.h ---*/
-#line 1 "../../asn1/h235/packet-h235-exp.h"
+#line 1 "./asn1/h235/packet-h235-exp.h"
 extern const value_string h235_AuthenticationMechanism_vals[];
 extern const value_string h235_CryptoToken_vals[];
 int dissect_h235_TimeStamp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -47,7 +47,7 @@ int dissect_h235_CryptoToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 int dissect_h235_SrtpKeys(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-h235-exp.h ---*/
-#line 28 "../../asn1/h235/packet-h235-template.h"
+#line 28 "./asn1/h235/packet-h235-template.h"
 
 #endif  /* PACKET_H235_H */
 

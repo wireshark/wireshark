@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-t124.c                                                              */
-/* ../../tools/asn2wrs.py -p t124 -c ./t124.cnf -s ./packet-t124-template -D . -O ../../epan/dissectors GCC-PROTOCOL.asn ../t125/MCS-PROTOCOL.asn */
+/* asn2wrs.py -p t124 -c ./t124.cnf -s ./packet-t124-template -D . -O ../.. GCC-PROTOCOL.asn ../t125/MCS-PROTOCOL.asn */
 
 /* Input file: packet-t124-template.c */
 
-#line 1 "../../asn1/t124/packet-t124-template.c"
+#line 1 "./asn1/t124/packet-t124-template.c"
 /* packet-t124.c
  * Routines for t124 packet dissection
  * Copyright 2010, Graeme Lunt
@@ -59,7 +59,7 @@ static proto_tree *top_tree = NULL;
 
 
 /*--- Included file: packet-t124-hf.c ---*/
-#line 1 "../../asn1/t124/packet-t124-hf.c"
+#line 1 "./asn1/t124/packet-t124-hf.c"
 static int hf_t124_object = -1;                   /* T_object */
 static int hf_t124_h221NonStandard = -1;          /* H221NonStandardIdentifier */
 static int hf_t124_key = -1;                      /* Key */
@@ -285,7 +285,7 @@ static int hf_t124_Segmentation_begin = -1;
 static int hf_t124_Segmentation_end = -1;
 
 /*--- End of included file: packet-t124-hf.c ---*/
-#line 53 "../../asn1/t124/packet-t124-template.c"
+#line 53 "./asn1/t124/packet-t124-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_t124 = -1;
@@ -302,7 +302,7 @@ static dissector_table_t t124_sd_dissector_table=NULL;
 
 
 /*--- Included file: packet-t124-ett.c ---*/
-#line 1 "../../asn1/t124/packet-t124-ett.c"
+#line 1 "./asn1/t124/packet-t124-ett.c"
 static gint ett_t124_Key = -1;
 static gint ett_t124_NonStandardParameter = -1;
 static gint ett_t124_UserData = -1;
@@ -406,11 +406,11 @@ static gint ett_t124_TokenTestConfirm = -1;
 static gint ett_t124_DomainMCSPDU = -1;
 
 /*--- End of included file: packet-t124-ett.c ---*/
-#line 68 "../../asn1/t124/packet-t124-template.c"
+#line 68 "./asn1/t124/packet-t124-template.c"
 
 
 /*--- Included file: packet-t124-fn.c ---*/
-#line 1 "../../asn1/t124/packet-t124-fn.c"
+#line 1 "./asn1/t124/packet-t124-fn.c"
 
 
 static int
@@ -434,7 +434,7 @@ dissect_t124_UserID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 static int
 dissect_t124_H221NonStandardIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 217 "../../asn1/t124/t124.cnf"
+#line 217 "./asn1/t124/t124.cnf"
 
       offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        4, 255, FALSE, (tvbuff_t**)&actx->private_data);
@@ -569,7 +569,7 @@ dissect_t124_ExtraDiallingString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_t124_T_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 149 "../../asn1/t124/t124.cnf"
+#line 149 "./asn1/t124/t124.cnf"
     tvbuff_t *next_tvb = NULL;
     tvbuff_t *t124NSIdentifier = (tvbuff_t*)actx->private_data;
     guint8   *ns = NULL;
@@ -1496,7 +1496,7 @@ dissect_t124_ConferenceInviteResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static int
 dissect_t124_T_connectPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 123 "../../asn1/t124/t124.cnf"
+#line 123 "./asn1/t124/t124.cnf"
     tvbuff_t	*next_tvb = NULL;
     proto_tree	*next_tree = NULL;
     int		old_offset = 0;
@@ -1580,7 +1580,7 @@ dissect_t124_ConnectGCCPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_t124_ChannelId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 222 "../../asn1/t124/t124.cnf"
+#line 222 "./asn1/t124/t124.cnf"
 
       offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &channelId, FALSE);
@@ -2419,7 +2419,7 @@ dissect_t124_ChannelExpelIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_t124_T_userData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 166 "../../asn1/t124/t124.cnf"
+#line 166 "./asn1/t124/t124.cnf"
     tvbuff_t	*next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -2459,7 +2459,7 @@ dissect_t124_SendDataRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_t124_T_userData_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 179 "../../asn1/t124/t124.cnf"
+#line 179 "./asn1/t124/t124.cnf"
     tvbuff_t	*next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -2850,7 +2850,7 @@ static const per_choice_t DomainMCSPDU_choice[] = {
 
 static int
 dissect_t124_DomainMCSPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 193 "../../asn1/t124/t124.cnf"
+#line 193 "./asn1/t124/t124.cnf"
   	gint domainmcs_value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -2876,7 +2876,7 @@ dissect_t124_DomainMCSPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
 /*--- End of included file: packet-t124-fn.c ---*/
-#line 70 "../../asn1/t124/packet-t124-template.c"
+#line 70 "./asn1/t124/packet-t124-template.c"
 
 static const per_sequence_t t124Heur_sequence[] = {
   { &hf_t124_t124Identifier , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Key },
@@ -2999,7 +2999,7 @@ void proto_register_t124(void) {
         NULL, HFILL }},
 
 /*--- Included file: packet-t124-hfarr.c ---*/
-#line 1 "../../asn1/t124/packet-t124-hfarr.c"
+#line 1 "./asn1/t124/packet-t124-hfarr.c"
     { &hf_t124_object,
       { "object", "t124.object",
         FT_OID, BASE_NONE, NULL, 0,
@@ -3890,7 +3890,7 @@ void proto_register_t124(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-t124-hfarr.c ---*/
-#line 191 "../../asn1/t124/packet-t124-template.c"
+#line 191 "./asn1/t124/packet-t124-template.c"
   };
 
   /* List of subtrees */
@@ -3899,7 +3899,7 @@ void proto_register_t124(void) {
 	  &ett_t124_connectGCCPDU,
 
 /*--- Included file: packet-t124-ettarr.c ---*/
-#line 1 "../../asn1/t124/packet-t124-ettarr.c"
+#line 1 "./asn1/t124/packet-t124-ettarr.c"
     &ett_t124_Key,
     &ett_t124_NonStandardParameter,
     &ett_t124_UserData,
@@ -4003,7 +4003,7 @@ void proto_register_t124(void) {
     &ett_t124_DomainMCSPDU,
 
 /*--- End of included file: packet-t124-ettarr.c ---*/
-#line 198 "../../asn1/t124/packet-t124-template.c"
+#line 198 "./asn1/t124/packet-t124-template.c"
   };
 
   /* Register protocol */

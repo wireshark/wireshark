@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-ansi_map.h                                                          */
-/* ../../tools/asn2wrs.py -b -p ansi_map -c ./ansi_map.cnf -s ./packet-ansi_map-template -D . -O ../../epan/dissectors ansi_map.asn */
+/* asn2wrs.py -b -p ansi_map -c ./ansi_map.cnf -s ./packet-ansi_map-template -D . -O ../.. ansi_map.asn */
 
 /* Input file: packet-ansi_map-template.h */
 
-#line 1 "../../asn1/ansi_map/packet-ansi_map-template.h"
+#line 1 "./asn1/ansi_map/packet-ansi_map-template.h"
 /* packet-ansi_map.h
  * Routines for ansi_map packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>

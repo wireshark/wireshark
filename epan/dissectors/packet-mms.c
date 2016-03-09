@@ -1,11 +1,11 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-mms.c                                                               */
-/* ../../tools/asn2wrs.py -b -p mms -c ./mms.cnf -s ./packet-mms-template -D . -O ../../epan/dissectors mms.asn */
+/* asn2wrs.py -b -p mms -c ./mms.cnf -s ./packet-mms-template -D . -O ../.. mms.asn */
 
 /* Input file: packet-mms-template.c */
 
-#line 1 "../../asn1/mms/packet-mms-template.c"
+#line 1 "./asn1/mms/packet-mms-template.c"
 /* packet-mms_asn1.c
  *
  * Ronnie Sahlberg 2005
@@ -52,7 +52,7 @@ static int proto_mms = -1;
 
 
 /*--- Included file: packet-mms-hf.c ---*/
-#line 1 "../../asn1/mms/packet-mms-hf.c"
+#line 1 "./asn1/mms/packet-mms-hf.c"
 static int hf_mms_confirmed_RequestPDU = -1;      /* Confirmed_RequestPDU */
 static int hf_mms_confirmed_ResponsePDU = -1;     /* Confirmed_ResponsePDU */
 static int hf_mms_confirmed_ErrorPDU = -1;        /* Confirmed_ErrorPDU */
@@ -722,13 +722,13 @@ static int hf_mms_Transitions_idle_to_active = -1;
 static int hf_mms_Transitions_any_to_deleted = -1;
 
 /*--- End of included file: packet-mms-hf.c ---*/
-#line 46 "../../asn1/mms/packet-mms-template.c"
+#line 46 "./asn1/mms/packet-mms-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_mms = -1;
 
 /*--- Included file: packet-mms-ett.c ---*/
-#line 1 "../../asn1/mms/packet-mms-ett.c"
+#line 1 "./asn1/mms/packet-mms-ett.c"
 static gint ett_mms_MMSpdu = -1;
 static gint ett_mms_Confirmed_RequestPDU = -1;
 static gint ett_mms_SEQUENCE_OF_Modifier = -1;
@@ -939,7 +939,7 @@ static gint ett_mms_DirectoryEntry = -1;
 static gint ett_mms_FileAttributes = -1;
 
 /*--- End of included file: packet-mms-ett.c ---*/
-#line 50 "../../asn1/mms/packet-mms-template.c"
+#line 50 "./asn1/mms/packet-mms-template.c"
 
 static expert_field ei_mms_mal_timeofday_encoding = EI_INIT;
 static expert_field ei_mms_mal_utctime_encoding = EI_INIT;
@@ -947,7 +947,7 @@ static expert_field ei_mms_zero_pdu = EI_INIT;
 
 
 /*--- Included file: packet-mms-fn.c ---*/
-#line 1 "../../asn1/mms/packet-mms-fn.c"
+#line 1 "./asn1/mms/packet-mms-fn.c"
 /*--- Cyclic dependencies ---*/
 
 /* TypeSpecification -> TypeSpecification/array -> TypeSpecification */
@@ -1832,7 +1832,7 @@ dissect_mms_FloatingPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 48 "../../asn1/mms/mms.cnf"
+#line 48 "./asn1/mms/mms.cnf"
 
 	guint32 len;
 	guint32 milliseconds;
@@ -1912,7 +1912,7 @@ dissect_mms_MMSString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_mms_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 99 "../../asn1/mms/mms.cnf"
+#line 99 "./asn1/mms/mms.cnf"
 
 	guint32 len;
 	guint32 seconds;
@@ -2332,7 +2332,7 @@ dissect_mms_Output_Request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_mms_T_ap_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 25 "../../asn1/mms/mms.cnf"
+#line 25 "./asn1/mms/mms.cnf"
   offset=dissect_acse_AP_title(FALSE, tvb, offset, actx, tree, hf_mms_ap_title);
 
 
@@ -2344,7 +2344,7 @@ dissect_mms_T_ap_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_mms_T_ap_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 28 "../../asn1/mms/mms.cnf"
+#line 28 "./asn1/mms/mms.cnf"
   offset=dissect_acse_AP_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ap_invocation_id);
 
 
@@ -2356,7 +2356,7 @@ dissect_mms_T_ap_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_mms_T_ae_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 31 "../../asn1/mms/mms.cnf"
+#line 31 "./asn1/mms/mms.cnf"
   offset=dissect_acse_AE_qualifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_qualifier);
 
 
@@ -2368,7 +2368,7 @@ dissect_mms_T_ae_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_mms_T_ae_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 34 "../../asn1/mms/mms.cnf"
+#line 34 "./asn1/mms/mms.cnf"
   offset=dissect_acse_AE_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_invocation_id);
 
 
@@ -7026,7 +7026,7 @@ static const ber_choice_t MMSpdu_choice[] = {
 
 int
 dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 37 "../../asn1/mms/mms.cnf"
+#line 37 "./asn1/mms/mms.cnf"
   gint branch_taken;
 
   offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -7047,7 +7047,7 @@ dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 /*--- End of included file: packet-mms-fn.c ---*/
-#line 56 "../../asn1/mms/packet-mms-template.c"
+#line 56 "./asn1/mms/packet-mms-template.c"
 
 /*
 * Dissect MMS PDUs inside a PPDU.
@@ -7089,7 +7089,7 @@ void proto_register_mms(void) {
   {
 
 /*--- Included file: packet-mms-hfarr.c ---*/
-#line 1 "../../asn1/mms/packet-mms-hfarr.c"
+#line 1 "./asn1/mms/packet-mms-hfarr.c"
     { &hf_mms_confirmed_RequestPDU,
       { "confirmed-RequestPDU", "mms.confirmed_RequestPDU_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -9756,7 +9756,7 @@ void proto_register_mms(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-mms-hfarr.c ---*/
-#line 96 "../../asn1/mms/packet-mms-template.c"
+#line 96 "./asn1/mms/packet-mms-template.c"
   };
 
   /* List of subtrees */
@@ -9764,7 +9764,7 @@ void proto_register_mms(void) {
     &ett_mms,
 
 /*--- Included file: packet-mms-ettarr.c ---*/
-#line 1 "../../asn1/mms/packet-mms-ettarr.c"
+#line 1 "./asn1/mms/packet-mms-ettarr.c"
     &ett_mms_MMSpdu,
     &ett_mms_Confirmed_RequestPDU,
     &ett_mms_SEQUENCE_OF_Modifier,
@@ -9975,7 +9975,7 @@ void proto_register_mms(void) {
     &ett_mms_FileAttributes,
 
 /*--- End of included file: packet-mms-ettarr.c ---*/
-#line 102 "../../asn1/mms/packet-mms-template.c"
+#line 102 "./asn1/mms/packet-mms-template.c"
   };
 
   static ei_register_info ei[] = {
