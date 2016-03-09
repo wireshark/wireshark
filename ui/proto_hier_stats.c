@@ -42,10 +42,11 @@ static int pc_proto_id = -1;
 static GNode*
 find_stat_node(GNode *parent_stat_node, header_field_info *needle_hfinfo)
 {
-	GNode			*needle_stat_node;
+	GNode			*needle_stat_node, *up_parent_stat_node;
 	header_field_info	*hfinfo;
-	ph_stats_node_t         *stats;
+	ph_stats_node_t		*stats;
 
+	/* Look down the tree */
 	needle_stat_node = g_node_first_child(parent_stat_node);
 
 	while (needle_stat_node) {
@@ -54,6 +55,22 @@ find_stat_node(GNode *parent_stat_node, header_field_info *needle_hfinfo)
 			return needle_stat_node;
 		}
 		needle_stat_node = g_node_next_sibling(needle_stat_node);
+	}
+
+	/* Look up the tree */
+	up_parent_stat_node = parent_stat_node;
+	while (up_parent_stat_node && up_parent_stat_node->parent)
+	{
+		needle_stat_node = g_node_first_child(up_parent_stat_node->parent);
+		while (needle_stat_node) {
+			hfinfo = STAT_NODE_HFINFO(needle_stat_node);
+			if (hfinfo &&  hfinfo->id == needle_hfinfo->id) {
+				return needle_stat_node;
+			}
+			needle_stat_node = g_node_next_sibling(needle_stat_node);
+		}
+
+		up_parent_stat_node = up_parent_stat_node->parent;
 	}
 
 	/* None found. Create one. */
