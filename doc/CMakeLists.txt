@@ -26,6 +26,11 @@ add_custom_command(
 		${CMAKE_CURRENT_SOURCE_DIR}/make-authors-short.pl
 		< ${CMAKE_SOURCE_DIR}/AUTHORS
 		> ${CMAKE_CURRENT_BINARY_DIR}/AUTHORS-SHORT
+	# Put a copy in the top-level directory so Help->About, when run from the
+	# build directory, can find it.
+	COMMAND ${CMAKE_COMMAND} -E copy
+		${CMAKE_CURRENT_BINARY_DIR}/AUTHORS-SHORT
+		${CMAKE_BINARY_DIR}/AUTHORS-SHORT
 	DEPENDS
 		${CMAKE_CURRENT_SOURCE_DIR}/perlnoutf.pl
 		${CMAKE_CURRENT_SOURCE_DIR}/make-authors-short.pl
