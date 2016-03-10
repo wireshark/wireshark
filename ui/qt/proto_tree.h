@@ -47,7 +47,9 @@ public:
     void clear();
 
 protected:
-     void contextMenuEvent(QContextMenuEvent *event);
+    virtual void contextMenuEvent(QContextMenuEvent *event);
+    virtual void timerEvent(QTimerEvent *event);
+    virtual void keyReleaseEvent(QKeyEvent *event);
 
 private:
     QMenu ctx_menu_;
@@ -57,6 +59,7 @@ private:
     QAction *decode_as_;
     QList<QAction *> copy_actions_;
     QFont mono_font_;
+    int column_resize_timer_;
 
 signals:
     void protoItemSelected(const QString &);
@@ -76,6 +79,9 @@ public slots:
     void expandAll();
     void collapseAll();
     void itemDoubleClick(QTreeWidgetItem *item, int column);
+
+private slots:
+    void updateContentWidth();
 };
 
 #endif // PROTO_TREE_H
