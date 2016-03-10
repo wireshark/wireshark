@@ -1322,6 +1322,27 @@ set(INSTALL_FILES
 	services
 	smi_modules
 	docbook/ws.css
+	${CMAKE_BINARY_DIR}/doc/AUTHORS-SHORT
+	${CMAKE_BINARY_DIR}/doc/asn2deb.html
+	${CMAKE_BINARY_DIR}/doc/androiddump.html
+	${CMAKE_BINARY_DIR}/doc/capinfos.html
+	${CMAKE_BINARY_DIR}/doc/captype.html
+	${CMAKE_BINARY_DIR}/doc/dftest.html
+	${CMAKE_BINARY_DIR}/doc/dumpcap.html
+	${CMAKE_BINARY_DIR}/doc/editcap.html
+	${CMAKE_BINARY_DIR}/doc/extcap.html
+	${CMAKE_BINARY_DIR}/doc/idl2deb.html
+	${CMAKE_BINARY_DIR}/doc/idl2wrs.html
+	${CMAKE_BINARY_DIR}/doc/mergecap.html
+	${CMAKE_BINARY_DIR}/doc/randpkt.html
+	${CMAKE_BINARY_DIR}/doc/randpktdump.html
+	${CMAKE_BINARY_DIR}/doc/rawshark.html
+	${CMAKE_BINARY_DIR}/doc/reordercap.html
+	${CMAKE_BINARY_DIR}/doc/sshdump.html
+	${CMAKE_BINARY_DIR}/doc/text2pcap.html
+	${CMAKE_BINARY_DIR}/doc/tshark.html
+	${CMAKE_BINARY_DIR}/doc/wireshark.html
+	${CMAKE_BINARY_DIR}/doc/wireshark-filter.html
 )
 
 if(WIN32)
@@ -1567,6 +1588,7 @@ foreach(_install_file ${INSTALL_FILES})
 			"${_output_file}"
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 		DEPENDS
+			docs
 			"${_install_file}"
 	)
 	list(APPEND copy_data_files_depends "${_output_file}")
