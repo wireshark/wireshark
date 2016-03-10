@@ -64,7 +64,6 @@ if test "$ac_cv_prog_cc_stdc" == "no"
 then
 	AC_MSG_ERROR([The C compiler does not support standard C])
 fi
-AM_PROG_CC_C_O
 AC_PROG_CXX
 AC_PROG_CPP
 AC_PROG_MKDIR_P
