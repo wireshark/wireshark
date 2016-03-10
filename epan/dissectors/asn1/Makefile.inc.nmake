@@ -72,4 +72,3 @@ maintainer-clean: distclean
 
 fix_eol: $(DISSECTOR)
 	u2d $(DISSECTOR) $(DISSECTOR_HEADER)
-

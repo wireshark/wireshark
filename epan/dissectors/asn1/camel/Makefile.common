@@ -66,4 +66,3 @@ $(builddir)/../gsm_map/gsm_map-exp.cnf:
 
 $(builddir)/../inap/inap-exp.cnf:
 	(cd $(builddir)/../inap && $(MAKE_CNF_EXPORT))
-

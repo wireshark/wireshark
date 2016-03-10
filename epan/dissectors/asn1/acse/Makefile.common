@@ -47,4 +47,3 @@ EXTRA_CNF= \
 
 $(builddir)/../x509if/x509if-exp.cnf:
 	(cd $(builddir)/../x509if && $(MAKE_CNF_EXPORT))
-

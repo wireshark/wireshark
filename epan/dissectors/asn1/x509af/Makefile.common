@@ -54,4 +54,3 @@ $(builddir)/../x509if/x509if-exp.cnf:
 
 $(builddir)/../x509sat/x509sat-exp.cnf:
 	(cd $(builddir)/../x509sat && $(MAKE_CNF_EXPORT))
-

@@ -41,4 +41,3 @@ EXTRA_CNF = \
 
 $(builddir)/../lpp/lpp-exp.cnf:
 	(cd $(builddir)/../lpp && $(MAKE_CNF_EXPORT))
-

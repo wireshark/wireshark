@@ -44,4 +44,3 @@ EXTRA_CNF= \
 
 $(builddir)/../gsm_map/gsm_map-exp.cnf:
 	(cd $(builddir)/../gsm_map && $(MAKE_CNF_EXPORT))
-

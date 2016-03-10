@@ -19,7 +19,7 @@
 
 PROTOCOL_NAME=lcsap
 
-#DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c 
+#DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c
 
 EXPORT_FILES = $(PROTOCOL_NAME)-exp.cnf
 
@@ -53,4 +53,3 @@ EXTRA_CNF= \
 
 $(builddir)/../x509if/x509if-exp.cnf:
 	(cd ../x509if && $(MAKE_CNF_EXPORT))
-

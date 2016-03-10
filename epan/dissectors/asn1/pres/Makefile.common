@@ -45,4 +45,3 @@ EXTRA_CNF= \
 
 $(builddir)/../rtse/rtse-exp.cnf:
 	(cd $(builddir)/../rtse && $(MAKE_CNF_EXPORT))
-

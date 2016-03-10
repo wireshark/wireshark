@@ -45,4 +45,3 @@ $(builddir)/../h225/h225-exp.cnf:
 
 $(builddir)/../h235/h235-exp.cnf:
 	(cd $(builddir)/../h235 && $(MAKE_CNF_EXPORT))
-

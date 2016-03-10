@@ -71,4 +71,3 @@ $(builddir)/../h225/h225-exp.cnf:
 
 $(builddir)/../h450-ros/h450-ros-exp.cnf:
 	(cd $(builddir)/../h450-ros && $(MAKE_CNF_EXPORT))
-

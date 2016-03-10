@@ -51,4 +51,3 @@ $(builddir)/../x509if/x509if-exp.cnf:
 
 $(builddir)/../p1/p1-exp.cnf:
 	(cd $(builddir)/../p1 && $(MAKE_CNF_EXPORT))
-

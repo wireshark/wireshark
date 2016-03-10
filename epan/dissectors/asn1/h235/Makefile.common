@@ -47,4 +47,3 @@ EXTRA_CNF = \
 
 $(builddir)/../h225/h225-exp.cnf:
 	(cd $(builddir)/../h225 && $(MAKE_CNF_EXPORT))
-

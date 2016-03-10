@@ -44,4 +44,3 @@ set( EXTRA_CNF
 )
 
 ASN2WRS()
-

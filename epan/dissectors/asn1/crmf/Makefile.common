@@ -46,4 +46,3 @@ EXTRA_CNF= \
 
 $(builddir)/../cms/cms-exp.cnf:
 	(cd $(builddir)/../cms && $(MAKE_CNF_EXPORT))
-

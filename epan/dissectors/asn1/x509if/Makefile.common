@@ -48,4 +48,3 @@ EXTRA_CNF= \
 
 $(builddir)/../x509sat/x509sat-exp.cnf:
 	(cd $(builddir)/../x509sat && $(MAKE_CNF_EXPORT))
-

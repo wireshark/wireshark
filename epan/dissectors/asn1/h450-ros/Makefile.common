@@ -49,4 +49,3 @@ EXTRA_CNF = \
 	$(builddir)/../ros/ros-res.cnf \
 	$(builddir)/../ros/ros-err.cnf \
 	$(builddir)/../ros/ros-rej.cnf
-

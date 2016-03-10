@@ -38,4 +38,3 @@ SRC_FILES = \
 	$(EXT_ASN_FILE_LIST)
 
 A2W_FLAGS= -b
-

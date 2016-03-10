@@ -56,4 +56,3 @@ $(builddir)/../p1/p1-exp.cnf:
 
 $(builddir)/../p22/p22-exp.cnf:
 	(cd $(builddir)/../p22 && $(MAKE_CNF_EXPORT))
-

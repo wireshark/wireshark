@@ -47,4 +47,3 @@ SRC_FILES = \
 A2W_FLAGS= -b
 
 EXTRA_CNF=
-

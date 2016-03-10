@@ -28,4 +28,3 @@ checkapi:
 	$(PERL) ../../tools/checkAPIs.pl -build \
 	$(PROTOCOL_NAME).cnf \
 	packet-$(PROTOCOL_NAME)-template.c
-

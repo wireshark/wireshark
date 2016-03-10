@@ -52,4 +52,3 @@ set( SRC_FILES
 set( A2W_FLAGS -b )
 
 ASN2WRS()
-

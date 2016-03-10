@@ -27,7 +27,7 @@ set( EXT_ASN_FILE_LIST
 )
 
 set( ASN_FILE_LIST
-	ILP.asn	
+	ILP.asn
 	ILP-Components.asn
 )
 

@@ -31,4 +31,3 @@ EXTRA_DIST = \
 	ManagedObjectClassesDefinitions.asn \
 	Notification-ASN1Module.asn \
 	Parameter-ASN1Module.asn
-

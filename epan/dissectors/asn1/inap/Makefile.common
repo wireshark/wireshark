@@ -79,4 +79,3 @@ $(builddir)/../dap/dap-exp.cnf:
 
 $(builddir)/../dsp/dsp-exp.cnf:
 	(cd $(builddir)/../dsp && $(MAKE_CNF_EXPORT))
-
