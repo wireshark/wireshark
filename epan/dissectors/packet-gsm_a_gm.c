@@ -7347,9 +7347,9 @@ static void (*dtap_msg_gmm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *
 	dtap_gmm_auth_ciph_req,		/* Authentication and Ciphering Req */
 	dtap_gmm_auth_ciph_resp,	/* Authentication and Ciphering Resp */
 	dtap_gmm_auth_ciph_rej,		/* Authentication and Ciphering Rej */
-	dtap_gmm_auth_ciph_fail,	/* Authentication and Ciphering Failure */
 	dtap_gmm_ident_req,		/* Identity Request */
 	dtap_gmm_ident_res,		/* Identity Response */
+	dtap_gmm_auth_ciph_fail,	/* Authentication and Ciphering Failure */
 	dtap_gmm_status,		/* GMM Status */
 	dtap_gmm_information,		/* GMM Information */
 	NULL,	/* NONE */
