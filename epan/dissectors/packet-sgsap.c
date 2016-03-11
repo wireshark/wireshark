@@ -1,7 +1,7 @@
 /* packet-sgsap.c
  * Routines for SGs Application Part (SGsAP) protocol dissection
  *
- * Copyright 2010 - 2011, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2010 - 2016, Anders Broman <anders.broman@ericsson.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -78,6 +78,8 @@ static int ett_sgsap_sel_cs_dmn_op = -1;
 static expert_field ei_sgsap_extraneous_data = EI_INIT;
 static expert_field ei_sgsap_missing_mandatory_element = EI_INIT;
 
+static void get_sgsap_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p);
+
 /*
  * 9.4  Information elements
  */
@@ -128,14 +130,39 @@ de_sgsap_eps_loc_upd_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
  * See subclause 18.4.5 in 3GPP TS 29.018 [16].
  */
 static guint16
-de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string , int string_len)
 {
+    const gchar     *msg_str;
+    gint             ett_tree;
+    int              hf_idx;
+    void(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
+    guint8          oct;
+
     /* 18.4.5 Erroneous message
      * The Erroneous message IE is a TLV IE that encapsulates the message in error.
      * Octet 3 - Octet n
      * Erroneous message including the message type.
      */
+     /* Messge type IE*/
+    oct = tvb_get_guint8(tvb, offset);
+    msg_fcn_p = NULL;
+    ett_tree = -1;
+    hf_idx = -1;
+    msg_str = NULL;
+
     proto_tree_add_item(tree, hf_sgsap_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    get_sgsap_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn_p);
+    if (msg_str) {
+        if (add_string)
+            g_snprintf(add_string, string_len, " - %s", msg_str);
+
+    }
+    if (msg_fcn_p){
+        offset++;
+        (*msg_fcn_p)(tvb, tree, pinfo, offset, len - offset);
+    }
+
 
     return(len);
 }
@@ -1211,7 +1238,7 @@ sgsap_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
     /* SGs cause    SGs cause 9.4.18    M   TLV 3 */
     ELEM_MAND_TLV(0x08, SGSAP_PDU_TYPE, DE_SGSAP_SGS_CAUSE, NULL, ei_sgsap_missing_mandatory_element);
     /* Erroneous message    Erroneous message 9.4.3 M   TLV 3-n */
-    ELEM_OPT_TLV(0x1e, SGSAP_PDU_TYPE, DE_SGSAP_ERR_MSG, NULL);
+    ELEM_OPT_TLV(0x1b, SGSAP_PDU_TYPE, DE_SGSAP_ERR_MSG, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_sgsap_extraneous_data);
 }
