@@ -8236,7 +8236,7 @@ void proto_register_r3 (void)
       },
       { &hf_r3_forceoptions_state_8,
         { "State", "r3.forceoptions.state",
-          FT_BOOLEAN, BASE_NONE, TFS (&tfs_enabled_disabled), 0x0,
+          FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_r3_forceoptions_state_16,
