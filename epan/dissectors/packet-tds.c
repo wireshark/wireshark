@@ -4473,7 +4473,7 @@ proto_register_tds(void)
             NULL, HFILL }
         },
         { &hf_tds_done_donerowcount_64,
-          { "Row count", "tds.done.donerowcount",
+          { "Row count", "tds.done.donerowcount64",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -4500,7 +4500,7 @@ proto_register_tds(void)
             NULL, HFILL }
         },
         { &hf_tds_doneproc_donerowcount_64,
-          { "Row count", "tds.doneproc.donerowcount",
+          { "Row count", "tds.doneproc.donerowcount64",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -4527,7 +4527,7 @@ proto_register_tds(void)
             NULL, HFILL }
         },
         { &hf_tds_doneinproc_donerowcount_64,
-          { "Row count", "tds.doneinproc.donerowcount",
+          { "Row count", "tds.doneinproc.donerowcount64",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -4569,7 +4569,7 @@ proto_register_tds(void)
             NULL, HFILL }
         },
         { &hf_tds_envchg_newvalue_string,
-          { "New Value", "tds.envchange.newvalue",
+          { "New Value", "tds.envchange.newvalue_string",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -4584,7 +4584,7 @@ proto_register_tds(void)
             NULL, HFILL }
         },
         { &hf_tds_envchg_oldvalue_string,
-          { "Old Value", "tds.envchange.oldvalue",
+          { "Old Value", "tds.envchange.oldvalue_string",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
