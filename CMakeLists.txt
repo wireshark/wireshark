@@ -1753,8 +1753,8 @@ if(ENABLE_APPLICATION_BUNDLE)
 
 	# Wireshark.app/Contents/Resources
 	set(BUNDLE_RESOURCE_FILES
-		${CMAKE_SOURCE_DIR}/packaging/macosx/Resources/Wireshark.icns
-		${CMAKE_SOURCE_DIR}/packaging/macosx/Resources/Wiresharkdoc.icns
+		${CMAKE_SOURCE_DIR}/packaging/macosx/Wireshark.icns
+		${CMAKE_SOURCE_DIR}/packaging/macosx/Wiresharkdoc.icns
 	)
 	set_source_files_properties(${BUNDLE_RESOURCE_FILES} PROPERTIES
 		MACOSX_PACKAGE_LOCATION Resources

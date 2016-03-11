@@ -23,55 +23,7 @@ EXTRA_DIST = \
 	Info.plist.in	\
 	osx-app.sh	\
 	osx-dmg.sh.in	\
-	Read_me_first_gtk.rtf	\
-	Read_me_first_qt.rtf	\
-	Resources/bin/getdisplay.sh	\
-	Resources/bin/wireshark	\
-	Resources/etc/fonts/fonts.conf	\
-	Resources/MenuBar.nib/classes.nib	\
-	Resources/MenuBar.nib/info.nib	\
-	Resources/MenuBar.nib/objects.xib	\
-	Resources/openDoc	\
-	Resources/ProgressWindow.nib/classes.nib	\
-	Resources/ProgressWindow.nib/info.nib	\
-	Resources/ProgressWindow.nib/objects.xib	\
-	Resources/script	\
-	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/gtkrc	\
-	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/pre_gtkrc	\
-	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/Scrollbars/stepper-down.png	\
-	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/Scrollbars/stepper-left.png	\
-	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/Scrollbars/stepper-right.png	\
-	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/Scrollbars/stepper-up.png	\
-	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/Scrollbars/trough-scrollbar-horiz.png	\
-	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/Scrollbars/trough-scrollbar-vert.png	\
-	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/Scrollbars_1/copy-slider.sh	\
-	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/Scrollbars_1/slider-horiz-prelight.png	\
-	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/Scrollbars_1/slider-horiz.png	\
-	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/Scrollbars_1/slider-vert-prelight.png	\
-	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/Scrollbars_1/slider-vert.png	\
-	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/Scrollbars_6/copy-slider.sh	\
-	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/Scrollbars_6/slider-horiz-prelight.png	\
-	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/Scrollbars_6/slider-horiz.png	\
-	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/Scrollbars_6/slider-vert-prelight.png	\
-	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/Scrollbars_6/slider-vert.png	\
-	Resources/themes/Clearlooks-Quicksilver-OSX/gtk-2.0/sync_osx_look.sh	\
-	Resources/Wireshark.icns	\
-	Resources/Wiresharkdoc.icns	\
-	ScriptExec/English.lproj/InfoPlist.strings	\
-	ScriptExec/English.lproj/main.nib/classes.nib	\
-	ScriptExec/English.lproj/main.nib/info.nib	\
-	ScriptExec/English.lproj/main.nib/objects.xib	\
-	ScriptExec/Info.plist	\
-	ScriptExec/main.c	\
-	ScriptExec/MenuBar.nib/classes.nib	\
-	ScriptExec/MenuBar.nib/info.nib	\
-	ScriptExec/MenuBar.nib/objects.xib	\
-	ScriptExec/openDoc	\
-	ScriptExec/script	\
-	ScriptExec/ScriptExec.xcode/project.pbxproj	\
-	ScriptExec/ScriptExec.xcodeproj/project.pbxproj	\
-	ScriptExec/ScriptExec_Prefix.pch	\
-	ScriptExec/version.plist	\
+	Read_me_first.rtf	\
 	Scripts/chmodbpf-postinstall.sh	\
 	Scripts/cli-preinstall.sh	\
 	Scripts/cli-postinstall.sh	\
@@ -79,6 +31,8 @@ EXTRA_DIST = \
 	utility-launcher	\
 	root.ds_store	\
 	util.ds_store	\
+	Wireshark.icns	\
+	Wiresharkdoc.icns	\
 	Wireshark_package.pmdoc/01wireshark-contents.xml	\
 	Wireshark_package.pmdoc/01wireshark.xml		\
 	Wireshark_package.pmdoc/02chmodbpf-contents.xml	\
@@ -96,5 +50,5 @@ all: COPYING.txt
 install: all
 
 clean-local:
-	rm -rf Utilities Wireshark.app ScriptExec/build COPYING.txt \
+	rm -rf Utilities Wireshark.app COPYING.txt \
 	    *.dmg *.pkg

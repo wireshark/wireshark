@@ -44,10 +44,6 @@ src_dir="."
 tmp_dir="/tmp/dmg-$$"
 auto_open_opt=
 
-# Qt defaults
-readme_name="Read_me_first_qt.rtf"
-bundle_bin_name="Wireshark"
-
 if [ -f /Applications/Xcode.app/Contents/Applications/PackageMaker.app/Contents/MacOS/PackageMaker ]
 then
 	#
@@ -101,10 +97,6 @@ OPTIONS
 	-b,--app-bundle
 		Set the path to the Wireshark.app that should be copied
 		in the dmg.
-	-qt,--qt-flavor
-		Use the Qt flavor. This is the default.
-	-gtk,--gtk-flavor
-		Use the GTK+ flavor.
 	-S,--source-directory
 		If this is an out-of-tree build, set this to the path
 		to the packaging/macosx source directory.
@@ -123,12 +115,6 @@ do
 	  	-b|--app-bundle)
 			app_bundle="$2"
 			shift 1 ;;
-		-qt|--qt-flavor)
-			;;
-		-gtk|--gtk-flavor)
-			readme_name="Read_me_first_gtk.rtf"
-			bundle_bin_name="wireshark-bin"
-			;;
 		-S|--source-directory)
 			src_dir="$2"
 			shift 1 ;;
@@ -147,19 +133,13 @@ if [ ! -e "$app_bundle" ]; then
 fi
 
 # Get the architecture
-ws_bin="$app_bundle/Contents/MacOS/$bundle_bin_name"
+ws_bin="$app_bundle/Contents/MacOS/Wireshark"
 case `file $ws_bin` in
 	*Mach-O*64-bit*x86_64*)
 		architecture="Intel 64"
 		;;
 	*Mach-O*i386*)
 		architecture="Intel 32"
-		;;
-	*Mach-O*ppc64*)
-		architecture="PPC 64"
-		;;
-	*Mach-O*ppc*)
-		architecture="PPC 32"
 		;;
 	*)
 		echo "Cannot determine architecture of $ws_bin; file reports:"
@@ -211,7 +191,7 @@ echo -e "Copying files to temp directory"
 # Copy the installer package
 cp "$pkg_file" "$tmp_dir"/ || exit 1
 # Copy the readme
-cp "$src_dir/$readme_name" "$tmp_dir"/"Read me first.rtf" || exit 1
+cp "$src_dir/Read_me_first.rtf" "$tmp_dir"/"Read me first.rtf" || exit 1
 
 # If the appearance settings are not to be modified we just copy them
 if [ ${set_ds_store} = "false" ]; then

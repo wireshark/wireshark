@@ -49,12 +49,11 @@ create_bundle=false
 # the Info.plist file which is filled in by the configure script.
 bundle="Wireshark.app"
 
-# "qt" or "gtk"
-ui_toolkit="qt"
 # Name of the Wireshark executable
 wireshark_bin_name="wireshark"
 
 binary_list="
+	$wireshark_bin_name
 	capinfos
 	dftest
 	dumpcap
@@ -92,7 +91,7 @@ echo -e "
 Create an app bundle for OS X
 
 USAGE
-	$0 [-s] [-l /path/to/libraries] [-qt] -bp /path/to/wireshark/binaries -p /path/to/Info.plist
+	$0 [-s] [-l /path/to/libraries] -bp /path/to/wireshark/binaries -p /path/to/Info.plist
 
 OPTIONS
 	-h,--help
@@ -125,10 +124,6 @@ OPTIONS
 		has been run.
 	-sdkroot
 		Specify the root of the SDK to use.
-	-qt,--qt-flavor
-		Use the Qt flavor. This is the default.
-	-gtk,--gtk-flavor
-		Use the GTK+ flavor.
 
 EXAMPLE
 	$0 -s -l /opt/local -bp ../../Build/bin -p Info.plist -sdkroot /Developer/SDKs/MacOSX10.5.sdk
@@ -163,14 +158,6 @@ do
 		-p|--plist)
 			plist="$2"
 			shift 1 ;;
-		-qt|--qt-flavor)
-			ui_toolkit="qt"
-			wireshark_bin_name="wireshark"
-			;;
-		-gtk|--gtk-flavor)
-			ui_toolkit="gtk"
-			wireshark_bin_name="wireshark-gtk"
-			;;
 		-h|--help)
 			help
 			exit 0 ;;
@@ -193,7 +180,7 @@ fi
 if [ "$create_bundle" = "true" ]; then
 	echo -e "\nCREATE WIRESHARK APP BUNDLE\n"
 
-	for binary in $wireshark_bin_name $binary_list ; do
+	for binary in $binary_list ; do
 		binary=$( basename $binary )
 		if [ ! -x "$binary_path/$binary" ]; then
 			echo "Couldn't find $binary (or it's not executable)" >&2
@@ -218,25 +205,23 @@ elif [ ! -d "$bundle" ] ; then
 	exit 1
 fi
 
-if [ "$ui_toolkit" = "qt" ] ; then
-	for i in 5 ""
-	do
-		qt_frameworks_dir=`pkg-config --libs Qt${i}Core | sed -e 's/-F//' -e 's/ -framework.*//'`
-		if [ ! -z "$qt_frameworks_dir" ] ; then
-			# found it
-			break;
-		fi
-	done
-	if [ -z "$qt_frameworks_dir" ] ; then
-		echo "Can't find the Qt frameworks directory" >&2
-		exit 1
+for i in 5 ""
+do
+	qt_frameworks_dir=`pkg-config --libs Qt${i}Core | sed -e 's/-F//' -e 's/ -framework.*//'`
+	if [ ! -z "$qt_frameworks_dir" ] ; then
+		# found it
+		break;
 	fi
-
-	#
-	# Leave the Qt frameworks out of the special processing.
-	#
-	exclude_prefixes="$exclude_prefixes|$qt_frameworks_dir"
+done
+if [ -z "$qt_frameworks_dir" ] ; then
+	echo "Can't find the Qt frameworks directory" >&2
+	exit 1
 fi
+
+#
+# Leave the Qt frameworks out of the special processing.
+#
+exclude_prefixes="$exclude_prefixes|$qt_frameworks_dir"
 
 # Package paths
 pkgexec="$bundle/Contents/MacOS"
@@ -252,101 +237,33 @@ resdir=`pwd`
 # This is only used by Autotools. This can be removed if we start using
 # CMake exclusively.
 create_bundle() {
-	# Handle some version specific details.
-	VERSION=`/usr/bin/sw_vers | grep ProductVersion | cut -f2 -d'.'`
-	if [ "$VERSION" -ge "4" ]; then
-		# We're on Tiger (10.4) or later.
-		# XCode behaves a little differently in Tiger and later.
-		XCODEFLAGS="-configuration Deployment"
-		SCRIPTEXECDIR="ScriptExec/build/Deployment/ScriptExec.app/Contents/MacOS"
-		EXTRALIBS=""
-	else
-		# Panther (10.3) or earlier.
-		XCODEFLAGS="-buildstyle Deployment"
-		SCRIPTEXECDIR="ScriptExec/build/ScriptExec.app/Contents/MacOS"
-		EXTRALIBS=""
-	fi
-
-	# Set the SDK root, if an SDK was specified.
-	# (-sdk is only supported by the xcodebuild in the version of the
-	# developer tools that came with Snow Leopard and later versions)
-	if [ ! -z "$sdkroot" ]
-	then
-		XCODEFLAGS="$XCODEFLAGS SDKROOT=$sdkroot"
-	fi
-
 	# Remove a previously existing bundle if necessary
 	if [ -d $bundle ]; then
 		echo "Removing previous $bundle"
 		rm -Rf $bundle
 	fi
 
-	# Remove a previously existing utility directory if necessary
-	if [ -d "$util_dir" ]; then
-		echo "Removing $util_dir directory"
-		rm -Rf "$util_dir"
-	fi
-
 	# Prepare Package
 	#----------------------------------------------------------
-
-	#
-	# For Qt, the Wireshark binary is the main binary of the app bundle.
-	# For GTK+, the Wireshark binary is wireshark-bin in
-	# Contents/Resources/bin, so some of the above setting have to change.
-	#
-	if [ "$ui_toolkit" = "gtk" ] ; then
-		pkgbin="$pkgres/bin"
-		pkglib="$pkgres/lib"
-	fi
 
 	mkdir -p "$pkgexec"
 	mkdir -p "$pkgexec/extcap"
 	mkdir -p "$pkgbin"
 	mkdir -p "$pkgplugin"
 
-	if [ "$ui_toolkit" = "qt" ] ; then
-		cp -v "$binary_path/$wireshark_bin_name" "$pkgexec/Wireshark"
-	else
-	# Build and add the launcher
-	#----------------------------------------------------------
-		(
-			# Build fails if CC happens to be set (to anything other than CompileC)
-			unset CC
-
-			cd "$resdir/ScriptExec"
-			echo -e "Building launcher...\n"
-			xcodebuild $XCODEFLAGS clean build
-		)
-		cp "$resdir/$SCRIPTEXECDIR/ScriptExec" "$pkgexec/Wireshark"
-
-	fi
+	cp -v "$binary_path/$wireshark_bin_name" "$pkgexec/Wireshark"
 
 	# Copy all files into the bundle
 	#----------------------------------------------------------
 	echo -e "\nFilling app bundle and utility directory...\n"
 
 	# Wireshark executables
-	if [ "$ui_toolkit" = "gtk" ] ; then
-		for binary in $binary_list wireshark ; do
-			# Copy the binary to its destination
-			dest_path="$pkgbin/$binary-bin"
-			cs_binary_list="$cs_binary_list $dest_path"
-			cp -v "$binary_path/$binary" "$dest_path"
-			# TODO Add a "$verbose" variable and command line switch, which sets wether these commands are verbose or not
-
-			if [ "$binary" != "wireshark" ] ; then
-				ln -sv ./wireshark "$pkgbin/$binary"
-			fi
-		done
-	elif [ "$ui_toolkit" = "qt" ] ; then
-		for binary in $binary_list ; do
-			# Copy the binary to its destination
-			bin_dest="$pkgexec"
-			cp -v "$binary_path/$binary" "$bin_dest"
-			cs_binary_list="$cs_binary_list $bin_dest/$binary"
-		done
-	fi
+	for binary in $binary_list ; do
+		# Copy the binary to its destination
+		bin_dest="$pkgexec"
+		cp -v "$binary_path/$binary" "$bin_dest"
+		cs_binary_list="$cs_binary_list $bin_dest/$binary"
+	done
 
 	#
 	# extcap binaries
@@ -382,95 +299,13 @@ create_bundle() {
 		Wiresharkdoc.icns
 	"
 
-	if [ "$ui_toolkit" = "gtk" ] ; then
-		res_list="
-			$res_list
-			bin
-			etc
-			openDoc
-			script
-			MenuBar.nib
-			ProgressWindow.nib
-			themes
-		"
-	fi
-
 	for rl_entry in $res_list ; do
-		rsync -av "$resdir"/Resources/$rl_entry "$bundle"/Contents/Resources/
+		rsync -av "$resdir"/$rl_entry "$bundle"/Contents/Resources/
 	done
 
 	# PkgInfo must match bundle type and creator code from Info.plist
 	echo "APPLWshk" > $bundle/Contents/PkgInfo
 
-	if [ "$ui_toolkit" = "gtk" ] ; then
-		echo -e "\nPulling in GTK+ libraries and resources...\n"
-
-		# Pull in extra requirements for Pango and GTK
-		pkgetc="$bundle/Contents/Resources/etc"
-		mkdir -p $pkgetc/pango
-		cp $LIBPREFIX/etc/pango/pangox.aliases $pkgetc/pango/
-		# Need to adjust path and quote in case of spaces in path.
-		sed -e "s,$LIBPREFIX,\"\${CWD},g" -e 's,\.so ,.so" ,g' $LIBPREFIX/etc/pango/pango.modules > $pkgetc/pango/pango.modules
-		cat > $pkgetc/pango/pangorc <<END_PANGO
-[Pango]
-ModuleFiles=\${HOME}/.wireshark-etc/pango.modules
-[PangoX]
-AliasFiles=\${HOME}/.wireshark-etc/pangox.aliases
-END_PANGO
-
-		# We use a modified fonts.conf file so only need the dtd
-		mkdir -p $pkgetc/fonts
-		cp $LIBPREFIX/etc/fonts/fonts.dtd $pkgetc/fonts/
-		cp -r $LIBPREFIX/etc/fonts/conf.avail $pkgetc/fonts/
-		cp -r $LIBPREFIX/etc/fonts/conf.d $pkgetc/fonts/
-
-		mkdir -p $pkgetc/gtk-2.0
-		#
-		# In newer versions of GTK+, the gdk-pixbuf library was split off from
-		# GTK+, and the gdk-pixbuf.loaders file moved, so we check for its
-		# existence here.
-		#
-		# The file is ultimately copied to the user's home directory, with
-		# the pathnames adjusted to refer to the installed bundle, so we
-		# always put it in the same location in the installed bundle,
-		# regardless of where it lives in the machine on which it's built.
-		#
-		if [ -e $LIBPREFIX/etc/gtk-2.0/gdk-pixbuf.loaders ]
-		then
-			sed -e "s,$LIBPREFIX,\${CWD},g" $LIBPREFIX/etc/gtk-2.0/gdk-pixbuf.loaders > $pkgetc/gtk-2.0/gdk-pixbuf.loaders
-		fi
-		sed -e "s,$LIBPREFIX,\${CWD},g" $LIBPREFIX/etc/gtk-2.0/gtk.immodules > $pkgetc/gtk-2.0/gtk.immodules
-
-		pango_version=`pkg-config --variable=pango_module_version pango`
-		mkdir -p $pkglib/pango/$pango_version/modules
-		cp $LIBPREFIX/lib/pango/$pango_version/modules/*.so $pkglib/pango/$pango_version/modules/
-
-		gtk_version=`pkg-config --variable=gtk_binary_version gtk+-2.0`
-		mkdir -p $pkglib/gtk-2.0/$gtk_version/{engines,immodules,loaders}
-		cp -r $LIBPREFIX/lib/gtk-2.0/$gtk_version/* $pkglib/gtk-2.0/$gtk_version/
-
-		gdk_pixbuf_version=`pkg-config --variable=gdk_pixbuf_binary_version gdk-pixbuf-2.0`
-		if [ ! -z $gdk_pixbuf_version ]; then
-			mkdir -p $pkglib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders
-			#
-			# As per the above, check whether we have a loaders.cache file
-			# in $LIBPREFIX/lib/gdk-pixbuf-2.0/$gdk_pixbuf_version, as
-			# that's where the output of gdk-pixbuf-query-loaders gets
-			# put if gdk-pixbuf and GTK+ are separated.
-			#
-			# The file is ultimately copied to the user's home directory,
-			# with the pathnames adjusted to refer to the installed bundle,
-			# so we always put it in the same location in the installed
-			# bundle, regardless of where it lives in the machine on which
-			# it's built.
-			#
-			if [ -e $LIBPREFIX/lib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders.cache ]
-			then
-				sed -e "s,$LIBPREFIX,\${CWD},g" $LIBPREFIX/lib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders.cache > $pkgetc/gtk-2.0/gdk-pixbuf.loaders
-			fi
-			cp -r $LIBPREFIX/lib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders/* $pkglib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders
-		fi
-	fi # GTK+ / Qt
 } # create_bundle
 
 if [ "$create_bundle" = "true" ]; then
@@ -478,7 +313,6 @@ if [ "$create_bundle" = "true" ]; then
 fi
 
 if [ -z "$cs_binary_list" ]; then
-	# Assumes Qt.
 	for binary in Wireshark $binary_list ; do
 		cs_binary_list="$cs_binary_list $pkgexec/$binary"
 	done
@@ -495,22 +329,8 @@ endl=true
 lib_dep_search_list="
 	$pkglib/*
 	$pkgbin/*-bin
+	$pkgexec/Wireshark
 	"
-if [ "$ui_toolkit" = "gtk" ] ; then
-	lib_dep_search_list="
-		$lib_dep_search_list
-		$pkglib/gtk-2.0/$gtk_version/loaders/*
-		$pkglib/gtk-2.0/$gtk_version/immodules/*
-		$pkglib/gtk-2.0/$gtk_version/engines/*.so
-		$pkglib/pango/$pango_version/modules/*
-		$pkglib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders/*
-		"
-elif [ "$ui_toolkit" = "qt" ] ; then
-	lib_dep_search_list="
-		$pkgexec/Wireshark
-		$lib_dep_search_list
-		"
-fi
 
 while $endl; do
 	echo -e "Looking for dependencies. Round" $a
@@ -532,11 +352,6 @@ while $endl; do
 	fi
 done
 
-# Add extra libraries of necessary
-for libfile in $EXTRALIBS
-do
-	cp -v -f $libfile "$pkglib"
-done
 chmod 755 "$pkglib"/*.dylib
 
 # Strip libraries and executables if requested
@@ -547,23 +362,20 @@ if [ "$strip" = "true" ]; then
 	strip -ur "$binpath"
 fi
 
-if [ "$ui_toolkit" = "qt" ] ; then
-	#
-	# This may not work on Qt 5.5.0 or 5.5.1:
-	# https://bugreports.qt.io/browse/QTBUG-47868
-	#
-	macdeployqt "$bundle" -verbose=2 || exit 1
+#
+# This may not work on Qt 5.5.0 or 5.5.1:
+# https://bugreports.qt.io/browse/QTBUG-47868
+#
+macdeployqt "$bundle" -verbose=2 || exit 1
 
-	#
-	# The build process added to the Wireshark binary an rpath entry
-	# pointing to the directory containing the Qt frameworks; remove
-	# that entry from the Wireshark binary in the package.
-	#
-	/usr/bin/install_name_tool -delete_rpath "$qt_frameworks_dir" $pkgbin/Wireshark
-fi
+#
+# The build process added to the Wireshark binary an rpath entry
+# pointing to the directory containing the Qt frameworks; remove
+# that entry from the Wireshark binary in the package.
+#
+/usr/bin/install_name_tool -delete_rpath "$qt_frameworks_dir" $pkgbin/Wireshark
 
-# NOTE: we must rpathify *all* files, *including* plugins for GTK+ etc.,
-#	to keep	GTK+ from crashing at startup.
+# NOTE: we must rpathify *all* files, *including* Qt libraries etc.,
 #
 rpathify_file () {
 	# Fix a given executable, library, or plugin to be relocatable
@@ -726,19 +538,7 @@ rpathify_files () {
 	rpathify_dir "$pkgbin" "*"
 	rpathify_dir "$pkgplugin" "*"
 
-	if [ "$ui_toolkit" = "qt" ] ; then
-		rpathify_dir "$pkgbin/extcap" "*"
-	fi
-
-	if [ "$ui_toolkit" = "gtk" ] ; then
-		rpathify_dir "$pkglib/gtk-2.0/$gtk_version/loaders" "*.so"
-		rpathify_dir "$pkglib/gtk-2.0/$gtk_version/engines" "*.so"
-		rpathify_dir "$pkglib/gtk-2.0/$gtk_version/immodules" "*.so"
-		rpathify_dir "$pkglib/gtk-2.0/$gtk_version/printbackends" "*.so"
-		rpathify_dir "$pkglib/gnome-vfs-2.0/modules" "*.so"
-		rpathify_dir "$pkglib/gdk-pixbuf-2.0/$gtk_version/loaders" "*.so"
-		rpathify_dir "$pkglib/pango/$pango_version/modules" "*.so"
-	fi
+	rpathify_dir "$pkgbin/extcap" "*"
 }
 
 PATHLENGTH=`echo $LIBPREFIX | wc -c`
