@@ -6684,7 +6684,7 @@ proto_register_sigcomp(void)
         /* Generated from convert_proto_tree_add_text.pl */
         { &ei_sigcomp_sigcomp_message_decompression_failure, { "sigcomp.message_decompression_failure", PI_PROTOCOL, PI_WARN, "SigComp message Decompression failure", EXPFILL }},
         { &ei_sigcomp_execution_of_this_instruction_is_not_implemented, { "sigcomp.execution_of_this_instruction_is_not_implemented", PI_UNDECODED, PI_WARN, "Execution of this instruction is NOT implemented", EXPFILL }},
-        { &ei_sigcomp_decompression_failure, { "sigcomp.decompression_failure", PI_PROTOCOL, PI_WARN, "DECOMPRESSION FAILURE", EXPFILL }},
+        { &ei_sigcomp_decompression_failure, { "sigcomp.decompression_failure_expert", PI_PROTOCOL, PI_WARN, "DECOMPRESSION FAILURE", EXPFILL }},
         { &ei_sigcomp_tcp_fragment, { "sigcomp.tcp_fragment", PI_MALFORMED, PI_ERROR, "TCP Fragment", EXPFILL }},
         { &ei_sigcomp_failed_to_access_state_wireshark_udvm_diagnostic, { "sigcomp.failed_to_access_state_wireshark_udvm_diagnostic", PI_PROTOCOL, PI_WARN, "Failed to Access state Wireshark UDVM diagnostic", EXPFILL }},
         { &ei_sigcomp_all_remaining_parameters_zero, { "sigcomp.all_remaining_parameters", PI_PROTOCOL, PI_NOTE, "All remaining parameters = 0(Not in the uploaded code as UDVM buffer initialized to Zero", EXPFILL }},
