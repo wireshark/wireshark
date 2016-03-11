@@ -7359,7 +7359,7 @@ proto_register_scsi(void)
       { &hf_scsi_inq_cmddt_support, { "Support", "scsi.inquiry.cmddt.support", FT_UINT8, BASE_DEC, VALS(scsi_cmdt_supp_val), 0x07, NULL, HFILL }},
       { &hf_scsi_inq_cmddt_version, { "Version", "scsi.inquiry.cmddt.version", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &scsi_verdesc_val_ext, 0x0, NULL, HFILL }},
       { &hf_scsi_inq_cmddt_cdb_size, { "CDB Size", "scsi.inquiry.cmddt.cdb_size", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_blockdescs_no_of_blocks64, { "No. of Blocks", "scsi.blockdescs.no_of_blocks", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_blockdescs_no_of_blocks64, { "No. of Blocks", "scsi.blockdescs.no_of_blocks64", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_blockdescs_density_code, { "Density Code", "scsi.blockdescs.density_code", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_blockdescs_block_length32, { "Block Length", "scsi.blockdescs.block_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_blockdescs_no_of_blocks32, { "No. of Blocks", "scsi.blockdescs.no_of_blocks", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -7694,7 +7694,7 @@ proto_register_scsi(void)
       { &hf_scsi_naa_locally_assigned, { "Locally Assigned", "scsi.naa.locally_assigned", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_naa_ieee_company_id, { "IEEE Company ID", "scsi.naa.ieee_company_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_naa_vendor_specific, { "Vendor Specific Identifier", "scsi.naa.vendor_specific", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_naa_vendor_specific_extension, { "Vendor Specific Identifier Extension", "scsi.naa.vendor_specific", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }}
+      { &hf_scsi_naa_vendor_specific_extension, { "Vendor Specific Identifier Extension", "scsi.naa.vendor_specific.extension", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }}
     };
 
     /* Setup protocol subtree array */
