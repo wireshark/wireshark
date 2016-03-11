@@ -4,8 +4,6 @@ Portable Wireshark
 This directory contains experimental packaging for running Wireshark under the Portable Apps 
 (http://www.portableapps.com/). 
 
-The packaging relies on the same "manifest" as used by the U3 packaging. Therefore there is no need to maintain a list of relevant files for the Portable Wireshark. Only the U3 list needs to be updated.
-
 Currently only an additional menu item for Wireshark is added - the other tools could be added to Portable Apps menu if required.
 
 WinPcap

@@ -73,7 +73,6 @@ set(WSUTIL_FILES
 	tempfile.c
 	time_util.c
 	type_util.c
-	u3.c
 	unicode-utils.c
 	ws_mempbrk.c
 	ws_version_info.c

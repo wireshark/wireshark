@@ -161,12 +161,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  test_for_fifo@Base 1.12.0~rc1
  type_util_gdouble_to_guint64@Base 1.10.0
  type_util_guint64_to_gdouble@Base 1.10.0
- u3_active@Base 1.12.0~rc1
- u3_contract_device_path@Base 1.12.0~rc1
- u3_deregister_pid@Base 1.12.0~rc1
- u3_expand_device_path@Base 1.12.0~rc1
- u3_register_pid@Base 1.12.0~rc1
- u3_runtime_info@Base 1.12.0~rc1
  ulaw2linear@Base 1.12.0~rc1
  update_adler32@Base 1.12.0~rc1
  update_crc10_by_bytes@Base 1.10.0

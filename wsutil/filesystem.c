@@ -69,8 +69,6 @@
 #define PROFILES_DIR    "profiles"
 #define PLUGINS_DIR_NAME    "plugins"
 
-#define U3_MY_CAPTURES  "\\My Captures"
-
 char *persconffile_dir = NULL;
 char *persdatafile_dir = NULL;
 char *persconfprofile = NULL;
@@ -832,9 +830,6 @@ get_progfile_dir(void)
 const char *
 get_datafile_dir(void)
 {
-#ifdef _WIN32
-    char *u3deviceexecpath;
-#endif
     static const char *datafile_dir = NULL;
 
     if (datafile_dir != NULL)
@@ -842,39 +837,27 @@ get_datafile_dir(void)
 
 #ifdef _WIN32
     /*
-     * See if we are running in a U3 environment.
+     * Do we have the pathname of the program?  If so, assume we're
+     * running an installed version of the program.  If we fail,
+     * we don't change "datafile_dir", and thus end up using the
+     * default.
+     *
+     * XXX - does NSIS put the installation directory into
+     * "\HKEY_LOCAL_MACHINE\SOFTWARE\Wireshark\InstallDir"?
+     * If so, perhaps we should read that from the registry,
+     * instead.
      */
-    u3deviceexecpath = getenv_utf8("U3_DEVICE_EXEC_PATH");
-
-    if (u3deviceexecpath != NULL) {
+    if (progfile_dir != NULL) {
         /*
-         * We are; use the U3 device executable path.
+         * Yes, we do; use that.
          */
-        datafile_dir = u3deviceexecpath;
+        datafile_dir = progfile_dir;
     } else {
         /*
-         * Do we have the pathname of the program?  If so, assume we're
-         * running an installed version of the program.  If we fail,
-         * we don't change "datafile_dir", and thus end up using the
-         * default.
-         *
-         * XXX - does NSIS put the installation directory into
-         * "\HKEY_LOCAL_MACHINE\SOFTWARE\Wireshark\InstallDir"?
-         * If so, perhaps we should read that from the registry,
-         * instead.
+         * No, we don't.
+         * Fall back on the default installation directory.
          */
-        if (progfile_dir != NULL) {
-            /*
-             * Yes, we do; use that.
-             */
-            datafile_dir = progfile_dir;
-        } else {
-            /*
-             * No, we don't.
-             * Fall back on the default installation directory.
-             */
-            datafile_dir = "C:\\Program Files\\Wireshark\\";
-        }
+        datafile_dir = "C:\\Program Files\\Wireshark\\";
     }
 #else
 
@@ -1267,18 +1250,6 @@ get_persconffile_dir_no_profile(void)
      */
     env = getenv_utf8("WIRESHARK_APPDATA");
     if (env != NULL) {
-        persconffile_dir = g_strdup(env);
-        return persconffile_dir;
-    }
-
-    /*
-     * See if we are running in a U3 environment.
-     */
-    env = getenv_utf8("U3_APP_DATA_PATH");
-    if (env != NULL) {
-        /*
-         * We are; use the U3 application data path.
-         */
         persconffile_dir = g_strdup(env);
         return persconffile_dir;
     }
@@ -1680,9 +1651,7 @@ copy_persconffile_profile(const char *toname, const char *fromname, gboolean fro
 /*
  * Get the (default) directory in which personal data is stored.
  *
- * On Win32, this is the "My Documents" folder in the personal profile,
- * except that, if we're running from a U3 device, this is the
- * "$U3_DEVICE_DOCUMENT_PATH\My Captures" folder.
+ * On Win32, this is the "My Documents" folder in the personal profile.
  * On UNIX this is simply the current directory.
  */
 /* XXX - should this and the get_home_dir() be merged? */
@@ -1690,7 +1659,6 @@ extern const char *
 get_persdatafile_dir(void)
 {
 #ifdef _WIN32
-    char *u3devicedocumentpath;
     TCHAR tszPath[MAX_PATH];
 
     /* Return the cached value, if available */
@@ -1698,27 +1666,14 @@ get_persdatafile_dir(void)
         return persdatafile_dir;
 
     /*
-     * See if we are running in a U3 environment.
+     * Hint: SHGetFolderPath is not available on MSVC 6 - without
+     * Platform SDK
      */
-    u3devicedocumentpath = getenv_utf8("U3_DEVICE_DOCUMENT_PATH");
-
-    if (u3devicedocumentpath != NULL) {
-        /* the "My Captures" sub-directory is created (if it doesn't
-           exist) by u3util.exe when the U3 Wireshark is first run */
-
-        persdatafile_dir = g_strdup_printf("%s%s", u3devicedocumentpath, U3_MY_CAPTURES);
+    if (SHGetSpecialFolderPath(NULL, tszPath, CSIDL_PERSONAL, FALSE)) {
+        persdatafile_dir = g_utf16_to_utf8(tszPath, -1, NULL, NULL, NULL);
         return persdatafile_dir;
     } else {
-        /*
-         * Hint: SHGetFolderPath is not available on MSVC 6 - without
-         * Platform SDK
-         */
-        if (SHGetSpecialFolderPath(NULL, tszPath, CSIDL_PERSONAL, FALSE)) {
-            persdatafile_dir = g_utf16_to_utf8(tszPath, -1, NULL, NULL, NULL);
-            return persdatafile_dir;
-        } else {
-            return "";
-        }
+        return "";
     }
 #else
     return "";
