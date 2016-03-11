@@ -4774,7 +4774,7 @@ proto_register_s7comm (void)
           NULL, HFILL }},
         /* CPU message service */
         { &hf_s7comm_cpu_msgservice_subscribe_events,
-        { "Subscribed events", "s7comm.cpu.msg.events.modetrans", FT_UINT8, BASE_HEX, NULL, 0x0,
+        { "Subscribed events", "s7comm.cpu.msg.events", FT_UINT8, BASE_HEX, NULL, 0x0,
           NULL, HFILL }},
         { &hf_s7comm_cpu_msgservice_subscribe_events_modetrans,
         { "Mode-transition", "s7comm.cpu.msg.events.modetrans", FT_BOOLEAN, 8, NULL, 0x01,
