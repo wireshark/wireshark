@@ -56,7 +56,7 @@
 #include "pcapng.h"
 #include "erf.h"
 
-static gboolean erf_read_header(FILE_T fh,
+static gboolean erf_read_header(wtap *wth, FILE_T fh,
                                 struct wtap_pkthdr *phdr,
                                 erf_header_t *erf_header,
                                 int *err,
@@ -68,6 +68,8 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
 static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
                               struct wtap_pkthdr *phdr, Buffer *buf,
                               int *err, gchar **err_info);
+static void erf_close(wtap *wth);
+static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, guint32 packet_size);
 
 static const struct {
   int erf_encap_value;
@@ -84,6 +86,129 @@ static const struct {
 };
 
 #define NUM_ERF_ENCAPS (sizeof erf_to_wtap_map / sizeof erf_to_wtap_map[0])
+
+#define ERF_META_TAG_HEADERLEN 4
+#define ERF_META_TAG_ALIGNED_LENGTH(taglength)  (((taglength + 0x3) &~0x3) + ERF_META_TAG_HEADERLEN)
+
+struct erf_if_info {
+  int if_index;
+  gchar *name;
+  gchar *descr;
+  int stream_num;
+  struct {
+    guint filter:1;
+    guint fcs_len:1;
+    guint snaplen:1;
+  } set_flags;
+};
+
+struct erf_if_mapping {
+  guint64 host_id;
+  guint8 source_id;
+  struct erf_if_info interfaces[4];
+
+  gchar *module_filter_str;
+  gint8 module_fcs_len;
+  guint32 module_snaplen;
+  int interface_metadata;
+  gboolean module_metadata;
+};
+
+struct erf_meta_tag {
+  guint16 type;
+  guint16 length;
+  guint8 *value;
+};
+
+struct erf_meta_read_state {
+  guint8 *tag_ptr;
+  guint32 remaining_len;
+
+  struct erf_if_mapping *if_map;
+
+  guint16 sectiontype;
+  guint16 sectionid;
+  guint16 parentsectiontype;
+  guint16 parentsectionid;
+
+  int interface_metadata;
+};
+
+static gboolean erf_if_mapping_equal(gconstpointer a, gconstpointer b)
+{
+  const struct erf_if_mapping *if_map_a = (const struct erf_if_mapping*) a;
+  const struct erf_if_mapping *if_map_b = (const struct erf_if_mapping*) b;
+
+  return if_map_a->source_id == if_map_b->source_id && if_map_a->host_id == if_map_b->host_id;
+}
+
+static guint erf_if_mapping_hash(gconstpointer key)
+{
+  const struct erf_if_mapping *if_map = (const struct erf_if_mapping*) key;
+
+  return (((guint) if_map->host_id) << 16) | if_map->source_id;
+}
+
+static void erf_if_mapping_destroy(gpointer key)
+{
+  int i = 0;
+  struct erf_if_mapping *if_map = (struct erf_if_mapping*) key;
+
+  for (i = 0; i < 4; i++) {
+    g_free(if_map->interfaces[i].name);
+    g_free(if_map->interfaces[i].descr);
+  }
+
+  g_free(if_map->module_filter_str);
+  g_free(if_map);
+}
+
+static struct erf_if_mapping* erf_if_mapping_create(guint64 host_id, guint8 source_id)
+{
+  int i = 0;
+  struct erf_if_mapping *if_map = NULL;
+
+  if_map = (struct erf_if_mapping*) g_malloc(sizeof(struct erf_if_mapping));
+  memset(if_map, 0, sizeof(struct erf_if_mapping));
+
+  if_map->host_id = host_id;
+  if_map->source_id = source_id;
+
+  for (i = 0; i < 4; i++) {
+    if_map->interfaces[i].if_index = -1;
+    if_map->interfaces[i].stream_num = -1;
+  }
+
+  if_map->module_fcs_len = -1;
+  if_map->module_snaplen = (guint32) -1;
+  /* everything else 0 by memset */
+
+  return if_map;
+}
+
+erf_t *erf_priv_create(void)
+{
+  erf_t *erf_priv;
+
+  erf_priv = (erf_t*) g_malloc(sizeof(erf_t));
+  erf_priv->if_map = g_hash_table_new_full(erf_if_mapping_hash, erf_if_mapping_equal, erf_if_mapping_destroy, NULL);
+  erf_priv->implicit_host_id = 0;
+  erf_priv->capture_metadata = FALSE;
+  erf_priv->host_metadata = FALSE;
+
+  return erf_priv;
+}
+
+erf_t* erf_priv_free(erf_t* erf_priv)
+{
+  if (erf_priv)
+  {
+    g_hash_table_destroy(erf_priv->if_map);
+    g_free(erf_priv);
+  }
+
+  return NULL;
+}
 
 extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -278,9 +403,10 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
 
   wth->subtype_read = erf_read;
   wth->subtype_seek_read = erf_seek_read;
+  wth->subtype_close = erf_close;
   wth->file_tsprec = WTAP_TSPREC_NSEC;
 
-  erf_populate_interfaces(wth);
+  wth->priv = erf_priv_create();
 
   return WTAP_OPEN_MINE;
 }
@@ -295,7 +421,7 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
   *data_offset = file_tell(wth->fh);
 
   do {
-    if (!erf_read_header(wth->fh,
+    if (!erf_read_header(wth, wth->fh,
                          &wth->phdr, &erf_header,
                          err, err_info, &bytes_read, &packet_size)) {
       return FALSE;
@@ -304,6 +430,15 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
     if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer, packet_size,
                                 err, err_info))
       return FALSE;
+
+    /*
+     * If MetaERF, frame buffer could hold the meta erf tags. Only look until
+     * we have seen a description of every interface.
+     */
+    if ((erf_header.type & 0x7F) == ERF_TYPE_META && packet_size > 0)
+    {
+      populate_summary_info((erf_t*) wth->priv, wth, &wth->phdr.pseudo_header, packet_size);
+    }
 
   } while ( erf_header.type == ERF_TYPE_PAD );
 
@@ -321,7 +456,7 @@ static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
     return FALSE;
 
   do {
-    if (!erf_read_header(wth->random_fh, phdr, &erf_header,
+    if (!erf_read_header(wth, wth->random_fh, phdr, &erf_header,
                          err, err_info, NULL, &packet_size))
       return FALSE;
   } while ( erf_header.type == ERF_TYPE_PAD );
@@ -330,7 +465,7 @@ static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
                                 err, err_info);
 }
 
-static gboolean erf_read_header(FILE_T fh,
+static gboolean erf_read_header(wtap *wth, FILE_T fh,
                                 struct wtap_pkthdr *phdr,
                                 erf_header_t *erf_header,
                                 int *err,
@@ -348,6 +483,11 @@ static gboolean erf_read_header(FILE_T fh,
   guint32 skiplen = 0;
   int     i       = 0;
   int     max     = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+
+  guint64 host_id  = 0;
+  guint8 source_id = 0;
+  guint8 if_num    = 0;
+  gboolean host_id_found = FALSE;
 
   if (!wtap_read_bytes_or_eof(fh, erf_header, sizeof(*erf_header), err, err_info)) {
     return FALSE;
@@ -382,7 +522,28 @@ static gboolean erf_read_header(FILE_T fh,
   {
     guint64 ts = pletoh64(&erf_header->ts);
 
-    phdr->rec_type = REC_TYPE_PACKET;
+    /*if ((erf_header->type & 0x7f) != ERF_TYPE_META || wth->file_type_subtype != WTAP_FILE_TYPE_SUBTYPE_ERF) {*/
+      phdr->rec_type = REC_TYPE_PACKET;
+    /*
+     * XXX: ERF_TYPE_META records should ideally be FT_SPECIFIC for display
+     * purposes, but currently ft_specific_record_phdr clashes with erf_mc_phdr
+     * and the PCAP-NG dumper assumes it is a PCAP-NG block type. Ideally we
+     * would register a block handler with PCAP-NG and write out the closest
+     * PCAP-NG block, or a custom block/MetaERF record.
+     *
+     */
+#if 0
+    } else {
+      /*
+       * TODO: how to identify, distinguish and timestamp events?
+       * What to do about ENCAP_ERF in PCAP/PCAP-NG? Filetype dissector is
+       * chosen by wth->file_type_subtype?
+       */
+      /* For now just treat all MetaERF records as reports */
+      phdr->rec_type = REC_TYPE_FT_SPECIFIC_REPORT;
+      /* XXX: phdr ft_specific_record_phdr? */
+    }
+#endif
     phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID;
     phdr->ts.secs = (long) (ts >> 32);
     ts  = ((ts & 0xffffffff) * 1000 * 1000 * 1000);
@@ -392,7 +553,8 @@ static gboolean erf_read_header(FILE_T fh,
       phdr->ts.nsecs -= 1000000000;
       phdr->ts.secs += 1;
     }
-    phdr->interface_id = (erf_header->flags & 0x03);
+
+    if_num = erf_header->flags & 0x03;
   }
 
   /* Copy the ERF pseudo header */
@@ -418,8 +580,29 @@ static gboolean erf_read_header(FILE_T fh,
     if (i < max)
       memcpy(&pseudo_header->erf.ehdr_list[i].ehdr, &erf_exhdr_sw, sizeof(erf_exhdr_sw));
     type = erf_exhdr[0];
+
+    /*
+     * XXX: Only want first Source ID and Host ID, and want to preserve HID n SID 0 (see
+     * erf_populate_interface)
+     */
+    switch (type & 0x7f) {
+      case ERF_EXT_HDR_TYPE_HOST_ID:
+        if (!host_id_found)
+          host_id = erf_exhdr_sw & ERF_EHDR_HOST_ID_MASK;
+
+        host_id_found = TRUE;
+        /* Fall through */
+      case ERF_EXT_HDR_TYPE_FLOW_ID:
+        if (!source_id)
+          source_id = (erf_exhdr_sw >> 48) & 0xff;
+        break;
+    }
+
     i++;
   }
+
+  /* XXX: erf_priv pointer needs to change if used as common function for other dissectors! */
+  phdr->interface_id = (guint) erf_populate_interface((erf_t*) wth->priv, wth, pseudo_header, host_id, source_id, if_num);
 
   switch (erf_header->type & 0x7F) {
     case ERF_TYPE_IPV4:
@@ -616,12 +799,6 @@ static gboolean erf_dump(
   gboolean must_add_crc = FALSE;
   guint32  crc32        = 0x00000000;
 
-  /* We can only write packet records. */
-  if (phdr->rec_type != REC_TYPE_PACKET) {
-    *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
-    return FALSE;
-  }
-
   /* Don't write anything bigger than we're willing to read. */
   if(phdr->caplen > WTAP_MAX_PACKET_SIZE) {
     *err = WTAP_ERR_PACKET_TOO_LARGE;
@@ -653,6 +830,12 @@ static gboolean erf_dump(
       wdh->bytes_dumped++;
     }
     return TRUE;
+  }
+
+  /* We can only convert packet records. */
+  if (phdr->rec_type != REC_TYPE_PACKET) {
+    *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
+    return FALSE;
   }
 
   /*generate a fake header in other_phdr using data that we know*/
@@ -750,6 +933,10 @@ int erf_dump_open(wtap_dumper *wdh, int *err)
   return TRUE;
 }
 
+/*
+ * TODO: Replace uses in pcapng and pcap with
+ * erf_read_header() and/or erf_populate_interface_from_header() and delete.
+ */
 int erf_populate_interfaces(wtap *wth)
 {
   wtap_optionblock_t int_data;
@@ -798,6 +985,942 @@ int erf_populate_interfaces(wtap *wth)
   }
 
   return 0;
+}
+
+int erf_get_source_from_header(union wtap_pseudo_header *pseudo_header, guint64 *host_id, guint8 *source_id)
+{
+  guint8   type;
+  guint8   has_more;
+  guint64  hdr;
+  int      i             = 0;
+  gboolean host_id_found = FALSE;
+
+  if (!pseudo_header || !host_id || !source_id)
+      return -1;
+
+  *host_id = 0;
+  *source_id = 0;
+
+  has_more = pseudo_header->erf.phdr.type & 0x80;
+
+  while (has_more && (i < MAX_ERF_EHDR)) {
+    hdr = pseudo_header->erf.ehdr_list[i].ehdr;
+    type = (guint8) (hdr >> 56);
+
+    /*
+     * XXX: Only want first Source ID and Host ID, and want to preserve HID n SID 0 (see
+     * erf_populate_interface)
+     */
+    switch (type & 0x7f) {
+      case ERF_EXT_HDR_TYPE_HOST_ID:
+        if (!host_id_found)
+          *host_id = hdr & ERF_EHDR_HOST_ID_MASK;
+
+        host_id_found = TRUE;
+        /* Fall through */
+      case ERF_EXT_HDR_TYPE_FLOW_ID:
+        if (*source_id == 0)
+          *source_id = (hdr >> 48) & 0xff;
+        break;
+    }
+
+    if (host_id_found)
+      break;
+
+    has_more = type & 0x80;
+    i += 1;
+  }
+
+  return 0;
+}
+
+int erf_populate_interface_from_header(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header)
+{
+  guint64 host_id;
+  guint8 source_id;
+  guint8 if_num;
+
+  if (!pseudo_header)
+    return -1;
+
+  if_num = pseudo_header->erf.phdr.flags & 0x03;
+
+  erf_get_source_from_header(pseudo_header, &host_id, &source_id);
+
+  return erf_populate_interface(erf_priv, wth, pseudo_header, host_id, source_id, if_num);
+}
+
+static struct erf_if_mapping* erf_find_interface_mapping(erf_t *erf_priv, guint64 host_id, guint8 source_id)
+{
+  struct erf_if_mapping if_map_lookup;
+
+  if (!erf_priv)
+    return NULL;
+
+  if_map_lookup.host_id = host_id;
+  if_map_lookup.source_id = source_id;
+
+  return (struct erf_if_mapping*) g_hash_table_lookup(erf_priv->if_map, &if_map_lookup);
+}
+
+static gchar* erf_interface_descr_strdup(guint64 host_id, guint8 source_id, guint8 if_num, const gchar *descr)
+{
+  /* Source XXX,*/
+  char sourceid_buf[16];
+  /* Host XXXXXXXXXXXX,*/
+  char hostid_buf[24];
+
+  sourceid_buf[0] = '\0';
+  hostid_buf[0] = '\0';
+
+  if (host_id > 0) {
+    g_snprintf(hostid_buf, sizeof(hostid_buf), " Host %012" G_GINT64_MODIFIER "x,", host_id);
+  }
+
+  if (source_id > 0) {
+    g_snprintf(sourceid_buf, sizeof(sourceid_buf), " Source %u,", source_id);
+  }
+
+  if (descr) {
+    return g_strdup_printf("%s (ERF%s%s Interface %d)", descr, hostid_buf, sourceid_buf, if_num);
+  } else {
+    return g_strdup_printf("Port %c (ERF%s%s Interface %d)", 'A'+if_num, hostid_buf, sourceid_buf, if_num);
+  }
+}
+
+static int erf_update_implicit_host_id(erf_t *erf_priv, wtap *wth, guint64 implicit_host_id)
+{
+  GHashTableIter iter;
+  gpointer iter_value;
+  GList* implicit_list = NULL;
+  GList* item = NULL;
+  wtap_optionblock_t int_data;
+  struct erf_if_mapping* if_map = NULL;
+  char* tmp;
+  int i;
+
+  if (!erf_priv)
+    return -1;
+
+  erf_priv->implicit_host_id = implicit_host_id;
+
+  /*
+   * We need to update the descriptions of all the interfaces with no Host
+   * ID to the correct Host ID.
+   */
+  g_hash_table_iter_init(&iter, erf_priv->if_map);
+
+  /* Remove the implicit mappings from the mapping table */
+  while (g_hash_table_iter_next(&iter, &iter_value, NULL)) {
+    if_map = (struct erf_if_mapping*) iter_value;
+    if (if_map->host_id == 0) {
+      /* XXX: Can't add while iterating hash table so use list instead */
+      g_hash_table_iter_steal(&iter);
+      implicit_list = g_list_append(implicit_list, if_map);
+    }
+  }
+
+  if (implicit_list) {
+    item = implicit_list;
+    do {
+      if_map = (struct erf_if_mapping*) item->data;
+      for (i = 0; i < 4; i++) {
+        if (if_map->interfaces[i].if_index >= 0) {
+          /* XXX: this is a pointer! */
+          int_data = g_array_index(wth->interface_data, wtap_optionblock_t, if_map->interfaces[i].if_index);
+          tmp = erf_interface_descr_strdup(implicit_host_id, if_map->source_id, (guint8) i, if_map->interfaces[i].name);
+          wtap_optionblock_set_option_string(int_data, OPT_IDB_NAME, tmp);
+          g_free(tmp);
+          tmp = erf_interface_descr_strdup(implicit_host_id, if_map->source_id, (guint8) i, if_map->interfaces[i].descr);
+          wtap_optionblock_set_option_string(int_data, OPT_IDB_DESCR, tmp);
+          g_free(tmp);
+        }
+      }
+      /* Re-add the item under the implicit Host ID */
+      if_map->host_id = implicit_host_id;
+      g_hash_table_add(erf_priv->if_map, if_map);
+    } while ((item = g_list_next(item)));
+
+    g_list_free(implicit_list);
+  }
+
+  return 0;
+}
+
+int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, guint64 host_id, guint8 source_id, guint8 if_num)
+{
+  wtap_optionblock_t int_data;
+  wtapng_if_descr_mandatory_t* int_data_mand;
+  struct erf_if_mapping* if_map = NULL;
+  char* tmp;
+
+  if (!wth || !pseudo_header || !erf_priv || if_num > 3)
+    return -1;
+
+  if ((pseudo_header->erf.phdr.type & 0x7f) == ERF_TYPE_META) {
+    /*
+     * XXX: We assume there is only one Implicit Host ID. As a special case a first
+     * Host ID extension header with Source ID 0 on a record does not change
+     * the implicit Host ID. We respect this even though we support only one
+     * Implicit Host ID.
+     */
+    if (erf_priv->implicit_host_id == 0 && source_id > 0 && host_id != 0) {
+      erf_update_implicit_host_id(erf_priv, wth, host_id);
+    }
+  }
+
+  if (host_id == 0) {
+    host_id = erf_priv->implicit_host_id;
+  }
+
+  if_map = erf_find_interface_mapping(erf_priv, host_id, source_id);
+
+  if (!if_map) {
+    if_map = erf_if_mapping_create(host_id, source_id);
+    g_hash_table_add(erf_priv->if_map, if_map);
+  }
+
+  /* Return the existing interface if we have it */
+  if (if_map->interfaces[if_num].if_index >= 0) {
+    return if_map->interfaces[if_num].if_index;
+  }
+
+  int_data = wtap_optionblock_create(WTAP_OPTION_BLOCK_IF_DESCR);
+  int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(int_data);
+
+  int_data_mand->wtap_encap = WTAP_ENCAP_ERF;
+  /* int_data.time_units_per_second = (1LL<<32);  ERF format resolution is 2^-32, capture resolution is unknown */
+  int_data_mand->time_units_per_second = 1000000000; /* XXX Since Wireshark only supports down to nanosecond resolution we have to dilute to this */
+  int_data_mand->link_type = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_ERF);
+  int_data_mand->snap_len = 65535; /* ERF max length */
+
+  /* XXX: if_IPv4addr opt 4  Interface network address and netmask.*/
+  /* XXX: if_IPv6addr opt 5  Interface network address and prefix length (stored in the last byte).*/
+  /* XXX: if_MACaddr  opt 6  Interface Hardware MAC address (48 bits).*/
+  /* XXX: if_EUIaddr  opt 7  Interface Hardware EUI address (64 bits)*/
+  wtap_optionblock_set_option_uint64(int_data, OPT_IDB_SPEED, 0); /* Unknown  - XXX should be left at default? */
+  /* int_data.if_tsresol = 0xa0;  ERF format resolution is 2^-32 = 0xa0, capture resolution is unknown */
+  wtap_optionblock_set_option_uint8(int_data, OPT_IDB_TSRESOL, 0x09); /* XXX Since Wireshark only supports down to nanosecond resolution we have to dilute to this */
+  /* XXX: if_tzone      10  Time zone for GMT support (TODO: specify better). */
+  /* XXX if_tsoffset; opt 14  A 64 bits integer value that specifies an offset (in seconds)...*/
+  /* Interface statistics */
+  int_data_mand->num_stat_entries = 0;
+  int_data_mand->interface_statistics = NULL;
+
+  tmp = erf_interface_descr_strdup(host_id, source_id, if_num, NULL);
+  wtap_optionblock_set_option_string(int_data, OPT_IDB_NAME, tmp);
+  g_free(tmp);
+  tmp = erf_interface_descr_strdup(host_id, source_id, if_num, NULL);
+  wtap_optionblock_set_option_string(int_data, OPT_IDB_DESCR, tmp);
+  g_free(tmp);
+
+  if_map->interfaces[if_num].if_index = (int) wth->interface_data->len;
+  g_array_append_val(wth->interface_data, int_data);
+
+  return if_map->interfaces[if_num].if_index;
+}
+
+static guint32 erf_meta_read_tag(struct erf_meta_tag* tag, guint8 *tag_ptr, guint32 remaining_len)
+{
+  guint16 tagtype;
+  guint16 taglength;
+
+  if (!tag_ptr || !tag || remaining_len < ERF_META_TAG_HEADERLEN)
+    return 0;
+
+  /* tagtype (2 bytes) */
+  tagtype = pntoh16(&tag_ptr[0]);
+
+  /* length (2 bytes) */
+  taglength = pntoh16(&tag_ptr[2]);
+
+  if (remaining_len < (guint16) ERF_META_TAG_ALIGNED_LENGTH(taglength)) {
+    return 0;
+  }
+
+  tag->type = tagtype;
+  tag->length = taglength;
+  tag->value = &tag_ptr[4];
+
+  return ERF_META_TAG_ALIGNED_LENGTH(tag->length);
+}
+
+static int populate_capture_host_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header _U_, struct erf_meta_read_state *state)
+{
+  struct erf_meta_tag tag = {0, 0, NULL};
+
+  wtap_optionblock_t shb_hdr;
+  char* tmp;
+  gchar* app_name    = NULL;
+  gchar* app_version = NULL;
+  gchar* model       = NULL;
+  gchar* descr       = NULL;
+  gchar* cpu         = NULL;
+  gchar* modelcpu    = NULL;
+  guint32 tagtotallength;
+
+  if (!wth || !state || !wth->shb_hdr)
+    return -1;
+
+  /* XXX: wth->shb_hdr is already created by different layer, using directly for now. */
+  shb_hdr = wth->shb_hdr;
+
+  while ((tagtotallength = erf_meta_read_tag(&tag, state->tag_ptr, state->remaining_len)) && !ERF_META_IS_SECTION(tag.type)) {
+    switch (state->sectiontype) {
+      case ERF_META_SECTION_CAPTURE:
+      {
+        if (erf_priv->capture_metadata == TRUE) {
+          return 0;
+        }
+
+        switch (tag.type) {
+          case ERF_META_TAG_comment:
+            /*
+             * XXX: Would be really nice if wtap_optionblock_set_option_string()
+             * supported supplying a length (or didn't strdup), this is all
+             * through PCAP-NG too.
+             */
+            tmp = g_strndup((gchar*) tag.value, tag.length);
+            wtap_optionblock_set_option_string(shb_hdr, OPT_COMMENT, tmp);
+            g_free(tmp);
+            break;
+        }
+        /* Fall through */
+      }
+      case ERF_META_SECTION_HOST:
+      {
+        if (erf_priv->host_metadata == TRUE) {
+          return 0;
+        }
+
+        switch (tag.type) {
+          case ERF_META_TAG_model:
+            g_free(model);
+            model = g_strndup((gchar*) tag.value, tag.length);
+            break;
+          case ERF_META_TAG_cpu:
+            g_free(cpu);
+            cpu = g_strndup((gchar*) tag.value, tag.length);
+            break;
+          case ERF_META_TAG_descr:
+            g_free(descr);
+            descr = g_strndup((gchar*) tag.value, tag.length);
+            break;
+          case ERF_META_TAG_os:
+            tmp = g_strndup((gchar*) tag.value, tag.length);
+            wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_OS, tmp);
+            g_free(tmp);
+            break;
+          case ERF_META_TAG_app_name:
+            g_free(app_name);
+            app_name = g_strndup((gchar*) tag.value, tag.length);
+            break;
+          case ERF_META_TAG_app_version:
+            g_free(app_version);
+            app_version = g_strndup((gchar*) tag.value, tag.length);
+            break;
+            /* TODO: dag_version? */
+            /* TODO: could concatenate comment(s)? */
+          default:
+            break;
+        }
+      }
+      break;
+    }
+
+    state->tag_ptr += tagtotallength;
+    state->remaining_len -= tagtotallength;
+  }
+
+  /* Post processing */
+
+  if (app_name) {
+    /* If no app_version will just use app_name */
+
+    tmp = g_strjoin(" ", app_name, app_version, NULL);
+    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_USERAPPL, tmp);
+    g_free(tmp);
+
+    g_free(app_name);
+    g_free(app_version);
+    app_name = NULL;
+    app_version = NULL;
+  }
+
+  /* For the hardware field show description followed by (model; cpu) */
+  /* Build "Model; CPU" part */
+  if (model || cpu) {
+    /* g_strjoin() would be nice to use here if the API didn't stop on the first NULL... */
+    if (model && cpu) {
+      modelcpu = g_strconcat(model, "; ", cpu, NULL);
+    } else if (cpu) {
+      modelcpu = cpu;
+      /* avoid double-free */
+      cpu = NULL;
+    } else {
+      modelcpu = model;
+      /* avoid double-free */
+      model = NULL;
+    }
+  }
+
+  /* Combine into "Description (Model; CPU)" */
+  if (state->sectiontype == ERF_META_SECTION_HOST && descr) {
+    if (modelcpu) {
+      tmp = g_strdup_printf("%s (%s)", descr, modelcpu);
+      wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_HARDWARE, tmp);
+      g_free(tmp);
+    } else {
+      wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_HARDWARE, descr);
+      /*descr = NULL;*/
+    }
+  } else {
+    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_HARDWARE, modelcpu);
+    /*modelcpu = NULL;*/
+  }
+
+  /* Free the fields we didn't end up using */
+  g_free(modelcpu);
+  g_free(model);
+  g_free(descr);
+  g_free(cpu);
+
+  if (state->sectiontype == ERF_META_SECTION_CAPTURE) {
+    erf_priv->capture_metadata = TRUE;
+  } else {
+    erf_priv->host_metadata = TRUE;
+  }
+
+  return 1;
+}
+
+static int populate_module_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseudo_header *pseudo_header _U_, struct erf_meta_read_state *state)
+{
+  struct erf_meta_tag tag = {0, 0, NULL};
+
+  guint32 tagtotallength;
+
+  if (!wth || !state)
+    return -1;
+
+  if (state->if_map->module_metadata == TRUE) {
+    return 0;
+  }
+
+  while ((tagtotallength = erf_meta_read_tag(&tag, state->tag_ptr, state->remaining_len)) && !ERF_META_IS_SECTION(tag.type)) {
+      switch (tag.type) {
+        case ERF_META_TAG_fcs_len:
+          if (tag.length >= 4) {
+            state->if_map->module_fcs_len = (gint8) pntoh32(tag.value);
+          }
+          break;
+        case ERF_META_TAG_snaplen:
+          /* XXX: this is generally per stream */
+          if (tag.length >= 4) {
+            state->if_map->module_snaplen = pntoh32(tag.value);
+          }
+          break;
+        case ERF_META_TAG_filter:
+          g_free(state->if_map->module_filter_str);
+          state->if_map->module_filter_str = g_strndup((gchar*) tag.value, tag.length);
+          break;
+      }
+
+    state->tag_ptr += tagtotallength;
+    state->remaining_len -= tagtotallength;
+  }
+
+  state->if_map->module_metadata = TRUE;
+
+  return 1;
+}
+
+static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, struct erf_meta_read_state *state)
+{
+  struct erf_meta_tag tag = {0, 0, NULL};
+  guint32 tagtotallength;
+  int interface_index = -1;
+  wtap_optionblock_t int_data = NULL;
+  wtapng_if_descr_mandatory_t* int_data_mand = NULL;
+  wtapng_if_descr_filter_t if_filter;
+  char* tmp;
+  guint32 if_num = 0;
+  struct erf_if_info* if_info = NULL;
+
+  memset(&if_filter, 0, sizeof(if_filter));
+
+  if (!wth || !state || !pseudo_header || !state->if_map)
+    return -1;
+
+  /* Section ID of interface is defined to match ERF interface id. */
+  if_num = state->sectionid - 1;
+  /*
+   * Get or create the interface (there can be multiple interfaces in
+   * a MetaERF record).
+   */
+  if (if_num < 4) { /* Note: -1u > 4*/
+    if_info = &state->if_map->interfaces[if_num];
+    interface_index = if_info->if_index;
+
+    /* Check if the interface information is still uninitialized */
+    if (interface_index == -1) {
+      guint8 *tag_ptr_tmp = state->tag_ptr;
+      guint32 remaining_len_tmp = state->remaining_len;
+
+      /* First iterate tags, checking we aren't looking at a timing port */
+      /*
+       * XXX: we deliberately only do this logic here rather than the per-packet
+       * population function so that if somehow we do see packets for an
+       * 'invalid' port the interface will be created at that time.
+       */
+      while ((tagtotallength = erf_meta_read_tag(&tag, tag_ptr_tmp, remaining_len_tmp)) && !ERF_META_IS_SECTION(tag.type)) {
+        if (tag.type == ERF_META_TAG_if_port_type) {
+          if (tag.length >= 4 && pntoh32(tag.value) == 2) {
+            /* This is a timing port, skip it from now on */
+            /* XXX: should we skip all non-capture ports instead? */
+
+            if_info->if_index = -2;
+            interface_index = -2;
+          }
+        } else if (tag.type == ERF_META_TAG_stream_num) {
+          if (tag.length >= 4) {
+            if_info->stream_num = (gint32) pntoh32(tag.value);
+          }
+        }
+
+        tag_ptr_tmp += tagtotallength;
+        remaining_len_tmp -= tagtotallength;
+      }
+
+      /* If the interface is valid but uninitialized, create it */
+      if (interface_index == -1) {
+        interface_index = erf_populate_interface(erf_priv, wth, pseudo_header, state->if_map->host_id, state->if_map->source_id, (guint8) if_num);
+      }
+    }
+
+    /* Get the wiretap interface metadata */
+    if (interface_index >= 0) {
+      int_data = g_array_index(wth->interface_data, wtap_optionblock_t, interface_index);
+      int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(int_data);
+    } else if (interface_index == -2) {
+      /* timing/unknown port */
+      return 0;
+    } else {
+      return -1;
+    }
+  }
+
+  /*
+   * Bail if already have interface metadata or no interface to associate with.
+   * We also don't support metadata for >4 interfaces per Host + Source
+   * as we only use interface ID.
+   */
+  if (!int_data || state->if_map->interface_metadata & (1 << if_num))
+    return 0;
+
+  while ((tagtotallength = erf_meta_read_tag(&tag, state->tag_ptr, state->remaining_len)) && !ERF_META_IS_SECTION(tag.type)) {
+    switch (tag.type) {
+      case ERF_META_TAG_name:
+        /* TODO: fall back to module "dev_name Port N"? */
+        if (!if_info->name) {
+          if_info->name = g_strndup((gchar*) tag.value, tag.length);
+          tmp = erf_interface_descr_strdup(state->if_map->host_id, state->if_map->source_id, (guint8) if_num, if_info->name);
+          wtap_optionblock_set_option_string(int_data, OPT_IDB_NAME, tmp);
+          g_free(tmp);
+
+          /* If we have no description, also copy to wtap if_description */
+          if (!if_info->descr) {
+            tmp = erf_interface_descr_strdup(state->if_map->host_id, state->if_map->source_id, (guint8) if_num, if_info->name);
+            wtap_optionblock_set_option_string(int_data, OPT_IDB_DESCR, tmp);
+            g_free(tmp);
+          }
+        }
+        break;
+      case ERF_META_TAG_descr:
+        if (!if_info->descr) {
+          if_info->descr = g_strndup((gchar*) tag.value, tag.length);
+          tmp = erf_interface_descr_strdup(state->if_map->host_id, state->if_map->source_id, (guint8) if_num, if_info->descr);
+          wtap_optionblock_set_option_string(int_data, OPT_IDB_DESCR, tmp);
+          g_free(tmp);
+
+          /* If we have no name, also copy to wtap if_name */
+          if (!if_info->name) {
+            tmp = erf_interface_descr_strdup(state->if_map->host_id, state->if_map->source_id, (guint8) if_num, if_info->descr);
+            wtap_optionblock_set_option_string(int_data, OPT_IDB_NAME, tmp);
+            g_free(tmp);
+          }
+        }
+        break;
+      case ERF_META_TAG_if_speed:
+        if (tag.length >= 8)
+          wtap_optionblock_set_option_uint64(int_data, OPT_IDB_SPEED, pntoh64(tag.value));
+        break;
+      case ERF_META_TAG_if_num:
+        /*
+         * XXX: We ignore this as Section ID must match the ERF ifid and
+         * that is all we care about/have space for at the moment. if_num
+         * is only really useful with >4 interfaces.
+         */
+        /* TODO: might want to put this number in description */
+        break;
+      case ERF_META_TAG_fcs_len:
+        if (tag.length >= 4) {
+          wtap_optionblock_set_option_uint8(int_data, OPT_IDB_FCSLEN, (guint8) pntoh32(tag.value));
+          if_info->set_flags.fcs_len = 1;
+        }
+        break;
+      case ERF_META_TAG_snaplen:
+        /* XXX: this generally per stream */
+        if (tag.length >= 4) {
+          int_data_mand->snap_len = pntoh32(tag.value);
+          if_info->set_flags.snaplen = 1;
+        }
+        break;
+      case ERF_META_TAG_comment:
+        tmp = g_strndup((gchar*) tag.value, tag.length);
+        wtap_optionblock_set_option_string(int_data, OPT_COMMENT, tmp);
+        g_free(tmp);
+        break;
+      case ERF_META_TAG_filter:
+        if_filter.if_filter_str = g_strndup((gchar*) tag.value, tag.length);
+        wtap_optionblock_set_option_custom(int_data, OPT_IDB_FILTER, &if_filter);
+        if_info->set_flags.filter = 1;
+        break;
+      default:
+        break;
+    }
+
+    state->tag_ptr += tagtotallength;
+    state->remaining_len -= tagtotallength;
+  }
+
+  /* Post processing */
+  /*
+   * XXX: Assumes module defined first. It is higher in hierarchy so only set
+   * if not already.
+   */
+
+  /*
+   * XXX: Missing exposed existence/type-check. No way currently to check if
+   * been set in the optionblock.
+   */
+  if (state->if_map->module_filter_str && !if_info->set_flags.filter) {
+    /* Duplicate because might use with multiple interfaces */
+    if_filter.if_filter_str = g_strdup(state->if_map->module_filter_str);
+    wtap_optionblock_set_option_custom(int_data, OPT_IDB_FILTER, &if_filter);
+    /*
+     * Don't set flag because stream is more specific than module. Interface
+     * metadata bit is set so we don't look at the filter again regardless.
+     */
+  }
+
+  if (state->if_map->module_fcs_len != -1 && !if_info->set_flags.fcs_len) {
+    wtap_optionblock_set_option_uint8(int_data, OPT_IDB_FCSLEN, (guint8) state->if_map->module_fcs_len);
+    if_info->set_flags.fcs_len = 1;
+  }
+
+  if (state->if_map->module_snaplen != (guint32) -1 && !if_info->set_flags.snaplen) {
+    int_data_mand->snap_len = pntoh32(tag.value);
+    if_info->set_flags.snaplen = 1;
+  }
+
+  state->interface_metadata |= 1 << if_num;
+
+  return 1;
+}
+
+static int populate_stream_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseudo_header *pseudo_header, struct erf_meta_read_state *state)
+{
+  struct erf_meta_tag tag = {0, 0, NULL};
+  guint32 tagtotallength;
+  int interface_index = -1;
+  wtap_optionblock_t int_data = NULL;
+  wtapng_if_descr_mandatory_t* int_data_mand = NULL;
+  wtapng_if_descr_filter_t if_filter;
+  guint32 if_num = 0;
+  gint32 stream_num = -1;
+  guint8 *tag_ptr_tmp = state->tag_ptr;
+  guint32 remaining_len_tmp = state->remaining_len;
+  struct erf_if_info* if_info = NULL;
+
+  memset(&if_filter, 0, sizeof(if_filter));
+
+  if (!wth || !pseudo_header || !state || !state->if_map)
+    return -1;
+
+  /*
+   * XXX: We ignore parent section ID because it doesn't represent the
+   * many-to-many relationship of interfaces and streams very well. The stream is
+   * associated with all interfaces in the record that don't have a stream_num
+   * that says otherwise.
+   */
+
+  if (state->sectionid > 0 && state->sectionid != 0x7fff) {
+    /* Section ID of stream is supposed to match stream_num. */
+    stream_num = state->sectionid - 1;
+  } else {
+    /* First iterate tags, looking for the stream number interfaces might associate with. */
+    while ((tagtotallength = erf_meta_read_tag(&tag, tag_ptr_tmp, remaining_len_tmp)) && !ERF_META_IS_SECTION(tag.type)) {
+      if (tag.type == ERF_META_TAG_stream_num) {
+        if (tag.length >= 4) {
+          stream_num = (gint32) pntoh32(tag.value);
+        }
+      }
+
+      tag_ptr_tmp += tagtotallength;
+      remaining_len_tmp -= tagtotallength;
+    }
+  }
+  /* Otherwise assume the stream applies to all interfaces in the record */
+
+  for (if_num = 0; if_num < 4; if_num++) {
+    tag_ptr_tmp = state->tag_ptr;
+    remaining_len_tmp = state->remaining_len;
+    if_info = &state->if_map->interfaces[if_num];
+
+    /* Check if we should be handling this interface */
+    /* XXX: currently skips interfaces that are not in the record. */
+    if (state->if_map->interface_metadata & (1 << if_num)
+        || !(state->interface_metadata & (1 << if_num))) {
+      continue;
+    }
+
+    if (if_info->stream_num != -1
+        && if_info->stream_num != stream_num) {
+      continue;
+    }
+
+    interface_index = if_info->if_index;
+    /* Get the wiretap interface metadata */
+    if (interface_index >= 0) {
+        int_data = g_array_index(wth->interface_data, wtap_optionblock_t, interface_index);
+        int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_optionblock_get_mandatory_data(int_data);
+    }
+
+    if (!int_data) {
+      continue;
+    }
+
+    while ((tagtotallength = erf_meta_read_tag(&tag, tag_ptr_tmp, remaining_len_tmp)) && !ERF_META_IS_SECTION(tag.type)) {
+      switch (tag.type) {
+        case ERF_META_TAG_fcs_len:
+          if (tag.length >= 4) {
+            /* Use the largest fcslen of matching streams */
+            gint8 fcs_len = (gint8) pntoh32(tag.value);
+            guint8 old_fcs_len = 0;
+
+            wtap_optionblock_get_option_uint8(int_data, OPT_IDB_FCSLEN, &old_fcs_len);
+            if (fcs_len > old_fcs_len || !if_info->set_flags.fcs_len) {
+              wtap_optionblock_set_option_uint8(int_data, OPT_IDB_FCSLEN, (guint8) pntoh32(tag.value));
+              if_info->set_flags.fcs_len = 1;
+            }
+          }
+          break;
+        case ERF_META_TAG_snaplen:
+          if (tag.length >= 4) {
+            /* Use the largest snaplen of matching streams */
+            guint32 snaplen = pntoh32(tag.value);
+
+            if (snaplen > int_data_mand->snap_len || !if_info->set_flags.snaplen) {
+              int_data_mand->snap_len = pntoh32(tag.value);
+              if_info->set_flags.snaplen = 1;
+            }
+          }
+          break;
+        case ERF_META_TAG_filter:
+          /* Override only if not set */
+          if (!if_info->set_flags.filter) {
+            if_filter.if_filter_str = g_strndup((gchar*) tag.value, tag.length);
+            wtap_optionblock_set_option_custom(int_data, OPT_IDB_FILTER, &if_filter);
+            if_info->set_flags.filter = 1;
+          }
+          break;
+        default:
+          break;
+      }
+
+      tag_ptr_tmp += tagtotallength;
+      remaining_len_tmp -= tagtotallength;
+    }
+  }
+  state->tag_ptr = tag_ptr_tmp;
+  state->remaining_len = remaining_len_tmp;
+
+  return 1;
+}
+
+/* Populates the capture and interface information for display on the Capture File Properties */
+static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, guint32 packet_size)
+{
+  struct erf_meta_read_state state;
+  struct erf_meta_read_state *state_post = NULL;
+  guint64 host_id;
+  guint8 source_id;
+  GList *post_list = NULL;
+  GList *item = NULL;
+
+  struct erf_meta_tag tag = {0, 0, NULL};
+  guint32 tagtotallength;
+
+  if (!erf_priv || !wth || !pseudo_header)
+    return -1;
+
+  memset(&state, 0, sizeof(struct erf_meta_read_state));
+
+  erf_get_source_from_header(pseudo_header, &host_id, &source_id);
+
+  if (host_id == 0) {
+    host_id = erf_priv->implicit_host_id;
+  }
+
+  state.if_map = erf_find_interface_mapping(erf_priv, host_id, source_id);
+
+  if (!state.if_map) {
+    state.if_map = erf_if_mapping_create(host_id, source_id);
+    g_hash_table_add(erf_priv->if_map, state.if_map);
+  }
+
+  /*
+   * Skip the record if we already have enough metadata (seen one section for
+   * each type for the source).
+   */
+  if ((state.if_map->interface_metadata & 0x03)
+      && erf_priv->host_metadata && erf_priv->capture_metadata) {
+    return 0;
+  }
+
+  state.tag_ptr = wth->frame_buffer->data;
+  state.remaining_len = packet_size;
+
+  /* Read until see next section tag */
+  while ((tagtotallength = erf_meta_read_tag(&tag, state.tag_ptr, state.remaining_len))) {
+    /*
+     * Skip until we get to the next section tag (which could be the current tag
+     * after an empty section or successful parsing).
+     */
+    if (!ERF_META_IS_SECTION(tag.type)) {
+      /* adjust offset */
+      state.tag_ptr += tagtotallength;
+      state.remaining_len -= tagtotallength;
+      continue;
+    }
+
+    /*
+     * We are now looking at the next section (and would have exited the loop
+     * if we reached the end).
+     */
+
+    /* Update parent section. Implicit grouping is by a change in section except Interface and Stream. */
+    if (tag.type != state.sectiontype) {
+      if ((tag.type == ERF_META_SECTION_STREAM && state.sectiontype == ERF_META_SECTION_INTERFACE) ||
+        (tag.type == ERF_META_SECTION_INTERFACE && state.sectiontype == ERF_META_SECTION_STREAM)) {
+        /* do nothing */
+      } else {
+        state.parentsectiontype = state.sectiontype;
+        state.parentsectionid = state.sectionid;
+      }
+    }
+
+    /* Update with new sectiontype */
+    state.sectiontype = tag.type;
+    if (tag.length >= 4) {
+      state.sectionid = pntoh16(tag.value);
+    } else {
+      state.sectionid = 0;
+    }
+
+    /* Adjust offset to that of first tag in section */
+    state.tag_ptr += tagtotallength;
+    state.remaining_len -= tagtotallength;
+
+    if ((tagtotallength = erf_meta_read_tag(&tag, state.tag_ptr, state.remaining_len))) {
+      /*
+       * Process parent section tag if present (which must be the first tag in
+       * the section).
+       */
+      if (tag.type == ERF_META_TAG_parent_section && tag.length >= 4) {
+        state.parentsectiontype = pntoh16(tag.value);
+        state.parentsectionid = pntoh16(&tag.value[2]);
+      }
+    }
+
+    /* Skip empty sections (includes if above read fails) */
+    if (ERF_META_IS_SECTION(tag.type)) {
+      continue;
+    }
+
+    /*
+     * Skip sections that don't apply to the general set of records
+     * (extension point for per-packet/event metadata).
+     */
+    if (state.sectionid & 0x8000) {
+      continue;
+    }
+
+    /*
+     * Start at first tag in section, makes loop
+     * simpler in called functions too. Also makes iterating after failure
+     * much simpler.
+     */
+    switch (state.sectiontype) {
+      case ERF_META_SECTION_CAPTURE:
+      case ERF_META_SECTION_HOST:
+        /* TODO: use return code */
+        populate_capture_host_info(erf_priv, wth, pseudo_header, &state);
+        break;
+      case ERF_META_SECTION_MODULE:
+        populate_module_info(erf_priv, wth, pseudo_header, &state);
+        break;
+      case ERF_META_SECTION_INTERFACE:
+        populate_interface_info(erf_priv, wth, pseudo_header, &state);
+        break;
+      case ERF_META_SECTION_STREAM:
+        /*
+         * XXX: Treat streams specially in case the stream information appears
+         * before the interface information, as we associate them to interface
+         * data.
+         */
+        post_list = g_list_append(post_list, g_memdup(&state, sizeof(struct erf_meta_read_state)));
+        break;
+      case ERF_META_SECTION_SOURCE:
+      case ERF_META_SECTION_DNS:
+      default:
+        /* TODO: Not yet implemented */
+        break;
+    }
+  }
+
+  /* Process streams last */
+  if (post_list) {
+    item = post_list;
+    do {
+      state_post = (struct erf_meta_read_state*) item->data;
+      switch (state_post->sectiontype) {
+        case ERF_META_SECTION_STREAM:
+          populate_stream_info(erf_priv, wth, pseudo_header, state_post);
+          break;
+      }
+    } while ((item = g_list_next(item)));
+
+    g_list_free_full(post_list, g_free);
+  }
+
+  /*
+   * Update known metadata so we only examine the first set of metadata. Need to
+   * do this here so can have interface and stream in same record.
+   */
+  state.if_map->interface_metadata |= state.interface_metadata;
+
+  return 0;
+}
+
+static void erf_close(wtap *wth)
+{
+  erf_t* erf_priv = (erf_t*)wth->priv;
+
+  erf_priv_free(erf_priv);
+  /* XXX: Prevent double free by wtap_close() */
+  wth->priv = NULL;
 }
 
 /*

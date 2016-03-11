@@ -25,6 +25,9 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/ipproto.h>
+#include <epan/to_str.h>
+#include <wsutil/str_util.h>
 #include "packet-erf.h"
 
 /*
@@ -33,13 +36,6 @@
 
 void proto_register_erf(void);
 void proto_reg_handoff_erf(void);
-
-#define EXT_HDR_TYPE_CLASSIFICATION  3
-#define EXT_HDR_TYPE_INTERCEPTID     4
-#define EXT_HDR_TYPE_RAW_LINK        5
-#define EXT_HDR_TYPE_BFS             6
-#define EXT_HDR_TYPE_CHANNELISED    12
-#define EXT_HDR_TYPE_SIGNATURE      14
 
 #define DECHAN_MAX_LINE_RATE 5
 #define DECHAN_MAX_VC_SIZE 5
@@ -122,6 +118,23 @@ static int hf_erf_ehdr_chan_type                      = -1;
 static int hf_erf_ehdr_signature_payload_hash = -1;
 static int hf_erf_ehdr_signature_color = -1;
 static int hf_erf_ehdr_signature_flow_hash = -1;
+
+/* Flow ID extension header */
+static int hf_erf_ehdr_flow_id_source_id = -1;
+static int hf_erf_ehdr_flow_id_hash_type = -1;
+static int hf_erf_ehdr_flow_id_stack_type = -1;
+static int hf_erf_ehdr_flow_id_flow_hash = -1;
+
+/* Host ID extension header */
+static int hf_erf_ehdr_host_id_sourceid          = -1;
+static int hf_erf_ehdr_host_id_hostid            = -1;
+
+/* Generated Host ID/Source ID */
+static int hf_erf_sourceid       = -1;
+static int hf_erf_hostid         = -1;
+static int hf_erf_source_current = -1;
+static int hf_erf_source_next    = -1;
+static int hf_erf_source_prev    = -1;
 
 /* Unknown extension header */
 static int hf_erf_ehdr_unk = -1;
@@ -211,6 +224,11 @@ static int hf_erf_eth      = -1;
 static int hf_erf_eth_off  = -1;
 static int hf_erf_eth_pad  = -1;
 
+/* ERF Meta record tag */
+static int hf_erf_meta_tag_type   = -1;
+static int hf_erf_meta_tag_len  = -1;
+static int hf_erf_meta_tag_unknown  = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_erf            = -1;
 static gint ett_erf_pseudo_hdr = -1;
@@ -224,10 +242,15 @@ static gint ett_erf_mc_aal5    = -1;
 static gint ett_erf_mc_aal2    = -1;
 static gint ett_erf_aal2       = -1;
 static gint ett_erf_eth        = -1;
+static gint ett_erf_meta       = -1;
+static gint ett_erf_meta_tag   = -1;
+static gint ett_erf_source     = -1;
 
 static expert_field ei_erf_extension_headers_not_shown = EI_INIT;
 static expert_field ei_erf_packet_loss = EI_INIT;
 static expert_field ei_erf_checksum_error = EI_INIT;
+static expert_field ei_erf_meta_section_len_error = EI_INIT;
+static expert_field ei_erf_meta_reset = EI_INIT;
 
 typedef enum {
   ERF_HDLC_CHDLC  = 0,
@@ -359,6 +382,10 @@ static dissector_handle_t sdh_handle;
 #define ETH_OFF_MASK  0x00
 #define ETH_RES1_MASK 0x00
 
+/* Invalid MetaERF sections used for special lookup */
+#define ERF_META_SECTION_NONE 0
+#define ERF_META_SECTION_UNKNOWN 1
+
 /* Record type defines */
 static const value_string erf_type_vals[] = {
   { ERF_TYPE_LEGACY             ,"LEGACY"},
@@ -392,12 +419,14 @@ static const value_string erf_type_vals[] = {
 
 /* Extended headers type defines */
 static const value_string ehdr_type_vals[] = {
-  { EXT_HDR_TYPE_CLASSIFICATION , "Classification"},
-  { EXT_HDR_TYPE_INTERCEPTID    , "InterceptID"},
-  { EXT_HDR_TYPE_RAW_LINK       , "Raw Link"},
-  { EXT_HDR_TYPE_BFS            , "BFS Filter/Hash"},
-  { EXT_HDR_TYPE_CHANNELISED    , "Channelised"},
-  { EXT_HDR_TYPE_SIGNATURE      , "Signature"},
+  { ERF_EXT_HDR_TYPE_CLASSIFICATION , "Classification"},
+  { ERF_EXT_HDR_TYPE_INTERCEPTID    , "InterceptID"},
+  { ERF_EXT_HDR_TYPE_RAW_LINK       , "Raw Link"},
+  { ERF_EXT_HDR_TYPE_BFS            , "BFS Filter/Hash"},
+  { ERF_EXT_HDR_TYPE_CHANNELISED    , "Channelised"},
+  { ERF_EXT_HDR_TYPE_SIGNATURE      , "Signature"},
+  { ERF_EXT_HDR_TYPE_FLOW_ID        , "Flow ID"},
+  { ERF_EXT_HDR_TYPE_HOST_ID        , "Host ID"},
   { 0, NULL }
 };
 
@@ -457,7 +486,574 @@ static const value_string channelised_type[] = {
   { 0, NULL}
 };
 
+static const value_string erf_hash_type[] = {
+  { 0x00, "Not set"},
+  { 0x01, "Non-IP (Src/Dst MACs, EtherType)"},
+  { 0x02, "2-tuple (Src/Dst IP Addresses)"},
+  { 0x03, "3-tuple (Src/Dst IP Addresses, IP Protocol)"},
+  { 0x04, "4-tuple (Src/Dst IP Addresses, IP Protocol, Interface ID)"},
+  { 0x05, "5-tuple (Src/Dst IP Addresses, IP Protocol, Src/Dst L4 Ports)"},
+  { 0x06, "6-tuple (Src/Dst IP Addresses, IP Protocol, Src/Dst L4 Ports, Interface ID)"},
+  { 0, NULL}
+};
 
+static const value_string erf_stack_type[] = {
+  { 0x00, "Not set"},
+  { 0x01, "Non-IP"},
+  { 0x02, "No VLAN, IPv4"},
+  { 0x03, "No VLAN, IPv6"},
+  { 0x04, "One VLAN, IPv4"},
+  { 0x05, "One VLAN, IPv6"},
+  { 0x06, "Two VLANs, IPv4"},
+  { 0x07, "Two VLANs, IPv6"},
+  { 0, NULL}
+};
+static const value_string erf_port_type[] = {
+  { 0x00, "Reserved"},
+  { 0x01, "Capture Port"},
+  { 0x02, "Timing Port"},
+  { 0, NULL}
+};
+
+/* Used as templates for ERF_META_TAG_tunneling_mode */
+static const header_field_info erf_tunneling_modes[] = {
+  { "IP-in-IP", "ip_in_ip", FT_UINT32, BASE_DEC, NULL, 0x1, NULL, HFILL },
+  /* 0x02 is currently unused and reserved */
+  { "VXLAN", "vxlan", FT_UINT32, BASE_DEC, NULL, 0x4, NULL, HFILL },
+  { "GRE", "gre", FT_UINT32, BASE_DEC, NULL, 0x8, NULL, HFILL },
+  { "GTP", "gtp", FT_UINT32, BASE_DEC, NULL, 0x10, NULL, HFILL },
+  { "MPLS over VLAN", "mpls_vlan", FT_UINT32, BASE_DEC, NULL, 0x20, NULL, HFILL }
+};
+/* XXX: Must be at least array_length(erf_tunneling_modes). */
+#define ERF_HF_VALUES_PER_TAG 8
+
+typedef struct {
+  guint16 code;
+  header_field_info hfinfo;
+} erf_meta_hf_template_t;
+
+typedef struct {
+  gint ett_value;
+  /*
+   * XXX: Must be at least array_length(erf_tunneling_modes). Should change to
+   * dynamic (possibly using new proto tree API) if many more fields defined.
+   * Either that or add a value-string-like automatic bitmask flags proto_item.
+   */
+  int hf_values[ERF_HF_VALUES_PER_TAG];
+} erf_meta_tag_info_ex_t;
+
+typedef struct {
+  guint16 code;
+  guint16 section;
+  const erf_meta_hf_template_t* tag_template;
+
+  gint ett;
+  int hf_value;
+  erf_meta_tag_info_ex_t *extra;
+  /* TODO: could add a type_value and callback here for greater flexibility */
+} erf_meta_tag_info_t;
+
+typedef struct {
+  wmem_map_t* tag_table;
+  wmem_array_t* hfri;
+  wmem_array_t* ett;
+  wmem_array_t* vs_list;
+  wmem_array_t* vs_abbrev_list;
+  erf_meta_tag_info_t* unknown_section_info;
+} erf_meta_index_t;
+
+typedef struct {
+  wmem_map_t* source_map;
+  guint64 implicit_host_id;
+} erf_state_t;
+
+typedef struct {
+  wmem_tree_t* meta_tree;
+  wmem_list_t* meta_list;
+} erf_source_info_t;
+
+#define ERF_SOURCE_KEY(host_id, source_id) (((guint64) host_id << 16) | source_id)
+#define ERF_TAG_INFO_KEY(tag_info) (((guint32) (tag_info)->section << 16) | (tag_info)->code)
+
+static erf_meta_index_t erf_meta_index;
+static erf_state_t erf_state;
+
+/*
+ * XXX: These header_field_info are used as templates for dynamically building
+ * per-section fields for each tag, as well as appropiate value_string arrays.
+ * We abuse the abbrev field to store the short name of the tags.
+ */
+static const erf_meta_hf_template_t erf_meta_tags[] = {
+  { ERF_META_TAG_padding,           { "Padding",                            "padding",           FT_NONE,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_comment,           { "Comment",                            "comment",           FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_gen_time,          { "Metadata Generation Time",           "gen_time",          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_parent_section,    { "Parent Section",                     "parent_section",    FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_reset,             { "Metadata Reset",                     "reset",             FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_event_time,        { "Event Time",                         "event_time",        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_host_id,           { "Host ID",                            "host_id",           FT_UINT64,        BASE_HEX,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_fcs_len,           { "FCS Length (bits)",                  "fcs_len",           FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_mask_ipv4,         { "Subnet Mask (IPv4)",                 "mask_ipv4",         FT_IPv4,          BASE_NETMASK,      NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_mask_cidr,         { "Subnet Mask (CIDR)",                 "mask_cidr",         FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+
+  { ERF_META_TAG_org_name,          { "Organisation",                       "org_name",          FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_name,              { "Name",                               "name",              FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_descr,             { "Description",                        "descr",             FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_config,            { "Configuration",                      "config",            FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_datapipe,          { "Datapipe Name",                      "datapipe",          FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_app_name,          { "Application Name",                   "app_name",          FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_os,                { "Operating System",                   "os",                FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_hostname,          { "Hostname",                           "hostname",          FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_user,              { "User",                               "user",              FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_model,             { "Model",                              "model",             FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_fw_version,        { "Firmware Version",                   "fw_version",        FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_serial_no,         { "Serial Number",                      "serial_no",         FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ts_offset,         { "Timestamp Offset",                   "ts_offset",         FT_RELATIVE_TIME, BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ts_clock_freq,     { "Timestamp Clock Frequency (Hz)",     "ts_clock_freq",     FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_tzone,             { "Timezone Offset",                    "tzone",             FT_INT32,         BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_tzone_name,        { "Timezone Name",                      "tzone_name",        FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_loc_lat,           { "Location Latitude",                  "loc_lat",           FT_INT32,         BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_loc_long,          { "Location Longitude",                 "loc_long",          FT_INT32,         BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_snaplen,           { "Snap Length",                        "snaplen",           FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_card_num,          { "Card Number",                        "card_num",          FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_module_num,        { "Module Number",                      "module_num",        FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_access_num,        { "Access Number",                      "access_num",        FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stream_num,        { "Stream Number",                      "stream_num",        FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_loc_name,          { "Location Name",                      "loc_name",          FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_parent_file,       { "Parent Filename",                    "parent_file",       FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_filter,            { "Filter",                             "filter",            FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_flow_hash_mode,    { "Flow Hash Mode",                     "flow_hash_mode",    FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_tunneling_mode,    { "Tunneling Mode",                     "tunneling_mode",    FT_UINT32,        BASE_HEX,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_npb_format,        { "NPB Format",                         "npb_format",        FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_mem,               { "Memory",                             "mem",               FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_datamine_id,       { "Datamine ID",                        "datamine_id",       FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_rotfile_id,        { "Rotfile ID",                         "rotfile_id",        FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_rotfile_name,      { "Rotfile Name",                       "rotfile_name",      FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_dev_name,          { "Device Name",                        "dev_name",          FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_dev_path,          { "Device Canonical Path",              "dev_path",          FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_loc_descr,         { "Location Description",               "loc_descr",         FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_app_version,       { "Application Version",                "app_version",       FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_cpu_affinity,      { "CPU Affinity Mask",                  "cpu_affinity",      FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_cpu,               { "CPU Model",                          "cpu",               FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_cpu_phys_cores,    { "CPU Physical Cores",                 "cpu_phys_cores",    FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_cpu_numa_nodes,    { "CPU NUMA Nodes",                     "cpu_numa_nodes",    FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_dag_attribute,     { "DAG Attribute",                      "dag_attribute",     FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_dag_version,       { "DAG Software Version",               "dag_attribute",     FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+
+  { ERF_META_TAG_if_num,            { "Interface Number",                   "if_num",            FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_vc,             { "Interface Virtual Circuit",          "if_vc",             FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_speed,          { "Interface Line Rate",                "if_speed",          FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_ipv4,           { "Interface IPv4 address",             "if_ipv4",           FT_IPv4,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_ipv6,           { "Interface IPv6 address",             "if_ipv6",           FT_IPv6,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_mac,            { "Interface MAC address",              "if_mac",            FT_ETHER,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_eui,            { "Interface EUI-64 address",           "if_eui",            FT_EUI64,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_ib_gid,         { "Interface InfiniBand GID",           "if_ib_gid",         FT_IPv6,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_ib_lid,         { "Interface InfiniBand LID",           "if_ib_lid",         FT_UINT16,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_wwn,            { "Interface WWN",                      "if_wwn",            FT_FCWWN,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_fc_id,          { "Interface FCID address",             "if_fc_id",          FT_BYTES,         SEP_DOT,           NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_tx_speed,       { "Interface TX Line Rate",             "if_tx_speed",       FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_erf_type,       { "Interface ERF type",                 "if_erf_type",       FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_link_type,      { "Interface link type",                "if_link_type",      FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_sfp_type,       { "Interface Transceiver type",         "if_sfp_type",       FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_rx_power,       { "Interface RX Optical Power",         "if_rx_power",       FT_INT32,         BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_tx_power,       { "Interface TX Optical Power",         "if_tx_power",       FT_INT32,         BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_link_status,    { "Interface Link Status",              "if_link_status",    FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_phy_mode,       { "Interface Endace PHY Mode",          "if_phy_mode",       FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_if_port_type,      { "Interface Port Type",                "if_port_type",      FT_UINT32,        BASE_DEC,          VALS(erf_port_type), 0x0, NULL, HFILL } },
+
+  { ERF_META_TAG_src_ipv4,          { "Source IPv4 address",                "src_ipv4",          FT_IPv4,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_dest_ipv4,         { "Destination IPv4 address",           "dest_ipv4",         FT_IPv4,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_src_ipv6,          { "Source IPv6 address",                "src_ipv6",          FT_IPv6,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_dest_ipv6,         { "Destination IPv6 address",           "dest_ipv6",         FT_IPv6,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_src_mac,           { "Source MAC address",                 "src_mac",           FT_ETHER,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_dest_mac,          { "Destination MAC address",            "dest_mac",          FT_ETHER,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_src_eui,           { "Source EUI-64 address",              "src_eui",           FT_EUI64,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_dest_eui,          { "Destination EUI-64 address",         "dest_eui",          FT_EUI64,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_src_ib_gid,        { "Source InfiniBand GID address",      "src_ib_gid",        FT_IPv6,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_dest_ib_gid,       { "Destination InfiniBand GID address", "dest_ib_gid",       FT_IPv6,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_src_ib_lid,        { "Source InfiniBand LID address",      "src_ib_lid",        FT_UINT16,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_dest_ib_lid,       { "Destination InfiniBand LID address", "dest_ib_lid",       FT_UINT16,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_src_wwn,           { "Source WWN address",                 "src_wwn",           FT_FCWWN,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_dest_wwn,          { "Destination WWN address",            "dest_wwn",          FT_FCWWN,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_src_fc_id,         { "Source FCID address",                "src_fc_id",         FT_BYTES,         SEP_DOT,           NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_dest_fc_id,        { "Destination FCID address",           "dest_fc_id",        FT_BYTES,         SEP_DOT,           NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_src_port,          { "Source Port",                        "src_port",          FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_dest_port,         { "Destination Port",                   "dest_port",         FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ip_proto,          { "IP Protocol",                        "ip_proto",          FT_UINT32,        BASE_DEC,          &ipproto_val_ext, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_flow_hash,         { "Flow Hash",                          "flow_hash",         FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_filter_match,      { "Filter Match",                       "filter_match",      FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_filter_match_name, { "Filter Match Name",                  "filter_match_name", FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_error_flags,       { "Error Flags",                        "error_flags",       FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+
+  { ERF_META_TAG_start_time,        { "Start Time",                         "start_time",        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_end_time,          { "End Time",                           "end_time",          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_if_drop,      { "Interface Drop",                     "stat_if_drop",      FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_frames,       { "Packets Received",                   "stat_frames",       FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_bytes,        { "Bytes Received",                     "stat_bytes",        FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_cap,          { "Packets Captured",                   "stat_cap",          FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_cap_bytes,    { "Bytes Captured",                     "stat_cap_bytes",    FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_os_drop,      { "OS Drop",                            "stat_os_drop",      FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_ds_lctr,      { "Internal Error Drop",                "stat_ds_lctr",      FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_filter_match, { "Filter Match",                       "stat_filter_match", FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_filter_drop,  { "Filter Drop",                        "stat_filter_drop",  FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_too_short,    { "Packets Too Short",                  "stat_too_short",    FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_too_long,     { "Packets Too Long",                   "stat_too_long",     FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_rx_error,     { "Packets RX Error",                   "stat_rx_error",     FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_fcs_error,    { "Packets FCS Error",                  "stat_fcs_error",    FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_aborted,      { "Packets Aborted",                    "stat_aborted",      FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_proto_error,  { "Packets Protocol Error",             "stat_proto_error",  FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_b1_error,     { "SDH B1 Errors",                      "stat_b1_error",     FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_b2_error,     { "SDH B2 Errors",                      "stat_b2_error",     FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_b3_error,     { "SDH B3 Errors",                      "stat_b3_error",     FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_rei_error,    { "SDH REI Errors",                     "stat_rei_error",    FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_drop,         { "Packets Dropped",                    "stat_drop",         FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stat_buf_drop,     { "Buffer Drop",                        "stat_buf_drop",     FT_UINT64,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stream_drop,       { "Stream Drop",                        "stream_drop",       FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_stream_buf_drop,   { "Stream Buffer Drop",                 "stream_buf_drop",   FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+
+  { ERF_META_TAG_ns_host_ipv4,      { "IPv4 Name",                          "ns_host_ipv4",      FT_IPv4,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ns_host_ipv6,      { "IPv6 Name",                          "ns_host_ipv6",      FT_IPv6,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ns_host_mac,       { "MAC Name",                           "ns_host_mac",       FT_ETHER,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ns_host_eui,       { "EUI Name",                           "ns_host_eui",       FT_EUI64,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ns_host_ib_gid,    { "InfiniBand GID Name",                "ns_host_ib_gid",    FT_IPv6,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ns_host_ib_lid,    { "InfiniBand LID Name",                "ns_host_ib_lid",    FT_UINT16,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ns_host_wwn,       { "WWN Name",                           "ns_host_wwn",       FT_FCWWN,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ns_host_fc_id,     { "FCID Name",                          "ns_host_fc_id",     FT_BYTES,         SEP_DOT,           NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ns_dns_ipv4,       { "Nameserver IPv4 address",            "ns_dns_ipv4",       FT_IPv4,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ns_dns_ipv6,       { "Nameserver IPv6 address",            "ns_dns_ipv6",       FT_IPv6,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+
+  { ERF_META_TAG_exthdr,            { "ERF Extension Header",               "exthdr",            FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_pcap_ng_block,     { "PCAP-NG Block",                      "pcap_ng_block",     FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_asn1,              { "ASN.1",                              "asn1",              FT_BYTES,         BASE_NONE,         NULL, 0x0, NULL, HFILL } }
+};
+
+/* Sections are also tags, but enumerate them seperately to make logic simpler */
+static const erf_meta_hf_template_t erf_meta_sections[] = {
+  /*
+   * Some tags (such as generation time) can appear before the first section,
+   * we group these together into a fake section for consistency.
+   */
+  { ERF_META_SECTION_NONE,          { "No Section",                         "section_none",      FT_NONE,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_SECTION_UNKNOWN,       { "Unknown Section",                    "section_unknown",   FT_NONE,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+
+  { ERF_META_SECTION_CAPTURE,       { "Capture Section",                    "section_capture",   FT_NONE,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_SECTION_HOST,          { "Host Section",                       "section_host",      FT_NONE,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_SECTION_MODULE,        { "Module Section",                     "section_module",    FT_NONE,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_SECTION_INTERFACE,     { "Interface Section",                  "section_interface", FT_NONE,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_SECTION_FLOW,          { "Flow Section",                       "section_flow",      FT_NONE,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_SECTION_STATS,         { "Statistics Section",                 "section_stats",     FT_NONE,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_SECTION_INFO,          { "Information Section",                "section_info",      FT_NONE,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_SECTION_CONTEXT,       { "Context Section",                    "section_context",   FT_NONE,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_SECTION_STREAM,        { "Stream Section",                     "section_stream",    FT_NONE,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_SECTION_TRANSFORM,     { "Transform Section",                  "section_transform", FT_NONE,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_SECTION_DNS,           { "DNS Section",                        "section_dns",       FT_NONE,          BASE_NONE,         NULL, 0x0, NULL, HFILL } },
+  { ERF_META_SECTION_SOURCE,        { "Source Section",                     "section_source",    FT_NONE,          BASE_NONE,         NULL, 0x0, NULL, HFILL } }
+};
+
+static erf_meta_tag_info_ex_t* erf_meta_tag_info_ex_new(wmem_allocator_t *allocator) {
+  gsize i = 0;
+  erf_meta_tag_info_ex_t *extra = wmem_new0(allocator, erf_meta_tag_info_ex_t);
+
+  extra->ett_value = -1;
+  for (i = 0; i < array_length(extra->hf_values); i++) {
+    extra->hf_values[i] = -1;
+  }
+
+  return extra;
+}
+
+static erf_meta_tag_info_t*
+init_section_fields(wmem_array_t *hfri_table, wmem_array_t *ett_table, const erf_meta_hf_template_t *section)
+{
+  erf_meta_tag_info_t *section_info;
+  gint                *ett_tmp; /* wmem_array_append needs actual memory to copy from */
+  hf_register_info     hfri_tmp[] = {
+    { NULL, { "Section ID", NULL, FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }}, /* Section ID */
+    { NULL, { "Section Length", NULL, FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},  /* Section Length */
+    { NULL, { "Reserved", NULL, FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }} /* Reserved extra bytes */
+  };
+
+  section_info = wmem_new0(wmem_epan_scope(), erf_meta_tag_info_t);
+  section_info->code = section->code;
+  section_info->section = section->code; /* Needed for lookup commonality */
+  section_info->ett = -1;
+  section_info->hf_value = -1;
+  section_info->tag_template = section;
+  section_info->extra = erf_meta_tag_info_ex_new(wmem_epan_scope());
+
+  hfri_tmp[0].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.section_id", section->hfinfo.abbrev);
+  hfri_tmp[0].p_id = &section_info->hf_value;
+  hfri_tmp[1].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.section_len", section->hfinfo.abbrev);
+  hfri_tmp[1].p_id = &section_info->extra->hf_values[0];
+  hfri_tmp[2].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.section_hdr_rsvd", section->hfinfo.abbrev);
+  hfri_tmp[2].p_id = &section_info->extra->hf_values[1];
+
+  /* Add hf_register_info, ett entries */
+  wmem_array_append(hfri_table, hfri_tmp, array_length(hfri_tmp));
+  ett_tmp = &section_info->ett;
+  wmem_array_append(ett_table, &ett_tmp, 1);
+  ett_tmp = &section_info->extra->ett_value;
+  wmem_array_append(ett_table, &ett_tmp, 1);
+
+  return section_info;
+}
+
+static erf_meta_tag_info_t*
+init_tag_fields(wmem_array_t *hfri_table, wmem_array_t *ett_table, const erf_meta_hf_template_t *section, const erf_meta_hf_template_t *tag)
+{
+  erf_meta_tag_info_t *tag_info;
+  unsigned int         i = 0;
+  gint                *ett_tmp; /* wmem_array_append needs actual memory to copy from */
+  hf_register_info     hfri_tmp[] = {
+    { NULL, { NULL, NULL, FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }}, /* Value, will be filled from template */
+    { NULL, { NULL, NULL, FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }}  /* Second value, if any */
+  };
+  guint                hfri_len = 0;
+
+  tag_info = wmem_new0(wmem_epan_scope(), erf_meta_tag_info_t);
+  tag_info->code = tag->code;
+  tag_info->section = section->code;
+  tag_info->ett = -1;
+  tag_info->hf_value = -1;
+  tag_info->tag_template = tag;
+  tag_info->extra = NULL;
+
+  switch (tag_info->code) {
+  /* Special case: parent section */
+  case ERF_META_TAG_parent_section:
+    tag_info->extra = erf_meta_tag_info_ex_new(wmem_epan_scope());
+
+    hfri_tmp[0].p_id = &tag_info->hf_value;
+    hfri_tmp[0].hfinfo.name = "Section Type";
+    hfri_tmp[0].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.%s.section_type", section->hfinfo.abbrev, tag->hfinfo.abbrev);
+    hfri_tmp[0].hfinfo.type = FT_UINT16;
+    hfri_tmp[0].hfinfo.display = BASE_DEC;
+    /* XXX: Cannot set strings here as array may be realloced as more added! */
+    hfri_len++;
+
+    hfri_tmp[1].p_id = &tag_info->extra->hf_values[0];
+    hfri_tmp[1].hfinfo.name = "Section ID";
+    hfri_tmp[1].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.%s.section_id", section->hfinfo.abbrev, tag->hfinfo.abbrev);
+    hfri_tmp[1].hfinfo.type = FT_UINT16;
+    hfri_tmp[1].hfinfo.display = BASE_DEC;
+    hfri_len++;
+    break;
+
+  /* Special case: Link Status bits */
+  case ERF_META_TAG_if_link_status:
+    tag_info->extra = erf_meta_tag_info_ex_new(wmem_epan_scope());
+
+    hfri_tmp[0].p_id = &tag_info->hf_value;
+    hfri_tmp[0].hfinfo = tag->hfinfo;
+    hfri_tmp[0].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.%s", section->hfinfo.abbrev, tag->hfinfo.abbrev);
+    hfri_len++;
+
+    hfri_tmp[1].p_id = &tag_info->extra->hf_values[0];
+    hfri_tmp[1].hfinfo.name = "Link";
+    hfri_tmp[1].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.%s.link", section->hfinfo.abbrev, tag->hfinfo.abbrev);
+    hfri_tmp[1].hfinfo.type = FT_UINT32;
+    hfri_tmp[1].hfinfo.display = BASE_DEC;
+    hfri_tmp[1].hfinfo.bitmask = 0x00000001;
+    hfri_len++;
+    break;
+
+  /* Special case: Tunneling mode bits */
+  case ERF_META_TAG_tunneling_mode:
+    tag_info->extra = erf_meta_tag_info_ex_new(wmem_epan_scope());
+
+    hfri_tmp[0].p_id = &tag_info->hf_value;
+    hfri_tmp[0].hfinfo = tag->hfinfo;
+    hfri_tmp[0].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.%s", section->hfinfo.abbrev, tag->hfinfo.abbrev);
+    hfri_len++;
+
+    /* Borrow hfri_tmp[1], inserting each bitfield value */
+    for (i = 0; i < array_length(erf_tunneling_modes); i++) {
+      hfri_tmp[1].p_id = &tag_info->extra->hf_values[i];
+      hfri_tmp[1].hfinfo = erf_tunneling_modes[i];
+      hfri_tmp[1].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.%s.%s", section->hfinfo.abbrev, tag->hfinfo.abbrev, erf_tunneling_modes[i].abbrev);
+      wmem_array_append(hfri_table, &hfri_tmp[1], 1);
+    }
+    break;
+
+  /* Special case: name entry */
+  case ERF_META_TAG_ns_dns_ipv4:
+  case ERF_META_TAG_ns_dns_ipv6:
+  case ERF_META_TAG_ns_host_ipv4:
+  case ERF_META_TAG_ns_host_ipv6:
+  case ERF_META_TAG_ns_host_mac:
+  case ERF_META_TAG_ns_host_eui:
+  case ERF_META_TAG_ns_host_wwn:
+  case ERF_META_TAG_ns_host_ib_gid:
+  case ERF_META_TAG_ns_host_ib_lid:
+  case ERF_META_TAG_ns_host_fc_id:
+    tag_info->extra = erf_meta_tag_info_ex_new(wmem_epan_scope());
+
+    hfri_tmp[0].p_id = &tag_info->hf_value;
+    /* Set type, etc. from template based on address type */
+    hfri_tmp[0].hfinfo = tag->hfinfo;
+    hfri_tmp[0].hfinfo.name = "Address";
+    hfri_tmp[0].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.%s.addr", section->hfinfo.abbrev, tag->hfinfo.abbrev);
+    hfri_len++;
+
+    hfri_tmp[1].p_id = &tag_info->extra->hf_values[0];
+    hfri_tmp[1].hfinfo.name = "Name";
+    hfri_tmp[1].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.%s.name", section->hfinfo.abbrev, tag->hfinfo.abbrev);
+    hfri_tmp[1].hfinfo.type = FT_STRING;
+    hfri_tmp[1].hfinfo.display = BASE_NONE;
+    hfri_len++;
+    break;
+
+  /* Usual case: just use template */
+  default:
+    hfri_tmp[0].p_id = &tag_info->hf_value;
+    hfri_tmp[0].hfinfo = tag->hfinfo;
+    hfri_tmp[0].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.%s", section->hfinfo.abbrev, tag->hfinfo.abbrev);
+    hfri_len++;
+    break;
+  }
+
+  /* Add hf_register_info, ett entries */
+  wmem_array_append(hfri_table, hfri_tmp, hfri_len);
+  ett_tmp = &tag_info->ett;
+  wmem_array_append(ett_table, &ett_tmp, 1);
+
+  return tag_info;
+}
+
+static void
+init_meta_tags(void)
+{
+  unsigned int                  i, j    = 0;
+  const erf_meta_hf_template_t *section = NULL;
+  const erf_meta_hf_template_t *tag     = NULL;
+  erf_meta_tag_info_t          *tag_info;
+  value_string                  vs_tmp  = {0, NULL};
+
+  erf_meta_index.tag_table      = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
+  erf_meta_index.vs_list        = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
+  erf_meta_index.vs_abbrev_list = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
+  erf_meta_index.hfri           = wmem_array_new(wmem_epan_scope(), sizeof(hf_register_info));
+  erf_meta_index.ett            = wmem_array_new(wmem_epan_scope(), sizeof(gint*));
+
+  /* Generate tag fields */
+  for (j = 0; j < array_length(erf_meta_tags); j++) {
+    tag = &erf_meta_tags[j];
+
+    /* Generate copy of the tag for each section */
+    for (i = 0; i < array_length(erf_meta_sections); i++) {
+      section = &erf_meta_sections[i];
+      tag_info = init_tag_fields(erf_meta_index.hfri, erf_meta_index.ett, section, tag);
+      /* Add to hash table */
+      wmem_map_insert(erf_meta_index.tag_table, GUINT_TO_POINTER(ERF_TAG_INFO_KEY(tag_info)), tag_info);
+    }
+
+    /* Add value string entries */
+    vs_tmp.value = tag->code;
+    vs_tmp.strptr = tag->hfinfo.name;
+    wmem_array_append_one(erf_meta_index.vs_list, vs_tmp);
+    vs_tmp.value = tag->code;
+    vs_tmp.strptr = tag->hfinfo.abbrev;
+    wmem_array_append_one(erf_meta_index.vs_abbrev_list, vs_tmp);
+  }
+
+  /* Generate section fields (skipping section_none and parts of section_unknown) */
+  for (i = 1; i < array_length(erf_meta_sections); i++) {
+    section = &erf_meta_sections[i];
+    tag_info = init_section_fields(erf_meta_index.hfri, erf_meta_index.ett, section);
+
+    if (i != 1) { /* don't add value string for unknown section as it doesn't correspond to one section type code */
+      /* Add to hash table */
+      wmem_map_insert(erf_meta_index.tag_table, GUINT_TO_POINTER(ERF_TAG_INFO_KEY(tag_info)), tag_info);
+      /* Add value string entries */
+      vs_tmp.value = section->code;
+      vs_tmp.strptr = section->hfinfo.name;
+      wmem_array_append_one(erf_meta_index.vs_list, vs_tmp);
+      vs_tmp.value = section->code;
+      vs_tmp.strptr = section->hfinfo.abbrev;
+      wmem_array_append_one(erf_meta_index.vs_abbrev_list, vs_tmp);
+    } else {
+      /* Store section_unknown separately to simplify logic later */
+      erf_meta_index.unknown_section_info = tag_info;
+    }
+  }
+
+  /* Terminate value string lists with {0, NULL} */
+  vs_tmp.value = 0;
+  vs_tmp.strptr = NULL;
+  wmem_array_append_one(erf_meta_index.vs_list, vs_tmp);
+  wmem_array_append_one(erf_meta_index.vs_abbrev_list, vs_tmp);
+  /* TODO: try value_string_ext, requires sorting first */
+}
+
+static int
+erf_source_append(guint64 host_id, guint8 source_id, guint32 num)
+{
+  erf_source_info_t *source_info;
+  guint64            source_key = ERF_SOURCE_KEY(host_id, source_id);
+
+  source_info = (erf_source_info_t*) wmem_map_lookup(erf_state.source_map, &source_key);
+
+  if (!source_info) {
+    guint64 *source_key_ptr = wmem_new(wmem_file_scope(), guint64);
+    *source_key_ptr = source_key;
+
+    source_info = (erf_source_info_t*) wmem_new(wmem_file_scope(), erf_source_info_t);
+    source_info->meta_tree = wmem_tree_new(wmem_file_scope());
+    source_info->meta_list = wmem_list_new(wmem_file_scope());
+
+    wmem_map_insert(erf_state.source_map, source_key_ptr, source_info);
+  }
+
+  /* Add the frame to the list for that source */
+  wmem_list_append(source_info->meta_list, GUINT_TO_POINTER(num));
+  /*
+   * XXX: This assumes we are inserting fd_num in order, which we are as we use
+   * PINFO_FD_VISITED in caller.
+   */
+  wmem_tree_insert32(source_info->meta_tree, num, wmem_list_tail(source_info->meta_list));
+
+  return 0;
+}
+
+static guint32
+erf_source_find_closest(guint64 host_id, guint8 source_id, guint32 fnum, guint32 *fnum_next_ptr) {
+  wmem_list_frame_t  *list_frame      = NULL;
+  wmem_list_frame_t  *list_frame_prev = NULL;
+  erf_source_info_t  *source_info     = NULL;
+  guint64             source_key      = ERF_SOURCE_KEY(host_id, source_id);
+  guint32             fnum_prev       = G_MAXUINT32;
+  guint32             fnum_next       = G_MAXUINT32;
+
+  source_info = (erf_source_info_t*) wmem_map_lookup(erf_state.source_map, &source_key);
+
+  if (source_info) {
+    list_frame = (wmem_list_frame_t*) wmem_tree_lookup32_le(source_info->meta_tree, fnum);
+
+    if (list_frame) {
+      fnum_prev = GPOINTER_TO_UINT(wmem_list_frame_data(list_frame));
+      /* If looking at a metadata record, get the real previous meta frame */
+      if (fnum_prev == fnum) {
+        list_frame_prev = wmem_list_frame_prev(list_frame);
+        fnum_prev = list_frame_prev ? GPOINTER_TO_UINT(wmem_list_frame_data(list_frame_prev)) : G_MAXUINT32;
+      }
+
+      list_frame = wmem_list_frame_next(list_frame);
+      fnum_next = list_frame ? GPOINTER_TO_UINT(wmem_list_frame_data(list_frame)) : G_MAXUINT32;
+    } else {
+      /*
+       * XXX: Edge case: still need the first meta record to find the next one at the
+       * beginning of the file.
+       */
+      list_frame = wmem_list_head(source_info->meta_list);
+      fnum_next = list_frame ? GPOINTER_TO_UINT(wmem_list_frame_data(list_frame)) : G_MAXUINT32;
+      fnum_prev = G_MAXUINT32;
+    }
+  }
+
+  if (fnum_next_ptr)
+    *fnum_next_ptr = fnum_next;
+
+  return fnum_prev;
+}
 
 /* Copy of atm_guess_traffic_type from atm.c in /wiretap */
 static void
@@ -770,6 +1366,85 @@ dissect_signature_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
+dissect_host_id_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int idx)
+{
+  if(tree) {
+    guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+
+    proto_tree_add_uint(tree, hf_erf_ehdr_host_id_sourceid, tvb, 0, 0, (guint8)((hdr >> 48) & 0xFF));
+    proto_tree_add_uint64(tree, hf_erf_ehdr_host_id_hostid, tvb, 0, 0, (hdr & ERF_EHDR_HOST_ID_MASK));
+  }
+}
+
+static void
+dissect_flow_id_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int idx)
+{
+  if(tree) {
+    guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+
+    proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_source_id,  tvb, 0, 0, (guint8)((hdr >> 48) & 0xFF));
+    proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_hash_type,  tvb, 0, 0, (guint8)((hdr >> 40) & 0xFF));
+    proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_stack_type, tvb, 0, 0, (guint8)((hdr >> 32) & 0xFF));
+    proto_tree_add_uint(tree, hf_erf_ehdr_flow_id_flow_hash,  tvb, 0, 0, (guint32)(hdr & 0xFFFFFFFF));
+  }
+}
+
+static guint64
+find_host_id(packet_info *pinfo) {
+  guint64 *hdr = NULL;
+
+  hdr = erf_get_ehdr(pinfo, ERF_EXT_HDR_TYPE_HOST_ID, NULL);
+
+  return hdr ? (*hdr & ERF_EHDR_HOST_ID_MASK) : 0;
+}
+
+static void
+dissect_host_id_source_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint64 host_id, guint8 source_id)
+{
+  if (tree) {
+    proto_tree *hostid_tree;
+    proto_item *pi           = NULL;
+    guint32     fnum_current = G_MAXUINT32;
+    guint32     fnum         = G_MAXUINT32;
+    guint32     fnum_next    = G_MAXUINT32;
+
+    fnum = erf_source_find_closest(host_id, source_id, pinfo->num, &fnum_next);
+
+    if (fnum != G_MAXUINT32) {
+      fnum_current = fnum;
+    } else {
+      /* XXX: Possibly undesireable side effect: first metadata record links to next */
+      fnum_current = fnum_next;
+    }
+
+    if (fnum_current != G_MAXUINT32) {
+      pi = proto_tree_add_uint_format(tree, hf_erf_source_current, tvb, 0, 0, fnum_current,
+          "Host ID: 0x%012" G_GINT64_MODIFIER "x, Source ID: %u", host_id, source_id&0xFF);
+      hostid_tree = proto_item_add_subtree(pi, ett_erf_source);
+    } else {
+      /* If we have no frame number to link against, just add a static subtree */
+      hostid_tree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_erf_source, &pi,
+          "Host ID: 0x%012" G_GINT64_MODIFIER "x, Source ID: %u", host_id, source_id&0xFF);
+    }
+    PROTO_ITEM_SET_GENERATED(pi);
+
+    pi = proto_tree_add_uint64(hostid_tree, hf_erf_hostid, tvb, 0, 0, host_id);
+    PROTO_ITEM_SET_GENERATED(pi);
+    pi = proto_tree_add_uint(hostid_tree, hf_erf_sourceid, tvb, 0, 0, source_id);
+    PROTO_ITEM_SET_GENERATED(pi);
+
+    if (fnum_next != G_MAXUINT32) {
+      pi = proto_tree_add_uint(hostid_tree, hf_erf_source_next, tvb, 0, 0, fnum_next);
+      PROTO_ITEM_SET_GENERATED(pi);
+    }
+    if (fnum != G_MAXUINT32) {
+      pi = proto_tree_add_uint(hostid_tree, hf_erf_source_prev, tvb, 0, 0, fnum);
+      PROTO_ITEM_SET_GENERATED(pi);
+    }
+  }
+}
+
+static void
 dissect_unknown_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int idx)
 {
   if (tree) {
@@ -1059,40 +1734,98 @@ dissect_erf_pseudo_extension_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
   proto_item *pi;
   proto_item *ehdr_tree;
+  guint64     hdr;
   guint8      type;
   guint8      has_more = pinfo->pseudo_header->erf.phdr.type & 0x80;
   int         i        = 0;
   int         max      = sizeof(pinfo->pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
 
+  guint64     host_id        = 0;
+  guint8      source_id      = 0;
+  guint64     host_id_last   = 0;
+  guint8      source_id_last = 0;
+
+  /*
+   * Get the first Host ID of the record (which may not be the first extension
+   * header).
+   */
+  host_id = find_host_id(pinfo);
+  if (host_id == 0) {
+    /*
+     * XXX: We are relying here on the Wireshark doing a second parse any
+     * time it does anything with tree items (including filtering) to associate
+     * the records before the first ERF_TYPE_META record. This does not work
+     * with TShark in one-pass mode, in which case the first few records get
+     * Host ID 0 (unset).
+     */
+    host_id = erf_state.implicit_host_id;
+  }
+
   while(has_more && (i < max)) {
-    type = (guint8) (pinfo->pseudo_header->erf.ehdr_list[i].ehdr >> 56);
+    hdr = pinfo->pseudo_header->erf.ehdr_list[i].ehdr;
+    type = (guint8) (hdr >> 56);
 
     pi = proto_tree_add_uint(tree, hf_erf_ehdr_t, tvb, 0, 0, (type & 0x7f));
     ehdr_tree = proto_item_add_subtree(pi, ett_erf_pseudo_hdr);
 
     switch (type & 0x7f) {
-    case EXT_HDR_TYPE_CLASSIFICATION:
+    case ERF_EXT_HDR_TYPE_CLASSIFICATION:
       dissect_classification_ex_header(tvb, pinfo, ehdr_tree, i);
       break;
-    case EXT_HDR_TYPE_INTERCEPTID:
+    case ERF_EXT_HDR_TYPE_INTERCEPTID:
       dissect_intercept_ex_header(tvb, pinfo, ehdr_tree, i);
       break;
-    case EXT_HDR_TYPE_RAW_LINK:
+    case ERF_EXT_HDR_TYPE_RAW_LINK:
       dissect_raw_link_ex_header(tvb, pinfo, ehdr_tree, i);
       break;
-    case EXT_HDR_TYPE_BFS:
+    case ERF_EXT_HDR_TYPE_BFS:
       dissect_bfs_ex_header(tvb, pinfo, ehdr_tree, i);
       break;
-    case EXT_HDR_TYPE_CHANNELISED:
+    case ERF_EXT_HDR_TYPE_CHANNELISED:
       dissect_channelised_ex_header(tvb, pinfo, ehdr_tree, i);
       break;
-    case EXT_HDR_TYPE_SIGNATURE:
+    case ERF_EXT_HDR_TYPE_SIGNATURE:
       dissect_signature_ex_header(tvb, pinfo, ehdr_tree, i);
+      break;
+    case ERF_EXT_HDR_TYPE_FLOW_ID:
+      source_id = (guint8)((hdr >> 48) & 0xFF);
+      dissect_flow_id_ex_header(tvb, pinfo, ehdr_tree, i);
+      break;
+    case ERF_EXT_HDR_TYPE_HOST_ID:
+      host_id = hdr & ERF_EHDR_HOST_ID_MASK;
+      source_id = (guint8)((hdr >> 48) & 0xFF);
+      dissect_host_id_ex_header(tvb, pinfo, ehdr_tree, i);
       break;
     default:
       dissect_unknown_ex_header(tvb, pinfo, ehdr_tree, i);
       break;
     }
+
+    /* Track and dissect combined Host ID and Source ID(s) */
+    if (source_id != source_id_last || host_id != host_id_last) {
+      /*
+       * TODO: Do we also want to track Host ID 0 Source ID 0 records? These
+       * are technically unassociated.
+       */
+      if (!PINFO_FD_VISITED(pinfo)) {
+        if ((pinfo->pseudo_header->erf.phdr.type & 0x7f) == ERF_TYPE_META) {
+          /* Update the implicit Host ID when ERF_TYPE_META */
+          /* XXX: We currently assume there is only one in the whole file */
+          if (erf_state.implicit_host_id == 0 && source_id > 0) {
+            erf_state.implicit_host_id = host_id;
+          }
+
+          /* Add to the sequence of ERF_TYPE_META records */
+          erf_source_append(host_id, source_id, pinfo->num);
+        }
+      }
+
+      dissect_host_id_source_id(tvb, pinfo, tree, host_id, source_id);
+    }
+
+    host_id_last = host_id;
+    source_id_last = source_id;
+
     has_more = type & 0x80;
     i += 1;
   }
@@ -1129,6 +1862,298 @@ guint64* erf_get_ehdr(packet_info *pinfo, guint8 hdrtype, gint* afterindex) {
   }
 
   return NULL;
+}
+
+static void
+check_section_length(packet_info *pinfo, proto_item *sectionlen_pi, int offset, int sectionoffset, int sectionlen) {
+  if (sectionlen_pi) {
+    if (offset - sectionoffset == sectionlen) {
+      proto_item_append_text(sectionlen_pi, " [correct]");
+    } else if (sectionlen != 0) {
+      proto_item_append_text(sectionlen_pi, " [incorrect, should be %u]", offset - sectionoffset);
+      expert_add_info(pinfo, sectionlen_pi, &ei_erf_meta_section_len_error);
+    }
+  }
+}
+
+static void
+dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  proto_item *pi            = NULL;
+  proto_item *tag_pi        = NULL;
+  proto_item *tag_tree;
+  proto_item *section_pi    = NULL;
+  proto_item *section_tree  = tree;
+  proto_item *sectionlen_pi = NULL;
+
+  guint16                sectiontype  = ERF_META_SECTION_NONE;
+  guint16                tagtype      = 0;
+  guint16                taglength    = 0;
+  const gchar           *tagvalstring = NULL;
+  erf_meta_tag_info_t   *tag_info;
+
+  /* Used for search entry and unknown tags */
+  erf_meta_hf_template_t tag_template_unknown = { 0, { "Unknown", "unknown",
+    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } };
+  erf_meta_tag_info_t    tag_info_local       = { 0, 0, &tag_template_unknown,
+    ett_erf_meta_tag, hf_erf_meta_tag_unknown, NULL };
+
+  int     offset        = 0;
+  int     sectionoffset = 0;
+  guint16 sectionid     = 0;
+  guint16 sectionlen    = 0;
+
+  /* Set column heading title*/
+  col_set_str(pinfo->cinfo, COL_INFO, "MetaERF Record");
+
+  /* Go through the sectionss and their tags */
+  while (tvb_captured_length_remaining(tvb, offset) > 4) {
+    tagtype = tvb_get_ntohs(tvb, offset);
+    taglength = tvb_get_ntohs(tvb, offset + 2);
+    tag_tree = NULL;
+
+    if (ERF_META_IS_SECTION(tagtype))
+      sectiontype = tagtype;
+
+    /* Look up per-section tag hf */
+    tag_info_local.code = tagtype;
+    tag_info_local.section = sectiontype;
+    tag_info = (erf_meta_tag_info_t*) wmem_map_lookup(erf_meta_index.tag_table, GUINT_TO_POINTER(ERF_TAG_INFO_KEY(&tag_info_local)));
+
+    /* Fall back to unknown tag */
+    if (tag_info == NULL)
+      tag_info = &tag_info_local;
+
+    /* Dissect value, length and type */
+    if (ERF_META_IS_SECTION(tagtype)) { /* Section header tag */
+      if (section_pi) {
+        /* Update section item length of last section */
+        proto_item_set_len(section_pi, offset - sectionoffset);
+        if (sectionlen_pi) {
+          check_section_length(pinfo, sectionlen_pi, offset, sectionoffset, sectionlen);
+        }
+      }
+
+      sectionoffset = offset;
+      if (tag_info->tag_template == &tag_template_unknown) {
+        /* Unknown section */
+        sectiontype = ERF_META_SECTION_UNKNOWN;
+        tag_info = erf_meta_index.unknown_section_info;
+      }
+      DISSECTOR_ASSERT(tag_info->extra);
+
+      tagvalstring = val_to_str(tagtype, VALS(wmem_array_get_raw(erf_meta_index.vs_list)), "Unknown Section (0x%x)");
+      section_tree = proto_tree_add_subtree_format(tree, tvb, offset, 0, tag_info->extra->ett_value, &section_pi, "MetaERF %s", tagvalstring);
+      tag_tree = proto_tree_add_subtree_format(section_tree, tvb, offset, taglength + 4, tag_info->ett, &tag_pi, "%s Header", tagvalstring);
+
+      if (taglength > 0) {
+        sectionid = tvb_get_ntohs(tvb, offset + 4);
+        sectionlen = tvb_get_ntohs(tvb, offset + 6);
+
+        /* Add section_id */
+        proto_tree_add_uint(tag_tree, tag_info->hf_value, tvb, offset + 4, 2, sectionid);
+        if (sectionid != 0)
+          proto_item_append_text(section_pi, " %u", sectionid);
+
+        /* Add section_len */
+        sectionlen_pi = proto_tree_add_uint(tag_tree, tag_info->extra->hf_values[0], tvb, offset + 6, 2, sectionlen);
+
+        /* Reserved extra section header information */
+        if (taglength > 4) {
+          proto_tree_add_item(tag_tree, tag_info->extra->hf_values[1], tvb, offset + 8, taglength - 4, ENC_NA);
+        }
+      }
+    } else { /* Not section header tag */
+      enum ftenum tag_ft;
+      char        pi_label[ITEM_LABEL_LENGTH+1];
+      gboolean    dissected = TRUE;
+      guint32     value32;
+      guint64     value64;
+      gchar      *tmp = NULL;
+
+      tag_ft = tag_info->tag_template->hfinfo.type;
+      pi_label[0] = '\0';
+
+      /* Group tags before first section header into a fake section */
+      if (offset == 0) {
+        section_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_erf_meta, &section_pi, "MetaERF No Section");
+      }
+
+      /* Handle special cases */
+      /* TODO: might want to do this dynamically via tag_info callback */
+      switch (tagtype) {
+      /* TODO: use get_tcp_port in epan/addr_resolv.h etc */
+      case ERF_META_TAG_if_speed:
+      case ERF_META_TAG_if_tx_speed:
+        value64 = tvb_get_ntoh64(tvb, offset + 4);
+        tmp = format_size((gint64) value64, (format_size_flags_e)(format_size_unit_bits_s|format_size_prefix_si));
+        tag_pi = proto_tree_add_uint64_format_value(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, value64, "%s (%" G_GINT64_MODIFIER "u bps)", tmp, value64);
+        g_free(tmp);
+        break;
+
+      case ERF_META_TAG_if_rx_power:
+      case ERF_META_TAG_if_tx_power:
+        value32 = tvb_get_ntohl(tvb, offset + 4);
+        tag_pi = proto_tree_add_int_format_value(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, (gint32) value32, "%.2fdBm", (float)((gint32) value32)/100.0);
+        break;
+
+      case ERF_META_TAG_loc_lat:
+      case ERF_META_TAG_loc_long:
+        value32 = tvb_get_ntohl(tvb, offset + 4);
+        tag_pi = proto_tree_add_int_format_value(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, (gint32) value32, "%.2f", (double)((gint32) value32)*1000000.0);
+        break;
+
+      case ERF_META_TAG_mask_cidr:
+        value32 = tvb_get_ntohl(tvb, offset + 4);
+        tag_pi = proto_tree_add_uint_format_value(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, value32, "/%u", value32);
+        break;
+
+      case ERF_META_TAG_mem:
+        value64 = tvb_get_ntoh64(tvb, offset + 4);
+        tmp = format_size((gint64) value64, (format_size_flags_e)(format_size_unit_bytes|format_size_prefix_iec));
+        tag_pi = proto_tree_add_uint64_format_value(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, value64, "%s (%" G_GINT64_MODIFIER"u bytes)", tmp, value64);
+        g_free(tmp);
+        break;
+
+      case ERF_META_TAG_parent_section:
+        DISSECTOR_ASSERT(tag_info->extra);
+        value32 = tvb_get_ntohs(tvb, offset + 4);
+        /*
+         * XXX: Formatting value manually because don't have erf_meta_vs_list
+         * populated at registration time.
+         */
+        tag_tree = proto_tree_add_subtree_format(section_tree, tvb, offset + 4, taglength, tag_info->ett, &tag_pi, "%s: %s %u", tag_info->tag_template->hfinfo.name,
+            val_to_str(value32, VALS(wmem_array_get_raw(erf_meta_index.vs_list)), "Unknown Section (%u)"), tvb_get_ntohs(tvb, offset + 4 + 2));
+
+        proto_tree_add_uint_format_value(tag_tree, tag_info->hf_value, tvb, offset + 4, MIN(2, taglength), value32, "%s (%u)",
+            val_to_str(value32, VALS(wmem_array_get_raw(erf_meta_index.vs_abbrev_list)), "Unknown"), value32);
+        proto_tree_add_item(tag_tree, tag_info->extra->hf_values[0], tvb, offset + 6, MIN(2, taglength - 2), ENC_BIG_ENDIAN);
+        break;
+
+      case ERF_META_TAG_reset:
+        tag_pi = proto_tree_add_item(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, ENC_NA);
+        expert_add_info(pinfo, tag_pi, &ei_erf_meta_reset);
+        break;
+
+      case ERF_META_TAG_if_link_status:
+        DISSECTOR_ASSERT(tag_info->extra);
+        {
+          const int *link_status_flags[] = {
+            &tag_info->extra->hf_values[0],
+            NULL
+          };
+
+          tag_pi = proto_tree_add_bitmask(section_tree, tvb, offset + 4, tag_info->hf_value, tag_info->ett, link_status_flags, ENC_BIG_ENDIAN);
+          tag_tree = proto_item_get_subtree(tag_pi);
+        }
+        break;
+
+      case ERF_META_TAG_tunneling_mode:
+        DISSECTOR_ASSERT(tag_info->extra);
+        {
+          const int* tunneling_mode_flags[array_length(erf_tunneling_modes)+1];
+          int i;
+
+          /* XXX: This is allowed as the array itself is not constant (not const int* const) */
+          for (i = 0; i < (int) array_length(erf_tunneling_modes); i++) {
+            tunneling_mode_flags[i] = &tag_info->extra->hf_values[i];
+          }
+          tunneling_mode_flags[array_length(erf_tunneling_modes)] = NULL;
+
+          tag_pi = proto_tree_add_bitmask(section_tree, tvb, offset + 4, tag_info->hf_value, tag_info->ett, tunneling_mode_flags, ENC_BIG_ENDIAN);
+        }
+        break;
+
+      case ERF_META_TAG_ns_dns_ipv4:
+      case ERF_META_TAG_ns_dns_ipv6:
+      case ERF_META_TAG_ns_host_ipv4:
+      case ERF_META_TAG_ns_host_ipv6:
+      case ERF_META_TAG_ns_host_mac:
+      case ERF_META_TAG_ns_host_eui:
+      case ERF_META_TAG_ns_host_wwn:
+      case ERF_META_TAG_ns_host_ib_gid:
+      case ERF_META_TAG_ns_host_ib_lid:
+      case ERF_META_TAG_ns_host_fc_id:
+      {
+        int addr_len = ftype_length(tag_ft);
+
+        DISSECTOR_ASSERT(tag_info->extra);
+
+        tag_tree = proto_tree_add_subtree(section_tree, tvb, offset + 4, taglength, tag_info->ett, &tag_pi, tag_info->tag_template->hfinfo.name);
+        /* Address */
+        pi = proto_tree_add_item(tag_tree, tag_info->hf_value, tvb, offset + 4, MIN(addr_len, taglength), IS_FT_INT(tag_ft) || IS_FT_UINT(tag_ft) ? ENC_BIG_ENDIAN : ENC_NA);
+        /* Name */
+        proto_tree_add_item(tag_tree, tag_info->extra->hf_values[0], tvb, offset + 4 + addr_len, taglength - addr_len, ENC_UTF_8);
+        if (pi) {
+          proto_item_fill_label(PITEM_FINFO(pi), pi_label);
+          /* Set top level label TagName: Address Hostname */
+          proto_item_append_text(tag_pi, "%s %s", pi_label /* Includes ": " */,
+              tvb_get_stringzpad(wmem_packet_scope(), tvb, offset + 4 + addr_len, taglength - addr_len, ENC_UTF_8));
+        }
+
+        break;
+      }
+
+      default:
+        dissected = FALSE;
+        break;
+      }
+
+      /* If not special case, dissect generically from template */
+      if (!dissected) {
+        if (IS_FT_INT(tag_ft) || IS_FT_UINT(tag_ft)) {
+          tag_pi = proto_tree_add_item(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, ENC_BIG_ENDIAN);
+        } else if (IS_FT_STRING(tag_ft)) {
+          tag_pi = proto_tree_add_item(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, ENC_UTF_8);
+        } else if (IS_FT_TIME(tag_ft)) {
+          /*
+           * ERF timestamps are conveniently the same as NTP/PTP timestamps but
+           * little endian.
+           */
+          /*
+           * FIXME: ENC_TIME_NTP(_BASE_ZERO) | ENC_LITTLE_ENDIAN only swaps the
+           * upper and lower 32 bits. Is that a bug or by design? Should add
+           * a 'PTP" variant that doesn't round to microseconds and use that
+           * here. For now do by hand.
+           */
+          nstime_t t;
+          guint64 ts;
+
+          ts = tvb_get_letoh64(tvb, offset + 4);
+
+          t.secs = (long) (ts >> 32);
+          ts  = ((ts & 0xffffffff) * 1000 * 1000 * 1000);
+          ts += (ts & 0x80000000) << 1; /* rounding */
+          t.nsecs = ((int) (ts >> 32));
+          if (t.nsecs >= 1000000000) {
+            t.nsecs -= 1000000000;
+            t.secs += 1;
+          }
+
+          tag_pi = proto_tree_add_time(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, &t);
+        } else {
+          tag_pi = proto_tree_add_item(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, ENC_NA);
+        }
+      }
+    }
+
+    /* Create subtree for tag if we haven't already */
+    if (!tag_tree)
+      tag_tree = proto_item_add_subtree(tag_pi, tag_info->ett);
+
+    /* Add tag type field to subtree */
+    /*
+     * XXX: Formatting value manually because don't have erf_meta_vs_list
+     * populated at registration time.
+     */
+    proto_tree_add_uint_format_value(tag_tree, hf_erf_meta_tag_type, tvb, offset, 2, tagtype, "%s (%u)", val_to_str(tagtype, VALS(wmem_array_get_raw(erf_meta_index.vs_abbrev_list)), "Unknown"), tagtype);
+    proto_tree_add_uint(tag_tree, hf_erf_meta_tag_len, tvb, offset + 2, 2, taglength);
+
+    offset += ((taglength + 4) + 0x3) & ~0x3;
+  }
+
+  /* Check final section length */
+  proto_item_set_len(section_pi, offset - sectionoffset);
+  check_section_length(pinfo, sectionlen_pi, offset, sectionoffset, sectionlen);
 }
 
 static int
@@ -1414,14 +2439,20 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     break;
 
   case ERF_TYPE_META:
-    /* use data dissector for now */
-    call_data_dissector(tvb, pinfo, tree);
+    dissect_meta_record_tags(tvb, pinfo, erf_tree);
     break;
 
   default:
     break;
   } /* erf type */
   return tvb_captured_length(tvb);
+}
+
+static void erf_init_dissection(void)
+{
+  erf_state.implicit_host_id = 0;
+  erf_state.source_map = wmem_map_new(wmem_file_scope(), wmem_int64_hash, g_int64_equal);
+  /* Old map is freed automatically */
 }
 
 void
@@ -1577,6 +2608,45 @@ proto_register_erf(void)
     { &hf_erf_ehdr_signature_flow_hash,
       { "Flow Hash", "erf.ehdr.signature.flowhash",
         FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL } },
+
+    /* Flow ID Extension Header */
+    { &hf_erf_ehdr_flow_id_source_id,
+      { "Source ID", "erf.ehdr.flowid.sourceid",
+        FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+    { &hf_erf_ehdr_flow_id_hash_type,
+      { "Hash Type", "erf.ehdr.flowid.hashtype",
+        FT_UINT8, BASE_HEX, VALS(erf_hash_type), 0, NULL, HFILL } },
+    { &hf_erf_ehdr_flow_id_stack_type,
+      { "Stack Type", "erf.ehdr.flowid.stacktype",
+        FT_UINT8, BASE_HEX, VALS(erf_stack_type), 0, NULL, HFILL } },
+    { &hf_erf_ehdr_flow_id_flow_hash,
+      { "Flow Hash", "erf.ehdr.flowid.flowhash",
+        FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
+
+    /* Host ID Extension Header */
+    { &hf_erf_ehdr_host_id_sourceid,
+      { "Source ID", "erf.ehdr.hostid.sourceid",
+        FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+    { &hf_erf_ehdr_host_id_hostid,
+      { "Host ID", "erf.ehdr.hostid.hostid",
+        FT_UINT48, BASE_HEX, NULL, 0, NULL, HFILL } },
+
+    /* Generated fields for navigating Host ID/Source ID */
+    { &hf_erf_sourceid,
+      { "Source ID", "erf.sourceid",
+        FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+    { &hf_erf_hostid,
+      { "Host ID", "erf.hostid",
+        FT_UINT48, BASE_HEX, NULL, 0, NULL, HFILL } },
+    { &hf_erf_source_current,
+      { "Next Metadata in Source", "erf.source_meta_frame_current",
+        FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
+    { &hf_erf_source_next,
+      { "Next Metadata in Source", "erf.source_meta_frame_next",
+        FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
+    { &hf_erf_source_prev,
+      { "Previous Metadata in Source", "erf.source_meta_frame_prev",
+        FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
 
     /* Unknown Extension Header */
     { &hf_erf_ehdr_unk,
@@ -1805,6 +2875,17 @@ proto_register_erf(void)
     { &hf_erf_eth_pad,
       { "Padding", "erf.eth.pad",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+    /* MetaERF record unknown tags */
+    { &hf_erf_meta_tag_type,
+      { "Tag Type", "erf.meta.tag.type",
+        FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_erf_meta_tag_len,
+      { "Tag Length", "erf.meta.tag.len",
+        FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_erf_meta_tag_unknown,
+      { "Value", "erf.meta.unknown",
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } }
   };
 
   static gint *ett[] = {
@@ -1819,7 +2900,10 @@ proto_register_erf(void)
     &ett_erf_mc_aal5,
     &ett_erf_mc_aal2,
     &ett_erf_aal2,
-    &ett_erf_eth
+    &ett_erf_eth,
+    &ett_erf_meta,
+    &ett_erf_meta_tag,
+    &ett_erf_source
   };
 
   static const enum_val_t erf_hdlc_options[] = {
@@ -1842,6 +2926,8 @@ proto_register_erf(void)
       { &ei_erf_checksum_error, { "erf.checksum.error", PI_CHECKSUM, PI_ERROR, "ERF MC FCS Error", EXPFILL }},
       { &ei_erf_packet_loss, { "erf.packet_loss", PI_SEQUENCE, PI_WARN, "Packet loss occurred between previous and current packet", EXPFILL }},
       { &ei_erf_extension_headers_not_shown, { "erf.ehdr.more_not_shown", PI_SEQUENCE, PI_WARN, "More extension headers were present, not shown", EXPFILL }},
+      { &ei_erf_meta_section_len_error, { "erf.meta.section_len.error", PI_PROTOCOL, PI_ERROR, "MetaERF Section Length incorrect", EXPFILL }},
+      { &ei_erf_meta_reset, { "erf.meta.metadata_reset", PI_PROTOCOL, PI_WARN, "MetaERF metadata reset", EXPFILL }}
   };
 
   module_t *erf_module;
@@ -1850,10 +2936,16 @@ proto_register_erf(void)
   proto_erf = proto_register_protocol("Extensible Record Format", "ERF", "erf");
   erf_handle = register_dissector("erf", dissect_erf, proto_erf);
 
+  init_meta_tags();
+
   proto_register_field_array(proto_erf, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_erf = expert_register_protocol(proto_erf);
   expert_register_field_array(expert_erf, ei, array_length(ei));
+
+  /* Register per-section MetaERF fields */
+  proto_register_field_array(proto_erf, (hf_register_info*) wmem_array_get_raw(erf_meta_index.hfri), (int) wmem_array_get_count(erf_meta_index.hfri));
+  proto_register_subtree_array((gint**) wmem_array_get_raw(erf_meta_index.ett), (int) wmem_array_get_count(erf_meta_index.ett));
 
   erf_module = prefs_register_protocol(proto_erf, NULL);
 
@@ -1878,12 +2970,17 @@ proto_register_erf(void)
                                  &erf_ethfcs);
 
   erf_dissector_table = register_dissector_table("erf.types.type", "Type", proto_erf, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+
+  register_init_routine(erf_init_dissection);
+  /* No extra cleanup needed */
 }
 
 void
 proto_reg_handoff_erf(void)
 {
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ERF, erf_handle);
+  /* Also register dissector for MetaERF non-packet records */
+  dissector_add_uint("wtap_fts_rec", WTAP_FILE_TYPE_SUBTYPE_ERF, erf_handle);
 
   /* Get handles for serial line protocols */
   chdlc_handle  = find_dissector_add_dependency("chdlc", proto_erf);
