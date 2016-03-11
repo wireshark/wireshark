@@ -610,8 +610,7 @@ static void idb_create(wtap_optionblock_t block)
     static wtap_optblock_reg_t os_option = {"os", "Operating System", WTAP_OPTTYPE_STRING, {0}, {0}};
     static wtap_optblock_reg_t fcslen_option = {"fcslen", "FCS Length", WTAP_OPTTYPE_UINT8, {0}, {0}};
 
-    wtapng_if_descr_filter_t default_filter;
-    memset(&default_filter, 0, sizeof(default_filter));
+    static wtapng_if_descr_filter_t default_filter;
 
     block->mandatory_data = g_new0(wtapng_if_descr_mandatory_t, 1);
 
