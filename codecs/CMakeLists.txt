@@ -81,3 +81,12 @@ if(NOT ${ENABLE_STATIC})
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
 endif()
+
+CHECKAPI(
+	NAME
+	  codecs
+	SWITCHES
+	  -g abort -g termoutput -build
+	SOURCES
+	  ${WSCODECS_FILES}
+)

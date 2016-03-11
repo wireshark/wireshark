@@ -58,6 +58,16 @@ set_target_properties(ftypes PROPERTIES
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 )
 
+# Commented out as per nmake
+#CHECKAPI(
+#	NAME
+#	  ftypes
+#	SWITCHES
+#	  -g termoutput -build
+#	SOURCES
+#	  ${FTYPE_FILES}
+#)
+
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
 #

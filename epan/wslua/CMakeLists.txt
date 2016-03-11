@@ -166,6 +166,15 @@ set_target_properties(wslua PROPERTIES
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 )
 
+CHECKAPI(
+	NAME
+	  wslua
+	SWITCHES
+	  -g termoutput -build
+	SOURCES
+	  ${WSLUA_FILES}
+)
+
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
 #

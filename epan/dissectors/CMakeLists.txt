@@ -984,7 +984,6 @@ set(DISSECTOR_SRC
 	packet-ncp-nmas.c
 	packet-ncp-sss.c
 	packet-ncp.c
-	packet-ncp2222.c
 	packet-ncs.c
 	packet-ndmp.c
 	packet-ndp.c
@@ -1428,9 +1427,14 @@ set(DISSECTOR_SRC
 set(DISSECTOR_SUPPORT_SRC
 	packet-dcerpc-nt.c
 	usb.c
-	register.c
 )
 source_group(dissector-support FILES ${DISSECTOR_SUPPORT_SRC})
+
+set(DISSECTOR_GENERATED_FILES
+	packet-ncp2222.c
+	register.c
+)
+source_group(dissector-generated FILES ${DISSECTOR_GENERATED_FILES})
 
 set(DISSECTOR_FILES
 	${DISSECTOR_SRC}
@@ -1454,6 +1458,7 @@ set(CLEAN_FILES
 	${PIDL_DISSECTOR_SRC}
 	${ASN1_DISSECTOR_SRC}
 	${DISSECTOR_SUPPORT_SRC}
+	${DISSECTOR_GENERATED_FILES}
 )
 
 if(WERROR_COMMON_FLAGS)
@@ -1467,11 +1472,25 @@ endif()
 add_library(dissectors OBJECT
 	${DISSECTOR_FILES}
 	${DISSECTOR_SUPPORT_SRC}
+	${DISSECTOR_GENERATED_FILES}
 )
 
 set_target_properties(dissectors PROPERTIES
 	FOLDER "Libs/epan/dissectors"
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+)
+
+set(CHECKAPI_FILE_LIST "${CMAKE_CURRENT_BINARY_DIR}/files.txt")
+file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
+file(WRITE "${CHECKAPI_FILE_LIST}" "${DISSECTOR_FILES}")
+CHECKAPI(
+	NAME
+	  dissectors
+	SWITCHES
+	  -g abort -g termoutput -build --file ${CHECKAPI_FILE_LIST}
+	SOURCES
+	  ${DISSECTOR_SUPPORT_SRC}
+	  ${DISSECTOR_HEADERS}
 )
 
 #

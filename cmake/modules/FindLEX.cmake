@@ -26,7 +26,7 @@ MARK_AS_ADVANCED(LEX_EXECUTABLE)
 
 # flex a .l file
 
-MACRO(ADD_LEX_FILES _sources )
+MACRO(ADD_LEX_FILES _source _generated)
     FOREACH (_current_FILE ${ARGN})
       GET_FILENAME_COMPONENT(_in ${_current_FILE} ABSOLUTE)
       GET_FILENAME_COMPONENT(_basename ${_current_FILE} NAME_WE)
@@ -41,7 +41,8 @@ MACRO(ADD_LEX_FILES _sources )
           ${_in}
         DEPENDS ${_in}
       )
-      SET(${_sources} ${${_sources}} ${_outc} )
+      LIST(APPEND ${_source} ${_in})
+      LIST(APPEND ${_generated} ${_outc})
       INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
       INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
     ENDFOREACH (_current_FILE)

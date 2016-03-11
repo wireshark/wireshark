@@ -1832,7 +1832,9 @@ sub print_usage
         print "                    [--build] [-s group1] [-s group2] ... \n";
         print "                    [--sourcedir=srcdir] \n";
         print "                    [--nocheck-value-string-array] \n";
-        print "                    [--nocheck-addtext] [--nocheck-hf] [--debug] file1 file2 ...\n";
+        print "                    [--nocheck-addtext] [--nocheck-hf] [--debug]\n";
+        print "                    [--file=/path/to/file_list]\n";
+        print "                    file1 file2 ...\n";
         print "\n";
         print "       -M: Generate output for -g in 'machine-readable' format\n";
         print "       -p: used by the git pre-commit hook\n";
@@ -1976,6 +1978,7 @@ my $check_addtext = 1;                                  # default: enabled
 my $debug_flag = 0;                                     # default: disabled
 my $buildbot_flag = 0;
 my $source_dir = "";
+my $filenamelist = "";
 my $help_flag = 0;
 my $pre_commit = 0;
 
@@ -1990,6 +1993,7 @@ my $result = GetOptions(
                         'sourcedir=s' => \$source_dir,
                         'debug' => \$debug_flag,
                         'pre-commit' => \$pre_commit,
+                        'file=s' => \$filenamelist,
                         'help' => \$help_flag
                         );
 if (!$result || $help_flag) {
@@ -2016,11 +2020,23 @@ for my $apiGroup (keys %APIs) {
         @{$APIs{$apiGroup}->{function_counts}}{@functions} = ();  # Add fcn names as keys to the anonymous hash
 }
 
+my @filelist;
+push @filelist, @ARGV;
+if ("$filenamelist" ne "") {
+        # We have a file containing a list of files to check (possibly in
+        # addition to those on the command line).
+        open(FC, $filenamelist) || die("Couldn't open $filenamelist");
+
+        while (<FC>) {
+                # file names can be separated by ;
+                push @filelist, split(';');
+        }
+        close(FC);
+}
 
 # Read through the files; do various checks
-while ($_ = $ARGV[0])
+while ($_ = pop @filelist)
 {
-        shift;
         my $filename = $_;
         my $fileContents = '';
         my @foundAPIs = ();

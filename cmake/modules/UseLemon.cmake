@@ -1,5 +1,5 @@
 #
-MACRO(ADD_LEMON_FILES _sources )
+MACRO(ADD_LEMON_FILES _source _generated)
     set(_lemonpardir ${CMAKE_SOURCE_DIR}/tools/lemon)
     FOREACH (_current_FILE ${ARGN})
       GET_FILENAME_COMPONENT(_in ${_current_FILE} ABSOLUTE)
@@ -22,6 +22,7 @@ MACRO(ADD_LEMON_FILES _sources )
            ${_lemonpardir}/lempar.c
       )
 
-      SET(${_sources} ${${_sources}} ${_out}.c )
+      LIST(APPEND ${_source} ${_in})
+      LIST(APPEND ${_generated} ${_out}.c)
    ENDFOREACH (_current_FILE)
 ENDMACRO(ADD_LEMON_FILES)

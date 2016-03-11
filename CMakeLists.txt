@@ -1017,6 +1017,15 @@ test_big_endian(WORDS_BIGENDIAN)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+# The top level checkAPIs target, add before subdirectory calls so it's avaiable to all
+add_custom_target(checkAPI)
+set_target_properties(checkAPI
+	PROPERTIES
+		FOLDER "Auxiliary"
+		EXCLUDE_FROM_ALL True
+		EXCLUDE_FROM_DEFAULT_BUILD True
+)
+
 add_subdirectory( capchild )
 add_subdirectory( caputils )
 add_subdirectory( codecs )
@@ -2166,10 +2175,10 @@ if(BUILD_text2pcap)
 		${text2pcap_CLEAN_FILES}
 		${CMAKE_BINARY_DIR}/image/text2pcap.rc
 	)
-	add_lex_files(text2pcap_FILES
+	add_lex_files(text2pcap_LEX_FILES text2pcap_GENERATED_FILES
 		text2pcap-scanner.l
 	)
-	add_executable(text2pcap ${text2pcap_FILES})
+	add_executable(text2pcap ${text2pcap_FILES} ${text2pcap_GENERATED_FILES})
 	add_dependencies(text2pcap version)
 	set_extra_executable_properties(text2pcap "Executables")
 	target_link_libraries(text2pcap ${text2pcap_LIBS})
@@ -2380,7 +2389,7 @@ if(ENABLE_EXTCAP AND BUILD_sshdump AND LIBSSH_FOUND)
 		${LIBSSH_LIBRARIES}
 	)
 	if (WIN32)
-	        set(sshdump_LIBS wsutil ${sshdump_LIBS})
+		set(sshdump_LIBS wsutil ${sshdump_LIBS})
 	endif()
 	set(sshdump_FILES
 		extcap/sshdump.c
@@ -2406,7 +2415,7 @@ if(ENABLE_EXTCAP AND BUILD_ciscodump AND LIBSSH_FOUND)
 		${LIBSSH_LIBRARIES}
 	)
 	if (WIN32)
-	        set(ciscodump_LIBS wsutil ${ciscodump_LIBS})
+		set(ciscodump_LIBS wsutil ${ciscodump_LIBS})
 	endif()
 	set(ciscodump_FILES
 		extcap/ciscodump.c
@@ -2553,12 +2562,6 @@ install(
 	PATTERN "faq.py" EXCLUDE
 )
 
-include( UseCheckAPI )
-CHECKAPI(
-	${TSHARK_TAP_SRC}
-	${WIRESHARK_SRC}
-)
-
 set(CMAKE_INSTALL_MODULES_DIR ${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME})
 configure_file("${CMAKE_MODULE_PATH}/WiresharkConfig.cmake.in" "${CMAKE_BINARY_DIR}/WiresharkConfig.cmake" @ONLY)
 configure_file("${CMAKE_MODULE_PATH}/WiresharkConfigVersion.cmake.in" "${CMAKE_BINARY_DIR}/WiresharkConfigVersion.cmake" @ONLY)
@@ -2659,6 +2662,17 @@ else ()
 		)
 	endif()
 endif()
+
+include( UseCheckAPI )
+CHECKAPI(
+	NAME
+	  main
+	SWITCHES
+	  -build
+	SOURCES
+	  ${WIRESHARK_SRC}
+	  ${TSHARK_TAP_SRC}
+)
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html

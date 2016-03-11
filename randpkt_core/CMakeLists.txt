@@ -36,7 +36,7 @@ if (WERROR_COMMON_FLAGS)
 	)
 endif()
 
-file(GLOB RANDPKT_CORE_HEADERS randpkt_core.h)
+file(GLOB RANDPKT_CORE_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" randpkt_core.h)
 
 add_library(randpkt_core STATIC
 	${RANDPKT_CORE_SRC}
@@ -45,3 +45,22 @@ add_library(randpkt_core STATIC
 set_target_properties(randpkt_core PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "Libs")
+
+CHECKAPI(
+	NAME
+	  randpkt_core-base
+	SWITCHES
+	  -g deprecated-gtk
+	SOURCES
+	  ${RANDPKT_CORE_SRC}
+	  ${RANDPKT_CORE_HEADERS}
+)
+CHECKAPI(
+	NAME
+	  randpkt_core-todo
+	SWITCHES
+	  -M -g deprecated-gtk-todo
+	SOURCES
+	  ${RANDPKT_CORE_SRC}
+	  ${RANDPKT_CORE_HEADERS}
+)

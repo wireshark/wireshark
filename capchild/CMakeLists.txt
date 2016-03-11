@@ -1,4 +1,5 @@
 # CMakeLists.txt
+
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -46,3 +47,21 @@ add_library(capchild STATIC
 set_target_properties(capchild PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "Libs")
+
+include( UseCheckAPI )
+CHECKAPI(
+	NAME
+	  capchild-base
+	SWITCHES
+	  -g deprecated-gtk
+	SOURCES
+	  ${CAPCHILD_SRC}
+)
+CHECKAPI(
+	NAME
+	  capchild-todo
+	SWITCHES
+	  -M -g deprecated-gtk-todo
+	SOURCES
+	  ${CAPCHILD_SRC}
+)

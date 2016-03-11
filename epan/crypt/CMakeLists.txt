@@ -53,6 +53,15 @@ set_target_properties(crypt PROPERTIES
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 )
 
+CHECKAPI(
+	NAME
+	  crypt
+	SWITCHES
+	  -g termoutput -build
+	SOURCES
+	  ${CRYPT_FILES}
+)
+
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
 #

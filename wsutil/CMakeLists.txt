@@ -21,15 +21,7 @@
 
 include(UseABICheck)
 
-if(WIN32)
-	set(WSUTIL_PLATFORM_FILES
-		file_util.c
-		inet_ntop.c
-		inet_pton.c
-	)
-ENDIF(WIN32)
-
-set(WSUTIL_FILES
+set(WSUTIL_COMMON_FILES
 	adler32.c
 	aes.c
 	airpdcap_wep.c
@@ -75,11 +67,20 @@ set(WSUTIL_FILES
 	type_util.c
 	unicode-utils.c
 	ws_mempbrk.c
-	${WSUTIL_PLATFORM_FILES}
 )
 
+set(WSUTIL_FILES ${WSUTIL_COMMON_FILES})
+if(WIN32)
+	list(APPEND WSUTIL_FILES
+		file_util.c
+		inet_ntop.c
+		inet_pton.c
+	)
+ENDIF(WIN32)
+
+
 if(HAVE_OS_X_FRAMEWORKS)
-	set(WSUTIL_FILES ${WSUTIL_FILES} cfutils.c)
+	list(APPEND WSUTIL_FILES cfutils.c)
 endif()
 
 #
@@ -141,23 +142,23 @@ if(COMPILER_CAN_HANDLE_SSE4_2)
 	endif()
 endif()
 if(HAVE_SSE4_2)
-	set(WSUTIL_FILES ${WSUTIL_FILES} ws_mempbrk_sse42.c)
+	list(APPEND WSUTIL_FILES ws_mempbrk_sse42.c)
 endif()
 
 if(NOT HAVE_GETOPT_LONG)
-	set(WSUTIL_FILES ${WSUTIL_FILES} getopt_long.c)
+	list(APPEND WSUTIL_FILES getopt_long.c)
 endif()
 
 if(NOT HAVE_INET_ATON)
-	set(WSUTIL_FILES ${WSUTIL_FILES} inet_aton.c)
+	list(APPEND WSUTIL_FILES inet_aton.c)
 endif()
 
 if(NOT HAVE_POPCOUNT)
-	set(WSUTIL_FILES ${WSUTIL_FILES} popcount.c)
+	list(APPEND WSUTIL_FILES popcount.c)
 endif()
 
 if(NOT HAVE_STRPTIME)
-	set(WSUTIL_FILES ${WSUTIL_FILES} strptime.c)
+	list(APPEND WSUTIL_FILES strptime.c)
 endif()
 
 if(APPLE)
@@ -258,6 +259,15 @@ if(NOT ${ENABLE_STATIC})
 endif()
 
 add_definitions( -DTOP_SRCDIR=\"${CMAKE_SOURCE_DIR}\" )
+
+CHECKAPI(
+	NAME
+	  wsutil
+	SWITCHES
+	  -g termoutput -build
+	SOURCES
+	  ${WSUTIL_COMMON_FILES}
+)
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html

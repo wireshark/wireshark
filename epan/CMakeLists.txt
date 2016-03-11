@@ -175,7 +175,7 @@ set(LIBWIRESHARK_CLEAN_FILES
 	${LIBWIRESHARK_FILES}
 )
 
-add_lex_files(LIBWIRESHARK_FILES
+add_lex_files(LEX_FILES GENERATED_FILES
 	diam_dict.l
 	dtd_parse.l
 	dtd_preparse.l
@@ -183,7 +183,7 @@ add_lex_files(LIBWIRESHARK_FILES
 	uat_load.l
 )
 
-add_lemon_files(LIBWIRESHARK_FILES
+add_lemon_files(LEMON_FILES GENERATED_FILES
 	dtd_grammar.lemon
 )
 
@@ -219,6 +219,7 @@ endif()
 
 add_library(epan ${LINK_MODE_LIB}
 	${LIBWIRESHARK_FILES}
+	${GENERATED_FILES}
 	${COMPRESS_FILES}
 	${LIBWIRESHARK_ASM_FILES}
 	$<TARGET_OBJECTS:crypt>
@@ -340,6 +341,18 @@ set_target_properties(tvbtest PROPERTIES
 	FOLDER "Tests"
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 )
+
+# Commented out as per nmake
+#CHECKAPI(
+#	NAME
+#	  epan
+#	SWITCHES
+#	  -g termoutput -build
+#	SOURCES
+#	  ${LIBWIRESHARK_FILES}
+#	  ${LEX_FILES}
+#	  ${LEMON_FILES}
+#)
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html

@@ -69,9 +69,7 @@ file(GLOB EXTRA_UI_HEADERS
 	tap-rtp-analysis.h
 )
 
-set(DIRTY_UI_SRC)
-
-add_lex_files(DIRTY_UI_SRC
+add_lex_files(LEX_FILES GENERATED_FILES
 	text_import_scanner.l
 )
 
@@ -90,11 +88,32 @@ endif()
 
 add_library(ui STATIC
 	${COMMON_UI_SRC}
-	${DIRTY_UI_SRC}
+	${GENERATED_FILES}
 )
 
 set_target_properties(ui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 set_target_properties(ui PROPERTIES FOLDER "UI")
+
+CHECKAPI(
+	NAME
+	  ui-base
+	SWITCHES
+	  -g deprecated-gtk
+	SOURCES
+	  ${COMMON_UI_SRC}
+# LEX files commented out due to use of malloc, free etc.
+#	  ${LEX_FILES}
+)
+CHECKAPI(
+	NAME
+	  ui-todo
+	SWITCHES
+	  -M -g deprecated-gtk-todo
+	SOURCES
+	  ${COMMON_UI_SRC}
+# LEX files commented out due to use of malloc, free etc.
+#	  ${LEX_FILES}
+)
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html

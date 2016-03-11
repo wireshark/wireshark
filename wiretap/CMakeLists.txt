@@ -92,12 +92,12 @@ if (WERROR_COMMON_FLAGS)
 	)
 endif()
 
-add_lex_files(WIRETAP_FILES
+add_lex_files(LEX_FILES GENERATED_FILES
 	ascend_scanner.l
 	k12text.l
 )
 
-add_yacc_files(WIRETAP_FILES
+add_yacc_files(YACC_FILES GENERATED_FILES
 	ascend.y
 )
 
@@ -110,6 +110,7 @@ set(wiretap_LIBS
 
 add_library(wiretap ${LINK_MODE_LIB}
 	${WIRETAP_FILES}
+	${GENERATED_FILES}
 	${CMAKE_BINARY_DIR}/image/wiretap.rc
 )
 
@@ -154,3 +155,17 @@ if(NOT ${ENABLE_STATIC})
 		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	)
 endif()
+
+CHECKAPI(
+	NAME
+	  wiretap
+	SWITCHES
+## 'abort' checking disabled for now pending resolution of existing use of g_assert & g_error
+##	  -g abort -g termoutput
+	  -g termoutput -build
+	SOURCES
+	  ${WIRETAP_FILES}
+# LEX files commented out due to use of malloc, free etc.
+#	  ${LEX_FILES}
+	  ${YACC_FILES}
+)

@@ -68,3 +68,20 @@ add_library(caputils STATIC
 set_target_properties(caputils PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "Libs")
+
+CHECKAPI(
+	NAME
+	  caputils-base
+	SWITCHES
+	  -g deprecated-gtk
+	SOURCES
+	  ${CAPUTILS_SRC}
+)
+CHECKAPI(
+	NAME
+	  caputils-todo
+	SWITCHES
+	  -M -g deprecated-gtk-todo
+	SOURCES
+	  ${CAPUTILS_SRC}
+)

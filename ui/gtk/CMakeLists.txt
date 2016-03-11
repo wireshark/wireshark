@@ -322,6 +322,27 @@ set_target_properties(gtkui PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "UI")
 
+CHECKAPI(
+	NAME
+	  gtk-base
+	SWITCHES
+	  -g deprecated-gtk
+	SOURCES
+	  ${WIRESHARK_GTK_SRC}
+	  ${WIRESHARK_TAP_SRC}
+	  ${PLATFORM_UI_SRC}
+)
+CHECKAPI(
+	NAME
+	  gtk-todo
+	SWITCHES
+	  -M -g deprecated-gtk-todo
+	SOURCES
+	  ${WIRESHARK_GTK_SRC}
+	  ${WIRESHARK_TAP_SRC}
+	  ${PLATFORM_UI_SRC}
+)
+
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
 #

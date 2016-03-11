@@ -51,21 +51,34 @@ if(WERROR_COMMON_FLAGS)
 	)
 endif()
 
-add_lex_files(DFILTER_FILES
+add_lex_files(LEX_FILES GENERATED_FILES
 	scanner.l
 )
 
-add_lemon_files(DFILTER_FILES
+add_lemon_files(LEMON_FILES GENERATED_FILES
 	grammar.lemon
 )
 
 add_library(dfilter OBJECT
 	${DFILTER_FILES}
+	${GENERATED_FILES}
 )
 
 set_target_properties(dfilter PROPERTIES
 	FOLDER "Libs/epan/dfilter"
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+)
+
+CHECKAPI(
+	NAME
+	  dfilter
+	SWITCHES
+	  -g termoutput -build
+	SOURCES
+	  ${DFILTER_FILES}
+# LEX files commented out due to use of malloc, free etc.
+#	  ${LEX_FILES}
+	  ${LEMON_FILES}
 )
 
 #
