@@ -351,8 +351,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     add_new_data_source(pinfo, dtvb, "Deinterleaved");
 
     decoded = rs_correct_data(deinterleaved, output, c_max, rsk, rsz);
-    if(tree)
-      proto_tree_add_boolean (tree, hf_edcp_rs_ok, tvb, offset, 2, decoded);
+    proto_tree_add_boolean (tree, hf_edcp_rs_ok, tvb, offset, 2, decoded);
 
     new_tvb = tvb_new_child_real_data(dtvb, output, decoded_size, decoded_size);
     add_new_data_source(pinfo, new_tvb, "RS Error Corrected Data");
@@ -571,7 +570,7 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
   pt = tvb_get_guint8 (tvb, offset);
   proto_tree_add_item (af_tree, hf_edcp_pt, tvb, offset, 1, ENC_ASCII|ENC_NA);
   offset += 1;
-  next_tvb = tvb_new_subset (tvb, offset, payload_len, -1);
+  next_tvb = tvb_new_subset (tvb, offset, payload_len, payload_len);
   offset += payload_len;
   ci = proto_tree_add_item (af_tree, hf_edcp_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
   if (ver & 0x80) { /* crc valid */
@@ -601,9 +600,7 @@ dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
 {
   proto_tree *tpl_tree;
   guint offset=0;
-  char *prot=NULL;
   proto_item *ti;
-  guint16 maj, min;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCP-TPL");
 
@@ -611,31 +608,25 @@ dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
   tpl_tree = proto_item_add_subtree (ti, ett_tpl);
 
   while(offset<tvb_reported_length(tvb)) {
+    tvbuff_t *next_tvb;
     guint32 bits;
     guint32 bytes;
-    char *tag = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII); offset += 4;
-    bits = tvb_get_ntohl(tvb, offset); offset += 4;
+    char *tag = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
+    bits = tvb_get_ntohl(tvb, offset+4);
     bytes = bits / 8;
     if(bits % 8)
       bytes++;
 
-    if(strcmp(tag, "*ptr")==0) {
-        prot = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
-        maj = tvb_get_ntohs(tvb, offset+4);
-        min = tvb_get_ntohs(tvb, offset+6);
-        proto_tree_add_bytes_format(tpl_tree, hf_tpl_tlv, tvb,
-              offset-8, bytes+8, tvb_get_ptr(tvb, offset, bytes),
-              "%s %s rev %d.%d", tag, prot, maj, min);
-    } else {
-        proto_tree_add_bytes_format(tpl_tree, hf_tpl_tlv, tvb,
-              offset-8, bytes+8, tvb_get_ptr(tvb, offset, bytes),
-              "%s (%u bits)", tag, bits);
-    }
+    proto_tree_add_bytes_format(tpl_tree, hf_tpl_tlv, tvb,
+            offset, 8+bytes, NULL,
+            "%s (%u bits)", tag, bits);
 
-    offset += bytes;
+    next_tvb = tvb_new_subset (tvb, offset+8, bytes, bytes);
+    dissector_try_string(tpl_dissector_table, tag, next_tvb, pinfo, tree, NULL);
+
+    offset += (8+bytes);
   }
 
-  dissector_try_string(tpl_dissector_table, prot, tvb, pinfo, tree->parent, NULL);
   return tvb_captured_length(tvb);
 }
 
