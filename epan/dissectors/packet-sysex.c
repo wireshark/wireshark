@@ -1378,7 +1378,7 @@ proto_register_sysex(void)
             { "Parameter data count", "sysex.digitech.parameter_data_count", FT_UINT24, BASE_DEC,
               NULL, 0, NULL, HFILL }},
         { &hf_digitech_parameter_multibyte_data,
-            { "Parameter data", "sysex.digitech.parameter_data", FT_BYTES, BASE_NONE,
+            { "Parameter data", "sysex.digitech.parameter_multibyte_data", FT_BYTES, BASE_NONE,
               NULL, 0, NULL, HFILL }},
 
         { &hf_digitech_ack_request_proc_id,
