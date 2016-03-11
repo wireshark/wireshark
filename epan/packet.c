@@ -2261,14 +2261,15 @@ heur_dissector_delete(const char *name, heur_dissector_t dissector, const int pr
 	g_assert(sub_dissectors != NULL);
 
 	hdtbl_entry.dissector = dissector;
-
 	hdtbl_entry.protocol  = find_protocol_by_id(proto);
 
 	found_entry = g_slist_find_custom(sub_dissectors->dissectors,
 	    (gpointer) &hdtbl_entry, find_matching_heur_dissector);
 
 	if (found_entry) {
-		g_free(((heur_dtbl_entry_t *)(found_entry->data))->list_name);
+		heur_dtbl_entry_t *found_hdtbl_entry = (heur_dtbl_entry_t *)(found_entry->data);
+		g_free(found_hdtbl_entry->list_name);
+		g_hash_table_remove(heuristic_short_names, (gpointer)found_hdtbl_entry->short_name);
 		g_slice_free(heur_dtbl_entry_t, found_entry->data);
 		sub_dissectors->dissectors = g_slist_delete_link(sub_dissectors->dissectors,
 		    found_entry);

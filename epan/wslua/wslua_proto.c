@@ -583,6 +583,22 @@ ProtoField wslua_is_field_available(lua_State* L, const char* field_abbr) {
     return NULL;
 }
 
+int wslua_deregister_heur_dissectors(lua_State* L) {
+    /* for each registered heur dissector do... */
+    lua_rawgeti(L, LUA_REGISTRYINDEX, lua_heur_dissectors_table_ref);
+    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+        const gchar *listname = luaL_checkstring(L, -2);
+        for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+            const gchar *proto_name = luaL_checkstring(L, -2);
+            int proto_id = proto_get_id_by_short_name(proto_name);
+            heur_dissector_delete(listname, heur_dissect_lua, proto_id);
+        }
+    }
+    lua_pop(L, 1); /* lua_heur_dissectors_table_ref */
+
+    return 0;
+}
+
 int wslua_deregister_protocols(lua_State* L) {
     /* for each registered Proto protocol do... */
     lua_rawgeti(L, LUA_REGISTRYINDEX, protocols_table_ref);
