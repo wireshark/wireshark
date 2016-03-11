@@ -103,7 +103,7 @@ static gint exported_pdu_tap = -1;
 
 /* Conversation Info */
 typedef struct _diameter_conv_info_t {
-	wmem_map_t *pdus_tree;
+	wmem_map_t *pdu_trees;
 } diameter_conv_info_t;
 
 typedef struct _diam_ctx_t {
@@ -1318,18 +1318,18 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	diameter_conv_info = (diameter_conv_info_t *)conversation_get_proto_data(conversation, proto_diameter);
 	if (!diameter_conv_info) {
 		diameter_conv_info = wmem_new(wmem_file_scope(), diameter_conv_info_t);
-		diameter_conv_info->pdus_tree = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+		diameter_conv_info->pdu_trees = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 
 		conversation_add_proto_data(conversation, proto_diameter, diameter_conv_info);
 	}
 
 	/* pdus_tree is an wmem_tree keyed by frame number (in order to handle hop-by-hop collisions */
-	pdus_tree = (wmem_tree_t *)wmem_map_lookup(diameter_conv_info->pdus_tree, GUINT_TO_POINTER(hop_by_hop_id));
+	pdus_tree = (wmem_tree_t *)wmem_map_lookup(diameter_conv_info->pdu_trees, GUINT_TO_POINTER(hop_by_hop_id));
 
 	if (pdus_tree == NULL && (flags_bits & DIAM_FLAGS_R)) {
 		/* This is the first request we've seen with this hop-by-hop id */
 		pdus_tree = wmem_tree_new(wmem_file_scope());
-		wmem_map_insert(diameter_conv_info->pdus_tree, GUINT_TO_POINTER(hop_by_hop_id), pdus_tree);
+		wmem_map_insert(diameter_conv_info->pdu_trees, GUINT_TO_POINTER(hop_by_hop_id), pdus_tree);
 	}
 
 	if (pdus_tree) {
