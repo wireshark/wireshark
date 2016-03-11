@@ -21,9 +21,6 @@ EXTRA_DIST = \
 	dmg_set_style.scpt	\
 	Info.plist	\
 	Info.plist.in	\
-	native-gtk/build-gtk.sh	\
-	native-gtk/config.h	\
-	native-gtk/glibconfig.h	\
 	osx-app.sh	\
 	osx-dmg.sh.in	\
 	Read_me_first_gtk.rtf	\
