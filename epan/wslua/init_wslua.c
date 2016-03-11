@@ -978,6 +978,7 @@ void wslua_reload_plugins (register_cb cb, gpointer client_data) {
     if (ops->close_dialogs)
         ops->close_dialogs();
 
+    wslua_deregister_heur_dissectors(L);
     wslua_deregister_protocols(L);
     wslua_deregister_dissector_tables(L);
     wslua_deregister_listeners(L);

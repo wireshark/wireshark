@@ -762,6 +762,7 @@ extern int luaopen_rex_glib(lua_State *L);
 extern const gchar* get_current_plugin_version(void);
 extern void clear_current_plugin_version(void);
 
+extern int wslua_deregister_heur_dissectors(lua_State* L);
 extern int wslua_deregister_protocols(lua_State* L);
 extern int wslua_deregister_dissector_tables(lua_State* L);
 extern int wslua_deregister_listeners(lua_State* L);
