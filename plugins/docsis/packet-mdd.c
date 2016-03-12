@@ -49,6 +49,7 @@
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST_MODULATION_ORDER_ANNEX 3
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST_PRIMARY_CAPABLE 4
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST_CM_STATUS_EVENT_ENABLE_BITMASK 5
+#define DOWNSTREAM_ACTIVE_CHANNEL_LIST_MAP_UCD_TRANSPORT_INDICATOR 6
 
 /*Mac Domain Downstream Service Group*/
 #define MAC_DOMAIN_DOWNSTREAM_SERVICE_GROUP_MD_DS_SG_IDENTIFIER 1
@@ -66,6 +67,10 @@
 /*Primary Capable*/
 #define NOT_PRIMARY_CAPABLE 0
 #define PRIMARY_CAPABLE 1
+
+/*Can carry MAP and UCD*/
+#define CANNOT_CARRY_MAP_UCD 0
+#define CAN_CARRY_MAP_UCD 1
 
 /*Receive Channel Profile Reporting Control*/
 #define RCP_CENTER_FREQUENCY_SPACING 1
@@ -149,6 +154,12 @@ static const value_string modulation_order_vals[] = {
 static const value_string primary_capable_vals[] = {
   {NOT_PRIMARY_CAPABLE, "Channel is not primary-capable"},
   {PRIMARY_CAPABLE,     "channel is primary-capable"},
+  {0, NULL}
+};
+
+static const value_string map_ucd_transport_indicator_vals[] = {
+  {CANNOT_CARRY_MAP_UCD, "Channel cannot carry MAPs and UCDs for the MAC domain for which the MDD is sent"},
+  {CAN_CARRY_MAP_UCD,    "Channel can carry MAPs and UCDs for the MAC domain for which the MDD is sent"},
   {0, NULL}
 };
 
@@ -245,6 +256,7 @@ static int hf_docsis_mdd_downstream_active_channel_list_frequency = -1;
 static int hf_docsis_mdd_downstream_active_channel_list_annex = -1;
 static int hf_docsis_mdd_downstream_active_channel_list_modulation_order = -1;
 static int hf_docsis_mdd_downstream_active_channel_list_primary_capable = -1;
+static int hf_docsis_mdd_downstream_active_channel_list_map_ucd_transport_indicator = -1;
 
 static int hf_docsis_mdd_cm_status_event_enable_bitmask_mdd_timeout = -1;
 static int hf_docsis_mdd_cm_status_event_enable_bitmask_qam_fec_lock_failure = -1;
@@ -366,6 +378,9 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                     proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_qam_fec_lock_failure, tvb, subpos + 2 , 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_mdd_recovery, tvb, subpos + 2 , 2,ENC_BIG_ENDIAN);
                     proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_qam_fec_lock_recovery, tvb, subpos + 2 , 2, ENC_BIG_ENDIAN);
+                    break;
+                  case DOWNSTREAM_ACTIVE_CHANNEL_LIST_MAP_UCD_TRANSPORT_INDICATOR:
+                    proto_tree_add_item (tlv_tree, hf_docsis_mdd_downstream_active_channel_list_map_ucd_transport_indicator, tvb, subpos + 2 , 1, ENC_BIG_ENDIAN);
                     break;
                 }
                 subpos += sublength + 2;
@@ -594,6 +609,11 @@ void proto_register_docsis_mdd (void)
      {"QAM/FEC Lock Recovery", "docsis_mdd.cm_status_event_enable_bitmask_qam_fec_lock_recovery",
       FT_UINT16, BASE_DEC, NULL, 0x0020,
       "CM-STATUS event QAM/FEC Lock Recovery", HFILL}
+    },
+    {&hf_docsis_mdd_downstream_active_channel_list_map_ucd_transport_indicator,
+     {"MAP and UCD transport indicator", "docsis_mdd.downstream_active_channel_list_map_ucd_transport_indicator",
+      FT_UINT8, BASE_DEC, VALS(map_ucd_transport_indicator_vals), 0x0,
+      "Mdd Downstream Active Channel List MAP and UCD Transport Indicator", HFILL}
     },
     {&hf_docsis_mdd_cm_status_event_enable_bitmask_t4_timeout,
      {"T4 timeout", "docsis_mdd.cm_status_event_enable_bitmask_t4_timeout",
