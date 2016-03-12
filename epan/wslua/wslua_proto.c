@@ -255,6 +255,11 @@ WSLUA_METHOD Proto_register_heuristic(lua_State* L) {
         return 0;
     }
 
+    /* verify that this is not already registered */
+    if (find_heur_dissector_by_unique_short_name(proto->loname)) {
+        luaL_error(L, "'%s' is already registered as heuristic", proto->loname);
+    }
+
     /* we'll check if the second form of this function was called: when the second arg is
        a Dissector obejct. The truth is we don't need the Dissector object to do this
        form of registration, but someday we might... so we're using it as a boolean arg
