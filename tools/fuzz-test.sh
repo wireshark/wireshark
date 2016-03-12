@@ -197,6 +197,8 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
             fi
         fi
 
+        RUNNER_PIDS=
+        RUNNER_ERR_FILES=
         for ARGS in "${RUNNER_ARGS[@]}" ; do
             if [ $DONE -eq 1 ]; then
                 break # We caught a signal
@@ -210,6 +212,7 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
             (
                 ulimit -S -t $MAX_CPU_TIME -s $MAX_STACK
                 ulimit -c unlimited
+                SUBSHELL_PID=$($SHELL -c 'echo $PPID')
 
                 # Don't enable ulimit -v when using ASAN. See
                 # https://github.com/google/sanitizers/wiki/AddressSanitizer#ulimit--v
@@ -218,9 +221,17 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
                 fi
 
                 "$RUNNER" $COMMON_ARGS $ARGS $TMP_DIR/$TMP_FILE \
-                    > /dev/null 2>> $TMP_DIR/$ERR_FILE
-            )
+                    > /dev/null 2>> $TMP_DIR/$ERR_FILE.$SUBSHELL_PID
+            ) &
+            RUNNER_PID=$!
+            RUNNER_PIDS="$RUNNER_PIDS $RUNNER_PID"
+            RUNNER_ERR_FILES="$RUNNER_ERR_FILES $TMP_DIR/$ERR_FILE.$RUNNER_PID"
+        done
+
+        for RUNNER_PID in $RUNNER_PIDS ; do
+            wait $RUNNER_PID
             RETVAL=$?
+            mv $TMP_DIR/$ERR_FILE.$RUNNER_PID $TMP_DIR/$ERR_FILE
 
             # Uncomment the next two lines to enable dissector bug
             # checking.
@@ -243,6 +254,7 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
             fi
 
             if [ $DONE -ne 1 -a \( $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 -o $VG_ERR_CNT -ne 0 \) ] ; then
+                rm -f $RUNNER_ERR_FILES
                 ws_exit_error
             fi
         done

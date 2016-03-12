@@ -1103,6 +1103,9 @@ main(int argc, char *argv[])
   g_string_free(comp_info_str, TRUE);
   g_string_free(runtime_info_str, TRUE);
 
+  /* Fail sometimes. Useful for testing fuzz scripts. */
+  /* if (g_random_int_range(0, 100) < 5) abort(); */
+
   /*
    * In order to have the -X opts assigned before the wslua machine starts
    * we need to call getopt_long before epan_init() gets called.
