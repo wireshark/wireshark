@@ -383,6 +383,20 @@ QRC_FILES =	\
 	i18n.qrc
 
 #
+# The .cpp files generated from them.
+# We do *not* include these in the distribution; if you have the Qt SDK
+# installed, so that you can build Qt-based applications, you have rcc
+# installed.
+#
+QRC_SRC = 	\
+	qrc_about.cpp	\
+	qrc_languages.cpp	\
+	qrc_layout.cpp	\
+	qrc_toolbar.cpp	\
+	qrc_wsicon.cpp	\
+	qrc_i18n.cpp
+
+#
 # .ts files.
 # wireshark_en should be pluralonly.
 #
@@ -400,14 +414,6 @@ TS_FILES =	\
 #
 # Should they be auto-generated ?
 QM_FILES = $(TS_FILES:.ts=.qm)
-
-#
-# The .rcc.cpp files generated from them.
-# We do *not* include these in the distribution; if you have the Qt SDK
-# installed, so that you can build Qt-based applications, you have moc
-# installed.
-#
-QRC_SRC = $(QRC_FILES:.qrc=.rcc.cpp)
 
 WIRESHARK_QT_SRC =	\
 	about_dialog.cpp	\

@@ -179,7 +179,6 @@ wsar_html.zip
 # Qt #
 ######
 qtshark
-*.rcc.cpp
 /ui/qt/__/
 /ui/qt/*.qrc.depends
 /ui/qt/*.pro.user
@@ -187,6 +186,7 @@ qtshark
 /ui/qt/moc_*.cpp
 /ui/qt/moc_*.cpp_parameters
 /ui/qt/*.moc.cpp
+/ui/qt/*.rcc.cpp
 /ui/qt/moc_*.cxx
 /ui/qt/qrc_*.cpp
 /ui/qt/qrc_*.cxx

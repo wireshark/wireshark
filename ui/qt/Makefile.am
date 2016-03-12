@@ -31,7 +31,7 @@ CLEANFILES = \
 	wireshark-tap-register.c-tmp \
 	wireshark-tap-register-cache.pkl \
 	*.moc.cpp \
-	*.rrc.cpp \
+	qrc_*.cpp \
 	ui_*.h
 	*~
 
@@ -93,21 +93,36 @@ am__v_UIC_0 = @echo "  UIC     " $@;
 # building .rcc.cpp files from .qrc files by running rcc,
 # and building ui_XXX.h files from .ui files by running uic.
 #
-SUFFIXES = .moc.cpp .qrc .rcc.cpp
+SUFFIXES = .moc.cpp
 
-.h.moc.cpp:
-	$(AM_V_MOC)$(MOC) $(MOC_OPTIONS) -I.. -I../.. -o $@ $<
-
-.qrc.rcc.cpp:
-	$(MKDIR_P) $(@D)
-	$(AM_V_RCC)$(RCC) -name `basename $< .qrc` -o $@ $<
-
-ui_%.h: %.ui
-	$(AM_V_UIC)$(UIC) $< -o $@
-
+#
 # The Qt toolchain uses the naming convention moc_FOO.cpp. Should we do the same?
 #moc_%.cpp: %.h
 #	$(MOC) $< -o $@
+#
+.h.moc.cpp:
+	$(AM_V_MOC)$(MOC) $(MOC_OPTIONS) -I.. -I../.. -o $@ $<
+
+qrc_about.cpp: ../../image/about.qrc
+	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) --name about -o $@ $<
+
+qrc_layout.cpp: ../../image/layout.qrc
+	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) --name layout -o $@ $<
+
+qrc_languages.cpp: ../../image/languages/languages.qrc
+	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) --name languages -o $@ $<
+
+qrc_i18n.cpp: i18n.qrc
+	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) --name i18n -o $@ $<
+
+qrc_toolbar.cpp: ../../image/toolbar.qrc
+	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) --name toolbar -o $@ $<
+
+qrc_wsicon.cpp: ../../image/wsicon.qrc
+	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) --name wsicon -o $@ $<
+
+ui_%.h: %.ui
+	$(AM_V_UIC)$(UIC) $< -o $@
 
 #
 # Explicit dependencies to force the ui_ headers to be built.
