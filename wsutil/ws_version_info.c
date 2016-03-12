@@ -268,6 +268,24 @@ get_compiler_info(GString *str)
 #endif
 }
 
+/* XXX - is the setlocale() return string opaque? For glibc the separator is ';' */
+static gchar *
+get_locale(void)
+{
+	const gchar *lang;
+	gchar **locv, *loc;
+
+	lang = setlocale(LC_ALL, NULL);
+	if (lang == NULL) {
+		return NULL;
+	}
+
+	locv = g_strsplit(lang, ";", -1);
+	loc = g_strjoinv(", ", locv);
+	g_strfreev(locv);
+	return loc;
+}
+
 /*
  * Get various library run-time versions, and the OS version, and append
  * them to the specified GString.
@@ -303,10 +321,14 @@ get_runtime_version_info(void (*additional_info)(GString *))
 	 * 65001, i.e. UTF-8, as your system code page probably
 	 * works best with Wireshark.)
 	 */
-	if ((lang = setlocale(LC_ALL, NULL)) != NULL)
+	if ((lang = get_locale()) != NULL) {
 		g_string_append_printf(str, ", with locale %s", lang);
-	else
+		g_free(lang);
+	}
+	else {
 		g_string_append(str, ", with default locale");
+	}
+
 
 	/* Additional application-dependent information */
 	if (additional_info)
