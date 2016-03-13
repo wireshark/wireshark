@@ -141,30 +141,3 @@ void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_
 
 /* from radius_dict.l */
 gboolean radius_load_dictionary (radius_dictionary_t* dict, gchar* directory, const gchar* filename, gchar** err_str);
-
-/* Item of request list */
-typedef struct _radius_call_t
-{
-	guint code;
-	guint ident;
-
-	guint32 req_num; /* frame number request seen */
-	guint32 rsp_num; /* frame number response seen */
-	guint32 rspcode;
-	nstime_t req_time;
-	gboolean responded;
-	guint8 *req_authenticator; /* request authenticator to validate response */
-} radius_call_t;
-
-/* Container for tapping relevant data */
-typedef struct _radius_info_t
-{
-	guint code;
-	guint ident;
-	nstime_t req_time;
-	gboolean is_duplicate;
-	gboolean request_available;
-	guint32 req_num; /* frame number request seen */
-	guint32 rspcode;
-} radius_info_t;
-

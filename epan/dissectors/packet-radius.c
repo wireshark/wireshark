@@ -92,6 +92,33 @@ typedef struct {
 #define RD_HDR_LENGTH		4
 #define HDR_LENGTH		(RD_HDR_LENGTH + AUTHENTICATOR_LENGTH)
 
+/* Item of request list */
+typedef struct _radius_call_t
+{
+	guint code;
+	guint ident;
+	guint8 req_authenticator[AUTHENTICATOR_LENGTH];
+
+	guint32 req_num; /* frame number request seen */
+	guint32 rsp_num; /* frame number response seen */
+	guint32 rspcode;
+	nstime_t req_time;
+	gboolean responded;
+} radius_call_t;
+
+/* Container for tapping relevant data */
+typedef struct _radius_info_t
+{
+	guint code;
+	guint ident;
+	nstime_t req_time;
+	gboolean is_duplicate;
+	gboolean request_available;
+	guint32 req_num; /* frame number request seen */
+	guint32 rspcode;
+} radius_info_t;
+
+
 /*
  * Default RADIUS ports:
  * 1645 (Authentication, pre RFC 2865)
@@ -196,7 +223,6 @@ static gboolean validate_authenticator = FALSE;
 static gboolean show_length = FALSE;
 static guint alt_port_pref = 0;
 static range_t *global_ports_range;
-static guint request_ttl = 5;
 
 static guint8 authenticator[AUTHENTICATOR_LENGTH];
 
@@ -450,12 +476,6 @@ static gboolean radius_call_equal(gconstpointer k1, gconstpointer k2)
 	const radius_call_info_key* key2 = (const radius_call_info_key*) k2;
 
 	if (key1->ident == key2->ident && key1->conversation == key2->conversation) {
-		nstime_t delta;
-
-		nstime_delta(&delta, &key1->req_time, &key2->req_time);
-		if (abs( (int) nstime_to_sec(&delta)) > (double) request_ttl)
-			return FALSE;
-
 		if (key1->code == key2->code)
 			return TRUE;
 
@@ -1736,6 +1756,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	conversation_t* conversation;
 	radius_call_info_key radius_call_key;
 	radius_call_info_key *new_radius_call_key;
+	wmem_tree_t *radius_call_tree;
 	radius_call_t *radius_call = NULL;
 	static address null_address = ADDRESS_INIT_NONE;
 
@@ -1861,58 +1882,63 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			radius_call_key.conversation = conversation;
 			radius_call_key.req_time = pinfo->abs_ts;
 
-			/* Look up the request */
-			radius_call = (radius_call_t *)wmem_map_lookup(radius_calls, &radius_call_key);
+			/* Look up the tree of calls with this ident */
+			radius_call_tree = (wmem_tree_t *)wmem_map_lookup(radius_calls, &radius_call_key);
+
+			if (!radius_call_tree) {
+				radius_call_tree = wmem_tree_new(wmem_file_scope());
+				new_radius_call_key = wmem_new(wmem_file_scope(), radius_call_info_key);
+				*new_radius_call_key = radius_call_key;
+				wmem_map_insert(radius_calls, new_radius_call_key, radius_call_tree);
+			}
+
+			/* Find the last call we've seen (for this ident in this conversation) */
+			radius_call = (radius_call_t *)wmem_tree_lookup32_le(radius_call_tree, pinfo->num);
 			if (radius_call != NULL)
 			{
-				/* We've seen a request with this ID, with the same
-				   destination, before - but was it *this* request? */
-				if (pinfo->num != radius_call->req_num)
+				/* We found a request with the same ident (in this conversation).
+				 * Is it really a duplicate?
+				 */
+				if (pinfo->num != radius_call->req_num &&
+				    !memcmp(radius_call->req_authenticator, authenticator, AUTHENTICATOR_LENGTH))
 				{
-					/* No, so it's a duplicate request. Mark it as such.
-					  FIXME: This is way too simple, as the request number
-						 is only an 8-bit value. See bug#4096 */
+					/* Yes, mark it as such */
 					rad_info->is_duplicate = TRUE;
 					rad_info->req_num = radius_call->req_num;
-					col_append_fstr(pinfo->cinfo, COL_INFO,
-							", Duplicate Request ID:%u", rh.rh_ident);
+					col_append_fstr(pinfo->cinfo, COL_INFO, ", Duplicate Request");
 
 					if (tree)
 					{
-						proto_item* item;
-						hidden_item = proto_tree_add_uint(radius_tree, hf_radius_dup, tvb, 0,0, rh.rh_ident);
+						proto_item *item;
+						hidden_item = proto_tree_add_uint(radius_tree, hf_radius_dup, tvb, 0, 0, rh.rh_ident);
 						PROTO_ITEM_SET_HIDDEN(hidden_item);
-						item = proto_tree_add_uint(radius_tree, hf_radius_req_dup, tvb, 0,0, rh.rh_ident);
+						item = proto_tree_add_uint(radius_tree, hf_radius_req_dup, tvb, 0, 0, radius_call->req_num);
 						PROTO_ITEM_SET_GENERATED(item);
 					}
 				}
 			}
-			else
-			{
+
+			if (!PINFO_FD_VISITED(pinfo) && (radius_call == NULL || !rad_info->is_duplicate)) {
 				/* Prepare the value data.
-				   "req_num" and "rsp_num" are frame numbers;
-				   frame numbers are 1-origin, so we use 0
-				   to mean "we don't yet know in which frame
-				   the reply for this call appears". */
-				new_radius_call_key = wmem_new(wmem_file_scope(), radius_call_info_key);
-				*new_radius_call_key = radius_call_key;
+				 * "req_num" and "rsp_num" are frame numbers;
+				 * frame numbers are 1-origin, so we use 0
+				 * to mean "we don't yet know in which frame
+				 * the reply for this call appears".
+				 */
 				radius_call = wmem_new(wmem_file_scope(), radius_call_t);
 				radius_call->req_num = pinfo->num;
 				radius_call->rsp_num = 0;
 				radius_call->ident = rh.rh_ident;
 				radius_call->code = rh.rh_code;
+				memcpy(radius_call->req_authenticator, authenticator, AUTHENTICATOR_LENGTH);
 				radius_call->responded = FALSE;
 				radius_call->req_time = pinfo->abs_ts;
 				radius_call->rspcode = 0;
-				/* Copy request authenticator for future validation */
-				if (validate_authenticator && *shared_secret != '\0')
-				{
-					radius_call->req_authenticator = (guint8 *)tvb_memdup(wmem_file_scope(), tvb, 4, AUTHENTICATOR_LENGTH);
-				}
 
 				/* Store it */
-				wmem_map_insert(radius_calls, new_radius_call_key, radius_call);
+				wmem_tree_insert32(radius_call_tree, pinfo->num, radius_call);
 			}
+
 			if (tree && radius_call->rsp_num)
 			{
 				proto_item* item;
@@ -1968,94 +1994,102 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			 */
 			conversation = find_conversation(pinfo->num, &null_address,
 				&pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-			if (conversation != NULL)
+			if (conversation == NULL) {
+				/* Nothing more to do here */
+				break;
+			}
+
+			/* Prepare the key data */
+			radius_call_key.code = rh.rh_code;
+			radius_call_key.ident = rh.rh_ident;
+			radius_call_key.conversation = conversation;
+			radius_call_key.req_time = pinfo->abs_ts;
+
+			/* Look up the tree of calls with this ident */
+			radius_call_tree = (wmem_tree_t *)wmem_map_lookup(radius_calls, &radius_call_key);
+			if (radius_call_tree == NULL) {
+				/* Nothing more to do here */
+				break;
+			}
+
+			/* Find the last call we've seen (for this ident in this conversation) */
+			radius_call = (radius_call_t *)wmem_tree_lookup32_le(radius_call_tree, pinfo->num);
+			if (radius_call == NULL ) {
+				/* Nothing more to do here */
+				break;
+			}
+
+			/* Indicate the frame to which this is a reply. */
+			if (radius_call->req_num)
 			{
-				/* Look only for matching request, if
-				   matching conversation is available. */
-				/* Prepare the key data */
-				radius_call_key.code = rh.rh_code;
-				radius_call_key.ident = rh.rh_ident;
-				radius_call_key.conversation = conversation;
-				radius_call_key.req_time = pinfo->abs_ts;
+				nstime_t delta;
+				proto_item *item;
 
-				radius_call = (radius_call_t *)wmem_map_lookup(radius_calls, &radius_call_key);
-				if (radius_call)
+				rad_info->request_available = TRUE;
+				rad_info->req_num = radius_call->req_num;
+				radius_call->responded = TRUE;
+
+				item = proto_tree_add_uint_format(radius_tree,
+					hf_radius_req_frame, tvb, 0, 0,
+					radius_call->req_num,
+					"This is a response to a request in frame %u",
+					radius_call->req_num);
+				PROTO_ITEM_SET_GENERATED(item);
+				nstime_delta(&delta, &pinfo->abs_ts, &radius_call->req_time);
+				item = proto_tree_add_time(radius_tree, hf_radius_time, tvb, 0, 0, &delta);
+				PROTO_ITEM_SET_GENERATED(item);
+				/* Response Authenticator Validation */
+				if (validate_authenticator && *shared_secret != '\0')
 				{
-					/* Indicate the frame to which this is a reply. */
-					if (radius_call->req_num)
+					proto_item *authenticator_tree;
+					int valid;
+					valid = valid_authenticator(tvb, radius_call->req_authenticator);
+
+					proto_item_append_text(authenticator_item, " [%s]", valid? "correct" : "incorrect");
+					authenticator_tree = proto_item_add_subtree(authenticator_item, ett_radius_authenticator);
+					item = proto_tree_add_boolean(authenticator_tree, hf_radius_authenticator_valid, tvb, 4, AUTHENTICATOR_LENGTH, valid ? TRUE : FALSE);
+					PROTO_ITEM_SET_GENERATED(item);
+					item = proto_tree_add_boolean(authenticator_tree, hf_radius_authenticator_invalid, tvb, 4, AUTHENTICATOR_LENGTH, valid ? FALSE : TRUE);
+					PROTO_ITEM_SET_GENERATED(item);
+
+					if (!valid)
 					{
-						nstime_t delta;
-						proto_item *item;
-
-						rad_info->request_available = TRUE;
-						rad_info->req_num = radius_call->req_num;
-						radius_call->responded = TRUE;
-
-						item = proto_tree_add_uint_format(radius_tree,
-							hf_radius_req_frame, tvb, 0, 0,
-							radius_call->req_num,
-							"This is a response to a request in frame %u",
-							radius_call->req_num);
-						PROTO_ITEM_SET_GENERATED(item);
-						nstime_delta(&delta, &pinfo->abs_ts, &radius_call->req_time);
-						item = proto_tree_add_time(radius_tree, hf_radius_time, tvb, 0, 0, &delta);
-						PROTO_ITEM_SET_GENERATED(item);
-						/* Response Authenticator Validation */
-						if (validate_authenticator && *shared_secret != '\0')
-						{
-							proto_item * authenticator_tree;
-							int valid;
-							valid = valid_authenticator(tvb, radius_call->req_authenticator);
-
-							proto_item_append_text(authenticator_item, " [%s]", valid? "correct" : "incorrect");
-							authenticator_tree = proto_item_add_subtree(authenticator_item, ett_radius_authenticator);
-							item = proto_tree_add_boolean(authenticator_tree, hf_radius_authenticator_valid, tvb, 4, AUTHENTICATOR_LENGTH, valid ? TRUE : FALSE);
-							PROTO_ITEM_SET_GENERATED(item);
-							item = proto_tree_add_boolean(authenticator_tree, hf_radius_authenticator_invalid, tvb, 4, AUTHENTICATOR_LENGTH, valid ? FALSE : TRUE);
-							PROTO_ITEM_SET_GENERATED(item);
-
-							if (!valid)
-							{
-								col_append_fstr(pinfo->cinfo,COL_INFO," [incorrect authenticator]");
-							}
-						}
+						col_append_fstr(pinfo->cinfo,COL_INFO," [incorrect authenticator]");
 					}
-
-					if (radius_call->rsp_num == 0)
-					{
-						/* We have not yet seen a response to that call, so
-						   this must be the first response; remember its
-						   frame number. */
-						radius_call->rsp_num = pinfo->num;
-					}
-					else
-					{
-						/* We have seen a response to this call - but was it
-						   *this* response? (disregard provisional responses) */
-						if ( (radius_call->rsp_num != pinfo->num) && (radius_call->rspcode == rh.rh_code) )
-						{
-							/* No, so it's a duplicate response. Mark it as such. */
-							rad_info->is_duplicate = TRUE;
-							col_append_fstr(pinfo->cinfo, COL_INFO,
-									", Duplicate Response ID:%u", rh.rh_ident);
-
-							if (tree)
-							{
-								proto_item* item;
-								hidden_item = proto_tree_add_uint(radius_tree,
-									hf_radius_dup, tvb, 0,0, rh.rh_ident);
-								PROTO_ITEM_SET_HIDDEN(hidden_item);
-								item = proto_tree_add_uint(radius_tree,
-									hf_radius_rsp_dup, tvb, 0, 0, rh.rh_ident);
-								PROTO_ITEM_SET_GENERATED(item);
-							}
-						}
-					}
-					/* Now store the response code (after comparison above) */
-					radius_call->rspcode = rh.rh_code;
-					rad_info->rspcode = rh.rh_code;
 				}
 			}
+
+			if (radius_call->rsp_num == 0)
+			{
+				/* We have not yet seen a response to that call, so
+				   this must be the first response; remember its
+				   frame number. */
+				radius_call->rsp_num = pinfo->num;
+			}
+			else
+			{
+				/* We have seen a response to this call - but was it
+				   *this* response? (disregard provisional responses) */
+				if ( (radius_call->rsp_num != pinfo->num) && (radius_call->rspcode == rh.rh_code) )
+				{
+					/* No, so it's a duplicate response. Mark it as such. */
+					rad_info->is_duplicate = TRUE;
+					col_append_fstr(pinfo->cinfo, COL_INFO, ", Duplicate Response");
+
+					if (tree) {
+						proto_item *item;
+						hidden_item = proto_tree_add_uint(radius_tree,
+							hf_radius_dup, tvb, 0, 0, rh.rh_ident);
+						PROTO_ITEM_SET_HIDDEN(hidden_item);
+						item = proto_tree_add_uint(radius_tree,
+							hf_radius_rsp_dup, tvb, 0, 0, radius_call->rsp_num);
+						PROTO_ITEM_SET_GENERATED(item);
+					}
+				}
+			}
+			/* Now store the response code (after comparison above) */
+			radius_call->rspcode = rh.rh_code;
+			rad_info->rspcode = rh.rh_code;
 			break;
 		default:
 			break;
@@ -2316,10 +2350,10 @@ static void register_radius_fields(const char* unused _U_) {
 		 { "Response", "radius.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			 "TRUE if RADIUS response", HFILL }},
 		 { &hf_radius_req_frame,
-		 { "Request Frame", "radius.reqframe", FT_FRAMENUM, BASE_NONE, NULL, 0,
+		 { "Request Frame", "radius.reqframe", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0,
 			 NULL, HFILL }},
 		 { &hf_radius_rsp_frame,
-		 { "Response Frame", "radius.rspframe", FT_FRAMENUM, BASE_NONE, NULL, 0,
+		 { "Response Frame", "radius.rspframe", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0,
 			 NULL, HFILL }},
 		 { &hf_radius_time,
 		 { "Time from request", "radius.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
@@ -2373,13 +2407,13 @@ static void register_radius_fields(const char* unused _U_) {
 		 { "Cosine-VCI","radius.Cosine-Vci", FT_UINT16, BASE_DEC, NULL, 0x0,
 			 NULL, HFILL }},
 		 { &hf_radius_dup,
-		 { "Duplicate Message", "radius.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
+		 { "Duplicate Message ID", "radius.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
 			 NULL, HFILL }},
 		 { &hf_radius_req_dup,
-		 { "Duplicate Request", "radius.req.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
+		 { "Duplicate Request Frame Number", "radius.req.dup", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			 NULL, HFILL }},
 		 { &hf_radius_rsp_dup,
-		 { "Duplicate Response", "radius.rsp.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
+		 { "Duplicate Response Frame Number", "radius.rsp.dup", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			 NULL, HFILL }},
 		 { &hf_radius_ascend_data_filter,
 		 { "Ascend Data Filter", "radius.ascenddatafilter", FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -2586,17 +2620,17 @@ proto_register_radius(void)
 	range_convert_str(&global_ports_range, DEFAULT_RADIUS_PORT_RANGE, MAX_UDP_PORT);
 	prefs_register_range_preference(radius_module, "ports","RADIUS ports",
 				       "A list of UDP ports to decode as RADIUS", &global_ports_range, MAX_UDP_PORT);
-	prefs_register_uint_preference(radius_module, "request_ttl", "Request TimeToLive",
-				       "Time to live for a radius request used for matching it with a response", 10, &request_ttl);
+	prefs_register_obsolete_preference(radius_module, "request_ttl");
+
 	radius_tap = register_tap("radius");
-	proto_register_prefix("radius",register_radius_fields);
+	proto_register_prefix("radius", register_radius_fields);
 
 	dict = (radius_dictionary_t *)g_malloc(sizeof(radius_dictionary_t));
-	dict->attrs_by_id     = g_hash_table_new(g_direct_hash,g_direct_equal);
-	dict->attrs_by_name   = g_hash_table_new(g_str_hash,g_str_equal);
-	dict->vendors_by_id   = g_hash_table_new(g_direct_hash,g_direct_equal);
-	dict->vendors_by_name = g_hash_table_new(g_str_hash,g_str_equal);
-	dict->tlvs_by_name    = g_hash_table_new(g_str_hash,g_str_equal);
+	dict->attrs_by_id     = g_hash_table_new(g_direct_hash, g_direct_equal);
+	dict->attrs_by_name   = g_hash_table_new(g_str_hash, g_str_equal);
+	dict->vendors_by_id   = g_hash_table_new(g_direct_hash, g_direct_equal);
+	dict->vendors_by_name = g_hash_table_new(g_str_hash, g_str_equal);
+	dict->tlvs_by_name    = g_hash_table_new(g_str_hash, g_str_equal);
 
 	register_rtd_table(proto_radius, NULL, RADIUS_CAT_NUM_TIMESTATS, 1, radius_message_code, radiusstat_packet, NULL);
 }
