@@ -410,7 +410,7 @@ typedef struct _radius_call_info_key
 	nstime_t req_time;
 } radius_call_info_key;
 
-static GHashTable *radius_calls;
+static wmem_map_t *radius_calls;
 
 typedef struct _radius_vsa_buffer_key
 {
@@ -453,53 +453,95 @@ static gboolean radius_call_equal(gconstpointer k1, gconstpointer k2)
 		nstime_t delta;
 
 		nstime_delta(&delta, &key1->req_time, &key2->req_time);
-		if (abs( (int) nstime_to_sec(&delta)) > (double) request_ttl) return 0;
+		if (abs( (int) nstime_to_sec(&delta)) > (double) request_ttl)
+			return FALSE;
 
 		if (key1->code == key2->code)
 			return TRUE;
+
 		/* check the request and response are of the same code type */
 		if ((key1->code == RADIUS_PKT_TYPE_ACCESS_REQUEST) &&
 		    ((key2->code == RADIUS_PKT_TYPE_ACCESS_ACCEPT) ||
 		     (key2->code == RADIUS_PKT_TYPE_ACCESS_REJECT) ||
 		     (key2->code == RADIUS_PKT_TYPE_ACCESS_CHALLENGE)))
 			return TRUE;
+		if ((key2->code == RADIUS_PKT_TYPE_ACCESS_REQUEST) &&
+		    ((key1->code == RADIUS_PKT_TYPE_ACCESS_ACCEPT) ||
+		     (key1->code == RADIUS_PKT_TYPE_ACCESS_REJECT) ||
+		     (key1->code == RADIUS_PKT_TYPE_ACCESS_CHALLENGE)))
+			return TRUE;
 
 		if ((key1->code == RADIUS_PKT_TYPE_ACCOUNTING_REQUEST) &&
 		    (key2->code == RADIUS_PKT_TYPE_ACCOUNTING_RESPONSE))
 			return TRUE;
+		if ((key2->code == RADIUS_PKT_TYPE_ACCOUNTING_REQUEST) &&
+		    (key1->code == RADIUS_PKT_TYPE_ACCOUNTING_RESPONSE))
+			return TRUE;
 
 		if ((key1->code == RADIUS_PKT_TYPE_PASSWORD_REQUEST) &&
-		    ((key2->code == RADIUS_PKT_TYPE_PASSWORD_ACK) || (key2->code == RADIUS_PKT_TYPE_PASSWORD_REJECT)))
+		    ((key2->code == RADIUS_PKT_TYPE_PASSWORD_ACK) ||
+		     (key2->code == RADIUS_PKT_TYPE_PASSWORD_REJECT)))
+			return TRUE;
+		if ((key2->code == RADIUS_PKT_TYPE_PASSWORD_REQUEST) &&
+		    ((key1->code == RADIUS_PKT_TYPE_PASSWORD_ACK) ||
+		     (key1->code == RADIUS_PKT_TYPE_PASSWORD_REJECT)))
 			return TRUE;
 
 		if ((key1->code == RADIUS_PKT_TYPE_RESOURCE_FREE_REQUEST) &&
 		    (key2->code == RADIUS_PKT_TYPE_RESOURCE_FREE_RESPONSE))
 			return TRUE;
+		if ((key2->code == RADIUS_PKT_TYPE_RESOURCE_FREE_REQUEST) &&
+		    (key1->code == RADIUS_PKT_TYPE_RESOURCE_FREE_RESPONSE))
+			return TRUE;
 
 		if ((key1->code == RADIUS_PKT_TYPE_RESOURCE_QUERY_REQUEST) &&
 		    (key2->code == RADIUS_PKT_TYPE_RESOURCE_QUERY_RESPONSE))
+			return TRUE;
+		if ((key2->code == RADIUS_PKT_TYPE_RESOURCE_QUERY_REQUEST) &&
+		    (key1->code == RADIUS_PKT_TYPE_RESOURCE_QUERY_RESPONSE))
 			return TRUE;
 
 		if ((key1->code == RADIUS_PKT_TYPE_NAS_REBOOT_REQUEST) &&
 		    (key2->code == RADIUS_PKT_TYPE_NAS_REBOOT_RESPONSE))
 			return TRUE;
+		if ((key2->code == RADIUS_PKT_TYPE_NAS_REBOOT_REQUEST) &&
+		    (key1->code == RADIUS_PKT_TYPE_NAS_REBOOT_RESPONSE))
+			return TRUE;
 
 		if ((key1->code == RADIUS_PKT_TYPE_EVENT_REQUEST) &&
 		    (key2->code == RADIUS_PKT_TYPE_EVENT_RESPONSE))
 			return TRUE;
+		if ((key2->code == RADIUS_PKT_TYPE_EVENT_REQUEST) &&
+		    (key1->code == RADIUS_PKT_TYPE_EVENT_RESPONSE))
+			return TRUE;
 
 		if ((key1->code == RADIUS_PKT_TYPE_DISCONNECT_REQUEST) &&
-		    ((key2->code == RADIUS_PKT_TYPE_DISCONNECT_ACK) || (key2->code == RADIUS_PKT_TYPE_DISCONNECT_NAK)))
+		    ((key2->code == RADIUS_PKT_TYPE_DISCONNECT_ACK) ||
+		     (key2->code == RADIUS_PKT_TYPE_DISCONNECT_NAK)))
+			return TRUE;
+		if ((key2->code == RADIUS_PKT_TYPE_DISCONNECT_REQUEST) &&
+		    ((key1->code == RADIUS_PKT_TYPE_DISCONNECT_ACK) ||
+		     (key1->code == RADIUS_PKT_TYPE_DISCONNECT_NAK)))
 			return TRUE;
 
 		if ((key1->code == RADIUS_PKT_TYPE_COA_REQUEST) &&
-		    ((key2->code == RADIUS_PKT_TYPE_COA_ACK) || (key2->code == RADIUS_PKT_TYPE_COA_NAK)))
+		    ((key2->code == RADIUS_PKT_TYPE_COA_ACK) ||
+		     (key2->code == RADIUS_PKT_TYPE_COA_NAK)))
+			return TRUE;
+		if ((key2->code == RADIUS_PKT_TYPE_COA_REQUEST) &&
+		    ((key1->code == RADIUS_PKT_TYPE_COA_ACK) ||
+		     (key1->code == RADIUS_PKT_TYPE_COA_NAK)))
 			return TRUE;
 
 		if ((key1->code == RADIUS_PKT_TYPE_ALU_STATE_REQUEST) &&
 		    ((key2->code == RADIUS_PKT_TYPE_ALU_STATE_ACCEPT) ||
 		     (key2->code == RADIUS_PKT_TYPE_ALU_STATE_REJECT) ||
 		     (key2->code == RADIUS_PKT_TYPE_ALU_STATE_ERROR)))
+			return TRUE;
+		if ((key2->code == RADIUS_PKT_TYPE_ALU_STATE_REQUEST) &&
+		    ((key1->code == RADIUS_PKT_TYPE_ALU_STATE_ACCEPT) ||
+		     (key1->code == RADIUS_PKT_TYPE_ALU_STATE_REJECT) ||
+		     (key1->code == RADIUS_PKT_TYPE_ALU_STATE_ERROR)))
 			return TRUE;
 	}
 	return FALSE;
@@ -1820,7 +1862,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			radius_call_key.req_time = pinfo->abs_ts;
 
 			/* Look up the request */
-			radius_call = (radius_call_t *)g_hash_table_lookup(radius_calls, &radius_call_key);
+			radius_call = (radius_call_t *)wmem_map_lookup(radius_calls, &radius_call_key);
 			if (radius_call != NULL)
 			{
 				/* We've seen a request with this ID, with the same
@@ -1829,7 +1871,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				{
 					/* No, so it's a duplicate request. Mark it as such.
 					  FIXME: This is way too simple, as the request number
-					         is only an 8-bit value. See bug#4096 */
+						 is only an 8-bit value. See bug#4096 */
 					rad_info->is_duplicate = TRUE;
 					rad_info->req_num = radius_call->req_num;
 					col_append_fstr(pinfo->cinfo, COL_INFO,
@@ -1869,7 +1911,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				}
 
 				/* Store it */
-				g_hash_table_insert(radius_calls, new_radius_call_key, radius_call);
+				wmem_map_insert(radius_calls, new_radius_call_key, radius_call);
 			}
 			if (tree && radius_call->rsp_num)
 			{
@@ -1936,7 +1978,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				radius_call_key.conversation = conversation;
 				radius_call_key.req_time = pinfo->abs_ts;
 
-				radius_call = (radius_call_t *)g_hash_table_lookup(radius_calls, &radius_call_key);
+				radius_call = (radius_call_t *)wmem_map_lookup(radius_calls, &radius_call_key);
 				if (radius_call)
 				{
 					/* Indicate the frame to which this is a reply. */
@@ -2262,13 +2304,7 @@ radius_init_protocol(void)
 			prefs_set_preference_obsolete(alternate_port);
 	}
 
-	radius_calls = g_hash_table_new(radius_call_hash, radius_call_equal);
-}
-
-static void
-radius_cleanup_protocol(void)
-{
-	g_hash_table_destroy(radius_calls);
+	radius_calls = wmem_map_new(wmem_file_scope(), radius_call_hash, radius_call_equal);
 }
 
 static void register_radius_fields(const char* unused _U_) {
@@ -2534,7 +2570,6 @@ proto_register_radius(void)
 	proto_radius = proto_register_protocol("RADIUS Protocol", "RADIUS", "radius");
 	register_dissector("radius", dissect_radius, proto_radius);
 	register_init_routine(&radius_init_protocol);
-	register_cleanup_routine(&radius_cleanup_protocol);
 	radius_module = prefs_register_protocol(proto_radius, proto_reg_handoff_radius);
 	prefs_register_string_preference(radius_module,"shared_secret","Shared Secret",
 					 "Shared secret used to decode User Passwords and validate Response Authenticators",
