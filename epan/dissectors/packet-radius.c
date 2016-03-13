@@ -1942,42 +1942,39 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 					/* Indicate the frame to which this is a reply. */
 					if (radius_call->req_num)
 					{
+						nstime_t delta;
+						proto_item *item;
+
 						rad_info->request_available = TRUE;
 						rad_info->req_num = radius_call->req_num;
 						radius_call->responded = TRUE;
 
-						if (tree)
+						item = proto_tree_add_uint_format(radius_tree,
+							hf_radius_req_frame, tvb, 0, 0,
+							radius_call->req_num,
+							"This is a response to a request in frame %u",
+							radius_call->req_num);
+						PROTO_ITEM_SET_GENERATED(item);
+						nstime_delta(&delta, &pinfo->abs_ts, &radius_call->req_time);
+						item = proto_tree_add_time(radius_tree, hf_radius_time, tvb, 0, 0, &delta);
+						PROTO_ITEM_SET_GENERATED(item);
+						/* Response Authenticator Validation */
+						if (validate_authenticator && *shared_secret != '\0')
 						{
-							nstime_t delta;
-							proto_item* item;
-							item = proto_tree_add_uint_format(radius_tree,
-								hf_radius_req_frame, tvb, 0, 0,
-								radius_call->req_num,
-								"This is a response to a request in frame %u",
-								radius_call->req_num);
+							proto_item * authenticator_tree;
+							int valid;
+							valid = valid_authenticator(tvb, radius_call->req_authenticator);
+
+							proto_item_append_text(authenticator_item, " [%s]", valid? "correct" : "incorrect");
+							authenticator_tree = proto_item_add_subtree(authenticator_item, ett_radius_authenticator);
+							item = proto_tree_add_boolean(authenticator_tree, hf_radius_authenticator_valid, tvb, 4, AUTHENTICATOR_LENGTH, valid ? TRUE : FALSE);
 							PROTO_ITEM_SET_GENERATED(item);
-							nstime_delta(&delta, &pinfo->abs_ts, &radius_call->req_time);
-							item = proto_tree_add_time(radius_tree, hf_radius_time, tvb, 0, 0, &delta);
+							item = proto_tree_add_boolean(authenticator_tree, hf_radius_authenticator_invalid, tvb, 4, AUTHENTICATOR_LENGTH, valid ? FALSE : TRUE);
 							PROTO_ITEM_SET_GENERATED(item);
-							/* Response Authenticator Validation */
-							if (validate_authenticator && *shared_secret != '\0')
+
+							if (!valid)
 							{
-								proto_item * authenticator_tree;
-								int valid;
-								valid = valid_authenticator(tvb, radius_call->req_authenticator);
-
-								proto_item_append_text(authenticator_item, " [%s]", valid? "correct" : "incorrect");
-								authenticator_tree = proto_item_add_subtree(authenticator_item, ett_radius_authenticator);
-								item = proto_tree_add_boolean(authenticator_tree, hf_radius_authenticator_valid, tvb, 4, AUTHENTICATOR_LENGTH, valid ? TRUE : FALSE);
-								PROTO_ITEM_SET_GENERATED(item);
-								item = proto_tree_add_boolean(authenticator_tree, hf_radius_authenticator_invalid, tvb, 4, AUTHENTICATOR_LENGTH, valid ? FALSE : TRUE);
-								PROTO_ITEM_SET_GENERATED(item);
-
-								if (!valid)
-								{
-									/* FIXME: this information disappears when a display filter is enterred */
-									col_append_fstr(pinfo->cinfo,COL_INFO," [incorrect authenticator]");
-								}
+								col_append_fstr(pinfo->cinfo,COL_INFO," [incorrect authenticator]");
 							}
 						}
 					}
