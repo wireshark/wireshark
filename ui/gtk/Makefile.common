@@ -24,17 +24,12 @@
 #
 include Makefile_custom.common
 
-# Generated header files that we want in the distribution.
-GENERATED_HEADER_FILES =
-
 # Generated C source files that we want in the distribution.
-GENERATED_C_FILES = \
+GENERATED_FILES = \
 	wireshark-tap-register.c
 
-# All the generated files.
-GENERATED_FILES = \
-	$(GENERATED_HEADER_FILES) \
-	$(GENERATED_C_FILES)
+# Generated C source files that we don't want in the distribution.
+NODIST_GENERATED_FILES =
 
 # Files that generate compileable files
 GENERATOR_FILES = \

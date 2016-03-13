@@ -22,21 +22,14 @@
 include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
-#
-# The gresource files are part of the distribution tarball (but can be rebuilt
-# using glib-compile-resources). They're not checked in to the VCS tree.
-# The pixbuf-csource files are also generated files but they're (currently)
-# checked in to the VCS tree. From the point of view of the build system
-# they're not considered generated source (they are never to be cleaned).
-# Finally 'wireshark-tap-register.c' is generated source not part of the
-# distribution tarball. It has no external dependencies and is to be built
-# during compilation.
-#
-
 if HAVE_GRESOURCE_PIXBUF
-LIBGTKUI_PIXBUF_SRC = wireshark-gresources.h wireshark-gresources.c
+NODIST_GENERATED_FILES += \
+	wireshark-gresources.h	\
+	wireshark-gresources.c
 else
-LIBGTKUI_PIXBUF_SRC = pixbuf-csource.h pixbuf-csource.c
+BUILD_PIXBUF_CSOURCE = \
+	pixbuf-csource.h
+	pixbuf-csource.c
 endif
 
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GTK_CFLAGS) \
@@ -49,11 +42,10 @@ CLEANFILES = \
 	*~
 
 DISTCLEANFILES = \
-	$(GENERATED_FILES)
+	$(NODIST_GENERATED_FILES)
 
 MAINTAINERCLEANFILES = \
-	wireshark-gresources.h	\
-	wireshark-gresources.c	\
+	$(GENERATED_FILES)	\
 	Makefile.in
 
 EXTRA_DIST = \
@@ -75,11 +67,9 @@ EXTRA_DIST = \
 	pixbuf-csource.c		\
 	pixbuf-csource.h
 
-BUILT_SOURCES =
-
-if HAVE_GRESOURCE_PIXBUF
-BUILT_SOURCES += $(LIBGTKUI_PIXBUF_SRC)
-endif
+BUILT_SOURCES = \
+	$(GENERATED_FILES)	\
+	$(NODIST_GENERATED_FILES)
 
 noinst_LIBRARIES = libgtkui.a
 
@@ -87,11 +77,11 @@ libgtkui_a_SOURCES = \
 	$(WIRESHARK_COMMON_GTK_SRC)	\
 	$(WIRESHARK_COMMON_GTK_HDRS)	\
 	$(WIRESHARK_TAP_SRC)		\
-	$(LIBGTKUI_PIXBUF_SRC)
+	$(GENERATED_FILES)
 
 nodist_libgtkui_a_SOURCES = \
-	$(GENERATED_C_FILES)		\
-	$(GENERATED_HEADER_FILES)
+	$(NODIST_GENERATED_FILES)	\
+	$(BUILD_PIXBUF_CSOURCE)
 
 libgtkui_a_DEPENDENCIES =
 
