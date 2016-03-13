@@ -229,6 +229,12 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
 #else
     int err = 0;
 
+    init_open_routines();
+#ifdef HAVE_PLUGINS
+    wtap_register_plugin_types();
+    register_all_wiretap_modules();
+#endif
+
     if (encap == EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
         encap_ext = WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
     else if (encap == EXTCAP_ENCAP_WIRESHARK_UPPER_PDU)
