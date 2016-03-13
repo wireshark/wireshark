@@ -1390,83 +1390,83 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="238"/>
-        <location filename="capture_interfaces_dialog.cpp" line="519"/>
-        <location filename="capture_interfaces_dialog.cpp" line="525"/>
+        <location filename="capture_interfaces_dialog.cpp" line="240"/>
+        <location filename="capture_interfaces_dialog.cpp" line="521"/>
+        <location filename="capture_interfaces_dialog.cpp" line="527"/>
         <source>enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="238"/>
-        <location filename="capture_interfaces_dialog.cpp" line="519"/>
-        <location filename="capture_interfaces_dialog.cpp" line="525"/>
+        <location filename="capture_interfaces_dialog.cpp" line="240"/>
+        <location filename="capture_interfaces_dialog.cpp" line="521"/>
+        <location filename="capture_interfaces_dialog.cpp" line="527"/>
         <source>disabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="257"/>
+        <location filename="capture_interfaces_dialog.cpp" line="259"/>
         <source>Specify a Capture File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="457"/>
+        <location filename="capture_interfaces_dialog.cpp" line="459"/>
         <source>%1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="457"/>
+        <location filename="capture_interfaces_dialog.cpp" line="459"/>
         <source>Addresses</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="457"/>
+        <location filename="capture_interfaces_dialog.cpp" line="459"/>
         <source>Address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="467"/>
+        <location filename="capture_interfaces_dialog.cpp" line="469"/>
         <source>no addresses</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="518"/>
+        <location filename="capture_interfaces_dialog.cpp" line="520"/>
         <source>default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="508"/>
-        <location filename="capture_interfaces_dialog.cpp" line="509"/>
+        <location filename="capture_interfaces_dialog.cpp" line="510"/>
         <location filename="capture_interfaces_dialog.cpp" line="511"/>
-        <location filename="capture_interfaces_dialog.cpp" line="514"/>
-        <location filename="capture_interfaces_dialog.cpp" line="525"/>
+        <location filename="capture_interfaces_dialog.cpp" line="513"/>
+        <location filename="capture_interfaces_dialog.cpp" line="516"/>
+        <location filename="capture_interfaces_dialog.cpp" line="527"/>
         <source>n/a</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="682"/>
-        <location filename="capture_interfaces_dialog.cpp" line="690"/>
-        <location filename="capture_interfaces_dialog.cpp" line="701"/>
-        <location filename="capture_interfaces_dialog.cpp" line="705"/>
-        <location filename="capture_interfaces_dialog.cpp" line="718"/>
-        <location filename="capture_interfaces_dialog.cpp" line="726"/>
+        <location filename="capture_interfaces_dialog.cpp" line="684"/>
+        <location filename="capture_interfaces_dialog.cpp" line="692"/>
+        <location filename="capture_interfaces_dialog.cpp" line="703"/>
+        <location filename="capture_interfaces_dialog.cpp" line="707"/>
+        <location filename="capture_interfaces_dialog.cpp" line="720"/>
+        <location filename="capture_interfaces_dialog.cpp" line="728"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="683"/>
-        <location filename="capture_interfaces_dialog.cpp" line="691"/>
-        <location filename="capture_interfaces_dialog.cpp" line="719"/>
-        <location filename="capture_interfaces_dialog.cpp" line="727"/>
+        <location filename="capture_interfaces_dialog.cpp" line="685"/>
+        <location filename="capture_interfaces_dialog.cpp" line="693"/>
+        <location filename="capture_interfaces_dialog.cpp" line="721"/>
+        <location filename="capture_interfaces_dialog.cpp" line="729"/>
         <source>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="702"/>
+        <location filename="capture_interfaces_dialog.cpp" line="704"/>
         <source>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="706"/>
+        <location filename="capture_interfaces_dialog.cpp" line="708"/>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <translation type="unfinished"></translation>
@@ -4352,16 +4352,16 @@ for filter files: %2.</source>
 <context>
     <name>InterfaceTreeDelegate</name>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="1020"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1052"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1101"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1121"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1022"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1054"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1103"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1123"/>
         <source>enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="1021"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1053"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1023"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1055"/>
         <source>disabled</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9156,7 +9156,7 @@ a:hover {
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="2323"/>
-        <location filename="main_window_slots.cpp" line="3358"/>
+        <location filename="main_window_slots.cpp" line="3359"/>
         <source>Unable to build conversation filter.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9166,32 +9166,32 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3365"/>
+        <location filename="main_window_slots.cpp" line="3366"/>
         <source>Error compiling filter for this conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3374"/>
+        <location filename="main_window_slots.cpp" line="3375"/>
         <source>No previous/next packet in conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3451"/>
+        <location filename="main_window_slots.cpp" line="3452"/>
         <source>No Interface Selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3458"/>
+        <location filename="main_window_slots.cpp" line="3459"/>
         <source> before starting a new capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3664"/>
+        <location filename="main_window_slots.cpp" line="3665"/>
         <source>Wiki Page for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3665"/>
+        <location filename="main_window_slots.cpp" line="3666"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10215,22 +10215,22 @@ a:hover {
 <context>
     <name>ProtoTree</name>
     <message>
-        <location filename="proto_tree.cpp" line="156"/>
+        <location filename="proto_tree.cpp" line="158"/>
         <source>Packet details</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="203"/>
+        <location filename="proto_tree.cpp" line="205"/>
         <source>Colorize with Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="384"/>
+        <location filename="proto_tree.cpp" line="427"/>
         <source>, 1 byte</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="386"/>
+        <location filename="proto_tree.cpp" line="429"/>
         <source>, %1 bytes</source>
         <translation type="unfinished"></translation>
     </message>

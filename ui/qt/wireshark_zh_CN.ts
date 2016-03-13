@@ -563,13 +563,9 @@
         <translation>可以保存的文件格式中，没有支持注释的格式。您是否要丢弃注释并以您选择的格式保存？</translation>
     </message>
     <message>
-        <source>All Files (*.*)</source>
-        <translation type="vanished">所有文件 (*.*)</translation>
-    </message>
-    <message>
         <location filename="capture_file_dialog.cpp" line="392"/>
         <source>All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>所有文件 (</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="398"/>
@@ -1397,83 +1393,83 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>留空使用临时文件</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="238"/>
-        <location filename="capture_interfaces_dialog.cpp" line="519"/>
-        <location filename="capture_interfaces_dialog.cpp" line="525"/>
+        <location filename="capture_interfaces_dialog.cpp" line="240"/>
+        <location filename="capture_interfaces_dialog.cpp" line="521"/>
+        <location filename="capture_interfaces_dialog.cpp" line="527"/>
         <source>enabled</source>
         <translation>启用</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="238"/>
-        <location filename="capture_interfaces_dialog.cpp" line="519"/>
-        <location filename="capture_interfaces_dialog.cpp" line="525"/>
+        <location filename="capture_interfaces_dialog.cpp" line="240"/>
+        <location filename="capture_interfaces_dialog.cpp" line="521"/>
+        <location filename="capture_interfaces_dialog.cpp" line="527"/>
         <source>disabled</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="257"/>
+        <location filename="capture_interfaces_dialog.cpp" line="259"/>
         <source>Specify a Capture File</source>
         <translation>指定捕获文件</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="457"/>
+        <location filename="capture_interfaces_dialog.cpp" line="459"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="457"/>
+        <location filename="capture_interfaces_dialog.cpp" line="459"/>
         <source>Addresses</source>
         <translation>地址</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="457"/>
+        <location filename="capture_interfaces_dialog.cpp" line="459"/>
         <source>Address</source>
         <translation>地址</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="467"/>
+        <location filename="capture_interfaces_dialog.cpp" line="469"/>
         <source>no addresses</source>
         <translation>无地址</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="518"/>
+        <location filename="capture_interfaces_dialog.cpp" line="520"/>
         <source>default</source>
         <translation>默认</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="508"/>
-        <location filename="capture_interfaces_dialog.cpp" line="509"/>
+        <location filename="capture_interfaces_dialog.cpp" line="510"/>
         <location filename="capture_interfaces_dialog.cpp" line="511"/>
-        <location filename="capture_interfaces_dialog.cpp" line="514"/>
-        <location filename="capture_interfaces_dialog.cpp" line="525"/>
+        <location filename="capture_interfaces_dialog.cpp" line="513"/>
+        <location filename="capture_interfaces_dialog.cpp" line="516"/>
+        <location filename="capture_interfaces_dialog.cpp" line="527"/>
         <source>n/a</source>
         <translation>n/a</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="682"/>
-        <location filename="capture_interfaces_dialog.cpp" line="690"/>
-        <location filename="capture_interfaces_dialog.cpp" line="701"/>
-        <location filename="capture_interfaces_dialog.cpp" line="705"/>
-        <location filename="capture_interfaces_dialog.cpp" line="718"/>
-        <location filename="capture_interfaces_dialog.cpp" line="726"/>
+        <location filename="capture_interfaces_dialog.cpp" line="684"/>
+        <location filename="capture_interfaces_dialog.cpp" line="692"/>
+        <location filename="capture_interfaces_dialog.cpp" line="703"/>
+        <location filename="capture_interfaces_dialog.cpp" line="707"/>
+        <location filename="capture_interfaces_dialog.cpp" line="720"/>
+        <location filename="capture_interfaces_dialog.cpp" line="728"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="683"/>
-        <location filename="capture_interfaces_dialog.cpp" line="691"/>
-        <location filename="capture_interfaces_dialog.cpp" line="719"/>
-        <location filename="capture_interfaces_dialog.cpp" line="727"/>
+        <location filename="capture_interfaces_dialog.cpp" line="685"/>
+        <location filename="capture_interfaces_dialog.cpp" line="693"/>
+        <location filename="capture_interfaces_dialog.cpp" line="721"/>
+        <location filename="capture_interfaces_dialog.cpp" line="729"/>
         <source>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</source>
         <translation>多文件：请求的文件尺寸太大！文件尺寸不能超过2GiB。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="702"/>
+        <location filename="capture_interfaces_dialog.cpp" line="704"/>
         <source>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</source>
         <translation>多个文件：没有给出捕获文件名！如果您想使用多个文件，必须指定一个文件名。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="706"/>
+        <location filename="capture_interfaces_dialog.cpp" line="708"/>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <translation>多个文件：未给出文件大小限制！如果您想使用多个文件，必须指定切换到下一个捕获文件的文件大小或者时长。</translation>
@@ -2471,11 +2467,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="extcap_argument_file.cpp" line="99"/>
         <source>All Files (</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All Files (*.*)</source>
-        <translation type="vanished">所有文件 (*.*)</translation>
+        <translation>所有文件 (</translation>
     </message>
 </context>
 <context>
@@ -4397,16 +4389,16 @@ for filter files: %2.</source>
 <context>
     <name>InterfaceTreeDelegate</name>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="1020"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1052"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1101"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1121"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1022"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1054"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1103"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1123"/>
         <source>enabled</source>
         <translation>启用</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="1021"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1053"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1023"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1055"/>
         <source>disabled</source>
         <translation>关闭</translation>
     </message>
@@ -9242,10 +9234,6 @@ text-decoration: underline;
         <translation>导出选择分组字节流</translation>
     </message>
     <message>
-        <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
-        <translation type="vanished">原始数据 (*.bin *.dat *.raw);;任意文件 (*.*)</translation>
-    </message>
-    <message>
         <location filename="main_window_slots.cpp" line="1764"/>
         <source>No Keys</source>
         <translation>无密钥</translation>
@@ -9261,18 +9249,14 @@ text-decoration: underline;
         <translation>导出 SSL 会话密钥 (%1 密钥%2</translation>
     </message>
     <message>
-        <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
-        <translation type="vanished">SSL 会话密钥 (*.keys *.txt);;任意文件 (*.*)</translation>
-    </message>
-    <message>
         <location filename="main_window_slots.cpp" line="1707"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>原始数据 (*.bin *.dat *.raw);;所有文件 (</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="1776"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>SSL 会话密钥 (*.keys *.txt);;所有文件 (</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="1914"/>
@@ -9281,7 +9265,7 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="2323"/>
-        <location filename="main_window_slots.cpp" line="3358"/>
+        <location filename="main_window_slots.cpp" line="3359"/>
         <source>Unable to build conversation filter.</source>
         <translation>无法建立对话过滤器。</translation>
     </message>
@@ -9291,32 +9275,32 @@ text-decoration: underline;
         <translation>无过滤器可用。请尝试其他 </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3365"/>
+        <location filename="main_window_slots.cpp" line="3366"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>为此对话编译过滤器时出错。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3374"/>
+        <location filename="main_window_slots.cpp" line="3375"/>
         <source>No previous/next packet in conversation.</source>
         <translation>此对话中没有上一个/下一个分组。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3451"/>
+        <location filename="main_window_slots.cpp" line="3452"/>
         <source>No Interface Selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3458"/>
+        <location filename="main_window_slots.cpp" line="3459"/>
         <source> before starting a new capture</source>
         <translation>在开始新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3664"/>
+        <location filename="main_window_slots.cpp" line="3665"/>
         <source>Wiki Page for %1</source>
         <translation>%1 的 Wiki 页面</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3665"/>
+        <location filename="main_window_slots.cpp" line="3666"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Wireshark Wiki 由社区进行维护。&lt;/p&gt;&lt;p&gt;您即将加载的页面可能是良好的、不完整的、有错误的，甚至不存在的。&lt;/p&gt;&lt;p&gt;继续访问该 Wiki？&lt;/p&gt;</translation>
     </message>
@@ -10341,22 +10325,22 @@ text-decoration: underline;
 <context>
     <name>ProtoTree</name>
     <message>
-        <location filename="proto_tree.cpp" line="156"/>
+        <location filename="proto_tree.cpp" line="158"/>
         <source>Packet details</source>
         <translation>分组详情</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="203"/>
+        <location filename="proto_tree.cpp" line="205"/>
         <source>Colorize with Filter</source>
         <translation>用过滤器着色</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="384"/>
+        <location filename="proto_tree.cpp" line="427"/>
         <source>, 1 byte</source>
         <translation>, 1 字节</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="386"/>
+        <location filename="proto_tree.cpp" line="429"/>
         <source>, %1 bytes</source>
         <translation>, %1 字节</translation>
     </message>

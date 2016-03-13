@@ -3294,8 +3294,8 @@ dialogic-elmd    1945/tcp # dialogic-elmd [Roger_Kay] [Roger_Kay]
 dialogic-elmd    1945/udp # dialogic-elmd [Roger_Kay] [Roger_Kay]
 tekpls           1946/tcp # tekpls [Brian_Abramson_2] [Brian_Abramson_2]
 tekpls           1946/udp # tekpls [Brian_Abramson_2] [Brian_Abramson_2]
-sentinelsrm      1947/tcp # SentinelSRM [Michael_Zunke_2] [Michael_Zunke_2] 2010-07-23
-sentinelsrm      1947/udp # SentinelSRM [Michael_Zunke_2] [Michael_Zunke_2] 2010-07-23
+sentinelsrm      1947/tcp # SentinelSRM [Michael_Zunke_2] [Michael_Zunke_2] 2010-07-23 Unauthorized Use Known on port 1947
+sentinelsrm      1947/udp # SentinelSRM [Michael_Zunke_2] [Michael_Zunke_2] 2010-07-23 Unauthorized Use Known on port 1947
 eye2eye          1948/tcp # eye2eye [Trevor_Bell] [Trevor_Bell]
 eye2eye          1948/udp # eye2eye [Trevor_Bell] [Trevor_Bell]
 ismaeasdaqlive   1949/tcp # ISMA Easdaq Live [Stephen_Dunne] [Stephen_Dunne]

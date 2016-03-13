@@ -563,13 +563,9 @@
         <translation>Kein mögliches Dateiformat unterstützt Kommentare. Möchten Sie die Kommentare verwerfen und in dem ausgewählten Format speichern?</translation>
     </message>
     <message>
-        <source>All Files (*.*)</source>
-        <translation type="vanished">Alle Dateien (*.*)</translation>
-    </message>
-    <message>
         <location filename="capture_file_dialog.cpp" line="392"/>
         <source>All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Dateien (</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="398"/>
@@ -1398,83 +1394,83 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Leer lassen um eine temporäre Datei zu verwenden</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="238"/>
-        <location filename="capture_interfaces_dialog.cpp" line="519"/>
-        <location filename="capture_interfaces_dialog.cpp" line="525"/>
+        <location filename="capture_interfaces_dialog.cpp" line="240"/>
+        <location filename="capture_interfaces_dialog.cpp" line="521"/>
+        <location filename="capture_interfaces_dialog.cpp" line="527"/>
         <source>enabled</source>
         <translation>aktivieren</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="238"/>
-        <location filename="capture_interfaces_dialog.cpp" line="519"/>
-        <location filename="capture_interfaces_dialog.cpp" line="525"/>
+        <location filename="capture_interfaces_dialog.cpp" line="240"/>
+        <location filename="capture_interfaces_dialog.cpp" line="521"/>
+        <location filename="capture_interfaces_dialog.cpp" line="527"/>
         <source>disabled</source>
         <translation>deaktivieren</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="257"/>
+        <location filename="capture_interfaces_dialog.cpp" line="259"/>
         <source>Specify a Capture File</source>
         <translation>Eine Mitschnittdatei angeben</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="457"/>
+        <location filename="capture_interfaces_dialog.cpp" line="459"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="457"/>
+        <location filename="capture_interfaces_dialog.cpp" line="459"/>
         <source>Addresses</source>
         <translation>Adressen</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="457"/>
+        <location filename="capture_interfaces_dialog.cpp" line="459"/>
         <source>Address</source>
         <translation>Adresse</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="467"/>
+        <location filename="capture_interfaces_dialog.cpp" line="469"/>
         <source>no addresses</source>
         <translation>keine Adressen</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="518"/>
+        <location filename="capture_interfaces_dialog.cpp" line="520"/>
         <source>default</source>
         <translation>Standard</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="508"/>
-        <location filename="capture_interfaces_dialog.cpp" line="509"/>
+        <location filename="capture_interfaces_dialog.cpp" line="510"/>
         <location filename="capture_interfaces_dialog.cpp" line="511"/>
-        <location filename="capture_interfaces_dialog.cpp" line="514"/>
-        <location filename="capture_interfaces_dialog.cpp" line="525"/>
+        <location filename="capture_interfaces_dialog.cpp" line="513"/>
+        <location filename="capture_interfaces_dialog.cpp" line="516"/>
+        <location filename="capture_interfaces_dialog.cpp" line="527"/>
         <source>n/a</source>
         <translation>Nicht verfügbar</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="682"/>
-        <location filename="capture_interfaces_dialog.cpp" line="690"/>
-        <location filename="capture_interfaces_dialog.cpp" line="701"/>
-        <location filename="capture_interfaces_dialog.cpp" line="705"/>
-        <location filename="capture_interfaces_dialog.cpp" line="718"/>
-        <location filename="capture_interfaces_dialog.cpp" line="726"/>
+        <location filename="capture_interfaces_dialog.cpp" line="684"/>
+        <location filename="capture_interfaces_dialog.cpp" line="692"/>
+        <location filename="capture_interfaces_dialog.cpp" line="703"/>
+        <location filename="capture_interfaces_dialog.cpp" line="707"/>
+        <location filename="capture_interfaces_dialog.cpp" line="720"/>
+        <location filename="capture_interfaces_dialog.cpp" line="728"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="683"/>
-        <location filename="capture_interfaces_dialog.cpp" line="691"/>
-        <location filename="capture_interfaces_dialog.cpp" line="719"/>
-        <location filename="capture_interfaces_dialog.cpp" line="727"/>
+        <location filename="capture_interfaces_dialog.cpp" line="685"/>
+        <location filename="capture_interfaces_dialog.cpp" line="693"/>
+        <location filename="capture_interfaces_dialog.cpp" line="721"/>
+        <location filename="capture_interfaces_dialog.cpp" line="729"/>
         <source>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</source>
         <translation>Dateisatz: Angeforderte Dateigröße zu groß! Die Dateigröße kann nicht größer als 2 GiB sein.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="702"/>
+        <location filename="capture_interfaces_dialog.cpp" line="704"/>
         <source>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</source>
         <translation>Dateisatz: Keinen Dateinamen angeben! Wenn ein Dateisatz genutzt werden soll, muss ein Dateiname angegeben werden.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="706"/>
+        <location filename="capture_interfaces_dialog.cpp" line="708"/>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <translation>Dateisatz: Kein Limit angegeben! Wenn ein Dateisatz genutzt werden soll, muss eine Dateigröße oder eine Laufzeit angegeben werden, bei der zur nächsten Datei gewechselt wird.</translation>
@@ -2472,11 +2468,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="extcap_argument_file.cpp" line="99"/>
         <source>All Files (</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All Files (*.*)</source>
-        <translation type="vanished">Alle Dateien (*.*)</translation>
+        <translation>Alle Dateien (</translation>
     </message>
 </context>
 <context>
@@ -4406,16 +4398,16 @@ für die Filterdateien kann nicht erstellt werden:
 <context>
     <name>InterfaceTreeDelegate</name>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="1020"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1052"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1101"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1121"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1022"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1054"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1103"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1123"/>
         <source>enabled</source>
         <translation>aktiviert</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="1021"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1053"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1023"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1055"/>
         <source>disabled</source>
         <translation>deaktiviert</translation>
     </message>
@@ -9253,10 +9245,6 @@ text-decoration: underline;
         <translation>Ausgewählte Paketbytes exportieren</translation>
     </message>
     <message>
-        <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
-        <translation type="vanished">Rohdaten (*.bin *.dat *.raw);; Alle Dateien (*.*)</translation>
-    </message>
-    <message>
         <location filename="main_window_slots.cpp" line="1764"/>
         <source>No Keys</source>
         <translation>Keine Schlüssel</translation>
@@ -9272,18 +9260,14 @@ text-decoration: underline;
         <translation>SSL Sitzungsschlüssel exportieren (%1 key%2</translation>
     </message>
     <message>
-        <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
-        <translation type="vanished">SSL Sitzungsschlüssel (*.keys *.txt);; Alle Dateien (*.*)</translation>
-    </message>
-    <message>
         <location filename="main_window_slots.cpp" line="1707"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>Rohdaten (*.bin *.dat *.raw);; Alle Dateien (</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="1776"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>SSL Sitzungsschlüssel (*.keys *.txt);; Alle Dateien (</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="1914"/>
@@ -9292,7 +9276,7 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="2323"/>
-        <location filename="main_window_slots.cpp" line="3358"/>
+        <location filename="main_window_slots.cpp" line="3359"/>
         <source>Unable to build conversation filter.</source>
         <translation>Verbindungsfilter kann nicht erstellt werden.</translation>
     </message>
@@ -9302,32 +9286,32 @@ text-decoration: underline;
         <translation>Kein Filter verfügbar. Probieren Sie einen anderen.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3365"/>
+        <location filename="main_window_slots.cpp" line="3366"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Fehler beim Erstellen eines Filters für diese Verbindung.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3374"/>
+        <location filename="main_window_slots.cpp" line="3375"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Kein vorheriges/nächstes Paket in dieser Verbindung.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3451"/>
+        <location filename="main_window_slots.cpp" line="3452"/>
         <source>No Interface Selected</source>
         <translation>Kein Interface ausgewählt</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3458"/>
+        <location filename="main_window_slots.cpp" line="3459"/>
         <source> before starting a new capture</source>
         <translation>vor dem Starten einer neuen Aufzeichnung</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3664"/>
+        <location filename="main_window_slots.cpp" line="3665"/>
         <source>Wiki Page for %1</source>
         <translation>Wikiseite für %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3665"/>
+        <location filename="main_window_slots.cpp" line="3666"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Das Wireshark Wiki wird durch die Community gepflegt.&lt;/p&gt;&lt;p&gt;Die Seite, die aufgerufen werden soll, kann wundervoll, unvollständig, falsch oder gar nicht vorhanden sein.&lt;/p&gt;&lt;p&gt;Zum Wiki geheni?&lt;/p&gt;</translation>
     </message>
@@ -10353,22 +10337,22 @@ text-decoration: underline;
 <context>
     <name>ProtoTree</name>
     <message>
-        <location filename="proto_tree.cpp" line="156"/>
+        <location filename="proto_tree.cpp" line="158"/>
         <source>Packet details</source>
         <translation>Paketdetails</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="203"/>
+        <location filename="proto_tree.cpp" line="205"/>
         <source>Colorize with Filter</source>
         <translation>Mit Filter einfärben</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="384"/>
+        <location filename="proto_tree.cpp" line="427"/>
         <source>, 1 byte</source>
         <translation>, 1 Byte</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="386"/>
+        <location filename="proto_tree.cpp" line="429"/>
         <source>, %1 bytes</source>
         <translation>, %1 Bytes</translation>
     </message>
