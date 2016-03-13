@@ -137,7 +137,7 @@ proto_register_slow_protocols(void)
     /* subdissector code */
     slow_protocols_dissector_table = register_dissector_table("slow.subtype",
                                                               "Slow protocol subtype",
-                                                               FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                                                               proto_slow, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }
 
 void

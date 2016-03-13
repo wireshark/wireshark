@@ -214,7 +214,7 @@ void proto_register_mac_mgmt_msg(void)
 	expert_register_field_array(expert_mac_mgmt, ei, array_length(ei));
 
 	subdissector_message_table = register_dissector_table("wmx.mgmtmsg",
-		"WiMax MAC Management Message", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+		"WiMax MAC Management Message", proto_mac_mgmt_msg_decoder, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
 	/* Register dissector by name */
 	register_dissector("wmx_mac_mgmt_msg_decoder", dissect_mac_mgmt_msg_decoder,

@@ -454,7 +454,7 @@ void proto_register_ipa(void)
 
 	/* Register table for subdissectors */
 	osmo_dissector_table = register_dissector_table("ipa.osmo.protocol",
-					"GSM over IP ip.access Protocol",
+					"GSM over IP ip.access Protocol", proto_ipa,
 					FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 

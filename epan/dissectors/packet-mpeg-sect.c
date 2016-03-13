@@ -380,7 +380,7 @@ proto_register_mpeg_sect(void)
 
     mpeg_sect_tid_dissector_table = register_dissector_table("mpeg_sect.tid",
                                  "MPEG SECT Table ID",
-                                 FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                                 proto_mpeg_sect, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 }
 

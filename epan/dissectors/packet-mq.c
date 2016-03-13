@@ -4757,7 +4757,7 @@ void proto_register_mq(void)
     proto_register_field_array(proto_mq, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    mq_heur_subdissector_list = register_heur_dissector_list("mq");
+    mq_heur_subdissector_list = register_heur_dissector_list("mq", proto_mq);
     register_init_routine(mq_init);
     register_cleanup_routine(mq_cleanup);
 

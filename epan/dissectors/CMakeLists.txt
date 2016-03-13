@@ -389,7 +389,6 @@ set(DISSECTOR_SRC
 	packet-btsap.c
 	packet-btsdp.c
 	packet-btsmp.c
-	packet-bt-oui.c
 	packet-bvlc.c
 	packet-bzr.c
 	packet-c15ch.c

@@ -384,7 +384,7 @@ proto_register_teredo(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 /* subdissector code */
-	teredo_dissector_table = register_dissector_table("teredo","Teredo ", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+	teredo_dissector_table = register_dissector_table("teredo", "Teredo", proto_teredo, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 	teredo_module = prefs_register_protocol(proto_teredo, NULL);
 

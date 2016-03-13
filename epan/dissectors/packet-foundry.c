@@ -33,7 +33,6 @@
 
 void proto_register_fdp(void);
 void proto_reg_handoff_fdp(void);
-void proto_register_foundry_oui(void);
 
 static int hf_llc_foundry_pid = -1;
 
@@ -429,6 +428,14 @@ proto_register_fdp(void)
 			0x0, NULL, HFILL }},
 
 	};
+
+	static hf_register_info oui_hf[] = {
+	  { &hf_llc_foundry_pid,
+		{ "PID",	"llc.foundry_pid",  FT_UINT16, BASE_HEX,
+		  VALS(foundry_pid_vals), 0x0, NULL, HFILL }
+	  }
+	};
+
 	static gint *ett[] = {
 		&ett_fdp,
 		&ett_fdp_tlv_header,
@@ -451,6 +458,8 @@ proto_register_fdp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_fdp = expert_register_protocol(proto_fdp);
 	expert_register_field_array(expert_fdp, ei, array_length(ei));
+
+	llc_add_oui(OUI_FOUNDRY, "llc.foundry_pid", "LLC Foundry OUI PID", oui_hf, proto_fdp);
 }
 
 void
@@ -460,19 +469,6 @@ proto_reg_handoff_fdp(void)
 
 	fdp_handle = create_dissector_handle(dissect_fdp, proto_fdp);
 	dissector_add_uint("llc.foundry_pid", 0x2000, fdp_handle);
-}
-
-void
-proto_register_foundry_oui(void)
-{
-	static hf_register_info hf[] = {
-	  { &hf_llc_foundry_pid,
-		{ "PID",	"llc.foundry_pid",  FT_UINT16, BASE_HEX,
-		  VALS(foundry_pid_vals), 0x0, NULL, HFILL }
-	  }
-	};
-
-	llc_add_oui(OUI_FOUNDRY, "llc.foundry_pid", "LLC Foundry OUI PID", hf);
 }
 
 /*

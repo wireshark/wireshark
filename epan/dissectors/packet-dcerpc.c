@@ -6945,7 +6945,7 @@ proto_register_dcerpc(void)
     expert_dcerpc = expert_register_protocol(proto_dcerpc);
     expert_register_field_array(expert_dcerpc, ei, array_length(ei));
 
-    uuid_dissector_table = register_dissector_table("dcerpc.uuid", "DCE/RPC UUIDs", FT_GUID, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    uuid_dissector_table = register_dissector_table("dcerpc.uuid", "DCE/RPC UUIDs", proto_dcerpc, FT_GUID, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     register_init_routine(dcerpc_init_protocol);
     register_cleanup_routine(dcerpc_cleanup_protocol);

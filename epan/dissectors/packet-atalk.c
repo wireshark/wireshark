@@ -2074,7 +2074,7 @@ proto_register_atalk(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   /* subdissector code */
-  ddp_dissector_table = register_dissector_table("ddp.type", "DDP packet type",
+  ddp_dissector_table = register_dissector_table("ddp.type", "DDP packet type", proto_ddp,
                                                  FT_UINT8, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
   atalk_address_type = address_type_dissector_register("AT_ATALK", "Appletalk DDP", atalk_to_str, atalk_str_len, atalk_col_filter_str, atalk_len, NULL, NULL);

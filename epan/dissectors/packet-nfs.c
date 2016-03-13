@@ -13732,7 +13732,7 @@ proto_register_nfs(void)
 					&display_major_nfs4_ops);
 
 	nfs_fhandle_table = register_dissector_table("nfs_fhandle.type",
-	    "NFS Filehandle types", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+	    "NFS Filehandle types", proto_nfs, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 	prefs_register_obsolete_preference(nfs_module, "default_fhandle_type");
 

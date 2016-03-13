@@ -621,7 +621,7 @@ proto_register_bacnet(void)
 	register_dissector("bacnet", dissect_bacnet, proto_bacnet);
 
 	bacnet_dissector_table = register_dissector_table("bacnet.vendor",
-							  "BACnet Vendor Identifier",
+							  "BACnet Vendor Identifier", proto_bacnet,
 							  FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }
 

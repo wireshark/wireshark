@@ -43,7 +43,6 @@ XXX  Fixme : shouldn't show [malformed frame] for long packets
 #include "packet-windows-common.h"
 
 void proto_register_pipe_lanman(void);
-void proto_register_pipe_dcerpc(void);
 void proto_register_smb_pipe(void);
 void proto_reg_handoff_smb_pipe(void);
 
@@ -3441,14 +3440,6 @@ clean_up_and_exit:
 	return TRUE;
 }
 
-void
-proto_register_pipe_dcerpc(void)
-{
-	smb_transact_heur_subdissector_list = register_heur_dissector_list("smb_transact");
-	register_init_routine(smb_dcerpc_reassembly_init);
-	register_cleanup_routine(smb_dcerpc_reassembly_cleanup);
-}
-
 #define CALL_NAMED_PIPE		0x54
 #define WAIT_NAMED_PIPE		0x53
 #define PEEK_NAMED_PIPE		0x23
@@ -3929,6 +3920,10 @@ proto_register_smb_pipe(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_smb_pipe = expert_register_protocol(proto_smb_pipe);
 	expert_register_field_array(expert_smb_pipe, ei, array_length(ei));
+
+	smb_transact_heur_subdissector_list = register_heur_dissector_list("smb_transact", proto_smb_pipe);
+	register_init_routine(smb_dcerpc_reassembly_init);
+	register_cleanup_routine(smb_dcerpc_reassembly_cleanup);
 }
 
 void

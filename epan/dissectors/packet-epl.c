@@ -4350,10 +4350,10 @@ proto_register_epl(void)
 	proto_epl = proto_register_protocol("Ethernet POWERLINK", "EPL", "epl");
 
 	/* subdissector code */
-	heur_epl_subdissector_list = register_heur_dissector_list("epl");
-	heur_epl_data_subdissector_list = register_heur_dissector_list("epl_data");
+	heur_epl_subdissector_list = register_heur_dissector_list("epl", proto_epl);
+	heur_epl_data_subdissector_list = register_heur_dissector_list("epl_data", proto_epl);
 	epl_asnd_dissector_table = register_dissector_table("epl.asnd",
-		"Manufacturer specific ASND service", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+		"Manufacturer specific ASND service", proto_epl, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 	/* Registering protocol to be called by another dissector */
 	epl_handle = register_dissector("epl", dissect_epl, proto_epl);

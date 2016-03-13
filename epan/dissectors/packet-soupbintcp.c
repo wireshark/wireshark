@@ -614,7 +614,7 @@ proto_register_soupbintcp(void)
 
     soupbintcp_range = range_empty();
 
-    heur_subdissector_list = register_heur_dissector_list("soupbintcp");
+    heur_subdissector_list = register_heur_dissector_list("soupbintcp", proto_soupbintcp);
 }
 
 

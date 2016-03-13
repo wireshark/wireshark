@@ -51,7 +51,7 @@ proto_register_nortel_oui(void)
 	  }
 	};
 
-	llc_add_oui(OUI_NORTEL, "llc.nortel_pid", "LLC Nortel OUI PID", hf);
+	llc_add_oui(OUI_NORTEL, "llc.nortel_pid", "LLC Nortel OUI PID", hf, -1);
 }
 
 /*

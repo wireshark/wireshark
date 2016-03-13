@@ -2728,7 +2728,7 @@ proto_register_per(void)
 				       "Whether the dissector should put the internal PER data in the tree or if it should hide it",
 				       &display_internal_per_fields);
 
-	per_oid_dissector_table = register_dissector_table("per.oid", "PER OID Dissectors", FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+	per_oid_dissector_table = register_dissector_table("per.oid", "PER OID Dissectors", proto_per, FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 
 }

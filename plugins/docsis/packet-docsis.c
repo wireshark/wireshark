@@ -818,16 +818,16 @@ proto_register_docsis (void)
     &ett_ehdr,
   };
 
-#if 0
-  docsis_dissector_table = register_dissector_table ("docsis",
-                                                     "DOCSIS Encapsulation Type",
-                                                     FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
-#endif
-
   proto_docsis = proto_register_protocol ("DOCSIS 1.1", "DOCSIS", "docsis");
 
   proto_register_field_array (proto_docsis, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+
+#if 0
+  docsis_dissector_table = register_dissector_table ("docsis",
+                                                     "DOCSIS Encapsulation Type", proto_docsis,
+                                                     FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+#endif
 
   register_dissector ("docsis", dissect_docsis, proto_docsis);
 }

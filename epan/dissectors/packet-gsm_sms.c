@@ -3330,7 +3330,7 @@ proto_register_gsm_sms(void)
     expert_register_field_array(expert_gsm_sms, ei, array_length(ei));
 
     gsm_sms_dissector_tbl = register_dissector_table("gsm_sms.udh.port",
-        "GSM SMS port IE in UDH", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+        "GSM SMS port IE in UDH", proto_gsm_sms, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     gsm_sms_module = prefs_register_protocol (proto_gsm_sms, NULL);
 

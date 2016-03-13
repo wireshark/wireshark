@@ -732,10 +732,10 @@ proto_register_lapd(void)
 	register_dissector("lapd", dissect_lapd, proto_lapd);
 
 	lapd_sapi_dissector_table = register_dissector_table("lapd.sapi",
-							     "LAPD SAPI", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+							     "LAPD SAPI", proto_lapd, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 	lapd_gsm_sapi_dissector_table = register_dissector_table("lapd.gsm.sapi",
-								 "LAPD GSM SAPI", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+								 "LAPD GSM SAPI", proto_lapd, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 	lapd_module = prefs_register_protocol(proto_lapd, proto_reg_handoff_lapd);
 

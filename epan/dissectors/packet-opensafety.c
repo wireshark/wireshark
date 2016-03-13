@@ -2754,7 +2754,7 @@ proto_register_opensafety(void)
     opensafety_module = prefs_register_protocol(proto_opensafety, apply_prefs);
 
     /* Register data dissector */
-    heur_opensafety_spdo_subdissector_list = register_heur_dissector_list("opensafety.spdo");
+    heur_opensafety_spdo_subdissector_list = register_heur_dissector_list("opensafety.spdo", proto_opensafety);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_opensafety, hf, array_length(hf));

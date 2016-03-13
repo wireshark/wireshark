@@ -4375,12 +4375,12 @@ proto_register_enip(void)
    prefs_register_obsolete_preference(enip_module, "default_io_dissector");
 
    subdissector_sud_table = register_dissector_table("enip.sud.iface",
-                                                     "ENIP SendUnitData.Interface Handle", FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                                                     "ENIP SendUnitData.Interface Handle", proto_enip, FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
    subdissector_srrd_table = register_dissector_table("enip.srrd.iface",
-                                                      "ENIP SendRequestReplyData.Interface Handle", FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                                                      "ENIP SendRequestReplyData.Interface Handle", proto_enip, FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
-   subdissector_io_table = register_dissector_table("enip.io", "ENIP IO dissector", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+   subdissector_io_table = register_dissector_table("enip.io", "ENIP IO dissector", proto_enip, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
    register_init_routine(&enip_init_protocol);
    register_cleanup_routine(&enip_cleanup_protocol);

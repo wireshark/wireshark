@@ -9671,7 +9671,7 @@ proto_register_smb2(void)
 		"Reassemble Named Pipes over SMB2",
 		"Whether the dissector should reassemble Named Pipes over SMB2 commands",
 		&smb2_pipe_reassembly);
-	smb2_pipe_subdissector_list = register_heur_dissector_list("smb2_pipe_subdissectors");
+	smb2_pipe_subdissector_list = register_heur_dissector_list("smb2_pipe_subdissectors", proto_smb2);
 	register_init_routine(smb2_pipe_reassembly_init);
 
 	smb2_tap = register_tap("smb2");

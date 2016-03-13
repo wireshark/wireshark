@@ -5095,7 +5095,7 @@ proto_register_lldp(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_lldp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	oui_unique_code_table = register_dissector_table("lldp.orgtlv.oui", "LLDP OUI", FT_UINT24, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE );
+	oui_unique_code_table = register_dissector_table("lldp.orgtlv.oui", "LLDP OUI", proto_lldp, FT_UINT24, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE );
 
 	expert_lldp = expert_register_protocol(proto_lldp);
 	expert_register_field_array(expert_lldp, ei, array_length(ei));

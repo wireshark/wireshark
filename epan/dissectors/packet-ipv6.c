@@ -3503,7 +3503,7 @@ proto_register_ipv6(void)
     proto_register_field_array(proto_ipv6_shim6, hf_ipv6_shim6, array_length(hf_ipv6_shim6));
     proto_register_field_array(proto_ipv6_dstopts, hf_ipv6_dstopts, array_length(hf_ipv6_dstopts));
 
-    ipv6_next_header_dissector_table = register_dissector_table("ipv6.nxt", "IPv6 Next Header", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    ipv6_next_header_dissector_table = register_dissector_table("ipv6.nxt", "IPv6 Next Header", proto_ipv6, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
     register_capture_dissector_table("ipv6.nxt", "IPv6 Next Header");
 
     /* Register configuration options */

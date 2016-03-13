@@ -1683,7 +1683,7 @@ void proto_register_ecat(void)
    proto_register_subtree_array(ett, array_length(ett));
 
    /* Sub dissector code */
-   heur_subdissector_list = register_heur_dissector_list("ecat.data");
+   heur_subdissector_list = register_heur_dissector_list("ecat.data", proto_ecat_datagram);
 }
 
 /* The registration hand-off routing */

@@ -431,12 +431,12 @@ void proto_register_ecp_oui(void)
 		&ett_802_1qbg_capabilities_flags,
 	};
 
-	ieee802a_add_oui(OUI_IEEE_802_1QBG, "ieee802a.ecp_pid",
-		"IEEE802a ECP PID", &hf_reg);
-
 	proto_ecp = proto_register_protocol("ECP Protocol", "ECP", "ecp");
 	proto_register_field_array(proto_ecp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	ieee802a_add_oui(OUI_IEEE_802_1QBG, "ieee802a.ecp_pid",
+		"IEEE802a ECP PID", &hf_reg, proto_ecp);
 
 	register_dissector("ecp", dissect_ecp, proto_ecp);
 }

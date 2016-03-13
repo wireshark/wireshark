@@ -4108,7 +4108,7 @@ proto_register_ssl(void)
     proto_ssl = proto_register_protocol("Secure Sockets Layer",
                                         "SSL", "ssl");
 
-    ssl_associations = register_dissector_table("ssl.port", "SSL TCP Dissector", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    ssl_associations = register_dissector_table("ssl.port", "SSL TCP Dissector", proto_ssl, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     /* Required function calls to register the header fields and
      * subtrees used */
@@ -4182,7 +4182,7 @@ proto_register_ssl(void)
     }
 
     /* heuristic dissectors for any premable e.g. CredSSP before RDP */
-    ssl_heur_subdissector_list = register_heur_dissector_list("ssl");
+    ssl_heur_subdissector_list = register_heur_dissector_list("ssl", proto_ssl);
 
     register_dissector("ssl", dissect_ssl, proto_ssl);
     ssl_handle = find_dissector("ssl");

@@ -398,13 +398,13 @@ proto_register_file(void)
 	module_t *file_module;
 #endif
 
-	file_encap_dissector_table = register_dissector_table("ftap_encap",
-	    "Filetap encapsulation type", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
-
 	proto_file = proto_register_protocol("File", "File", "file");
 	proto_register_field_array(proto_file, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("file",dissect_file_record,proto_file);
+
+	file_encap_dissector_table = register_dissector_table("ftap_encap",
+	    "Filetap encapsulation type", proto_file, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 	/* You can't disable dissection of "Frame", as that would be
 	   tantamount to not doing any dissection whatsoever. */

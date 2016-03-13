@@ -3506,7 +3506,7 @@ proto_register_http(void)
 	 * HTTP on a specific non-HTTP port.
 	 */
 	port_subdissector_table = register_dissector_table("http.port",
-	    "TCP port for protocols using HTTP", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+	    "TCP port for protocols using HTTP", proto_http, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 	/*
 	 * Dissectors can register themselves in this table.
@@ -3515,14 +3515,14 @@ proto_register_http(void)
 	 */
 	media_type_subdissector_table =
 	    register_dissector_table("media_type",
-		"Internet media type", FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+		"Internet media type", proto_http, FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
 	/*
 	 * Heuristic dissectors SHOULD register themselves in
 	 * this table using the standard heur_dissector_add()
 	 * function.
 	 */
-	heur_subdissector_list = register_heur_dissector_list("http");
+	heur_subdissector_list = register_heur_dissector_list("http", proto_http);
 
 	/*
 	 * Register for tapping

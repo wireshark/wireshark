@@ -404,7 +404,7 @@ void proto_register_1722(void)
 
     /* Sub-dissector for 1772.1 */
     avb_dissector_table = register_dissector_table("ieee1722.subtype",
-                          "IEEE1722 AVBTP Subtype", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+                          "IEEE1722 AVBTP Subtype", proto_1722, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }
 
 void proto_reg_handoff_1722(void)

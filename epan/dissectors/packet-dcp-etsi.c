@@ -892,12 +892,12 @@ proto_register_dcp_etsi (void)
 
   /* subdissector code */
   dcp_dissector_table = register_dissector_table("dcp-etsi.sync",
-            "DCP Sync", FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+            "DCP Sync", proto_dcp_etsi, FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
   af_dissector_table = register_dissector_table("dcp-af.pt",
-            "DCP-AF Payload Type", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+            "DCP-AF Payload Type", proto_dcp_etsi, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
   tpl_dissector_table = register_dissector_table("dcp-tpl.ptr",
-            "DCP-TPL Protocol Type & Revision", FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+            "DCP-TPL Protocol Type & Revision", proto_dcp_etsi, FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
   register_init_routine(dcp_init_protocol);
   register_cleanup_routine(dcp_cleanup_protocol);

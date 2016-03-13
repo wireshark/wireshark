@@ -66,7 +66,6 @@
 
 void proto_register_wlccp(void);
 void proto_reg_handoff_wlccp(void);
-void proto_register_wlccp_oui(void);
 
 /* The UDP port that WLCCP is expected to ride on */
 /* WLCCP also uses an LLC OUI type and an ethertype */
@@ -4066,6 +4065,14 @@ proto_register_wlccp(void)
 
 	}; /* hf_register_info hf */
 
+	static hf_register_info oui_hf[] = {
+		{ &hf_llc_wlccp_pid,
+		  { "PID", "llc.wlccp_pid",
+		    FT_UINT16, BASE_HEX, VALS(cisco_pid_vals),
+		    0x0, NULL, HFILL }
+		}
+	};
+
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_wlccp,
@@ -4095,6 +4102,7 @@ proto_register_wlccp(void)
 	proto_register_field_array(proto_wlccp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	llc_add_oui(OUI_CISCOWL, "llc.wlccp_pid", "LLC Cisco WLCCP OUI PID", oui_hf, proto_wlccp);
 }
 
 
@@ -4111,21 +4119,6 @@ proto_reg_handoff_wlccp(void)
 
 }
 
-
-void
-proto_register_wlccp_oui(void)
-{
-	static hf_register_info hf[] = {
-		{ &hf_llc_wlccp_pid,
-		  { "PID", "llc.wlccp_pid",
-		    FT_UINT16, BASE_HEX, VALS(cisco_pid_vals),
-		    0x0, NULL, HFILL }
-		}
-	};
-
-	llc_add_oui(OUI_CISCOWL, "llc.wlccp_pid", "LLC Cisco WLCCP OUI PID", hf);
-
-}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

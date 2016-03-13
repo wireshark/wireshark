@@ -255,17 +255,16 @@ proto_register_docsis_mgmt (void)
     &ett_mgmt_pay,
   };
 
-  docsis_mgmt_dissector_table = register_dissector_table ("docsis_mgmt",
-                                                          "DOCSIS Mac Management",
-                                                          FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
-
-
   proto_docsis_mgmt = proto_register_protocol ("DOCSIS Mac Management",
                                                "DOCSIS MAC MGMT",
                                                "docsis_mgmt");
 
   proto_register_field_array (proto_docsis_mgmt, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+
+  docsis_mgmt_dissector_table = register_dissector_table ("docsis_mgmt",
+                                                          "DOCSIS Mac Management", proto_docsis_mgmt,
+                                                          FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
   register_dissector ("docsis_mgmt", dissect_macmgmt, proto_docsis_mgmt);
 }

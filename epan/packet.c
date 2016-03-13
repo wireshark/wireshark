@@ -87,6 +87,9 @@ struct data_source {
  * "param" is the base in which to display the uint value for that
  * dissector table, if it's a uint dissector table, or if it's a string
  * table, TRUE/FALSE to indicate case-insensitive or not.
+ *
+ * "protocol" is the protocol associated with the dissector table. Used
+ * for determining dependencies.
  */
 struct dissector_table {
 	GHashTable	*hash_table;
@@ -94,6 +97,7 @@ struct dissector_table {
 	const char	*ui_name;
 	ftenum_t	type;
 	int		param;
+	protocol_t	*protocol;
 	GHashFunc hash_func;
 	dissector_table_allow_e allow_dup_proto; /* XXX - Could be converted to a flag-like field */
 };
@@ -109,6 +113,7 @@ static GHashTable *registered_dissectors = NULL;
  * A heuristics dissector list.
  */
 struct heur_dissector_list {
+	protocol_t	*protocol;
 	GSList		*dissectors;
 };
 
@@ -2033,7 +2038,7 @@ dissector_all_tables_foreach_table (DATFunc_table func,
 }
 
 dissector_table_t
-register_dissector_table(const char *name, const char *ui_name, const ftenum_t type,
+register_dissector_table(const char *name, const char *ui_name, const int proto, const ftenum_t type,
 			 const int param, dissector_table_allow_e allow_dup)
 {
 	dissector_table_t	sub_dissectors;
@@ -2085,13 +2090,14 @@ register_dissector_table(const char *name, const char *ui_name, const ftenum_t t
 	sub_dissectors->ui_name = ui_name;
 	sub_dissectors->type    = type;
 	sub_dissectors->param   = param;
+	sub_dissectors->protocol  = find_protocol_by_id(proto);
 	sub_dissectors->allow_dup_proto   = allow_dup;
 	g_hash_table_insert( dissector_tables, (gpointer)name, (gpointer) sub_dissectors );
 	return sub_dissectors;
 }
 
 dissector_table_t register_custom_dissector_table(const char *name,
-	const char *ui_name, GHashFunc hash_func, GEqualFunc key_equal_func, dissector_table_allow_e allow_dup)
+	const char *ui_name, const int proto, GHashFunc hash_func, GEqualFunc key_equal_func, dissector_table_allow_e allow_dup)
 {
 	dissector_table_t	sub_dissectors;
 
@@ -2113,6 +2119,7 @@ dissector_table_t register_custom_dissector_table(const char *name,
 	sub_dissectors->ui_name = ui_name;
 	sub_dissectors->type    = FT_BYTES; /* Consider key a "blob" of data, no need to really create new type */
 	sub_dissectors->param   = BASE_NONE;
+	sub_dissectors->protocol  = find_protocol_by_id(proto);
 	sub_dissectors->allow_dup_proto   = allow_dup;
 	g_hash_table_insert( dissector_tables, (gpointer)name, (gpointer) sub_dissectors );
 	return sub_dissectors;
@@ -2495,7 +2502,7 @@ dissector_dump_heur_decodes(void)
 
 
 heur_dissector_list_t
-register_heur_dissector_list(const char *name)
+register_heur_dissector_list(const char *name, const int proto)
 {
 	heur_dissector_list_t sub_dissectors;
 
@@ -2507,6 +2514,7 @@ register_heur_dissector_list(const char *name)
 	/* Create and register the dissector table for this name; returns */
 	/* a pointer to the dissector table. */
 	sub_dissectors = g_slice_new(struct heur_dissector_list);
+	sub_dissectors->protocol  = find_protocol_by_id(proto);
 	sub_dissectors->dissectors = NULL;	/* initially empty */
 	g_hash_table_insert(heur_dissector_lists, (gpointer)name,
 			    (gpointer) sub_dissectors);

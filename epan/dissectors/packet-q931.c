@@ -3975,9 +3975,9 @@ proto_register_q931(void)
     register_dissector("q931.ie.cs7", dissect_q931_ie_cs7, proto_q931);
 
     /* subdissector code */
-    codeset_dissector_table = register_dissector_table("q931.codeset", "Q.931 Codeset", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);
-    ie_dissector_table = register_dissector_table("q931.ie", "Q.931 IE", FT_UINT16, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);
-    q931_user_heur_subdissector_list = register_heur_dissector_list("q931_user");
+    codeset_dissector_table = register_dissector_table("q931.codeset", "Q.931 Codeset", proto_q931, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+    ie_dissector_table = register_dissector_table("q931.ie", "Q.931 IE", proto_q931, FT_UINT16, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+    q931_user_heur_subdissector_list = register_heur_dissector_list("q931_user", proto_q931);
 
     q931_module = prefs_register_protocol(proto_q931, NULL);
     prefs_register_bool_preference(q931_module, "desegment_h323_messages",

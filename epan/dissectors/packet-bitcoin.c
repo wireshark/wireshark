@@ -1861,7 +1861,7 @@ proto_register_bitcoin(void)
   expert_bitcoin = expert_register_protocol(proto_bitcoin);
   expert_register_field_array(expert_bitcoin, ei, array_length(ei));
 
-  bitcoin_command_table = register_dissector_table("bitcoin.command", "Bitcoin Command", FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+  bitcoin_command_table = register_dissector_table("bitcoin.command", "Bitcoin Command", proto_bitcoin, FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
   bitcoin_handle = register_dissector("bitcoin", dissect_bitcoin, proto_bitcoin);
 

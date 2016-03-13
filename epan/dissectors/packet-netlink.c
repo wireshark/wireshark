@@ -413,7 +413,7 @@ proto_register_netlink(void)
 	netlink_dissector_table = register_dissector_table(
 		"netlink.protocol",
 		"Linux netlink protocol type",
-		FT_UINT16,
+		proto_netlink, FT_UINT16,
 		BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE
 	);
 	register_dissector("netlink", dissect_netlink, proto_netlink);

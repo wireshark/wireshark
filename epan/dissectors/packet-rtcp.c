@@ -6533,9 +6533,9 @@ proto_register_rtcp(void)
         10, &global_rtcp_show_roundtrip_calculation_minimum);
 
     /* Register table for sub-dissetors */
-    rtcp_dissector_table = register_dissector_table("rtcp.app.name", "RTCP Application Name", FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
-    rtcp_psfb_dissector_table = register_dissector_table("rtcp.psfb.fmt", "RTCP Payload Specific Feedback Message Format", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
-    rtcp_rtpfb_dissector_table = register_dissector_table("rtcp.rtpfb.fmt", "RTCP Generic RTP Feedback Message Format", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    rtcp_dissector_table = register_dissector_table("rtcp.app.name", "RTCP Application Name", proto_rtcp, FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    rtcp_psfb_dissector_table = register_dissector_table("rtcp.psfb.fmt", "RTCP Payload Specific Feedback Message Format", proto_rtcp, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    rtcp_rtpfb_dissector_table = register_dissector_table("rtcp.rtpfb.fmt", "RTCP Generic RTP Feedback Message Format", proto_rtcp, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }
 
 void

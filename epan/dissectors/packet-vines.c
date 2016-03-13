@@ -491,7 +491,7 @@ proto_register_vines_llc(void)
 
 	/* subdissector code */
 	vines_llc_dissector_table = register_dissector_table("vines_llc.ptype",
-	    "Vines LLC protocol", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+	    "Vines LLC protocol", proto_vines_llc, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }
 
 void
@@ -695,7 +695,7 @@ proto_register_vines_ip(void)
 
 	/* subdissector code */
 	vines_ip_dissector_table = register_dissector_table("vines_ip.protocol",
-	    "Vines protocol", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+	    "Vines protocol", proto_vines_ip, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 	vines_ip_handle = create_dissector_handle(dissect_vines_ip,
 	    proto_vines_ip);
@@ -995,7 +995,7 @@ proto_register_vines_ipc(void)
 	proto_register_field_array(proto_vines_ipc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	vines_ipc_heur_subdissector_list = register_heur_dissector_list("vines_ipc");
+	vines_ipc_heur_subdissector_list = register_heur_dissector_list("vines_ipc", proto_vines_ipc);
 }
 
 void
@@ -1163,7 +1163,7 @@ proto_register_vines_spp(void)
 	proto_register_field_array(proto_vines_spp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	vines_spp_heur_subdissector_list = register_heur_dissector_list("vines_spp");
+	vines_spp_heur_subdissector_list = register_heur_dissector_list("vines_spp", proto_vines_spp);
 }
 
 void

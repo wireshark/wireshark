@@ -1622,7 +1622,7 @@ proto_register_sercosiii(void)
   register_dissector("sercosiii", dissect_siii, proto_siii);
 
   /* subdissector code */
-  heur_subdissector_list = register_heur_dissector_list("sercosiii");
+  heur_subdissector_list = register_heur_dissector_list("sercosiii", proto_siii);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_siii, hf, array_length(hf));

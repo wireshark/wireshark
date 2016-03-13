@@ -2596,7 +2596,7 @@ void proto_register_atn_ulcs (void)
     atn_cpdlc_handle = find_dissector("atn-cpdlc");
 
     /* initiate sub dissector list */
-    atn_ulcs_heur_subdissector_list = register_heur_dissector_list("atn-ulcs");
+    atn_ulcs_heur_subdissector_list = register_heur_dissector_list("atn-ulcs", proto_atn_ulcs);
 
     /* init aare/aare data */
     aarq_data_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());

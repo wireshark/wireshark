@@ -6401,11 +6401,11 @@ void proto_register_sip(void)
 
     register_init_routine(&sip_init_protocol);
     register_cleanup_routine(&sip_cleanup_protocol);
-    heur_subdissector_list = register_heur_dissector_list("sip");
+    heur_subdissector_list = register_heur_dissector_list("sip", proto_sip);
     /* Register for tapping */
     sip_tap = register_tap("sip");
 
-    ext_hdr_subdissector_table = register_dissector_table("sip.hdr", "SIP Extension header", FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    ext_hdr_subdissector_table = register_dissector_table("sip.hdr", "SIP Extension header", proto_sip, FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     register_stat_tap_table_ui(&sip_stat_table);
 

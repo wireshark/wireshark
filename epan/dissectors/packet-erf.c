@@ -1882,7 +1882,7 @@ proto_register_erf(void)
                                  "Whether the FCS is present in Ethernet packets",
                                  &erf_ethfcs);
 
-  erf_dissector_table = register_dissector_table("erf.types.type", "Type",  FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+  erf_dissector_table = register_dissector_table("erf.types.type", "Type", proto_erf, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }
 
 void

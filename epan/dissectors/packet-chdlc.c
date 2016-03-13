@@ -232,7 +232,7 @@ proto_register_chdlc(void)
 
   /* subdissector code */
   subdissector_table = register_dissector_table("chdlc.protocol",
-                                                "Cisco HDLC protocol",
+                                                "Cisco HDLC protocol", proto_chdlc,
                                                 FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
   register_dissector("chdlc", dissect_chdlc, proto_chdlc);

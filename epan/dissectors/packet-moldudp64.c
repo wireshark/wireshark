@@ -279,7 +279,7 @@ proto_register_moldudp64(void)
     proto_moldudp64 = proto_register_protocol("MoldUDP64",
             "MoldUDP64", "moldudp64");
 
-    moldudp64_payload_table = register_dissector_table("moldudp64.payload", "MoldUDP64 Payload", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    moldudp64_payload_table = register_dissector_table("moldudp64.payload", "MoldUDP64 Payload", proto_moldudp64, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_moldudp64, hf, array_length(hf));

@@ -59,7 +59,7 @@ void proto_register_pcapng_block(void)
 	proto_pcapng_block = proto_register_protocol("PCAP-NG block",
 	    "PCAP-NG", "pcapng");
 	pcapng_block_type_dissector_table = register_dissector_table("pcapng.block_type",
-	    "pcap-ng block type", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+	    "pcap-ng block type", proto_pcapng_block, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }
 
 void

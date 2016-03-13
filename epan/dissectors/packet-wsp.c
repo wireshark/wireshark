@@ -7163,7 +7163,7 @@ proto_register_wsp(void)
 
     register_dissector("wsp-co", dissect_wsp_fromwap_co, proto_wsp);
     register_dissector("wsp-cl", dissect_wsp_fromwap_cl, proto_wsp);
-    heur_subdissector_list = register_heur_dissector_list("wsp");
+    heur_subdissector_list = register_heur_dissector_list("wsp", proto_wsp);
 
     wsp_fromudp_handle = create_dissector_handle(dissect_wsp_fromudp,
                                                  proto_wsp);

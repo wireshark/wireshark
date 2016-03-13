@@ -48,7 +48,7 @@ proto_register_force10_oui(void)
 	  }
 	};
 
-	llc_add_oui(OUI_FORCE10, "llc.force10_pid", "LLC FORCE10 OUI PID", hf);
+	llc_add_oui(OUI_FORCE10, "llc.force10_pid", "LLC FORCE10 OUI PID", hf, -1);
 }
 
 /*

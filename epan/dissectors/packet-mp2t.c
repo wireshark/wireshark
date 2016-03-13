@@ -1541,7 +1541,7 @@ proto_register_mp2t(void)
 
     mp2t_no_address_type = address_type_dissector_register("AT_MP2T_NONE", "No MP2T Address", none_addr_to_str, none_addr_str_len, NULL, none_addr_len, NULL, NULL);
 
-    heur_subdissector_list = register_heur_dissector_list("mp2t.pid");
+    heur_subdissector_list = register_heur_dissector_list("mp2t.pid", proto_mp2t);
     /* Register init of processing of fragmented DEPI packets */
     register_init_routine(mp2t_init);
     register_cleanup_routine(mp2t_cleanup);

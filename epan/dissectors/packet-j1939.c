@@ -348,7 +348,7 @@ void proto_register_j1939(void)
     proto_register_field_array(proto_j1939, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    subdissector_pgn_table = register_dissector_table("j1939.pgn", "PGN Handle", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+    subdissector_pgn_table = register_dissector_table("j1939.pgn", "PGN Handle", proto_j1939, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
     j1939_address_type = address_type_dissector_register("AT_J1939", "J1939 Address", J1939_addr_to_str, J1939_addr_str_len, J1939_col_filter_str, J1939_addr_len, NULL, NULL);
 }

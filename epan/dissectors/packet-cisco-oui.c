@@ -70,7 +70,7 @@ proto_register_cisco_oui(void)
 	  }
 	};
 
-	llc_add_oui(OUI_CISCO, "llc.cisco_pid", "LLC Cisco OUI PID", hf);
+	llc_add_oui(OUI_CISCO, "llc.cisco_pid", "LLC Cisco OUI PID", hf, -1);
 }
 
 /*

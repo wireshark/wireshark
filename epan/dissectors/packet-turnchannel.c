@@ -189,7 +189,7 @@ proto_register_turnchannel(void)
 			   proto_turnchannel);
 
 /* subdissectors */
-	heur_subdissector_list = register_heur_dissector_list("turnchannel");
+	heur_subdissector_list = register_heur_dissector_list("turnchannel", proto_turnchannel);
 
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_turnchannel, hf, array_length(hf));

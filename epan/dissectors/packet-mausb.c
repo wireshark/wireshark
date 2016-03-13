@@ -37,7 +37,6 @@
 
 void proto_reg_handoff_mausb(void);
 void proto_register_mausb(void);
-void proto_register_wfa_oui(void);
 
 /* For SNAP Packets */
 static int hf_llc_mausb_pid = -1;
@@ -2191,6 +2190,13 @@ proto_register_mausb(void)
         },
     };
 
+    static hf_register_info oui_hf[] = {
+      { &hf_llc_mausb_pid,
+        { "PID",    "mausb.pid",  FT_UINT16, BASE_HEX,
+          VALS(mausb_pid_string), 0x0, NULL, HFILL }
+      }
+    };
+
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_mausb,
@@ -2272,6 +2278,7 @@ proto_register_mausb(void)
                        "Set the port for Media Agnostic Packets",
                        10, &mausb_udp_port_pref);
 
+    llc_add_oui(OUI_WFA, "llc.wfa_pid", "LLC WFA OUI PID", oui_hf, proto_mausb);
 }
 
 void
@@ -2305,19 +2312,6 @@ proto_reg_handoff_mausb(void)
 
     dissector_add_uint("tcp.port", mausb_tcp_port_pref, mausb_tcp_handle);
     dissector_add_uint("udp.port", mausb_udp_port_pref, mausb_pkt_handle);
-}
-
-void
-proto_register_wfa_oui(void)
-{
-    static hf_register_info hf[] = {
-      { &hf_llc_mausb_pid,
-        { "PID",    "mausb.pid",  FT_UINT16, BASE_HEX,
-          VALS(mausb_pid_string), 0x0, NULL, HFILL }
-      }
-    };
-
-    llc_add_oui(OUI_WFA, "llc.wfa_pid", "LLC WFA OUI PID", hf);
 }
 
 /*

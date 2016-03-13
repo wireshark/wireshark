@@ -186,14 +186,14 @@ WS_DLL_PUBLIC void dissector_all_tables_foreach_table (DATFunc_table func,
  * case-sensitive)
  */
 WS_DLL_PUBLIC dissector_table_t register_dissector_table(const char *name,
-    const char *ui_name, const ftenum_t type, const int param, dissector_table_allow_e allow_dup);
+    const char *ui_name, const int proto, const ftenum_t type, const int param, dissector_table_allow_e allow_dup);
 
 /*
  * Similar to register_dissector_table, but with a "custom" hash function
  * to store subdissectors.
  */
 WS_DLL_PUBLIC dissector_table_t register_custom_dissector_table(const char *name,
-    const char *ui_name, GHashFunc hash_func, GEqualFunc key_equal_func, dissector_table_allow_e allow_dup);
+    const char *ui_name, const int proto, GHashFunc hash_func, GEqualFunc key_equal_func, dissector_table_allow_e allow_dup);
 
 /** Deregister the dissector table by table name. */
 void deregister_dissector_table(const char *name);
@@ -410,7 +410,7 @@ typedef struct heur_dtbl_entry {
  *
  * @param name the name of this protocol
  */
-WS_DLL_PUBLIC heur_dissector_list_t register_heur_dissector_list(const char *name);
+WS_DLL_PUBLIC heur_dissector_list_t register_heur_dissector_list(const char *name, const int proto);
 
 typedef void (*DATFunc_heur) (const gchar *table_name,
     struct heur_dtbl_entry *entry, gpointer user_data);

@@ -58,7 +58,7 @@ proto_register_iana_oui(void)
 	  }
 	};
 
-	llc_add_oui(OUI_IANA, "llc.iana_pid", "LLC IANA OUI PID", hf);
+	llc_add_oui(OUI_IANA, "llc.iana_pid", "LLC IANA OUI PID", hf, -1);
 }
 
 /*

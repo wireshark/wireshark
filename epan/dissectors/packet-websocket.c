@@ -531,10 +531,10 @@ proto_register_websocket(void)
    * this table using the standard heur_dissector_add()
    * function.
    */
-  heur_subdissector_list = register_heur_dissector_list("ws");
+  heur_subdissector_list = register_heur_dissector_list("ws", proto_websocket);
 
   port_subdissector_table = register_dissector_table("ws.port",
-      "TCP port for protocols using WebSocket", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+      "TCP port for protocols using WebSocket", proto_websocket, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
   proto_register_field_array(proto_websocket, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

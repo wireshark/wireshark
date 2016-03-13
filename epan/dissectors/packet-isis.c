@@ -212,7 +212,7 @@ proto_register_isis(void)
     isis_handle = register_dissector("isis", dissect_isis, proto_isis);
 
     isis_dissector_table = register_dissector_table("isis.type",
-                                "ISIS Type", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+                                "ISIS Type", proto_isis, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 }
 
 void

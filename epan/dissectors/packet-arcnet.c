@@ -385,16 +385,15 @@ proto_register_arcnet (void)
     &ett_arcnet,
   };
 
-  arcnet_dissector_table = register_dissector_table ("arcnet.protocol_id",
-                                                     "ARCNET Protocol ID",
-                                                     FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
-
 /* Register the protocol name and description */
   proto_arcnet = proto_register_protocol ("ARCNET", "ARCNET", "arcnet");
 
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array (proto_arcnet, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+
+  arcnet_dissector_table = register_dissector_table ("arcnet.protocol_id", "ARCNET Protocol ID",
+                                                     proto_arcnet, FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
   arcnet_address_type = address_type_dissector_register("AT_ARCNET", "ARCNET Address", arcnet_to_str, arcnet_str_len, arcnet_col_filter_str, arcnet_len, NULL, NULL);
 }
