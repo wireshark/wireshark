@@ -25,6 +25,7 @@
 #include <glib.h>
 
 #include "epan/funnel.h"
+#include "geometry_state_dialog.h"
 
 #include <QDialog>
 
@@ -37,12 +38,12 @@ struct _funnel_text_window_t {
     FunnelTextDialog* funnel_text_dialog;
 };
 
-class FunnelTextDialog : public QDialog
+class FunnelTextDialog : public GeometryStateDialog
 {
     Q_OBJECT
 
 public:
-    explicit FunnelTextDialog();
+    explicit FunnelTextDialog(const QString &title = QString());
     ~FunnelTextDialog();
 
     void reject();

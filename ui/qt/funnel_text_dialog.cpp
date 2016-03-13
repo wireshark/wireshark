@@ -37,13 +37,16 @@
 
 static QHash<QObject *, funnel_bt_t*> text_button_to_funnel_button_;
 
-FunnelTextDialog::FunnelTextDialog() :
-    QDialog(NULL),
+FunnelTextDialog::FunnelTextDialog(const QString &title) :
+    GeometryStateDialog(NULL),
     ui(new Ui::FunnelTextDialog),
     close_cb_(NULL),
     close_cb_data_(NULL)
 {
     ui->setupUi(this);
+    if (!title.isEmpty()) {
+        loadGeometry(0, 0, QString("Funnel %1").arg(title));
+    }
 
     funnel_text_window_.funnel_text_dialog = this;
 
@@ -71,7 +74,7 @@ void FunnelTextDialog::reject()
 
 struct _funnel_text_window_t *FunnelTextDialog::textWindowNew(const QString title)
 {
-    FunnelTextDialog *ftd = new FunnelTextDialog();
+    FunnelTextDialog *ftd = new FunnelTextDialog(title);
     ftd->setWindowTitle(wsApp->windowTitleString(title));
     ftd->show();
     return &ftd->funnel_text_window_;
