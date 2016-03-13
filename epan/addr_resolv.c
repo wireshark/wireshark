@@ -3,6 +3,9 @@
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
+ * Add option to resolv VLAN ID to describing name
+ * Uli Heilmeier, March 2016
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -125,6 +128,7 @@
 #define ENAME_IPXNETS   "ipxnets"
 #define ENAME_MANUF     "manuf"
 #define ENAME_SERVICES  "services"
+#define ENAME_VLANS     "vlans"
 
 #define HASHETHSIZE      2048
 #define HASHHOSTSIZE     2048
@@ -164,6 +168,12 @@ typedef struct hashipxnet {
     gchar               name[MAXNAMELEN];
 } hashipxnet_t;
 
+typedef struct hashvlan {
+    guint               id;
+/*    struct hashvlan     *next; */
+    gchar               name[MAXVLANNAMELEN];
+} hashvlan_t;
+
 /* hash tables used for ethernet and manufacturer lookup */
 #define HASHETHER_STATUS_UNRESOLVED     1
 #define HASHETHER_STATUS_RESOLVED_DUMMY 2
@@ -197,9 +207,17 @@ typedef struct _ipxnet
     char              name[MAXNAMELEN];
 } ipxnet_t;
 
+/* internal vlan type */
+typedef struct _vlan
+{
+    guint             id;
+    char              name[MAXVLANNAMELEN];
+} vlan_t;
+
 static GHashTable   *ipxnet_hash_table = NULL;
 static GHashTable   *ipv4_hash_table = NULL;
 static GHashTable   *ipv6_hash_table = NULL;
+static GHashTable   *vlan_hash_table = NULL;
 
 static GSList *manually_resolved_ipv4_list = NULL;
 static GSList *manually_resolved_ipv6_list = NULL;
@@ -283,7 +301,8 @@ e_addr_resolve gbl_resolv_flags = {
     TRUE,   /* concurrent_dns */
     TRUE,   /* dns_pkt_addr_resolution */
     TRUE,   /* use_external_net_name_resolver */
-    FALSE   /* load_hosts_file_from_profile_only */
+    FALSE,  /* load_hosts_file_from_profile_only */
+    FALSE   /* vlan_name */
 };
 #if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
 static guint name_resolve_concurrency = 500;
@@ -301,6 +320,7 @@ gchar *g_ipxnets_path   = NULL;     /* global ipxnets file    */
 gchar *g_pipxnets_path  = NULL;     /* personal ipxnets file  */
 gchar *g_services_path  = NULL;     /* global services file   */
 gchar *g_pservices_path = NULL;     /* personal services file */
+gchar *g_pvlan_path     = NULL;     /* personal vlans file    */
                                     /* first resolving call   */
 
 /* c-ares */
@@ -1947,6 +1967,153 @@ ipxnet_addr_lookup(const gchar *name _U_, gboolean *success)
 #endif
 } /* ipxnet_addr_lookup */
 
+/* VLANS */
+static int
+parse_vlan_line(char *line, vlan_t *vlan)
+{
+    gchar     *cp;
+    guint16   id;
+
+    if ((cp = strchr(line, '#')))
+        *cp = '\0';
+
+    if ((cp = strtok(line, " \t\n")) == NULL)
+        return -1;
+
+    if (sscanf(cp, "%" G_GUINT16_FORMAT, &id) == 1) {
+        vlan->id = id;
+    }
+    else {
+        return -1;
+    }
+
+    if ((cp = strtok(NULL, "\t\n")) == NULL)
+        return -1;
+
+    g_strlcpy(vlan->name, cp, MAXVLANNAMELEN);
+
+    return 0;
+
+} /* parse_vlan_line */
+
+static FILE *vlan_p = NULL;
+
+static void
+set_vlanent(char *path)
+{
+    if (vlan_p)
+        rewind(vlan_p);
+    else
+        vlan_p = ws_fopen(path, "r");
+}
+
+static void
+end_vlanent(void)
+{
+    if (vlan_p) {
+        fclose(vlan_p);
+        vlan_p = NULL;
+    }
+}
+
+static vlan_t *
+get_vlanent(void)
+{
+
+    static vlan_t vlan;
+    static int     size = 0;
+    static char   *buf = NULL;
+
+    if (vlan_p == NULL)
+        return NULL;
+
+    while (fgetline(&buf, &size, vlan_p) >= 0) {
+        if (parse_vlan_line(buf, &vlan) == 0) {
+            return &vlan;
+        }
+    }
+
+    return NULL;
+
+} /* get_vlanent */
+
+static vlan_t *
+get_vlannamebyid(guint16 id)
+{
+    vlan_t *vlan;
+
+    set_vlanent(g_pvlan_path);
+
+    while (((vlan = get_vlanent()) != NULL) && (id != vlan->id) ) ;
+
+    if (vlan == NULL) {
+        end_vlanent();
+
+    }
+
+    return vlan;
+
+} /* get_vlannamebyid */
+
+static void
+initialize_vlans(void)
+{
+    g_assert(vlan_hash_table == NULL);
+    vlan_hash_table = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
+
+    /* Set g_pipxnets_path here, but don't actually do anything
+     * with it. It's used in get_ipxnetbyname() and get_ipxnetbyaddr()
+     */
+    if (g_pvlan_path == NULL)
+        g_pvlan_path = get_persconffile_path(ENAME_VLANS, FALSE);
+
+} /* initialize_vlans */
+
+static void
+vlan_name_lookup_cleanup(void)
+{
+    if (vlan_hash_table) {
+        g_hash_table_destroy(vlan_hash_table);
+        vlan_hash_table = NULL;
+    }
+
+}
+
+static const gchar *
+vlan_name_lookup(const guint id)
+{
+    hashvlan_t *tp;
+    vlan_t *vlan;
+
+    tp = (hashvlan_t *)g_hash_table_lookup(vlan_hash_table, &id);
+    if (tp == NULL) {
+        int *key;
+
+        key = (int *)g_new(int, 1);
+        *key = id;
+        tp = g_new(hashvlan_t, 1);
+        g_hash_table_insert(vlan_hash_table, key, tp);
+    } else {
+        return tp->name;
+    }
+
+    /* fill in a new entry */
+
+    tp->id = id;
+
+    if ( (vlan = get_vlannamebyid(id)) == NULL) {
+        /* unknown name */
+        g_snprintf(tp->name, MAXVLANNAMELEN, "<%u>", id);
+
+    } else {
+        g_strlcpy(tp->name, vlan->name, MAXVLANNAMELEN);
+    }
+
+    return tp->name;
+
+} /* vlan_name_lookup */
+/* VLAN END */
+
 static gboolean
 read_hosts_file (const char *hostspath, gboolean store_entries)
 {
@@ -2374,6 +2541,15 @@ addr_resolve_pref_init(module_t *nameres)
             " Checking this box only loads the \"hosts\" in the current profile.",
             &gbl_resolv_flags.load_hosts_file_from_profile_only);
 
+    prefs_register_bool_preference(nameres, "vlan_name",
+            "Resolve VLAN IDs",
+            "Resolve VLAN IDs to describing names."
+            " To do so you need a file called vlans in your"
+            " user preference directory. Format of the file is:"
+            "  \"ID<Tab>Name\""
+            " One line per VLAN.",
+            &gbl_resolv_flags.vlan_name);
+
 }
 
 void
@@ -2384,6 +2560,7 @@ disable_name_resolution(void) {
     gbl_resolv_flags.concurrent_dns                     = FALSE;
     gbl_resolv_flags.dns_pkt_addr_resolution            = FALSE;
     gbl_resolv_flags.use_external_net_name_resolver     = FALSE;
+    gbl_resolv_flags.vlan_name                          = FALSE;
 }
 
 #ifdef HAVE_C_ARES
@@ -3045,6 +3222,18 @@ get_ipxnet_addr(const gchar *name, gboolean *known)
 
 } /* get_ipxnet_addr */
 
+gchar *
+get_vlan_name(wmem_allocator_t *allocator, const guint16 id)
+{
+
+    if (!gbl_resolv_flags.vlan_name) {
+        return NULL;
+    }
+
+    return wmem_strdup(allocator, vlan_name_lookup(id));
+
+} /* get_vlan_name */
+
 const gchar *
 get_manuf_name(const guint8 *addr)
 {
@@ -3434,6 +3623,12 @@ get_ipxnet_hash_table(void)
 }
 
 GHashTable *
+get_vlan_hash_table(void)
+{
+        return vlan_hash_table;
+}
+
+GHashTable *
 get_ipv4_hash_table(void)
 {
         return ipv4_hash_table;
@@ -3451,6 +3646,7 @@ addr_resolv_init(void)
     initialize_services();
     initialize_ethers();
     initialize_ipxnets();
+    initialize_vlans();
     /* host name initialization is done on a per-capture-file basis */
     /*host_name_lookup_init();*/
 }
@@ -3462,6 +3658,7 @@ addr_resolv_cleanup(void)
     service_name_lookup_cleanup();
     eth_name_lookup_cleanup();
     ipx_name_lookup_cleanup();
+    vlan_name_lookup_cleanup();
     /* host name initialization is done on a per-capture-file basis */
     /*host_name_lookup_cleanup();*/
 }

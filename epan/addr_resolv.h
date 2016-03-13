@@ -47,6 +47,10 @@ extern "C" {
 #define MAXNAMELEN  	64	/* max name length (hostname and port name) */
 #endif
 
+#ifndef MAXVLANNAMELEN
+#define MAXVLANNAMELEN  	128	/* max vlan name length */
+#endif
+
 /**
  * @brief Flags to control name resolution.
  */
@@ -58,6 +62,7 @@ typedef struct _e_addr_resolve {
   gboolean dns_pkt_addr_resolution;           /**< Whether to resolve addresses using captured DNS packets */
   gboolean use_external_net_name_resolver;    /**< Whether to system's configured DNS server to resolve names */
   gboolean load_hosts_file_from_profile_only; /**< Whether to only load the hosts in the current profile, not hosts files */
+  gboolean vlan_name;                         /**< Whether to resolve VLAN IDs to names */
 } e_addr_resolve;
 
 #define ADDR_RESOLV_MACADDR(at) \
@@ -240,6 +245,10 @@ extern gchar *eui64_to_display(wmem_allocator_t *allocator, const guint64 addr);
  * or a string formatted with "%X" if not */
 extern gchar *get_ipxnet_name(wmem_allocator_t *allocator, const guint32 addr);
 
+/* get_vlan_name returns the logical name if found in a vlans file,
+ * or the VLAN ID itself as a string if not found*/
+extern gchar *get_vlan_name(wmem_allocator_t *allocator, const guint16 id);
+
 WS_DLL_PUBLIC guint get_hash_ether_status(hashether_t* ether);
 WS_DLL_PUBLIC char* get_hash_ether_hexaddr(hashether_t* ether);
 WS_DLL_PUBLIC char* get_hash_ether_resolved_name(hashether_t* ether);
@@ -337,6 +346,9 @@ GHashTable *get_serv_port_hashtable(void);
 
 WS_DLL_PUBLIC
 GHashTable *get_ipxnet_hash_table(void);
+
+WS_DLL_PUBLIC
+GHashTable *get_vlan_hash_table(void);
 
 WS_DLL_PUBLIC
 GHashTable *get_ipv4_hash_table(void);

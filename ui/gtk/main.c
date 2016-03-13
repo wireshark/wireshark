@@ -936,7 +936,8 @@ void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_)
         TRUE,   /* concurrent_dns */
         TRUE,   /* dns_pkt_addr_resolution */
         TRUE,   /* use_external_net_name_resolver */
-        FALSE   /* load_hosts_file_from_profile_only */
+        FALSE,  /* load_hosts_file_from_profile_only */
+        FALSE   /* vlan_name */
     };
 
     if (cfile.edt->tree) {

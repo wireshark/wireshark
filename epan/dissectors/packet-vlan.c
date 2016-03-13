@@ -34,6 +34,7 @@
 #include <epan/etypes.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
+#include <epan/addr_resolv.h>
 
 void proto_register_vlan(void);
 void proto_reg_handoff_vlan(void);
@@ -80,6 +81,10 @@ static header_field_info hfi_vlan_cfi VLAN_HFI_INIT = {
 static header_field_info hfi_vlan_id VLAN_HFI_INIT = {
         "ID", "vlan.id", FT_UINT16, BASE_DEC,
         NULL, 0x0FFF, "VLAN ID", HFILL };
+
+static header_field_info hfi_vlan_id_name VLAN_HFI_INIT = {
+        "Name", "vlan.id_name", FT_STRING, STR_UNICODE,
+        NULL, 0x0, "VLAN ID Name", HFILL };
 
 static header_field_info hfi_vlan_etype VLAN_HFI_INIT = {
         "Type", "vlan.etype", FT_UINT16, BASE_HEX,
@@ -141,6 +146,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   guint16 encap_proto;
   gboolean is_802_2;
   proto_tree *vlan_tree;
+  proto_item *item;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "VLAN");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -169,6 +175,14 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree_add_item(vlan_tree, &hfi_vlan_priority, tvb, 0, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(vlan_tree, &hfi_vlan_cfi, tvb, 0, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(vlan_tree, &hfi_vlan_id, tvb, 0, 2, ENC_BIG_ENDIAN);
+
+    if (gbl_resolv_flags.vlan_name) {
+      item = proto_tree_add_string(vlan_tree, &hfi_vlan_id_name, tvb, 0, 2,
+                                   get_vlan_name(wmem_packet_scope(), vlan_id));
+      PROTO_ITEM_SET_GENERATED(item);
+
+    }
+
   }
 
   encap_proto = tvb_get_ntohs(tvb, 2);
@@ -214,6 +228,7 @@ proto_register_vlan(void)
     &hfi_vlan_priority,
     &hfi_vlan_cfi,
     &hfi_vlan_id,
+    &hfi_vlan_id_name,
     &hfi_vlan_etype,
     &hfi_vlan_len,
     &hfi_vlan_trailer,

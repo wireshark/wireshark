@@ -3914,6 +3914,9 @@ string_to_name_resolve(const char *string, e_addr_resolve *name_resolve)
         case 'd':
             name_resolve->dns_pkt_addr_resolution = TRUE;
             break;
+        case 'v':
+            name_resolve->vlan_name = TRUE;
+            break;
         default:
             /*
              * Unrecognized letter.
