@@ -2638,6 +2638,7 @@ void MainWindow::on_actionAnalyzeReloadLuaPlugins_triggered()
     char *gdp_path, *dp_path;
     wsApp->readConfigurationFiles(&gdp_path, &dp_path, true);
 
+    prefs_apply_all();
     fieldsChanged();
     redissectPackets();
 
