@@ -236,6 +236,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  decode_tcp_ports@Base 1.99.0
  decode_udp_ports@Base 1.99.0
  delete_itu_tcap_subdissector@Base 1.9.1
+ deregister_depend_dissector@Base 2.1.0
  destroy_print_stream@Base 1.12.0~rc1
  dfilter_apply_edt@Base 1.9.1
  dfilter_compile@Base 1.9.1
@@ -540,7 +541,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  find_circuit@Base 1.9.1
  find_conversation@Base 1.9.1
  find_conversation_filter@Base 2.0.0
+ find_depend_dissector_list@Base 2.1.0
  find_dissector@Base 1.9.1
+ find_dissector_add_dependency@Base 2.1.0
  find_dissector_table@Base 1.9.1
  find_heur_dissector_by_unique_short_name@Base 1.99.8
  find_heur_dissector_list@Base 1.99.2
@@ -1156,6 +1159,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_custom_dissector_table@Base 1.99.8
  register_custom_dissector_table@Base 1.99.8
  register_decode_as@Base 1.12.0~rc1
+ register_depend_dissector@Base 2.1.0
  register_dissector@Base 2.1.0
  register_dissector_table@Base 1.9.1
  register_export_pdu_tap@Base 1.99.0

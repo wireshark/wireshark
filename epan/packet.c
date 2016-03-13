@@ -110,6 +110,25 @@ static GHashTable *dissector_tables = NULL;
 static GHashTable *registered_dissectors = NULL;
 
 /*
+ * A dissector dependency list.
+ */
+struct depend_dissector_list {
+	GSList		*dissectors;
+};
+
+static GHashTable *depend_dissector_lists = NULL;
+
+static void
+destroy_depend_dissector_list(void *data)
+{
+	depend_dissector_list_t dissector_list = (depend_dissector_list_t)data;
+	GSList **list = &(dissector_list->dissectors);
+
+	g_slist_free(*list);
+	g_slice_free(struct depend_dissector_list, dissector_list);
+}
+
+/*
  * A heuristics dissector list.
  */
 struct heur_dissector_list {
@@ -159,6 +178,9 @@ packet_init(void)
 	registered_dissectors = g_hash_table_new_full(g_str_hash, g_str_equal,
 			NULL, NULL);
 
+	depend_dissector_lists = g_hash_table_new_full(g_str_hash, g_str_equal,
+			NULL, destroy_depend_dissector_list);
+
 	heur_dissector_lists = g_hash_table_new_full(g_str_hash, g_str_equal,
 			NULL, destroy_heuristic_dissector_list);
 
@@ -186,6 +208,7 @@ packet_cleanup(void)
 {
 	g_hash_table_destroy(dissector_tables);
 	g_hash_table_destroy(registered_dissectors);
+	g_hash_table_destroy(depend_dissector_lists);
 	g_hash_table_destroy(heur_dissector_lists);
 	g_hash_table_destroy(heuristic_short_names);
 }
@@ -1596,7 +1619,7 @@ void dissector_add_guid(const char *name, guid_key* guid_val, dissector_handle_t
 	 * Now add it to the list of handles that could be used with this
 	 * table, because it *is* being used with this table.
 	 */
-	dissector_add_handle(name, handle);
+	dissector_add_for_decode_as(name, handle);
 
 }
 
@@ -1725,6 +1748,12 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 			abort();
 		return;
 	}
+
+	/* Add the dissector as a dependency
+	  (some dissector tables don't have protocol association, so there is
+	  the need for the NULL check */
+	if (sub_dissectors->protocol != NULL)
+		register_depend_dissector(proto_get_protocol_short_name(sub_dissectors->protocol), proto_get_protocol_short_name(handle->protocol));
 
 	/* Is it already in this list? */
 	entry = g_slist_find(sub_dissectors->dissector_handles, (gpointer)handle);
@@ -2245,6 +2274,12 @@ heur_dissector_add(const char *name, heur_dissector_t dissector, const char *dis
 
 	/* XXX - could be optimized to pass hdtbl_entry directly */
 	proto_add_heuristic_dissector(hdtbl_entry->protocol, short_name);
+
+	/* Add the dissector as a dependency
+	  (some heuristic tables don't have protocol association, so there is
+	  the need for the NULL check */
+	if (sub_dissectors->protocol != NULL)
+		register_depend_dissector(proto_get_protocol_short_name(sub_dissectors->protocol), proto_get_protocol_short_name(hdtbl_entry->protocol));
 }
 
 
@@ -2589,6 +2624,18 @@ find_dissector(const char *name)
 	return (dissector_handle_t)g_hash_table_lookup(registered_dissectors, name);
 }
 
+/** Find a dissector by name and add parent protocol as a depedency*/
+dissector_handle_t find_dissector_add_dependency(const char *name, const int parent_proto)
+{
+	dissector_handle_t handle = (dissector_handle_t)g_hash_table_lookup(registered_dissectors, name);
+	if ((handle != NULL) && (parent_proto > 0))
+	{
+		register_depend_dissector(proto_get_protocol_short_name(find_protocol_by_id(parent_proto)), dissector_handle_get_short_name(handle));
+	}
+
+	return handle;
+}
+
 /* Get a dissector name from handle. */
 const char *
 dissector_handle_get_dissector_name(const dissector_handle_t handle)
@@ -2767,6 +2814,70 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 	pinfo->current_proto = saved_curr_proto;
 	pinfo->heur_list_name = saved_heur_list_name;
 
+}
+
+gboolean register_depend_dissector(const char* parent, const char* dependent)
+{
+	guint                  i, list_size;
+	GSList                *list_entry;
+	const char            *protocol_name;
+	depend_dissector_list_t sub_dissectors;
+
+	if ((parent == NULL) || (dependent == NULL))
+	{
+		/* XXX - assert on parent? */
+		return FALSE;
+	}
+
+	sub_dissectors = find_depend_dissector_list(parent);
+	if (sub_dissectors == NULL) {
+		/* parent protocol doesn't exist, create it */
+		sub_dissectors = g_slice_new(struct depend_dissector_list);
+		sub_dissectors->dissectors = NULL;	/* initially empty */
+		g_hash_table_insert(depend_dissector_lists, (gpointer)parent, (gpointer) sub_dissectors);
+	}
+
+	/* Verify that sub-dissector is not already in the list */
+	list_size = g_slist_length(sub_dissectors->dissectors);
+	for (i = 0; i < list_size; i++)
+	{
+		list_entry = g_slist_nth(sub_dissectors->dissectors, i);
+		protocol_name = (const char*)list_entry->data;
+		if (strcmp(dependent, protocol_name) == 0)
+			return TRUE; /* Dependency already exists */
+	}
+
+	sub_dissectors->dissectors = g_slist_prepend(sub_dissectors->dissectors, (gpointer)dependent);
+	return TRUE;
+}
+
+static int
+find_matching_depend_dissector( gconstpointer a, gconstpointer b) {
+	return (strcmp((const char*)a, (const char*)b) != 0);
+}
+
+gboolean deregister_depend_dissector(const char* parent, const char* dependent)
+{
+	depend_dissector_list_t  sub_dissectors = find_depend_dissector_list(parent);
+	GSList                *found_entry;
+
+	/* sanity check */
+	g_assert(sub_dissectors != NULL);
+
+	found_entry = g_slist_find_custom(sub_dissectors->dissectors,
+		(gpointer)dependent, find_matching_depend_dissector);
+
+	if (found_entry) {
+		sub_dissectors->dissectors = g_slist_delete_link(sub_dissectors->dissectors, found_entry);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+depend_dissector_list_t find_depend_dissector_list(const char* name)
+{
+	return (depend_dissector_list_t)g_hash_table_lookup(depend_dissector_lists, name);
 }
 
 /*
