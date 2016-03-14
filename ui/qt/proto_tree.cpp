@@ -337,6 +337,8 @@ void ProtoTree::timerEvent(QTimerEvent *event)
         killTimer(column_resize_timer_);
         column_resize_timer_ = 0;
         resizeColumnToContents(0);
+    } else {
+        QTreeWidget::timerEvent(event);
     }
 }
 

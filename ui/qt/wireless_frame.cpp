@@ -97,8 +97,11 @@ void WirelessFrame::setCaptureInProgress(bool capture_in_progress)
 // Check to see if the ws80211 interface list matches the one in our
 // combobox. Rebuild ours if necessary and select the first interface if
 // the current selection goes away.
-void WirelessFrame::timerEvent(QTimerEvent *)
+void WirelessFrame::timerEvent(QTimerEvent *event)
 {
+    // Probably not needed.
+    QFrame::timerEvent(event);
+
     // Don't interfere with user activity.
     if (ui->interfaceComboBox->view()->isVisible()
         || ui->channelComboBox->view()->isVisible()
