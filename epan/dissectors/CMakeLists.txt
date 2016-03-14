@@ -381,9 +381,9 @@ set(DISSECTOR_SRC
 	packet-bthfp.c
 	packet-bthid.c
 	packet-bthsp.c
+	packet-btl2cap.c
 	packet-btle.c
 	packet-btle_rf.c
-	packet-btl2cap.c
 	packet-btmcap.c
 	packet-btrfcomm.c
 	packet-btsap.c
@@ -643,8 +643,8 @@ set(DISSECTOR_SRC
 	packet-gearman.c
 	packet-ged125.c
 	packet-geneve.c
-	packet-gift.c
 	packet-gfp.c
+	packet-gift.c
 	packet-giop.c
 	packet-git.c
 	packet-glbp.c
@@ -748,8 +748,8 @@ set(DISSECTOR_SRC
 	packet-idrp.c
 	packet-iec104.c
 	packet-ieee1722.c
-	packet-ieee1722a.c
 	packet-ieee17221.c
+	packet-ieee1722a.c
 	packet-ieee80211-netmon.c
 	packet-ieee80211-prism.c
 	packet-ieee80211-radio.c
