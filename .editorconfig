@@ -27,6 +27,7 @@ charset = utf-8
 [**.[ch]]
 indent_style = space
 indent_size = 4
+tab_width = 8
 charset = utf-8
 
 [{capinfos,captype,mergecap,mkcap,tfshark,tshark}.c]
