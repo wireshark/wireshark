@@ -1,0 +1,168 @@
+#
+# Editor configuration
+#
+# http://editorconfig.org/
+#
+
+[addr_and_mask.[ch]]
+indent_style = tab
+indent_size = tab
+
+[aftypes.[ch]]
+indent_style = tab
+indent_size = tab
+
+[app_mem_usage.[ch]]
+indent_style = tab
+indent_size = tab
+
+[asn1.[ch]]
+indent_size = 2
+
+[circuit.[ch]]
+indent_style = tab
+indent_size = tab
+
+[column-utils.[ch]]
+indent_size = 2
+
+[column.[ch]]
+indent_size = 2
+
+[conversation.[ch]]
+indent_style = tab
+indent_size = tab
+
+[crc32-tvb.[ch]]
+indent_style = tab
+indent_size = tab
+
+[crc8-tvb.[ch]]
+indent_style = tab
+indent_size = tab
+
+[disabled_protos.[ch]]
+indent_size = 2
+
+[epan.[ch]]
+indent_style = tab
+indent_size = tab
+
+[expert.[ch]]
+indent_style = tab
+indent_size = tab
+
+[exported_pdu.[ch]]
+indent_style = tab
+indent_size = tab
+
+[filter_expressions.[ch]]
+indent_style = tab
+indent_size = tab
+
+[follow.[ch]]
+indent_size = 2
+
+[frame_data.[ch]]
+indent_size = 2
+
+[frame_data_sequence.[ch]]
+indent_size = 2
+
+[guid-utils.[ch]]
+indent_style = tab
+indent_size = tab
+
+[in_cksum.[ch]]
+indent_style = tab
+indent_size = tab
+
+[ipv4.[ch]]
+indent_style = tab
+indent_size = tab
+
+[next_tvb.[ch]]
+indent_size = 2
+
+[oids.[ch]]
+indent_style = tab
+indent_size = tab
+
+[osi-utils.[ch]]
+indent_size = 2
+
+[packet.[ch]]
+indent_style = tab
+indent_size = tab
+
+[proto.[ch]]
+indent_style = tab
+indent_size = tab
+
+[proto_data.[ch]]
+indent_size = 2
+
+[range.[ch]]
+indent_size = 3
+
+[reassemble.[ch]]
+indent_style = tab
+indent_size = tab
+
+[reedsolomon.[ch]]
+indent_size = 2
+
+[req_resp_hdrs.[ch]]
+indent_style = tab
+indent_size = tab
+
+[show_exception.[ch]]
+indent_style = tab
+indent_size = tab
+
+[t35.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tap.[ch]]
+indent_style = tab
+indent_size = tab
+
+[timestamp.[ch]]
+indent_style = tab
+indent_size = tab
+
+[timestats.[ch]]
+indent_style = tab
+indent_size = tab
+
+[to_str.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tvbtest.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tvbuff.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tvbuff_base64.[ch]]
+indent_size = 2
+
+[tvbuff_composite.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tvbuff_real.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tvbuff_subset.[ch]]
+indent_style = tab
+indent_size = tab
+
+[tvbuff_zlib.[ch]]
+indent_style = tab
+indent_size = tab

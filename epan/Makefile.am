@@ -78,6 +78,7 @@ libwireshark_asmopt_la_SOURCES = \
 	asm_utils_win32_x86.asm
 
 EXTRA_DIST = \
+	.editorconfig		\
 	diam_dict.l		\
 	dtd_grammar.lemon	\
 	dtd_parse.l		\
