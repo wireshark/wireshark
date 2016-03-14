@@ -15,7 +15,7 @@
  * SOFTWARE.
  */
 
-#include "config.h"
+#include <config.h>
 
 #include "inet_addr-int.h"
 
@@ -23,8 +23,6 @@
 #include <errno.h>
 
 #include <glib.h>
-
-#include <wsutil/ws_diag_control.h>
 
 #ifndef __P
 #define __P(args)	args

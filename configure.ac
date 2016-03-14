@@ -3084,6 +3084,8 @@ AC_SUBST(WS_LDFLAGS)
 
 AC_SUBST(WS_CFLAGS_FOR_BUILD)
 
+AH_BOTTOM([#include <ws_diag_control.h>])
+
 dnl Save the cacheable configure results to config.cache before recursing
 AC_CACHE_SAVE
 

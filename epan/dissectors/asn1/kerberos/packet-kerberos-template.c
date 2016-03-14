@@ -52,7 +52,7 @@
  * information.
  */
 
-#include "config.h"
+#include <config.h>
 
 #include <stdio.h>
 
@@ -64,7 +64,6 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <wsutil/file_util.h>
-#include <wsutil/ws_diag_control.h>
 #include <wsutil/str_util.h>
 #include "packet-kerberos.h"
 #include "packet-netbios.h"

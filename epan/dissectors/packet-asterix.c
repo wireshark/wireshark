@@ -21,13 +21,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "config.h"
-
+#include <config.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-
-#include <wsutil/ws_diag_control.h>
 
 void proto_register_asterix(void);
 void proto_reg_handoff_asterix(void);

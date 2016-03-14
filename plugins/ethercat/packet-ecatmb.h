@@ -23,7 +23,7 @@
 #ifndef _PACKET_ECATMAILBOX_H_
 #define _PACKET_ECATMAILBOX_H_
 
-#include <wsutil/ws_diag_control.h>
+#include <ws_diag_control.h>
 DIAG_OFF(pedantic)
 
 /* Ensure the same data layout for all platforms */

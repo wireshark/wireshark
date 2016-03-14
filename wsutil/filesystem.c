@@ -20,7 +20,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "config.h"
+#include <config.h>
 
 /*
  * Required with GNU libc to get dladdr().
@@ -62,7 +62,6 @@
 #include <wsutil/report_err.h>
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
-#include <wsutil/ws_diag_control.h>
 
 #include <wiretap/wtap.h>   /* for WTAP_ERR_SHORT_WRITE */
 

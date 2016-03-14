@@ -27,9 +27,9 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#include <ws_diag_control.h>
+#include <ws_symbol_export.h>
 #include <wsutil/nstime.h>
-#include <wsutil/ws_diag_control.h>
-#include "ws_symbol_export.h"
 
 struct _packet_info;
 struct epan_session;

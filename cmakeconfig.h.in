@@ -473,3 +473,5 @@
 
 #  define NEED_STRPTIME_H 1
 #endif
+
+#include <ws_diag_control.h>

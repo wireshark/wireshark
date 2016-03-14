@@ -18,12 +18,11 @@
  *
  */
 
+#include <config.h>
+
 #include <stdio.h>
 #include <glib.h>
-#include <config.h>
 #include "exceptions.h"
-
-#include <wsutil/ws_diag_control.h>
 
 gboolean failed = FALSE;
 

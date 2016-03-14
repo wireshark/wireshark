@@ -23,7 +23,7 @@
 #ifndef _PACKET_ETHERCAT_FRAME_H
 #define _PACKET_ETHERCAT_FRAME_H
 
-#include <wsutil/ws_diag_control.h>
+#include <ws_diag_control.h>
 
 /* structure for decoding the header -----------------------------------------*/
 DIAG_OFF(pedantic)

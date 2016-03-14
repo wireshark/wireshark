@@ -260,3 +260,5 @@ typedef int ssize_t;
 
 /* to use define _ws_mempbrk_sse42 if available (checked with cpuinfo)  */
 #define HAVE_SSE4_2 1
+
+#include <ws_diag_control.h>

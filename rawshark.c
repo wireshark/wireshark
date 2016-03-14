@@ -61,7 +61,6 @@
 #include <wsutil/plugins.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_err.h>
-#include <wsutil/ws_diag_control.h>
 
 #include "globals.h"
 #include <epan/packet.h>

@@ -39,13 +39,12 @@
  *  3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "config.h"
+#include <config.h>
 
 #include <errno.h>
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include <wsutil/ws_diag_control.h>
 #include <wsutil/file_util.h>
 
 #ifdef HAVE_ZLIB

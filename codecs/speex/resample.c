@@ -57,9 +57,7 @@
    The latter both reduces CPU time and makes the algorithm more SIMD-friendly.
 */
 
-#include "config.h"
-
-#include "wsutil/ws_diag_control.h"
+#include <config.h>
 
 #define OUTSIDE_SPEEX 1
 #define FLOATING_POINT 1

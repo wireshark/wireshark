@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "config.h"
+#include <config.h>
 
 #include <string.h>
 #include <errno.h>
@@ -34,7 +34,6 @@
 #include "file_wrappers.h"
 #include <wsutil/file_util.h>
 #include <wsutil/buffer.h>
-#include <wsutil/ws_diag_control.h>
 
 #ifdef HAVE_PLUGINS
 

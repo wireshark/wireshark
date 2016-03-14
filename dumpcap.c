@@ -56,7 +56,6 @@
 
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
-#include <wsutil/ws_diag_control.h>
 #include <wsutil/ws_version_info.h>
 
 #ifndef HAVE_GETOPT_LONG

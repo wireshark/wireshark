@@ -22,7 +22,7 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-#include "config.h"
+#include <config.h>
 
 #include <stdio.h>
 
@@ -30,7 +30,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <glib/gstdio.h>
 
 #include "ws80211_utils.h"
-#include "wsutil/ws_diag_control.h"
 
 #if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
 #include <string.h>

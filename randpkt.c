@@ -21,11 +21,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <config.h>
+
 #include <glib.h>
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <wsutil/ws_diag_control.h>
 #include <wsutil/unicode-utils.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>

@@ -29,7 +29,7 @@
 
 #ifdef HAVE_LIBGCRYPT
 
-#include <wsutil/ws_diag_control.h>
+#include <ws_diag_control.h>
 
 DIAG_OFF(deprecated-declarations)
 

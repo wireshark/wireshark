@@ -23,7 +23,7 @@
 #ifndef __TANGO_COLORS_H__
 #define __TANGO_COLORS_H__
 
-#include <wsutil/ws_diag_control.h>
+#include <ws_diag_control.h>
 
 // http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
 // with added hues from http://emilis.info/other/extended_tango/

@@ -20,7 +20,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "config.h"
+#include <config.h>
 
 #include <stdio.h>
 
@@ -39,8 +39,6 @@
 #include <epan/packet_info.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/tap.h>
-
-#include <wsutil/ws_diag_control.h>
 
 static gboolean tapping_is_active=FALSE;
 
