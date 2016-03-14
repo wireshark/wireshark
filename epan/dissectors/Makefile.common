@@ -298,8 +298,8 @@ DISSECTOR_SRC = \
 	packet-arp.c		\
 	packet-artnet.c		\
 	packet-aruba-adp.c	\
-	packet-aruba-iap.c	\
 	packet-aruba-erm.c	\
+	packet-aruba-iap.c	\
 	packet-aruba-papi.c	\
 	packet-ar_drone.c	\
 	packet-asap.c		\
@@ -387,9 +387,9 @@ DISSECTOR_SRC = \
 	packet-ccsds.c		\
 	packet-cdp.c		\
 	packet-cell_broadcast.c	\
-	packet-ceph.c	\
-	packet-cfm.c		\
+	packet-ceph.c		\
 	packet-cfdp.c		\
+	packet-cfm.c		\
 	packet-cgmp.c		\
 	packet-chargen.c	\
 	packet-chdlc.c		\
@@ -581,8 +581,8 @@ DISSECTOR_SRC = \
 	packet-etv.c		\
 	packet-evrc.c		\
 	packet-exec.c		\
-	packet-extreme.c	\
 	packet-exported_pdu.c	\
+	packet-extreme.c	\
 	packet-fc.c		\
 	packet-fcct.c		\
 	packet-fcdns.c		\
@@ -964,8 +964,8 @@ DISSECTOR_SRC = \
 	packet-nbt.c		\
 	packet-ncp-nmas.c	\
 	packet-ncp-sss.c	\
-	packet-ncp2222.c	\
 	packet-ncp.c		\
+	packet-ncp2222.c	\
 	packet-ncs.c		\
 	packet-ndmp.c		\
 	packet-ndp.c		\
@@ -1387,18 +1387,18 @@ DISSECTOR_SRC = \
 	packet-zbee-security.c	\
 	packet-zbee-zcl.c	\
 	packet-zbee-zcl-closures.c      \
-	packet-zbee-zcl-lighting.c	\
-	packet-zbee-zcl-hvac.c	\
-	packet-zbee-zcl-sas.c	\
 	packet-zbee-zcl-general.c	\
+	packet-zbee-zcl-hvac.c	\
+	packet-zbee-zcl-lighting.c	\
 	packet-zbee-zcl-ha.c	\
 	packet-zbee-zcl-meas-sensing.c	\
 	packet-zbee-zcl-misc.c	\
+	packet-zbee-zcl-sas.c	\
 	packet-zbee-zcl-se.c	\
+	packet-zbee-zdp.c	\
 	packet-zbee-zdp-binding.c	\
 	packet-zbee-zdp-discovery.c	\
 	packet-zbee-zdp-management.c	\
-	packet-zbee-zdp.c	\
 	packet-zebra.c		\
 	packet-zep.c		\
 	packet-ziop.c		\
