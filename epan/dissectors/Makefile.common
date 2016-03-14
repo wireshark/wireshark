@@ -57,8 +57,8 @@ PIDL_DISSECTOR_SRC =	\
 	packet-dcerpc-frstrans.c	\
 	packet-dcerpc-initshutdown.c	\
 	packet-dcerpc-lsa.c	\
-	packet-dcerpc-mdssvc.c	\
 	packet-dcerpc-mapi.c	\
+	packet-dcerpc-mdssvc.c	\
 	packet-dcerpc-misc.c	\
 	packet-dcerpc-nspi.c	\
 	packet-dcerpc-rfr.c	\
@@ -133,7 +133,6 @@ ASN1_DISSECTOR_SRC = \
 	packet-h501.c	\
 	packet-hnbap.c	\
 	packet-idmp.c	\
-	packet-idrp.c	\
 	packet-ilp.c	\
 	packet-inap.c	\
 	packet-isdn-sup.c	\
@@ -146,7 +145,6 @@ ASN1_DISSECTOR_SRC = \
 	packet-lppe.c	\
 	packet-lte-rrc.c	\
 	packet-m3ap.c	\
-	packet-mcpe.c	\
 	packet-mms.c	\
 	packet-mpeg-audio.c	\
 	packet-mpeg-pes.c	\
@@ -154,7 +152,6 @@ ASN1_DISSECTOR_SRC = \
 	packet-novell_pkis.c	\
 	packet-ns_cert_exts.c	\
 	packet-ocsp.c	\
-	packet-opsi.c	\
 	packet-p1.c	\
 	packet-p22.c	\
 	packet-p7.c	\
@@ -173,7 +170,6 @@ ASN1_DISSECTOR_SRC = \
 	packet-q932.c	\
 	packet-q932-ros.c	\
 	packet-qsig.c	\
-	packet-raknet.c \
 	packet-ranap.c	\
 	packet-rnsap.c	\
 	packet-ros.c	\
@@ -188,8 +184,6 @@ ASN1_DISSECTOR_SRC = \
 	packet-snmp.c	\
 	packet-spnego.c	\
 	packet-sv.c	\
-	packet-sysdig-event.c	\
-	packet-sysex.c	\
 	packet-t124.c	\
 	packet-t125.c	\
 	packet-t38.c	\
@@ -734,6 +728,7 @@ DISSECTOR_SRC = \
 	packet-icp.c		\
 	packet-icq.c		\
 	packet-idp.c		\
+	packet-idrp.c		\
 	packet-iec104.c		\
 	packet-ieee1722.c	\
 	packet-ieee17221.c	\
@@ -895,6 +890,7 @@ DISSECTOR_SRC = \
 	packet-mausb.c		\
 	packet-mbim.c		\
 	packet-mbtcp.c		\
+	packet-mcpe.c		\
 	packet-mdshdr.c		\
 	packet-media.c		\
 	packet-megaco.c		\
@@ -1024,6 +1020,7 @@ DISSECTOR_SRC = \
 	packet-opensafety.c	\
 	packet-openvpn.c	\
 	packet-openwire.c	\
+	packet-opsi.c		\
 	packet-optommp.c	\
 	packet-osc.c		\
 	packet-osi-options.c	\
@@ -1097,6 +1094,7 @@ DISSECTOR_SRC = \
 	packet-quic.c		\
 	packet-radius.c		\
 	packet-radius_packetcable.c	\
+	packet-raknet.c		\
 	packet-raw.c		\
 	packet-rdm.c		\
 	packet-rdp.c		\
@@ -1243,6 +1241,8 @@ DISSECTOR_SRC = \
 	packet-sync.c		\
 	packet-synergy.c	\
 	packet-synphasor.c	\
+	packet-sysdig-event.c	\
+	packet-sysex.c		\
 	packet-syslog.c		\
 	packet-t30.c		\
 	packet-tacacs.c		\
