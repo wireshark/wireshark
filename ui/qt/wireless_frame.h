@@ -45,7 +45,7 @@ signals:
     void showWirelessPreferences(const QString wlan_module_name);
 
 protected:
-    void timerEvent(QTimerEvent *);
+    void timerEvent(QTimerEvent *event);
 
 private:
     void getInterfaceInfo();
