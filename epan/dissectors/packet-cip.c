@@ -4517,7 +4517,7 @@ void dissect_epath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *path_tree, pro
 
                      proto_item_append_text(epath_item, "%s", symbol_name);
 
-                     if (cip_enhanced_info_column == TRUE && msp_item == NULL)
+                     if (cip_enhanced_info_column == TRUE && add_class_to_info)
                      {
                         add_cip_symbol_to_info_column(pinfo, symbol_name, display_type);
                      }
