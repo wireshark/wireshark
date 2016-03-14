@@ -136,7 +136,7 @@ static const gchar *default_media_types[] = {
     "application/vnd.etsi.simservs+xml",
     "application/vnd.oma.xdm-apd+xml",
     "application/vnd.3gpp.cw+xml",
-    "application/vnd.3gpp.sms+xml"
+    "application/vnd.3gpp.sms+xml",
     "application/vnd.3gpp.SRVCC-info+xml",
     "application/vnd.wv.csp+xml",
     "application/vnd.wv.csp.xml",
