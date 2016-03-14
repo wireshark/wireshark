@@ -667,12 +667,29 @@ discussion of tabs, spaces, and indentation, see
 
     http://www.jwz.org/doc/tabs-vs-spaces.html
 
-When creating a new file, you are free to choose an indentation logic.
-Most of the files in Wireshark tend to use 2-space or 4-space
-indentation. You are encouraged to write a short comment on the
-indentation logic at the beginning of this new files.  The
-tabs-vs-spaces document above provides examples of Emacs and vi
-modelines for this purpose.
+Most of the files in Wireshark tend to use 2-space or 4-space indentation. When
+creating a new file you are free to choose an indentation logic but you are
+encouraged to use 4-space indentation for C/C++ source to keep inconsistency
+between files to a minimum.
+
+Each file should have a short comment (modelines) on the indentation logic at
+the end of the file. See
+
+    https://www.wireshark.org/tools/modelines.html
+
+for guidance.
+
+A complementary and arguably better alternative to modelines is
+EditorConfig (http://editorconfig.org). The default EditorConfig indentation
+style is defined in the .editorconfig file placed on the root of the project
+source code tree (4-space indentation for C). One advantage of following the
+default style is that no additional EditorConfig settings are required for new
+files. If your file does not follow this style please add a file-specific
+setting overriding the default style to a separate .editorconfig configuration
+file placed in the source file directory.
+
+Some IDEs and text editors have built-in EditorConfig support and many more
+have plugins available (links at http://editorconfig.org).
 
 Please do not leave trailing whitespace (spaces/tabs) on lines.
 
