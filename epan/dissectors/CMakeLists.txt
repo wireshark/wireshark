@@ -1404,18 +1404,18 @@ set(DISSECTOR_SRC
 	packet-zbee-security.c
 	packet-zbee-zcl.c
 	packet-zbee-zcl-closures.c
-	packet-zbee-zcl-lighting.c
-	packet-zbee-zcl-hvac.c
 	packet-zbee-zcl-general.c
 	packet-zbee-zcl-ha.c
+	packet-zbee-zcl-hvac.c
+	packet-zbee-zcl-lighting.c
 	packet-zbee-zcl-meas-sensing.c
 	packet-zbee-zcl-misc.c
-	packet-zbee-zcl-se.c
 	packet-zbee-zcl-sas.c
+	packet-zbee-zcl-se.c
+	packet-zbee-zdp.c
 	packet-zbee-zdp-binding.c
 	packet-zbee-zdp-discovery.c
 	packet-zbee-zdp-management.c
-	packet-zbee-zdp.c
 	packet-zebra.c
 	packet-zep.c
 	packet-ziop.c
