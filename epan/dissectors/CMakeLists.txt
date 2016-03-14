@@ -1299,6 +1299,7 @@ set(DISSECTOR_SRC
 	packet-turnchannel.c
 	packet-tuxedo.c
 	packet-tzsp.c
+	packet-u3v.c
 	packet-ua.c
 	packet-ua3g.c
 	packet-uasip.c
