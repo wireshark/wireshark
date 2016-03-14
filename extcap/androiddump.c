@@ -642,7 +642,13 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
         sock = adb_connect(adb_server_ip, adb_server_tcp_port);
         if (sock == INVALID_SOCKET) continue;
 
-        sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+        result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+        if (result <= 0 || result > PACKET_LENGTH) {
+            errmsg_print("ERROR: Error while completing adb packet");
+            closesocket(sock);
+            return 222;
+        }
+
         result = adb_send(sock, helpful_packet);
         if (result) {
             verbose_print("WARNING: Error while setting adb transport for <%s>\n", helpful_packet);
@@ -666,7 +672,13 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
         sock = adb_connect(adb_server_ip, adb_server_tcp_port);
         if (sock == INVALID_SOCKET) continue;
 
-        sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+        result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+        if (result <= 0 || result > PACKET_LENGTH) {
+            errmsg_print("ERROR: Error while completing adb packet");
+            closesocket(sock);
+            return 222;
+        }
+
         result = adb_send(sock, helpful_packet);
         if (result) {
             verbose_print("WARNING: Error while setting adb transport for <%s>\n", helpful_packet);
@@ -705,7 +717,13 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
             sock = adb_connect(adb_server_ip, adb_server_tcp_port);
             if (sock == INVALID_SOCKET) continue;
 
-            sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+            result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+            if (result <= 0 || result > PACKET_LENGTH) {
+                errmsg_print("ERROR: Error while completing adb packet");
+                closesocket(sock);
+                return 222;
+            }
+
             result = adb_send(sock, helpful_packet);
             if (result) {
                 errmsg_print("ERROR: Error while setting adb transport for <%s>", helpful_packet);
@@ -741,7 +759,13 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
             sock = adb_connect(adb_server_ip, adb_server_tcp_port);
             if (sock == INVALID_SOCKET) continue;
 
-            sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+            result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+            if (result <= 0 || result > PACKET_LENGTH) {
+                errmsg_print("ERROR: Error while completing adb packet");
+                closesocket(sock);
+                return 222;
+            }
+
             result = adb_send(sock, helpful_packet);
             if (result) {
                 errmsg_print("ERROR: Error while setting adb transport for <%s>", helpful_packet);
@@ -771,7 +795,13 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
                     if (sock == INVALID_SOCKET)
                         return -1;
 
-                    sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+                    result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+                    if (result <= 0 || result > PACKET_LENGTH) {
+                        errmsg_print("ERROR: Error while completing adb packet");
+                        closesocket(sock);
+                        return 222;
+                    }
+
                     result = adb_send(sock, helpful_packet);
                     if (result) {
                         errmsg_print("ERROR: Error while setting adb transport for <%s>", helpful_packet);
@@ -779,7 +809,13 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
                         return 1;
                     }
 
-                    sprintf((char *) helpful_packet, adb_check_port_templace, strlen(adb_check_port_templace) - 6 + strlen(pid), pid);
+                    result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_check_port_templace, strlen(adb_check_port_templace) - 6 + strlen(pid), pid);
+                    if (result <= 0 || result > PACKET_LENGTH) {
+                        errmsg_print("ERROR: Error while completing adb packet");
+                        closesocket(sock);
+                        return 222;
+                    }
+
                     response = adb_send_and_read(sock, helpful_packet, helpful_packet, sizeof(helpful_packet), &data_length);
                     closesocket(sock);
 
@@ -812,7 +848,13 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
             sock = adb_connect(adb_server_ip, adb_server_tcp_port);
             if (sock == INVALID_SOCKET) continue;
 
-            sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+            result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+            if (result <= 0 || result > PACKET_LENGTH) {
+                errmsg_print("ERROR: Error while completing adb packet");
+                closesocket(sock);
+                return 222;
+            }
+
             result = adb_send(sock, helpful_packet);
             if (result) {
                 errmsg_print("ERROR: Error while setting adb transport for <%s>", helpful_packet);
@@ -845,7 +887,13 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
                     if (sock == INVALID_SOCKET)
                         return -1;
 
-                    sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+                    result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+                    if (result <= 0 || result > PACKET_LENGTH) {
+                        errmsg_print("ERROR: Error while completing adb packet");
+                        closesocket(sock);
+                        return 222;
+                    }
+
                     result = adb_send(sock, helpful_packet);
                     if (result) {
                         errmsg_print("ERROR: Error while setting adb transport for <%s>", helpful_packet);
@@ -853,7 +901,13 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
                         return 1;
                     }
 
-                    sprintf((char *) helpful_packet, adb_check_port_templace, strlen(adb_check_port_templace) - 6 + strlen(pid), pid);
+                    result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_check_port_templace, strlen(adb_check_port_templace) - 6 + strlen(pid), pid);
+                    if (result <= 0 || result > PACKET_LENGTH) {
+                        errmsg_print("ERROR: Error while completing adb packet");
+                        closesocket(sock);
+                        return 222;
+                    }
+
                     response = adb_send_and_read(sock, helpful_packet, helpful_packet, sizeof(helpful_packet), &data_length);
                     closesocket(sock);
 
@@ -1007,7 +1061,13 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
             return 1;
         }
     } else {
-        sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+        result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+        if (result <= 0 || result > PACKET_LENGTH) {
+            errmsg_print("ERROR: Error while completing adb packet");
+            closesocket(sock);
+            return 222;
+        }
+
         result = adb_send(sock, helpful_packet);
         if (result) {
             errmsg_print("ERROR: Error while setting adb transport for <%s>", helpful_packet);
@@ -1073,7 +1133,13 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
         if (sock == INVALID_SOCKET)
             return -1;
 
-        sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+        result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+        if (result <= 0 || result > PACKET_LENGTH) {
+            errmsg_print("ERROR: Error while completing adb packet");
+            closesocket(sock);
+            return 222;
+        }
+
         result = adb_send(sock, helpful_packet);
         if (result) {
             errmsg_print("ERROR: Error while setting adb transport for <%s>", helpful_packet);
@@ -1304,7 +1370,13 @@ static int adb_forward(char *serial_number, const char *adb_server_ip, unsigned 
     if (sock == INVALID_SOCKET)
         return -1;
 
-    g_snprintf(helpful_packet, PACKET_LENGTH, adb_forward_template, (serial_number) ? 5 + 7 + strlen(serial_number) + 28 : 4 + 28, (serial_number) ? "host-serial:" : "host", (serial_number) ?  serial_number: "", local_tcp_port, server_tcp_port);
+    result = g_snprintf(helpful_packet, PACKET_LENGTH, adb_forward_template, (serial_number) ? 5 + 7 + strlen(serial_number) + 28 : 4 + 28, (serial_number) ? "host-serial:" : "host", (serial_number) ?  serial_number: "", local_tcp_port, server_tcp_port);
+    if (result <= 0 || result > PACKET_LENGTH) {
+        errmsg_print("ERROR: Error while completing adb packet");
+        closesocket(sock);
+        return 222;
+    }
+
     result = adb_send(sock, helpful_packet);
     closesocket(sock);
 
@@ -1405,7 +1477,13 @@ static int capture_android_bluetooth_external_parser(char *interface,
                 return 1;
             }
         } else {
-            g_snprintf((char *) buffer, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+            result = g_snprintf((char *) buffer, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+            if (result <= 0 || result > PACKET_LENGTH) {
+                errmsg_print("ERROR: Error while completing adb packet");
+                closesocket(sock);
+                return 222;
+            }
+
             result = adb_send(sock, buffer);
             if (result) {
                 errmsg_print("ERROR: Error while setting adb transport");
@@ -1414,7 +1492,13 @@ static int capture_android_bluetooth_external_parser(char *interface,
             }
         }
 
-        sprintf((char *) buffer, adb_tcp_bluedroid_external_parser_template, 4 + 5, *bt_server_tcp_port);
+        result = g_snprintf((char *) buffer, PACKET_LENGTH, adb_tcp_bluedroid_external_parser_template, 4 + 5, *bt_server_tcp_port);
+        if (result <= 0 || result > PACKET_LENGTH) {
+            errmsg_print("ERROR: Error while completing adb packet");
+            closesocket(sock);
+            return 222;
+        }
+
         result = adb_send(sock, buffer);
         if (result) {
             errmsg_print("ERROR: Error while forwarding adb port");
@@ -1603,7 +1687,13 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
             return 1;
         }
     } else {
-        sprintf((char *) packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+        result = g_snprintf((char *) packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+        if (result <= 0 || result > PACKET_LENGTH) {
+            errmsg_print("ERROR: Error while completing adb packet");
+            closesocket(sock);
+            return 222;
+        }
+
         result = adb_send(sock, packet);
         if (result) {
             errmsg_print("ERROR: Error while setting adb transport for <%s>", packet);
@@ -1752,7 +1842,13 @@ static int capture_android_logcat_text(char *interface, char *fifo,
     } else {
         serial_number_length = strlen(serial_number);
 
-        sprintf((char *) packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+        result = g_snprintf((char *) packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+        if (result <= 0 || result > PACKET_LENGTH) {
+            errmsg_print("ERROR: Error while completing adb packet");
+            closesocket(sock);
+            return 222;
+        }
+
         result = adb_send(sock, packet);
         if (result) {
             errmsg_print("ERROR: Error while setting adb transport for <%s>", packet);
@@ -1778,7 +1874,13 @@ static int capture_android_logcat_text(char *interface, char *fifo,
     }
 
 
-    g_snprintf((char *) packet, sizeof(packet), adb_logcat_template, strlen(adb_logcat_template) + -8 + strlen(logcat_buffer), logcat_buffer, "");
+    result = g_snprintf((char *) packet, PACKET_LENGTH, adb_logcat_template, strlen(adb_logcat_template) + -8 + strlen(logcat_buffer), logcat_buffer, "");
+    if (result <= 0 || result > PACKET_LENGTH) {
+        errmsg_print("ERROR: Error while completing adb packet");
+        closesocket(sock);
+        return 222;
+    }
+
     result = adb_send(sock, packet);
     if (result) {
         errmsg_print("ERROR: Error while sending command <%s>", packet);
@@ -1920,7 +2022,13 @@ static int capture_android_logcat(char *interface, char *fifo,
     } else {
         serial_number_length = strlen(serial_number);
 
-        g_snprintf(packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+        result = g_snprintf(packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+        if (result <= 0 || result > PACKET_LENGTH) {
+            errmsg_print("ERROR: Error while completing adb packet");
+            closesocket(sock);
+            return 222;
+        }
+
         result = adb_send(sock, packet);
         if (result) {
             errmsg_print("ERROR: Error while setting adb transport");
@@ -2004,7 +2112,13 @@ static int capture_android_logcat(char *interface, char *fifo,
                         return 1;
                     }
                 } else {
-                    sprintf((char *) helper_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+                    result = g_snprintf((char *) helper_packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
+                    if (result <= 0 || result > PACKET_LENGTH) {
+                        errmsg_print("ERROR: Error while completing adb packet");
+                        closesocket(sock);
+                        return 222;
+                    }
+
                     result = adb_send(sock, helper_packet);
                     if (result) {
                         errmsg_print("ERROR: Error while setting adb transport for <%s>", helper_packet);
@@ -2118,8 +2232,14 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
             return 1;
         }
     } else {
-        sprintf((char *) helpful_packet, adb_transport_serial_templace,
+        result = g_snprintf((char *) helpful_packet, PACKET_LENGTH, adb_transport_serial_templace,
             15 + strlen(serial_number), serial_number);
+        if (result <= 0 || result > PACKET_LENGTH) {
+            errmsg_print("ERROR: Error while completing adb packet");
+            closesocket(sock);
+            return 222;
+        }
+
         result = adb_send(sock, helpful_packet);
         if (result) {
             errmsg_print("ERROR: Error while setting adb transport");
