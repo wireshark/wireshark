@@ -103,19 +103,19 @@ set(PIDL_DISSECTOR_SRC
 	packet-dcerpc-atsvc.c
 #	packet-dcerpc-budb.c
 #	packet-dcerpc-butc.c
-#	packet-dcerpc-drsuapi.c
 	packet-dcerpc-dfs.c
 	packet-dcerpc-dnsserver.c
+#	packet-dcerpc-drsuapi.c
 	packet-dcerpc-dssetup.c
 	packet-dcerpc-efs.c
 	packet-dcerpc-eventlog.c
 	packet-dcerpc-frstrans.c
 	packet-dcerpc-initshutdown.c
 	packet-dcerpc-lsa.c
-	packet-dcerpc-nspi.c
+	packet-dcerpc-mapi.c
 	packet-dcerpc-mdssvc.c
 	packet-dcerpc-misc.c
-	packet-dcerpc-mapi.c
+	packet-dcerpc-nspi.c
 	packet-dcerpc-rfr.c
 	packet-dcerpc-srvsvc.c
 	packet-dcerpc-winreg.c
@@ -187,7 +187,6 @@ set(ASN1_DISSECTOR_SRC
 	packet-p7.c
 	packet-p772.c
 	packet-pcap.c
-	packet-pcap_pktdata.c
 	packet-pkcs1.c
 	packet-pkcs12.c
 	packet-pkinit.c
@@ -197,7 +196,6 @@ set(ASN1_DISSECTOR_SRC
 	packet-pkixproxy.c
 	packet-pkixqualified.c
 	packet-pkixtsp.c
-	packet-pktap.c
 	packet-pres.c
 	packet-q932.c
 	packet-q932-ros.c
@@ -1055,6 +1053,7 @@ set(DISSECTOR_SRC
 	packet-pagp.c
 	packet-paltalk.c
 	packet-pana.c
+	packet-pcap_pktdata.c
 	packet-pcapng_block.c
 	packet-pcep.c
 	packet-pcli.c
@@ -1069,6 +1068,7 @@ set(DISSECTOR_SRC
 	packet-pgsql.c
 	packet-pim.c
 	packet-pingpongprotocol.c
+	packet-pktap.c
 	packet-pktc.c
 	packet-pktgen.c
 	packet-pmproxy.c
