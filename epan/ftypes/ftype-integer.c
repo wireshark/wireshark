@@ -675,7 +675,7 @@ cmp_bitwise_and64(const fvalue_t *a, const fvalue_t *b)
 static void
 boolean_fvalue_new(fvalue_t *fv)
 {
-	fv->value.uinteger = TRUE;
+	fv->value.uinteger64 = TRUE;
 }
 
 static int
@@ -687,7 +687,7 @@ boolean_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 static void
 boolean_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
-	*buf++ = (fv->value.uinteger) ? '1' : '0';
+	*buf++ = (fv->value.uinteger64) ? '1' : '0';
 	*buf   = '\0';
 }
 
@@ -695,8 +695,8 @@ boolean_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *b
 static gboolean
 bool_eq(const fvalue_t *a, const fvalue_t *b)
 {
-	if (a->value.uinteger) {
-		if (b->value.uinteger) {
+	if (a->value.uinteger64) {
+		if (b->value.uinteger64) {
 			return TRUE;
 		}
 		else {
@@ -704,7 +704,7 @@ bool_eq(const fvalue_t *a, const fvalue_t *b)
 		}
 	}
 	else {
-		if (b->value.uinteger) {
+		if (b->value.uinteger64) {
 			return FALSE;
 		}
 		else {
@@ -1503,14 +1503,14 @@ ftype_register_integers(void)
 		NULL,				/* set_value_time */
 		NULL,				/* set_value_string */
 		NULL,				/* set_value_tvbuff */
-		set_uinteger,			/* set_value_uinteger */
+		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		set_uinteger64,			/* set_value_uinteger64 */
 		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		get_uinteger,			/* get_value_uinteger */
+		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		get_uinteger64,			/* get_value_uinteger64 */
 		NULL,				/* get_value_sinteger64 */
