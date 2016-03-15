@@ -73,9 +73,14 @@ x11-dissector: ..\..\tools/process-x11-fields.pl x11-fields ..\..\tools/process-
 	$(PERL) ../../tools/process-x11-fields.pl < x11-fields
 	$(PERL) ../../tools/process-x11-xcb.pl
 
-clean:
+clean-local:
 	rm -f dissectors.lib *.nativecodeanalysis.xml *.pdb *.sbr register.c-tmp register-cache.pkl \
 		$(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS)
+
+clean:	clean-local
+	cd asn1
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
 
 distclean: clean
 

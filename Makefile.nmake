@@ -581,9 +581,7 @@ clean-local:
 	rm -rf $(INSTALL_DIR_QT)
 
 clean: clean-local
-	cd asn1
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../wiretap
+	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../wsutil
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
