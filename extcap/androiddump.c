@@ -2383,9 +2383,6 @@ int main(int argc, char **argv) {
         }
     }
 
-    /* For extcap, no other ports can be configured anyway */
-    register_interfaces(extcap_conf, default_adb_server_ip, &default_adb_server_tcp_port);
-
     if (!adb_server_ip)
         adb_server_ip = default_adb_server_ip;
 
@@ -2408,6 +2405,9 @@ int main(int argc, char **argv) {
         return 1;
     }
 #endif  /* _WIN32 */
+
+    if (extcap_conf->do_list_interfaces)
+        register_interfaces(extcap_conf, adb_server_ip, adb_server_tcp_port);
 
     if (extcap_base_handle_interface(extcap_conf))
         return 0;
