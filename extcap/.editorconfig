@@ -1,0 +1,9 @@
+#
+# Editor configuration
+#
+# http://editorconfig.org/
+#
+
+[{extcap-base,randpktdump,ssh-base,sshdump}.[ch]]
+indent_style = tab
+indent_size = tab

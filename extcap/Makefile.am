@@ -30,6 +30,7 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 EXTRA_DIST = \
+	.editorconfig	\
 	Makefile.common
 
 extcap_PROGRAMS = \
