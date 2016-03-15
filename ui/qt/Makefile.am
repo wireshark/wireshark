@@ -326,7 +326,6 @@ EXTRA_DIST = \
 	$(QRC_FILES)			\
 	$(TS_FILES)			\
 	$(QM_FILES)			\
-	.editorconfig			\
 	CMakeLists.txt			\
 	doxygen.cfg.in			\
 	Makefile.common			\

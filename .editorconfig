@@ -25,8 +25,8 @@ indent_size = 8
 indent_style = space
 indent_size = 4
 
-# C
-[*.[ch]]
+# C/C++
+[*.{c,cpp,h}]
 indent_style = space
 indent_size = 4
 
