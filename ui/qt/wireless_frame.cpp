@@ -80,7 +80,7 @@ WirelessFrame::WirelessFrame(QWidget *parent) :
     ui->fcsFilterFrame->setVisible(ws80211_has_fcs_filter());
 
     getInterfaceInfo();
-    startTimer(update_interval_);
+    iface_timer_id_ = startTimer(update_interval_);
 }
 
 WirelessFrame::~WirelessFrame()
@@ -99,8 +99,10 @@ void WirelessFrame::setCaptureInProgress(bool capture_in_progress)
 // the current selection goes away.
 void WirelessFrame::timerEvent(QTimerEvent *event)
 {
-    // Probably not needed.
-    QFrame::timerEvent(event);
+    if (event->timerId() != iface_timer_id_) {
+        QFrame::timerEvent(event);
+        return;
+    }
 
     // Don't interfere with user activity.
     if (ui->interfaceComboBox->view()->isVisible()

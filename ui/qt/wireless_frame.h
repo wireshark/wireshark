@@ -67,6 +67,7 @@ private:
     Ui::WirelessFrame *ui;
     GArray *interfaces_;
     bool capture_in_progress_;
+    int iface_timer_id_;
 };
 
 #endif // WIRELESS_FRAME_H

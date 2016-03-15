@@ -257,6 +257,8 @@ void ProgressFrame::timerEvent(QTimerEvent *event)
         animation_->start();
 
         QFrame::show();
+    } else {
+        QFrame::timerEvent(event);
     }
 }
 #endif
