@@ -346,7 +346,6 @@ else()
 		-Wextra
 		-Wendif-labels
 		-Wpointer-arith
-		-Warray-bounds
 		-Wformat-security
 		-fwrapv
 		-fno-strict-overflow
