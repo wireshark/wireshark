@@ -1313,9 +1313,9 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                     case SF_STRVAL:
                         switch(hfinfo->type) {
                             case FT_BOOLEAN:
-                                uvalue = fvalue_get_uinteger(&finfo->value);
+                                uvalue64 = fvalue_get_uinteger64(&finfo->value);
                                 tfstring = (const struct true_false_string*) hfinfo->strings;
-                                g_string_append(label_s, uvalue ? tfstring->true_string : tfstring->false_string);
+                                g_string_append(label_s, uvalue64 ? tfstring->true_string : tfstring->false_string);
                                 break;
                             case FT_INT8:
                             case FT_INT16:

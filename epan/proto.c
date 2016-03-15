@@ -5002,18 +5002,18 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 						break;
 
 					case FT_BOOLEAN:
-						number = fvalue_get_uinteger(&finfo->value);
+						number64 = fvalue_get_uinteger64(&finfo->value);
 						tfstring = (const true_false_string *)&tfs_true_false;
 						if (hfinfo->strings) {
 							tfstring = (const struct true_false_string*) hfinfo->strings;
 						}
 						offset_r += protoo_strlcpy(result+offset_r,
-								number ?
+								number64 ?
 								tfstring->true_string :
 								tfstring->false_string, size-offset_r);
 
 						offset_e += protoo_strlcpy(expr+offset_e,
-								number ? "1" : "0", size-offset_e);
+								number64 ? "1" : "0", size-offset_e);
 						break;
 
 						/* XXX - make these just FT_NUMBER? */
