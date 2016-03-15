@@ -1695,6 +1695,15 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         stream_detected = TRUE;
     }
 
+    /* initialize interface class/subclass in case no descriptors have been dissected yet */
+    if ( control_detected || stream_detected){
+        if ( usb_conv_info->interfaceClass  == IF_CLASS_UNKNOWN &&
+             usb_conv_info->interfaceSubclass  == IF_SUBCLASS_UNKNOWN){
+            usb_conv_info->interfaceClass = IF_CLASS_MISCELLANEOUS;
+            usb_conv_info->interfaceSubclass = IF_SUBCLASS_MISC_U3V;
+        }
+    }
+
     if ( control_detected ) {
         /* Set the protocol column */
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "U3V");
