@@ -260,10 +260,10 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, char *s)
 		}
 
 		if (g_ascii_strcasecmp(s, tf->true_string) == 0) {
-			return mk_uint32_fvalue(TRUE);
+			return mk_uint64_fvalue(TRUE);
 		}
 		else if (g_ascii_strcasecmp(s, tf->false_string) == 0) {
-			return mk_uint32_fvalue(FALSE);
+			return mk_uint64_fvalue(FALSE);
 		}
 		else {
 			/*
