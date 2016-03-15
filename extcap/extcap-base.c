@@ -235,12 +235,6 @@ uint8_t extcap_base_handle_interface(extcap_parameters * extcap)
 	return extcap_iface_listall(extcap, 1);
     } else if (extcap->do_version || extcap->do_list_dlts) {
 	return extcap_iface_listall(extcap, 0);
-    } else {
-	/* An interface must exist */
-	if (g_list_find_custom(extcap->interfaces, extcap->interface, extcap_iface_compare) == NULL) {
-	    errmsg_print("Extcap Error: No interface [%s] provided", extcap->interface);
-	    return 0;
-	}
     }
 
     return 0;
