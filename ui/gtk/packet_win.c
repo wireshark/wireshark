@@ -611,7 +611,7 @@ new_finfo_window(GtkWidget *w, struct FieldinfoWinData *DataPtr)
 
 	} else if (finfo_type == FT_BOOLEAN) {
 		fvalue_edit = gtk_check_button_new();
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fvalue_edit), (fvalue_get_uinteger(&finfo->value) != 0));
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fvalue_edit), (fvalue_get_uinteger64(&finfo->value) != 0));
 		g_signal_connect(fvalue_edit, "toggled", G_CALLBACK(finfo_boolean_changed), DataPtr);
 
 	} else if (finfo_type == FT_IPv4) {
