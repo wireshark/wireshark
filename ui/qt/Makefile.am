@@ -40,7 +40,9 @@ CLEANFILES = \
 	*~
 
 DISTCLEANFILES = \
-	$(NODIST_GENERATED_FILES)
+	$(NODIST_GENERATED_FILES)	\
+	$(QM_FILES)		\
+	i18n.qrc
 
 MAINTAINERCLEANFILES = \
 	$(GENERATED_FILES)		\
@@ -112,6 +114,10 @@ AM_V_UIC = $(am__v_UIC_@AM_V@)
 am__v_UIC_ = $(am__v_UIC_@AM_DEFAULT_V@)
 am__v_UIC_0 = @echo "  UIC     " $@;
 
+AM_V_LRELEASE = $(am__v_LRELEASE_@AM_V@)
+am__v_LRELEASE_ = $(am__v_LRELEASE_@AM_DEFAULT_V@)
+am__v_LRELEASE_0 = @echo "  LRELEASE  " $@;
+
 #
 # For building .moc.cpp files from .h files by running moc,
 # building .rcc.cpp files from .qrc files by running rcc,
@@ -147,6 +153,17 @@ qrc_wsicon.cpp: ../../image/wsicon.qrc
 
 ui_%.h: %.ui
 	$(AM_V_UIC)$(UIC) $< -o $@
+
+wireshark_%.qm: wireshark_%.ts
+	$(AM_V_LRELEASE)$(LRELEASE) -silent $< -qm $@
+
+i18n_qresource := $(foreach qm, $(QM_FILES),<file>$(qm)</file>)
+
+i18n.qrc: i18n.qrc.in $(QM_FILES)
+	$(AM_V_SED)$(SED) \
+		-e 's,@i18n_qresource\@,$(i18n_qresource),' \
+		-e 's,> *<file>,>\n    <file>,g' \
+		< $< > $@
 
 #
 # Explicit dependencies to force the ui_ headers to be built.
@@ -331,7 +348,6 @@ EXTRA_DIST = \
 	$(UI_FILES)			\
 	$(QRC_FILES)			\
 	$(TS_FILES)			\
-	$(QM_FILES)			\
 	CMakeLists.txt			\
 	doxygen.cfg.in			\
 	Makefile.common			\

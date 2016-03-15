@@ -450,7 +450,7 @@ set(WIRESHARK_QT_QRC
 	../../image/layout.qrc
 	../../image/toolbar.qrc
 	../../image/wsicon.qrc
-	i18n.qrc
+	${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
 )
 
 set(WIRESHARK_QT_TS
@@ -469,7 +469,7 @@ include_directories(
 )
 
 if (QT_VERSION EQUAL 5)
-	QT5_ADD_TRANSLATION(WIRESHARK_QT_TS_QM ${WIRESHARK_QT_TS})
+	QT5_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
 	QT5_ADD_RESOURCES(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
 	QT5_WRAP_UI(WIRESHARK_QT_UI_SRC ${WIRESHARK_QT_UI})
 	# For now, do the moc stuff manually
@@ -480,7 +480,7 @@ if (QT_VERSION EQUAL 5)
 	# or
 	# set_target_properties(${some-source-files} PROPERTIES AUTOMOC TRUE)
 else()
-	QT4_ADD_TRANSLATION(WIRESHARK_QT_TS_QM ${WIRESHARK_QT_TS})
+	QT4_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
 	QT4_ADD_RESOURCES(WIRESHARK_QT_QRC_SRC ${WIRESHARK_QT_QRC})
 	QT4_WRAP_UI(WIRESHARK_QT_UI_SRC ${WIRESHARK_QT_UI})
 	# For now, do the moc stuff manually
@@ -491,6 +491,20 @@ else()
 	# or
 	# set_target_properties(${some-source-files} PROPERTIES AUTOMOC TRUE)
 endif()
+
+foreach(_file ${WIRESHARK_QT_QM})
+	get_filename_component(_qresource ${_file} NAME)
+	set(i18n_qresource "${i18n_qresource}\n    <file>${_qresource}</file>")
+	set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc PROPERTIES OBJECT_DEPENDS ${_file})
+endforeach()
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/i18n.qrc.in ${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc)
+
+add_custom_target(
+	translations ALL
+	DEPENDS
+		${WIRESHARK_QT_QM}
+)
+set_target_properties(translations PROPERTIES FOLDER "UI")
 
 if (WERROR_COMMON_FLAGS)
 	set_source_files_properties(
@@ -513,9 +527,9 @@ add_library(qtui STATIC
 	${WIRESHARK_QT_UI_SRC}
 	${WIRESHARK_QT_MOC_SRC}
 	${WIRESHARK_QT_QRC_SRC}
-	${WIRESHARK_QT_TS_QM}
 	wireshark-tap-register.c
 )
+add_dependencies(qtui translations)
 set_target_properties(qtui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 set_target_properties(qtui PROPERTIES FOLDER "UI")
 

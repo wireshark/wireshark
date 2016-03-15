@@ -414,7 +414,6 @@ TS_FILES =	\
 #
 # .qm files.
 #
-# Should they be auto-generated ?
 QM_FILES = $(TS_FILES:.ts=.qm)
 
 WIRESHARK_QT_SRC =	\

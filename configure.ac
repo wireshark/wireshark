@@ -1302,6 +1302,8 @@ if test "x$enable_wireshark" = "xyes"; then
 			AC_SUBST(MOC)
 			AC_WIRESHARK_QT_TOOL_CHECK(RCC, rcc, "$qt_version")
 			AC_SUBST(RCC)
+			AC_WIRESHARK_QT_TOOL_CHECK(LRELEASE, lrelease, "$qt_version")
+			AC_SUBST(LRELEASE)
 
 			#
 			# On Darwin, find where the Qt frameworks are
