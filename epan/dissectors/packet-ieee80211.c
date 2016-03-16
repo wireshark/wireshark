@@ -16961,20 +16961,19 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
        * Start shoving in other fields if needed.
        */
       if (frame_type_subtype == CTRL_CONTROL_WRAPPER) {
-        if (tree) {
+        /* if (tree) */
+        {
           cw_tree = proto_tree_add_subtree(hdr_tree, tvb, offset, 2,
                       ett_cntrl_wrapper_fc, NULL, "Contained Frame Control");
           dissect_frame_control(cw_tree, tvb, FALSE, offset, pinfo);
           dissect_ht_control(hdr_tree, tvb, offset + 2);
-        }
-        offset += 6;
-        if (tree) {
+          offset += 6;
           hdr_tree = proto_tree_add_subtree(hdr_tree, tvb, offset, 2,
                       ett_cntrl_wrapper_fc, &cw_item, "Carried Frame");
-        }
-        if (isDMG) {
-          expert_add_info_format(pinfo, cw_item, &ei_ieee80211_dmg_subtype,
-                                 "DMG STA shouldn't transmit Control Wrapper frame");
+          if (isDMG) {
+            expert_add_info_format(pinfo, cw_item, &ei_ieee80211_dmg_subtype,
+                                   "DMG STA shouldn't transmit Control Wrapper frame");
+          }
         }
       }
 
@@ -16984,7 +16983,8 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         case CTRL_CFP_ENDACK:
         {
           set_src_addr_cols(pinfo, tvb, offset, "BSSID");
-          if (tree) {
+          /* if (tree) */
+          {
             const gchar *ether_name = tvb_get_ether_name(tvb, offset);
             proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
             hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6, ether_name);
@@ -17004,15 +17004,16 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
             set_src_addr_cols(pinfo, tvb, offset, "TA");
           else
             set_src_addr_cols(pinfo, tvb, offset, "BSSID");
-          if (tree) {
+          /* if (tree) */
+          {
             const gchar *ether_name = tvb_get_ether_name(tvb, offset);
             if (isDMG) {
               proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
-              hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_bssid_resolved, tvb, offset, 6, ether_name);
+              hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6, ether_name);
               PROTO_ITEM_SET_HIDDEN(hidden_item);
             } else {
               proto_tree_add_item(hdr_tree, hf_ieee80211_addr_bssid, tvb, offset, 6, ENC_NA);
-              hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6, ether_name);
+              hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_bssid_resolved, tvb, offset, 6, ether_name);
               PROTO_ITEM_SET_HIDDEN(hidden_item);
             }
             hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
@@ -17027,7 +17028,8 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         case CTRL_BEAMFORM_RPT_POLL:
         {
           set_src_addr_cols(pinfo, tvb, offset, "TA");
-          if (tree) {
+          /* if (tree) */
+          {
             const gchar *ether_name = tvb_get_ether_name(tvb, offset);
 
             proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
@@ -17047,7 +17049,8 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         case CTRL_VHT_NDP_ANNC:
         {
           set_src_addr_cols(pinfo, tvb, offset, "TA");
-          if (tree) {
+          /* if (tree) */
+          {
             guint16 sta_info;
             guint8 len_fcs = 0;
             proto_tree *dialog_token_tree;
@@ -17113,7 +17116,8 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         case CTRL_RTS:
         {
           set_src_addr_cols(pinfo, tvb, offset, "TA");
-          if (tree) {
+          /* if (tree) */
+          {
             const gchar *ether_name = tvb_get_ether_name(tvb, offset);
             proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
             hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6, ether_name);
@@ -17122,7 +17126,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, offset, 6, ether_name);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
-                offset += 6;
+            offset += 6;
           }
           break;
         }
