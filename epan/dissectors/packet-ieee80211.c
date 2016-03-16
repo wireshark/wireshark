@@ -16139,40 +16139,29 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       /*
        * Start shoving in other fields if needed.
        */
-      if ((frame_type_subtype == CTRL_CONTROL_WRAPPER) && tree) {
-        cw_item = proto_tree_add_text(hdr_tree, tvb, offset, 2,
-          "Contained Frame Control");
-        cw_tree = proto_item_add_subtree (cw_item, ett_cntrl_wrapper_fc);
-        dissect_frame_control(cw_tree, tvb, FALSE, offset, pinfo);
-        dissect_ht_control(hdr_tree, tvb, offset + 2);
+      if (frame_type_subtype == CTRL_CONTROL_WRAPPER) {
+        if (tree) {
+          cw_item = proto_tree_add_text(hdr_tree, tvb, offset, 2,
+            "Contained Frame Control");
+          cw_tree = proto_item_add_subtree (cw_item, ett_cntrl_wrapper_fc);
+          dissect_frame_control(cw_tree, tvb, FALSE, offset, pinfo);
+          dissect_ht_control(hdr_tree, tvb, offset + 2);
+        }
         offset += 6;
-        cw_item = proto_tree_add_text(hdr_tree, tvb, offset, 2,
-          "Carried Frame");
-        hdr_tree = proto_item_add_subtree (cw_item, ett_cntrl_wrapper_fc);
-         if(isDMG == TRUE) {
-                 expert_add_info_format(pinfo, hdr_tree, &ei_ieee80211_dmg_subtype,
-                 "DMG STA shouldn't transmit Control Wrapper frame");
-     }
-      }
-
-      if ((frame_type_subtype == CTRL_CFP_END) && tree) {
-          src = tvb_get_ptr (tvb, offset, 6);
-          if(isDMG == TRUE)
-                  set_src_addr_cols(pinfo, src, "TA");
-          else
-                  set_src_addr_cols(pinfo, src, "BSSID");
-          if (tree) {
-            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
-            hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
-          }
-        offset += 6;
+        if (tree) {
+          cw_item = proto_tree_add_text(hdr_tree, tvb, offset, 2,
+            "Carried Frame");
+          hdr_tree = proto_item_add_subtree (cw_item, ett_cntrl_wrapper_fc);
+        }
+        if (isDMG) {
+          expert_add_info_format(pinfo, hdr_tree, &ei_ieee80211_dmg_subtype,
+                                 "DMG STA shouldn't transmit Control Wrapper frame");
+        }
       }
 
       switch (ctrl_type_subtype)
       {
         case CTRL_PS_POLL:
-        case CTRL_CFP_END:
         case CTRL_CFP_ENDACK:
         {
           src = tvb_get_ptr (tvb, offset, 6);
@@ -16187,10 +16176,40 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
             hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, offset, 6,
               get_ether_name(src));
             PROTO_ITEM_SET_HIDDEN(hidden_item);
-                offset += 6;
+            offset += 6;
           }
           break;
         }
+
+        case CTRL_CFP_END:
+        {
+          src = tvb_get_ptr (tvb, offset, 6);
+          if (isDMG)
+            set_src_addr_cols(pinfo, src, "TA");
+          else
+            set_src_addr_cols(pinfo, src, "BSSID");
+          if (tree) {
+            if (isDMG) {
+              proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
+              hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_bssid_resolved, tvb, offset, 6,
+                get_ether_name(tvb_get_ptr(tvb, offset, 6)));
+              PROTO_ITEM_SET_HIDDEN(hidden_item);
+            } else {
+              proto_tree_add_item(hdr_tree, hf_ieee80211_addr_bssid, tvb, offset, 6, ENC_NA);
+              hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_ta_resolved, tvb, offset, 6,
+                get_ether_name(tvb_get_ptr(tvb, offset, 6)));
+              PROTO_ITEM_SET_HIDDEN(hidden_item);
+            }
+            hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_string (hdr_tree, hf_ieee80211_addr_resolved, tvb, offset, 6,
+              get_ether_name(src));
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            offset += 6;
+          }
+          break;
+        }
+
         case CTRL_VHT_NDP_ANNC:
         {
           src = tvb_get_ptr (tvb, offset, 6);
@@ -17682,7 +17701,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
   }
   pinfo->fragmented = save_fragmented;
 
-  end_of_wlan:
+end_of_wlan:
   whdr->stats = wlan_stats;
   tap_queue_packet(wlan_tap, pinfo, whdr);
   memset (&wlan_stats, 0, sizeof wlan_stats);
