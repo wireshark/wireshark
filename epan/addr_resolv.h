@@ -173,7 +173,7 @@ extern void addr_resolve_pref_init(struct pref_module *nameres);
  */
 WS_DLL_PUBLIC void disable_name_resolution(void);
 
-/** If we're using c-ares or ADNS, process outstanding host name lookups.
+/** If we're using c-ares process outstanding host name lookups.
  *  This is called from a GLIB timeout in Wireshark and before processing
  *  each packet in TShark.
  *

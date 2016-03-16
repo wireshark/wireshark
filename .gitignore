@@ -215,7 +215,6 @@ wsutil/abi-descriptor.xml
 *.pdb
 *.nativecodeanalysis.xml
 *.rc
-!adns_dll.rc
 !image/file_dlg_win32.rc
 *.res
 *.vcxproj*

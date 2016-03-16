@@ -389,26 +389,11 @@ PCAP_REMOTE=1
 ZLIB_DIR=$(WIRESHARK_LIB_DIR)\zlib-1.2.8-ws
 
 #
-# Optional: the ADNS library enables asynchronous (nonblocking) DNS
-# name resolvings.
-#
-# If you have GNU ADNS, set this to the directory in which the GNU ADNS
-# .lib file is stored.
-#
-# If you don't have GNU ADNS, comment this line out, so that ADNS_DIR
-# isn't defined.
-#
-# If C_ARES_DIR is defined below, it will override this setting.
-#
-#ADNS_DIR=$(WIRESHARK_LIB_DIR)\adns-1.0-win32-05ws
-
-#
 # Optional: the c-ares library enables asynchronous (nonblocking) DNS
 # name resolvings.
 #
 # If you have c-ares, set this to the directory in which the c-ares
-# .lib file is stored. Setting this will override ADNS_DIR above. You
-# can't have both.
+# .lib file is stored.
 #
 # If you're using Visual C++ 6.0, you'll have to use a platform SDK that
 # defines socklen_t, such as Windows Server 2003 PSDK.
@@ -649,26 +634,11 @@ PCAP_REMOTE=1
 ZLIB_DIR=$(WIRESHARK_LIB_DIR)\zlib-1.2.8-ws
 
 #
-# Optional: the ADNS library enables asynchronous (nonblocking) DNS
-# name resolvings.
-#
-# If you have GNU ADNS, set this to the directory in which the GNU ADNS
-# .lib file is stored.
-#
-# If you don't have GNU ADNS, comment this line out, so that ADNS_DIR
-# isn't defined.
-#
-# If C_ARES_DIR is defined below, it will override this setting.
-#
-#ADNS_DIR=$(WIRESHARK_LIB_DIR)\adns-1.0-win32-05ws
-
-#
 # Optional: the c-ares library enables asynchronous (nonblocking) DNS
 # name resolvings.
 #
 # If you have c-ares, set this to the directory in which the c-ares
-# .lib file is stored. Setting this will override ADNS_DIR above. You
-# can't have both.
+# .lib file is stored.
 #
 # If you're using Visual C++ 6.0, you'll have to use a platform SDK that
 # defines socklen_t, such as Windows Server 2003 PSDK.
@@ -1625,7 +1595,6 @@ ZLIB_CONFIG=
 !ENDIF
 
 !IFDEF C_ARES_PKG
-!UNDEF ADNS_DIR
 C_ARES_DIR=$(WIRESHARK_LIB_DIR)\c-ares-$(C_ARES_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws
 C_ARES_CFLAGS=/I$(C_ARES_DIR)/include
 C_ARES_LIBS=$(C_ARES_DIR)\lib\libcares-2.lib
@@ -1636,18 +1605,6 @@ C_ARES_CONFIG=^#define HAVE_C_ARES 1
 C_ARES_CFLAGS=
 C_ARES_LIBS=
 C_ARES_CONFIG=
-!IFDEF ADNS_DIR
-ADNS_PATH=$(ADNS_DIR)\adns_win32\lib
-ADNS_CFLAGS=/I$(ADNS_DIR)\src /I$(ADNS_DIR)\adns_win32
-ADNS_LIBS=$(WIRESHARK_LIB_DIR)\$(MSVC_VARIANT)\adns\adns_dll.lib
-ADNS_DLL=$(WIRESHARK_LIB_DIR)\$(MSVC_VARIANT)\adns\adns_dll.dll
-# Nmake uses carets to escape special characters
-ADNS_CONFIG=^#define HAVE_GNU_ADNS 1
-!else
-ADNS_CFLAGS=
-ADNS_LIBS=
-ADNS_CONFIG=
-!ENDIF # ADNS
 !ENDIF # C_ARES
 
 !IFDEF KFW_DIR
@@ -1770,6 +1727,6 @@ LIBWIRESHARK_CONFIG=
 !ENDIF
 
 # Construct the path
-PATH=$(PATH);$(CYGWIN_PATH);$(GTK_DIR)\bin;$(GETTEXT_DIR)\bin;$(ZLIB_PATH);$(ADNS_PATH)
+PATH=$(PATH);$(CYGWIN_PATH);$(GTK_DIR)\bin;$(GETTEXT_DIR)\bin;$(ZLIB_PATH)
 
 NTDDNDIS_CONFIG=^#define HAVE_NTDDNDIS_H 1

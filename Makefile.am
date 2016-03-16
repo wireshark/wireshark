@@ -396,7 +396,6 @@ wireshark_common_ldadd = \
 	$(plugin_ldadd)			\
 	@PCAP_LIBS@			\
 	@C_ARES_LIBS@			\
-	@ADNS_LIBS@			\
 	@KRB5_LIBS@			\
 	@APPLICATIONSERVICES_FRAMEWORKS@	\
 	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
@@ -454,7 +453,6 @@ tshark_LDADD = \
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
 	@C_ARES_LIBS@			\
-	@ADNS_LIBS@			\
 	@KRB5_LIBS@			\
 	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
 	@COREFOUNDATION_FRAMEWORKS@	\
@@ -503,7 +501,6 @@ rawshark_LDADD = \
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
 	@C_ARES_LIBS@			\
-	@ADNS_LIBS@			\
 	@KRB5_LIBS@			\
 	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
 	@COREFOUNDATION_FRAMEWORKS@	\
@@ -576,8 +573,7 @@ randpkt_LDADD = \
 	@PCAP_LIBS@			\
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
-	@C_ARES_LIBS@			\
-	@ADNS_LIBS@
+	@C_ARES_LIBS@
 
 dftest_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 
@@ -594,7 +590,6 @@ dftest_LDADD = \
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
 	@C_ARES_LIBS@			\
-	@ADNS_LIBS@			\
 	@KRB5_LIBS@			\
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
@@ -610,8 +605,7 @@ echld_test_LDADD = \
 	@PCAP_LIBS@			\
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
-	@C_ARES_LIBS@			\
-	@ADNS_LIBS@
+	@C_ARES_LIBS@
 
 echld_test_DEPENDENCIES = \
 	echld/libechld.la \
@@ -719,8 +713,6 @@ EXTRA_DIST = \
 	aclocal-fallback/libsmi.m4			\
 	aclocal-fallback/libgcrypt.m4			\
 	aclocal-flags		\
-	adns_dll.dep		\
-	adns_dll.rc		\
 	autogen.sh		\
 	capinfos.c		\
 	captype.c		\
@@ -1266,7 +1258,6 @@ EXTRA_DIST = \
 	cmake/modules/CheckCLinkerFlag.cmake	\
 	cmake/modules/CMakeInstallDirs.cmake	\
 	cmake/modules/COPYING-CMAKE-SCRIPTS	\
-	cmake/modules/FindADNS.cmake		\
 	cmake/modules/FindAIRPCAP.cmake		\
 	cmake/modules/FindASCIIDOC.cmake	\
 	cmake/modules/FindCAP.cmake		\

@@ -139,7 +139,6 @@ libwireshark_la_LIBADD = \
 	@SOCKET_LIBS@		\
 	@NSL_LIBS@		\
 	@C_ARES_LIBS@		\
-	@ADNS_LIBS@ 		\
 	@LIBGCRYPT_LIBS@	\
 	@LIBGNUTLS_LIBS@	\
 	@KRB5_LIBS@		\

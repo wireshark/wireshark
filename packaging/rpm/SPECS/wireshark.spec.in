@@ -9,7 +9,6 @@
 %bcond_with	lua
 
 # Set these to 1 if you want to ensure your package includes support for them:
-%global with_adns 0
 %global with_c_ares 1
 %global with_portaudio 0
 
@@ -67,10 +66,6 @@ Requires:	libcares2
 BuildRequires:	c-ares-devel
 Requires:	c-ares
 %endif
-%endif
-%if %{with_adns}
-BuildRequires:	adns-devel
-Requires:	adns
 %endif
 %if %{with lua}
 BuildRequires:	lua-devel < 5.3
@@ -229,9 +224,6 @@ This package contains the GTK+ Wireshark GUI and desktop integration files.
   --with-gnu-ld \
 %if %{with_c_ares}
   --with-c-ares \
-%endif
-%if %{with_adns}
-  --with-adns \
 %endif
 %if %{with lua}
   --with-lua \

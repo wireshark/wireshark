@@ -42,12 +42,6 @@
  * resolution code that sends messages to lookupd might be inconsistent
  * if you jump out of it in middle of a call.
  *
- * In at least some Linux distributions (e.g., RedHat Linux 9), if ADNS
- * is used, we appear to hang in host_name_lookup6() in a gethostbyaddr()
- * call (and possibly in other gethostbyaddr() calls), because there's
- * a mutex lock held in gethostbyaddr() and it doesn't get released
- * if we longjmp out of it.
- *
  * There's no guarantee that longjmp()ing out of name resolution calls
  * will work on *any* platform; OpenBSD got rid of the alarm/longjmp
  * code in tcpdump, to avoid those sorts of problems, and that was
@@ -94,14 +88,6 @@
 # endif
 # include <ares.h>
 # include <ares_version.h>
-#else
-# ifdef HAVE_GNU_ADNS
-#  include <errno.h>
-#  include <adns.h>
-#  if defined(inet_aton) && defined(_WIN32)
-#   undef inet_aton
-#  endif
-# endif /* HAVE_GNU_ADNS */
 #endif  /* HAVE_C_ARES */
 
 #include <glib.h>
@@ -304,7 +290,7 @@ e_addr_resolve gbl_resolv_flags = {
     FALSE,  /* load_hosts_file_from_profile_only */
     FALSE   /* vlan_name */
 };
-#if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
+#ifdef HAVE_C_ARES
 static guint name_resolve_concurrency = 500;
 #endif
 
@@ -357,30 +343,8 @@ static void c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hoste
 
 ares_channel ghba_chan; /* ares_gethostbyaddr -- Usually non-interactive, no timeout */
 ares_channel ghbn_chan; /* ares_gethostbyname -- Usually interactive, timeout */
-
-#else
-/* GNU ADNS */
-#ifdef HAVE_GNU_ADNS
-#define ASYNC_DNS
-/*
- * Submitted queries have to be checked individually using adns_check().
- * Queries are added to adns_queue_head. During processing, the list is
- * iterated twice: once to request queries up to the concurrency limit,
- * and once to check the status of each query.
- */
-
-adns_state ads;
-
-typedef struct _async_dns_queue_msg
-{
-    gboolean    submitted;
-    guint32     ip4_addr;
-    int         type;
-    adns_query  query;
-} async_dns_queue_msg_t;
-
-#endif /* HAVE_GNU_ADNS */
 #endif /* HAVE_C_ARES */
+
 #ifdef ASYNC_DNS
 static  gboolean  async_dns_initialized = FALSE;
 static  guint       async_dns_in_flight = 0;
@@ -393,18 +357,11 @@ add_async_dns_ipv4(int type, guint32 addr)
     async_dns_queue_msg_t *msg;
 
     msg = g_new(async_dns_queue_msg_t,1);
-#ifdef HAVE_C_ARES
     msg->family = type;
     msg->addr.ip4 = addr;
-#else
-    msg->type = type;
-    msg->ip4_addr = addr;
-    msg->submitted = FALSE;
-#endif
     async_dns_queue_head = g_list_append(async_dns_queue_head, (gpointer) msg);
 }
-
-#endif
+#endif /* ASYNC_DNS */
 
 typedef struct {
     guint32      mask;
@@ -2512,7 +2469,7 @@ addr_resolve_pref_init(module_t *nameres)
             " is enabled.",
             &gbl_resolv_flags.use_external_net_name_resolver);
 
-#if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
+#ifdef HAVE_C_ARES
     prefs_register_bool_preference(nameres, "concurrent_dns",
             "Enable concurrent DNS name resolution",
             "Enable concurrent DNS name resolution. Only"
@@ -2632,83 +2589,7 @@ _host_name_lookup_cleanup(void) {
     async_dns_initialized = FALSE;
 }
 
-#elif defined(HAVE_GNU_ADNS)
-
-/* XXX - The ADNS "documentation" isn't very clear:
- * - Do we need to keep our query structures around?
- */
-gboolean
-host_name_lookup_process(void) {
-    async_dns_queue_msg_t *almsg;
-    GList *cur;
-    char addr_str[] = "111.222.333.444.in-addr.arpa.";
-    guint8 *addr_bytes;
-    adns_answer *ans;
-    int ret;
-    gboolean dequeue;
-    gboolean nro = new_resolved_objects;
-
-    new_resolved_objects = FALSE;
-    async_dns_queue_head = g_list_first(async_dns_queue_head);
-
-    cur = async_dns_queue_head;
-    while (cur &&  async_dns_in_flight <= name_resolve_concurrency) {
-        almsg = (async_dns_queue_msg_t *) cur->data;
-        if (! almsg->submitted && almsg->type == AF_INET) {
-            addr_bytes = (guint8 *) &almsg->ip4_addr;
-            g_snprintf(addr_str, sizeof addr_str, "%u.%u.%u.%u.in-addr.arpa.", addr_bytes[3],
-                    addr_bytes[2], addr_bytes[1], addr_bytes[0]);
-            /* XXX - what if it fails? */
-            adns_submit (ads, addr_str, adns_r_ptr, adns_qf_none, NULL, &almsg->query);
-            almsg->submitted = TRUE;
-            async_dns_in_flight++;
-        }
-        cur = cur->next;
-    }
-
-    cur = async_dns_queue_head;
-    while (cur) {
-        dequeue = FALSE;
-        almsg = (async_dns_queue_msg_t *) cur->data;
-        if (almsg->submitted) {
-            ret = adns_check(ads, &almsg->query, &ans, NULL);
-            if (ret == 0) {
-                if (ans->status == adns_s_ok) {
-                    add_ipv4_name(almsg->ip4_addr, *ans->rrs.str);
-                }
-                dequeue = TRUE;
-            }
-        }
-        cur = cur->next;
-        if (dequeue) {
-            async_dns_queue_head = g_list_remove(async_dns_queue_head, (void *) almsg);
-            g_free(almsg);
-            /* XXX, what to do if async_dns_in_flight == 0? */
-            async_dns_in_flight--;
-        }
-    }
-
-    /* Keep the timeout in place */
-    return nro;
-}
-
-static void
-_host_name_lookup_cleanup(void) {
-    void *qdata;
-
-    async_dns_queue_head = g_list_first(async_dns_queue_head);
-    while (async_dns_queue_head) {
-        qdata = async_dns_queue_head->data;
-        async_dns_queue_head = g_list_remove(async_dns_queue_head, qdata);
-        g_free(qdata);
-    }
-
-    if (async_dns_initialized)
-        adns_finish(ads);
-    async_dns_initialized = FALSE;
-}
-
-#else /* HAVE_GNU_ADNS */
+#else
 
 gboolean
 host_name_lookup_process(void) {

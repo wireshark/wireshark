@@ -1014,37 +1014,6 @@ AC_DEFUN([AC_WIRESHARK_C_ARES_CHECK],
 
 
 #
-# AC_WIRESHARK_ADNS_CHECK
-#
-AC_DEFUN([AC_WIRESHARK_ADNS_CHECK],
-[
-	want_adns=defaultyes
-
-	if test "x$want_adns" = "xdefaultyes"; then
-		want_adns=yes
-		if test "x$ac_cv_enable_usr_local" = "xyes" ; then
-			withval=/usr/local
-			if test -d "$withval"; then
-				AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
-			fi
-		fi
-	fi
-
-	if test "x$want_adns" = "xyes"; then
-		AC_CHECK_LIB(adns, adns_init,
-		  [
-		    ADNS_LIBS=-ladns
-		    AC_DEFINE(HAVE_GNU_ADNS, 1, [Define to use GNU ADNS library])
-		    have_good_adns=yes
-		  ],, $SOCKET_LIBS $NSL_LIBS
-		)
-	else
-		AC_MSG_RESULT(not required)
-	fi
-])
-
-
-#
 # AC_WIRESHARK_LIBCAP_CHECK
 #
 AC_DEFUN([AC_WIRESHARK_LIBCAP_CHECK],

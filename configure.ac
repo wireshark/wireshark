@@ -1467,7 +1467,7 @@ if test "x$ac_cv_enable_usr_local" = "xyes" ; then
 		#
 		# Arrange that we search for header files in the source directory
 		# and in its "wiretap" subdirectory, as well as in "/usr/local/include",
-		# as various packages we use ("libpcap", "zlib", "adns")
+		# as various packages we use ("libpcap", "zlib", "c-ares")
 		# may have been installed under "/usr/local/include".
 		#
 		AX_APPEND_FLAG([-I/usr/local/include], [WS_CPPFLAGS])
@@ -2677,7 +2677,7 @@ AC_MSG_CHECKING(whether to use the c-ares library if available)
 
 AC_ARG_WITH(c-ares,
   AC_HELP_STRING( [--with-c-ares@<:@=DIR@:>@],
-		  [use c-ares (located in directory DIR, if supplied) - supersedes --with-adns @<:@default=yes, if present@:>@]),
+		  [use c-ares (located in directory DIR, if supplied) @<:@default=yes, if present@:>@]),
 [
 if   test "x$withval" = "xno";  then
 	want_c_ares=no
@@ -2696,32 +2696,7 @@ else
 fi
 AC_SUBST(C_ARES_LIBS)
 
-dnl ADNS Check
-ADNS_LIBS=''
-AC_MSG_CHECKING(whether to use the GNU ADNS library if available)
-
-AC_ARG_WITH(adns,
-  AC_HELP_STRING( [--with-adns@<:@=DIR@:>@],
-		  [use GNU ADNS (located in directory DIR, if supplied) @<:@default=yes, if present@:>@]),
-[
-if   test "x$withval" = "xno";  then
-	want_adns=no
-elif test "x$withval" = "xyes"; then
-	want_adns=yes
-elif test -d "$withval"; then
-	want_adns=yes
-	AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
-fi
-])
-if test "x$want_adns" = "xno" -o "x$have_good_c_ares" = "xyes" ; then
-	AC_MSG_RESULT(no)
-else
-	AC_MSG_RESULT(yes)
-	AC_WIRESHARK_ADNS_CHECK
-fi
-AC_SUBST(ADNS_LIBS)
-
-if test "x$have_good_c_ares" != "xyes" -a "x$have_good_adns" != "xyes"; then
+if test "x$have_good_c_ares" != "xyes"; then
 	# We don't have an asynchronous name resolver, look for a synchronous one
 
 	dnl Checks for "getaddrinfo()" - and "-lnsl", if we need it to get
@@ -3443,23 +3418,8 @@ fi
 if test "x$have_good_c_ares" = "xyes" ; then
 	c_ares_message="yes"
 else
-	if test "x$have_good_adns" = "xyes" ; then
-		c_ares_message="no"
-	else
-		# We should make this an error at some point.
-		c_ares_message="no. This can cause serious performance issues."
-	fi
-fi
-
-if test "x$have_good_adns" = "xyes" ; then
-	adns_message="yes"
-else
-	if test "x$have_good_c_ares" = "xyes" ; then
-		adns_message="no (using c-ares instead)"
-	else
-		# We should make this an error at some point.
-		adns_message="no. This can cause serious performance issues."
-	fi
+	# We should make this an error at some point.
+	c_ares_message="no. This can cause serious performance issues."
 fi
 
 if test "x$have_good_libcap" = "xyes" ; then
@@ -3532,7 +3492,6 @@ echo "                   Use pcap library : $want_pcap"
 echo "                   Use zlib library : $zlib_message"
 echo "               Use kerberos library : $krb5_message"
 echo "                 Use c-ares library : $c_ares_message"
-echo "               Use GNU ADNS library : $adns_message"
 echo "                Use SMI MIB library : $libsmi_message"
 echo "             Use GNU crypto library : $gcrypt_message"
 echo "             Use SSL crypto library : $ssl_message"

@@ -384,7 +384,7 @@ Use the following command to install Wireshark under Gentoo Linux with all of
 the extra features: 
 
 ----
-$ USE="adns gtk ipv6 portaudio snmp ssl kerberos threads selinux" emerge wireshark  
+$ USE="c-ares gtk ipv6 portaudio snmp ssl kerberos threads selinux" emerge wireshark
 ----
 
 ==== Installing from packages under FreeBSD

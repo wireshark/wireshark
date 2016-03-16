@@ -106,9 +106,6 @@
 /* Define to 1 if you have the `getprotobynumber' function. */
 #cmakedefine HAVE_GETPROTOBYNUMBER 1
 
-/* Define to use GNU ADNS library */
-#cmakedefine HAVE_GNU_ADNS 1
-
 /* Define to 1 if you have the <grp.h> header file. */
 #cmakedefine HAVE_GRP_H 1
 

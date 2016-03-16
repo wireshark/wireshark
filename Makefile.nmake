@@ -41,7 +41,7 @@ GENERATED_CFLAGS=\
 	$(STANDARD_CFLAGS) \
 	/I. $(GLIB_CFLAGS) \
 	$(ZLIB_CFLAGS) /I$(PCAP_DIR)\include $(AIRPCAP_CFLAGS) \
-	$(C_ARES_CFLAGS) $(ADNS_CFLAGS) $(GNUTLS_CFLAGS) \
+	$(C_ARES_CFLAGS) $(GNUTLS_CFLAGS) \
 	$(SMI_CFLAGS) $(GEOIP_CFLAGS) $(LIBSSH_CFLAGS) $(WINSPARKLE_CFLAGS)
 
 CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
@@ -88,7 +88,6 @@ wireshark_gtk_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\dfilter\dfilter.lib \
 	epan\ftypes\ftypes.lib \
 	$(C_ARES_LIBS) \
-	$(ADNS_LIBS) \
 	$(ZLIB_LIBS)
 !ENDIF
 
@@ -106,7 +105,6 @@ tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\dfilter\dfilter.lib \
 	epan\ftypes\ftypes.lib \
 	$(C_ARES_LIBS) \
-	$(ADNS_LIBS) \
 	$(ZLIB_LIBS)
 !ENDIF
 
@@ -139,7 +137,6 @@ rawshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\dfilter\dfilter.lib \
 	epan\ftypes\ftypes.lib \
 	$(C_ARES_LIBS) \
-	$(ADNS_LIBS) \
 	$(ZLIB_LIBS)
 !ENDIF
 
@@ -192,7 +189,6 @@ dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\wireshark.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	$(C_ARES_LIBS) \
-	$(ADNS_LIBS) \
 	$(ZLIB_LIBS) \
 	$(SMI_LIBS)
 !ENDIF
@@ -218,7 +214,7 @@ RESOURCES=image\wireshark.res image\file_dlg_win32.res \
 	image\rawshark.res image\reordercap.res image\libwsutil.res
 
 
-all: $(LIBS_CHECK) config.h ui\qt\config.pri tools image $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil codecs wiretap epan randpkt_core extcap $(EXECUTABLES) wireshark.bsc $(RESOURCES) help install-all
+all: $(LIBS_CHECK) config.h ui\qt\config.pri tools image $(C_ARES_DLL) $(ZLIB_DLL) wsutil codecs wiretap epan randpkt_core extcap $(EXECUTABLES) wireshark.bsc $(RESOURCES) help install-all
 
 !IFDEF MAKENSIS
 packaging: all
@@ -441,7 +437,6 @@ config.h	: config.h.win32 config.nmake
 	    -e s/@VERSION_MICRO@/$(VERSION_MICRO)/ \
 	    -e "s/@VERSION_FLAVOR@/$(VERSION_FLAVOR)/" \
 	    -e "s/@HAVE_C_ARES@/$(C_ARES_CONFIG)/" \
-	    -e "s/@HAVE_GNU_ADNS@/$(ADNS_CONFIG)/" \
 	    -e "s/@HAVE_KFW@/$(KFW_CONFIG)/" \
 	    -e "s/@HAVE_LIBZ@/$(ZLIB_CONFIG)/" \
 	    -e "s/@HAVE_LIBPCAP@/$(WINPCAP_CONFIG)/" \
@@ -630,9 +625,6 @@ clean: clean-local
 # "distclean" removes all files not part of the distribution.
 # It does not remove generated files that are part of the distribution.
 distclean-local: clean-local
-!IFDEF ADNS_DIR
-	rm -f $(ADNS_DLL) $(ADNS_LIBS)
-!ENDIF
 !IFDEF ZLIB_DIR
 	rm -f $(ZLIB_DLL) $(ZLIB_DIR)\zlib1.dll.manifest \
 		$(ZLIB_DIR)\include\zlib.h $(ZLIB_DIR)\include\zconf.h \
@@ -749,33 +741,6 @@ image::
 	cd image
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
-
-!IFDEF ADNS_DIR
-# MSVC variants supported by Wireshark have to avoid indirectly using msvcrt.dll,
-# therefore compile the adns dll from source ADNS_DIR package.
-# To avoid path problems, copy the adns sources to a temp dir,
-# compile and copy the resulting files back to (source) ADNS_DIR
-#
-# Unfortunately:
-# - we need to "patch" adns_dll.rep and adns_dll.rc (at least for MSVC2005EE)
-#
-$(ADNS_DLL):
-	xcopy $(ADNS_DIR) adns.tmp /D /I /E /Y
-	copy adns_dll.dep adns.tmp\adns_win32\adns_dll
-	copy adns_dll.rc adns.tmp\adns_win32\adns_dll
-	cd adns.tmp\adns_win32\adns_dll
-	set CFG=adns_dll - Win32 Release
-	$(MAKE) /$(MAKEFLAGS) -f adns_dll.mak LOC="$(LOCAL_CFLAGS)"
-	cd ..\lib
-!IFDEF MANIFEST_INFO_REQUIRED
-	mt.exe -nologo -manifest "adns_dll.dll.manifest" -outputresource:adns_dll.dll;2
-!ENDIF
-	if not exist "$(WIRESHARK_LIB_DIR)\$(MSVC_VARIANT)\adns" mkdir "$(WIRESHARK_LIB_DIR)\$(MSVC_VARIANT)\adns"
-	copy adns_dll.dll $(ADNS_DLL)
-	copy adns_dll.lib $(ADNS_LIBS)
-	cd ..\..\..
-	rm -r -f adns.tmp
-!ENDIF
 
 !IFDEF ZLIB_DIR
 # MSVC variants supported by Wireshark have to avoid indirectly using msvcrt.dll,
@@ -1049,12 +1014,6 @@ process_libs:
 		c-ares-$(C_ARES_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws.zip \
 		"$(DOWNLOAD_TAG)" "$(WIRESHARK_TARGET_PLATFORM)"
 !ENDIF
-!IFDEF ADNS_DIR
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		. \
-		adns-1.0-win32-05ws.zip \
-		"$(DOWNLOAD_TAG)" "$(WIRESHARK_TARGET_PLATFORM)"
-!ENDIF
 !IFDEF ZLIB_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		. zlib-1.2.8-ws.zip \
@@ -1137,7 +1096,6 @@ process_libs:
 # UPDATING REMOVES THE FORMER USER DIRS
 clean_setup:
 	cd "$(WIRESHARK_LIB_DIR)"
-	rm -r -f adns-1.0-win32-05ws
 	rm -r -f c-ares-1.5.3ws
 	rm -r -f c-ares-1.6.0ws
 	rm -r -f c-ares-1.7.0-win??ws
@@ -1439,9 +1397,6 @@ install-all: install-generated-files
 !ENDIF
 !IFDEF C_ARES_DIR
 	xcopy $(C_ARES_DLL) $(INSTALL_DIR) /d
-!ENDIF
-!IFDEF ADNS_DIR
-	xcopy $(ADNS_DLL) $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF KFW_DIR
 	xcopy $(KFW_PATH)\$(COMERR_DLL) $(INSTALL_DIR) /d

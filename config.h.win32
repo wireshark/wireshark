@@ -170,14 +170,8 @@
 #define HAVE_INFLATEPRIME 1
 #endif
 
-/* Define to use GNU ADNS library */
+/* Define to use c-ares library */
 @HAVE_C_ARES@
-
-/* Define to use GNU ADNS library */
-#ifndef HAVE_C_ARES
-@HAVE_GNU_ADNS@
-#define ADNS_JGAA_WIN32 1
-#endif
 
 /* Define to use the gnutls library */
 @HAVE_LIBGNUTLS@

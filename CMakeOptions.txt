@@ -59,7 +59,6 @@ option(ENABLE_PDF_GUIDES        "Build PDF User & Developer Guides" OFF)
 option(ENABLE_CHM_GUIDES        "Build HTML Help User & Developer Guides" OFF)
 option(ENABLE_PCAP_NG_DEFAULT	"Enable pcap-ng as default file format" ON)
 
-option(ENABLE_ADNS       "Build with adns support" ON)
 option(ENABLE_PORTAUDIO  "Build with PortAudio support" ON)
 option(ENABLE_ZLIB       "Build with zlib compression support" ON)
 option(ENABLE_LUA        "Build with Lua dissector support" ON)

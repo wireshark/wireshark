@@ -511,14 +511,6 @@ epan_get_compiled_version_info(GString *str)
 	g_string_append(str, "with c-ares " ARES_VERSION_STR);
 #else
 	g_string_append(str, "without c-ares");
-
-	/* ADNS - only add if no c-ares */
-	g_string_append(str, ", ");
-#ifdef HAVE_GNU_ADNS
-	g_string_append(str, "with ADNS");
-#else
-	g_string_append(str, "without ADNS");
-#endif /* HAVE_GNU_ADNS */
 #endif /* HAVE_C_ARES */
 
 	/* LUA */

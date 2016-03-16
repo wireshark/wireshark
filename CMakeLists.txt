@@ -741,11 +741,9 @@ if(ENABLE_PORTAUDIO AND BUILD_wireshark_gtk)
 endif()
 
 
-# Prefer c-ares over adns
-if(ENABLE_CARES) # C Asynchronouse resolver
+# C Asynchronous resolver
+if(ENABLE_CARES)
 	set(PACKAGELIST ${PACKAGELIST} CARES)
-elseif(ENABLE_ADNS) # Gnu asynchronous DNS
-	set(PACKAGELIST ${PACKAGELIST} ADNS)
 endif()
 
 # Zlib compression
@@ -881,12 +879,9 @@ endif()
 if(HAVE_LIBCARES)
 	set(HAVE_C_ARES 1)
 endif()
-if(HAVE_LIBADNS)
-	set(HAVE_GNU_ADNS 1)
-endif()
-if(NOT HAVE_LIBCARES AND NOT HAVE_LIBADNS)
+if(NOT HAVE_LIBCARES)
 	# We should make this an error at some point.
-	message(WARNING "Not using c-ares or ADNS.")
+	message(WARNING "Not using c-ares.")
 	message(WARNING "Synchronous name resolution can seriously degrade performance.")
 endif()
 if(HAVE_LIBNL AND HAVE_AIRPCAP)
@@ -1183,7 +1178,6 @@ set( plugindir "\${libdir}/wireshark/plugins/${CPACK_PACKAGE_VERSION}" )
 
 set(ICON_PATH "${CMAKE_SOURCE_DIR}/image/")
 set( IN_FILES
-	adns_dll.rc
 	capchild/doxygen.cfg.in
 	caputils/doxygen.cfg.in
 	doxygen.cfg.in
@@ -1361,7 +1355,6 @@ set(LIBEPAN_LIBS
 		${AIRPCAP_LIBRARIES}
 		${PCAP_LIBRARIES}
 		${CARES_LIBRARIES}
-		${ADNS_LIBRARIES}
 		${KERBEROS_LIBRARIES}
 		${LUA_LIBRARIES}
 		${PYTHON_LIBRARIES}
@@ -2136,7 +2129,6 @@ if(BUILD_randpkt)
 #		@SOCKET_LIBS@
 #		@NSL_LIBS@
 		${CARES_LIBRARIES}
-		${ADNS_LIBRARIES}
 		${ZLIB_LIBRARIES}
 	)
 	set(randpkt_FILES

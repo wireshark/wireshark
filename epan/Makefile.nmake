@@ -16,7 +16,7 @@ LINK= link
 COMMON_CFLAGS=\
 	$(STANDARD_CFLAGS) \
 	/I. /I.. $(GLIB_CFLAGS) \
-	$(ZLIB_CFLAGS) $(C_ARES_CFLAGS) $(ADNS_CFLAGS) \
+	$(ZLIB_CFLAGS) $(C_ARES_CFLAGS) \
 	$(LUA_CFLAGS) $(GNUTLS_CFLAGS) /I$(PCAP_DIR)\include \
 	$(SMI_CFLAGS) $(GEOIP_CFLAGS)
 
@@ -56,7 +56,6 @@ WSLUA_DIR=
 libwireshark_LIBS = \
 	$(GLIB_LIBS)	\
 	$(C_ARES_LIBS) \
-	$(ADNS_LIBS) \
 	$(KFW_LIBS) \
 	$(ZLIB_LIBS) \
 	$(GNUTLS_LIBS) \
@@ -289,7 +288,6 @@ TVBTEST_LIBS= ..\wiretap\wiretap-$(WTAP_VERSION).lib \
 	dfilter\dfilter.lib \
 	ftypes\ftypes.lib \
 	$(C_ARES_LIBS) \
-	$(ADNS_LIBS) \
 	$(ZLIB_LIBS)
 !ENDIF
 
@@ -319,7 +317,6 @@ OIDS_TEST_LIBS= ..\wiretap\wiretap-$(WTAP_VERSION).lib \
 	ftypes\ftypes.lib \
 	wmem\wmem.lib \
 	$(C_ARES_LIBS) \
-	$(ADNS_LIBS) \
 	$(ZLIB_LIBS)
 !ENDIF
 
@@ -348,7 +345,6 @@ REASSEMBLE_TEST_LIBS= ..\wiretap\wiretap-$(WTAP_VERSION).lib \
 	dfilter\dfilter.lib \
 	ftypes\ftypes.lib \
 	$(C_ARES_LIBS) \
-	$(ADNS_LIBS) \
 	$(ZLIB_LIBS)
 !ENDIF
 
