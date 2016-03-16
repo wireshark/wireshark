@@ -2,7 +2,7 @@
   dssetup interface definition
 */
 
-import "misc.idl";
+import "misc/misc.idl";
 
 [
 	uuid("3919286a-b10c-11d0-9ba8-00c04fd92ef5"),

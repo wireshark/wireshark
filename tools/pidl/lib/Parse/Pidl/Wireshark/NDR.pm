@@ -962,6 +962,7 @@ sub ProcessImport
 		next if($_ eq "security");
 		s/^\"//;
 		s/\.idl"?$//;
+		s/^.*\///;
 		$self->pidl_hdr("#include \"packet-dcerpc-$_\.h\"");
 	}
 	$self->pidl_hdr("");

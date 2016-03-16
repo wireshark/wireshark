@@ -3,7 +3,7 @@
 */
 
 /*import "lsa.idl", "security.idl",*/
-import "misc.idl";
+import "misc/misc.idl";
 
 [ 
   uuid("338cd001-2244-31f1-aaaa-900038001003"),

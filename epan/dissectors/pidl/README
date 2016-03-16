@@ -4,11 +4,8 @@ A note about PIDL generated files
 Quick guide
 ===========
 
-    for file in *.idl */*.idl; do
-        echo "Generating dissector for $file"
-        ../../../tools/pidl/pidl --includedir . --ws-parser -- $file;
-    done
-    cp packet-dcerpc*.* ..
+Run 'make all' inside the pidl folder to generate all the dissectors and place
+them in the epan/dissectors folder.
 
 Complete infos
 ==============

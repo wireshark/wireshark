@@ -1,4 +1,4 @@
-import "misc.idl";
+import "misc/misc.idl";
 [
   uuid("885d85fb-c754-4062-a0e7-6872ce0064f4"),
   endpoint("ncacn_np:[\\pipe\\mdssvc]", "ncacn_ip_tcp:", "ncalrpc:"),

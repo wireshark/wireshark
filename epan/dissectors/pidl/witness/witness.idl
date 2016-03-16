@@ -1,6 +1,6 @@
 #include "idl_types.h"
 
-import "misc.idl";
+import "misc/misc.idl";
 
 [
   uuid("ccd8c074-d0e5-4a40-92b4-d074faa6ba28"),

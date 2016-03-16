@@ -4,7 +4,7 @@
   initshutdown interface definition
 */
 
-import "lsa.idl";
+import "lsa/lsa.idl";
 
 [ 
   uuid("894de0c0-0d55-11d3-a322-00c04fa321a1"),

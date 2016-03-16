@@ -3283,7 +3283,6 @@ AC_OUTPUT(
   epan/dfilter/Makefile
   epan/dissectors/Makefile
   epan/dissectors/dcerpc/Makefile
-  epan/dissectors/pidl/Makefile
   epan/ftypes/Makefile
   epan/nghttp2/Makefile
   epan/wmem/Makefile

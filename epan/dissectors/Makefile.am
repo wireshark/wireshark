@@ -42,8 +42,8 @@ libdissectors_la_SOURCES = \
 	$(PIDL_DISSECTOR_SRC) \
 	$(DISSECTOR_SUPPORT_SRC)
 
-# include asn1 and pidl in the source tarball. But nothing to build...
-DIST_SUBDIRS = asn1 pidl dcerpc
+# include asn1 in the source tarball. But nothing to build...
+DIST_SUBDIRS = asn1 dcerpc
 
 SUBDIRS = dcerpc
 
@@ -56,7 +56,8 @@ EXTRA_DIST = \
 	README.X11		\
 	x11-fields		\
 	CMakeLists.txt		\
-	CMakeListsCustom.txt.example
+	CMakeListsCustom.txt.example	\
+	pidl
 
 packet-ncp2222.c : $(top_srcdir)/tools/ncp2222.py
 	$(AM_V_python)$(PYTHON) $(top_srcdir)/tools/ncp2222.py -o $@
