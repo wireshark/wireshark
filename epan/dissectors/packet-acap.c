@@ -1,5 +1,6 @@
 /* packet-acap.c
  * Routines for ACAP packet dissection
+ * RFC 2244
  * Copyright 2003, Brad Hards <bradh@frogmouth.net>
  * Heavily based in packet-imap.c, Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
