@@ -10,25 +10,25 @@
 root = true
 
 [*]
+tab_width = 8
+charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
 # Autotools, Make, Nmake
 [{Makefile.am,Makefile,Makefile.nmake,config.nmake}]
 indent_style = tab
+indent_size = 8
 
 # Python
 [*.py]
 indent_style = space
 indent_size = 4
-charset = utf-8
 
 # C
-[**.[ch]]
+[*.[ch]]
 indent_style = space
 indent_size = 4
-tab_width = 8
-charset = utf-8
 
 [{capinfos,captype,mergecap,mkcap,tfshark,tshark}.c]
 indent_size = 2
@@ -65,7 +65,7 @@ indent_size = 2
 [summary.[ch]]
 indent_size = 2
 
-[randpkt_core/randpkt_core.[ch]]
+[randpkt_core.[ch]]
 indent_style = tab
 indent_size = tab
 
