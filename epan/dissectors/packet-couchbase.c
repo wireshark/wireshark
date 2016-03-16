@@ -1855,7 +1855,7 @@ proto_reg_handoff_couchbase(void)
   tcp_port_range = range_copy(couchbase_tcp_port_range);
   dissector_add_uint_range("tcp.port", tcp_port_range, couchbase_tcp_handle);
 
-  json_handle = find_dissector("json");
+  json_handle = find_dissector_add_dependency("json", proto_couchbase);
 }
 
 /*

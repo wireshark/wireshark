@@ -3482,7 +3482,7 @@ proto_register_ubertooth(void)
 void
 proto_reg_handoff_ubertooth(void)
 {
-    bluetooth_ubertooth_handle = find_dissector("bluetooth_ubertooth");
+    bluetooth_ubertooth_handle = find_dissector_add_dependency("bluetooth_ubertooth", proto_ubertooth);
 
     dissector_add_uint("usb.product", (0x1d50 << 16) | 0x6000, ubertooth_handle); /* Ubertooth Zero */
     dissector_add_uint("usb.product", (0x1d50 << 16) | 0x6002, ubertooth_handle); /* Ubertooth One */

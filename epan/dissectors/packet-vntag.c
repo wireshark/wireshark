@@ -176,7 +176,7 @@ proto_reg_handoff_vntag(void)
 	vntag_handle = create_dissector_handle(dissect_vntag, proto_vntag);
 	dissector_add_uint("ethertype", ETHERTYPE_VNTAG, vntag_handle);
 
-	ethertype_handle = find_dissector("ethertype");
+	ethertype_handle = find_dissector_add_dependency("ethertype", proto_vntag);
 }
 
 /*

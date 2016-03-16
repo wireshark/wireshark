@@ -519,7 +519,7 @@ proto_reg_handoff_gmhdr(void)
 {
   dissector_handle_t gmhdr_handle;
 
-  ethertype_handle = find_dissector("ethertype");
+  ethertype_handle = find_dissector_add_dependency("ethertype", proto_gmhdr);
 
   gmhdr_handle = create_dissector_handle(dissect_gmhdr, proto_gmhdr);
   dissector_add_uint("ethertype", ETHERTYPE_GIGAMON, gmhdr_handle);

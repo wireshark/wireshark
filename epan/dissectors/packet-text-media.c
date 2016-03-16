@@ -168,7 +168,7 @@ proto_reg_handoff_text_lines(void)
 
 	dissector_add_string("media_type", "application/x-wms-logplaystats", text_lines_handle);
 	dissector_add_string("media_type", "application/x-rtsp-udp-packetpair", text_lines_handle);
-	xml_handle = find_dissector("xml");
+	xml_handle = find_dissector_add_dependency("xml", proto_text_lines);
 }
 
 /*

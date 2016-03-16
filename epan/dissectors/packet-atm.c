@@ -2009,14 +2009,14 @@ proto_reg_handoff_atm(void)
    * Get handles for the Ethernet, Token Ring, Frame Relay, LLC,
    * SSCOP, LANE, and ILMI dissectors.
    */
-  eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
-  tr_handle             = find_dissector("tr");
-  fr_handle             = find_dissector("fr");
-  llc_handle            = find_dissector("llc");
-  sscop_handle          = find_dissector("sscop");
-  ppp_handle            = find_dissector("ppp");
-  eth_maybefcs_handle   = find_dissector("eth_maybefcs");
-  ip_handle             = find_dissector("ip");
+  eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_atm_lane);
+  tr_handle             = find_dissector_add_dependency("tr", proto_atm_lane);
+  fr_handle             = find_dissector_add_dependency("fr", proto_atm);
+  llc_handle            = find_dissector_add_dependency("llc", proto_atm);
+  sscop_handle          = find_dissector_add_dependency("sscop", proto_atm);
+  ppp_handle            = find_dissector_add_dependency("ppp", proto_atm);
+  eth_maybefcs_handle   = find_dissector_add_dependency("eth_maybefcs", proto_atm);
+  ip_handle             = find_dissector_add_dependency("ip", proto_atm);
   data_handle           = find_dissector("data");
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_PDUS, atm_handle);

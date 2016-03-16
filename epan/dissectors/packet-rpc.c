@@ -4439,8 +4439,8 @@ proto_reg_handoff_rpc(void)
 
 	heur_dissector_add("tcp", dissect_rpc_tcp_heur, "RPC over TCP", "rpc_tcp", proto_rpc, HEURISTIC_ENABLE);
 	heur_dissector_add("udp", dissect_rpc_heur, "RPC over UDP", "rpc_udp", proto_rpc, HEURISTIC_ENABLE);
-	gssapi_handle = find_dissector("gssapi");
-	spnego_krb5_wrap_handle = find_dissector("spnego-krb5-wrap");
+	gssapi_handle = find_dissector_add_dependency("gssapi", proto_rpc);
+	spnego_krb5_wrap_handle = find_dissector_add_dependency("spnego-krb5-wrap", proto_rpc);
 	data_handle = find_dissector("data");
 }
 

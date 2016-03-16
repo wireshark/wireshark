@@ -247,7 +247,7 @@ proto_reg_handoff_rudp(void) {
 	if (!initialized) {
 		rudp_handle = create_dissector_handle(dissect_rudp, proto_rudp);
 		dissector_add_for_decode_as("udp.port", rudp_handle);
-		sm_handle = find_dissector("sm");
+		sm_handle = find_dissector_add_dependency("sm", proto_rudp);
 		data_handle = find_dissector("data");
 		initialized = TRUE;
 	} else {

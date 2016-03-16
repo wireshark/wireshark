@@ -55368,7 +55368,7 @@ proto_reg_handoff_rnsap(void)
 	dissector_handle_t rnsap_handle;
 
 	rnsap_handle = find_dissector("rnsap");
-	rrc_dl_dcch_handle = find_dissector("rrc.dl.dcch");
+	rrc_dl_dcch_handle = find_dissector_add_dependency("rrc.dl.dcch", proto_rnsap);
 
 	dissector_add_uint("sccp.ssn", SCCP_SSN_RNSAP, rnsap_handle);
 	/* Add heuristic dissector */

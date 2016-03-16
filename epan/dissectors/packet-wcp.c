@@ -790,7 +790,7 @@ proto_reg_handoff_wcp(void) {
 	/*
 	 * Get handle for the Frame Relay (uncompressed) dissector.
 	 */
-	fr_uncompressed_handle = find_dissector("fr_uncompressed");
+	fr_uncompressed_handle = find_dissector_add_dependency("fr_uncompressed", proto_wcp);
 
 	wcp_handle = create_dissector_handle(dissect_wcp, proto_wcp);
 	dissector_add_uint("fr.nlpid", NLPID_COMPRESSED, wcp_handle);

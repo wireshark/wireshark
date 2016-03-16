@@ -318,7 +318,7 @@ proto_reg_handoff_ipmi_session(void)
 	dissector_add_uint("rmcp.class", RMCP_CLASS_IPMI, ipmi_session_handle);
 
 	data_handle = find_dissector("data");
-	ipmi_handle = find_dissector("ipmi");
+	ipmi_handle = find_dissector_add_dependency("ipmi", proto_ipmi_session);
 }
 
 /*

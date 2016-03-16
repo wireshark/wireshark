@@ -1450,8 +1450,8 @@ proto_reg_handoff_t38(void)
 		t38_udp_handle=create_dissector_handle(dissect_t38_udp, proto_t38);
 		t38_tcp_handle=create_dissector_handle(dissect_t38_tcp, proto_t38);
 		t38_tcp_pdu_handle=create_dissector_handle(dissect_t38_tcp_pdu, proto_t38);
-		rtp_handle = find_dissector("rtp");
-		t30_hdlc_handle = find_dissector("t30.hdlc");
+		rtp_handle = find_dissector_add_dependency("rtp", proto_t38);
+		t30_hdlc_handle = find_dissector_add_dependency("t30.hdlc""rtp", proto_t38);
 		data_handle = find_dissector("data");
 		t38_prefs_initialized = TRUE;
 	}

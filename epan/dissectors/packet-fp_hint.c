@@ -602,9 +602,9 @@ proto_register_fp_hint(void)
 void
 proto_reg_handoff_fp_hint(void)
 {
-    atm_untrunc_handle = find_dissector("atm_untruncated");
+    atm_untrunc_handle = find_dissector_add_dependency("atm_untruncated", proto_fp_hint);
     data_handle = find_dissector("data");
-    ethwithfcs_handle = find_dissector("eth_withfcs");
+    ethwithfcs_handle = find_dissector_add_dependency("eth_withfcs", proto_fp_hint);
 }
 
 

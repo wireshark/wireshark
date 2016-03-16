@@ -276,7 +276,7 @@ proto_reg_handoff_pktap(void)
 {
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_PKTAP, pktap_handle);
 
-	pcap_pktdata_handle = find_dissector("pcap_pktdata");
+	pcap_pktdata_handle = find_dissector_add_dependency("pcap_pktdata", proto_pktap);
 
 	/* XXX - WTAP_ENCAP_USER2 to handle Mavericks' botch wherein it
 		uses DLT_USER2 for PKTAP; if you are using DLT_USER2 for your

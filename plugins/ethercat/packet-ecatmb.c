@@ -1983,8 +1983,8 @@ void proto_reg_handoff_ecat_mailbox(void)
    ecat_mailbox_handle = find_dissector("ecat_mailbox");
    dissector_add_uint("ecatf.type", 5, ecat_mailbox_handle);
 
-   eth_handle = find_dissector("eth_withoutfcs");
-   ams_handle = find_dissector("ams");
+   eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_ecat_mailbox);
+   ams_handle = find_dissector_add_dependency("ams", proto_ecat_mailbox);
 }
 
 /*

@@ -321,7 +321,7 @@ void
 proto_reg_handoff_file_pcap(void)
 {
     heur_dissector_add("wtap_file", dissect_pcap_heur, "PCAP File", "pcap_wtap", proto_pcap, HEURISTIC_ENABLE);
-    pcap_pktdata_handle = find_dissector("pcap_pktdata");
+    pcap_pktdata_handle = find_dissector_add_dependency("pcap_pktdata", proto_pcap);
 }
 
 /*

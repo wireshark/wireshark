@@ -7175,9 +7175,9 @@ proto_reg_handoff_wsp(void)
     /*
      * Get a handle for the WTP-over-UDP and the generic media dissectors.
      */
-    wtp_fromudp_handle = find_dissector("wtp-udp");
-    media_handle = find_dissector("media");
-    wbxml_uaprof_handle = find_dissector("wbxml-uaprof");
+    wtp_fromudp_handle = find_dissector_add_dependency("wtp-udp", proto_wsp);
+    media_handle = find_dissector_add_dependency("media", proto_wsp);
+    wbxml_uaprof_handle = find_dissector_add_dependency("wbxml-uaprof", proto_wsp);
 
     /* Only connection-less WSP has no previous handler */
     dissector_add_uint("udp.port", UDP_PORT_WSP, wsp_fromudp_handle);

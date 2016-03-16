@@ -594,7 +594,7 @@ proto_reg_handoff_reload_framing(void)
   reload_framing_tcp_handle = create_dissector_handle(dissect_reload_framing_tcp, proto_reload_framing);
   reload_framing_udp_handle = create_dissector_handle(dissect_reload_framing, proto_reload_framing);
 
-  reload_handle = find_dissector("reload");
+  reload_handle = find_dissector_add_dependency("reload", proto_reload_framing);
 
   dissector_add_uint("tcp.port", TCP_PORT_RELOAD, reload_framing_tcp_handle);
   dissector_add_uint("udp.port", UDP_PORT_RELOAD, reload_framing_udp_handle);

@@ -5370,7 +5370,7 @@ proto_reg_handoff_icmpv6(void)
     /*
      * Get a handle for the IPv6 dissector.
      */
-    ipv6_handle = find_dissector("ipv6");
+    ipv6_handle = find_dissector_add_dependency("ipv6", proto_icmpv6);
     data_handle = find_dissector("data");
 }
 

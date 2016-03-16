@@ -403,7 +403,7 @@ void proto_reg_handoff_scop(void)
     if (!inited){
         scop_udp_handle     = find_dissector("scop.udp");
         scop_tcp_handle     = find_dissector("scop.tcp");
-        ieee802154_handle   = find_dissector("wpan_nofcs");
+        ieee802154_handle   = find_dissector_add_dependency("wpan_nofcs", proto_scop);
         data_handle         = find_dissector("data");
         inited = TRUE;
     } else {

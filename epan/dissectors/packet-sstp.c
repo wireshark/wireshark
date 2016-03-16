@@ -514,7 +514,7 @@ proto_register_sstp(void)
 void
 proto_reg_handoff_sstp(void)
 {
-  ppp_handle = find_dissector("ppp");
+  ppp_handle = find_dissector_add_dependency("ppp", proto_sstp);
 }
 
 /*

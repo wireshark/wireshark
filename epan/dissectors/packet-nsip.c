@@ -1169,8 +1169,8 @@ proto_reg_handoff_nsip(void) {
   static range_t *nsip_udp_port_range;
 
   if (!nsip_prefs_initialized) {
-    nsip_handle = find_dissector("gprs_ns");
-    bssgp_handle = find_dissector("bssgp");
+    nsip_handle = find_dissector_add_dependency("gprs_ns", proto_nsip);
+    bssgp_handle = find_dissector_add_dependency("bssgp", proto_nsip);
     nsip_prefs_initialized = TRUE;
   } else {
     dissector_delete_uint_range("udp.port", nsip_udp_port_range, nsip_handle);

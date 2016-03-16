@@ -686,7 +686,7 @@ proto_register_peekremote(void)
 void
 proto_reg_handoff_peekremote(void)
 {
-  wlan_radio_handle = find_dissector("wlan_radio");
+  wlan_radio_handle = find_dissector_add_dependency("wlan_radio", proto_peekremote);
 
   dissector_add_uint("udp.port", 5000, peekremote_handle);
 

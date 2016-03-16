@@ -12281,9 +12281,9 @@ void proto_reg_handoff_c15ch(void)
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_SIP_REFER, c15ch_third_level_handle);
 
     /* find external dissectors */
-    general_isup_handle = find_dissector("isup");
-    general_sccp_handle = find_dissector("sccp");
-    general_q931_handle = find_dissector("q931");
+    general_isup_handle = find_dissector_add_dependency("isup", proto_c15ch);
+    general_sccp_handle = find_dissector_add_dependency("sccp", proto_c15ch);
+    general_q931_handle = find_dissector_add_dependency("q931", proto_c15ch);
 
 }
 

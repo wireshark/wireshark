@@ -236,14 +236,14 @@ proto_reg_handoff_redback(void)
 	osinl_incl_subdissector_table = find_dissector_table("osinl.incl");
 	osinl_excl_subdissector_table = find_dissector_table("osinl.excl");
 
-	ipv4_handle = find_dissector("ip");
-	ipv6_handle = find_dissector("ipv6");
+	ipv4_handle = find_dissector_add_dependency("ip", hfi_redback->id);
+	ipv6_handle = find_dissector_add_dependency("ipv6", hfi_redback->id);
 	data_handle = find_dissector("data");
-	ethnofcs_handle = find_dissector("eth_withoutfcs");
-	clnp_handle = find_dissector("clnp");
-	arp_handle = find_dissector("arp");
-	ppp_handle = find_dissector("ppp");
-	ppphdlc_handle = find_dissector("ppp_hdlc");
+	ethnofcs_handle = find_dissector_add_dependency("eth_withoutfcs", hfi_redback->id);
+	clnp_handle = find_dissector_add_dependency("clnp", hfi_redback->id);
+	arp_handle = find_dissector_add_dependency("arp", hfi_redback->id);
+	ppp_handle = find_dissector_add_dependency("ppp", hfi_redback->id);
+	ppphdlc_handle = find_dissector_add_dependency("ppp_hdlc", hfi_redback->id);
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_REDBACK, redback_handle);
 }

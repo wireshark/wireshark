@@ -358,7 +358,7 @@ void proto_reg_handoff_tdmop(void)
         if (pref_tdmop_ethertype) {
             dissector_add_uint("ethertype", pref_tdmop_ethertype, tdmop_handle);
         }
-        lapd_handle = find_dissector("lapd-bitstream");
+        lapd_handle = find_dissector_add_dependency("lapd-bitstream", proto_tdmop);
         data_handle = find_dissector("data");
         current_tdmop_ethertype = pref_tdmop_ethertype;
         current_tdmop_udpport = pref_tdmop_udpport;

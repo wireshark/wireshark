@@ -875,7 +875,7 @@ proto_reg_handoff_forces(void)
     if (!inited) {
         forces_handle_tcp = create_dissector_handle(dissect_forces_tcp,     proto_forces);
         forces_handle     = create_dissector_handle(dissect_forces_not_tcp, proto_forces);
-        ip_handle = find_dissector("ip");
+        ip_handle = find_dissector_add_dependency("ip", proto_forces);
         inited = TRUE;
     }
 

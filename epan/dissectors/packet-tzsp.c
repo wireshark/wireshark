@@ -554,14 +554,14 @@ proto_reg_handoff_tzsp(void)
     dissector_add_uint("udp.port", UDP_PORT_TZSP, tzsp_handle);
 
     /* Get the data dissector for handling various encapsulation types. */
-    eth_maybefcs_handle = find_dissector("eth_maybefcs");
-    tr_handle = find_dissector("tr");
-    ppp_handle = find_dissector("ppp_hdlc");
-    fddi_handle = find_dissector("fddi");
-    raw_ip_handle = find_dissector("raw_ip");
-    ieee_802_11_handle = find_dissector("wlan");
-    ieee_802_11_prism_handle = find_dissector("prism");
-    ieee_802_11_avs_handle = find_dissector("wlancap");
+    eth_maybefcs_handle = find_dissector_add_dependency("eth_maybefcs", proto_tzsp);
+    tr_handle = find_dissector_add_dependency("tr", proto_tzsp);
+    ppp_handle = find_dissector_add_dependency("ppp_hdlc", proto_tzsp);
+    fddi_handle = find_dissector_add_dependency("fddi", proto_tzsp);
+    raw_ip_handle = find_dissector_add_dependency("raw_ip", proto_tzsp);
+    ieee_802_11_handle = find_dissector_add_dependency("wlan", proto_tzsp);
+    ieee_802_11_prism_handle = find_dissector_add_dependency("prism", proto_tzsp);
+    ieee_802_11_avs_handle = find_dissector_add_dependency("wlancap", proto_tzsp);
     data_handle = find_dissector("data");
 
     /* Register this protocol as an encapsulation type. */

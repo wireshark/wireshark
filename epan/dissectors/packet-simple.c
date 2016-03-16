@@ -700,7 +700,7 @@ void proto_reg_handoff_simple(void)
     simple_dissector_handle = create_dissector_handle(dissect_simple, proto_simple);
     dissector_add_for_decode_as("udp.port", simple_dissector_handle);
 
-    link16_handle = find_dissector("link16");
+    link16_handle = find_dissector_add_dependency("link16", proto_simple);
 }
 
 /*

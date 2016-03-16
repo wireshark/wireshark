@@ -295,7 +295,7 @@ proto_reg_handoff_epon(void)
   epon_handle = create_dissector_handle(dissect_epon, proto_epon);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_EPON, epon_handle);
 
-  eth_maybefcs_handle = find_dissector("eth_maybefcs");
+  eth_maybefcs_handle = find_dissector_add_dependency("eth_maybefcs", proto_epon);
 }
 
 /*

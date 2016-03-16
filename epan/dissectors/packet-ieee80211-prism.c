@@ -563,9 +563,9 @@ void proto_register_ieee80211_prism(void)
 void proto_reg_handoff_ieee80211_prism(void)
 {
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_PRISM, prism_handle);
-  ieee80211_handle = find_dissector("wlan");
-  ieee80211_radio_handle = find_dissector("wlan_radio");
-  wlancap_handle = find_dissector("wlancap");
+  ieee80211_handle = find_dissector_add_dependency("wlan", proto_prism);
+  ieee80211_radio_handle = find_dissector_add_dependency("wlan_radio", proto_prism);
+  wlancap_handle = find_dissector_add_dependency("wlancap", proto_prism);
 
   register_capture_dissector("wtap_encap", WTAP_ENCAP_IEEE_802_11_PRISM, capture_prism, proto_prism);
 }

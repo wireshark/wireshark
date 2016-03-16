@@ -871,13 +871,13 @@ proto_reg_handoff_llc(void)
 	 * Get handles for the BPDU, Ethernet, FDDI, Token Ring and
 	 * Turbocell dissectors.
 	 */
-	bpdu_handle = find_dissector("bpdu");
-	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
-	eth_withfcs_handle = find_dissector("eth_withfcs");
-	fddi_handle = find_dissector("fddi");
-	tr_handle = find_dissector("tr");
-	turbo_handle = find_dissector("turbocell");
-	mesh_handle = find_dissector("mesh");
+	bpdu_handle = find_dissector_add_dependency("bpdu", proto_llc);
+	eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_llc);
+	eth_withfcs_handle = find_dissector_add_dependency("eth_withfcs", proto_llc);
+	fddi_handle = find_dissector_add_dependency("fddi", proto_llc);
+	tr_handle = find_dissector_add_dependency("tr", proto_llc);
+	turbo_handle = find_dissector_add_dependency("turbocell", proto_llc);
+	mesh_handle = find_dissector_add_dependency("mesh", proto_llc);
 	data_handle = find_dissector("data");
 
 	/*

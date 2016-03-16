@@ -339,7 +339,7 @@ void proto_register_turbocell(void)
 
 void proto_reg_handoff_turbocell(void)
 {
-    eth_handle = find_dissector("eth_withoutfcs");
+    eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_turbocell);
     data_handle = find_dissector("data");
 }
 

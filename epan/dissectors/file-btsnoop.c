@@ -388,9 +388,9 @@ proto_register_btsnoop(void)
 void
 proto_reg_handoff_btsnoop(void)
 {
-    hci_h1_handle = find_dissector("hci_h1");
-    hci_h4_handle = find_dissector("hci_h4");
-    hci_mon_handle = find_dissector("hci_mon");
+    hci_h1_handle = find_dissector_add_dependency("hci_h1", proto_btsnoop);
+    hci_h4_handle = find_dissector_add_dependency("hci_h4", proto_btsnoop);
+    hci_mon_handle = find_dissector_add_dependency("hci_mon", proto_btsnoop);
 
     heur_dissector_add("wtap_file", dissect_btsnoop_heur, "BTSNOOP file", "btsnoop_wtap", proto_btsnoop, HEURISTIC_ENABLE);
 }

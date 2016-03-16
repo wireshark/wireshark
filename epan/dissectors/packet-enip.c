@@ -4427,14 +4427,14 @@ proto_reg_handoff_enip(void)
    data_handle = find_dissector("data");
 
    /* Find ARP dissector for TCP/IP object */
-   arp_handle = find_dissector("arp");
+   arp_handle = find_dissector_add_dependency("arp", proto_enip);
 
    /* I/O data dissectors */
    cipsafety_handle = find_dissector("cipsafety");
    cipmotion_handle = find_dissector("cipmotion");
 
    /* Implicit data dissector */
-   cip_implicit_handle = find_dissector("cip_implicit");
+   cip_implicit_handle = find_dissector_add_dependency("cip_implicit", proto_enipio);
 
    /* Register for EtherNet/IP Device Level Ring protocol */
    dlr_handle = create_dissector_handle(dissect_dlr, proto_dlr);

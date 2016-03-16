@@ -7280,7 +7280,7 @@ void
 proto_reg_handoff_afp(void)
 {
 	data_handle = find_dissector("data");
-	spotlight_handle = find_dissector("afp_spotlight");
+	spotlight_handle = find_dissector_add_dependency("afp_spotlight", proto_afp);
 }
 
 /* -------------------------------

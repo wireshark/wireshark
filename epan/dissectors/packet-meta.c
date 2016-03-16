@@ -810,14 +810,14 @@ proto_reg_handoff_meta(void)
     dissector_add_uint("wtap_encap", WTAP_ENCAP_META, meta_handle);
 #endif
     data_handle          = find_dissector("data");
-    alcap_handle         = find_dissector("alcap");
-    atm_untrunc_handle   = find_dissector("atm_untruncated");
-    nbap_handle          = find_dissector("nbap");
-    sscf_nni_handle      = find_dissector("sscf-nni");
-    ethwithfcs_handle    = find_dissector("eth_withfcs");
-    ethwithoutfcs_handle = find_dissector("eth_withoutfcs");
-    fphint_handle        = find_dissector("fp_hint");
-    mtp2_handle          = find_dissector("mtp2");
+    alcap_handle         = find_dissector_add_dependency("alcap", proto_meta);
+    atm_untrunc_handle   = find_dissector_add_dependency("atm_untruncated", proto_meta);
+    nbap_handle          = find_dissector_add_dependency("nbap", proto_meta);
+    sscf_nni_handle      = find_dissector_add_dependency("sscf-nni", proto_meta);
+    ethwithfcs_handle    = find_dissector_add_dependency("eth_withfcs", proto_meta);
+    ethwithoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_meta);
+    fphint_handle        = find_dissector_add_dependency("fp_hint", proto_meta);
+    mtp2_handle          = find_dissector_add_dependency("mtp2", proto_meta);
 }
 
 /*

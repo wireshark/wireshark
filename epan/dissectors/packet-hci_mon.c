@@ -313,10 +313,10 @@ proto_register_hci_mon(void)
 void
 proto_reg_handoff_hci_mon(void)
 {
-    bthci_cmd_handle = find_dissector("bthci_cmd");
-    bthci_evt_handle = find_dissector("bthci_evt");
-    bthci_acl_handle = find_dissector("bthci_acl");
-    bthci_sco_handle = find_dissector("bthci_sco");
+    bthci_cmd_handle = find_dissector_add_dependency("bthci_cmd", proto_hci_mon);
+    bthci_evt_handle = find_dissector_add_dependency("bthci_evt", proto_hci_mon);
+    bthci_acl_handle = find_dissector_add_dependency("bthci_acl", proto_hci_mon);
+    bthci_sco_handle = find_dissector_add_dependency("bthci_sco", proto_hci_mon);
 
     dissector_add_uint("bluetooth.encap", WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR, hci_mon_handle);
 }

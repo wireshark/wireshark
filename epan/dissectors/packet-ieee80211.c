@@ -27384,9 +27384,9 @@ proto_reg_handoff_ieee80211(void)
   /*
    * Get handles for the LLC, IPX and Ethernet  dissectors.
    */
-  llc_handle            = find_dissector("llc");
-  ipx_handle            = find_dissector("ipx");
-  eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
+  llc_handle            = find_dissector_add_dependency("llc", proto_wlan);
+  ipx_handle            = find_dissector_add_dependency("ipx", proto_wlan);
+  eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_wlan);
   data_handle           = find_dissector("data");
 
   ieee80211_handle = find_dissector("wlan");

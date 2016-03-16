@@ -2545,7 +2545,7 @@ proto_reg_handoff_fcswils(void)
     dissector_add_uint("fc.ftype", FC_FTYPE_SWILS, swils_handle);
 
     data_handle = find_dissector("data");
-    fcsp_handle = find_dissector("fcsp");
+    fcsp_handle = find_dissector_add_dependency("fcsp", proto_fcswils);
 }
 
 /*

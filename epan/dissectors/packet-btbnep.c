@@ -643,10 +643,10 @@ proto_register_btbnep(void)
 void
 proto_reg_handoff_btbnep(void)
 {
-    ipx_handle    = find_dissector("ipx");
-    llc_handle    = find_dissector("llc");
+    ipx_handle    = find_dissector_add_dependency("ipx", proto_btbnep);
+    llc_handle    = find_dissector_add_dependency("llc", proto_btbnep);
     data_handle   = find_dissector("data");
-    ethertype_handle = find_dissector("ethertype");
+    ethertype_handle = find_dissector_add_dependency("ethertype", proto_btbnep);
 
     dissector_add_string("bluetooth.uuid", "1115", btbnep_handle);
     dissector_add_string("bluetooth.uuid", "1116", btbnep_handle);

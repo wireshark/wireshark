@@ -6046,8 +6046,8 @@ proto_register_nas_eps(void)
 void
 proto_reg_handoff_nas_eps(void)
 {
-    gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
-    lpp_handle = find_dissector("lpp");
+    gsm_a_dtap_handle = find_dissector_add_dependency("gsm_a_dtap", proto_nas_eps);
+    lpp_handle = find_dissector_add_dependency("lpp", proto_nas_eps);
 }
 
 /*

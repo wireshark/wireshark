@@ -280,7 +280,7 @@ proto_register_pn532_hci(void)
 void
 proto_reg_handoff_pn532_hci(void)
 {
-    pn532_handle = find_dissector("pn532");
+    pn532_handle = find_dissector_add_dependency("pn532", proto_pn532_hci);
 
     dissector_add_uint("usb.product", (0x04e6 << 16) | 0x5591, pn532_hci_handle);
 

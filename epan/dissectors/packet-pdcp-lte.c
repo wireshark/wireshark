@@ -2781,9 +2781,9 @@ void proto_reg_handoff_pdcp_lte(void)
     /* Add as a heuristic UDP dissector */
     heur_dissector_add("udp", dissect_pdcp_lte_heur, "PDCP-LTE over UDP", "pdcp_lte_udp", proto_pdcp_lte, HEURISTIC_DISABLE);
 
-    ip_handle   = find_dissector("ip");
-    ipv6_handle = find_dissector("ipv6");
-    rohc_handle = find_dissector("rohc");
+    ip_handle   = find_dissector_add_dependency("ip", proto_pdcp_lte);
+    ipv6_handle = find_dissector_add_dependency("ipv6", proto_pdcp_lte);
+    rohc_handle = find_dissector_add_dependency("rohc", proto_pdcp_lte);
     data_handle = find_dissector("data");
 }
 

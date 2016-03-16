@@ -746,7 +746,7 @@ void proto_reg_handoff_elasticsearch(void) {
 
     dissector_handle_t elasticsearch_handle;
     dissector_handle_t elasticsearch_zen_handle;
-    elasticsearch_http_handle = find_dissector("http");
+    elasticsearch_http_handle = find_dissector_add_dependency("http", proto_elasticsearch);
 
     elasticsearch_handle = create_dissector_handle(dissect_elasticsearch, proto_elasticsearch);
     elasticsearch_zen_handle = create_dissector_handle(dissect_elasticsearch_zen_ping, proto_elasticsearch);

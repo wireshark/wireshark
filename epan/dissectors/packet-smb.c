@@ -20546,8 +20546,8 @@ proto_reg_handoff_smb(void)
 {
 	dissector_handle_t smb_handle;
 
-	gssapi_handle  = find_dissector("gssapi");
-	ntlmssp_handle = find_dissector("ntlmssp");
+	gssapi_handle  = find_dissector_add_dependency("gssapi", proto_smb);
+	ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_smb);
 
 	heur_dissector_add("netbios", dissect_smb_heur, "SMB over Netbios", "smb_netbios", proto_smb, HEURISTIC_ENABLE);
 	heur_dissector_add("smb_direct", dissect_smb_heur, "SMB over SMB Direct", "smb_smb_direct", proto_smb, HEURISTIC_ENABLE);

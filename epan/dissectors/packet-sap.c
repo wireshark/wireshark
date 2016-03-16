@@ -388,7 +388,7 @@ proto_reg_handoff_sap(void)
     /*
      * Get a handle for the SDP dissector.
      */
-    sdp_handle = find_dissector("sdp");
+    sdp_handle = find_dissector_add_dependency("sdp", proto_sap);
 }
 
 /*

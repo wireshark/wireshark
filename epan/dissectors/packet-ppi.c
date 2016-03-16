@@ -1499,13 +1499,13 @@ void
 proto_reg_handoff_ppi(void)
 {
     data_handle = find_dissector("data");
-    ieee80211_radio_handle = find_dissector("wlan_radio");
-    pcap_pktdata_handle = find_dissector("pcap_pktdata");
-    ppi_gps_handle = find_dissector("ppi_gps");
-    ppi_vector_handle = find_dissector("ppi_vector");
-    ppi_sensor_handle = find_dissector("ppi_sensor");
-    ppi_antenna_handle = find_dissector("ppi_antenna");
-    ppi_fnet_handle = find_dissector("ppi_fnet");
+    ieee80211_radio_handle = find_dissector_add_dependency("wlan_radio", proto_ppi);
+    pcap_pktdata_handle = find_dissector_add_dependency("pcap_pktdata", proto_ppi);
+    ppi_gps_handle = find_dissector_add_dependency("ppi_gps", proto_ppi);
+    ppi_vector_handle = find_dissector_add_dependency("ppi_vector", proto_ppi);
+    ppi_sensor_handle = find_dissector_add_dependency("ppi_sensor", proto_ppi);
+    ppi_antenna_handle = find_dissector_add_dependency("ppi_antenna", proto_ppi);
+    ppi_fnet_handle = find_dissector_add_dependency("ppi_fnet", proto_ppi);
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_PPI, ppi_handle);
     register_capture_dissector("wtap_encap", WTAP_ENCAP_PPI, capture_ppi, proto_ppi);

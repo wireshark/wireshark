@@ -1198,8 +1198,8 @@ proto_reg_handoff_multipart(void)
      * When there is no dissector for the given media, call the media dissector.
      */
     data_handle  = find_dissector("data");
-    media_handle = find_dissector("media");
-    gssapi_handle = find_dissector("gssapi");
+    media_handle = find_dissector_add_dependency("media", proto_multipart);
+    gssapi_handle = find_dissector_add_dependency("gssapi", proto_multipart);
 
     /*
      * Get the content type and Internet media type table

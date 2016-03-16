@@ -320,8 +320,8 @@ proto_reg_handoff_eapol(void)
   /*
    * Get handles for the EAP and raw data dissectors.
    */
-  eap_handle  = find_dissector("eap");
-  mka_handle  = find_dissector("mka");
+  eap_handle  = find_dissector_add_dependency("eap", proto_eapol);
+  mka_handle  = find_dissector_add_dependency("mka", proto_eapol);
   data_handle = find_dissector("data");
 
   dissector_add_uint("ethertype", ETHERTYPE_EAPOL, eapol_handle);

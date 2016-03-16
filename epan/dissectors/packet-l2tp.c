@@ -3472,8 +3472,8 @@ proto_reg_handoff_l2tp(void)
     /*
      * Get a handle for the PPP-in-HDLC-like-framing dissector.
      */
-    ppp_hdlc_handle = find_dissector("ppp_hdlc");
-    ppp_lcp_options_handle = find_dissector("ppp_lcp_options");
+    ppp_hdlc_handle = find_dissector_add_dependency("ppp_hdlc", proto_l2tp);
+    ppp_lcp_options_handle = find_dissector_add_dependency("ppp_lcp_options", proto_l2tp);
 
     /* Register vendor AVP dissector(s)*/
     dissector_add_uint("l2tp.vendor_avp", VENDOR_CABLELABS, create_dissector_handle(dissect_l2tp_vnd_cablelabs_avps, proto_l2tp));
@@ -3482,8 +3482,8 @@ proto_reg_handoff_l2tp(void)
     /*
      * Get a handle for the dissectors used in v3.
      */
-    atm_oam_handle        = find_dissector("atm_oam_cell");
-    llc_handle            = find_dissector("llc");
+    atm_oam_handle        = find_dissector_add_dependency("atm_oam_cell", proto_l2tp);
+    llc_handle            = find_dissector_add_dependency("llc", proto_l2tp);
     data_handle           = find_dissector("data");
 
     atm_oam_llc_handle = create_dissector_handle( dissect_atm_oam_llc, proto_l2tp );

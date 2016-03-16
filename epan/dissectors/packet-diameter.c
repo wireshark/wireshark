@@ -2371,7 +2371,7 @@ proto_reg_handoff_diameter(void)
 							      proto_diameter);
 		diameter_udp_handle = create_dissector_handle(dissect_diameter, proto_diameter);
 		data_handle = find_dissector("data");
-		eap_handle = find_dissector("eap");
+		eap_handle = find_dissector_add_dependency("eap", proto_diameter);
 
 		dissector_add_uint("sctp.ppi", DIAMETER_PROTOCOL_ID, diameter_sctp_handle);
 

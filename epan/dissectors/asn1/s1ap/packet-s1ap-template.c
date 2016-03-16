@@ -211,12 +211,12 @@ proto_reg_handoff_s1ap(void)
 	static guint SctpPort;
 
 	s1ap_handle = find_dissector("s1ap");
-    gcsna_handle = find_dissector("gcsna");
+    gcsna_handle = find_dissector_add_dependency("gcsna", proto_s1ap);
 
 	if (!Initialized) {
-		nas_eps_handle = find_dissector("nas-eps");
-		lppa_handle = find_dissector("lppa");
-		bssgp_handle = find_dissector("bssgp");
+		nas_eps_handle = find_dissector_add_dependency("nas-eps", proto_s1ap);
+		lppa_handle = find_dissector_add_dependency("lppa", proto_s1ap);
+		bssgp_handle = find_dissector_add_dependency("bssgp", proto_s1ap);
 		dissector_add_for_decode_as("sctp.port", s1ap_handle);
 		dissector_add_uint("sctp.ppi", S1AP_PAYLOAD_PROTOCOL_ID,   s1ap_handle);
 		Initialized=TRUE;

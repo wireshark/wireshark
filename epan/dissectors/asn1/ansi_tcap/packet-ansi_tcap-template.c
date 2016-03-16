@@ -422,9 +422,8 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 void
 proto_reg_handoff_ansi_tcap(void)
 {
-
-        ansi_map_handle = find_dissector("ansi_map");
-        ber_oid_dissector_table = find_dissector_table("ber.oid");
+    ansi_map_handle = find_dissector_add_dependency("ansi_map", proto_ansi_tcap);
+    ber_oid_dissector_table = find_dissector_table("ber.oid");
 }
 
 

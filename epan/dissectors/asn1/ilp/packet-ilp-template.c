@@ -148,10 +148,10 @@ proto_reg_handoff_ilp(void)
   static guint local_ilp_port;
 
   if (!initialized) {
-    ilp_handle = find_dissector("ilp");
+    ilp_handle = find_dissector_add_dependency("ilp", proto_ilp);
     dissector_add_string("media_type","application/oma-supl-ilp", ilp_handle);
-    rrlp_handle = find_dissector("rrlp");
-    lpp_handle = find_dissector("lpp");
+    rrlp_handle = find_dissector_add_dependency("rrlp", proto_ilp);
+    lpp_handle = find_dissector_add_dependency("lpp", proto_ilp);
     initialized = TRUE;
   } else {
     dissector_delete_uint("tcp.port", local_ilp_port, ilp_handle);

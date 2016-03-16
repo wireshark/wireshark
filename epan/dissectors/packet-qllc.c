@@ -173,7 +173,7 @@ proto_register_qllc(void)
 void
 proto_reg_handoff_qllc(void)
 {
-    sna_handle = find_dissector("sna");
+    sna_handle = find_dissector_add_dependency("sna", proto_qllc);
 }
 
 /*

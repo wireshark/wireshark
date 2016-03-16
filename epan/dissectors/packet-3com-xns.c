@@ -119,7 +119,7 @@ proto_reg_handoff_3com_xns(void)
 {
 	dissector_handle_t our_xns_handle;
 
-	retix_bpdu_handle = find_dissector("rbpdu");
+	retix_bpdu_handle = find_dissector_add_dependency("rbpdu", proto_3com_xns);
 	data_handle = find_dissector("data");
 
 	ethertype_subdissector_table = find_dissector_table("ethertype");

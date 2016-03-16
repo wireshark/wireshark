@@ -1871,8 +1871,8 @@ proto_reg_handoff_pim(void)
     /*
      * Get handles for the IPv4 and IPv6 dissectors.
      */
-    ip_handle = find_dissector("ip");
-    ipv6_handle = find_dissector("ipv6");
+    ip_handle = find_dissector_add_dependency("ip", proto_pim);
+    ipv6_handle = find_dissector_add_dependency("ipv6", proto_pim);
 }
 
 /*

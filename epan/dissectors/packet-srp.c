@@ -223,8 +223,8 @@ void proto_register_srp (void)
 
 
 void proto_reg_handoff_srp(void) {
-    ccsrl_handle = find_dissector("ccsrl");
-    h245dg_handle = find_dissector("h245dg");
+    ccsrl_handle = find_dissector_add_dependency("ccsrl", proto_srp);
+    h245dg_handle = find_dissector_add_dependency("h245dg", proto_srp);
 }
 
 /*

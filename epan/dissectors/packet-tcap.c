@@ -3331,7 +3331,7 @@ proto_reg_handoff_tcap(void)
 {
 
   data_handle = find_dissector("data");
-  ansi_tcap_handle = find_dissector("ansi_tcap");
+  ansi_tcap_handle = find_dissector_add_dependency("ansi_tcap", proto_tcap);
   ber_oid_dissector_table = find_dissector_table("ber.oid");
 
 

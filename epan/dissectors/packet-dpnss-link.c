@@ -221,7 +221,7 @@ proto_reg_handoff_dpnss_link(void)
 	dpnss_link_handle = find_dissector("dpnss_link");
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_DPNSS, dpnss_link_handle);
 
-	dpnss_handle = find_dissector("dpnss");
+	dpnss_handle = find_dissector_add_dependency("dpnss", proto_dpnss_link);
 }
 
 /*

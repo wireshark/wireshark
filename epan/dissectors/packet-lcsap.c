@@ -2285,8 +2285,8 @@ proto_reg_handoff_lcsap(void)
 
   if (!Initialized) {
     lcsap_handle = find_dissector("lcsap");
-    lpp_handle = find_dissector("lpp");
-    lppa_handle = find_dissector("lppa");
+    lpp_handle = find_dissector_add_dependency("lpp", proto_lcsap);
+    lppa_handle = find_dissector_add_dependency("lppa", proto_lcsap);
     dissector_add_for_decode_as("sctp.port", lcsap_handle);   /* for "decode-as"  */
     dissector_add_uint("sctp.ppi", LCS_AP_PAYLOAD_PROTOCOL_ID,   lcsap_handle);
     Initialized=TRUE;

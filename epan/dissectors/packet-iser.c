@@ -399,8 +399,8 @@ proto_reg_handoff_iser(void)
         manual_addr_data[0] = wmem_alloc(wmem_epan_scope(), GID_SIZE);
         manual_addr_data[1] = wmem_alloc(wmem_epan_scope(), GID_SIZE);
 
-        iscsi_handler = find_dissector("iscsi");
-        ib_handler = find_dissector("infiniband");
+        iscsi_handler = find_dissector_add_dependency("iscsi", proto_iser);
+        ib_handler = find_dissector_add_dependency("infiniband", proto_iser);
         proto_ib = dissector_handle_get_protocol_index(ib_handler);
 
         initialized = TRUE;

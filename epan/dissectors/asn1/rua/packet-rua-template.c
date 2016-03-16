@@ -173,7 +173,7 @@ proto_reg_handoff_rua(void)
 
         if (!initialized) {
                 rua_handle = find_dissector("rua");
-                ranap_handle = find_dissector("ranap");
+                ranap_handle = find_dissector_add_dependency("ranap", proto_rua);
                 dissector_add_uint("sctp.ppi", RUA_PAYLOAD_PROTOCOL_ID, rua_handle);
                 initialized = TRUE;
 #include "packet-rua-dis-tab.c"

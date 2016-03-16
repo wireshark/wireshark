@@ -991,7 +991,7 @@ proto_reg_handoff_stt(void)
      * in the tunneled Ethernet frames, but it is missing from the
      * captures attached to bug 10282.
      */
-    eth_handle = find_dissector("eth_withoutfcs");
+    eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_stt);
     data_handle = find_dissector("data");
 
     heur_dissector_add("ip", dissect_stt_heur, "Stateless Transport Tunneling over IP", "stt_ip", proto_stt, HEURISTIC_ENABLE);

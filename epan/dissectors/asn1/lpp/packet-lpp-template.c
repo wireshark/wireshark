@@ -1720,7 +1720,7 @@ void proto_register_lpp(void) {
 void
 proto_reg_handoff_lpp(void)
 {
-  lppe_handle = find_dissector("lppe");
+  lppe_handle = find_dissector_add_dependency("lppe", proto_lpp);
 }
 
 

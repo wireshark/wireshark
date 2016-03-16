@@ -2997,8 +2997,8 @@ proto_reg_handoff_rohc(void)
 {
     dissector_add_uint("ethertype", ETHERTYPE_ROHC, rohc_handle);
 
-    ip_handle   = find_dissector("ip");
-    ipv6_handle = find_dissector("ipv6");
+    ip_handle   = find_dissector_add_dependency("ip", proto_rohc);
+    ipv6_handle = find_dissector_add_dependency("ipv6", proto_rohc);
     data_handle = find_dissector("data");
 }
 

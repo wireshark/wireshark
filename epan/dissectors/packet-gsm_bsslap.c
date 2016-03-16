@@ -853,7 +853,7 @@ dissect_gsm_bsslap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 void
 proto_reg_handoff_gsm_bsslap(void)
 {
-    bsslap_rrlp_handle = find_dissector("rrlp");
+    bsslap_rrlp_handle = find_dissector_add_dependency("rrlp", proto_gsm_bsslap);
 }
 
 void

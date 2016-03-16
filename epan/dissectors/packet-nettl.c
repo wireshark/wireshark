@@ -342,13 +342,13 @@ proto_reg_handoff_nettl(void)
     /*
      * Get handles for various dissectors and dissector tables.
      */
-    eth_withoutfcs_handle    = find_dissector("eth_withoutfcs");
-    tr_handle                = find_dissector("tr");
-    fddi_bitswapped_handle   = find_dissector("fddi_bitswapped");
-    lapb_handle              = find_dissector("lapb");
-    x25_handle               = find_dissector("x.25");
-    sctp_handle              = find_dissector("sctp");
-    raw_ip_handle            = find_dissector("raw_ip");
+    eth_withoutfcs_handle    = find_dissector_add_dependency("eth_withoutfcs", proto_nettl);
+    tr_handle                = find_dissector_add_dependency("tr", proto_nettl);
+    fddi_bitswapped_handle   = find_dissector_add_dependency("fddi_bitswapped", proto_nettl);
+    lapb_handle              = find_dissector_add_dependency("lapb", proto_nettl);
+    x25_handle               = find_dissector_add_dependency("x.25", proto_nettl);
+    sctp_handle              = find_dissector_add_dependency("sctp", proto_nettl);
+    raw_ip_handle            = find_dissector_add_dependency("raw_ip", proto_nettl);
     data_handle              = find_dissector("data");
     ip_proto_dissector_table = find_dissector_table("ip.proto");
     tcp_subdissector_table   = find_dissector_table("tcp.port");

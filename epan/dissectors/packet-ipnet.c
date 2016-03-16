@@ -148,8 +148,8 @@ proto_reg_handoff_ipnet(void)
   /*
    * Get handles for the IP and IPv6 dissectors.
    */
-  ip_handle = find_dissector("ip");
-  ipv6_handle = find_dissector("ipv6");
+  ip_handle = find_dissector_add_dependency("ip", proto_ipnet);
+  ipv6_handle = find_dissector_add_dependency("ipv6", proto_ipnet);
 
   ipnet_handle = create_dissector_handle(dissect_ipnet, proto_ipnet);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IPNET, ipnet_handle);

@@ -337,7 +337,7 @@ proto_reg_handoff_fcoe(void)
     fcoe_handle = create_dissector_handle(dissect_fcoe, proto_fcoe);
     dissector_add_uint("ethertype", ETHERTYPE_FCOE, fcoe_handle);
     data_handle = find_dissector("data");
-    fc_handle   = find_dissector("fc");
+    fc_handle   = find_dissector_add_dependency("fc", proto_fcoe);
 }
 
 /*

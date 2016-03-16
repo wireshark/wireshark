@@ -201,9 +201,9 @@ proto_reg_handoff_openflow(void)
 
     dissector_add_uint("tcp.port", currentPort, openflow_handle);
 
-    openflow_v1_handle = find_dissector("openflow_v1");
-    openflow_v4_handle = find_dissector("openflow_v4");
-    openflow_v5_handle = find_dissector("openflow_v5");
+    openflow_v1_handle = find_dissector_add_dependency("openflow_v1", proto_openflow);
+    openflow_v4_handle = find_dissector_add_dependency("openflow_v4", proto_openflow);
+    openflow_v5_handle = find_dissector_add_dependency("openflow_v5", proto_openflow);
 }
 
 /*

@@ -1041,10 +1041,10 @@ proto_reg_handoff_eth(void)
   dissector_handle_t eth_handle, eth_withoutfcs_handle;
 
   /* Get a handle for the Firewall-1 dissector. */
-  fw1_handle = find_dissector("fw1");
+  fw1_handle = find_dissector_add_dependency("fw1", proto_eth);
 
   /* Get a handle for the ethertype dissector. */
-  ethertype_handle = find_dissector("ethertype");
+  ethertype_handle = find_dissector_add_dependency("ethertype", proto_eth);
 
   /* Get a handle for the generic data dissector. */
   data_handle = find_dissector("data");

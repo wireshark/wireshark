@@ -636,7 +636,7 @@ proto_reg_handoff_bacnet(void)
 	dissector_add_uint("bvlc.function", 0x0a, bacnet_handle);
 	dissector_add_uint("bvlc.function", 0x0b, bacnet_handle);
 	dissector_add_uint("llc.dsap", SAP_BACNET, bacnet_handle);
-	bacapp_handle = find_dissector("bacapp");
+	bacapp_handle = find_dissector_add_dependency("bacapp", proto_bacnet);
 	data_handle = find_dissector("data");
 }
 

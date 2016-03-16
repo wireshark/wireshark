@@ -3172,13 +3172,13 @@ proto_register_bta2dp(void)
 void
 proto_reg_handoff_bta2dp(void)
 {
-    sbc_handle = find_dissector("sbc");
-    mp2t_handle = find_dissector("mp2t");
-    mpeg_audio_handle = find_dissector("mpeg-audio");
+    sbc_handle = find_dissector_add_dependency("sbc", proto_bta2dp);
+    mp2t_handle = find_dissector_add_dependency("mp2t", proto_bta2dp);
+    mpeg_audio_handle = find_dissector_add_dependency("mpeg-audio", proto_bta2dp);
 /* TODO: ATRAC dissector does not exist yet */
-    atrac_handle = find_dissector("atrac");
+    atrac_handle = find_dissector_add_dependency("atrac", proto_bta2dp);
 
-    rtp_handle   = find_dissector("rtp");
+    rtp_handle   = find_dissector_add_dependency("rtp", proto_bta2dp);
 
     dissector_add_string("bluetooth.uuid", "110a", bta2dp_handle);
     dissector_add_string("bluetooth.uuid", "110b", bta2dp_handle);
@@ -3412,10 +3412,10 @@ proto_register_btvdp(void)
 void
 proto_reg_handoff_btvdp(void)
 {
-    h263_handle = find_dissector("h263");
-    mp4v_es_handle = find_dissector("mp4v-es");
+    h263_handle = find_dissector_add_dependency("h263", proto_btvdp);
+    mp4v_es_handle = find_dissector_add_dependency("mp4v-es", proto_btvdp);
 
-    rtp_handle   = find_dissector("rtp");
+    rtp_handle   = find_dissector_add_dependency("rtp", proto_btvdp);
 
     dissector_add_string("bluetooth.uuid", "1303", btvdp_handle);
     dissector_add_string("bluetooth.uuid", "1304", btvdp_handle);

@@ -297,8 +297,8 @@ proto_reg_handoff_nflog(void)
 {
     dissector_handle_t nflog_handle;
 
-    ip_handle   = find_dissector("ip");
-    ip6_handle  = find_dissector("ipv6");
+    ip_handle   = find_dissector_add_dependency("ip", hfi_nflog->id);
+    ip6_handle  = find_dissector_add_dependency("ipv6", hfi_nflog->id);
     data_handle = find_dissector("data");
 
     nflog_handle = find_dissector("nflog");

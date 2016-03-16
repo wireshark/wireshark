@@ -688,16 +688,16 @@ module_t *ppcap_module;
 
 void proto_reg_handoff_ppcap(void)
 {
-	ppcap_handle = find_dissector("ppcap");
-	mtp3_handle  = find_dissector("mtp3");  /* calling the protocol MTP3 */
-	tcap_handle  = find_dissector("tcap");  /* calling the protocol TCAP */
-	bssap_handle = find_dissector("bssap"); /* calling the protocol BSSAP */
-	ranap_handle = find_dissector("ranap"); /* calling the protocol RANAP */
-	h248_handle  = find_dissector("h248");  /* calling the protocol H248 */
-	sip_handle   = find_dissector("sip");   /* calling the protocol SIP */
-	sccp_handle  = find_dissector("sccp");   /* calling the protocol SCCP */
-	sgsap_handle = find_dissector("sgsap"); /* calling the protocol SGSAP */
-	gtpv2_handle = find_dissector("gtpv2"); /* calling the protocol GTPv2 */
+	ppcap_handle = find_dissector_add_dependency("ppcap", proto_ppcap);
+	mtp3_handle  = find_dissector_add_dependency("mtp3", proto_ppcap);  /* calling the protocol MTP3 */
+	tcap_handle  = find_dissector_add_dependency("tcap", proto_ppcap);  /* calling the protocol TCAP */
+	bssap_handle = find_dissector_add_dependency("bssap", proto_ppcap); /* calling the protocol BSSAP */
+	ranap_handle = find_dissector_add_dependency("ranap", proto_ppcap); /* calling the protocol RANAP */
+	h248_handle  = find_dissector_add_dependency("h248", proto_ppcap);  /* calling the protocol H248 */
+	sip_handle   = find_dissector_add_dependency("sip", proto_ppcap);   /* calling the protocol SIP */
+	sccp_handle  = find_dissector_add_dependency("sccp", proto_ppcap);   /* calling the protocol SCCP */
+	sgsap_handle = find_dissector_add_dependency("sgsap", proto_ppcap); /* calling the protocol SGSAP */
+	gtpv2_handle = find_dissector_add_dependency("gtpv2", proto_ppcap); /* calling the protocol GTPv2 */
 	data_handle  = find_dissector("data");  /* calling the protocol DATA */
 
 	sccp_ssn_dissector_table = find_dissector_table("sccp.ssn");

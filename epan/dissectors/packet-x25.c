@@ -2407,10 +2407,10 @@ proto_reg_handoff_x25(void)
     /*
      * Get handles for various dissectors.
      */
-    ip_handle = find_dissector("ip");
-    clnp_handle = find_dissector("clnp");
-    ositp_handle = find_dissector("ositp");
-    qllc_handle = find_dissector("qllc");
+    ip_handle = find_dissector_add_dependency("ip", proto_x25);
+    clnp_handle = find_dissector_add_dependency("clnp", proto_x25);
+    ositp_handle = find_dissector_add_dependency("ositp", proto_x25);
+    qllc_handle = find_dissector_add_dependency("qllc", proto_x25);
     data_handle = find_dissector("data");
 
     x25_handle = find_dissector("x.25");

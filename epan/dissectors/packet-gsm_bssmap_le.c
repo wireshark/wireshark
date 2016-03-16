@@ -1224,7 +1224,7 @@ proto_reg_handoff_gsm_bssmap_le(void)
 
 	dissector_add_uint("bssap.pdu_type",  BSSAP_PDU_TYPE_BSSMAP, bssmap_le_handle);
 
-	gsm_bsslap_handle = find_dissector("gsm_bsslap");
+	gsm_bsslap_handle = find_dissector_add_dependency("gsm_bsslap", proto_bssmap_le);
 }
 
 /*

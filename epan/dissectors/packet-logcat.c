@@ -305,7 +305,7 @@ proto_register_logcat(void)
 void
 proto_reg_handoff_logcat(void)
 {
-    data_text_lines_handle = find_dissector("data-text-lines");
+    data_text_lines_handle = find_dissector_add_dependency("data-text-lines", proto_logcat);
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_LOGCAT, logcat_handle);
 

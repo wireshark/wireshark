@@ -1557,7 +1557,7 @@ proto_reg_handoff_eap(void)
   /*
    * Get a handle for the SSL/TLS dissector.
    */
-  ssl_handle = find_dissector("ssl");
+  ssl_handle = find_dissector_add_dependency("ssl", proto_eap);
 
   dissector_add_uint("ppp.protocol", PPP_EAP, eap_handle);
 }

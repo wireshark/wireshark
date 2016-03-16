@@ -3407,7 +3407,7 @@ proto_reg_handoff_eigrp(void)
 {
     dissector_handle_t eigrp_handle;
 
-    ipxsap_handle = find_dissector("ipxsap");
+    ipxsap_handle = find_dissector_add_dependency("ipxsap", proto_eigrp);
     media_type_table = find_dissector_table("media_type");
 
     eigrp_handle = create_dissector_handle(dissect_eigrp, proto_eigrp);

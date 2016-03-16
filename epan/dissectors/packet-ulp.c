@@ -10664,8 +10664,8 @@ proto_reg_handoff_ulp(void)
     dissector_add_string("media_type","application/oma-supl-ulp", ulp_tcp_handle);
     dissector_add_string("media_type","application/vnd.omaloc-supl-init", ulp_tcp_handle);
     ulp_udp_handle = create_dissector_handle(dissect_ULP_PDU_PDU, proto_ulp);
-    rrlp_handle = find_dissector("rrlp");
-    lpp_handle = find_dissector("lpp");
+    rrlp_handle = find_dissector_add_dependency("rrlp", proto_ulp);
+    lpp_handle = find_dissector_add_dependency("lpp", proto_ulp);
     initialized = TRUE;
   } else {
     dissector_delete_uint("tcp.port", local_ulp_tcp_port, ulp_tcp_handle);

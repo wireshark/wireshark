@@ -1075,7 +1075,7 @@ proto_reg_handoff_wtp(void)
      * Get a handle for the connection-oriented WSP dissector - if WTP
      * PDUs have data, it is WSP.
      */
-    wsp_handle = find_dissector("wsp-co");
+    wsp_handle = find_dissector_add_dependency("wsp-co", proto_wtp);
 
     wtp_fromudp_handle = find_dissector("wtp-udp");
     dissector_add_uint("udp.port", UDP_PORT_WTP_WSP, wtp_fromudp_handle);

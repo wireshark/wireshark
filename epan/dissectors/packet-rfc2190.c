@@ -250,7 +250,7 @@ proto_reg_handoff_rfc2190(void)
     dissector_add_uint("rtp.pt", PT_H263, rfc2190_handle);
     dissector_add_uint("iax2.codec", AST_FORMAT_H263, rfc2190_handle);
 
-    h263_handle = find_dissector("h263data");
+    h263_handle = find_dissector_add_dependency("h263data", proto_rfc2190);
 }
 
 

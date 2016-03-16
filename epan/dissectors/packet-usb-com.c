@@ -1085,10 +1085,10 @@ proto_reg_handoff_usb_com(void)
     dissector_add_uint("usb.bulk", IF_CLASS_CDC_DATA, usb_com_bulk_handle);
     usb_com_interrupt_handle = create_dissector_handle(dissect_usb_com_interrupt, proto_usb_com);
     dissector_add_uint("usb.interrupt", IF_CLASS_COMMUNICATIONS, usb_com_interrupt_handle);
-    mbim_control_handle = find_dissector("mbim.control");
-    mbim_descriptor_handle = find_dissector("mbim.descriptor");
-    mbim_bulk_handle = find_dissector("mbim.bulk");
-    eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
+    mbim_control_handle = find_dissector_add_dependency("mbim.control", proto_usb_com);
+    mbim_descriptor_handle = find_dissector_add_dependency("mbim.descriptor", proto_usb_com);
+    mbim_bulk_handle = find_dissector_add_dependency("mbim.bulk", proto_usb_com);
+    eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_usb_com);
 }
 
 /*

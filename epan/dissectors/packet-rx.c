@@ -760,7 +760,7 @@ proto_reg_handoff_rx(void)
 	/*
 	 * Get handle for the AFS dissector.
 	 */
-	afs_handle = find_dissector("afs");
+	afs_handle = find_dissector_add_dependency("afs", proto_rx);
 
 	/* Ports in the range UDP_PORT_RX_LOW to UDP_PORT_RX_HIGH
 	   are all used for various AFS services. */

@@ -475,10 +475,10 @@ proto_reg_handoff_pop(void)
   data_handle = find_dissector("data");
 
   /* find the IMF dissector */
-  imf_handle = find_dissector("imf");
+  imf_handle = find_dissector_add_dependency("imf", proto_pop);
 
   /* find the SSL dissector */
-  ssl_handle = find_dissector("ssl");
+  ssl_handle = find_dissector_add_dependency("ssl", proto_pop);
 }
 
 /*

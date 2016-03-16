@@ -1947,7 +1947,7 @@ void proto_reg_handoff_spdy(void) {
   ssl_dissector_add(0, spdy_handle);
 
   data_handle = find_dissector("data");
-  media_handle = find_dissector("media");
+  media_handle = find_dissector_add_dependency("media", proto_spdy);
   port_subdissector_table = find_dissector_table("http.port");
   media_type_subdissector_table = find_dissector_table("media_type");
 

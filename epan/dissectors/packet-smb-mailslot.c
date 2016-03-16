@@ -252,9 +252,9 @@ proto_register_smb_mailslot(void)
 void
 proto_reg_handoff_smb_mailslot(void)
 {
-	mailslot_browse_handle = find_dissector("mailslot_browse");
-	mailslot_lanman_handle = find_dissector("mailslot_lanman");
-	netlogon_handle = find_dissector("smb_netlogon");
+	mailslot_browse_handle = find_dissector_add_dependency("mailslot_browse", proto_smb_msp);
+	mailslot_lanman_handle = find_dissector_add_dependency("mailslot_lanman", proto_smb_msp);
+	netlogon_handle = find_dissector_add_dependency("smb_netlogon", proto_smb_msp);
 	data_handle = find_dissector("data");
 }
 

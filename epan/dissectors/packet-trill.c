@@ -212,7 +212,7 @@ proto_reg_handoff_trill(void)
    * meaning that the inner Ethernet frame does *not* include an
    * FCS.
    */
-  eth_dissector = find_dissector( "eth_withoutfcs" ) ;
+  eth_dissector = find_dissector_add_dependency( "eth_withoutfcs", proto_trill );
 }
 
 /*

@@ -2334,9 +2334,9 @@ void proto_register_pn532(void)
 void proto_reg_handoff_pn532(void)
 {
     sub_handles[SUB_DATA] = find_dissector("data");
-    sub_handles[SUB_FELICA] = find_dissector("felica");
-    sub_handles[SUB_MIFARE] = find_dissector("mifare");
-    sub_handles[SUB_ISO7816] = find_dissector("iso7816");
+    sub_handles[SUB_FELICA] = find_dissector_add_dependency("felica", proto_pn532);
+    sub_handles[SUB_MIFARE] = find_dissector_add_dependency("mifare", proto_pn532);
+    sub_handles[SUB_ISO7816] = find_dissector_add_dependency("iso7816", proto_pn532);
 }
 
 /*

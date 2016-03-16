@@ -16397,8 +16397,8 @@ void proto_reg_handoff_qsig(void) {
   dissector_handle_t qsig_err_handle;
   dissector_handle_t qsig_ie_handle;
 
-  q931_handle = find_dissector("q931");
-  q931_ie_handle = find_dissector("q931.ie");
+  q931_handle = find_dissector_add_dependency("q931", proto_qsig);
+  q931_ie_handle = find_dissector_add_dependency("q931.ie", proto_qsig);
 
   qsig_arg_handle = create_dissector_handle(dissect_qsig_arg, proto_qsig);
   qsig_res_handle = create_dissector_handle(dissect_qsig_res, proto_qsig);

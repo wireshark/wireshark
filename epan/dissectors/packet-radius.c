@@ -2676,7 +2676,7 @@ proto_reg_handoff_radius(void)
 
 	if (!initialized) {
 		radius_handle = find_dissector("radius");
-		eap_handle = find_dissector("eap");
+		eap_handle = find_dissector_add_dependency("eap", proto_radius);
 
 		initialized = TRUE;
 	} else {

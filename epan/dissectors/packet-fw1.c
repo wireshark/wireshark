@@ -291,7 +291,7 @@ proto_register_fw1(void)
 void
 proto_reg_handoff_fw1(void)
 {
-    ethertype_handle = find_dissector("ethertype");
+    ethertype_handle = find_dissector_add_dependency("ethertype", proto_fw1);
 }
 
 /*

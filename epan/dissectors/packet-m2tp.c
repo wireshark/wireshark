@@ -655,7 +655,7 @@ void
 proto_reg_handoff_m2tp(void)
 {
   dissector_handle_t m2tp_handle;
-  mtp2_handle   = find_dissector("mtp2");
+  mtp2_handle   = find_dissector_add_dependency("mtp2", proto_m2tp);
   m2tp_handle   = create_dissector_handle(dissect_m2tp, proto_m2tp);
   dissector_add_uint("sctp.ppi",  M2TP_PAYLOAD_PROTOCOL_ID, m2tp_handle);
   dissector_add_uint("sctp.port", SCTP_PORT_M2TP, m2tp_handle);

@@ -2687,9 +2687,9 @@ void proto_reg_handoff_radiotap(void)
 	dissector_handle_t radiotap_handle;
 
 	/* handle for 802.11+radio information dissector */
-	ieee80211_radio_handle = find_dissector("wlan_radio");
+	ieee80211_radio_handle = find_dissector_add_dependency("wlan_radio", proto_radiotap);
 
-	radiotap_handle = find_dissector("radiotap");
+	radiotap_handle = find_dissector_add_dependency("radiotap", proto_radiotap);
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_RADIOTAP,
 			   radiotap_handle);

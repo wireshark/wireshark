@@ -901,7 +901,7 @@ proto_register_acr122(void)
 void
 proto_reg_handoff_acr122(void)
 {
-    pn532_handle = find_dissector("pn532");
+    pn532_handle = find_dissector_add_dependency("pn532", proto_acr122);
 }
 
 /*

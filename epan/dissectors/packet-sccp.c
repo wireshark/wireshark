@@ -4156,12 +4156,12 @@ proto_reg_handoff_sccp(void)
     dissector_add_string("tali.opcode", "sccp", sccp_handle);
 
     data_handle   = find_dissector("data");
-    tcap_handle   = find_dissector("tcap");
-    ranap_handle  = find_dissector("ranap");
-    bssap_handle  = find_dissector("bssap");
-    gsmmap_handle = find_dissector("gsm_map_sccp");
-    camel_handle  = find_dissector("camel");
-    inap_handle   = find_dissector("inap");
+    tcap_handle   = find_dissector_add_dependency("tcap", proto_sccp);
+    ranap_handle  = find_dissector_add_dependency("ranap", proto_sccp);
+    bssap_handle  = find_dissector_add_dependency("bssap", proto_sccp);
+    gsmmap_handle = find_dissector_add_dependency("gsm_map_sccp", proto_sccp);
+    camel_handle  = find_dissector_add_dependency("camel", proto_sccp);
+    inap_handle   = find_dissector_add_dependency("inap", proto_sccp);
 
     initialised = TRUE;
   }

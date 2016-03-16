@@ -323,7 +323,7 @@ proto_reg_handoff_mdshdr(void)
         mdshdr_handle = create_dissector_handle(dissect_mdshdr, proto_mdshdr);
         dissector_add_uint("ethertype", ETHERTYPE_FCFT, mdshdr_handle);
         data_handle   = find_dissector("data");
-        fc_dissector_handle = find_dissector("fc");
+        fc_dissector_handle = find_dissector_add_dependency("fc", proto_mdshdr);
         mdshdr_prefs_initialized = TRUE;
     }
 

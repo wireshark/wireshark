@@ -8022,13 +8022,13 @@ proto_reg_handoff_mbim(void)
 
     if (!initialized) {
         dissector_handle_t mbim_decode_as_handle = create_dissector_handle(dissect_mbim_decode_as, proto_mbim);
-        bertlv_handle = find_dissector("gsm_sim.bertlv");
-        etsi_cat_handle = find_dissector("etsi_cat");
-        gsm_sms_handle = find_dissector("gsm_sms");
-        cdma_sms_handle = find_dissector("ansi_637_trans");
-        eth_handle = find_dissector("eth_withoutfcs");
-        eth_fcs_handle = find_dissector("eth_withfcs");
-        ip_handle = find_dissector("ip");
+        bertlv_handle = find_dissector_add_dependency("gsm_sim.bertlv", proto_mbim);
+        etsi_cat_handle = find_dissector_add_dependency("etsi_cat", proto_mbim);
+        gsm_sms_handle = find_dissector_add_dependency("gsm_sms", proto_mbim);
+        cdma_sms_handle = find_dissector_add_dependency("ansi_637_trans", proto_mbim);
+        eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_mbim);
+        eth_fcs_handle = find_dissector_add_dependency("eth_withfcs", proto_mbim);
+        ip_handle = find_dissector_add_dependency("ip", proto_mbim);
         data_handle = find_dissector("data");
         heur_dissector_add("usb.bulk", dissect_mbim_bulk_heur, "MBIM USB bulk endpoint", "mbim_usb_bulk", proto_mbim, HEURISTIC_ENABLE);
         dissector_add_for_decode_as("usb.device", mbim_decode_as_handle);

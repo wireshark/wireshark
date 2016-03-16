@@ -846,7 +846,7 @@ void proto_register_ieee80211_wlancap(void)
 
 void proto_reg_handoff_ieee80211_wlancap(void)
 {
-  ieee80211_radio_handle = find_dissector("wlan_radio");
+  ieee80211_radio_handle = find_dissector_add_dependency("wlan_radio", proto_wlancap);
   register_capture_dissector("wtap_encap", WTAP_ENCAP_IEEE_802_11_AVS, capture_wlancap, proto_wlancap);
 }
 

@@ -131,7 +131,7 @@ proto_register_sscf(void)
 void
 proto_reg_handoff_sscf(void)
 {
-  mtp3_handle = find_dissector("mtp3");
+  mtp3_handle = find_dissector_add_dependency("mtp3", proto_sscf);
 }
 
 /*

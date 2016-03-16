@@ -892,7 +892,7 @@ proto_reg_handoff_pana(void)
         pana_handle = create_dissector_handle(dissect_pana, proto_pana);
         dissector_add_for_decode_as("udp.port", pana_handle);
 
-        eap_handle = find_dissector("eap");
+        eap_handle = find_dissector_add_dependency("eap", proto_pana);
 
 }
 

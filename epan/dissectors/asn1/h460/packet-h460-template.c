@@ -274,8 +274,8 @@ void proto_reg_handoff_h460(void)
   h460_feature_t *ftr;
   dissector_handle_t h460_name_handle;
 
-  q931_ie_handle = find_dissector("q931.ie");
-  h225_ras_handle = find_dissector("h225.ras");
+  q931_ie_handle = find_dissector_add_dependency("q931.ie", proto_h460);
+  h225_ras_handle = find_dissector_add_dependency("h225.ras", proto_h460);
 
   h460_name_handle = create_dissector_handle(dissect_h460_name, proto_h460);
   for (ftr=h460_feature_tab; ftr->id; ftr++) {

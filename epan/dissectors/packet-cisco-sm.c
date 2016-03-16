@@ -605,9 +605,9 @@ proto_register_sm(void)
 void
 proto_reg_handoff_sm(void)
 {
-    sdp_handle  = find_dissector("sdp");
-    mtp3_handle = find_dissector("mtp3");
-    q931_handle = find_dissector("q931");
+    sdp_handle  = find_dissector_add_dependency("sdp", proto_sm);
+    mtp3_handle = find_dissector_add_dependency("mtp3", proto_sm);
+    q931_handle = find_dissector_add_dependency("q931", proto_sm);
     data_handle = find_dissector("data");
 }
 

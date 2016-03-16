@@ -179,7 +179,7 @@ proto_reg_handoff_tdmoe(void)
 	tdmoe_handle = create_dissector_handle(dissect_tdmoe, proto_tdmoe);
 	dissector_add_uint("ethertype", ETHERTYPE_TDMOE, tdmoe_handle);
 
-	lapd_handle = find_dissector("lapd-bitstream");
+	lapd_handle = find_dissector_add_dependency("lapd-bitstream", proto_tdmoe);
 	data_handle = find_dissector("data");
 }
 

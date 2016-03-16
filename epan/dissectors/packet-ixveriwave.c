@@ -1679,9 +1679,9 @@ framing signal deasserted.  this is caused by software setting the drain all reg
 void proto_reg_handoff_ixveriwave(void)
 {
     /* handle for ethertype dissector */
-    ethernet_handle          = find_dissector("eth_withoutfcs");
+    ethernet_handle          = find_dissector_add_dependency("eth_withoutfcs", proto_ixveriwave);
     /* handle for 802.11+radio information dissector */
-    ieee80211_radio_handle   = find_dissector("wlan_radio");
+    ieee80211_radio_handle   = find_dissector_add_dependency("wlan_radio", proto_ixveriwave);
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_IXVERIWAVE, ixveriwave_handle);
 }

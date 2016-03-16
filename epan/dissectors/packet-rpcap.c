@@ -1483,7 +1483,7 @@ proto_reg_handoff_rpcap (void)
   static gboolean rpcap_prefs_initialized = FALSE;
 
   if (!rpcap_prefs_initialized) {
-    pcap_pktdata_handle = find_dissector ("pcap_pktdata");
+    pcap_pktdata_handle = find_dissector_add_dependency("pcap_pktdata", proto_rpcap);
     data_handle = find_dissector ("data");
     rpcap_prefs_initialized = TRUE;
 

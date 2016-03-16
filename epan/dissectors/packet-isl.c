@@ -409,8 +409,8 @@ proto_reg_handoff_isl(void)
   /*
    * Get handles for the Ethernet and Token Ring dissectors.
    */
-  eth_withfcs_handle = find_dissector("eth_withfcs");
-  tr_handle = find_dissector("tr");
+  eth_withfcs_handle = find_dissector_add_dependency("eth_withfcs", proto_isl);
+  tr_handle = find_dissector_add_dependency("tr", proto_isl);
   data_handle = find_dissector("data");
 }
 

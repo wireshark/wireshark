@@ -740,7 +740,7 @@ proto_reg_handoff_mint(void)
 	dissector_add_uint("udp.port", PORT_MINT_DATA_TUNNEL, mint_data_handle);
 	dissector_add_uint("ethertype", ETHERTYPE_MINT, mint_eth_handle);
 
-	eth_handle = find_dissector("eth_withoutfcs");
+	eth_handle = find_dissector_add_dependency("eth_withoutfcs", hfi_mint->id);
 }
 
 /*

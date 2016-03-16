@@ -557,9 +557,9 @@ void
 proto_reg_handoff_websocket(void)
 {
   data_handle = find_dissector("data");
-  text_lines_handle = find_dissector("data-text-lines");
-  json_handle = find_dissector("json");
-  sip_handle = find_dissector("sip");
+  text_lines_handle = find_dissector_add_dependency("data-text-lines", proto_websocket);
+  json_handle = find_dissector_add_dependency("json", proto_websocket);
+  sip_handle = find_dissector_add_dependency("sip", proto_websocket);
 
   proto_http = proto_get_id_by_filter_name("http");
 }

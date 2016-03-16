@@ -421,9 +421,9 @@ proto_register_bthid(void)
 void
 proto_reg_handoff_bthid(void)
 {
-    usb_hid_boot_keyboard_input_report_handle  = find_dissector("usbhid.boot_report.keyboard.input");
-    usb_hid_boot_keyboard_output_report_handle = find_dissector("usbhid.boot_report.keyboard.output");
-    usb_hid_boot_mouse_input_report_handle     = find_dissector("usbhid.boot_report.mouse.input");
+    usb_hid_boot_keyboard_input_report_handle  = find_dissector_add_dependency("usbhid.boot_report.keyboard.input", proto_bthid);
+    usb_hid_boot_keyboard_output_report_handle = find_dissector_add_dependency("usbhid.boot_report.keyboard.output", proto_bthid);
+    usb_hid_boot_mouse_input_report_handle     = find_dissector_add_dependency("usbhid.boot_report.mouse.input", proto_bthid);
 
     dissector_add_string("bluetooth.uuid", "11", bthid_handle);
     dissector_add_string("bluetooth.uuid", "1124", bthid_handle);

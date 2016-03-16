@@ -8693,8 +8693,8 @@ void
 proto_reg_handoff_gsm_a_gm(void)
 {
 	data_handle = find_dissector("data");
-	rrc_irat_ho_info_handle = find_dissector("rrc.irat.irat_ho_info");
-	lte_rrc_ue_eutra_cap_handle = find_dissector("lte-rrc.ue_eutra_cap");
+	rrc_irat_ho_info_handle = find_dissector_add_dependency("rrc.irat.irat_ho_info", proto_a_gm);
+	lte_rrc_ue_eutra_cap_handle = find_dissector_add_dependency("lte-rrc.ue_eutra_cap", proto_a_gm);
 }
 
 /*

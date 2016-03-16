@@ -461,7 +461,7 @@ void proto_reg_handoff_netanalyzer(void)
   dissector_handle_t netana_handle;
   dissector_handle_t netana_handle_transparent;
 
-  eth_dissector_handle  = find_dissector("eth_withfcs");
+  eth_dissector_handle  = find_dissector_add_dependency("eth_withfcs", proto_netanalyzer);
   data_dissector_handle = find_dissector("data");
 
   netana_handle             = create_dissector_handle(dissect_netanalyzer,             proto_netanalyzer);

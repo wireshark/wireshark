@@ -538,7 +538,7 @@ proto_reg_handoff_fddi(void)
   /*
    * Get a handle for the LLC dissector.
    */
-  llc_handle = find_dissector("llc");
+  llc_handle = find_dissector_add_dependency("llc", proto_fddi);
   data_handle = find_dissector("data");
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FDDI_BITSWAPPED,

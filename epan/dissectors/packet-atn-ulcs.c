@@ -2592,9 +2592,6 @@ void proto_register_atn_ulcs (void)
         dissect_atn_ulcs,
         proto_atn_ulcs);
 
-    atn_cm_handle = find_dissector("atn-cm");
-    atn_cpdlc_handle = find_dissector("atn-cpdlc");
-
     /* initiate sub dissector list */
     atn_ulcs_heur_subdissector_list = register_heur_dissector_list("atn-ulcs", proto_atn_ulcs);
 
@@ -2606,6 +2603,9 @@ void proto_register_atn_ulcs (void)
 
 void proto_reg_handoff_atn_ulcs(void)
 {
+    atn_cm_handle = find_dissector_add_dependency("atn-cm", proto_atn_ulcs);
+    atn_cpdlc_handle = find_dissector_add_dependency("atn-cpdlc", proto_atn_ulcs);
+
     /* add session dissector to cotp dissector list dissector list*/
     heur_dissector_add(
         "cotp",

@@ -3005,9 +3005,9 @@ proto_register_rlc(void)
 void
 proto_reg_handoff_rlc(void)
 {
-    rrc_handle = find_dissector("rrc");
-    ip_handle  = find_dissector("ip");
-    bmc_handle = find_dissector("bmc");
+    rrc_handle = find_dissector_add_dependency("rrc", proto_rlc);
+    ip_handle  = find_dissector_add_dependency("ip", proto_rlc);
+    bmc_handle = find_dissector_add_dependency("bmc", proto_rlc);
     /* Add as a heuristic UDP dissector */
     heur_dissector_add("udp", dissect_rlc_heur, "RLC over UDP", "rlc_udp", proto_rlc, HEURISTIC_DISABLE);
 }

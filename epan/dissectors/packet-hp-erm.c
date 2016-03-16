@@ -172,7 +172,7 @@ proto_reg_handoff_hp_erm(void)
     static gboolean initialized = FALSE;
 
     if (!initialized) {
-        eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
+        eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_hp_erm);
         hp_erm_handle = create_dissector_handle(dissect_hp_erm, proto_hp_erm);
         initialized = TRUE;
     } else {

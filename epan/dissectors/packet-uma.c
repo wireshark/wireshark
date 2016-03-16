@@ -1766,8 +1766,8 @@ proto_reg_handoff_uma(void)
 		uma_udp_handle = find_dissector("umaudp");
 		dissector_add_for_decode_as("udp.port", uma_udp_handle);
 		data_handle = find_dissector("data");
-		rtcp_handle = find_dissector("rtcp");
-		llc_handle = find_dissector("llcgprs");
+		rtcp_handle = find_dissector_add_dependency("rtcp", proto_uma);
+		llc_handle = find_dissector_add_dependency("llcgprs", proto_uma);
 		bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
 		Initialized=TRUE;
 	} else {

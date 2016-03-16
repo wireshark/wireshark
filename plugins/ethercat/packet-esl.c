@@ -363,7 +363,7 @@ proto_reg_handoff_esl(void) {
     static gboolean initialized = FALSE;
 
     if (!initialized) {
-        eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
+        eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_esl);
         heur_dissector_add("eth", dissect_esl_heur, "EtherCAT over Ethernet", "esl_eth", proto_esl, HEURISTIC_DISABLE);
         initialized = TRUE;
     }

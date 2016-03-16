@@ -453,7 +453,7 @@ void proto_reg_handoff_pw_cesopsn(void)
 	dissector_handle_t pw_cesopsn_mpls_handle;
 
 	data_handle = find_dissector("data");
-	pw_padding_handle = find_dissector("pw_padding");
+	pw_padding_handle = find_dissector_add_dependency("pw_padding", proto);
 
 	/* For Decode As */
 	pw_cesopsn_mpls_handle = create_dissector_handle( dissect_pw_cesopsn_mpls, proto );

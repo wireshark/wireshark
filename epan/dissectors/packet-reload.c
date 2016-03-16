@@ -5939,7 +5939,7 @@ proto_reg_handoff_reload(void)
 {
 
   data_handle = find_dissector("data");
-  xml_handle  = find_dissector("xml");
+  xml_handle  = find_dissector_add_dependency("xml", proto_reload);
 
   heur_dissector_add("udp", dissect_reload_heur, "RELOAD over UDP", "reload_udp", proto_reload, HEURISTIC_ENABLE);
   heur_dissector_add("tcp", dissect_reload_heur, "RELOAD over TCP", "reload_tcp", proto_reload, HEURISTIC_ENABLE);

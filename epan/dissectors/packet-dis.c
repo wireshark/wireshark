@@ -3942,6 +3942,7 @@ static gint ett_iff_parameter_4 = -1;
 static gint ett_iff_parameter_5 = -1;
 static gint ett_iff_parameter_6 = -1;
 
+static dissector_handle_t link16_handle;
 
 typedef int DIS_Parser_func(tvbuff_t *, packet_info *, proto_tree *, int);
 
@@ -4403,7 +4404,7 @@ static gint parse_Link16_Message_Data(proto_tree *tree, tvbuff_t *tvb, gint offs
             newtvb = tvb_new_child_real_data(tvb, word, 10, 10);
             tvb_set_free_cb(newtvb, g_free);
             add_new_data_source(pinfo, newtvb, "Link 16 Word");
-            call_dissector_with_data(find_dissector("link16"), newtvb, pinfo, tree, &state);
+            call_dissector_with_data(link16_handle, newtvb, pinfo, tree, &state);
         }
         break;
     }
@@ -9576,6 +9577,7 @@ void proto_reg_handoff_dis(void)
     if (!dis_prefs_initialized)
     {
         dis_dissector_handle = create_dissector_handle(dissect_dis, proto_dis);
+        link16_handle = find_dissector_add_dependency("link16", proto_dis);
         dis_prefs_initialized = TRUE;
     }
     else

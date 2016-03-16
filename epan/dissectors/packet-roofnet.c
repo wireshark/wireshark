@@ -357,7 +357,7 @@ void proto_reg_handoff_roofnet(void)
 
   /* Until now there is no other option than having an IPv4 payload (maybe
    * extended one day to IPv6 or other?) */
-  ip_handle = find_dissector("ip");
+  ip_handle = find_dissector_add_dependency("ip", proto_roofnet);
   roofnet_handle = create_dissector_handle(dissect_roofnet, proto_roofnet);
   /* I did not put the type numbers in the ethertypes.h as they only are
    * experimental and not official */

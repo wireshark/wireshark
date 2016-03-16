@@ -980,7 +980,7 @@ proto_reg_handoff_mpa(void)
 	 * port, try this dissector whenever there is TCP traffic.
 	 */
 	heur_dissector_add("tcp", dissect_iwarp_mpa, "IWARP_MPA over TCP", "iwarp_mpa_tcp", proto_iwarp_mpa, HEURISTIC_ENABLE);
-	ddp_rdmap_handle = find_dissector("iwarp_ddp_rdmap");
+	ddp_rdmap_handle = find_dissector_add_dependency("iwarp_ddp_rdmap", proto_iwarp_mpa);
 }
 
 /*

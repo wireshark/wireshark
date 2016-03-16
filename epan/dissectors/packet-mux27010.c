@@ -1440,7 +1440,7 @@ proto_reg_handoff_mux27010(void)
     /*Initialization of dissector*/
     dissector_add_uint("wtap_encap", WTAP_ENCAP_MUX27010, mux27010_handle);
 
-    ppp_handle = find_dissector("ppp");
+    ppp_handle = find_dissector_add_dependency("ppp", proto_mux27010);
 
 }
 

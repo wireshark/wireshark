@@ -185,7 +185,7 @@ proto_reg_handoff_gmr1_dtap(void)
 	dissector_add_uint("lapsat.sapi", 0 , dtap_handle); /* LAPSat: CC/RR/MM */
 	dissector_add_uint("lapsat.sapi", 3 , dtap_handle); /* LAPSat: SMS/SS */
 
-	gsm_dtap_handle = find_dissector("gsm_a_dtap");
+	gsm_dtap_handle = find_dissector_add_dependency("gsm_a_dtap", proto_gmr1_dtap);
 }
 
 /*

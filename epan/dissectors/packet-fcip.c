@@ -655,7 +655,7 @@ proto_reg_handoff_fcip (void)
     dissector_add_for_decode_as("tcp.port", fcip_handle);
 
     data_handle = find_dissector("data");
-    fc_handle   = find_dissector("fc");
+    fc_handle   = find_dissector_add_dependency("fc", proto_fcip);
 }
 
 /*

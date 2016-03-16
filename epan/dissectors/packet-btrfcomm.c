@@ -1259,7 +1259,7 @@ proto_reg_handoff_btdun(void)
 
     dissector_add_for_decode_as("btrfcomm.dlci", btdun_handle);
 
-    ppp_handle = find_dissector("ppp_raw_hdlc");
+    ppp_handle = find_dissector_add_dependency("ppp_raw_hdlc", proto_btdun);
 }
 
 /* Bluetooth Serial Port profile (SPP) dissection */

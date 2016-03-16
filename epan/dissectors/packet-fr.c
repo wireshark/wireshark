@@ -1010,9 +1010,9 @@ proto_reg_handoff_fr(void)
   register_capture_dissector("wtap_encap", WTAP_ENCAP_FRELAY, capture_fr, proto_fr);
   register_capture_dissector("wtap_encap", WTAP_ENCAP_FRELAY_WITH_PHDR, capture_fr, proto_fr);
 
-  eth_withfcs_handle = find_dissector("eth_withfcs");
-  gprs_ns_handle = find_dissector("gprs_ns");
-  data_handle = find_dissector("data");
+  eth_withfcs_handle = find_dissector_add_dependency("eth_withfcs", proto_fr);
+  gprs_ns_handle = find_dissector_add_dependency("gprs_ns", proto_fr);
+  data_handle = find_dissector_add_dependency("data", proto_fr);
 
   osinl_incl_subdissector_table = find_dissector_table("osinl.incl");
 }

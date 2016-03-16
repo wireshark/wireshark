@@ -666,7 +666,7 @@ proto_reg_handoff_openvpn(void)
   static gboolean initialized = FALSE;
 
   if (! initialized) {
-    ssl_handle     = find_dissector("ssl");
+    ssl_handle     = find_dissector_add_dependency("ssl", proto_openvpn);
     initialized    = TRUE;
   } else {
     if (tcp_port > 0)

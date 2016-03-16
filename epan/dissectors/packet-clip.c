@@ -113,7 +113,7 @@ proto_reg_handoff_clip(void)
   /*
    * Get a handle for the IP dissector.
    */
-  ip_handle = find_dissector("ip");
+  ip_handle = find_dissector_add_dependency("ip", proto_clip);
 
   clip_handle = create_dissector_handle(dissect_clip, proto_clip);
       /* XXX - no protocol, can't be disabled */

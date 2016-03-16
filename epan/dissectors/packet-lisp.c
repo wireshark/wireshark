@@ -3625,8 +3625,8 @@ void
 proto_reg_handoff_lisp(void)
 {
     dissector_add_uint("udp.port", LISP_CONTROL_PORT, lisp_handle);
-    ipv4_handle = find_dissector("ip");
-    ipv6_handle = find_dissector("ipv6");
+    ipv4_handle = find_dissector_add_dependency("ip", proto_lisp);
+    ipv6_handle = find_dissector_add_dependency("ipv6", proto_lisp);
     data_handle = find_dissector("data");
 }
 

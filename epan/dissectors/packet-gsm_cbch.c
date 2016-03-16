@@ -657,7 +657,7 @@ void
 proto_reg_handoff_gsm_cbch(void)
 {
     data_handle = find_dissector("data");
-    cbs_handle  = find_dissector("gsm_cbs");
+    cbs_handle  = find_dissector_add_dependency("gsm_cbs", proto_cbch);
 }
 
 /*

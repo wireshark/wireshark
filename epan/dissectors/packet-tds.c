@@ -5638,8 +5638,8 @@ proto_reg_handoff_tds(void)
 
     heur_dissector_add("tcp", dissect_tds_tcp_heur, "Tabular Data Stream over TCP", "tds_tcp", proto_tds, HEURISTIC_ENABLE);
 
-    ntlmssp_handle = find_dissector("ntlmssp");
-    gssapi_handle = find_dissector("gssapi");
+    ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_tds);
+    gssapi_handle = find_dissector_add_dependency("gssapi", proto_tds);
     data_handle = find_dissector("data");
 }
 

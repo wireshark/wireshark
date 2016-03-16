@@ -1733,7 +1733,7 @@ proto_reg_handoff_sgsap(void)
     static range_t *sgsap_port_range;
 
     sgsap_handle = find_dissector("sgsap");
-    gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
+    gsm_a_dtap_handle = find_dissector_add_dependency("gsm_a_dtap", proto_sgsap);
 
     if (!Initialized) {
         dissector_add_for_decode_as("sctp.port", sgsap_handle);

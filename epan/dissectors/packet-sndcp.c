@@ -585,7 +585,7 @@ proto_reg_handoff_sndcp(void)
 
   /* Find IP and data handle for upper layer dissectors
    */
-  ip_handle   = find_dissector("ip");
+  ip_handle   = find_dissector_add_dependency("ip", proto_sndcp);
   data_handle = find_dissector("data");
 }
 

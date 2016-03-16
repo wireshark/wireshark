@@ -1483,9 +1483,8 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 void
 proto_reg_handoff_ansi_tcap(void)
 {
-
-        ansi_map_handle = find_dissector("ansi_map");
-        ber_oid_dissector_table = find_dissector_table("ber.oid");
+    ansi_map_handle = find_dissector_add_dependency("ansi_map", proto_ansi_tcap);
+    ber_oid_dissector_table = find_dissector_table("ber.oid");
 }
 
 
@@ -1755,7 +1754,7 @@ proto_register_ansi_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 489 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 488 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1793,7 +1792,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 500 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 499 "./asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
     static ei_register_info ei[] = {

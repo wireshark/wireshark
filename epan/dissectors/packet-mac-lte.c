@@ -8737,14 +8737,14 @@ void proto_reg_handoff_mac_lte(void)
     /* Add as a heuristic UDP dissector */
     heur_dissector_add("udp", dissect_mac_lte_heur, "MAC-LTE over UDP", "mac_lte_udp", proto_mac_lte, HEURISTIC_DISABLE);
 
-    rlc_lte_handle = find_dissector("rlc-lte");
-    lte_rrc_bcch_dl_sch_handle = find_dissector("lte_rrc.bcch_dl_sch");
-    lte_rrc_bcch_bch_handle = find_dissector("lte_rrc.bcch_bch");
-    lte_rrc_pcch_handle = find_dissector("lte_rrc.pcch");
-    lte_rrc_ul_ccch_handle = find_dissector("lte_rrc.ul_ccch");
-    lte_rrc_dl_ccch_handle = find_dissector("lte_rrc.dl_ccch");
-    lte_rrc_sbcch_sl_bch_handle = find_dissector("lte_rrc.sbcch_sl_bch");
-    lte_rrc_sc_mcch_handle = find_dissector("lte_rrc.sc_mcch");
+    rlc_lte_handle = find_dissector_add_dependency("rlc-lte", proto_mac_lte);
+    lte_rrc_bcch_dl_sch_handle = find_dissector_add_dependency("lte_rrc.bcch_dl_sch", proto_mac_lte);
+    lte_rrc_bcch_bch_handle = find_dissector_add_dependency("lte_rrc.bcch_bch", proto_mac_lte);
+    lte_rrc_pcch_handle = find_dissector_add_dependency("lte_rrc.pcch", proto_mac_lte);
+    lte_rrc_ul_ccch_handle = find_dissector_add_dependency("lte_rrc.ul_ccch", proto_mac_lte);
+    lte_rrc_dl_ccch_handle = find_dissector_add_dependency("lte_rrc.dl_ccch", proto_mac_lte);
+    lte_rrc_sbcch_sl_bch_handle = find_dissector_add_dependency("lte_rrc.sbcch_sl_bch", proto_mac_lte);
+    lte_rrc_sc_mcch_handle = find_dissector_add_dependency("lte_rrc.sc_mcch", proto_mac_lte);
 }
 
 /*

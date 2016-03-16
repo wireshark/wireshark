@@ -5799,10 +5799,11 @@ proto_reg_handoff_capwap(void)
     if (!inited) {
         capwap_control_handle = create_dissector_handle(dissect_capwap_control, proto_capwap_control);
         capwap_data_handle    = create_dissector_handle(dissect_capwap_data, proto_capwap_data);
-        dtls_handle           = find_dissector("dtls");
-        ieee8023_handle       = find_dissector("eth_withoutfcs");
-        ieee80211_handle      = find_dissector("wlan_withoutfcs");
-        ieee80211_bsfc_handle = find_dissector("wlan_bsfc");
+        dtls_handle           = find_dissector_add_dependency("dtls", proto_capwap_control);
+        find_dissector_add_dependency("dtls", proto_capwap_data);
+        ieee8023_handle       = find_dissector_add_dependency("eth_withoutfcs", proto_capwap_data);
+        ieee80211_handle      = find_dissector_add_dependency("wlan_withoutfcs", proto_capwap_data);
+        ieee80211_bsfc_handle = find_dissector_add_dependency("wlan_bsfc", proto_capwap_data);
         data_handle           = find_dissector("data");
 
         inited = TRUE;

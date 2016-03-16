@@ -450,7 +450,7 @@ proto_reg_handoff_ax25_kiss(void)
 	register_capture_dissector("wtap_encap", WTAP_ENCAP_AX25_KISS, capture_ax25_kiss, proto_ax25_kiss);
 
 	/* only currently implemented for AX.25 */
-	ax25_handle = find_dissector( "ax25" );
+	ax25_handle = find_dissector_add_dependency( "ax25", proto_ax25_kiss );
 }
 
 /*

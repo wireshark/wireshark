@@ -612,8 +612,8 @@ void proto_reg_handoff_uaudp(void)
 
     if (!prefs_initialized)
     {
-        ua_sys_to_term_handle = find_dissector("ua_sys_to_term");
-        ua_term_to_sys_handle = find_dissector("ua_term_to_sys");
+        ua_sys_to_term_handle = find_dissector_add_dependency("ua_sys_to_term", proto_uaudp);
+        ua_term_to_sys_handle = find_dissector_add_dependency("ua_term_to_sys", proto_uaudp);
 #if 0
         uaudp_opcode_dissector_table =
             register_dissector_table("uaudp.opcode",

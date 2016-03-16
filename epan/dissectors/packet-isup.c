@@ -12466,8 +12466,8 @@ proto_register_bicc(void)
 void
 proto_reg_handoff_bicc(void)
 {
-  sdp_handle     = find_dissector("sdp");
-  q931_ie_handle = find_dissector("q931.ie");
+  sdp_handle     = find_dissector_add_dependency("sdp", proto_isup);
+  q931_ie_handle = find_dissector_add_dependency("q931.ie", proto_isup);
 
   dissector_add_uint("mtp3.service_indicator", MTP_SI_BICC, bicc_handle);
   dissector_add_uint("sctp.ppi", BICC_PAYLOAD_PROTOCOL_ID, bicc_handle);

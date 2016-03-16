@@ -1894,15 +1894,15 @@ proto_reg_handoff_erf(void)
   data_handle = find_dissector("data");
 
   /* Get handles for serial line protocols */
-  chdlc_handle  = find_dissector("chdlc");
-  ppp_handle    = find_dissector("ppp_hdlc");
-  frelay_handle = find_dissector("fr");
-  mtp2_handle   = find_dissector("mtp2_with_crc");
+  chdlc_handle  = find_dissector_add_dependency("chdlc", proto_erf);
+  ppp_handle    = find_dissector_add_dependency("ppp_hdlc", proto_erf);
+  frelay_handle = find_dissector_add_dependency("fr", proto_erf);
+  mtp2_handle   = find_dissector_add_dependency("mtp2_with_crc", proto_erf);
 
   /* Get handle for ATM dissector */
-  atm_untruncated_handle = find_dissector("atm_untruncated");
+  atm_untruncated_handle = find_dissector_add_dependency("atm_untruncated", proto_erf);
 
-  sdh_handle = find_dissector("sdh");
+  sdh_handle = find_dissector_add_dependency("sdh", proto_erf);
 }
 
 /*

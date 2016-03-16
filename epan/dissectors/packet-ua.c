@@ -306,8 +306,8 @@ void proto_reg_handoff_ua_msg(void)
 
 
 #endif
-    noe_handle  = find_dissector("noe");
-    ua3g_handle = find_dissector("ua3g");
+    noe_handle  = find_dissector_add_dependency("noe", proto_ua_msg);
+    ua3g_handle = find_dissector_add_dependency("ua3g", proto_ua_msg);
     data_handle = find_dissector("data");
 
 }

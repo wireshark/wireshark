@@ -2046,7 +2046,7 @@ void proto_reg_handoff_icmp(void)
 	/*
 	 * Get handle for the IP dissector.
 	 */
-	ip_handle = find_dissector("ip");
+	ip_handle = find_dissector_add_dependency("ip", proto_icmp);
 	icmp_handle = find_dissector("icmp");
 	data_handle = find_dissector("data");
 

@@ -1884,7 +1884,7 @@ proto_register_card_app_toolkit(void)
 void
 proto_reg_handoff_card_app_toolkit(void)
 {
-	gsm_sms_handle = find_dissector("gsm_sms");
+	gsm_sms_handle = find_dissector_add_dependency("gsm_sms", proto_cat);
 }
 
 

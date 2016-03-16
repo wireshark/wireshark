@@ -1646,8 +1646,8 @@ proto_reg_handoff_v5ua(void)
    dissector_handle_t v5ua_handle;
 
    v5ua_handle = create_dissector_handle(dissect_v5ua, proto_v5ua);
-   q931_handle = find_dissector("q931");
-   v52_handle = find_dissector("v52");
+   q931_handle = find_dissector_add_dependency("q931", proto_v5ua);
+   v52_handle = find_dissector_add_dependency("v52", proto_v5ua);
 
    dissector_add_uint("sctp.port", SCTP_PORT_V5UA_DRAFT, v5ua_handle);
    dissector_add_uint("sctp.port", SCTP_PORT_V5UA_RFC, v5ua_handle);

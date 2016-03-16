@@ -3570,8 +3570,8 @@ proto_reg_handoff_http(void)
 	dissector_handle_t ssdp_handle;
 
 	data_handle = find_dissector("data");
-	media_handle = find_dissector("media");
-	websocket_handle = find_dissector("websocket");
+	media_handle = find_dissector_add_dependency("media", proto_http);
+	websocket_handle = find_dissector_add_dependency("websocket", proto_http);
 	http2_handle = find_dissector("http2");
 	/*
 	 * XXX - is there anything to dissect in the body of an SSDP
@@ -3580,9 +3580,9 @@ proto_reg_handoff_http(void)
 	ssdp_handle = create_dissector_handle(dissect_ssdp, proto_ssdp);
 	dissector_add_uint("udp.port", UDP_PORT_SSDP, ssdp_handle);
 
-	ntlmssp_handle = find_dissector("ntlmssp");
-	gssapi_handle = find_dissector("gssapi");
-	sstp_handle = find_dissector("sstp");
+	ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_http);
+	gssapi_handle = find_dissector_add_dependency("gssapi", proto_http);
+	sstp_handle = find_dissector_add_dependency("sstp", proto_http);
 
 	stats_tree_register("http", "http",     "HTTP/Packet Counter",   0, http_stats_tree_packet,      http_stats_tree_init, NULL );
 	stats_tree_register("http", "http_req", "HTTP/Requests",         0, http_req_stats_tree_packet,  http_req_stats_tree_init, NULL );

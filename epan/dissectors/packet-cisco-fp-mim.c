@@ -413,7 +413,7 @@ proto_reg_handoff_fabricpath(void)
      * by the Ethernet dissector.  This needs more work, so we leave this
      * as calling the "eth" dissector as a reminder.
      */
-    eth_maybefcs_dissector = find_dissector( "eth_maybefcs" );
+    eth_maybefcs_dissector = find_dissector_add_dependency( "eth_maybefcs", proto_fp );
     prefs_initialized = TRUE;
   }
 }

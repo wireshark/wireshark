@@ -200,7 +200,7 @@ proto_reg_handoff_vxlan(void)
      * meaning that the inner Ethernet frame does *not* include an
      * FCS.
      */
-    eth_handle = find_dissector("eth_withoutfcs");
+    eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_vxlan);
 
     vxlan_handle = create_dissector_handle(dissect_vxlan, proto_vxlan);
     dissector_add_uint("udp.port", UDP_PORT_VXLAN, vxlan_handle);

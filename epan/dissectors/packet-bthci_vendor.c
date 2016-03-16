@@ -1560,7 +1560,7 @@ proto_register_bthci_vendor_broadcom(void)
 void
 proto_reg_handoff_bthci_vendor_broadcom(void)
 {
-    btcommon_ad_handle = find_dissector("btcommon.eir_ad.ad");
+    btcommon_ad_handle = find_dissector_add_dependency("btcommon.eir_ad.ad", proto_bthci_vendor_broadcom);
     dissector_add_for_decode_as("bthci_cmd.vendor", bthci_vendor_broadcom_handle);
     dissector_add_uint("bluetooth.vendor", 0x000F, bthci_vendor_broadcom_handle);
 }

@@ -434,7 +434,7 @@ proto_register_v5dl(void)
 void
 proto_reg_handoff_v5dl(void)
 {
-	v52_handle = find_dissector("v52");
+	v52_handle = find_dissector_add_dependency("v52", proto_v5dl);
 }
 
 /*

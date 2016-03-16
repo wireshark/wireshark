@@ -3467,7 +3467,7 @@ proto_reg_handoff_wimaxasncp(void)
     {
 
         /* Find the EAP dissector */
-        eap_handle = find_dissector("eap");
+        eap_handle = find_dissector_add_dependency("eap", proto_wimaxasncp);
 
         inited = TRUE;
     }

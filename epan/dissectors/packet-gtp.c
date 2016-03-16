@@ -10188,15 +10188,15 @@ proto_reg_handoff_gtp(void)
 
 
 
-        ip_handle            = find_dissector("ip");
-        ipv6_handle          = find_dissector("ipv6");
-        ppp_handle           = find_dissector("ppp");
-        sync_handle          = find_dissector("sync");
-        gtpcdr_handle        = find_dissector("gtpcdr");
-        sndcpxid_handle      = find_dissector("sndcpxid");
+        ip_handle            = find_dissector_add_dependency("ip", proto_gtp);
+        ipv6_handle          = find_dissector_add_dependency("ipv6", proto_gtp);
+        ppp_handle           = find_dissector_add_dependency("ppp", proto_gtp);
+        sync_handle          = find_dissector_add_dependency("sync", proto_gtp);
+        gtpcdr_handle        = find_dissector_add_dependency("gtpcdr", proto_gtp);
+        sndcpxid_handle      = find_dissector_add_dependency("sndcpxid", proto_gtp);
         data_handle          = find_dissector("data");
-        gtpv2_handle         = find_dissector("gtpv2");
-        bssgp_handle         = find_dissector("bssgp");
+        gtpv2_handle         = find_dissector_add_dependency("gtpv2", proto_gtp);
+        bssgp_handle         = find_dissector_add_dependency("bssgp", proto_gtp);
         bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
         /* AVP Code: 5 3GPP-GPRS Negotiated QoS profile */
         dissector_add_uint("diameter.3gpp", 5, create_dissector_handle(dissect_diameter_3gpp_qosprofile, proto_gtp));

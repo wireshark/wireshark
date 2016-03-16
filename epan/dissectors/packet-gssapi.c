@@ -709,11 +709,11 @@ proto_reg_handoff_gssapi(void)
 {
 	dissector_handle_t gssapi_handle;
 
-	ntlmssp_handle = find_dissector("ntlmssp");
-	ntlmssp_payload_handle = find_dissector("ntlmssp_payload");
-	ntlmssp_verf_handle = find_dissector("ntlmssp_verf");
-	ntlmssp_data_only_handle = find_dissector("ntlmssp_data_only");
-	spnego_krb5_wrap_handle = find_dissector("spnego-krb5-wrap");
+	ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_gssapi);
+	ntlmssp_payload_handle = find_dissector_add_dependency("ntlmssp_payload", proto_gssapi);
+	ntlmssp_verf_handle = find_dissector_add_dependency("ntlmssp_verf", proto_gssapi);
+	ntlmssp_data_only_handle = find_dissector_add_dependency("ntlmssp_data_only", proto_gssapi);
+	spnego_krb5_wrap_handle = find_dissector_add_dependency("spnego-krb5-wrap", proto_gssapi);
 
 	register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_CONNECT,
 					  DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO,

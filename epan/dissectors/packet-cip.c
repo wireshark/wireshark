@@ -8043,7 +8043,7 @@ proto_reg_handoff_cip(void)
    /* Create and register dissector handle for Modbus Object */
    cip_class_mb_handle = create_dissector_handle( dissect_cip_class_mb, proto_cip_class_mb );
    dissector_add_uint( "cip.class.iface", CI_CLS_MB, cip_class_mb_handle );
-   modbus_handle = find_dissector("modbus");
+   modbus_handle = find_dissector_add_dependency("modbus", proto_cip_class_mb);
 
    /* Create and register dissector handle for Connection Configuration Object */
    cip_class_cco_handle = create_dissector_handle( dissect_cip_class_cco, proto_cip_class_cco );

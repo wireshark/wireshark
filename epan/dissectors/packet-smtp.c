@@ -1321,13 +1321,13 @@ proto_reg_handoff_smtp(void)
   dissector_add_uint("tcp.port", TCP_PORT_SUBMISSION, smtp_handle);
 
   /* find the IMF dissector */
-  imf_handle = find_dissector("imf");
+  imf_handle = find_dissector_add_dependency("imf", proto_smtp);
 
   /* find the SSL dissector */
-  ssl_handle = find_dissector("ssl");
+  ssl_handle = find_dissector_add_dependency("ssl", proto_smtp);
 
   /* find the NTLM dissector */
-  ntlmssp_handle = find_dissector("ntlmssp");
+  ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_smtp);
 }
 
 /*

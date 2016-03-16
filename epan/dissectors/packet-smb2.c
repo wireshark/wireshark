@@ -9683,9 +9683,9 @@ proto_register_smb2(void)
 void
 proto_reg_handoff_smb2(void)
 {
-	gssapi_handle  = find_dissector("gssapi");
-	ntlmssp_handle = find_dissector("ntlmssp");
-	rsvd_handle    = find_dissector("rsvd");
+	gssapi_handle  = find_dissector_add_dependency("gssapi", proto_smb2);
+	ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_smb2);
+	rsvd_handle    = find_dissector_add_dependency("rsvd", proto_smb2);
 	data_handle    = find_dissector("data");
 	heur_dissector_add("netbios", dissect_smb2_heur, "SMB2 over Netbios", "smb2_netbios", proto_smb2, HEURISTIC_ENABLE);
 	heur_dissector_add("smb_direct", dissect_smb2_heur, "SMB2 over SMB Direct", "smb2_smb_direct", proto_smb2, HEURISTIC_ENABLE);

@@ -150,7 +150,7 @@ proto_reg_handoff_bpq(void)
 	register_capture_dissector("ethertype", ETHERTYPE_BPQ, capture_bpq, proto_bpq);
 
 	/* BPQ is only implemented for AX.25 */
-	ax25_handle     = find_dissector( "ax25" );
+	ax25_handle     = find_dissector_add_dependency( "ax25", proto_bpq );
 
 }
 

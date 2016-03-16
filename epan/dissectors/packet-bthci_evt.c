@@ -6210,11 +6210,11 @@ proto_reg_handoff_bthci_evt(void)
     dissector_add_uint("hci_h4.type", HCI_H4_TYPE_EVT, bthci_evt_handle);
     dissector_add_uint("hci_h1.type", BTHCI_CHANNEL_EVENT, bthci_evt_handle);
 
-    bthci_cmd_handle    = find_dissector("bthci_cmd");
-    btcommon_cod_handle = find_dissector("btcommon.cod");
-    btcommon_eir_handle = find_dissector("btcommon.eir_ad.eir");
-    btcommon_ad_handle  = find_dissector("btcommon.eir_ad.ad");
-    btcommon_le_channel_map_handle = find_dissector("btcommon.le_channel_map");
+    bthci_cmd_handle    = find_dissector_add_dependency("bthci_cmd", proto_bthci_evt);
+    btcommon_cod_handle = find_dissector_add_dependency("btcommon.cod", proto_bthci_evt);
+    btcommon_eir_handle = find_dissector_add_dependency("btcommon.eir_ad.eir", proto_bthci_evt);
+    btcommon_ad_handle  = find_dissector_add_dependency("btcommon.eir_ad.ad", proto_bthci_evt);
+    btcommon_le_channel_map_handle = find_dissector_add_dependency("btcommon.le_channel_map", proto_bthci_evt);
 }
 
 /*

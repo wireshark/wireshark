@@ -290,9 +290,9 @@ proto_reg_handoff_lisp_data(void)
     lisp_data_handle = create_dissector_handle(dissect_lisp_data,
                              proto_lisp_data);
     dissector_add_uint("udp.port", LISP_DATA_PORT, lisp_data_handle);
-    ipv4_handle = find_dissector("ip");
-    ipv6_handle = find_dissector("ipv6");
-    lisp_handle = find_dissector("lisp");
+    ipv4_handle = find_dissector_add_dependency("ip", proto_lisp_data);
+    ipv6_handle = find_dissector_add_dependency("ipv6", proto_lisp_data);
+    lisp_handle = find_dissector_add_dependency("lisp", proto_lisp_data);
 }
 
 /*

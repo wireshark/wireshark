@@ -1097,7 +1097,7 @@ proto_reg_handoff_ipdc(void)
 	} else {
 		ipdc_tcp_handle =
 			create_dissector_handle(dissect_ipdc_tcp, proto_ipdc);
-		q931_handle = find_dissector("q931");
+		q931_handle = find_dissector_add_dependency("q931", proto_ipdc);
 	}
 
 	last_ipdc_port_pref = ipdc_port_pref;

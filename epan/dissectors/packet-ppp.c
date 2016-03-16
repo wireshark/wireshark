@@ -5964,7 +5964,7 @@ proto_reg_handoff_ppp(void)
     /*
      * Get a handle for the CHDLC dissector.
      */
-    chdlc_handle = find_dissector("chdlc");
+    chdlc_handle = find_dissector_add_dependency("chdlc", proto_ppp);
     data_handle = find_dissector("data");
 
     ppp_handle = find_dissector("ppp");
@@ -6603,8 +6603,8 @@ proto_reg_handoff_bcp_bpdu(void)
 {
     dissector_handle_t bcp_bpdu_handle;
 
-    eth_withfcs_handle    = find_dissector("eth_withfcs");
-    eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
+    eth_withfcs_handle    = find_dissector_add_dependency("eth_withfcs", proto_bcp_bpdu);
+    eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_bcp_bpdu);
 
     bcp_bpdu_handle = create_dissector_handle(dissect_bcp_bpdu, proto_bcp_bpdu);
 

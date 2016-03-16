@@ -95,7 +95,7 @@ proto_reg_handoff_lapbether(void)
   /*
    * Get a handle for the LAPB dissector.
    */
-  lapb_handle = find_dissector("lapb");
+  lapb_handle = find_dissector_add_dependency("lapb", proto_lapbether);
 
   lapbether_handle = create_dissector_handle(dissect_lapbether,
                                              proto_lapbether);

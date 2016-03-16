@@ -114,7 +114,7 @@ proto_reg_handoff_wfleet_hdlc(void)
    * Find the eth dissector and save a ref to it
    */
 
-  eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
+  eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_wfleet_hdlc);
 }
 
 /*

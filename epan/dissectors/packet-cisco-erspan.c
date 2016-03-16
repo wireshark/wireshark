@@ -331,7 +331,7 @@ proto_reg_handoff_erspan(void)
 {
 	dissector_handle_t erspan_handle;
 
-	ethnofcs_handle = find_dissector("eth_withoutfcs");
+	ethnofcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_erspan);
 
 	erspan_handle = create_dissector_handle(dissect_erspan, proto_erspan);
 	dissector_add_uint("gre.proto", GRE_ERSPAN_88BE, erspan_handle);

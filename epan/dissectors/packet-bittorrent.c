@@ -694,7 +694,7 @@ proto_register_bittorrent(void)
 void
 proto_reg_handoff_bittorrent(void)
 {
-   bencode_handle = find_dissector("bencode");
+   bencode_handle = find_dissector_add_dependency("bencode", proto_bittorrent);
 
    dissector_handle = find_dissector("bittorrent.tcp");
 #if 0

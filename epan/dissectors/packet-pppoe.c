@@ -1296,7 +1296,7 @@ void proto_reg_handoff_pppoes(void)
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_PPP_ETHER, pppoes_handle);
 
 	/* Get a handle for the PPP dissector */
-	ppp_handle = find_dissector("ppp");
+	ppp_handle = find_dissector_add_dependency("ppp", proto_pppoes);
 }
 
 /*

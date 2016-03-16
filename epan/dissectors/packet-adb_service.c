@@ -826,7 +826,7 @@ proto_register_adb_service(void)
 void
 proto_reg_handoff_adb_service(void)
 {
-    logcat_handle = find_dissector("logcat");
+    logcat_handle = find_dissector_add_dependency("logcat", proto_adb_service);
 }
 
 /*

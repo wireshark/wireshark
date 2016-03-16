@@ -932,7 +932,7 @@ void
 proto_reg_handoff_frame(void)
 {
 	data_handle = find_dissector("data");
-	docsis_handle = find_dissector("docsis");
+	docsis_handle = find_dissector_add_dependency("docsis", proto_frame);
 }
 
 /*

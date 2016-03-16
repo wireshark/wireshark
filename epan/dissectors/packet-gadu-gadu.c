@@ -2114,7 +2114,7 @@ proto_reg_handoff_gadu_gadu(void)
 {
 	dissector_add_uint("tcp.port", TCP_PORT_GADU_GADU, gadu_gadu_handle);
 
-	xml_handle = find_dissector("xml");
+	xml_handle = find_dissector_add_dependency("xml", hfi_gadu_gadu->id);
 }
 
 /*

@@ -6434,7 +6434,7 @@ proto_reg_handoff_sip(void)
         dissector_handle_t sip_handle;
         sip_handle = find_dissector("sip");
         sip_tcp_handle = find_dissector("sip.tcp");
-        sigcomp_handle = find_dissector("sigcomp");
+        sigcomp_handle = find_dissector_add_dependency("sigcomp", proto_sip);
         sip_diag_handle = find_dissector("sip.diagnostic");
         sip_uri_userinfo_handle = find_dissector("sip.uri_userinfo");
         /* SIP content type and internet media type used by other dissectors are the same */

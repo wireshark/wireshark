@@ -689,7 +689,7 @@ proto_reg_handoff_bthci_acl(void)
     dissector_add_uint("hci_h4.type", HCI_H4_TYPE_ACL, bthci_acl_handle);
     dissector_add_uint("hci_h1.type", BTHCI_CHANNEL_ACL, bthci_acl_handle);
 
-    btl2cap_handle = find_dissector("btl2cap");
+    btl2cap_handle = find_dissector_add_dependency("btl2cap", proto_bthci_acl);
 }
 
 /*

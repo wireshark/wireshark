@@ -1583,7 +1583,7 @@ proto_reg_handoff_diameter_3gpp(void)
     /* AVP Code: 3514 TMGI-Deallocation-Result */
     dissector_add_uint("diameter.3gpp", 3514, create_dissector_handle(dissect_diameter_3gpp_tmgi_deallocation_result, proto_diameter_3gpp));
 
-    xml_handle = find_dissector("xml");
+    xml_handle = find_dissector_add_dependency("xml", proto_diameter_3gpp);
 }
 
 void

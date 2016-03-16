@@ -1353,7 +1353,7 @@ proto_reg_handoff_llcgprs(void)
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_GPRS_LLC, gprs_llc_handle);
 
 	data_handle = find_dissector("data");
-	sndcp_xid_handle  = find_dissector("sndcpxid");
+	sndcp_xid_handle  = find_dissector_add_dependency("sndcpxid", proto_llcgprs);
 }
 
 /*

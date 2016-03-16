@@ -414,8 +414,8 @@ proto_reg_handoff_pflog(void)
 {
   dissector_handle_t pflog_handle;
 
-  ip_handle = find_dissector("ip");
-  ipv6_handle = find_dissector("ipv6");
+  ip_handle = find_dissector_add_dependency("ip", proto_pflog);
+  ipv6_handle = find_dissector_add_dependency("ipv6", proto_pflog);
   data_handle = find_dissector("data");
 
   pflog_handle = create_dissector_handle(dissect_pflog, proto_pflog);

@@ -316,7 +316,7 @@ proto_reg_handoff_pw_fr(void)
 	pw_fr_mpls_handle = create_dissector_handle( dissect_pw_fr, proto_encaps );
 	dissector_add_for_decode_as("mpls.label", pw_fr_mpls_handle);
 
-	fr_stripped_address_handle = find_dissector("fr_stripped_address");
+	fr_stripped_address_handle = find_dissector_add_dependency("fr_stripped_address", proto_encaps);
 }
 
 /*

@@ -409,7 +409,7 @@ proto_reg_handoff_brdwlk(void)
     brdwlk_handle = create_dissector_handle(dissect_brdwlk, proto_brdwlk);
     dissector_add_uint("ethertype", ETHERTYPE_BRDWALK, brdwlk_handle);
     dissector_add_uint("ethertype", 0xABCD, brdwlk_handle);
-    fc_dissector_handle = find_dissector("fc");
+    fc_dissector_handle = find_dissector_add_dependency("fc", proto_brdwlk);
 }
 
 /*

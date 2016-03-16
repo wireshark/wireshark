@@ -538,7 +538,7 @@ proto_reg_handoff_null(void)
    * Get a handle for the PPP-in-HDLC-like-framing dissector and
    * the "I don't know what this is" dissector.
    */
-  ppp_hdlc_handle = find_dissector("ppp_hdlc");
+  ppp_hdlc_handle = find_dissector_add_dependency("ppp_hdlc", proto_null);
   data_handle = find_dissector("data");
 
   ethertype_dissector_table = find_dissector_table("ethertype");

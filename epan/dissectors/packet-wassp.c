@@ -2103,8 +2103,8 @@ proto_reg_handoff_wassp(void)
 
 	heur_dissector_add("udp", dissect_wassp_heur, "WASSP over UDP", "wassp_udp", proto_wassp, HEURISTIC_DISABLE);
 
-	snmp_handle = find_dissector("snmp");
-	ieee80211_handle = find_dissector("wlan_withoutfcs");
+	snmp_handle = find_dissector_add_dependency("snmp", proto_wassp);
+	ieee80211_handle = find_dissector_add_dependency("wlan_withoutfcs", proto_wassp);
 }
 
 /*

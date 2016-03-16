@@ -184,10 +184,10 @@ proto_reg_handoff_raw(void)
    * Get handles for the IP, IPv6, undissected-data, and
    * PPP-in-HDLC-like-framing dissectors.
    */
-  ip_handle = find_dissector("ip");
-  ipv6_handle = find_dissector("ipv6");
+  ip_handle = find_dissector_add_dependency("ip", proto_raw);
+  ipv6_handle = find_dissector_add_dependency("ipv6", proto_raw);
   data_handle = find_dissector("data");
-  ppp_hdlc_handle = find_dissector("ppp_hdlc");
+  ppp_hdlc_handle = find_dissector_add_dependency("ppp_hdlc", proto_raw);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP, raw_handle);
   register_capture_dissector("wtap_encap", WTAP_ENCAP_RAW_IP, capture_raw, proto_raw);
 }

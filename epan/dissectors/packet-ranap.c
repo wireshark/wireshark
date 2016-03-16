@@ -16528,8 +16528,8 @@ proto_reg_handoff_ranap(void)
 
 	if (!initialized) {
 		ranap_handle = find_dissector("ranap");
-		rrc_s_to_trnc_handle = find_dissector("rrc.s_to_trnc_cont");
-		rrc_t_to_srnc_handle = find_dissector("rrc.t_to_srnc_cont");
+		rrc_s_to_trnc_handle = find_dissector_add_dependency("rrc.s_to_trnc_cont", proto_ranap);
+		rrc_t_to_srnc_handle = find_dissector_add_dependency("rrc.t_to_srnc_cont", proto_ranap);
 		rrc_ho_to_utran_cmd = find_dissector("rrc.irat.ho_to_utran_cmd");
 		initialized = TRUE;
 

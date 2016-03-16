@@ -217,7 +217,7 @@ proto_reg_handoff_e100(void)
     /* Check all UDP traffic, as the specific UDP port is configurable */
     heur_dissector_add("udp", dissect_e100, "E100 over UDP", "e100_udp", proto_e100, HEURISTIC_ENABLE);
     /* e100 traffic encapsulates traffic from the ethernet frame on */
-    eth_handle = find_dissector("eth_withoutfcs");
+    eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_e100);
 }
 
 /*

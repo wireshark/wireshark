@@ -442,7 +442,7 @@ proto_reg_handoff_mtp2(void)
   dissector_add_uint("wtap_encap", WTAP_ENCAP_MTP2_WITH_PHDR,
                                    mtp2_with_phdr_handle);
 
-  mtp3_handle   = find_dissector("mtp3");
+  mtp3_handle   = find_dissector_add_dependency("mtp3", proto_mtp2);
 }
 
 /*

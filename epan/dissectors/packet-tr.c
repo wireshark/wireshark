@@ -805,8 +805,8 @@ proto_reg_handoff_tr(void)
 	/*
 	 * Get handles for the TR MAC and LLC dissectors.
 	 */
-	trmac_handle = find_dissector("trmac");
-	llc_handle = find_dissector("llc");
+	trmac_handle = find_dissector_add_dependency("trmac", proto_tr);
+	llc_handle = find_dissector_add_dependency("llc", proto_tr);
 	data_handle = find_dissector("data");
 
 	tr_handle = find_dissector("tr");

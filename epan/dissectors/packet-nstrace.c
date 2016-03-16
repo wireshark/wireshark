@@ -388,6 +388,8 @@ static const value_string ns_httpabortcode_vals[] = {
 };
 
 static dissector_handle_t eth_withoutfcs_handle;
+static dissector_handle_t http_handle;
+
 
 void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ns_tree);
 
@@ -605,10 +607,8 @@ void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tre
 			case NSREC_HTTP:
 				/* Call HTTP dissector */
 				{
-					dissector_handle_t http_handle;
 					tvbuff_t *next_tvb_http_client;
 					morerecs=0;
-					http_handle = find_dissector("http");
 					next_tvb_http_client = tvb_new_subset_remaining(tvb, offset);
 					call_dissector(http_handle, next_tvb_http_client, pinfo, tree);
 				}
@@ -1139,7 +1139,8 @@ void proto_reg_handoff_ns(void)
 {
 	dissector_handle_t nstrace_handle;
 
-	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
+	eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_nstrace);
+	http_handle = find_dissector_add_dependency("http", proto_nstrace);
 
 	nstrace_handle = create_dissector_handle(dissect_nstrace, proto_nstrace);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NSTRACE_1_0, nstrace_handle);

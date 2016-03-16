@@ -778,7 +778,7 @@ proto_reg_handoff_daap(void)
    http_port_add(TCP_PORT_DAAP);
    dissector_add_string("media_type", "application/x-dmap-tagged", daap_handle);
 
-   png_handle = find_dissector("png");
+   png_handle = find_dissector_add_dependency("png", proto_daap);
 }
 
 /*

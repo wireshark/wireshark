@@ -375,7 +375,7 @@ void
 proto_reg_handoff_btle_rf(void)
 {
     dissector_add_uint("bluetooth.encap", WTAP_ENCAP_BLUETOOTH_LE_LL_WITH_PHDR, btle_rf_handle);
-    btle_handle = find_dissector("btle");
+    btle_handle = find_dissector_add_dependency("btle", proto_btle_rf);
 }
 
 /*

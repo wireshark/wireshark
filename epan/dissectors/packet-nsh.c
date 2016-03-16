@@ -361,9 +361,9 @@ proto_reg_handoff_nsh(void)
 	nsh_handle = create_dissector_handle(dissect_nsh, proto_nsh);
 	dissector_add_uint("gre.proto", ETHERTYPE_NSH, nsh_handle);
 
-	dissector_ip = find_dissector("ip");
-	dissector_ipv6 = find_dissector("ipv6");
-	dissector_eth = find_dissector("eth_maybefcs");
+	dissector_ip = find_dissector_add_dependency("ip", proto_nsh);
+	dissector_ipv6 = find_dissector_add_dependency("ipv6", proto_nsh);
+	dissector_eth = find_dissector_add_dependency("eth_maybefcs", proto_nsh);
 
 
 }

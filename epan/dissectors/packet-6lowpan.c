@@ -2978,7 +2978,7 @@ void
 proto_reg_handoff_6lowpan(void)
 {
     data_handle = find_dissector("data");
-    ipv6_handle = find_dissector("ipv6");
+    ipv6_handle = find_dissector_add_dependency("ipv6", proto_6lowpan);
 
     /* Register the 6LoWPAN dissector with IEEE 802.15.4 */
     dissector_add_for_decode_as(IEEE802154_PROTOABBREV_WPAN_PANID, handle_6lowpan);

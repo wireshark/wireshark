@@ -303,7 +303,7 @@ proto_register_sync(void)
 void
 proto_reg_handoff_sync(void)
 {
-    ip_handle   = find_dissector("ip");
+    ip_handle   = find_dissector_add_dependency("ip", proto_sync);
 
     dissector_add_for_decode_as("udp.port", sync_handle);
 }

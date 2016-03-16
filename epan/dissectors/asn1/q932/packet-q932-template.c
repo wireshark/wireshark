@@ -380,7 +380,7 @@ void proto_reg_handoff_q932(void) {
     dissector_add_uint("q931.ie", (0x00 << 8) | Q932_IE_FACILITY, q932_ie_handle);
     /* Notification indicator */
     dissector_add_uint("q931.ie", (0x00 << 8) | Q932_IE_NOTIFICATION_INDICATOR, q932_ie_handle);
-    q932_ros_handle = find_dissector("q932.ros");
+    q932_ros_handle = find_dissector_add_dependency("q932.ros", proto_q932);
   }
 
   if(g_facility_encoding == FACILITY_QSIG){

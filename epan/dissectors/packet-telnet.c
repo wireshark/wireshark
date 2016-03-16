@@ -2196,8 +2196,8 @@ void
 proto_reg_handoff_telnet(void)
 {
   dissector_add_uint("tcp.port", TCP_PORT_TELNET, telnet_handle);
-  tn3270_handle = find_dissector("tn3270");
-  tn5250_handle = find_dissector("tn5250");
+  tn3270_handle = find_dissector_add_dependency("tn3270", proto_telnet);
+  tn5250_handle = find_dissector_add_dependency("tn5250", proto_telnet);
   ssl_handle = find_dissector("ssl");
 }
 

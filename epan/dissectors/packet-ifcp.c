@@ -614,7 +614,7 @@ proto_reg_handoff_ifcp (void)
     dissector_add_for_decode_as("tcp.port", ifcp_handle);
 
     data_handle = find_dissector("data");
-    fc_handle = find_dissector("fc_ifcp");
+    fc_handle = find_dissector_add_dependency("fc_ifcp", proto_ifcp);
 }
 
 /*

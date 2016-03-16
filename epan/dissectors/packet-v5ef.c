@@ -35,6 +35,7 @@
 #include <wiretap/wtap.h>
 
 void proto_register_v5ef(void);
+void proto_reg_handoff_v5ef(void);
 
 static int proto_v5ef = -1;
 static int hf_v5ef_direction = -1;
@@ -143,9 +144,6 @@ dissect_v5ef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 }
 
 void
-proto_reg_handoff_v5ef(void);
-
-void
 proto_register_v5ef(void)
 {
 	static hf_register_info hf[] = {
@@ -197,8 +195,8 @@ proto_reg_handoff_v5ef(void)
 	v5ef_handle = find_dissector("v5ef");
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_V5_EF, v5ef_handle);
 
-	lapd_handle = find_dissector("lapd");
-	v5dl_handle = find_dissector("v5dl");
+	lapd_handle = find_dissector_add_dependency("lapd", proto_v5ef);
+	v5dl_handle = find_dissector_add_dependency("v5dl", proto_v5ef);
 }
 
 /*

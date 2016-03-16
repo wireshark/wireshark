@@ -1079,7 +1079,7 @@ void proto_reg_handoff_ieee80211_radio(void)
   /* Register handoff to radio-header dissectors */
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
                      wlan_radio_handle);
-  ieee80211_handle = find_dissector("wlan");
+  ieee80211_handle = find_dissector_add_dependency("wlan", proto_wlan_radio);
 }
 
 /*

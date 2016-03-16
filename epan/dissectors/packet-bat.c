@@ -889,7 +889,7 @@ void proto_reg_handoff_bat(void)
 		gw_handle = create_dissector_handle(dissect_bat_gw, proto_bat_gw);
 		vis_handle = create_dissector_handle(dissect_bat_vis, proto_bat_vis);
 
-		ip_handle = find_dissector("ip");
+		ip_handle = find_dissector_add_dependency("ip", proto_bat_gw);
 		data_handle = find_dissector("data");
 
 		inited = TRUE;

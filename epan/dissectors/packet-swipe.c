@@ -129,7 +129,7 @@ proto_reg_handoff_swipe(void)
     swipe_handle = create_dissector_handle(dissect_swipe, proto_swipe );
     dissector_add_uint("ip.proto", IP_PROTO_SWIPE, swipe_handle);
 
-    ipv6_handle = find_dissector("ipv6");
+    ipv6_handle = find_dissector_add_dependency("ipv6", proto_swipe );
 }
 
 /*

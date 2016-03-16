@@ -1916,7 +1916,7 @@ proto_reg_handoff_ses(void)
 	data_handle = find_dissector("data");
 
 	/* define sub dissector */
-	pres_handle = find_dissector("pres");
+	pres_handle = find_dissector_add_dependency("pres", proto_ses);
 
 	/* add our session dissector to cotp dissector list
 	 * and cotp_is dissector list*/

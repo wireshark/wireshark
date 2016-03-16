@@ -123,10 +123,10 @@ proto_reg_handoff_lge_monitor(void)
 	if (!lge_monitor_prefs_initialized) {
 		lge_monitor_handle = create_dissector_handle(dissect_lge_monitor, proto_lge_monitor);
 		dissector_add_for_decode_as("udp.port", lge_monitor_handle);
-		mtp3_handle  = find_dissector("mtp3");
-		m3ua_handle  = find_dissector("m3ua");
-		sccp_handle  = find_dissector("sccp");
-		sctp_handle  = find_dissector("sctp");
+		mtp3_handle  = find_dissector_add_dependency("mtp3", proto_lge_monitor);
+		m3ua_handle  = find_dissector_add_dependency("m3ua", proto_lge_monitor);
+		sccp_handle  = find_dissector_add_dependency("sccp", proto_lge_monitor);
+		sctp_handle  = find_dissector_add_dependency("sctp", proto_lge_monitor);
 		lge_monitor_prefs_initialized = TRUE;
 	  }
 	else {

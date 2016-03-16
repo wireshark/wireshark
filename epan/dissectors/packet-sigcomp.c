@@ -6790,7 +6790,7 @@ proto_reg_handoff_sigcomp(void)
     if (!Initialized) {
         sigcomp_handle = find_dissector("sigcomp");
         sigcomp_tcp_handle = create_dissector_handle(dissect_sigcomp_tcp,proto_sigcomp);
-        sip_handle = find_dissector("sip");
+        sip_handle = find_dissector_add_dependency("sip",proto_sigcomp);
         Initialized=TRUE;
     } else {
         dissector_delete_uint("udp.port", udp_port1, sigcomp_handle);

@@ -484,7 +484,7 @@ proto_reg_handoff_corosync_totemnet(void)
     {
       corosync_totemnet_handle = create_dissector_handle(dissect_corosynec_totemnet,
                                                              proto_corosync_totemnet);
-      corosync_totemsrp_handle = find_dissector("corosync_totemsrp");
+      corosync_totemsrp_handle = find_dissector_add_dependency("corosync_totemsrp", proto_corosync_totemnet);
 
       initialized = TRUE;
     }

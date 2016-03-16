@@ -14047,10 +14047,10 @@ proto_reg_handoff_btatt(void)
 {
     gint                i_array;
 
-    http_handle = find_dissector("http");
-    usb_hid_boot_keyboard_input_report_handle  = find_dissector("usbhid.boot_report.keyboard.input");
-    usb_hid_boot_keyboard_output_report_handle = find_dissector("usbhid.boot_report.keyboard.output");
-    usb_hid_boot_mouse_input_report_handle     = find_dissector("usbhid.boot_report.mouse.input");
+    http_handle = find_dissector_add_dependency("http", proto_btatt);
+    usb_hid_boot_keyboard_input_report_handle  = find_dissector_add_dependency("usbhid.boot_report.keyboard.input", proto_btatt);
+    usb_hid_boot_keyboard_output_report_handle = find_dissector_add_dependency("usbhid.boot_report.keyboard.output", proto_btatt);
+    usb_hid_boot_mouse_input_report_handle     = find_dissector_add_dependency("usbhid.boot_report.mouse.input", proto_btatt);
 
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_ATT, btatt_handle);
     dissector_add_uint("btl2cap.cid", BTL2CAP_FIXED_CID_ATT, btatt_handle);

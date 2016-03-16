@@ -201,7 +201,7 @@ proto_reg_handoff_pw_eth(void)
 {
     dissector_handle_t pw_eth_handle_heuristic;
 
-    eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
+    eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_pw_eth_cw);
 
     pw_eth_handle_cw = create_dissector_handle( dissect_pw_eth_cw, proto_pw_eth_cw );
     dissector_add_for_decode_as("mpls.label", pw_eth_handle_cw);

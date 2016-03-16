@@ -1511,10 +1511,10 @@ proto_reg_handoff_rtpproxy(void)
         dissector_add_uint("udp.port", rtpproxy_udp_port, rtpproxy_udp_handle);
     old_rtpproxy_udp_port = rtpproxy_udp_port;
 
-    rtcp_handle   = find_dissector("rtcp");
-    rtp_events_handle    = find_dissector("rtpevent");
-    rtp_handle    = find_dissector("rtp");
-    bencode_handle = find_dissector("bencode");
+    rtcp_handle   = find_dissector_add_dependency("rtcp", proto_rtpproxy);
+    rtp_events_handle    = find_dissector_add_dependency("rtpevent", proto_rtpproxy);
+    rtp_handle    = find_dissector_add_dependency("rtp", proto_rtpproxy);
+    bencode_handle = find_dissector_add_dependency("bencode", proto_rtpproxy);
 
     /* Calculate nstime_t struct for the timeout from the rtpproxy_timeout value in milliseconds */
     rtpproxy_timeout_ns.secs = (rtpproxy_timeout - rtpproxy_timeout % 1000) / 1000;

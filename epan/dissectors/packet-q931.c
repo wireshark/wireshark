@@ -4010,7 +4010,7 @@ proto_reg_handoff_q931(void)
      * dissect putatively-H.255 Call Signaling stuff as User
      * Information.
      */
-    h225_handle = find_dissector("h225");
+    h225_handle = find_dissector_add_dependency("h225", proto_q931);
 
     data_handle = find_dissector("data");
 

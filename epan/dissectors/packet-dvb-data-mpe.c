@@ -204,8 +204,8 @@ proto_reg_handoff_dvb_data_mpe(void)
     dvb_data_mpe_handle = create_dissector_handle(dissect_dvb_data_mpe, proto_dvb_data_mpe);
     dissector_add_uint("mpeg_sect.tid", DVB_DATA_MPE_TID, dvb_data_mpe_handle);
 
-    ip_handle  = find_dissector("ip");
-    llc_handle = find_dissector("llc");
+    ip_handle  = find_dissector_add_dependency("ip", proto_dvb_data_mpe);
+    llc_handle = find_dissector_add_dependency("llc", proto_dvb_data_mpe);
 
 }
 

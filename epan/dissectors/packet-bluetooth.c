@@ -2054,9 +2054,9 @@ proto_reg_handoff_bluetooth(void)
 	dissector_handle_t eapol_handle;
 	dissector_handle_t btl2cap_handle;
 
-    btle_handle = find_dissector("btle");
+    btle_handle = find_dissector_add_dependency("btle", proto_bluetooth);
     data_handle = find_dissector("data");
-    hci_usb_handle = find_dissector("hci_usb");
+    hci_usb_handle = find_dissector_add_dependency("hci_usb", proto_bluetooth);
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_HCI,           bluetooth_bthci_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_H4,            bluetooth_handle);

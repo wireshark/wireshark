@@ -185,7 +185,7 @@ proto_reg_handoff_vmlab(void)
 
     dissector_add_uint("ethertype", ETHERTYPE_VMLAB, vmlab_handle);
 
-    ethertype_handle = find_dissector("ethertype");
+    ethertype_handle = find_dissector_add_dependency("ethertype", proto_vmlab);
 }
 
 /*

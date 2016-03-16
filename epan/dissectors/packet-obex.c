@@ -3887,8 +3887,8 @@ proto_reg_handoff_obex(void)
     dissector_add_string("bluetooth.uuid",  "1133",  obex_handle);
     dissector_add_string("bluetooth.uuid",  "1134",  obex_handle);
 
-    http_handle = find_dissector("http");
-    xml_handle  = find_dissector("xml");
+    http_handle = find_dissector_add_dependency("http", proto_obex);
+    xml_handle  = find_dissector_add_dependency("xml", proto_obex);
     data_handle = find_dissector("data");
     data_text_lines_handle = find_dissector("data-text-lines");
 

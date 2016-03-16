@@ -141,7 +141,7 @@ proto_reg_handoff_cmd(void)
 {
     dissector_handle_t cmd_handle;
 
-    ethertype_handle = find_dissector("ethertype");
+    ethertype_handle = find_dissector_add_dependency("ethertype", proto_cmd);
 
     cmd_handle = create_dissector_handle(dissect_cmd, proto_cmd);
     dissector_add_uint("ethertype", ETHERTYPE_CMD, cmd_handle);

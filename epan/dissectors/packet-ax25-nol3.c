@@ -288,7 +288,7 @@ proto_reg_handoff_ax25_nol3(void)
 
 	/*
 	 */
-	aprs_handle     = find_dissector( "aprs" );
+	aprs_handle     = find_dissector_add_dependency( "aprs", proto_ax25_nol3 );
 	default_handle  = find_dissector( "data" );
 
 }

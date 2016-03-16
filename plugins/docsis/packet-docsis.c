@@ -841,7 +841,7 @@ proto_reg_handoff_docsis (void)
   dissector_add_uint ("wtap_encap", WTAP_ENCAP_DOCSIS, docsis_handle);
 
   docsis_mgmt_handle = find_dissector ("docsis_mgmt");
-  eth_withoutfcs_handle = find_dissector ("eth_withoutfcs");
+  eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_docsis);
 }
 
 /*

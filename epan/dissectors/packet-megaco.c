@@ -3834,10 +3834,10 @@ proto_reg_handoff_megaco(void)
 #endif
 
     if (!megaco_prefs_initialized) {
-        sdp_handle = find_dissector("sdp");
-        h245_handle = find_dissector("h245dg");
-        h248_handle = find_dissector("h248");
-        h248_otp_handle = find_dissector("h248_otp");
+        sdp_handle = find_dissector_add_dependency("sdp", proto_megaco);
+        h245_handle = find_dissector_add_dependency("h245dg", proto_megaco);
+        h248_handle = find_dissector_add_dependency("h248", proto_megaco);
+        h248_otp_handle = find_dissector_add_dependency("h248_otp", proto_megaco);
         data_handle = find_dissector("data");
 
         megaco_text_handle = find_dissector("megaco");

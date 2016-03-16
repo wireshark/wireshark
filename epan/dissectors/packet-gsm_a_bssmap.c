@@ -8006,10 +8006,10 @@ proto_reg_handoff_gsm_a_bssmap(void)
     bssmap_handle = find_dissector("gsm_a_bssmap");
     dissector_add_uint("bssap.pdu_type",  GSM_A_PDU_TYPE_BSSMAP, bssmap_handle);
 
-    dtap_handle       = find_dissector("gsm_a_dtap");
-    gsm_bsslap_handle = find_dissector("gsm_bsslap");
-    bssgp_handle      = find_dissector ("bssgp");
-    rrc_handle        = find_dissector ("rrc");
+    dtap_handle       = find_dissector_add_dependency("gsm_a_dtap", proto_a_bssmap);
+    gsm_bsslap_handle = find_dissector_add_dependency("gsm_bsslap", proto_a_bssmap);
+    bssgp_handle      = find_dissector_add_dependency("bssgp", proto_a_bssmap);
+    rrc_handle        = find_dissector_add_dependency("rrc", proto_a_bssmap);
 
 }
 

@@ -3745,23 +3745,23 @@ proto_reg_handoff_rtp(void)
         dissector_add_for_decode_as("flip.payload", rtp_handle );
 
 
-        rtcp_handle = find_dissector("rtcp");
+        rtcp_handle = find_dissector_add_dependency("rtcp", proto_rtp);
         data_handle = find_dissector("data");
-        stun_handle = find_dissector("stun-udp");
-        classicstun_handle = find_dissector("classicstun");
-        classicstun_heur_handle = find_dissector("classicstun-heur");
-        stun_heur_handle = find_dissector("stun-heur");
-        t38_handle = find_dissector("t38_udp");
-        zrtp_handle = find_dissector("zrtp");
+        stun_handle = find_dissector_add_dependency("stun-udp", proto_rtp);
+        classicstun_handle = find_dissector_add_dependency("classicstun", proto_rtp);
+        classicstun_heur_handle = find_dissector_add_dependency("classicstun-heur", proto_rtp);
+        stun_heur_handle = find_dissector_add_dependency("stun-heur", proto_rtp);
+        t38_handle = find_dissector_add_dependency("t38_udp", proto_rtp);
+        zrtp_handle = find_dissector_add_dependency("zrtp", proto_rtp);
 
-        sprt_handle = find_dissector("sprt");
+        sprt_handle = find_dissector_add_dependency("sprt", proto_rtp);
         v150fw_handle = find_dissector("v150fw");
 
-        bta2dp_content_protection_header_scms_t = find_dissector("bta2dp_content_protection_header_scms_t");
-        btvdp_content_protection_header_scms_t = find_dissector("btvdp_content_protection_header_scms_t");
-        bta2dp_handle = find_dissector("bta2dp");
-        btvdp_handle = find_dissector("btvdp");
-        sbc_handle = find_dissector("sbc");
+        bta2dp_content_protection_header_scms_t = find_dissector_add_dependency("bta2dp_content_protection_header_scms_t", proto_rtp);
+        btvdp_content_protection_header_scms_t = find_dissector_add_dependency("btvdp_content_protection_header_scms_t", proto_rtp);
+        bta2dp_handle = find_dissector_add_dependency("bta2dp", proto_rtp);
+        btvdp_handle = find_dissector_add_dependency("btvdp", proto_rtp);
+        sbc_handle = find_dissector_add_dependency("sbc", proto_rtp);
 
         dissector_add_string("rtp_dyn_payload_type", "v150fw", v150fw_handle);
 

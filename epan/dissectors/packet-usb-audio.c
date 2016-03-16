@@ -655,7 +655,7 @@ proto_reg_handoff_usb_audio(void)
     usb_audio_bulk_handle = find_dissector("usbaudio");
     dissector_add_uint("usb.bulk", IF_CLASS_AUDIO, usb_audio_bulk_handle);
 
-    sysex_handle = find_dissector("sysex");
+    sysex_handle = find_dissector_add_dependency("sysex", proto_usb_audio);
 }
 /*
  * Editor modelines

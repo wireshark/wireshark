@@ -103,7 +103,7 @@ proto_reg_handoff_telkonet(void)
 {
 	dissector_handle_t telkonet_handle;
 
-	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
+	eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_telkonet);
 
 	telkonet_handle = create_dissector_handle(dissect_telkonet, proto_telkonet);
 	dissector_add_uint("ethertype", ETHERTYPE_TELKONET, telkonet_handle);

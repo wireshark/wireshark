@@ -663,7 +663,7 @@ proto_register_gsm_sms_ud(void)
 void
 proto_reg_handoff_gsm_sms_ud(void)
 {
-    wsp_handle = find_dissector("wsp-cl");
+    wsp_handle = find_dissector_add_dependency("wsp-cl", proto_gsm_sms_ud);
     DISSECTOR_ASSERT(wsp_handle);
 }
 

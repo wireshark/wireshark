@@ -6607,7 +6607,7 @@ proto_reg_handoff_isakmp(void)
   dissector_handle_t isakmp_handle;
 
   isakmp_handle = find_dissector("isakmp");
-  eap_handle = find_dissector("eap");
+  eap_handle = find_dissector_add_dependency("eap", proto_isakmp);
   dissector_add_uint("udp.port", UDP_PORT_ISAKMP, isakmp_handle);
   dissector_add_uint("tcp.port", TCP_PORT_ISAKMP, isakmp_handle);
 }

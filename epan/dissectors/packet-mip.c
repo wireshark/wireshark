@@ -1480,7 +1480,7 @@ proto_reg_handoff_mip(void)
   dissector_handle_t mip_handle;
 
   mip_handle = find_dissector("mip");
-  ip_handle = find_dissector("ip");
+  ip_handle = find_dissector_add_dependency("ip", proto_mip);
   dissector_add_uint("udp.port", UDP_PORT_MIP, mip_handle);
 
   /* Register as dissector for 3GPP2 NVSE */

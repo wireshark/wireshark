@@ -22952,10 +22952,10 @@ void proto_reg_handoff_gsm_map(void) {
   if (!map_prefs_initialized) {
     map_prefs_initialized = TRUE;
     data_handle = find_dissector("data");
-    ranap_handle = find_dissector("ranap");
-    dtap_handle = find_dissector("gsm_a_dtap");
-    gsm_sms_handle = find_dissector("gsm_sms");
-    bssap_handle = find_dissector("gsm_a_bssmap");
+    ranap_handle = find_dissector_add_dependency("ranap", proto_gsm_map);
+    dtap_handle = find_dissector_add_dependency("gsm_a_dtap", proto_gsm_map);
+    gsm_sms_handle = find_dissector_add_dependency("gsm_sms", proto_gsm_map);
+    bssap_handle = find_dissector_add_dependency("gsm_a_bssmap", proto_gsm_map);
 
     map_handle = find_dissector("gsm_map");
     oid_add_from_string("itu(0) administration(2) japan(440)","0.2.440" );

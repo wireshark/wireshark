@@ -356,7 +356,7 @@ proto_reg_handoff_syslog(void)
   dissector_add_for_decode_as("tcp.port", syslog_handle);
 
   /* Find the mtp3 dissector */
-  mtp_handle = find_dissector("mtp3");
+  mtp_handle = find_dissector_add_dependency("mtp3", proto_syslog);
 }
 
 /*

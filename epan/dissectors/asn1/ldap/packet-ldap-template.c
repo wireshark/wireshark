@@ -2291,13 +2291,13 @@ proto_reg_handoff_ldap(void)
   cldap_handle = create_dissector_handle(dissect_mscldap, proto_cldap);
   dissector_add_uint("udp.port", UDP_PORT_CLDAP, cldap_handle);
 
-  gssapi_handle = find_dissector("gssapi");
-  gssapi_wrap_handle = find_dissector("gssapi_verf");
-  spnego_handle = find_dissector("spnego");
+  gssapi_handle = find_dissector_add_dependency("gssapi", proto_ldap);
+  gssapi_wrap_handle = find_dissector_add_dependency("gssapi_verf", proto_ldap);
+  spnego_handle = find_dissector_add_dependency("spnego", proto_ldap);
 
-  ntlmssp_handle = find_dissector("ntlmssp");
+  ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_ldap);
 
-  ssl_handle = find_dissector("ssl");
+  ssl_handle = find_dissector_add_dependency("ssl", proto_ldap);
 
   prefs_register_ldap();
 

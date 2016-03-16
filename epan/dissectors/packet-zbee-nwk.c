@@ -1967,8 +1967,8 @@ void proto_reg_handoff_zbee_nwk(void)
 {
     /* Find the other dissectors we need. */
     data_handle     = find_dissector("data");
-    aps_handle      = find_dissector(ZBEE_PROTOABBREV_APS);
-    zbee_gp_handle  = find_dissector(ZBEE_PROTOABBREV_NWK_GP);
+    aps_handle      = find_dissector_add_dependency(ZBEE_PROTOABBREV_APS, proto_zbee_nwk);
+    zbee_gp_handle  = find_dissector_add_dependency(ZBEE_PROTOABBREV_NWK_GP, proto_zbee_nwk);
 
     /* Register our dissector with IEEE 802.15.4 */
     dissector_add_for_decode_as(IEEE802154_PROTOABBREV_WPAN_PANID, find_dissector(ZBEE_PROTOABBREV_NWK));

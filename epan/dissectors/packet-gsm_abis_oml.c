@@ -2399,7 +2399,7 @@ proto_reg_handoff_abis_oml(void)
 	dissector_add_uint("lapd.gsm.sapi", LAPD_GSM_SAPI_OM_PROC,
 			   abis_oml_handle);
 
-	sub_om2000 = find_dissector("gsm_abis_om2000");
+	sub_om2000 = find_dissector_add_dependency("gsm_abis_om2000", proto_abis_oml);
 }
 
 /*

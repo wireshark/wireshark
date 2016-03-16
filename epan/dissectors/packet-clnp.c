@@ -765,9 +765,9 @@ proto_register_clnp(void)
 void
 proto_reg_handoff_clnp(void)
 {
-    ositp_handle = find_dissector("ositp");
-    ositp_inactive_handle = find_dissector("ositp_inactive");
-    idrp_handle = find_dissector("idrp");
+    ositp_handle = find_dissector_add_dependency("ositp", proto_clnp);
+    ositp_inactive_handle = find_dissector_add_dependency("ositp_inactive", proto_clnp);
+    idrp_handle = find_dissector_add_dependency("idrp", proto_clnp);
     data_handle = find_dissector("data");
 
     dissector_add_uint("osinl.incl", NLPID_ISO8473_CLNP, clnp_handle);

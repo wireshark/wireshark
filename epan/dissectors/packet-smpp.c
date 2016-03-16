@@ -3802,7 +3802,7 @@ proto_reg_handoff_smpp(void)
 
     /* Required for call_dissector() */
     DebugLog(("Finding gsm_sms_ud subdissector\n"));
-    gsm_sms_handle = find_dissector("gsm_sms_ud");
+    gsm_sms_handle = find_dissector_add_dependency("gsm_sms_ud", proto_smpp);
     DISSECTOR_ASSERT(gsm_sms_handle);
 
     /* Tapping setup */

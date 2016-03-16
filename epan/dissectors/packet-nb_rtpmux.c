@@ -299,7 +299,7 @@ proto_reg_handoff_nb_rtpmux(void)
 
     /* Allow 'decode-as' for UDP ports */
     dissector_add_for_decode_as("udp.port", nb_rtpmux_handle);
-    rtpdissector = find_dissector("rtp");
+    rtpdissector = find_dissector_add_dependency("rtp", proto_nb_rtpmux);
 }
 
 /*

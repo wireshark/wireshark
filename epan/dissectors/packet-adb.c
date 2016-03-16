@@ -898,7 +898,7 @@ proto_register_adb(void)
 void
 proto_reg_handoff_adb(void)
 {
-    adb_service_handle = find_dissector("adb_service");
+    adb_service_handle = find_dissector_add_dependency("adb_service", proto_adb);
 
     dissector_add_handle("tcp.port",     adb_handle);
     dissector_add_handle("usb.device",   adb_handle);

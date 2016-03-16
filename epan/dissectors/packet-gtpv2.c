@@ -8564,7 +8564,7 @@ void proto_register_gtpv2(void)
 void
 proto_reg_handoff_gtpv2(void)
 {
-    nas_eps_handle = find_dissector("nas-eps");
+    nas_eps_handle = find_dissector_add_dependency("nas-eps", proto_gtpv2);
 }
 
 /*

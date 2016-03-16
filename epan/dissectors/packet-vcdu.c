@@ -670,7 +670,7 @@ void
 proto_reg_handoff_vcdu(void)
 {
     dissector_add_for_decode_as("udp.port", vcdu_handle);
-    ccsds_handle = find_dissector("ccsds");
+    ccsds_handle = find_dissector_add_dependency("ccsds", proto_vcdu);
 }
 
 /*

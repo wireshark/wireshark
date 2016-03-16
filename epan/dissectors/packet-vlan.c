@@ -287,7 +287,7 @@ proto_reg_handoff_vlan(void)
   }
 
   old_q_in_q_ethertype = q_in_q_ethertype;
-  ethertype_handle = find_dissector("ethertype");
+  ethertype_handle = find_dissector_add_dependency("ethertype", hfi_vlan->id);
 
   dissector_add_uint("ethertype", q_in_q_ethertype, vlan_handle);
 }

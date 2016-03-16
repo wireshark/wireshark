@@ -8329,8 +8329,8 @@ proto_reg_handoff_gsm_a_dtap(void)
     dissector_add_uint("lapdm.sapi",   3 , dtap_handle); /* LAPDm: SMS/SS */
 
     data_handle    = find_dissector("data");
-    gsm_map_handle = find_dissector("gsm_map");
-    rp_handle      = find_dissector("gsm_a_rp");
+    gsm_map_handle = find_dissector_add_dependency("gsm_map", proto_a_dtap);
+    rp_handle      = find_dissector_add_dependency("gsm_a_rp", proto_a_dtap);
 }
 
 

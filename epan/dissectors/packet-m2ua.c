@@ -1142,7 +1142,7 @@ proto_reg_handoff_m2ua(void)
 {
   dissector_handle_t m2ua_handle;
 
-  mtp3_handle = find_dissector("mtp3");
+  mtp3_handle = find_dissector_add_dependency("mtp3", proto_m2ua);
   m2ua_handle = create_dissector_handle(dissect_m2ua, proto_m2ua);
   dissector_add_uint("sctp.ppi",  M2UA_PAYLOAD_PROTOCOL_ID, m2ua_handle);
   dissector_add_uint("sctp.port", SCTP_PORT_M2UA, m2ua_handle);

@@ -30,6 +30,7 @@
 #include <epan/expert.h>
 
 void proto_register_openflow_v1(void);
+void proto_reg_handoff_openflow_v1(void);
 
 static dissector_handle_t eth_withoutfcs_handle;
 
@@ -1452,13 +1453,17 @@ proto_register_openflow_v1(void)
 
     register_dissector("openflow_v1", dissect_openflow_v1, proto_openflow_v1);
 
-    eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
-
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_openflow_v1, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_openflow_v1 = expert_register_protocol(proto_openflow_v1);
     expert_register_field_array(expert_openflow_v1, ei, array_length(ei));
+}
+
+void
+proto_reg_handoff_openflow_v1(void)
+{
+    eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_openflow_v1);
 }
 
 /*

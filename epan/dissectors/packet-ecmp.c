@@ -3577,7 +3577,7 @@ void proto_reg_handoff_ecmp(void)
 	}
 
 	/* Modbus dissector hooks */
-	modbus_handle = find_dissector("modbus");
+	modbus_handle = find_dissector_add_dependency("modbus", proto_ecmp);
 	proto_modbus = proto_get_id_by_filter_name( "modbus" );
 }
 

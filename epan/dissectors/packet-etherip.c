@@ -133,7 +133,7 @@ proto_reg_handoff_etherip(void)
 {
   dissector_handle_t etherip_handle;
 
-  eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
+  eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_etherip);
   etherip_handle = find_dissector("etherip");
   dissector_add_uint("ip.proto", IP_PROTO_ETHERIP, etherip_handle);
 }

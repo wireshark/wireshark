@@ -758,11 +758,11 @@ proto_reg_handoff_ccid(void)
     dissector_add_for_decode_as("usb.protocol", usb_ccid_handle);
 
     sub_handles[SUB_DATA] = find_dissector("data");
-    sub_handles[SUB_ISO7816] = find_dissector("iso7816");
-    sub_handles[SUB_GSM_SIM_CMD] = find_dissector("gsm_sim.command");
-    sub_handles[SUB_PN532] = find_dissector("pn532");
-    sub_handles[SUB_ACR122_PN532] = find_dissector("acr122");
-    sub_handles[SUB_GSM_SIM_RSP] = find_dissector("gsm_sim.response");
+    sub_handles[SUB_ISO7816] = find_dissector_add_dependency("iso7816", proto_ccid);
+    sub_handles[SUB_GSM_SIM_CMD] = find_dissector_add_dependency("gsm_sim.command", proto_ccid);
+    sub_handles[SUB_PN532] = find_dissector_add_dependency("pn532", proto_ccid);
+    sub_handles[SUB_ACR122_PN532] = find_dissector_add_dependency("acr122", proto_ccid);
+    sub_handles[SUB_GSM_SIM_RSP] = find_dissector_add_dependency("gsm_sim.response", proto_ccid);
 }
 
 /*

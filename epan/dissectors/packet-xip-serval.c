@@ -414,8 +414,8 @@ void
 proto_reg_handoff_xip_serval(void)
 {
 	data_handle = find_dissector("data");
-	tcp_handle = find_dissector("tcp");
-	udp_handle = find_dissector("udp");
+	tcp_handle = find_dissector_add_dependency("tcp", proto_xip_serval);
+	udp_handle = find_dissector_add_dependency("udp", proto_xip_serval);
 }
 
 /*

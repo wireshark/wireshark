@@ -353,8 +353,8 @@ proto_reg_handoff_sll(void)
 	 */
 	gre_dissector_table = find_dissector_table("gre.proto");
 	data_handle = find_dissector("data");
-	ethertype_handle = find_dissector("ethertype");
-	netlink_handle = find_dissector("netlink");
+	ethertype_handle = find_dissector_add_dependency("ethertype", proto_sll);
+	netlink_handle = find_dissector_add_dependency("netlink", proto_sll);
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_SLL, sll_handle);
 	register_capture_dissector("wtap_encap", WTAP_ENCAP_SLL, capture_sll, hfi_sll->id);

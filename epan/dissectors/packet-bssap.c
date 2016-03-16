@@ -2564,9 +2564,10 @@ proto_reg_handoff_bssap(void)
         bssap_plus_handle = create_dissector_handle(dissect_bssap_plus, proto_bssap);
 
         data_handle = find_dissector("data");
-        rrlp_handle = find_dissector("rrlp");
-        gsm_bssmap_le_dissector_handle = find_dissector("gsm_bssmap_le");
-        gsm_a_bssmap_dissector_handle = find_dissector("gsm_a_bssmap");
+        rrlp_handle = find_dissector_add_dependency("rrlp", proto_bssap_plus);
+        gsm_bssmap_le_dissector_handle = find_dissector_add_dependency("gsm_bssmap_le", proto_bssap);
+        gsm_a_bssmap_dissector_handle = find_dissector_add_dependency("gsm_a_bssmap", proto_bssap);
+
         initialized = TRUE;
     } else {
         dissector_delete_uint("sccp.ssn", old_bssap_ssn, bssap_plus_handle);

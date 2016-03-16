@@ -297,8 +297,8 @@ proto_reg_handoff_gsm_um(void)
 {
 	dissector_handle_t gsm_um_handle;
 
-	lapdm_handle = find_dissector("lapdm");
-	dtap_handle = find_dissector("gsm_a_dtap");
+	lapdm_handle = find_dissector_add_dependency("lapdm", proto_gsm_um);
+	dtap_handle = find_dissector_add_dependency("gsm_a_dtap", proto_gsm_um);
 	data_handle = find_dissector("data");
 
 	gsm_um_handle = create_dissector_handle(dissect_gsm_um, proto_gsm_um);

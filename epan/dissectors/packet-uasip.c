@@ -467,8 +467,8 @@ void proto_reg_handoff_uasip(void)
 
     if (!prefs_initialized)
     {
-        ua_sys_to_term_handle = find_dissector("ua_sys_to_term");
-        ua_term_to_sys_handle = find_dissector("ua_term_to_sys");
+        ua_sys_to_term_handle = find_dissector_add_dependency("ua_sys_to_term", proto_uasip);
+        ua_term_to_sys_handle = find_dissector_add_dependency("ua_term_to_sys", proto_uasip);
         prefs_initialized = TRUE;
     }
 

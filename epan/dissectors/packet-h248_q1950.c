@@ -454,7 +454,7 @@ static h248_package_t h248_pkg_bcg = {
 
 
 void proto_reg_handoff_q1950(void) {
-    bctp_dissector = find_dissector("bctp");
+    bctp_dissector = find_dissector_add_dependency("bctp", proto_q1950);
 
 }
 

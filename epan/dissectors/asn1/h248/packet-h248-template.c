@@ -1666,7 +1666,7 @@ void proto_reg_handoff_h248(void) {
         h248_handle = find_dissector("h248");
         h248_tpkt_handle = find_dissector("h248.tpkt");
         dissector_add_uint("mtp3.service_indicator", MTP_SI_GCP, h248_handle);
-        h248_term_handle = find_dissector("h248term");
+        h248_term_handle = find_dissector_add_dependency("h248term", proto_h248);
         initialized = TRUE;
     } else {
         if (udp_port != 0)

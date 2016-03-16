@@ -6359,9 +6359,9 @@ proto_reg_handoff_dvbci(void)
     dissector_add_uint("wtap_encap", WTAP_ENCAP_DVBCI, dvbci_handle);
 
     data_handle = find_dissector("data");
-    mpeg_pmt_handle = find_dissector("mpeg_pmt");
-    dvb_nit_handle = find_dissector("dvb_nit");
-    png_handle = find_dissector("png");
+    mpeg_pmt_handle = find_dissector_add_dependency("mpeg_pmt", proto_dvbci);
+    dvb_nit_handle = find_dissector_add_dependency("dvb_nit", proto_dvbci);
+    png_handle = find_dissector_add_dependency("png", proto_dvbci);
     tcp_dissector_table = find_dissector_table("tcp.port");
     udp_dissector_table = find_dissector_table("udp.port");
 

@@ -593,8 +593,8 @@ proto_reg_handoff_rpcordma(void)
         manual_addr_data[1] = wmem_alloc(wmem_epan_scope(), GID_SIZE);
 
         data_handler = find_dissector("data");
-        rpc_handler = find_dissector("rpc");
-        ib_handler = find_dissector("infiniband");
+        rpc_handler = find_dissector_add_dependency("rpc", proto_rpcordma);
+        ib_handler = find_dissector_add_dependency("infiniband", proto_rpcordma);
         proto_ib = dissector_handle_get_protocol_index(ib_handler);
 
         initialized = TRUE;

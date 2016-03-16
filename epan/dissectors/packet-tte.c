@@ -197,7 +197,7 @@ proto_reg_handoff_tte(void)
     hf_eth_src  = proto_registrar_get_id_byname ("eth.src");
     hf_eth_type = proto_registrar_get_id_byname ("eth.type");
 
-    ethertype_handle = find_dissector("ethertype");
+    ethertype_handle = find_dissector_add_dependency("ethertype", proto_tte);
 }
 
 /*

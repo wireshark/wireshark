@@ -180,11 +180,11 @@ proto_reg_handoff_cosine(void)
   /*
    * Get handles for dissectors.
    */
-  eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
-  ppp_hdlc_handle       = find_dissector("ppp_hdlc");
-  llc_handle            = find_dissector("llc");
-  chdlc_handle          = find_dissector("chdlc");
-  fr_handle             = find_dissector("fr");
+  eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_cosine);
+  ppp_hdlc_handle       = find_dissector_add_dependency("ppp_hdlc", proto_cosine);
+  llc_handle            = find_dissector_add_dependency("llc", proto_cosine);
+  chdlc_handle          = find_dissector_add_dependency("chdlc", proto_cosine);
+  fr_handle             = find_dissector_add_dependency("fr", proto_cosine);
   data_handle           = find_dissector("data");
 
   cosine_handle = create_dissector_handle(dissect_cosine, proto_cosine);

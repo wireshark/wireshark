@@ -475,10 +475,10 @@ proto_reg_handoff_aruba_erm(void)
     static gboolean initialized = FALSE;
 
     if (!initialized) {
-        wlan_radio_handle = find_dissector("wlan_radio");
-        wlan_withfcs_handle = find_dissector("wlan_withfcs");
-        ppi_handle = find_dissector("ppi");
-        peek_handle = find_dissector("peekremote");
+        wlan_radio_handle = find_dissector_add_dependency("wlan_radio", proto_aruba_erm);
+        wlan_withfcs_handle = find_dissector_add_dependency("wlan_withfcs", proto_aruba_erm);
+        ppi_handle = find_dissector_add_dependency("ppi", proto_aruba_erm);
+        peek_handle = find_dissector_add_dependency("peekremote", proto_aruba_erm);
         data_handle = find_dissector("data");
         aruba_erm_handle = create_dissector_handle(dissect_aruba_erm, proto_aruba_erm);
         aruba_erm_handle_type0 = create_dissector_handle(dissect_aruba_erm_type0, proto_aruba_erm_type0);

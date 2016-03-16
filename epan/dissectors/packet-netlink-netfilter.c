@@ -229,7 +229,7 @@ proto_reg_handoff_netlink_netfilter(void)
 {
 	dissector_add_uint("netlink.protocol", WS_NETLINK_NETFILTER, netlink_netfilter);
 
-	nflog_handle = find_dissector("nflog");
+	nflog_handle = find_dissector_add_dependency("nflog", hfi_netlink_netfilter->id);
 }
 
 /*

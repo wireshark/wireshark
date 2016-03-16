@@ -200,7 +200,7 @@ proto_reg_handoff_sdlc(void)
 	/*
 	 * Get handle for the SNA dissector.
 	 */
-	sna_handle = find_dissector("sna");
+	sna_handle = find_dissector_add_dependency("sna", proto_sdlc);
 	data_handle = find_dissector("data");
 
 	sdlc_handle = create_dissector_handle(dissect_sdlc, proto_sdlc);

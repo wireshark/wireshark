@@ -7439,7 +7439,7 @@ void proto_reg_handoff_infiniband(void)
     static guint prev_rroce_udp_port;
     dissector_handle_t roce_handle, rroce_handle;
 
-    ipv6_handle               = find_dissector("ipv6");
+    ipv6_handle               = find_dissector_add_dependency("ipv6", proto_infiniband);
     data_handle               = find_dissector("data");
 
     /*

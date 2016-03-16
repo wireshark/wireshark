@@ -1397,9 +1397,9 @@ proto_register_btle(void)
 void
 proto_reg_handoff_btle(void)
 {
-    btcommon_ad_handle = find_dissector("btcommon.eir_ad.ad");
-    btcommon_le_channel_map_handle = find_dissector("btcommon.le_channel_map");
-    btl2cap_handle = find_dissector("btl2cap");
+    btcommon_ad_handle = find_dissector_add_dependency("btcommon.eir_ad.ad", proto_btle);
+    btcommon_le_channel_map_handle = find_dissector_add_dependency("btcommon.le_channel_map", proto_btle);
+    btl2cap_handle = find_dissector_add_dependency("btl2cap", proto_btle);
 
     proto_btle_rf = proto_get_id_by_filter_name("btle_rf");
 

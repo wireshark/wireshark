@@ -1377,9 +1377,9 @@ proto_reg_handoff_bpdu(void)
   /*
    * Get handle for the GMRP dissector.
    */
-  gmrp_handle = find_dissector("gmrp");
+  gmrp_handle = find_dissector_add_dependency("gmrp", proto_bpdu);
 
-  bpdu_handle = find_dissector("bpdu");
+  bpdu_handle = find_dissector_add_dependency("bpdu", proto_bpdu);
   dissector_add_uint("llc.dsap", SAP_BPDU, bpdu_handle);
   dissector_add_uint("chdlc.protocol", CHDLCTYPE_BPDU, bpdu_handle);
   dissector_add_uint("ethertype", ETHERTYPE_STP, bpdu_handle);

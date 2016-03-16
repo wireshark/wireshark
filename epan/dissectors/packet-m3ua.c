@@ -2153,7 +2153,7 @@ proto_reg_handoff_m3ua(void)
   /*
    * Get a handle for the MTP3 dissector.
    */
-  mtp3_handle = find_dissector("mtp3");
+  mtp3_handle = find_dissector_add_dependency("mtp3", proto_m3ua);
   data_handle = find_dissector("data");
   m3ua_handle = find_dissector("m3ua");
   dissector_add_uint("sctp.ppi",  M3UA_PAYLOAD_PROTOCOL_ID, m3ua_handle);

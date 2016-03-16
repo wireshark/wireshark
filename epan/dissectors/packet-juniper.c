@@ -1436,7 +1436,7 @@ proto_reg_handoff_juniper(void)
   dissector_handle_t juniper_vp_handle;
   dissector_handle_t juniper_svcs_handle;
 
-  ipv4_handle   = find_dissector("ip");
+  ipv4_handle   = find_dissector_add_dependency("ip", proto_juniper);
   data_handle   = find_dissector("data");
 
   juniper_atm2_handle   = create_dissector_handle(dissect_juniper_atm2,   proto_juniper);

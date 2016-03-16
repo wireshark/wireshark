@@ -483,8 +483,8 @@ proto_reg_handoff_dsi(void)
 	dissector_add_uint("tcp.port", TCP_PORT_DSI, dsi_handle);
 
 	data_handle = find_dissector("data");
-	afp_handle = find_dissector("afp");
-	afp_server_status_handle = find_dissector("afp_server_status");
+	afp_handle = find_dissector_add_dependency("afp", proto_dsi);
+	afp_server_status_handle = find_dissector_add_dependency("afp_server_status", proto_dsi);
 }
 
 /*

@@ -594,7 +594,7 @@ proto_reg_handoff_m2pa(void)
   /* Port preferences code shamelessly copied from packet-beep.c */
   if (!prefs_initialized) {
     m2pa_handle   = find_dissector("m2pa");
-    mtp3_handle   = find_dissector("mtp3");
+    mtp3_handle   = find_dissector_add_dependency("mtp3", proto_m2pa);
 
     dissector_add_uint("sctp.ppi", M2PA_PAYLOAD_PROTOCOL_ID, m2pa_handle);
 

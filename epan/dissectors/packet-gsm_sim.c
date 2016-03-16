@@ -2937,7 +2937,7 @@ proto_reg_handoff_gsm_sim(void)
 	sim_handle = find_dissector("gsm_sim");
 	dissector_add_uint("gsmtap.type", 4, sim_handle);
 
-	sub_handle_cap = find_dissector("etsi_cat");
+	sub_handle_cap = find_dissector_add_dependency("etsi_cat", proto_gsm_sim);
 }
 
 /*

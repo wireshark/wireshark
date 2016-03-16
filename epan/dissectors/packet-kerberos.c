@@ -5563,7 +5563,7 @@ proto_reg_handoff_kerberos(void)
 {
 	dissector_handle_t kerberos_handle_tcp;
 
-	krb4_handle = find_dissector("krb4");
+	krb4_handle = find_dissector_add_dependency("krb4", proto_kerberos);
 
 	kerberos_handle_udp = create_dissector_handle(dissect_kerberos_udp,
 	proto_kerberos);

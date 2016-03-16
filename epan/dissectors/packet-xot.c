@@ -450,7 +450,7 @@ proto_reg_handoff_xot(void)
 {
    dissector_add_uint("tcp.port", TCP_PORT_XOT, xot_handle);
 
-   x25_handle = find_dissector("x.25");
+   x25_handle = find_dissector_add_dependency("x.25", proto_xot);
 }
 
 /*

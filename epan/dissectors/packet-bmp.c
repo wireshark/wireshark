@@ -811,7 +811,7 @@ proto_reg_handoff_bmp(void)
 
     bmp_handle = create_dissector_handle(dissect_bmp, proto_bmp);
     dissector_add_for_decode_as("tcp.port", bmp_handle);
-    dissector_bgp = find_dissector("bgp");
+    dissector_bgp = find_dissector_add_dependency("bgp", proto_bmp);
 }
 /*
 * Editor modelines - http://www.wireshark.org/tools/modelines.html

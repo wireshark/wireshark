@@ -351,7 +351,7 @@ void proto_register_rrc(void) {
 void
 proto_reg_handoff_rrc(void)
 {
-  gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
+  gsm_a_dtap_handle = find_dissector_add_dependency("gsm_a_dtap", proto_rrc);
   rrc_pcch_handle = find_dissector("rrc.pcch");
   rrc_ul_ccch_handle = find_dissector("rrc.ul.ccch");
   rrc_dl_ccch_handle = find_dissector("rrc.dl.ccch");
@@ -359,10 +359,10 @@ proto_reg_handoff_rrc(void)
   rrc_dl_dcch_handle = find_dissector("rrc.dl.dcch");
   rrc_ue_radio_access_cap_info_handle = find_dissector("rrc.ue_radio_access_cap_info");
   rrc_dl_dcch_handle = find_dissector("rrc.dl.dcch");
-  lte_rrc_ue_eutra_cap_handle = find_dissector("lte-rrc.ue_eutra_cap");
-  lte_rrc_dl_dcch_handle = find_dissector("lte-rrc.dl.dcch");
+  lte_rrc_ue_eutra_cap_handle = find_dissector_add_dependency("lte-rrc.ue_eutra_cap", proto_rrc);
+  lte_rrc_dl_dcch_handle = find_dissector_add_dependency("lte-rrc.dl.dcch", proto_rrc);
   rrc_bcch_fach_handle = find_dissector("rrc.bcch.fach");
-  gsm_rlcmac_dl_handle = find_dissector("gsm_rlcmac_dl");
+  gsm_rlcmac_dl_handle = find_dissector_add_dependency("gsm_rlcmac_dl", proto_rrc);
 }
 
 

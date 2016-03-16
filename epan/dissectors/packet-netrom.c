@@ -619,7 +619,7 @@ proto_reg_handoff_netrom(void)
 	dissector_add_uint( "ax25.pid", AX25_P_NETROM, create_dissector_handle( dissect_netrom, proto_netrom ) );
 	register_capture_dissector("ax25.pid", AX25_P_NETROM, capture_netrom, proto_netrom);
 
-	ip_handle   = find_dissector( "ip" );
+	ip_handle   = find_dissector_add_dependency( "ip", proto_netrom );
 	data_handle = find_dissector( "data" );
 
 }

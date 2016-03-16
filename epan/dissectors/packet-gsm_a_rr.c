@@ -13367,8 +13367,8 @@ void
 proto_reg_handoff_gsm_a_rr(void)
 {
     data_handle = find_dissector("data");
-    rrc_irat_ho_info_handle = find_dissector("rrc.irat.irat_ho_info");
-    rrc_irat_ho_to_utran_cmd_handle = find_dissector("rrc.irat.ho_to_utran_cmd");
+    rrc_irat_ho_info_handle = find_dissector_add_dependency("rrc.irat.irat_ho_info", proto_a_rr);
+    rrc_irat_ho_to_utran_cmd_handle = find_dissector_add_dependency("rrc.irat.ho_to_utran_cmd", proto_a_rr);
     rrlp_dissector = find_dissector("rrlp");
 }
 

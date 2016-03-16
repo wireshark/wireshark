@@ -3113,11 +3113,11 @@ proto_reg_handoff_sdp(void)
 {
     dissector_handle_t sdp_handle;
 
-    rtcp_handle   = find_dissector("rtcp");
-    msrp_handle   = find_dissector("msrp");
-    sprt_handle   = find_dissector("sprt");
-    h264_handle   = find_dissector("h264");
-    mp4ves_config_handle = find_dissector("mp4ves_config");
+    rtcp_handle   = find_dissector_add_dependency("rtcp", proto_sdp);
+    msrp_handle   = find_dissector_add_dependency("msrp", proto_sdp);
+    sprt_handle   = find_dissector_add_dependency("sprt", proto_sdp);
+    h264_handle   = find_dissector_add_dependency("h264", proto_sdp);
+    mp4ves_config_handle = find_dissector_add_dependency("mp4ves_config", proto_sdp);
 
     proto_sprt    = dissector_handle_get_protocol_index(find_dissector("sprt"));
 

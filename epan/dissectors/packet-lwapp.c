@@ -543,9 +543,9 @@ proto_reg_handoff_lwapp(void)
     /*
      * Get handles for the Ethernet and wireless dissectors.
      */
-    eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
-    wlan_handle = find_dissector("wlan_withoutfcs");
-    wlan_bsfc_handle = find_dissector("wlan_bsfc");
+    eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_lwapp);
+    wlan_handle = find_dissector_add_dependency("wlan_withoutfcs", proto_lwapp);
+    wlan_bsfc_handle = find_dissector_add_dependency("wlan_bsfc", proto_lwapp);
     data_handle = find_dissector("data");
 
     /* This dissector assumes lwapp packets in an 802.3 frame */
