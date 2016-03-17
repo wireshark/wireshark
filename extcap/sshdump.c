@@ -75,16 +75,8 @@ static struct option longopts[] = {
 	{ "help", no_argument, NULL, OPT_HELP},
 	{ "version", no_argument, NULL, OPT_VERSION},
 	{ "verbose", optional_argument, NULL, OPT_VERBOSE},
-	{ "remote-host", required_argument, NULL, OPT_REMOTE_HOST},
-	{ "remote-port", required_argument, NULL, OPT_REMOTE_PORT},
-	{ "remote-username", required_argument, NULL, OPT_REMOTE_USERNAME},
-	{ "remote-password", required_argument, NULL, OPT_REMOTE_PASSWORD},
-	{ "remote-interface", required_argument, NULL, OPT_REMOTE_INTERFACE},
+	SSH_BASE_OPTIONS,
 	{ "remote-capture-bin", required_argument, NULL, OPT_REMOTE_CAPTURE_BIN},
-	{ "remote-filter", required_argument, NULL, OPT_REMOTE_FILTER},
-	{ "remote-count", required_argument, NULL, OPT_REMOTE_COUNT},
-	{ "sshkey", required_argument, NULL, OPT_SSHKEY},
-	{ "sshkey-passphrase", required_argument, NULL, OPT_SSHKEY_PASSPHRASE},
 	{ 0, 0, 0, 0}
 };
 
