@@ -1307,119 +1307,119 @@ static expert_field ei_inap_unknown_returnErrorData = EI_INIT;
 
 /* INAP OPERATIONS */
 const value_string inap_opr_code_strings[] = {
-	{ opcode_activateServiceFiltering         , "activateServiceFiltering" },
-	{ opcode_activityTest                     , "activityTest" },
-	{ opcode_analysedInformation              , "analysedInformation" },
-	{ opcode_analyseInformation               , "analyseInformation" },
-	{ opcode_applyCharging                    , "applyCharging" },
-	{ opcode_applyChargingReport              , "applyChargingReport" },
-	{ opcode_assistRequestInstructions        , "assistRequestInstructions" },
-	{ opcode_authorizeTermination             , "authorizeTermination" },
-	{ opcode_callFiltering                    , "callFiltering" },
-	{ opcode_callGap                          , "callGap" },
-	{ opcode_callInformationReport            , "callInformationReport" },
-	{ opcode_callInformationRequest           , "callInformationRequest" },
-	{ opcode_cancel                           , "cancel" },
-	{ opcode_cancelStatusReportRequest        , "cancelStatusReportRequest" },
-	{ opcode_collectedInformation             , "collectedInformation" },
-	{ opcode_collectInformation               , "collectInformation" },
-	{ opcode_connect                          , "connect" },
-	{ opcode_connectToResource                , "connectToResource" },
-	{ opcode_continue                         , "continue" },
-	{ opcode_continueWithArgument             , "continueWithArgument" },
-	{ opcode_createCallSegmentAssociation     , "createCallSegmentAssociation" },
-	{ opcode_createOrRemoveTriggerData        , "createOrRemoveTriggerData" },
-	{ opcode_disconnectForwardConnection      , "disconnectForwardConnection" },
-	{ opcode_dFCWithArgument                  , "disconnectForwardConnectionWithArgument" },
-	{ opcode_disconnectLeg                    , "disconnectLeg" },
-	{ opcode_entityReleased                   , "entityReleased" },
-	{ opcode_establishTemporaryConnection     , "establishTemporaryConnection" },
-	{ opcode_eventNotificationCharging        , "eventNotificationCharging" },
-	{ opcode_eventReportBCSM                  , "eventReportBCSM" },
-	{ opcode_eventReportFacility              , "eventReportFacility" },
-	{ opcode_facilitySelectedAndAvailable     , "facilitySelectedAndAvailable" },
-	{ opcode_furnishChargingInformation       , "furnishChargingInformation" },
-	{ opcode_holdCallInNetwork                , "holdCallInNetwork" },
-	{ opcode_initialDP                        , "initialDP" },
-	{ opcode_initiateCallAttempt              , "initiateCallAttempt" },
-	{ opcode_manageTriggerData                , "manageTriggerData" },
-	{ opcode_mergeCallSegments                , "mergeCallSegments" },
-	{ opcode_monitorRouteReport               , "monitorRouteReport" },
-	{ opcode_monitorRouteRequest              , "monitorRouteRequest" },
-	{ opcode_moveCallSegments                 , "moveCallSegments" },
-	{ opcode_moveLeg                          , "moveLeg" },
-	{ opcode_oAbandon                         , "oAbandon" },
-	{ opcode_oAnswer                          , "oAnswer" },
-	{ opcode_oCalledPartyBusy                 , "oCalledPartyBusy" },
-	{ opcode_oDisconnect                      , "oDisconnect" },
-	{ opcode_oMidCall                         , "oMidCall" },
-	{ opcode_oNoAnswer                        , "oNoAnswer" },
-	{ opcode_originationAttempt               , "originationAttempt" },
-	{ opcode_originationAttemptAuthorized     , "originationAttemptAuthorized" },
-	{ opcode_oSuspended                       , "oSuspended" },
-	{ opcode_reconnect                        , "reconnect" },
-	{ opcode_releaseCall                      , "releaseCall" },
-	{ opcode_reportUTSI                       , "reportUTSI" },
-	{ opcode_requestCurrentStatusReport       , "requestCurrentStatusReport" },
-	{ opcode_requestEveryStatusChangeReport   , "requestEveryStatusChangeReport" },
-	{ opcode_requestFirstStatusMatchReport    , "requestFirstStatusMatchReport" },
-	{ opcode_requestNotificationChargingEvent , "requestNotificationChargingEvent" },
-	{ opcode_requestReportBCSMEvent           , "requestReportBCSMEvent" },
-	{ opcode_requestReportFacilityEvent       , "requestReportFacilityEvent" },
-	{ opcode_requestReportUTSI                , "requestReportUTSI" },
-	{ opcode_resetTimer                       , "resetTimer" },
-	{ opcode_routeSelectFailure               , "routeSelectFailure" },
-	{ opcode_selectFacility                   , "selectFacility" },
-	{ opcode_selectRoute                      , "selectRoute" },
-	{ opcode_sendChargingInformation          , "sendChargingInformation" },
-	{ opcode_sendFacilityInformation          , "sendFacilityInformation" },
-	{ opcode_sendSTUI                         , "sendSTUI" },
-	{ opcode_serviceFilteringResponse         , "serviceFilteringResponse" },
-	{ opcode_setServiceProfile                , "setServiceProfile" },
-	{ opcode_splitLeg                         , "splitLeg" },
-	{ opcode_statusReport                     , "statusReport" },
-	{ opcode_tAnswer                          , "tAnswer" },
-	{ opcode_tBusy                            , "tBusy" },
-	{ opcode_tDisconnect                      , "tDisconnect" },
-	{ opcode_termAttemptAuthorized            , "termAttemptAuthorized" },
-	{ opcode_terminationAttempt               , "terminationAttempt" },
-	{ opcode_tMidCall                         , "tMidCall" },
-	{ opcode_tNoAnswer                        , "tNoAnswer" },
-	{ opcode_tSuspended                       , "tSuspended" },
-	{ opcode_playAnnouncement                 , "playAnnouncement" },
-	{ opcode_promptAndCollectUserInformation  , "promptAndCollectUserInformation" },
-	{ opcode_promptAndReceiveMessage          , "promptAndReceiveMessage" },
-	{ opcode_scriptClose                      , "scriptClose" },
-	{ opcode_scriptEvent                      , "scriptEvent" },
-	{ opcode_scriptInformation                , "scriptInformation" },
-	{ opcode_scriptRun                        , "scriptRun" },
-	{ opcode_specializedResourceReport        , "specializedResourceReport" },
-	{ opcode_srfCallGap                       , "sRFCallGap" },
+  { opcode_activateServiceFiltering         , "activateServiceFiltering" },
+  { opcode_activityTest                     , "activityTest" },
+  { opcode_analysedInformation              , "analysedInformation" },
+  { opcode_analyseInformation               , "analyseInformation" },
+  { opcode_applyCharging                    , "applyCharging" },
+  { opcode_applyChargingReport              , "applyChargingReport" },
+  { opcode_assistRequestInstructions        , "assistRequestInstructions" },
+  { opcode_authorizeTermination             , "authorizeTermination" },
+  { opcode_callFiltering                    , "callFiltering" },
+  { opcode_callGap                          , "callGap" },
+  { opcode_callInformationReport            , "callInformationReport" },
+  { opcode_callInformationRequest           , "callInformationRequest" },
+  { opcode_cancel                           , "cancel" },
+  { opcode_cancelStatusReportRequest        , "cancelStatusReportRequest" },
+  { opcode_collectedInformation             , "collectedInformation" },
+  { opcode_collectInformation               , "collectInformation" },
+  { opcode_connect                          , "connect" },
+  { opcode_connectToResource                , "connectToResource" },
+  { opcode_continue                         , "continue" },
+  { opcode_continueWithArgument             , "continueWithArgument" },
+  { opcode_createCallSegmentAssociation     , "createCallSegmentAssociation" },
+  { opcode_createOrRemoveTriggerData        , "createOrRemoveTriggerData" },
+  { opcode_disconnectForwardConnection      , "disconnectForwardConnection" },
+  { opcode_dFCWithArgument                  , "disconnectForwardConnectionWithArgument" },
+  { opcode_disconnectLeg                    , "disconnectLeg" },
+  { opcode_entityReleased                   , "entityReleased" },
+  { opcode_establishTemporaryConnection     , "establishTemporaryConnection" },
+  { opcode_eventNotificationCharging        , "eventNotificationCharging" },
+  { opcode_eventReportBCSM                  , "eventReportBCSM" },
+  { opcode_eventReportFacility              , "eventReportFacility" },
+  { opcode_facilitySelectedAndAvailable     , "facilitySelectedAndAvailable" },
+  { opcode_furnishChargingInformation       , "furnishChargingInformation" },
+  { opcode_holdCallInNetwork                , "holdCallInNetwork" },
+  { opcode_initialDP                        , "initialDP" },
+  { opcode_initiateCallAttempt              , "initiateCallAttempt" },
+  { opcode_manageTriggerData                , "manageTriggerData" },
+  { opcode_mergeCallSegments                , "mergeCallSegments" },
+  { opcode_monitorRouteReport               , "monitorRouteReport" },
+  { opcode_monitorRouteRequest              , "monitorRouteRequest" },
+  { opcode_moveCallSegments                 , "moveCallSegments" },
+  { opcode_moveLeg                          , "moveLeg" },
+  { opcode_oAbandon                         , "oAbandon" },
+  { opcode_oAnswer                          , "oAnswer" },
+  { opcode_oCalledPartyBusy                 , "oCalledPartyBusy" },
+  { opcode_oDisconnect                      , "oDisconnect" },
+  { opcode_oMidCall                         , "oMidCall" },
+  { opcode_oNoAnswer                        , "oNoAnswer" },
+  { opcode_originationAttempt               , "originationAttempt" },
+  { opcode_originationAttemptAuthorized     , "originationAttemptAuthorized" },
+  { opcode_oSuspended                       , "oSuspended" },
+  { opcode_reconnect                        , "reconnect" },
+  { opcode_releaseCall                      , "releaseCall" },
+  { opcode_reportUTSI                       , "reportUTSI" },
+  { opcode_requestCurrentStatusReport       , "requestCurrentStatusReport" },
+  { opcode_requestEveryStatusChangeReport   , "requestEveryStatusChangeReport" },
+  { opcode_requestFirstStatusMatchReport    , "requestFirstStatusMatchReport" },
+  { opcode_requestNotificationChargingEvent , "requestNotificationChargingEvent" },
+  { opcode_requestReportBCSMEvent           , "requestReportBCSMEvent" },
+  { opcode_requestReportFacilityEvent       , "requestReportFacilityEvent" },
+  { opcode_requestReportUTSI                , "requestReportUTSI" },
+  { opcode_resetTimer                       , "resetTimer" },
+  { opcode_routeSelectFailure               , "routeSelectFailure" },
+  { opcode_selectFacility                   , "selectFacility" },
+  { opcode_selectRoute                      , "selectRoute" },
+  { opcode_sendChargingInformation          , "sendChargingInformation" },
+  { opcode_sendFacilityInformation          , "sendFacilityInformation" },
+  { opcode_sendSTUI                         , "sendSTUI" },
+  { opcode_serviceFilteringResponse         , "serviceFilteringResponse" },
+  { opcode_setServiceProfile                , "setServiceProfile" },
+  { opcode_splitLeg                         , "splitLeg" },
+  { opcode_statusReport                     , "statusReport" },
+  { opcode_tAnswer                          , "tAnswer" },
+  { opcode_tBusy                            , "tBusy" },
+  { opcode_tDisconnect                      , "tDisconnect" },
+  { opcode_termAttemptAuthorized            , "termAttemptAuthorized" },
+  { opcode_terminationAttempt               , "terminationAttempt" },
+  { opcode_tMidCall                         , "tMidCall" },
+  { opcode_tNoAnswer                        , "tNoAnswer" },
+  { opcode_tSuspended                       , "tSuspended" },
+  { opcode_playAnnouncement                 , "playAnnouncement" },
+  { opcode_promptAndCollectUserInformation  , "promptAndCollectUserInformation" },
+  { opcode_promptAndReceiveMessage          , "promptAndReceiveMessage" },
+  { opcode_scriptClose                      , "scriptClose" },
+  { opcode_scriptEvent                      , "scriptEvent" },
+  { opcode_scriptInformation                , "scriptInformation" },
+  { opcode_scriptRun                        , "scriptRun" },
+  { opcode_specializedResourceReport        , "specializedResourceReport" },
+  { opcode_srfCallGap                       , "sRFCallGap" },
   { 0, NULL }
 };
 
 
 /* INAP ERRORS */
 static const value_string inap_err_code_string_vals[] = {
-	{ errcode_canceled                        , "canceled" },
-	{ errcode_cancelFailed                    , "cancelFailed" },
-	{ errcode_chainingRefused                 , "chainingRefused" },
-	{ errcode_eTCFailed                       , "eTCFailed" },
-	{ errcode_improperCallerResponse          , "improperCallerResponse" },
-	{ errcode_missingCustomerRecord           , "missingCustomerRecord" },
-	{ errcode_missingParameter                , "missingParameter" },
-	{ errcode_parameterOutOfRange             , "parameterOutOfRange" },
-	{ errcode_requestedInfoError              , "requestedInfoError" },
-	{ errcode_scfTaskRefused                  , "scfTaskRefused" },
-	{ errcode_scfReferral                     , "scfReferral" },
-	{ errcode_systemFailure                   , "systemFailure" },
-	{ errcode_taskRefused                     , "taskRefused" },
-	{ errcode_unavailableResource             , "unavailableResource" },
-	{ errcode_unexpectedComponentSequence     , "unexpectedComponentSequence" },
-	{ errcode_unexpectedDataValue             , "unexpectedDataValue" },
-	{ errcode_unexpectedParameter             , "unexpectedParameter" },
-	{ errcode_unknownLegID                    , "unknownLegID" },
-	{ errcode_unknownResource                 , "unknownResource" },
+  { errcode_canceled                        , "canceled" },
+  { errcode_cancelFailed                    , "cancelFailed" },
+  { errcode_chainingRefused                 , "chainingRefused" },
+  { errcode_eTCFailed                       , "eTCFailed" },
+  { errcode_improperCallerResponse          , "improperCallerResponse" },
+  { errcode_missingCustomerRecord           , "missingCustomerRecord" },
+  { errcode_missingParameter                , "missingParameter" },
+  { errcode_parameterOutOfRange             , "parameterOutOfRange" },
+  { errcode_requestedInfoError              , "requestedInfoError" },
+  { errcode_scfTaskRefused                  , "scfTaskRefused" },
+  { errcode_scfReferral                     , "scfReferral" },
+  { errcode_systemFailure                   , "systemFailure" },
+  { errcode_taskRefused                     , "taskRefused" },
+  { errcode_unavailableResource             , "unavailableResource" },
+  { errcode_unexpectedComponentSequence     , "unexpectedComponentSequence" },
+  { errcode_unexpectedDataValue             , "unexpectedDataValue" },
+  { errcode_unexpectedParameter             , "unexpectedParameter" },
+  { errcode_unknownLegID                    , "unknownLegID" },
+  { errcode_unknownResource                 , "unknownResource" },
   { 0, NULL }
 };
 
@@ -1466,18 +1466,16 @@ dissect_inap_T_local(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &opcode);
 
-  	if (inap_opcode_type == INAP_OPCODE_RETURN_ERROR){
-	  errorCode = opcode;
-	    col_append_str(actx->pinfo->cinfo, COL_INFO,
-	       val_to_str(errorCode, inap_err_code_string_vals, "Unknown INAP error (%u)"));
-	    col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
-	    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-	}else{
-	    col_append_str(actx->pinfo->cinfo, COL_INFO,
-	       val_to_str(opcode, inap_opr_code_strings, "Unknown INAP (%u)"));
-	    col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
-	    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-   }
+    if (inap_opcode_type == INAP_OPCODE_RETURN_ERROR){
+      errorCode = opcode;
+      col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(errorCode, inap_err_code_string_vals, "Unknown INAP error (%u)"));
+      col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
+      col_set_fence(actx->pinfo->cinfo, COL_INFO);
+    }else{
+      col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(opcode, inap_opr_code_strings, "Unknown INAP (%u)"));
+      col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
+      col_set_fence(actx->pinfo->cinfo, COL_INFO);
+    }
 
 
 
@@ -1519,14 +1517,14 @@ dissect_inap_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_inap_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 213 "./asn1/inap/inap.cnf"
+#line 211 "./asn1/inap/inap.cnf"
   proto_tree *ext_tree;
   ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_inap_extension_data, NULL, "Extension Data");
   if (obj_id){
-	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, ext_tree, NULL);
+    offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, ext_tree, NULL);
   }else{
-	 call_dissector(data_handle, tvb, actx->pinfo, ext_tree);
-	 offset = tvb_reported_length_remaining(tvb,offset);
+    call_dissector(data_handle, tvb, actx->pinfo, ext_tree);
+    offset = tvb_reported_length_remaining(tvb,offset);
   }
 
 
@@ -1546,8 +1544,8 @@ static const ber_sequence_t ExtensionField_sequence[] = {
 
 static int
 dissect_inap_ExtensionField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 208 "./asn1/inap/inap.cnf"
-	obj_id = NULL;
+#line 206 "./asn1/inap/inap.cnf"
+  obj_id = NULL;
 
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -2200,18 +2198,18 @@ dissect_inap_BCSMEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_inap_T_bearerCap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 246 "./asn1/inap/inap.cnf"
+#line 244 "./asn1/inap/inap.cnf"
 
- tvbuff_t	*parameter_tvb;
+  tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
 
- if (!parameter_tvb)
-	return offset;
+  if (!parameter_tvb)
+    return offset;
 
- dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), tree);
+  dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), tree);
 
 
 
@@ -2355,15 +2353,15 @@ dissect_inap_CalledPartyBusinessGroupID(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_inap_CalledPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 225 "./asn1/inap/inap.cnf"
+#line 223 "./asn1/inap/inap.cnf"
   tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
 
- if (!parameter_tvb)
-	return offset;
+  if (!parameter_tvb)
+  return offset;
 
 dissect_isup_called_party_number_parameter(parameter_tvb, tree, NULL);
 
@@ -2406,17 +2404,17 @@ dissect_inap_CallingPartyBusinessGroupID(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_inap_CallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 235 "./asn1/inap/inap.cnf"
+#line 233 "./asn1/inap/inap.cnf"
   tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
 
- if (!parameter_tvb)
-	return offset;
+  if (!parameter_tvb)
+    return offset;
 
-	dissect_isup_calling_party_number_parameter(parameter_tvb, tree, NULL);
+  dissect_isup_calling_party_number_parameter(parameter_tvb, tree, NULL);
 
 
 
@@ -2510,23 +2508,23 @@ dissect_inap_Carrier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_inap_Cause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 302 "./asn1/inap/inap.cnf"
- /*
-  * -- Indicates the cause for interface related information. Refer to the Q.763 Cause  parameter for encoding
-  * -- For the use of cause and location values refer to Q.850.
-  */
-tvbuff_t *parameter_tvb;
-guint8 Cause_value;
-proto_tree *subtree;
+  /*
+   * -- Indicates the cause for interface related information. Refer to the Q.763 Cause  parameter for encoding
+   * -- For the use of cause and location values refer to Q.850.
+   */
+  tvbuff_t *parameter_tvb;
+  guint8 Cause_value;
+  proto_tree *subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
 
- if (!parameter_tvb)
-	return offset;
- subtree = proto_item_add_subtree(actx->created_item, ett_inap_cause);
+  if (!parameter_tvb)
+    return offset;
+  subtree = proto_item_add_subtree(actx->created_item, ett_inap_cause);
 
- dissect_q931_cause_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), subtree, hf_inap_cause_indicator, &Cause_value, isup_parameter_type_value);
+  dissect_q931_cause_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), subtree, hf_inap_cause_indicator, &Cause_value, isup_parameter_type_value);
 
 
 
@@ -4572,11 +4570,11 @@ dissect_inap_HighLayerCompatibility(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
                                        &parameter_tvb);
 
 
- if (!parameter_tvb)
-        return offset;
+  if (!parameter_tvb)
+    return offset;
 
- subtree = proto_item_add_subtree(actx->created_item, ett_inap_HighLayerCompatibility);
- dissect_q931_high_layer_compat_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), subtree);
+  subtree = proto_item_add_subtree(actx->created_item, ett_inap_HighLayerCompatibility);
+  dissect_q931_high_layer_compat_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), subtree);
 
 
 
@@ -4736,17 +4734,18 @@ dissect_inap_NumberingPlan(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_inap_OriginalCalledPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 268 "./asn1/inap/inap.cnf"
+#line 266 "./asn1/inap/inap.cnf"
 
- tvbuff_t	*parameter_tvb;
+  tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
 
- if (!parameter_tvb)
-	return offset;
- dissect_isup_original_called_number_parameter(parameter_tvb, actx->pinfo, tree, NULL);
+  if (!parameter_tvb)
+    return offset;
+
+  dissect_isup_original_called_number_parameter(parameter_tvb, actx->pinfo, tree, NULL);
 
 
 
@@ -4799,17 +4798,18 @@ dissect_inap_Reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_inap_RedirectingPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 278 "./asn1/inap/inap.cnf"
+#line 277 "./asn1/inap/inap.cnf"
 
- tvbuff_t	*parameter_tvb;
+  tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
 
- if (!parameter_tvb)
-	return offset;
- dissect_isup_redirecting_number_parameter(parameter_tvb, tree, NULL);
+  if (!parameter_tvb)
+    return offset;
+
+   dissect_isup_redirecting_number_parameter(parameter_tvb, tree, NULL);
 
 
 
@@ -4820,16 +4820,16 @@ dissect_inap_RedirectingPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 int
 dissect_inap_RedirectionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 257 "./asn1/inap/inap.cnf"
+#line 255 "./asn1/inap/inap.cnf"
 
- tvbuff_t	*parameter_tvb;
+  tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
 
- if (!parameter_tvb)
-	return offset;
+  if (!parameter_tvb)
+    return offset;
 
  dissect_isup_redirection_information_parameter(parameter_tvb, tree, NULL);
 
@@ -5184,7 +5184,7 @@ dissect_inap_T_triggerId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_inap_T_triggerPar(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 194 "./asn1/inap/inap.cnf"
+#line 192 "./asn1/inap/inap.cnf"
 /* FIX ME */
 
 
@@ -7762,7 +7762,7 @@ dissect_inap_MessageReceivedArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_inap_T_uIScriptSpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 200 "./asn1/inap/inap.cnf"
+#line 198 "./asn1/inap/inap.cnf"
 /* FIX ME */
 
 
@@ -7791,7 +7791,7 @@ dissect_inap_ScriptCloseArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_inap_T_uIScriptResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 197 "./asn1/inap/inap.cnf"
+#line 195 "./asn1/inap/inap.cnf"
 /* FIX ME */
 
 
@@ -7821,7 +7821,7 @@ dissect_inap_ScriptEventArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_inap_T_uIScriptSpecificInfo_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 203 "./asn1/inap/inap.cnf"
+#line 201 "./asn1/inap/inap.cnf"
 /* FIX ME */
 
 
@@ -7849,7 +7849,7 @@ dissect_inap_ScriptInformationArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_inap_T_uIScriptSpecificInfo_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 205 "./asn1/inap/inap.cnf"
+#line 203 "./asn1/inap/inap.cnf"
 /* FIX ME */
 
 
@@ -8080,8 +8080,8 @@ dissect_inap_T_linkedId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_inap_T_argument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 182 "./asn1/inap/inap.cnf"
-	offset = dissect_invokeData(tree, tvb, offset, actx);
+#line 180 "./asn1/inap/inap.cnf"
+  offset = dissect_invokeData(tree, tvb, offset, actx);
 
 
 
@@ -8099,7 +8099,7 @@ static const ber_sequence_t Invoke_sequence[] = {
 
 static int
 dissect_inap_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 170 "./asn1/inap/inap.cnf"
+#line 168 "./asn1/inap/inap.cnf"
   inap_opcode_type=INAP_OPCODE_INVOKE;
 
 
@@ -8113,8 +8113,8 @@ dissect_inap_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_inap_ResultArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 185 "./asn1/inap/inap.cnf"
-	offset = dissect_returnResultData(tree, tvb, offset, actx);
+#line 183 "./asn1/inap/inap.cnf"
+  offset = dissect_returnResultData(tree, tvb, offset, actx);
 
 
 
@@ -8145,7 +8145,7 @@ static const ber_sequence_t ReturnResult_sequence[] = {
 
 static int
 dissect_inap_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 173 "./asn1/inap/inap.cnf"
+#line 171 "./asn1/inap/inap.cnf"
   inap_opcode_type=INAP_OPCODE_RETURN_RESULT;
 
 
@@ -8159,8 +8159,8 @@ dissect_inap_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_inap_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 188 "./asn1/inap/inap.cnf"
-	offset = dissect_returnErrorData(tree, tvb, offset, actx);
+#line 186 "./asn1/inap/inap.cnf"
+  offset = dissect_returnErrorData(tree, tvb, offset, actx);
 
 
 
@@ -8179,7 +8179,7 @@ static const ber_sequence_t ReturnError_sequence[] = {
 
 static int
 dissect_inap_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 176 "./asn1/inap/inap.cnf"
+#line 174 "./asn1/inap/inap.cnf"
   inap_opcode_type=INAP_OPCODE_RETURN_ERROR;
 
 
@@ -8299,7 +8299,7 @@ static const ber_sequence_t Reject_sequence[] = {
 
 static int
 dissect_inap_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 179 "./asn1/inap/inap.cnf"
+#line 177 "./asn1/inap/inap.cnf"
   inap_opcode_type=INAP_OPCODE_REJECT;
 
 
@@ -9289,7 +9289,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
       break;
     default:
       proto_tree_add_expert_format(tree, actx->pinfo, &ei_inap_unknown_invokeData,
-	                               tvb, offset, -1, "Unknown invokeData %d", opcode);
+                                   tvb, offset, -1, "Unknown invokeData %d", opcode);
       /* todo call the asn.1 dissector */
       break;
   }
@@ -9300,26 +9300,26 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx) {
   switch(opcode){
     case opcode_createCallSegmentAssociation:  /* createCallSegmentAssociation */
-	  offset= dissect_CreateCallSegmentAssociationResultArg_PDU(tvb, actx->pinfo , tree , NULL);
+      offset= dissect_CreateCallSegmentAssociationResultArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_createOrRemoveTriggerData:  /* createOrRemoveTriggerData */
-	  offset= dissect_CreateOrRemoveTriggerDataResultArg_PDU(tvb, actx->pinfo , tree , NULL);
+      offset= dissect_CreateOrRemoveTriggerDataResultArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_manageTriggerData:  /* manageTriggerData */
-	  offset= dissect_ManageTriggerDataResultArg_PDU(tvb, actx->pinfo , tree , NULL);
+      offset= dissect_ManageTriggerDataResultArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_requestCurrentStatusReport:  /* requestCurrentStatusReport */
-	  offset= dissect_RequestCurrentStatusReportResultArg_PDU(tvb, actx->pinfo , tree , NULL);
+      offset= dissect_RequestCurrentStatusReportResultArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_promptAndCollectUserInformation:  /* promptAndCollectUserInformation */
-	  offset= dissect_ReceivedInformationArg_PDU(tvb, actx->pinfo , tree , NULL);
+      offset= dissect_ReceivedInformationArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case opcode_promptAndReceiveMessage:  /* promptAndReceiveMessage */
-	  offset= dissect_MessageReceivedArg_PDU(tvb, actx->pinfo , tree , NULL);
+      offset= dissect_MessageReceivedArg_PDU(tvb, actx->pinfo , tree , NULL);
       break;
   default:
     proto_tree_add_expert_format(tree, actx->pinfo, &ei_inap_unknown_returnResultData,
-	                               tvb, offset, -1, "Unknown returnResultData %d", opcode);
+                                 tvb, offset, -1, "Unknown returnResultData %d", opcode);
   }
   return offset;
 }
@@ -9328,26 +9328,26 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
 static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx) {
   switch(errorCode) {
     case errcode_cancelFailed:  /* cancelFailed */
-       offset= dissect_PAR_cancelFailed_PDU(tvb, actx->pinfo , tree , NULL);
+      offset= dissect_PAR_cancelFailed_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case errcode_requestedInfoError:  /* requestedInfoError */
-       offset= dissect_PAR_requestedInfoError_PDU(tvb, actx->pinfo , tree , NULL);
+      offset= dissect_PAR_requestedInfoError_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case errcode_scfTaskRefused:  /* scfTaskRefused */
-       offset= dissect_ScfTaskRefusedParameter_PDU(tvb, actx->pinfo , tree , NULL);
+      offset= dissect_ScfTaskRefusedParameter_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case errcode_scfReferral:  /* scfReferral */
-       offset= dissect_ReferralParameter_PDU(tvb, actx->pinfo , tree , NULL);
+      offset= dissect_ReferralParameter_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case errcode_systemFailure:  /* systemFailure */
-       offset= dissect_UnavailableNetworkResource_PDU(tvb, actx->pinfo , tree , NULL);
+      offset= dissect_UnavailableNetworkResource_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case errcode_taskRefused:  /* taskRefused */
-       offset= dissect_PAR_taskRefused_PDU(tvb, actx->pinfo , tree , NULL);
+      offset= dissect_PAR_taskRefused_PDU(tvb, actx->pinfo , tree , NULL);
       break;
   default:
     proto_tree_add_expert_format(tree, actx->pinfo, &ei_inap_unknown_returnErrorData,
-	                               tvb, offset, -1, "Unknown returnErrorData %d", opcode);
+                                 tvb, offset, -1, "Unknown returnErrorData %d", opcode);
   }
   return offset;
 }

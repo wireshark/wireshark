@@ -53,7 +53,7 @@ OPERATION.&ResultType
 /* INAP OPERATIONS */
 const value_string inap_opr_code_strings[] = {
 #.TABLE_BODY OPERATION.&operationCode
-	{ %(&operationCode)-40s, "%(_ident)s" },
+  { %(&operationCode)-40s, "%(_ident)s" },
 #.TABLE_FTR
   { 0, NULL }
 };
@@ -63,7 +63,7 @@ const value_string inap_opr_code_strings[] = {
 /* INAP ERRORS */
 static const value_string inap_err_code_string_vals[] = {
 #.TABLE_BODY ERROR.&errorCode
-	{ %(&errorCode)-40s, "%(_ident)s" },
+  { %(&errorCode)-40s, "%(_ident)s" },
 #.TABLE_FTR
   { 0, NULL }
 };
@@ -83,7 +83,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 #.TABLE2_FTR
     default:
       proto_tree_add_expert_format(tree, actx->pinfo, &ei_inap_unknown_invokeData,
-	                               tvb, offset, -1, "Unknown invokeData %d", opcode);
+                                   tvb, offset, -1, "Unknown invokeData %d", opcode);
       /* todo call the asn.1 dissector */
       break;
   }
@@ -95,12 +95,12 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
   switch(opcode){
 #.TABLE2_BODY OPERATION.&ResultType
     case %(&operationCode)s:  /* %(_ident)s */
-	  offset= %(_result_pdu)s(tvb, actx->pinfo , tree , NULL);
+      offset= %(_result_pdu)s(tvb, actx->pinfo , tree , NULL);
       break;
 #.TABLE2_FTR
   default:
     proto_tree_add_expert_format(tree, actx->pinfo, &ei_inap_unknown_returnResultData,
-	                               tvb, offset, -1, "Unknown returnResultData %d", opcode);
+                                 tvb, offset, -1, "Unknown returnResultData %d", opcode);
   }
   return offset;
 }
@@ -110,12 +110,12 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
   switch(errorCode) {
 #.TABLE2_BODY ERROR.&ParameterType
     case %(&errorCode)s:  /* %(_ident)s */
-       offset= %(_parameter_pdu)s(tvb, actx->pinfo , tree , NULL);
+      offset= %(_parameter_pdu)s(tvb, actx->pinfo , tree , NULL);
       break;
 #.TABLE2_FTR
   default:
     proto_tree_add_expert_format(tree, actx->pinfo, &ei_inap_unknown_returnErrorData,
-	                               tvb, offset, -1, "Unknown returnErrorData %d", opcode);
+                                 tvb, offset, -1, "Unknown returnErrorData %d", opcode);
   }
   return offset;
 }
@@ -153,39 +153,44 @@ static const inap_err_t inap_err_tab[] = {
 
 #.FN_BODY Code/local  VAL_PTR = &opcode
   %(DEFAULT_BODY)s
-  	if (inap_opcode_type == INAP_OPCODE_RETURN_ERROR){
-	  errorCode = opcode;
-	    col_append_str(actx->pinfo->cinfo, COL_INFO,
-	       val_to_str(errorCode, inap_err_code_string_vals, "Unknown INAP error (%%u)"));
-	    col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
-	    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-	}else{
-	    col_append_str(actx->pinfo->cinfo, COL_INFO,
-	       val_to_str(opcode, inap_opr_code_strings, "Unknown INAP (%%u)"));
-	    col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
-	    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-   }
+    if (inap_opcode_type == INAP_OPCODE_RETURN_ERROR){
+      errorCode = opcode;
+      col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(errorCode, inap_err_code_string_vals, "Unknown INAP error (%%u)"));
+      col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
+      col_set_fence(actx->pinfo->cinfo, COL_INFO);
+    }else{
+      col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(opcode, inap_opr_code_strings, "Unknown INAP (%%u)"));
+      col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
+      col_set_fence(actx->pinfo->cinfo, COL_INFO);
+    }
 
 #.FN_HDR Invoke
+
   inap_opcode_type=INAP_OPCODE_INVOKE;
 
 #.FN_HDR ReturnResult
+
   inap_opcode_type=INAP_OPCODE_RETURN_RESULT;
 
 #.FN_HDR ReturnError
+
   inap_opcode_type=INAP_OPCODE_RETURN_ERROR;
 
 #.FN_HDR Reject
+
   inap_opcode_type=INAP_OPCODE_REJECT;
 
 #.FN_BODY Invoke/argument
-	offset = dissect_invokeData(tree, tvb, offset, actx);
+
+  offset = dissect_invokeData(tree, tvb, offset, actx);
 
 #.FN_BODY ReturnResult/result/result
-	offset = dissect_returnResultData(tree, tvb, offset, actx);
+
+  offset = dissect_returnResultData(tree, tvb, offset, actx);
 
 #.FN_BODY ReturnError/parameter
-	offset = dissect_returnErrorData(tree, tvb, offset, actx);
+
+  offset = dissect_returnErrorData(tree, tvb, offset, actx);
 
 # END ROS
 
@@ -205,7 +210,7 @@ static const inap_err_t inap_err_tab[] = {
 /* FIX ME */
 
 #.FN_HDR ExtensionField
-	obj_id = NULL;
+  obj_id = NULL;
 
 #.FN_PARS Code/global FN_VARIANT = _str  VAL_PTR = &obj_id
 
@@ -213,10 +218,10 @@ static const inap_err_t inap_err_tab[] = {
   proto_tree *ext_tree;
   ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_inap_extension_data, NULL, "Extension Data");
   if (obj_id){
-	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, ext_tree, NULL);
+    offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, ext_tree, NULL);
   }else{
-	 call_dissector(data_handle, tvb, actx->pinfo, ext_tree);
-	 offset = tvb_reported_length_remaining(tvb,offset);
+    call_dissector(data_handle, tvb, actx->pinfo, ext_tree);
+    offset = tvb_reported_length_remaining(tvb,offset);
   }
 
 
@@ -226,8 +231,8 @@ static const inap_err_t inap_err_tab[] = {
 
 %(DEFAULT_BODY)s
 
- if (!parameter_tvb)
-	return offset;
+  if (!parameter_tvb)
+  return offset;
 
 dissect_isup_called_party_number_parameter(parameter_tvb, tree, NULL);
 
@@ -236,53 +241,55 @@ dissect_isup_called_party_number_parameter(parameter_tvb, tree, NULL);
 
 %(DEFAULT_BODY)s
 
- if (!parameter_tvb)
-	return offset;
+  if (!parameter_tvb)
+    return offset;
 
-	dissect_isup_calling_party_number_parameter(parameter_tvb, tree, NULL);
+  dissect_isup_calling_party_number_parameter(parameter_tvb, tree, NULL);
 
 
 #.FN_BODY BearerCapability/bearerCap VAL_PTR = &parameter_tvb
 
- tvbuff_t	*parameter_tvb;
+  tvbuff_t *parameter_tvb;
 
 %(DEFAULT_BODY)s
 
- if (!parameter_tvb)
-	return offset;
+  if (!parameter_tvb)
+    return offset;
 
- dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), tree);
+  dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), tree);
 
 #.FN_BODY RedirectionInformation VAL_PTR = &parameter_tvb
 
- tvbuff_t	*parameter_tvb;
+  tvbuff_t *parameter_tvb;
 
 %(DEFAULT_BODY)s
 
- if (!parameter_tvb)
-	return offset;
+  if (!parameter_tvb)
+    return offset;
 
  dissect_isup_redirection_information_parameter(parameter_tvb, tree, NULL);
 
 #.FN_BODY OriginalCalledPartyID VAL_PTR = &parameter_tvb
 
- tvbuff_t	*parameter_tvb;
+  tvbuff_t *parameter_tvb;
 
 %(DEFAULT_BODY)s
 
- if (!parameter_tvb)
-	return offset;
- dissect_isup_original_called_number_parameter(parameter_tvb, actx->pinfo, tree, NULL);
+  if (!parameter_tvb)
+    return offset;
+
+  dissect_isup_original_called_number_parameter(parameter_tvb, actx->pinfo, tree, NULL);
 
 #.FN_BODY RedirectingPartyID VAL_PTR = &parameter_tvb
 
- tvbuff_t	*parameter_tvb;
+  tvbuff_t *parameter_tvb;
 
 %(DEFAULT_BODY)s
 
- if (!parameter_tvb)
-	return offset;
- dissect_isup_redirecting_number_parameter(parameter_tvb, tree, NULL);
+  if (!parameter_tvb)
+    return offset;
+
+   dissect_isup_redirecting_number_parameter(parameter_tvb, tree, NULL);
 
 #.FN_BODY HighLayerCompatibility VAL_PTR = &parameter_tvb
 /*
@@ -292,32 +299,43 @@ dissect_isup_called_party_number_parameter(parameter_tvb, tree, NULL);
  proto_tree     *subtree;
 %(DEFAULT_BODY)s
 
- if (!parameter_tvb)
-        return offset;
+  if (!parameter_tvb)
+    return offset;
 
- subtree = proto_item_add_subtree(actx->created_item, ett_inap_HighLayerCompatibility);
- dissect_q931_high_layer_compat_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), subtree);
+  subtree = proto_item_add_subtree(actx->created_item, ett_inap_HighLayerCompatibility);
+  dissect_q931_high_layer_compat_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), subtree);
 
- #.FN_BODY Cause VAL_PTR = &parameter_tvb
- /*
-  * -- Indicates the cause for interface related information. Refer to the Q.763 Cause  parameter for encoding
-  * -- For the use of cause and location values refer to Q.850.
-  */
-tvbuff_t *parameter_tvb;
-guint8 Cause_value;
-proto_tree *subtree;
+  #.FN_BODY Cause VAL_PTR = &parameter_tvb
+  /*
+   * -- Indicates the cause for interface related information. Refer to the Q.763 Cause  parameter for encoding
+   * -- For the use of cause and location values refer to Q.850.
+   */
+  tvbuff_t *parameter_tvb;
+  guint8 Cause_value;
+  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
 
- if (!parameter_tvb)
-	return offset;
- subtree = proto_item_add_subtree(actx->created_item, ett_inap_cause);
+  if (!parameter_tvb)
+    return offset;
+  subtree = proto_item_add_subtree(actx->created_item, ett_inap_cause);
 
- dissect_q931_cause_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), subtree, hf_inap_cause_indicator, &Cause_value, isup_parameter_type_value);
+  dissect_q931_cause_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), subtree, hf_inap_cause_indicator, &Cause_value, isup_parameter_type_value);
 
 #.TYPE_ATTR
 CallingPartysCategory TYPE = FT_UINT16  DISPLAY = BASE_DEC|BASE_EXT_STRING  STRINGS = &isup_calling_partys_category_value_ext
 
 #.END
 
-
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 4
+# tab-width: 8
+# indent-tabs-mode: nil
+# End:
+#
+# vi: set shiftwidth=4 tabstop=8 expandtab:
+# :indentSize=4:tabSize=8:noTabs=true:
+#
