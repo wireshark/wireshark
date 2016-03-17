@@ -5766,7 +5766,7 @@ static const AsterixField I048_SP = { SP, 0, 0, 1, &hf_048_SP, NULL, { NULL } };
 static const AsterixField *I048_v1_17_uap[] = { &I048_010, &I048_140, &I048_020, &I048_040, &I048_070, &I048_090, &I048_130,
                                                 &I048_220, &I048_240, &I048_250, &I048_161, &I048_042, &I048_200, &I048_170,
                                                 &I048_210, &I048_030, &I048_080, &I048_100, &I048_110, &I048_120, &I048_230,
-                                                &I048_260, &I048_055, &I048_050, &I048_065, &I048_060, &I048_RE,  &I048_SP, NULL };
+                                                &I048_260, &I048_055, &I048_050, &I048_065, &I048_060, &I048_SP,  &I048_RE, NULL };
 static const AsterixField **I048_v1_17[] = { I048_v1_17_uap, NULL };
 static const AsterixField ***I048[] = { I048_v1_17 };
 DIAG_ON(pedantic)
