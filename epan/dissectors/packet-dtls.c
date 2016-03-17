@@ -1289,7 +1289,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
              * master key with this Session Ticket */
             ssl_dissect_hnd_new_ses_ticket(&dissect_dtls_hf, sub_tvb,
                                            ssl_hand_tree, 0, ssl,
-                                           dtls_master_key_map.session);
+                                           dtls_master_key_map.tickets);
             break;
 
           case SSL_HND_CERTIFICATE:

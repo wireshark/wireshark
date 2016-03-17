@@ -2047,7 +2047,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                  * master key with this Session Ticket */
                 ssl_dissect_hnd_new_ses_ticket(&dissect_ssl3_hf, tvb,
                         ssl_hand_tree, offset, ssl,
-                        ssl_master_key_map.session);
+                        ssl_master_key_map.tickets);
                 break;
 
             case SSL_HND_CERTIFICATE:
