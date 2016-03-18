@@ -34,11 +34,11 @@ extern "C" {
  */
 
 /** callback function definition: is a filter available for this packet? */
-typedef gboolean (*is_filter_valid_func)(packet_info *pinfo);
+typedef gboolean (*is_filter_valid_func)(struct _packet_info *pinfo);
 
 /** callback function definition: return the available filter for this packet or NULL if no filter is available,
     Filter needs to be freed after use */
-typedef gchar* (*build_filter_string_func)(packet_info *pinfo);
+typedef gchar* (*build_filter_string_func)(struct _packet_info *pinfo);
 
 /** register a dissector filter */
 WS_DLL_PUBLIC void register_conversation_filter(const char *proto_name, const char *display_name,

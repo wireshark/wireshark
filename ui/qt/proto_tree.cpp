@@ -38,7 +38,6 @@
 
 // To do:
 // - Fix "apply as filter" behavior.
-// - Add colorize conversation.
 
 /* Fill a single protocol tree item with its string value and set its color. */
 static void

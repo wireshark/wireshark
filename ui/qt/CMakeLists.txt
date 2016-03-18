@@ -45,6 +45,7 @@ set(WIRESHARK_QT_HEADERS
 	column_preferences_frame.h
 	column_editor_frame.h
 	compiled_filter_output.h
+	conversation_colorize_action.h
 	conversation_dialog.h
 	conversation_hash_tables_dialog.h
 	decode_as_dialog.h
@@ -199,6 +200,7 @@ set(WIRESHARK_QT_SRC
 	column_preferences_frame.cpp
 	column_editor_frame.cpp
 	compiled_filter_output.cpp
+	conversation_colorize_action.cpp
 	conversation_dialog.cpp
 	conversation_hash_tables_dialog.cpp
 	decode_as_dialog.cpp

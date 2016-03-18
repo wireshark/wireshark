@@ -224,6 +224,8 @@ signals:
     void monospaceFontChanged(const QFont &mono_font);
     void closePacketDialogs();
     void reloadFields();
+    void packetInfoChanged(struct _packet_info *pinfo);
+    void fieldFilterChanged(const QByteArray field_filter);
 
 public slots:
     // in main_window_slots.cpp
@@ -277,6 +279,7 @@ private slots:
     // Manually connected slots (no "on_<object>_<signal>").
 
     void initViewColorizeMenu();
+    void initConversationMenus();
 
     // in main_window_slots.cpp
     /**
