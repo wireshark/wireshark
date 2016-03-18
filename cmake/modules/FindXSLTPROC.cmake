@@ -78,7 +78,6 @@ endif()
 MACRO(XML2HTML _target_dep _dir_pfx _mode _dbk_source _gfx_sources)
     # We depend on the docbook target to avoid parallel builds.
     SET(_dbk_dep ${_target_dep}_docbook)
-    #SET(_validated ${_dir_pfx}.validated)
 
     IF(${_mode} STREQUAL "chunked")
         SET(_basedir ${_dir_pfx}_html_chunked)
@@ -129,7 +128,6 @@ MACRO(XML2HTML _target_dep _dir_pfx _mode _dbk_source _gfx_sources)
         DEPENDS
             generate_${_dbk_source}
             ${_dbk_dep}
-            #${_validated}
             ${_gfx_deps}
     )
     IF(NOT WIN32)

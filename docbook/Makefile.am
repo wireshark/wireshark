@@ -41,9 +41,9 @@ all: $(ALL_TARGETS)
 
 # Wireshark User Guide
 if HAVE_FOP
-WSUG_TARGETS=wsug.validated wsug_html_chunked wsug_html user-guide-a4.pdf user-guide-us.pdf
+WSUG_TARGETS=wsug_html_chunked wsug_html user-guide-a4.pdf user-guide-us.pdf
 else
-WSUG_TARGETS=wsug.validated wsug_html_chunked wsug_html
+WSUG_TARGETS=wsug_html_chunked wsug_html
 endif
 
 wsug: $(WSUG_TARGETS)
@@ -56,16 +56,6 @@ user-guide.xml: user-guide.asciidoc $(WSUG_FILES)
 		--format=docbook \
 		--destination-dir=$(builddir) \
 		$<
-
-# validate the content
-wsug.validated: $(WSUG_SOURCE)
-if HAVE_XMLLINT
-	@ echo --- WSUG - VALIDATING XML ---
-	$(XMLLINT) --path .:$(srcdir) --valid --noout $<
-	touch $@
-else
-	@ echo --- WSUG - SKIP VALIDATION ---
-endif
 
 # create html single page file
 wsug_html: wsug_html/index.html
@@ -118,9 +108,9 @@ wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
 # Wireshark Developer Guide
 if HAVE_A2X
 if HAVE_FOP
-WSDG_TARGETS=wsdg.validated wsdg_html_chunked wsdg_html developer-guide-a4.pdf developer-guide-us.pdf
+WSDG_TARGETS=wsdg_html_chunked wsdg_html developer-guide-a4.pdf developer-guide-us.pdf
 else
-WSDG_TARGETS=wsdg.validated wsdg_html_chunked wsdg_html
+WSDG_TARGETS=wsdg_html_chunked wsdg_html
 endif
 else
 WSDG_TARGETS=
@@ -136,16 +126,6 @@ developer-guide.xml: developer-guide.asciidoc $(WSDG_FILES)
 		--format=docbook \
 		--destination-dir=$(builddir) \
 		$<
-
-# validate the content
-wsdg.validated: $(WSDG_SOURCE)
-if HAVE_XMLLINT
-	@ echo --- WSDG - VALIDATING XML ---
-	$(XMLLINT) --path .:wsluarm_src:$(srcdir) --valid --noout $<
-	touch $@
-else
-	@ echo --- WSDG - SKIP VALIDATION ---
-endif
 
 # create html single page file
 wsdg_html: wsdg_html/index.html wsluarm

@@ -239,7 +239,6 @@ CLEANFILES =	\
 	*.hhc			\
 	*.hhp			\
 	*.pdf			\
-	*.validated		\
 	$(WSDG_GENERATED_SOURCE) \
 	$(WSUG_GENERATED_SOURCE) \
 	wsdg_chm		\

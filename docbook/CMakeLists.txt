@@ -21,7 +21,6 @@
 
 find_package( LYNX )
 find_package( XSLTPROC )
-find_package( XMLLINT )
 if(ENABLE_CHM_GUIDES)
 	find_package( HTMLHelp )
 endif()
@@ -333,12 +332,6 @@ endif()
 
 # User's Guide chain.
 if(ENABLE_HTML_GUIDES)
-	# a2x always generates valid XML, *right*?
-	#VALIDATE_XML(
-	#	wsug.validated
-	#	user-guide.xml
-	#)
-
 	XML2HTML(
 		user_guide
 		wsug
@@ -415,12 +408,6 @@ endif()
 
 # Developer's Guide chain.
 if(ENABLE_HTML_GUIDES)
-	# a2x always generates valid XML, *right*?
-	#VALIDATE_XML(
-	#	wsdg.validated
-	#	developer-guide.xml
-	#)
-
 	XML2HTML(
 		developer_guide
 		wsdg

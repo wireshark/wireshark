@@ -52,21 +52,13 @@ http://xmlsoft.org/xslt/
 Available as a package for Linux / Cygwin.
 Supplied with Mac OS X Panther and later.
 
-xmllint
--------
-Needed to validate if the .xml files conform to the Docbook/XML DTD.
-Part of libxml2:
-http://xmlsoft.org/
-Available as a package for Linux / Cygwin.
-Supplied with Mac OS X Panther and later.
-
 FOP processor (for PDF generation only)
 ---------------------------------------
 FOP processor from the apache project:
 http://xml.apache.org/fop/
 
 FOP is a Java program, so you need to have a Java environment installed.
-The makefiles look for fop-1.0 in the docbook directory. You can change
+The makefiles look for fop-2.1 in the docbook directory. You can change
 this location by setting the FOP environment variable or by changing
 config.nmake.
 
@@ -80,17 +72,6 @@ Hyphenation patterns for FOP can be found at
 http://offo.sourceforge.net/hyphenation/. Different pattern files have
 different licenses. The English patterns may have restrictions on
 commercial use.
-
-JIMI (for PDF generation)
--------------------------
-Jimi is a JAVA class library for managing images.
-In addition to FOP, be sure to also have installed JAI and/or jimi to be able
-to use/convert the PNG graphics files. The FOP release note webpage tells how
-to do it:
-download jimi from:
-http://www.oracle.com/technetwork/java/javasebusiness/downloads/java-archive-downloads-java-client-419417.html
-then extract the archive, then copy JimiProClasses.zip to FOP's lib dir and
-rename it to jimi-1.0.jar.
 
 AsciiDoc
 --------
@@ -153,14 +134,12 @@ Tool/File           Cygwin Package          Opt./Mand.  Comments
 ---------           --------------          ----------  --------
 asciidoc            Doc/asciidoc            M           cygwin python is a dependency and will also be installed (if not installed)
 xsltproc:           Libs/libxslt            M
-xmllint:            Libs/libxml2            M
 xsl stylesheets:    Text/docbook-xsl        M           docbook.xsl, chunk.xsl and htmlhelp.xsl
 docbookx.dtd:       Text/docbook-xml42      M           a later version may be required (e.g. Doc/docbook-xml45), depending on your asciidoc installation
 docbookx.dtd:       Text/docbook-xml45      M           current asciidoc installations require this
 lynx:               Web/lynx                M
 dblatex             Text/dblatex            O           A number of dependencies will also be installed
 fop:                -                       O           URL: http://xml.apache.org/fop/ - install it into docbok\fop-1.x or wireshark_lib_dir\fop-1.x to use defaults from config.nmake
-jimi:               -                       O           URL: http://java.sun.com/products/jimi/ - see above
 hhc:                -                       O           URL: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp
 zip:                Archive/zip             O
 getopt:             Base/util-linux         O           Required to run "build-docbook-catalog"
@@ -171,11 +150,9 @@ Packages for Suse 9.3
 Tool/File           Package                 Opt./Mand.  Comments
 ---------           -------                 ----------  --------
 xsltproc:           libxslt                 M
-xmllint:            libxml2                 M
 xsl stylesheets:    docbook-xsl-stylesheets M           docbook.xsl and chunk.xsl
 docbookx.dtd:       docbook_4               M
 fop:                fop                     O
-jimi:               -                       O           get it from http://java.sun.com/products/jimi/ - see above
 
 
 Packages for Gentoo
@@ -187,14 +164,12 @@ Install it:         emerge <package>
 Tool/File           Package                  Opt./Mand.   Comments
 ---------           -------                  ----------   --------
 xsltproc:           libxslt                  M
-xmllint:            libxml2                  M
 xsl stylesheets:    docbook-xsl-stylesheets  M            docbook.xsl and chunk.xsl
                                                           Necessary docbook catalogs are built automatically by portage in /etc/xml and /etc/sgml
                                                             docbook.xsl and chunk.xsl using "/usr/bin/build-docbook-catalog".
                                                             So docbook runs out of the box on Gentoo.
 docbookx.dtd:       docbook-xml-dtd          M
 fop:                fop                      O            Has a lot of JAVA dependencies.
-jimi:               sun-jimi                 O            Used by fop.
 Quanta+             quanta or kdewebdev      O            Nice HTML/XML/SGML and Docbook editor with Syntaxhighlighting, Autocompletion, etc.
 
 Tip: The actual DTD version of Gentoo is 4.4, but wireshark docs still use 4.2.
@@ -208,13 +183,11 @@ Packages for Fedora
 Tool/File           Package                 Opt./Mand.  Comments
 ---------           -------                 ----------  --------
 xsltproc:           libxslt                 M
-xmllint:            libxml2                 M
 xsl stylesheets:    docbook-style-xsl       M           docbook.xsl and chunk.xsl
 docbookx.dtd:       docbook-dtds            M           provides v4.1, v4.2, v4.3, v4.4 DTDs
 asciidoc:           ascidoc                 M
 
 fop:                fop                     O           See above
-jimi:               -                       O           get it from http://java.sun.com/products/jimi/ - see above
 
 Note: There are required dependencies (such as xml-common and sgml-common);
       yum is your friend for doing package installs including required
@@ -226,13 +199,11 @@ Packages for Debian
 Tool/File           Package                 Opt./Mand.  Comments
 ---------           -------                 ----------  --------
 xsltproc:           libxslt                 M
-xmllint:            libxml2-utils           M
 xsl stylesheets:    docbook-xsl             M
 chunk.xsl:          docbook-xsl             M
 htmlhelp.xsl:       docbook-xsl             M
 docbookx.dtd:       docbook-xml             M
 fop:                fop                     O           See above
-jimi:               -                       O           http://java.sun.com/products/jimi/ - see above
 
 
 

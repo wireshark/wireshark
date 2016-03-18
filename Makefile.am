@@ -1303,7 +1303,6 @@ EXTRA_DIST = \
 	cmake/modules/FindWinSparkle.cmake	\
 	cmake/modules/FindWireshark.cmake	\
 	cmake/modules/FindWSWinLibs.cmake	\
-	cmake/modules/FindXMLLINT.cmake		\
 	cmake/modules/FindXSLTPROC.cmake	\
 	cmake/modules/FindYACC.cmake		\
 	cmake/modules/FindYAPP.cmake		\

@@ -785,11 +785,6 @@ AC_PATH_PROG(W3M, w3m)
 AC_CHECK_PROG(HAVE_W3M, w3m, "yes", "no")
 AM_CONDITIONAL(HAVE_W3M, test x$HAVE_W3M = xyes)
 
-# Check for xmllint
-AC_PATH_PROG(XMLLINT, xmllint)
-AC_CHECK_PROG(HAVE_XMLLINT, xmllint, "yes", "no")
-AM_CONDITIONAL(HAVE_XMLLINT, test x$HAVE_XMLLINT = xyes)
-
 # Check for xsltproc
 AC_PATH_PROG(XSLTPROC, xsltproc)
 AC_CHECK_PROG(HAVE_XSLTPROC, xsltproc, "yes", "no")
