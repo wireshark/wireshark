@@ -2256,9 +2256,9 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8
 
     /* Get and display the originator address. */
     if (!(mesh_header & LOWPAN_MESH_HEADER_V)) {
-        guint64         addr64 = tvb_get_ntoh64(tvb, offset);
+        proto_tree_add_item(mesh_tree, hf_6lowpan_mesh_orig64,
+                tvb, offset, 8, ENC_BIG_ENDIAN);
 
-        proto_tree_add_uint64(mesh_tree, hf_6lowpan_mesh_orig64, tvb, offset, 8, addr64);
         src_ifcid = tvb_get_ptr(tvb, offset, 8);
         /* Update source IID */
         memcpy(siid, src_ifcid, LOWPAN_IFC_ID_LEN);
@@ -2294,9 +2294,8 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8
 
     /* Get and display the destination address. */
     if (!(mesh_header & LOWPAN_MESH_HEADER_F)) {
-        guint64         addr64 = tvb_get_ntoh64(tvb, offset);
-
-        proto_tree_add_uint64(mesh_tree, hf_6lowpan_mesh_dest64, tvb, offset, 8, addr64);
+        proto_tree_add_item(mesh_tree, hf_6lowpan_mesh_dest64,
+                tvb, offset, 8, ENC_BIG_ENDIAN);
 
         dst_ifcid = tvb_get_ptr(tvb, offset, 8);
         /* Update destination IID */
