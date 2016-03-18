@@ -646,7 +646,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_ui_->welcomePage, SIGNAL(captureFilterSyntaxChanged(bool)),
             this, SLOT(captureFilterSyntaxChanged(bool)));
 
-#if HAVE_EXTCAP
+#ifdef HAVE_EXTCAP
         connect(this->main_welcome_, SIGNAL(showExtcapOptions(QString&)),
                 this, SLOT(showExtcapOptionsDialog(QString&)));
 #endif

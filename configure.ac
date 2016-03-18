@@ -2300,77 +2300,6 @@ fi
 AC_SUBST(rawshark_bin)
 AC_SUBST(rawshark_man)
 
-dnl androiddump check
-AC_MSG_CHECKING(whether to build androiddump)
-
-AC_ARG_ENABLE(androiddump,
-  AC_HELP_STRING( [--enable-androiddump],
-		  [build androiddump @<:@default=yes@:>@]),
-    androiddump=$enableval,enable_androiddump=yes)
-
-if test "x$enable_androiddump" = "xyes" ; then
-	AC_MSG_RESULT(yes)
-else
-	AC_MSG_RESULT(no)
-fi
-
-AC_ARG_ENABLE(androiddump_use_libpcap,
-  AC_HELP_STRING( [--enable-androiddump-use-libpcap],
-		  [build androiddump using libpcap @<:@default=no@:>@]),
-    androiddump_use_libpcap=$enableval,enable_androiddump_use_libpcap=no)
-
-if test "x$enable_androiddump_use_libpcap" = "xyes" ; then
-	AC_DEFINE(ANDROIDDUMP_USE_LIBPCAP, 1, [Androiddump will use Libpcap])
-fi
-
-if test "x$enable_androiddump" = "xyes" ; then
-	androiddump_bin="androiddump\$(EXEEXT)"
-	androiddump_man=""
-else
-	androiddump_bin=""
-	androiddump_man=""
-fi
-AC_SUBST(androiddump_bin)
-AC_SUBST(androiddump_man)
-
-dnl sshdump check
-AC_MSG_CHECKING(whether to build sshdump)
-
-AC_ARG_ENABLE(sshdump,
-  AC_HELP_STRING( [--enable-sshdump],
-		  [build sshdump @<:@default=yes@:>@]),
-    sshdump=$enableval,enable_sshdump=yes)
-
-if test "x$enable_sshdump" = "xyes" ; then
-	AC_MSG_RESULT(yes)
-else
-	AC_MSG_RESULT(no)
-fi
-
-dnl randpktdump check
-AC_MSG_CHECKING(whether to build randpktdump)
-
-AC_ARG_ENABLE(randpktdump,
-  AC_HELP_STRING( [--enable-randpktdump],
-		  [build androiddump @<:@default=yes@:>@]),
-    randpktdump=$enableval,enable_randpktdump=yes)
-
-if test "x$enable_randpktdump" = "xyes" ; then
-	AC_MSG_RESULT(yes)
-else
-	AC_MSG_RESULT(no)
-fi
-
-if test "x$enable_randpktdump" = "xyes" ; then
-	randpktdump_bin="randpktdump\$(EXEEXT)"
-	randpktdump_man=""
-else
-	randpktdump_bin=""
-	randpktdump_man=""
-fi
-AC_SUBST(randpktdump_bin)
-AC_SUBST(randpktdump_man)
-
 # Enable/disable echld
 AC_ARG_ENABLE(echld,
   AC_HELP_STRING( [--enable-echld],
@@ -3097,8 +3026,65 @@ AM_CONDITIONAL(HAVE_EXTCAP, test "x$have_extcap" = "xyes")
 if test "x$have_extcap" = "xyes"
 then
   AC_DEFINE(HAVE_EXTCAP, 1, [Define if external capture sources should be enabled])
+  extcap_subdir="extcap"
+  extcap_man="extcap.4"
 fi
+AC_SUBST(extcap_subdir)
+AC_SUBST(extcap_man)
 AC_SUBST(extcapdir)
+
+dnl androiddump check
+AC_MSG_CHECKING(whether to build androiddump)
+
+AC_ARG_ENABLE(androiddump,
+  AC_HELP_STRING( [--enable-androiddump],
+		  [build androiddump @<:@default=yes@:>@]),
+    androiddump=$enableval,enable_androiddump=yes)
+
+if test "x$have_extcap" != xyes; then
+	AC_MSG_RESULT(no, extcap disabled)
+	enable_androiddump=no
+elif test "x$enable_androiddump" = "xyes" ; then
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_RESULT(no)
+fi
+
+AC_ARG_ENABLE(androiddump_use_libpcap,
+  AC_HELP_STRING( [--enable-androiddump-use-libpcap],
+		  [build androiddump using libpcap @<:@default=no@:>@]),
+    androiddump_use_libpcap=$enableval,enable_androiddump_use_libpcap=no)
+
+if test "x$enable_androiddump" = "xyes" -a "x$enable_androiddump_use_libpcap" = "xyes" ; then
+	AC_DEFINE(ANDROIDDUMP_USE_LIBPCAP, 1, [Androiddump will use Libpcap])
+fi
+
+if test "x$enable_androiddump" = "xyes" ; then
+	androiddump_bin="androiddump\$(EXEEXT)"
+	androiddump_man=""
+else
+	androiddump_bin=""
+	androiddump_man=""
+fi
+AC_SUBST(androiddump_bin)
+AC_SUBST(androiddump_man)
+
+dnl sshdump check
+AC_MSG_CHECKING(whether to build sshdump)
+
+AC_ARG_ENABLE(sshdump,
+  AC_HELP_STRING( [--enable-sshdump],
+		  [build sshdump @<:@default=yes@:>@]),
+    sshdump=$enableval,enable_sshdump=yes)
+
+if test "x$have_extcap" != xyes; then
+	AC_MSG_RESULT(no, extcap disabled)
+	enable_sshdump=no
+elif test "x$enable_sshdump" = "xyes" ; then
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_RESULT(no)
+fi
 
 if test "x$enable_sshdump" = "xyes" ; then
 	if  test "x$have_good_libssh" = "xyes" ; then
@@ -3116,6 +3102,33 @@ else
 fi
 AC_SUBST(sshdump_bin)
 AC_SUBST(sshdump_man)
+
+dnl randpktdump check
+AC_MSG_CHECKING(whether to build randpktdump)
+
+AC_ARG_ENABLE(randpktdump,
+  AC_HELP_STRING( [--enable-randpktdump],
+		  [build androiddump @<:@default=yes@:>@]),
+    randpktdump=$enableval,enable_randpktdump=yes)
+
+if test "x$have_extcap" != xyes; then
+	AC_MSG_RESULT(no, extcap disabled)
+	enable_randpktdump=no
+elif test "x$enable_randpktdump" = "xyes" ; then
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_RESULT(no)
+fi
+
+if test "x$enable_randpktdump" = "xyes" ; then
+	randpktdump_bin="randpktdump\$(EXEEXT)"
+	randpktdump_man=""
+else
+	randpktdump_bin=""
+	randpktdump_man=""
+fi
+AC_SUBST(randpktdump_bin)
+AC_SUBST(randpktdump_man)
 
 dnl libtool defs
 #

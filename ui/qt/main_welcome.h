@@ -68,7 +68,7 @@ signals:
     void pushFilterSyntaxStatus(const QString&);
     void popFilterSyntaxStatus();
     void captureFilterSyntaxChanged(bool valid);
-#if HAVE_EXTCAP
+#ifdef HAVE_EXTCAP
     void showExtcapOptions(QString &device_name);
 #endif
 
@@ -78,7 +78,7 @@ public slots:
 private slots:
     void appInitialized();
     void captureFilterTextEdited(const QString capture_filter);
-#if HAVE_EXTCAP
+#ifdef HAVE_EXTCAP
     void interfaceClicked(QTreeWidgetItem *item, int column);
 #endif
     void interfaceDoubleClicked(QTreeWidgetItem *item, int column);

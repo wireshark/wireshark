@@ -119,6 +119,7 @@ const QString AboutDialog::plugins_scan()
                 .arg(short_file);
     }
 
+#ifdef HAVE_EXTCAP
     GHashTable * tools = extcap_tools_list();
     if (tools && g_hash_table_size(tools) > 0) {
         QString short_file;
@@ -136,6 +137,7 @@ const QString AboutDialog::plugins_scan()
             walker = g_list_next(walker);
         }
     }
+#endif
 
     return plugin_table;
 }

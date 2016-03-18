@@ -96,7 +96,7 @@
 #include "expert_info_dialog.h"
 #include "export_object_dialog.h"
 #include "export_pdu_dialog.h"
-#if HAVE_EXTCAP
+#ifdef HAVE_EXTCAP
 #include "extcap_options_dialog.h"
 #endif
 #include "filter_action.h"

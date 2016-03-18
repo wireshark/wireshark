@@ -362,6 +362,10 @@ endif		# HAVE_PLUGINS
 
 include Makefile.common
 
+if HAVE_EXTCAP
+SHARK_COMMON_SRC += $(EXTCAP_COMMON_SRC)
+endif
+
 if ENABLE_STATIC
 EXTRALINKFLAGS = -Wl,-static -all-static
 else
@@ -1391,7 +1395,7 @@ SUBDIRS = \
 	@wireshark_SUBDIRS@	\
 	ui/cli			\
 	randpkt_core		\
-	extcap			\
+	@extcap_subdir@		\
 	.			\
 	doc
 

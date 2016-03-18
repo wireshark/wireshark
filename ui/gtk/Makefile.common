@@ -57,7 +57,6 @@ WIRESHARK_COMMON_GTK_SRC = \
 	expert_comp_table.c	\
 	export_object_dlg.c	\
 	export_sslkeys.c	\
-	extcap_gtk.c		\
 	filter_autocomplete.c	\
 	file_dlg.c		\
 	file_import_dlg.c	\
@@ -181,7 +180,6 @@ WIRESHARK_COMMON_GTK_HDRS = \
 	export_object_dlg.h	\
 	export_pdu_dlg.h	\
 	export_sslkeys.h	\
-	extcap_gtk.h		\
 	file_dlg.h		\
 	file_import_dlg.h	\
 	fileset_dlg.h		\

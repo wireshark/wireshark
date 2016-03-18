@@ -41,7 +41,7 @@ typedef QList<int> PointList;
 
 enum InterfaceTreeColumns
 {
-#if HAVE_EXTCAP
+#ifdef HAVE_EXTCAP
     IFTREE_COL_EXTCAP,
 #endif
     IFTREE_COL_NAME,

@@ -51,7 +51,7 @@ CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
 
 include Makefile.common
 
-wireshark_gtk_OBJECTS = $(WIRESHARK_COMMON_SRC:.c=.obj)
+wireshark_gtk_OBJECTS = $(WIRESHARK_COMMON_SRC:.c=.obj) $(EXTCAP_COMMON_SRC:.c=.obj)
 tshark_OBJECTS = $(tshark_SOURCES:.c=.obj)
 tfshark_OBJECTS = $(tfshark_SOURCES:.c=.obj)
 rawshark_OBJECTS = $(rawshark_SOURCES:.c=.obj)
@@ -1502,6 +1502,7 @@ install-all: install-generated-files
 checkapi_local:
 	$(PERL) tools/checkAPIs.pl -build \
 	$(WIRESHARK_COMMON_SRC) \
+	$(EXTCAP_COMMON_SRC) \
 	$(TSHARK_TAP_SRC) \
 #	$(EXTRA_wireshark_SOURCES)
 

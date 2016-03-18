@@ -159,7 +159,7 @@ void InterfaceTree::display()
 {
 #ifdef HAVE_LIBPCAP
     interface_t device;
-#if HAVE_EXTCAP
+#ifdef HAVE_EXTCAP
     QIcon extcap_icon(StockIcon("x-capture-options"));
 #endif
 
@@ -209,7 +209,7 @@ void InterfaceTree::display()
 
         ti->setData(IFTREE_COL_NAME, Qt::UserRole, QString(device.name));
         ti->setData(IFTREE_COL_STATS, Qt::UserRole, qVariantFromValue(&ti->points));
-#if HAVE_EXTCAP
+#ifdef HAVE_EXTCAP
         if (device.if_info.type == IF_EXTCAP) {
             if (extcap_has_configuration((const char *)(device.name), FALSE)) {
                 ti->setIcon(IFTREE_COL_EXTCAP, extcap_icon);
@@ -248,7 +248,7 @@ void InterfaceTree::display()
     resizeColumnToContents(IFTREE_COL_NAME);
     resizeColumnToContents(IFTREE_COL_STATS);
 
-#if HAVE_EXTCAP
+#ifdef HAVE_EXTCAP
     resizeColumnToContents(IFTREE_COL_EXTCAP);
 #endif
 

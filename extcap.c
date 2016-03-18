@@ -49,8 +49,6 @@
 
 #include "capture_opts.h"
 
-#ifdef HAVE_EXTCAP
-
 #include "extcap.h"
 #include "extcap_parser.h"
 
@@ -1063,7 +1061,6 @@ void extcap_debug_arguments ( extcap_arg *arg_iter )
         arg_iter = arg_iter->next_arg;
     }
 }
-#endif
 #endif
 
 /*

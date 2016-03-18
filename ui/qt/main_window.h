@@ -608,7 +608,7 @@ private slots:
 
     void changeEvent(QEvent* event);
 
-#if HAVE_EXTCAP
+#ifdef HAVE_EXTCAP
     void extcap_options_finished(int result);
     void showExtcapOptionsDialog(QString & device_name);
 #endif

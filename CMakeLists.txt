@@ -2328,7 +2328,7 @@ if (WIN32)
 	endif()
 endif()
 
-if(BUILD_androiddump)
+if(ENABLE_EXTCAP AND BUILD_androiddump)
 	if(EXTCAP_ANDROIDDUMP_LIBPCAP)
 		if(HAVE_LIBPCAP)
 			set(androiddump_LIBS
@@ -2357,7 +2357,7 @@ if(BUILD_androiddump)
 	install(TARGETS androiddump RUNTIME DESTINATION ${EXTCAP_DIR})
 endif()
 
-if(BUILD_sshdump AND LIBSSH_FOUND)
+if(ENABLE_EXTCAP AND BUILD_sshdump AND LIBSSH_FOUND)
 	set(sshdump_LIBS
 		wsutil
 		${GLIB2_LIBRARIES}
@@ -2382,7 +2382,7 @@ elseif (BUILD_sshdump)
 	#message( WARNING "Cannot find libssh, cannot build sshdump" )
 endif()
 
-if(BUILD_randpktdump)
+if(ENABLE_EXTCAP AND BUILD_randpktdump)
 	set(randpktdump_LIBS
 		randpkt_core
 		wiretap

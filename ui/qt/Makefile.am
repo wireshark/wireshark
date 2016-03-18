@@ -43,6 +43,26 @@ MAINTAINERCLEANFILES = \
 	$(NODIST_GENERATED_FILES)	\
 	Makefile.in
 
+if HAVE_EXTCAP
+NODIST_GENERATED_HEADER_FILES += \
+	ui_extcap_options_dialog.h
+
+MOC_HDRS += \
+	extcap_argument.h	\
+	extcap_argument_file.h	\
+	extcap_argument_multiselect.h	\
+	extcap_options_dialog.h
+
+UI_FILES += \
+	extcap_options_dialog.ui
+
+WIRESHARK_QT_SRC += \
+	extcap_argument.cpp	\
+	extcap_argument_file.cpp	\
+	extcap_argument_multiselect.cpp	\
+	extcap_options_dialog.cpp
+endif
+
 #
 # Build "wireshark-tap-register.c", which contains a function
 # "register_all_tap_listeners()"

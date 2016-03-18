@@ -40,19 +40,23 @@ GENERATED_C_FILES =
 # All the generated files.
 GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
 
+EXTCAP_COMMON_SRC = \
+	extcap.c		\
+	extcap_parser.c
+
+EXTCAP_COMMON_INCLUDES = \
+	extcap.h		\
+	extcap_parser.h
+
 # sources common for wireshark, tshark, and rawshark
 SHARK_COMMON_SRC =	\
 	cfile.c			\
 	frame_tvbuff.c		\
-	sync_pipe_write.c	\
-	extcap.c		\
-	extcap_parser.c
+	sync_pipe_write.c
 
 # corresponding headers
 SHARK_COMMON_INCLUDES =	\
 	cfile.h			\
-	extcap.h		\
-	extcap_parser.h		\
 	file.h			\
 	fileset.h		\
 	frame_tvbuff.h		\
@@ -166,5 +170,6 @@ dumpcap_INCLUDES = \
 # this target needed for distribution only
 noinst_HEADERS =	\
 	$(SHARK_COMMON_INCLUDES) \
+	$(EXTCAP_COMMON_INCLUDES) \
 	$(WIRESHARK_COMMON_INCLUDES) \
 	$(dumpcap_INCLUDES)

@@ -75,7 +75,9 @@ man1_MANS = \
 	@sshdump_man@		\
 	@randpktdump_man@
 
-man4_MANS = @wiresharkfilter_man@
+man4_MANS = \
+	@extcap_man@		\
+	@wiresharkfilter_man@
 man_MANS =
 
 # Build these in case a developer wants to read them and for the Debian
@@ -86,7 +88,8 @@ noinst_DATA = asn2deb.1 asn2deb.html idl2deb.1 idl2deb.html idl2wrs.1 idl2wrs.ht
 pkgdata_DATA = AUTHORS-SHORT $(top_srcdir)/docbook/ws.css wireshark.html \
 	tshark.html wireshark-filter.html capinfos.html editcap.html \
 	mergecap.html reordercap.html text2pcap.html dumpcap.html androiddump.html \
-	sshdump.html randpktdump.html rawshark.html dftest.html randpkt.html
+	sshdump.html randpktdump.html rawshark.html dftest.html randpkt.html \
+	extcap.html
 
 #
 # Build the short version of the authors file for the about dialog
@@ -134,13 +137,20 @@ POD_CSS_URL ?= $(top_srcdir)/docbook/ws.css
 	--noindex						\
 	$< > $@
 
-# This rule needs to stay separate because of the --section option.
+# These rules need to stay separate because of the --section option.
 wireshark-filter.4: wireshark-filter.pod ../config.h
 	$(AM_V_POD2MAN)$(POD2MAN)			\
 	--section=4					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
 	$(srcdir)/wireshark-filter.pod > wireshark-filter.4
+
+extcap.4: extcap.pod ../config.h
+	$(AM_V_POD2MAN)$(POD2MAN)			\
+	--section=4					\
+	--center="The Wireshark Network Analyzer"	\
+	--release=$(VERSION)				\
+	$(srcdir)/extcap.pod > extcap.4
 
 # These rules need to stay separate because each man page has a separate
 # title.  Using GNU make's pattern rules would allow these to be removed
@@ -158,6 +168,13 @@ wireshark-filter.html: wireshark-filter.pod ../config.h $(top_srcdir)/docbook/ws
 	--css=$(POD_CSS_URL)							\
 	--noindex								\
 	$(srcdir)/wireshark-filter.pod > wireshark-filter.html
+
+extcap.html: extcap.pod ../config.h $(top_srcdir)/docbook/ws.css
+	$(AM_V_POD2HTML)$(POD2HTML)						\
+	--title="extcap - The Wireshark Network Analyzer $(VERSION)"		\
+	--css=$(POD_CSS_URL)							\
+	--noindex								\
+	$(srcdir)/extcap.pod > extcap.html
 
 capinfos.html: capinfos.pod ../config.h $(top_srcdir)/docbook/ws.css
 	$(AM_V_POD2HTML)$(POD2HTML)					\
