@@ -532,7 +532,7 @@ read_filters_file(FILE *f, gpointer user_data, color_filter_add_cb_func add_cb)
 
         if (skip_end_of_line) {
             do {
-                c = getc(f);
+                c = ws_getc_unlocked(f);
             } while (c != EOF && c != '\n');
             if (c == EOF)
                 break;
@@ -540,7 +540,7 @@ read_filters_file(FILE *f, gpointer user_data, color_filter_add_cb_func add_cb)
             skip_end_of_line = FALSE;
         }
 
-        while ((c = getc(f)) != EOF && g_ascii_isspace(c)) {
+        while ((c = ws_getc_unlocked(f)) != EOF && g_ascii_isspace(c)) {
             if (c == '\n') {
                 continue;
             }
@@ -568,7 +568,7 @@ read_filters_file(FILE *f, gpointer user_data, color_filter_add_cb_func add_cb)
         /* retrieve name */
         i = 0;
         while (1) {
-            c = getc(f);
+            c = ws_getc_unlocked(f);
             if (c == EOF || c == '@')
                 break;
             if (i >= name_len) {
@@ -590,7 +590,7 @@ read_filters_file(FILE *f, gpointer user_data, color_filter_add_cb_func add_cb)
         /* retrieve filter expression */
         i = 0;
         while (1) {
-            c = getc(f);
+            c = ws_getc_unlocked(f);
             if (c == EOF || c == '@')
                 break;
             if (i >= filter_exp_len) {

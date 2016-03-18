@@ -123,6 +123,7 @@ WS_DLL_PUBLIC FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode,
 #define ws_fdopen  _fdopen
 #define ws_fileno  _fileno
 #define ws_isatty  _isatty
+#define ws_getc_unlocked _fgetc_nolock
 
 /*
  * Other CRT functions. getpid probably belongs in sys_util.h or proc_util.h
@@ -200,6 +201,7 @@ WS_DLL_PUBLIC void create_app_running_mutex();
 #define ws_fdopen  fdopen
 #define ws_fileno  fileno
 #define ws_isatty  isatty
+#define ws_getc_unlocked getc_unlocked
 #define O_BINARY   0		/* Win32 needs the O_BINARY flag for open() */
 
 /* Other CRT functions */

@@ -391,7 +391,7 @@ fgetline(char **buf, int *size, FILE *fp)
         return -1;
 
     len = 0;
-    while ((c = getc(fp)) != EOF && c != '\r' && c != '\n') {
+    while ((c = ws_getc_unlocked(fp)) != EOF && c != '\r' && c != '\n') {
         if (len+1 >= *size) {
             *buf = (char *)wmem_realloc(wmem_epan_scope(), *buf, *size += BUFSIZ);
         }

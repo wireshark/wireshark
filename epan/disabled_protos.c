@@ -214,7 +214,7 @@ read_disabled_protos_list_file(const char *ff_path, FILE *ff,
        a protocol to be disabled. */
 
     /* Skip over leading white space, if any. */
-    while ((c = getc(ff)) != EOF && g_ascii_isspace(c)) {
+    while ((c = ws_getc_unlocked(ff)) != EOF && g_ascii_isspace(c)) {
       if (c == '\n') {
         /* Blank line. */
         continue;
@@ -232,7 +232,7 @@ read_disabled_protos_list_file(const char *ff_path, FILE *ff,
     /* Get the name of the protocol. */
     prot_name_index = 0;
     for (;;) {
-      c = getc(ff);
+      c = ws_getc_unlocked(ff);
       if (c == EOF)
         break;  /* End of file, or I/O error */
       if (g_ascii_isspace(c))
@@ -251,7 +251,7 @@ read_disabled_protos_list_file(const char *ff_path, FILE *ff,
 
     if (g_ascii_isspace(c) && c != '\n') {
       /* Skip over trailing white space. */
-      while ((c = getc(ff)) != EOF && c != '\n' && g_ascii_isspace(c))
+      while ((c = ws_getc_unlocked(ff)) != EOF && c != '\n' && g_ascii_isspace(c))
         ;
       if (c != EOF && c != '\n' && c != '#') {
         /* Non-white-space after the protocol name; warn about it,
@@ -262,7 +262,7 @@ read_disabled_protos_list_file(const char *ff_path, FILE *ff,
     }
     if (c != EOF && c != '\n') {
       /* Skip to end of line. */
-      while ((c = getc(ff)) != EOF && c != '\n')
+      while ((c = ws_getc_unlocked(ff)) != EOF && c != '\n')
         ;
     }
 
@@ -529,7 +529,7 @@ read_disabled_heur_dissector_list_file(const char *ff_path, FILE *ff,
        a protocol to be disabled. */
 
     /* Skip over leading white space, if any. */
-    while ((c = getc(ff)) != EOF && g_ascii_isspace(c)) {
+    while ((c = ws_getc_unlocked(ff)) != EOF && g_ascii_isspace(c)) {
       if (c == '\n') {
         /* Blank line. */
         continue;
@@ -549,7 +549,7 @@ read_disabled_heur_dissector_list_file(const char *ff_path, FILE *ff,
     enabled = FALSE;
     parse_enabled = FALSE;
     for (;;) {
-      c = getc(ff);
+      c = ws_getc_unlocked(ff);
       if (c == EOF)
         break;  /* End of file, or I/O error */
       if (g_ascii_isspace(c))
@@ -576,7 +576,7 @@ read_disabled_heur_dissector_list_file(const char *ff_path, FILE *ff,
 
     if (g_ascii_isspace(c) && c != '\n') {
       /* Skip over trailing white space. */
-      while ((c = getc(ff)) != EOF && c != '\n' && g_ascii_isspace(c))
+      while ((c = ws_getc_unlocked(ff)) != EOF && c != '\n' && g_ascii_isspace(c))
         ;
       if (c != EOF && c != '\n' && c != '#') {
         /* Non-white-space after the protocol name; warn about it,
@@ -587,7 +587,7 @@ read_disabled_heur_dissector_list_file(const char *ff_path, FILE *ff,
     }
     if (c != EOF && c != '\n') {
       /* Skip to end of line. */
-      while ((c = getc(ff)) != EOF && c != '\n')
+      while ((c = ws_getc_unlocked(ff)) != EOF && c != '\n')
         ;
     }
 

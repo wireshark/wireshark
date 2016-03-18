@@ -3463,12 +3463,12 @@ read_prefs_file(const char *pf_path, FILE *pf,
     }
     rewind(pf);
 
-    while ((got_c = getc(pf)) != EOF) {
+    while ((got_c = ws_getc_unlocked(pf)) != EOF) {
         if (got_c == '\r') {
             /* Treat CR-LF at the end of a line like LF, so that if we're reading
              * a Windows-format file on UN*X, we handle it the same way we'd handle
              * a UN*X-format file. */
-            got_c = getc(pf);
+            got_c = ws_getc_unlocked(pf);
             if (got_c == EOF)
                 break;
             if (got_c != '\n') {
