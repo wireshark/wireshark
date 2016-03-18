@@ -104,22 +104,22 @@ SUFFIXES = .moc.cpp
 	$(AM_V_MOC)$(MOC) $(MOC_OPTIONS) -I.. -I../.. -o $@ $<
 
 qrc_about.cpp: ../../image/about.qrc
-	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) --name about -o $@ $<
+	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) -name about -o $@ $<
 
 qrc_layout.cpp: ../../image/layout.qrc
-	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) --name layout -o $@ $<
+	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) -name layout -o $@ $<
 
 qrc_languages.cpp: ../../image/languages/languages.qrc
-	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) --name languages -o $@ $<
+	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) -name languages -o $@ $<
 
 qrc_i18n.cpp: i18n.qrc
-	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) --name i18n -o $@ $<
+	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) -name i18n -o $@ $<
 
 qrc_toolbar.cpp: ../../image/toolbar.qrc
-	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) --name toolbar -o $@ $<
+	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) -name toolbar -o $@ $<
 
 qrc_wsicon.cpp: ../../image/wsicon.qrc
-	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) --name wsicon -o $@ $<
+	$(AM_V_RCC)$(RCC) $(RCC_OPTIONS) -name wsicon -o $@ $<
 
 ui_%.h: %.ui
 	$(AM_V_UIC)$(UIC) $< -o $@
