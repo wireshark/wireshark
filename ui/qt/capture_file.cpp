@@ -33,6 +33,8 @@ capture_file cfile;
 #include "file.h"
 #include "log.h"
 
+#include "epan/epan_dissect.h"
+
 #include "ui/capture.h"
 
 #include <QFileInfo>
@@ -87,6 +89,14 @@ const QString CaptureFile::fileName()
     }
 
     return file_name_;
+}
+
+struct _packet_info *CaptureFile::packetInfo()
+{
+    if (capFile() && capFile()->edt) {
+        return &(capFile()->edt->pi);
+    }
+    return NULL;
 }
 
 void CaptureFile::retapPackets()

@@ -63,9 +63,14 @@ gchar *qstring_strdup(QString q_string) {
 }
 
 QString gchar_free_to_qstring(gchar *glib_string) {
-    QString qt_string(glib_string);
+    return QString(gchar_free_to_qbytearray(glib_string));
+}
+
+QByteArray gchar_free_to_qbytearray(gchar *glib_string)
+{
+    QByteArray qt_bytearray(glib_string);
     g_free(glib_string);
-    return qt_string;
+    return qt_bytearray;
 }
 
 QByteArray gstring_free_to_qbytearray(GString *glib_gstring)

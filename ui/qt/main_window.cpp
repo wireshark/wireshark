@@ -23,6 +23,7 @@
 #include <ui_main_window.h>
 
 #include <epan/addr_resolv.h>
+#include "epan/dissector_filters.h"
 #include <epan/epan_dissect.h>
 #include <wsutil/filesystem.h>
 #include <epan/prefs.h>
@@ -45,6 +46,7 @@
 #include "ui/preference_utils.h"
 
 #include "byte_view_tab.h"
+#include "conversation_colorize_action.h"
 #include "display_filter_edit.h"
 #include "export_dissection_dialog.h"
 #include "funnel_statistics.h"
@@ -264,6 +266,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addStatsPluginsToMenu()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addDynamicMenus()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addExternalMenus()));
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(initConversationMenus()));
 
     connect(wsApp, SIGNAL(profileChanging()), this, SLOT(saveWindowGeometry()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutPanes()));
@@ -1816,6 +1819,72 @@ void MainWindow::initFreezeActions()
     foreach (QAction *action, freeze_actions) {
         freeze_actions_ << QPair<QAction *, bool>(action, false);
     }
+}
+
+void MainWindow::initConversationMenus()
+{
+    int i;
+
+    QList<QAction *> cc_actions = QList<QAction *>()
+            << main_ui_->actionViewColorizeConversation1 << main_ui_->actionViewColorizeConversation2
+            << main_ui_->actionViewColorizeConversation3 << main_ui_->actionViewColorizeConversation4
+            << main_ui_->actionViewColorizeConversation5 << main_ui_->actionViewColorizeConversation6
+            << main_ui_->actionViewColorizeConversation7 << main_ui_->actionViewColorizeConversation8
+            << main_ui_->actionViewColorizeConversation9 << main_ui_->actionViewColorizeConversation10;
+
+    for (GList *conv_filter_list_entry = conv_filter_list; conv_filter_list_entry; conv_filter_list_entry = g_list_next(conv_filter_list_entry)) {
+        // Main menu items
+        conversation_filter_t* conv_filter = (conversation_filter_t *)conv_filter_list_entry->data;
+        ConversationAction *conv_action = new ConversationAction(main_ui_->menuConversationFilter, conv_filter);
+        main_ui_->menuConversationFilter->addAction(conv_action);
+
+        connect(this, SIGNAL(packetInfoChanged(_packet_info*)), conv_action, SLOT(setPacketInfo(_packet_info*)));
+        connect(conv_action, SIGNAL(triggered()), this, SLOT(applyConversationFilter()));
+
+        // Packet list context menu items
+        packet_list_->conversationMenu()->addAction(conv_action);
+
+        QMenu *submenu = packet_list_->colorizeMenu()->addMenu(conv_action->text());
+        i = 1;
+
+        foreach (QAction *cc_action, cc_actions) {
+            conv_action = new ConversationAction(submenu, conv_filter);
+            conv_action->setText(cc_action->text());
+            conv_action->setIcon(cc_action->icon());
+            conv_action->setColorNumber(i++);
+            submenu->addAction(conv_action);
+            connect(this, SIGNAL(packetInfoChanged(_packet_info*)), conv_action, SLOT(setPacketInfo(_packet_info*)));
+            connect(conv_action, SIGNAL(triggered()), this, SLOT(colorizeWithFilter()));
+        }
+
+        conv_action = new ConversationAction(submenu, conv_filter);
+        conv_action->setText(main_ui_->actionViewColorizeNewColoringRule->text());
+        submenu->addAction(conv_action);
+        connect(this, SIGNAL(packetInfoChanged(_packet_info*)), conv_action, SLOT(setPacketInfo(_packet_info*)));
+        connect(conv_action, SIGNAL(triggered()), this, SLOT(colorizeWithFilter()));
+
+        // Proto tree conversation menu is filled in in ProtoTree::contextMenuEvent.
+        // We should probably do that here.
+    }
+
+    // Proto tree colorization items
+    i = 1;
+    ColorizeAction *colorize_action;
+    foreach (QAction *cc_action, cc_actions) {
+        colorize_action = new ColorizeAction(proto_tree_->colorizeMenu());
+        colorize_action->setText(cc_action->text());
+        colorize_action->setIcon(cc_action->icon());
+        colorize_action->setColorNumber(i++);
+        proto_tree_->colorizeMenu()->addAction(colorize_action);
+        connect(this, SIGNAL(fieldFilterChanged(QByteArray)), colorize_action, SLOT(setFieldFilter(QByteArray)));
+        connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizeWithFilter()));
+    }
+
+    colorize_action = new ColorizeAction(proto_tree_->colorizeMenu());
+    colorize_action->setText(main_ui_->actionViewColorizeNewColoringRule->text());
+    proto_tree_->colorizeMenu()->addAction(colorize_action);
+    connect(this, SIGNAL(fieldFilterChanged(QByteArray)), colorize_action, SLOT(setFieldFilter(QByteArray)));
+    connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizeWithFilter()));
 }
 
 // Titlebar
