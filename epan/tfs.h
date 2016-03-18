@@ -105,6 +105,7 @@ WS_DLL_PUBLIC const true_false_string tfs_defined_not_defined;
 WS_DLL_PUBLIC const true_false_string tfs_constructed_primitive;
 WS_DLL_PUBLIC const true_false_string tfs_client_server;
 WS_DLL_PUBLIC const true_false_string tfs_server_client;
+WS_DLL_PUBLIC const true_false_string tfs_preferred_no_preference;
 
 #ifdef __cplusplus
 }
