@@ -689,8 +689,8 @@ static const value_string state_vals[] = {
 	{FIELD_PACKET,         "field packet"},
 	{ROW_PACKET,           "row packet"},
 	{RESPONSE_PREPARE,     "response to PREPARE"},
-	{RESPONSE_PARAMETERS,  "parameters in response to PREPARE"},
-	{RESPONSE_FIELDS,      "fields in response to PREPARE"},
+	{PREPARED_PARAMETERS,  "parameters in response to PREPARE"},
+	{PREPARED_FIELDS,      "fields in response to PREPARE"},
 	{0, NULL}
 };
 #endif
@@ -2243,15 +2243,15 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	frame_state = mysql_frame_data_p->state;
 	generation= conn_data->generation;
 	if (tree) {
-		pi = proto_tree_add_debug(mysql_tree, tvb, offset, 0, "conversation: %p", conversation);
+		pi = proto_tree_add_debug_text(mysql_tree, "conversation: %p", conversation);
 		PROTO_ITEM_SET_GENERATED(pi);
-		pi = proto_tree_add_debug(mysql_tree, tvb, offset, 0, "generation: %" G_GINT64_MODIFIER "d", generation);
+		pi = proto_tree_add_debug_text(mysql_tree, "generation: %" G_GINT64_MODIFIER "d", generation);
 		PROTO_ITEM_SET_GENERATED(pi);
-		pi = proto_tree_add_debug(mysql_tree, tvb, offset, 0, "conn state: %s (%u)",
+		pi = proto_tree_add_debug_text(mysql_tree, "conn state: %s (%u)",
 				    val_to_str(conn_state_in, state_vals, "Unknown (%u)"),
 				    conn_state_in);
 		PROTO_ITEM_SET_GENERATED(pi);
-		pi = proto_tree_add_debug(mysql_tree, tvb, offset, 0, "frame state: %s (%u)",
+		pi = proto_tree_add_debug_text(mysql_tree, "frame state: %s (%u)",
 				    val_to_str(frame_state, state_vals, "Unknown (%u)"),
 				    frame_state);
 		PROTO_ITEM_SET_GENERATED(pi);
@@ -2281,7 +2281,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 #ifdef CTDEBUG
 	conn_state_out= conn_data->state;
 	++(conn_data->generation);
-	pi = proto_tree_add_debug(mysql_tree, tvb, offset, 0, "next proto state: %s (%u)",
+	pi = proto_tree_add_debug_text(mysql_tree, "next proto state: %s (%u)",
 			    val_to_str(conn_state_out, state_vals, "Unknown (%u)"),
 			    conn_state_out);
 	PROTO_ITEM_SET_GENERATED(pi);
