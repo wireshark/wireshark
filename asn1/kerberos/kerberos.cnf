@@ -4,6 +4,7 @@
 
 #.EXPORTS
 ChangePasswdData
+Applications ONLY_ENUM
 
 #.FIELD_RENAME
 #EncryptedData/etype encryptedData_etype
@@ -61,6 +62,7 @@ Applications
 
 #.MAKE_DEFINES
 ADDR-TYPE TYPE_PREFIX
+Applications TYPE_PREFIX
 
 #.FN_BODY MESSAGE-TYPE VAL_PTR = &msgtype
 guint32 msgtype;
