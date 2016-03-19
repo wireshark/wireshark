@@ -36,6 +36,7 @@
 #include <epan/to_str.h>
 #include <epan/asn1.h>
 #include "packet-pktc.h"
+#include "packet-ber.h"
 #include "packet-kerberos.h"
 #include "packet-snmp.h"
 
@@ -95,6 +96,7 @@ static gint ett_pktc_mtafqdn = -1;
 
 static expert_field ei_pktc_unknown_kmmid = EI_INIT;
 static expert_field ei_pktc_unknown_doi = EI_INIT;
+static expert_field ei_pktc_unknown_kerberos_application = EI_INIT;
 
 #define KMMID_WAKEUP            0x01
 #define KMMID_AP_REQUEST        0x02
@@ -554,6 +556,9 @@ dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *pktc_mtafqdn_tree;
     proto_item *item;
     tvbuff_t *pktc_mtafqdn_tvb;
+    gint8              ber_class;
+    gboolean           pc;
+    gint32             tag;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTC");
 
@@ -565,11 +570,22 @@ dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* KRB_AP_RE[QP] */
     pktc_mtafqdn_tvb = tvb_new_subset_remaining(tvb, offset);
-    offset += dissect_kerberos_main(pktc_mtafqdn_tvb, pinfo, pktc_mtafqdn_tree, FALSE, NULL);
+    get_ber_identifier(pktc_mtafqdn_tvb, 0, &ber_class, &pc, &tag);
+    if ((tag == KERBEROS_APPLICATIONS_AP_REQ) || (tag == KERBEROS_APPLICATIONS_AP_REP)) {
+        offset += dissect_kerberos_main(pktc_mtafqdn_tvb, pinfo, pktc_mtafqdn_tree, FALSE, NULL);
+    } else {
+        expert_add_info_format(pinfo, item, &ei_pktc_unknown_kerberos_application, "Unknown Kerberos application (%d), expected KRB_AP_RE[QP]", tag);
+        return;
+    }
 
     /* KRB_SAFE */
     pktc_mtafqdn_tvb = tvb_new_subset_remaining(tvb, offset);
-    offset += dissect_kerberos_main(pktc_mtafqdn_tvb, pinfo, pktc_mtafqdn_tree, FALSE, cb);
+    get_ber_identifier(pktc_mtafqdn_tvb, 0, &ber_class, &pc, &tag);
+    if (tag == KERBEROS_APPLICATIONS_KRB_SAFE) {
+        offset += dissect_kerberos_main(pktc_mtafqdn_tvb, pinfo, pktc_mtafqdn_tree, FALSE, cb);
+    } else {
+        expert_add_info_format(pinfo, item, &ei_pktc_unknown_kerberos_application, "Unknown Kerberos application (%d), expected KRB_SAFE", tag);
+    }
 
     proto_item_set_len(item, offset);
 }
@@ -780,6 +796,7 @@ proto_register_pktc_mtafqdn(void)
     static ei_register_info ei[] = {
         { &ei_pktc_unknown_kmmid, { "pktc.mtafqdn.unknown_kmmid", PI_PROTOCOL, PI_WARN, "Unknown KMMID", EXPFILL }},
         { &ei_pktc_unknown_doi, { "pktc.mtafqdn.unknown_doi", PI_PROTOCOL, PI_WARN, "Unknown DOI", EXPFILL }},
+        { &ei_pktc_unknown_kerberos_application, { "pktc.mtafqdn.unknown_kerberos_application", PI_PROTOCOL, PI_WARN, "Unknown Kerberos application", EXPFILL }},
     };
 
     expert_module_t* expert_pktc;
