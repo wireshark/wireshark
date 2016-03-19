@@ -77,8 +77,8 @@ static gint ett_acap_reqresp = -1;
 
 #define TCP_PORT_ACAP           674
 
-static void
-dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     gboolean      is_request;
     proto_tree   *acap_tree, *reqresp_tree;
@@ -89,6 +89,17 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int           linelen;
     int           tokenlen;
     const guchar *next_token;
+
+
+    /*
+     * If this should be a request or response, do this quick check to see if
+     * it begins with a string...
+     * Otherwise, looking for the end of line in a binary file can take a long time
+     * and this probably isn't ACAP
+     */
+    if (!g_ascii_isprint(tvb_get_guint8(tvb, offset))) {
+        return 0;
+    }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ACAP");
 
@@ -180,6 +191,8 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * state information to the packets.
          */
     }
+
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -210,7 +223,7 @@ proto_register_acap(void)
     proto_register_fields(proto_acap, hfi, array_length(hfi));
     proto_register_subtree_array(ett, array_length(ett));
 
-    acap_handle = create_dissector_handle(dissect_acap, proto_acap);
+    acap_handle = new_create_dissector_handle(dissect_acap, proto_acap);
 }
 
 void
