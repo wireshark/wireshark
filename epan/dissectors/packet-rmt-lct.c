@@ -66,11 +66,9 @@ static int hf_flags_close_object = -1;
 static int hf_hlen = -1;
 static int hf_codepoint = -1;
 static int hf_cci = -1;
-static int hf_tsi = -1;
 static int hf_tsi16 = -1;
 static int hf_tsi32 = -1;
 static int hf_tsi48 = -1;
-static int hf_toi = -1;
 static int hf_toi16 = -1;
 static int hf_toi32 = -1;
 static int hf_toi48 = -1;
@@ -376,11 +374,6 @@ dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         switch (tsi_size)
         {
-            case 0:
-                proto_tree_add_uint(lct_tree, hf_tsi, tvb, offset, tsi_size, 0);
-                tsi = 0;
-                break;
-
             case 2:
                 proto_tree_add_item(lct_tree, hf_tsi16, tvb, offset, tsi_size, ENC_BIG_ENDIAN);
                 tsi = tvb_get_ntohs(tvb, offset);
@@ -409,11 +402,6 @@ dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         switch (toi_size)
         {
-            case 0:
-                proto_tree_add_uint(lct_tree, hf_toi, tvb, offset, toi_size, 0);
-                toi = 0;
-                break;
-
             case 2:
                 proto_tree_add_item(lct_tree, hf_toi16, tvb, offset, toi_size, ENC_BIG_ENDIAN);
                 toi = tvb_get_ntohs(tvb, offset);
@@ -555,11 +543,6 @@ proto_register_rmt_lct(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_tsi,
-          { "Transport Session Identifier", "rmt-lct.tsi",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
         { &hf_tsi16,
           { "Transport Session Identifier", "rmt-lct.tsi",
             FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -573,11 +556,6 @@ proto_register_rmt_lct(void)
         { &hf_tsi48,
           { "Transport Session Identifier", "rmt-lct.tsi64",
             FT_UINT64, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_toi,
-          { "Transport Object Identifier", "rmt-lct.toi",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_toi16,
