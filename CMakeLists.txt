@@ -2565,6 +2565,7 @@ add_custom_target(test-sh
 		-P ${CMAKE_SOURCE_DIR}/cmake/modules/GenerateTestSh.cmake
 	DEPENDS ${CMAKE_SOURCE_DIR}/cmake/modules/GenerateTestSh.cmake
 )
+set_target_properties(test-sh PROPERTIES FOLDER "Tests")
 
 #Generate list of AUTHORS (Name + E-Mail) sort by name
 if (GIT_EXECUTABLE)
@@ -2576,8 +2577,7 @@ if (GIT_EXECUTABLE)
 else (GIT_EXECUTABLE)
 	ADD_CUSTOM_TARGET( gen-authors COMMAND ${CMAKE_COMMAND} -E echo "Git not found." )
 endif (GIT_EXECUTABLE)
-
-set_target_properties(test-sh PROPERTIES FOLDER "Tests")
+set_target_properties(gen-authors PROPERTIES FOLDER "Docs")
 
 add_custom_target(test-programs
 	DEPENDS test-sh

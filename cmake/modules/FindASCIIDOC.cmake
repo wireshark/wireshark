@@ -108,6 +108,7 @@ MACRO( ASCIIDOC2DOCBOOK _asciidocsource _conf_files _src_files _built_deps )
             ${${_built_deps}}
     )
     add_custom_target(generate_${_output_xml} DEPENDS ${_output_xml})
+    set_target_properties(generate_${_output_xml} PROPERTIES FOLDER "Docbook")
     unset(_src_deps)
     unset(_conf_deps)
     unset(_conf_opts_list)
