@@ -110,7 +110,17 @@ scan_local_interfaces(void (*update_cb)(void))
     GString           *ip_str;
     interface_options interface_opts;
     gboolean          found = FALSE;
+    static gboolean   running = FALSE;
 
+    if (running) {
+        /* scan_local_interfaces internally calls update_cb to process UI events
+           to avoid stuck UI while running possibly slow operations. A side effect
+           of this is that new interface changes can be detected before completing
+           the last one.
+           This return avoids recursive scan_local_interfaces operation. */
+        return;
+    }
+    running = TRUE;
 
     if (global_capture_opts.all_ifaces->len > 0) {
         for (i = (int)global_capture_opts.all_ifaces->len-1; i >= 0; i--) {
@@ -361,6 +371,7 @@ scan_local_interfaces(void (*update_cb)(void))
             global_capture_opts.num_selected++;
         }
     }
+    running = FALSE;
 }
 
 /*
