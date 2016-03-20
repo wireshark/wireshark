@@ -27,8 +27,7 @@
  *
  *
  * the protocol spec at
- *  http://public.logicacmg.com/~redferni/mysql/MySQL-Protocol.html
- *  http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol
+ *  https://dev.mysql.com/doc/internals/en/client-server-protocol.html
  * and MySQL source code
  */
 
