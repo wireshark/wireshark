@@ -1800,30 +1800,32 @@ mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	}
 
 	if (conn_data->clnt_caps_ext & MYSQL_CAPS_ST) {
-		guint64 session_track_length;
-		proto_item *tf;
-		proto_item *session_track_tree = NULL;
-		int length;
+		if (tvb_reported_length_remaining(tvb, offset) > 0) {
+			guint64 session_track_length;
+			proto_item *tf;
+			proto_item *session_track_tree = NULL;
+			int length;
 
-		offset += tvb_get_fle(tvb, offset, &lenstr, NULL);
-		/* first read the optional message */
-		if (lenstr) {
-			proto_tree_add_item(tree, hf_mysql_message, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
-			offset += (int)lenstr;
-		}
+			offset += tvb_get_fle(tvb, offset, &lenstr, NULL);
+			/* first read the optional message */
+			if (lenstr) {
+				proto_tree_add_item(tree, hf_mysql_message, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
+				offset += (int)lenstr;
+			}
 
-		/* session state tracking */
-		if (server_status & MYSQL_STAT_SESSION_STATE_CHANGED) {
-			fle = tvb_get_fle(tvb, offset, &session_track_length, NULL);
-			tf = proto_tree_add_item(tree, hf_mysql_session_track_data, tvb, offset, -1, ENC_NA);
-			session_track_tree = proto_item_add_subtree(tf, ett_session_track_data);
-			proto_tree_add_uint64(tf, hf_mysql_session_track_data_length, tvb, offset, fle, session_track_length);
-			offset += fle;
+			/* session state tracking */
+			if (server_status & MYSQL_STAT_SESSION_STATE_CHANGED) {
+				fle = tvb_get_fle(tvb, offset, &session_track_length, NULL);
+				tf = proto_tree_add_item(tree, hf_mysql_session_track_data, tvb, offset, -1, ENC_NA);
+				session_track_tree = proto_item_add_subtree(tf, ett_session_track_data);
+				proto_tree_add_uint64(tf, hf_mysql_session_track_data_length, tvb, offset, fle, session_track_length);
+				offset += fle;
 
-			while (session_track_length > 0) {
-				length = add_session_tracker_entry_to_tree(tvb, pinfo, session_track_tree, offset);
-				offset += length;
-				session_track_length -= length;
+				while (session_track_length > 0) {
+					length = add_session_tracker_entry_to_tree(tvb, pinfo, session_track_tree, offset);
+					offset += length;
+					session_track_length -= length;
+				}
 			}
 		}
 	} else {
