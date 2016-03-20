@@ -693,6 +693,8 @@ static const value_string state_vals[] = {
 	{RESPONSE_PREPARE,     "response to PREPARE"},
 	{PREPARED_PARAMETERS,  "parameters in response to PREPARE"},
 	{PREPARED_FIELDS,      "fields in response to PREPARE"},
+	{AUTH_SWITCH_REQUEST,  "authentication switch request"},
+	{AUTH_SWITCH_RESPONSE, "authentication switch response"},
 	{0, NULL}
 };
 #endif
