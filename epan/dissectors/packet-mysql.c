@@ -171,6 +171,11 @@ void proto_reg_handoff_mysql(void);
 
 #define MYSQL_PARAM_FLAG_STREAMED 0x01
 
+/* Compression states, internal to the dissector */
+#define MYSQL_COMPRESS_NONE   0
+#define MYSQL_COMPRESS_INIT   1
+#define MYSQL_COMPRESS_ACTIVE 2
+
 /* decoding table: command */
 static const value_string mysql_command_vals[] = {
 	{MYSQL_SLEEP,   "SLEEP"},
@@ -618,6 +623,9 @@ static int hf_mysql_auth_switch_request_status = -1;
 static int hf_mysql_auth_switch_request_name = -1;
 static int hf_mysql_auth_switch_request_data = -1;
 static int hf_mysql_auth_switch_response_data = -1;
+static int hf_mysql_compressed_packet_length = -1;
+static int hf_mysql_compressed_packet_length_uncompressed = -1;
+static int hf_mysql_compressed_packet_number = -1;
 
 static dissector_handle_t mysql_handle;
 static dissector_handle_t ssl_handle;
@@ -712,6 +720,8 @@ typedef struct mysql_conn_data {
 #endif
 	guint8 major_version;
 	guint32 frame_start_ssl;
+	guint32 frame_start_compressed;
+	guint8 compressed_state;
 } mysql_conn_data_t;
 
 struct mysql_frame_data {
@@ -1578,6 +1588,24 @@ hf_mysql_refresh, ett_refresh, mysql_rfsh_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
 	return offset;
 }
 
+/*
+ * Decode the header of a compressed packet
+ * https://dev.mysql.com/doc/internals/en/compressed-packet-header.html
+ */
+static int
+mysql_dissect_compressed_header(tvbuff_t *tvb, int offset, proto_tree *mysql_tree)
+{
+	proto_tree_add_item(mysql_tree, hf_mysql_compressed_packet_length, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+	offset += 3;
+
+	proto_tree_add_item(mysql_tree, hf_mysql_compressed_packet_number, tvb, offset, 1, ENC_NA);
+	offset += 1;
+
+	proto_tree_add_item(mysql_tree, hf_mysql_compressed_packet_length_uncompressed, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+	offset += 3;
+
+	return offset;
+}
 
 static int
 mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
@@ -1635,6 +1663,10 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			offset = mysql_dissect_response_prepare(tvb, offset, tree, conn_data);
 		} else if (tvb_reported_length_remaining(tvb, offset+1)  > tvb_get_fle(tvb, offset+1, NULL, NULL)) {
 			offset = mysql_dissect_ok_packet(tvb, pinfo, offset+1, tree, conn_data);
+			if (conn_data->compressed_state == MYSQL_COMPRESS_INIT) {
+				/* This is the OK packet which follows the compressed protocol setup */
+				conn_data->compressed_state = MYSQL_COMPRESS_ACTIVE;
+			}
 		} else {
 			offset = mysql_dissect_result_header(tvb, pinfo, offset, tree, conn_data);
 		}
@@ -2154,8 +2186,14 @@ tvb_get_fle(tvbuff_t *tvb, int offset, guint64 *res, guint8 *is_null)
 static guint
 get_mysql_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
+	int tvb_remain= tvb_reported_length_remaining(tvb, offset);
 	guint plen= tvb_get_letoh24(tvb, offset);
-	return plen + 4; /* add length field + packet number */
+
+	if ((tvb_remain - plen) == 7) {
+		return plen + 7; /* compressed header 3+1+3 (len+id+cmp_len) */
+	} else {
+		return plen + 4; /* regular header 3+1 (len+id) */
+	}
 }
 
 /* dissector main function: handle one PDU */
@@ -2193,6 +2231,8 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 #endif
 		conn_data->major_version= 0;
 		conn_data->frame_start_ssl= 0;
+		conn_data->frame_start_compressed= 0;
+		conn_data->compressed_state= MYSQL_COMPRESS_NONE;
 		conversation_add_proto_data(conversation, proto_mysql, conn_data);
 	}
 
@@ -2223,6 +2263,12 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		 *       Question: Does this logic work OK for a reassembled message ?
 		 */
 		 conn_data->state= mysql_frame_data_p->state;
+	}
+
+	if ((conn_data->frame_start_compressed) && (pinfo->num > conn_data->frame_start_compressed)) {
+		if (conn_data->compressed_state == MYSQL_COMPRESS_ACTIVE) {
+			offset = mysql_dissect_compressed_header(tvb, offset, tree);
+		}
 	}
 
 	if (tree) {
@@ -2278,6 +2324,12 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		if (packet_number == 1 || (packet_number == 2 && is_ssl)) {
 			col_set_str(pinfo->cinfo, COL_INFO, "Login Request");
 			offset = mysql_dissect_login(tvb, pinfo, offset, mysql_tree, conn_data);
+			if (conn_data->srv_caps & MYSQL_CAPS_CP) {
+				if (conn_data->clnt_caps & MYSQL_CAPS_CP) {
+					conn_data->frame_start_compressed = pinfo->num;
+					conn_data->compressed_state = MYSQL_COMPRESS_INIT;
+				}
+			}
 		} else {
 			col_set_str(pinfo->cinfo, COL_INFO, "Request");
 			offset = mysql_dissect_request(tvb, pinfo, offset, mysql_tree, conn_data);
@@ -3160,6 +3212,21 @@ void proto_register_mysql(void)
 		{ &hf_mysql_auth_switch_response_data,
 		{ "Auth Method Data", "mysql.auth_switch_response.data",
 		FT_BYTES, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_compressed_packet_length,
+		{ "Compressed Packet Length", "mysql.compressed_packet_length",
+		FT_UINT24, BASE_DEC, NULL,  0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_compressed_packet_number,
+		{ "Compressed Packet Number", "mysql.compressed_packet_number",
+		FT_UINT24, BASE_DEC, NULL,  0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_compressed_packet_length_uncompressed,
+		{ "Uncompressed Packet Length", "mysql.compressed_packet_length_uncompressed",
+		FT_UINT24, BASE_DEC, NULL,  0x0,
 		NULL, HFILL }},
 	};
 
