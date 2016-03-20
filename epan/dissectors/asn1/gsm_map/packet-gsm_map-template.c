@@ -189,7 +189,6 @@ static expert_field ei_gsm_map_unknown_invokeData = EI_INIT;
 static expert_field ei_gsm_map_undecoded = EI_INIT;
 
 static dissector_handle_t       gsm_sms_handle; /* SMS TPDU */
-static dissector_handle_t       data_handle;
 static dissector_handle_t       ranap_handle;
 static dissector_handle_t       dtap_handle;
 static dissector_handle_t       map_handle;
@@ -2631,7 +2630,6 @@ void proto_reg_handoff_gsm_map(void) {
 
   if (!map_prefs_initialized) {
     map_prefs_initialized = TRUE;
-    data_handle = find_dissector("data");
     ranap_handle = find_dissector_add_dependency("ranap", proto_gsm_map);
     dtap_handle = find_dissector_add_dependency("gsm_a_dtap", proto_gsm_map);
     gsm_sms_handle = find_dissector_add_dependency("gsm_sms", proto_gsm_map);

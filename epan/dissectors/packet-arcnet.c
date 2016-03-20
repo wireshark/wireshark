@@ -52,7 +52,6 @@ static gint ett_arcnet = -1;
 static int arcnet_address_type = -1;
 
 static dissector_table_t arcnet_dissector_table;
-static dissector_handle_t data_handle;
 
 /* Cache protocol for packet counting */
 static int proto_ipx = -1;
@@ -283,7 +282,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                            next_tvb, pinfo, tree))
     {
       col_add_fstr (pinfo->cinfo, COL_PROTOCOL, "0x%04x", protID);
-      call_dissector (data_handle, next_tvb, pinfo, tree);
+      call_data_dissector(next_tvb, pinfo, tree);
     }
 
 }
@@ -414,7 +413,6 @@ proto_reg_handoff_arcnet (void)
 
   register_capture_dissector("wtap_encap", WTAP_ENCAP_ARCNET_LINUX, capture_arcnet, proto_arcnet);
   register_capture_dissector("wtap_encap", WTAP_ENCAP_ARCNET, capture_arcnet_has_exception, proto_arcnet);
-  data_handle = find_dissector ("data");
 }
 
 /*

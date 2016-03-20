@@ -37,8 +37,6 @@ static int hf_ieee802a_pid = -1;
 
 static gint ett_ieee802a = -1;
 
-static dissector_handle_t data_handle;
-
 /*
  * Hash table for translating OUIs to a dissector table/field info pair;
  * the dissector table maps PID values to dissectors, and the field
@@ -134,7 +132,7 @@ dissect_ieee802a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	if ((subdissector_table == NULL) ||
 		/* do lookup with the subdissector table */
 		(!dissector_try_uint(subdissector_table, pid, next_tvb, pinfo, tree))) {
-			call_dissector(data_handle, next_tvb, pinfo, tree);
+			call_data_dissector(next_tvb, pinfo, tree);
 	}
 	return tvb_captured_length(tvb);
 }
@@ -172,8 +170,6 @@ void
 proto_reg_handoff_ieee802a(void)
 {
 	dissector_handle_t ieee802a_handle;
-
-	data_handle = find_dissector("data");
 
 	ieee802a_handle = create_dissector_handle(dissect_ieee802a,
 	    proto_ieee802a);

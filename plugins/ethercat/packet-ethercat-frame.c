@@ -38,7 +38,6 @@ void proto_reg_handoff_ethercat_frame(void);
 static int proto_ethercat_frame = -1;
 
 static dissector_table_t ethercat_frame_dissector_table;
-static dissector_handle_t ethercat_frame_data_handle;
 
 /* Define the tree for the EtherCAT frame */
 static int ett_ethercat_frame = -1;
@@ -97,7 +96,7 @@ static int dissect_ethercat_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
       col_add_fstr (pinfo->cinfo, COL_PROTOCOL, "0x%04x", hdr.v.protocol);
       /* No sub dissector wanted to handle this payload, decode it as general
       data instead. */
-      call_dissector (ethercat_frame_data_handle, next_tvb, pinfo, tree);
+      call_data_dissector(next_tvb, pinfo, tree);
    }
    return tvb_captured_length(tvb);
 }
@@ -151,7 +150,6 @@ void proto_reg_handoff_ethercat_frame(void)
    dissector_add_uint("ethertype", ETHERTYPE_ECATF, ethercat_frame_handle);
    dissector_add_uint("udp.port", ETHERTYPE_ECATF, ethercat_frame_handle);
    dissector_add_uint("tcp.port", ETHERTYPE_ECATF, ethercat_frame_handle);
-   ethercat_frame_data_handle = find_dissector("data");
 }
 
 /*

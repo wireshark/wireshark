@@ -177,8 +177,6 @@ static expert_field ei_analysis_retrans_no = EI_INIT;
 
 static dissector_handle_t p_mul_handle = NULL;
 
-static dissector_handle_t data_handle = NULL;
-
 typedef struct _p_mul_id_key {
   guint32 id;
   guint16 seq;
@@ -786,7 +784,7 @@ static void dissect_reassembled_data (tvbuff_t *tvb, packet_info *pinfo, proto_t
     dissect_cdt (tvb, pinfo, tree);
     break;
   default:
-    call_dissector (data_handle, tvb, pinfo, tree);
+    call_data_dissector(tvb, pinfo, tree);
     break;
   }
 }
@@ -1637,7 +1635,6 @@ void proto_reg_handoff_p_mul (void)
 
   if (!p_mul_prefs_initialized) {
     p_mul_prefs_initialized = TRUE;
-    data_handle = find_dissector ("data");
     dissector_add_uint ("s5066sis.ctl.appid", S5066_CLIENT_S4406_ANNEX_E_TMI_1_P_MUL, p_mul_handle);
   } else {
     dissector_delete_uint_range ("udp.port", p_mul_port_range, p_mul_handle);

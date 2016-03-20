@@ -44,7 +44,6 @@ XXX  Fixme : shouldn't show [malformed frame] for long packets
 
 void proto_register_pipe_lanman(void);
 void proto_register_smb_pipe(void);
-void proto_reg_handoff_smb_pipe(void);
 
 static int proto_smb_pipe = -1;
 static int hf_smb_pipe_function = -1;
@@ -201,8 +200,6 @@ static gint ett_lanman_server = -1;
 
 static expert_field ei_smb_pipe_bogus_netwkstauserlogon = EI_INIT;
 static expert_field ei_smb_pipe_bad_type = EI_INIT;
-
-static dissector_handle_t data_handle;
 
 /*
  * See
@@ -3434,7 +3431,7 @@ clean_up_and_exit:
 	pinfo->desegment_len = 0;
 
 	if (!result)
-		call_dissector(data_handle, d_tvb, pinfo, parent_tree);
+		call_data_dissector(d_tvb, pinfo, parent_tree);
 
 	pinfo->fragmented = save_fragmented;
 	return TRUE;
@@ -3925,13 +3922,6 @@ proto_register_smb_pipe(void)
 	register_init_routine(smb_dcerpc_reassembly_init);
 	register_cleanup_routine(smb_dcerpc_reassembly_cleanup);
 }
-
-void
-proto_reg_handoff_smb_pipe(void)
-{
-	data_handle = find_dissector("data");
-}
-
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

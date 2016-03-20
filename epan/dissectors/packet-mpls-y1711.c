@@ -72,7 +72,6 @@ static expert_field ei_mpls_y1711_padding_not_zero = EI_INIT;
 static expert_field ei_mpls_y1711_unknown_pdu = EI_INIT;
 
 static dissector_handle_t mpls_y1711_handle;
-static dissector_handle_t data_handle;
 
 static const value_string y1711_function_type_vals[] = {
     {0x00, "Reserved"                               },
@@ -147,7 +146,7 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
          */
         proto_tree_add_expert(tree, pinfo, &ei_mpls_y1711_minimum_payload, tvb, offset, -1);
         data_tvb = tvb_new_subset_remaining(tvb, offset);
-        call_dissector(data_handle, data_tvb, pinfo, tree);
+        call_data_dissector(data_tvb, pinfo, tree);
 
         return tvb_reported_length(tvb);
     }
@@ -408,8 +407,6 @@ proto_reg_handoff_mpls_y1711(void)
     dissector_add_uint("mpls.label",
                        MPLS_LABEL_OAM_ALERT /* 14 */,
                        mpls_y1711_handle);
-
-    data_handle = find_dissector("data");
 }
 
 /*

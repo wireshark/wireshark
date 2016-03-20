@@ -63,7 +63,6 @@ static gint hf_lwapp_control_length = -1;
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t wlan_handle;
 static dissector_handle_t wlan_bsfc_handle;
-static dissector_handle_t data_handle;
 
 /* Set by preferences */
 static gboolean swap_frame_control;
@@ -301,7 +300,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo,
 
         /* Dissect rest of packet as data */
         next_tvb = tvb_new_subset_remaining(tvb, offset);
-        call_dissector(data_handle,next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
     }
 
 } /* dissect_control */
@@ -546,7 +545,6 @@ proto_reg_handoff_lwapp(void)
     eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_lwapp);
     wlan_handle = find_dissector_add_dependency("wlan_withoutfcs", proto_lwapp);
     wlan_bsfc_handle = find_dissector_add_dependency("wlan_bsfc", proto_lwapp);
-    data_handle = find_dissector("data");
 
     /* This dissector assumes lwapp packets in an 802.3 frame */
     lwapp_l3_handle = create_dissector_handle(dissect_lwapp_l3, proto_lwapp_l3);

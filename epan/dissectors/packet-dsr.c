@@ -37,7 +37,6 @@
 void proto_reg_handoff_dsr(void);
 void proto_register_dsr(void);
 
-static dissector_handle_t data_handle;
 static dissector_table_t ip_dissector_table;
 
 /* Initialize the protocol and registered fields */
@@ -466,7 +465,7 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Call other dissectors if needed */
     next_tvb = tvb_new_subset_remaining(tvb, offset);
     if (!dissector_try_uint(ip_dissector_table, nexthdr, next_tvb, pinfo, tree)) {
-        call_dissector(data_handle, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
     }
 
     return offset+4;
@@ -752,8 +751,6 @@ void
 proto_reg_handoff_dsr(void)
 {
     dissector_handle_t dsr_handle;
-
-    data_handle = find_dissector("data");
 
     ip_dissector_table = find_dissector_table("ip.proto");
 

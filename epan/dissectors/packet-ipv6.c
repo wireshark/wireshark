@@ -519,8 +519,6 @@ static const fragment_items ipv6_frag_items = {
     "IPv6 fragments"
 };
 
-static dissector_handle_t data_handle;
-
 static dissector_table_t ip_dissector_table;
 static dissector_table_t ipv6_next_header_dissector_table;
 
@@ -2423,7 +2421,7 @@ again:
 
     if (show_data) {
         /* COL_INFO already set */
-        call_dissector(data_handle, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
     }
     else {
         /* First fragment and not reassembling, not fragmented, or already reassembled. */
@@ -2431,7 +2429,7 @@ again:
         if (!ip_try_dissect(try_heuristic_first, next_tvb, pinfo, tree, &iph)) {
             /* Unknown protocol. */
             col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%u)", ipprotostr(nxt), nxt);
-            call_dissector(data_handle, next_tvb, pinfo, tree);
+            call_data_dissector(next_tvb, pinfo, tree);
         }
     }
     pinfo->fragmented = save_fragmented;
@@ -3558,7 +3556,6 @@ proto_reg_handoff_ipv6(void)
     dissector_handle_t ipv6_hopopts_handle, ipv6_routing_handle,
                        ipv6_shim6_handle, ipv6_dstopts_handle;
 
-    data_handle = find_dissector("data");
     ipv6_handle = find_dissector("ipv6");
     dissector_add_uint("ethertype", ETHERTYPE_IPv6, ipv6_handle);
     dissector_add_uint("erf.types.type", ERF_TYPE_IPV6, ipv6_handle);

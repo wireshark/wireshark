@@ -46,9 +46,6 @@ void proto_reg_handoff_tetra(void);
 /* Wireshark ID of the tetra protocol */
 static int proto_tetra = -1;
 
-/* These are the handles of our subdissectors */
-static dissector_handle_t data_handle = NULL;
-
 static dissector_handle_t tetra_handle;
 
 static int global_tetra_port = 7074;
@@ -552,7 +549,6 @@ void proto_reg_handoff_tetra(void)
 	static gboolean initialized=FALSE;
 
 	if (!initialized) {
-		data_handle = find_dissector("data");
 		tetra_handle = create_dissector_handle(dissect_tetra, proto_tetra);
 		dissector_add_uint("udp.port", global_tetra_port, tetra_handle);
 	}

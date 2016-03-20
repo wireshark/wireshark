@@ -102,7 +102,6 @@ enum SMB_DIRECT_HDR_TYPE {
 #define SMB_DIRECT_RESPONSE_REQUESTED 0x0001
 
 static heur_dissector_list_t smb_direct_heur_subdissector_list;
-static dissector_handle_t data_handle;
 
 static gboolean smb_direct_reassemble = TRUE;
 static reassembly_table smb_direct_reassembly_table;
@@ -198,7 +197,7 @@ dissect_payload:
 	pinfo->fragmented = FALSE;
 	if (!dissector_try_heuristic(smb_direct_heur_subdissector_list,
 				     payload_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
-		call_dissector(data_handle, payload_tvb, pinfo, tree);
+		call_data_dissector(payload_tvb, pinfo, tree);
 	}
 done:
 	pinfo->fragmented = save_fragmented;
@@ -700,7 +699,6 @@ void proto_register_smb_direct(void)
 void
 proto_reg_handoff_smb_direct(void)
 {
-	data_handle = find_dissector("data");
 	heur_dissector_add("iwarp_ddp_rdmap",
 			   dissect_smb_direct_iwarp_heur,
                "SMB Direct over iWARP", "smb_direct_iwarp",

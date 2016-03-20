@@ -133,7 +133,6 @@ static gint ett_dtpt_blob = -1;
 
 static dissector_handle_t	dtpt_conversation_handle;
 /** static dissector_handle_t	dtpt_data_handle;  **/
-static dissector_handle_t	data_handle;
 
 
 /* Server port */
@@ -411,8 +410,7 @@ dissect_dtpt_conversation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	/* Handle any remaining bytes ... */
 	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 		/* ... as data. */
-		call_dissector(data_handle,
-			tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+		call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 	}
 	return tvb_reported_length(tvb);
 }
@@ -1201,7 +1199,6 @@ proto_reg_handoff_dtpt(void)
 		dtpt_conversation_handle = create_dissector_handle(dissect_dtpt_conversation, proto_dtpt);
 /**		dtpt_data_handle = create_dissector_handle(dissect_dtpt_data, proto_dtpt); **/
 
-		data_handle = find_dissector("data");
 		Initialized=TRUE;
 	} else {
 		dissector_delete_uint("tcp.port", ServerPort, dtpt_handle);

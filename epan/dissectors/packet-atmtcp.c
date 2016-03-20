@@ -43,8 +43,6 @@ static guint global_atmtcp_tcp_port = 2812;
 
 static gint ett_atmtcp = -1;
 
-static dissector_handle_t data_handle;
-
 #define ATMTCP_HDR_MAGIC        (~0)    /* this length indicates a command */
 #define ATMTCP_CTRL_OPEN        1       /* request/reply */
 #define ATMTCP_CTRL_CLOSE       2       /* request/reply */
@@ -98,7 +96,7 @@ dissect_atmtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     /* Data (for the moment...) */
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(data_handle, next_tvb, pinfo, tree);
+    call_data_dissector(next_tvb, pinfo, tree);
     return tvb_reported_length(tvb);
 }
 
@@ -153,7 +151,6 @@ proto_reg_handoff_atmtcp(void)
 
     if (!initialized) {
         atmtcp_handle = create_dissector_handle(dissect_atmtcp, proto_atmtcp);
-        data_handle = find_dissector("data");
         initialized = TRUE;
     } else {
         dissector_delete_uint("tcp.port", current_port, atmtcp_handle);

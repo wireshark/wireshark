@@ -82,7 +82,6 @@ static expert_field ei_flexray_symbol_frame = EI_INIT;
 static expert_field ei_flexray_error_flag = EI_INIT;
 static expert_field ei_flexray_stfi_flag = EI_INIT;
 
-static dissector_handle_t data_handle;
 static dissector_table_t subdissector_table;
 
 #define FLEXRAY_FRAME 0x01
@@ -252,11 +251,11 @@ dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			if (call_subdissector) {
 				if (!dissector_try_uint_new(subdissector_table, 0, next_tvb, pinfo, tree, FALSE, &flexray_id))
 				{
-					call_dissector(data_handle, next_tvb, pinfo, tree);
+					call_data_dissector(next_tvb, pinfo, tree);
 				}
 			}
 			else {
-				call_dissector(data_handle, next_tvb, pinfo, tree);
+				call_data_dissector(next_tvb, pinfo, tree);
 			}
 		}
 	}
@@ -471,8 +470,6 @@ proto_reg_handoff_flexray(void)
 
 	flexray_handle = create_dissector_handle( dissect_flexray, proto_flexray );
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_FLEXRAY, flexray_handle);
-
-	data_handle = find_dissector("data");
 }
 
 /*

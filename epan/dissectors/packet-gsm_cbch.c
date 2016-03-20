@@ -98,7 +98,6 @@ static expert_field ei_gsm_cbch_seq_num_null = EI_INIT;
 static expert_field ei_gsm_cbch_seq_num_reserved = EI_INIT;
 static expert_field ei_gsm_cbch_lpd = EI_INIT;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t cbs_handle;
 
 /* reassembly of CHCH blocks */
@@ -439,12 +438,12 @@ dissect_cbch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data  _U
 
         case 0x0F:
             expert_add_info(pinfo, seq_item, &ei_gsm_cbch_seq_num_null);
-            call_dissector(data_handle, tvb, pinfo, cbch_tree);
+            call_data_dissector(tvb, pinfo, cbch_tree);
             break;
 
         default:
             expert_add_info(pinfo, seq_item, &ei_gsm_cbch_seq_num_reserved);
-            call_dissector(data_handle, tvb, pinfo, cbch_tree);
+            call_data_dissector(tvb, pinfo, cbch_tree);
             break;
         }
         if (reass_tvb)
@@ -471,7 +470,7 @@ dissect_cbch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data  _U
     else
     {
         expert_add_info(pinfo, lpd_item, &ei_gsm_cbch_lpd);
-        call_dissector(data_handle, tvb, pinfo, cbch_tree);
+        call_data_dissector(tvb, pinfo, cbch_tree);
     }
     return tvb_captured_length(tvb);
 }
@@ -656,7 +655,6 @@ proto_register_gsm_cbch(void)
 void
 proto_reg_handoff_gsm_cbch(void)
 {
-    data_handle = find_dissector("data");
     cbs_handle  = find_dissector_add_dependency("gsm_cbs", proto_cbch);
 }
 

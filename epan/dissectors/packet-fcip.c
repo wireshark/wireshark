@@ -133,7 +133,6 @@ static int ett_fcip            = -1;
 static guint fcip_port         = 3225;
 static gboolean fcip_desegment = TRUE;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t fc_handle;
 
 /* This routine attempts to locate the position of the next header in the
@@ -493,8 +492,8 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 fc_data.ethertype = 0;
                 call_dissector_with_data(fc_handle, next_tvb, pinfo, tree, &fc_data);
             }
-            else if (data_handle) {
-                call_dissector (data_handle, next_tvb, pinfo, tree);
+            else {
+                call_data_dissector(next_tvb, pinfo, tree);
             }
         }
         else {
@@ -654,7 +653,6 @@ proto_reg_handoff_fcip (void)
     fcip_handle = create_dissector_handle(dissect_fcip_handle, proto_fcip);
     dissector_add_for_decode_as("tcp.port", fcip_handle);
 
-    data_handle = find_dissector("data");
     fc_handle   = find_dissector_add_dependency("fc", proto_fcip);
 }
 

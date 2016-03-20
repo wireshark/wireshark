@@ -50,9 +50,6 @@ static int hf_pktgen_timestamp = -1;
 /* Initialize the subtree pointer */
 static gint ett_pktgen = -1;
 
-/* data dissector handle */
-static dissector_handle_t data_handle;
-
 /* entry point */
 static gboolean dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -111,7 +108,7 @@ static gboolean dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         proto_tree_add_time(pktgen_tree, hf_pktgen_timestamp, tvb, offset - 8, 8, &tstamp);
 
         if (tvb_reported_length_remaining(tvb, offset)) /* random data */
-            call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo,
+            call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo,
             pktgen_tree);
     }
 
@@ -188,9 +185,6 @@ void proto_reg_handoff_pktgen(void)
 {
     /* Register as a heuristic UDP dissector */
     heur_dissector_add("udp", dissect_pktgen, "Linux Kernel Packet Generator over UDP", "pktgen_udp", proto_pktgen, HEURISTIC_ENABLE);
-
-    /* Find data dissector handle */
-    data_handle = find_dissector("data");
 }
 
 

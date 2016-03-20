@@ -377,7 +377,6 @@ static dissector_table_t   subdissector_sud_table;
 static dissector_table_t   subdissector_io_table;
 static dissector_table_t   subdissector_class_table;
 
-static dissector_handle_t  data_handle;
 static dissector_handle_t  arp_handle;
 static dissector_handle_t  cipsafety_handle;
 static dissector_handle_t  cipmotion_handle;
@@ -2299,7 +2298,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                {
                   /* Show the undissected payload */
                    if ( tvb_reported_length_remaining(tvb, offset) > 0 )
-                     call_dissector( data_handle, next_tvb, pinfo, dissector_tree);
+                     call_data_dissector(next_tvb, pinfo, dissector_tree);
                }
 
                /* Check if this is a ForwardOpen packet, because special handling is needed
@@ -2367,7 +2366,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                       if (!dissector_try_uint(subdissector_sud_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
                       {
                          /* Show the undissected payload */
-                         call_dissector( data_handle, next_tvb, pinfo, dissector_tree );
+                         call_data_dissector(next_tvb, pinfo, dissector_tree );
                       }
                       p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
                   }
@@ -4422,9 +4421,6 @@ proto_reg_handoff_enip(void)
    /* Register for EtherNet/IP TLS */
    ssl_dissector_add(ENIP_SECURE_PORT, enip_tcp_handle);
    dtls_dissector_add(ENIP_SECURE_PORT, enipio_handle);
-
-   /* Find dissector for data packet */
-   data_handle = find_dissector("data");
 
    /* Find ARP dissector for TCP/IP object */
    arp_handle = find_dissector_add_dependency("arp", proto_enip);

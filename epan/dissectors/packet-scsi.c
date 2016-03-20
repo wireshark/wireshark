@@ -96,7 +96,6 @@
 #include "packet-scsi-smc.h"
 
 void proto_register_scsi(void);
-void proto_reg_handoff_scsi(void);
 
 static int proto_scsi                           = -1;
 static int hf_scsi_inq_control_vendor_specific  = -1;
@@ -2811,8 +2810,6 @@ typedef struct _cmdset_t {
 } cmdset_t;
 
 static cmdset_t *get_cmdset_data(itlq_nexus_t *itlq, itl_nexus_t *itl);
-
-static dissector_handle_t data_handle;
 
 static void
 dissect_naa_designator(proto_tree *tree, tvbuff_t *tvb, guint offset, guint len)
@@ -6238,7 +6235,7 @@ dissect_scsi_cdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         spc[opcode].func(tvb, pinfo, scsi_tree, offset+1,
                          TRUE, TRUE, 0, cdata);
     } else {
-        call_dissector(data_handle, tvb, pinfo, scsi_tree);
+        call_data_dissector(tvb, pinfo, scsi_tree);
     }
 
     pinfo->current_proto = old_proto;
@@ -6337,7 +6334,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * dissect the data.
      */
     if ( !itlq->first_exchange_frame ) {
-        call_dissector(data_handle, tvb, pinfo, scsi_tree);
+        call_data_dissector(tvb, pinfo, scsi_tree);
         goto end_of_payload;
     }
 
@@ -6346,7 +6343,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      */
     if (!scsi_defragment) {
         if (relative_offset) {
-            call_dissector(data_handle, tvb, pinfo, scsi_tree);
+            call_data_dissector(tvb, pinfo, scsi_tree);
             goto end_of_payload;
         } else {
             goto dissect_the_payload;
@@ -6358,7 +6355,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      */
     if (tvb_captured_length_remaining(tvb, offset) != tvb_reported_length_remaining(tvb, offset)) {
         if (relative_offset) {
-            call_dissector(data_handle, tvb, pinfo, scsi_tree);
+            call_data_dissector(tvb, pinfo, scsi_tree);
             goto end_of_payload;
         } else {
             goto dissect_the_payload;
@@ -6441,7 +6438,7 @@ dissect_the_payload:
             spc[opcode].func(next_tvb, pinfo, scsi_tree, offset,
                              isreq, FALSE, payload_len, cdata);
         } else { /* don't know this CDB */
-            call_dissector(data_handle, next_tvb, pinfo, scsi_tree);
+            call_data_dissector(next_tvb, pinfo, scsi_tree);
         }
     }
 
@@ -7774,15 +7771,9 @@ proto_register_scsi(void)
     register_cleanup_routine(scsi_defragment_cleanup);
 
     register_srt_table(proto_scsi, NULL, 1, scsistat_packet, scsistat_init, scsistat_param);
-}
 
-void
-proto_reg_handoff_scsi(void)
-{
     scsi_tap    = register_tap("scsi");
-    data_handle = find_dissector("data");
 }
-
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

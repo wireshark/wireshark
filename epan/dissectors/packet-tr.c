@@ -128,7 +128,6 @@ static const value_string direction_vals[] = {
 
 static dissector_handle_t trmac_handle;
 static dissector_handle_t llc_handle;
-static dissector_handle_t data_handle;
 
 static const char* tr_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
 {
@@ -624,7 +623,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			break;
 		default:
 			/* non-MAC, non-LLC, i.e., "Reserved" */
-			call_dissector(data_handle,next_tvb, pinfo, tree);
+			call_data_dissector(next_tvb, pinfo, tree);
 			break;
 	}
 
@@ -807,7 +806,6 @@ proto_reg_handoff_tr(void)
 	 */
 	trmac_handle = find_dissector_add_dependency("trmac", proto_tr);
 	llc_handle = find_dissector_add_dependency("llc", proto_tr);
-	data_handle = find_dissector("data");
 
 	tr_handle = find_dissector("tr");
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_TOKEN_RING, tr_handle);

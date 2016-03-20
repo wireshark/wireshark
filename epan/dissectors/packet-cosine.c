@@ -51,7 +51,6 @@ static dissector_handle_t ppp_hdlc_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t chdlc_handle;
 static dissector_handle_t fr_handle;
-static dissector_handle_t data_handle;
 
 static int
 dissect_cosine(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -134,7 +133,7 @@ dissect_cosine(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
       break;
     case COSINE_ENCAP_TEST:
     case COSINE_ENCAP_UNKNOWN:
-      call_dissector(data_handle, tvb, pinfo, tree);
+      call_data_dissector(tvb, pinfo, tree);
       break;
     default:
       break;
@@ -185,7 +184,6 @@ proto_reg_handoff_cosine(void)
   llc_handle            = find_dissector_add_dependency("llc", proto_cosine);
   chdlc_handle          = find_dissector_add_dependency("chdlc", proto_cosine);
   fr_handle             = find_dissector_add_dependency("fr", proto_cosine);
-  data_handle           = find_dissector("data");
 
   cosine_handle = create_dissector_handle(dissect_cosine, proto_cosine);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_COSINE, cosine_handle);

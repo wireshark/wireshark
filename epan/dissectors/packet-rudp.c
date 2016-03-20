@@ -80,8 +80,6 @@ static gint ett_rudp = -1;
 static gint ett_rudp_flags = -1;
 
 static dissector_handle_t sm_handle = NULL;
-static dissector_handle_t data_handle = NULL;
-
 
 static int
 dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* data _U_)
@@ -125,7 +123,7 @@ dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* dat
 		* in live captures */
 	if (hlen > 6) {
 		next_tvb = tvb_new_subset_length(tvb, 6, hlen-6);
-		call_dissector(data_handle, next_tvb, pinfo, rudp_tree);
+		call_data_dissector(next_tvb, pinfo, rudp_tree);
 	}
 
 	next_tvb = tvb_new_subset_remaining(tvb, hlen);
@@ -248,7 +246,6 @@ proto_reg_handoff_rudp(void) {
 		rudp_handle = create_dissector_handle(dissect_rudp, proto_rudp);
 		dissector_add_for_decode_as("udp.port", rudp_handle);
 		sm_handle = find_dissector_add_dependency("sm", proto_rudp);
-		data_handle = find_dissector("data");
 		initialized = TRUE;
 	} else {
 		if (saved_udp_port != 0) {

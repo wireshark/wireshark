@@ -79,8 +79,6 @@ static gint ett_quake2_game_clc_cmd_move_bitfield = -1;
 static gint ett_quake2_game_clc_cmd_move_moves = -1;
 
 
-static dissector_handle_t data_handle;
-
 #define PORT_MASTER 27910
 static guint gbl_quake2ServerPort=PORT_MASTER;
 
@@ -543,7 +541,7 @@ dissect_quake2_server_commands(tvbuff_t *tvb, packet_info *pinfo,
         default:
             break;
     }
-    call_dissector(data_handle, next_tvb, pinfo, tree);
+    call_data_dissector(next_tvb, pinfo, tree);
 }
 
 
@@ -856,7 +854,6 @@ proto_reg_handoff_quake2(void)
     if (!Initialized) {
         quake2_handle = create_dissector_handle(dissect_quake2,
                 proto_quake2);
-        data_handle = find_dissector("data");
         Initialized=TRUE;
     } else {
         dissector_delete_uint("udp.port", ServerPort, quake2_handle);

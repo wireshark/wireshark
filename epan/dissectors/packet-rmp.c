@@ -30,8 +30,6 @@
 void proto_register_rmp(void);
 void proto_reg_handoff_rmp(void);
 
-static dissector_handle_t data_handle;
-
 static int proto_rmp = -1;
 
 static int hf_rmp_type = -1;
@@ -136,8 +134,7 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			proto_tree_add_item(rmp_tree,
 				hf_rmp_filename, tvb, 30, 1, ENC_ASCII|ENC_BIG_ENDIAN);
 			if(tvb_offset_exists(tvb, len+31))
-				call_dissector(data_handle,
-					tvb_new_subset_remaining(tvb, len+31),
+				call_data_dissector(tvb_new_subset_remaining(tvb, len+31),
 					pinfo, tree);
 			break;
 
@@ -154,8 +151,7 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			proto_tree_add_item(rmp_tree,
 				hf_rmp_filename, tvb, 10, 1, ENC_ASCII|ENC_BIG_ENDIAN);
 			if(tvb_offset_exists(tvb, len+11))
-				call_dissector(data_handle,
-					tvb_new_subset_remaining(tvb, len+11),
+				call_data_dissector(tvb_new_subset_remaining(tvb, len+11),
 					pinfo, tree);
 			break;
 
@@ -169,8 +165,7 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			proto_tree_add_item(rmp_tree,
 				hf_rmp_size, tvb, 8, 2, ENC_BIG_ENDIAN);
 			if(tvb_offset_exists(tvb, 10))
-				call_dissector(data_handle,
-					tvb_new_subset_remaining(tvb, 10),
+				call_data_dissector(tvb_new_subset_remaining(tvb, 10),
 					pinfo, tree);
 			break;
 
@@ -181,7 +176,7 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 				hf_rmp_offset, tvb, 2, 4, ENC_BIG_ENDIAN);
 			proto_tree_add_item(rmp_tree,
 				hf_rmp_sessionid, tvb, 6, 2, ENC_BIG_ENDIAN);
-			call_dissector(data_handle, tvb_new_subset_remaining(tvb,
+			call_data_dissector(tvb_new_subset_remaining(tvb,
 				8), pinfo, rmp_tree);
 			break;
 
@@ -193,13 +188,11 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			proto_tree_add_item(rmp_tree,
 				hf_rmp_sessionid, tvb, 6, 2, ENC_BIG_ENDIAN);
 			if(tvb_offset_exists(tvb, 8))
-				call_dissector(data_handle,
-					tvb_new_subset_remaining(tvb, 6),
+				call_data_dissector(tvb_new_subset_remaining(tvb, 6),
 					pinfo, tree);
 			break;
 		default:
-			call_dissector(data_handle, tvb_new_subset_remaining(tvb,
-				1), pinfo, tree);
+			call_data_dissector(tvb_new_subset_remaining(tvb, 1), pinfo, tree);
 	}
 	return tvb_captured_length(tvb);
 }
@@ -256,8 +249,6 @@ void
 proto_reg_handoff_rmp(void)
 {
 	dissector_handle_t rmp_handle;
-
-	data_handle = find_dissector("data");
 
 	rmp_handle = find_dissector("rmp");
 	dissector_add_uint("hpext.dxsap", HPEXT_DXSAP, rmp_handle);

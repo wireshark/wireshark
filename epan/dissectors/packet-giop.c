@@ -502,7 +502,6 @@ static const int *giop_message_flags[] = {
   NULL
 };
 
-static dissector_handle_t data_handle;
 static dissector_handle_t giop_tcp_handle;
 
 #define GIOP_MESSAGE_FLAGS_ZIOP_ENABLED   0x08
@@ -4735,7 +4734,7 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
                            header.GIOP_version.major, header.GIOP_version.minor);
 
     payload_tvb = tvb_new_subset_remaining (tvb, GIOP_HEADER_SIZE);
-    call_dissector(data_handle, payload_tvb, pinfo, tree);
+    call_data_dissector(payload_tvb, pinfo, tree);
     return tvb_captured_length(tvb);
   }
 
@@ -5566,7 +5565,6 @@ proto_register_giop (void)
 
 
 void proto_reg_handoff_giop (void) {
-  data_handle = find_dissector("data");
   heur_dissector_add("tcp", dissect_giop_heur, "GIOP over TCP", "giop_tcp", proto_giop, HEURISTIC_ENABLE);
   /* Support DIOP (GIOP/UDP) */
   heur_dissector_add("udp", dissect_giop_heur, "DIOP (GIOP/UDP)", "giop_udp", proto_giop, HEURISTIC_ENABLE);

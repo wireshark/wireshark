@@ -80,7 +80,6 @@ static gboolean top_dissect                                              = TRUE;
 
 static dissector_handle_t llc_handle;
 static dissector_handle_t ipx_handle;
-static dissector_handle_t data_handle;
 static dissector_handle_t ethertype_handle;
 
 static const true_false_string ig_tfs = {
@@ -449,7 +448,7 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 tvbuff_t  *next_tvb;
 
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
-                call_dissector(data_handle, next_tvb, pinfo, tree);
+                call_data_dissector(next_tvb, pinfo, tree);
             } else {
                 /*
                  * Valid Ethertype.
@@ -469,7 +468,7 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             tvbuff_t  *next_tvb;
 
             next_tvb = tvb_new_subset_remaining(tvb, offset);
-            call_dissector(data_handle, next_tvb, pinfo, tree);
+            call_data_dissector(next_tvb, pinfo, tree);
         }
     }
 
@@ -645,7 +644,6 @@ proto_reg_handoff_btbnep(void)
 {
     ipx_handle    = find_dissector_add_dependency("ipx", proto_btbnep);
     llc_handle    = find_dissector_add_dependency("llc", proto_btbnep);
-    data_handle   = find_dissector("data");
     ethertype_handle = find_dissector_add_dependency("ethertype", proto_btbnep);
 
     dissector_add_string("bluetooth.uuid", "1115", btbnep_handle);

@@ -284,7 +284,6 @@ static wmem_map_t *http2_hdrcache_map = NULL;
 /* Header name_length + name + value_length + value */
 static char *http2_header_pstr = NULL;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t http2_handle;
 
 #define FRAME_HEADER_LENGTH     9
@@ -2012,8 +2011,6 @@ static int http2_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_
 void
 proto_reg_handoff_http2(void)
 {
-    data_handle = find_dissector("data");
-
     dissector_add_for_decode_as("tcp.port", http2_handle);
 
     heur_dissector_add("ssl", dissect_http2_heur_ssl, "HTTP2 over SSL", "http2_ssl", proto_http2, HEURISTIC_ENABLE);

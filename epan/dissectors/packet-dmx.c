@@ -112,7 +112,6 @@ static int ett_dmx_text = -1;
 static dissector_table_t dmx_dissector_table;
 
 static dissector_handle_t dmx_text_handle;
-static dissector_handle_t data_handle;
 
 /*
  * Here are the global variables associated with the preferences for DMX
@@ -421,7 +420,7 @@ dissect_dmx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 	if (!dissector_try_uint_new(dmx_dissector_table, start_code, tvb, pinfo,
                              tree, TRUE, NULL)) {
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 
 	return tvb_captured_length(tvb);
@@ -694,8 +693,6 @@ proto_reg_handoff_dmx(void)
 	dissector_add_uint("dmx", DMX_SC_SIP, create_dissector_handle(dissect_dmx_sip, proto_dmx_sip));
 	dissector_add_uint("dmx", DMX_SC_TEST, create_dissector_handle(dissect_dmx_test, proto_dmx_test));
 	dissector_add_uint("dmx", DMX_SC_TEXT, create_dissector_handle(dissect_dmx_text, proto_dmx_text));
-
-	data_handle	= find_dissector("data");
 }
 
 /*

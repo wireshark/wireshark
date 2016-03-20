@@ -57,7 +57,6 @@ static int hf_asf_auth_alg = -1;
 static int hf_asf_integrity_alg = -1;
 static int hf_asf_reserved = -1;
 
-static dissector_handle_t data_handle;
 static gint ett_asf = -1;
 static gint ett_asf_payload = -1;
 static gint ett_asf_alg_payload = -1;
@@ -189,7 +188,7 @@ dissect_asf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 		default:
 			next_tvb = tvb_new_subset_length(tvb, 8, len);
-			call_dissector(data_handle, next_tvb, pinfo, tree);
+			call_data_dissector(next_tvb, pinfo, tree);
 			break;
 		}
 	}
@@ -387,8 +386,6 @@ void
 proto_reg_handoff_asf(void)
 {
 	dissector_handle_t asf_handle;
-
-	data_handle = find_dissector("data");
 
 	asf_handle  = create_dissector_handle(dissect_asf, proto_asf);
 	dissector_add_uint("rmcp.class", RMCP_CLASS_ASF, asf_handle);

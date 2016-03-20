@@ -41,8 +41,6 @@ static int hf_loop_forwarding_address = -1;
 
 static gint ett_loop = -1;
 
-static dissector_handle_t data_handle;
-
 #define FUNC_REPLY              1
 #define FUNC_FORWARD_DATA       2
 
@@ -116,7 +114,7 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   if (tvb_reported_length_remaining(tvb, offset) > 0)
   {
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(data_handle, next_tvb, pinfo, tree);
+    call_data_dissector(next_tvb, pinfo, tree);
   }
   return tvb_captured_length(tvb);
 }
@@ -168,8 +166,6 @@ proto_reg_handoff_loop(void)
   loop_handle = create_dissector_handle(dissect_loop, proto_loop);
 
   dissector_add_uint("ethertype", ETHERTYPE_LOOP, loop_handle);
-
-  data_handle = find_dissector("data");
 }
 
 /*

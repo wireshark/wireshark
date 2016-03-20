@@ -97,8 +97,6 @@ static int ett_pcli = -1;
 
 static gboolean pcli_summary_in_tree = TRUE;
 
-static dissector_handle_t   data_handle;
-
 static dissector_table_t    pcli_subdissector_table;
 
 static proto_tree *
@@ -142,7 +140,7 @@ dissect_pcli_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
      * have a unique identifier to determine subdissector
      */
     if (!dissector_try_uint(pcli_subdissector_table, 0, next_tvb, pinfo, tree)) {
-        call_dissector(data_handle, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
     }
 }
 
@@ -289,7 +287,6 @@ proto_reg_handoff_pcli(void)
         pcli_handle8 = create_dissector_handle(dissect_pcli8, proto_pcli8);
         pcli_handle12 = create_dissector_handle(dissect_pcli12, proto_pcli12);
         pcli_handle20 = create_dissector_handle(dissect_pcli20, proto_pcli20);
-        data_handle = find_dissector("data");
         pcli_initialized = TRUE;
     }
 

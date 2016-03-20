@@ -296,7 +296,6 @@ static expert_field ei_6lowpan_bad_ext_header_length = EI_INIT;
 
 /* Subdissector handles. */
 static dissector_handle_t       handle_6lowpan;
-static dissector_handle_t       data_handle;
 static dissector_handle_t       ipv6_handle;
 
 /* Value Strings */
@@ -1963,7 +1962,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
          */
         if (!tvb_bytes_exist(tvb, offset, ext_len)) {
             /* Call the data dissector for the remainder. */
-            call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, nhc_tree);
+            call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, nhc_tree);
 
             /* Copy the remainder, and truncate the real buffer length. */
             nhdr->length = tvb_captured_length_remaining(tvb, offset) + ext_hlen;
@@ -1975,10 +1974,10 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 
         if (ext_proto == IP_PROTO_FRAGMENT) {
             /* Display the extension header using the data dissector. */
-            call_dissector(data_handle, tvb_new_subset_length(tvb, offset+1, ext_len-1), pinfo, nhc_tree);
+            call_data_dissector(tvb_new_subset_length(tvb, offset+1, ext_len-1), pinfo, nhc_tree);
         } else {
             /* Display the extension header using the data dissector. */
-            call_dissector(data_handle, tvb_new_subset_length(tvb, offset, ext_len), pinfo, nhc_tree);
+            call_data_dissector(tvb_new_subset_length(tvb, offset, ext_len), pinfo, nhc_tree);
         }
 
         /* Copy the extension header into the struct. */
@@ -2445,7 +2444,7 @@ dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         /* Reassembly was unsuccessful; show this fragment.  This may
            just mean that we don't yet have all the fragments, so
            we should not just continue dissecting. */
-        call_dissector(data_handle, frag_tvb, pinfo, proto_tree_get_root(tree));
+        call_data_dissector(frag_tvb, pinfo, proto_tree_get_root(tree));
         return NULL;
     }
 } /* dissect_6lowpan_frag_first */
@@ -2526,7 +2525,7 @@ dissect_6lowpan_frag_middle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* If reassembly failed, display the payload fragment using the data dissector. */
     else {
         new_tvb = tvb_new_subset_remaining(tvb, offset);
-        call_dissector(data_handle, new_tvb, pinfo, proto_tree_get_root(tree));
+        call_data_dissector(new_tvb, pinfo, proto_tree_get_root(tree));
         return NULL;
     }
 } /* dissect_6lowpan_frag_middle */
@@ -2563,7 +2562,7 @@ dissect_6lowpan_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Create a tvbuff subset for the remaining data. */
     data_tvb = tvb_new_subset_remaining(tvb, 1);
-    call_dissector(data_handle, data_tvb, pinfo, proto_tree_get_root(tree));
+    call_data_dissector(data_tvb, pinfo, proto_tree_get_root(tree));
 } /* dissect_6lowpan_unknown */
 
 /*FUNCTION:------------------------------------------------------
@@ -2977,7 +2976,6 @@ prefs_6lowpan_apply(void)
 void
 proto_reg_handoff_6lowpan(void)
 {
-    data_handle = find_dissector("data");
     ipv6_handle = find_dissector_add_dependency("ipv6", proto_6lowpan);
 
     /* Register the 6LoWPAN dissector with IEEE 802.15.4 */

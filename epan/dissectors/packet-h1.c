@@ -41,8 +41,6 @@ static int hf_h1_dlen = -1;
 static int hf_h1_org = -1;
 static int hf_h1_response_value = -1;
 
-static dissector_handle_t data_handle;
-
 
 #define EMPTY_BLOCK     0xFF
 #define OPCODE_BLOCK    0x01
@@ -205,7 +203,7 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
         next_tvb = tvb_new_subset_remaining(tvb,  offset);
-        call_dissector(data_handle, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
     }
 
     return TRUE;
@@ -264,8 +262,6 @@ proto_reg_handoff_h1(void)
             "Sinec H1 over COTP (inactive subset)", "hi_cotp_is", proto_h1, HEURISTIC_ENABLE);
     heur_dissector_add("tcp", dissect_h1,
             "Sinec H1 over TCP", "hi_tcp", proto_h1, HEURISTIC_ENABLE);
-
-    data_handle = find_dissector("data");
 }
 
 /*

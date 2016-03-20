@@ -146,7 +146,6 @@ static gint hf_header_array[] = {
 static dissector_table_t media_type_dissector_table;
 
 /* Data and media dissector handles */
-static dissector_handle_t data_handle;
 static dissector_handle_t media_handle;
 static dissector_handle_t gssapi_handle;
 
@@ -899,7 +898,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, multipart_info_t *m_info,
             }
             parameters = NULL; /* Shares same memory as content_type_str */
         } else {
-            call_dissector(data_handle, tmp_tvb, pinfo, subtree);
+            call_data_dissector(tmp_tvb, pinfo, subtree);
         }
         proto_item_set_len(ti, boundary_start - start);
         if (*last_boundary == TRUE) {
@@ -934,7 +933,7 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
          * We can't get the required multipart information
          */
         proto_tree_add_expert(tree, pinfo, &ei_multipart_no_required_parameter, tvb, 0, -1);
-        call_dissector(data_handle, tvb, pinfo, tree);
+        call_data_dissector(tvb, pinfo, tree);
         return tvb_reported_length(tvb);
     }
     /* Clean up the memory if an exception is thrown */
@@ -963,7 +962,7 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
      */
     header_start = process_preamble(subtree, tvb, m_info, &last_boundary);
     if (header_start == -1) {
-        call_dissector(data_handle, tvb, pinfo, subtree);
+        call_data_dissector(tvb, pinfo, subtree);
         /* Clean up the dynamically allocated memory */
         cleanup_multipart_info(m_info);
         return tvb_reported_length(tvb);
@@ -1197,7 +1196,6 @@ proto_reg_handoff_multipart(void)
      * When we cannot display the data, call the data dissector.
      * When there is no dissector for the given media, call the media dissector.
      */
-    data_handle  = find_dissector("data");
     media_handle = find_dissector_add_dependency("media", proto_multipart);
     gssapi_handle = find_dissector_add_dependency("gssapi", proto_multipart);
 

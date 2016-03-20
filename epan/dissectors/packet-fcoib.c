@@ -104,7 +104,6 @@ static int ett_fcoib_crc        = -1;
 
 static expert_field ei_fcoib_crc = EI_INIT;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t fc_handle;
 
 /* global preferences */
@@ -324,8 +323,8 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     if (fc_handle) {
         call_dissector_with_data(fc_handle, next_tvb, pinfo, tree, &fc_data);
-    } else if (data_handle) {
-        call_dissector(data_handle, next_tvb, pinfo, tree);
+    } else {
+        call_data_dissector(next_tvb, pinfo, tree);
     }
 
     return TRUE;
@@ -417,7 +416,6 @@ proto_reg_handoff_fcoib(void)
     if (!initialized) {
         heur_dissector_add("infiniband.payload", dissect_fcoib, "Fibre Channel over Infiniband", "fc_infiniband", proto_fcoib, HEURISTIC_ENABLE);
 
-        data_handle = find_dissector("data");
         fc_handle = find_dissector_add_dependency("fc", proto_fcoib);
 
         initialized = TRUE;

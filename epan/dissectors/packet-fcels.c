@@ -621,7 +621,7 @@ typedef struct _fcels_conv_data {
 
 static GHashTable *fcels_req_hash = NULL;
 
-static dissector_handle_t data_handle, fcsp_handle;
+static dissector_handle_t fcsp_handle;
 
 /*
  * Hash Functions
@@ -2103,7 +2103,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         dissect_fcels_unbind (tvb, pinfo, tree, ti);
         break;
     default:
-        call_dissector (data_handle, tvb, pinfo, tree);
+        call_data_dissector(tvb, pinfo, tree);
         break;
     }
 
@@ -2627,7 +2627,6 @@ proto_reg_handoff_fcels (void)
     els_handle = create_dissector_handle (dissect_fcels, proto_fcels);
     dissector_add_uint("fc.ftype", FC_FTYPE_ELS, els_handle);
 
-    data_handle = find_dissector ("data");
     fcsp_handle = find_dissector_add_dependency ("fcsp", proto_fcels);
 }
 

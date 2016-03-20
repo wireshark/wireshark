@@ -61,7 +61,6 @@ static int proto_inap = -1;
 static range_t *global_ssn_range;
 
 static dissector_handle_t	inap_handle;
-static dissector_handle_t	data_handle;
 
 /* Global variables */
 static guint32 opcode=0;
@@ -179,7 +178,6 @@ void proto_reg_handoff_inap(void) {
   if (!inap_prefs_initialized) {
     inap_prefs_initialized = TRUE;
     inap_handle = find_dissector("inap");
-    data_handle = find_dissector("data");
     oid_add_from_string("Core-INAP-CS1-Codes","0.4.0.1.1.0.3.0");
     oid_add_from_string("iso(1) identified-organization(3) icd-ecma(12) member-company(2) 1107 oen(3) inap(3) extensions(2)","1.3.12.2.1107.3.3.2");
     oid_add_from_string("alcatel(1006)","1.3.12.2.1006.64");

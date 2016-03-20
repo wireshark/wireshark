@@ -96,8 +96,6 @@ static int hf_cattp_rc = -1;
 static int hf_cattp_eaklen = -1;
 static int hf_cattp_eaks = -1;
 
-static dissector_handle_t data_handle;
-
 /* Preference to control whether to check the CATTP checksum */
 static gboolean cattp_check_checksum = TRUE;
 
@@ -332,7 +330,7 @@ dissect_cattp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     if (plen > 0) { /* Call generic data handle if data exists. */
        col_append_fstr(pinfo->cinfo, COL_INFO, " DataLen=%u", plen);
        tvb = tvb_new_subset_remaining(tvb, offset);
-       call_dissector(data_handle, tvb, pinfo, tree);
+       call_data_dissector(tvb, pinfo, tree);
     }
     return tvb_captured_length(tvb);
 }
@@ -576,9 +574,6 @@ proto_reg_handoff_cattp(void)
 
         /* Create dissector handle */
         cattp_handle = create_dissector_handle(dissect_cattp, proto_cattp);
-
-        /* find data handle */
-        data_handle = find_dissector("data");
 
         heur_dissector_add("udp", dissect_cattp_heur, "CAT-TP over UDP", "cattp_udp", proto_cattp, HEURISTIC_ENABLE);
         dissector_add_for_decode_as("udp.port", cattp_handle);

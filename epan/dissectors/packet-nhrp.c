@@ -264,8 +264,6 @@ static dissector_table_t osinl_incl_subdissector_table;
 static dissector_table_t osinl_excl_subdissector_table;
 static dissector_table_t ethertype_subdissector_table;
 
-static dissector_handle_t data_handle;
-
 typedef struct _e_nhrp {
     guint16 ar_afn;
     guint16 ar_pro_type;
@@ -796,8 +794,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
                     hdr->ar_pro_type, sub_tvb, pinfo, ind_tree);
             }
             if (!dissected) {
-                call_dissector(data_handle, sub_tvb, pinfo,
-                    ind_tree);
+                call_data_dissector(sub_tvb, pinfo, ind_tree);
             }
         }
         pinfo->flags.in_error_pkt = save_in_error_pkt;
@@ -1385,8 +1382,6 @@ void
 proto_reg_handoff_nhrp(void)
 {
     dissector_handle_t nhrp_handle;
-
-    data_handle = find_dissector("data");
 
     osinl_incl_subdissector_table = find_dissector_table("osinl.incl");
     osinl_excl_subdissector_table = find_dissector_table("osinl.excl");

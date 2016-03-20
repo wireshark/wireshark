@@ -37,7 +37,6 @@
 
 
 void proto_register_gmr1_rach(void);
-void proto_reg_handoff_gmr1_rach(void);
 
 /* GMR-1 RACH proto */
 static int proto_gmr1_rach = -1;
@@ -52,9 +51,6 @@ static gint ett_rach_est_cause = -1;
 static gint ett_rach_dialed_num = -1;
 static gint ett_rach_gps_pos = -1;
 static gint ett_rach_gmprs_req_type = -1;
-
-/* Handoffs */
-static dissector_handle_t data_handle;
 
 /* Fields */
 static int hf_rach_prio = -1;
@@ -915,7 +911,7 @@ dissect_gmr1_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
 	if (!ies) {
 		col_append_str(pinfo->cinfo, COL_INFO, "(Invalid)");
-		call_dissector(data_handle, tvb, pinfo, tree);
+		call_data_dissector(tvb, pinfo, tree);
 		return tvb_captured_length(tvb);
 	}
 
@@ -1186,12 +1182,6 @@ proto_register_gmr1_rach(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("gmr1_rach", dissect_gmr1_rach, proto_gmr1_rach);
-}
-
-void
-proto_reg_handoff_gmr1_rach(void)
-{
-	data_handle = find_dissector("data");
 }
 
 /*

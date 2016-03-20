@@ -435,7 +435,6 @@ static const value_string ciphering_algorithm_vals[] = {
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t rohc_handle;
-static dissector_handle_t data_handle;
 
 
 #define SEQUENCE_ANALYSIS_RLC_ONLY  1
@@ -2219,7 +2218,7 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 call_dissector_only(ipv6_handle, ip_payload_tvb, pinfo, pdcp_tree, NULL);
                                 break;
                             default:
-                                call_dissector_only(data_handle, ip_payload_tvb, pinfo, pdcp_tree, NULL);
+                                call_data_dissector(ip_payload_tvb, pinfo, pdcp_tree);
                                 break;
                         }
 
@@ -2784,7 +2783,6 @@ void proto_reg_handoff_pdcp_lte(void)
     ip_handle   = find_dissector_add_dependency("ip", proto_pdcp_lte);
     ipv6_handle = find_dissector_add_dependency("ipv6", proto_pdcp_lte);
     rohc_handle = find_dissector_add_dependency("rohc", proto_pdcp_lte);
-    data_handle = find_dissector("data");
 }
 
 /*

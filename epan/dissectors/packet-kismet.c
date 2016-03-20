@@ -45,8 +45,6 @@ static int hf_kismet_time = -1;
 static gint ett_kismet = -1;
 static gint ett_kismet_reqresp = -1;
 
-static dissector_handle_t data_handle;
-
 #define TCP_PORT_KISMET	2501
 
 static guint global_kismet_tcp_port = TCP_PORT_KISMET;
@@ -138,7 +136,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 		/*
 		 * Put the whole packet into the tree as data.
 		 */
-		call_dissector(data_handle, tvb, pinfo, kismet_tree);
+		call_data_dissector(tvb, pinfo, kismet_tree);
 		return tvb_captured_length(tvb);
 	}
 
@@ -339,7 +337,6 @@ proto_reg_handoff_kismet(void)
 
 	if (!kismet_prefs_initialized) {
 		kismet_handle = create_dissector_handle(dissect_kismet, proto_kismet);
-		data_handle = find_dissector("data");
 		kismet_prefs_initialized = TRUE;
 	} else {
 		dissector_delete_uint("tcp.port", tcp_port, kismet_handle);

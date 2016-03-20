@@ -5179,7 +5179,6 @@ static dissector_handle_t ieee80211_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t ipx_handle;
 static dissector_handle_t eth_withoutfcs_handle;
-static dissector_handle_t data_handle;
 
 static int wlan_tap = -1;
 
@@ -16232,7 +16231,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
   /* check protocol activation */
   if (!proto_is_protocol_enabled(find_protocol_by_id(proto_wlan_mgt))) {
-    call_dissector(data_handle,tvb, pinfo, tree);
+    call_data_dissector(tvb, pinfo, tree);
     return;
   }
 
@@ -17894,7 +17893,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
             PROTO_ITEM_SET_GENERATED(item);
           }
           next_tvb = tvb_new_subset (tvb, hdr_len, len, reported_len);
-          call_dissector(data_handle, next_tvb, pinfo, tree);
+          call_data_dissector(next_tvb, pinfo, tree);
           goto end_of_wlan;
         }
       }
@@ -18156,7 +18155,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
 
       if ((!is_centrino) && (wlan_ignore_wep == WLAN_IGNORE_WEP_NO)) {
         /* Some wireless drivers (such as Centrino) WEP payload already decrypted */
-        call_dissector(data_handle, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
         goto end_of_wlan;
       }
     } else {
@@ -18277,7 +18276,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
     /* Just show this as an incomplete fragment. */
     col_set_str(pinfo->cinfo, COL_INFO, "Fragmented IEEE 802.11 frame");
     next_tvb = tvb_new_subset (tvb, hdr_len, len, reported_len);
-    call_dissector(data_handle, next_tvb, pinfo, tree);
+    call_data_dissector(next_tvb, pinfo, tree);
     pinfo->fragmented = save_fragmented;
     goto end_of_wlan;
   }
@@ -27387,7 +27386,6 @@ proto_reg_handoff_ieee80211(void)
   llc_handle            = find_dissector_add_dependency("llc", proto_wlan);
   ipx_handle            = find_dissector_add_dependency("ipx", proto_wlan);
   eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_wlan);
-  data_handle           = find_dissector("data");
 
   ieee80211_handle = find_dissector("wlan");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11, ieee80211_handle);

@@ -92,8 +92,6 @@ static const value_string rpl_type_vals[] = {
 	{ 0x0,	NULL }
 };
 
-static dissector_handle_t data_handle;
-
 static void
 dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -249,14 +247,12 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 
 		default:
-			call_dissector(data_handle,
-				tvb_new_subset_remaining(tvb, 4), pinfo,
+			call_data_dissector(tvb_new_subset_remaining(tvb, 4), pinfo,
 				tree);
 			break;
 	}
 	if (tvb_reported_length(tvb) > offset)
-		call_dissector(data_handle,
-			tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+		call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 }
 
 static int
@@ -283,8 +279,7 @@ dissect_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	dissect_rpl_container(next_tvb, pinfo, rpl_tree);
 
 	if (tvb_reported_length(tvb) > rpl_len)
-		call_dissector(data_handle,
-			tvb_new_subset_remaining(tvb, rpl_len), pinfo,
+		call_data_dissector(tvb_new_subset_remaining(tvb, rpl_len), pinfo,
 				tree);
 
 	return tvb_captured_length(tvb);
@@ -410,7 +405,6 @@ proto_reg_handoff_rpl(void)
 {
 	dissector_handle_t rpl_handle;
 
-	data_handle = find_dissector("data");
 	rpl_handle = find_dissector("rpl");
 	dissector_add_uint("llc.dsap", SAP_RPL, rpl_handle);
 }

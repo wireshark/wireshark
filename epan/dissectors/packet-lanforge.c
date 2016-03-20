@@ -59,9 +59,6 @@ static int hf_lanforge_timestamp = -1;
 /* Initialize the subtree pointer */
 static gint ett_lanforge = -1;
 
-/* data dissector handle */
-static dissector_handle_t data_handle;
-
 /* entry point */
 static gboolean dissect_lanforge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -148,7 +145,7 @@ static gboolean dissect_lanforge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree_add_time(lanforge_tree, hf_lanforge_timestamp, tvb, offset - 8, 8, &tstamp);
 
         if(tvb_reported_length_remaining(tvb, offset) > 0) /* random data */
-            call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo,
+           call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo,
                 lanforge_tree);
     }
 
@@ -282,9 +279,6 @@ void proto_reg_handoff_lanforge(void)
     /* Register as a heuristic UDP dissector */
     heur_dissector_add("udp", dissect_lanforge, "LANforge over UDP", "lanforge_udp", proto_lanforge, HEURISTIC_ENABLE);
     heur_dissector_add("tcp", dissect_lanforge, "LANforge over TCP", "lanforge_tcp", proto_lanforge, HEURISTIC_ENABLE);
-
-    /* Find data dissector handle */
-    data_handle = find_dissector("data");
 }
 
 /*

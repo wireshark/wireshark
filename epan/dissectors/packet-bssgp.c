@@ -80,7 +80,6 @@ static guint8 g_pdu_type, g_rim_application_identity;
 static proto_tree *gparent_tree;
 static dissector_handle_t llc_handle;
 static dissector_handle_t rrlp_handle;
-static dissector_handle_t data_handle;
 
 static module_t *bssgp_module;
 static dissector_table_t diameter_3gpp_avp_dissector_table;
@@ -941,9 +940,8 @@ de_bssgp_llc_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
     if(next_tvb){
         if (llc_handle) {
             call_dissector(llc_handle, next_tvb, pinfo, gparent_tree);
-        }
-        else if (data_handle) {
-            call_dissector(data_handle, next_tvb, pinfo, gparent_tree);
+        } else {
+            call_data_dissector(next_tvb, pinfo, gparent_tree);
         }
     }
 
@@ -1584,8 +1582,8 @@ de_bssgp_rrlp_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     if(next_tvb){
         if (rrlp_handle) {
             call_dissector(rrlp_handle, next_tvb, pinfo, gparent_tree);
-        }else if (data_handle) {
-            call_dissector(data_handle, next_tvb, pinfo, gparent_tree);
+        } else {
+            call_data_dissector(next_tvb, pinfo, gparent_tree);
         }
     }
     return(len);
@@ -7064,7 +7062,6 @@ proto_reg_handoff_bssgp(void)
 {
     llc_handle = find_dissector("llcgprs");
     rrlp_handle = find_dissector("rrlp");
-    data_handle = find_dissector("data");
 
     diameter_3gpp_avp_dissector_table = find_dissector_table("diameter.3gpp");
 }

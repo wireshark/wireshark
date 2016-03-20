@@ -270,8 +270,6 @@ static const int *usb_usbpcap_info_fields[] = {
 static int usb_tap = -1;
 static gboolean try_heuristics = TRUE;
 
-static dissector_handle_t data_handle;
-
 static dissector_table_t usb_bulk_dissector_table;
 static dissector_table_t usb_control_dissector_table;
 static dissector_table_t usb_interrupt_dissector_table;
@@ -3003,7 +3001,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
          * XXX - is there something we can still do here?
          */
         if (tvb_reported_length(next_tvb) > 0)
-            call_dissector(data_handle, next_tvb, pinfo, tree);
+            call_data_dissector(next_tvb, pinfo, tree);
 
         return tvb_captured_length(next_tvb);
     }
@@ -5299,8 +5297,6 @@ proto_reg_handoff_usb(void)
     dissector_handle_t  linux_usb_mmapped_handle;
     dissector_handle_t  win32_usb_handle;
     dissector_handle_t  freebsd_usb_handle;
-
-    data_handle = find_dissector("data");
 
     linux_usb_handle = create_dissector_handle(dissect_linux_usb, proto_usb);
     linux_usb_mmapped_handle = create_dissector_handle(dissect_linux_usb_mmapped,

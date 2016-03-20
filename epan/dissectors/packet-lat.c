@@ -77,8 +77,6 @@ static int hf_lat_unknown_command_data = -1;
 
 static gint ett_lat = -1;
 
-static dissector_handle_t data_handle;
-
 /* LAT commands. */
 #define LAT_CCMD_RUN			0
 #define LAT_CCMD_START			1
@@ -529,7 +527,6 @@ proto_reg_handoff_lat(void)
 {
 	dissector_handle_t lat_handle;
 
-	data_handle = find_dissector("data");
 	lat_handle = create_dissector_handle(dissect_lat, proto_lat);
 	dissector_add_uint("ethertype", ETHERTYPE_LAT, lat_handle);
 }

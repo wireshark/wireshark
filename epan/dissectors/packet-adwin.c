@@ -498,8 +498,6 @@ static int hf_adwin_val4              = -1;
 static gint ett_adwin                 = -1;
 static gint ett_adwin_debug           = -1;
 
-static dissector_handle_t data_handle;
-
 /* response/request tracking */
 typedef struct _adwin_transaction_t {
 	guint32 req_frame;
@@ -854,7 +852,7 @@ dissect_UDPR2(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_item(adwin_tree, hf_adwin_packet_index,   tvb, 4,  4, ENC_LITTLE_ENDIAN);
 
 	if (! global_adwin_dissect_data) {
-		call_dissector(data_handle, tvb_new_subset_length(tvb, 8, 250*4), pinfo, adwin_debug_tree);
+		call_data_dissector(tvb_new_subset_length(tvb, 8, 250*4), pinfo, adwin_debug_tree);
 		return;
 	}
 
@@ -893,7 +891,7 @@ dissect_UDPR3(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_item(adwin_tree, hf_adwin_packet_no,      tvb, 4,  4, ENC_LITTLE_ENDIAN);
 
 	if (! global_adwin_dissect_data) {
-		call_dissector(data_handle, tvb_new_subset_length(tvb, 8, 350*4), pinfo, adwin_debug_tree);
+		call_data_dissector(tvb_new_subset_length(tvb, 8, 350*4), pinfo, adwin_debug_tree);
 		return;
 	}
 
@@ -945,7 +943,7 @@ dissect_UDPR4(tvbuff_t *tvb, packet_info *pinfo,
 	data_type = tvb_get_letohl(tvb, 1412);
 
 	if (! global_adwin_dissect_data) {
-		call_dissector(data_handle, tvb_new_subset_length(tvb, 8, 350*4), pinfo, adwin_debug_tree);
+		call_data_dissector(tvb_new_subset_length(tvb, 8, 350*4), pinfo, adwin_debug_tree);
 		return;
 	}
 
@@ -1004,7 +1002,7 @@ dissect_GDSHP(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_item(adwin_tree, hf_adwin_unused,         tvb, 8,  4, ENC_NA);
 
 	if (! global_adwin_dissect_data) {
-		call_dissector(data_handle, tvb_new_subset_length(tvb, 12, 336*4), pinfo, adwin_debug_tree);
+		call_data_dissector(tvb_new_subset_length(tvb, 12, 336*4), pinfo, adwin_debug_tree);
 		return;
 	}
 
@@ -1170,7 +1168,6 @@ proto_reg_handoff_adwin(void)
 
 	if (! adwin_prefs_initialized) {
 		adwin_handle = create_dissector_handle(dissect_adwin, proto_adwin);
-		data_handle = find_dissector("data");
 		adwin_prefs_initialized = TRUE;
 	} else {
 		dissector_delete_uint("udp.port", udp_port, adwin_handle);

@@ -50,9 +50,6 @@ static gint ett_msg_ccch = -1;
 
 static gint ett_rr_pd = -1;
 
-/* Handoffs */
-static dissector_handle_t data_handle;
-
 
 
 /* ------------------------------------------------------------------------ */
@@ -1897,7 +1894,7 @@ dissect_gmr1_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
 	/* Error handling */
 err:
-	call_dissector(data_handle, tvb, pinfo, tree);
+	call_data_dissector(tvb, pinfo, tree);
 	return tvb_captured_length(tvb);
 }
 
@@ -2457,12 +2454,6 @@ proto_register_gmr1_rr(void)
 
 	/* Register dissector */
 	register_dissector("gmr1_ccch", dissect_gmr1_ccch, proto_gmr1_ccch);
-}
-
-void
-proto_reg_handoff_gmr1_rr(void)
-{
-	data_handle = find_dissector("data");
 }
 
 /*

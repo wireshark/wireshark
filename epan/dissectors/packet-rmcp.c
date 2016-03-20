@@ -57,7 +57,6 @@ static gint ett_rmcp_typeclass = -1;
 
 static gint ett_rsp = -1;
 
-static dissector_handle_t data_handle;
 static dissector_table_t rmcp_dissector_table;
 
 #define UDP_PORT_RMCP		623
@@ -142,7 +141,7 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
 		if (!dissector_try_uint(rmcp_dissector_table, rmcp_class, next_tvb, pinfo,
 			tree)) {
-			len = call_dissector(data_handle, next_tvb, pinfo, tree);
+			len = call_data_dissector(next_tvb, pinfo, tree);
 			if (len < tvb_reported_length(next_tvb)) {
 				proto_tree_add_item(tree, hf_rmcp_trailer, tvb, 4 + len, -1, ENC_NA);
 			}
@@ -254,8 +253,6 @@ void
 proto_reg_handoff_rmcp(void)
 {
 	dissector_handle_t rmcp_handle;
-
-	data_handle = find_dissector("data");
 
 	rmcp_handle = create_dissector_handle(dissect_rmcp, proto_rmcp);
 	dissector_add_uint("udp.port", UDP_PORT_RMCP, rmcp_handle);

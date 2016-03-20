@@ -233,7 +233,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   if (actx->external.direct_ref_present){
 	 offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, ext_tree, NULL);
   }else{
-	 call_dissector(data_handle, tvb, actx->pinfo, ext_tree);
+	 call_data_dissector(tvb, actx->pinfo, ext_tree);
 	 offset = tvb_reported_length_remaining(tvb,offset);
   }
 

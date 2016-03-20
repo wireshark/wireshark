@@ -68,8 +68,6 @@ static gint ett_itdm_ctl   = -1;
 static guint gbl_ItdmMPLSLabel = 0x99887;
 static guint gbl_ItdmCTLFlowNo = 0;
 
-static dissector_handle_t data_handle;
-
 /* I-TDM 125usec mode commands for data flows */
 #define ITDM_CMD_NEW_CHAN     1
 #define ITDM_CMD_CLOSE_CHAN   2
@@ -262,7 +260,7 @@ dissect_itdm_125usec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   next_tvb = tvb_new_subset_remaining(tvb, offset);
-  call_dissector(data_handle, next_tvb, pinfo, tree);
+  call_data_dissector(next_tvb, pinfo, tree);
 }
 
 static void
@@ -353,7 +351,7 @@ dissect_itdm_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   next_tvb = tvb_new_subset_remaining(tvb, offset);
-  call_dissector(data_handle, next_tvb, pinfo, tree);
+  call_data_dissector(next_tvb, pinfo, tree);
 }
 
 static int
@@ -467,7 +465,6 @@ proto_reg_handoff_itdm(void)
 
   if (!Initialized) {
     itdm_handle = create_dissector_handle( dissect_itdm, proto_itdm );
-    data_handle = find_dissector("data");
     Initialized=TRUE;
   } else {
     dissector_delete_uint("mpls.label", ItdmMPLSLabel, itdm_handle);

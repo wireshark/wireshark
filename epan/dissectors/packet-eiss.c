@@ -32,7 +32,6 @@ void proto_register_eiss(void);
 void proto_reg_handoff_eiss(void);
 
 static int proto_eiss = -1;
-static dissector_handle_t data_handle;
 
 static int hf_eiss_reserved2 = -1;
 static int hf_eiss_section_number = -1;
@@ -236,7 +235,7 @@ dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 		offset += 4;
 
 		payload = tvb_new_subset_length(tvb, offset, tmp-4);
-		call_dissector(data_handle, payload, pinfo, sub_tree);
+		call_data_dissector(payload, pinfo, sub_tree);
 
 		return (3+tmp);
 	} else {
@@ -579,7 +578,6 @@ proto_reg_handoff_eiss(void)
 
 	eiss_handle = create_dissector_handle(dissect_eiss, proto_eiss);
 	dissector_add_uint("mpeg_sect.tid", EISS_SECTION_TID, eiss_handle);
-	data_handle = find_dissector("data");
 }
 
 /*

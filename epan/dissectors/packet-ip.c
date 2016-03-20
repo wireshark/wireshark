@@ -289,7 +289,6 @@ static heur_dissector_list_t heur_subdissector_list;
 static dissector_table_t ip_dissector_table;
 
 static dissector_handle_t ipv6_handle;
-static dissector_handle_t data_handle;
 
 
 /* IP structs and definitions */
@@ -2460,7 +2459,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
                       ipfd_head->reassembled_in);
     }
 
-    call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo,
+    call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo,
                    parent_tree);
     pinfo->fragmented = save_fragmented;
     return tvb_captured_length(tvb);
@@ -2480,7 +2479,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%u)",
                    ipprotostr(iph->ip_p), iph->ip_p);
       }
-      call_dissector(data_handle,next_tvb, pinfo, parent_tree);
+      call_data_dissector(next_tvb, pinfo, parent_tree);
     }
   }
   pinfo->fragmented = save_fragmented;
@@ -3179,7 +3178,6 @@ proto_reg_handoff_ip(void)
 
   ip_handle = find_dissector("ip");
   ipv6_handle = find_dissector("ipv6");
-  data_handle = find_dissector("data");
   ipv4_handle = create_dissector_handle(dissect_ip_v4, proto_ip);
 
   dissector_add_uint("ethertype", ETHERTYPE_IP, ipv4_handle);

@@ -312,8 +312,6 @@ static expert_field ei_sctp_tsn_retransmitted = EI_INIT;
 static expert_field ei_sctp_sack_chunk_gap_block_malformed = EI_INIT;
 static expert_field ei_sctp_sack_chunk_number_tsns_gap_acked_100 = EI_INIT;
 
-static dissector_handle_t data_handle;
-
 WS_DLL_PUBLIC_DEF const value_string chunk_type_values[] = {
   { SCTP_DATA_CHUNK_ID,              "DATA" },
   { SCTP_INIT_CHUNK_ID,              "INIT" },
@@ -2516,7 +2514,7 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
     }
   }
   /* Oh, well, we don't know this; dissect it as data. */
-  call_dissector(data_handle, payload_tvb, pinfo, tree);
+  call_data_dissector(payload_tvb, pinfo, tree);
   return TRUE;
 }
 
@@ -5053,7 +5051,6 @@ proto_reg_handoff_sctp(void)
 {
   dissector_handle_t sctp_handle;
 
-  data_handle = find_dissector("data");
   sctp_handle = find_dissector("sctp");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_SCTP, sctp_handle);
   dissector_add_uint("ip.proto", IP_PROTO_SCTP, sctp_handle);

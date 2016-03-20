@@ -324,7 +324,6 @@ static int hf_reload_joinans = -1;
 static int hf_reload_leavereq = -1;
 static int hf_reload_leavereq_leaving_peer_id = -1;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t xml_handle;
 
 
@@ -4151,7 +4150,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       }
       save_fragmented = pinfo->fragmented;
       pinfo->fragmented = TRUE;
-      call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+      call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
       pinfo->fragmented = save_fragmented;
       return effective_length;
     }
@@ -5937,8 +5936,6 @@ proto_register_reload(void)
 void
 proto_reg_handoff_reload(void)
 {
-
-  data_handle = find_dissector("data");
   xml_handle  = find_dissector_add_dependency("xml", proto_reload);
 
   heur_dissector_add("udp", dissect_reload_heur, "RELOAD over UDP", "reload_udp", proto_reload, HEURISTIC_ENABLE);

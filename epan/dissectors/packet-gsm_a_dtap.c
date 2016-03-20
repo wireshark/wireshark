@@ -756,7 +756,6 @@ static expert_field ei_gsm_a_dtap_coding_scheme = EI_INIT;
 
 static dissector_table_t u2u_dissector_table;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t gsm_map_handle;
 static dissector_handle_t rp_handle;
 
@@ -6721,7 +6720,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         /*
          * too short to be DTAP
          */
-        call_dissector(data_handle, tvb, pinfo, tree);
+        call_data_dissector(tvb, pinfo, tree);
         return len;
     }
 
@@ -8328,7 +8327,6 @@ proto_reg_handoff_gsm_a_dtap(void)
     dissector_add_uint("lapdm.sapi",   0 , dtap_handle); /* LAPDm: CC/RR/MM */
     dissector_add_uint("lapdm.sapi",   3 , dtap_handle); /* LAPDm: SMS/SS */
 
-    data_handle    = find_dissector("data");
     gsm_map_handle = find_dissector_add_dependency("gsm_map", proto_a_dtap);
     rp_handle      = find_dissector_add_dependency("gsm_a_rp", proto_a_dtap);
 }

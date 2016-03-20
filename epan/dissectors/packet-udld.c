@@ -62,8 +62,6 @@ static gint ett_udld = -1;
 static gint ett_udld_flags = -1;
 static gint ett_udld_tlv = -1;
 
-static dissector_handle_t data_handle;
-
 #define TYPE_DEVICE_ID        0x0001
 #define TYPE_PORT_ID          0x0002
 #define TYPE_ECHO             0x0003
@@ -226,7 +224,7 @@ dissect_udld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         }
     }
 
-    call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, udld_tree);
+    call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, udld_tree);
     return tvb_captured_length(tvb);
 }
 
@@ -304,7 +302,6 @@ proto_reg_handoff_udld(void)
 {
     dissector_handle_t udld_handle;
 
-    data_handle = find_dissector("data");
     udld_handle = create_dissector_handle(dissect_udld, proto_udld);
     dissector_add_uint("llc.cisco_pid", 0x0111, udld_handle);
     dissector_add_uint("chdlc.protocol", 0x0111, udld_handle);

@@ -317,7 +317,6 @@ capture_vines(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_
 }
 
 static dissector_handle_t vines_ip_handle;
-static dissector_handle_t data_handle;
 
 /* Control flags */
 #define VINES_FRP_FIRST_FRAGMENT	0x01
@@ -465,7 +464,7 @@ dissect_vines_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	next_tvb = tvb_new_subset_remaining(tvb, 1);
 	if (!dissector_try_uint(vines_llc_dissector_table, ptype,
 	    next_tvb, pinfo, tree))
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 
 	return tvb_captured_length(tvb);
 }
@@ -613,7 +612,7 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	if (!dissector_try_uint(vines_ip_dissector_table, vip_proto,
 	    next_tvb, pinfo, tree))
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 
 	return tvb_captured_length(tvb);
 }
@@ -709,7 +708,6 @@ proto_reg_handoff_vines_ip(void)
 	dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_BANYAN,
 	    vines_ip_handle);
 	dissector_add_uint("vines_llc.ptype", VINES_LLC_IP, vines_ip_handle);
-	data_handle = find_dissector("data");
 }
 
 static int
@@ -905,7 +903,7 @@ dissect_vines_ipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	if (viph.vipc_pkttype != PKTTYPE_DATA ||
 	    !dissector_try_heuristic(vines_ipc_heur_subdissector_list,
 	      next_tvb, pinfo, tree, &hdtbl_entry, NULL))
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 
 	return tvb_captured_length(tvb);
 }
@@ -1078,7 +1076,7 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	if (viph.vspp_pkttype != PKTTYPE_DATA ||
 	    !dissector_try_heuristic(vines_spp_heur_subdissector_list,
 	      next_tvb, pinfo, tree, &hdtbl_entry, NULL))
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 
 	return tvb_captured_length(tvb);
 }

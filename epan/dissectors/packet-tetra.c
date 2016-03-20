@@ -54,9 +54,6 @@ void proto_reg_handoff_tetra(void);
 /* Wireshark ID of the tetra protocol */
 static int proto_tetra = -1;
 
-/* These are the handles of our subdissectors */
-static dissector_handle_t data_handle = NULL;
-
 static dissector_handle_t tetra_handle;
 
 static int global_tetra_port = 7074;
@@ -683,7 +680,7 @@ static int hf_tetra_proprietary_element_owner_extension = -1;  /* BIT_STRING */
 static int hf_tetra_simplex_duplex_selection_06 = -1;  /* T_simplex_duplex_selection_05 */
 
 /*--- End of included file: packet-tetra-hf.c ---*/
-#line 82 "./asn1/tetra/packet-tetra-template.c"
+#line 79 "./asn1/tetra/packet-tetra-template.c"
 
 /* Initialize the subtree pointers */
 /* These are the ids of the subtrees that we may be creating */
@@ -968,7 +965,7 @@ static gint ett_tetra_Type2 = -1;
 static gint ett_tetra_Modify_type = -1;
 
 /*--- End of included file: packet-tetra-ett.c ---*/
-#line 92 "./asn1/tetra/packet-tetra-template.c"
+#line 89 "./asn1/tetra/packet-tetra-template.c"
 
 static expert_field ei_tetra_channels_incorrect = EI_INIT;
 
@@ -8814,7 +8811,7 @@ static int dissect_MAC_ACCESS_DEFINE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 
 
 /*--- End of included file: packet-tetra-fn.c ---*/
-#line 96 "./asn1/tetra/packet-tetra-template.c"
+#line 93 "./asn1/tetra/packet-tetra-template.c"
 
 static const value_string channeltypenames[] = {
 	{ 0, "Reserved" },
@@ -9274,7 +9271,6 @@ void proto_reg_handoff_tetra(void)
 	static gboolean initialized=FALSE;
 
 	if (!initialized) {
-		data_handle = find_dissector("data");
 		tetra_handle = create_dissector_handle(dissect_tetra, proto_tetra);
 		dissector_add_uint("udp.port", global_tetra_port, tetra_handle);
 	}
@@ -11717,7 +11713,7 @@ void proto_register_tetra (void)
         "T_simplex_duplex_selection_05", HFILL }},
 
 /*--- End of included file: packet-tetra-hfarr.c ---*/
-#line 626 "./asn1/tetra/packet-tetra-template.c"
+#line 622 "./asn1/tetra/packet-tetra-template.c"
  	};
 
 	/* List of subtrees */
@@ -12002,7 +11998,7 @@ void proto_register_tetra (void)
     &ett_tetra_Modify_type,
 
 /*--- End of included file: packet-tetra-ettarr.c ---*/
-#line 636 "./asn1/tetra/packet-tetra-template.c"
+#line 632 "./asn1/tetra/packet-tetra-template.c"
 	};
 
 	static ei_register_info ei[] = {

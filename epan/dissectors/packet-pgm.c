@@ -246,7 +246,6 @@ static expert_field ei_address_format_invalid = EI_INIT;
 
 static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
-static dissector_handle_t data_handle;
 
 
 static const char *
@@ -795,7 +794,7 @@ decode_pgm_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		return;
 
 	/* Oh, well, we don't know this; dissect it as data. */
-	call_dissector(data_handle,next_tvb, pinfo, tree);
+	call_data_dissector(next_tvb, pinfo, tree);
 }
 
 /*
@@ -1451,7 +1450,6 @@ proto_reg_handoff_pgm(void)
 		pgm_handle = create_dissector_handle(dissect_pgm, proto_pgm);
 		dissector_add_for_decode_as("udp.port", pgm_handle);
 		dissector_add_uint("ip.proto", IP_PROTO_PGM, pgm_handle);
-		data_handle = find_dissector("data");
 		initialized = TRUE;
 	} else {
 		if (old_udp_encap_ucast_port != 0) {

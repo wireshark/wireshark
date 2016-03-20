@@ -562,7 +562,6 @@ static expert_field ei_icmpv6_rpl_p2p_dro_zero = EI_INIT;
 static dissector_handle_t icmpv6_handle;
 
 static dissector_handle_t ipv6_handle;
-static dissector_handle_t data_handle;
 
 #define ICMP6_DST_UNREACH                 1
 #define ICMP6_PACKET_TOO_BIG              2
@@ -1185,7 +1184,7 @@ dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
         /* The contained packet is an IPv6 datagram; dissect it. */
         offset += call_dissector(ipv6_handle, next_tvb, pinfo, tree);
     } else
-        offset += call_dissector(data_handle, next_tvb, pinfo, tree);
+        offset += call_data_dissector(next_tvb, pinfo, tree);
 
     /* Restore the "we're inside an error packet" flag. */
     pinfo->flags.in_error_pkt = save_in_error_pkt;
@@ -3634,7 +3633,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 }
             }
             next_tvb = tvb_new_subset_remaining(tvb, offset);
-            offset += call_dissector(data_handle, next_tvb, pinfo, icmp6_tree);
+            offset += call_data_dissector(next_tvb, pinfo, icmp6_tree);
         }
     }
 
@@ -5371,7 +5370,6 @@ proto_reg_handoff_icmpv6(void)
      * Get a handle for the IPv6 dissector.
      */
     ipv6_handle = find_dissector_add_dependency("ipv6", proto_icmpv6);
-    data_handle = find_dissector("data");
 }
 
 /*

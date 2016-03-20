@@ -147,8 +147,6 @@ static gint ett_cdp_checksum = -1;
 static expert_field ei_cdp_invalid_data = EI_INIT;
 static expert_field ei_cdp_nrgyz_tlvlength = EI_INIT;
 
-static dissector_handle_t data_handle;
-
 static int
 dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
 static void
@@ -1045,7 +1043,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             offset += length;
         }
     }
-    call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, cdp_tree);
+    call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, cdp_tree);
     return tvb_captured_length(tvb);
 }
 
@@ -1474,7 +1472,6 @@ proto_reg_handoff_cdp(void)
 {
     dissector_handle_t cdp_handle;
 
-    data_handle = find_dissector("data");
     cdp_handle  = create_dissector_handle(dissect_cdp, proto_cdp);
     dissector_add_uint("llc.cisco_pid", 0x2000, cdp_handle);
     dissector_add_uint("chdlc.protocol", 0x2000, cdp_handle);

@@ -148,7 +148,6 @@ static const fragment_items cotp_frag_items = {
 
 static dissector_handle_t rdp_cr_handle;
 static dissector_handle_t rdp_cc_handle;
-static dissector_handle_t data_handle;
 
 /*
  * ISO8073 OSI COTP definition
@@ -882,8 +881,7 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   expert_add_info_format(pinfo, ti, &ei_cotp_disconnect_request, "Disconnect Request(DR): 0x%x -> 0x%x", src_ref, dst_ref);
 
   /* User data */
-  call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo,
-                 tree);
+  call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
   offset += tvb_captured_length_remaining(tvb, offset);
      /* we dissected all of the containing PDU */
 
@@ -1193,7 +1191,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
       *subdissector_found = TRUE;
     } else {
       /* Fill in other Dissectors using inactive subset here */
-      call_dissector(data_handle,next_tvb, pinfo, tree);
+      call_data_dissector(next_tvb, pinfo, tree);
     }
   } else {
     /*
@@ -1207,7 +1205,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
                                   tree, &hdtbl_entry, NULL)) {
         *subdissector_found = TRUE;
       } else {
-        call_dissector(data_handle,next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
       }
     }
   }
@@ -1412,7 +1410,7 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
    * in an ED packet?
    */
   next_tvb = tvb_new_subset_remaining(tvb, offset);
-  call_dissector(data_handle,next_tvb, pinfo, tree);
+  call_data_dissector(next_tvb, pinfo, tree);
 
   offset += tvb_captured_length_remaining(tvb, offset);
      /* we dissected all of the containing PDU */
@@ -1607,11 +1605,11 @@ static int ositp_decode_CR_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
                                 tree, &hdtbl_entry, NULL)) {
       *subdissector_found = TRUE;
     } else {
-      call_dissector(data_handle,next_tvb, pinfo, tree);
+      call_data_dissector(next_tvb, pinfo, tree);
     }
   }
   else
-    call_dissector(data_handle, next_tvb, pinfo, tree);
+    call_data_dissector( next_tvb, pinfo, tree);
   offset += tvb_captured_length_remaining(tvb, offset);
   /* we dissected all of the containing PDU */
 
@@ -2079,11 +2077,11 @@ static int ositp_decode_UD(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
                               pinfo, tree, &hdtbl_entry, NULL)) {
     *subdissector_found = TRUE;
   } else {
-    call_dissector(data_handle,next_tvb, pinfo, tree);
+    call_data_dissector(next_tvb, pinfo, tree);
   }
 
 
-  /*call_dissector(data_handle,next_tvb, pinfo, tree); */
+  /*call_data_dissector(next_tvb, pinfo, tree); */
 
   offset += tvb_captured_length_remaining(tvb, offset);
   /* we dissected all of the containing PDU */
@@ -2127,7 +2125,7 @@ static gint dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
     if ((li = tvb_get_guint8(tvb, offset + P_LI)) == 0) {
       col_append_str(pinfo->cinfo, COL_INFO, "Length indicator is zero");
       if (!first_tpdu)
-        call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset),
+        call_data_dissector( tvb_new_subset_remaining(tvb, offset),
                        pinfo, tree);
       return found_ositp;
     }
@@ -2183,7 +2181,7 @@ static gint dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
 
     if (new_offset == -1) { /* incorrect TPDU */
       if (!first_tpdu)
-        call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset),
+        call_data_dissector( tvb_new_subset_remaining(tvb, offset),
                        pinfo, tree);
       break;
     }
@@ -2469,7 +2467,6 @@ proto_reg_handoff_cotp(void)
   ositp_handle = find_dissector("ositp");
   dissector_add_uint("ip.proto", IP_PROTO_TP, ositp_handle);
 
-  data_handle = find_dissector("data");
   rdp_cr_handle = find_dissector("rdp_cr");
   rdp_cc_handle = find_dissector("rdp_cc");
 

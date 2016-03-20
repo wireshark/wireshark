@@ -310,7 +310,7 @@ static gint ett_q708_opc = -1;
 static gint ett_q708_dpc = -1;
 
 static module_t *m3ua_module;
-static dissector_handle_t mtp3_handle, data_handle;
+static dissector_handle_t mtp3_handle;
 static dissector_table_t si_dissector_table;
 
 /* stuff for supporting multiple versions */
@@ -1255,7 +1255,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
 
   payload_tvb = tvb_new_subset_length(parameter_tvb, DATA_ULP_OFFSET, ulp_length);
   if (!dissector_try_uint(si_dissector_table, tvb_get_guint8(parameter_tvb, DATA_SI_OFFSET), payload_tvb, pinfo, tree))
-    call_dissector(data_handle, payload_tvb, pinfo, tree);
+    call_data_dissector(payload_tvb, pinfo, tree);
 
   mtp3_standard = m3ua_pref_mtp3_standard;
 }
@@ -2154,7 +2154,6 @@ proto_reg_handoff_m3ua(void)
    * Get a handle for the MTP3 dissector.
    */
   mtp3_handle = find_dissector_add_dependency("mtp3", proto_m3ua);
-  data_handle = find_dissector("data");
   m3ua_handle = find_dissector("m3ua");
   dissector_add_uint("sctp.ppi",  M3UA_PAYLOAD_PROTOCOL_ID, m3ua_handle);
   dissector_add_uint("sctp.port", SCTP_PORT_M3UA, m3ua_handle);

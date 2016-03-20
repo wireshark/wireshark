@@ -90,7 +90,6 @@ const value_string fc_ct_gsserver_vals[] = {
 };
 
 static dissector_table_t fcct_gserver_table;
-static dissector_handle_t data_handle;
 
 guint8
 get_gs_server (guint8 gstype, guint8 gssubtype)
@@ -211,7 +210,7 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     next_tvb = tvb_new_subset_remaining (tvb, 0);
     if (!dissector_try_uint_new(fcct_gserver_table, server, next_tvb, pinfo,
                              tree, TRUE, data)) {
-        call_dissector (data_handle, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
     }
 
     return tvb_captured_length(tvb);
@@ -286,8 +285,6 @@ proto_reg_handoff_fcct (void)
 
     fcct_handle = create_dissector_handle (dissect_fcct, proto_fcct);
     dissector_add_uint("fc.ftype", FC_FTYPE_FCCT, fcct_handle);
-
-    data_handle = find_dissector ("data");
 }
 
 /*

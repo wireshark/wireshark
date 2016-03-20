@@ -92,7 +92,6 @@ const value_string special_labels[] = {
 
 static dissector_table_t   pw_ach_subdissector_table;
 
-static dissector_handle_t dissector_data;
 static dissector_handle_t dissector_ipv6;
 static dissector_handle_t dissector_ip;
 static dissector_handle_t dissector_pw_ach;
@@ -289,7 +288,7 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
     if (!dissector_try_uint(pw_ach_subdissector_table, channel_type, next_tvb, pinfo, tree))
     {
-        call_dissector(dissector_data, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
     }
 
     if (channel_type == ACH_TYPE_BFD_CV)
@@ -356,7 +355,7 @@ dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                             tvb, 2, 2, ENC_BIG_ENDIAN);
     }
     next_tvb = tvb_new_subset_remaining(tvb, 4);
-    call_dissector(dissector_data, next_tvb, pinfo, tree);
+    call_data_dissector(next_tvb, pinfo, tree);
     return tvb_captured_length(tvb);
 }
 
@@ -479,7 +478,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         call_dissector(dissector_pw_eth_heuristic, next_tvb, pinfo, tree);
         break;
     default:
-        call_dissector(dissector_data, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
         break;
     }
     return tvb_captured_length(tvb);
@@ -650,7 +649,6 @@ proto_reg_handoff_mpls(void)
     mpls_pwcw_handle = create_dissector_handle( dissect_pw_mcw, proto_pw_mcw );
     dissector_add_uint( "mpls.label", MPLS_LABEL_INVALID, mpls_pwcw_handle );
 
-    dissector_data                  = find_dissector("data");
     dissector_ipv6                  = find_dissector_add_dependency("ipv6", proto_pw_mcw );
     dissector_ip                    = find_dissector_add_dependency("ip", proto_pw_mcw );
     dissector_pw_eth_heuristic      = find_dissector_add_dependency("pw_eth_heuristic", proto_pw_mcw);

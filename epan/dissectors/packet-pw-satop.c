@@ -61,7 +61,6 @@ static expert_field ei_cw_frg = EI_INIT;
 static expert_field ei_cw_bits03 = EI_INIT;
 static expert_field ei_cw_packet_size_too_small = EI_INIT;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t pw_padding_handle;
 
 const char pwc_longname_pw_satop[] = "SAToP (no RTP support)";
@@ -358,7 +357,7 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 					}
 					proto_item_append_text(item2, "%s", s);
 					tree3 = proto_item_add_subtree(item2, ett);
-					call_dissector(data_handle, tvb, pinfo, tree3);
+					call_data_dissector(tvb, pinfo, tree3);
 					item2 = proto_tree_add_int(tree3, hf_payload_l, tvb, 0, 0
 						,(int)payload_size); /* allow filtering */
 					PROTO_ITEM_SET_HIDDEN(item2);
@@ -468,7 +467,6 @@ void proto_reg_handoff_pw_satop(void)
 {
 	dissector_handle_t pw_satop_mpls_handle;
 
-	data_handle = find_dissector("data");
 	pw_padding_handle = find_dissector_add_dependency("pw_padding", proto);
 
 	/* For Decode As */

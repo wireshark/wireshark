@@ -115,8 +115,6 @@ dissector_handle_t nds_data_handle;
 /* desegmentation of NCP over TCP */
 static gboolean ncp_desegment = TRUE;
 
-static dissector_handle_t data_handle;
-
 #define TCP_PORT_NCP            524
 #define UDP_PORT_NCP            524
 
@@ -1238,8 +1236,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * Display the rest of the packet as data.
          */
         if (tvb_offset_exists(tvb, commhdr + 10)) {
-            call_dissector(data_handle,
-                tvb_new_subset_remaining(tvb, commhdr + 10),
+            call_data_dissector(tvb_new_subset_remaining(tvb, commhdr + 10),
                 pinfo, ncp_tree);
         }
         break;
@@ -1272,8 +1269,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (length_remaining > data_len)
                 length_remaining = data_len;
             if (data_len != 0) {
-                call_dissector(data_handle,
-                    tvb_new_subset(tvb, offset,
+                call_data_dissector(tvb_new_subset(tvb, offset,
                     length_remaining, data_len),
                     pinfo, ncp_tree);
             }
@@ -1582,8 +1578,6 @@ proto_reg_handoff_ncp(void)
     dissector_add_uint("udp.port", UDP_PORT_NCP, ncp_handle);
     dissector_add_uint("ipx.packet_type", IPX_PACKET_TYPE_NCP, ncp_handle);
     dissector_add_uint("ipx.socket", IPX_SOCKET_NCP, ncp_handle);
-
-    data_handle = find_dissector("data");
 }
 
 /*

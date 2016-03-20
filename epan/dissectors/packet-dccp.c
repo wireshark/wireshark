@@ -226,7 +226,6 @@ static expert_field ei_dccp_packet_type_reserved = EI_INIT;
 
 static dissector_table_t dccp_subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
-static dissector_handle_t data_handle;
 
 /* preferences */
 static gboolean dccp_summary_in_tree = TRUE;
@@ -305,7 +304,7 @@ decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     /* Oh, well, we don't know this; dissect it as data. */
-    call_dissector(data_handle, next_tvb, pinfo, tree);
+    call_data_dissector(next_tvb, pinfo, tree);
 }
 
 /*
@@ -1330,7 +1329,6 @@ proto_reg_handoff_dccp(void)
 
     dccp_handle = create_dissector_handle(dissect_dccp, proto_dccp);
     dissector_add_uint("ip.proto", IP_PROTO_DCCP, dccp_handle);
-    data_handle = find_dissector("data");
     dccp_tap    = register_tap("dccp");
 }
 

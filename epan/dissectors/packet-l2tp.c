@@ -877,7 +877,6 @@ static dissector_handle_t ppp_lcp_options_handle;
 
 static dissector_handle_t atm_oam_handle;
 static dissector_handle_t llc_handle;
-static dissector_handle_t data_handle;
 
 static dissector_handle_t l2tp_udp_handle;
 static dissector_handle_t l2tp_ip_handle;
@@ -2440,7 +2439,7 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (!dissector_try_uint_new(pw_type_table, pw_type, next_tvb, pinfo, tree, FALSE, GUINT_TO_POINTER(oam_cell)))
     {
-        call_dissector(data_handle, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
     }
 }
 
@@ -3484,7 +3483,6 @@ proto_reg_handoff_l2tp(void)
      */
     atm_oam_handle        = find_dissector_add_dependency("atm_oam_cell", proto_l2tp);
     llc_handle            = find_dissector_add_dependency("llc", proto_l2tp);
-    data_handle           = find_dissector("data");
 
     atm_oam_llc_handle = create_dissector_handle( dissect_atm_oam_llc, proto_l2tp );
     dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_AAL5, atm_oam_llc_handle);

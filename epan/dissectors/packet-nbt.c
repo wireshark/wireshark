@@ -1097,8 +1097,6 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 static heur_dissector_list_t netbios_heur_subdissector_list;
 
-static dissector_handle_t data_handle;
-
 static void
 dissect_netbios_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1110,7 +1108,7 @@ dissect_netbios_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (!dissector_try_heuristic(netbios_heur_subdissector_list,
                                  tvb, pinfo, tree, &hdtbl_entry, NULL))
-        call_dissector(data_handle,tvb, pinfo, tree);
+        call_data_dissector(tvb, pinfo, tree);
 }
 
 /* NetBIOS datagram packet, from RFC 1002, page 32 */
@@ -2097,7 +2095,6 @@ proto_reg_handoff_nbt(void)
     dissector_add_uint("tcp.port", TCP_PORT_CIFS, nbss_handle);
 
     netbios_heur_subdissector_list = find_heur_dissector_list("netbios");
-    data_handle = find_dissector("data");
 }
 
 /*

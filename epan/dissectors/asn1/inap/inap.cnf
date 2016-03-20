@@ -220,7 +220,7 @@ static const inap_err_t inap_err_tab[] = {
   if (obj_id){
     offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, ext_tree, NULL);
   }else{
-    call_dissector(data_handle, tvb, actx->pinfo, ext_tree);
+    call_data_dissector(tvb, actx->pinfo, ext_tree);
     offset = tvb_reported_length_remaining(tvb,offset);
   }
 

@@ -2672,7 +2672,6 @@ static expert_field ei_gsm_map_unknown_invokeData = EI_INIT;
 static expert_field ei_gsm_map_undecoded = EI_INIT;
 
 static dissector_handle_t       gsm_sms_handle; /* SMS TPDU */
-static dissector_handle_t       data_handle;
 static dissector_handle_t       ranap_handle;
 static dissector_handle_t       dtap_handle;
 static dissector_handle_t       map_handle;
@@ -3399,7 +3398,7 @@ dissect_gsm_map_T_extType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   if (actx->external.direct_ref_present){
 	 offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, ext_tree, NULL);
   }else{
-	 call_dissector(data_handle, tvb, actx->pinfo, ext_tree);
+	 call_data_dissector(tvb, actx->pinfo, ext_tree);
 	 offset = tvb_reported_length_remaining(tvb,offset);
   }
 
@@ -20725,7 +20724,7 @@ dissect_NokiaMAP_Extensions_AllowedServiceData(gboolean implicit_tag _U_, tvbuff
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 831 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 830 "./asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -20947,7 +20946,7 @@ const value_string gsm_map_opr_code_strings[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 842 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 841 "./asn1/gsm_map/packet-gsm_map-template.c"
   { 0, NULL }
 };
 
@@ -21164,7 +21163,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 848 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 847 "./asn1/gsm_map/packet-gsm_map-template.c"
     { 0, NULL }
 };
 #endif
@@ -22951,7 +22950,6 @@ void proto_reg_handoff_gsm_map(void) {
 
   if (!map_prefs_initialized) {
     map_prefs_initialized = TRUE;
-    data_handle = find_dissector("data");
     ranap_handle = find_dissector_add_dependency("ranap", proto_gsm_map);
     dtap_handle = find_dissector_add_dependency("gsm_a_dtap", proto_gsm_map);
     gsm_sms_handle = find_dissector_add_dependency("gsm_sms", proto_gsm_map);
@@ -30326,7 +30324,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 3056 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3054 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -31052,7 +31050,7 @@ void proto_register_gsm_map(void) {
     &ett_NokiaMAP_Extensions_AllowedServiceData,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 3090 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3088 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -31174,7 +31172,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 3146 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3144 "./asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

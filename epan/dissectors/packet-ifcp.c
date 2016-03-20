@@ -142,7 +142,6 @@ static int ett_ifcp_frame_len    = -1;
 static gboolean ifcp_desegment    = TRUE;
 
 static dissector_handle_t ifcp_handle = NULL;
-static dissector_handle_t data_handle = NULL;
 static dissector_handle_t fc_handle   = NULL;
 
 
@@ -443,8 +442,8 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 
     if(fc_handle){
         call_dissector_with_data(fc_handle, next_tvb, pinfo, parent_tree, &fc_data);
-    } else if(data_handle){
-        call_dissector(data_handle, next_tvb, pinfo, parent_tree);
+    } else {
+        call_data_dissector(next_tvb, pinfo, parent_tree);
     }
 
     return tvb_captured_length(tvb);
@@ -613,7 +612,6 @@ proto_reg_handoff_ifcp (void)
     ifcp_handle = create_dissector_handle(dissect_ifcp_handle, proto_ifcp);
     dissector_add_for_decode_as("tcp.port", ifcp_handle);
 
-    data_handle = find_dissector("data");
     fc_handle = find_dissector_add_dependency("fc_ifcp", proto_ifcp);
 }
 

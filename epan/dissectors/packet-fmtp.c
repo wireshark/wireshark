@@ -53,8 +53,6 @@ static gint ett_fmtp = -1;
 
 #define INFO_STR_SIZE        1024
 
-static dissector_handle_t data_handle;
-
 static const value_string packet_type_names[] = {
     { FMTP_TYP_OPERATIONAL,    "Operational message" },
     { FMTP_TYP_OPERATOR,       "Operator message" },
@@ -122,7 +120,7 @@ dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         proto_tree_add_item(fmtp_tree, hf_fmtp_pdu_type,     tvb, 4, 1, ENC_BIG_ENDIAN);
 
         next_tvb = tvb_new_subset_remaining(tvb, FMTP_HEADER_LEN);
-        call_dissector(data_handle, next_tvb, pinfo, fmtp_tree);
+        call_data_dissector(next_tvb, pinfo, fmtp_tree);
     }
 
     return tvb_captured_length(tvb);
@@ -204,7 +202,6 @@ proto_reg_handoff_fmtp(void)
 {
     /* Register as heuristic dissector for TCP */
     heur_dissector_add("tcp", dissect_fmtp, "FMTP over TCP", "fmtp_tcp", proto_fmtp, HEURISTIC_ENABLE);
-    data_handle = find_dissector("data");
 }
 
 /*

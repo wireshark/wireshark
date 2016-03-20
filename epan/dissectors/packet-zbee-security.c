@@ -73,8 +73,6 @@ static expert_field ei_zbee_sec_encrypted_payload = EI_INIT;
 static expert_field ei_zbee_sec_encrypted_payload_sliced = EI_INIT;
 static expert_field ei_zbee_sec_extended_source_unknown = EI_INIT;
 
-static dissector_handle_t   data_handle;
-
 static const value_string zbee_sec_key_names[] = {
     { ZBEE_SEC_KEY_LINK,        "Link Key" },
     { ZBEE_SEC_KEY_NWK,         "Network Key" },
@@ -423,24 +421,6 @@ zbee_security_parse_key(const gchar *key_str, guint8 *key_buf, gboolean byte_ord
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
- *      zbee_security_handoff
- *  DESCRIPTION
- *      Hands off the security dissector.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      tvbuff_t *
- *---------------------------------------------------------------
- */
-void
-zbee_security_handoff(void)
-{
-    /* Lookup the data dissector. */
-    data_handle = find_dissector("data");
-} /* zbee_security_handoff */
-
-/*FUNCTION:------------------------------------------------------
- *  NAME
  *      dissect_zbee_secure
  *  DESCRIPTION
  *      Dissects and decrypts secured ZigBee frames.
@@ -662,7 +642,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
         /* Create a buffer for the undecrypted payload. */
         payload_tvb = tvb_new_subset_length(tvb, offset, payload_len);
         /* Dump the payload to the data dissector. */
-        call_dissector(data_handle, payload_tvb, pinfo, tree);
+        call_data_dissector(payload_tvb, pinfo, tree);
         /* Couldn't decrypt, so return NULL. */
         return NULL;
     }
@@ -783,7 +763,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     /* Create a buffer for the undecrypted payload. */
     payload_tvb = tvb_new_subset_length(tvb, offset, payload_len);
     /* Dump the payload to the data dissector. */
-    call_dissector(data_handle, payload_tvb, pinfo, tree);
+    call_data_dissector(payload_tvb, pinfo, tree);
     /* Couldn't decrypt, so return NULL. */
     return NULL;
 } /* dissect_zbee_secure */

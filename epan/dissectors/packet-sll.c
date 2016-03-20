@@ -141,7 +141,6 @@ static gint ett_sll = -1;
 
 static dissector_table_t sll_linux_dissector_table;
 static dissector_table_t gre_dissector_table;
-static dissector_handle_t data_handle;
 
 static void sll_prompt(packet_info *pinfo, gchar* result)
 {
@@ -271,7 +270,7 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 		if(!dissector_try_uint(sll_linux_dissector_table, protocol,
 			next_tvb, pinfo, tree)) {
-			call_dissector(data_handle, next_tvb, pinfo, tree);
+			call_data_dissector(next_tvb, pinfo, tree);
 		}
 	} else {
 		switch (hatype) {
@@ -352,7 +351,6 @@ proto_reg_handoff_sll(void)
 	 * Get handles for the IPX and LLC dissectors.
 	 */
 	gre_dissector_table = find_dissector_table("gre.proto");
-	data_handle = find_dissector("data");
 	ethertype_handle = find_dissector_add_dependency("ethertype", proto_sll);
 	netlink_handle = find_dissector_add_dependency("netlink", proto_sll);
 

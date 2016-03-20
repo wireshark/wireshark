@@ -62,7 +62,6 @@ static expert_field ei_pref_cw_len = EI_INIT;
 static expert_field ei_cw_lm = EI_INIT;
 static expert_field ei_packet_size_too_small = EI_INIT;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t pw_padding_handle;
 
 const char pwc_longname_pw_cesopsn[] = "CESoPSN basic NxDS0 mode (no RTP support)";
@@ -346,7 +345,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 						"CESoPSN packet payload size must be multiple of 8");
 				}
 				tree2 = proto_item_add_subtree(item2, ett);
-				call_dissector(data_handle, tvb, pinfo, tree2);
+				call_data_dissector(tvb, pinfo, tree2);
 				item2 = proto_tree_add_int(tree2, hf_payload_l, tvb, 0, 0
 					,(int)payload_size); /* allow filtering */
 				PROTO_ITEM_SET_HIDDEN(item2);
@@ -452,7 +451,6 @@ void proto_reg_handoff_pw_cesopsn(void)
 {
 	dissector_handle_t pw_cesopsn_mpls_handle;
 
-	data_handle = find_dissector("data");
 	pw_padding_handle = find_dissector_add_dependency("pw_padding", proto);
 
 	/* For Decode As */

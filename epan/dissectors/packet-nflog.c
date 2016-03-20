@@ -120,7 +120,6 @@ static header_field_info hfi_nflog_tlv_unknown NFLOG_HFI_INIT =
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t ip6_handle;
-static dissector_handle_t data_handle;
 
 static int
 dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -246,7 +245,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                 call_dissector(ip6_handle, next_tvb, pinfo, tree);
                 break;
             default:
-                call_dissector(data_handle, next_tvb, pinfo, tree);
+                call_data_dissector(next_tvb, pinfo, tree);
                 break;
         }
     }
@@ -299,7 +298,6 @@ proto_reg_handoff_nflog(void)
 
     ip_handle   = find_dissector_add_dependency("ip", hfi_nflog->id);
     ip6_handle  = find_dissector_add_dependency("ipv6", hfi_nflog->id);
-    data_handle = find_dissector("data");
 
     nflog_handle = find_dissector("nflog");
     dissector_add_uint("wtap_encap", WTAP_ENCAP_NFLOG, nflog_handle);

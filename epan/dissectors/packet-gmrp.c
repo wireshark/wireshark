@@ -31,7 +31,6 @@
 #include <epan/llcsaps.h>
 
 void proto_register_gmrp(void);
-void proto_reg_handoff_gmrp(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_gmrp = -1;
@@ -51,8 +50,6 @@ static gint ett_gmrp_attribute_list = -1;
 
 static expert_field ei_gmrp_proto_id = EI_INIT;
 
-
-static dissector_handle_t data_handle;
 
 /* Constant definitions */
 #define GARP_DEFAULT_PROTOCOL_ID    0x0001
@@ -139,8 +136,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         if (protocol_id != GARP_DEFAULT_PROTOCOL_ID)
         {
             expert_add_info(pinfo, ti, &ei_gmrp_proto_id);
-            call_dissector(data_handle,
-                tvb_new_subset_remaining(tvb, GARP_PROTOCOL_ID + 2),
+            call_data_dissector(tvb_new_subset_remaining(tvb, GARP_PROTOCOL_ID + 2),
                 pinfo, tree);
             return tvb_captured_length(tvb);
         }
@@ -170,8 +166,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 }
                 else
                 {
-                    call_dissector(data_handle,
-                                   tvb_new_subset_remaining(tvb, offset),
+                    call_data_dissector(tvb_new_subset_remaining(tvb, offset),
                                    pinfo, tree);
                     return tvb_captured_length(tvb);
                 }
@@ -189,8 +184,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             /* GMRP supports Group Membership and Service Requirement as attribute types */
             if ( (octet != GMRP_ATTRIBUTE_TYPE_GROUP_MEMBERSHIP) && (octet != GMRP_ATTRIBUTE_TYPE_SERVICE_REQUIREMENT) )
             {
-                call_dissector(data_handle,
-                               tvb_new_subset_remaining(tvb, offset), pinfo,
+                call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo,
                                tree);
                 return tvb_captured_length(tvb);
             }
@@ -224,8 +218,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                     }
                     else
                     {
-                        call_dissector(data_handle,
-                                       tvb_new_subset_remaining(tvb, offset),
+                        call_data_dissector(tvb_new_subset_remaining(tvb, offset),
                                        pinfo, tree);
                         return tvb_captured_length(tvb);
                     }
@@ -257,8 +250,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                     case GMRP_EVENT_LEAVEALL:
                         if (octet != GMRP_LENGTH_LEAVEALL)
                         {
-                            call_dissector(data_handle,
-                                           tvb_new_subset_remaining(tvb, offset),
+                            call_data_dissector(tvb_new_subset_remaining(tvb, offset),
                                            pinfo, tree);
                             return tvb_captured_length(tvb);
                         }
@@ -272,8 +264,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                         if ( (octet != GMRP_GROUP_MEMBERSHIP_NON_LEAVEALL) &&
                              (octet != GMRP_SERVICE_REQUIREMENT_NON_LEAVEALL) )
                         {
-                            call_dissector(data_handle,
-                                           tvb_new_subset_remaining(tvb, offset),
+                            call_data_dissector(tvb_new_subset_remaining(tvb, offset),
                                            pinfo, tree);
                             return tvb_captured_length(tvb);
                         }
@@ -301,8 +292,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                             }
                             else
                             {
-                                call_dissector(data_handle,
-                                               tvb_new_subset_remaining(tvb, offset),
+                                call_data_dissector(tvb_new_subset_remaining(tvb, offset),
                                                pinfo, tree);
                                 return tvb_captured_length(tvb);
                             }
@@ -310,8 +300,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                         break;
 
                     default:
-                        call_dissector(data_handle,
-                                       tvb_new_subset_remaining(tvb, offset),
+                        call_data_dissector(tvb_new_subset_remaining(tvb, offset),
                                        pinfo, tree);
                         return tvb_captured_length(tvb);
                     }
@@ -396,11 +385,6 @@ proto_register_gmrp(void)
 
     register_dissector("gmrp", dissect_gmrp, proto_gmrp);
 
-}
-
-void
-proto_reg_handoff_gmrp(void){
-    data_handle = find_dissector("data");
 }
 
 /*

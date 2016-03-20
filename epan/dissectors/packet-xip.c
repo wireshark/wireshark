@@ -43,7 +43,6 @@ void proto_register_xip(void);
 void proto_reg_handoff_xip(void);
 
 /* Next dissector handles. */
-static dissector_handle_t data_handle;
 static dissector_handle_t xip_serval_handle;
 
 static gint proto_xip			= -1;
@@ -484,7 +483,7 @@ dissect_xip_next_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	switch (next_header) {
 	case XIA_NEXT_HEADER_DATA:
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
-		return call_dissector(data_handle, next_tvb, pinfo, tree);
+		return call_data_dissector(next_tvb, pinfo, tree);
 	default:
 		expert_add_info_format(pinfo, next_ti, &ei_xip_next_header,
 		 "Unrecognized next header type: 0x%02x", next_header);
@@ -699,7 +698,6 @@ proto_reg_handoff_xip(void)
 	dissector_add_uint("ethertype", ETHERTYPE_XIP, xip_handle);
 
 	xip_serval_handle = find_dissector_add_dependency("xipserval", proto_xip);
-	data_handle = find_dissector("data");
 }
 
 /*

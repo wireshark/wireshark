@@ -87,7 +87,6 @@ static int hf_docsis_mgt_type = -1;
 static int hf_docsis_mgt_rsvd = -1;
 
 static dissector_table_t docsis_mgmt_dissector_table;
-static dissector_handle_t data_handle;
 
 /* Initialize the subtree pointers */
 static gint ett_docsis_mgmt = -1;
@@ -193,7 +192,7 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
   payload_tvb = tvb_new_subset_length (tvb, 20, msg_len - 6);
 
   if (!dissector_try_uint(docsis_mgmt_dissector_table, type, payload_tvb, pinfo, tree))
-    call_dissector (data_handle, payload_tvb, pinfo, tree);
+    call_data_dissector(payload_tvb, pinfo, tree);
 
   return tvb_captured_length(tvb);
 }
@@ -278,8 +277,6 @@ proto_reg_handoff_docsis_mgmt (void)
   docsis_mgmt_handle = find_dissector ("docsis_mgmt");
   dissector_add_uint ("docsis", 0x03, docsis_mgmt_handle);
 #endif
-
-  data_handle = find_dissector ("data");
 }
 
 /*

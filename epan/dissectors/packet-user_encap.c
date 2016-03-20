@@ -79,7 +79,6 @@ static expert_field ei_user_encap_not_handled = EI_INIT;
 static user_encap_t* encaps = NULL;
 static guint num_encaps = 0;
 static uat_t* encaps_uat;
-static dissector_handle_t data_handle;
 
 static gint exported_pdu_tap = -1;
 
@@ -134,7 +133,7 @@ static int dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, voi
         proto_item_set_text(item,"%s",msg);
         expert_add_info_format(pinfo, item, &ei_user_encap_not_handled, "%s", msg);
 
-        call_dissector(data_handle, tvb, pinfo, tree);
+        call_data_dissector(tvb, pinfo, tree);
         return tvb_captured_length(tvb);
     }
     if (encap->payload_proto == NULL) {
@@ -146,7 +145,7 @@ static int dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, voi
         proto_item_set_text(item,"%s",msg);
         expert_add_info_format(pinfo, item, &ei_user_encap_not_handled, "%s", msg);
 
-        call_dissector(data_handle, tvb, pinfo, tree);
+        call_data_dissector(tvb, pinfo, tree);
         return tvb_captured_length(tvb);
     }
 
@@ -225,7 +224,6 @@ void proto_reg_handoff_user_encap(void)
     guint i;
 
     user_encap_handle = find_dissector("user_dlt");
-    data_handle = find_dissector("data");
 
     user2_encap.encap = WTAP_ENCAP_USER2;
     user2_encap.payload_proto_name = g_strdup("pktap");

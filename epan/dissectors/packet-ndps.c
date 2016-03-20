@@ -4002,8 +4002,6 @@ static const fragment_items ndps_frag_items = {
     "segments"
 };
 
-static dissector_handle_t ndps_data_handle;
-
 /* NDPS packets come in request/reply pairs. The request packets tell the
  * Function and Program numbers. The response, unfortunately, only
  * identifies itself via the Exchange ID; you have to know what type of NDPS
@@ -4408,7 +4406,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, spx_info *spx_i
         {
             /* This is a fragment packet */
             next_tvb = tvb_new_subset_remaining (tvb, 0);
-            call_dissector(ndps_data_handle, next_tvb, pinfo, tree);
+            call_data_dissector(next_tvb, pinfo, tree);
         }
         else
         {
@@ -9522,7 +9520,6 @@ proto_reg_handoff_ndps(void)
     dissector_add_uint("tcp.port", TCP_PORT_ENS, ndps_tcp_handle);
     dissector_add_uint("tcp.port", TCP_PORT_RMS, ndps_tcp_handle);
     dissector_add_uint("tcp.port", TCP_PORT_NOTIFY_LISTENER, ndps_tcp_handle);
-    ndps_data_handle = find_dissector("data");
 }
 
 /*

@@ -86,7 +86,6 @@ static gint ett_isl_dst = -1;
 
 static dissector_handle_t eth_withfcs_handle;
 static dissector_handle_t tr_handle;
-static dissector_handle_t data_handle;
 
 gboolean
 capture_isl(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
@@ -310,7 +309,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
 
   default:
     next_tvb = tvb_new_subset_remaining(payload_tvb, 12);
-    call_dissector(data_handle, next_tvb, pinfo, tree);
+    call_data_dissector(next_tvb, pinfo, tree);
     break;
   }
 }
@@ -411,7 +410,6 @@ proto_reg_handoff_isl(void)
    */
   eth_withfcs_handle = find_dissector_add_dependency("eth_withfcs", proto_isl);
   tr_handle = find_dissector_add_dependency("tr", proto_isl);
-  data_handle = find_dissector("data");
 }
 
 /*

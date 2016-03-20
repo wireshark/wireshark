@@ -217,7 +217,6 @@ static expert_field ei_icmp_checksum = EI_INIT;
 #define ICMP_MIP_CHALLENGE	24
 
 static dissector_handle_t ip_handle;
-static dissector_handle_t data_handle;
 
 static const value_string icmp_type_str[] = {
 	{ICMP_ECHOREPLY,    "Echo (ping) reply"},
@@ -1508,8 +1507,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		 * malformed packets as we try to access data that isn't there. */
 		if (tvb_captured_length_remaining(tvb, 8) < 8) {
 			if (tvb_captured_length_remaining(tvb, 8) > 0) {
-				call_dissector(data_handle,
-					       tvb_new_subset_remaining
+				call_data_dissector(tvb_new_subset_remaining
 					       (tvb, 8), pinfo, icmp_tree);
 			}
 			break;
@@ -1541,13 +1539,11 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 						 tvb, 8, 8,
 						 &time_relative);
 			PROTO_ITEM_SET_GENERATED(ti);
-			call_dissector(data_handle,
-				       tvb_new_subset_remaining(tvb,
+			call_data_dissector(tvb_new_subset_remaining(tvb,
 								8 + 8),
 				       pinfo, icmp_tree);
 		} else {
-			call_dissector(data_handle,
-				       tvb_new_subset_remaining(tvb, 8),
+			call_data_dissector(tvb_new_subset_remaining(tvb, 8),
 				       pinfo, icmp_tree);
 		}
 		break;
@@ -1564,8 +1560,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 						       icmp_tree);
 			}
 		} else {
-			call_dissector(data_handle,
-				       tvb_new_subset_remaining(tvb, 8),
+			call_data_dissector(tvb_new_subset_remaining(tvb, 8),
 				       pinfo, icmp_tree);
 		}
 		break;
@@ -2048,7 +2043,6 @@ void proto_reg_handoff_icmp(void)
 	 */
 	ip_handle = find_dissector_add_dependency("ip", proto_icmp);
 	icmp_handle = find_dissector("icmp");
-	data_handle = find_dissector("data");
 
 	dissector_add_uint("ip.proto", IP_PROTO_ICMP, icmp_handle);
 	register_capture_dissector("ip.proto", IP_PROTO_ICMP, capture_icmp, proto_icmp);

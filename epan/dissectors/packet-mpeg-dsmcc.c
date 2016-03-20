@@ -62,7 +62,6 @@ void proto_reg_handoff_dsmcc(void);
 
 
 static int proto_dsmcc = -1;
-static dissector_handle_t data_handle;
 static gboolean dsmcc_sect_check_crc = FALSE;
 
 /* NOTE: Please add values numerically according to 13818-6 so it is easier to
@@ -281,7 +280,7 @@ dissect_dsmcc_adaptation_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         sub_tvb = tvb_new_subset_length(tvb, offset, ca_len);
-        call_dissector(data_handle, sub_tvb, pinfo, tree);
+        call_data_dissector(sub_tvb, pinfo, tree);
     } else if (2 == type) {
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dsmcc_adaptation_header, NULL, "Adaptation Header");
         proto_tree_add_item(sub_tree, hf_dsmcc_adaptation_type, tvb,
@@ -532,7 +531,7 @@ dissect_dsmcc_ddb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     sub_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(data_handle, sub_tvb, pinfo, top_tree);
+    call_data_dissector(sub_tvb, pinfo, top_tree);
 }
 
 
@@ -1232,8 +1231,6 @@ proto_reg_handoff_dsmcc(void)
     dissector_add_uint("mpeg_sect.tid", DSMCC_TID_PRIVATE, dsmcc_ts_handle);
 
     dissector_add_uint("tcp.port", DSMCC_TCP_PORT, dsmcc_tcp_handle);
-
-    data_handle = find_dissector("data");
 }
 
 /*

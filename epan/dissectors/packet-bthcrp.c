@@ -70,7 +70,6 @@ static expert_field ei_bthcrp_control_parameter_length = EI_INIT;
 static expert_field ei_bthcrp_unexpected_data = EI_INIT;
 
 static dissector_handle_t bthcrp_handle;
-static dissector_handle_t data_handle;
 
 static gint     force_client     = FORCE_CLIENT_DEFAULT;
 static gint     psm_control      = 0;
@@ -308,7 +307,7 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
     col_append_str(pinfo->cinfo, COL_INFO, "HCRP data stream");
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(data_handle, next_tvb, pinfo, tree);
+    call_data_dissector(next_tvb, pinfo, tree);
 
     offset += tvb_reported_length_remaining(tvb, offset);
 
@@ -672,8 +671,6 @@ proto_register_bthcrp(void)
 void
 proto_reg_handoff_bthcrp(void)
 {
-    data_handle = find_dissector("data");
-
     dissector_add_string("bluetooth.uuid", "12", bthcrp_handle);
     dissector_add_string("bluetooth.uuid", "14", bthcrp_handle);
     dissector_add_string("bluetooth.uuid", "16", bthcrp_handle);

@@ -186,8 +186,6 @@ static expert_field ei_lon_tpdu_spdu_type_unknown = EI_INIT;
 static expert_field ei_lon_tpdu_authpdu_type_unknown = EI_INIT;
 static expert_field ei_lon_tpdu_apdu_dest_type = EI_INIT;
 
-static dissector_handle_t data_handle;
-
 static gint dissect_apdu(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 		gint offset);
 
@@ -498,7 +496,7 @@ dissect_apdu(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-	return offset - old_offset + call_dissector(data_handle, next_tvb, pinfo, tree);
+	return offset - old_offset + call_data_dissector(next_tvb, pinfo, tree);
 }
 
 void
@@ -762,7 +760,6 @@ proto_reg_handoff_lon(void)
 	dissector_handle_t lon_handle;
 
 	lon_handle = create_dissector_handle(dissect_lon, proto_lon);
-	data_handle = find_dissector("data");
 
 	dissector_add_uint("cnip.protocol", 0, lon_handle);
 }

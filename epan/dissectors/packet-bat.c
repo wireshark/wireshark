@@ -170,7 +170,6 @@ static void dissect_bat_hna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* other dissectors */
 static dissector_handle_t ip_handle;
-static dissector_handle_t data_handle;
 
 static int proto_bat_plugin = -1;
 static int proto_bat_gw = -1;
@@ -205,7 +204,7 @@ static int dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		break;
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		call_dissector(data_handle, tvb, pinfo, tree);
+		call_data_dissector(tvb, pinfo, tree);
 		break;
 	}
 	return tvb_captured_length(tvb);
@@ -418,7 +417,7 @@ static int dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		if (gw_packeth->type == TUNNEL_DATA) {
 			call_dissector(ip_handle, next_tvb, pinfo, tree);
 		} else {
-			call_dissector(data_handle, next_tvb, pinfo, tree);
+			call_data_dissector(next_tvb, pinfo, tree);
 		}
 	}
 	return tvb_captured_length(tvb);
@@ -441,7 +440,7 @@ static int dissect_bat_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		break;
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		call_dissector(data_handle, tvb, pinfo, tree);
+		call_data_dissector(tvb, pinfo, tree);
 		break;
 	}
 	return tvb_captured_length(tvb);
@@ -524,7 +523,7 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 			tap_queue_packet(bat_follow_tap, pinfo, next_tvb);
 		}
 
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 }
 
@@ -645,7 +644,7 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 			tap_queue_packet(bat_follow_tap, pinfo, next_tvb);
 		}
 
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 }
 
@@ -890,7 +889,6 @@ void proto_reg_handoff_bat(void)
 		vis_handle = create_dissector_handle(dissect_bat_vis, proto_bat_vis);
 
 		ip_handle = find_dissector_add_dependency("ip", proto_bat_gw);
-		data_handle = find_dissector("data");
 
 		inited = TRUE;
 	} else {

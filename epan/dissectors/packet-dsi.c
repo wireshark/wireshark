@@ -114,7 +114,6 @@ static const value_string dsi_open_type_vals[] = {
 /* desegmentation of DSI */
 static gboolean dsi_desegment = TRUE;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t afp_handle;
 static dissector_handle_t afp_server_status_handle;
 
@@ -315,8 +314,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		}
 		break;
 	default:
-		call_dissector(data_handle,
-						tvb_new_subset_remaining(tvb, DSI_BLOCKSIZ),
+		call_data_dissector(tvb_new_subset_remaining(tvb, DSI_BLOCKSIZ),
 						pinfo, dsi_tree);
 		break;
 	}
@@ -482,7 +480,6 @@ proto_reg_handoff_dsi(void)
 	dsi_handle = create_dissector_handle(dissect_dsi, proto_dsi);
 	dissector_add_uint("tcp.port", TCP_PORT_DSI, dsi_handle);
 
-	data_handle = find_dissector("data");
 	afp_handle = find_dissector_add_dependency("afp", proto_dsi);
 	afp_server_status_handle = find_dissector_add_dependency("afp_server_status", proto_dsi);
 }

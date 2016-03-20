@@ -1834,7 +1834,6 @@ static dissector_handle_t ppp_handle;
 static dissector_handle_t sync_handle;
 static dissector_handle_t gtpcdr_handle;
 static dissector_handle_t sndcpxid_handle;
-static dissector_handle_t data_handle;
 static dissector_handle_t gtpv2_handle;
 static dissector_handle_t bssgp_handle;
 static dissector_table_t bssap_pdu_type_table;
@@ -7117,7 +7116,7 @@ decode_gtp_ps_handover_xid(tvbuff_t * tvb, int offset, packet_info * pinfo, prot
     if (sndcpxid_handle)
         call_dissector(sndcpxid_handle, next_tvb, pinfo, tree);
     else
-        call_dissector(data_handle, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
 
     return 4 + length;
 
@@ -10194,7 +10193,6 @@ proto_reg_handoff_gtp(void)
         sync_handle          = find_dissector_add_dependency("sync", proto_gtp);
         gtpcdr_handle        = find_dissector_add_dependency("gtpcdr", proto_gtp);
         sndcpxid_handle      = find_dissector_add_dependency("sndcpxid", proto_gtp);
-        data_handle          = find_dissector("data");
         gtpv2_handle         = find_dissector_add_dependency("gtpv2", proto_gtp);
         bssgp_handle         = find_dissector_add_dependency("bssgp", proto_gtp);
         bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");

@@ -114,7 +114,6 @@ static int hf_docsis_ehdr_bpup2_ver = -1;
 static int hf_docsis_ehdr_bpup2_sid = -1;
 static dissector_handle_t docsis_handle;
 static dissector_handle_t eth_withoutfcs_handle;
-static dissector_handle_t data_handle;
 static dissector_handle_t docsis_mgmt_handle;
 #if 0
 static dissector_table_t docsis_dissector_table;
@@ -586,7 +585,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
               if (pdulen > 0)
                 {
                   mgt_tvb = tvb_new_subset (tvb, hdrlen, captured_length, pdulen);
-                  call_dissector (data_handle, mgt_tvb, pinfo, tree);
+                  call_data_dissector(mgt_tvb, pinfo, tree);
                 }
               if (concatlen > 0)
                 {
@@ -837,7 +836,6 @@ proto_reg_handoff_docsis (void)
 {
 
   docsis_handle = find_dissector ("docsis");
-  data_handle = find_dissector ("data");
   dissector_add_uint ("wtap_encap", WTAP_ENCAP_DOCSIS, docsis_handle);
 
   docsis_mgmt_handle = find_dissector ("docsis_mgmt");

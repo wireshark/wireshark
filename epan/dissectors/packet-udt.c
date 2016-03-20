@@ -106,7 +106,6 @@ static gint ett_udt = -1;
 static expert_field ei_udt_nak_seqno = EI_INIT;
 
 static dissector_handle_t udt_handle;
-static dissector_handle_t data_handle;
 
 static int
 dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
@@ -258,7 +257,7 @@ dissect_udt(tvbuff_t *tvb, packet_info* pinfo, proto_tree *parent_tree,
 
 		}
 		next_tvb = tvb_new_subset_remaining(tvb, 16);
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 
 	return tvb_reported_length(tvb);
@@ -450,7 +449,6 @@ void proto_register_udt(void)
 
 void proto_reg_handoff_udt(void)
 {
-	data_handle = find_dissector("data");
 	udt_handle  = create_dissector_handle(dissect_udt, proto_udt);
 
 	heur_dissector_add("udp", dissect_udt_heur, "UDT over UDP", "udt_udp", proto_udt, HEURISTIC_ENABLE);

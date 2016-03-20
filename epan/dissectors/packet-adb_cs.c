@@ -48,7 +48,6 @@ static expert_field ei_incomplete_message                             = EI_INIT;
 
 static dissector_handle_t  adb_cs_handle;
 static dissector_handle_t  adb_service_handle;
-static dissector_handle_t  data_handle;
 
 static wmem_tree_t *client_requests = NULL;
 
@@ -350,7 +349,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         PROTO_ITEM_SET_GENERATED(p_item);
 
         next_tvb = tvb_new_subset_remaining(tvb, offset);
-        call_dissector(data_handle, next_tvb, pinfo, main_tree);
+        call_data_dissector(next_tvb, pinfo, main_tree);
         offset += tvb_captured_length_remaining(tvb, offset);
     }
 
@@ -434,7 +433,6 @@ proto_register_adb_cs(void)
 void
 proto_reg_handoff_adb_cs(void)
 {
-    data_handle   = find_dissector("data");
     adb_service_handle = find_dissector_add_dependency("adb_service", proto_adb_cs);
 
     dissector_add_for_decode_as("tcp.port", adb_cs_handle);

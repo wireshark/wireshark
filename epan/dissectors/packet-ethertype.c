@@ -37,11 +37,8 @@
 #include "packet-eth.h"
 
 void proto_register_ethertype(void);
-void proto_reg_handoff_ethertype(void);
 
 static dissector_table_t ethertype_dissector_table;
-
-static dissector_handle_t data_handle;
 
 static int proto_ethertype = -1;
 
@@ -281,7 +278,7 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	if (!dissector_found) {
 		/* No sub-dissector found.
 		   Label rest of packet as "Data" */
-		call_dissector(data_handle,next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 
 		/* Label protocol */
 		col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", ethertype_data->etype);
@@ -356,12 +353,6 @@ proto_register_ethertype(void)
 	register_capture_dissector_table("ethertype", "Ethertype");
 
 	register_decode_as(&ethertype_da);
-}
-
-void
-proto_reg_handoff_ethertype(void)
-{
-	data_handle = find_dissector("data");
 }
 
 /*

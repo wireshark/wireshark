@@ -829,7 +829,6 @@ static int dissect_batadv_tvlv_v15_tt_change(tvbuff_t *tvb, packet_info *pinfo _
 
 
 /* other dissectors */
-static dissector_handle_t data_handle;
 static dissector_handle_t eth_handle;
 
 static int proto_batadv_plugin = -1;
@@ -903,7 +902,7 @@ static void dissect_batadv_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		length_remaining = tvb_reported_length_remaining(tvb, 0);
 		if (length_remaining > 0) {
 			next_tvb = tvb_new_subset_remaining(tvb, 0);
-			call_dissector(data_handle, next_tvb, pinfo, tree);
+			call_data_dissector(next_tvb, pinfo, tree);
 		}
 		break;
 	}
@@ -953,7 +952,7 @@ static void dissect_batadv_v15(tvbuff_t *tvb, packet_info *pinfo,
 		length_remaining = tvb_captured_length_remaining(tvb, 0);
 		if (length_remaining > 0) {
 			next_tvb = tvb_new_subset_remaining(tvb, 0);
-			call_dissector(data_handle, next_tvb, pinfo, tree);
+			call_data_dissector(next_tvb, pinfo, tree);
 		}
 		break;
 	}
@@ -1006,7 +1005,7 @@ static void dissect_batadv_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		break;
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		call_dissector(data_handle, tvb, pinfo, tree);
+		call_data_dissector(tvb, pinfo, tree);
 		break;
 	}
 }
@@ -1604,7 +1603,7 @@ static int dissect_batadv_batman_v14(tvbuff_t *tvb, int offset, packet_info *pin
 	length_remaining = tvb_reported_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 
 	return offset;
@@ -1628,7 +1627,7 @@ static void dissect_batadv_iv_ogm(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		break;
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		call_dissector(data_handle, tvb, pinfo, tree);
+		call_data_dissector(tvb, pinfo, tree);
 		break;
 	}
 }
@@ -1786,7 +1785,7 @@ static void dissect_batadv_bcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		break;
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		call_dissector(data_handle, tvb, pinfo, tree);
+		call_data_dissector(tvb, pinfo, tree);
 		break;
 	}
 }
@@ -2009,7 +2008,7 @@ static void dissect_batadv_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		break;
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		call_dissector(data_handle, tvb, pinfo, tree);
+		call_data_dissector(tvb, pinfo, tree);
 		break;
 	}
 }
@@ -2085,7 +2084,7 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	if (length_remaining > 0) {
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 }
 
@@ -2217,7 +2216,7 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	length_remaining = tvb_reported_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 }
 
@@ -2303,7 +2302,7 @@ static void dissect_batadv_icmp_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	length_remaining = tvb_reported_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
 		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 }
 
@@ -2406,7 +2405,7 @@ static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 	length_remaining = tvb_captured_length_remaining(tvb, offset);
 	if (length_remaining > 0) {
 		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 }
 
@@ -2435,7 +2434,7 @@ static void dissect_batadv_unicast(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		break;
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		call_dissector(data_handle, tvb, pinfo, tree);
+		call_data_dissector(tvb, pinfo, tree);
 		break;
 	}
 }
@@ -2581,7 +2580,7 @@ static void dissect_batadv_unicast_4addr(tvbuff_t *tvb, packet_info *pinfo, prot
 		break;
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		call_dissector(data_handle, tvb, pinfo, tree);
+		call_data_dissector(tvb, pinfo, tree);
 		break;
 	}
 }
@@ -2689,7 +2688,7 @@ static void dissect_batadv_unicast_frag(tvbuff_t *tvb, packet_info *pinfo, proto
 		break;
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		call_dissector(data_handle, tvb, pinfo, tree);
+		call_data_dissector(tvb, pinfo, tree);
 		break;
 	}
 }
@@ -3032,7 +3031,7 @@ static void dissect_batadv_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		break;
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		call_dissector(data_handle, tvb, pinfo, tree);
+		call_data_dissector(tvb, pinfo, tree);
 		break;
 	}
 }
@@ -3153,7 +3152,7 @@ static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
 		}
 
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 }
 
@@ -3248,7 +3247,7 @@ static void dissect_batadv_vis_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
 		}
 
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 }
 
@@ -3346,7 +3345,7 @@ static void dissect_batadv_vis_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
 		}
 
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 }
 
@@ -3393,7 +3392,7 @@ static void dissect_batadv_tt_query(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		break;
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		call_dissector(data_handle, tvb, pinfo, tree);
+		call_data_dissector(tvb, pinfo, tree);
 		break;
 	}
 }
@@ -3509,7 +3508,7 @@ static void dissect_batadv_tt_query_v14(tvbuff_t *tvb, packet_info *pinfo _U_, p
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
 		}
 
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 }
 
@@ -3542,7 +3541,7 @@ static void dissect_batadv_roam_adv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		break;
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		call_dissector(data_handle, tvb, pinfo, tree);
+		call_data_dissector(tvb, pinfo, tree);
 		break;
 	}
 }
@@ -3614,7 +3613,7 @@ static void dissect_batadv_roam_adv_v14(tvbuff_t *tvb, packet_info *pinfo, proto
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
 		}
 
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 }
 
@@ -3632,7 +3631,7 @@ static void dissect_batadv_coded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		break;
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		call_dissector(data_handle, tvb, pinfo, tree);
+		call_data_dissector(tvb, pinfo, tree);
 		break;
 	}
 }
@@ -3750,7 +3749,7 @@ static void dissect_batadv_coded_v15(tvbuff_t *tvb, packet_info *pinfo,
 			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
 		}
 
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 }
 
@@ -3769,7 +3768,7 @@ static void dissect_batadv_unicast_tvlv(tvbuff_t *tvb, packet_info *pinfo, proto
 	default:
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d",
 			     version);
-		call_dissector(data_handle, tvb, pinfo, tree);
+		call_data_dissector(tvb, pinfo, tree);
 		break;
 	}
 }
@@ -3931,7 +3930,7 @@ static void dissect_batadv_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 						      version);
 			break;
 		default:
-			call_dissector(data_handle, next_tvb, pinfo,
+			call_data_dissector(next_tvb, pinfo,
 				       batadv_tvlv_tree);
 			break;
 		}
@@ -5049,7 +5048,6 @@ void proto_reg_handoff_batadv(void)
 	if (!inited) {
 		batman_handle = create_dissector_handle(dissect_batadv_plugin, proto_batadv_plugin);
 
-		data_handle = find_dissector("data");
 		eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_batadv_plugin);
 
 		batadv_tap = register_tap("batman");

@@ -41,7 +41,6 @@ static const char zeroes[10] = {0,0,0,0,0,0,0,0,0,0};
 static dissector_handle_t raw_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
-static dissector_handle_t data_handle;
 static dissector_handle_t ppp_hdlc_handle;
 
 static gboolean
@@ -157,7 +156,7 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     default:
       /* None of the above. */
-      call_dissector(data_handle, tvb, pinfo, tree);
+      call_data_dissector(tvb, pinfo, tree);
       break;
     }
   }
@@ -186,7 +185,6 @@ proto_reg_handoff_raw(void)
    */
   ip_handle = find_dissector_add_dependency("ip", proto_raw);
   ipv6_handle = find_dissector_add_dependency("ipv6", proto_raw);
-  data_handle = find_dissector("data");
   ppp_hdlc_handle = find_dissector_add_dependency("ppp_hdlc", proto_raw);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP, raw_handle);
   register_capture_dissector("wtap_encap", WTAP_ENCAP_RAW_IP, capture_raw, proto_raw);

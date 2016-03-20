@@ -860,7 +860,6 @@ static gboolean tds_defragment = TRUE;
 static dissector_handle_t tds_tcp_handle;
 static dissector_handle_t ntlmssp_handle;
 static dissector_handle_t gssapi_handle;
-static dissector_handle_t data_handle;
 
 typedef struct {
     gint tds7_version;
@@ -3945,7 +3944,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     } else {
         next_tvb = tvb_new_subset_remaining (tvb, offset);
-        call_dissector(data_handle, next_tvb, pinfo, tds_tree);
+        call_data_dissector(next_tvb, pinfo, tds_tree);
     }
     pinfo->fragmented = save_fragmented;
 }
@@ -5640,7 +5639,6 @@ proto_reg_handoff_tds(void)
 
     ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_tds);
     gssapi_handle = find_dissector_add_dependency("gssapi", proto_tds);
-    data_handle = find_dissector("data");
 }
 
 /*

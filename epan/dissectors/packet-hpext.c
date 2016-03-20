@@ -64,8 +64,6 @@ static header_field_info hfi_hpext_reserved HPEXT_HFI_INIT =
 
 static gint ett_hpext = -1;
 
-static dissector_handle_t data_handle;
-
 static int
 dissect_hpext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -98,7 +96,7 @@ dissect_hpext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		next_tvb = tvb_new_subset_remaining(tvb, 7);
 		if (!dissector_try_uint(subdissector_table,
 		    dxsap, next_tvb, pinfo, tree)) {
-			call_dissector(data_handle, next_tvb, pinfo, tree);
+			call_data_dissector(next_tvb, pinfo, tree);
 		}
 	}
 	return tvb_captured_length(tvb);
@@ -138,8 +136,6 @@ proto_register_hpext(void)
 void
 proto_reg_handoff_hpext(void)
 {
-	data_handle = find_dissector("data");
-
 	dissector_add_uint("llc.dsap", SAP_HPEXT, hpext_handle);
 }
 

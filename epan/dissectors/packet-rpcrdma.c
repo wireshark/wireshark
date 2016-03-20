@@ -54,7 +54,6 @@ void proto_register_rpcordma(void);
 
 static int proto_rpcordma = -1;
 static dissector_handle_t ib_handler;
-static dissector_handle_t data_handler;
 static dissector_handle_t rpc_handler;
 static dissector_handle_t rpcordma_handler;
 static int proto_ib = -1;
@@ -372,7 +371,7 @@ dissect_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             default:
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
-                return call_dissector(data_handler, next_tvb, pinfo, tree);
+                return call_data_dissector(next_tvb, pinfo, tree);
             }
             break;
         }
@@ -592,7 +591,6 @@ proto_reg_handoff_rpcordma(void)
         manual_addr_data[0] = wmem_alloc(wmem_epan_scope(), GID_SIZE);
         manual_addr_data[1] = wmem_alloc(wmem_epan_scope(), GID_SIZE);
 
-        data_handler = find_dissector("data");
         rpc_handler = find_dissector_add_dependency("rpc", proto_rpcordma);
         ib_handler = find_dissector_add_dependency("infiniband", proto_rpcordma);
         proto_ib = dissector_handle_get_protocol_index(ib_handler);

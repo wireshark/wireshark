@@ -121,7 +121,6 @@ static guint32  gPREF_scop_port         = SCOP_DEFAULT_PORT;
 static guint32  gPREF_scop_port_secured = SCOP_DEFAULT_PORT_SECURED;
 
 /*  Dissector handle */
-static dissector_handle_t data_handle;
 static dissector_handle_t ieee802154_handle;
 
 /*FUNCTION:------------------------------------------------------
@@ -199,7 +198,7 @@ dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             /* Nothing yet defined for the gateway. Fall-Through. */
         default:
             /* Unknown Service Type. */
-            call_dissector(data_handle, tvb_new_subset_remaining(next_tvb, offset), pinfo, tree);
+            call_data_dissector(tvb_new_subset_remaining(next_tvb, offset), pinfo, tree);
             break;
     }
 
@@ -288,7 +287,7 @@ dissect_scop_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (offset < tvb_reported_length(tvb)) {
         tvbuff_t    *payload_tvb = tvb_new_subset_remaining(tvb, offset);
         proto_tree  *root        = proto_tree_get_root(tree);
-        call_dissector(data_handle, payload_tvb, pinfo, root);
+        call_data_dissector(payload_tvb, pinfo, root);
     }
 } /* dissect_scop_zip() */
 
@@ -404,7 +403,6 @@ void proto_reg_handoff_scop(void)
         scop_udp_handle     = find_dissector("scop.udp");
         scop_tcp_handle     = find_dissector("scop.tcp");
         ieee802154_handle   = find_dissector_add_dependency("wpan_nofcs", proto_scop);
-        data_handle         = find_dissector("data");
         inited = TRUE;
     } else {
         dissector_delete_uint("udp.port", lastPort, scop_udp_handle);

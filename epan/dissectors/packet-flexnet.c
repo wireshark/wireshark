@@ -46,8 +46,6 @@ void proto_reg_handoff_flexnet(void);
 #define FLEXNET_CTLLEN  15
 #define FLEXNET_HDRLEN  (FLEXNET_ADRLEN + FLEXNET_ADRLEN + FLEXNET_CTLLEN)
 
-static dissector_handle_t default_handle;
-
 static int proto_flexnet	= -1;
 static int hf_flexnet_dst	= -1;
 static int hf_flexnet_src	= -1;
@@ -91,7 +89,7 @@ dissect_flexnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 	/* Call sub-dissectors here */
 
 	next_tvb = tvb_new_subset_remaining(tvb, FLEXNET_HDRLEN);
-	call_dissector( default_handle , next_tvb, pinfo, parent_tree );
+	call_data_dissector(next_tvb, pinfo, parent_tree );
 	return tvb_captured_length(tvb);
 }
 
@@ -135,11 +133,6 @@ void
 proto_reg_handoff_flexnet(void)
 {
 	dissector_add_uint( "ax25.pid", AX25_P_FLEXNET, create_dissector_handle( dissect_flexnet, proto_flexnet ) );
-
-	/*
-	 */
-	default_handle  = find_dissector( "data" );
-
 }
 
 /*

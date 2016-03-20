@@ -107,7 +107,6 @@ static dissector_handle_t ib_link_handle;
 
 /* Subdissectors Declarations */
 static dissector_handle_t ipv6_handle;
-static dissector_handle_t data_handle;
 static dissector_handle_t eth_handle;
 static dissector_table_t ethertype_dissector_table;
 
@@ -2030,7 +2029,7 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     if (operand > 1) {
         proto_item_set_text(operand_item, "%s", "Reserved");
-        call_dissector(data_handle, tvb, pinfo, link_tree);
+        call_data_dissector(tvb, pinfo, link_tree);
     } else {
         proto_tree_add_item(link_tree, hf_infiniband_link_fctbs, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
@@ -2520,7 +2519,7 @@ static void parse_PAYLOAD(proto_tree *parentTree,
         if (!dissector_found) {
             /* No sub-dissector found.
                Label rest of packet as "Data" */
-            call_dissector(data_handle, next_tvb, pinfo, top_tree);
+            call_data_dissector(next_tvb, pinfo, top_tree);
 
         }
 
@@ -2616,7 +2615,7 @@ static void parse_RWH(proto_tree *ah_tree, tvbuff_t *tvb, gint *offset, packet_i
     next_tvb = tvb_new_subset_length(tvb, *offset, reported_length);
     if (!dissector_try_uint(ethertype_dissector_table, ether_type,
             next_tvb, pinfo, top_tree))
-       call_dissector(data_handle, next_tvb, pinfo, top_tree);
+       call_data_dissector(next_tvb, pinfo, top_tree);
 
     *offset = tvb_reported_length(tvb) - 2;
     /* Display the VCRC */
@@ -2664,7 +2663,7 @@ static gboolean parse_EoIB(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_
 
     if (seg_offset || ms) {
         /* this is a fragment of an encapsulated Ethernet jumbo frame, parse as data */
-        call_dissector(data_handle, encap_tvb, pinfo, top_tree);
+        call_data_dissector(encap_tvb, pinfo, top_tree);
     } else {
         /* non-fragmented frames can be fully parsed */
         call_dissector(eth_handle, encap_tvb, pinfo, top_tree);
@@ -7440,7 +7439,6 @@ void proto_reg_handoff_infiniband(void)
     dissector_handle_t roce_handle, rroce_handle;
 
     ipv6_handle               = find_dissector_add_dependency("ipv6", proto_infiniband);
-    data_handle               = find_dissector("data");
 
     /*
      * I haven't found an official spec for EoIB, but slide 10

@@ -65,7 +65,6 @@ static guint   zbee_apf_transaction_len    (tvbuff_t *tvb, guint offset, guint8 
 
 static void proto_init_zbee_aps(void);
 static void proto_cleanup_zbee_aps(void);
-void proto_reg_handoff_zbee_aps(void);
 void proto_register_zbee_aps(void);
 
 /********************
@@ -168,9 +167,6 @@ static expert_field ei_zbee_aps_missing_payload = EI_INIT;
 /* Dissector Handles. */
 static dissector_handle_t   zbee_aps_handle;
 static dissector_handle_t   zbee_apf_handle;
-
-/* Subdissector Handles. */
-static dissector_handle_t   data_handle;
 
 /* Dissector List. */
 static dissector_table_t    zbee_aps_dissector_table;
@@ -1028,7 +1024,7 @@ dissect_zbee_aps_no_endpt:
         else {
             /* The reassembly handler could not defragment the message. */
             col_append_fstr(pinfo->cinfo, COL_INFO, " (fragment %d)", block_num);
-            call_dissector(data_handle, payload_tvb, pinfo, tree);
+            call_data_dissector(payload_tvb, pinfo, tree);
             return tvb_captured_length(tvb);
         }
     }
@@ -1087,7 +1083,7 @@ dissect_zbee_aps_no_endpt:
     }
 
     if (payload_tvb) {
-        call_dissector(data_handle, payload_tvb, pinfo, tree);
+        call_data_dissector(payload_tvb, pinfo, tree);
     }
 
     return tvb_captured_length(tvb);
@@ -1202,7 +1198,7 @@ static void dissect_zbee_aps_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_item_set_len(cmd_root, offset);
 
         /* Dump the leftover to the data dissector. */
-        call_dissector(data_handle, leftover_tvb, pinfo, root);
+        call_data_dissector(leftover_tvb, pinfo, root);
     }
 } /* dissect_zbee_aps_cmd */
 
@@ -1716,7 +1712,7 @@ dissect_app_end:
     if (offset < tvb_captured_length(tvb)) {
         /* There are bytes remaining! */
         app_tvb = tvb_new_subset_remaining(tvb, offset);
-        call_dissector(data_handle, app_tvb, pinfo, tree);
+        call_data_dissector(app_tvb, pinfo, tree);
     }
 
     return tvb_captured_length(tvb);
@@ -2146,16 +2142,6 @@ void proto_register_zbee_aps(void)
     /* Register the App dissector. */
     zbee_apf_handle = register_dissector("zbee_apf", dissect_zbee_apf, proto_zbee_apf);
 } /* proto_register_zbee_aps */
-
-/**
- *Registers the zigbee APS dissector with Wireshark.
- *
-*/
-void proto_reg_handoff_zbee_aps(void)
-{
-    /* Find the other dissectors we need. */
-    data_handle     = find_dissector("data");
-} /* proto_reg_handoff_zbee_aps */
 
 /**
  *Initializes the APS dissectors prior to beginning protocol

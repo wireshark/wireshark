@@ -58,8 +58,6 @@ static gint ett_can = -1;
 
 static int proto_can = -1;
 
-static dissector_handle_t data_handle;
-
 #define LINUX_CAN_STD   0
 #define LINUX_CAN_EXT   1
 #define LINUX_CAN_RTR   2
@@ -154,7 +152,7 @@ dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	   have a unique identifier to determine subdissector */
 	if (!dissector_try_uint_new(subdissector_table, 0, next_tvb, pinfo, tree, FALSE, &can_id))
 	{
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 	return tvb_captured_length(tvb);
 }
@@ -252,8 +250,6 @@ proto_reg_handoff_socketcan(void)
 	can_handle = create_dissector_handle(dissect_socketcan, proto_can);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_SOCKETCAN, can_handle);
 	dissector_add_uint("sll.ltype", LINUX_SLL_P_CAN, can_handle);
-
-	data_handle    = find_dissector("data");
 }
 
 /*

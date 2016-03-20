@@ -97,7 +97,7 @@ static gint ett_mdshdr = -1;
 static gint ett_mdshdr_hdr = -1;
 static gint ett_mdshdr_trlr = -1;
 
-static dissector_handle_t data_handle, fc_dissector_handle;
+static dissector_handle_t fc_dissector_handle;
 
 static gboolean decode_if_zero_etype = FALSE;
 
@@ -242,7 +242,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         call_dissector_with_data(fc_dissector_handle, next_tvb, pinfo, tree, &fc_data);
     }
     else {
-        call_dissector(data_handle, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
     }
     return tvb_captured_length(tvb);
 }
@@ -322,7 +322,6 @@ proto_reg_handoff_mdshdr(void)
          */
         mdshdr_handle = create_dissector_handle(dissect_mdshdr, proto_mdshdr);
         dissector_add_uint("ethertype", ETHERTYPE_FCFT, mdshdr_handle);
-        data_handle   = find_dissector("data");
         fc_dissector_handle = find_dissector_add_dependency("fc", proto_mdshdr);
         mdshdr_prefs_initialized = TRUE;
     }

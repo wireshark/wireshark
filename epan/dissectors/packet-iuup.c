@@ -157,7 +157,6 @@ static expert_field ei_iuup_pdu_type = EI_INIT;
 
 static GHashTable* circuits = NULL;
 
-static dissector_handle_t data_handle = NULL;
 static gboolean dissect_fields = FALSE;
 static gboolean two_byte_pseudoheader = FALSE;
 static guint global_dynamic_payload_type = 0;
@@ -829,7 +828,7 @@ static int find_iuup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         len--;
     }
 
-    call_dissector(data_handle, tvb, pinfo, tree);
+    call_data_dissector(tvb, pinfo, tree);
     return tvb_captured_length(tvb);
 }
 
@@ -850,7 +849,6 @@ void proto_reg_handoff_iuup(void) {
     if (!iuup_prefs_initialized) {
         iuup_handle = find_dissector("iuup");
         dissector_add_string("rtp_dyn_payload_type","VND.3GPP.IUFP", iuup_handle);
-        data_handle = find_dissector("data");
         iuup_prefs_initialized = TRUE;
     } else {
         if ( saved_dynamic_payload_type > 95 ) {

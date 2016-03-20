@@ -365,7 +365,6 @@ static int ieee802_15_4_short_address_type = -1;
  *  - the PANID table is for stateful dissectors only (ie: Decode-As)
  *  - otherwise, data dissectors fall back to the heuristic dissectors.
  */
-static dissector_handle_t       data_handle;
 static dissector_table_t        panid_dissector_table;
 static heur_dissector_list_t    ieee802154_beacon_subdissector_list;
 static heur_dissector_list_t    ieee802154_heur_subdissector_list;
@@ -1409,27 +1408,27 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         case DECRYPT_VERSION_UNSUPPORTED:
             /* We don't support decryption with that version of the protocol */
             expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "We don't support decryption with protocol version %u", packet->version);
-            call_dissector(data_handle, payload_tvb, pinfo, tree);
+            call_data_dissector(payload_tvb, pinfo, tree);
             goto dissect_ieee802154_fcs;
 
         case DECRYPT_PACKET_TOO_SMALL:
             expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "Packet was too small to include the CRC and MIC");
-            call_dissector(data_handle, payload_tvb, pinfo, tree);
+            call_data_dissector(payload_tvb, pinfo, tree);
             goto dissect_ieee802154_fcs;
 
         case DECRYPT_PACKET_NO_EXT_SRC_ADDR:
             expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "No extended source address - can't decrypt");
-            call_dissector(data_handle, payload_tvb, pinfo, tree);
+            call_data_dissector(payload_tvb, pinfo, tree);
             goto dissect_ieee802154_fcs;
 
         case DECRYPT_PACKET_NO_KEY:
             expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "No encryption key set - can't decrypt");
-            call_dissector(data_handle, payload_tvb, pinfo, tree);
+            call_data_dissector(payload_tvb, pinfo, tree);
             goto dissect_ieee802154_fcs;
 
         case DECRYPT_PACKET_DECRYPT_FAILED:
             expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "Decrypt failed");
-            call_dissector(data_handle, payload_tvb, pinfo, tree);
+            call_data_dissector(payload_tvb, pinfo, tree);
             goto dissect_ieee802154_fcs;
 
         case DECRYPT_PACKET_MIC_CHECK_FAILED:
@@ -1439,7 +1438,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
              * probably didn't decrypt the packet right (eg: wrong key).
              */
             if (IEEE802154_IS_ENCRYPTED(packet->security_level)) {
-                call_dissector(data_handle, payload_tvb, pinfo, tree);
+                call_data_dissector(payload_tvb, pinfo, tree);
                 goto dissect_ieee802154_fcs;
             }
             break;
@@ -1484,7 +1483,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             case IEEE802154_FCF_BEACON:
                 if (!dissector_try_heuristic(ieee802154_beacon_subdissector_list, payload_tvb, pinfo, tree, &hdtbl_entry, packet)) {
                     /* Could not subdissect, call the data dissector instead. */
-                    call_dissector(data_handle, payload_tvb, pinfo, tree);
+                    call_data_dissector(payload_tvb, pinfo, tree);
                 }
                 break;
 
@@ -1495,7 +1494,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             case IEEE802154_FCF_DATA:
                 /* Sanity-check. */
                 if ((!fcs_ok && ieee802154_fcs_ok) || !tvb_reported_length(payload_tvb)) {
-                    call_dissector(data_handle, payload_tvb, pinfo, tree);
+                    call_data_dissector(payload_tvb, pinfo, tree);
                     break;
                 }
                 /* Try the PANID dissector table for stateful dissection. */
@@ -1514,7 +1513,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                 /* Fall-through to dump undissectable payloads. */
             default:
                 /* Could not subdissect, call the data dissector instead. */
-                call_dissector(data_handle, payload_tvb, pinfo, tree);
+                call_data_dissector(payload_tvb, pinfo, tree);
             } /* switch */
         }
         CATCH_ALL {
@@ -2045,7 +2044,7 @@ dissect_ieee802154_assoc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* Call the data dissector for any leftover bytes. */
     if (tvb_reported_length(tvb) > 1) {
-        call_dissector(data_handle, tvb_new_subset_remaining(tvb, 1), pinfo, tree);
+        call_data_dissector(tvb_new_subset_remaining(tvb, 1), pinfo, tree);
     }
 } /* dissect_ieee802154_assoc_req */
 
@@ -2109,7 +2108,7 @@ dissect_ieee802154_assoc_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* Call the data dissector for any leftover bytes. */
     if (tvb_captured_length(tvb) > offset) {
-        call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+        call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
     }
 } /* dissect_ieee802154_assoc_rsp */
 
@@ -2162,7 +2161,7 @@ dissect_ieee802154_disassoc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Call the data dissector for any leftover bytes. */
     if (tvb_captured_length(tvb) > 1) {
-        call_dissector(data_handle, tvb_new_subset_remaining(tvb, 1), pinfo, tree);
+        call_data_dissector(tvb_new_subset_remaining(tvb, 1), pinfo, tree);
     }
 } /* dissect_ieee802154_disassoc */
 
@@ -2235,7 +2234,7 @@ dissect_ieee802154_realign(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     /* Call the data dissector for any leftover bytes. */
     if (tvb_captured_length(tvb) > offset) {
-        call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+        call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
     }
 } /* dissect_ieee802154_realign */
 
@@ -2275,7 +2274,7 @@ dissect_ieee802154_gtsreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
     /* Call the data dissector for any leftover bytes. */
     if (tvb_reported_length(tvb) > 1) {
-        call_dissector(data_handle, tvb_new_subset_remaining(tvb, 1), pinfo, tree);
+        call_data_dissector(tvb_new_subset_remaining(tvb, 1), pinfo, tree);
     }
 } /* dissect_ieee802154_gtsreq */
 
@@ -2385,7 +2384,7 @@ dissect_ieee802154_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             /* TODO add support for these commands, for now
              * if anything remains other than the FCS, dump it */
             if (tvb_captured_length_remaining(tvb, 0) > 2) {
-                call_dissector(data_handle, tvb, pinfo, tree);
+                call_data_dissector(tvb, pinfo, tree);
             }
           return;
 
@@ -3600,7 +3599,6 @@ void proto_reg_handoff_ieee802154(void)
         ieee802154_handle   = find_dissector(IEEE802154_PROTOABBREV_WPAN);
         ieee802154_nonask_phy_handle = find_dissector("wpan-nonask-phy");
         ieee802154_nofcs_handle = find_dissector("wpan_nofcs");
-        data_handle         = find_dissector("data");
 
         dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4, ieee802154_handle);
         dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4_NONASK_PHY, ieee802154_nonask_phy_handle);

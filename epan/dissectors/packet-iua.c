@@ -42,7 +42,6 @@ void proto_reg_handoff_iua(void);
 
 static module_t *iua_module;
 
-static dissector_handle_t data_handle;
 static dissector_table_t lapd_gsm_sapi_dissector_table;
 
 /* Whether to use GSM SAPI vals or not */
@@ -431,7 +430,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, proto_item *parameter_i
   }
   if(global_iua_gsm_sapis) {
     if (!dissector_try_uint(lapd_gsm_sapi_dissector_table, sapi_val, protocol_data_tvb, pinfo, tree))
-      call_dissector(data_handle, protocol_data_tvb, pinfo, tree);
+      call_data_dissector(protocol_data_tvb, pinfo, tree);
     return;
   }
 
@@ -994,8 +993,6 @@ proto_reg_handoff_iua(void)
   dissector_add_uint("sctp.ppi",  IUA_PAYLOAD_PROTOCOL_ID, iua_handle);
 
   lapd_gsm_sapi_dissector_table = find_dissector_table("lapd.gsm.sapi");
-  data_handle = find_dissector("data");
-
 }
 
 /*

@@ -96,7 +96,6 @@ static const fragment_items npdu_frag_items = {
 
 /* dissectors for the data portion of this protocol
  */
-static dissector_handle_t data_handle;
 static dissector_handle_t ip_handle;
 
 /* reassembly of N-PDU
@@ -310,7 +309,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
       call_dissector(ip_handle, next_tvb, pinfo, tree);
     }
     else {
-      call_dissector(data_handle, next_tvb, pinfo, tree);
+      call_data_dissector(next_tvb, pinfo, tree);
     }
   }
   else {
@@ -586,7 +585,6 @@ proto_reg_handoff_sndcp(void)
   /* Find IP and data handle for upper layer dissectors
    */
   ip_handle   = find_dissector_add_dependency("ip", proto_sndcp);
-  data_handle = find_dissector("data");
 }
 
 /*

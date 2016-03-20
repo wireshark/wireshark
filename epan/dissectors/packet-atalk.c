@@ -365,8 +365,6 @@ static value_string_ext pap_function_vals_ext = VALUE_STRING_EXT_INIT(pap_functi
 
 static dissector_table_t ddp_dissector_table;
 
-static dissector_handle_t data_handle;
-
 #define DDP_SHORT_HEADER_SIZE 5
 
 /*
@@ -879,7 +877,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       }
       else if (!try_conversation_dissector(&pinfo->src, &pinfo->dst, pinfo->ptype,
                                            pinfo->srcport, pinfo->destport, new_tvb,pinfo, tree, &aspinfo)) {
-        call_dissector(data_handle, new_tvb, pinfo, tree);
+        call_data_dissector(new_tvb, pinfo, tree);
 
       }
     }
@@ -887,7 +885,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   else {
     /* Just show this as a fragment. */
     new_tvb = tvb_new_subset_remaining (tvb, ATP_HDRSIZE -1);
-    call_dissector(data_handle, new_tvb, pinfo, tree);
+    call_data_dissector(new_tvb, pinfo, tree);
   }
   pinfo->fragmented = save_fragmented;
   return tvb_captured_length(tvb);
@@ -958,7 +956,7 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     offset++;
     PAD(1);
     /* follow by data */
-    call_dissector(data_handle,tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+    call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
     break;
 
   case PAPTickle:
@@ -1105,7 +1103,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     default:
       proto_item_set_len(asp_tree, 4);
       offset += 3;
-      call_dissector(data_handle,tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+      call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
       break;
     }
   }
@@ -1154,7 +1152,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     default:
       proto_item_set_len(asp_tree, 4);
       offset += 4;
-      call_dissector(data_handle,tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+      call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
       break;
     }
   }
@@ -1478,7 +1476,7 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   new_tvb = tvb_new_subset_remaining(tvb, DDP_SHORT_HEADER_SIZE);
 
   if (!dissector_try_uint(ddp_dissector_table, type, new_tvb, pinfo, tree))
-    call_dissector(data_handle,new_tvb, pinfo, tree);
+    call_data_dissector(new_tvb, pinfo, tree);
 
   return tvb_captured_length(tvb);
 }
@@ -1557,7 +1555,7 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   if (!dissector_try_uint(ddp_dissector_table, ddp.type, new_tvb, pinfo, tree))
   {
-    call_dissector(data_handle,new_tvb, pinfo, tree);
+    call_data_dissector(new_tvb, pinfo, tree);
   }
   return tvb_captured_length(tvb);
 }
@@ -1619,7 +1617,7 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         return tvb_captured_length(tvb);
       break;
   }
-  call_dissector(data_handle,new_tvb, pinfo, tree);
+  call_data_dissector(new_tvb, pinfo, tree);
   return tvb_captured_length(tvb);
 }
 
@@ -2126,7 +2124,6 @@ proto_reg_handoff_atalk(void)
 
   afp_handle  = find_dissector_add_dependency("afp", proto_asp);
   afp_server_status_handle  = find_dissector_add_dependency("afp_server_status", proto_asp);
-  data_handle = find_dissector("data");
 }
 
 /*

@@ -56,7 +56,6 @@ static expert_field ei_btavctp_unexpected_frame = EI_INIT;
 static expert_field ei_btavctp_invalid_profile = EI_INIT;
 
 static dissector_handle_t btavctp_handle;
-static dissector_handle_t data_handle    = NULL;
 
 typedef struct _fragment_t {
     guint   length;
@@ -231,7 +230,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         uuid.data[1] = pid & 0xFF;
 
         if (!dissector_try_string(bluetooth_uuid_table, print_numeric_uuid(&uuid), next_tvb, pinfo, tree, avctp_data)) {
-            call_dissector(data_handle, next_tvb, pinfo, tree);
+            call_data_dissector(next_tvb, pinfo, tree);
         }
 
     } else {
@@ -285,7 +284,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     fragments = NULL;
             }
 
-            call_dissector(data_handle, next_tvb, pinfo, tree);
+            call_data_dissector(next_tvb, pinfo, tree);
 
         } else if (packet_type == PACKET_TYPE_CONTINUE) {
             fragments = (fragments_t *)wmem_tree_lookup32_array_le(reassembling, key);
@@ -327,7 +326,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 wmem_tree_insert32_array(reassembling, key, fragments);
             }
 
-            call_dissector(data_handle, next_tvb, pinfo, tree);
+            call_data_dissector(next_tvb, pinfo, tree);
 
         } else if (packet_type == PACKET_TYPE_END) {
             guint    i_length = 0;
@@ -374,7 +373,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             length = 0;
             if (!fragments || fragments->count != fragments->number_of_packets) {
                 expert_add_info(pinfo, pitem, &ei_btavctp_unexpected_frame);
-                call_dissector(data_handle, next_tvb, pinfo, tree);
+                call_data_dissector(next_tvb, pinfo, tree);
             } else {
                 guint8   *reassembled;
                 bluetooth_uuid_t  uuid;
@@ -403,13 +402,13 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 uuid.data[1] = fragments->pid & 0xFF;
 
                 if (!dissector_try_string(bluetooth_uuid_table, print_numeric_uuid(&uuid), next_tvb, pinfo, tree, avctp_data)) {
-                    call_dissector(data_handle, next_tvb, pinfo, tree);
+                    call_data_dissector(next_tvb, pinfo, tree);
                 }
             }
 
             fragments = NULL;
         } else {
-                call_dissector(data_handle, next_tvb, pinfo, tree);
+            call_data_dissector(next_tvb, pinfo, tree);
         }
     }
 
@@ -490,8 +489,6 @@ proto_register_btavctp(void)
 void
 proto_reg_handoff_btavctp(void)
 {
-    data_handle    = find_dissector("data");
-
     dissector_add_string("bluetooth.uuid", "17", btavctp_handle);
 
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_AVCTP_CTRL, btavctp_handle);

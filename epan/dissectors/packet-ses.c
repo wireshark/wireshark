@@ -336,9 +336,6 @@ static gboolean ses_desegment = TRUE;
 static guint ses_pres_ctx_id = 0;
 static gboolean ses_rtse_reassemble = FALSE;
 
-/* find the dissector for data */
-static dissector_handle_t data_handle;
-
 static void
 call_pres_dissector(tvbuff_t *tvb, int offset, guint16 param_len,
 		    packet_info *pinfo, proto_tree *tree,
@@ -1031,7 +1028,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
 	if (has_user_information && next_tvb) {
 		if (!pres_handle) {
-			call_dissector(data_handle, next_tvb, pinfo, tree);
+			call_data_dissector(next_tvb, pinfo, tree);
 		} else {
 			/* Pass the session pdu to the presentation dissector */
 			call_dissector_with_data(pres_handle, next_tvb, pinfo, tree, &session);
@@ -1912,9 +1909,6 @@ proto_register_ses(void)
 void
 proto_reg_handoff_ses(void)
 {
-	/*   find data dissector  */
-	data_handle = find_dissector("data");
-
 	/* define sub dissector */
 	pres_handle = find_dissector_add_dependency("pres", proto_ses);
 

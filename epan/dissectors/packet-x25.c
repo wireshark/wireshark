@@ -523,7 +523,6 @@ static dissector_handle_t ip_handle;
 static dissector_handle_t clnp_handle;
 static dissector_handle_t ositp_handle;
 static dissector_handle_t qllc_handle;
-static dissector_handle_t data_handle;
 
 /* Preferences */
 static gboolean payload_is_qllc_sna = FALSE;
@@ -1991,7 +1990,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     /* All else failed; dissect it as raw data */
-    call_dissector(data_handle, next_tvb, pinfo, tree);
+    call_data_dissector(next_tvb, pinfo, tree);
 }
 
 /*
@@ -2411,7 +2410,6 @@ proto_reg_handoff_x25(void)
     clnp_handle = find_dissector_add_dependency("clnp", proto_x25);
     ositp_handle = find_dissector_add_dependency("ositp", proto_x25);
     qllc_handle = find_dissector_add_dependency("qllc", proto_x25);
-    data_handle = find_dissector("data");
 
     x25_handle = find_dissector("x.25");
     dissector_add_uint("llc.dsap", SAP_X25, x25_handle);

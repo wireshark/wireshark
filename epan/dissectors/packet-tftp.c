@@ -85,7 +85,6 @@ static gint ett_tftp_option = -1;
 static expert_field ei_tftp_blocksize_range = EI_INIT;
 
 static dissector_handle_t tftp_handle;
-static dissector_handle_t data_handle;
 
 #define UDP_PORT_TFTP_RANGE    "69"
 
@@ -340,7 +339,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     /* Show data in tree */
     if (bytes > 0) {
       data_tvb = tvb_new_subset(tvb, offset, -1, bytes);
-      call_dissector(data_handle, data_tvb, pinfo, tree);
+      call_data_dissector(data_tvb, pinfo, tree);
     }
 
     /* If Export Object tap is listening, need to accumulate blocks info list
@@ -703,7 +702,6 @@ proto_reg_handoff_tftp(void)
 
   if (!tftp_initialized) {
     tftp_handle = find_dissector("tftp");
-    data_handle = find_dissector("data");
     heur_dissector_add("stun", dissect_embeddedtftp_heur, "TFTP over TURN", "tftp_stun", proto_tftp, HEURISTIC_ENABLE);
     tftp_initialized = TRUE;
   } else {

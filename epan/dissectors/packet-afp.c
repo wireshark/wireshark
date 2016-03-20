@@ -370,7 +370,6 @@ static expert_field ei_afp_toc_offset = EI_INIT;
 
 static int afp_tap			    = -1;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t spotlight_handle;
 
 static const value_string vol_signature_vals[] = {
@@ -5520,7 +5519,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		}
 	}
 	if (offset < len) {
-		call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset),
+		call_data_dissector(tvb_new_subset_remaining(tvb, offset),
 		    pinfo, afp_tree);
 	}
 
@@ -7279,7 +7278,6 @@ proto_register_afp(void)
 void
 proto_reg_handoff_afp(void)
 {
-	data_handle = find_dissector("data");
 	spotlight_handle = find_dissector_add_dependency("afp_spotlight", proto_afp);
 }
 

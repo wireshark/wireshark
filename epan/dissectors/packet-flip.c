@@ -86,8 +86,6 @@ static const value_string flip_etype[] = {
 
 static dissector_table_t subdissector_table;
 
-static dissector_handle_t data_handle = NULL;
-
 static gint ett_flip         = -1;
 static gint ett_flip_basic   = -1;
 static gint ett_flip_chksum  = -1;
@@ -382,7 +380,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         data_len = dissector_try_uint(subdissector_table, 0, payload_tvb, pinfo, tree);
         if (data_len <= 0)
         {
-            data_len = call_dissector(data_handle, payload_tvb, pinfo, tree);
+            data_len = call_data_dissector(payload_tvb, pinfo, tree);
         }
 
         bytes_dissected += data_len;
@@ -492,8 +490,6 @@ proto_reg_handoff_flip(void)
 
     flip_handle = create_dissector_handle(dissect_flip, proto_flip);
     dissector_add_uint("ethertype", ETHERTYPE_FLIP, flip_handle);
-
-    data_handle = find_dissector("data");
 } /* proto_reg_handoff_flip() */
 
 /*

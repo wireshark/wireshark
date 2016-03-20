@@ -46,8 +46,6 @@ static int hf_idp_ssocket = -1;
 
 static gint ett_idp = -1;
 
-static dissector_handle_t data_handle;
-
 static dissector_table_t idp_type_dissector_table;
 
 /*
@@ -125,7 +123,7 @@ dissect_idp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	if (!dissector_try_uint(idp_type_dissector_table, type, next_tvb,
 		pinfo, tree))
 	{
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 	return tvb_captured_length(tvb);
 }
@@ -209,8 +207,6 @@ proto_reg_handoff_idp(void)
 	idp_handle = create_dissector_handle(dissect_idp, proto_idp);
 	dissector_add_uint("ethertype", ETHERTYPE_XNS_IDP, idp_handle);
 	dissector_add_uint("chdlc.protocol", ETHERTYPE_XNS_IDP, idp_handle);
-
-	data_handle = find_dissector("data");
 }
 
 /*

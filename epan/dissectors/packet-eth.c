@@ -92,7 +92,6 @@ static expert_field ei_eth_len = EI_INIT;
 
 static dissector_handle_t fw1_handle;
 static dissector_handle_t ethertype_handle;
-static dissector_handle_t data_handle;
 static heur_dissector_list_t heur_subdissector_list;
 static heur_dissector_list_t eth_trailer_subdissector_list;
 
@@ -412,7 +411,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     expert_add_info_format(pinfo, ti, &ei_eth_invalid_lentype,
         "Invalid length/type: 0x%04x (%d)", ehdr->type, ehdr->type);
     next_tvb = tvb_new_subset_remaining(tvb, 14);
-    call_dissector(data_handle, next_tvb, pinfo, parent_tree);
+    call_data_dissector(next_tvb, pinfo, parent_tree);
     return fh_tree;
   }
 
@@ -1045,9 +1044,6 @@ proto_reg_handoff_eth(void)
 
   /* Get a handle for the ethertype dissector. */
   ethertype_handle = find_dissector_add_dependency("ethertype", proto_eth);
-
-  /* Get a handle for the generic data dissector. */
-  data_handle = find_dissector("data");
 
   eth_handle = create_dissector_handle(dissect_eth, proto_eth);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ETHERNET, eth_handle);

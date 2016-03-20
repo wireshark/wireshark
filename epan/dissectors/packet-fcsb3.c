@@ -114,8 +114,6 @@ static gint ett_sbccs_dib_status = -1;
 static gint ett_sbccs_dib_ctlparam = -1;
 static gint ett_sbccs_dib_linkctlinfo = -1;
 
-static dissector_handle_t data_handle;
-
 #if 0
 typedef struct {
     guint32 conv_id;
@@ -546,7 +544,7 @@ static void dissect_fc_sbccs_dib_status_hdr (tvbuff_t *tvb, packet_info *pinfo,
 
     if (supp_status_cnt) {
         next_tvb = tvb_new_subset_remaining (tvb, offset+FC_SBCCS_DIB_LRC_HDR_SIZE);
-        call_dissector (data_handle, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
     }
 }
 
@@ -744,14 +742,14 @@ static int dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
         break;
     default:
         next_tvb = tvb_new_subset_remaining (tvb, offset);
-        call_dissector (data_handle, next_tvb, pinfo, dib_tree);
+        call_data_dissector(next_tvb, pinfo, dib_tree);
         break;
     }
 
     if ((get_fc_sbccs_iu_type (tvb, 0) != FC_SBCCS_IU_CTL) &&
         (get_fc_sbccs_iu_type (tvb, 0) != FC_SBCCS_IU_CMD_LINK_CTL))  {
         next_tvb = tvb_new_subset_remaining (tvb, offset+FC_SBCCS_DIB_LRC_HDR_SIZE);
-        call_dissector (data_handle, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
     }
     return tvb_captured_length(tvb);
 }
@@ -1144,8 +1142,6 @@ proto_reg_handoff_fcsbccs (void)
                                                proto_fc_sbccs);
 
     dissector_add_uint("fc.ftype", FC_FTYPE_SBCCS, fc_sbccs_handle);
-
-    data_handle = find_dissector ("data");
 }
 
 /*

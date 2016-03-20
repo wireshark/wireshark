@@ -80,8 +80,6 @@ static gint ett_msdu_aggregation_subframe_tree = -1;
 /* The ethernet dissector we hand off to */
 static dissector_handle_t eth_handle;
 
-static dissector_handle_t data_handle;
-
 static const value_string turbocell_type_values[] = {
     { TURBOCELL_TYPE_BEACON_NON_POLLING, "Beacon (Non-Polling Base Station)" },
     { TURBOCELL_TYPE_BEACON_NORMAL,      "Beacon (Normal Base Station)" },
@@ -178,7 +176,7 @@ dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
             /*Couldn't make sense of the apparently random data in the end*/
 
             next_tvb = tvb_new_subset_remaining(tvb, 0x34 + 8*i);
-            call_dissector(data_handle, next_tvb, pinfo, tree);
+            call_data_dissector(next_tvb, pinfo, tree);
 
         } else {
 
@@ -222,7 +220,7 @@ dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
             if (remaining_length > 2) {
                 next_tvb = tvb_new_subset_remaining(next_tvb, msdu_offset);
-                call_dissector(data_handle, next_tvb, pinfo, tree);
+                call_data_dissector(next_tvb, pinfo, tree);
             }
         }
     }
@@ -340,7 +338,6 @@ void proto_register_turbocell(void)
 void proto_reg_handoff_turbocell(void)
 {
     eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_turbocell);
-    data_handle = find_dissector("data");
 }
 
 /*

@@ -27,7 +27,6 @@
 #include <epan/expert.h>
 
 void proto_register_gvrp(void);
-void proto_reg_handoff_gvrp(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_gvrp = -1;
@@ -44,8 +43,6 @@ static gint ett_gvrp_message = -1;
 static gint ett_gvrp_attribute = -1;
 
 static expert_field ei_gvrp_proto_id = EI_INIT;
-
-static dissector_handle_t data_handle;
 
 /* Constant definitions */
 #define GARP_DEFAULT_PROTOCOL_ID        0x0001
@@ -124,8 +121,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     if (protocol_id != GARP_DEFAULT_PROTOCOL_ID)
     {
         expert_add_info(pinfo, id_item, &ei_gvrp_proto_id);
-        call_dissector(data_handle,
-            tvb_new_subset_remaining(tvb, GARP_PROTOCOL_ID + 2),
+        call_data_dissector(tvb_new_subset_remaining(tvb, GARP_PROTOCOL_ID + 2),
             pinfo, tree);
         return tvb_captured_length(tvb);
     }
@@ -155,8 +151,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             }
             else
             {
-                call_dissector(data_handle,
-                    tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+                call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
                 return tvb_captured_length(tvb);
             }
         }
@@ -173,7 +168,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         /* GVRP only supports one attribute type. */
         if (octet != GVRP_ATTRIBUTE_TYPE)
         {
-            call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset),
+            call_data_dissector(tvb_new_subset_remaining(tvb, offset),
                 pinfo, tree);
             return tvb_captured_length(tvb);
         }
@@ -206,8 +201,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 }
                 else
                 {
-                    call_dissector(data_handle,
-                        tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+                    call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
                     return tvb_captured_length(tvb);
                 }
             }
@@ -238,8 +232,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 case GVRP_EVENT_LEAVEALL:
                     if (octet != GVRP_LENGTH_LEAVEALL)
                     {
-                        call_dissector(data_handle,
-                            tvb_new_subset_remaining(tvb, offset), pinfo,
+                        call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo,
                             tree);
                         return tvb_captured_length(tvb);
                     }
@@ -252,8 +245,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                     case GVRP_EVENT_EMPTY:
                     if (octet != GVRP_LENGTH_NON_LEAVEALL)
                     {
-                        call_dissector(data_handle,
-                            tvb_new_subset_remaining(tvb, offset),pinfo,
+                        call_data_dissector(tvb_new_subset_remaining(tvb, offset),pinfo,
                             tree);
                         return tvb_captured_length(tvb);
                     }
@@ -267,8 +259,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                     break;
 
                     default:
-                    call_dissector(data_handle,
-                        tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+                    call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
                     return tvb_captured_length(tvb);
                 }
             }
@@ -347,10 +338,6 @@ proto_register_gvrp(void)
     register_dissector("gvrp", dissect_gvrp, proto_gvrp);
 }
 
-void
-proto_reg_handoff_gvrp(void){
-    data_handle = find_dissector("data");
-}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

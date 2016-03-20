@@ -1373,7 +1373,6 @@ static expert_field ei_ansi_a_unknown_dtap_msg = EI_INIT;
 static expert_field ei_ansi_a_unknown_bsmap_msg = EI_INIT;
 static expert_field ei_ansi_a_undecoded = EI_INIT;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t dtap_handle;
 static dissector_table_t is637_dissector_table; /* IS-637-A Transport Layer (SMS) */
 static dissector_table_t is683_dissector_table; /* IS-683-A (OTA) */
@@ -10360,7 +10359,7 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         /*
          * too short to be DTAP
          */
-        call_dissector(data_handle, tvb, pinfo, tree);
+        call_data_dissector(tvb, pinfo, tree);
         return;
     }
 
@@ -12917,7 +12916,6 @@ proto_reg_handoff_ansi_a(void)
         bsmap_handle = create_dissector_handle(dissect_bsmap, proto_a_bsmap);
         dtap_handle = create_dissector_handle(dissect_dtap, proto_a_dtap);
         sip_dtap_bsmap_handle = create_dissector_handle(dissect_sip_dtap_bsmap, proto_a_dtap);
-        data_handle = find_dissector("data");
 
         dissector_add_uint("bsap.pdu_type",  BSSAP_PDU_TYPE_BSMAP, bsmap_handle);
         dissector_add_uint("bsap.pdu_type",  BSSAP_PDU_TYPE_DTAP, dtap_handle);

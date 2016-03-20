@@ -125,7 +125,6 @@ static dissector_handle_t dh_atm_truncated;
 static dissector_handle_t dh_atm_untruncated;
 static dissector_handle_t dh_atm_oam_cell;
 static dissector_handle_t dh_padding;
-static dissector_handle_t dh_data;
 
 #define PTI_IS_ADMIN(pti) ((pti) == 4 || (pti) == 5 || (pti) == 6)  /*see atm_pt_vals[]*/
 
@@ -1615,7 +1614,7 @@ dissect_cell(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data
 		tvbuff_t* tvb_d;
 		tree2 = proto_item_add_subtree(item, ett_cell);
 		tvb_d = tvb_new_subset(tvb, 0, dissect_size, -1);
-		call_dissector(dh_data, tvb_d, pinfo, tree2);
+		call_data_dissector(tvb_d, pinfo, tree2);
 		item = proto_tree_add_int(tree2, hf_cell_payload_len, tvb, 0, 0, dissect_size);
 		PROTO_ITEM_SET_HIDDEN(item);
 	}
@@ -1965,7 +1964,6 @@ proto_reg_handoff_pw_atm_ata(void)
 	dh_atm_untruncated = find_dissector("atm_pw_untruncated");
 	dh_atm_oam_cell	   = find_dissector("atm_pw_oam_cell");
 	dh_padding	   = find_dissector("pw_padding");
-	dh_data		   = find_dissector("data");
 }
 
 /*

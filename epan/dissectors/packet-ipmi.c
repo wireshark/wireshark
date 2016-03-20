@@ -130,8 +130,6 @@ typedef struct {
 /* Maximum nest level where it worth caching data */
 #define MAX_NEST_LEVEL	3
 
-static dissector_handle_t data_dissector;
-
 gint proto_ipmi = -1;
 static gint proto_ipmb = -1;
 static gint proto_kcs = -1;
@@ -472,7 +470,7 @@ dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (tvb_captured_length(tvb) < ctx->hdr_len + siglen + is_resp
 			+ !(ctx->flags & IPMI_D_NO_CKS)) {
 		/* don bother with anything */
-		return call_dissector(data_dissector, tvb, pinfo, tree);
+		return call_data_dissector(tvb, pinfo, tree);
 	}
 
 	/* save nest level */
@@ -1809,8 +1807,6 @@ proto_register_ipmi(void)
 	register_dissector("ipmb", dissect_ipmi, proto_ipmb);
 	register_dissector("kcs", dissect_kcs, proto_kcs);
 	register_dissector("tmode", dissect_tmode, proto_tmode);
-
-	data_dissector = find_dissector("data");
 
 	m = prefs_register_protocol(proto_ipmi, NULL);
 	prefs_register_bool_preference(m, "fru_langcode_is_english", "FRU Language Code is English",

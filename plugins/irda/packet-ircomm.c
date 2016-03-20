@@ -123,7 +123,6 @@ static gint ett_ircomm_ctrl = -1;
 #define MAX_PARAMETERS          32
 static gint ett_param[MAX_IAP_ENTRIES * MAX_PARAMETERS];
 
-static dissector_handle_t data_handle;
 static dissector_handle_t ircomm_raw_handle;
 static dissector_handle_t ircomm_cooked_handle;
 
@@ -191,10 +190,10 @@ static int dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
     proto_tree_add_item(ctrl_tree, hf_control_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    call_dissector(data_handle, tvb_new_subset_length(tvb, offset, clen), pinfo, ctrl_tree);
+    call_data_dissector(tvb_new_subset_length(tvb, offset, clen), pinfo, ctrl_tree);
     offset += clen;
 
-    call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, ircomm_tree);
+    call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, ircomm_tree);
 
     return len;
 }
@@ -206,6 +205,8 @@ static int dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
 static int dissect_raw_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
     guint len = tvb_reported_length(tvb);
+    proto_item* ti;
+    proto_tree* ircomm_tree;
 
     if (len == 0)
         return 0;
@@ -215,14 +216,11 @@ static int dissect_raw_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "User Data: %d byte%s", len, (len > 1)? "s": "");
 
-    if (tree)
-    {
-        /* create display subtree for the protocol */
-        proto_item* ti   = proto_tree_add_item(tree, proto_ircomm, tvb, 0, -1, ENC_NA);
-        proto_tree* ircomm_tree = proto_item_add_subtree(ti, ett_ircomm);
+    /* create display subtree for the protocol */
+    ti   = proto_tree_add_item(tree, proto_ircomm, tvb, 0, -1, ENC_NA);
+    ircomm_tree = proto_item_add_subtree(ti, ett_ircomm);
 
-        call_dissector(data_handle, tvb, pinfo, ircomm_tree);
-    }
+    call_data_dissector(tvb, pinfo, ircomm_tree);
 
     return len;
 }
@@ -420,7 +418,6 @@ void proto_register_ircomm(void)
 
 void
 proto_reg_handoff_ircomm(void) {
-    data_handle = find_dissector("data");
     ircomm_raw_handle = find_dissector("ircomm_raw");
     ircomm_cooked_handle = find_dissector("ircomm_cooked");
 }

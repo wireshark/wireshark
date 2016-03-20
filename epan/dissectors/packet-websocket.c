@@ -42,7 +42,6 @@
 void proto_register_websocket(void);
 void proto_reg_handoff_websocket(void);
 
-static dissector_handle_t data_handle;
 static dissector_handle_t text_lines_handle;
 static dissector_handle_t json_handle;
 static dissector_handle_t sip_handle;
@@ -234,7 +233,7 @@ dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     break;
 
     case WS_BINARY: /* Binary */
-      call_dissector(data_handle, tvb, pinfo, tree);
+      call_data_dissector(tvb, pinfo, tree);
       break;
 
     default: /* Unknown */
@@ -556,7 +555,6 @@ proto_register_websocket(void)
 void
 proto_reg_handoff_websocket(void)
 {
-  data_handle = find_dissector("data");
   text_lines_handle = find_dissector_add_dependency("data-text-lines", proto_websocket);
   json_handle = find_dissector_add_dependency("json", proto_websocket);
   sip_handle = find_dissector_add_dependency("sip", proto_websocket);

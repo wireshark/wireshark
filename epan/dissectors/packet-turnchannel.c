@@ -40,9 +40,6 @@ void proto_reg_handoff_turnchannel(void);
 /* heuristic subdissectors */
 static heur_dissector_list_t heur_subdissector_list;
 
-/* data dissector handle */
-static dissector_handle_t data_handle;
-
 /* Initialize the protocol and registered fields */
 static int proto_turnchannel = -1;
 
@@ -112,7 +109,7 @@ dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 
 	  if (!dissector_try_heuristic(heur_subdissector_list,
 				       next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
-	    call_dissector(data_handle,next_tvb, pinfo, tree);
+	    call_data_dissector(next_tvb, pinfo, tree);
 	  }
 	}
 
@@ -214,8 +211,6 @@ proto_reg_handoff_turnchannel(void)
 	/* TURN negotiation is handled through STUN2 dissector (packet-stun.c),
 	   so only it should be able to determine if a packet is a TURN packet */
 	heur_dissector_add("stun", dissect_turnchannel_heur, "TURN Channel over STUN", "turnchannel_stun", proto_turnchannel, HEURISTIC_ENABLE);
-
-	data_handle = find_dissector("data");
 }
 
 /*

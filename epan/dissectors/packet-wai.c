@@ -159,8 +159,6 @@ static gint ett_wai_parameter = -1;
 static gint ett_wai_fragment = -1;
 static gint ett_wai_fragments = -1;
 
-static dissector_handle_t data_handle;
-
 static const value_string wai_type_names [] = {
     { 1, "WAI protocol package"},
     { 0, NULL }
@@ -934,7 +932,7 @@ Figure 18 from [ref:1]
 
     next_tvb = tvb_new_subset_remaining(tvb, WAI_DATA_OFFSET);
 
-    /* Replace INFO column if message is fragmented and call data_handle */
+    /* Replace INFO column if message is fragmented and call data dissector */
     if (flags) {
         col_add_fstr(pinfo->cinfo, COL_INFO,
                      "Fragment (%d) of message, data not dissected", fragment_num);
@@ -943,7 +941,7 @@ Figure 18 from [ref:1]
                                  "Reassembled WAI", frag_msg, &wai_frag_items,
                                  NULL, wai_tree);
 
-        call_dissector(data_handle, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
     } else {
         /* If this is the last fragment of fragmented message, then reassamble and dissect
            otherwise only dissect */
@@ -1380,7 +1378,6 @@ proto_register_wai(void)
 void
 proto_reg_handoff_wai(void)
 {
-    data_handle = find_dissector("data");
     dissector_add_uint("ethertype", ETHERTYPE_WAI, wai_handle);
 }
 

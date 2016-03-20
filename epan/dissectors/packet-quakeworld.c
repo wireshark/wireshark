@@ -69,8 +69,6 @@ static gint ett_quakeworld_game_seq2 = -1;
 static gint ett_quakeworld_game_clc = -1;
 static gint ett_quakeworld_game_svc = -1;
 
-static dissector_handle_t data_handle;
-
 /*
 	helper functions, they may ave to go somewhere else
 	they are mostly copied without change from
@@ -542,7 +540,7 @@ dissect_quakeworld_client_commands(tvbuff_t *tvb, packet_info *pinfo,
 	   the information from my QWD specs:
 		http://www.planetquake.com/demospecs/qwd/
 	*/
-	call_dissector(data_handle,tvb, pinfo, tree);
+	call_data_dissector(tvb, pinfo, tree);
 }
 
 
@@ -554,7 +552,7 @@ dissect_quakeworld_server_commands(tvbuff_t *tvb, packet_info *pinfo,
 	   the information from my QWD specs:
 		http://www.planetquake.com/demospecs/qwd/
 	*/
-	call_dissector(data_handle,tvb, pinfo, tree);
+	call_data_dissector(tvb, pinfo, tree);
 }
 
 
@@ -823,7 +821,6 @@ proto_reg_handoff_quakeworld(void)
 	if (!Initialized) {
 		quakeworld_handle = create_dissector_handle(dissect_quakeworld,
 				proto_quakeworld);
-		data_handle = find_dissector("data");
 		Initialized=TRUE;
 	} else {
 		dissector_delete_uint("udp.port", ServerPort, quakeworld_handle);

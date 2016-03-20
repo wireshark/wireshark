@@ -38,8 +38,6 @@ void proto_reg_handoff_macsec(void);
 #define TCI_AN_MASK  0x03
 
 
-static dissector_handle_t data_handle;
-
 static int proto_macsec = -1;
 static int hf_macsec_TCI                   = -1;
 static int hf_macsec_TCI_V                 = -1;
@@ -131,7 +129,7 @@ static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                     sectag_offset + 12, 2, ENC_BIG_ENDIAN);
         }
 
-        call_dissector(data_handle, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
 
         proto_tree_add_item(macsec_tree, hf_macsec_ICV, tvb, icv_offset,
                 icv_length, ENC_NA);
@@ -192,7 +190,6 @@ void
 proto_reg_handoff_macsec(void)
 {
     dissector_handle_t macsec_handle;
-    data_handle = find_dissector("data");
     macsec_handle = create_dissector_handle(dissect_macsec, proto_macsec);
     dissector_add_uint("ethertype", ETHERTYPE_MACSEC, macsec_handle);
 }

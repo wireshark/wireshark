@@ -154,8 +154,6 @@ static const fragment_items netbios_frag_items = {
 	"fragments"
 };
 
-static dissector_handle_t data_handle;
-
 /* The strings for the station type, used by get_netbios_name function;
    many of them came from the file "NetBIOS.txt" in the Zip archive at
 
@@ -1076,7 +1074,7 @@ dissect_netbios_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (!dissector_try_heuristic(netbios_heur_subdissector_list,
 				    tvb, pinfo, tree, &hdtbl_entry, NULL))
-		call_dissector(data_handle,tvb, pinfo, tree);
+		call_data_dissector(tvb, pinfo, tree);
 }
 
 static int
@@ -1233,8 +1231,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 				dissect_netbios_payload(next_tvb, pinfo, tree);
 			else {
 				next_tvb = tvb_new_subset_remaining (tvb, offset);
-				call_dissector(data_handle, next_tvb, pinfo,
-				    tree);
+				call_data_dissector(next_tvb, pinfo, tree);
 			}
 			break;
 		}
@@ -1491,7 +1488,6 @@ proto_reg_handoff_netbios(void)
 	    proto_netbios);
 	dissector_add_uint("llc.dsap", SAP_NETBIOS, netbios_handle);
 	register_capture_dissector("llc.dsap", SAP_NETBIOS, capture_netbios, proto_netbios);
-	data_handle = find_dissector("data");
 }
 
 

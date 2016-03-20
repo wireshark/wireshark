@@ -446,7 +446,6 @@ static expert_field ei_iphc_crtp_seq_nonzero = EI_INIT;
 
 static dissector_table_t ppp_subdissector_table;
 static dissector_handle_t chdlc_handle;
-static dissector_handle_t data_handle;
 static dissector_handle_t eth_withfcs_handle;
 static dissector_handle_t eth_withoutfcs_handle;
 
@@ -4234,7 +4233,7 @@ dissect_cp(tvbuff_t *tvb, int proto_id, int proto_subtree_index,
             next_tvb = tvb_new_subset_length(tvb, offset, length);
             if (!dissector_try_uint(ppp_subdissector_table, protocol, next_tvb,
                 pinfo, fh_tree)) {
-                call_dissector(data_handle, next_tvb, pinfo, fh_tree);
+                call_data_dissector(next_tvb, pinfo, fh_tree);
             }
 
             /* Restore the "we're inside an error packet" flag. */
@@ -4347,7 +4346,7 @@ dissect_ppp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         col_add_fstr(pinfo->cinfo, COL_INFO, "PPP %s (0x%04x)",
             val_to_str_ext_const(ppp_prot, &ppp_vals_ext, "Unknown"),
             ppp_prot);
-        call_dissector(data_handle,next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
     }
 }
 
@@ -4444,7 +4443,7 @@ dissect_vsnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", PPP_IP);
         col_add_fstr(pinfo->cinfo, COL_INFO, "PPP %s (0x%04x)",
             val_to_str_ext_const(PPP_IP, &ppp_vals_ext, "Unknown"), PPP_IP);
-        call_dissector(data_handle, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
     }
     return tvb_captured_length(tvb);
 }
@@ -4571,7 +4570,7 @@ dissect_bcp_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 break;
 
             default:
-                call_dissector(data_handle, next_tvb, pinfo, tree);
+                call_data_dissector(next_tvb, pinfo, tree);
                 break;
             }
         }
@@ -4810,7 +4809,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
         if (!dissector_try_uint(ppp_subdissector_table, pid, next_tvb, pinfo,
             info_tree)) {
-            call_dissector(data_handle, next_tvb, pinfo, info_tree);
+            call_data_dissector(next_tvb, pinfo, info_tree);
         }
         offset += length;
         length_remaining -= length;
@@ -4969,7 +4968,7 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
     if (!dissector_try_uint(ppp_subdissector_table, PPP_IP, next_tvb, pinfo,
         info_tree)) {
-        call_dissector_only(data_handle, next_tvb, pinfo, info_tree, NULL);
+        call_data_dissector(next_tvb, pinfo, info_tree);
     }
     return tvb_captured_length(tvb);
 }
@@ -5457,7 +5456,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
         ppp_tvb = remove_escape_chars(tvb, pinfo, offset,length);
         if (ppp_tvb != NULL) {
             add_new_data_source(pinfo, ppp_tvb, "PPP Fragment");
-            call_dissector(data_handle, ppp_tvb, pinfo, tree);
+            call_data_dissector(ppp_tvb, pinfo, tree);
         }
         return tvb_captured_length(tvb);
     }
@@ -5473,7 +5472,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
             ppp_tvb = remove_escape_chars(tvb, pinfo, 0, length - 1);
             if (ppp_tvb != NULL) {
                 add_new_data_source(pinfo, ppp_tvb, "PPP Fragment");
-                call_dissector(data_handle, ppp_tvb, pinfo, tree);
+                call_data_dissector(ppp_tvb, pinfo, tree);
             }
         }
     }
@@ -5495,7 +5494,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
             ppp_tvb = remove_escape_chars(tvb, pinfo, offset, length);
             if (ppp_tvb != NULL) {
                 add_new_data_source(pinfo, ppp_tvb, "PPP Fragment");
-                call_dissector(data_handle, ppp_tvb, pinfo, tree);
+                call_data_dissector(ppp_tvb, pinfo, tree);
             }
             return tvb_captured_length(tvb);
         }
@@ -5965,7 +5964,6 @@ proto_reg_handoff_ppp(void)
      * Get a handle for the CHDLC dissector.
      */
     chdlc_handle = find_dissector_add_dependency("chdlc", proto_ppp);
-    data_handle = find_dissector("data");
 
     ppp_handle = find_dissector("ppp");
     dissector_add_uint("fr.nlpid", NLPID_PPP, ppp_handle);

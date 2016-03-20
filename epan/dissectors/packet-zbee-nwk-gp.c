@@ -297,7 +297,6 @@ static gint ett_zbee_nwk_fcf = -1;
 static gint ett_zbee_nwk_fcf_ext = -1;
 
 /* Common. */
-static dissector_handle_t data_handle;
 static GSList *zbee_gp_keyring = NULL;
 static guint num_uat_key_records = 0;
 
@@ -1090,7 +1089,7 @@ dissect_zbee_nwk_gp_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         proto_item_set_len(cmd_root, offset);
 
         /* Dump the tail. */
-        call_dissector(data_handle, leftover_tvb, pinfo, root);
+        call_data_dissector(leftover_tvb, pinfo, root);
     }
     return offset;
 } /* dissect_zbee_nwk_gp_cmd */
@@ -1309,7 +1308,7 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         } else {
             g_free(dec_buffer);
             payload_tvb = tvb_new_subset(tvb, offset - packet.payload_len - packet.mic_size, packet.payload_len, -1);
-            call_dissector(data_handle, payload_tvb, pinfo, tree);
+            call_data_dissector(payload_tvb, pinfo, tree);
         }
     }
     return tvb_captured_length(tvb);
@@ -1696,8 +1695,6 @@ proto_register_zbee_nwk_gp(void)
 void
 proto_reg_handoff_zbee_nwk_gp(void)
 {
-    /* Find the other dissectors we need. */
-    data_handle = find_dissector("data");
     /* Register our dissector with IEEE 802.15.4. */
     dissector_add_for_decode_as(IEEE802154_PROTOABBREV_WPAN_PANID, find_dissector(ZBEE_PROTOABBREV_NWK_GP));
     heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_zbee_nwk_heur_gp, "ZigBee Green Power over IEEE 802.15.4", "zbee_nwk_gp_wlan", proto_zbee_nwk_gp, HEURISTIC_ENABLE);

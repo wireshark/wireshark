@@ -208,8 +208,6 @@ static const fragment_items iax2_fragment_items = {
   "iax2 fragments"
 };
 
-static dissector_handle_t data_handle;
-
 /* data-call subdissectors, AST_DATAFORMAT_* */
 static dissector_table_t iax2_dataformat_dissector_table;
 /* voice/video call subdissectors, AST_FORMAT_* */
@@ -2178,7 +2176,7 @@ static void process_iax_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* codec dissector handled our data */
   } else {
     /* we don't know how to dissect our data: dissect it as data */
-    call_dissector(data_handle, tvb, pinfo, tree);
+    call_data_dissector(tvb, pinfo, tree);
   }
 
 #ifdef DEBUG_DESEGMENT
@@ -3223,7 +3221,6 @@ proto_reg_handoff_iax2(void)
   v110_handle =  find_dissector("v110");
   if (v110_handle)
     dissector_add_uint("iax2.dataformat", AST_DATAFORMAT_V110, v110_handle);
-  data_handle = find_dissector("data");
 }
 
 /*

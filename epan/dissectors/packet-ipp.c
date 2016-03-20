@@ -55,8 +55,6 @@ static gint ett_ipp = -1;
 static gint ett_ipp_as = -1;
 static gint ett_ipp_attr = -1;
 
-static dissector_handle_t data_handle;
-
 #define PRINT_JOB              0x0002
 #define PRINT_URI              0x0003
 #define VALIDATE_JOB           0x0004
@@ -254,8 +252,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     offset = parse_attributes(tvb, offset, ipp_tree);
 
     if (tvb_offset_exists(tvb, offset)) {
-        call_dissector(data_handle,
-                        tvb_new_subset_remaining(tvb, offset), pinfo,
+        call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo,
                         ipp_tree);
     }
     return tvb_captured_length(tvb);
@@ -720,7 +717,6 @@ proto_reg_handoff_ipp(void)
     ipp_handle = create_dissector_handle(dissect_ipp, proto_ipp);
     http_dissector_add(631, ipp_handle);
     dissector_add_string("media_type", "application/ipp", ipp_handle);
-    data_handle = find_dissector("data");
 }
 
 /*

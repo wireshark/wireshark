@@ -421,7 +421,6 @@ static dissector_handle_t lisp_handle;
 
 static dissector_handle_t ipv4_handle;
 static dissector_handle_t ipv6_handle;
-static dissector_handle_t data_handle;
 
 static gboolean encapsulated = FALSE;
 static gboolean ddt_originated = FALSE;
@@ -2193,7 +2192,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
             expert_add_info_format(pinfo, lisp_tree, &ei_lisp_unexpected_field,
                     "Unexpected Source EID AFI (%d), cannot decode", src_eid_afi);
             next_tvb = tvb_new_subset_remaining(tvb, offset);
-            call_dissector(data_handle, next_tvb, pinfo, lisp_tree);
+            call_data_dissector(next_tvb, pinfo, lisp_tree);
             return;
     }
 
@@ -2226,7 +2225,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
                 expert_add_info_format(pinfo, lisp_tree, &ei_lisp_unexpected_field,
                         "Unexpected ITR-RLOC-AFI (%d), cannot decode", itr_afi);
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
-                call_dissector(data_handle, next_tvb, pinfo, lisp_tree);
+                call_data_dissector(next_tvb, pinfo, lisp_tree);
                 return;
         }
     }
@@ -2248,7 +2247,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
             expert_add_info_format(pinfo, lisp_tree, &ei_lisp_unexpected_field,
                     "Unexpected EID prefix AFI (%d), cannot decode", prefix_afi);
             next_tvb = tvb_new_subset_remaining(tvb, offset);
-            call_dissector(data_handle, next_tvb, pinfo, lisp_tree);
+            call_data_dissector(next_tvb, pinfo, lisp_tree);
             return;
         }
 
@@ -2308,7 +2307,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(data_handle, next_tvb, pinfo, lisp_tree);
+    call_data_dissector(next_tvb, pinfo, lisp_tree);
 }
 
 
@@ -2387,7 +2386,7 @@ dissect_lisp_map_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(data_handle, next_tvb, pinfo, lisp_tree);
+    call_data_dissector(next_tvb, pinfo, lisp_tree);
 }
 
 
@@ -2500,7 +2499,7 @@ dissect_lisp_map_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tr
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(data_handle, next_tvb, pinfo, lisp_tree);
+    call_data_dissector(next_tvb, pinfo, lisp_tree);
 }
 
 
@@ -2621,7 +2620,7 @@ dissect_lisp_map_notify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(data_handle, next_tvb, pinfo, lisp_tree);
+    call_data_dissector(next_tvb, pinfo, lisp_tree);
 }
 
 /*
@@ -2685,7 +2684,7 @@ dissect_lisp_map_referral(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tr
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(data_handle, next_tvb, pinfo, lisp_tree);
+    call_data_dissector(next_tvb, pinfo, lisp_tree);
 }
 
 
@@ -2787,7 +2786,7 @@ dissect_lisp_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
         expert_add_info_format(pinfo, lisp_tree, &ei_lisp_unexpected_field,
                 "Unexpected EID prefix AFI (%d), cannot decode", prefix_afi);
         next_tvb = tvb_new_subset_remaining(tvb, offset);
-        call_dissector(data_handle, next_tvb, pinfo, lisp_tree);
+        call_data_dissector(next_tvb, pinfo, lisp_tree);
         return;
     }
 
@@ -2826,7 +2825,7 @@ dissect_lisp_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(data_handle, next_tvb, pinfo, lisp_tree);
+    call_data_dissector(next_tvb, pinfo, lisp_tree);
 }
 
 
@@ -2869,7 +2868,7 @@ dissect_lisp_ecm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree
             call_dissector(ipv6_handle, next_tvb, pinfo, tree);
             break;
         default:
-            call_dissector(data_handle, next_tvb, pinfo, tree);
+            call_data_dissector(next_tvb, pinfo, tree);
             break;
     }
     encapsulated = FALSE;
@@ -2948,7 +2947,7 @@ dissect_lisp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         dissect_lisp_ecm(tvb, pinfo, tree, lisp_tree);
         break;
     default:
-        call_dissector(data_handle, tvb, pinfo, tree);
+        call_data_dissector(tvb, pinfo, tree);
         break;
     }
 
@@ -3627,7 +3626,6 @@ proto_reg_handoff_lisp(void)
     dissector_add_uint("udp.port", LISP_CONTROL_PORT, lisp_handle);
     ipv4_handle = find_dissector_add_dependency("ip", proto_lisp);
     ipv6_handle = find_dissector_add_dependency("ipv6", proto_lisp);
-    data_handle = find_dissector("data");
 }
 
 /*

@@ -97,7 +97,6 @@ static expert_field ei_incomplete = EI_INIT;
 
 static int frame_tap = -1;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t docsis_handle;
 
 /* Preferences */
@@ -497,9 +496,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 						col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
 						col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
 							     pinfo->pkt_encap);
-						call_dissector_with_data(data_handle,
-						    tvb, pinfo, parent_tree,
-						    (void *)pinfo->pseudo_header);
+						call_data_dissector(tvb, pinfo, parent_tree);
 					}
 				}
 				break;
@@ -516,7 +513,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 						col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
 						col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
 							     file_type_subtype);
-						call_dissector(data_handle,tvb, pinfo, parent_tree);
+						call_data_dissector(tvb, pinfo, parent_tree);
 					}
 				}
 				break;
@@ -931,7 +928,6 @@ proto_register_frame(void)
 void
 proto_reg_handoff_frame(void)
 {
-	data_handle = find_dissector("data");
 	docsis_handle = find_dissector_add_dependency("docsis", proto_frame);
 }
 

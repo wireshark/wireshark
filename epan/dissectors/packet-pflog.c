@@ -44,7 +44,7 @@ void proto_reg_handoff_pflog(void);
 void proto_register_old_pflog(void);
 void proto_reg_handoff_old_pflog(void);
 
-static dissector_handle_t  data_handle, ip_handle, ipv6_handle;
+static dissector_handle_t  ip_handle, ipv6_handle;
 
 /* header fields */
 static int proto_pflog = -1;
@@ -299,7 +299,7 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     break;
 
   default:
-    call_dissector(data_handle, next_tvb, pinfo, tree);
+    call_data_dissector(next_tvb, pinfo, tree);
     break;
   }
 
@@ -416,7 +416,6 @@ proto_reg_handoff_pflog(void)
 
   ip_handle = find_dissector_add_dependency("ip", proto_pflog);
   ipv6_handle = find_dissector_add_dependency("ipv6", proto_pflog);
-  data_handle = find_dissector("data");
 
   pflog_handle = create_dissector_handle(dissect_pflog, proto_pflog);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_PFLOG, pflog_handle);
@@ -482,7 +481,7 @@ dissect_old_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     break;
 
   default:
-    offset += call_dissector(data_handle, next_tvb, pinfo, tree);
+    offset += call_data_dissector(next_tvb, pinfo, tree);
     break;
   }
 
@@ -533,7 +532,6 @@ proto_reg_handoff_old_pflog(void)
 
   ip_handle = find_dissector("ip");
   ipv6_handle = find_dissector("ipv6");
-  data_handle = find_dissector("data");
 
   pflog_handle = create_dissector_handle(dissect_old_pflog, proto_old_pflog);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_OLD_PFLOG, pflog_handle);

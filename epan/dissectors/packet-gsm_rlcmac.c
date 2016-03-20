@@ -56,7 +56,6 @@
 #include "packet-gsm_rlcmac.h"
 
 void proto_register_gsm_rlcmac(void);
-void proto_reg_handoff_gsm_rlcmac(void);
 
 /* private typedefs */
 typedef struct
@@ -1582,8 +1581,6 @@ static expert_field ei_gsm_rlcmac_egprs_header_type_not_handled = EI_INIT;
 static expert_field ei_gsm_rlcmac_unexpected_header_extension = EI_INIT;
 static expert_field ei_gsm_rlcmac_unknown_pacch_access_burst = EI_INIT;
 static expert_field ei_gsm_rlcmac_stream_not_supported = EI_INIT;
-
-static dissector_handle_t data_handle;
 
 /* Payload type as defined in TS 44.060 / 10.4.7 */
 #define PAYLOAD_TYPE_DATA              0
@@ -7586,7 +7583,7 @@ static guint8 dissect_gprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, prot
                                    i, li);
         }
         data_tvb = tvb_new_subset_length(tvb, octet_offset, octet_length - octet_offset);
-        call_dissector(data_handle, data_tvb, pinfo, subtree);
+        call_data_dissector(data_tvb, pinfo, subtree);
         octet_offset = octet_length;
         break;
 
@@ -7595,7 +7592,7 @@ static guint8 dissect_gprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, prot
                                  "data segment: LI[%d]=%d indicates: (Last segment of) LLC frame (%d octets)",
                                  i, li, li);
         data_tvb = tvb_new_subset_length(tvb, octet_offset, li);
-        call_dissector(data_handle, data_tvb, pinfo, subtree);
+        call_data_dissector(data_tvb, pinfo, subtree);
         octet_offset += li;
         break;
     }
@@ -7614,7 +7611,7 @@ static guint8 dissect_gprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, prot
       subtree = proto_tree_add_subtree(tree, tvb, octet_offset, octet_length - octet_offset, ett_data_segments, NULL, "Padding Octets");
     }
     data_tvb = tvb_new_subset_length(tvb, octet_offset, octet_length - octet_offset);
-    call_dissector(data_handle, data_tvb, pinfo, subtree);
+    call_data_dissector(data_tvb, pinfo, subtree);
     octet_offset = octet_length;
   }
   return (octet_offset - initial_offset);
@@ -7698,7 +7695,7 @@ static guint16 dissect_egprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, pr
                                    i, li);
         }
         data_tvb = tvb_new_subset_length(tvb, octet_offset, octet_length - octet_offset);
-        call_dissector(data_handle, data_tvb, pinfo, subtree);
+        call_data_dissector(data_tvb, pinfo, subtree);
         octet_offset = octet_length;
         break;
 
@@ -7707,7 +7704,7 @@ static guint16 dissect_egprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, pr
                                  "data segment: LI[%d]=%d indicates: (Last segment of) LLC frame (%d octets)",
                                  i, li, li);
         data_tvb = tvb_new_subset_length(tvb, octet_offset, li);
-        call_dissector(data_handle, data_tvb, pinfo, subtree);
+        call_data_dissector(data_tvb, pinfo, subtree);
         octet_offset += li;
         break;
     }
@@ -7719,7 +7716,7 @@ static guint16 dissect_egprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, pr
     subtree = proto_tree_add_subtree(tree, tvb, octet_offset, octet_length - octet_offset, ett_data_segments, NULL,
                              "data segment: LI not present: \n The Upper Layer PDU in the current RLC data block either fills the current RLC data block precisely \nor continues in the following in-sequence RLC data block");
     data_tvb = tvb_new_subset_length(tvb, octet_offset, octet_length - octet_offset);
-    call_dissector(data_handle, data_tvb, pinfo, subtree);
+    call_data_dissector(data_tvb, pinfo, subtree);
     octet_offset = octet_length;
   }
   return (octet_offset - initial_offset);
@@ -8202,7 +8199,7 @@ dissect_ul_pacch_access_burst(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   else
   {
     proto_tree_add_expert(tree, pinfo, &ei_gsm_rlcmac_unknown_pacch_access_burst, tvb, 0, -1);
-    call_dissector(data_handle, tvb, pinfo, tree);
+    call_data_dissector(tvb, pinfo, tree);
   }
 }
 
@@ -16494,12 +16491,6 @@ proto_register_gsm_rlcmac(void)
   expert_register_field_array(expert_gsm_rlcmac, ei, array_length(ei));
   register_dissector("gsm_rlcmac_ul", dissect_gsm_rlcmac_uplink, proto_gsm_rlcmac);
   register_dissector("gsm_rlcmac_dl", dissect_gsm_rlcmac_downlink, proto_gsm_rlcmac);
-}
-
-void
-proto_reg_handoff_gsm_rlcmac(void)
-{
-  data_handle = find_dissector("data");
 }
 
 

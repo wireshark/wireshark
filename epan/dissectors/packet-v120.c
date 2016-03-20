@@ -27,7 +27,6 @@
 #include <epan/xdlc.h>
 
 void proto_register_v120(void);
-void proto_reg_handoff_v120(void);
 
 static int proto_v120 = -1;
 static int hf_v120_address = -1;
@@ -69,8 +68,6 @@ static gint ett_v120 = -1;
 static gint ett_v120_address = -1;
 static gint ett_v120_control = -1;
 static gint ett_v120_header = -1;
-
-static dissector_handle_t data_handle;
 
 static const true_false_string tfs_response_command = { "Response", "Command"  };
 static const true_false_string tfs_segmentation_no_segmentation = { "Segmentation", "No segmentation" };
@@ -166,7 +163,7 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		v120len += dissect_v120_header(tvb, v120len, v120_tree);
 	proto_item_set_len(ti, v120len);
 	next_tvb = tvb_new_subset_remaining(tvb, v120len);
-	call_dissector(data_handle,next_tvb, pinfo, v120_tree);
+	call_data_dissector(next_tvb, pinfo, v120_tree);
 
 	return tvb_captured_length(tvb);
 }
@@ -331,12 +328,6 @@ proto_register_v120(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("v120", dissect_v120, proto_v120);
-}
-
-void
-proto_reg_handoff_v120(void)
-{
-	data_handle = find_dissector("data");
 }
 
 /*

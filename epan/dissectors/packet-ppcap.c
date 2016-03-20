@@ -42,7 +42,6 @@ static dissector_handle_t sip_handle;   /* SIP handle  */
 static dissector_handle_t sccp_handle;  /* SCCP handle */
 static dissector_handle_t sgsap_handle; /* SGSAP handle */
 static dissector_handle_t gtpv2_handle; /* GTPv2 handle */
-static dissector_handle_t data_handle;  /* DATA handle */
 
 static dissector_table_t sccp_ssn_dissector_table;
 
@@ -576,7 +575,7 @@ dissect_ppcap_payload_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppcap
 		call_dissector(gtpv2_handle, next_tvb, pinfo, tree);   /* calling the GTPv2 handle */
 		break;
 	default:
-		call_dissector(data_handle, next_tvb, pinfo, tree);   /* calling the DATA handle */
+		call_data_dissector(next_tvb, pinfo, tree);   /* calling the DATA handle */
 		break;
 	}
 
@@ -698,7 +697,6 @@ void proto_reg_handoff_ppcap(void)
 	sccp_handle  = find_dissector_add_dependency("sccp", proto_ppcap);   /* calling the protocol SCCP */
 	sgsap_handle = find_dissector_add_dependency("sgsap", proto_ppcap); /* calling the protocol SGSAP */
 	gtpv2_handle = find_dissector_add_dependency("gtpv2", proto_ppcap); /* calling the protocol GTPv2 */
-	data_handle  = find_dissector("data");  /* calling the protocol DATA */
 
 	sccp_ssn_dissector_table = find_dissector_table("sccp.ssn");
 

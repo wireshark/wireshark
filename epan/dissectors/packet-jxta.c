@@ -74,7 +74,6 @@ static int jxta_tap = -1;
 
 static dissector_table_t media_type_dissector_table = NULL;
 static dissector_handle_t media_handle = NULL;
-static dissector_handle_t data_handle = NULL;
 static dissector_handle_t stream_jxta_handle = NULL;
 static dissector_handle_t ssl_handle = NULL;
 
@@ -2111,7 +2110,7 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
 
     if(0 == dissected) {
         /* display it as raw data */
-        dissected = call_dissector(data_handle, tvb, pinfo, tree);
+        dissected = call_data_dissector(tvb, pinfo, tree);
     }
 
     return dissected;
@@ -2402,7 +2401,6 @@ void proto_reg_handoff_jxta(void)
         media_type_dissector_table = find_dissector_table("media_type");
         ssl_handle = find_dissector_add_dependency("ssl", proto_jxta);
 
-        data_handle = find_dissector("data");
         media_handle = find_dissector_add_dependency("media", proto_jxta);
 
         init_done = TRUE;

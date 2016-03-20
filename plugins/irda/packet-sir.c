@@ -47,7 +47,6 @@ void proto_reg_handoff_irsir(void);
 void proto_register_irsir(void);
 
 /** Protocol handles. */
-static dissector_handle_t data_handle;
 static dissector_handle_t irda_handle;
 
 /** Protocol fields. */
@@ -181,10 +180,7 @@ proto_reg_handoff_irsir(void)
 {
 	dissector_add_uint("tcp.port", TCP_PORT_SIR, find_dissector("sir"));
 
-	data_handle = find_dissector("data");
 	irda_handle = find_dissector("irda");
-	if (irda_handle == NULL)
-		irda_handle = data_handle;
 }
 
 

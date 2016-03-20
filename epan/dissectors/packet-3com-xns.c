@@ -45,7 +45,6 @@ static const value_string retix_bpdu_type_vals[] = {
 static dissector_table_t ethertype_subdissector_table;
 
 static dissector_handle_t retix_bpdu_handle;
-static dissector_handle_t data_handle;
 
 /*
  * Apparently 3Com had some scheme for encapsulating XNS in 802.2 LLC,
@@ -86,7 +85,7 @@ dissect_3com_xns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		    tvb, 0, 2, type);
 		if (!dissector_try_uint(ethertype_subdissector_table,
 		    type, next_tvb, pinfo, tree))
-			call_dissector(data_handle, next_tvb, pinfo, tree);
+			call_data_dissector(next_tvb, pinfo, tree);
 	}
 	return tvb_captured_length(tvb);
 }
@@ -120,7 +119,6 @@ proto_reg_handoff_3com_xns(void)
 	dissector_handle_t our_xns_handle;
 
 	retix_bpdu_handle = find_dissector_add_dependency("rbpdu", proto_3com_xns);
-	data_handle = find_dissector("data");
 
 	ethertype_subdissector_table = find_dissector_table("ethertype");
 

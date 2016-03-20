@@ -43,8 +43,6 @@ enum lpr_type { request, response, unknown };
 
 static gint find_printer_string(tvbuff_t *tvb, int offset);
 
-static dissector_handle_t data_handle;
-
 /* This information comes from the LPRng HOWTO, which also describes
 	RFC 1179. http://www.astart.com/lprng/LPRng-HOWTO.html */
 static const value_string lpd_client_code[] = {
@@ -122,7 +120,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 				proto_tree_add_item(lpd_tree, hf_lpd_printer_option, tvb, 1, printer_len, ENC_ASCII|ENC_NA);
 			}
 			else {
-				call_dissector(data_handle,tvb, pinfo, lpd_tree);
+				call_data_dissector(tvb, pinfo, lpd_tree);
 			}
 		}
 		else if (lpr_packet_type == response) {
@@ -130,11 +128,11 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 				proto_tree_add_item(lpd_tree, hf_lpd_response_code, tvb, 0, 1, ENC_BIG_ENDIAN);
 			}
 			else {
-				call_dissector(data_handle,tvb, pinfo, lpd_tree);
+				call_data_dissector(tvb, pinfo, lpd_tree);
 			}
 		}
 		else {
-			call_dissector(data_handle,tvb, pinfo, lpd_tree);
+			call_data_dissector(tvb, pinfo, lpd_tree);
 		}
 
 	return tvb_captured_length(tvb);
@@ -201,7 +199,6 @@ proto_reg_handoff_lpd(void)
 
 	lpd_handle = create_dissector_handle(dissect_lpd, proto_lpd);
 	dissector_add_uint("tcp.port", TCP_PORT_PRINTER, lpd_handle);
-	data_handle = find_dissector("data");
 }
 
 /*

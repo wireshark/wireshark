@@ -228,8 +228,6 @@ const value_string mtp3_network_indicator_vals[] = {
   { 0,    NULL }
 };
 
-static dissector_handle_t data_handle;
-
 
 /*
  * helper routine to format a point code in structured form
@@ -645,7 +643,7 @@ dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_INFO, "DATA ");
 
   if (!dissector_try_uint(mtp3_sio_dissector_table, service_indicator, payload_tvb, pinfo, tree))
-    call_dissector(data_handle, payload_tvb, pinfo, tree);
+    call_data_dissector(payload_tvb, pinfo, tree);
 }
 
 static guint
@@ -1107,8 +1105,6 @@ proto_reg_handoff_mtp3(void)
 {
   dissector_add_uint("wtap_encap", WTAP_ENCAP_MTP3, mtp3_handle);
   dissector_add_string("tali.opcode", "mtp3", mtp3_handle);
-
-  data_handle = find_dissector("data");
 }
 
 /*

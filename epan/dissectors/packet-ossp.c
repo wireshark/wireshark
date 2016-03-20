@@ -197,8 +197,6 @@ static expert_field ei_esmc_version_compliance = EI_INIT;
 static expert_field ei_esmc_tlv_length_bad = EI_INIT;
 static expert_field ei_esmc_reserved_not_zero = EI_INIT;
 
-static dissector_handle_t dh_data;
-
 static void
 dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex);
 
@@ -538,7 +536,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                 {
                     proto_tree* tree_b;
                     tree_b = proto_item_add_subtree(item_b, ett_esmc);
-                    call_dissector(dh_data, tvb_next, pinfo, tree_b);
+                    call_data_dissector(tvb_next, pinfo, tree_b);
                 }
             }
         }
@@ -694,8 +692,6 @@ proto_reg_handoff_ossp(void)
 
     ossp_handle = create_dissector_handle(dissect_ossp_pdu, proto_ossp);
     dissector_add_uint("slow.subtype", OSSP_SUBTYPE, ossp_handle);
-
-    dh_data = find_dissector("data");
 }
 
 /*

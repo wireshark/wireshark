@@ -96,10 +96,6 @@ static gint ett_usbip = -1;
 static gint ett_usbip_dev = -1;
 static gint ett_usbip_intf = -1;
 
-/* dissectors for the data portion of this protocol
- */
-static dissector_handle_t data_handle;
-
 enum usb_device_speed {
         USB_SPEED_UNKNOWN = 0,                  /* enumerating */
         USB_SPEED_LOW,                          /* usb 1.0 */
@@ -1077,7 +1073,6 @@ proto_reg_handoff_usbip(void)
 
     usbip_handle = create_dissector_handle(dissect_usbip, proto_usbip);
     dissector_add_for_decode_as("tcp.port", usbip_handle);
-    data_handle = find_dissector("data");
 }
 
 /*

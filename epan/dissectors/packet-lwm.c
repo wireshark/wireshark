@@ -95,9 +95,6 @@
 void proto_register_lwm(void);
 void proto_reg_handoff_lwm(void);
 
-/*  Dissector handles */
-static dissector_handle_t       data_handle;
-
 /* User string with the decryption key. */
 static const gchar *lwmes_key_str = NULL;
 static gboolean     lwmes_key_valid;
@@ -455,7 +452,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                          tvb_reported_length(new_tvb) - LWM_MIC_LEN);
                     expert_add_info(pinfo, lwm_tree, &ei_lwm_decryption_failed);
                     tvb_set_reported_length(new_tvb, tvb_reported_length(new_tvb) - LWM_MIC_LEN);
-                    call_dissector(data_handle, new_tvb, pinfo, lwm_tree);
+                    call_data_dissector(new_tvb, pinfo, lwm_tree);
                 }
 
                 text_dec = &text[payload_offset];
@@ -479,7 +476,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             if(vmic == lwm_mic)
             {
                 decrypted_tvb = tvb_new_real_data(text,length, length);
-                call_dissector(data_handle, decrypted_tvb, pinfo, lwm_tree);
+                call_data_dissector(decrypted_tvb, pinfo, lwm_tree);
                 /* XXX - needed?
                    tvb_set_free_cb(decrypted_tvb, g_free);
                    add_new_data_source(pinfo, decrypted_tvb, "Decrypted LWmesh Payload"); */
@@ -492,7 +489,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                      "Encrypted data (%i byte(s)) MIC FAILURE",
                      tvb_reported_length(new_tvb) - LWM_MIC_LEN);
                 tvb_set_reported_length(new_tvb, tvb_reported_length(new_tvb) - LWM_MIC_LEN);
-                call_dissector(data_handle, new_tvb, pinfo, lwm_tree);
+                call_data_dissector(new_tvb, pinfo, lwm_tree);
             }
         }
         else
@@ -503,7 +500,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
             expert_add_info(pinfo, lwm_tree, &ei_lwm_no_decryption_key);
             tvb_set_reported_length(new_tvb, tvb_reported_length(new_tvb) - LWM_MIC_LEN);
-            call_dissector(data_handle, new_tvb, pinfo, lwm_tree);
+            call_data_dissector(new_tvb, pinfo, lwm_tree);
         }
 #else /* ! HAVE_LIBGCRYPT */
         col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -512,7 +509,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
         expert_add_info(pinfo, lwm_tree, &ei_lwm_no_decryption_key);
         tvb_set_reported_length(new_tvb, tvb_reported_length(new_tvb) - LWM_MIC_LEN);
-        call_dissector(data_handle, new_tvb, pinfo, lwm_tree);
+        call_data_dissector(new_tvb, pinfo, lwm_tree);
 #endif /* ! HAVE_LIBGCRYPT */
     }
     /*stack command endpoint 0 and not secured*/
@@ -558,7 +555,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         default:
             /*Unknown command*/
             expert_add_info_format(pinfo, lwm_cmd_tree, &ei_lwm_mal_error, "Unknown command");
-            call_dissector(data_handle, new_tvb, pinfo, lwm_cmd_tree);
+            call_data_dissector(new_tvb, pinfo, lwm_cmd_tree);
             return tvb_captured_length(tvb);
         }
 
@@ -573,12 +570,12 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 "Size is %i byte(s), instead of %i bytes", tvb_reported_length(new_tvb), len);
 
             new_tvb = tvb_new_subset_remaining(new_tvb, len);
-            call_dissector(data_handle, new_tvb, pinfo, lwm_tree);
+            call_data_dissector(new_tvb, pinfo, lwm_tree);
         }
     }
     else{
         /*unknown data*/
-        call_dissector(data_handle, new_tvb, pinfo, lwm_tree);
+        call_data_dissector(new_tvb, pinfo, lwm_tree);
     }
     return tvb_captured_length(tvb);
 } /* dissect_lwm */
@@ -929,8 +926,6 @@ void proto_reg_handoff_lwm(void)
 {
     GByteArray      *bytes;
     gboolean         res;
-
-    data_handle     = find_dissector("data");
 
     /* Convert key to raw bytes */
     bytes = g_byte_array_new();

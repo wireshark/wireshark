@@ -56,8 +56,6 @@ static int hf_slow_subtype = -1;
 
 static gint ett_slow = -1;
 
-static dissector_handle_t dh_data;
-
 /*
  * Name: dissect_slow_protocols
  *
@@ -99,7 +97,7 @@ dissect_slow_protocols(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     next_tvb = tvb_new_subset_remaining(tvb, 1);
     if (!dissector_try_uint_new(slow_protocols_dissector_table, subtype,
                                 next_tvb, pinfo, tree, TRUE, NULL))
-        call_dissector(dh_data, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
 
     return tvb_captured_length(tvb);
 }
@@ -147,8 +145,6 @@ proto_reg_handoff_slow_protocols(void)
 
     slow_protocols_handle = create_dissector_handle(dissect_slow_protocols, proto_slow);
     dissector_add_uint("ethertype", ETHERTYPE_SLOW_PROTOCOLS, slow_protocols_handle);
-
-    dh_data = find_dissector("data");
 }
 
 /*

@@ -51,7 +51,6 @@ static gint ett_sdlc = -1;
 static gint ett_sdlc_control = -1;
 
 static dissector_handle_t sna_handle;
-static dissector_handle_t data_handle;
 
 static const xdlc_cf_items sdlc_cf_items = {
 	&hf_sdlc_n_r,
@@ -128,7 +127,7 @@ dissect_sdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		/* call the SNA dissector */
 		call_dissector(sna_handle, next_tvb, pinfo, tree);
 	} else
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 
 	return tvb_captured_length(tvb);
 }
@@ -201,7 +200,6 @@ proto_reg_handoff_sdlc(void)
 	 * Get handle for the SNA dissector.
 	 */
 	sna_handle = find_dissector_add_dependency("sna", proto_sdlc);
-	data_handle = find_dissector("data");
 
 	sdlc_handle = create_dissector_handle(dissect_sdlc, proto_sdlc);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_SDLC, sdlc_handle);

@@ -58,8 +58,6 @@ static int hf_bvlc_fdt_timeout = -1;
 static int hf_bvlc_fwd_ip = -1;
 static int hf_bvlc_fwd_port = -1;
 
-static dissector_handle_t data_handle;
-
 static dissector_table_t bvlc_dissector_table;
 
 static const value_string bvlc_function_names[] = {
@@ -302,7 +300,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	if (!dissector_try_uint(bvlc_dissector_table,
 	    bvlc_function, next_tvb, pinfo, tree)) {
 		/* Unknown function - dissect the paylod as data */
-		call_dissector(data_handle,next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 	return tvb_reported_length(tvb);
 }
@@ -422,7 +420,6 @@ proto_reg_handoff_bvlc(void)
 	{
 		bvlc_handle = find_dissector("bvlc");
 		dissector_add_uint("udp.port", 0xBAC0, bvlc_handle);
-		data_handle = find_dissector("data");
 		bvlc_initialized = TRUE;
 	}
 	else

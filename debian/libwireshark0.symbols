@@ -88,6 +88,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  bytes_to_str@Base 1.99.2
  bytestring_to_str@Base 1.9.1
  call_ber_oid_callback@Base 1.9.1
+ call_data_dissector@Base 2.1.0
  call_dissector@Base 1.9.1
  call_dissector_only@Base 1.9.1
  call_dissector_with_data@Base 1.9.1

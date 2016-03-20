@@ -139,8 +139,6 @@
 void proto_reg_handoff_irda(void);
 void proto_register_irda(void);
 
-static dissector_handle_t data_handle;
-
 /* Initialize the protocol and registered fields */
 static int proto_irlap = -1;
 static int hf_lap_a = -1;
@@ -645,7 +643,7 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
 
     /* If any bytes remain, send it to the generic data dissector */
     tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(data_handle, tvb, pinfo, root);
+    call_data_dissector(tvb, pinfo, root);
 }
 
 
@@ -895,7 +893,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
 
     /* If any bytes remain, send it to the generic data dissector */
     tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(data_handle, tvb, pinfo, root);
+    call_data_dissector(tvb, pinfo, root);
 }
 
 
@@ -1007,7 +1005,7 @@ static void dissect_appl_proto(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
         call_dissector_with_data(lmp_conv->dissector, tvb, pinfo, root, GUINT_TO_POINTER(pdu_type));
     }
     else
-        call_dissector(data_handle, tvb, pinfo, root);
+        call_data_dissector(tvb, pinfo, root);
 }
 
 
@@ -1159,7 +1157,7 @@ static void dissect_irlmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, g
     else
     {
         if ((dlsap == LSAP_IAS) || (slsap == LSAP_IAS))
-            call_dissector(data_handle, tvb, pinfo, root);
+            call_data_dissector(tvb, pinfo, root);
         else
             switch (opcode)
             {
@@ -1173,7 +1171,7 @@ static void dissect_irlmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, g
                     break;
 
                 default:
-                    call_dissector(data_handle, tvb, pinfo, root);
+                    call_data_dissector(tvb, pinfo, root);
             }
     }
 }
@@ -1828,7 +1826,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     if (tvb_reported_length_remaining(tvb, offset) > 0)
     {
         tvb = tvb_new_subset_remaining(tvb, offset);
-        call_dissector(data_handle, tvb, pinfo, root);
+        call_data_dissector(tvb, pinfo, root);
     }
 }
 
@@ -2248,7 +2246,6 @@ void proto_reg_handoff_irda(void)
     irda_handle = find_dissector("irda");
     dissector_add_uint("wtap_encap", WTAP_ENCAP_IRDA, irda_handle);
     dissector_add_uint("sll.ltype", LINUX_SLL_P_IRDA_LAP, irda_handle);
-    data_handle = find_dissector("data");
 }
 
 /*

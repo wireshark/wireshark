@@ -171,7 +171,6 @@ static gboolean udplite_check_checksum = FALSE;
 
 static dissector_table_t udp_dissector_table;
 static heur_dissector_list_t heur_subdissector_list;
-static dissector_handle_t data_handle;
 static guint32 udp_stream_count;
 
 /* Determine if there is a sub-dissector and call it.  This has been */
@@ -598,7 +597,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
   }
 
-  call_dissector(data_handle,next_tvb, pinfo, tree);
+  call_data_dissector(next_tvb, pinfo, tree);
 }
 
 int
@@ -1233,7 +1232,6 @@ proto_reg_handoff_udp(void)
   register_capture_dissector("ipv6.nxt", IP_PROTO_UDP, capture_udp, hfi_udp->id);
   register_capture_dissector("ipv6.nxt", IP_PROTO_UDPLITE, capture_udp, hfi_udplite->id);
 
-  data_handle = find_dissector("data");
   udp_tap = register_tap("udp");
   udp_follow_tap = register_tap("udp_follow");
 }

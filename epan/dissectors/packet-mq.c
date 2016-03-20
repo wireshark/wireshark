@@ -951,7 +951,6 @@ static gint ett_mq_structid = -1;
 
 static dissector_handle_t mq_handle;
 static dissector_handle_t mq_spx_handle;
-static dissector_handle_t data_handle;
 static dissector_handle_t mqpcf_handle;
 
 static heur_dissector_list_t mq_heur_subdissector_list;
@@ -3763,13 +3762,13 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                                 next_tvb = tvb_new_subset_remaining(tvb, offset);
                                 if (!dissector_try_heuristic(mq_heur_subdissector_list, next_tvb, pinfo, mqroot_tree, &hdtbl_entry, p_mq_parm))
-                                    call_dissector(data_handle, next_tvb, pinfo, mqroot_tree);
+                                    call_data_dissector(next_tvb, pinfo, mqroot_tree);
                             }
                             else
                             {
                                 tvbuff_t *next_tvb;
                                 next_tvb = tvb_new_subset_remaining(tvb, offset);
-                                call_dissector(data_handle, next_tvb, pinfo, mqroot_tree);
+                                call_data_dissector(next_tvb, pinfo, mqroot_tree);
                             }
                         }
                         offset = tvb_reported_length(tvb);
@@ -3786,7 +3785,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 {
                     /* This is a MQ segment continuation (if MQ reassembly is not enabled) */
                     col_append_str(pinfo->cinfo, COL_INFO, " [Unreassembled MQ]");
-                    call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+                    call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
                 }
             }
         }
@@ -3798,7 +3797,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 proto_tree_add_item(tree, proto_mq, tvb, offset, -1, ENC_NA);
             }
-            call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+            call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
         }
     }
 }
@@ -4790,7 +4789,6 @@ void proto_reg_handoff_mq(void)
     heur_dissector_add("http",    dissect_mq_heur_nontcp, "WebSphere MQ over HTTP", "mq_http", proto_mq, HEURISTIC_ENABLE);
     heur_dissector_add("ssl",     dissect_mq_heur_ssl, "WebSphere MQ over SSL", "mq_ssl", proto_mq, HEURISTIC_ENABLE);
     dissector_add_uint("spx.socket", MQ_SOCKET_SPX, mq_spx_handle);
-    data_handle  = find_dissector("data");
     mqpcf_handle = find_dissector("mqpcf");
 }
 

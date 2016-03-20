@@ -124,7 +124,6 @@ static gint ett_llcgprs_sframe = -1;
 
 static expert_field ei_llcgprs_no_info_field = EI_INIT;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t sndcp_xid_handle;
 
 static gboolean ignore_cipher_bit = FALSE;
@@ -860,7 +859,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			if (!dissector_try_uint(llcgprs_subdissector_table, sapi, next_tvb, pinfo, tree))
 				/* if no subdissector is found, call the data dissector */
 			{
-				call_dissector(data_handle, next_tvb, pinfo, tree);
+				call_data_dissector(next_tvb, pinfo, tree);
 			}
 		}
 		break;
@@ -928,7 +927,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			next_tvb = tvb_new_subset_length(tvb, offset, (llc_data_length-offset));
 			if (!dissector_try_uint(llcgprs_subdissector_table, sapi, next_tvb, pinfo, tree))
 			{
-				call_dissector(data_handle, next_tvb, pinfo, tree);
+				call_data_dissector(next_tvb, pinfo, tree);
 			}
 		}
 		break;
@@ -1008,14 +1007,14 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 				/* otherwise - call a subdissector */
 				if (!dissector_try_uint(llcgprs_subdissector_table, sapi, next_tvb, pinfo, tree))
 				{
-					call_dissector(data_handle, next_tvb, pinfo, tree);
+					call_data_dissector(next_tvb, pinfo, tree);
 				}
 			}
 		}
 		else
 		{
 			/* ciphered information - just parse it as data */
-			call_dissector(data_handle, next_tvb, pinfo, tree);
+			call_data_dissector(next_tvb, pinfo, tree);
 		}
 		break;
 
@@ -1352,7 +1351,6 @@ proto_reg_handoff_llcgprs(void)
 	gprs_llc_handle = find_dissector("llcgprs");
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_GPRS_LLC, gprs_llc_handle);
 
-	data_handle = find_dissector("data");
 	sndcp_xid_handle  = find_dissector_add_dependency("sndcpxid", proto_llcgprs);
 }
 

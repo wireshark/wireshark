@@ -99,7 +99,6 @@ static gint ett_gfp_thec = -1;
 static gint ett_gfp_ehec = -1;
 static gint ett_gfp_fcs = -1;
 
-static dissector_handle_t data_handle;
 static dissector_table_t gfp_dissector_table;
 
 /* ITU-T G.7041 6.1.1, 6.2 */
@@ -245,7 +244,6 @@ dissect_gfp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
     guint pti, pfi, exi, upi;
     guint fcs, fcs_calc;
     guint fcs_len = 0;
-    dissector_handle_t handle;
 
     /* G.7041 6.1.2.3 Payload area scrambling
      * Note that payload when sent on the wire is scrambled as per ATM
@@ -364,18 +362,14 @@ dissect_gfp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
     switch (pti) {
         case GFP_USER_DATA:
         case GFP_MANAGEMENT_COMMUNICATIONS:
-            handle = dissector_get_uint_handle(gfp_dissector_table, upi);
-            if (handle == NULL) {
+            if (!dissector_try_uint(gfp_dissector_table, upi, payload_tvb, pinfo, tree)) {
                 expert_add_info_format(pinfo, type_ti, &ei_gfp_payload_undecoded, "Payload type 0x%02x (%s) unsupported", upi, rval_to_str_const(upi, gfp_upi_data_rvals, "UNKNOWN"));
-                handle = data_handle;
-            }
-            if (!call_dissector(handle, payload_tvb, pinfo, tree)) {
-                call_dissector(data_handle, payload_tvb, pinfo, tree);
+                call_data_dissector(payload_tvb, pinfo, tree);
             }
             break;
 
         case GFP_CLIENT_MANAGEMENT:
-            call_dissector(data_handle, payload_tvb, pinfo, tree);
+            call_data_dissector(payload_tvb, pinfo, tree);
             break;
 
         default:
@@ -647,8 +641,6 @@ proto_reg_handoff_gfp(void)
 
     gfp_handle = create_dissector_handle(dissect_gfp,
             proto_gfp);
-
-    data_handle = find_dissector("data");
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_GFP_T, gfp_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_GFP_F, gfp_handle);

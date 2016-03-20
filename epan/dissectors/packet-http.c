@@ -152,7 +152,6 @@ static expert_field ei_http_leading_crlf = EI_INIT;
 
 static dissector_handle_t http_handle;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t media_handle;
 static dissector_handle_t websocket_handle;
 static dissector_handle_t http2_handle;
@@ -1325,8 +1324,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (headers.transfer_encoding_chunked) {
 			if (!http_dechunk_body) {
 				/* Chunking disabled, cannot dissect further. */
-				call_dissector(data_handle, next_tvb, pinfo,
-				    http_tree);
+				call_data_dissector(next_tvb, pinfo, http_tree);
 				goto body_dissected;
 			}
 
@@ -1366,7 +1364,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * "compress", or "deflate" as *transfer* encodings;
 			 * just handle them as data for now.
 			 */
-			call_dissector(data_handle, next_tvb, pinfo, http_tree);
+			call_data_dissector(next_tvb, pinfo, http_tree);
 			goto body_dissected;
 		default:
 			/* Nothing to do for "identity" or when header is
@@ -1435,8 +1433,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    "Uncompressed entity body");
 			} else {
 				proto_item_append_text(e_ti, " [Error: Decompression failed]");
-				call_dissector(data_handle, next_tvb, pinfo,
-				    e_tree);
+				call_data_dissector(next_tvb, pinfo, e_tree);
 
 				goto body_dissected;
 			}
@@ -1553,7 +1550,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				call_dissector_with_data(media_handle, next_tvb, pinfo, tree, media_str);
 			} else {
 				/* Call the default data dissector */
-				call_dissector(data_handle, next_tvb, pinfo, http_tree);
+				call_data_dissector(next_tvb, pinfo, http_tree);
 			}
 		}
 
@@ -1823,8 +1820,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			 * dissection is done on the reassembled data.
 			 */
 			data_tvb = tvb_new_subset_length(tvb, chunk_offset, chunk_size);
-			call_dissector(data_handle, data_tvb, pinfo,
-				    chunk_subtree);
+			call_data_dissector(data_tvb, pinfo, chunk_subtree);
 
 			proto_tree_add_item(chunk_subtree, hf_http_chunked_boundary, tvb,
 								chunk_offset + chunk_size, 2, ENC_NA);
@@ -1978,8 +1974,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 				 * dissection is done on the reassembled data.
 				 */
 				data_tvb = tvb_new_subset_length(tvb, chunk_offset, chunk_size);
-				call_dissector(data_handle, data_tvb, pinfo,
-					    chunk_subtree);
+				call_data_dissector(data_tvb, pinfo, chunk_subtree);
 
 				proto_tree_add_item(chunk_subtree, hf_http_chunk_boundary, tvb,
 									chunk_offset + chunk_size, 2, ENC_NA);
@@ -2089,7 +2084,7 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 		 * dissector directly.
 		 */
 		if (value_is_in_range(http_tcp_range, uri_port) || (conv && conversation_get_dissector(conv, pinfo->num) == http_handle)) {
-			call_dissector(data_handle, tvb, pinfo, tree);
+			call_data_dissector(tvb, pinfo, tree);
 		} else {
 			/* set pinfo->{src/dst port} and call the TCP sub-dissector lookup */
 			if (!from_server)
@@ -3569,7 +3564,6 @@ proto_reg_handoff_http(void)
 {
 	dissector_handle_t ssdp_handle;
 
-	data_handle = find_dissector("data");
 	media_handle = find_dissector_add_dependency("media", proto_http);
 	websocket_handle = find_dissector_add_dependency("websocket", proto_http);
 	http2_handle = find_dissector("http2");

@@ -147,7 +147,6 @@ static dissector_handle_t sscop_handle;
 static dissector_handle_t ppp_handle;
 static dissector_handle_t eth_maybefcs_handle;
 static dissector_handle_t ip_handle;
-static dissector_handle_t data_handle;
 
 static gboolean dissect_lanesscop = FALSE;
 
@@ -709,7 +708,7 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     /* Dump it as raw data. */
     col_set_str(pinfo->cinfo, COL_INFO, "Unknown LANE traffic type");
     next_tvb            = tvb_new_subset_remaining(tvb, 0);
-    call_dissector(data_handle,next_tvb, pinfo, tree);
+    call_data_dissector(next_tvb, pinfo, tree);
     break;
   }
   return tvb_captured_length(tvb);
@@ -1063,7 +1062,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   if (!decoded) {
     /* Dump it as raw data. */
-    call_dissector(data_handle, next_tvb, pinfo, tree);
+    call_data_dissector(next_tvb, pinfo, tree);
   }
 }
 
@@ -1432,7 +1431,7 @@ dissect_atm_cell_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
   default:
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(data_handle, next_tvb, pinfo, tree);
+    call_data_dissector(next_tvb, pinfo, tree);
     break;
   }
 }
@@ -2017,7 +2016,6 @@ proto_reg_handoff_atm(void)
   ppp_handle            = find_dissector_add_dependency("ppp", proto_atm);
   eth_maybefcs_handle   = find_dissector_add_dependency("eth_maybefcs", proto_atm);
   ip_handle             = find_dissector_add_dependency("ip", proto_atm);
-  data_handle           = find_dissector("data");
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_PDUS, atm_handle);
   dissector_add_uint("atm.aal5.type", TRAF_LANE, create_dissector_handle(dissect_lane, proto_atm_lane));

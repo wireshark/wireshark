@@ -965,8 +965,6 @@ dissect_ospf_bitfield (proto_tree *parent_tree, tvbuff_t *tvb, int offset,
     }
 }
 
-static dissector_handle_t data_handle;
-
 static void dissect_ospf_hello(tvbuff_t*, int, proto_tree*, guint8, guint16);
 static void dissect_ospf_db_desc(tvbuff_t*, packet_info*, int, proto_tree*, guint8, guint16, guint8);
 static void dissect_ospf_ls_req(tvbuff_t*, packet_info*, int, proto_tree*, guint8, guint16);
@@ -1269,8 +1267,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         break;
 
     default:
-        call_dissector(data_handle,
-                       tvb_new_subset_remaining(tvb, ospf_header_length), pinfo, tree);
+        call_data_dissector(tvb_new_subset_remaining(tvb, ospf_header_length), pinfo, tree);
         break;
     }
 
@@ -3805,7 +3802,6 @@ proto_reg_handoff_ospf(void)
     dissector_add_uint("ip.proto", IP_PROTO_OSPF, ospf_handle);
     register_capture_dissector("ip.proto", IP_PROTO_OSPF, capture_ospf, proto_ospf);
     register_capture_dissector("ipv6.nxt", IP_PROTO_OSPF, capture_ospf, proto_ospf);
-    data_handle = find_dissector("data");
 }
 
 /*

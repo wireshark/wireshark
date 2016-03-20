@@ -35,9 +35,6 @@
 void proto_register_isi(void);
 void proto_reg_handoff_isi(void);
 
-/* These are the handles of our subdissectors */
-static dissector_handle_t data_handle=NULL;
-
 /* Dissector table for the isi resource */
 static dissector_table_t isi_resource_dissector_table;
 
@@ -1827,7 +1824,7 @@ static int dissect_isi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 	/* Call subdissector depending on the resource ID */
 	if (!dissector_try_uint(isi_resource_dissector_table, resource, content_tvb, pinfo, isi_tree))
-		call_dissector(data_handle, content_tvb, pinfo, isi_tree);
+		call_data_dissector(content_tvb, pinfo, isi_tree);
 
 	return tvb_captured_length(tvb);
 }
@@ -2139,7 +2136,6 @@ proto_reg_handoff_isi(void)
 	static gboolean initialized=FALSE;
 
 	if(!initialized) {
-		data_handle = find_dissector("data");
 		dissector_add_uint("sll.ltype", LINUX_SLL_P_ISI, create_dissector_handle(dissect_isi, proto_isi));
 
 		heur_dissector_add("usb.bulk", dissect_usb_isi, "ISI bulk endpoint", "usb_bulk_isi", proto_isi, HEURISTIC_DISABLE);

@@ -140,7 +140,6 @@ typedef struct _fddi_hdr {
 #define FDDI_P_SHOST            7
 
 static dissector_handle_t llc_handle;
-static dissector_handle_t data_handle;
 
 static void
 swap_mac_addr(guint8 *swapped_addr, tvbuff_t *tvb, gint offset)
@@ -439,7 +438,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       return;
 
     default :
-      call_dissector(data_handle,next_tvb, pinfo, tree);
+      call_data_dissector(next_tvb, pinfo, tree);
       return;
 
   } /* fc */
@@ -539,7 +538,6 @@ proto_reg_handoff_fddi(void)
    * Get a handle for the LLC dissector.
    */
   llc_handle = find_dissector_add_dependency("llc", proto_fddi);
-  data_handle = find_dissector("data");
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FDDI_BITSWAPPED,
                      fddi_bitswapped_handle);

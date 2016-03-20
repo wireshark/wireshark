@@ -67,8 +67,6 @@ static const guint32 control_packet = 0x563412FF;
 static gint ett_mactelnet = -1;
 static gint ett_mactelnet_control = -1;
 
-static dissector_handle_t data_handle;
-
 /* Packet types */
 static const value_string packettypenames[] = {
     {   0, "Start session" },
@@ -263,13 +261,13 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 } else {
                     /* Data packet, let wireshark handle it */
                     tvbuff_t *next_client = tvb_new_subset_remaining(tvb, offset);
-                    return call_dissector(data_handle, next_client, pinfo, mactelnet_tree);
+                    return call_data_dissector(next_client, pinfo, mactelnet_tree);
                 }
             }
         } else if ((type == 4) || (type == 5)) {
             /* Data packet, let wireshark handle it */
             tvbuff_t *next_client = tvb_new_subset_remaining(tvb, offset);
-            return call_dissector(data_handle, next_client, pinfo, mactelnet_tree);
+            return call_data_dissector(next_client, pinfo, mactelnet_tree);
         }
 
 
@@ -400,7 +398,6 @@ proto_reg_handoff_mactelnet(void)
 
     if (!initialized) {
         mactelnet_handle = create_dissector_handle(dissect_mactelnet, proto_mactelnet);
-        data_handle = find_dissector("data");
         initialized = TRUE;
     } else {
         dissector_delete_uint("udp.port", current_port, mactelnet_handle);

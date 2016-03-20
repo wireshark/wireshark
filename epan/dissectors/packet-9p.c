@@ -942,9 +942,6 @@ static int hf_9P_lock_procid = -1;
 static int hf_9P_lock_status = -1;
 static int hf_9P_unknown_message = -1;
 
-/*handle for dissecting data in 9P msgs*/
-static dissector_handle_t data_handle;
-
 /* subtree pointers */
 static gint ett_9P = -1;
 static gint ett_9P_omode = -1;
@@ -1553,7 +1550,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		len = tvb_reported_length_remaining(tvb, offset);
 		reportedlen = ((gint)u32&0xffff) > len ? len : (gint)u32&0xffff;
 		next_tvb = tvb_new_subset(tvb, offset, len, reportedlen);
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 		offset += len;
 
 		conv_free_tag(pinfo, tag);
@@ -1574,7 +1571,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		len = tvb_reported_length_remaining(tvb, offset);
 		reportedlen = ((gint)u32&0xffff) > len ? len : (gint)u32&0xffff;
 		next_tvb = tvb_new_subset(tvb, offset, len, reportedlen);
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 		offset += len;
 
 		conv_set_tag(pinfo, tag, ninemsg, _9P_NOFID, NULL);
@@ -2759,8 +2756,6 @@ void proto_register_9P(void)
 void proto_reg_handoff_9P(void)
 {
 	dissector_handle_t ninep_handle;
-
-	data_handle = find_dissector("data");
 
 	ninep_handle = create_dissector_handle(dissect_9P, proto_9P);
 

@@ -531,7 +531,6 @@ static expert_field ei_gsm_a_gm_extraneous_data = EI_INIT;
 static expert_field ei_gsm_a_gm_not_enough_data = EI_INIT;
 static expert_field ei_gsm_a_gm_undecoded = EI_INIT;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t rrc_irat_ho_info_handle;
 static dissector_handle_t lte_rrc_ue_eutra_cap_handle;
 
@@ -4323,7 +4322,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 							/*
 							* dissect the embedded DATA message
 							*/
-							call_dissector(data_handle, l3_tvb, pinfo, pco_tree);
+							call_data_dissector(l3_tvb, pinfo, pco_tree);
 						}
 					}
 				}
@@ -8692,7 +8691,6 @@ proto_register_gsm_a_gm(void)
 void
 proto_reg_handoff_gsm_a_gm(void)
 {
-	data_handle = find_dissector("data");
 	rrc_irat_ho_info_handle = find_dissector_add_dependency("rrc.irat.irat_ho_info", proto_a_gm);
 	lte_rrc_ue_eutra_cap_handle = find_dissector_add_dependency("lte-rrc.ue_eutra_cap", proto_a_gm);
 }

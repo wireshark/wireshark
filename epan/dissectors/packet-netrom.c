@@ -72,7 +72,6 @@ void proto_reg_handoff_netrom(void);
 
 /* Dissector handles */
 static dissector_handle_t ip_handle;
-static dissector_handle_t data_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_netrom			= -1;
@@ -438,12 +437,12 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					if ( cct_index == NETROM_PROTO_IP && cct_id == NETROM_PROTO_IP )
 						call_dissector( ip_handle , next_tvb, pinfo, tree );
 					else
-						call_dissector( data_handle , next_tvb, pinfo, tree );
+						call_data_dissector(next_tvb, pinfo, tree );
 
 					break;
 		case NETROM_INFO	:
 		default			:
-					call_dissector( data_handle , next_tvb, pinfo, tree );
+					call_data_dissector(next_tvb, pinfo, tree );
 					break;
 		}
 }
@@ -472,7 +471,7 @@ dissect_netrom_routing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	next_tvb = tvb_new_subset_remaining(tvb, 7);
 
-	call_dissector( data_handle , next_tvb, pinfo, tree );
+	call_data_dissector(next_tvb, pinfo, tree );
 }
 
 /* Code to actually dissect the packets */
@@ -620,8 +619,6 @@ proto_reg_handoff_netrom(void)
 	register_capture_dissector("ax25.pid", AX25_P_NETROM, capture_netrom, proto_netrom);
 
 	ip_handle   = find_dissector_add_dependency( "ip", proto_netrom );
-	data_handle = find_dissector( "data" );
-
 }
 
 /*

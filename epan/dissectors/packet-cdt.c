@@ -81,8 +81,6 @@ static int hf_cdt_compressedContent = -1;         /* CompressedContent */
 /*--- End of included file: packet-cdt-hf.c ---*/
 #line 61 "./asn1/cdt/packet-cdt-template.c"
 
-static dissector_handle_t data_handle = NULL;
-
 /* Initialize the subtree pointers */
 
 /*--- Included file: packet-cdt-ett.c ---*/
@@ -93,7 +91,7 @@ static gint ett_cdt_CompressedContentInfo = -1;
 static gint ett_cdt_T_contentType = -1;
 
 /*--- End of included file: packet-cdt-ett.c ---*/
-#line 66 "./asn1/cdt/packet-cdt-template.c"
+#line 64 "./asn1/cdt/packet-cdt-template.c"
 
 static expert_field ei_cdt_unable_compress_content = EI_INIT;
 static expert_field ei_cdt_unable_uncompress_content = EI_INIT;
@@ -272,7 +270,7 @@ dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
    switch (content_type) {
    case CDT_UNDEFINED:
-     call_dissector (data_handle, next_tvb, actx->pinfo, top_tree);
+     call_data_dissector(next_tvb, actx->pinfo, top_tree);
      break;
    case CDT_EXTERNAL:
      dissect_unknown_ber (actx->pinfo, next_tvb, 0, top_tree);
@@ -281,7 +279,7 @@ dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
      dissect_p1_mts_apdu (next_tvb, actx->pinfo, top_tree, NULL);
      break;
    default:
-     call_dissector (data_handle, next_tvb, actx->pinfo, top_tree);
+     call_data_dissector(next_tvb, actx->pinfo, top_tree);
      break;
    }
 
@@ -338,7 +336,7 @@ static int dissect_CompressedData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-cdt-fn.c ---*/
-#line 71 "./asn1/cdt/packet-cdt-template.c"
+#line 69 "./asn1/cdt/packet-cdt-template.c"
 
 
 /*--- proto_register_cdt -------------------------------------------*/
@@ -411,7 +409,7 @@ void proto_register_cdt (void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cdt-hfarr.c ---*/
-#line 103 "./asn1/cdt/packet-cdt-template.c"
+#line 101 "./asn1/cdt/packet-cdt-template.c"
   };
 
   /* List of subtrees */
@@ -425,7 +423,7 @@ void proto_register_cdt (void) {
     &ett_cdt_T_contentType,
 
 /*--- End of included file: packet-cdt-ettarr.c ---*/
-#line 108 "./asn1/cdt/packet-cdt-template.c"
+#line 106 "./asn1/cdt/packet-cdt-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -455,7 +453,5 @@ void proto_reg_handoff_cdt (void) {
 
 
 /*--- End of included file: packet-cdt-dis-tab.c ---*/
-#line 131 "./asn1/cdt/packet-cdt-template.c"
-
-  data_handle = find_dissector ("data");
+#line 129 "./asn1/cdt/packet-cdt-template.c"
 }

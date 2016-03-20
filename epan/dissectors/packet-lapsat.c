@@ -35,16 +35,14 @@
 
 #include <epan/packet.h>
 #include <epan/reassemble.h>
+
 void proto_register_lapsat(void);
-void proto_reg_handoff_lapsat(void);
 
 static int proto_lapsat = -1;
 
 static reassembly_table lapsat_reassembly_table;
 
 static dissector_table_t lapsat_sapi_dissector_table;
-
-static dissector_handle_t data_handle;
 
 static gint ett_lapsat = -1;
 static gint ett_lapsat_address = -1;
@@ -558,7 +556,7 @@ dissect_lapsat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissec
 			/* Yes, so handoff to upper layers */
 			if (!dissector_try_uint(lapsat_sapi_dissector_table, sapi,
 			                        reassembled, pinfo, tree))
-				call_dissector(data_handle, reassembled, pinfo, tree);
+				call_data_dissector(reassembled, pinfo, tree);
 		} else {
 			/* No, just add infos */
 			col_append_str(pinfo->cinfo, COL_INFO, " (Fragment)");
@@ -572,7 +570,7 @@ dissect_lapsat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissec
 		 * Whole frame
 		 */
 		if (!dissector_try_uint(lapsat_sapi_dissector_table, sapi, payload, pinfo, tree))
-			call_dissector(data_handle, payload, pinfo, tree);
+			call_data_dissector(payload, pinfo, tree);
 	}
 	return tvb_captured_length(tvb);
 }
@@ -771,11 +769,6 @@ proto_register_lapsat(void)
 	register_cleanup_routine (lapsat_defragment_cleanup);
 }
 
-void
-proto_reg_handoff_lapsat(void)
-{
-	data_handle = find_dissector("data");
-}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

@@ -178,7 +178,6 @@ static dissector_handle_t rohc_handle;
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
-static dissector_handle_t data_handle;
 
 typedef struct _rohc_cid_context_t
 {
@@ -2236,7 +2235,7 @@ start_over:
         }
 
         payload_tvb = tvb_new_subset_remaining(tvb, offset);
-        call_dissector_only(data_handle, payload_tvb, pinfo, rohc_tree, NULL);
+        call_data_dissector(payload_tvb, pinfo, rohc_tree);
         return tvb_captured_length(tvb);
     }
     if((oct&0xff) == 0xf8){
@@ -2248,7 +2247,7 @@ start_over:
         }
 
         payload_tvb = tvb_new_subset_remaining(tvb, offset);
-        call_dissector_only(data_handle, payload_tvb, pinfo, rohc_tree, NULL);
+        call_data_dissector(payload_tvb, pinfo, rohc_tree);
         return tvb_captured_length(tvb);
     }
 
@@ -2304,7 +2303,7 @@ start_over:
             call_dissector(ipv6_handle, next_tvb, pinfo, tree);
         }
         else {
-            call_dissector(data_handle, next_tvb, pinfo, tree);
+            call_data_dissector(next_tvb, pinfo, tree);
         }
         col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "ROHC <");
         col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
@@ -2340,7 +2339,7 @@ start_over:
     }
 
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector_only(data_handle, payload_tvb, pinfo, tree, NULL);
+    call_data_dissector(payload_tvb, pinfo, tree);
 
     return tvb_captured_length(tvb);
 }
@@ -2999,7 +2998,6 @@ proto_reg_handoff_rohc(void)
 
     ip_handle   = find_dissector_add_dependency("ip", proto_rohc);
     ipv6_handle = find_dissector_add_dependency("ipv6", proto_rohc);
-    data_handle = find_dissector("data");
 }
 
 /*

@@ -59,8 +59,6 @@ static guint32 content_type = 0;
 static int proto_cdt = -1;
 #include "packet-cdt-hf.c"
 
-static dissector_handle_t data_handle = NULL;
-
 /* Initialize the subtree pointers */
 #include "packet-cdt-ett.c"
 
@@ -128,6 +126,4 @@ void proto_register_cdt (void) {
 /*--- proto_reg_handoff_cdt ---------------------------------------*/
 void proto_reg_handoff_cdt (void) {
 #include "packet-cdt-dis-tab.c"
-
-  data_handle = find_dissector ("data");
 }

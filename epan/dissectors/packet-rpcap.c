@@ -216,7 +216,6 @@ static expert_field ei_no_more_data = EI_INIT;
 static expert_field ei_caplen_too_big = EI_INIT;
 
 static dissector_handle_t pcap_pktdata_handle;
-static dissector_handle_t data_handle;
 
 /* User definable values */
 static gboolean rpcap_desegment = TRUE;
@@ -900,7 +899,7 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
     if (linktype == -1) {
       proto_item_append_text (ti, ", Unknown link-layer type");
     }
-    call_dissector (data_handle, new_tvb, pinfo, top_tree);
+    call_data_dissector(new_tvb, pinfo, top_tree);
   }
 }
 
@@ -987,7 +986,7 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, void* da
       /* Yet unknown, dump as data */
       proto_item_set_len (ti, 8);
       new_tvb = tvb_new_subset_remaining (tvb, offset);
-      call_dissector (data_handle, new_tvb, pinfo, top_tree);
+      call_data_dissector(new_tvb, pinfo, top_tree);
     }
     break;
   }
@@ -1484,7 +1483,6 @@ proto_reg_handoff_rpcap (void)
 
   if (!rpcap_prefs_initialized) {
     pcap_pktdata_handle = find_dissector_add_dependency("pcap_pktdata", proto_rpcap);
-    data_handle = find_dissector ("data");
     rpcap_prefs_initialized = TRUE;
 
     heur_dissector_add ("tcp", dissect_rpcap_heur_tcp, "RPCAP over TCP", "rpcap_tcp", proto_rpcap, HEURISTIC_ENABLE);

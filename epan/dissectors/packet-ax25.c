@@ -122,8 +122,6 @@ static gint ett_ax25_ctl = -1;
 
 static dissector_handle_t ax25_handle;
 
-static dissector_handle_t data_handle;
-
 static int
 dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_ )
 {
@@ -243,7 +241,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 		if (!dissector_try_uint(ax25_dissector_table, pid, next_tvb, pinfo, parent_tree))
 			{
-			call_dissector(data_handle, next_tvb, pinfo, parent_tree);
+			call_data_dissector(next_tvb, pinfo, parent_tree);
 			}
 		}
 	else
@@ -422,9 +420,6 @@ proto_reg_handoff_ax25(void)
 	dissector_add_uint("ip.proto", IP_PROTO_AX25, ax25_handle);
 
 	register_capture_dissector("wtap_encap", WTAP_ENCAP_AX25, capture_ax25, proto_ax25);
-
-	data_handle  = find_dissector( "data" );
-
 }
 
 /*

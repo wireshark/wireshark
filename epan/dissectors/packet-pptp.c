@@ -87,8 +87,6 @@ static gint ett_pptp = -1;
 
 static expert_field ei_pptp_incorrect_magic_cookie = EI_INIT;
 
-static dissector_handle_t data_handle;
-
 #define TCP_PORT_PPTP           1723
 
 #define MAGIC_COOKIE            0x1A2B3C4D
@@ -215,7 +213,7 @@ static const value_string disc_resulttype_vals[] = {
 static void
 dissect_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-  call_dissector(data_handle,tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+  call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 }
 
 static void
@@ -964,7 +962,6 @@ proto_reg_handoff_pptp(void)
 
   pptp_handle = create_dissector_handle(dissect_pptp, proto_pptp);
   dissector_add_uint("tcp.port", TCP_PORT_PPTP, pptp_handle);
-  data_handle = find_dissector("data");
 }
 
 /*

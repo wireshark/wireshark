@@ -55,7 +55,6 @@ static dissector_handle_t mp2t_handle;
 static dissector_handle_t docsis_handle;
 static dissector_handle_t mpeg_pes_handle;
 static dissector_handle_t mpeg_sect_handle;
-static dissector_handle_t data_handle;
 
 static heur_dissector_list_t heur_subdissector_list;
 
@@ -453,7 +452,7 @@ mp2t_dissect_packet(tvbuff_t *tvb, enum pid_payload_type pload_type,
     if (handle)
         call_dissector(handle, tvb, pinfo, tree);
     else
-        call_dissector(data_handle, tvb, pinfo, tree);
+        call_data_dissector(tvb, pinfo, tree);
 }
 
 static guint
@@ -1563,7 +1562,6 @@ proto_reg_handoff_mp2t(void)
     docsis_handle = find_dissector("docsis");
     mpeg_pes_handle = find_dissector("mpeg-pes");
     mpeg_sect_handle = find_dissector("mpeg_sect");
-    data_handle = find_dissector("data");
 }
 
 /*

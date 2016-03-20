@@ -374,7 +374,6 @@ static guint16 sua_ri;
 static gchar *sua_source_gt;
 static gchar *sua_destination_gt;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t sua_info_str_handle;
 static dissector_table_t sua_parameter_table;
 static dissector_table_t sccp_ssn_dissector_table;
@@ -2267,7 +2266,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
         return;
       }
       /* No sub-dissection occurred, treat it as raw data */
-      call_dissector(data_handle, data_tvb, pinfo, tree);
+      call_data_dissector(data_tvb, pinfo, tree);
     }
   }
 }
@@ -2485,7 +2484,6 @@ proto_reg_handoff_sua(void)
   dissector_add_uint("sctp.ppi",  SUA_PAYLOAD_PROTOCOL_ID, sua_handle);
   dissector_add_uint("sctp.port", SCTP_PORT_SUA,           sua_handle);
 
-  data_handle = find_dissector("data");
   sccp_ssn_dissector_table = find_dissector_table("sccp.ssn");
 
 }

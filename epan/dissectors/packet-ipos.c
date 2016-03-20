@@ -44,7 +44,6 @@ void proto_register_ipos(void);
 
 static dissector_handle_t ipos_handle;
 static dissector_handle_t redback_handle;
-static dissector_handle_t data_handle;
 
 static int proto_ipos = -1;
 static int hf_ipos_protocol = -1;
@@ -162,7 +161,6 @@ proto_reg_handoff_ipos(void)
 {
     ipos_handle = find_dissector("ipos");
     redback_handle = find_dissector_add_dependency("redback", proto_ipos);
-    data_handle = find_dissector("data");
 
     /*dissector_add_uint("wtap_encap", WTAP_ENCAP_IPOS, ipos_handle); */
     dissector_add_uint("sll.ltype", LINUX_SLL_P_IPOS_NETIPC, ipos_handle);

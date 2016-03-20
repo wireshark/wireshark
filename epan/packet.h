@@ -545,6 +545,8 @@ WS_DLL_PUBLIC int call_dissector_with_data(dissector_handle_t handle, tvbuff_t *
 WS_DLL_PUBLIC int call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree);
 
+WS_DLL_PUBLIC int call_data_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
 /** Call a dissector through a handle but if no dissector was found
  * just return 0 and do not call the "data" dissector instead.
  *

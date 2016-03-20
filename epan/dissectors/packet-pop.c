@@ -72,7 +72,6 @@ static gint ett_pop_data_fragment = -1;
 static gint ett_pop_data_fragments = -1;
 
 static dissector_handle_t pop_handle;
-static dissector_handle_t data_handle;
 static dissector_handle_t imf_handle;
 static dissector_handle_t ssl_handle;
 
@@ -244,7 +243,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       /*
        * Put the whole packet into the tree as data.
        */
-      call_dissector(data_handle,tvb, pinfo, pop_tree);
+      call_data_dissector(tvb, pinfo, pop_tree);
 
     }
     return tvb_captured_length(tvb);
@@ -472,7 +471,6 @@ proto_reg_handoff_pop(void)
   pop_handle = find_dissector("pop");
   dissector_add_uint("tcp.port", TCP_PORT_POP, pop_handle);
   ssl_dissector_add(TCP_PORT_SSL_POP, pop_handle);
-  data_handle = find_dissector("data");
 
   /* find the IMF dissector */
   imf_handle = find_dissector_add_dependency("imf", proto_pop);

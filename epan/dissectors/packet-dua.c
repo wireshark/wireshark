@@ -76,7 +76,6 @@ static int hf_message_length        = -1;
 static gint ett_dua                 = -1;
 static gint ett_dua_parameter       = -1;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t dpnss_handle;
 
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
@@ -334,7 +333,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, proto_item *parameter_i
     return;
   }
 
-  call_dissector(data_handle, protocol_data_tvb, pinfo, tree);
+  call_data_dissector(protocol_data_tvb, pinfo, tree);
 
   proto_item_append_text(parameter_item, " (%u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
 }
@@ -913,7 +912,6 @@ proto_reg_handoff_dua(void)
   dissector_handle_t dua_handle;
 
   dua_handle   = find_dissector("dua");
-  data_handle  = find_dissector("data");
   dpnss_handle = find_dissector_add_dependency("dpnss", proto_dua);
   dissector_add_uint("sctp.ppi", DUA_PAYLOAD_PROTOCOL_ID, dua_handle);
 }

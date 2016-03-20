@@ -495,7 +495,6 @@ static int smb2_eo_tap = -1;
 static dissector_handle_t gssapi_handle  = NULL;
 static dissector_handle_t ntlmssp_handle = NULL;
 static dissector_handle_t rsvd_handle = NULL;
-static dissector_handle_t data_handle = NULL;
 
 static heur_dissector_list_t smb2_pipe_subdissector_list;
 
@@ -4811,7 +4810,7 @@ clean_up_and_exit:
 	pinfo->desegment_len = 0;
 
 	if (!result) {
-		call_dissector(data_handle, tvb, pinfo, top_tree);
+		call_data_dissector(tvb, pinfo, top_tree);
 	}
 
 	pinfo->fragmented = save_fragmented;
@@ -9686,7 +9685,6 @@ proto_reg_handoff_smb2(void)
 	gssapi_handle  = find_dissector_add_dependency("gssapi", proto_smb2);
 	ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_smb2);
 	rsvd_handle    = find_dissector_add_dependency("rsvd", proto_smb2);
-	data_handle    = find_dissector("data");
 	heur_dissector_add("netbios", dissect_smb2_heur, "SMB2 over Netbios", "smb2_netbios", proto_smb2, HEURISTIC_ENABLE);
 	heur_dissector_add("smb_direct", dissect_smb2_heur, "SMB2 over SMB Direct", "smb2_smb_direct", proto_smb2, HEURISTIC_ENABLE);
 }

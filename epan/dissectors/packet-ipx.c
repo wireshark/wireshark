@@ -138,8 +138,6 @@ static int proto_ipxmsg = -1;
 static int hf_msg_conn = -1;
 static int hf_msg_sigchar = -1;
 
-static dissector_handle_t data_handle;
-
 #define UDP_PORT_IPX    213		/* RFC 1234 */
 
 #define IPX_HEADER_LEN	30		/* It's *always* 30 bytes */
@@ -444,7 +442,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		pinfo, tree, FALSE, ipxh))
 		return tvb_captured_length(tvb);
 
-	call_dissector(data_handle,next_tvb, pinfo, tree);
+	call_data_dissector(next_tvb, pinfo, tree);
 	return tvb_captured_length(tvb);
 }
 /* ================================================================= */
@@ -860,7 +858,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		{
 			return tvb_captured_length(tvb);
 		}
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 	return tvb_captured_length(tvb);
 }
@@ -1631,7 +1629,6 @@ proto_reg_handoff_ipx(void)
 	register_capture_dissector("sll.ltype", LINUX_SLL_P_802_3, capture_ipx, proto_ipx);
 	register_capture_dissector("llc.dsap", SAP_NETWARE1, capture_ipx, proto_ipx);
 	register_capture_dissector("llc.dsap", SAP_NETWARE2, capture_ipx, proto_ipx);
-	data_handle = find_dissector("data");
 }
 
 /*

@@ -42,7 +42,6 @@ static int proto_aeron = -1;
 
 /* Dissector handles */
 static dissector_handle_t aeron_dissector_handle;
-static dissector_handle_t aeron_data_dissector_handle;
 static heur_dissector_list_t aeron_heuristic_subdissector_list;
 
 /*----------------------------------------------------------------------------*/
@@ -2403,7 +2402,7 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
         }
         if (!dissector_found)
         {
-            call_dissector(aeron_data_dissector_handle, data_tvb, pinfo, subtree);
+            call_data_dissector(data_tvb, pinfo, subtree);
         }
     }
     aeron_sequence_report(tvb, pinfo, subtree, transport, &pktinfo, finfo);
@@ -3135,7 +3134,6 @@ void proto_reg_handoff_aeron(void)
     aeron_dissector_handle = create_dissector_handle(dissect_aeron, proto_aeron);
     dissector_add_for_decode_as("udp.port", aeron_dissector_handle);
     heur_dissector_add("udp", test_aeron_packet, "Aeron over UDP", "aeron_udp", proto_aeron, HEURISTIC_DISABLE);
-    aeron_data_dissector_handle = find_dissector("data");
 }
 
 /*

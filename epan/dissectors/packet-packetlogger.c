@@ -46,8 +46,6 @@ static gint ett_packetlogger = -1;
 static dissector_handle_t packetlogger_handle;
 static dissector_table_t hci_h1_table;
 
-static dissector_handle_t data_handle;
-
 #define PKT_HCI_COMMAND     0x00
 #define PKT_HCI_EVENT       0x01
 #define PKT_SENT_ACL_DATA   0x02
@@ -132,7 +130,7 @@ static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
     col_add_fstr (pinfo->cinfo, COL_INFO, "%s", val_to_str(pl_type, type_vals, "Unknown 0x%02x"));
     if (!dissector_try_uint_new(hci_h1_table, bthci.channel,
             next_tvb, pinfo, tree, TRUE, bluetooth_data)) {
-      call_dissector (data_handle, next_tvb, pinfo, tree);
+      call_data_dissector(next_tvb, pinfo, tree);
     }
   } else {
     /* PacketLogger data */
@@ -144,7 +142,7 @@ static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
       col_add_fstr (pinfo->cinfo, COL_INFO, "%s", tvb_format_stringzpad_wsp (next_tvb, 0, len));
       break;
     default:
-      call_dissector (data_handle, next_tvb, pinfo, tree);
+      call_data_dissector(next_tvb, pinfo, tree);
       col_add_fstr (pinfo->cinfo, COL_INFO, "Unknown 0x%02x", pl_type);
       break;
     }
@@ -177,7 +175,6 @@ void proto_register_packetlogger (void)
 void proto_reg_handoff_packetlogger (void)
 {
   hci_h1_table = find_dissector_table("hci_h1.type");
-  data_handle = find_dissector("data");
   dissector_add_uint ("bluetooth.encap", WTAP_ENCAP_PACKETLOGGER, packetlogger_handle);
 }
 

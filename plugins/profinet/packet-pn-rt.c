@@ -330,7 +330,6 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 static reassembly_table pdu_reassembly_table;
 static GHashTable *reasembled_frag_table = NULL;
 
-static dissector_handle_t data_handle;
 static dissector_table_t ethertype_subdissector_table;
 
 static guint32 start_frag_OR_ID[16];
@@ -447,7 +446,7 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                     type = tvb_get_ntohs(pdu_tvb, 0);
                     pdu_tvb = tvb_new_subset_remaining(pdu_tvb, 2);
                     if (!dissector_try_uint(ethertype_subdissector_table, type, pdu_tvb, pinfo, tree))
-                        call_dissector(data_handle, pdu_tvb, pinfo, tree);
+                        call_data_dissector(pdu_tvb, pinfo, tree);
                 }
             }
             return TRUE;
@@ -1001,7 +1000,6 @@ proto_reg_handoff_pn_rt(void)
 
     heur_dissector_add("pn_rt", dissect_CSF_SDU_heur, "PROFINET CSF_SDU IO", "pn_csf_sdu_pn_rt", proto_pn_rt, HEURISTIC_ENABLE);
     heur_dissector_add("pn_rt", dissect_FRAG_PDU_heur, "PROFINET Frag PDU IO", "pn_frag_pn_rt", proto_pn_rt, HEURISTIC_ENABLE);
-    data_handle = find_dissector("data");
 
     ethertype_subdissector_table = find_dissector_table("ethertype");
 }

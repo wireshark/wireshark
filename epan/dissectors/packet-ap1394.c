@@ -41,8 +41,6 @@ static gint ett_ap1394 = -1;
 
 static dissector_table_t ethertype_subdissector_table;
 
-static dissector_handle_t data_handle;
-
 static gboolean
 capture_ap1394(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
@@ -90,7 +88,7 @@ dissect_ap1394(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
   if (!dissector_try_uint(ethertype_subdissector_table, etype, next_tvb,
                 pinfo, tree))
   {
-      call_dissector(data_handle, next_tvb, pinfo, tree);
+      call_data_dissector(next_tvb, pinfo, tree);
   }
   return tvb_captured_length(tvb);
 }
@@ -123,8 +121,6 @@ void
 proto_reg_handoff_ap1394(void)
 {
   dissector_handle_t ap1394_handle;
-
-  data_handle = find_dissector("data");
 
   ethertype_subdissector_table = find_dissector_table("ethertype");
 

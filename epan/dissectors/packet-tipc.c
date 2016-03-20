@@ -44,7 +44,6 @@ void proto_register_tipc(void);
 static int proto_tipc = -1;
 
 /* dissector handles */
-static dissector_handle_t data_handle;
 static dissector_handle_t ip_handle;
 
 static int hf_tipc_msg_fragments = -1;
@@ -1479,14 +1478,14 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 					dissect_tipc(new_tvb, pinfo, top_tree, NULL);
 				} else { /* make a new subset */
 					data_tvb = tvb_new_subset(tipc_tvb, offset, len, reported_len);
-					call_dissector(data_handle, data_tvb, pinfo, top_tree);
+					call_data_dissector(data_tvb, pinfo, top_tree);
 				}
 
 				pinfo->fragmented = save_fragmented;
 			} else {
 				/* don't reassemble is set in the "preferences" */
 				data_tvb = tvb_new_subset(tipc_tvb, offset, len, reported_len);
-				call_dissector(data_handle, data_tvb, pinfo, top_tree);
+				call_data_dissector(data_tvb, pinfo, top_tree);
 			}
 
 			break;
@@ -1669,7 +1668,7 @@ call_tipc_v2_data_subdissectors(tvbuff_t *data_tvb, packet_info *pinfo, guint32 
 
 	/* dissection of TIPC data is not set in preferences or no subdissector found */
 
-	call_dissector(data_handle, data_tvb, pinfo, top_tree);
+	call_data_dissector(data_tvb, pinfo, top_tree);
 }
 
 
@@ -3102,7 +3101,6 @@ proto_reg_handoff_tipc(void)
 	if (!inited) {
 		tipc_tcp_handle = create_dissector_handle(dissect_tipc_tcp, proto_tipc);
 		ip_handle = find_dissector("ip");
-		data_handle = find_dissector("data");
 
 		dissector_add_uint("ethertype", ETHERTYPE_TIPC, tipc_handle);
 

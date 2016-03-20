@@ -292,8 +292,6 @@ static const enum_val_t rtp_version0_types[] = {
 };
 static gint global_rtp_version0_type = 0;
 
-static dissector_handle_t data_handle;
-
 /* Forward declaration we need below */
 void proto_register_rtp(void);
 void proto_reg_handoff_rtp(void);
@@ -1495,7 +1493,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
         if (p_conv_data->bta2dp_info->codec_dissector)
             call_dissector_with_data(p_conv_data->bta2dp_info->codec_dissector, nexttvb, pinfo, tree, p_conv_data->bta2dp_info);
         else
-            call_dissector(data_handle, nexttvb, pinfo, tree);
+            call_data_dissector(nexttvb, pinfo, tree);
     } else if (p_conv_data && p_conv_data->btvdp_info) {
         tvbuff_t  *nexttvb;
         gint       suboffset = 0;
@@ -1512,7 +1510,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
         if (p_conv_data->btvdp_info->codec_dissector)
             call_dissector_with_data(p_conv_data->btvdp_info->codec_dissector, nexttvb, pinfo, tree, p_conv_data->btvdp_info);
         else
-            call_dissector(data_handle, nexttvb, pinfo, tree);
+            call_data_dissector(nexttvb, pinfo, tree);
     }
 
     /* if we don't found, it is static OR could be set static from the preferences */
@@ -2288,8 +2286,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
              * item.
              */
             proto_tree_add_expert(rtp_tree, pinfo, &ei_rtp_padding_missing, tvb, 0, 0);
-            call_dissector(data_handle,
-                tvb_new_subset_remaining(tvb, offset),
+            call_data_dissector(tvb_new_subset_remaining(tvb, offset),
                 pinfo, rtp_tree);
             return tvb_captured_length(tvb);
         }
@@ -3746,7 +3743,6 @@ proto_reg_handoff_rtp(void)
 
 
         rtcp_handle = find_dissector_add_dependency("rtcp", proto_rtp);
-        data_handle = find_dissector("data");
         stun_handle = find_dissector_add_dependency("stun-udp", proto_rtp);
         classicstun_handle = find_dissector_add_dependency("classicstun", proto_rtp);
         classicstun_heur_handle = find_dissector_add_dependency("classicstun-heur", proto_rtp);

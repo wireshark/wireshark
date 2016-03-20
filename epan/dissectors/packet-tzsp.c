@@ -109,7 +109,6 @@ static dissector_handle_t raw_ip_handle;
 static dissector_handle_t ieee_802_11_handle;
 static dissector_handle_t ieee_802_11_prism_handle;
 static dissector_handle_t ieee_802_11_avs_handle;
-static dissector_handle_t data_handle;
 
 /* ************************************************************************* */
 /*                WLAN radio header fields                                    */
@@ -379,7 +378,7 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
             col_add_fstr(pinfo->cinfo, COL_INFO, "TZSP_ENCAP = %u",
                     encapsulation);
-            call_dissector(data_handle, next_tvb, pinfo, tree);
+            call_data_dissector(next_tvb, pinfo, tree);
         }
     }
 
@@ -562,7 +561,6 @@ proto_reg_handoff_tzsp(void)
     ieee_802_11_handle = find_dissector_add_dependency("wlan", proto_tzsp);
     ieee_802_11_prism_handle = find_dissector_add_dependency("prism", proto_tzsp);
     ieee_802_11_avs_handle = find_dissector_add_dependency("wlancap", proto_tzsp);
-    data_handle = find_dissector("data");
 
     /* Register this protocol as an encapsulation type. */
     dissector_add_uint("wtap_encap", WTAP_ENCAP_TZSP, tzsp_handle);

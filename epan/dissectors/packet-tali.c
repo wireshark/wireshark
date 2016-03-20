@@ -80,8 +80,6 @@ static header_field_info hfi_tali_length_indicator TALI_HFI_INIT = {
 
 static dissector_table_t tali_dissector_table;
 
-static dissector_handle_t data_handle;
-
 /* Desegment TALI messages */
 static gboolean tali_desegment = TRUE;
 
@@ -128,7 +126,7 @@ dissect_tali_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
   if (length > 0) {
     payload_tvb = tvb_new_subset_remaining(tvb, TALI_HEADER_LENGTH);
     if (payload_tvb != NULL && !dissector_try_string(tali_dissector_table, opcode, payload_tvb, pinfo, tree, NULL)) {
-      call_dissector(data_handle, payload_tvb, pinfo, tree);
+      call_data_dissector(payload_tvb, pinfo, tree);
     }
   }
 
@@ -224,8 +222,6 @@ void
 proto_reg_handoff_tali(void)
 {
   heur_dissector_add("tcp", dissect_tali_heur, "Tali over TCP", "tali_tcp", hfi_tali->id, HEURISTIC_ENABLE);
-
-  data_handle = find_dissector("data");
 }
 
 /*

@@ -157,8 +157,6 @@ static gint ett_tns_ntp_flag = -1;
 static gint ett_tns_conn_flag = -1;
 static gint ett_sql = -1;
 
-static dissector_handle_t data_handle;
-
 #define TCP_PORT_TNS			1521
 
 static const value_string tns_type_vals[] = {
@@ -297,8 +295,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		col_append_str(pinfo->cinfo, COL_INFO, ", Data");
 	}
 
-	call_dissector(data_handle,
-		    tvb_new_subset_remaining(tvb, offset), pinfo, data_tree);
+	call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, data_tree);
 
 	return;
 }
@@ -881,8 +878,7 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			dissect_tns_data(tvb,offset,pinfo,tree,tns_tree);
 			break;
 		default:
-			call_dissector(data_handle,
-			    tvb_new_subset_remaining(tvb, offset), pinfo,
+			call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo,
 			    tns_tree);
 			break;
 	}
@@ -1236,7 +1232,6 @@ proto_reg_handoff_tns(void)
 
 	tns_handle = create_dissector_handle(dissect_tns, proto_tns);
 	dissector_add_uint("tcp.port", TCP_PORT_TNS, tns_handle);
-	data_handle = find_dissector("data");
 }
 
 /*

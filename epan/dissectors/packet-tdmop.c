@@ -57,7 +57,6 @@ static int hf_tdmop_payload       = -1;
 static int hf_tdmop_Compression_mask    = -1;
 
 static dissector_handle_t lapd_handle    = NULL;
-static dissector_handle_t data_handle    = NULL;
 
 static gint pref_tdmop_d_channel      = 16;
 static guint32 pref_tdmop_mask        = 0xFFFFFFFFUL;
@@ -184,7 +183,7 @@ static int dissect_tdmop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                         }
                     } else
                     {
-                        call_dissector(data_handle, cdata, pinfo, subtree);
+                        call_data_dissector(cdata, pinfo, subtree);
                     }
                     offset += 4;
                 }
@@ -359,7 +358,6 @@ void proto_reg_handoff_tdmop(void)
             dissector_add_uint("ethertype", pref_tdmop_ethertype, tdmop_handle);
         }
         lapd_handle = find_dissector_add_dependency("lapd-bitstream", proto_tdmop);
-        data_handle = find_dissector("data");
         current_tdmop_ethertype = pref_tdmop_ethertype;
         current_tdmop_udpport = pref_tdmop_udpport;
         init = TRUE;

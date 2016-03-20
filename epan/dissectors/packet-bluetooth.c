@@ -55,7 +55,6 @@ static gint ett_bluetooth = -1;
 
 static dissector_handle_t btle_handle;
 static dissector_handle_t hci_usb_handle;
-static dissector_handle_t data_handle;
 
 static dissector_table_t bluetooth_table;
 static dissector_table_t hci_vendor_table;
@@ -1851,7 +1850,7 @@ dissect_bluetooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     bluetooth_data->previous_protocol_data.none = NULL;
 
     if (!dissector_try_uint_new(bluetooth_table, pinfo->phdr->pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
-        call_dissector(data_handle, tvb, pinfo, tree);
+        call_data_dissector(tvb, pinfo, tree);
     }
 
     return tvb_captured_length(tvb);
@@ -1880,7 +1879,7 @@ dissect_bluetooth_bthci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     bluetooth_data->previous_protocol_data.bthci = (struct bthci_phdr *)data;
 
     if (!dissector_try_uint_new(bluetooth_table, pinfo->phdr->pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
-        call_dissector(data_handle, tvb, pinfo, tree);
+        call_data_dissector(tvb, pinfo, tree);
     }
 
     return tvb_captured_length(tvb);
@@ -1908,7 +1907,7 @@ dissect_bluetooth_btmon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     bluetooth_data->previous_protocol_data.btmon = (struct btmon_phdr *)data;
 
     if (!dissector_try_uint_new(bluetooth_table, pinfo->phdr->pkt_encap, tvb, pinfo, tree, TRUE, bluetooth_data)) {
-        call_dissector(data_handle, tvb, pinfo, tree);
+        call_data_dissector(tvb, pinfo, tree);
     }
 
     return tvb_captured_length(tvb);
@@ -2055,7 +2054,6 @@ proto_reg_handoff_bluetooth(void)
 	dissector_handle_t btl2cap_handle;
 
     btle_handle = find_dissector_add_dependency("btle", proto_bluetooth);
-    data_handle = find_dissector("data");
     hci_usb_handle = find_dissector_add_dependency("hci_usb", proto_bluetooth);
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_HCI,           bluetooth_bthci_handle);

@@ -238,7 +238,6 @@ static expert_field ei_spdy_invalid_go_away = EI_INIT;
 static expert_field ei_spdy_invalid_frame_type = EI_INIT;
 static expert_field ei_spdy_reassembly_info = EI_INIT;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t media_handle;
 static dissector_handle_t spdy_handle;
 static dissector_table_t media_type_subdissector_table;
@@ -873,7 +872,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
         if (spdy_decompress_body) {
           proto_item_append_text(e_ti, " [Error: Decompression failed]");
         }
-        call_dissector(data_handle, data_tvb, pinfo, e_tree);
+        call_data_dissector(data_tvb, pinfo, e_tree);
 
         goto body_dissected;
       }
@@ -929,7 +928,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
       call_dissector_with_data(media_handle, next_tvb, pinfo, spdy_tree, media_str);
     } else {
       /* Call the default data dissector */
-      call_dissector(data_handle, next_tvb, pinfo, spdy_tree);
+      call_data_dissector(next_tvb, pinfo, spdy_tree);
     }
 
 body_dissected:
@@ -1946,7 +1945,6 @@ void proto_reg_handoff_spdy(void) {
   /* Use "0" to avoid overwriting HTTPS port and still offer support over SSL */
   ssl_dissector_add(0, spdy_handle);
 
-  data_handle = find_dissector("data");
   media_handle = find_dissector_add_dependency("media", proto_spdy);
   port_subdissector_table = find_dissector_table("http.port");
   media_type_subdissector_table = find_dissector_table("media_type");

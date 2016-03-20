@@ -229,9 +229,6 @@ static expert_field ei_erf_extension_headers_not_shown = EI_INIT;
 static expert_field ei_erf_packet_loss = EI_INIT;
 static expert_field ei_erf_checksum_error = EI_INIT;
 
-/* Default subdissector, display raw hex data */
-static dissector_handle_t data_handle;
-
 typedef enum {
   ERF_HDLC_CHDLC  = 0,
   ERF_HDLC_PPP    = 1,
@@ -1183,7 +1180,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       call_dissector(sdh_handle, tvb, pinfo, tree);
     }
     else{
-      call_dissector(data_handle, tvb, pinfo, tree);
+      call_data_dissector(tvb, pinfo, tree);
     }
     break;
 
@@ -1197,7 +1194,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   case ERF_TYPE_INFINIBAND:
   case ERF_TYPE_INFINIBAND_LINK:
     if (!dissector_try_uint(erf_dissector_table, erf_type, tvb, pinfo, tree)) {
-      call_dissector(data_handle, tvb, pinfo, tree);
+      call_data_dissector(tvb, pinfo, tree);
     }
     break;
 
@@ -1213,14 +1210,12 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   case ERF_TYPE_MC_RAW:
     dissect_mc_raw_header(tvb, pinfo, erf_tree);
-    if (data_handle)
-      call_dissector(data_handle, tvb, pinfo, tree);
+    call_data_dissector(tvb, pinfo, tree);
     break;
 
   case ERF_TYPE_MC_RAW_CHANNEL:
     dissect_mc_rawlink_header(tvb, pinfo, erf_tree);
-    if (data_handle)
-      call_dissector(data_handle, tvb, pinfo, tree);
+    call_data_dissector(tvb, pinfo, tree);
     break;
 
   case ERF_TYPE_MC_ATM:
@@ -1420,7 +1415,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   case ERF_TYPE_META:
     /* use data dissector for now */
-    call_dissector(data_handle, tvb, pinfo, tree);
+    call_data_dissector(tvb, pinfo, tree);
     break;
 
   default:
@@ -1889,9 +1884,6 @@ void
 proto_reg_handoff_erf(void)
 {
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ERF, erf_handle);
-
-  /* Dissector called to dump raw data, or unknown protocol */
-  data_handle = find_dissector("data");
 
   /* Get handles for serial line protocols */
   chdlc_handle  = find_dissector_add_dependency("chdlc", proto_erf);

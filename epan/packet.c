@@ -2760,6 +2760,11 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 	return call_dissector_with_data(handle, tvb, pinfo, tree, NULL);
 }
 
+int
+call_data_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	return call_dissector_work(data_handle, tvb, pinfo, tree, TRUE, NULL);
+}
 
 /*
  * Call a heuristic dissector through a heur_dtbl_entry

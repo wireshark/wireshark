@@ -74,7 +74,6 @@ static gboolean uma_desegment = TRUE;
 
 static dissector_handle_t uma_tcp_handle;
 static dissector_handle_t uma_udp_handle;
-static dissector_handle_t data_handle;
 static dissector_table_t  bssap_pdu_type_table;
 static dissector_handle_t rtcp_handle;
 static dissector_handle_t llc_handle;
@@ -1078,8 +1077,8 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_protocol_discriminator, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_Message, tvb, ie_offset, ie_len, ENC_NA);
 		l3_tvb = tvb_new_subset_length(tvb, ie_offset, ie_len );
-		if  (!dissector_try_uint(bssap_pdu_type_table,BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, urr_ie_tree))
-		   		call_dissector(data_handle, l3_tvb, pinfo, urr_ie_tree);
+		if (!dissector_try_uint(bssap_pdu_type_table,BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, urr_ie_tree))
+			call_data_dissector(l3_tvb, pinfo, urr_ie_tree);
 		break;
 	case 27:
 		/* 11.2.27 Channel Mode
@@ -1122,8 +1121,8 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_Message, tvb, ie_offset, ie_len, ENC_NA);
 		/* XXX the dissector to call should depend on the RAT type ??? */
 		l3_tvb = tvb_new_subset_length(tvb, ie_offset, ie_len );
-		if  (!dissector_try_uint(bssap_pdu_type_table,BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, urr_ie_tree))
-		   		call_dissector(data_handle, l3_tvb, pinfo, urr_ie_tree);
+		if (!dissector_try_uint(bssap_pdu_type_table,BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, urr_ie_tree))
+			call_data_dissector(l3_tvb, pinfo, urr_ie_tree);
 		break;
 	case 33:
 		/* 11.2.33 UL Quality Indication */
@@ -1250,14 +1249,13 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_LLC_PDU, tvb, ie_offset, ie_len, ENC_NA);
 		llc_tvb = tvb_new_subset_length(tvb, ie_offset, ie_len );
-		  if (llc_handle) {
+		if (llc_handle) {
 			col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
 			col_set_fence(pinfo->cinfo, COL_PROTOCOL);
 			call_dissector(llc_handle, llc_tvb, pinfo, urr_ie_tree);
-		  }else{
-			  if (data_handle)
-				  call_dissector(data_handle, llc_tvb, pinfo, urr_ie_tree);
-		  }
+		}else{
+			call_data_dissector(llc_tvb, pinfo, urr_ie_tree);
+		}
 		break;
 	case 58:		/* 11.2.58 Location Black List indicator */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_LBLI, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
@@ -1765,7 +1763,6 @@ proto_reg_handoff_uma(void)
 		uma_tcp_handle = find_dissector("umatcp");
 		uma_udp_handle = find_dissector("umaudp");
 		dissector_add_for_decode_as("udp.port", uma_udp_handle);
-		data_handle = find_dissector("data");
 		rtcp_handle = find_dissector_add_dependency("rtcp", proto_uma);
 		llc_handle = find_dissector_add_dependency("llcgprs", proto_uma);
 		bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");

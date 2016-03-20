@@ -261,7 +261,6 @@ static gint ett_sm = -1;
 static dissector_handle_t sdp_handle;
 static dissector_handle_t mtp3_handle;
 static dissector_handle_t q931_handle;
-static dissector_handle_t data_handle;
 
 /* Code to actually dissect the packets */
 static int
@@ -322,7 +321,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 if ((msg_type == PDU_MTP3_TO_SLT || msg_type == PDU_MTP3_FROM_SLT)) {
                     call_dissector(q931_handle, next_tvb, pinfo, tree);
                 } else {
-                    call_dissector(data_handle, next_tvb, pinfo, tree);
+                    call_data_dissector(next_tvb, pinfo, tree);
                 }
             }
 
@@ -340,7 +339,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             /* This should be the EISUP dissector but we haven't got one
              * right now - so decode it as data for now ... */
             next_tvb = tvb_new_subset_length(tvb, offset, length);
-            call_dissector(data_handle, next_tvb, pinfo, sm_tree);
+            call_data_dissector(next_tvb, pinfo, sm_tree);
 
             break;
         case SM_PROTOCOL_X101:
@@ -469,7 +468,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                     proto_tree_add_item(sm_tree, hf_sm_stat_request_type, tvb, offset, 4, ENC_BIG_ENDIAN);
                     break;
                 default:
-                    call_dissector(data_handle, next_tvb, pinfo, tree);
+                    call_data_dissector(next_tvb, pinfo, tree);
                 }
             }
         }
@@ -608,7 +607,6 @@ proto_reg_handoff_sm(void)
     sdp_handle  = find_dissector_add_dependency("sdp", proto_sm);
     mtp3_handle = find_dissector_add_dependency("mtp3", proto_sm);
     q931_handle = find_dissector_add_dependency("q931", proto_sm);
-    data_handle = find_dissector("data");
 }
 
 /*

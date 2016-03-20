@@ -36,7 +36,6 @@
 #include <epan/packet.h>
 
 void proto_register_felica(void);
-void proto_reg_handoff_felica(void);
 
 static int proto_felica = -1;
 
@@ -217,8 +216,6 @@ static const value_string felica_sys_codes[] = {
     {0x00, NULL}
 };
 
-static dissector_handle_t data_handle=NULL;
-
 /* Subtree handles: set by register_subtree_array */
 static gint ett_felica = -1;
 
@@ -313,7 +310,7 @@ static int dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             proto_tree_add_item(felica_tree, hf_felica_nbr_of_blocks, tvb, 11, 1, ENC_BIG_ENDIAN);
         }
         rwe_resp_data_tvb = tvb_new_subset_remaining(tvb, 12);
-        call_dissector(data_handle, rwe_resp_data_tvb, pinfo, tree);
+        call_data_dissector(rwe_resp_data_tvb, pinfo, tree);
         break;
 
     case CMD_WRITE_WO_ENCRYPTION:
@@ -549,12 +546,6 @@ proto_register_felica(void)
     register_dissector("felica", dissect_felica, proto_felica);
 }
 
-/* Handler registration */
-void
-proto_reg_handoff_felica(void)
-{
-    data_handle = find_dissector("data");
-}
 /*
 * Editor modelines - http://www.wireshark.org/tools/modelines.html
 *

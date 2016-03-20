@@ -47,8 +47,6 @@ static const value_string wsmp_elemenid_names[] = {
 };
 
 
-static dissector_handle_t data_handle;
-
 /* Initialize the protocol and registered fields */
 static int proto_wsmp = -1;
 static int hf_wsmp_version = -1;
@@ -194,7 +192,7 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      */
     if (psid == 0xbff0)
     {
-        call_dissector(data_handle, wsmdata_tvb, pinfo, wsmdata_tree);
+        call_data_dissector(wsmdata_tvb, pinfo, wsmdata_tree);
     }
     return tvb_captured_length(tvb);
 }
@@ -258,8 +256,6 @@ proto_reg_handoff_wsmp(void)
 
     wsmp_handle = create_dissector_handle(dissect_wsmp, proto_wsmp);
     dissector_add_uint("ethertype", ETHERTYPE_WSMP, wsmp_handle);
-    data_handle = find_dissector("data");
-    return;
 }
 
 /*

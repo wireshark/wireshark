@@ -145,8 +145,6 @@ static expert_field ei_frag_size = EI_INIT;
 static dissector_handle_t fc_handle, fcsof_handle;
 static dissector_table_t fcftype_dissector_table;
 
-static dissector_handle_t data_handle;
-
 static int fc_tap = -1;
 
 typedef struct _fc_conv_data_t {
@@ -1141,7 +1139,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                          tvb, offset+9, 1, 0);
                  PROTO_ITEM_SET_HIDDEN(hidden_item);
                  next_tvb = tvb_new_subset_remaining (tvb, next_offset);
-                 call_dissector (data_handle, next_tvb, pinfo, tree);
+                 call_data_dissector(next_tvb, pinfo, tree);
                  return;
              }
         }
@@ -1156,11 +1154,11 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         /* If relative offset is used, only dissect the pdu with
          * offset 0 (param) */
         if( (fchdr->fctl&FC_FCTL_REL_OFFSET) && param ){
-            call_dissector (data_handle, next_tvb, pinfo, tree);
+            call_data_dissector(next_tvb, pinfo, tree);
         } else {
             if (!dissector_try_uint_new (fcftype_dissector_table, ftype,
                                 next_tvb, pinfo, tree, FALSE, fchdr)) {
-                call_dissector (data_handle, next_tvb, pinfo, tree);
+                call_data_dissector(next_tvb, pinfo, tree);
             }
         }
     } else if (ftype == FC_FTYPE_BLS) {
@@ -1622,8 +1620,6 @@ proto_reg_handoff_fc (void)
                        create_dissector_handle(dissect_fc_wtap, proto_fc));
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS, fcsof_handle);
-
-    data_handle = find_dissector("data");
 }
 
 /*

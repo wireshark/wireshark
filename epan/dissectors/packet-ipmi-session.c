@@ -53,7 +53,6 @@ static int hf_ipmi_session_msg_len_2b = -1;
 static int hf_ipmi_session_trailer = -1;
 
 static dissector_handle_t ipmi_handle;
-static dissector_handle_t data_handle;
 
 #define IPMI_AUTH_NONE		0x00
 #define IPMI_AUTH_MD2		0x01
@@ -233,7 +232,7 @@ dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 		   open packet in the capture we parse), we cannot even
 		   decipher where a message starts. Just print them as data.
 		 */
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	} else if (authtype != IPMI_AUTH_RMCPP || payloadtype == IPMI_IPMI_MESSAGE) {
 		/* This is an IPMI message, either v1.5 or v2.0+. For now,
 		   we don't need to distinguish these kinds. */
@@ -242,7 +241,7 @@ dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 		/* All other RMCP+ payload types fall here: session open/close
 		   requests, RAKP messages, SOL. We cannot parse them yet, thus
 		   just output as data. */
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 
 	if (tree) {
@@ -317,7 +316,6 @@ proto_reg_handoff_ipmi_session(void)
 	ipmi_session_handle = create_dissector_handle(dissect_ipmi_session, proto_ipmi_session);
 	dissector_add_uint("rmcp.class", RMCP_CLASS_IPMI, ipmi_session_handle);
 
-	data_handle = find_dissector("data");
 	ipmi_handle = find_dissector_add_dependency("ipmi", proto_ipmi_session);
 }
 

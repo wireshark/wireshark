@@ -99,7 +99,6 @@ static gint ett_3gpp2_attr = -1;
 static expert_field ei_gre_checksum_incorrect = EI_INIT;
 
 static dissector_table_t gre_dissector_table;
-static dissector_handle_t data_handle;
 
 /* bit positions for flags in header */
 #define GRE_CHECKSUM            0x8000
@@ -514,7 +513,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         next_tvb = tvb_new_subset_remaining(tvb, offset);
         pinfo->flags.in_gre_pkt = TRUE;
         if (!dissector_try_uint(gre_dissector_table, type, next_tvb, pinfo, tree))
-            call_dissector(data_handle,next_tvb, pinfo, gre_tree);
+            call_data_dissector(next_tvb, pinfo, gre_tree);
     }
     return tvb_captured_length(tvb);
 }
@@ -758,7 +757,6 @@ proto_reg_handoff_gre(void)
     dissector_add_uint("ip.proto", IP_PROTO_GRE, gre_handle);
     register_capture_dissector("ip.proto", IP_PROTO_GRE, capture_gre, proto_gre);
     register_capture_dissector("ipv6.nxt", IP_PROTO_GRE, capture_gre, proto_gre);
-    data_handle = find_dissector("data");
 }
 
 /*

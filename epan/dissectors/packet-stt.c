@@ -139,7 +139,6 @@ static expert_field ei_stt_l4_offset = EI_INIT;
 static expert_field ei_stt_mss = EI_INIT;
 
 static dissector_handle_t eth_handle;
-static dissector_handle_t data_handle;
 
 /* From Table G-2 of IEEE standard 802.1Q-2005 */
 static const value_string pri_vals[] = {
@@ -573,7 +572,7 @@ dissect_stt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (!is_seg) {
         call_dissector(eth_handle, next_tvb, pinfo, tree);
     } else {
-        call_dissector(data_handle, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
     }
 
     pinfo->fragmented = frag_save;
@@ -992,7 +991,6 @@ proto_reg_handoff_stt(void)
      * captures attached to bug 10282.
      */
     eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_stt);
-    data_handle = find_dissector("data");
 
     heur_dissector_add("ip", dissect_stt_heur, "Stateless Transport Tunneling over IP", "stt_ip", proto_stt, HEURISTIC_ENABLE);
 }

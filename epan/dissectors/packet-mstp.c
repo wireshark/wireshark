@@ -70,7 +70,6 @@ bacnet_mstp_frame_type_name[] = {
 	{0, NULL }
 };
 
-static dissector_handle_t data_handle;
 static dissector_table_t subdissector_table;
 
 static int proto_mstp = -1;
@@ -289,7 +288,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (!(dissector_try_uint(subdissector_table, (vendorid<<16) + mstp_frame_type,
 			next_tvb, pinfo, tree))) {
 				/* Unknown function - dissect the payload as data */
-				call_dissector(data_handle, next_tvb, pinfo, tree);
+				call_data_dissector(next_tvb, pinfo, tree);
 		}
 #if defined(BACNET_MSTP_CHECKSUM_VALIDATE)
 		/* 16-bit checksum - calculate to validate */
@@ -480,7 +479,6 @@ proto_reg_handoff_mstp(void)
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_BACNET_MS_TP_WITH_PHDR, mstp_handle);
 
 	bacnet_handle = find_dissector("bacnet");
-	data_handle = find_dissector("data");
 
 	dissector_add_uint("mstp.vendor_frame_type", (0/*VendorID ASHRAE*/ << 16) + MSTP_BACNET_DATA_EXPECTING_REPLY, bacnet_handle);
 	dissector_add_uint("mstp.vendor_frame_type", (0/*VendorID ASHRAE*/ << 16) + MSTP_BACNET_DATA_NOT_EXPECTING_REPLY, bacnet_handle);

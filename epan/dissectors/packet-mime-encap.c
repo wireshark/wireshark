@@ -31,7 +31,6 @@ void proto_reg_handoff_mime_encap(void);
 static int proto_mime_encap = -1;
 
 static heur_dissector_list_t heur_subdissector_list;
-static dissector_handle_t data_handle;
 
 static int
 dissect_mime_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -46,7 +45,7 @@ dissect_mime_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
 	if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, NULL)) {
 		proto_item_append_text(item, " (Unhandled)");
-		call_dissector(data_handle, tvb, pinfo, tree);
+		call_data_dissector(tvb, pinfo, tree);
 	}
 	return tvb_captured_length(tvb);
 }
@@ -65,7 +64,6 @@ proto_reg_handoff_mime_encap(void)
 {
 	dissector_handle_t mime_encap_handle;
 
-	data_handle = find_dissector("data");
 	mime_encap_handle = find_dissector("mime_dlt");
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_MIME, mime_encap_handle);
 }

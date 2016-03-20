@@ -86,7 +86,6 @@ static gint ett_rtacser_cl                = -1;
 
 static dissector_handle_t rtacser_handle;
 static dissector_table_t  subdissector_table;
-static dissector_handle_t data_handle;
 
 #define RTACSER_HEADER_LEN    12
 
@@ -217,7 +216,7 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Functionality for choosing subdissector is controlled through Decode As as CAN doesn't
            have a unique identifier to determine subdissector */
         if (!dissector_try_uint(subdissector_table, 0, payload_tvb, pinfo, tree)){
-            call_dissector(data_handle, payload_tvb, pinfo, tree);
+            call_data_dissector(payload_tvb, pinfo, tree);
         }
     }
 }
@@ -319,8 +318,6 @@ void
 proto_reg_handoff_rtacser(void)
 {
     dissector_add_uint("wtap_encap", WTAP_ENCAP_RTAC_SERIAL, rtacser_handle);
-
-    data_handle = find_dissector("data");
 }
 
 /*

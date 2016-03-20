@@ -352,7 +352,6 @@ static expert_field ei_bssap_unknown_parameter = EI_INIT;
 static expert_field ei_bssap_mandatory_ie = EI_INIT;
 
 
-static dissector_handle_t data_handle;
 static dissector_handle_t rrlp_handle;
 
 static dissector_table_t bssap_dissector_table;
@@ -405,7 +404,7 @@ dissect_bssap_data_param(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* No sub-dissection occurred, treat it as raw data */
-    call_dissector(data_handle, tvb, pinfo, bssap_tree);
+    call_data_dissector(tvb, pinfo, bssap_tree);
 }
 
 static void
@@ -749,7 +748,7 @@ dissect_bssap_dlink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *
     if ((prot_disc == 2)&&(rrlp_handle))
         call_dissector(rrlp_handle, next_tvb, pinfo, ie_tree);
     else
-        call_dissector(data_handle, next_tvb, pinfo, ie_tree);
+        call_data_dissector(next_tvb, pinfo, ie_tree);
 
 
     return offset + ie_len;
@@ -1471,7 +1470,7 @@ dissect_bssap_ulink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *
     if ((prot_disc == 2)&&(rrlp_handle))
         call_dissector(rrlp_handle, next_tvb, pinfo, ie_tree);
     else
-        call_dissector(data_handle, next_tvb, pinfo, ie_tree);
+        call_data_dissector(next_tvb, pinfo, ie_tree);
 
     return offset + ie_len;
 
@@ -2563,7 +2562,6 @@ proto_reg_handoff_bssap(void)
         /* BSSAP+ */
         bssap_plus_handle = create_dissector_handle(dissect_bssap_plus, proto_bssap);
 
-        data_handle = find_dissector("data");
         rrlp_handle = find_dissector_add_dependency("rrlp", proto_bssap_plus);
         gsm_bssmap_le_dissector_handle = find_dissector_add_dependency("gsm_bssmap_le", proto_bssap);
         gsm_a_bssmap_dissector_handle = find_dissector_add_dependency("gsm_a_bssmap", proto_bssap);

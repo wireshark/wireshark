@@ -67,8 +67,6 @@ static void dissect_conn_control(tvbuff_t *tvb, int offset, proto_tree *tree);
 
 static heur_dissector_list_t netbios_heur_subdissector_list;
 
-static dissector_handle_t data_handle;
-
 /* There is no RFC or public specification of Netware or Microsoft
  * NetBIOS over IPX packets. I have had to decode the protocol myself,
  * so there are holes and perhaps errors in this code. (gram)
@@ -275,7 +273,7 @@ dissect_netbios_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (!dissector_try_heuristic(netbios_heur_subdissector_list,
 				    tvb, pinfo, tree, &hdtbl_entry, NULL))
-		call_dissector(data_handle,tvb, pinfo, tree);
+		call_data_dissector(tvb, pinfo, tree);
 }
 
 static int
@@ -660,7 +658,6 @@ proto_reg_handoff_nbipx(void)
 	nbipx_handle = create_dissector_handle(dissect_nbipx, proto_nbipx);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_NETBIOS, nbipx_handle);
 	netbios_heur_subdissector_list = find_heur_dissector_list("netbios");
-	data_handle = find_dissector("data");
 }
 
 /*

@@ -63,7 +63,6 @@ static const value_string family_vals[] = {
 };
 
 static dissector_handle_t ppp_hdlc_handle;
-static dissector_handle_t data_handle;
 
 static gboolean
 capture_null( const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_ )
@@ -444,7 +443,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       next_tvb = tvb_new_subset_remaining(tvb, 4);
       if (!dissector_try_uint(ethertype_dissector_table,
             (guint16) null_header, next_tvb, pinfo, tree))
-        call_dissector(data_handle, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
     } else {
       /* populate a tree in the second pane with the status of the link
          layer (ie none) */
@@ -458,7 +457,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       if (!dissector_try_uint(null_dissector_table, null_header,
             next_tvb, pinfo, tree)) {
         /* No sub-dissector found.  Label rest of packet as "Data" */
-        call_dissector(data_handle,next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
       }
     }
   }
@@ -497,7 +496,7 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   if (!dissector_try_uint(null_dissector_table, loop_family,
         next_tvb, pinfo, tree)) {
     /* No sub-dissector found.  Label rest of packet as "Data" */
-    call_dissector(data_handle,next_tvb, pinfo, tree);
+    call_data_dissector(next_tvb, pinfo, tree);
   }
   return tvb_captured_length(tvb);
 }
@@ -539,7 +538,6 @@ proto_reg_handoff_null(void)
    * the "I don't know what this is" dissector.
    */
   ppp_hdlc_handle = find_dissector_add_dependency("ppp_hdlc", proto_null);
-  data_handle = find_dissector("data");
 
   ethertype_dissector_table = find_dissector_table("ethertype");
 

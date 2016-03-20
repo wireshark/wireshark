@@ -71,7 +71,6 @@ static gint ett_pf           = -1;
 static expert_field ei_cnip_type_unknown = EI_INIT;
 
 static dissector_table_t cnip_dissector_table;
-static dissector_handle_t data_handle;
 
 static int dissect_cnip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -148,7 +147,7 @@ static int dissect_cnip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             "This dissector doesn't yet decode packets of type %s (0x%x)",
             val_to_str_const(type, type_tuple, "Unknown"), type);
    }
-   call_dissector(data_handle, next_tvb, pinfo, tree);
+   call_data_dissector(next_tvb, pinfo, tree);
    return tvb_captured_length(tvb);
 }
 
@@ -243,7 +242,6 @@ void proto_reg_handoff_cnip(void)
    dissector_handle_t cnip_handle;
 
    cnip_handle = create_dissector_handle(dissect_cnip, proto_cnip);
-   data_handle = find_dissector("data");
 
    dissector_add_uint ("udp.port", 1628, cnip_handle);
    dissector_add_uint ("udp.port", 1629, cnip_handle);

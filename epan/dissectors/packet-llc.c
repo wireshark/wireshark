@@ -101,7 +101,6 @@ static dissector_handle_t fddi_handle;
 static dissector_handle_t tr_handle;
 static dissector_handle_t turbo_handle;
 static dissector_handle_t mesh_handle;
-static dissector_handle_t data_handle;
 
 /*
  * Group/Individual bit, in the DSAP.
@@ -462,8 +461,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 				 */
 				if (!dissector_try_uint(dsap_subdissector_table,
 				    dsap, next_tvb, pinfo, tree)) {
-					call_dissector(data_handle, next_tvb,
-					    pinfo, tree);
+					call_data_dissector(next_tvb, pinfo, tree);
 				}
 			} else if ((control & (XDLC_U_MODIFIER_MASK|XDLC_U))
 			    == (XDLC_XID|XDLC_U)) {
@@ -482,13 +480,11 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 				    if (!dissector_try_uint(
 					xid_subdissector_table, dsap, next_tvb,
 					pinfo, tree)) {
-					    call_dissector(data_handle,
-						next_tvb, pinfo, tree);
+						call_data_dissector(next_tvb, pinfo, tree);
 				    }
 				}
 			} else {
-				call_dissector(data_handle, next_tvb, pinfo,
-				    tree);
+				call_data_dissector(next_tvb, pinfo, tree);
 			}
 		}
 	}
@@ -532,7 +528,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		next_tvb = tvb_new_subset_remaining(tvb, offset+5);
 
 		if(!dissector_try_uint(hpteam_subdissector_table,etype, next_tvb, pinfo, tree))
-	 		call_dissector(data_handle, next_tvb, pinfo, tree);
+			call_data_dissector(next_tvb, pinfo, tree);
 		break;
 
 	case OUI_ENCAP_ETHER:
@@ -553,11 +549,10 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			next_tvb = tvb_new_subset_remaining(tvb, offset+5);
 			if (!dissector_try_uint(ethertype_subdissector_table,
 			    etype, next_tvb, pinfo, tree))
-				call_dissector(data_handle, next_tvb, pinfo,
-				    tree);
+				call_data_dissector(next_tvb, pinfo, tree);
 		} else {
 			next_tvb = tvb_new_subset_remaining(tvb, offset+5);
-			call_dissector(data_handle, next_tvb, pinfo, tree);
+			call_data_dissector(next_tvb, pinfo, tree);
 		}
 		break;
 
@@ -615,7 +610,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
 		default:
 			next_tvb = tvb_new_subset_remaining(tvb, offset+5);
-			call_dissector(data_handle, next_tvb, pinfo, tree);
+			call_data_dissector(next_tvb, pinfo, tree);
 			break;
 		}
 		break;
@@ -651,11 +646,10 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			next_tvb = tvb_new_subset_remaining(tvb, offset+5+mesh_header_len);
 			if (!dissector_try_uint(ethertype_subdissector_table,
 			    etype, next_tvb, pinfo, tree))
-				call_dissector(data_handle, next_tvb, pinfo,
-				    tree);
+				call_data_dissector(next_tvb, pinfo, tree);
 		} else {
 			next_tvb = tvb_new_subset_remaining(tvb, offset+5);
-			call_dissector(data_handle, next_tvb, pinfo, tree);
+			call_data_dissector(next_tvb, pinfo, tree);
 		}
 		break;
 
@@ -691,7 +685,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 					break;
 			}
 		}
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 		break;
 	}
 }
@@ -878,7 +872,6 @@ proto_reg_handoff_llc(void)
 	tr_handle = find_dissector_add_dependency("tr", proto_llc);
 	turbo_handle = find_dissector_add_dependency("turbocell", proto_llc);
 	mesh_handle = find_dissector_add_dependency("mesh", proto_llc);
-	data_handle = find_dissector("data");
 
 	/*
 	 * Get the Ethertype dissector table.

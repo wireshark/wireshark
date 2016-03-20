@@ -48,7 +48,6 @@ struct enchdr {
 #define BSD_ENC_M_AUTH_AH       0x2000  /* header authenticated */
 
 static dissector_table_t enc_dissector_table;
-static dissector_handle_t  data_handle;
 
 /* header fields */
 static int proto_enc = -1;
@@ -118,7 +117,7 @@ dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   /* Set the tvbuff for the payload after the header */
   next_tvb = tvb_new_subset_remaining(tvb, BSD_ENC_HDRLEN);
   if (!dissector_try_uint(enc_dissector_table, ench.af, next_tvb, pinfo, tree))
-    call_dissector(data_handle, next_tvb, pinfo, tree);
+    call_data_dissector(next_tvb, pinfo, tree);
 
   return tvb_captured_length(tvb);
 }
@@ -168,8 +167,6 @@ void
 proto_reg_handoff_enc(void)
 {
   dissector_handle_t enc_handle;
-
-  data_handle = find_dissector("data");
 
   enc_handle  = create_dissector_handle(dissect_enc, proto_enc);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ENC, enc_handle);

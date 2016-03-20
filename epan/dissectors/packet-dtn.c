@@ -269,7 +269,6 @@ static expert_field ei_tcp_convergence_ack_length = EI_INIT;
 
 
 static dissector_handle_t bundle_handle;
-static dissector_handle_t data_handle;
 
 static guint bundle_tcp_port = 4556;
 static guint bundle_udp_port = 4556;
@@ -1888,7 +1887,7 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
             if (bundle_size == 0) {
                 /*Couldn't parse bundle, treat as raw data */
-                call_dissector(data_handle, new_tvb, pinfo, sub_tree);
+                call_data_dissector(new_tvb, pinfo, sub_tree);
                 return tvb_captured_length(tvb);
             }
         }
@@ -2775,7 +2774,6 @@ proto_reg_handoff_bundle(void)
 
     if (!Initialized) {
         tcpcl_handle = create_dissector_handle(dissect_tcpcl, proto_bundle);
-        data_handle  = find_dissector("data");
         Initialized  = TRUE;
     }
     else {

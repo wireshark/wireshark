@@ -218,9 +218,6 @@ static gint ett_zbee_zdp_bind_table = -1;
        gint ett_zbee_zdp_table_entry = -1;
        gint ett_zbee_zdp_descriptor_capability_field = -1;
 
-/* Data dissector handle. */
-static dissector_handle_t  data_handle;
-
 /**************************************
  * Value Strings
  **************************************
@@ -437,7 +434,7 @@ zdp_dump_excess(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tre
 
     if (length > 0) {
         excess = tvb_new_subset_remaining(tvb, offset);
-        call_dissector(data_handle, excess, pinfo, root);
+        call_data_dissector(excess, pinfo, root);
     }
 } /* zdp_dump_excess */
 
@@ -1261,7 +1258,7 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             break;
         default:
             /* Invalid Cluster Identifier. */
-            call_dissector(data_handle, zdp_tvb, pinfo, tree);
+            call_data_dissector(zdp_tvb, pinfo, tree);
             break;
     } /* switch */
 
@@ -1785,9 +1782,6 @@ void proto_register_zbee_zdp(void)
 void proto_reg_handoff_zbee_zdp(void)
 {
     dissector_handle_t  zdp_handle;
-
-    /* Find the other dissectors we need. */
-    data_handle     = find_dissector("data");
 
     /* Register our dissector with the ZigBee application dissectors. */
     zdp_handle = find_dissector("zbee_zdp");

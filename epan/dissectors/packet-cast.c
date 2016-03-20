@@ -393,8 +393,6 @@ static gint ett_cast_tree     = -1;
 /* desegmentation of SCCP */
 static gboolean cast_desegment = TRUE;
 
-static dissector_handle_t data_handle;
-
 /* Dissect a single CAST PDU */
 static int
 dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -1710,7 +1708,6 @@ proto_reg_handoff_cast(void)
 {
   dissector_handle_t cast_handle;
 
-  data_handle = find_dissector("data");
   cast_handle = create_dissector_handle(dissect_cast, proto_cast);
   dissector_add_uint("tcp.port", TCP_PORT_CAST, cast_handle);
 }

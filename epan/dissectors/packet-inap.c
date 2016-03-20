@@ -1032,7 +1032,6 @@ static int hf_inap_InvokeId_present = -1;         /* InvokeId_present */
 static range_t *global_ssn_range;
 
 static dissector_handle_t	inap_handle;
-static dissector_handle_t	data_handle;
 
 /* Global variables */
 static guint32 opcode=0;
@@ -1295,7 +1294,7 @@ static gint ett_inap_T_problem_01 = -1;
 static gint ett_inap_InvokeId = -1;
 
 /*--- End of included file: packet-inap-ett.c ---*/
-#line 87 "./asn1/inap/packet-inap-template.c"
+#line 86 "./asn1/inap/packet-inap-template.c"
 
 static expert_field ei_inap_unknown_invokeData = EI_INIT;
 static expert_field ei_inap_unknown_returnResultData = EI_INIT;
@@ -1425,7 +1424,7 @@ static const value_string inap_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-inap-table.c ---*/
-#line 93 "./asn1/inap/packet-inap-template.c"
+#line 92 "./asn1/inap/packet-inap-template.c"
 
 const value_string inap_general_problem_strings[] = {
 {0,"General Problem Unrecognized Component"},
@@ -1523,7 +1522,7 @@ dissect_inap_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
   if (obj_id){
     offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, ext_tree, NULL);
   }else{
-    call_dissector(data_handle, tvb, actx->pinfo, ext_tree);
+    call_data_dissector(tvb, actx->pinfo, ext_tree);
     offset = tvb_reported_length_remaining(tvb,offset);
   }
 
@@ -9011,7 +9010,7 @@ static int dissect_PAR_taskRefused_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-inap-fn.c ---*/
-#line 107 "./asn1/inap/packet-inap-template.c"
+#line 106 "./asn1/inap/packet-inap-template.c"
 /*
 TC-Invokable OPERATION ::=
   {activateServiceFiltering | activityTest | analysedInformation |
@@ -9361,7 +9360,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-inap-table2.c ---*/
-#line 128 "./asn1/inap/packet-inap-template.c"
+#line 127 "./asn1/inap/packet-inap-template.c"
 
 
 static guint8 inap_pdu_type = 0;
@@ -9416,7 +9415,6 @@ void proto_reg_handoff_inap(void) {
   if (!inap_prefs_initialized) {
     inap_prefs_initialized = TRUE;
     inap_handle = find_dissector("inap");
-    data_handle = find_dissector("data");
     oid_add_from_string("Core-INAP-CS1-Codes","0.4.0.1.1.0.3.0");
     oid_add_from_string("iso(1) identified-organization(3) icd-ecma(12) member-company(2) 1107 oen(3) inap(3) extensions(2)","1.3.12.2.1107.3.3.2");
     oid_add_from_string("alcatel(1006)","1.3.12.2.1006.64");
@@ -11691,7 +11689,7 @@ void proto_register_inap(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-inap-hfarr.c ---*/
-#line 213 "./asn1/inap/packet-inap-template.c"
+#line 211 "./asn1/inap/packet-inap-template.c"
   };
 
 
@@ -11947,7 +11945,7 @@ void proto_register_inap(void) {
     &ett_inap_InvokeId,
 
 /*--- End of included file: packet-inap-ettarr.c ---*/
-#line 228 "./asn1/inap/packet-inap-template.c"
+#line 226 "./asn1/inap/packet-inap-template.c"
   };
 
   static ei_register_info ei[] = {

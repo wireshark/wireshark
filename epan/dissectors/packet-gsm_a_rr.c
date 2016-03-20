@@ -1119,7 +1119,6 @@ static expert_field ei_gsm_a_rr_data_not_dissected = EI_INIT;
 static expert_field ei_gsm_a_rr_unknown_version = EI_INIT;
 static expert_field ei_gsm_a_rr_extraneous_data = EI_INIT;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t rrlp_dissector;
 
 
@@ -10849,7 +10848,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         /*
          * too short to be CCCH
          */
-        call_dissector(data_handle, tvb, pinfo, tree);
+        call_data_dissector(tvb, pinfo, tree);
         return tvb_captured_length(tvb);
     }
 
@@ -13366,7 +13365,6 @@ proto_register_gsm_a_rr(void)
 void
 proto_reg_handoff_gsm_a_rr(void)
 {
-    data_handle = find_dissector("data");
     rrc_irat_ho_info_handle = find_dissector_add_dependency("rrc.irat.irat_ho_info", proto_a_rr);
     rrc_irat_ho_to_utran_cmd_handle = find_dissector_add_dependency("rrc.irat.ho_to_utran_cmd", proto_a_rr);
     rrlp_dissector = find_dissector("rrlp");

@@ -142,7 +142,6 @@ void proto_register_hsrp(void);
 void proto_reg_handoff_hsrp(void);
 
 static gint proto_hsrp = -1;
-static dissector_handle_t data_handle;
 
 static gint hf_hsrp_version = -1;
 static gint hf_hsrp_opcode = -1;
@@ -450,7 +449,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                         /* offset += 4; */
                 } else {
                         next_tvb = tvb_new_subset_remaining(tvb, offset);
-                        call_dissector(data_handle, next_tvb, pinfo, hsrp_tree);
+                        call_data_dissector(next_tvb, pinfo, hsrp_tree);
                 }
                 /* is MD5 authentication being used with HSRPv1? */
                 if (tvb_captured_length(tvb) == 50) { /* 20 bytes of regular HSRP data + 30 bytes of authentication payload */
@@ -547,7 +546,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                         } else {
                                                 /* Unknown protocol */
                                                 next_tvb = tvb_new_subset_remaining(tvb, offset);
-                                                call_dissector(data_handle, next_tvb, pinfo, hsrp_tree);
+                                                call_data_dissector(next_tvb, pinfo, hsrp_tree);
                                                 break;
                                         }
                                         /* offset+=16; */
@@ -602,10 +601,8 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 }
                         } else {
                                 /* Undefined TLV */
-                                if (tree) {
-                                        next_tvb = tvb_new_subset_remaining(tvb, offset);
-                                        call_dissector(data_handle, next_tvb, pinfo, hsrp_tree);
-                                }
+                                next_tvb = tvb_new_subset_remaining(tvb, offset);
+                                call_data_dissector(next_tvb, pinfo, hsrp_tree);
                                 break;
                         }
                         offset = offset2+len+2;
@@ -853,7 +850,6 @@ proto_reg_handoff_hsrp(void)
 {
         dissector_handle_t hsrp_handle;
 
-        data_handle = find_dissector("data");
         hsrp_handle = create_dissector_handle(dissect_hsrp, proto_hsrp);
         dissector_add_uint("udp.port", UDP_PORT_HSRP, hsrp_handle);
         dissector_add_uint("udp.port", UDP_PORT_HSRP2_V6, hsrp_handle);

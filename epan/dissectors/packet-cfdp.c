@@ -128,8 +128,6 @@ static expert_field ei_cfdp_bad_length = EI_INIT;
 
 
 static dissector_handle_t cfdp_handle;
-/* Generic data handle */
-static dissector_handle_t data_handle;
 
 /* Some parameters */
 #define CFDP_HEADER_FIXED_FIELDS_LEN 4
@@ -1270,7 +1268,7 @@ dissect_cfdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         proto_item_set_end(cfdp_crc, tvb, offset);
     }
     /* Give the data dissector any bytes past the CFDP packet length */
-    call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+    call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
     return tvb_captured_length(tvb);
 }
 
@@ -1634,7 +1632,6 @@ proto_reg_handoff_cfdp(void)
 {
     dissector_add_uint("ccsds.apid", CFDP_APID, cfdp_handle);
     dissector_add_for_decode_as("udp.port", cfdp_handle);
-    data_handle = find_dissector("data");
 }
 
 /*

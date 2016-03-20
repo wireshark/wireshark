@@ -32,7 +32,6 @@
 void proto_register_xip_serval(void);
 void proto_reg_handoff_xip_serval(void);
 
-static dissector_handle_t data_handle;
 static dissector_handle_t tcp_handle;
 static dissector_handle_t udp_handle;
 
@@ -259,7 +258,7 @@ display_xip_serval(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (protocol) {
 	case XIP_SERVAL_PROTO_DATA:
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 		break;
 	case IP_PROTO_TCP: {
 		/* Get the Data Offset field of the TCP header, which is
@@ -413,7 +412,6 @@ proto_register_xip_serval(void)
 void
 proto_reg_handoff_xip_serval(void)
 {
-	data_handle = find_dissector("data");
 	tcp_handle = find_dissector_add_dependency("tcp", proto_xip_serval);
 	udp_handle = find_dissector_add_dependency("udp", proto_xip_serval);
 }

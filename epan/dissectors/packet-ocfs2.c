@@ -132,8 +132,6 @@ static int hf_dlm_pad32 = -1;
 static int hf_dlm_flags = -1;
 static int hf_dlm_payload = -1;
 
-static dissector_handle_t  data_handle;
-
 #define O2NM_MAX_NAME_LEN	64
 #define O2NM_NODE_MAP_IN_BYTES	32
 
@@ -1137,7 +1135,7 @@ static int dissect_ocfs2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		}
 	} else {
 		next_tvb = tvb_new_subset_length(tvb, offset, len);
-		call_dissector( data_handle, next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 	}
 
 	return tvb_reported_length(tvb);
@@ -1658,9 +1656,6 @@ void proto_reg_handoff_ocfs2(void)
 	ocfs2_handle = create_dissector_handle(dissect_ocfs2, proto_ocfs2);
 
 	dissector_add_for_decode_as("tcp.port", ocfs2_handle);
-
-	/* Find dissector for data packet */
-	data_handle = find_dissector("data");
 }
 
 

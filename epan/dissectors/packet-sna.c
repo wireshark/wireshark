@@ -303,8 +303,6 @@ static gint ett_sna_control_05hpr = -1;
 static gint ett_sna_control_05hpr_type = -1;
 static gint ett_sna_control_0e = -1;
 
-static dissector_handle_t data_handle;
-
 static int sna_address_type = -1;
 
 /* Defragment fragmented SNA BIUs*/
@@ -945,8 +943,7 @@ dissect_optional_0e(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(tree, hf_sna_reserved, tvb, 12, 8, ENC_NA);
 
 	if (tvb_offset_exists(tvb, offset))
-		call_dissector(data_handle,
-			tvb_new_subset_remaining(tvb, 4), pinfo, tree);
+		call_data_dissector(tvb_new_subset_remaining(tvb, 4), pinfo, tree);
 
 	if (bits & 0x40) {
 		col_set_str(pinfo->cinfo, COL_INFO, "HPR Idle Message");
@@ -960,8 +957,7 @@ dissect_optional_0f(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_sna_nlp_opti_0f_bits, tvb, 2, 2, ENC_BIG_ENDIAN);
 	if (tvb_offset_exists(tvb, 4))
-		call_dissector(data_handle,
-		    tvb_new_subset_remaining(tvb, 4), pinfo, tree);
+		call_data_dissector(tvb_new_subset_remaining(tvb, 4), pinfo, tree);
 }
 
 static void
@@ -970,8 +966,7 @@ dissect_optional_10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(tree, hf_sna_reserved, tvb, 2, 2, ENC_NA);
 	proto_tree_add_item(tree, hf_sna_nlp_opti_10_tcid, tvb, 4, 8, ENC_NA);
 	if (tvb_offset_exists(tvb, 12))
-		call_dissector(data_handle,
-		    tvb_new_subset_remaining(tvb, 12), pinfo, tree);
+		call_data_dissector(tvb_new_subset_remaining(tvb, 12), pinfo, tree);
 }
 
 static void
@@ -1009,8 +1004,7 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if ((type != 0x83) || (len <= 16)) {
 		/* Invalid */
-		call_dissector(data_handle,
-		    tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+		call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 		return;
 	}
 	sub_tree = proto_tree_add_subtree(tree, tvb, offset, len,
@@ -1044,8 +1038,7 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if ((type != 0x85) || ( len < 4))  {
 		/* Invalid */
-		call_dissector(data_handle,
-		    tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+		call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 		return;
 	}
 	sub_tree = proto_tree_add_subtree(tree, tvb, offset, len,
@@ -1072,8 +1065,7 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dissect_control(tvb, offset, sublen, sub_tree, 1, LT);
 		} else {
 			/* Invalid */
-			call_dissector(data_handle,
-			    tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+			call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 			return;
 		}
 		/* No padding here */
@@ -1120,12 +1112,10 @@ dissect_optional_22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    tvb, 16, 4, ENC_BIG_ENDIAN);
 
 		if (tvb_offset_exists(tvb, 20))
-			call_dissector(data_handle,
-			    tvb_new_subset_remaining(tvb, 20), pinfo, tree);
+			call_data_dissector(tvb_new_subset_remaining(tvb, 20), pinfo, tree);
 	} else {
 		if (tvb_offset_exists(tvb, 12))
-			call_dissector(data_handle,
-			    tvb_new_subset_remaining(tvb, 12), pinfo, tree);
+			call_data_dissector(tvb_new_subset_remaining(tvb, 12), pinfo, tree);
 	}
 }
 
@@ -1146,9 +1136,7 @@ dissect_optional(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* Prevent loop for invalid crap in packet */
 		if (len == 0) {
-			if (tree)
-				call_dissector(data_handle,
-				    tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+			call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 			return;
 		}
 
@@ -1200,8 +1188,7 @@ dissect_optional(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    len << 2, -1), pinfo, sub_tree);
 				break;
 			default:
-				call_dissector(data_handle,
-				    tvb_new_subset(tvb, offset,
+				call_data_dissector(tvb_new_subset(tvb, offset,
 				    len << 2, -1), pinfo, sub_tree);
 		}
 		offset += (len << 2);
@@ -1293,8 +1280,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			indx ++;
 
 			if (tvb_offset_exists(tvb, indx))
-				call_dissector(data_handle,
-					tvb_new_subset_remaining(tvb, indx),
+				call_data_dissector(tvb_new_subset_remaining(tvb, indx),
 					pinfo, parent_tree);
 			return;
 		}
@@ -1348,8 +1334,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (tvb_get_guint8(tvb, indx+subindx+1) == 5)
 			dissect_control(tvb, indx + subindx, counter+2, nlp_tree, 1, LT);
 		else
-			call_dissector(data_handle,
-			    tvb_new_subset(tvb, indx + subindx, counter+2,
+			call_data_dissector(tvb_new_subset(tvb, indx + subindx, counter+2,
 			    -1), pinfo, nlp_tree);
 
 		subindx += (counter+2);
@@ -1364,8 +1349,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (((thdr_8 & 0x20) == 0) && thdr_dlf) {
 		col_set_str(pinfo->cinfo, COL_INFO, "HPR Fragment");
 		if (tvb_offset_exists(tvb, indx)) {
-			call_dissector(data_handle,
-			    tvb_new_subset_remaining(tvb, indx), pinfo,
+			call_data_dissector(tvb_new_subset_remaining(tvb, indx), pinfo,
 			    parent_tree);
 		}
 		return;
@@ -1383,8 +1367,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				dissect_gds(tvb_new_subset_remaining(tvb, indx),
 				    pinfo, tree, parent_tree);
 			} else
-				call_dissector(data_handle,
-				    tvb_new_subset_remaining(tvb, indx),
+				call_data_dissector(tvb_new_subset_remaining(tvb, indx),
 				    pinfo, parent_tree);
 		}
 	}
@@ -1567,8 +1550,7 @@ dissect_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				break;
 			default:
 				/* external standards organizations */
-				call_dissector(data_handle,
-				    tvb_new_subset(tvb, 6, len-6, -1),
+				call_data_dissector(tvb_new_subset(tvb, 6, len-6, -1),
 				    pinfo, tree);
 		}
 	}
@@ -1577,8 +1559,7 @@ dissect_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		len = 6;
 
 	if (tvb_offset_exists(tvb, len))
-		call_dissector(data_handle,
-		    tvb_new_subset_remaining(tvb, len), pinfo, parent_tree);
+		call_data_dissector(tvb_new_subset_remaining(tvb, len), pinfo, parent_tree);
 }
 
 /* --------------------------------------------------------------------
@@ -2117,8 +2098,7 @@ dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			th_header_len = dissect_fidf(tvb, th_tree);
 			break;
 		default:
-			call_dissector(data_handle,
-			    tvb_new_subset_remaining(tvb, 1), pinfo, parent_tree);
+			call_data_dissector(tvb_new_subset_remaining(tvb, 1), pinfo, parent_tree);
 			return;
 	}
 
@@ -2156,8 +2136,7 @@ dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			return;
 		}
 
-		call_dissector(data_handle,
-		    tvb_new_subset_remaining(rh_tvb, rh_offset),
+		call_data_dissector(tvb_new_subset_remaining(rh_tvb, rh_offset),
 		    pinfo, parent_tree);
 	}
 }
@@ -2436,8 +2415,7 @@ dissect_gds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	} while(cont);
 	if (tvb_offset_exists(tvb, offset))
-		call_dissector(data_handle,
-		    tvb_new_subset_remaining(tvb, offset), pinfo, parent_tree);
+		call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, parent_tree);
 }
 
 /* --------------------------------------------------------------------
@@ -3522,8 +3500,6 @@ proto_reg_handoff_sna(void)
 	dissector_add_uint("llc.xid_dsap", SAP_SNA3, sna_xid_handle);
 	/* RFC 2043 */
 	dissector_add_uint("ppp.protocol", PPP_SNA, sna_handle);
-	data_handle = find_dissector("data");
-
 }
 
 /*

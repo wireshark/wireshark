@@ -103,7 +103,6 @@ static int ett_fcoe_crc        = -1;
 
 static expert_field ei_fcoe_crc = EI_INIT;
 
-static dissector_handle_t data_handle;
 static dissector_handle_t fc_handle;
 
 static int
@@ -269,8 +268,8 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     if (fc_handle) {
         call_dissector_with_data(fc_handle, next_tvb, pinfo, tree, &fc_data);
-    } else if (data_handle) {
-        call_dissector(data_handle, next_tvb, pinfo, tree);
+    } else {
+        call_data_dissector(next_tvb, pinfo, tree);
     }
     return tvb_captured_length(tvb);
 }
@@ -336,7 +335,6 @@ proto_reg_handoff_fcoe(void)
 
     fcoe_handle = create_dissector_handle(dissect_fcoe, proto_fcoe);
     dissector_add_uint("ethertype", ETHERTYPE_FCOE, fcoe_handle);
-    data_handle = find_dissector("data");
     fc_handle   = find_dissector_add_dependency("fc", proto_fcoe);
 }
 

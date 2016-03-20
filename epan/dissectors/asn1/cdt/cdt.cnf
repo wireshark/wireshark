@@ -90,7 +90,7 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
 
    switch (content_type) {
    case CDT_UNDEFINED:
-     call_dissector (data_handle, next_tvb, actx->pinfo, top_tree);
+     call_data_dissector(next_tvb, actx->pinfo, top_tree);
      break;
    case CDT_EXTERNAL:
      dissect_unknown_ber (actx->pinfo, next_tvb, 0, top_tree);
@@ -99,7 +99,7 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
      dissect_p1_mts_apdu (next_tvb, actx->pinfo, top_tree, NULL);
      break;
    default:
-     call_dissector (data_handle, next_tvb, actx->pinfo, top_tree);
+     call_data_dissector(next_tvb, actx->pinfo, top_tree);
      break;
    }
 

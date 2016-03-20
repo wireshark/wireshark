@@ -92,8 +92,6 @@ static dissector_table_t lapd_gsm_sapi_dissector_table;
 /* Whether to use GSM SAPI vals or not */
 static gboolean global_lapd_gsm_sapis = FALSE;
 
-static dissector_handle_t data_handle;
-
 /*
  * Bits in the address field.
  */
@@ -574,14 +572,14 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean 
 		if(global_lapd_gsm_sapis){
 			if (!dissector_try_uint(lapd_gsm_sapi_dissector_table, sapi,
 				next_tvb, pinfo, tree))
-				call_dissector(data_handle,next_tvb, pinfo, tree);
+				call_data_dissector(next_tvb, pinfo, tree);
 		}else{
 			if (!dissector_try_uint(lapd_sapi_dissector_table, sapi,
 				next_tvb, pinfo, tree))
-				call_dissector(data_handle,next_tvb, pinfo, tree);
+				call_data_dissector(next_tvb, pinfo, tree);
 		}
 	} else
-		call_dissector(data_handle,next_tvb, pinfo, tree);
+		call_data_dissector(next_tvb, pinfo, tree);
 }
 
 static gboolean
@@ -768,8 +766,6 @@ proto_reg_handoff_lapd(void)
 
 		register_dissector("lapd-bitstream", dissect_lapd_bitstream, proto_lapd);
 		lapd_bitstream_handle = find_dissector("lapd-bitstream");
-		data_handle = find_dissector("data");
-
 
 		init = TRUE;
 	} else {

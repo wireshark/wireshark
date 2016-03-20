@@ -50,7 +50,6 @@ static gint ett_tdmoe = -1;
 static gint ett_tdmoe_flags = -1;
 
 static dissector_handle_t lapd_handle;
-static dissector_handle_t data_handle;
 
 static gint pref_tdmoe_d_channel = 24;
 
@@ -119,7 +118,7 @@ dissect_tdmoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 		if (chan == pref_tdmoe_d_channel) {
 			call_dissector(lapd_handle, next_client, pinfo, tree);
 		} else {
-			call_dissector(data_handle, next_client, pinfo, tree);
+			call_data_dissector(next_client, pinfo, tree);
 		}
 	}
 	return 1;
@@ -180,7 +179,6 @@ proto_reg_handoff_tdmoe(void)
 	dissector_add_uint("ethertype", ETHERTYPE_TDMOE, tdmoe_handle);
 
 	lapd_handle = find_dissector_add_dependency("lapd-bitstream", proto_tdmoe);
-	data_handle = find_dissector("data");
 }
 
 /*

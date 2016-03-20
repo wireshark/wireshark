@@ -99,8 +99,6 @@ typedef struct fcp_request_data {
    itlq_nexus_t *itlq;
 } fcp_request_data_t;
 
-static dissector_handle_t data_handle;
-
 /* Information Categories based on lower 4 bits of R_CTL */
 #define FCP_IU_DATA              0x1
 #define FCP_IU_UNSOL_CTL         0x2
@@ -621,7 +619,7 @@ dissect_fcp_els(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, fc_hdr *fch
         dissect_fcp_srr(tvb, pinfo, tree, fchdr);
         break;
     default:
-        call_dissector(data_handle, tvb, pinfo, tree);
+        call_data_dissector(tvb, pinfo, tree);
         break;
     }
 }
@@ -737,7 +735,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         dissect_fcp_rsp(tvb, pinfo, tree, fcp_tree, fc_conv, fchdr, request_data);
         break;
     default:
-        call_dissector(data_handle, tvb, pinfo, tree);
+        call_data_dissector(tvb, pinfo, tree);
         break;
     }
 /*xxx once the subdissectors return bytes consumed:  proto_item_set_end(ti, tvb, offset);*/
@@ -986,8 +984,6 @@ proto_reg_handoff_fcp(void)
 
     fcp_handle = create_dissector_handle(dissect_fcp, proto_fcp);
     dissector_add_uint("fc.ftype", FC_FTYPE_SCSI, fcp_handle);
-
-    data_handle = find_dissector("data");
 }
 
 /*

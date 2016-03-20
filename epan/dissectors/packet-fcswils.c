@@ -453,7 +453,7 @@ typedef struct _fcswils_func_table_t {
     fcswils_dissector_t func;
 } fcswils_func_table_t;
 
-static dissector_handle_t data_handle, fcsp_handle;
+static dissector_handle_t fcsp_handle;
 
 static gint get_zoneobj_len(tvbuff_t *tvb, gint offset);
 
@@ -1802,7 +1802,7 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     } else {
         /* data dissector */
         next_tvb = tvb_new_subset_remaining(tvb, offset+4);
-        call_dissector(data_handle, next_tvb, pinfo, tree);
+        call_data_dissector(next_tvb, pinfo, tree);
     }
 
     return tvb_captured_length(tvb);
@@ -2544,7 +2544,6 @@ proto_reg_handoff_fcswils(void)
     swils_handle = create_dissector_handle(dissect_fcswils, proto_fcswils);
     dissector_add_uint("fc.ftype", FC_FTYPE_SWILS, swils_handle);
 
-    data_handle = find_dissector("data");
     fcsp_handle = find_dissector_add_dependency("fcsp", proto_fcswils);
 }
 

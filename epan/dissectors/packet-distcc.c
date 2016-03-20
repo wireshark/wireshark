@@ -47,8 +47,6 @@ static gint ett_distcc = -1;
 
 static expert_field ei_distcc_short_pdu = EI_INIT;
 
-static dissector_handle_t data_handle;
-
 
 static gboolean distcc_desegment = TRUE;
 
@@ -302,7 +300,7 @@ dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
         } else if(!strncmp(buf, "DOTO", 4)){
             offset=dissect_distcc_doto(tvb, pinfo, tree, offset, parameter);
         } else {
-            call_dissector(data_handle, tvb, pinfo, tree);
+            call_data_dissector(tvb, pinfo, tree);
             return tvb_captured_length(tvb);
         }
     }
@@ -396,7 +394,6 @@ proto_reg_handoff_distcc(void)
          */
         distcc_handle = create_dissector_handle(dissect_distcc,
             proto_distcc);
-        data_handle = find_dissector("data");
         registered_dissector = TRUE;
     } else {
         /*

@@ -83,8 +83,6 @@ typedef struct _fcfzs_conv_data {
 
 static GHashTable *fcfzs_req_hash = NULL;
 
-static dissector_handle_t data_handle;
-
 /*
  * Hash Functions
  */
@@ -687,7 +685,7 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         dissect_fcfzs_arzs(tvb, fcfzs_tree, isreq);
         break;
     default:
-        call_dissector(data_handle, tvb, pinfo, tree);
+        call_data_dissector(tvb, pinfo, tree);
         break;
     }
 
@@ -881,8 +879,6 @@ proto_reg_handoff_fcfzs(void)
 
     fzs_handle = create_dissector_handle(dissect_fcfzs, proto_fcfzs);
     dissector_add_uint("fcct.server", FCCT_GSRVR_FZS, fzs_handle);
-
-    data_handle = find_dissector("data");
 }
 
 /*

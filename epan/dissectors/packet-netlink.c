@@ -168,7 +168,6 @@ static gint ett_netlink_msg = -1;
 static gint ett_netlink_hdr_flags = -1;
 
 static dissector_table_t netlink_dissector_table;
-static dissector_handle_t data_handle;
 
 
 static const int *netlink_header_get_flags[] = {
@@ -345,7 +344,7 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 			next_tvb = tvb_new_subset_length(tvb, offset, pkt_len-16);
 
 			if (!dissector_try_uint_new(netlink_dissector_table, protocol, next_tvb, pinfo, fh_msg, TRUE, &data))
-				call_dissector(data_handle, next_tvb, pinfo, fh_msg);
+				call_data_dissector(next_tvb, pinfo, fh_msg);
 
 		} else if (pkt_len != 16) {
 			/* XXX, expert info */
@@ -422,8 +421,6 @@ proto_register_netlink(void)
 void
 proto_reg_handoff_netlink(void)
 {
-	data_handle = find_dissector("data");
-
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NETLINK, netlink_handle);
 }
 
