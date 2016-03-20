@@ -566,7 +566,7 @@ dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     /* KRB_AP_RE[QP] */
     pktc_mtafqdn_tvb = tvb_new_subset_remaining(tvb, offset);
     get_ber_identifier(pktc_mtafqdn_tvb, 0, &ber_class, &pc, &tag);
-    if ((tag == 10) || (tag == 11)) {
+    if ((tag == KERBEROS_APPLICATIONS_AP_REQ) || (tag == KERBEROS_APPLICATIONS_AP_REP)) {
         offset += dissect_kerberos_main(pktc_mtafqdn_tvb, pinfo, pktc_mtafqdn_tree, FALSE, NULL);
     } else {
         expert_add_info_format(pinfo, item, &ei_pktc_unknown_kerberos_application, "Unknown Kerberos application (%d), expected 10 or 11", tag);
@@ -576,7 +576,7 @@ dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     /* KRB_SAFE */
     pktc_mtafqdn_tvb = tvb_new_subset_remaining(tvb, offset);
     get_ber_identifier(pktc_mtafqdn_tvb, 0, &ber_class, &pc, &tag);
-    if (tag == 20) {
+    if (tag == KERBEROS_APPLICATIONS_KRB_SAFE) {
         offset += dissect_kerberos_main(pktc_mtafqdn_tvb, pinfo, pktc_mtafqdn_tree, FALSE, cb);
     } else {
         expert_add_info_format(pinfo, item, &ei_pktc_unknown_kerberos_application, "Unknown Kerberos application (%d), expected 20", tag);
