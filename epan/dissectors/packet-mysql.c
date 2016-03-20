@@ -102,6 +102,7 @@ void proto_reg_handoff_mysql(void);
 #define MYSQL_CAPS_AL 0x0020 /* CLIENT_PLUGIN_AUTH_LENENC_CLIENT_DATA */
 #define MYSQL_CAPS_EP 0x0040 /* CLIENT_CAN_HANDLE_EXPIRED_PASSWORDS */
 #define MYSQL_CAPS_ST 0x0080 /* CLIENT_SESSION_TRACK */
+#define MYSQL_CAPS_DE 0x0100 /* CLIENT_DEPRECATE_EOF */
 #define MYSQL_CAPS_UNUSED 0xFF00
 
 /* status bitfield */
@@ -477,6 +478,7 @@ static int hf_mysql_cap_connect_attrs = -1;
 static int hf_mysql_cap_plugin_auth_lenenc_client_data = -1;
 static int hf_mysql_cap_client_can_handle_expired_passwords = -1;
 static int hf_mysql_cap_session_track = -1;
+static int hf_mysql_cap_deprecate_eof = -1;
 static int hf_mysql_cap_unused = -1;
 static int hf_mysql_server_language = -1;
 static int hf_mysql_server_status = -1;
@@ -833,6 +835,7 @@ static const int * mysql_extcaps_flags[] = {
 	&hf_mysql_cap_plugin_auth_lenenc_client_data,
 	&hf_mysql_cap_client_can_handle_expired_passwords,
 	&hf_mysql_cap_session_track,
+	&hf_mysql_cap_deprecate_eof,
 	&hf_mysql_cap_unused,
 	NULL
 };
@@ -2561,6 +2564,11 @@ void proto_register_mysql(void)
 		{ &hf_mysql_cap_session_track,
 		{ "Session variable tracking","mysql.caps.session_track",
 		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_ST,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_deprecate_eof,
+		{ "Deprecate EOF","mysql.caps.deprecate_eof",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_DE,
 		NULL, HFILL }},
 
 		{ &hf_mysql_cap_unused,
