@@ -10451,12 +10451,12 @@ a:hover {
         <translation>Colorier avec un Filtre</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="430"/>
+        <location filename="proto_tree.cpp" line="432"/>
         <source>, 1 byte</source>
         <translation>, 1 octet</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="432"/>
+        <location filename="proto_tree.cpp" line="434"/>
         <source>, %1 bytes</source>
         <translation>, %1 octets</translation>
     </message>
@@ -15316,13 +15316,13 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Ouvrir le Panneau de Configuration AirPcap</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="293"/>
-        <location filename="wireless_frame.cpp" line="302"/>
+        <location filename="wireless_frame.cpp" line="296"/>
+        <location filename="wireless_frame.cpp" line="305"/>
         <source>Unable to set channel or offset.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="309"/>
+        <location filename="wireless_frame.cpp" line="312"/>
         <source>Unable to set FCS validation behavior.</source>
         <translation type="unfinished"></translation>
     </message>

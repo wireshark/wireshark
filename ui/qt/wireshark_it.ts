@@ -10475,12 +10475,12 @@ a:hover {
         <translation>Colora con filtro</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="430"/>
+        <location filename="proto_tree.cpp" line="432"/>
         <source>, 1 byte</source>
         <translation>, 1 byte</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="432"/>
+        <location filename="proto_tree.cpp" line="434"/>
         <source>, %1 bytes</source>
         <translation>, %1 byte</translation>
     </message>
@@ -15340,13 +15340,13 @@ a:hover {
         <translation>Apri il pannello di controllo AirPcap</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="293"/>
-        <location filename="wireless_frame.cpp" line="302"/>
+        <location filename="wireless_frame.cpp" line="296"/>
+        <location filename="wireless_frame.cpp" line="305"/>
         <source>Unable to set channel or offset.</source>
         <translation>Impossibile impostare il canale o l&apos;offset.</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="309"/>
+        <location filename="wireless_frame.cpp" line="312"/>
         <source>Unable to set FCS validation behavior.</source>
         <translation>Impossibile impostare il comportamento di convalida FCS.</translation>
     </message>
