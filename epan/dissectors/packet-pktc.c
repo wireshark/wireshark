@@ -5,6 +5,7 @@
  * References:
  * [1] PacketCable 1.0 Security Specification, PKT-SP-SEC-I11-040730, July 30,
  *     2004, Cable Television Laboratories, Inc., http://www.PacketCable.com/
+ *     http://www.cablelabs.com/wp-content/uploads/specdocs/PKT-SP-SEC-I11-040730.pdf
  *
  * Ronnie Sahlberg 2004
  * Thomas Anders 2004
