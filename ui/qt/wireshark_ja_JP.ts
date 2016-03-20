@@ -10291,12 +10291,12 @@ a:hover {
         <translation>フィルタで色分け</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="427"/>
+        <location filename="proto_tree.cpp" line="429"/>
         <source>, 1 byte</source>
         <translation>, 1 バイト</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="429"/>
+        <location filename="proto_tree.cpp" line="431"/>
         <source>, %1 bytes</source>
         <translation>, %1 バイト</translation>
     </message>
@@ -14991,13 +14991,13 @@ a:hover {
         <translation>AirPcap コントロールパネルを開く</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="276"/>
-        <location filename="wireless_frame.cpp" line="285"/>
+        <location filename="wireless_frame.cpp" line="279"/>
+        <location filename="wireless_frame.cpp" line="288"/>
         <source>Unable to set channel or offset.</source>
         <translation>チャンネルもしくはオフセットを設定できません</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="292"/>
+        <location filename="wireless_frame.cpp" line="295"/>
         <source>Unable to set FCS validation behavior.</source>
         <translation>FCSの確認動作を設定できません</translation>
     </message>

@@ -10335,12 +10335,12 @@ text-decoration: underline;
         <translation>用过滤器着色</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="427"/>
+        <location filename="proto_tree.cpp" line="429"/>
         <source>, 1 byte</source>
         <translation>, 1 字节</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="429"/>
+        <location filename="proto_tree.cpp" line="431"/>
         <source>, %1 bytes</source>
         <translation>, %1 字节</translation>
     </message>
@@ -15031,13 +15031,13 @@ text-decoration: underline;
         <translation>打开 AirPcap 控制面板</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="276"/>
-        <location filename="wireless_frame.cpp" line="285"/>
+        <location filename="wireless_frame.cpp" line="279"/>
+        <location filename="wireless_frame.cpp" line="288"/>
         <source>Unable to set channel or offset.</source>
         <translation>无法设置信道或偏移。</translation>
     </message>
     <message>
-        <location filename="wireless_frame.cpp" line="292"/>
+        <location filename="wireless_frame.cpp" line="295"/>
         <source>Unable to set FCS validation behavior.</source>
         <translation>无法设置 FCS 验证行为。</translation>
     </message>
