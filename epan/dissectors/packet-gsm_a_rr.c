@@ -746,8 +746,6 @@ static int hf_gsm_a_rr_len_indicator_ms_id = -1;
 static int hf_gsm_a_rr_neighbour_cell_list_index = -1;
 static int hf_gsm_a_rr_mcc = -1;
 static int hf_gsm_a_rr_pcid_pattern = -1;
-static int hf_gsm_a_rr_tio70 = -1;
-static int hf_gsm_a_rr_tio07 = -1;
 static int hf_gsm_a_rr_where = -1;
 static int hf_gsm_a_rr_ba_index_start_bsic = -1;
 static int hf_gsm_a_rr_bitmap = -1;
@@ -771,7 +769,6 @@ static int hf_gsm_a_rr_diversity = -1;
 static int hf_gsm_a_rr_maio = -1;
 static int hf_gsm_a_rr_mobile_country_code = -1;
 static int hf_gsm_a_rr_short_lsa_id = -1;
-static int hf_gsm_a_rr_tie = -1;
 static int hf_gsm_a_rr_number_remaining_bsic = -1;
 static int hf_gsm_a_rr_number_cells = -1;
 static int hf_gsm_a_rr_padding = -1;
@@ -784,7 +781,6 @@ static int hf_gsm_a_rr_diversity_tdd = -1;
 static int hf_gsm_a_rr_spare = -1;
 static int hf_gsm_a_rr_single_channel_arfcn = -1;
 static int hf_gsm_a_rr_rtd_index = -1;
-static int hf_gsm_a_rr_ti_flag = -1;
 static int hf_gsm_a_rr_arfcn_list = -1;
 static int hf_gsm_a_rr_da_list = -1;
 static int hf_gsm_a_rr_ua_list = -1;
@@ -10838,7 +10834,6 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree             *pd_tree     = NULL;
     const gchar            *msg_str;
     gint                    ett_tree;
-    gint                    ti;
     int                     hf_idx;
     gboolean                nsd;
 
@@ -10885,7 +10880,6 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     oct = tvb_get_guint8(tvb, offset);
 
     pd = oct_1 & DTAP_PD_MASK;
-    ti = -1;
     msg_str = NULL;
     ett_tree = -1;
     hf_idx = -1;
@@ -10933,24 +10927,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     proto_tree_add_item(pd_tree, hf_gsm_a_L3_protocol_discriminator, tvb, 1, 1, ENC_BIG_ENDIAN);
 
-    if (ti == -1){
-        proto_tree_add_item(pd_tree, hf_gsm_a_skip_ind, tvb, 1, 1, ENC_BIG_ENDIAN);
-    }else{
-        proto_tree_add_item(pd_tree, hf_gsm_a_rr_ti_flag, tvb, 1, 1, ENC_NA);
-
-        if ((ti & DTAP_TIE_PRES_MASK) == DTAP_TIE_PRES_MASK){
-            /* ti is extended to next octet */
-            proto_tree_add_uint(pd_tree, hf_gsm_a_rr_tio70, tvb, 1, 1, oct_1);
-        }else{
-            proto_tree_add_uint(pd_tree, hf_gsm_a_rr_tio07, tvb, 1, 1, ti);
-        }
-    }
-
-
-    if ((ti != -1) && (ti & DTAP_TIE_PRES_MASK) == DTAP_TIE_PRES_MASK){
-        proto_tree_add_item(tree, hf_gsm_a_extension, tvb, 2, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(pd_tree, hf_gsm_a_rr_tie, tvb, 2, 1, ENC_BIG_ENDIAN);
-    }
+    proto_tree_add_item(pd_tree, hf_gsm_a_skip_ind, tvb, 1, 1, ENC_BIG_ENDIAN);
 
     /*
      * N(SD)
@@ -12990,14 +12967,10 @@ proto_register_gsm_a_rr(void)
             { &hf_gsm_a_rr_rxlev_carrier, { "RXLEV carrier", "gsm_a.rr.rxlev_carrier", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gsm_a_rr_rxlev_vals_ext, 0x0, NULL, HFILL }},
             { &hf_gsm_a_rr_ciphering_key_seq_num, { "Ciphering Key Sequence Number", "gsm_a.rr.ciphering_key_seq_num", FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL }},
             { &hf_gsm_a_rr_neighbour_cell_list_index, { "Neighbour Cell List index", "gsm_a.rr.neighbour_cell_list_index", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-            { &hf_gsm_a_rr_tio70, { "TIO", "gsm_a.rr.tio", FT_UINT8, BASE_DEC, NULL, 0x70, NULL, HFILL }},
-            { &hf_gsm_a_rr_tio07, { "TIO", "gsm_a.rr.tio", FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL }},
-            { &hf_gsm_a_rr_tie, { "TIE", "gsm_a.rr.tie", FT_UINT8, BASE_DEC, NULL, DTAP_TIE_MASK, NULL, HFILL }},
             { &hf_gsm_a_rr_message_elements, { "Message Elements", "gsm_a.rr.message_elements", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
             { &hf_gsm_a_rr_spare, { "Spare", "gsm_a.rr.spare", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
             { &hf_gsm_a_rr_single_channel_arfcn, { "Single channel ARFCN", "gsm_a.rr.single_channel_arfcn", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
             { &hf_gsm_a_rr_rtd_index, { "RTD index", "gsm_a.rr.rtd_index", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-            { &hf_gsm_a_rr_ti_flag, { "TI flag", "gsm_a.rr.ti_flag", FT_BOOLEAN, 8, TFS(&tfs_allocated_by_receiver_sender), 0x80, NULL, HFILL }},
             { &hf_gsm_a_rr_arfcn_list, { "List of ARFCNs", "gsm_a.rr.arfcn_list", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
             { &hf_gsm_a_rr_da_list, { "List of DA", "gsm_a.rr.da_list", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
             { &hf_gsm_a_rr_ua_list, { "List of UA", "gsm_a.rr.ua_list", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
