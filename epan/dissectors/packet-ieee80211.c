@@ -487,8 +487,9 @@ enum fixed_field {
   FIELD_FSTS_ID,
   FIELD_OCT_MMPDU,
   FIELD_VHT_ACTION,
-                                              /* add any new fixed field value above this line */
-  MAX_FIELD_NUM
+  FIELD_BSS_TERMINATION_DELAY,
+  FIELD_BSS_TRANSITION_STATUS_CODE,
+  MAX_FIELD_NUM /* add any new fixed field value above this line */
 };
 
 /* ************************************************************************* */
@@ -3256,6 +3257,9 @@ static int hf_ieee80211_ff_validity_interval = -1;
 static int hf_ieee80211_ff_bss_termination_duration = -1;
 static int hf_ieee80211_ff_url_len = -1;
 static int hf_ieee80211_ff_url = -1;
+static int hf_ieee80211_ff_target_bss = -1;
+static int hf_ieee80211_ff_bss_transition_status_code = -1;
+static int hf_ieee80211_ff_bss_termination_delay = -1;
 static int hf_ieee80211_ff_bss_transition_candidate_list_entries = -1;
 
 static int hf_ieee80211_ff_sa_query_action_code = -1;
@@ -8063,6 +8067,33 @@ wnm_bss_trans_mgmt_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
   return offset - start;
 }
 
+
+static guint
+wnm_bss_trans_mgmt_resp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  int    start = offset;
+  guint8 code;
+  gint   left;
+
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_DIALOG_TOKEN);
+  code = tvb_get_guint8(tvb, offset);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_BSS_TRANSITION_STATUS_CODE);
+  offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_BSS_TERMINATION_DELAY);
+  if (!code) {
+    proto_tree_add_item(tree, hf_ieee80211_ff_target_bss,
+                        tvb, offset, 6, ENC_NA);
+    offset += 6;
+  }
+  left = tvb_reported_length_remaining(tvb, offset);
+  if (left > 0) {
+    proto_tree_add_item(tree, hf_ieee80211_ff_bss_transition_candidate_list_entries,
+                        tvb, offset, left, ENC_NA);
+    offset += left;
+  }
+
+  return offset - start;
+}
+
 static guint
 wnm_sleep_mode_req(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
@@ -8129,6 +8160,9 @@ add_ff_action_wnm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   switch (code) {
   case WNM_BSS_TRANS_MGMT_REQ:
     offset += wnm_bss_trans_mgmt_req(tree, tvb, pinfo, offset);
+    break;
+  case WNM_BSS_TRANS_MGMT_RESP:
+    offset += wnm_bss_trans_mgmt_resp(tree, tvb, pinfo, offset);
     break;
   case WNM_TFS_REQ:
     offset += wnm_tfs_req(tree, tvb, pinfo, offset);
@@ -9444,6 +9478,22 @@ add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
   }
 }
 
+static guint
+add_ff_bss_transition_status_code(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_bss_transition_status_code, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+  return 1;
+}
+
+static guint
+add_ff_bss_termination_delay(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_bss_termination_delay, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+  return 1;
+}
+
 #define FF_FIELD(f, func) { FIELD_ ## f, add_ff_ ## func }
 
 static const struct ieee80211_fixed_field_dissector ff_dissectors[] = {
@@ -9561,6 +9611,8 @@ static const struct ieee80211_fixed_field_dissector ff_dissectors[] = {
   FF_FIELD(FSTS_ID                               , fsts_id),
   FF_FIELD(OCT_MMPDU                             , oct_mmpdu),
   FF_FIELD(VHT_ACTION                            , vht_action),
+  FF_FIELD(BSS_TERMINATION_DELAY                 , bss_termination_delay),
+  FF_FIELD(BSS_TRANSITION_STATUS_CODE            , bss_transition_status_code),
   { (enum fixed_field)-1                         , NULL }
 };
 
@@ -19660,6 +19712,16 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_ff_bss_termination_delay,
+     {"BSS Termination Delay", "wlan_mgt.fixed.bss_termination_delay",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_bss_transition_status_code,
+     {"BSS Transition Status Code", "wlan_mgt.fixed.bss_transition_status_code",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_ff_validity_interval,
      {"Validity Interval", "wlan_mgt.fixed.validity_interval",
       FT_UINT8, BASE_DEC, NULL, 0,
@@ -19679,6 +19741,11 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_ff_url,
      {"Session Information URL", "wlan_mgt.fixed.session_information.url",
       FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_target_bss,
+     {"BSS Transition Target BSS", "wlan_mgt.fixed.bss_transition_target_bss",
+      FT_ETHER, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_bss_transition_candidate_list_entries,
