@@ -172,6 +172,24 @@
 #define IEEE802154_MLME_PSIE_EB_FLT_PERCENT   0x04
 #define IEEE802154_MLME_PSIE_EB_FLT_ATTR_LEN  0x18
 
+/* Vendor OUIs */
+#define IEEE802154_VENDOR_OUI_ZIGBEE      0x4A191B
+
+/* ZigBee Vendor Sub IE Fields */
+#define IEEE802154_ZIGBEE_IE_ID_MASK        0xFFC0
+#define IEEE802154_ZIGBEE_IE_LENGTH_MASK    0x003F
+#define IEEE802154_ZIGBEE_IE_REJOIN           0x00
+#define IEEE802154_ZIGBEE_IE_TX_POWER         0x01
+#define IEEE802154_ZIGBEE_IE_BEACON_PAYLOAD   0x02
+
+/* ZigBee PRO beacons */
+#define IEEE802154_ZIGBEE_BEACON_PROTOCOL_ID          0x00
+#define IEEE802154_ZIGBEE_BEACON_STACK_PROFILE        0x0f
+#define IEEE802154_ZIGBEE_BEACON_PROTOCOL_VERSION     0xf0
+#define IEEE802154_ZIGBEE_BEACON_ROUTER_CAPACITY      0x04
+#define IEEE802154_ZIGBEE_BEACON_NETWORK_DEPTH        0x78
+#define IEEE802154_ZIGBEE_BEACON_END_DEVICE_CAPACITY  0x80
+
 /*  Bit-masks for CC24xx style FCS */
 #define IEEE802154_CC24xx_CORRELATION       0x7F00
 #define IEEE802154_CC24xx_CRC_OK            0x8000
@@ -240,9 +258,6 @@ typedef enum {
 #define IEEE802154_PAYLOAD_IE_VENDOR         0x2 /* Vendor Specific */
 /* Reserved 0x3-0xe */
 #define IEEE802154_PAYLOAD_IE_GID_TERM       0xf
-
-/* Vendor OUIs */
-#define IEEE802154_VENDOR_OUI_ZIGBEE    0xacde48
 
 /* Payload IE (Nested) Sub ID */
 /* 0x00 - 0x0f Reserved for Long Format */
