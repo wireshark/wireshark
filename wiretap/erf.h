@@ -95,9 +95,6 @@
 /* Pad records */
 #define ERF_TYPE_PAD                48
 
-#define ERF_TYPE_MIN  1   /* sanity checking */
-#define ERF_TYPE_MAX  48  /* sanity checking */
-
 #define ERF_EXT_HDR_TYPE_CLASSIFICATION  3
 #define ERF_EXT_HDR_TYPE_INTERCEPTID     4
 #define ERF_EXT_HDR_TYPE_RAW_LINK        5

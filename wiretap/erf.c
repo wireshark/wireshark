@@ -237,7 +237,7 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
 
   /* number of records to scan before deciding if this really is ERF */
   if ((s = getenv("ERF_RECORDS_TO_CHECK")) != NULL) {
-    if ((n = atoi(s)) > 0 && n < 101) {
+    if ((n = atoi(s)) >= 0 && n < 101) {
       records_for_erf_check = n;
     }
   }
@@ -295,12 +295,12 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
       continue;
     }
 
-    /* fail on invalid record type, decreasing timestamps or non-zero pad-bits */
-    /* Not all types within this range are decoded, but it is a first filter */
-    if ((header.type & 0x7F) == 0 || (header.type & 0x7F) > ERF_TYPE_MAX ) {
+    /* ERF Type 0 is reserved for ancient legacy records which are not supported, probably not ERF */
+    if ((header.type & 0x7F) == 0) {
       return WTAP_OPEN_NOT_MINE;
     }
 
+    /* fail on decreasing timestamps */
     if ((ts = pletoh64(&header.ts)) < prevts) {
       /* reassembled AALx records may not be in time order, also records are not in strict time order between physical interfaces, so allow 1 sec fudge */
       if ( ((prevts-ts)>>32) > 1 ) {
@@ -680,10 +680,8 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
     case ERF_TYPE_TCP_FLOW_COUNTER:
       /* unsupported, continue with default: */
     default:
-      *err = WTAP_ERR_UNSUPPORTED;
-      *err_info = g_strdup_printf("erf: unknown record encapsulation %u",
-                                  erf_header->type);
-      return FALSE;
+      /* let the dissector dissect as unknown record type for forwards compatibility */
+      break;
   }
 
   {
