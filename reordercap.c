@@ -43,10 +43,18 @@
 #endif
 
 #include <wsutil/crash_info.h>
+#include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
+#include <wsutil/privileges.h>
 #include <wsutil/ws_diag_control.h>
 #include <wsutil/ws_version_info.h>
 #include <wiretap/wtap_opttypes.h>
+
+#ifdef HAVE_PLUGINS
+#include <wsutil/plugins.h>
+#endif
+
+#include <wsutil/report_err.h>
 
 /* Show command-line usage */
 static void
@@ -169,6 +177,19 @@ get_reordercap_runtime_info(GString *str)
 #endif
 }
 
+#ifdef HAVE_PLUGINS
+/*
+ *  Don't report failures to load plugins because most (non-wiretap) plugins
+ *  *should* fail to load (because we're not linked against libwireshark and
+ *  dissector plugins need libwireshark).
+ */
+static void
+failure_message(const char *msg_format _U_, va_list ap _U_)
+{
+    return;
+}
+#endif
+
 /********************************************************************/
 /* Main function.                                                   */
 /********************************************************************/
@@ -205,6 +226,10 @@ main(int argc, char *argv[])
     char *infile;
     const char *outfile;
 
+#ifdef HAVE_PLUGINS
+    char  *init_progfile_dir_error;
+#endif
+
     /* Get the compile-time version information string */
     comp_info_str = get_compiled_version_info(NULL, get_reordercap_compiled_info);
 
@@ -218,6 +243,32 @@ main(int argc, char *argv[])
          "\n"
          "%s",
       get_ws_vcs_version_info(), comp_info_str->str, runtime_info_str->str);
+
+  /*
+   * Get credential information for later use.
+   */
+  init_process_policies();
+  init_open_routines();
+
+#ifdef HAVE_PLUGINS
+    /* Register wiretap plugins */
+    if ((init_progfile_dir_error = init_progfile_dir(argv[0], main))) {
+        g_warning("reordercap: init_progfile_dir(): %s", init_progfile_dir_error);
+        g_free(init_progfile_dir_error);
+    } else {
+        /* Register all the plugin types we have. */
+        wtap_register_plugin_types(); /* Types known to libwiretap */
+
+        init_report_err(failure_message,NULL,NULL,NULL);
+
+        /* Scan for plugins.  This does *not* call their registration routines;
+           that's done later. */
+        scan_plugins();
+
+        /* Register all libwiretap plugin modules. */
+        register_all_wiretap_modules();
+    }
+#endif
 
     /* Process the options first */
     while ((opt = getopt_long(argc, argv, "hnv", long_options, NULL)) != -1) {
