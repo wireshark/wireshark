@@ -103,7 +103,7 @@ void proto_reg_handoff_mysql(void);
 #define MYSQL_CAPS_EP 0x0040 /* CLIENT_CAN_HANDLE_EXPIRED_PASSWORDS */
 #define MYSQL_CAPS_ST 0x0080 /* CLIENT_SESSION_TRACK */
 #define MYSQL_CAPS_DE 0x0100 /* CLIENT_DEPRECATE_EOF */
-#define MYSQL_CAPS_UNUSED 0xFF00
+#define MYSQL_CAPS_UNUSED 0xFE00
 
 /* status bitfield */
 #define MYSQL_STAT_IT 0x0001
