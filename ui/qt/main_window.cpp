@@ -1970,41 +1970,46 @@ void MainWindow::setTitlebarForCaptureInProgress()
    and whether it could be saved except by copying the raw packet data. */
 void MainWindow::setMenusForCaptureFile(bool force_disable)
 {
+    bool enable = true;
+    bool can_write = false;
+    bool can_save = false;
+
     if (force_disable || capture_file_.capFile() == NULL || capture_file_.capFile()->state == FILE_READ_IN_PROGRESS) {
         /* We have no capture file or we're currently reading a file */
-        main_ui_->actionViewReload_as_File_Format_or_Capture->setEnabled(false);
-        main_ui_->actionFileMerge->setEnabled(false);
-        main_ui_->actionFileClose->setEnabled(false);
-        main_ui_->actionFileSave->setEnabled(false);
-        main_ui_->actionFileSaveAs->setEnabled(false);
-        main_ui_->actionStatisticsCaptureFileProperties->setEnabled(false);
-        main_ui_->actionFileExportPackets->setEnabled(false);
-        main_ui_->menuFileExportPacketDissections->setEnabled(false);
-        main_ui_->actionFileExportPacketBytes->setEnabled(false);
-        main_ui_->actionFileExportPDU->setEnabled(false);
-        main_ui_->actionFileExportSSLSessionKeys->setEnabled(false);
-        main_ui_->menuFileExportObjects->setEnabled(false);
-        main_ui_->actionViewReload->setEnabled(false);
+        enable = false;
     } else {
-        main_ui_->actionViewReload_as_File_Format_or_Capture->setEnabled(true);
-        main_ui_->actionFileMerge->setEnabled(cf_can_write_with_wiretap(capture_file_.capFile()));
-
-        main_ui_->actionFileClose->setEnabled(true);
-        main_ui_->actionFileSave->setEnabled(cf_can_save(capture_file_.capFile()));
-        main_ui_->actionFileSaveAs->setEnabled(cf_can_save_as(capture_file_.capFile()));
-        main_ui_->actionStatisticsCaptureFileProperties->setEnabled(true);
-        /*
-         * "Export Specified Packets..." should be available only if
-         * we can write the file out in at least one format.
-         */
-        main_ui_->actionFileExportPackets->setEnabled(cf_can_write_with_wiretap(capture_file_.capFile()));
-        main_ui_->menuFileExportPacketDissections->setEnabled(true);
-        main_ui_->actionFileExportPacketBytes->setEnabled(true);
-        main_ui_->actionFileExportPDU->setEnabled(true);
-        main_ui_->actionFileExportSSLSessionKeys->setEnabled(true);
-        main_ui_->menuFileExportObjects->setEnabled(true);
-        main_ui_->actionViewReload->setEnabled(true);
+        /* We have a capture file. Can we write or save? */
+        can_write = cf_can_write_with_wiretap(capture_file_.capFile());
+        can_save = cf_can_save(capture_file_.capFile());
     }
+
+    main_ui_->actionViewReload_as_File_Format_or_Capture->setEnabled(enable);
+    main_ui_->actionFileMerge->setEnabled(can_write);
+    main_ui_->actionFileClose->setEnabled(enable);
+    main_ui_->actionFileSave->setEnabled(can_save);
+    main_ui_->actionFileSaveAs->setEnabled(can_save);
+    main_ui_->actionStatisticsCaptureFileProperties->setEnabled(enable);
+    /*
+     * "Export Specified Packets..." should be available only if
+     * we can write the file out in at least one format.
+     */
+    main_ui_->actionFileExportPackets->setEnabled(can_write);
+
+    main_ui_->actionFileExportAsCArrays->setEnabled(enable);
+    main_ui_->actionFileExportAsCSV->setEnabled(enable);
+    main_ui_->actionFileExportAsPDML->setEnabled(enable);
+    main_ui_->actionFileExportAsPlainText->setEnabled(enable);
+    main_ui_->actionFileExportAsPSML->setEnabled(enable);
+
+    main_ui_->actionFileExportPacketBytes->setEnabled(enable);
+    main_ui_->actionFileExportPDU->setEnabled(enable);
+    main_ui_->actionFileExportSSLSessionKeys->setEnabled(enable);
+
+    foreach (QAction *eo_action, main_ui_->menuFileExportObjects->actions()) {
+        eo_action->setEnabled(enable);
+    }
+
+    main_ui_->actionViewReload->setEnabled(enable);
 }
 
 void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
@@ -2013,11 +2018,21 @@ void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
 
     main_ui_->actionFileOpen->setEnabled(!capture_in_progress);
     main_ui_->menuOpenRecentCaptureFile->setEnabled(!capture_in_progress);
-    main_ui_->menuFileExportPacketDissections->setEnabled(capture_in_progress);
+
+    main_ui_->actionFileExportAsCArrays->setEnabled(capture_in_progress);
+    main_ui_->actionFileExportAsCSV->setEnabled(capture_in_progress);
+    main_ui_->actionFileExportAsPDML->setEnabled(capture_in_progress);
+    main_ui_->actionFileExportAsPlainText->setEnabled(capture_in_progress);
+    main_ui_->actionFileExportAsPSML->setEnabled(capture_in_progress);
+
     main_ui_->actionFileExportPacketBytes->setEnabled(capture_in_progress);
     main_ui_->actionFileExportPDU->setEnabled(capture_in_progress);
     main_ui_->actionFileExportSSLSessionKeys->setEnabled(capture_in_progress);
-    main_ui_->menuFileExportObjects->setEnabled(capture_in_progress);
+
+    foreach (QAction *eo_action, main_ui_->menuFileExportObjects->actions()) {
+        eo_action->setEnabled(capture_in_progress);
+    }
+
     main_ui_->menuFileSet->setEnabled(!capture_in_progress);
     main_ui_->actionFileQuit->setEnabled(true);
 

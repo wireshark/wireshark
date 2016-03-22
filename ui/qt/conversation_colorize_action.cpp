@@ -27,6 +27,8 @@
 
 #include "epan/dissector_filters.h"
 
+#include <QMenu>
+
 #include "qt_ui_utils.h"
 
 ConversationAction::ConversationAction(QObject *parent, conversation_filter_s *conv_filter) :
@@ -49,6 +51,11 @@ void ConversationAction::setPacketInfo(struct _packet_info *pinfo)
         }
     }
     setEnabled(enable);
+
+    // If we're the "New Coloring Rule" item, enable or disable our parent menu.
+    QMenu *parent_submenu = qobject_cast<QMenu *>(parentWidget());
+    if (color_number_ > 0 || !parent_submenu) return;
+    parent_submenu->setEnabled(enable);
 }
 
 void ConversationAction::setFieldFilter(const QByteArray field_filter)

@@ -1172,7 +1172,13 @@ void MainWindow::setMenusForSelectedPacket()
 //                                            gbl_resolv_flags.transport_name));
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ToolsMenu/FirewallACLRules",
 //                         frame_selected);
-    main_ui_->menuTcpStreamGraphs->setEnabled(is_tcp);
+
+    main_ui_->actionStatisticsTcpStreamRoundTripTime->setEnabled(is_tcp);
+    main_ui_->actionStatisticsTcpStreamStevens->setEnabled(is_tcp);
+    main_ui_->actionStatisticsTcpStreamTcptrace->setEnabled(is_tcp);
+    main_ui_->actionStatisticsTcpStreamThroughput->setEnabled(is_tcp);
+    main_ui_->actionStatisticsTcpStreamWindowScaling->setEnabled(is_tcp);
+
     main_ui_->actionSCTPAnalyseThisAssociation->setEnabled(is_sctp);
     main_ui_->actionSCTPShowAllAssociations->setEnabled(is_sctp);
     main_ui_->actionSCTPFilterThisAssociation->setEnabled(is_sctp);
