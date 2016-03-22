@@ -261,6 +261,21 @@ bool SyntaxLineEdit::isComplexFilter(const QString &filter)
     return false;
 }
 
+bool SyntaxLineEdit::event(QEvent *event)
+{
+    if (event->type() == QEvent::ShortcutOverride) {
+        // Keep shortcuts in the main window from stealing keyPressEvents from
+        // from us. This is a particular problem for many AltGr combinations
+        // since they tend to match the time display format shortcuts. Ideally
+        // we should only accept the event if we detect Qt::Key_AltGr but that
+        // doesn't seem to work too well in practice.
+
+        event->accept();
+        return true;
+    }
+    return QLineEdit::event(event);
+}
+
 void SyntaxLineEdit::completionKeyPressEvent(QKeyEvent *event)
 {
     // Forward to the completer if needed...

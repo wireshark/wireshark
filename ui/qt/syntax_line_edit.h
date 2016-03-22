@@ -69,6 +69,7 @@ protected:
     // x = Start position, y = length
     QPoint getTokenUnderCursor();
 
+    virtual bool event(QEvent *event);
     void completionKeyPressEvent(QKeyEvent *event);
     void completionFocusInEvent(QFocusEvent *event);
 
