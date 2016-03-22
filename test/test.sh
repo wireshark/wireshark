@@ -77,13 +77,13 @@ source $MYDIR/test-backend.sh
 source $MYDIR/config.sh
 
 # needed by some tests
-TEST_OUTDIR=$(mktemp -d wstest.XXXXXXXXXX)
-TEST_OUTDIR_CLEAN=${TEST_OUTDIR_CLEAN:-1}
-if [ -z "$TEST_OUTDIR" ] || ! cd "$TEST_OUTDIR"; then
-	# If for any reason the temporary tests output directory cannot be created...
-	TEST_OUTDIR=.
-	TEST_OUTDIR_CLEAN=0
+TEST_OUTDIR="$PWD/$(mktemp -d wstest.XXXXXXXXXX)"
+if [ $? -ne 0 ] || [ ! -d "$TEST_OUTDIR" ] || ! cd "$TEST_OUTDIR"; then
+	# Error out if TEST_OUTDIR cannot be created
+	echo "Failed to create directory '$TEST_OUTDIR'"
+	exit 1
 fi
+TEST_OUTDIR_CLEAN=${TEST_OUTDIR_CLEAN:-1}
 
 # Configuration paths
 HOME_ENV="HOME"
