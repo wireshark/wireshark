@@ -2730,14 +2730,6 @@ host_name_lookup_init(void)
     char *hostspath;
     guint i;
 
-#ifdef HAVE_GNU_ADNS
-#ifdef _WIN32
-    char *sysroot;
-    static char rootpath_nt[] = "\\system32\\drivers\\etc\\hosts";
-    static char rootpath_ot[] = "\\hosts";
-#endif /* _WIN32 */
-#endif /*GNU_ADNS */
-
     g_assert(ipxnet_hash_table == NULL);
     ipxnet_hash_table = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
 
@@ -2778,58 +2770,6 @@ host_name_lookup_init(void)
 #endif
     }
 #else
-#ifdef HAVE_GNU_ADNS
-    /*
-     * We're using GNU ADNS, which doesn't check the system hosts file;
-     * we load that file ourselves.
-     */
-#ifdef _WIN32
-
-    sysroot = getenv_utf8("WINDIR");
-    if (sysroot != NULL) {
-        /*
-         * The file should be under WINDIR.
-         * If this is Windows NT (NT 4.0,2K,XP,Server2K3), it's in
-         * %WINDIR%\system32\drivers\etc\hosts.
-         * If this is Windows OT (95,98,Me), it's in %WINDIR%\hosts.
-         * Try both.
-         * XXX - should we base it on the dwPlatformId value from
-         * GetVersionEx()?
-         */
-        if (!gbl_resolv_flags.load_hosts_file_from_profile_only) {
-            hostspath = g_strconcat(sysroot, rootpath_nt, NULL);
-            if (!read_hosts_file(hostspath, TRUE)) {
-                g_free(hostspath);
-                hostspath = g_strconcat(sysroot, rootpath_ot, NULL);
-                read_hosts_file(hostspath, TRUE);
-            }
-            g_free(hostspath);
-        }
-    }
-#else /* _WIN32 */
-    if (!gbl_resolv_flags.load_hosts_file_from_profile_only) {
-        read_hosts_file("/etc/hosts", TRUE);
-    }
-#endif /* _WIN32 */
-
-    if (gbl_resolv_flags.concurrent_dns) {
-        /* XXX - Any flags we should be using? */
-        /* XXX - We could provide config settings for DNS servers, and
-           pass them to ADNS with adns_init_strcfg */
-        if (adns_init(&ads, adns_if_none, 0 /*0=>stderr*/) != 0) {
-            /*
-             * XXX - should we report the error?  I'm assuming that some crashes
-             * reported on a Windows machine with TCP/IP not configured are due
-             * to "adns_init()" failing (due to the lack of TCP/IP) and leaving
-             * ADNS in a state where it crashes due to that.  We'll still try
-             * doing name resolution anyway.
-             */
-            return;
-        }
-        async_dns_initialized = TRUE;
-        async_dns_in_flight = 0;
-    }
-#endif /* HAVE_GNU_ADNS */
 #endif /* HAVE_C_ARES */
 
     if (extra_hosts_files && !gbl_resolv_flags.load_hosts_file_from_profile_only) {
