@@ -193,6 +193,7 @@ static int hf_rtps_param_serialize_encap_len    = -1;
 static int hf_rtps_param_transport_priority     = -1;
 static int hf_rtps_param_type_max_size_serialized = -1;
 static int hf_rtps_param_entity_name            = -1;
+static int hf_rtps_param_role_name              = -1;
 static int hf_rtps_disable_positive_ack         = -1;
 static int hf_rtps_participant_guid             = -1;
 static int hf_rtps_group_guid                   = -1;
@@ -3193,7 +3194,7 @@ static gboolean dissect_parameter_sequence_rti(proto_tree *rtps_parameter_tree, 
 
 
     case PID_ROLE_NAME: {
-      rtps_util_add_string(rtps_parameter_tree, tvb, offset, hf_rtps_param_entity_name, little_endian);
+      rtps_util_add_string(rtps_parameter_tree, tvb, offset, hf_rtps_param_role_name, little_endian);
       break;
     }
 
@@ -8972,9 +8973,16 @@ void proto_register_rtps(void) {
     },
 
     { &hf_rtps_param_entity_name,
-      { "entity", "rtps.param.entityName",
+      { "entityName", "rtps.param.entityName",
         FT_STRINGZ, BASE_NONE, NULL, 0,
         "String representing the name of the entity addressed by the submessage",
+        HFILL }
+    },
+
+    { &hf_rtps_param_role_name,
+      { "roleName", "rtps.param.roleName",
+        FT_STRINGZ, BASE_NONE, NULL, 0,
+        "String representing the role name of the entity addressed by the submessage",
         HFILL }
     },
 
