@@ -135,7 +135,7 @@ fi
 
 $DIE
 
-aclocal_flags="-I ./aclocal-fallback"
+aclocal_flags="-I m4"
 aclocalinclude="$ACLOCAL_FLAGS $aclocal_flags";
 echo $ACLOCAL $aclocalinclude
 $ACLOCAL $aclocalinclude || exit 1

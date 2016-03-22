@@ -24,7 +24,7 @@ include ./Makefile.am.inc
 AM_DISTCHECK_CONFIGURE_FLAGS=@GUI_CONFIGURE_FLAGS@
 # Make sure to keep ACLOCAL_AMFLAGS in Makefile.am and AC_CONFIG_MACRO_DIRS
 # in configure.ac in sync, otherwise there will be an error running autogen.sh.
-ACLOCAL_AMFLAGS = -I ./aclocal-fallback
+ACLOCAL_AMFLAGS = -I m4
 
 # Common headers
 COMMONCPPFLAGS =
@@ -703,13 +703,13 @@ EXTRA_DIST = \
 	README.vmware		\
 	README.windows		\
 	abi-descriptor.template	\
-	aclocal-fallback/ax_append_flag.m4		\
-	aclocal-fallback/ax_check_compile_flag.m4	\
-	aclocal-fallback/ax_compiler_vendor.m4		\
-	aclocal-fallback/ax_prog_cc_for_build.m4	\
-	aclocal-fallback/libsmi.m4			\
-	aclocal-fallback/libgcrypt.m4			\
-	aclocal-fallback/pkg.m4				\
+	m4/ax_append_flag.m4		\
+	m4/ax_check_compile_flag.m4	\
+	m4/ax_compiler_vendor.m4	\
+	m4/ax_prog_cc_for_build.m4	\
+	m4/libsmi.m4			\
+	m4/libgcrypt.m4			\
+	m4/pkg.m4			\
 	autogen.sh		\
 	capinfos.c		\
 	captype.c		\

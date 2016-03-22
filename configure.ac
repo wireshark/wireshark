@@ -23,7 +23,7 @@ AC_SUBST(AC_MIN_VERSION)
 
 dnl Make sure to keep ACLOCAL_AMFLAGS in Makefile.am and AC_CONFIG_MACRO_DIRS
 dnl in configure.ac in sync, otherwise there will be an error running autogen.sh.
-m4_ifdef([AC_CONFIG_MACRO_DIRS],[AC_CONFIG_MACRO_DIRS([./aclocal-fallback])])
+m4_ifdef([AC_CONFIG_MACRO_DIRS],[AC_CONFIG_MACRO_DIRS([m4])])
 
 dnl Check for CPU / vendor / OS
 dnl The user is encouraged to use either `AC_CANONICAL_BUILD', or
