@@ -539,6 +539,10 @@ AC_SUBST(FLOORL_LO)
 AC_SEARCH_LIBS(lrint, m,
   [AC_DEFINE(HAVE_LRINT, 1, [Define if you have the 'lrint' function.])])
 
+#
+# Check if we need to link with -lnsl and -lsocket
+#
+AX_LIB_SOCKET_NSL
 
 #
 # GUI toolkit options
@@ -2176,10 +2180,6 @@ AC_SUBST(randpkt_man)
 
 AC_SUBST(wiresharkfilter_man)
 
-dnl Checks for "connect()", used as a proxy for "socket()" - and
-dnl "-lsocket", if we need it to get "connect()".
-AC_WIRESHARK_SOCKET_LIB_CHECK
-
 dnl pcap check
 AC_MSG_CHECKING(whether to use libpcap for packet capture)
 
@@ -2664,30 +2664,8 @@ else
 fi
 AC_SUBST(C_ARES_LIBS)
 
-if test "x$have_good_c_ares" != "xyes"; then
-	# We don't have an asynchronous name resolver, look for a synchronous one
-
-	dnl Checks for "getaddrinfo()" - and "-lnsl", if we need it to get
-	dnl "getaddrinfo()".
-	AC_WIRESHARK_GETADDRINFO_LIB_CHECK
-
-	if test "x$ac_cv_func_getaddrinfo" != "xyes" ; then
-		# We don't have the modern name resolver, try older stuff
-
-		dnl Checks for "gethostbyname()" - and "-lnsl", if we need it to get
-		dnl "gethostbyname()".
-		AC_WIRESHARK_GETHOSTBY_LIB_CHECK
-
-		if test "x$ac_cv_func_gethostbyname" != "xyes" ; then
-			# Hopefully this never actually happens.
-			# The code works even without name resolvers but we
-			# alert the user to this unusual condition.
-			AC_MSG_ERROR(Couldn't find any name resolvers!)
-		fi
-
-		AC_CHECK_FUNCS(gethostbyname2)
-	fi
-fi
+# Check for synchronous name resolvers
+AC_CHECK_FUNCS([getaddrinfo gethostbyname gethostbyname2])
 
 dnl GEOIP Check
 GEOIP_LIBS=''

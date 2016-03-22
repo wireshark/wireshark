@@ -49,8 +49,7 @@ endif
 androiddump_LDADD = \
 	../wiretap/libwiretap.la	\
 	../wsutil/libwsutil.la		\
-	@GLIB_LIBS@			\
-	@SOCKET_LIBS@
+	@GLIB_LIBS@
 
 if ENABLE_STATIC
 	randpktdump_LDFLAGS = -Wl,-static -all-static
@@ -63,8 +62,7 @@ randpktdump_LDADD = \
 	../randpkt_core/librandpkt_core.a \
 	../wiretap/libwiretap.la	\
 	../wsutil/libwsutil.la		\
-	@GLIB_LIBS@			\
-	@SOCKET_LIBS@
+	@GLIB_LIBS@
 
 if ENABLE_STATIC
 	sshdump_LDFLAGS = -Wl,-static -all-static
@@ -77,8 +75,7 @@ sshdump_LDADD = \
 	../wiretap/libwiretap.la	\
 	../wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\
-	@LIBSSH_LIBS@		\
-	@SOCKET_LIBS@
+	@LIBSSH_LIBS@
 
 if ENABLE_STATIC
 	ciscodump_LDFLAGS = -Wl,-static -all-static
@@ -91,5 +88,4 @@ ciscodump_LDADD = \
 	../writecap/libwritecap.a	\
 	../wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\
-	@LIBSSH_LIBS@		\
-	@SOCKET_LIBS@
+	@LIBSSH_LIBS@

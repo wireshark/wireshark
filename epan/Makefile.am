@@ -135,8 +135,6 @@ libwireshark_la_LIBADD = \
 	$(wslua_lib)				\
 	${top_builddir}/wiretap/libwiretap.la	\
 	${top_builddir}/wsutil/libwsutil.la	\
-	@SOCKET_LIBS@		\
-	@NSL_LIBS@		\
 	@C_ARES_LIBS@		\
 	@LIBGCRYPT_LIBS@	\
 	@LIBGNUTLS_LIBS@	\

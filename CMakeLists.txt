@@ -1350,8 +1350,6 @@ else()
 endif()
 
 set(LIBEPAN_LIBS
-#		@NSL_LIBS@	# -lnsl
-#		@SOCKET_LIBS@	# -lsocket
 #		@SSL_LIBS@	# -lcrypto
 		epan
 #		$(plugin_ldadd)	# in case of static
@@ -2129,8 +2127,6 @@ if(BUILD_randpkt)
 		wsutil
 		${M_LIBRARIES}
 		${PCAP_LIBRARIES}
-#		@SOCKET_LIBS@
-#		@NSL_LIBS@
 		${CARES_LIBRARIES}
 		${ZLIB_LIBRARIES}
 	)
@@ -2256,8 +2252,6 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		caputils
 		${PCAP_LIBRARIES}
 		${CAP_LIBRARIES}
-#		@SOCKET_LIBS@
-#		@NSL_LIBS@
 		${GLIB2_LIBRARIES}
 		${GTHREAD2_LIBRARIES}
 		${ZLIB_LIBRARIES}

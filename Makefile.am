@@ -374,12 +374,6 @@ endif
 
 # Libraries and plugin flags with which to link wireshark.
 #
-# Note that Wireshark, when built with a version of GTK+ that runs
-# atop X11, doesn't have to be linked with @SOCKET_LIBS@ or @NSL_LIBS@,
-# as those should also be included in @GTK_LIBS@ (as those are also
-# needed for X applications, and GTK+ applications are X applications
-# if the version of GTK+ they're built with runs atop X11).
-#
 # GTK_CFLAGS/GTK_LIBS is a strict superset of GLIB_CFLAGS/GLIB_LIBS
 # (see configure.ac for pkg-config modules used).
 #
@@ -450,8 +444,6 @@ tshark_LDADD = \
 	$(plugin_ldadd)			\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
-	@SOCKET_LIBS@			\
-	@NSL_LIBS@			\
 	@C_ARES_LIBS@			\
 	@KRB5_LIBS@			\
 	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
@@ -475,8 +467,6 @@ tfshark_LDADD = \
 	$(plugin_ldadd)			\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
-	@SOCKET_LIBS@			\
-	@NSL_LIBS@			\
 	@KRB5_LIBS@			\
 	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
 	@COREFOUNDATION_FRAMEWORKS@	\
@@ -498,8 +488,6 @@ rawshark_LDADD = \
 	$(plugin_ldadd)			\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
-	@SOCKET_LIBS@			\
-	@NSL_LIBS@			\
 	@C_ARES_LIBS@			\
 	@KRB5_LIBS@			\
 	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
@@ -572,8 +560,6 @@ randpkt_LDADD = \
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
-	@SOCKET_LIBS@			\
-	@NSL_LIBS@			\
 	@C_ARES_LIBS@
 
 dftest_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
@@ -588,8 +574,6 @@ dftest_LDADD = \
 	$(plugin_ldadd)			\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
-	@SOCKET_LIBS@			\
-	@NSL_LIBS@			\
 	@C_ARES_LIBS@			\
 	@KRB5_LIBS@			\
 	@LIBGCRYPT_LIBS@		\
@@ -605,8 +589,6 @@ echld_test_LDADD = \
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
-	@SOCKET_LIBS@			\
-	@NSL_LIBS@			\
 	@C_ARES_LIBS@
 
 echld_test_DEPENDENCIES = \
@@ -626,8 +608,6 @@ dumpcap_LDADD = \
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
-	@SOCKET_LIBS@			\
-	@NSL_LIBS@			\
 	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
 	@COREFOUNDATION_FRAMEWORKS@	\
 	@LIBCAP_LIBS@			\
