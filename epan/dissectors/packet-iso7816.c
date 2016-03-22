@@ -765,11 +765,11 @@ proto_register_iso7816(void)
         },
         { &hf_iso7816_atr_ta1_fi,
             { "Fi", "iso7816.atr.ta1.fi",
-                FT_UINT16, BASE_DEC, NULL, 0xF0, NULL, HFILL }
+                FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_iso7816_atr_ta1_di,
             { "Di", "iso7816.atr.ta1.di",
-                FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL }
+                FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_iso7816_atr_tb,
             { "Interface character TB(i)", "iso7816.atr.tb",
