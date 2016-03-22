@@ -288,6 +288,8 @@ const char *nghttp2_strerror(int error_code) {
     return "Stream was refused";
   case NGHTTP2_ERR_INTERNAL:
     return "Internal error";
+  case NGHTTP2_ERR_CANCEL:
+    return "Cancel";
   case NGHTTP2_ERR_NOMEM:
     return "Out of memory";
   case NGHTTP2_ERR_CALLBACK_FAILURE:

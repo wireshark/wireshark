@@ -29,7 +29,7 @@
  * @macro
  * Version number of the nghttp2 library release
  */
-#define NGHTTP2_VERSION "1.6.0"
+#define NGHTTP2_VERSION "1.8.0"
 
 /**
  * @macro
@@ -37,6 +37,6 @@
  * release. This is a 24 bit number with 8 bits for major number, 8 bits
  * for minor and 8 bits for patch. Version 1.2.3 becomes 0x010203.
  */
-#define NGHTTP2_VERSION_NUM 0x010600
+#define NGHTTP2_VERSION_NUM 0x010800
 
 #endif /* NGHTTP2VER_H */
