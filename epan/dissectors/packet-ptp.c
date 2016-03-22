@@ -8,6 +8,7 @@
  * Copyright 2010, Torrey Atcitty <torrey.atcitty@harman.com>
  *                 Dave Olsen <dave.olsen@harman.com>
  * Copyright 2013, Andreas Bachmann <bacr@zhaw.ch>, ZHAW/InES
+ * Copyright 2016, Uli Heilmeier <uh@heilmeier.eu>
  *
  * Revisions:
  * - Markus Seehofer 09.08.2005 <mseehofe@nt.hirschmann.de>
@@ -23,6 +24,8 @@
  * - Andreas Bachmann 08.07.2013 <bacr@zhaw.ch>
  *   - allow multiple TLVs
  *   - bugfix in logInterMessagePeriod guint8 -> gint8
+ * - Uli Heilmeier 21.03.2016 <uh@heilmeier.eu>
+ *   - Added support for SMPTE TLV
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -944,9 +947,13 @@ static gint ett_ptp_time2 = -1;
 
 /* Organization IDs for PTPv2 Organization Extension */
 #define PTP_V2_OE_ORG_ID_IEEE_C37_238                   0x1C129D /* Defined in IEEE Std C37.238-2011 */
+#define PTP_v2_OE_ORG_ID_SMPTE                          0x6897E8 /* Society of Motion Picture and Television Engineers */
 
 /* Subtypes for the PTP_V2_OE_ORG_ID_IEEE_C37_238 organization ID */
 #define PTP_V2_OE_ORG_IEEE_C37_238_SUBTYPE_C37238TLV    1        /* Defined in IEEE Std C37.238-2011 */
+
+/* Subtypes for the PTP_V2_OE_ORG_ID_SMPTE organization ID */
+#define PTP_V2_OE_ORG_SMPTE_SUBTYPE_VERSION_TLV         1
 
 #define PTP_V2_TRANSPORTSPECIFIC_V1COMPATIBILITY_BITMASK              0x10
 
@@ -969,7 +976,14 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_FLAGS_SPECIFIC2_BITMASK                              0x4000
 #define PTP_V2_FLAGS_SECURITY_BITMASK                               0x8000
 
+#define PTP_V2_FLAGS_OE_SMPTE_TIME_ADRESS_FIELD_DROP                0x01
+#define PTP_V2_FLAGS_OE_SMPTE_TIME_ADRESS_FIELD_COLOR               0x02
 
+#define PTP_V2_FLAGS_OE_SMPTE_DAYLIGHT_SAVING_CURRENT               0x01
+#define PTP_V2_FLAGS_OE_SMPTE_DAYLIGHT_SAVING_NEXT                  0x02
+#define PTP_V2_FLAGS_OE_SMPTE_DAYLIGHT_SAVING_PREVIOUS              0x04
+
+#define PTP_V2_FLAGS_OE_SMPTE_LEAP_SECOND_JUMP_CHANGE               0x01
 
 /**********************************************************/
 /* PTP v2 message ids   (ptp messageid field)             */
@@ -984,6 +998,7 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_ANNOUNCE_MESSAGE                 0x0B
 #define PTP_V2_SIGNALLING_MESSAGE               0x0C
 #define PTP_V2_MANAGEMENT_MESSAGE               0x0D
+
 
 
 static const value_string ptp_v2_managementID_vals[] = {
@@ -1259,12 +1274,27 @@ static value_string_ext ptp2_managementErrorId_vals_ext =
 
 static const value_string ptp2_organizationExtensionOrgId_vals[] = {
     {PTP_V2_OE_ORG_ID_IEEE_C37_238,  "IEEE C37.238"},
+    {PTP_v2_OE_ORG_ID_SMPTE,         "Society of Motion Picture and Television Engineers"},
     {0,                              NULL}
 };
 
 static const value_string ptp2_org_iee_c37_238_subtype_vals[] = {
     {PTP_V2_OE_ORG_IEEE_C37_238_SUBTYPE_C37238TLV,  "IEEE_C37_238 TLV"},
     {0,                                             NULL}
+};
+
+static const value_string ptp2_org_smpte_subtype_vals[] = {
+    {PTP_V2_OE_ORG_SMPTE_SUBTYPE_VERSION_TLV,  "Version"},
+    {0,                                             NULL}
+};
+
+static const value_string ptp2_org_smpte_subypte_masterlockingstatus_vals[] = {
+    {0,  "Not in use"},
+    {1,  "Free Run"},
+    {2,  "Cold Locking"},
+    {3,  "Warm Locking"},
+    {4,  "Locked"},
+    {0,  NULL}
 };
 
 /**********************************************************/
@@ -1326,6 +1356,28 @@ static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_grandmasterid = -1;
 static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_grandmastertimeinaccuracy = -1;
 static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_networktimeinaccuracy = -1;
 static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_reserved = -1;
+/* Fields for SMPTE TLV (OE TLV subtype) */
+static int hf_ptp_v2_oe_tlv_smpte_subtype = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_data = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_defaultsystemframerate = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_defaultsystemframerate_numerator = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_defaultsystemframerate_denominator = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_masterlockingstatus = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags_drop = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags_color = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_currentlocaloffset = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_jumpseconds = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_timeofnextjump = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_timeofnextjam = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_timeofpreviousjam = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_previousjamlocaloffset = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving_current = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving_next = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving_previous = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_leapsecondjump = -1;
+static int hf_ptp_v2_oe_tlv_subtype_smpte_leapsecondjump_change = -1;
 /* Fields for the ALTERNATE_TIME_OFFSET_INDICATOR TLV */
 static int hf_ptp_v2_atoi_tlv_keyfield = -1;
 static int hf_ptp_v2_atoi_tlv_currentoffset = -1;
@@ -1553,6 +1605,11 @@ static gint ett_ptp_v2_timeInterval = -1;
 static gint ett_ptp_v2_tlv = -1;
 static gint ett_ptp_v2_tlv_log_period = -1;
 static gint ett_ptp_as_sig_tlv_flags = -1;
+static gint ett_ptp_oe_smpte_data = -1;
+static gint ett_ptp_oe_smpte_framerate = -1;
+static gint ett_ptp_oe_smpte_timeaddress = -1;
+static gint ett_ptp_oe_smpte_daylightsaving = -1;
+static gint ett_ptp_oe_smpte_leapsecondjump = -1;
 
 /* static gint ett_ptp_v2_timesource = -1;
 static gint ett_ptp_v2_priority = -1; */
@@ -3956,6 +4013,106 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                         }
                         break;
                     }
+                    case PTP_V2_TLV_TYPE_ORGANIZATION_EXTENSION:
+                    {
+                        guint32 org_id;
+                        guint32 subtype;
+                        proto_item *smptedata_ti, *systemframerate_ti, *timeaddressflags_ti, *daylightsavingflags_ti, *leapsecondjumpflags_ti;
+                        proto_tree *ptp_smptedata_tree, *ptp_framerate_tree, *ptp_timeaddress_tree, *ptp_daylightsaving_tree, *ptp_leapsecondjump_tree;
+                        guint16 Offset = PTP_V2_MM_TLV_LENGTHFIELD_OFFSET + 2;
+
+                        proto_tree_add_item(ptp_tree, hf_ptp_v2_oe_tlv_organizationid,
+                                            tvb, Offset, 3, ENC_BIG_ENDIAN);
+
+                        org_id = tvb_get_ntoh24(tvb, Offset);
+                        Offset += 3;
+
+                        switch (org_id)
+                        {
+                            case PTP_v2_OE_ORG_ID_SMPTE:
+                            {
+                            proto_tree_add_item(ptp_tree, hf_ptp_v2_oe_tlv_smpte_subtype,
+                                                tvb, Offset, 3, ENC_BIG_ENDIAN);
+                            subtype = tvb_get_ntoh24(tvb, Offset);
+                            Offset += 3;
+
+                                switch (subtype)
+                                {
+                                        case PTP_V2_OE_ORG_SMPTE_SUBTYPE_VERSION_TLV:
+                                        {
+                                            smptedata_ti = proto_tree_add_item(ptp_tree,
+                                                    hf_ptp_v2_oe_tlv_subtype_smpte_data, tvb, Offset, 42, ENC_NA);
+                                            ptp_smptedata_tree = proto_item_add_subtree(smptedata_ti, ett_ptp_oe_smpte_data);
+                                            systemframerate_ti = proto_tree_add_item(ptp_smptedata_tree,
+                                                    hf_ptp_v2_oe_tlv_subtype_smpte_defaultsystemframerate, tvb, Offset, 8, ENC_NA);
+                                            ptp_framerate_tree = proto_item_add_subtree(systemframerate_ti, ett_ptp_oe_smpte_framerate);
+                                            proto_tree_add_item(ptp_framerate_tree,
+                                                    hf_ptp_v2_oe_tlv_subtype_smpte_defaultsystemframerate_numerator, tvb, Offset, 4, ENC_BIG_ENDIAN);
+                                            proto_tree_add_item(ptp_framerate_tree,
+                                                    hf_ptp_v2_oe_tlv_subtype_smpte_defaultsystemframerate_denominator, tvb, Offset+4, 4, ENC_BIG_ENDIAN);
+                                            Offset += 8;
+
+                                            proto_tree_add_item(ptp_smptedata_tree, hf_ptp_v2_oe_tlv_subtype_smpte_masterlockingstatus,
+                                                    tvb, Offset, 1, ENC_BIG_ENDIAN);
+                                            Offset += 1;
+
+                                            timeaddressflags_ti = proto_tree_add_item(ptp_smptedata_tree,
+                                                    hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags, tvb, Offset, 1, ENC_NA);
+                                            ptp_timeaddress_tree = proto_item_add_subtree(timeaddressflags_ti, ett_ptp_oe_smpte_timeaddress);
+                                            proto_tree_add_item(ptp_timeaddress_tree,
+                                                    hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags_drop, tvb, Offset, 1, ENC_BIG_ENDIAN);
+                                            proto_tree_add_item(ptp_timeaddress_tree,
+                                                    hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags_color, tvb, Offset, 1, ENC_BIG_ENDIAN);
+                                            Offset += 1;
+
+                                            proto_tree_add_item(ptp_smptedata_tree, hf_ptp_v2_oe_tlv_subtype_smpte_currentlocaloffset,
+                                                    tvb, Offset, 4, ENC_BIG_ENDIAN);
+                                            Offset += 4;
+
+                                            proto_tree_add_item(ptp_smptedata_tree, hf_ptp_v2_oe_tlv_subtype_smpte_jumpseconds,
+                                                    tvb, Offset, 4, ENC_BIG_ENDIAN);
+                                            Offset += 4;
+
+                                            proto_tree_add_item(ptp_smptedata_tree, hf_ptp_v2_oe_tlv_subtype_smpte_timeofnextjump,
+                                                    tvb, Offset, 6, ENC_BIG_ENDIAN);
+                                            Offset += 6;
+
+                                            proto_tree_add_item(ptp_smptedata_tree, hf_ptp_v2_oe_tlv_subtype_smpte_timeofnextjam,
+                                                    tvb, Offset, 6, ENC_BIG_ENDIAN);
+                                            Offset += 6;
+
+                                            proto_tree_add_item(ptp_smptedata_tree, hf_ptp_v2_oe_tlv_subtype_smpte_timeofpreviousjam,
+                                                    tvb, Offset, 6, ENC_BIG_ENDIAN);
+                                            Offset += 6;
+
+                                            proto_tree_add_item(ptp_smptedata_tree, hf_ptp_v2_oe_tlv_subtype_smpte_previousjamlocaloffset,
+                                                    tvb, Offset, 4, ENC_BIG_ENDIAN);
+                                            Offset += 4;
+
+                                            daylightsavingflags_ti = proto_tree_add_item(ptp_smptedata_tree,
+                                                    hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving, tvb, Offset, 1, ENC_NA);
+                                            ptp_daylightsaving_tree = proto_item_add_subtree(daylightsavingflags_ti, ett_ptp_oe_smpte_daylightsaving);
+                                            proto_tree_add_item(ptp_daylightsaving_tree,
+                                                    hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving_current, tvb, Offset, 1, ENC_BIG_ENDIAN);
+                                            proto_tree_add_item(ptp_daylightsaving_tree,
+                                                    hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving_next, tvb, Offset, 1, ENC_BIG_ENDIAN);
+                                            proto_tree_add_item(ptp_daylightsaving_tree,
+                                                    hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving_previous, tvb, Offset, 1, ENC_BIG_ENDIAN);
+                                            Offset += 1;
+
+                                            leapsecondjumpflags_ti = proto_tree_add_item(ptp_smptedata_tree,
+                                                    hf_ptp_v2_oe_tlv_subtype_smpte_leapsecondjump, tvb, Offset, 1, ENC_NA);
+                                            ptp_leapsecondjump_tree = proto_item_add_subtree(leapsecondjumpflags_ti, ett_ptp_oe_smpte_leapsecondjump);
+                                            proto_tree_add_item(ptp_leapsecondjump_tree,
+                                                    hf_ptp_v2_oe_tlv_subtype_smpte_leapsecondjump_change, tvb, Offset, 1, ENC_BIG_ENDIAN);
+                                            Offset += 1;
+                                            break;
+                                        }
+                                }
+                            break;
+                            }
+                        }
+                    }
                     default:
                     {
                         break;
@@ -5931,6 +6088,111 @@ proto_register_ptp(void)
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
+        { &hf_ptp_v2_oe_tlv_smpte_subtype,
+          { "SMPTE SubType", "ptp.v2.oe.smpte.SubType",
+            FT_UINT24, BASE_HEX, VALS(ptp2_org_smpte_subtype_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_data,
+          { "SMPTE Data", "ptp.v2.oe.smpte.data",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_defaultsystemframerate,
+          { "defaultSystemFramerate", "ptp.v2.oe.smpte.defaultsystemframerate",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_defaultsystemframerate_numerator,
+          { "Numerator", "ptp.v2.oe.smpte.defaultsystemframerate.numerator",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_defaultsystemframerate_denominator,
+          { "Denominator", "ptp.v2.oe.smpte.defaultsystemframerate.denominator",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_masterlockingstatus,
+          { "masterLockingStatus", "ptp.v2.oe.smpte.masterlockingstatus",
+            FT_UINT8, BASE_DEC, VALS(ptp2_org_smpte_subypte_masterlockingstatus_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags,
+          { "timeAdressFlags", "ptp.v2.oe.smpte.timeadressflags",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags_drop,
+          { "Drop frame", "ptp.v2.oe.smpte.timeadressflags.drop",
+            FT_BOOLEAN, 8, TFS(&tfs_inuse_not_inuse), PTP_V2_FLAGS_OE_SMPTE_TIME_ADRESS_FIELD_DROP,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_timeaddressflags_color,
+          { "Color frame identification", "ptp.v2.oe.smpte.timeadressflags.color",
+            FT_BOOLEAN, 8, TFS(&tfs_inuse_not_inuse), PTP_V2_FLAGS_OE_SMPTE_TIME_ADRESS_FIELD_COLOR,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_currentlocaloffset,
+          { "currentLocalOffset", "ptp.v2.oe.smpte.currentlocaloffset",
+            FT_INT32, BASE_DEC, NULL, 0x00,
+            "Offset in seconds of Local Time from grandmaster PTP time", HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_jumpseconds,
+          { "jumpSeconds", "ptp.v2.oe.smpte.jumpseconds",
+            FT_INT32, BASE_DEC, NULL, 0x00,
+            "Size of next discontinuity, in seconds, of Local Time", HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_timeofnextjump,
+          { "timeOfNextJump", "ptp.v2.oe.smpte.timeofnextjump",
+            FT_UINT48, BASE_DEC, NULL, 0x00,
+            "Value of the seconds portion at the time that the next discontinuity of the currentLocalOffset will occur", HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_timeofnextjam,
+          { "timeOfNextJam", "ptp.v2.oe.smpte.timeofnextjam",
+            FT_UINT48, BASE_DEC, NULL, 0x00,
+            "Value of the seconds portion to the next scheduled Daily Jam", HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_timeofpreviousjam,
+          { "timeOfPreviousJam", "ptp.v2.oe.smpte.timeofpreviousjam",
+            FT_UINT48, BASE_DEC, NULL, 0x00,
+            "Value of the seconds portion of the previous Daily Jam", HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_previousjamlocaloffset,
+          { "previousJamLocalOffset", "ptp.v2.oe.smpte.previousjamlocaloffset",
+            FT_INT32, BASE_DEC, NULL, 0x00,
+            "Value of current LocalOffset at the time of the previous Daily Jam", HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving,
+          { "daylightSaving", "ptp.v2.oe.smpte.daylightsaving",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving_current,
+          { "Current", "ptp.v2.oe.smpte.daylightsaving.current",
+            FT_BOOLEAN, 8, TFS(&tfs_used_notused), PTP_V2_FLAGS_OE_SMPTE_DAYLIGHT_SAVING_CURRENT,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving_next,
+          { "Next", "ptp.v2.oe.smpte.daylightsaving.next",
+            FT_BOOLEAN, 8, TFS(&tfs_used_notused), PTP_V2_FLAGS_OE_SMPTE_DAYLIGHT_SAVING_NEXT,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_daylightsaving_previous,
+          { "Previous", "ptp.v2.oe.smpte.daylightsaving.previous",
+            FT_BOOLEAN, 8, TFS(&tfs_used_notused), PTP_V2_FLAGS_OE_SMPTE_DAYLIGHT_SAVING_PREVIOUS,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_leapsecondjump,
+          { "leapSecondJump", "ptp.v2.oe.smpte.leapsecondjump",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_smpte_leapsecondjump_change,
+          { "Change in number", "ptp.v2.oe.smpte.leaspsecondjump",
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), PTP_V2_FLAGS_OE_SMPTE_LEAP_SECOND_JUMP_CHANGE,
+            NULL, HFILL }
+        },
     };
 
 
@@ -5956,6 +6218,11 @@ proto_register_ptp(void)
         &ett_ptp_v2_tlv,
         &ett_ptp_v2_tlv_log_period,
         &ett_ptp_as_sig_tlv_flags,
+        &ett_ptp_oe_smpte_data,
+        &ett_ptp_oe_smpte_framerate,
+        &ett_ptp_oe_smpte_timeaddress,
+        &ett_ptp_oe_smpte_daylightsaving,
+        &ett_ptp_oe_smpte_leapsecondjump,
     };
 
     static ei_register_info ei[] = {
