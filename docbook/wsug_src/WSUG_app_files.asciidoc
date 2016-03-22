@@ -112,6 +112,7 @@ different folders are used for these files.
 |_services_|Network services.|/etc/services, $HOME/.wireshark/services|%WIRESHARK%\services, %APPDATA%\Wireshark\services
 |_subnets_|IPv4 subnet name resolution.|/etc/subnets, $HOME/.wireshark/subnets|%WIRESHARK%\subnets, %APPDATA%\Wireshark\subnets
 |_ipxnets_|IPX name resolution.|/etc/ipxnets, $HOME/.wireshark/ipxnets|%WIRESHARK%\ipxnets, %APPDATA%\Wireshark\ipxnets
+|_vlans_|VLAN ID name resolution.|$HOME/.wireshark/vlans|%APPDATA%\Wireshark\vlans
 |_plugins_|Plugin directories.|/usr/share/wireshark/plugins, /usr/local/share/wireshark/plugins, $HOME/.wireshark/plugins|%WIRESHARK%\plugins\<version>,%APPDATA%\Wireshark\plugins
 |_temp_|Temporary files.|Environment: TMPDIR|Environment: TMPDIR or TEMP
 |===============
@@ -322,6 +323,22 @@ C0.A8.2C.00      HR
 c0-a8-1c-00      CEO
 00:00:BE:EF      IT_Server1
 110f             FileServer3
+----
+
+The settings from this file are read in at program start and never written by
+Wireshark.
+--
+
+_vlans_::
+Wireshark uses the files listed in <<AppFilesTabFolders>> to translate VLAN tag IDs into names.
++
+--
+Each line in this file consists of one VLAN tag ID and a describing name separated by whitespace or tab.
+
+An example is:
+----
+123     Server-LAN
+2049    HR-Client-LAN
 ----
 
 The settings from this file are read in at program start and never written by

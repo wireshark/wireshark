@@ -745,6 +745,10 @@ Try to resolve a TCP/UDP port (e.g. 80) to something more ``human readable''.
 __TCP/UDP port conversion (system service)__: Wireshark will ask the operating
 system to convert a TCP or UDP port to its well known name (e.g. 80 -> http).
 
+==== VLAN ID resolution
+
+To get a describing name for a VLAN tag ID a vlans file can be used.
+
 // XXX - mention the role of the /etc/services file (but don't forget the files and folders section)!
 
 [[ChAdvChecksums]]
