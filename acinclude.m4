@@ -343,10 +343,7 @@ AC_DEFUN([AC_WIRESHARK_PCAP_CHECK],
 	    #
 	    AC_MSG_CHECKING(for extraneous pcap header directories)
 	    found_pcap_dir=""
-	    pcap_dir_list="/usr/include/pcap $prefix/include/pcap $prefix/include"
-	    if test "x$ac_cv_enable_usr_local" = "xyes" ; then
-	      pcap_dir_list="$pcap_dir_list /usr/local/include/pcap"
-	    fi
+	    pcap_dir_list="/usr/local/include/pcap /usr/include/pcap $prefix/include/pcap $prefix/include"
 	    for pcap_dir in $pcap_dir_list
 	    do
 	      if test -d $pcap_dir ; then
@@ -751,7 +748,7 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 		then
 			# The user didn't tell us where to look so we'll look in some
 			# standard locations.
-			want_lua_dir="/usr /usr/local $prefix"
+			want_lua_dir="/usr/local /usr $prefix"
 		fi
 		for dir in $want_lua_dir
 		do
@@ -990,12 +987,6 @@ AC_DEFUN([AC_WIRESHARK_C_ARES_CHECK],
 
 	if test "x$want_c_ares" = "xdefaultyes"; then
 		want_c_ares=yes
-		if test "x$ac_cv_enable_usr_local" = "xyes" ; then
-			withval=/usr/local
-			if test -d "$withval"; then
-				AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
-			fi
-		fi
 	fi
 
 	if test "x$want_c_ares" = "xyes"; then
@@ -1021,12 +1012,6 @@ AC_DEFUN([AC_WIRESHARK_LIBCAP_CHECK],
 
 	if test "x$want_libcap" = "xdefaultyes"; then
 		want_libcap=yes
-		if test "x$ac_cv_enable_usr_local" = "xyes" ; then
-			withval=/usr/local
-			if test -d "$withval"; then
-				AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
-			fi
-		fi
 	fi
 
 	if test "x$want_libcap" = "xyes"; then
@@ -1307,12 +1292,6 @@ AC_DEFUN([AC_WIRESHARK_GEOIP_CHECK],
 
 	if test "x$want_geoip" = "xdefaultyes"; then
 		want_geoip=yes
-		if test "x$ac_cv_enable_usr_local" = "xyes" ; then
-			withval=/usr/local
-			if test -d "$withval"; then
-				AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
-			fi
-		fi
 	fi
 
 	if test "x$want_geoip" = "xyes"; then
@@ -1344,12 +1323,6 @@ AC_DEFUN([AC_WIRESHARK_LIBSSH_CHECK],
 
 	if test "x$want_libssh" = "xdefaultyes"; then
 		want_libssh=yes
-		if test "x$ac_cv_enable_usr_local" = "xyes" ; then
-			withval=/usr/local
-			if test -d "$withval"; then
-				AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
-			fi
-		fi
 	fi
 
 	if test "x$want_libssh" = "xyes"; then

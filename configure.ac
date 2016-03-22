@@ -1451,38 +1451,6 @@ solaris*)
 	;;
 esac
 
-dnl Look in /usr/local for header files and libraries ?
-dnl XXX FIXME don't include /usr/local if it is already in the system
-dnl search path as this causes gcc 3.2 on Linux to complain about a change
-dnl of the system search order for includes
-AC_ARG_ENABLE(usr-local,
-  AC_HELP_STRING( [--enable-usr-local],
-		  [look for headers and libs in /usr/local tree @<:@default=yes@:>@]),
-    ac_cv_enable_usr_local=$enableval,ac_cv_enable_usr_local=yes)
-
-AC_MSG_CHECKING(whether to use /usr/local for headers and libraries)
-if test "x$ac_cv_enable_usr_local" = "xyes" ; then
-	if test -d "/usr/local"; then
-		AC_MSG_RESULT(yes)
-		#
-		# Arrange that we search for header files in the source directory
-		# and in its "wiretap" subdirectory, as well as in "/usr/local/include",
-		# as various packages we use ("libpcap", "zlib", "c-ares")
-		# may have been installed under "/usr/local/include".
-		#
-		AX_APPEND_FLAG([-I/usr/local/include], [WS_CPPFLAGS])
-
-		#
-		# Arrange that we search for libraries in "/usr/local/lib".
-		#
-		AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, /usr/local/lib)
-	else
-		AC_MSG_RESULT(no)
-	fi
-else
-	AC_MSG_RESULT(no)
-fi
-
 #
 # If we're running Solaris, and LD_LIBRARY_PATH is defined, add it as a
 # link directory.
