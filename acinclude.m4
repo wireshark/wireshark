@@ -659,7 +659,7 @@ AC_DEFUN([AC_WIRESHARK_ZLIB_CHECK],
 		  WS_CPPFLAGS="$WS_CPPFLAGS -I$zlib_dir/include"
 		  AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, $zlib_dir/lib)
 		fi
-		LIBS="$LIBS -lz"
+		LIBS="-lz $LIBS"
 		AC_DEFINE(HAVE_LIBZ, 1, [Define to use libz library])
 		#
 		# Check for "inflatePrime()" in zlib, which we need
@@ -818,12 +818,11 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 				AC_SEARCH_LIBS(luaL_openlibs, [lua-${lua_ver} lua${lua_ver} lua],
 				[
 					LUA_LIBS="-L$lua_dir/lib $ac_cv_search_luaL_openlibs -lm"
-					LIBS="$wireshark_save_LIBS"
 					have_lua=yes
 				],[
-					LIBS="$wireshark_save_LIBS"
 					have_lua=no
 				], -lm)
+				LIBS="$wireshark_save_LIBS"
 			fi
 		fi
 	fi
@@ -856,7 +855,7 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 		CPPFLAGS="$CPPFLAGS -I$portaudio_dir/include"
 		LDFLAGS="$LDFLAGS -L$portaudio_dir/lib"
 	fi
-	LIBS="$LIBS -lportaudio"
+	LIBS="-lportaudio $LIBS"
 
 	#
 	# Make sure we have "portaudio.h".  If we don't, it means we probably
