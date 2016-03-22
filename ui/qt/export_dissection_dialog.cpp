@@ -36,13 +36,14 @@
 
 #include "qt_ui_utils.h"
 
-#include "wireshark_application.h"
 
 #include <QDialogButtonBox>
 #include <QGridLayout>
 #include <QPushButton>
-
 #endif // Q_OS_WIN
+
+#include <epan/prefs.h>
+#include "wireshark_application.h"
 
 ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *cap_file, export_type_e export_type):
     QFileDialog(parent),
@@ -52,6 +53,29 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
     , save_bt_(NULL)
 #endif /* Q_OS_WIN */
 {
+
+    switch (prefs.gui_fileopen_style) {
+
+    case FO_STYLE_LAST_OPENED:
+        /* The user has specified that we should start out in the last directory
+         * we looked in.  If we've already opened a file, use its containing
+         * directory, if we could determine it, as the directory, otherwise
+         * use the "last opened" directory saved in the preferences file if
+         * there was one.
+         */
+        setDirectory(wsApp->lastOpenDir());
+        break;
+
+    case FO_STYLE_SPECIFIED:
+        /* The user has specified that we should always start out in a
+         * specified directory; if they've specified that directory,
+         * start out by showing the files in that dir.
+         */
+        if (prefs.gui_fileopen_dir[0] != '\0')
+            setDirectory(prefs.gui_fileopen_dir);
+        break;
+    }
+
 #if !defined(Q_OS_WIN)
     QDialogButtonBox *button_box = findChild<QDialogButtonBox *>();
     // Add extra widgets
