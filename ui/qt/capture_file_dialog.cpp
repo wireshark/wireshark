@@ -32,13 +32,10 @@
 
 #include <errno.h>
 #include "file.h"
-#include "../../epan/addr_resolv.h"
-#include "../../epan/prefs.h"
-#include "../../wsutil/filesystem.h"
-#include "../../wsutil/nstime.h"
+#include "epan/addr_resolv.h"
+#include "wsutil/filesystem.h"
+#include "wsutil/nstime.h"
 #include "ui/all_files_wildcard.h"
-
-#include <wireshark_application.h>
 
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -52,6 +49,8 @@
 #endif // Q_OS_WIN
 
 #include <QPushButton>
+#include "epan/prefs.h"
+#include <wireshark_application.h>
 
 #ifdef Q_OS_WIN
 // All of these routines are required by file_dlg_win32.c.
@@ -100,8 +99,28 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString 
     file_type_(-1)
 #endif
 {
+    switch (prefs.gui_fileopen_style) {
+    case FO_STYLE_LAST_OPENED:
+        /* The user has specified that we should start out in the last directory
+         * we looked in.  If we've already opened a file, use its containing
+         * directory, if we could determine it, as the directory, otherwise
+         * use the "last opened" directory saved in the preferences file if
+         * there was one.
+         */
+        setDirectory(wsApp->lastOpenDir());
+        break;
+
+    case FO_STYLE_SPECIFIED:
+        /* The user has specified that we should always start out in a
+         * specified directory; if they've specified that directory,
+         * start out by showing the files in that dir.
+         */
+        if (prefs.gui_fileopen_dir[0] != '\0')
+            setDirectory(prefs.gui_fileopen_dir);
+        break;
+    }
+
 #if !defined(Q_OS_WIN)
-    setDirectory(wsApp->lastOpenDir());
     // Add extra widgets
     // https://wiki.qt.io/Qt_project_org_faq#How_can_I_add_widgets_to_my_QFileDialog_instance.3F
     setOption(QFileDialog::DontUseNativeDialog, true);

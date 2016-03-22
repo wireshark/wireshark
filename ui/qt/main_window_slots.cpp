@@ -176,26 +176,6 @@ bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned 
         if (cf_path.isEmpty()) {
             CaptureFileDialog open_dlg(this, capture_file_.capFile(), read_filter);
 
-            switch (prefs.gui_fileopen_style) {
-
-            case FO_STYLE_LAST_OPENED:
-                /* The user has specified that we should start out in the last directory
-                   we looked in.  If we've already opened a file, use its containing
-                   directory, if we could determine it, as the directory, otherwise
-                   use the "last opened" directory saved in the preferences file if
-                   there was one. */
-                /* This is now the default behaviour in file_selection_new() */
-                break;
-
-            case FO_STYLE_SPECIFIED:
-                /* The user has specified that we should always start out in a
-                   specified directory; if they've specified that directory,
-                   start out by showing the files in that dir. */
-                if (prefs.gui_fileopen_dir[0] != '\0')
-                    open_dlg.setDirectory(prefs.gui_fileopen_dir);
-                break;
-            }
-
             if (open_dlg.open(file_name, type)) {
                 cf_path = file_name;
             } else {

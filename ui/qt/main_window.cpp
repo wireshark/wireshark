@@ -1013,26 +1013,6 @@ void MainWindow::mergeCaptureFile()
         char        *in_filenames[2];
         char        *tmpname;
 
-        switch (prefs.gui_fileopen_style) {
-
-        case FO_STYLE_LAST_OPENED:
-            /* The user has specified that we should start out in the last directory
-           we looked in.  If we've already opened a file, use its containing
-           directory, if we could determine it, as the directory, otherwise
-           use the "last opened" directory saved in the preferences file if
-           there was one. */
-            /* This is now the default behaviour in file_selection_new() */
-            break;
-
-        case FO_STYLE_SPECIFIED:
-            /* The user has specified that we should always start out in a
-           specified directory; if they've specified that directory,
-           start out by showing the files in that dir. */
-            if (prefs.gui_fileopen_dir[0] != '\0')
-                merge_dlg.setDirectory(prefs.gui_fileopen_dir);
-            break;
-        }
-
         if (merge_dlg.merge(file_name)) {
             gchar *err_msg;
 
@@ -1257,26 +1237,6 @@ void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
     for (;;) {
         CaptureFileDialog save_as_dlg(this, cf);
 
-        switch (prefs.gui_fileopen_style) {
-
-        case FO_STYLE_LAST_OPENED:
-            /* The user has specified that we should start out in the last directory
-               we looked in.  If we've already opened a file, use its containing
-               directory, if we could determine it, as the directory, otherwise
-               use the "last opened" directory saved in the preferences file if
-               there was one. */
-            /* This is now the default behaviour in file_selection_new() */
-            break;
-
-        case FO_STYLE_SPECIFIED:
-            /* The user has specified that we should always start out in a
-               specified directory; if they've specified that directory,
-               start out by showing the files in that dir. */
-            if (prefs.gui_fileopen_dir[0] != '\0')
-                save_as_dlg.setDirectory(prefs.gui_fileopen_dir);
-            break;
-        }
-
         /* If the file has comments, does the format the user selected
            support them?  If not, ask the user whether they want to
            discard the comments or choose a different format. */
@@ -1376,26 +1336,6 @@ void MainWindow::exportSelectedPackets() {
 
     for (;;) {
         CaptureFileDialog esp_dlg(this, capture_file_.capFile());
-
-        switch (prefs.gui_fileopen_style) {
-
-        case FO_STYLE_LAST_OPENED:
-            /* The user has specified that we should start out in the last directory
-               we looked in.  If we've already opened a file, use its containing
-               directory, if we could determine it, as the directory, otherwise
-               use the "last opened" directory saved in the preferences file if
-               there was one. */
-            /* This is now the default behaviour in file_selection_new() */
-            break;
-
-        case FO_STYLE_SPECIFIED:
-            /* The user has specified that we should always start out in a
-               specified directory; if they've specified that directory,
-               start out by showing the files in that dir. */
-            if (prefs.gui_fileopen_dir[0] != '\0')
-                esp_dlg.setDirectory(prefs.gui_fileopen_dir);
-            break;
-        }
 
         /* If the file has comments, does the format the user selected
            support them?  If not, ask the user whether they want to
