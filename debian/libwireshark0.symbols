@@ -784,7 +784,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  hex_str_to_bytes_encoding@Base 1.12.0~rc1
  hf_text_only@Base 1.9.1
  hfinfo_bitshift@Base 1.12.0~rc1
- host_ip_af@Base 1.9.1
  host_name_lookup_process@Base 1.9.1
  hostlist_table_set_gui_info@Base 1.99.0
  http_dissector_add@Base 1.9.1

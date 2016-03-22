@@ -323,14 +323,6 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp);
 WS_DLL_PUBLIC
 gboolean get_host_ipaddr6(const char *host, struct e_in6_addr *addrp);
 
-/*
- * Find out whether a hostname resolves to an ip or ipv6 address
- * Return "ip6" if it is IPv6, "ip" otherwise (including the case
- * that we don't know)
- */
-WS_DLL_PUBLIC
-const char* host_ip_af(const char *host);
-
 WS_DLL_PUBLIC
 GHashTable *get_manuf_hashtable(void);
 

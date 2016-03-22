@@ -3236,34 +3236,6 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
     return FALSE;
 }
 
-/*
- * Find out whether a hostname resolves to an ip or ipv6 address
- * Return "ip6" if it is IPv6, "ip" otherwise (including the case
- * that we don't know)
- */
-const char *
-#ifdef HAVE_GETADDRINFO
-host_ip_af(const char *host)
-#else
-host_ip_af(const char *host _U_)
-#endif
-{
-    const char *af = "ip";
-
-#ifdef HAVE_GETADDRINFO
-    struct addrinfo hint, *result = NULL;
-    memset(&hint, 0, sizeof(hint));
-    hint.ai_family = AF_UNSPEC;
-    if (getaddrinfo(host, NULL, &hint, &result) == 0) {
-        if (result->ai_family == AF_INET6) {
-            af = "ip6";
-        }
-        freeaddrinfo(result);
-    }
-#endif
-    return af;
-}
-
 GHashTable *
 get_manuf_hashtable(void)
 {

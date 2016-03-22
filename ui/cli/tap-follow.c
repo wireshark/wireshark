@@ -63,7 +63,7 @@ typedef struct _cli_follow_info {
 #define STR_EBCDIC      ",ebcdic"
 #define STR_RAW         ",raw"
 
-static void follow_exit(const char *strp)
+WS_NORETURN static void follow_exit(const char *strp)
 {
   fprintf(stderr, "tshark: follow - %s\n", strp);
   exit(1);
@@ -343,6 +343,7 @@ follow_arg_filter(const char **opt_argp, follow_info_t *follow_info)
   unsigned int  ii;
   char          addr[ADDR_LEN];
   cli_follow_info_t* cli_follow_info = (cli_follow_info_t*)follow_info->gui_data;
+  gboolean is_ipv6;
 
   if (sscanf(*opt_argp, ",%u%n", &cli_follow_info->stream_index, &len) == 1 &&
       ((*opt_argp)[len] == 0 || (*opt_argp)[len] == ','))
@@ -353,14 +354,25 @@ follow_arg_filter(const char **opt_argp, follow_info_t *follow_info)
   {
     for (ii = 0; ii < sizeof cli_follow_info->addr/sizeof *cli_follow_info->addr; ii++)
     {
-      if ((sscanf(*opt_argp, ADDRv6_FMT, addr, &cli_follow_info->port[ii], &len) != 2 &&
-           sscanf(*opt_argp, ADDRv4_FMT, addr, &cli_follow_info->port[ii], &len) != 2) ||
-          cli_follow_info->port[ii] <= 0 || cli_follow_info->port[ii] > G_MAXUINT16)
+      if (sscanf(*opt_argp, ADDRv6_FMT, addr, &cli_follow_info->port[ii], &len) == 2)
       {
-        follow_exit("Invalid address:port pair.");
+        is_ipv6 = TRUE;
+      }
+      else if (sscanf(*opt_argp, ADDRv4_FMT, addr, &cli_follow_info->port[ii], &len) == 2)
+      {
+        is_ipv6 = FALSE;
+      }
+      else
+      {
+        follow_exit("Invalid address.");
       }
 
-      if (strcmp("ip6", host_ip_af(addr)) == 0)
+      if (cli_follow_info->port[ii] <= 0 || cli_follow_info->port[ii] > G_MAXUINT16)
+      {
+        follow_exit("Invalid port.");
+      }
+
+      if (is_ipv6)
       {
         if (!get_host_ipaddr6(addr, (struct e_in6_addr *)cli_follow_info->addrBuf[ii]))
         {

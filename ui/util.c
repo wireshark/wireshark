@@ -169,9 +169,9 @@ const gchar *get_conn_cfilter(void) {
         if (g_strv_length(tokens) == 4) {
             remip = sanitize_filter_ip(tokens[0]);
             locip = sanitize_filter_ip(tokens[2]);
-            g_string_printf(filter_str, "not (tcp port %s and %s host %s "
-                             "and tcp port %s and %s host %s)", tokens[1], host_ip_af(remip), remip,
-                tokens[3], host_ip_af(locip), locip);
+            g_string_printf(filter_str, "not (tcp port %s and host %s "
+                             "and tcp port %s and host %s)", tokens[1], remip,
+                tokens[3], locip);
             g_free(remip);
             g_free(locip);
         }
@@ -180,8 +180,8 @@ const gchar *get_conn_cfilter(void) {
         tokens = g_strsplit(env, " ", 3);
         if (g_strv_length(tokens) == 3) {
             remip = sanitize_filter_ip(tokens[2]);
-            g_string_printf(filter_str, "not (tcp port %s and %s host %s "
-                "and tcp port %s)", tokens[1], host_ip_af(remip), tokens[0], remip);
+            g_string_printf(filter_str, "not (tcp port %s and host %s "
+                "and tcp port %s)", tokens[1], tokens[0], remip);
             g_free(remip);
         }
         g_strfreev(tokens);
@@ -193,7 +193,7 @@ const gchar *get_conn_cfilter(void) {
             return "";
         }
         remip = sanitize_filter_ip(env);
-        g_string_printf(filter_str, "not %s host %s", host_ip_af(remip), remip);
+        g_string_printf(filter_str, "not host %s", remip);
         g_free(remip);
     } else if ((env = getenv("DISPLAY")) != NULL) {
         /*
@@ -322,8 +322,7 @@ const gchar *get_conn_cfilter(void) {
             }
         }
 
-        g_string_printf(filter_str, "not %s host %s",
-            host_ip_af(phostname), phostname);
+        g_string_printf(filter_str, "not host %s", phostname);
         g_free(phostname);
 #ifdef _WIN32
     } else if (GetSystemMetrics(SM_REMOTESESSION)) {
