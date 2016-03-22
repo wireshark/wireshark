@@ -21,8 +21,6 @@
 include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
-ACLOCAL_AMFLAGS = `../aclocal-flags`
-
 AM_CPPFLAGS = -DWS_BUILD_DLL $(INCLUDEDIRS) $(WS_CPPFLAGS) \
 	$(GLIB_CFLAGS)
 

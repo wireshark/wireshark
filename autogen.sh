@@ -135,7 +135,7 @@ fi
 
 $DIE
 
-aclocal_flags=`./aclocal-flags`
+aclocal_flags="-I ./aclocal-fallback"
 aclocalinclude="$ACLOCAL_FLAGS $aclocal_flags";
 echo $ACLOCAL $aclocalinclude
 $ACLOCAL $aclocalinclude || exit 1

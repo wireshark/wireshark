@@ -24,7 +24,7 @@ include ./Makefile.am.inc
 AM_DISTCHECK_CONFIGURE_FLAGS=@GUI_CONFIGURE_FLAGS@
 # Make sure to keep ACLOCAL_AMFLAGS in Makefile.am and AC_CONFIG_MACRO_DIRS
 # in configure.ac in sync, otherwise there will be an error running autogen.sh.
-ACLOCAL_AMFLAGS = `./aclocal-flags`
+ACLOCAL_AMFLAGS = -I ./aclocal-fallback
 
 # Common headers
 COMMONCPPFLAGS =
@@ -709,7 +709,7 @@ EXTRA_DIST = \
 	aclocal-fallback/ax_prog_cc_for_build.m4	\
 	aclocal-fallback/libsmi.m4			\
 	aclocal-fallback/libgcrypt.m4			\
-	aclocal-flags		\
+	aclocal-fallback/pkg.m4				\
 	autogen.sh		\
 	capinfos.c		\
 	captype.c		\

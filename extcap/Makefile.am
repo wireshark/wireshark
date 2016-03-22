@@ -22,8 +22,6 @@
 include Makefile.common
 include ../Makefile.am.inc
 
-ACLOCAL_AMFLAGS = `../aclocal-flags`
-
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS)
 
 MAINTAINERCLEANFILES = \

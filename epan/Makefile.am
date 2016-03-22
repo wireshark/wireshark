@@ -38,8 +38,6 @@ SUBDIRS = compress crypt ftypes dfilter dissectors nghttp2 wmem $(wslua_dir)
 
 DIST_SUBDIRS = $(SUBDIRS) $(wslua_dist_dir)
 
-ACLOCAL_AMFLAGS = `../aclocal-flags`
-
 AM_CPPFLAGS = $(INCLUDEDIRS) -I$(builddir)/wslua $(WS_CPPFLAGS) \
 	$(GLIB_CFLAGS) $(LUA_CFLAGS) $(LIBGNUTLS_CFLAGS) \
 	$(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS) $(LIBGEOIP_CFLAGS) \

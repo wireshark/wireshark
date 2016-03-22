@@ -22,8 +22,6 @@
 include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
-ACLOCAL_AMFLAGS = `../aclocal-flags`
-
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) -DWS_BUILD_DLL $(GLIB_CFLAGS)
 
 noinst_LTLIBRARIES = libwiretap_generated.la

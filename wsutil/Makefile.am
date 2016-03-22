@@ -21,8 +21,6 @@
 include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
-ACLOCAL_AMFLAGS = `../aclocal-flags`
-
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) -DWS_BUILD_DLL \
 	-DTOP_SRCDIR=\"$(abs_top_srcdir)\" 	\
 	-DDATAFILE_DIR=\"$(pkgdatadir)\" 	\
