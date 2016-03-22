@@ -440,13 +440,13 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
                         case FT_INT48:
                         case FT_INT56:
                         case FT_INT64:
-                        case FT_BOOLEAN:
                             fprintf(pdata->fh, "%" G_GINT64_MODIFIER "X", fvalue_get_sinteger64(&fi->value));
                             break;
                         case FT_UINT40:
                         case FT_UINT48:
                         case FT_UINT56:
                         case FT_UINT64:
+                        case FT_BOOLEAN:
                             fprintf(pdata->fh, "%" G_GINT64_MODIFIER "X", fvalue_get_uinteger64(&fi->value));
                             break;
                         default:
