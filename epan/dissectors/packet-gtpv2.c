@@ -450,6 +450,10 @@ static int hf_gtpv2_ik_ps = -1;
 static int hf_gtpv2_kc_ps = -1;
 static int hf_gtpv2_cksn_ps = -1;
 
+static int hf_gtpv2_pres_rep_area_info_id = -1;
+static int hf_gtpv2_pres_rep_area_info_opra = -1;
+static int hf_gtpv2_pres_rep_area_info_ipra = -1;
+
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_gtpv2_downlink_subscribed_ue_ambr = -1;
 static int hf_gtpv2_mm_context_sres = -1;
@@ -5847,7 +5851,14 @@ dissect_gtpv2_pres_rep_area_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static void
 dissect_gtpv2_pres_rep_area_information(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    int offset = 0;
+
+    /*Octet 5 to 7      Presence Reporting Area Identifier */
+    proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_info_id, tvb, offset, 3 , ENC_BIG_ENDIAN);
+    offset+=3;
+
+    proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_info_opra, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_info_ipra, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 /*
  * 8.110        TWAN Identifier Timestamp
@@ -8410,6 +8421,21 @@ void proto_register_gtpv2(void)
         { "CKSN'ps", "gtpv2.cksn_ps",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_gtpv2_pres_rep_area_info_id,
+          {"Presence Reporting Area Identifier", "gtpv2.pres_rep_area_info_id",
+            FT_UINT24, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_gtpv2_pres_rep_area_info_opra,
+          {"Outside Presence Reporting Area(OPRA) Flag", "gtpv2.pres_rep_area_info_opra",
+            FT_BOOLEAN, 8, NULL, 0x2,
+            NULL, HFILL}
+        },
+        { &hf_gtpv2_pres_rep_area_info_ipra,
+          {"Inside Presence Reporting Area(IPRA) Flag", "gtpv2.pres_rep_area_info_ipra",
+            FT_BOOLEAN, 8, NULL, 0x1,
+            NULL, HFILL}
         },
         { &hf_gtpv2_ppi_value,
             {"Paging and Policy Information Value", "gtpv2.ppi_value",
