@@ -1586,10 +1586,10 @@ finished_fwd:
         }
 
         /* Check for spurious retransmission. If the current seq + segment length
-         * is less then the receivers lastack, the packet contains duplicated
-         * data and may be considered spurious.
+         * is less than or equal to the receiver's lastack, the packet contains
+         * duplicate data and may be considered spurious.
          */
-        if ( seq + seglen < tcpd->rev->lastack ) {
+        if ( seq + seglen <= tcpd->rev->lastack ) {
             if(!tcpd->ta){
                 tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
             }
