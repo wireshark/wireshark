@@ -510,11 +510,6 @@ static const true_false_string tfs_ecat_subframe_more_vals =
     "More EtherCAT datagrams will follow", "Last EtherCAT datagram"
 };
 
-static const true_false_string tfs_ecat_fmmu_typeread =
-{
-   "Read in use", "Read ignore"
-};
-
 static const true_false_string tfs_ecat_fmmu_typewrite =
 {
    "Write in use", "Write ignore"
