@@ -1,6 +1,19 @@
 # Some more information about the settings in this file can be found in
 # the file README.windows and the Developer's Guide (available online).
 
+##### Deprecation #####
+# Support for NMake and QMake will be removed in June 2016.
+# Uncomment the following line or pass YES_I_KNOW_ABOUT_THE_DEPRECATION=1
+# on the command line to override.
+
+#YES_I_KNOW_ABOUT_THE_DEPRECATION=1
+!IFNDEF YES_I_KNOW_ABOUT_THE_DEPRECATION
+!MESSAGE Nmake is being deprecated. Please consider using CMake instead.
+!MESSAGE See https://www.wireshark.org/docs/wsdg_html_chunked/ChSetupWin32.html
+!MESSAGE for details.
+!ERROR Set YES_I_KNOW_ABOUT_THE_DEPRECATION to disable this message.
+!ENDIF
+
 ##### Program name #####
 # Changing the name is experimental and may break the installer/uninstaller and possibly other stuff.
 # Application data will still be under the same dir as Wireshark so preference files, profiles, and etc

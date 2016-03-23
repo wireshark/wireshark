@@ -7,6 +7,24 @@
 include config.nmake
 include <win32.mak>
 
+##### Deprecation #####
+# Support for NMake and QMake will be removed in June 2016. Removal includes
+# the following files:
+#
+# Makefile.nmake in the top level and most subdirectories.
+# Makefile.nmake.inc
+# config.nmake
+# epan/dissectors/asn1/Makefile.inc.nmake
+# epan/dissectors/asn1/Makefile.preinc.nmake
+# packaging/nsis/Custom.nmake
+# plugins/*/moduleinfo.nmake
+# tools/native-nmake.cmd
+# tools/win-setup.sh
+#
+# Additionally, the following files reference the nmake environment:
+# make-version.pl
+# The autotools 'dist' target
+
 ############### no need to modify below this line #########
 
 CC = cl
