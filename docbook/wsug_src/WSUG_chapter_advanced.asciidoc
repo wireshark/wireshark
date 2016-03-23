@@ -747,7 +747,7 @@ system to convert a TCP or UDP port to its well known name (e.g. 80 -> http).
 
 ==== VLAN ID resolution
 
-To get a describing name for a VLAN tag ID a vlans file can be used.
+To get a descriptive name for a VLAN tag ID a vlans file can be used.
 
 // XXX - mention the role of the /etc/services file (but don't forget the files and folders section)!
 
