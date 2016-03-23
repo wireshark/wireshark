@@ -1393,7 +1393,7 @@ dissect_lat_response_information(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 	proto_tree_add_item_ret_uint(tree, hf_lat_srvc_count, tvb, offset, 1,
 	    ENC_LITTLE_ENDIAN, &srvc_count);
-        
+
 	for (i = 0; i < srvc_count; i++) {
 		proto_item *srvc_entry_len_ti;
 		guint32 srvc_entry_len;
@@ -1405,7 +1405,7 @@ dissect_lat_response_information(tvbuff_t *tvb, int offset, proto_tree *tree,
 		srvc_entry_len_ti = proto_tree_add_item_ret_uint(tree, hf_lat_srvc_entry_len,
 		    tvb, offset, 1, ENC_LITTLE_ENDIAN, &srvc_entry_len);
 		offset += 1;
-        
+
 		if (srvc_entry_len == 0) {
 			expert_add_info(pinfo, srvc_entry_len_ti, &ei_srvc_entry_len_too_short);
 			goto end_entry;
@@ -1879,8 +1879,8 @@ proto_register_lat(void)
 		  BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_status_retransmit_timer,
-	 	{ "Status retransmit timer", "lat.status_retransmit_timer", FT_UINT16,
-	 	  BASE_DEC, NULL, 0x0, NULL, HFILL}},
+		{ "Status retransmit timer", "lat.status_retransmit_timer", FT_UINT16,
+		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_entries_counter,
 		{ "Entries counter", "lat.entries_counter", FT_UINT8,
