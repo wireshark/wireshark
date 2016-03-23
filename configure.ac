@@ -2314,7 +2314,7 @@ fi
 
 if test "x$enable_androiddump" = "xyes" ; then
 	androiddump_bin="androiddump\$(EXEEXT)"
-	androiddump_man=""
+	androiddump_man="androiddump.1"
 else
 	androiddump_bin=""
 	androiddump_man=""
