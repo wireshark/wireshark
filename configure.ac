@@ -3004,7 +3004,7 @@ fi
 
 if test "x$enable_androiddump" = "xyes" ; then
 	androiddump_bin="androiddump\$(EXEEXT)"
-	androiddump_man=""
+	androiddump_man="androiddump.1"
 else
 	androiddump_bin=""
 	androiddump_man=""
@@ -3065,7 +3065,7 @@ fi
 
 if test "x$enable_randpktdump" = "xyes" ; then
 	randpktdump_bin="randpktdump\$(EXEEXT)"
-	randpktdump_man=""
+	randpktdump_man="randpktdump.1"
 else
 	randpktdump_bin=""
 	randpktdump_man=""
