@@ -224,7 +224,7 @@ extern "C" {
 #define WTAP_ENCAP_MIME                         134
 #define WTAP_ENCAP_NETANALYZER                  135
 #define WTAP_ENCAP_NETANALYZER_TRANSPARENT      136
-#define WTAP_ENCAP_IP_OVER_IB                   137
+#define WTAP_ENCAP_IP_OVER_IB_SNOOP             137
 #define WTAP_ENCAP_MPEG_2_TS                    138
 #define WTAP_ENCAP_PPP_ETHER                    139
 #define WTAP_ENCAP_NFC_LLCP                     140
@@ -267,6 +267,7 @@ extern "C" {
 #define WTAP_ENCAP_ISO14443                     177
 #define WTAP_ENCAP_GFP_T                        178
 #define WTAP_ENCAP_GFP_F                        179
+#define WTAP_ENCAP_IP_OVER_IB_PCAP              180
 /* After adding new item here, please also add new item to encap_table_base array */
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
