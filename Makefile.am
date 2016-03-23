@@ -706,9 +706,6 @@ EXTRA_DIST = \
 	aclocal-fallback/ax_append_flag.m4		\
 	aclocal-fallback/ax_check_compile_flag.m4	\
 	aclocal-fallback/ax_compiler_vendor.m4		\
-	aclocal-fallback/ax_ext.m4			\
-	aclocal-fallback/ax_gcc_x86_cpuid.m4		\
-	aclocal-fallback/ax_gcc_x86_avx_xgetbv.m4	\
 	aclocal-fallback/ax_prog_cc_for_build.m4	\
 	aclocal-fallback/libsmi.m4			\
 	aclocal-fallback/libgcrypt.m4			\
