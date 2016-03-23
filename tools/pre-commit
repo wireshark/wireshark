@@ -64,7 +64,9 @@ if [ $? -ne 0 ]; then
 fi
 
 # On windows python will output \r\n line endings - we don't want that
-CHECK_FILES=`echo "$CHECK_FILES" | sed 's/\r//g'`
+# On MacOS the line below will remove all 'r' characters from the filenames
+# - we want this even less.
+#CHECK_FILES=`echo "$CHECK_FILES" | sed 's/\r//g'`
 
 for FILE in $CHECK_FILES; do
 
