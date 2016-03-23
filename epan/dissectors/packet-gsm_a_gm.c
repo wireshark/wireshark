@@ -57,7 +57,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 13.4.0 Release 13)
+ *   (3GPP TS 24.008 version 13.5.0 Release 13)
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -3670,7 +3670,7 @@ de_gmm_net_res_id_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 
 /* [13] 10.5.5.32 Extended DRX parameters */
 static const value_string gsm_a_gm_paging_time_window_vals[] = {
-	{0x0,	"0 second"},
+	{0x0,	"0 seconds (PTW not used)"},
 	{0x1,	"1 second"},
 	{0x2,	"2 seconds"},
 	{0x3,	"3 seconds"},
@@ -4152,7 +4152,7 @@ static const range_string gsm_a_sm_pco_net2ms_prot_vals[] = {
 	{ 0x0011, 0x0011, "Network support of Local address in TFT indicator" },
 	{ 0x0012, 0x0012, "Reserved" },
 	{ 0x0013, 0x0013, "NBIFOM accepted indicator" },
-	{ 0x0014, 0x0014, "Reserved" },
+	{ 0x0014, 0x0014, "NBIFOM mode" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4171,8 +4171,8 @@ static const value_string gsm_a_gm_sel_bearer_ctrl_mode_vals[] = {
 };
 
 static const value_string gsm_a_gm_nbifom_mode_vals[] = {
-	{ 1, "UE-initiated" },
-	{ 2, "network-initiated" },
+	{ 0, "UE-initiated" },
+	{ 1, "network-initiated" },
 	{ 0, NULL }
 };
 
@@ -4291,7 +4291,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 				}
 				break;
 			case 0x0014:
-				if ((link_dir == P2P_DIR_UL) && (e_len == 1)) {
+				if (e_len == 1) {
 					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_nbifom_mode, tvb, curr_offset, 1, ENC_NA);
 				}
 				break;
