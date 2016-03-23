@@ -84,4 +84,5 @@ EXTRA_DIST = \
 	CMakeLists.txt			\
 	doxygen.cfg.in			\
 	Makefile.common			\
-	Makefile.nmake
+	Makefile.nmake			\
+	win32

@@ -23,72 +23,7 @@ include $(top_srcdir)/Makefile.am.inc
 
 SUBDIRS = lemon
 
-PIDL_FILES= \
-	pidl/MANIFEST					\
-	pidl/META.yml					\
-	pidl/Makefile.PL				\
-	pidl/README					\
-	pidl/TODO					\
-	pidl/expr.yp					\
-	pidl/idl.yp					\
-	pidl/lib/Parse/Pidl.pm				\
-	pidl/lib/Parse/Pidl/CUtil.pm			\
-	pidl/lib/Parse/Pidl/Compat.pm			\
-	pidl/lib/Parse/Pidl/Dump.pm			\
-	pidl/lib/Parse/Pidl/Expr.pm			\
-	pidl/lib/Parse/Pidl/IDL.pm			\
-	pidl/lib/Parse/Pidl/NDR.pm			\
-	pidl/lib/Parse/Pidl/ODL.pm			\
-	pidl/lib/Parse/Pidl/Samba3/ClientNDR.pm		\
-	pidl/lib/Parse/Pidl/Samba3/ServerNDR.pm		\
-	pidl/lib/Parse/Pidl/Samba4.pm			\
-	pidl/lib/Parse/Pidl/Samba4/COM/Header.pm	\
-	pidl/lib/Parse/Pidl/Samba4/COM/Proxy.pm		\
-	pidl/lib/Parse/Pidl/Samba4/COM/Stub.pm		\
-	pidl/lib/Parse/Pidl/Samba4/Header.pm		\
-	pidl/lib/Parse/Pidl/Samba4/NDR/Client.pm	\
-	pidl/lib/Parse/Pidl/Samba4/NDR/Parser.pm	\
-	pidl/lib/Parse/Pidl/Samba4/NDR/Server.pm	\
-	pidl/lib/Parse/Pidl/Samba4/Python.pm		\
-	pidl/lib/Parse/Pidl/Samba4/TDR.pm		\
-	pidl/lib/Parse/Pidl/Samba4/Template.pm		\
-	pidl/lib/Parse/Pidl/Typelist.pm			\
-	pidl/lib/Parse/Pidl/Util.pm			\
-	pidl/lib/Parse/Pidl/Wireshark/Conformance.pm	\
-	pidl/lib/Parse/Pidl/Wireshark/NDR.pm		\
-	pidl/lib/Parse/Yapp/Driver.pm			\
-	pidl/lib/wscript_build				\
-	pidl/pidl					\
-	pidl/tests/Util.pm				\
-	pidl/tests/cutil.pl				\
-	pidl/tests/dump.pl				\
-	pidl/tests/header.pl				\
-	pidl/tests/ndr.pl				\
-	pidl/tests/ndr_align.pl				\
-	pidl/tests/ndr_alloc.pl				\
-	pidl/tests/ndr_array.pl				\
-	pidl/tests/ndr_compat.pl			\
-	pidl/tests/ndr_deprecations.pl			\
-	pidl/tests/ndr_fullptr.pl			\
-	pidl/tests/ndr_refptr.pl			\
-	pidl/tests/ndr_represent.pl			\
-	pidl/tests/ndr_simple.pl			\
-	pidl/tests/ndr_string.pl			\
-	pidl/tests/ndr_tagtype.pl			\
-	pidl/tests/parse_idl.pl				\
-	pidl/tests/samba-ndr.pl				\
-	pidl/tests/samba3-cli.pl			\
-	pidl/tests/samba3-srv.pl			\
-	pidl/tests/tdr.pl				\
-	pidl/tests/test_util.pl				\
-	pidl/tests/typelist.pl				\
-	pidl/tests/util.pl				\
-	pidl/tests/wireshark-conf.pl			\
-	pidl/tests/wireshark-ndr.pl			\
-	pidl/wscript
-
 EXTRA_DIST = \
-	$(PIDL_FILES)					\
 	asn2deb						\
 	asn2wrs.py					\
 	checkfiltername.pl				\
@@ -101,36 +36,11 @@ EXTRA_DIST = \
 	convert-proto-tree-new.awk			\
 	convert_expert_add_info_format.pl		\
 	convert_proto_tree_add_text.pl			\
-	cppcheck/cppcheck.sh				\
-	cppcheck/includes				\
-	cppcheck/suppressions				\
+	cppcheck					\
 	debian-setup.sh					\
 	dfilter-test.py					\
-	dftestfiles/arp.pcap				\
-	dftestfiles/http.pcap				\
-	dftestfiles/ipv6.pcap				\
-	dftestfiles/ipx_rip.pcap			\
-	dftestfiles/nfs.pcap				\
-	dftestfiles/ntp.pcap				\
-	dftestfiles/tftp.pcap				\
-	dftestlib/__init__.py				\
-	dftestlib/bytes_ether.py			\
-	dftestlib/bytes_ipv6.py				\
-	dftestlib/bytes_type.py				\
-	dftestlib/dftest.py				\
-	dftestlib/double.py				\
-	dftestlib/integer.py				\
-	dftestlib/integer_1byte.py			\
-	dftestlib/ipv4.py				\
-	dftestlib/range_method.py			\
-	dftestlib/scanner.py				\
-	dftestlib/string_type.py			\
-	dftestlib/stringz.py				\
-	dftestlib/time_relative.py			\
-	dftestlib/time_type.py				\
-	dftestlib/tvb.py				\
-	dftestlib/uint64.py				\
-	dftestlib/util.py				\
+	dftestfiles					\
+	dftestlib					\
 	extract_asn1_from_spec.pl			\
 	fix-encoding-args.pl				\
 	fixhf.pl					\
@@ -162,11 +72,9 @@ EXTRA_DIST = \
 	native-nmake.cmd				\
 	ncp2222.py					\
 	netscreen2dump.py				\
-	npl/ast.h					\
-	npl/npl.c					\
-	npl/parser.l					\
-	npl/xmem.h					\
+	npl						\
 	parse_xml2skinny_dissector.py			\
+	pidl						\
 	pkt-from-core.py				\
 	pre-commit					\
 	pre-commit-ignore.conf				\
@@ -181,11 +89,7 @@ EXTRA_DIST = \
 	test-common.sh					\
 	test-captures.sh				\
 	textify.ps1					\
-	tpg/Makefile.am					\
-	tpg/Makefile.nmake				\
-	tpg/V2P.pm					\
-	tpg/tpg.pl					\
-	tpg/tpg.yp					\
+	tpg						\
 	usb-ptp-extract-models.pl			\
 	usb-ptp-extract-models.txt			\
 	valgrind-wireshark.sh				\

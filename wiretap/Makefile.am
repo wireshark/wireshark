@@ -59,6 +59,7 @@ EXTRA_DIST = \
 	README.developer	\
 	Makefile.common		\
 	Makefile.nmake		\
+	CMakeLists.txt		\
 	$(GENERATOR_FILES) 	\
 	$(GENERATED_FILES)
 
