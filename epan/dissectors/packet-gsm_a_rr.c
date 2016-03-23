@@ -10835,7 +10835,6 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     const gchar            *msg_str;
     gint                    ett_tree;
     int                     hf_idx;
-    gboolean                nsd;
 
     len = tvb_reported_length(tvb);
 
@@ -10884,7 +10883,6 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     ett_tree = -1;
     hf_idx = -1;
     msg_fcn_p = NULL;
-    nsd = FALSE;
     col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",val_to_str(pd,gsm_a_pd_short_str_vals,"Unknown (%u)"));
 
     /*
@@ -10930,15 +10928,6 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree_add_item(pd_tree, hf_gsm_a_skip_ind, tvb, 1, 1, ENC_BIG_ENDIAN);
 
     /*
-     * N(SD)
-     */
-    if ((pinfo->p2p_dir == P2P_DIR_RECV) &&
-        nsd)
-    {
-        /* XXX */
-    }
-
-    /*
      * add DTAP message name
      */
     proto_tree_add_uint_format(ccch_tree, hf_idx, tvb, offset, 1, oct,
@@ -10947,7 +10936,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     offset++;
 
     tap_p->pdu_type = GSM_A_PDU_TYPE_DTAP;
-    tap_p->message_type = (nsd ? (oct & 0x3f) : oct);
+    tap_p->message_type = oct;
     tap_p->protocol_disc = (gsm_a_pd_str_e)pd;
 
     tap_queue_packet(gsm_a_tap, pinfo, tap_p);
