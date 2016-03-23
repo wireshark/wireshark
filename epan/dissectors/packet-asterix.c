@@ -606,6 +606,33 @@ static gint hf_023_200 = -1;
 static gint hf_023_200_RANGE = -1;
 static gint hf_023_RE = -1;
 static gint hf_023_SP = -1;
+/* Category 025 */
+static gint hf_025_000 = -1;
+static gint hf_025_000_RT = -1;
+static gint hf_025_000_RG = -1;
+static gint hf_025_010 = -1;
+static gint hf_025_015 = -1;
+static gint hf_025_015_SID = -1;
+static gint hf_025_020 = -1;
+static gint hf_025_020_SD = -1;
+static gint hf_025_070 = -1;
+static gint hf_025_100 = -1;
+static gint hf_025_100_NOGO = -1;
+static gint hf_025_100_OPS = -1;
+static gint hf_025_100_SSTAT = -1;
+static gint hf_025_105 = -1;
+static gint hf_025_105_ERR = -1;
+static gint hf_025_120 = -1;
+static gint hf_025_120_CID = -1;
+static gint hf_025_120_EC = -1;
+static gint hf_025_120_CS = -1;
+static gint hf_025_140 = -1;
+static gint hf_025_140_TYPE = -1;
+static gint hf_025_140_REF = -1;
+static gint hf_025_140_COUNTER = -1;
+static gint hf_025_200 = -1;
+static gint hf_025_200_MID = -1;
+static gint hf_025_SP = -1;
 /* Category 034 */
 static gint hf_034_000 = -1;
 static gint hf_034_000_MT = -1;
@@ -1917,6 +1944,32 @@ static gint ett_023_200 = -1;
 static gint ett_023_200_RANGE = -1;
 static gint ett_023_RE = -1;
 static gint ett_023_SP = -1;
+/* Category 025 */
+static gint ett_025_000 = -1;
+static gint ett_025_000_RT = -1;
+static gint ett_025_000_RG = -1;
+static gint ett_025_010 = -1;
+static gint ett_025_015 = -1;
+static gint ett_025_015_SID = -1;
+static gint ett_025_020 = -1;
+static gint ett_025_070 = -1;
+static gint ett_025_100 = -1;
+static gint ett_025_100_NOGO = -1;
+static gint ett_025_100_OPS = -1;
+static gint ett_025_100_SSTAT = -1;
+static gint ett_025_105 = -1;
+static gint ett_025_105_ERR = -1;
+static gint ett_025_120 = -1;
+static gint ett_025_120_CID = -1;
+static gint ett_025_120_EC = -1;
+static gint ett_025_120_CS = -1;
+static gint ett_025_140 = -1;
+static gint ett_025_140_TYPE = -1;
+static gint ett_025_140_REF = -1;
+static gint ett_025_140_COUNTER = -1;
+static gint ett_025_200 = -1;
+static gint ett_025_200_MID = -1;
+static gint ett_025_SP = -1;
 /* Category 034 */
 static gint ett_034_000 = -1;
 static gint ett_034_000_MT = -1;
@@ -4914,6 +4967,143 @@ DIAG_ON(pedantic)
 
 static const enum_val_t I023_versions[] = {
     { "I023_v1_2", "Version 1.2", 0 },
+    { NULL, NULL, 0 }
+};
+
+/* *********************** */
+/*      Category 025       */
+/* *********************** */
+/* Fields */
+
+/* Report Type */
+static const value_string valstr_025_000_RT[] = {
+    { 1, "Service and System Status report" },
+    { 2, "Component Status report" },
+    { 3, "Service Statistics report" },
+    { 0, NULL }
+};
+static const value_string valstr_025_000_RG[] = {
+    { 0, "Periodic Report" },
+    { 1, "Event Driven Report" },
+    { 0, NULL }
+};
+static const FieldPart I025_000_RT = { 7, 1.0, FIELD_PART_UINT, &hf_025_000_RT, NULL };
+static const FieldPart I025_000_RG = { 1, 1.0, FIELD_PART_UINT, &hf_025_000_RG, NULL };
+static const FieldPart *I025_000_PARTS[] = { &I025_000_RT, &I025_000_RG, NULL };
+
+/* Service Identification */
+static const FieldPart I025_015_SID = { 8, 1.0, FIELD_PART_UINT, &hf_025_015_SID, NULL };
+static const FieldPart *I025_015_PARTS[] = { &I025_015_SID, NULL };
+
+/* Service Designator */
+static const FieldPart I025_020_SD = { 48, 1.0, FIELD_PART_CALLSIGN, &hf_025_020_SD, NULL };
+static const FieldPart *I025_020_PARTS[] = { &I025_020_SD, NULL };
+
+/* System and Service Status */
+static const value_string valstr_025_100_NOGO[] = {
+    { 0, "Data is released for operational use" },
+    { 1, "Data must not be used operationally" },
+    { 0, NULL }
+};
+static const value_string valstr_025_100_OPS[] = {
+    { 0, "Operational" },
+    { 1, "Operational but in Standby" },
+    { 2, "Maintenance" },
+    { 3, "reserved for future use" },
+    { 0, NULL }
+};
+static const value_string valstr_025_100_SSTAT[] = {
+    { 0, "Running" },
+    { 1, "Failed" },
+    { 2, "Degraded" },
+    { 3, "Undefined" },
+    { 0, NULL }
+};
+static const FieldPart I025_100_NOGO = { 1, 1.0, FIELD_PART_UINT, &hf_025_100_NOGO, NULL };
+static const FieldPart I025_100_OPS = { 2, 1.0, FIELD_PART_UINT, &hf_025_100_OPS, NULL };
+static const FieldPart I025_100_SSTAT = { 4, 1.0, FIELD_PART_UINT, &hf_025_100_SSTAT, NULL };
+static const FieldPart *I025_100_PARTS[] = { &I025_100_NOGO, &I025_100_OPS, &I025_100_SSTAT, &IXXX_FX, NULL };
+
+/* System and Service Error Codes */
+static const value_string valstr_025_105_ERR[] = {
+    { 0, "No error detected (shall not be sent)" },
+    { 1, "Error Code Undefined" },
+    { 2, "Time Source Invalid" },
+    { 3, "Time Source Coasting" },
+    { 4, "Track ID numbering has restarted" },
+    { 5, "Data Processor Overload" },
+    { 6, "Ground Interface Data Communications Overload" },
+    { 7, "System stopped by operator" },
+    { 8, "CBIT failed" },
+    { 9, "Test Target Failure" },
+    { 0, NULL }
+};
+static const FieldPart I025_105_ERR = { 1, 1.0, FIELD_PART_UINT, &hf_025_105_ERR, NULL };
+static const FieldPart *I025_105_PARTS[] = { &I025_105_ERR, NULL };
+
+/* Component Status */
+static const value_string valstr_025_120_EC[] = {
+    { 0, "No Error Detected" },
+    { 1, "Error Code Undefined" },
+    { 0, NULL }
+};
+static const value_string valstr_025_120_CS[] = {
+    { 0, "Running" },
+    { 1, "Failed" },
+    { 2, "Maintenance" },
+    { 3, "reserved" },
+    { 0, NULL }
+};
+static const FieldPart I025_120_CID = { 16, 1.0, FIELD_PART_UINT, &hf_025_120_CID, NULL };
+static const FieldPart I025_120_EC = { 6, 1.0, FIELD_PART_UINT, &hf_025_120_EC, NULL };
+static const FieldPart I025_120_CS = { 2, 1.0, FIELD_PART_UINT, &hf_025_120_CS, NULL };
+static const FieldPart *I025_120_PARTS[] = { &I025_120_CID, &I025_120_EC, &I025_120_CS, NULL };
+
+/* Service Statistics */
+static const value_string valstr_025_140_TYPE[] = {
+    { 0, "Number of unknown messages received" },
+    { 1, "Number of \'too old\' messages received" },
+    { 2, "Number of failed message conversions" },
+    { 3, "Total Number of messages received" },
+    { 4, "Total number of messages transmitted" },
+    { 0, NULL }
+};
+static const value_string valstr_025_140_REF[] = {
+    { 0, "From UTC midnight" },
+    { 1, "From the previous report" },
+    { 0, NULL }
+};
+static const FieldPart I025_140_TYPE = { 8, 1.0, FIELD_PART_UINT, &hf_025_140_TYPE, NULL };
+static const FieldPart I025_140_REF = { 1, 1.0, FIELD_PART_UINT, &hf_025_140_REF, NULL };
+static const FieldPart I025_140_COUNTER = { 32, 1.0, FIELD_PART_UINT, &hf_025_140_COUNTER, NULL };
+static const FieldPart *I025_140_PARTS[] = { &I025_140_TYPE, &I025_140_REF, &IXXX_7bit_spare, &I025_140_COUNTER, NULL };
+
+/* Message Identification */
+static const FieldPart I025_200_MID = { 24, 1.0, FIELD_PART_UINT, &hf_025_200_MID, NULL };
+static const FieldPart *I025_200_PARTS[] = { &I025_200_MID, NULL };
+
+/* Items */
+DIAG_OFF(pedantic)
+static const AsterixField I025_000 = { FIXED, 1, 0, 0, &hf_025_000, I025_000_PARTS, { NULL } };
+static const AsterixField I025_010 = { FIXED, 2, 0, 0, &hf_025_010, IXXX_SAC_SIC, { NULL } };
+static const AsterixField I025_015 = { FIXED, 1, 0, 0, &hf_025_015, I025_015_PARTS, { NULL } };
+static const AsterixField I025_020 = { FIXED, 6, 0, 0, &hf_025_020, I025_020_PARTS, { NULL } };
+static const AsterixField I025_070 = { FIXED, 3, 0, 0, &hf_025_070, IXXX_TOD, { NULL } };
+static const AsterixField I025_100 = { FX, 1, 0, 0, &hf_025_100, I025_100_PARTS, { NULL } };
+static const AsterixField I025_105 = { REPETITIVE, 1, 1, 0, &hf_025_105, I025_105_PARTS, { NULL } };
+static const AsterixField I025_120 = { REPETITIVE, 3, 1, 0, &hf_025_120, I025_120_PARTS, { NULL } };
+static const AsterixField I025_140 = { REPETITIVE, 6, 1, 0, &hf_025_140, I025_140_PARTS, { NULL } };
+static const AsterixField I025_200 = { FIXED, 3, 0, 0, &hf_025_200, I025_200_PARTS, { NULL } };
+static const AsterixField I025_SP = { SP, 0, 0, 1, &hf_025_SP, NULL, { NULL } };
+
+static const AsterixField *I025_v1_1_uap[] = { &I025_010, &I025_000, &I025_200, &I025_015, &I025_020, &I025_070, &I025_100,
+                                               &I025_105, &I025_120, &I025_140, &I025_SP, NULL };
+static const AsterixField **I025_v1_1[] = { I025_v1_1_uap, NULL };
+static const AsterixField ***I025[] = { I025_v1_1 };
+DIAG_ON(pedantic)
+
+static const enum_val_t I025_versions[] = {
+    { "I025_v1_1", "Version 1.1", 0 },
     { NULL, NULL, 0 }
 };
 
@@ -7991,7 +8181,7 @@ static const AsterixField ****categories[] = {
     NULL, /* 022 */
     I023, /* 023 */
     NULL, /* 024 */
-    NULL, /* 025 */
+    I025, /* 025 */
     NULL, /* 026 */
     NULL, /* 027 */
     NULL, /* 028 */
@@ -9102,6 +9292,33 @@ void proto_register_asterix (void)
         { &hf_023_200_RANGE, { "RANGE [NM]", "asterix.023_200_RANGE", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_023_RE, { "Reserved Field", "asterix.023_RE", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_023_SP, { "Special Field", "asterix.023_SP", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        /* Category 025 */
+        { &hf_025_000, { "000, Report Type", "asterix.025_000", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_025_000_RT, { "RT", "asterix.025_000_RT", FT_UINT8, BASE_DEC, VALS (valstr_025_000_RT), 0xFE, NULL, HFILL } },
+        { &hf_025_000_RG, { "RG", "asterix.025_000_RG", FT_UINT8, BASE_DEC, VALS (valstr_025_000_RG), 0x01, NULL, HFILL } },
+        { &hf_025_010, { "010, Data Source Identifier", "asterix.025_010", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_025_015, { "015, Service Identification", "asterix.025_015", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_025_015_SID, { "SID", "asterix.025_015_SID", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_025_020, { "020, Service Designator", "asterix.025_020", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_025_020_SD, { "Service Designator", "asterix.025_020_SD", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_025_070, { "070, Time of Day", "asterix.025_070", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_025_100, { "100, System and Service Status", "asterix.025_100", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_025_100_NOGO, { "NOGO", "asterix.025_100_NOGO", FT_UINT8, BASE_DEC, VALS (valstr_025_100_NOGO), 0x80, NULL, HFILL } },
+        { &hf_025_100_OPS, { "OPS", "asterix.025_100_OPS", FT_UINT8, BASE_DEC, VALS (valstr_025_100_OPS), 0x60, NULL, HFILL } },
+        { &hf_025_100_SSTAT, { "SSTAT", "asterix.025_100_SSTAT", FT_UINT8, BASE_DEC, VALS (valstr_025_100_SSTAT), 0x1E, NULL, HFILL } },
+        { &hf_025_105, { "105, System and Service Error Codes", "asterix.025_105", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_025_105_ERR, { "ERR", "asterix.025_105_ERR", FT_UINT8, BASE_DEC, VALS (valstr_025_105_ERR), 0x0, NULL, HFILL } },
+        { &hf_025_120, { "120, Component Status", "asterix.025_120", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_025_120_CID, { "CID", "asterix.025_120_CID", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_025_120_EC, { "EC", "asterix.025_120_EC", FT_UINT8, BASE_DEC, VALS (valstr_025_120_EC), 0xFC, NULL, HFILL } },
+        { &hf_025_120_CS, { "CS", "asterix.025_120_CS", FT_UINT8, BASE_DEC, VALS (valstr_025_120_CS), 0x03, NULL, HFILL } },
+        { &hf_025_140, { "140, Service Statistics", "asterix.025_140", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_025_140_TYPE, { "TYPE", "asterix.025_140_TYPE", FT_UINT8, BASE_DEC, VALS (valstr_025_140_TYPE), 0x0, NULL, HFILL } },
+        { &hf_025_140_REF, { "REF", "asterix.025_140_REF", FT_UINT8, BASE_DEC, VALS (valstr_025_140_REF), 0x80, NULL, HFILL } },
+        { &hf_025_140_COUNTER, { "COUNTER", "asterix.025_140_COUNTER", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_025_200, { "200, Message Identification", "asterix.025_200", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_025_200_MID, { "MID", "asterix.025_200_MID", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_025_SP, { "Special Field", "asterix.025_SP", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         /* Category 034 */
         { &hf_034_000, { "000, Message Type", "asterix.034_000", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_034_000_MT, { "MT", "asterix.034_000_MT", FT_UINT8, BASE_DEC, VALS (valstr_034_000_MT), 0x0, NULL, HFILL } },
@@ -10416,6 +10633,32 @@ void proto_register_asterix (void)
         &ett_023_200_RANGE,
         &ett_023_RE,
         &ett_023_SP,
+        /* Category 025 */
+        &ett_025_000,
+        &ett_025_000_RT,
+        &ett_025_000_RG,
+        &ett_025_010,
+        &ett_025_015,
+        &ett_025_015_SID,
+        &ett_025_020,
+        &ett_025_070,
+        &ett_025_100,
+        &ett_025_100_NOGO,
+        &ett_025_100_OPS,
+        &ett_025_100_SSTAT,
+        &ett_025_105,
+        &ett_025_105_ERR,
+        &ett_025_120,
+        &ett_025_120_CID,
+        &ett_025_120_EC,
+        &ett_025_120_CS,
+        &ett_025_140,
+        &ett_025_140_TYPE,
+        &ett_025_140_REF,
+        &ett_025_140_COUNTER,
+        &ett_025_200,
+        &ett_025_200_MID,
+        &ett_025_SP,
         /* Category 034 */
         &ett_034_000,
         &ett_034_000_MT,
@@ -11183,6 +11426,7 @@ void proto_register_asterix (void)
     prefs_register_enum_preference (asterix_prefs_module, "i009_version", "I009 version", "Select the CAT009 version", &global_categories_version[9],  I009_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i021_version", "I021 version", "Select the CAT021 version", &global_categories_version[21], I021_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i023_version", "I023 version", "Select the CAT023 version", &global_categories_version[23], I023_versions, FALSE);
+    prefs_register_enum_preference (asterix_prefs_module, "i025_version", "I025 version", "Select the CAT025 version", &global_categories_version[25], I025_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i034_version", "I034 version", "Select the CAT034 version", &global_categories_version[34], I034_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i048_version", "I048 version", "Select the CAT048 version", &global_categories_version[48], I048_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i062_version", "I062 version", "Select the CAT062 version", &global_categories_version[62], I062_versions, FALSE);
