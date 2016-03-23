@@ -33,6 +33,7 @@
 #include <epan/capture_dissectors.h>
 #include <wsutil/pint.h>
 #include "packet-eth.h"
+#include "packet-gre.h"
 #include "packet-ieee8023.h"
 #include "packet-ipx.h"
 #include "packet-isl.h"
@@ -1053,6 +1054,7 @@ proto_reg_handoff_eth(void)
   dissector_add_uint("erf.types.type", ERF_TYPE_ETH, eth_withoutfcs_handle);
   dissector_add_uint("chdlc.protocol", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
   dissector_add_uint("gre.proto", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
+  dissector_add_uint("gre.proto", GRE_MIKROTIK_EOIP, eth_withoutfcs_handle);
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_ETHER, eth_withoutfcs_handle);
   dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_ETHERNET, eth_withoutfcs_handle);
   dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_ETH, eth_withoutfcs_handle);

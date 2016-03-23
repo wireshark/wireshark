@@ -127,6 +127,7 @@ const value_string gre_typevals[] = {
     { GRE_NHRP,            "NHRP"},
     { GRE_ERSPAN_88BE,     "ERSPAN"},
     { GRE_ERSPAN_22EB,     "ERSPAN"},
+    { GRE_MIKROTIK_EOIP,   "MIKROTIK EoIP"},
     { ETHERTYPE_IPX,       "IPX"},
     { ETHERTYPE_ETHBRIDGE, "Transparent Ethernet bridging" },
     { ETHERTYPE_RAW_FR,    "Frame Relay"},
