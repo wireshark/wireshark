@@ -268,6 +268,8 @@ static gboolean global_classify_transport      = TRUE;
 static gboolean global_enable_udp    = TRUE;
 static gboolean global_enable_mbtcp  = TRUE;
 
+static gboolean global_opensafety_debug_verbose = FALSE;
+
 static gboolean heuristic_siii_dissection_enabled = TRUE;
 
 static heur_dissector_list_t heur_opensafety_spdo_subdissector_list;
@@ -284,7 +286,6 @@ static void
 reset_dissector(void)
 {
     bDissector_Called_Once_Before = FALSE;
-
 }
 
 static void
@@ -857,7 +858,8 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
             PROTO_ITEM_SET_GENERATED(item);
 
             packet->payload.spdo->counter.b40 = ct40bit;
-            expert_add_info ( pinfo, item, &ei_40bit_default_domain );
+            if ( global_opensafety_debug_verbose )
+                expert_add_info ( pinfo, item, &ei_40bit_default_domain );
         }
         PROTO_ITEM_SET_GENERATED(item);
 
@@ -1282,8 +1284,9 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
                 {
                     proto_tree_add_item(ssdo_tree, hf_oss_ssdo_payload, message_tvb, payloadOffset, calcDataLength, ENC_NA );
                 } else {
-                    expert_add_info_format(pinfo, item, &ei_payload_length_not_positive,
-                                                "Calculation for payload length yielded non-positive result [%d]", (guint) calcDataLength );
+                    if ( global_opensafety_debug_verbose )
+                        expert_add_info_format(pinfo, item, &ei_payload_length_not_positive,
+                                                    "Calculation for payload length yielded non-positive result [%d]", (guint) calcDataLength );
                 }
             }
             else
@@ -1371,8 +1374,9 @@ opensafety_parse_scm_udid ( tvbuff_t* tvb, packet_info *pinfo, proto_tree *tree,
                 if ( local_scm_udid == NULL || memcmp ( local_scm_udid, scm_udid_test, 17 ) != 0 )
                 {
                     local_scm_udid = wmem_strdup(wmem_file_scope(), scm_udid_test );
-                    expert_add_info_format(pinfo, item, &ei_scmudid_autodetected,
-                            "Auto detected payload as SCM UDID [%s].", local_scm_udid);
+                    if ( global_opensafety_debug_verbose )
+                        expert_add_info_format(pinfo, item, &ei_scmudid_autodetected,
+                                "Auto detected payload as SCM UDID [%s].", local_scm_udid);
                 }
             }
         }
@@ -1737,7 +1741,7 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
             }
             else
             {
-                if ( isSlim || ( !isSNMT && packet->frame.length == 11 ) )
+                if ( global_opensafety_debug_verbose && ( isSlim || ( !isSNMT && packet->frame.length == 11 ) ) )
                     expert_add_info(pinfo, item, &ei_crc_frame_2_scm_udid_encoded );
 
                 packet->crc.valid2 = TRUE;
@@ -1799,8 +1803,7 @@ dissect_opensafety_message(opensafety_packet_info *packet,
             packet->scm_udid_valid = TRUE;
 
             /* Now confirm, that the xor operation was successful. The ID fields of both frames have to be the same */
-            b_ID = OSS_FRAME_ID_T(message_tvb, packet->frame.subframe2) ^ (guint8)(scmUDID->data[OSS_FRAME_POS_ID]);
-
+            b_ID = tvb_get_guint8(message_tvb, packet->frame.subframe2 + 1) ^ (guint8)(scmUDID->data[OSS_FRAME_POS_ID]);;
             if ( ( OSS_FRAME_ID_T(message_tvb, packet->frame.subframe1) ^ b_ID ) != 0 )
                 packet->scm_udid_valid = FALSE;
 
@@ -2796,6 +2799,10 @@ proto_register_opensafety(void)
                 "Big Endian Word Coding (Modbus/TCP only)",
                 "Modbus/TCP words can be transcoded either big- or little endian. Default will be little endian",
                 &global_mbtcp_big_endian);
+    prefs_register_bool_preference(opensafety_module, "debug_verbose",
+                "openSAFETY print all dissection information",
+                "Enables additional information in the dissection for better debugging an openSAFETY trace",
+                &global_opensafety_debug_verbose );
 
     prefs_register_obsolete_preference(opensafety_module, "enable_plk");
     prefs_register_obsolete_preference(opensafety_module, "enable_siii");
