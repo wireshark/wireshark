@@ -123,5 +123,3 @@ AC_DEFUN([AX_LIBSMI],
         fi
     fi
 ])
-
-
