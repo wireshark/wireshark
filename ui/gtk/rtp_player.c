@@ -1347,7 +1347,7 @@ channel_draw(rtp_channel_info_t *rci)
 		pango_layout_set_font_description(small_layout, pango_font_description_from_string("Helvetica,Sans,Bold 7"));
 
 		/* calculated the pixel offset to display integer seconds */
-		offset = ((double)rci->start_time/1000 - floor((double)rci->start_time/1000))*sample_rate/MULT;
+		offset = (nstime_to_sec(&rci->start_time_abs) - floor(nstime_to_sec(&rci->start_time_abs)))*sample_rate/MULT;
 
 		cr = gdk_cairo_create (rci->pixmap);
 		cairo_set_line_width (cr, 1.0);
@@ -1454,7 +1454,7 @@ channel_draw(rtp_channel_info_t *rci)
 					timestamp = localtime(&seconds);
 					g_snprintf(label_string, MAX_TIME_LABEL, "%02d:%02d:%02d", timestamp->tm_hour, timestamp->tm_min, timestamp->tm_sec);
 				} else {
-					g_snprintf(label_string, MAX_TIME_LABEL, "%.0f s", floor(rci->start_time/1000) + i*MULT/sample_rate);
+					g_snprintf(label_string, MAX_TIME_LABEL, "%.0f s", floor(nstime_to_sec(&rci->start_time_abs)) + i*MULT/sample_rate);
 				}
 
 				pango_layout_set_text(small_layout, label_string, -1);
