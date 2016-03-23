@@ -219,6 +219,7 @@ typedef struct _gvsp_packet_info
 {
     gint    chunk;
     guint8  format;
+    guint16 status;
     guint16 payloadtype;
     guint64 blockid;
     guint32 packetid;
@@ -959,12 +960,22 @@ static gint dissect_extra_chunk_info(proto_tree *gvsp_tree, tvbuff_t *tvb, packe
 
 
 /*
+    \brief Check if a packet with given status has payload
+ */
+static gboolean status_with_payload(gvsp_packet_info *info){
+    return info->status == GEV_STATUS_SUCCESS || ( info->enhanced && info->status == GEV_STATUS_PACKET_RESEND);
+}
+
+/*
     \brief Dissects a packet payload
  */
 
-static void dissect_packet_payload(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+static void dissect_packet_payload(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, gvsp_packet_info *info)
 {
-    proto_tree_add_item(gvsp_tree, hf_gvsp_payloaddata, tvb, offset, -1, ENC_NA);
+    if (status_with_payload(info) && tvb_reported_length_remaining(tvb, offset))
+    {
+        proto_tree_add_item(gvsp_tree, hf_gvsp_payloaddata, tvb, offset, -1, ENC_NA);
+    }
 }
 
 
@@ -972,13 +983,16 @@ static void dissect_packet_payload(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_
     \brief Dissects a packet payload for H264
  */
 
-static void dissect_packet_payload_h264(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+static void dissect_packet_payload_h264(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, gvsp_packet_info *info)
 {
-    /* Timestamp */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
+    if (status_with_payload(info) && tvb_reported_length_remaining(tvb, offset))
+    {
+        /* Timestamp */
+        proto_tree_add_item(gvsp_tree, hf_gvsp_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
 
-    /* Data */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_payloaddata, tvb, offset + 8, -1, ENC_NA);
+        /* Data */
+        proto_tree_add_item(gvsp_tree, hf_gvsp_payloaddata, tvb, offset + 8, -1, ENC_NA);
+    }
 }
 
 
@@ -986,20 +1000,23 @@ static void dissect_packet_payload_h264(proto_tree *gvsp_tree, tvbuff_t *tvb, pa
     \brief Dissects a packet payload for multizone
  */
 
-static void dissect_packet_payload_multizone(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+static void dissect_packet_payload_multizone(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, gvsp_packet_info *info)
 {
-    /* Zone information */
-    proto_tree_add_bitmask(gvsp_tree, tvb, offset + 1, hf_gvsp_zoneinfo,
-                           ett_gvsp_zoneinfo, zoneinfo_fields, ENC_BIG_ENDIAN);
+    if (status_with_payload(info) && tvb_reported_length_remaining(tvb, offset))
+    {
+        /* Zone information */
+        proto_tree_add_bitmask(gvsp_tree, tvb, offset + 1, hf_gvsp_zoneinfo,
+                               ett_gvsp_zoneinfo, zoneinfo_fields, ENC_BIG_ENDIAN);
 
-    /* Address offset high */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_addressoffsethigh, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        /* Address offset high */
+        proto_tree_add_item(gvsp_tree, hf_gvsp_addressoffsethigh, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
-    /* Address offset low */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_addressoffsetlow, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+        /* Address offset low */
+        proto_tree_add_item(gvsp_tree, hf_gvsp_addressoffsetlow, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
 
-    /* Data */
-    proto_tree_add_item(gvsp_tree, hf_gvsp_payloaddata, tvb, offset + 8, -1, ENC_NA);
+        /* Data */
+        proto_tree_add_item(gvsp_tree, hf_gvsp_payloaddata, tvb, offset + 8, -1, ENC_NA);
+    }
 }
 
 
@@ -1020,7 +1037,7 @@ static void dissect_packet_all_in(proto_tree *gvsp_tree, tvbuff_t *tvb, gint off
         {
             offset += dissect_extra_chunk_info(gvsp_tree, tvb, pinfo, offset);
         }
-        dissect_packet_payload(gvsp_tree, tvb, pinfo, offset);
+        dissect_packet_payload(gvsp_tree, tvb, pinfo, offset, info);
         break;
 
     case GVSP_PAYLOAD_RAWDATA:
@@ -1030,7 +1047,7 @@ static void dissect_packet_all_in(proto_tree *gvsp_tree, tvbuff_t *tvb, gint off
         {
             offset += dissect_extra_chunk_info(gvsp_tree, tvb, pinfo, offset);
         }
-        dissect_packet_payload(gvsp_tree, tvb, pinfo, offset);
+        dissect_packet_payload(gvsp_tree, tvb, pinfo, offset, info);
         break;
 
     case GVSP_PAYLOAD_FILE:
@@ -1043,7 +1060,7 @@ static void dissect_packet_all_in(proto_tree *gvsp_tree, tvbuff_t *tvb, gint off
         {
             offset += dissect_extra_chunk_info(gvsp_tree, tvb, pinfo, offset);
         }
-        dissect_packet_payload(gvsp_tree, tvb, pinfo, offset);
+        dissect_packet_payload(gvsp_tree, tvb, pinfo, offset, info);
         break;
 
     case GVSP_PAYLOAD_CHUNKDATA:
@@ -1053,7 +1070,7 @@ static void dissect_packet_all_in(proto_tree *gvsp_tree, tvbuff_t *tvb, gint off
         {
             offset += dissect_extra_chunk_info(gvsp_tree, tvb, pinfo, offset);
         }
-        dissect_packet_payload(gvsp_tree, tvb, pinfo, offset);
+        dissect_packet_payload(gvsp_tree, tvb, pinfo, offset, info);
         break;
 
     case GVSP_PAYLOAD_EXTENDEDCHUNKDATA:
@@ -1063,7 +1080,7 @@ static void dissect_packet_all_in(proto_tree *gvsp_tree, tvbuff_t *tvb, gint off
         {
             offset += dissect_extra_chunk_info(gvsp_tree, tvb, pinfo, offset);
         }
-        dissect_packet_payload(gvsp_tree, tvb, pinfo, offset);
+        dissect_packet_payload(gvsp_tree, tvb, pinfo, offset, info);
         break;
 
     case GVSP_PAYLOAD_JPEG:
@@ -1074,7 +1091,7 @@ static void dissect_packet_all_in(proto_tree *gvsp_tree, tvbuff_t *tvb, gint off
         {
             offset += dissect_extra_chunk_info(gvsp_tree, tvb, pinfo, offset);
         }
-        dissect_packet_payload(gvsp_tree, tvb, pinfo, offset);
+        dissect_packet_payload(gvsp_tree, tvb, pinfo, offset, info);
         break;
 
     case GVSP_PAYLOAD_H264:
@@ -1084,7 +1101,7 @@ static void dissect_packet_all_in(proto_tree *gvsp_tree, tvbuff_t *tvb, gint off
         {
             offset += dissect_extra_chunk_info(gvsp_tree, tvb, pinfo, offset);
         }
-        dissect_packet_payload_h264(gvsp_tree, tvb, pinfo, offset);
+        dissect_packet_payload_h264(gvsp_tree, tvb, pinfo, offset, info);
         break;
 
     case GVSP_PAYLOAD_MULTIZONEIMAGE:
@@ -1094,7 +1111,7 @@ static void dissect_packet_all_in(proto_tree *gvsp_tree, tvbuff_t *tvb, gint off
         {
             offset += dissect_extra_chunk_info(gvsp_tree, tvb, pinfo, offset);
         }
-        dissect_packet_payload_multizone(gvsp_tree, tvb, pinfo, offset);
+        dissect_packet_payload_multizone(gvsp_tree, tvb, pinfo, offset, info);
         break;
     }
 }
@@ -1232,6 +1249,7 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(info.format, formatnames, "Unknown Format (0x%x)"));
 
     /* Dissect status */
+    info.status = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(gvsp_tree, hf_gvsp_status, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
@@ -1306,15 +1324,15 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     switch (info.format)
     {
     case GVSP_PACKET_PAYLOAD:
-        dissect_packet_payload(gvsp_tree, tvb, pinfo, offset);
+        dissect_packet_payload(gvsp_tree, tvb, pinfo, offset, &info);
         return tvb_captured_length(tvb);
 
     case GVSP_PACKET_PAYLOAD_H264:
-        dissect_packet_payload_h264(gvsp_tree, tvb, pinfo, offset);
+        dissect_packet_payload_h264(gvsp_tree, tvb, pinfo, offset, &info);
         return tvb_captured_length(tvb);
 
     case GVSP_PACKET_PAYLOAD_MULTIZONE:
-        dissect_packet_payload_multizone(gvsp_tree, tvb, pinfo, offset);
+        dissect_packet_payload_multizone(gvsp_tree, tvb, pinfo, offset, &info);
         return tvb_captured_length(tvb);
 
     default:
