@@ -40,6 +40,7 @@
 
 void proto_register_json(void);
 void proto_reg_handoff_json(void);
+static char *json_string_unescape(tvbparse_elem_t *tok);
 
 static dissector_handle_t json_handle;
 
@@ -63,11 +64,8 @@ static header_field_info hfi_json_object JSON_HFI_INIT =
 static header_field_info hfi_json_member JSON_HFI_INIT =
 	{ "Member", "json.member", FT_NONE, BASE_NONE, NULL, 0x00, "JSON object member", HFILL };
 
-#if 0
-/* XXX */
 static header_field_info hfi_json_member_key JSON_HFI_INIT =
-	{ "Key", "json.member.key", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL };
-#endif
+	{ "Key", "json.member.key", FT_STRING, STR_UNICODE, NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_json_value_string JSON_HFI_INIT = /* FT_STRINGZ? */
 	{ "String value", "json.value.string", FT_STRING, STR_UNICODE, NULL, 0x00, "JSON string value", HFILL };
@@ -236,11 +234,11 @@ static void after_member(void *tvbparse_data, const void *wanted_data _U_, tvbpa
 		tvbparse_elem_t *key_tok = tok->sub;
 
 		if (key_tok && key_tok->id == JSON_TOKEN_STRING) {
-			char *key = tvb_get_string_enc(wmem_packet_scope(), key_tok->tvb, key_tok->offset, key_tok->len, ENC_ASCII);
+			char *key = json_string_unescape(key_tok);
 
+			proto_tree_add_string(tree, &hfi_json_member_key, key_tok->tvb, key_tok->offset, key_tok->len, key);
 			proto_item_append_text(tree, " Key: %s", key);
 		}
-		/* XXX, &hfi_json_member_key */
 	}
 }
 
@@ -621,7 +619,7 @@ proto_register_json(void)
 		&hfi_json_array,
 		&hfi_json_object,
 		&hfi_json_member,
-		/* &hfi_json_member_key, */
+		&hfi_json_member_key,
 		&hfi_json_value_string,
 		&hfi_json_value_number,
 		&hfi_json_value_false,
