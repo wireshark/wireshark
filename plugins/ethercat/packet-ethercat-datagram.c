@@ -3311,7 +3311,7 @@ void proto_register_ecat(void)
          },
          { &hf_ecat_reg_fmmu_typeread,
            { "Type", "ecat.fmmu.typeread",
-           FT_BOOLEAN, 8, TFS(&tfs_ecat_fmmu_typewrite), 0x01, NULL, HFILL }
+           FT_BOOLEAN, 8, TFS(&tfs_ecat_fmmu_typeread), 0x01, NULL, HFILL }
          },
          { &hf_ecat_reg_fmmu_typewrite,
            { "Type", "ecat.fmmu.typewrite",
