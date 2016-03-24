@@ -5834,12 +5834,12 @@ dissect_gtpv2_pres_rep_area_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if (length == 1)
         return;
     /* Octet 6 to 8     Presence Reporting Area Identifier */
-    proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset+=2;
-    if (length == 3)
+    proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_id, tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset+=3;
+    if (length == 4)
         return;
 
-    new_tvb = tvb_new_subset_length(tvb, offset, length-3);
+    new_tvb = tvb_new_subset_length(tvb, offset, length-4);
 
     /* Share the rest of the dissection with the AVP dissector */
     dissect_diameter_3gpp_presence_reporting_area_elements_list(new_tvb, pinfo, tree, NULL);
@@ -8359,7 +8359,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_pres_rep_area_id,
           {"Presence Reporting Area Identifier", "gtpv2.pres_rep_area_action.pres_rep_area_id",
-           FT_UINT16, BASE_HEX, NULL, 0x0,
+           FT_UINT24, BASE_HEX, NULL, 0x0,
            NULL, HFILL}
         },
         { &hf_gtpv2_pres_rep_area_act_no_tai,
