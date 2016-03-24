@@ -198,8 +198,8 @@ static int parse_line(char* packet _U_, unsigned* offset, char* line, int status
 {
 	char** parts;
 	char** part;
-	int value;
-	guint64 size;
+	guint32 value;
+	size_t size;
 
 	if (strlen(line) <= 1) {
 		if (status == CISCODUMP_PARSER_IN_PACKET)
@@ -227,10 +227,10 @@ static int parse_line(char* packet _U_, unsigned* offset, char* line, int status
 	part = parts;
 	while(*part) {
 		if (strlen(*part) > 1) {
-			value = htonl(strtoul(*part, NULL, 16));
+			value = (guint32)htonl(strtoul(*part, NULL, 16));
 			size = strlen(*part) / 2;
 			memcpy(packet + *offset, &value, size);
-			*offset += size;
+			*offset += (guint32)size;
 		}
 		part++;
 	}
