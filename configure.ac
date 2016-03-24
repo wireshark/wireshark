@@ -865,107 +865,6 @@ AC_WIRESHARK_CHECK_UNKNOWN_WARNING_OPTION_ERROR
 AC_WIRESHARK_CHECK_NON_CXX_WARNING_OPTION_ERROR
 
 #
-# Try to add some additional checks to CFLAGS.
-# These are not enabled by default, because the warnings they produce
-# are very hard or impossible to eliminate.
-#
-AC_ARG_ENABLE(extra-compiler-warnings,
-  AC_HELP_STRING( [--enable-extra-compiler-warnings],
-		  [do additional compiler warnings @<:@default=no@:>@]),
-[
-	wireshark_extra_flags=$enableval
-	if test $enableval != no
-	then
-		#
-		# The following are for C and C++
-		#
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wpedantic)
-		#
-		# As we use variadic macros, we don't want warnings
-		# about them, even with -Wpedantic.
-		#
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-variadic-macros)
-		#
-		# Various code blocks this one.
-		#
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Woverflow)
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fstrict-overflow -Wstrict-overflow=4)
-		#
-		# Due to various places where APIs we don't control
-		# require us to cast away constness, we can probably
-		# never enable this one with -Werror.
-		#
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wcast-qual)
-		#
-		# Some generated ASN.1 dissectors block this one;
-		# multiple function declarations for the same
-		# function are being generated.
-		#
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wredundant-decls)
-		#
-		# Some loops are safe, but it's hard to convince the
-		# compiler of that.
-		#
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wunsafe-loop-optimizations)
-		#
-		# All the registration functions block these for now.
-		#
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wmissing-prototypes)
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wmissing-declarations)
-		#
-		# A bunch of "that might not work on SPARC" code blocks
-		# this one for now.
-		#
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wcast-align)
-		#
-		# Works only with Clang
-		#
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wunreachable-code)
-		#
-		# Works only with Clang but generates a lot of warnings
-		# (about glib library not using Doxygen)
-		#
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wdocumentation)
-
-		#
-		# The following are C only, not C++
-		#
-		# Due to various places where APIs we don't control
-		# require us to cast away constness, we can probably
-		# never enable this one with -Werror.
-		#
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wbad-function-cast, C)
-	fi
-],)
-
-# Try to add ASAN address analyze.
-# Only needed for analyse
-#
-AC_ARG_ENABLE(asan,
-  AC_HELP_STRING( [--enable-asan],
-		  [Enable AddressSanitizer (ASAN) for debugging (May be slow down)@<:@default=no@:>@]),
-[
-	#
-	# With Clang >= 3.5 Leak detection is enable by default
-	# and no yet all leak is fixed...
-	# use ASAN_OPTIONS=detect_leaks=0 to disable detect_leaks
-	#
-	# XXX shouldn't this also be added to LDFLAGS?
-	AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fsanitize=address)
-
-],)
-
-
-# Add check hf conflict..
-#
-AC_ARG_ENABLE(checkhf-conflict,
-  AC_HELP_STRING( [--enable-checkhf-conflict],
-		  [Enable Check hf conflict for debugging (May be slow start)@<:@default=no@:>@]),
-[
-	AC_DEFINE(ENABLE_CHECK_FILTER, 1, [Enable check hf conflict])
-],)
-
-#
 # The following are for C and C++
 #
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wall)
@@ -1106,6 +1005,106 @@ then
 		AC_MSG_WARN(Compiler will export all symbols from shared libraries)
 	fi
 fi
+
+#
+# Try to add some additional checks to CFLAGS.
+# These are not enabled by default, because the warnings they produce
+# are very hard or impossible to eliminate.
+#
+AC_ARG_ENABLE(extra-compiler-warnings,
+  AC_HELP_STRING( [--enable-extra-compiler-warnings],
+		  [do additional compiler warnings @<:@default=no@:>@]),
+[
+	wireshark_extra_flags=$enableval
+	if test $enableval != no
+	then
+		#
+		# The following are for C and C++
+		#
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wpedantic)
+		#
+		# As we use variadic macros, we don't want warnings
+		# about them, even with -Wpedantic.
+		#
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-variadic-macros)
+		#
+		# Various code blocks this one.
+		#
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Woverflow)
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fstrict-overflow -Wstrict-overflow=4)
+		#
+		# Due to various places where APIs we don't control
+		# require us to cast away constness, we can probably
+		# never enable this one with -Werror.
+		#
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wcast-qual)
+		#
+		# Some generated ASN.1 dissectors block this one;
+		# multiple function declarations for the same
+		# function are being generated.
+		#
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wredundant-decls)
+		#
+		# Some loops are safe, but it's hard to convince the
+		# compiler of that.
+		#
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wunsafe-loop-optimizations)
+		#
+		# All the registration functions block these for now.
+		#
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wmissing-prototypes)
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wmissing-declarations)
+		#
+		# A bunch of "that might not work on SPARC" code blocks
+		# this one for now.
+		#
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wcast-align)
+		#
+		# Works only with Clang
+		#
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wunreachable-code)
+		#
+		# Works only with Clang but generates a lot of warnings
+		# (about glib library not using Doxygen)
+		#
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wdocumentation)
+
+		#
+		# The following are C only, not C++
+		#
+		# Due to various places where APIs we don't control
+		# require us to cast away constness, we can probably
+		# never enable this one with -Werror.
+		#
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wbad-function-cast, C)
+	fi
+])
+
+# Try to add ASAN address analyze.
+# Only needed for analyse
+#
+AC_ARG_ENABLE(asan,
+  AC_HELP_STRING( [--enable-asan],
+		  [Enable AddressSanitizer (ASAN) for debugging (degrades performance)@<:@default=no@:>@]),
+[
+	#
+	# With Clang >= 3.5 Leak detection is enable by default
+	# and no yet all leak is fixed...
+	# use ASAN_OPTIONS=detect_leaks=0 to disable detect_leaks
+	#
+	# XXX shouldn't this also be added to LDFLAGS?
+	AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fsanitize=address)
+
+])
+
+# Add check hf conflict..
+#
+AC_ARG_ENABLE(checkhf-conflict,
+  AC_HELP_STRING( [--enable-checkhf-conflict],
+		  [Enable hf conflict check for debugging (start-up may be slower)@<:@default=no@:>@]),
+[
+	AC_DEFINE(ENABLE_CHECK_FILTER, 1, [Enable hf conflict check])
+])
 
 AC_WIRESHARK_LDFLAGS_CHECK([-Wl,--as-needed])
 ###AC_WIRESHARK_LDFLAGS_CHECK([-Wl,-M])

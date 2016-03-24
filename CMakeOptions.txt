@@ -25,8 +25,8 @@ option(DISABLE_WERROR    "Do not treat warnings as errors" OFF)
 option(EXTCAP_ANDROIDDUMP_LIBPCAP    "Build androiddump using libpcap" OFF)
 option(ENABLE_EXTRA_COMPILER_WARNINGS "Do additional compiler warnings (disables -Werror)" OFF)
 option(ENABLE_CODE_ANALYSIS "Enable the compiler's static analyzer if possible" OFF)
-option(ENABLE_ASAN "Enable AddressSanitizer (ASAN) for debugging (May be slow down)" OFF)
-option(ENABLE_CHECKHF_CONFLICT "Enable Check hf conflict for debugging (May be slow start)" OFF)
+option(ENABLE_ASAN "Enable AddressSanitizer (ASAN) for debugging (degrades performance)" OFF)
+option(ENABLE_CHECKHF_CONFLICT "Enable hf conflict check for debugging (start-up may be slower)" OFF)
 
 #
 # Leave GTK2 the default on Windows, looks better than GTK3
