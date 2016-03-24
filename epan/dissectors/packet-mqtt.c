@@ -28,8 +28,11 @@
 #include <epan/packet.h>
 #include <epan/dwarf.h>
 #include "packet-tcp.h"
+#include "packet-ssl.h"
 
-#define MQTT_DEFAULT_PORT 1883
+#define MQTT_DEFAULT_PORT     1883 /* IANA registered under service name as mqtt */
+#define MQTT_SSL_DEFAULT_PORT 8883 /* IANA registered under service name secure-mqtt */
+
 #define MQTT_HDR_SIZE_BEFORE_LEN 1
 
 /* MQTT MEssage Types */
@@ -589,6 +592,7 @@ void proto_register_mqtt(void)
 void proto_reg_handoff_mqtt(void)
 {
   dissector_add_uint("tcp.port", MQTT_DEFAULT_PORT, mqtt_handle);
+  ssl_dissector_add(MQTT_SSL_DEFAULT_PORT, mqtt_handle);
 }
 
 /*
