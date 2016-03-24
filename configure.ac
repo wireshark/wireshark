@@ -587,18 +587,15 @@ if test "x$with_gnutls" = "xyes"; then
     )
   fi
 
-  if test "x$have_license_compatible_gnutls" = "xyes"; then
-    echo "GnuTLS found, enabling SSL decryption"
+  if test "x$have_license_compatible_gnutls" != "xyes"; then
+    if test "x$want_gnutls" = "xyes"; then
+      AC_MSG_ERROR([GnuTLS crypto library was requested, but is not available])
+    else
+      AS_ECHO(["GnuTLS with compatible license not found, disabling SSL decryption"])
+    fi
+  else
     AC_DEFINE(HAVE_LIBGNUTLS, 1, [Define to use GnuTLS library])
     tls_message="yes"
-  else
-    echo "GnuTLS with compatible license not found, disabling SSL decryption"
-    tls_message="no"
-
-    # Error out if the user explicitly requested gnutls
-    if test "x$want_gnutls" = "xyes"; then
-	AC_MSG_ERROR([GnuTLS crypto library was requested, but is not available])
-    fi
   fi
 fi
 
@@ -613,7 +610,6 @@ AC_ARG_WITH([gcrypt],
 if test "x$with_gcrypt" = "xyes"; then
   AM_PATH_LIBGCRYPT(1.4.2,
 	[
-		echo "libgcrypt found, enabling decryption for ipsec, ssl, etc."
 		AC_DEFINE(HAVE_LIBGCRYPT, 1, [Define to use libgcrypt])
 		gcrypt_message="yes"
 	]
@@ -621,7 +617,7 @@ if test "x$with_gcrypt" = "xyes"; then
 		if test x$libgcrypt_config_prefix != x ; then
 			AC_MSG_ERROR([[libgcrypt not found; install libgcrypt-devel package for your system]])
 		else
-			echo "libgcrypt not found, disabling decryption for ipsec, ssl, etc."
+			AS_ECHO(["libgcrypt not found, disabling decryption for ipsec, ssl, etc."])
 			gcrypt_message="no"
 		fi
 
@@ -3431,7 +3427,7 @@ echo ""
 echo "  LIBS: $LIBS"
 
 echo ""
-echo "The Wireshark package has been configured with the following options."
+echo "The Wireshark package has been configured with the following options:"
 echo "                    Build wireshark : $enable_wireshark_qt$qt_lib_message"
 echo "                Build wireshark-gtk : $have_gtk""$gtk_lib_message"
 echo "                       Build tshark : $enable_tshark"
@@ -3467,9 +3463,9 @@ echo "                   Use zlib library : $zlib_message"
 echo "               Use kerberos library : $krb5_message"
 echo "                 Use c-ares library : $c_ares_message"
 echo "                Use SMI MIB library : $libsmi_message"
-echo "             Use GNU crypto library : $gcrypt_message"
+echo "             Use GNU gcrypt library : $gcrypt_message"
 echo "             Use SSL crypto library : $ssl_message"
-echo "                 Use gnutls library : $tls_message"
+echo "                 Use GnuTLS library : $tls_message"
 echo "     Use POSIX capabilities library : $libcap_message"
 echo "                  Use GeoIP library : $geoip_message"
 echo "                 Use libssh library : $libssh_message"

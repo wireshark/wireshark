@@ -1651,7 +1651,7 @@ fi
 AC_DEFUN([AC_WIRESHARK_GCC_FORTIFY_SOURCE_CHECK],
 [
 if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
-  AC_MSG_CHECKING([whether -D_FORTIFY_SOURCE=... can be used (without generating a warning)])
+  AC_MSG_CHECKING([whether -D_FORTIFY_SOURCE=2 can be used (without generating a warning)])
   AC_WIRESHARK_PUSH_FLAGS
   CFLAGS="$CFLAGS -Werror"
   CPPFLAGS="$CPPFLAGS -D_FORTIFY_SOURCE=2"
