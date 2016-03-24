@@ -5,10 +5,10 @@
 #                     source tree. For external dissectors, set it to the
 #                     absolute path (e.g. "${CMAKE_CURRENT_SOURCE_DIR}").
 
-function(ASN2WRS)
-	include(LocatePythonModule)
-	locate_python_module(asn2wrs REQUIRED PATHS "${CMAKE_SOURCE_DIR}/tools")
+include(LocatePythonModule)
+locate_python_module(asn2wrs REQUIRED PATHS "${CMAKE_SOURCE_DIR}/tools")
 
+function(ASN2WRS)
 	if(NOT PROTO_OPT)
 		set(PROTO_OPT -p ${PROTOCOL_NAME})
 	elseif(PROTO_OPT STREQUAL "_EMPTY_")
