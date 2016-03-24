@@ -63,13 +63,16 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# On windows python will output \r\n line endings - we don't want that
-# On systems using a version of sed that doesn't support C-style
-# backslash escapes in search patterns - this probably includes most
-# if not all of the *BSDs as well as OS X, and might include any system
-# not using GNU sed - the line below will remove all 'r' characters from
-# the filenames - we want this even less.
-#CHECK_FILES=`echo "$CHECK_FILES" | sed 's/\r//g'`
+# On windows python will output \r\n line endings - we don't want that.
+#
+# Do not use sed, as not all versions of sed support \r as meaning CR
+# in a regexp - the only version that does so might be GNU sed; the
+# GNU sed documentation says that only \n and \\ can be used in a
+# portable script.
+#
+# The Single UNIX Specification says that tr supports \r; most if not
+# all modern UN*Xes should support it.
+CHECK_FILES=`echo "$CHECK_FILES" | tr -d '\r'`
 
 for FILE in $CHECK_FILES; do
 
