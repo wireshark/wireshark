@@ -529,22 +529,15 @@ AC_SUBST(OSX_MIN_VERSION)
 AC_SYS_LARGEFILE
 
 #
-# Look for math functions; use libm if necessary.
+# Check if we need to link with libm
 #
-AC_SEARCH_LIBS(floor, m)
-AC_SEARCH_LIBS(ceil, m)
-AC_SEARCH_LIBS(exp, m)
-AC_SEARCH_LIBS(log, m)
-AC_SEARCH_LIBS(log10, m)
-AC_SEARCH_LIBS(floorl, m,
-  [
-    FLOORL_LO=""
-    AC_DEFINE(HAVE_FLOORL, 1, [Define if you have the floorl function.])
-  ],
-  FLOORL_LO="floorl.lo")
-AC_SUBST(FLOORL_LO)
-AC_SEARCH_LIBS(lrint, m,
-  [AC_DEFINE(HAVE_LRINT, 1, [Define if you have the 'lrint' function.])])
+AC_SEARCH_LIBS([cos], [m])
+
+#
+# Check for C99 math functions.
+#
+AC_CHECK_FUNCS([floorl lrint])
+AM_CONDITIONAL([HAVE_FLOORL], [test "x$ac_cv_func_floorl" = xyes])
 
 #
 # Check if we need to link with -lnsl and -lsocket

@@ -143,8 +143,7 @@ libwireshark_la_LIBADD = \
 	@SSL_LIBS@		\
 	@LIBSMI_LDFLAGS@	\
 	@GEOIP_LIBS@		\
-	@GLIB_LIBS@		\
-	-lm
+	@GLIB_LIBS@
 
 libwireshark_la_DEPENDENCIES = \
 	libwireshark_generated.la		\

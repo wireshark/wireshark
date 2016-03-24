@@ -43,7 +43,6 @@ libwsutil_abi_INCLUDES = 	\
 # Optional objects that I know how to build. These will be
 # linked into libwsutil if necessary.
 wsutil_optional_objects = \
-	@FLOORL_LO@		\
 	@GETOPT_LO@		\
 	@INET_ATON_LO@		\
 	@INET_NTOP_LO@		\
@@ -73,14 +72,16 @@ libwsutil_la_SOURCES = \
 	$(LIBWSUTIL_SRC)	\
 	$(LIBWSUTIL_INCLUDES)
 
+if !HAVE_FLOORL
+libwsutil_la_SOURCES += floorl.c floorl.h
+endif
+
 libwsutil_sse42_la_SOURCES = \
 	ws_mempbrk_sse42.c
 
 libwsutil_sse42_la_CFLAGS = $(AM_CFLAGS) $(CFLAGS_SSE42)
 
 EXTRA_libwsutil_la_SOURCES = \
-	floorl.c		\
-	floorl.h		\
 	inet_aton.c		\
 	inet_aton.h		\
 	inet_ntop.c		\
