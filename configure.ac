@@ -2985,7 +2985,7 @@ AC_ARG_ENABLE(androiddump,
     androiddump=$enableval,enable_androiddump=yes)
 
 if test "x$have_extcap" != xyes; then
-	AC_MSG_RESULT(no, extcap disabled)
+	AC_MSG_RESULT([no, extcap disabled])
 	enable_androiddump=no
 elif test "x$enable_androiddump" = "xyes" ; then
 	AC_MSG_RESULT(yes)
@@ -3021,10 +3021,10 @@ AC_ARG_ENABLE(sshdump,
 	[],[enable_sshdump=yes])
 
 if test "x$have_extcap" != xyes; then
-	AC_MSG_RESULT(no, extcap disabled)
+	AC_MSG_RESULT([no, extcap disabled])
 	enable_sshdump=no
 elif test "x$have_good_libssh" != xyes; then
-	AC_MSG_RESULT(no, libssh not available)
+	AC_MSG_RESULT([no, libssh not available])
 	enable_sshdump=no
 elif test "x$enable_sshdump" = "xyes" ; then
 	AC_MSG_RESULT(yes)
@@ -3051,10 +3051,10 @@ AC_ARG_ENABLE(ciscodump,
 	[],[enable_ciscodump=yes])
 
 if test "x$have_extcap" != xyes; then
-	AC_MSG_RESULT(no, extcap disabled)
+	AC_MSG_RESULT([no, extcap disabled])
 	enable_ciscodump=no
 elif test "x$have_good_libssh" != xyes; then
-	AC_MSG_RESULT(no, libssh not available)
+	AC_MSG_RESULT([no, libssh not available])
 	enable_ciscodump=no
 elif test "x$enable_ciscodump" = "xyes" ; then
 	AC_MSG_RESULT(yes)
@@ -3081,7 +3081,7 @@ AC_ARG_ENABLE(randpktdump,
 	randpktdump=$enableval,enable_randpktdump=yes)
 
 if test "x$have_extcap" != xyes; then
-	AC_MSG_RESULT(no, extcap disabled)
+	AC_MSG_RESULT([no, extcap disabled])
 	enable_randpktdump=no
 elif test "x$enable_randpktdump" = "xyes" ; then
 	AC_MSG_RESULT(yes)
