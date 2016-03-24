@@ -1020,6 +1020,7 @@ add_subdirectory( randpkt_core )
 add_subdirectory( tools/lemon )
 add_subdirectory( ui )
 add_subdirectory( wiretap )
+add_subdirectory( writecap )
 add_subdirectory( wsutil )
 
 if(NOT WIN32)
@@ -1208,6 +1209,7 @@ set( IN_FILES
 	ui/gtk/doxygen.cfg.in
 	ui/qt/doxygen.cfg.in
 	wireshark.pc.in
+	writecap/doxygen.cfg.in
 )
 foreach( _in_file ${IN_FILES} )
 	get_filename_component( _path ${_in_file} PATH )
@@ -1232,6 +1234,7 @@ link_directories(
 	${CMAKE_BINARY_DIR}/epan
 	${CMAKE_BINARY_DIR}/randpkt_core
 	${CMAKE_BINARY_DIR}/wiretap
+	${CMAKE_BINARY_DIR}/writecap
 	${CMAKE_BINARY_DIR}/wsutil
 )
 
@@ -2142,13 +2145,13 @@ endif()
 
 if(BUILD_text2pcap)
 	set(text2pcap_LIBS
+		writecap
 		wsutil
 		${M_LIBRARIES}
 		${ZLIB_LIBRARIES}
 	)
 	set(text2pcap_CLEAN_FILES
 		text2pcap.c
-		pcapio.c
 	)
 	set(text2pcap_FILES
 		${text2pcap_CLEAN_FILES}
@@ -2248,6 +2251,7 @@ endif()
 
 if(BUILD_dumpcap AND PCAP_FOUND)
 	set(dumpcap_LIBS
+		writecap
 		wsutil
 		caputils
 		${PCAP_LIBRARIES}
@@ -2267,7 +2271,6 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		conditions.c
 		dumpcap.c
 		filter_files.c
-		pcapio.c
 		ringbuffer.c
 		sync_pipe_write.c
 		${CMAKE_BINARY_DIR}/image/dumpcap.rc
@@ -2376,6 +2379,7 @@ endif()
 
 if(ENABLE_EXTCAP AND BUILD_ciscodump AND LIBSSH_FOUND)
 	set(ciscodump_LIBS
+		writecap
 		wsutil
 		${GLIB2_LIBRARIES}
 		${CMAKE_DL_LIBS}
@@ -2388,7 +2392,6 @@ if(ENABLE_EXTCAP AND BUILD_ciscodump AND LIBSSH_FOUND)
 		extcap/ciscodump.c
 		extcap/extcap-base.c
 		extcap/ssh-base.c
-		pcapio.c
 	)
 
 	add_executable(ciscodump WIN32 ${ciscodump_FILES})

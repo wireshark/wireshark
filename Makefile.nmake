@@ -168,12 +168,14 @@ reordercap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 
 text2pcap_LIBS= \
 	wsock32.lib user32.lib \
+	writecap\libwritecap.lib \
 	wsutil\libwsutil.lib \
 	$(GLIB_LIBS)
 
 dumpcap_LIBS= \
 	wsock32.lib user32.lib \
 	caputils\libcaputils.lib \
+	writecap\libwritecap.lib \
 	wsutil\libwsutil.lib \
 	$(GLIB_LIBS)
 
@@ -393,10 +395,10 @@ reordercap.exe	: $(LIBS_CHECK)  config.h $(reordercap_OBJECTS) wsutil\libwsutil.
 	mt.exe -nologo -manifest "reordercap.exe.manifest" -outputresource:reordercap.exe;1
 !ENDIF
 
-text2pcap.exe	: $(LIBS_CHECK) config.h text2pcap.obj text2pcap-scanner.obj pcapio.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\text2pcap.res
+text2pcap.exe	: $(LIBS_CHECK) config.h text2pcap.obj text2pcap-scanner.obj writecap\libwritecap.lib wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\text2pcap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) text2pcap.obj text2pcap-scanner.obj pcapio.obj $(text2pcap_LIBS) image\text2pcap.res
+		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) text2pcap.obj text2pcap-scanner.obj $(text2pcap_LIBS) image\text2pcap.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "text2pcap.exe.manifest" -outputresource:text2pcap.exe;1
@@ -420,7 +422,7 @@ randpkt.exe	: $(randpkt_OBJECTS) randpkt_core
 	mt.exe -nologo -manifest "randpkt.exe.manifest" -outputresource:randpkt.exe;1
 !ENDIF
 
-dumpcap.exe	: $(LIBS_CHECK) config.h $(dumpcap_OBJECTS) caputils wsutil\libwsutil.lib image\dumpcap.res
+dumpcap.exe	: $(LIBS_CHECK) config.h $(dumpcap_OBJECTS) caputils writecap\libwritecap.lib wsutil\libwsutil.lib image\dumpcap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) $(dumpcap_LIBS) $(dumpcap_OBJECTS) image\dumpcap.res

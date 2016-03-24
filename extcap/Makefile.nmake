@@ -65,6 +65,7 @@ ciscodump_OBJECTS = $(ciscodump_SOURCES:.c=.obj)
 
 ciscodump_WSLIBS = \
 	..\wiretap\wiretap-$(WTAP_VERSION).lib \
+	..\writecap\libwritecap.lib \
 	..\wsutil\libwsutil.lib
 
 ciscodump_LIBS = $(ciscodump_WSLIBS) \

@@ -71,6 +71,7 @@ androiddump
 autom4te.cache
 capinfos
 captype
+ciscodump
 compile
 config.h
 config.h.in

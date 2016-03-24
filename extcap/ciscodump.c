@@ -27,7 +27,7 @@
 #include <extcap/extcap-base.h>
 #include <wsutil/interface.h>
 #include <extcap/ssh-base.h>
-#include <pcapio.h>
+#include <writecap/pcapio.h>
 
 #include <errno.h>
 #include <string.h>

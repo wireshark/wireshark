@@ -518,6 +518,7 @@ text2pcap_CFLAGS = $(GENERATED_CFLAGS)
 
 # Libraries with which to link text2pcap.
 text2pcap_LDADD = \
+	writecap/libwritecap.a		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
 
@@ -600,6 +601,7 @@ echld_CPPFLAGS = $(AM_CPPFLAGS) $(GLIB_CFLAGS)
 echld_test_LDADD = \
 	epan/libwireshark.la		\
 	echld/libechld.la		\
+	writecap/libwritecap.a		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
@@ -620,6 +622,7 @@ dumpcap_LDFLAGS = $(AM_LDFLAGS) $(PIE_LDFLAGS)
 # Libraries with which to link dumpcap.
 dumpcap_LDADD = \
 	caputils/libcaputils.a		\
+	writecap/libwritecap.a		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
@@ -775,6 +778,7 @@ DIST_SUBDIRS = \
 	randpkt_core	\
 	tools		\
 	wiretap		\
+	writecap	\
 	wsutil		\
 	extcap		\
 	docbook
@@ -782,6 +786,7 @@ DIST_SUBDIRS = \
 SUBDIRS = \
 	tools			\
 	wsutil			\
+	writecap		\
 	wiretap			\
 	epan			\
 	capchild		\
@@ -1066,6 +1071,7 @@ checkapi: checkapi_local
 	cd epan/dissectors && $(MAKE) checkapi
 	cd plugins && $(MAKE) checkapi
 	cd randpkt_core && $(MAKE) checkapi
+	cd writecap && $(MAKE) checkapi
 	cd wsutil && $(MAKE) checkapi
 
 wsar_html: doxygen.cfg doxygen_global.cfg FORCE

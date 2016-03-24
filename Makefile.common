@@ -102,12 +102,10 @@ rawshark_SOURCES =	\
 
 # text2pcap specifics
 text2pcap_SOURCES = \
-	pcapio.c		\
 	text2pcap.c		\
 	text2pcap-scanner.l
 
 text2pcap_INCLUDES = \
-	pcapio.h \
 	text2pcap.h
 
 # mergecap specifics
@@ -141,7 +139,6 @@ echld_test_SOURCES =	\
 	capture_stop_conditions.c	\
 	cfile.c		\
 	conditions.c	\
-	pcapio.c	\
 	ringbuffer.c	\
 	sync_pipe_write.c
 
@@ -156,7 +153,6 @@ dumpcap_SOURCES =	\
 	conditions.c	\
 	dumpcap.c	\
 	filter_files.c	\
-	pcapio.c	\
 	ringbuffer.c	\
 	sync_pipe_write.c
 
@@ -164,7 +160,6 @@ dumpcap_SOURCES =	\
 dumpcap_INCLUDES = \
 	capture_stop_conditions.h	\
 	conditions.h	\
-	pcapio.h	\
 	ringbuffer.h
 
 # this target needed for distribution only

@@ -85,7 +85,7 @@
 #include "caputils/capture-wpcap.h"
 #endif /* _WIN32 */
 
-#include "pcapio.h"
+#include "writecap/pcapio.h"
 
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>

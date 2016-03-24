@@ -88,7 +88,7 @@ endif
 
 # Libraries and plugin flags with which to link ciscodump.
 ciscodump_LDADD = \
-	../wiretap/libwiretap.la	\
+	../writecap/libwritecap.a	\
 	../wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\
 	@LIBSSH_LIBS@		\

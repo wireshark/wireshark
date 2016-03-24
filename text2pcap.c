@@ -138,7 +138,7 @@
 # include "wsutil/strptime.h"
 #endif
 
-#include "pcapio.h"
+#include "writecap/pcapio.h"
 #include "text2pcap.h"
 
 #ifdef _WIN32

@@ -3329,6 +3329,8 @@ AC_OUTPUT(
   tools/Makefile
   tools/lemon/Makefile
   wiretap/Makefile
+  writecap/Makefile
+  writecap/doxygen.cfg
   wsutil/Makefile
   echld/Makefile
   _CUSTOM_AC_OUTPUT_
