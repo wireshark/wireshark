@@ -99,51 +99,6 @@ AC_DEFUN([AC_WIRESHARK_POP_FLAGS],
 
 
 #
-# AC_WIRESHARK_STRUCT_ST_FLAGS
-#
-dnl AC_STRUCT_ST_BLKSIZE extracted from the file in question,
-dnl "acspecific.m4" in GNU Autoconf 2.12, and turned into
-dnl AC_WIRESHARK_STRUCT_ST_FLAGS, which checks if "struct stat"
-dnl has the 4.4BSD "st_flags" member, and defines HAVE_ST_FLAGS; that's
-dnl what's in this file.
-dnl Done by Guy Harris <guy@alum.mit.edu> on 2012-06-02.
-
-dnl ### Checks for structure members
-
-AC_DEFUN([AC_WIRESHARK_STRUCT_ST_FLAGS],
-[AC_CACHE_CHECK([for st_flags in struct stat], ac_cv_wireshark_struct_st_flags,
-[AC_TRY_COMPILE([#include <sys/stat.h>], [struct stat s; s.st_flags;],
-ac_cv_wireshark_struct_st_flags=yes, ac_cv_wireshark_struct_st_flags=no)])
-if test $ac_cv_wireshark_struct_st_flags = yes; then
-  AC_DEFINE(HAVE_ST_FLAGS, 1, [Define if st_flags field exists in struct stat])
-fi
-])
-
-
-#
-# AC_WIRESHARK_STRUCT_SA_LEN
-#
-dnl AC_STRUCT_ST_BLKSIZE extracted from the file in question,
-dnl "acspecific.m4" in GNU Autoconf 2.12, and turned into
-dnl AC_WIRESHARK_STRUCT_SA_LEN, which checks if "struct sockaddr"
-dnl has the 4.4BSD "sa_len" member, and defines HAVE_SA_LEN; that's
-dnl what's in this file.
-dnl Done by Guy Harris <guy@alum.mit.edu> on 1998-11-14.
-
-dnl ### Checks for structure members
-
-AC_DEFUN([AC_WIRESHARK_STRUCT_SA_LEN],
-[AC_CACHE_CHECK([for sa_len in struct sockaddr], ac_cv_wireshark_struct_sa_len,
-[AC_TRY_COMPILE([#include <sys/types.h>
-#include <sys/socket.h>], [struct sockaddr s; s.sa_len;],
-ac_cv_wireshark_struct_sa_len=yes, ac_cv_wireshark_struct_sa_len=no)])
-if test $ac_cv_wireshark_struct_sa_len = yes; then
-  AC_DEFINE(HAVE_SA_LEN, 1, [Define if sa_len field exists in struct sockaddr])
-fi
-])
-
-
-#
 # AC_WIRESHARK_BREAKLOOP_TRY_LINK
 #
 AC_DEFUN([AC_WIRESHARK_PCAP_BREAKLOOP_TRY_LINK],

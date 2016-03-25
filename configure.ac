@@ -2734,12 +2734,12 @@ AC_STRUCT_TIMEZONE
 # We need to know whether "struct stat" has an "st_flags" member
 # for file_user_immutable().
 
-AC_WIRESHARK_STRUCT_ST_FLAGS
+AC_CHECK_MEMBERS([struct stat.st_flags])
 
 # We need to know whether "struct sockaddr" has an "sa_len" member
 # for get_interface_list().
 
-AC_WIRESHARK_STRUCT_SA_LEN
+AC_CHECK_MEMBERS([struct sockaddr.sa_len])
 
 # We must know our byte order
 AC_C_BIGENDIAN
