@@ -546,7 +546,7 @@ static const char mon_names[12][4] = {
 static const gchar *
 get_zonename(struct tm *tmp)
 {
-#if defined(HAVE_TM_ZONE)
+#if defined(HAVE_STRUCT_TM_TM_ZONE)
 	return tmp->tm_zone;
 #else
 	if ((tmp->tm_isdst != 0) && (tmp->tm_isdst != 1)) {

@@ -352,7 +352,7 @@
 #cmakedefine HAVE_SYS_WAIT_H 1
 
 /* Define if tm_zone field exists in struct tm */
-#cmakedefine HAVE_TM_ZONE 1
+#cmakedefine HAVE_STRUCT_TM_TM_ZONE 1
 
 /* Define if tzname array exists */
 #cmakedefine HAVE_TZNAME 1

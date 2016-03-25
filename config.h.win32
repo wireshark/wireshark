@@ -146,12 +146,6 @@
 /* Define if you have the <sys/wait.h> header file.  */
 /* #undef HAVE_SYS_WAIT_H */
 
-/* Define if tm_zone field exists in struct tm */
-/* #undef HAVE_TM_ZONE 1 */
-
-/* Define if tzname array exists */
-/* #undef HAVE_TZNAME */
-
 /* Define if you have the <unistd.h> header file.  */
 /* #define HAVE_UNISTD_H 1 */
 

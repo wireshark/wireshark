@@ -2729,7 +2729,7 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 # AC_C_CONST
 
 # Check how we can get the time zone abbreviation
-AC_WIRESHARK_TIMEZONE_ABBREV
+AC_STRUCT_TIMEZONE
 
 # We need to know whether "struct stat" has an "st_flags" member
 # for file_user_immutable().
