@@ -64,6 +64,11 @@ Note 1:
   -G "CodeBlocks - Unix Makefiles"
   -G "CodeBlocks - NMake Makefiles"
 
+  # We call try_compile many times, particularly via ConfigureChecks.cmake.
+  # Setting a lightweight try_compile configuration can speed up cmake,
+  # particularly for MSBuild.
+  -DCMAKE_TRY_COMPILE_CONFIGURATION=Release
+
 Note 2:
   After running cmake, you can always run "make help" to see
   a list of all possible make targets.
