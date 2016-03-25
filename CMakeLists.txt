@@ -343,7 +343,6 @@ else()
 		# The following are for C and C++
 		# -O<X> and -g get set by the CMAKE_BUILD_TYPE
 		-Wall
-		-W
 		-Wextra
 		-Wendif-labels
 		-Wpointer-arith

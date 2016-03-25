@@ -968,8 +968,8 @@ AC_ARG_ENABLE(checkhf-conflict,
 #
 # The following are for C and C++
 #
-AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wall -W) # -W is now known as -Wextra
-AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wextra) # -W is now known as -Wextra
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wall)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wextra)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wendif-labels)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wpointer-arith)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Warray-bounds)
