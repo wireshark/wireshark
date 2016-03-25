@@ -810,21 +810,6 @@ AC_DEFUN([AC_WIRESHARK_RPM_CHECK],
 	fi
 ])
 
-#
-# AC_WIRESHARK_GNU_SED_CHECK
-# Checks if GNU sed is the first sed in PATH.
-#
-AC_DEFUN([AC_WIRESHARK_GNU_SED_CHECK],
-[
-	AC_MSG_CHECKING(for GNU sed as first sed in PATH)
-	if  ( sh -c "sed --version" </dev/null 2> /dev/null | grep "GNU sed" 2>&1 > /dev/null ) ;  then
-		AC_MSG_RESULT(yes)
-		HAVE_GNU_SED=yes
-	else
-		AC_MSG_RESULT(no)
-		HAVE_GNU_SED=no
-	fi
-])
 
 #
 # AC_WIRESHARK_C_ARES_CHECK

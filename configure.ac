@@ -66,6 +66,13 @@ then
 fi
 AC_PROG_CXX
 AC_PROG_CPP
+
+#
+# Check for versions of "sed" inadequate to handle, in libtool, a list
+# of object files as large as the list in Wireshark.
+#
+AC_PROG_SED
+
 AC_PROG_MKDIR_P
 
 # Set CC_FOR_BUILD (the *local* gcc to use for building e.g. lemon)
@@ -1465,46 +1472,6 @@ case "$host_os" in
     fi
   ;;
 esac
-
-#
-# Check for versions of "sed" inadequate to handle, in libtool, a list
-# of object files as large as the list in Wireshark.
-#
-# On Solaris, we check for "/bin/sed", "/usr/bin/sed", and "/usr/ucb/sed",
-# as both "/usr/bin/sed" (which is also "/bin/sed", as "/bin" is just a
-# symlink to "/usr/bin", but people may have "/bin" before "/usr/bin" in
-# their search path) and "/usr/ucb/sed" are inadequate; "/usr/xpg4/bin/sed"
-# is the only "sed" that comes with Solaris that can handle Wireshark.
-#
-# Add any checks here that are necessary for other OSes.
-#
-AC_PATH_PROG(SED, sed)
-if test "x$SED" = x
-then
-	AC_MSG_ERROR(I couldn't find sed; make sure it's installed and in your path)
-fi
-AC_WIRESHARK_GNU_SED_CHECK
-if test "$HAVE_GNU_SED" = no ; then
-	case "$host_os" in
-	solaris*)
-		AC_MSG_CHECKING(whether one of /usr/bin/sed or /bin/sed or /usr/ucb/sed will be used)
-		case `which sed` in
-			/bin/sed|/usr/bin/sed|/usr/ucb/sed)
-			AC_MSG_RESULT(yes)
-			AC_MSG_ERROR([change your path to search /usr/xpg4/bin or directory containing GNU sed before /usr/bin (and /bin and /usr/ucb)])
-			;;
-
-			*)
-			AC_MSG_RESULT(no)
-			;;
-		esac
-		;;
-
-	*)
-		:
-		;;
-	esac
-fi
 
 # Enable/disable wireshark
 AC_ARG_ENABLE(wireshark,
