@@ -138,6 +138,7 @@ static int hf_quic_tag_sfcw = -1;
 static int hf_quic_tag_cetv = -1;
 static int hf_quic_tag_xlct = -1;
 static int hf_quic_tag_nonp = -1;
+static int hf_quic_tag_csct = -1;
 static int hf_quic_tag_unknown = -1;
 
 static int hf_quic_padding = -1;
@@ -332,6 +333,7 @@ static const value_string message_tag_vals[] = {
 #define TAG_CETV 0x43455456
 #define TAG_XLCT 0x584C4354
 #define TAG_NONP 0x4E4F4E50
+#define TAG_CSCT 0x43534354
 
 static const value_string tag_vals[] = {
     { TAG_PAD, "Padding" },
@@ -366,6 +368,7 @@ static const value_string tag_vals[] = {
     { TAG_CETV, "Client encrypted tag-value" },
     { TAG_XLCT, "Expected leaf certificate" },
     { TAG_NONP, "Client Proof Nonce" },
+    { TAG_CSCT, "Signed cert timestamp (RFC6962) of leaf cert" },
     { 0, NULL }
 };
 
@@ -1185,6 +1188,11 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
                 proto_tree_add_item(tag_tree, hf_quic_tag_nonp, tvb, tag_offset_start + tag_offset, 32, ENC_NA);
                 tag_offset += 32;
                 tag_len -= 32;
+            break;
+            case TAG_CSCT:
+                proto_tree_add_item(tag_tree, hf_quic_tag_csct, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
+                tag_offset += tag_len;
+                tag_len -= tag_len;
             break;
             default:
                 proto_tree_add_item(tag_tree, hf_quic_tag_unknown, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
@@ -2096,6 +2104,11 @@ proto_register_quic(void)
         },
         { &hf_quic_tag_nonp,
             { "Client Proof nonce", "quic.tag.nonp",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_quic_tag_csct,
+            { "Signed cert timestamp", "quic.tag.csct",
                FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
