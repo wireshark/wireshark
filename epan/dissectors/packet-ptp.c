@@ -4105,7 +4105,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                                             ptp_leapsecondjump_tree = proto_item_add_subtree(leapsecondjumpflags_ti, ett_ptp_oe_smpte_leapsecondjump);
                                             proto_tree_add_item(ptp_leapsecondjump_tree,
                                                     hf_ptp_v2_oe_tlv_subtype_smpte_leapsecondjump_change, tvb, Offset, 1, ENC_BIG_ENDIAN);
-                                            Offset += 1;
                                             break;
                                         }
                                 }
