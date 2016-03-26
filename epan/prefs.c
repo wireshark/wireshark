@@ -3909,7 +3909,8 @@ string_to_name_resolve(const char *string, e_addr_resolve *name_resolve)
             name_resolve->transport_name = TRUE;
             break;
         case 'C':
-            name_resolve->concurrent_dns = TRUE;
+            /* DEPRECATED */
+            /* name_resolve->concurrent_dns */
             break;
         case 'd':
             name_resolve->dns_pkt_addr_resolution = TRUE;
@@ -4067,7 +4068,6 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             gbl_resolv_flags.mac_name = TRUE;
             gbl_resolv_flags.network_name = TRUE;
             gbl_resolv_flags.transport_name = TRUE;
-            gbl_resolv_flags.concurrent_dns = TRUE;
         }
         else if (g_ascii_strcasecmp(value, "false") == 0) {
             disable_name_resolution();

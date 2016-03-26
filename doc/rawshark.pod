@@ -170,8 +170,6 @@ resolution
 
 B<t> to enable transport-layer port number resolution
 
-B<C> to enable concurrent (asynchronous) DNS lookups
-
 B<d> to enable resolution from captured DNS packets
 
 =item -o  E<lt>preferenceE<gt>:E<lt>valueE<gt>

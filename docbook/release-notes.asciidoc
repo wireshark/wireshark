@@ -29,6 +29,11 @@ since version 2.0.0:
 the current capture file via the View menu in the Qt GUI.
 ** You can now show selected packet bytes as ASCII, HTML, Image, ISO 8859-1, Raw or UTF-8.
 ** You can now use regular expressions in Find Packet.
+** Name resolution for packet capture now supports asynchronous DNS lookups only. Therefore the
+"concurrent DNS resolution" preference has been deprecated and is a no-op. To enable DNS name
+resolution some build dependencies must be present (currently c-ares). If that is not the case DNS
+name resolution will be disabled (but other name resolution mechanisms, such as host files,
+are still available).
 
 //=== Removed Dissectors
 

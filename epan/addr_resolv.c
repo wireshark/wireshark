@@ -284,7 +284,6 @@ e_addr_resolve gbl_resolv_flags = {
     TRUE,   /* mac_name */
     FALSE,  /* network_name */
     FALSE,  /* transport_name */
-    TRUE,   /* concurrent_dns */
     TRUE,   /* dns_pkt_addr_resolution */
     TRUE,   /* use_external_net_name_resolver */
     FALSE,  /* load_hosts_file_from_profile_only */
@@ -318,7 +317,6 @@ gchar *g_pvlan_path     = NULL;     /* personal vlans file    */
  * ares_gethostbyaddr().
  * The callback processes the response, then frees the request.
  */
-#define ASYNC_DNS
 typedef struct _async_dns_queue_msg
 {
     union {
@@ -343,9 +341,7 @@ static void c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hoste
 
 ares_channel ghba_chan; /* ares_gethostbyaddr -- Usually non-interactive, no timeout */
 ares_channel ghbn_chan; /* ares_gethostbyname -- Usually interactive, timeout */
-#endif /* HAVE_C_ARES */
 
-#ifdef ASYNC_DNS
 static  gboolean  async_dns_initialized = FALSE;
 static  guint       async_dns_in_flight = 0;
 static  GList    *async_dns_queue_head = NULL;
@@ -361,7 +357,7 @@ add_async_dns_ipv4(int type, guint32 addr)
     msg->addr.ip4 = addr;
     async_dns_queue_head = g_list_append(async_dns_queue_head, (gpointer) msg);
 }
-#endif /* ASYNC_DNS */
+#endif /* HAVE_C_ARES */
 
 typedef struct {
     guint32      mask;
@@ -798,69 +794,29 @@ host_lookup(const guint addr)
          */
         tp = new_ipv4(addr);
         g_hash_table_insert(ipv4_hash_table, GUINT_TO_POINTER(addr), tp);
-    } else {
-        if ((tp->flags & DUMMY_AND_RESOLVE_FLGS) == DUMMY_ADDRESS_ENTRY) {
-            /*
-             * This hasn't been resolved yet, and we haven't tried to
-             * resolve it already, so try.
-             */
-            goto try_resolv;
-        }
+    } else if ((tp->flags & DUMMY_AND_RESOLVE_FLGS) != DUMMY_ADDRESS_ENTRY) {
         return tp;
     }
 
-try_resolv:
-    if (gbl_resolv_flags.network_name && gbl_resolv_flags.use_external_net_name_resolver) {
-        tp->flags |= TRIED_RESOLVE_ADDRESS;
-
-#ifdef ASYNC_DNS
-        if (gbl_resolv_flags.concurrent_dns &&
-                name_resolve_concurrency > 0 &&
-                async_dns_initialized) {
-            add_async_dns_ipv4(AF_INET, addr);
-            fill_dummy_ip4(addr, tp);
-            return tp;
-        }
-
-        /*
-         * The Windows "gethostbyaddr()" insists on translating 0.0.0.0 to
-         * the name of the host on which it's running; to work around that
-         * botch, we don't try to translate an all-zero IP address to a host
-         * name.
-         *
-         * Presumably getaddrinfo() behaves the same way.  Anyway, we should
-         * never get to this code on Windows since those builds include c-ares.
-         */
-#elif defined(HAVE_GETADDRINFO)
-        if (addr != 0) {
-            struct sockaddr_in sin;
-
-            memset(&sin, 0, sizeof(sin));
-            sin.sin_family      = AF_INET;
-            sin.sin_addr.s_addr = addr;
-            if (getnameinfo((struct sockaddr *)&sin, sizeof(sin),
-                            tp->name, sizeof(tp->name),
-                            NULL, 0, NI_NAMEREQD) == 0) {
-                return tp;
-            }
-        }
-#elif defined(HAVE_GETHOSTBYNAME)
-        if (addr != 0) {
-            struct hostent *hostp;
-
-            hostp = gethostbyaddr((const char *)&addr, 4, AF_INET);
-
-            if (hostp != NULL && hostp->h_name[0] != '\0') {
-                g_strlcpy(tp->name, hostp->h_name, MAXNAMELEN);
-                return tp;
-            }
-        }
-#endif
-
-        /* unknown host or DNS timeout */
-    }
+    /*
+     * This hasn't been resolved yet, and we haven't tried to
+     * resolve it already.
+     */
 
     fill_dummy_ip4(addr, tp);
+    if (!gbl_resolv_flags.network_name)
+        return tp;
+
+    if (gbl_resolv_flags.use_external_net_name_resolver) {
+        tp->flags |= TRIED_RESOLVE_ADDRESS;
+
+#ifdef HAVE_C_ARES
+        if (async_dns_initialized && name_resolve_concurrency > 0) {
+            add_async_dns_ipv4(AF_INET, addr);
+        }
+#endif
+    }
+
     return tp;
 
 } /* host_lookup */
@@ -884,10 +840,6 @@ host_lookup6(const struct e_in6_addr *addr)
     hashipv6_t * volatile tp;
 #ifdef HAVE_C_ARES
     async_dns_queue_msg_t *caqm;
-#elif defined(HAVE_GETADDRINFO)
-    struct sockaddr_in6 sin6;
-#elif defined(HAVE_GETHOSTBYNAME)
-    struct hostent *hostp;
 #endif
 
     tp = (hashipv6_t *)g_hash_table_lookup(ipv6_hash_table, addr);
@@ -902,54 +854,31 @@ host_lookup6(const struct e_in6_addr *addr)
         tp = new_ipv6(addr);
         memcpy(addr_key, addr, 16);
         g_hash_table_insert(ipv6_hash_table, addr_key, tp);
-    } else {
-        if ((tp->flags & DUMMY_AND_RESOLVE_FLGS) == DUMMY_ADDRESS_ENTRY) {
-            /*
-             * This hasn't been resolved yet, and we haven't tried to
-             * resolve it already, so try.
-             */
-            goto try_resolv;
-        }
+    } else if ((tp->flags & DUMMY_AND_RESOLVE_FLGS) != DUMMY_ADDRESS_ENTRY) {
         return tp;
     }
 
-try_resolv:
-    if (gbl_resolv_flags.network_name &&
-            gbl_resolv_flags.use_external_net_name_resolver) {
+    /*
+     * This hasn't been resolved yet, and we haven't tried to
+     * resolve it already.
+     */
+
+    fill_dummy_ip6(tp);
+    if (!gbl_resolv_flags.network_name)
+        return tp;
+
+    if (gbl_resolv_flags.use_external_net_name_resolver) {
         tp->flags |= TRIED_RESOLVE_ADDRESS;
 #ifdef HAVE_C_ARES
-        if ((gbl_resolv_flags.concurrent_dns) &&
-                name_resolve_concurrency > 0 &&
-                async_dns_initialized) {
+        if (async_dns_initialized && name_resolve_concurrency > 0) {
             caqm = g_new(async_dns_queue_msg_t,1);
             caqm->family = AF_INET6;
             memcpy(&caqm->addr.ip6, addr, sizeof(caqm->addr.ip6));
             async_dns_queue_head = g_list_append(async_dns_queue_head, (gpointer) caqm);
-            fill_dummy_ip6(tp);
-            return tp;
-        }
-#elif defined(HAVE_GETADDRINFO)
-        memset(&sin6, 0, sizeof(sin6));
-        sin6.sin6_family      = AF_INET6;
-        memcpy(sin6.sin6_addr.s6_addr, addr, sizeof(*addr));
-        if (getnameinfo((struct sockaddr *)&sin6, sizeof(sin6),
-                        tp->name, sizeof(tp->name),
-                        NULL, 0, NI_NAMEREQD) == 0) {
-            return tp;
-        }
-#elif defined(HAVE_GETHOSTBYNAME)
-        /* Quick hack to avoid DNS/YP timeout */
-        hostp = gethostbyaddr((const char *)addr, sizeof(*addr), AF_INET6);
-
-        if (hostp != NULL && hostp->h_name[0] != '\0') {
-            g_strlcpy(tp->name, hostp->h_name, MAXNAMELEN);
-            return tp;
         }
 #endif
     }
 
-    /* unknown host or DNS timeout */
-    fill_dummy_ip6(tp);
     return tp;
 
 } /* host_lookup6 */
@@ -2461,6 +2390,7 @@ addr_resolve_pref_init(module_t *nameres)
             "Whether address/name pairs found in captured DNS packets should be used by Wireshark for name resolution.",
             &gbl_resolv_flags.dns_pkt_addr_resolution);
 
+#ifdef HAVE_C_ARES
     prefs_register_bool_preference(nameres, "use_external_name_resolver",
             "Use an external network name resolver",
             "Use your system's configured name resolver"
@@ -2469,13 +2399,7 @@ addr_resolve_pref_init(module_t *nameres)
             " is enabled.",
             &gbl_resolv_flags.use_external_net_name_resolver);
 
-#ifdef HAVE_C_ARES
-    prefs_register_bool_preference(nameres, "concurrent_dns",
-            "Enable concurrent DNS name resolution",
-            "Enable concurrent DNS name resolution. Only"
-            " applies when network name resolution is"
-            " enabled. You probably want to enable this.",
-            &gbl_resolv_flags.concurrent_dns);
+    prefs_register_obsolete_preference(nameres, "concurrent_dns");
 
     prefs_register_uint_preference(nameres, "name_resolve_concurrency",
             "Maximum concurrent requests",
@@ -2486,9 +2410,9 @@ addr_resolve_pref_init(module_t *nameres)
             10,
             &name_resolve_concurrency);
 #else
-    prefs_register_static_text_preference(nameres, "concurrent_dns",
-            "Enable concurrent DNS name resolution: N/A",
-            "Support for concurrent DNS name resolution was not"
+    prefs_register_static_text_preference(nameres, "use_external_name_resolver",
+            "Use an external network name resolver: N/A",
+            "Support for using a concurrent external name resolver was not"
             " compiled into this version of Wireshark");
 #endif
 
@@ -2514,7 +2438,6 @@ disable_name_resolution(void) {
     gbl_resolv_flags.mac_name                           = FALSE;
     gbl_resolv_flags.network_name                       = FALSE;
     gbl_resolv_flags.transport_name                     = FALSE;
-    gbl_resolv_flags.concurrent_dns                     = FALSE;
     gbl_resolv_flags.dns_pkt_addr_resolution            = FALSE;
     gbl_resolv_flags.use_external_net_name_resolver     = FALSE;
     gbl_resolv_flags.vlan_name                          = FALSE;
@@ -2758,17 +2681,15 @@ host_name_lookup_init(void)
     }
     g_free(hostspath);
 #ifdef HAVE_C_ARES
-    if (gbl_resolv_flags.concurrent_dns) {
 #ifdef CARES_HAVE_ARES_LIBRARY_INIT
-        if (ares_library_init(ARES_LIB_INIT_ALL) == ARES_SUCCESS) {
+    if (ares_library_init(ARES_LIB_INIT_ALL) == ARES_SUCCESS) {
 #endif
-            if (ares_init(&ghba_chan) == ARES_SUCCESS && ares_init(&ghbn_chan) == ARES_SUCCESS) {
-                async_dns_initialized = TRUE;
-            }
-#ifdef CARES_HAVE_ARES_LIBRARY_INIT
+        if (ares_init(&ghba_chan) == ARES_SUCCESS && ares_init(&ghbn_chan) == ARES_SUCCESS) {
+            async_dns_initialized = TRUE;
         }
-#endif
+#ifdef CARES_HAVE_ARES_LIBRARY_INIT
     }
+#endif
 #else
 #endif /* HAVE_C_ARES */
 
@@ -3195,10 +3116,6 @@ get_host_ipaddr(const char *host, guint32 *addrp)
     int nfds;
     fd_set rfds, wfds;
     async_hostent_t ahe;
-#elif defined(HAVE_GETADDRINFO)
-    struct addrinfo hint, *result = NULL;
-#elif defined(HAVE_GETHOSTBYNAME)
-    struct hostent *hp;
 #endif
 
     /*
@@ -3221,9 +3138,7 @@ get_host_ipaddr(const char *host, guint32 *addrp)
         }
 
 #ifdef HAVE_C_ARES
-        if (! (gbl_resolv_flags.concurrent_dns) ||
-                name_resolve_concurrency < 1 ||
-                ! async_dns_initialized) {
+        if (!async_dns_initialized || name_resolve_concurrency < 1) {
             return FALSE;
         }
         ahe.addr_size = (int) sizeof (struct in_addr);
@@ -3246,37 +3161,6 @@ get_host_ipaddr(const char *host, guint32 *addrp)
             return TRUE;
         }
         return FALSE;
-#elif defined(HAVE_GETADDRINFO)
-        /*
-         * This can be slow, particularly for capture files with lots of
-         * addresses. Should we just return FALSE instead?
-         */
-        memset(&hint, 0, sizeof(hint));
-        hint.ai_family = AF_INET;
-        if (getaddrinfo(host, NULL, &hint, &result) == 0) {
-            /* Probably more checks than necessary */
-            if (result != NULL) {
-                gboolean ret_val = FALSE;
-                if (result->ai_family == AF_INET && result->ai_addrlen == 4) {
-                    memcpy(&ipaddr, result->ai_addr->sa_data, result->ai_addrlen);
-                    ret_val = TRUE;
-                }
-                freeaddrinfo(result);
-                return ret_val;
-            }
-        }
-#elif defined(HAVE_GETHOSTBYNAME)
-        hp = gethostbyname(host);
-        if (hp == NULL) {
-            /* No. */
-            return FALSE;
-            /* Apparently, some versions of gethostbyaddr can
-             * return IPv6 addresses. */
-         } else if (hp->h_length <= (int) sizeof (struct in_addr)) {
-             memcpy(&ipaddr, hp->h_addr, hp->h_length);
-         } else {
-             return FALSE;
-         }
 #endif
     } else {
         /* Does the string really contain dotted-quad IP?
@@ -3306,10 +3190,6 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
     int nfds;
     fd_set rfds, wfds;
     async_hostent_t ahe;
-#elif defined(HAVE_GETADDRINFO)
-    struct addrinfo hint, *result = NULL;
-#elif defined(HAVE_GETHOSTBYNAME2)
-    struct hostent *hp;
 #endif /* HAVE_C_ARES */
 
     if (str_to_ip6(host, addrp))
@@ -3329,9 +3209,7 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
 
     /* try FQDN */
 #ifdef HAVE_C_ARES
-    if (! (gbl_resolv_flags.concurrent_dns) ||
-            name_resolve_concurrency < 1 ||
-            ! async_dns_initialized) {
+    if (!async_dns_initialized || name_resolve_concurrency < 1) {
         return FALSE;
     }
     ahe.addr_size = (int) sizeof (struct e_in6_addr);
@@ -3353,31 +3231,6 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
     if (ahe.addr_size == ahe.copied) {
         return TRUE;
     }
-#elif defined(HAVE_GETADDRINFO)
-    /*
-     * This can be slow, particularly for capture files with lots of
-     * addresses. Should we just return FALSE instead?
-     */
-    memset(&hint, 0, sizeof(hint));
-    hint.ai_family = AF_INET6;
-    if (getaddrinfo(host, NULL, &hint, &result) == 0) {
-        /* Probably more checks than necessary */
-        if (result != NULL) {
-            gboolean ret_val = FALSE;
-            if (result->ai_family == AF_INET6 && result->ai_addrlen == sizeof(struct e_in6_addr)) {
-                memcpy(addrp, result->ai_addr->sa_data, result->ai_addrlen);
-                ret_val = TRUE;
-            }
-            freeaddrinfo(result);
-            return ret_val;
-        }
-    }
-#elif defined(HAVE_GETHOSTBYNAME2)
-    hp = gethostbyname2(host, AF_INET6);
-    if (hp != NULL && hp->h_length == sizeof(struct e_in6_addr)) {
-        memcpy(addrp, hp->h_addr, hp->h_length);
-        return TRUE;
-    }
 #endif
 
     return FALSE;
@@ -3389,13 +3242,14 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
  * that we don't know)
  */
 const char *
-host_ip_af(const char *host
-#if !defined(HAVE_GETADDRINFO) || !defined(HAVE_GETHOSTBYNAME2)
-        _U_
+#ifdef HAVE_GETADDRINFO
+host_ip_af(const char *host)
+#else
+host_ip_af(const char *host _U_)
 #endif
-        )
 {
     const char *af = "ip";
+
 #ifdef HAVE_GETADDRINFO
     struct addrinfo hint, *result = NULL;
     memset(&hint, 0, sizeof(hint));
@@ -3406,9 +3260,6 @@ host_ip_af(const char *host
         }
         freeaddrinfo(result);
     }
-#elif defined(HAVE_GETHOSTBYNAME2)
-    struct hostent *h;
-    return (h = gethostbyname2(host, AF_INET6)) && h->h_addrtype == AF_INET6 ? "ip6" : "ip";
 #endif
     return af;
 }

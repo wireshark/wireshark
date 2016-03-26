@@ -105,8 +105,7 @@ check_symbol_exists("lrint"  "math.h"    HAVE_LRINT)
 cmake_pop_check_state()
 
 check_function_exists("getaddrinfo"      HAVE_GETADDRINFO)
-check_function_exists("gethostbyname"    HAVE_GETHOSTBYNAME)
-check_function_exists("gethostbyname2"   HAVE_GETHOSTBYNAME2)
+
 check_function_exists("getopt_long"      HAVE_GETOPT_LONG)
 if(HAVE_GETOPT_LONG)
 	if(HAVE_GETOPT_H)

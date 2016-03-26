@@ -2628,9 +2628,6 @@ else
 fi
 AC_SUBST(C_ARES_LIBS)
 
-# Check for synchronous name resolvers
-AC_CHECK_FUNCS([getaddrinfo gethostbyname gethostbyname2])
-
 dnl GEOIP Check
 GEOIP_LIBS=''
 AC_MSG_CHECKING(whether to use the GeoIP IP address mapping library if available)
@@ -2714,6 +2711,8 @@ AC_C_BIGENDIAN
 # Checks whether "-traditional" is needed when using "ioctl".
 # XXX - do we need this?
 AC_PROG_GCC_TRADITIONAL
+
+AC_CHECK_FUNCS([getaddrinfo])
 
 AC_CHECK_FUNC(getopt_long,
   [
@@ -3354,8 +3353,7 @@ fi
 if test "x$have_good_c_ares" = "xyes" ; then
 	c_ares_message="yes"
 else
-	# We should make this an error at some point.
-	c_ares_message="no. This can cause serious performance issues."
+	c_ares_message="no (name resolution will be disabled)"
 fi
 
 if test "x$have_good_libcap" = "xyes" ; then

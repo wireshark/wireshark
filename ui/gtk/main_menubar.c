@@ -4703,7 +4703,7 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected);
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ResolveName",
                          frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
-                                            gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
+                                            gbl_resolv_flags.transport_name));
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowTCPStream",
                          is_tcp);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowUDPStream",
@@ -4716,7 +4716,7 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected && decode_as_ok());
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/ResolveName",
                          frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
-                                            gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
+                                            gbl_resolv_flags.transport_name));
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ToolsMenu/FirewallACLRules",
                          frame_selected);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/TCPStreamGraphMenu",

@@ -282,7 +282,7 @@ const char *ipprotostr(const int proto) {
      * protocol names?
      */
     if (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
-        gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns) {
+        gbl_resolv_flags.transport_name) {
         static char buf[128];
         struct protoent *pe;
 

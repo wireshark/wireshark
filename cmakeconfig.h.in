@@ -88,12 +88,6 @@
 /* Define to 1 if you have the `getaddrinfo' function. */
 #cmakedefine HAVE_GETADDRINFO 1
 
-/* Define to 1 if you have the `gethostbyname' function. */
-#cmakedefine HAVE_GETHOSTBYNAME 1
-
-/* Define to 1 if you have the `gethostbyname2' function. */
-#cmakedefine HAVE_GETHOSTBYNAME2 1
-
 /* Define to 1 if you have the getopt_long function. */
 #cmakedefine HAVE_GETOPT_LONG 1
 

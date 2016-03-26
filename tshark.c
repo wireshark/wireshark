@@ -1531,8 +1531,7 @@ main(int argc, char *argv[])
       if (badopt != '\0') {
         cmdarg_err("-N specifies unknown resolving option '%c'; valid options are:",
                    badopt);
-        cmdarg_err_cont("\t'C' to enable concurrent (asynchronous) DNS lookups\n"
-                        "\t'd' to enable address resolution from captured DNS packets\n"
+        cmdarg_err_cont("\t'd' to enable address resolution from captured DNS packets\n"
                         "\t'm' to enable MAC address resolution\n"
                         "\t'n' to enable network address resolution\n"
                         "\t'N' to enable using external resolvers (e.g., DNS)\n"
@@ -2984,7 +2983,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
      do a dissection and do so. */
   if (edt) {
     if (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
-        gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns)
+        gbl_resolv_flags.transport_name)
       /* Grab any resolved addresses */
       host_name_lookup_process();
 
@@ -3057,7 +3056,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt, frame_data *fd
      do a dissection and do so. */
   if (edt) {
     if (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
-        gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns)
+        gbl_resolv_flags.transport_name)
       /* Grab any resolved addresses */
       host_name_lookup_process();
 
@@ -3696,7 +3695,7 @@ process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset, struct wtap
      do a dissection and do so. */
   if (edt) {
     if (print_packet_info && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
-        gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns))
+        gbl_resolv_flags.transport_name))
       /* Grab any resolved addresses */
       host_name_lookup_process();
 

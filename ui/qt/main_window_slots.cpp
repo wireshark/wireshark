@@ -1169,7 +1169,7 @@ void MainWindow::setMenusForSelectedPacket()
 
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/ResolveName",
 //                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
-//                                            gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
+//                                            gbl_resolv_flags.transport_name));
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ToolsMenu/FirewallACLRules",
 //                         frame_selected);
     main_ui_->menuTcpStreamGraphs->setEnabled(is_tcp);
@@ -1266,7 +1266,7 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
 
 //    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ResolveName",
 //                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
-//                                            gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
+//                                            gbl_resolv_flags.transport_name));
 
     main_ui_->actionAnalyzeAAFSelected->setEnabled(can_match_selected);
     main_ui_->actionAnalyzeAAFNotSelected->setEnabled(can_match_selected);

@@ -700,34 +700,30 @@ an abbreviated manufacturer name, which has been assigned by the IEEE (e.g.
 Try to resolve an IP address (e.g. 216.239.37.99) to something more ``human
 readable''.
 
-__DNS/concurrent DNS name resolution (system/library service)__: Wireshark will
-ask the operating system (or the concurrent DNS library), to convert an IP
-address to the hostname associated with it (e.g. 216.239.37.99 ->
-www.1.google.com). The DNS service is using synchronous calls to the DNS server.
-So Wireshark will stop responding until a response to a DNS request is returned.
-If possible, you might consider using the concurrent DNS library (which won't
-wait for a name server response).
+__DNS name resolution (system/library service)__: Wireshark will use a name
+resolver to convert an IP address to the hostname associated with it
+(e.g. 216.239.37.99 -> www.1.google.com).
 
-[WARNING]
-====
-Enabling network name resolution when your name server is unavailable may
-significantly slow down Wireshark while it waits for all of the name server
-requests to time out. Always use concurrent DNS resolution.
-====
+DNS name resolution can generally be performed synchronously or asynchronously.
+Both mechanisms can be used to convert an IP address to some human readable
+(domain) name. A system call like gethostname() will try to convert the address
+to a name. To do this, it will first ask the systems hosts file
+(e.g. __/etc/hosts__) if it finds a matching entry. If that fails, it will ask
+the configured DNS server(s) about the name.
 
-__DNS vs. concurrent DNS__: here's a short comparison: Both mechanisms are used
-to convert an IP address to some human readable (domain) name. The usual DNS
-call gethostname() will try to convert the address to a name. To do this, it
-will first ask the systems hosts file (e.g. __/etc/hosts__) if it finds a
-matching entry. If that fails, it will ask the configured DNS server(s) about
-the name.
-
-So the real difference between DNS and concurrent DNS comes when the system has
-to wait for the DNS server about a name resolution. The system call
+So the real difference between synchronous DNS and asynchronous DNS comes when
+the system has to wait for the DNS server about a name resolution. The system call
 gethostname() will wait until a name is resolved or an error occurs. If the DNS
 server is unavailable, this might take quite a while (several seconds).
 
-The concurrent DNS service works a bit differently. It will also ask the DNS
+[WARNING]
+====
+To provide acceptable performance Wireshark depends on
+an asynchronous DNS library to do name resolution. If one isn't available
+during compilation the feature will be unavailable.
+====
+
+The asynchronous DNS service works a bit differently. It will also ask the DNS
 server, but it won't wait for the answer. It will just return to Wireshark in a
 very short amount of time. The actual (and the following) address fields won't
 show the resolved name until the DNS server returns an answer. As mentioned
