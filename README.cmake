@@ -36,7 +36,7 @@ Note 1:
   In step 5) you may need to override the defaults for features. Common
   options include:
 
-  # Disable the POSIX capbabilities check
+  # Disable the POSIX capabilities check
   -DENABLE_CAP=OFF
 
   # Enable debugging symbols
