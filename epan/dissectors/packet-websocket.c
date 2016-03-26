@@ -123,6 +123,7 @@ static const value_string ws_close_status_code_vals[] = {
 };
 
 static dissector_table_t port_subdissector_table;
+static dissector_table_t protocol_subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 
 #define MAX_UNMASKED_LEN (1024 * 256)
@@ -196,8 +197,13 @@ dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   if (conv) {
     http_conv = (http_conv_t *)conversation_get_proto_data(conv, proto_http);
 
-    if (http_conv)
-      handle = dissector_get_uint_handle(port_subdissector_table, http_conv->server_port);
+    if (http_conv) {
+      if (http_conv->websocket_protocol) {
+        handle = dissector_get_string_handle(protocol_subdissector_table, http_conv->websocket_protocol);
+      } else if (!handle) {
+        handle = dissector_get_uint_handle(port_subdissector_table, http_conv->server_port);
+      }
+    }
   }
 
   if (handle) {
@@ -534,6 +540,9 @@ proto_register_websocket(void)
 
   port_subdissector_table = register_dissector_table("ws.port",
       "TCP port for protocols using WebSocket", proto_websocket, FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+
+  protocol_subdissector_table = register_dissector_table("ws.protocol",
+      "Negotiated WebSocket protocol", proto_websocket, FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
   proto_register_field_array(proto_websocket, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

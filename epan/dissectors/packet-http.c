@@ -2328,6 +2328,7 @@ typedef struct {
 #define HDR_HOST		7
 #define HDR_UPGRADE		8
 #define HDR_COOKIE		9
+#define HDR_WEBSOCKET_PROTOCOL	10
 
 static const header_info headers[] = {
 	{ "Authorization", &hf_http_authorization, HDR_AUTHORIZATION },
@@ -2354,7 +2355,7 @@ static const header_info headers[] = {
 	{ "Sec-WebSocket-Accept", &hf_http_sec_websocket_accept, HDR_NO_SPECIAL },
 	{ "Sec-WebSocket-Extensions", &hf_http_sec_websocket_extensions, HDR_NO_SPECIAL },
 	{ "Sec-WebSocket-Key", &hf_http_sec_websocket_key, HDR_NO_SPECIAL },
-	{ "Sec-WebSocket-Protocol", &hf_http_sec_websocket_protocol, HDR_NO_SPECIAL },
+	{ "Sec-WebSocket-Protocol", &hf_http_sec_websocket_protocol, HDR_WEBSOCKET_PROTOCOL },
 	{ "Sec-WebSocket-Version", &hf_http_sec_websocket_version, HDR_NO_SPECIAL },
 	{ "Set-Cookie", &hf_http_set_cookie, HDR_NO_SPECIAL },
 	{ "Last-Modified", &hf_http_last_modified, HDR_NO_SPECIAL },
@@ -2793,6 +2794,12 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 						tvb, value_offset + i, part_len, ENC_NA|ENC_ASCII);
 					i += part_len;
 				}
+			}
+			break;
+
+		case HDR_WEBSOCKET_PROTOCOL:
+			if (http_type == HTTP_RESPONSE) {
+				conv_data->websocket_protocol = wmem_strndup(wmem_file_scope(), value, value_len);
 			}
 			break;
 

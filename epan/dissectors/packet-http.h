@@ -77,6 +77,7 @@ typedef struct _http_conv_t {
 	/** the number of requests on the conversation. */
 	guint32  req_res_num;
 	guint8   upgrade;
+	gchar   *websocket_protocol;	/* Negotiated WebSocket protocol */
 	/* Server address and port, known after first server response */
 	guint16 server_port;
 	address server_addr;
