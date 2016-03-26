@@ -3032,8 +3032,9 @@ ifdef(_CUSTOM_AC_OUTPUT_,, define(_CUSTOM_AC_OUTPUT_, )) dnl
 sinclude(asn1/Custom.m4) dnl
 ifdef(_CUSTOM_ASN1_AC_OUTPUT_,, define(_CUSTOM_ASN1_AC_OUTPUT_, )) dnl
 
-AC_CONFIG_HEADERS(config.h)
-AC_OUTPUT(
+AC_CONFIG_HEADERS([config.h])
+
+AC_CONFIG_FILES(
   Makefile
   doxygen.cfg
   epan/dissectors/asn1/Makefile
@@ -3206,8 +3207,9 @@ AC_OUTPUT(
   wsutil/Makefile
   echld/Makefile
   _CUSTOM_AC_OUTPUT_
-  ,)
-dnl AC_CONFIG_FILES([tools/setuid-root.pl], [chmod +x tools/setuid-root.pl])
+)
+
+AC_OUTPUT
 
 
 # Pretty messages
