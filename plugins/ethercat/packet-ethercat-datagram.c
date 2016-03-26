@@ -1223,6 +1223,7 @@ static int dissect_esc_register(packet_info* pinfo, proto_tree *tree, tvbuff_t *
       case EC_CMD_TYPE_BRD:
       case EC_CMD_TYPE_FPRD:
          read = 1;
+         /* Fall through */
       case EC_CMD_TYPE_APWR:
       case EC_CMD_TYPE_APRW:
       case EC_CMD_TYPE_FPWR:
