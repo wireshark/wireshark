@@ -360,7 +360,7 @@ then
 		# I'm not sure this would even work.
 		#
 		AC_MSG_RESULT(no)
-		AC_ERROR([We don't support building for OS X $deploy_target])
+		AC_MSG_ERROR([We don't support building for OS X $deploy_target])
 		;;
 
 	10.3)
