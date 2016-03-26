@@ -7689,7 +7689,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
         if (run_info_str) {
             GPtrArray *parray;
             char*   byte_string;
-            char    non_uni_string[1024];
+            char*   non_uni_string;
             int i, len;
             field_info *finfo;
             int info_type;
@@ -7732,6 +7732,8 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                     else
                     {
                         if (info_type == 2) {   /* Is this a String? */
+                            non_uni_string = (char*)wmem_alloc(wmem_packet_scope(), get_finfo_length(finfo)+1);
+                            non_uni_string[0] = '\0';
                             uni_to_string(get_finfo_value_string(finfo), get_finfo_length(finfo), non_uni_string);
                             col_append_fstr(pinfo->cinfo, COL_INFO,
                                             (const gchar*) ncp_rec->req_info_str->first_string,
@@ -7754,7 +7756,6 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
             }
             if (len > 1) {
                 for (i = 1; i < len; i++) {
-                    non_uni_string[0]='\0';
                     finfo = (field_info *)g_ptr_array_index(parray, i);
                     info_type = get_info_type((const gchar*) ncp_rec->req_info_str->repeat_string);
 
@@ -7769,6 +7770,8 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                         else
                         {
                             if (info_type == 2) {   /* Is this a String? */
+                                non_uni_string = (char*)wmem_alloc(wmem_packet_scope(), get_finfo_length(finfo)+1);
+                                non_uni_string[0] = '\0';
                                 uni_to_string(get_finfo_value_string(finfo), get_finfo_length(finfo), non_uni_string);
                                 col_append_fstr(pinfo->cinfo, COL_INFO,
                                                 (const gchar*) ncp_rec->req_info_str->repeat_string,
