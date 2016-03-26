@@ -3,7 +3,7 @@
  * Routines for FMTP version 2 packet dissection.
  *
  * The specifications of this public protocol can be found on Eurocontrol web site:
- * http://www.eurocontrol.int/ses/public/standard_page/fmtp_spec.html
+ * http://www.eurocontrol.int/sites/default/files/publication/files/20070614-fmtp-spec-v2.0.pdf
  *
  * Copyright 2011, Christophe Paletou <c.paletou@free.fr>
  *
@@ -137,6 +137,10 @@ get_fmtp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *da
 static gboolean
 dissect_fmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+    guint16 length;
+
+    if (tvb_captured_length(tvb) < 5)
+        return FALSE;
     /*
      * Check that packet looks like FMTP before going further
      */
@@ -144,8 +148,9 @@ dissect_fmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (tvb_get_guint8(tvb, 0) != 0x02) return (FALSE);
     /* RESERVED must currently be 0x00 */
     if (tvb_get_guint8(tvb, 1) != 0x00) return (FALSE);
+    length = tvb_get_ntohs(tvb, 2);
     /* LENGTH must currently not exceed 5 (header) + 10240 (data) */
-    if (tvb_get_ntohs(tvb, 2) > FMTP_MAX_LEN) return (FALSE);
+    if ((length > FMTP_MAX_LEN) || (length < FMTP_HEADER_LEN)) return (FALSE);
     /* TYP must currently be in range 0x01-0x04 */
     if ((tvb_get_guint8(tvb, 4) < 0x01) || (tvb_get_guint8(tvb, 4) > 0x04))
         return (FALSE);
