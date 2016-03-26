@@ -24,7 +24,7 @@ OUTPUT_DIRECTORY       = ../wsar_html
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
 # put in front of it. If left blank `html' will be used as the default path.
 
-HTML_OUTPUT            = caputils
+HTML_OUTPUT            = writecap
 
 # The TAGFILES option can be used to specify one or more tagfiles.
 # Optionally an initial location of the external documentation
@@ -48,7 +48,7 @@ TAGFILES               = ../doxygen-core.tag=..
 # When a file name is specified after GENERATE_TAGFILE, doxygen will create
 # a tag file that is based on the input files it reads.
 
-GENERATE_TAGFILE       = doxygen-caputils.tag
+GENERATE_TAGFILE       = doxygen-writecap.tag
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories
 # should be searched for input files as well. Possible values are YES and NO.
@@ -78,4 +78,4 @@ EXCLUDE_PATTERNS       =
 # can add a path in front of the file if the result should not be
 # written to the html output directory.
 
-CHM_FILE               = wireshark-caputils.chm
+CHM_FILE               = wireshark-writecap.chm
