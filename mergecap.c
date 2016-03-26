@@ -195,7 +195,7 @@ get_mergecap_compiled_info(GString *str)
 }
 
 static void
-get_mergecap_runtime_info(GString *str)
+get_mergecap_runtime_info(GString *str _U_)
 {
   /* zlib */
 #if defined(HAVE_LIBZ) && !defined(_WIN32)

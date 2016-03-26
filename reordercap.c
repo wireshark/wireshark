@@ -169,7 +169,7 @@ get_reordercap_compiled_info(GString *str)
 }
 
 static void
-get_reordercap_runtime_info(GString *str)
+get_reordercap_runtime_info(GString *str _U_)
 {
     /* zlib */
 #if defined(HAVE_LIBZ) && !defined(_WIN32)

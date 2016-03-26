@@ -926,7 +926,7 @@ get_editcap_compiled_info(GString *str)
 }
 
 static void
-get_editcap_runtime_info(GString *str)
+get_editcap_runtime_info(GString *str _U_)
 {
   /* zlib */
 #if defined(HAVE_LIBZ) && !defined(_WIN32)
