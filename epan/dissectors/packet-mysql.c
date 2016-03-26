@@ -1349,7 +1349,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 		proto_tree_add_item(req_tree, hf_mysql_query, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
 		if (mysql_showquery) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, " { %s } ",
-					tvb_format_text(tvb, offset, lenstr-1));
+					tvb_format_text(tvb, offset, lenstr));
 		}
 		offset += lenstr;
 		conn_data->state = RESPONSE_TABULAR;
