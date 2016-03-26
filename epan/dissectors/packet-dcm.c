@@ -6686,6 +6686,8 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Try to create somewhat unique ID.
            Include the conversation index, to separate TCP session
         */
+        DISSECTOR_ASSERT(conv);
+
         reassembly_id = (((conv->index) & 0x00FFFFFF) << 8) + pdv->pctx_id;
 
         head = fragment_add_seq_next(&dcm_pdv_reassembly_table,
