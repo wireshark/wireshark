@@ -25,11 +25,11 @@ WRITECAP_OBJECTS = \
 
 RUNLEX=../tools/runlex.sh
 
-libcaputils.lib	: ..\config.h $(WRITECAP_OBJECTS)
-	link /lib /out:libcaputils.lib $(WRITECAP_OBJECTS)
+libwritecap.lib	: ..\config.h $(WRITECAP_OBJECTS)
+	link /lib /out:libwritecap.lib $(WRITECAP_OBJECTS)
 
 clean:
-	rm -f $(WRITECAP_OBJECTS) $(WIRESHARK_TAP_OBJECTS) libcaputils.lib \
+	rm -f $(WRITECAP_OBJECTS) $(WIRESHARK_TAP_OBJECTS) libwritecap.lib \
 		*.nativecodeanalysis.xml *.pdb *.sbr \
 		doxygen.cfg html/*.*
 	if exist html rmdir html

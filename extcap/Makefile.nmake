@@ -120,7 +120,7 @@ ciscodump.exe	: $(LIBS_CHECK) ..\config.h ciscodump.obj extcap-base.obj ssh-base
 
 clean:
 	rm -f $(androiddump_OBJECTS) $(randpktdump_OBJECTS) $(sshdump_OBJECTS) \
-		${ciscodump_OBJECTS} $(EXECUTABLES) *.nativecodeanalysis.xml *.pdb *.sbr \
+		$(ciscodump_OBJECTS) $(EXECUTABLES) *.nativecodeanalysis.xml *.pdb *.sbr \
 		doxygen.cfg *.exe.manifest
 
 # "distclean" removes all files not part of the distribution.
@@ -158,8 +158,8 @@ checkapi: checkapi-base checkapi-todo
 
 checkapi-base:
 	$(PERL) ../tools/checkAPIs.pl -g deprecated-gtk -build \
-	$(androiddump_SOURCES) $(randpktdump_SOURCES) $(sshdump_SOURCES) ${ciscodump_SOURCES}
+	$(androiddump_SOURCES) $(randpktdump_SOURCES) $(sshdump_SOURCES) $(ciscodump_SOURCES)
 
 checkapi-todo:
 	$(PERL) ../tools/checkAPIs.pl -M -g deprecated-gtk-todo -build \
-	$(androiddump_SOURCES) $(randpktdump_SOURCES) $(sshdump_SOURCES) ${ciscodump_SOURCES}
+	$(androiddump_SOURCES) $(randpktdump_SOURCES) $(sshdump_SOURCES) $(ciscodump_SOURCES)
