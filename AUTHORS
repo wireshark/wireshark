@@ -3523,6 +3523,7 @@ Subramanian Ramachandran <sramach6[AT]ncsu.edu> {
 
 Manuel Hofer		<manuel[At]mnlhfr.at> {
 	OpenVPN dissector
+	SSTP Dissection
 }
 
 Gaurav Patwardhan	<gspatwar[AT]ncsu.edu> {
@@ -3656,10 +3657,6 @@ Dario Lombardo		<lomato[AT]gmail.com> {
 	chargen (Character Generator) dissector
 	Italian translation (QT)
 	HCrt (Hotline Command-Response Transaction) dissector
-}
-
-Manuel Hofer		<manuel[AT]mnlhfr.at> {
-  SSTP Dissection
 }
 
 Pratik Yeole		<pyeole[AT]ncsu.edu> {
@@ -3952,7 +3949,6 @@ Andreas Urke		<arurke[AT]netwurke.com>
 Andrei Cipu		<acipu[AT]ixiacom.com>
 Andrew Chernyh		<andrew.chernyh[AT]gmail.com>
 Andrew Hoag		<Andrew.Hoag[AT]aireon.com>
-Andrew Hoag		<andrew.hoag[AT]aireon.com>
 Andy Ling		<Andy.Ling[AT]quantel.com>
 Andy Ling		<andy.ling[AT]s-a-m.com>
 Anndy Ke		<anndymaktub[AT]yahoo.com.tw>
@@ -4064,7 +4060,6 @@ Joseph Huffman		<jhuffman[AT]codeaurora.org>
 Josip Medved		<jmedved[AT]jmedved.com>
 Juan Jose Martin Carrascosa <juanjo[AT]rti.com>
 Juan Matias		<jmrepetti[AT]gmail.com>
-Juanjo Martin		<juanjo[AT]rti.com>
 Julien STAUB		<atsju2[AT]yahoo.fr>
 Jun Wang		<sdn_app[AT]163.com>
 JustinKu		<jiunrong[AT]gmail.com>
@@ -4143,7 +4138,6 @@ Pedro Jose Marron	<pjmarron[AT]locoslab.com>
 Peng Li			<seudut[AT]gmail.com>
 Peng Tao		<tao.peng[AT]primarydata.com>
 Peter Membrey		<peter[AT]membrey.hk>
-Peter Palúch		<Peter.Paluch[AT]fri.uniza.sk>
 Peter Ross		<peter.ross[AT]dsto.defence.gov.au>
 Petr Gotthard		<petr.gotthard[AT]honeywell.com>
 Petr Štetiar		<petr.stetiar[AT]gaben.cz>

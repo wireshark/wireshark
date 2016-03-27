@@ -3523,6 +3523,7 @@ Subramanian Ramachandran <sramach6[AT]ncsu.edu> {
 
 Manuel Hofer		<manuel[At]mnlhfr.at> {
 	OpenVPN dissector
+	SSTP Dissection
 }
 
 Gaurav Patwardhan	<gspatwar[AT]ncsu.edu> {
@@ -3656,10 +3657,6 @@ Dario Lombardo		<lomato[AT]gmail.com> {
 	chargen (Character Generator) dissector
 	Italian translation (QT)
 	HCrt (Hotline Command-Response Transaction) dissector
-}
-
-Manuel Hofer		<manuel[AT]mnlhfr.at> {
-  SSTP Dissection
 }
 
 Pratik Yeole		<pyeole[AT]ncsu.edu> {

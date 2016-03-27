@@ -1,10 +1,5 @@
 #!/usr/bin/perl
 
-my $debug = 0;
-# 0: off
-# 1: specific debug
-# 2: full debug
-
 #
 # Generate the AUTHORS file combining existing AUTHORS file with
 # git commit log.
@@ -103,11 +98,13 @@ sub trim($)
 
 sub parse_author_name {
 	my $full_name = $_[0];
+	my $email_key;
 
 	if ($full_name =~ /^([\w\.\-\'\x80-\xff]+(\s*[\w+\.\-\'\x80-\xff])*)\s+<([^>]*)>/) {
 		#Make an exception for Gerald because he's part of the header
 		if ($3 ne "gerald[AT]wireshark.org") {
-			$contributors{$3} = $1;
+			$email_key = lc($3);
+			$contributors{$email_key} = $1;
 			print encode('UTF-8', "$full_name\n");
 		}
 	} elsif ($full_name =~ /^([\w\.\-\'\x80-\xff]+(\s*[\w+\.\-\'\x80-\xff])*)\s+\(/) {
@@ -120,6 +117,7 @@ sub parse_git_name {
 	my $full_name = $_[0];
 	my $name;
 	my $email;
+	my $email_key;
 	my $len;
 	my $ntab = 3;
 	my $line;
@@ -130,8 +128,9 @@ sub parse_git_name {
 		#Convert real email address to "spam proof" one
 		$email = trim($2);
 		$email =~ s/@/[AT]/g;
+		$email_key = lc($email);
 
-		if (!exists($contributors{ $email })) {
+		if (!exists($contributors{ $email_key })) {
 			#Make an exception for Gerald because he's part of the header
 			if ($email ne "gerald[AT]wireshark.org") {
 				$len = length $name;
@@ -142,6 +141,7 @@ sub parse_git_name {
 					$ntab +=1 if ($len % 8);
 					$line = $name . "\t" x $ntab . "<$email>";
 				}
+				$contributors{$email_key} = $1;
 				print encode('UTF-8', "$line\n");
 			}
 		}
