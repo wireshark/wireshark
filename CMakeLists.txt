@@ -2582,15 +2582,15 @@ add_custom_target(test-sh
 )
 set_target_properties(test-sh PROPERTIES FOLDER "Tests")
 
-#Generate list of AUTHORS (Name + E-Mail) sort by name
 if (GIT_EXECUTABLE)
-	ADD_CUSTOM_TARGET(
+	# Update AUTHORS file with entries from git shortlog
+	add_custom_target(
 		gen-authors
-		COMMAND ${GIT_EXECUTABLE} --no-pager shortlog -se HEAD > ${CMAKE_SOURCE_DIR}/AUTHORS.git
-		COMMAND ${PERL_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/generate_authors.pl ${CMAKE_SOURCE_DIR}/AUTHORS.src ${CMAKE_SOURCE_DIR}/AUTHORS.git > ${CMAKE_SOURCE_DIR}/AUTHORS
+		COMMAND ${PERL_EXECUTABLE} tools/generate_authors.pl AUTHORS.src > AUTHORS
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	)
 else (GIT_EXECUTABLE)
-	ADD_CUSTOM_TARGET( gen-authors COMMAND ${CMAKE_COMMAND} -E echo "Git not found." )
+	add_custom_target( gen-authors COMMAND ${CMAKE_COMMAND} -E echo "Git not found." )
 endif (GIT_EXECUTABLE)
 set_target_properties(gen-authors PROPERTIES FOLDER "Docs")
 

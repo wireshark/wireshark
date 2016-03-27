@@ -4,7 +4,7 @@
 # Generate the AUTHORS file combining existing AUTHORS file with
 # git commit log.
 #
-# Usage: generate_authors.pl <original AUTHORS file> <output of git shortlog>
+# Usage: generate_authors.pl AUTHORS.src
 
 #
 # Copyright 2016 Michael Mann (see AUTHORS file)
@@ -189,8 +189,8 @@ close $author_fh;
 
 print $git_log_text;
 
-# XXX open "git shortlog ... |" instead?
-open( my $git_author_fh, '<', $ARGV[1] ) or die "Can't open $ARGV[1]: $!";
+open( my $git_author_fh, 'git --no-pager shortlog -se HEAD|')
+        or die "Can't execute git shortlog: $!";
 
 while ( my $git_line = decode('UTF-8', <$git_author_fh>) ) {
 	chomp $git_line;
