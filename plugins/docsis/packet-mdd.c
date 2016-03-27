@@ -50,6 +50,7 @@
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST_PRIMARY_CAPABLE 4
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST_CM_STATUS_EVENT_ENABLE_BITMASK 5
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST_MAP_UCD_TRANSPORT_INDICATOR 6
+#define DOWNSTREAM_ACTIVE_CHANNEL_LIST_OFDM_PLC_PARAMETERS 7
 
 /*Mac Domain Downstream Service Group*/
 #define MAC_DOMAIN_DOWNSTREAM_SERVICE_GROUP_MD_DS_SG_IDENTIFIER 1
@@ -135,6 +136,24 @@
 #define DSG_DA_TO_DSID_ASSOCIATION_DA 1
 #define DSG_DA_TO_DSID_ASSOCIATION_DSID 2
 
+/* Define Tukey raised cosine window */
+#define TUKEY_0TS 0
+#define TUKEY_64TS 1
+#define TUKEY_128TS 2
+#define TUKEY_192TS 3
+#define TUKEY_256TS 4
+
+/* Define Cyclic prefix */
+#define CYCLIC_PREFIX_192_TS 0
+#define CYCLIC_PREFIX_256_TS 1
+#define CYCLIC_PREFIX_512_TS 2
+#define CYCLIC_PREFIX_768_TS 3
+#define CYCLIC_PREFIX_1024_TS 4
+
+/* Define Sub carrier spacing */
+#define SPACING_25KHZ 0
+#define SPACING_50KHZ 1
+
 void proto_register_docsis_mdd(void);
 void proto_reg_handoff_docsis_mdd(void);
 
@@ -160,6 +179,30 @@ static const value_string primary_capable_vals[] = {
 static const value_string map_ucd_transport_indicator_vals[] = {
   {CANNOT_CARRY_MAP_UCD, "Channel cannot carry MAPs and UCDs for the MAC domain for which the MDD is sent"},
   {CAN_CARRY_MAP_UCD,    "Channel can carry MAPs and UCDs for the MAC domain for which the MDD is sent"},
+  {0, NULL}
+};
+
+static const value_string tukey_raised_cosine_vals[] = {
+  {TUKEY_0TS,   "0 microseconds (0 * Ts)"},
+  {TUKEY_64TS,  "0.3125 microseconds (64 * Ts)"},
+  {TUKEY_128TS, "0.625 microseconds (128 * Ts)"},
+  {TUKEY_192TS, "0.9375 microseconds (192 * Ts)"},
+  {TUKEY_256TS, "1.25 microseconds (256 * Ts)"},
+  {0, NULL}
+};
+
+static const value_string cyclic_prefix_vals[] = {
+  {CYCLIC_PREFIX_192_TS,  "0.9375 microseconds (192 * Ts)"},
+  {CYCLIC_PREFIX_256_TS,  "1.25 microseconds (256 * Ts)"},
+  {CYCLIC_PREFIX_512_TS,  "2.5 microseconds (512 * Ts) 3"},
+  {CYCLIC_PREFIX_768_TS,  "3.75 microseconds (768 * Ts)"},
+  {CYCLIC_PREFIX_1024_TS, "5 microseconds (1024 * Ts)"},
+  {0, NULL}
+};
+
+static const value_string spacing_vals[] = {
+  {SPACING_25KHZ, "25Khz"},
+  {SPACING_50KHZ, "50Khz"},
   {0, NULL}
 };
 
@@ -262,10 +305,12 @@ static int hf_docsis_mdd_cm_status_event_enable_bitmask_mdd_timeout = -1;
 static int hf_docsis_mdd_cm_status_event_enable_bitmask_qam_fec_lock_failure = -1;
 static int hf_docsis_mdd_cm_status_event_enable_bitmask_mdd_recovery = -1;
 static int hf_docsis_mdd_cm_status_event_enable_bitmask_qam_fec_lock_recovery = -1;
+static int hf_docsis_mdd_ofdm_plc_parameters_tukey_raised_cosine_window = -1;
+static int hf_docsis_mdd_ofdm_plc_parameters_cyclic_prefix = -1;
+static int hf_docsis_mdd_ofdm_plc_parameters_sub_carrier_spacing = -1;
 static int hf_docsis_mdd_cm_status_event_enable_bitmask_t4_timeout = -1;
 static int hf_docsis_mdd_cm_status_event_enable_bitmask_t3_retries_exceeded = -1;
 static int hf_docsis_mdd_cm_status_event_enable_bitmask_successful_ranging_after_t3_retries_exceeded = -1;
-
 
 static int hf_docsis_mdd_mac_domain_downstream_service_group_md_ds_sg_identifier = -1;
 static int hf_docsis_mdd_mac_domain_downstream_service_group_channel_id = -1;
@@ -381,6 +426,12 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                     break;
                   case DOWNSTREAM_ACTIVE_CHANNEL_LIST_MAP_UCD_TRANSPORT_INDICATOR:
                     proto_tree_add_item (tlv_tree, hf_docsis_mdd_downstream_active_channel_list_map_ucd_transport_indicator, tvb, subpos + 2 , 1, ENC_BIG_ENDIAN);
+                    break;
+                  case DOWNSTREAM_ACTIVE_CHANNEL_LIST_OFDM_PLC_PARAMETERS:
+                    tlv_sub_tree = proto_tree_add_subtree(tlv_tree, tvb, subpos + 2, 1, ett_sub_tlv, NULL, "OFDM PLC Parameters");
+                    proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_ofdm_plc_parameters_tukey_raised_cosine_window, tvb, subpos + 2 , 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_ofdm_plc_parameters_cyclic_prefix, tvb, subpos + 2 , 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_ofdm_plc_parameters_sub_carrier_spacing, tvb, subpos + 2 , 1, ENC_BIG_ENDIAN);
                     break;
                 }
                 subpos += sublength + 2;
@@ -614,6 +665,21 @@ void proto_register_docsis_mdd (void)
      {"MAP and UCD transport indicator", "docsis_mdd.downstream_active_channel_list_map_ucd_transport_indicator",
       FT_UINT8, BASE_DEC, VALS(map_ucd_transport_indicator_vals), 0x0,
       "Mdd Downstream Active Channel List MAP and UCD Transport Indicator", HFILL}
+    },
+    {&hf_docsis_mdd_ofdm_plc_parameters_tukey_raised_cosine_window,
+     {"Tukey raised cosine window", "docsis_mdd.ofdm_plc_parameters_tukey_raised_cosine_window",
+      FT_UINT8, BASE_DEC, VALS(tukey_raised_cosine_vals), 0x07,
+      "OFDM PLC Parameters Tukey raised cosine window", HFILL}
+    },
+    {&hf_docsis_mdd_ofdm_plc_parameters_cyclic_prefix,
+     {"Cyclic prefix", "docsis_mdd.ofdm_plc_parameters_cyclic_prefix",
+      FT_UINT8, BASE_DEC, VALS(cyclic_prefix_vals), 0x38,
+      "OFDM PLC parameters Cyclic prefix", HFILL}
+    },
+    {&hf_docsis_mdd_ofdm_plc_parameters_sub_carrier_spacing,
+     {"Sub carrier spacing", "docsis_mdd.ofdm_plc_parameters_sub_carrier_spacing",
+      FT_UINT8, BASE_DEC, VALS(spacing_vals), 0x40,
+      "OFDM PLC parameters Sub carrier spacing", HFILL}
     },
     {&hf_docsis_mdd_cm_status_event_enable_bitmask_t4_timeout,
      {"T4 timeout", "docsis_mdd.cm_status_event_enable_bitmask_t4_timeout",
