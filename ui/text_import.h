@@ -86,8 +86,7 @@ typedef struct
     guint max_frame_length;
 } text_import_info_t;
 
-void text_import_setup(text_import_info_t *info);
-void text_import_cleanup(void);
+void text_import(text_import_info_t *info);
 
 #ifdef __cplusplus
 }

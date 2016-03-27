@@ -900,10 +900,10 @@ parse_token (token_t token, char *str)
 }
 
 /*----------------------------------------------------------------------
- * take in the import config information
+ * Import a text file.
  */
 void
-text_import_setup(text_import_info_t *info)
+text_import(text_import_info_t *info)
 {
     packet_buf = (guint8 *)g_malloc(sizeof(HDR_ETHERNET) + sizeof(HDR_IP) +
                                     sizeof(HDR_SCTP) + sizeof(HDR_DATA_CHUNK) +
@@ -1013,14 +1013,11 @@ text_import_setup(text_import_info_t *info)
     }
 
     max_offset = info->max_frame_length;
-}
 
-/*----------------------------------------------------------------------
- * Clean up after text import
- */
-void
-text_import_cleanup(void)
-{
+    text_importin = info->import_text_file;
+
+    text_importlex();
+
     g_free(packet_buf);
 }
 

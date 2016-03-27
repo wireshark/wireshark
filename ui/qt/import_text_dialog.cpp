@@ -140,13 +140,7 @@ void ImportTextDialog::convertTextFile() {
         return;
     }
 
-    text_import_setup(&import_info_);
-
-    text_importin = import_info_.import_text_file;
-
-    text_importlex();
-
-    text_import_cleanup();
+    text_import(&import_info_);
 
     if (fclose(import_info_.import_text_file))
     {
