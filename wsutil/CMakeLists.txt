@@ -146,7 +146,7 @@ if(HAVE_SSE4_2)
 endif()
 
 if(NOT HAVE_GETOPT_LONG)
-	set(WSUTIL_FILES ${WSUTIL_FILES} wsgetopt.c)
+	set(WSUTIL_FILES ${WSUTIL_FILES} getopt_long.c)
 endif()
 
 if(NOT HAVE_INET_ATON)

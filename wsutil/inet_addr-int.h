@@ -51,7 +51,7 @@
 extern int inet_pton(int af, const char *src, void *dst);
 #endif
 
-#ifndef HAVE_INET_NTOP_PROTO
+#ifndef HAVE_INET_NTOP
 extern const char *inet_ntop(int af, const void *src, char *dst, size_t size);
 #endif
 

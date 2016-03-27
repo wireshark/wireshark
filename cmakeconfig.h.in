@@ -109,8 +109,8 @@
 /* Define to 1 if you have the `inet_aton' function. */
 #cmakedefine HAVE_INET_ATON 1
 
-/* Define if inet_ntop() prototype exists */
-#cmakedefine HAVE_INET_NTOP_PROTO 1
+/* Define to 1 if you have the `inet_ntop' function. */
+#cmakedefine HAVE_INET_NTOP 1
 
 /* Define to 1 if you have the `inet_pton' function. */
 #cmakedefine HAVE_INET_PTON 1

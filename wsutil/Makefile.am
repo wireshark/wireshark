@@ -42,13 +42,7 @@ libwsutil_abi_INCLUDES = 	\
 
 # Optional objects that I know how to build. These will be
 # linked into libwsutil if necessary.
-wsutil_optional_objects = \
-	@GETOPT_LO@		\
-	@INET_ATON_LO@		\
-	@INET_NTOP_LO@		\
-	@INET_PTON_LO@		\
-	@POPCOUNT_LO@		\
-	@STRPTIME_LO@
+wsutil_optional_objects =
 
 if SSE42_SUPPORTED
 wsutil_optional_objects += libwsutil_sse42.la
@@ -78,23 +72,14 @@ libwsutil_sse42_la_SOURCES = \
 libwsutil_sse42_la_CFLAGS = $(AM_CFLAGS) $(CFLAGS_SSE42)
 
 EXTRA_libwsutil_la_SOURCES = \
-	inet_aton.c		\
-	inet_aton.h		\
-	inet_ntop.c		\
-	inet_pton.c		\
 	inet_addr-int.h		\
-	popcount.c		\
-	popcount.h		\
-	strptime.c		\
-	strptime.h		\
-	wsgetopt.c		\
-	wsgetopt.h		\
-	wsgetopt_int.h
+	wsgetopt.h
 
-libwsutil_la_DEPENDENCIES = \
+EXTRA_libwsutil_la_DEPENDENCIES = \
 	$(wsutil_optional_objects)
 
 libwsutil_la_LIBADD = \
+	$(LTLIBOBJS)		\
 	@COREFOUNDATION_FRAMEWORKS@	\
 	@GLIB_LIBS@		\
 	@LIBGCRYPT_LIBS@	\

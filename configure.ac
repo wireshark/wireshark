@@ -56,6 +56,8 @@ AC_DEFINE(VERSION_FLAVOR, "Development Build", [Wireshark's package flavor])
 
 AM_DISABLE_STATIC
 
+AC_CONFIG_LIBOBJ_DIR([wsutil])
+
 #
 # Checks for programs used in the main build process.
 #
@@ -2706,43 +2708,22 @@ AC_PROG_GCC_TRADITIONAL
 
 AC_CHECK_FUNCS([getaddrinfo])
 
-AC_CHECK_FUNC(getopt_long,
-  [
-    GETOPT_LO=""
-    AC_DEFINE(HAVE_GETOPT_LONG, 1, [Define to 1 if you have the getopt_long function.])
+AC_REPLACE_FUNCS(getopt_long)
+dnl
+dnl Do we have optreset?
+dnl
+if test "x$ac_cv_func_getopt_long" = xyes; then
+  AC_CACHE_CHECK([whether optreset is defined], ac_cv_have_optreset,
+    AC_LINK_IFELSE([AC_LANG_SOURCE([[extern int optreset;return optreset;]])],
+        ac_cv_have_optreset=yes, ac_cv_have_optreset=no))
+  if test "$ac_cv_have_optreset" = yes ; then
+    AC_DEFINE(HAVE_OPTRESET, 1, [Define to 1 if you have the optreset variable])
+  fi
+fi
 
-    #
-    # Do we have optreset?
-    #
-    AC_CACHE_CHECK([whether optreset is defined],
-                   [ac_cv_optreset_defined], [
-      AC_TRY_LINK([],
-        [
-	extern int optreset;
+AC_REPLACE_FUNCS(inet_aton)
 
-	return optreset;
-        ],
-        ac_cv_optreset_defined=yes,
-        ac_cv_optreset_defined=no)
-    ])
-    if test "$ac_cv_optreset_defined" = yes ; then
-      AC_DEFINE(HAVE_OPTRESET, 1, [Define to 1 if you have the optreset variable])
-    fi
-  ],
-  GETOPT_LO="wsgetopt.lo")
-AC_SUBST(GETOPT_LO)
-
-AC_CHECK_FUNCS(mkstemp mkdtemp)
-
-AC_SEARCH_LIBS(inet_aton, [socket nsl],
-  [
-    INET_ATON_LO=""
-    AC_DEFINE(HAVE_INET_ATON, 1, [Define to 1 if you have the inet_aton function.])
-  ],
-  INET_ATON_LO="inet_aton.lo")
-AC_SUBST(INET_ATON_LO)
-
-AC_SEARCH_LIBS(inet_pton, [socket nsl], [
+AC_CHECK_FUNC(inet_pton, [
   dnl check for pre-BIND82 inet_pton() bug.
   AC_MSG_CHECKING(for broken inet_pton)
   AC_TRY_RUN([#include <sys/types.h>
@@ -2760,63 +2741,20 @@ int main()
 #endif
 }], [AC_MSG_RESULT(ok);
 have_inet_pton=yes], [AC_MSG_RESULT(broken);
-have_inet_pton=no], [AC_MSG_RESULT(cross compiling, assume it is broken);
+have_inet_pton=no], [AC_MSG_RESULT([cross compiling, assume it is broken]);
 have_inet_pton=no])],
 have_inet_pton=no)
 if test "$have_inet_pton" = no; then
-  INET_PTON_LO="inet_pton.lo"
+  AC_LIBOBJ(inet_pton)
 else
-  AC_DEFINE(HAVE_INET_PTON, 1,
-    [Define to 1 if you have the `inet_pton' function.])
-  INET_PTON_LO=""
+  AC_DEFINE(HAVE_INET_PTON, 1, [Define to 1 if you have the `inet_pton' function.])
 fi
-AM_CONDITIONAL(NEED_INET_PTON_LO, test "x$have_inet_pton" = "xno")
-AC_SUBST(INET_PTON_LO)
 
-AC_SEARCH_LIBS(inet_ntop, [socket nsl], [
-  AC_MSG_CHECKING([for inet_ntop prototype])
-  AC_TRY_COMPILE([#include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+AC_REPLACE_FUNCS(inet_ntop)
+AC_REPLACE_FUNCS(strptime)
+AC_REPLACE_FUNCS(popcount)
 
-extern const char *inet_ntop(int, const void *, char *, size_t);],, [
-    AC_MSG_RESULT(yes)
-    AC_DEFINE(HAVE_INET_NTOP_PROTO, 1,
-    [Define if inet_ntop() prototype exists])], [
-    AC_TRY_COMPILE([#include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
-extern const char *inet_ntop(int, const void *, char *, socklen_t);],, [
-      AC_MSG_RESULT(yes)
-      AC_DEFINE(HAVE_INET_NTOP_PROTO, 1,
-      [Define if inet_ntop() prototype exists])], [
-      AC_MSG_RESULT(no)])])
-  INET_NTOP_LO=""], [
-  INET_NTOP_LO="inet_ntop.lo"])
-AM_CONDITIONAL(NEED_INET_NTOP_LO, test "x$INET_NTOP_LO" != "x")
-AC_SUBST(INET_NTOP_LO)
-
-AC_CHECK_FUNC(strptime,
-  [
-    STRPTIME_LO=""
-    AC_DEFINE(HAVE_STRPTIME, 1, [Define if you have the strptime function.])
-  ],
-  STRPTIME_LO="strptime.lo")
-AC_SUBST(STRPTIME_LO)
-
-AC_CHECK_FUNC(popcount,
-  [
-    POPCOUNT_LO=""
-    AC_DEFINE(HAVE_POPCOUNT, 1, [Define if you have the popcount function.])
-  ],
-  POPCOUNT_LO="popcount.lo")
-AC_SUBST(POPCOUNT_LO)
-
+AC_CHECK_FUNCS(mkstemp mkdtemp)
 AC_CHECK_FUNCS(getprotobynumber)
 AC_CHECK_FUNCS(issetugid)
 AC_CHECK_FUNCS(sysconf)
