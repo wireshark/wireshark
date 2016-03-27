@@ -97,7 +97,6 @@ WiresharkApplication *wsApp = NULL;
 
 // MUST be UTF-8
 static char *last_open_dir = NULL;
-static bool updated_last_open_dir = FALSE;
 static QList<recent_item_status *> recent_items_;
 static QHash<int, QList<QAction *> > dynamic_menu_groups_;
 static QHash<int, QList<QAction *> > added_menu_groups_;
@@ -461,15 +460,8 @@ void WiresharkApplication::setLastOpenDir(const char *dir_name)
             new_last_open_dir = g_strconcat(dir_name,
                                             G_DIR_SEPARATOR_S, (char *)NULL);
         }
-
-        if (last_open_dir == NULL ||
-            strcmp(last_open_dir, new_last_open_dir) != 0)
-            updated_last_open_dir = TRUE;
-    }
-    else {
+    } else {
         new_last_open_dir = NULL;
-        if (last_open_dir != NULL)
-            updated_last_open_dir = TRUE;
     }
 
     g_free(last_open_dir);

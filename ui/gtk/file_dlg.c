@@ -58,7 +58,6 @@
 
 
 static gchar *last_open_dir = NULL;
-static gboolean updated_last_open_dir = FALSE;
 
 static void file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* file_te);
 
@@ -447,15 +446,8 @@ set_last_open_dir(const char *dirname)
             new_last_open_dir = g_strconcat(dirname,
                                             G_DIR_SEPARATOR_S, NULL);
         }
-
-        if (last_open_dir == NULL ||
-            strcmp(last_open_dir, new_last_open_dir) != 0)
-            updated_last_open_dir = TRUE;
-    }
-    else {
+    } else {
         new_last_open_dir = NULL;
-        if (last_open_dir != NULL)
-            updated_last_open_dir = TRUE;
     }
 
     g_free(last_open_dir);
