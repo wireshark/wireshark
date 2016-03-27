@@ -793,7 +793,7 @@ int main(int argc, char *argv[])
     capture_opts_init(&global_capture_opts);
 #endif
 
-    init_report_err(failure_alert_box, open_failure_alert_box,
+    init_report_err(vfailure_alert_box, open_failure_alert_box,
                     read_failure_alert_box, write_failure_alert_box);
 
     init_open_routines();

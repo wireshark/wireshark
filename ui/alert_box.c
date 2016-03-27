@@ -37,7 +37,17 @@
  * Alert box for general errors.
  */
 void
-failure_alert_box(const char *msg_format, va_list ap)
+failure_alert_box(const char *msg_format, ...)
+{
+    va_list ap;
+
+    va_start(ap, msg_format);
+    vsimple_error_message_box(msg_format, ap);
+    va_end(ap);
+}
+
+void
+vfailure_alert_box(const char *msg_format, va_list ap)
 {
     vsimple_error_message_box(msg_format, ap);
 }

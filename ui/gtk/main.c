@@ -2528,7 +2528,7 @@ main(int argc, char *argv[])
     capture_session_init(&global_capture_session, &cfile);
 #endif
 
-    init_report_err(failure_alert_box, open_failure_alert_box,
+    init_report_err(vfailure_alert_box, open_failure_alert_box,
                     read_failure_alert_box, write_failure_alert_box);
 
     /* Non-blank filter means we're remote. Throttle splash screen and resolution updates. */

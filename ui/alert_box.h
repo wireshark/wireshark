@@ -31,7 +31,8 @@ extern "C" {
 /*
  * Alert box for general errors.
  */
-extern void failure_alert_box(const char *msg_format, va_list ap);
+extern void failure_alert_box(const char *msg_format, ...) G_GNUC_PRINTF(1, 2);
+extern void vfailure_alert_box(const char *msg_format, va_list ap);
 
 /*
  * Alert box for a failed attempt to open or create a file.
