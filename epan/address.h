@@ -116,7 +116,10 @@ static inline void
 set_address_tvb(address *addr, int addr_type, int addr_len, tvbuff_t *tvb, int offset) {
     const void *p;
 
-    p = tvb_get_ptr(tvb, offset, addr_len);
+    if (addr_len != 0)
+        p = tvb_get_ptr(tvb, offset, addr_len);
+    else
+        p = NULL;
     set_address(addr, addr_type, addr_len, p);
 }
 
