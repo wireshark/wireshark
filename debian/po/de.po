@@ -5,7 +5,7 @@
 # Translators:
 # Dominik Eismann <dorlamm@gmx.de>, 2016
 # Uli Heilmeier, 2015
-# Uli Heilmeier, 2015
+# uhei, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: Wireshark\n"
