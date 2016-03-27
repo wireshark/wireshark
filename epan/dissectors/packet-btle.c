@@ -316,6 +316,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     tvbuff_t              *next_tvb;
     guint8                *dst_bd_addr;
     guint8                *src_bd_addr;
+    const guint8           broadcast_addr[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
     connection_address_t  *connection_address = NULL;
     wmem_tree_t           *wmem_tree;
     wmem_tree_key_t        key[5];
@@ -450,7 +451,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
             copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
-            set_address(&pinfo->net_dst, AT_STRINGZ, 10, "broadcast");
+            set_address(&pinfo->net_dst, AT_ETHER, 6, broadcast_addr);
             copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
             copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
@@ -534,7 +535,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
             copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
-            set_address(&pinfo->net_dst, AT_STRINGZ, 10, "broadcast");
+            set_address(&pinfo->net_dst, AT_ETHER, 6, broadcast_addr);
             copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
             copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 

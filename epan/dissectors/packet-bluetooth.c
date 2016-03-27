@@ -45,9 +45,9 @@ int proto_bluetooth = -1;
 static int hf_bluetooth_src = -1;
 static int hf_bluetooth_dst = -1;
 static int hf_bluetooth_addr = -1;
-static int hf_bluetooth_str_src = -1;
-static int hf_bluetooth_str_dst = -1;
-static int hf_bluetooth_str_addr = -1;
+static int hf_bluetooth_src_str = -1;
+static int hf_bluetooth_dst_str = -1;
+static int hf_bluetooth_addr_str = -1;
 
 static int hf_llc_bluetooth_pid = -1;
 
@@ -1546,16 +1546,28 @@ save_local_device_name_from_eir_ad(tvbuff_t *tvb, gint offset, packet_info *pinf
 }
 
 
-static const char* bluetooth_conv_get_filter_type(conv_item_t* conv _U_, conv_filter_type_e filter)
+static const char* bluetooth_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
 {
-    if (filter == CONV_FT_SRC_ADDRESS)
-        return "bluetooth.src";
+    if (filter == CONV_FT_SRC_ADDRESS) {
+        if (conv->src_address.type == AT_ETHER)
+            return "bluetooth.src";
+        else if (conv->src_address.type == AT_STRINGZ)
+            return "bluetooth.src_str";
+    }
 
-    if (filter == CONV_FT_DST_ADDRESS)
-        return "bluetooth.dst";
+    if (filter == CONV_FT_DST_ADDRESS) {
+        if (conv->dst_address.type == AT_ETHER)
+            return "bluetooth.dst";
+        else if (conv->dst_address.type == AT_STRINGZ)
+            return "bluetooth.dst_str";
+    }
 
-    if (filter == CONV_FT_ANY_ADDRESS)
-        return "bluetooth.addr";
+    if (filter == CONV_FT_ANY_ADDRESS) {
+        if (conv->src_address.type == AT_ETHER && conv->dst_address.type == AT_ETHER)
+            return "bluetooth.addr";
+        else if (conv->src_address.type == AT_STRINGZ && conv->dst_address.type == AT_STRINGZ)
+            return "bluetooth.addr_str";
+    }
 
     return CONV_FILTER_INVALID;
 }
@@ -1563,10 +1575,14 @@ static const char* bluetooth_conv_get_filter_type(conv_item_t* conv _U_, conv_fi
 static ct_dissector_info_t bluetooth_ct_dissector_info = {&bluetooth_conv_get_filter_type};
 
 
-static const char* bluetooth_get_filter_type(hostlist_talker_t* host _U_, conv_filter_type_e filter)
+static const char* bluetooth_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
 {
-    if (filter == CONV_FT_ANY_ADDRESS)
-        return "bluetooth.addr";
+    if (filter == CONV_FT_ANY_ADDRESS) {
+        if (host->myaddress.type == AT_ETHER)
+            return "bluetooth.addr";
+        else if (host->myaddress.type == AT_STRINGZ)
+            return "bluetooth.addr_str";
+    }
 
     return CONV_FILTER_INVALID;
 }
@@ -1796,10 +1812,10 @@ dissect_bluetooth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dst = (address *) p_get_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_DST);
 
     if (src && src->type == AT_STRINGZ) {
-        sub_item = proto_tree_add_string(main_tree, hf_bluetooth_str_addr, tvb, 0, 0, (const char *) src->data);
+        sub_item = proto_tree_add_string(main_tree, hf_bluetooth_addr_str, tvb, 0, 0, (const char *) src->data);
         PROTO_ITEM_SET_HIDDEN(sub_item);
 
-        sub_item = proto_tree_add_string(main_tree, hf_bluetooth_str_src, tvb, 0, 0, (const char *) src->data);
+        sub_item = proto_tree_add_string(main_tree, hf_bluetooth_src_str, tvb, 0, 0, (const char *) src->data);
         PROTO_ITEM_SET_GENERATED(sub_item);
     } else if (src && src->type == AT_ETHER) {
         sub_item = proto_tree_add_ether(main_tree, hf_bluetooth_addr, tvb, 0, 0, (const guint8 *) src->data);
@@ -1810,10 +1826,10 @@ dissect_bluetooth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (dst && dst->type == AT_STRINGZ) {
-        sub_item = proto_tree_add_string(main_tree, hf_bluetooth_str_addr, tvb, 0, 0, (const char *) dst->data);
+        sub_item = proto_tree_add_string(main_tree, hf_bluetooth_addr_str, tvb, 0, 0, (const char *) dst->data);
         PROTO_ITEM_SET_HIDDEN(sub_item);
 
-        sub_item = proto_tree_add_string(main_tree, hf_bluetooth_str_dst, tvb, 0, 0, (const char *) dst->data);
+        sub_item = proto_tree_add_string(main_tree, hf_bluetooth_dst_str, tvb, 0, 0, (const char *) dst->data);
         PROTO_ITEM_SET_GENERATED(sub_item);
     } else if (dst && dst->type == AT_ETHER) {
         sub_item = proto_tree_add_ether(main_tree, hf_bluetooth_addr, tvb, 0, 0, (const guint8 *) dst->data);
@@ -1972,18 +1988,18 @@ proto_register_bluetooth(void)
             FT_ETHER, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_bluetooth_str_src,
-            { "Source",                              "bluetooth.src",
+        { &hf_bluetooth_src_str,
+            { "Source",                              "bluetooth.src_str",
             FT_STRING, STR_ASCII, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_bluetooth_str_dst,
-            { "Destination",                         "bluetooth.dst",
+        { &hf_bluetooth_dst_str,
+            { "Destination",                         "bluetooth.dst_str",
             FT_STRING, STR_ASCII, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_bluetooth_str_addr,
-            { "Source or Destination",               "bluetooth.addr",
+        { &hf_bluetooth_addr_str,
+            { "Source or Destination",               "bluetooth.addr_str",
             FT_STRING, STR_ASCII, NULL, 0x0,
             NULL, HFILL }
         },
