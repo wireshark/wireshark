@@ -108,10 +108,12 @@ void extcap_base_register_interface_ext(extcap_parameters * extcap,
 		const char * interface, const char * ifdescription,
 		uint16_t dlt, const char * dltname, const char * dltdescription )
 {
-    extcap_interface * iface = g_new0(extcap_interface, 1);
+    extcap_interface * iface;
 
     if (interface == NULL)
 	return;
+
+    iface = g_new0(extcap_interface, 1);
 
     iface->interface = g_strdup(interface);
     iface->description = g_strdup(ifdescription);
@@ -251,6 +253,7 @@ static void extcap_iface_free(gpointer data)
     g_free(iface->description);
     g_free(iface->dltname);
     g_free(iface->dltdescription);
+    g_free(iface);
 }
 
 void extcap_base_cleanup(extcap_parameters ** extcap)

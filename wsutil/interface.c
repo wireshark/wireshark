@@ -87,6 +87,7 @@ GSList *local_interfaces_to_list(void)
 	    interfaces = g_slist_prepend(interfaces, g_strdup(ip));
 	}
     }
+    freeifaddrs(ifap);
 end:
 #endif /* HAVE_GETIFADDRS */
     return interfaces;

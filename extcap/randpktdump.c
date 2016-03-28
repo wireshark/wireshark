@@ -162,6 +162,7 @@ int main(int argc, char *argv[])
 	randpkt_example	*example;
 	wtap_dumper* savedump;
 	int i;
+	int ret = EXIT_FAILURE;
 
 #ifdef _WIN32
 	WSADATA wsaData;
@@ -174,7 +175,7 @@ int main(int argc, char *argv[])
 
 	if (argc == 1) {
 		help(argv[0]);
-		return EXIT_FAILURE;
+		goto end;
 	}
 
 #ifdef _WIN32
@@ -190,7 +191,8 @@ int main(int argc, char *argv[])
 		switch (result) {
 		case OPT_VERSION:
 			printf("%s.%s.%s\n", RANDPKTDUMP_VERSION_MAJOR, RANDPKTDUMP_VERSION_MINOR, RANDPKTDUMP_VERSION_RELEASE);
-			return 0;
+			ret = EXIT_SUCCESS;
+			goto end;
 
 		case OPT_VERBOSE:
 			verbose = TRUE;
@@ -198,13 +200,14 @@ int main(int argc, char *argv[])
 
 		case OPT_HELP:
 			help(argv[0]);
-			return 0;
+			ret = EXIT_SUCCESS;
+			goto end;
 
 		case OPT_MAXBYTES:
 			maxbytes = atoi(optarg);
 			if (maxbytes > MAXBYTES_LIMIT) {
 				errmsg_print("randpktdump: Max bytes is %u", MAXBYTES_LIMIT);
-				return 1;
+				goto end;
 			}
 			break;
 
@@ -225,6 +228,7 @@ int main(int argc, char *argv[])
 			break;
 
 		case OPT_TYPE:
+			g_free(type);
 			type = g_strdup(optarg);
 			break;
 
@@ -238,26 +242,30 @@ int main(int argc, char *argv[])
 			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg))
 			{
 				errmsg_print("Invalid option: %s", argv[optind - 1]);
-				return EXIT_FAILURE;
+				goto end;
 			}
 		}
 	}
 
 	if (optind != argc) {
 		errmsg_print("Invalid option: %s", argv[optind]);
-		return EXIT_FAILURE;
+		goto end;
 	}
 
-	if (extcap_base_handle_interface(extcap_conf))
-		return EXIT_SUCCESS;
+	if (extcap_base_handle_interface(extcap_conf)) {
+		ret = EXIT_SUCCESS;
+		goto end;
+	}
 
-	if (extcap_conf->show_config)
-		return list_config(extcap_conf->interface);
+	if (extcap_conf->show_config) {
+		ret = list_config(extcap_conf->interface);
+		goto end;
+	}
 
 	/* Some sanity checks */
 	if ((random_type) && (all_random)) {
 		errmsg_print("You can specify only one between: --random-type, --all-random");
-		return EXIT_FAILURE;
+		goto end;
 	}
 
 	/* Wireshark sets the type, even when random options are selected. We don't want it */
@@ -271,7 +279,7 @@ int main(int argc, char *argv[])
 	if (result != 0) {
 		if (verbose)
 			errmsg_print("ERROR: WSAStartup failed with error: %d", result);
-		return 1;
+		goto end;
 	}
 #endif  /* _WIN32 */
 
@@ -279,18 +287,17 @@ int main(int argc, char *argv[])
 
 		if (g_strcmp0(extcap_conf->interface, RANDPKT_EXTCAP_INTERFACE)) {
 			errmsg_print("ERROR: invalid interface");
-			return 1;
+			goto end;
 		}
 
 		randpkt_seed();
 
 		if (!all_random) {
 			produce_type = randpkt_parse_type(type);
-			g_free(type);
 
 			example = randpkt_find_example(produce_type);
 			if (!example)
-				return 1;
+				goto end;
 
 			verbose_print("Generating packets: %s\n", example->abbrev);
 
@@ -301,7 +308,7 @@ int main(int argc, char *argv[])
 			produce_type = randpkt_parse_type(NULL);
 			example = randpkt_find_example(produce_type);
 			if (!example)
-				return 1;
+				goto end;
 			randpkt_example_init(example, extcap_conf->fifo, maxbytes);
 
 			while (count-- > 0) {
@@ -312,20 +319,20 @@ int main(int argc, char *argv[])
 
 				example = randpkt_find_example(produce_type);
 				if (!example)
-					return 1;
+					goto end;
 				example->dump = savedump;
 			}
 			randpkt_example_close(example);
 		}
+		ret = EXIT_SUCCESS;
 	}
 
+end:
 	/* clean up stuff */
+	g_free(type);
 	extcap_base_cleanup(&extcap_conf);
 
-	if (type)
-		g_free(type);
-
-	return 0;
+	return ret;
 }
 
 #ifdef _WIN32

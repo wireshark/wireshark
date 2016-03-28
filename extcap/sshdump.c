@@ -361,7 +361,7 @@ int main(int argc, char **argv)
 	char* sshkey_passphrase = NULL;
 	char* remote_filter = NULL;
 	unsigned long int count = 0;
-	int ret = 0;
+	int ret = EXIT_FAILURE;
 	extcap_parameters * extcap_conf = g_new0(extcap_parameters, 1);
 
 #ifdef _WIN32
@@ -378,7 +378,7 @@ int main(int argc, char **argv)
 
 	if (argc == 1) {
 		help(argv[0]);
-		return EXIT_FAILURE;
+		goto end;
 	}
 
 	for (i = 0; i < argc; i++) {
@@ -392,7 +392,8 @@ int main(int argc, char **argv)
 
 		case OPT_HELP:
 			help(argv[0]);
-			return EXIT_SUCCESS;
+			ret = EXIT_SUCCESS;
+			goto end;
 
 		case OPT_VERBOSE:
 			verbose = TRUE;
@@ -400,11 +401,11 @@ int main(int argc, char **argv)
 
 		case OPT_VERSION:
 			printf("%s.%s.%s\n", SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR, SSHDUMP_VERSION_RELEASE);
-			return EXIT_SUCCESS;
+			ret = EXIT_SUCCESS;
+			goto end;
 
 		case OPT_REMOTE_HOST:
-			if (remote_host)
-				g_free(remote_host);
+			g_free(remote_host);
 			remote_host = g_strdup(optarg);
 			break;
 
@@ -412,51 +413,44 @@ int main(int argc, char **argv)
 			remote_port = (unsigned int)strtoul(optarg, NULL, 10);
 			if (remote_port > 65535 || remote_port == 0) {
 				errmsg_print("Invalid port: %s", optarg);
-				return EXIT_FAILURE;
+				goto end;
 			}
 			break;
 
 		case OPT_REMOTE_USERNAME:
-			if (remote_username)
-				g_free(remote_username);
+			g_free(remote_username);
 			remote_username = g_strdup(optarg);
 			break;
 
 		case OPT_REMOTE_PASSWORD:
-			if (remote_password)
-				g_free(remote_password);
+			g_free(remote_password);
 			remote_password = g_strdup(optarg);
 			memset(optarg, 'X', strlen(optarg));
 			break;
 
 		case OPT_SSHKEY:
-			if (sshkey)
-				g_free(sshkey);
+			g_free(sshkey);
 			sshkey = g_strdup(optarg);
 			break;
 
 		case OPT_SSHKEY_PASSPHRASE:
-			if (sshkey_passphrase)
-				g_free(sshkey_passphrase);
+			g_free(sshkey_passphrase);
 			sshkey_passphrase = g_strdup(optarg);
 			memset(optarg, 'X', strlen(optarg));
 			break;
 
 		case OPT_REMOTE_INTERFACE:
-			if (remote_interface)
-				g_free(remote_interface);
+			g_free(remote_interface);
 			remote_interface = g_strdup(optarg);
 			break;
 
 		case OPT_REMOTE_CAPTURE_BIN:
-			if (remote_capture_bin)
-				g_free(remote_capture_bin);
+			g_free(remote_capture_bin);
 			remote_capture_bin = g_strdup(optarg);
 			break;
 
 		case OPT_REMOTE_FILTER:
-			if (remote_filter)
-				g_free(remote_filter);
+			g_free(remote_filter);
 			remote_filter = g_strdup(optarg);
 			break;
 
@@ -472,28 +466,32 @@ int main(int argc, char **argv)
 		default:
 			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg)) {
 				errmsg_print("Invalid option: %s", argv[optind - 1]);
-				return EXIT_FAILURE;
+				goto end;
 			}
 		}
 	}
 
 	if (optind != argc) {
 		errmsg_print("Unexpected extra option: %s", argv[optind]);
-		return EXIT_FAILURE;
+		goto end;
 	}
 
-	if (extcap_base_handle_interface(extcap_conf))
-		return EXIT_SUCCESS;
+	if (extcap_base_handle_interface(extcap_conf)) {
+		ret = EXIT_SUCCESS;
+		goto end;
+	}
 
-	if (extcap_conf->show_config)
-		return list_config(extcap_conf->interface, remote_port);
+	if (extcap_conf->show_config) {
+		ret = list_config(extcap_conf->interface, remote_port);
+		goto end;
+	}
 
 #ifdef _WIN32
 	result = WSAStartup(MAKEWORD(1,1), &wsaData);
 	if (result != 0) {
 		if (verbose)
 			errmsg_print("ERROR: WSAStartup failed with error: %d", result);
-		return EXIT_FAILURE;
+		goto end;
 	}
 #endif  /* _WIN32 */
 
@@ -502,7 +500,7 @@ int main(int argc, char **argv)
 
 		if (!remote_host) {
 			errmsg_print("Missing parameter: --remote-host");
-			return EXIT_FAILURE;
+			goto end;
 		}
 		filter = concat_filters(extcap_conf->capture_filter, remote_filter);
 		ret = ssh_open_remote_connection(remote_host, remote_port, remote_username,
@@ -514,7 +512,16 @@ int main(int argc, char **argv)
 		ret = EXIT_FAILURE;
 	}
 
+end:
 	/* clean up stuff */
+	g_free(remote_host);
+	g_free(remote_username);
+	g_free(remote_password);
+	g_free(remote_interface);
+	g_free(remote_capture_bin);
+	g_free(sshkey);
+	g_free(sshkey_passphrase);
+	g_free(remote_filter);
 	extcap_base_cleanup(&extcap_conf);
 	return ret;
 }

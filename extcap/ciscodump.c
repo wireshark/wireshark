@@ -565,7 +565,7 @@ int main(int argc, char **argv)
 	char* sshkey_passphrase = NULL;
 	char* remote_filter = NULL;
 	unsigned long int count = 0;
-	int ret = EXIT_SUCCESS;
+	int ret = EXIT_FAILURE;
 	extcap_parameters * extcap_conf = g_new0(extcap_parameters, 1);
 
 #ifdef _WIN32
@@ -582,7 +582,7 @@ int main(int argc, char **argv)
 
 	if (argc == 1) {
 		help(argv[0]);
-		return EXIT_FAILURE;
+		goto end;
 	}
 
 	for (i = 0; i < argc; i++) {
@@ -596,7 +596,8 @@ int main(int argc, char **argv)
 
 		case OPT_HELP:
 			help(argv[0]);
-			return EXIT_SUCCESS;
+			ret = EXIT_SUCCESS;
+			goto end;
 
 		case OPT_VERBOSE:
 			verbose = TRUE;
@@ -604,7 +605,7 @@ int main(int argc, char **argv)
 
 		case OPT_VERSION:
 			printf("%s.%s.%s\n", CISCODUMP_VERSION_MAJOR, CISCODUMP_VERSION_MINOR, CISCODUMP_VERSION_RELEASE);
-			return EXIT_SUCCESS;
+			goto end;
 
 		case OPT_REMOTE_HOST:
 			g_free(remote_host);
@@ -615,7 +616,7 @@ int main(int argc, char **argv)
 			remote_port = (unsigned int)strtoul(optarg, NULL, 10);
 			if (remote_port > 65535 || remote_port == 0) {
 				printf("Invalid port: %s\n", optarg);
-				return EXIT_FAILURE;
+				goto end;
 			}
 			break;
 
@@ -663,44 +664,48 @@ int main(int argc, char **argv)
 		default:
 			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg)) {
 				errmsg_print("Invalid option: %s", argv[optind - 1]);
-				return EXIT_FAILURE;
+				goto end;
 			}
 		}
 	}
 
 	if (optind != argc) {
 		errmsg_print("Unexpected extra option: %s", argv[optind]);
-		return EXIT_FAILURE;
+		goto end;
 	}
 
-	if (extcap_base_handle_interface(extcap_conf))
-		return EXIT_SUCCESS;
+	if (extcap_base_handle_interface(extcap_conf)) {
+		ret = EXIT_SUCCESS;
+		goto end;
+	}
 
-	if (extcap_conf->show_config)
-		return list_config(extcap_conf->interface, remote_port);
+	if (extcap_conf->show_config) {
+		ret = list_config(extcap_conf->interface, remote_port);
+		goto end;
+	}
 
 #ifdef _WIN32
 	result = WSAStartup(MAKEWORD(1,1), &wsaData);
 	if (result != 0) {
 		if (verbose)
 			errmsg_print("ERROR: WSAStartup failed with error: %d", result);
-		return EXIT_FAILURE;
+		goto end;
 	}
 #endif  /* _WIN32 */
 
 	if (extcap_conf->capture) {
 		if (!remote_host) {
 			errmsg_print("Missing parameter: --remote-host");
-			return EXIT_FAILURE;
+			goto end;
 		}
 
 		if (!remote_interface) {
 			errmsg_print("ERROR: No interface specified (--remote-interface)");
-			return EXIT_FAILURE;
+			goto end;
 		}
 		if (count == 0) {
 			errmsg_print("ERROR: count of packets must be specified (--remote-count)");
-			return EXIT_FAILURE;
+			goto end;
 		}
 
 		ret = ssh_open_remote_connection(remote_host, remote_port, remote_username,
@@ -711,6 +716,14 @@ int main(int argc, char **argv)
 		ret = EXIT_FAILURE;
 	}
 
+end:
+	g_free(remote_host);
+	g_free(remote_username);
+	g_free(remote_password);
+	g_free(remote_interface);
+	g_free(sshkey);
+	g_free(sshkey_passphrase);
+	g_free(remote_filter);
 	extcap_base_cleanup(&extcap_conf);
 	return ret;
 }
