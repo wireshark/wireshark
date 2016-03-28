@@ -1090,7 +1090,7 @@ dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	/* Get remaining data in buffer as a string */
 
-	remaining = tvb_captured_length_remaining(tvb, offset);
+	remaining = tvb_reported_length_remaining(tvb, offset);
 	if (remaining <= 0) {
 		if (data)
 			*data = g_strdup("");
@@ -6198,9 +6198,10 @@ dissect_spoolss_keybuffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		end_offset = tvb_reported_length_remaining(tvb, offset) + 1;
 	}
 
-	while (offset < end_offset)
+	while (offset > 0 && offset < end_offset) {
 		offset = dissect_spoolss_uint16uni(
 			tvb, offset, pinfo, tree, drep, NULL, hf_keybuffer);
+	}
 
 	return offset;
 }
