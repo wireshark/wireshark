@@ -1877,7 +1877,9 @@ fi
 # Check whether GLib modules are supported, to determine whether we
 # can support plugins.
 #
-AC_MSG_CHECKING(whether GLib supports loadable modules)
+
+AC_CACHE_CHECK([whether GLib supports loadable modules],
+               [ac_cv_glib_supports_modules], [
 ac_save_CFLAGS="$CFLAGS"
 ac_save_LIBS="$LIBS"
 CFLAGS="$WS_CFLAGS $GLIB_CFLAGS $CFLAGS"
@@ -1901,12 +1903,11 @@ main ()
     ac_cv_glib_supports_modules=yes])
 CFLAGS="$ac_save_CFLAGS"
 LIBS="$ac_save_LIBS"
+])
 if test "$ac_cv_glib_supports_modules" = yes ; then
-  AC_MSG_RESULT(yes)
   have_plugins=yes
   plugins_dir="plugins"
 else
-  AC_MSG_RESULT(no)
   have_plugins=no
   plugins_dir=""
 fi
@@ -1948,7 +1949,8 @@ fi
 # be different from the system's printf since GLib can optionally use
 # its own printf implementation.)
 #
-AC_MSG_CHECKING(whether GLib supports POSIX/XSI thousands grouping)
+AC_CACHE_CHECK([whether GLib supports POSIX/XSI thousands grouping],
+               [ac_cv_glib_supports_printf_grouping], [
 ac_save_CFLAGS="$CFLAGS"
 ac_save_LIBS="$LIBS"
 CFLAGS="$WS_CFLAGS $GLIB_CFLAGS $CFLAGS"
@@ -1972,11 +1974,9 @@ main ()
     ac_cv_glib_supports_printf_grouping=no])
 CFLAGS="$ac_save_CFLAGS"
 LIBS="$ac_save_LIBS"
+])
 if test "$ac_cv_glib_supports_printf_grouping" = yes ; then
-  AC_MSG_RESULT(yes)
   AC_DEFINE(HAVE_GLIB_PRINTF_GROUPING, 1, [Define if GLib's printf functions support thousands grouping.])
-else
-  AC_MSG_RESULT(no)
 fi
 
 if test "x$have_gtk" = "xyes"
@@ -2754,20 +2754,19 @@ AC_CHECK_FUNC(getopt_long,
     #
     # Do we have optreset?
     #
-    AC_MSG_CHECKING(whether optreset is defined)
-    AC_TRY_LINK([],
-      [
+    AC_CACHE_CHECK([whether optreset is defined],
+                   [ac_cv_pcap_debug_defined], [
+      AC_TRY_LINK([],
+        [
 	extern int optreset;
 
 	return optreset;
-      ],
-      ac_cv_pcap_debug_defined=yes,
-      ac_cv_pcap_debug_defined=no)
+        ],
+        ac_cv_pcap_debug_defined=yes,
+        ac_cv_pcap_debug_defined=no)
+    ])
     if test "$ac_cv_pcap_debug_defined" = yes ; then
-      AC_MSG_RESULT(yes)
       AC_DEFINE(HAVE_OPTRESET, 1, [Define to 1 if you have the optreset variable])
-    else
-      AC_MSG_RESULT(no)
     fi
   ],
   GETOPT_LO="wsgetopt.lo")
