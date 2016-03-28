@@ -1566,7 +1566,7 @@ AC_SUBST(GLIB_MIN_VERSION)
 
 PKG_WIRESHARK_CHECK_SYSTEM_MODULES([GLIB],
 	[glib-2.0 >= $GLIB_MIN_VERSION gthread-2.0 >= $GLIB_MIN_VERSION gmodule-2.0 >= $GLIB_MIN_VERSION],
-	[],
+	[GLIB_VERSION=`$PKG_CONFIG --modversion glib-2.0`],
 	[AC_MSG_ERROR([GLib $GLIB_MIN_VERSION or later not found.])])
 
 # Error out if a glib header other than a "top level" header
@@ -3426,6 +3426,7 @@ echo "  LIBS: $LIBS"
 
 echo ""
 echo "The Wireshark package has been configured with the following options:"
+echo "                       GLib version : v$GLIB_VERSION"
 echo "                    Build wireshark : $enable_wireshark_qt$qt_lib_message"
 echo "                Build wireshark-gtk : $have_gtk""$gtk_lib_message"
 echo "                       Build tshark : $enable_tshark"
