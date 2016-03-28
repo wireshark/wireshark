@@ -126,7 +126,7 @@ get_compiled_version_info(void (*prepend_info)(GString *),
  * Get the CPU info, and append it to the GString
  */
 static void
-get_cpu_info(GString *str _U_)
+get_cpu_info(GString *str)
 {
 	guint32 CPUInfo[4];
 	char CPUBrandString[0x40];

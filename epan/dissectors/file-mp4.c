@@ -491,7 +491,7 @@ dissect_mp4_url_body(tvbuff_t *tvb, gint offset, gint len,
 
 static gint
 dissect_mp4_stsd_body(tvbuff_t *tvb, gint offset, gint len,
-        packet_info *pinfo _U_, proto_tree *tree)
+        packet_info *pinfo, proto_tree *tree)
 {
     guint32  entry_cnt, i;
     gint     ret;

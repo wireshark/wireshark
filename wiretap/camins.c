@@ -296,7 +296,7 @@ camins_seek_read(wtap *wth, gint64 seek_off,
 
 
 
-wtap_open_return_val camins_open(wtap *wth, int *err, gchar **err_info _U_)
+wtap_open_return_val camins_open(wtap *wth, int *err, gchar **err_info)
 {
     guint8  found_start_blocks = 0;
     guint8  count = 0;

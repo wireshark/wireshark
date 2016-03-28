@@ -962,7 +962,7 @@ dissect_eh_frame_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_
 
 
 static gint
-dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *segment_tree,
+dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *segment_tree,
         gint offset, gint segment_size, gint register_size _U_, guint machine_encoding)
 {
     proto_tree    *cfi_tree = NULL;

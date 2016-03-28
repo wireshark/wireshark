@@ -2122,7 +2122,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 }
 
 static gboolean
-pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_, wtapng_block_t *wblock, int *err, gchar **err_info)
+pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info)
 {
     unsigned block_read;
     guint32 block_total_length;
@@ -2213,7 +2213,16 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *p
 }
 
 static gboolean
-pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_, wtapng_block_t *wblock _U_, int *err, gchar **err_info)
+pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh,
+#
+#ifdef HAVE_PLUGINS
+    pcapng_t *pn,
+    wtapng_block_t *wblock,
+#else
+    pcapng_t *pn _U_,
+    wtapng_block_t *wblock _U_,
+#endif
+    int *err, gchar **err_info)
 {
     guint32 block_read;
     guint32 block_total_length;

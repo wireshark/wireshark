@@ -484,7 +484,7 @@ process_sos_header(proto_tree *tree, tvbuff_t *tvb, guint32 len _U_,
  * Process a Comment header (with length).
  */
 static void
-process_comment_header(proto_tree *tree, tvbuff_t *tvb, guint32 len _U_,
+process_comment_header(proto_tree *tree, tvbuff_t *tvb, guint32 len,
         guint16 marker, const char *marker_name)
 {
     proto_item *ti;

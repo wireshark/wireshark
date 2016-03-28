@@ -1384,7 +1384,12 @@ get_capinfos_compiled_info(GString *str)
 }
 
 static void
-get_capinfos_runtime_info(GString *str _U_)
+get_capinfos_runtime_info(
+#if defined(HAVE_LIBZ) && !defined(_WIN32)
+    GString *str)
+#else
+    GString *str _U_)
+#endif
 {
   /* zlib */
 #if defined(HAVE_LIBZ) && !defined(_WIN32)
