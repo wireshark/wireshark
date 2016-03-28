@@ -42,8 +42,8 @@ my %types = %{{
 	'address' => '{ Address a = (Address)g_malloc(sizeof(address)); copy_address(a, &(v->%s)); pushAddress(L,a); }',
 	'address*' => '{ Address a = (Address)g_malloc(sizeof(address)); copy_address(a, v->%s); pushAddress(L,a); }',
 	'int' => 'lua_pushnumber(L,(lua_Number)v->%s);',
-	'nstime_t' => '{lua_Number t = (lua_Number) v->%s.secs; t += v->%s.nsecs * 1e-9; lua_pushnumber(L,t); }',
-	'nstime_t*' => '{lua_Number t = (lua_Number) v->%s->secs; t += v->%s->nsecs * 1e-9; lua_pushnumber(L,t); }',
+	'nstime_t' => '{ lua_Number t = (lua_Number) v->%s.secs; t += v->%s.nsecs * 1e-9; lua_pushnumber(L,t); }',
+	'nstime_t*' => '{ lua_Number t = (lua_Number) v->%s->secs; t += v->%s->nsecs * 1e-9; lua_pushnumber(L,t); }',
 }};
 
 my %comments = %{{
@@ -88,7 +88,7 @@ sub dotap {
 
 		my $enumre = "typedef\\s+enum[^{]*{([^}]*)}[\\s\\n]*" . ${ename} . "[\\s\\n]*;";
 		if ($buf =~ s/$enumre//ms ) {
-			$types{$ename} = "/*$ename*/ lua_pushnumber(L,(lua_Number)v->%s);";
+			$types{$ename} = "lua_pushnumber(L,(lua_Number)v->%s); /* $ename */";
 			my $ebody = $1;
 			$ebody =~ s/\s+//msg;
 			$comments{$ename} = "$ename: { $ebody }";
@@ -124,15 +124,15 @@ sub dotap {
 		  $elems{$k} = $v;
 	}
 
-	my $code = "static void wslua_${tname}_to_table(lua_State* L, const void* p) { const $sname* v; v = (const $sname*)p; lua_newtable(L);\n";
+	my $code = "static void wslua_${tname}_to_table(lua_State* L, const void* p) {\n\tconst $sname* v;\n\n\tv = (const $sname*)p;\n\tlua_newtable(L);\n\n";
 	my $doc = "Tap: $tname\n";
 
 	for my $n (sort keys %elems) {
 		my $fmt = $types{$elems{$n}};
 
 		if ($fmt) {
-			$code .= "\tlua_pushstring(L,\"$n\"); ";
-			$code .= sprintf($fmt,$n,$n) . " lua_settable(L,-3);\n";
+			$code .= "\tlua_pushstring(L,\"$n\");\n\t";
+			$code .= sprintf($fmt,$n,$n) . "\n\tlua_settable(L,-3);\n";
 			$doc .= "\t$n: $comments{$elems{$n}}\n";
 		}
 
@@ -197,8 +197,11 @@ for my $ename (sort keys %enums) {
 	print CFILE  "\n\t/*\n\t * $ename\n\t */\n\tlua_newtable(L);\n";
 	for my $a (@{$enums{$ename}}) {
 		print CFILE  <<"ENUMELEM";
-		lua_pushnumber(L,(lua_Number)$a); lua_setglobal(L,"$a");
-		lua_pushnumber(L,(lua_Number)$a); lua_pushstring(L,"$a"); lua_settable(L,-3);
+	lua_pushnumber(L,(lua_Number)$a);
+	lua_setglobal(L,"$a");
+	lua_pushnumber(L,(lua_Number)$a);
+	lua_pushstring(L,"$a");
+	lua_settable(L,-3);
 ENUMELEM
 	}
 	print CFILE "\tlua_setglobal(L,\"$ename\");\n";
