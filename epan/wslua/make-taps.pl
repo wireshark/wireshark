@@ -112,12 +112,14 @@ sub dotap {
 
 	while($body =~ s/\s*(.*?)([\w\d_]+)\s*\[\s*\d+\s*\]\s*;//) {
 		  my ($k,$v) = ($2,$1 . "[]");
+		  $v =~ s/const //g;
 		  $v =~ s/\s+//g;
 		  $elems{$k} = $v;
 	}
 
 	while($body =~ s/\s*(.*?)([\w\d_]+)\s*;//) {
 		  my ($k,$v) = ($2,$1);
+		  $v =~ s/const //g;
 		  $v =~ s/\s+//g;
 		  $elems{$k} = $v;
 	}
