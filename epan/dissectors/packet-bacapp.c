@@ -5806,7 +5806,7 @@ fCalendarEntry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset
 }
 
 static guint
-fEventTimeStamps( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+fEventTimeStamps( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint32     lvt     = 0;
     proto_tree* subtree = tree;
@@ -6576,7 +6576,7 @@ moduloDivide    [1] Unsigned
 }
 */
 static guint
-fPrescale(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+fPrescale(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint8  tag_no, tag_info;
     guint32 lvt;
@@ -6610,7 +6610,7 @@ integerScale    [1] INTEGER
 }
 */
 static guint
-fScale(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+fScale(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint8  tag_no, tag_info;
     guint32 lvt;
@@ -6651,7 +6651,7 @@ BACnetAccumulatorRecord ::= SEQUENCE {
 }
 */
 static guint
-fLoggingRecord(tvbuff_t *tvb, packet_info *pinfo  _U_, proto_tree *tree, guint offset)
+fLoggingRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint8  tag_no, tag_info;
     guint32 lvt;
@@ -7532,7 +7532,7 @@ BACnetPropertyStatesEnums[] = {
 #define BACnetPropertyStatesEnums_Size 36
 
 static guint
-fBACnetPropertyStates(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+fBACnetPropertyStates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint8       tag_no, tag_info;
     guint32      lvt;

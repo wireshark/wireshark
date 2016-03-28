@@ -911,7 +911,7 @@ dissect_bac_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gint
 dissect_bind_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number _U_, gint parameter_length, void **data _U_)
+        guint parameter_number, gint parameter_length, void **data _U_)
 {
     guint32      value;
 
@@ -933,7 +933,7 @@ dissect_bind_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 static gint
 dissect_biev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
-        guint parameter_number _U_, gint parameter_length, void **data _U_)
+        guint parameter_number, gint parameter_length, void **data _U_)
 {
     proto_item  *pitem;
     guint32      value;
@@ -1088,8 +1088,8 @@ dissect_cind_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static gint
-dissect_chld_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
+dissect_chld_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
 {
     guint32      value;
@@ -1124,8 +1124,8 @@ dissect_chld_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static gint
-dissect_ccwa_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
+dissect_ccwa_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
 {
     proto_item  *pitem;

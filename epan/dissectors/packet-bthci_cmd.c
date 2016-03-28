@@ -2060,7 +2060,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 cmd_ocf, bluetooth_data_t *bluetooth_data)
+dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 cmd_ocf, bluetooth_data_t *bluetooth_data)
 {
     proto_item *item;
     guint16     timeout;
@@ -2794,7 +2794,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 static int
-dissect_informational_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+dissect_informational_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree *tree, guint16 cmd_ocf)
 {
     switch (cmd_ocf) {
@@ -2824,7 +2824,7 @@ dissect_informational_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 static int
-dissect_status_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+dissect_status_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree *tree, guint16 cmd_ocf)
 {
     switch (cmd_ocf) {
@@ -2888,7 +2888,7 @@ dissect_status_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 static int
-dissect_testing_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 cmd_ocf)
+dissect_testing_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 cmd_ocf)
 {
     switch (cmd_ocf) {
 

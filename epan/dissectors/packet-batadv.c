@@ -3397,7 +3397,7 @@ static void dissect_batadv_tt_query(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	}
 }
 
-static void dissect_batadv_tt_query_v14(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static void dissect_batadv_tt_query_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct tt_query_packet_v14 *tt_query_packeth;
 	proto_tree *batadv_tt_query_tree = NULL;
@@ -3959,7 +3959,7 @@ static void dissect_batadv_tvlv_v15_header(tvbuff_t *tvb,
 			    ENC_BIG_ENDIAN);
 }
 
-static void dissect_batadv_tvlv_v15_dat(tvbuff_t *tvb, packet_info *pinfo _U_,
+static void dissect_batadv_tvlv_v15_dat(tvbuff_t *tvb, packet_info *pinfo,
 					proto_tree *tree, int offset,
 					guint8 version)
 {
@@ -3983,7 +3983,7 @@ static void dissect_batadv_tvlv_v15_nc(tvbuff_t *tvb, packet_info *pinfo,
 	}
 }
 
-static void dissect_batadv_tvlv_v15_mcast(tvbuff_t *tvb, packet_info *pinfo _U_,
+static void dissect_batadv_tvlv_v15_mcast(tvbuff_t *tvb, packet_info *pinfo,
 					  proto_tree *tree, int offset,
 					  guint8 version)
 {
@@ -4007,7 +4007,7 @@ static void dissect_batadv_tvlv_v15_mcast(tvbuff_t *tvb, packet_info *pinfo _U_,
 	/* 3 byte of padding. */
 }
 
-static void dissect_batadv_tvlv_v15_gw(tvbuff_t *tvb, packet_info *pinfo _U_,
+static void dissect_batadv_tvlv_v15_gw(tvbuff_t *tvb, packet_info *pinfo,
 				       proto_tree *tree, int offset,
 				       guint8 version)
 {
@@ -4032,7 +4032,7 @@ static void dissect_batadv_tvlv_v15_gw(tvbuff_t *tvb, packet_info *pinfo _U_,
 					 up / 10, up % 10);
 }
 
-static void dissect_batadv_tvlv_v15_roam(tvbuff_t *tvb, packet_info *pinfo _U_,
+static void dissect_batadv_tvlv_v15_roam(tvbuff_t *tvb, packet_info *pinfo,
 					 proto_tree *tree, int offset,
 					 guint8 version)
 {

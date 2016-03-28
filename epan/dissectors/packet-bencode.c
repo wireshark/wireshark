@@ -116,7 +116,7 @@ static int dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo,
    return -1;
 }
 
-static int dissect_bencoding_int(tvbuff_t *tvb, packet_info *pinfo _U_,
+static int dissect_bencoding_int(tvbuff_t *tvb, packet_info *pinfo,
                                  int offset, int length, proto_tree *tree, proto_item *ti, int treeadd)
 {
    gint32 ival  = 0;
@@ -177,7 +177,7 @@ static int dissect_bencoding_int(tvbuff_t *tvb, packet_info *pinfo _U_,
    return -1;
 }
 
-static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo _U_,
+static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo,
                                  int offset, int length, proto_tree *tree, int level, proto_item *treei, int treeadd)
 {
    guint8 op;

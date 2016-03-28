@@ -2288,7 +2288,7 @@ typedef struct _c_encoded {
 static
 guint c_dissect_encoded(proto_tree *tree, c_encoded *enc,
 			guint8 minver, guint8 maxver,
-			tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+			tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti;
 
@@ -2353,7 +2353,7 @@ guint c_dissect_eversion(proto_tree *root, gint hf,
 /** Dissect an object locator. */
 static
 guint c_dissect_object_locator(proto_tree *root, gint hf,
-			       tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+			       tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti;
 	proto_tree *tree;
@@ -2415,7 +2415,7 @@ guint c_dissect_object_locator(proto_tree *root, gint hf,
 /** Dissect a placement group. */
 static
 guint c_dissect_pg(proto_tree *root, gint hf,
-		   tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+		   tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti, *ti2;
 	proto_tree *tree;
@@ -2455,7 +2455,7 @@ guint c_dissect_pg(proto_tree *root, gint hf,
 /** Dissect a placement group creation. */
 static
 guint c_dissect_pg_create(proto_tree *root, gint hf,
-			  tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+			  tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti;
 	proto_tree *tree;
@@ -2488,7 +2488,7 @@ guint c_dissect_pg_create(proto_tree *root, gint hf,
 /** Dissect a filepath. */
 static
 guint c_dissect_path(proto_tree *root, gint hf,
-		     tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+		     tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti, *ti2;
 	proto_tree *tree;
@@ -2579,7 +2579,7 @@ guint c_dissect_mds_release(proto_tree *root, gint hf,
 /** Dissect a HitSet::Params */
 static
 guint c_dissect_hitset_params(proto_tree *root,
-			      tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+			      tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti, *ti2;
 	proto_tree *tree;
@@ -2638,7 +2638,7 @@ guint c_dissect_hitset_params(proto_tree *root,
 /** Dissect a pool_snap_info_t */
 static
 guint c_dissect_snapinfo(proto_tree *root,
-			 tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+			 tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti;
 	proto_tree *tree;
@@ -2681,7 +2681,7 @@ guint c_dissect_snapinfo(proto_tree *root,
 /** Dissect a pg pool. */
 static
 guint c_dissect_pgpool(proto_tree *root,
-		       tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+		       tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti, *ti2;
 	proto_tree *tree, *subtree;
@@ -2908,7 +2908,7 @@ guint c_dissect_pgpool(proto_tree *root,
 /** Dissect a MonMap. */
 static
 guint c_dissect_monmap(proto_tree *root,
-		       tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+		       tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti, *ti2;
 	proto_tree *tree, *subtree;
@@ -2974,7 +2974,7 @@ guint c_dissect_monmap(proto_tree *root,
 /** Dissect an osd_peer_stat_t */
 static
 guint c_dissect_osd_peerstat(proto_tree *root,
-			     tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+			     tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti;
 	proto_tree *tree;
@@ -3050,7 +3050,7 @@ guint c_dissect_featureset(proto_tree *root, int hf,
 /** Dissect a CompatSet */
 static
 guint c_dissect_compatset(proto_tree *root,
-			  tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+			  tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti;
 	proto_tree *tree;
@@ -3071,7 +3071,7 @@ guint c_dissect_compatset(proto_tree *root,
 /** Dissect an OSDSuperblock */
 static
 guint c_dissect_osd_superblock(proto_tree *root,
-			       tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+			       tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti;
 	proto_tree *tree;
@@ -3152,7 +3152,7 @@ guint c_dissect_osd_superblock(proto_tree *root,
 /** Dissect an osd_info_t. */
 static
 guint c_dissect_osdinfo(proto_tree *root, int hf,
-			tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+			tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti, *ti2;
 	proto_tree *tree;
@@ -3199,7 +3199,7 @@ guint c_dissect_osdinfo(proto_tree *root, int hf,
 /** Dissect an osd_xinfo_t. */
 static
 guint c_dissect_osd_xinfo(proto_tree *root, int hf,
-			  tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+			  tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti;
 	proto_tree *tree;
@@ -3245,7 +3245,7 @@ guint c_dissect_osd_xinfo(proto_tree *root, int hf,
 /** Dissect an objectstore_perfstat_t. */
 static
 guint c_dissect_perfstat(proto_tree *root, int hf,
-			 tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+			 tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti;
 	proto_tree *tree;
@@ -3276,7 +3276,7 @@ guint c_dissect_perfstat(proto_tree *root, int hf,
 /** Dissect an osd_stat_t. */
 static
 guint c_dissect_osd_stat(proto_tree *root,
-			 tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+			 tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti;
 	proto_tree *tree;
@@ -3364,7 +3364,7 @@ guint c_dissect_crush(proto_tree *root,
 /** Dissect an OSDMap. */
 static
 guint c_dissect_osdmap(proto_tree *root,
-		       tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+		       tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti, *ti2;
 	proto_tree *tree, *subtree;
@@ -3699,7 +3699,7 @@ guint c_dissect_osdmap(proto_tree *root,
 /** Dissect an incremental OSDMap. */
 static
 guint c_dissect_osdmap_inc(proto_tree *root,
-			   tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+			   tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti, *ti2;
 	proto_tree *tree, *subtree;
@@ -3765,7 +3765,7 @@ typedef struct _c_osd_op {
 /** Dissect OSD Operation. */
 static
 guint c_dissect_osd_op(proto_tree *root, gint hf, c_osd_op *out,
-		       tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+		       tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti, *ti2;
 	proto_tree *tree;
@@ -3908,7 +3908,7 @@ guint c_dissect_osd_op(proto_tree *root, gint hf, c_osd_op *out,
 /** Dissect a redirect. */
 static
 guint c_dissect_redirect(proto_tree *root, gint hf,
-			 tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+			 tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti;
 	proto_tree *tree;
@@ -4073,7 +4073,7 @@ guint c_dissect_statcollection(proto_tree *root, int key,
 /** Dissect an pg_stat_t. */
 static
 guint c_dissect_pg_stats(proto_tree *root, int hf,
-			 tvbuff_t *tvb, guint off, c_pkt_data *data _U_)
+			 tvbuff_t *tvb, guint off, c_pkt_data *data)
 {
 	proto_item *ti;
 	proto_tree *tree;
@@ -4323,10 +4323,10 @@ guint c_dissect_msg_ping(proto_tree *root _U_,
 
 /** Dissect monmap message 0x0004 */
 static
-guint c_dissect_msg_mon_map(proto_tree *root _U_,
-			    tvbuff_t *tvb _U_,
+guint c_dissect_msg_mon_map(proto_tree *root,
+			    tvbuff_t *tvb,
 			    guint front_len, guint middle_len _U_, guint data_len _U_,
-			    c_pkt_data *data _U_)
+			    c_pkt_data *data)
 {
 	proto_item *ti;
 	proto_tree *tree;
@@ -7053,7 +7053,7 @@ int dissect_ceph(tvbuff_t *tvb, packet_info *pinfo,
  * Proxies the old style dissector interface to the new style.
  */
 static
-int dissect_ceph_old(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+int dissect_ceph_old(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	dissect_ceph(tvb, pinfo, tree, data);
 	return tvb_captured_length(tvb);
@@ -7061,7 +7061,7 @@ int dissect_ceph_old(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
 static
 gboolean dissect_ceph_heur(tvbuff_t *tvb, packet_info *pinfo,
-			   proto_tree *tree, void *data _U_)
+			   proto_tree *tree, void *data)
 {
 	conversation_t *conv;
 

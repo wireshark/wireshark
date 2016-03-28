@@ -397,7 +397,7 @@ dissect_feature_options(proto_tree *dccp_options_tree, tvbuff_t *tvb,
  * This function dissects DCCP options
  */
 static void
-dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_options(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree *dccp_options_tree, proto_tree *tree _U_,
                 e_dccphdr *dccph _U_,
                 int offset_start,

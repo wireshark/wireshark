@@ -433,7 +433,7 @@ static const value_string cip_svalidator_type_conn_type_vals[] = {
 };
 
 void
-dissect_unid(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_item *pi,
+dissect_unid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *pi,
              const char* ssn_name, int hf_ssn_timestamp,
              int hf_ssn_date, int hf_ssn_time, int hf_macid, gint ett, gint ett_ssn)
 {

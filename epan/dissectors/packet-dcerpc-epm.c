@@ -594,7 +594,7 @@ epm_dissect_ept_insert_rqst (tvbuff_t *tvb, int offset,
 static int
 epm_dissect_ept_insert_resp (tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
-                             dcerpc_info *di _U_, guint8 *drep)
+                             dcerpc_info *di, guint8 *drep)
 {
     /* [out] error_status_t *status */
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
@@ -624,7 +624,7 @@ epm_dissect_ept_delete_rqst (tvbuff_t *tvb, int offset,
 static int
 epm_dissect_ept_delete_resp (tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
-                             dcerpc_info *di _U_, guint8 *drep)
+                             dcerpc_info *di, guint8 *drep)
 {
     /* [out] error_status_t *status */
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,

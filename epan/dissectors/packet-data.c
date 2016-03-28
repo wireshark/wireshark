@@ -59,7 +59,7 @@ static gboolean generate_md5_hash = FALSE;
 static gint ett_data = -1;
 
 static int
-dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* data _U_)
+dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	gint bytes;
 

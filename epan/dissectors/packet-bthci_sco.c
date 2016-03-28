@@ -64,7 +64,7 @@ void proto_reg_handoff_bthci_sco(void);
 
 /* Code to actually dissect the packets */
 static gint
-dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item               *ti;
     proto_tree               *bthci_sco_tree;

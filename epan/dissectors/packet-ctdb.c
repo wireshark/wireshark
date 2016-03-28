@@ -570,7 +570,7 @@ dissect_ctdb_reply_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 }
 
 static int
-dissect_ctdb_reply_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint32 reqid, guint32 dst, int endianess)
+dissect_ctdb_reply_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint32 reqid, guint32 dst, int endianess)
 {
 	guint32 datalen, keylen;
 	wmem_tree_key_t tkey[3];
@@ -627,7 +627,7 @@ dissect_ctdb_reply_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 }
 
 static int
-dissect_ctdb_req_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint32 reqid, int endianess)
+dissect_ctdb_req_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint32 reqid, int endianess)
 {
 	guint32 keylen, datalen, dmaster;
 	wmem_tree_key_t tkey[3];
@@ -694,7 +694,7 @@ dissect_ctdb_req_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 
 
 static int
-dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint32 reqid, guint32 src, guint32 dst, int endianess)
+dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint32 reqid, guint32 src, guint32 dst, int endianess)
 {
 	guint32 datalen;
 	guint32 opcode;
@@ -787,7 +787,7 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 }
 
 static int
-dissect_ctdb_reply_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint32 reqid, guint32 src, guint32 dst, int endianess)
+dissect_ctdb_reply_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint32 reqid, guint32 src, guint32 dst, int endianess)
 {
 	ctdb_control_t *ctdb_control;
 	wmem_tree_key_t tkey[4];

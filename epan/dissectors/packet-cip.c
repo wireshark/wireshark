@@ -2730,8 +2730,8 @@ static int dissect_id_status(packet_info *pinfo, proto_tree *tree, proto_item *i
    return 2;
 }
 
-static int dissect_msg_rout_num_classes(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
-                             int offset, int total_len _U_)
+static int dissect_msg_rout_num_classes(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
 {
    guint16 i, num_classes;
 

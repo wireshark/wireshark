@@ -337,7 +337,7 @@ dissect_cattp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 /* The heuristic dissector function checks if the UDP packet may be a cattp packet */
 static gboolean
-dissect_cattp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_cattp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (tvb_captured_length(tvb) >= CATTP_HBLEN) { /* check of data is big enough for base header. */
         guint8  flags, hlen;

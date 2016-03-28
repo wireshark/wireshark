@@ -1544,7 +1544,7 @@ static const value_string fortinet_element_id_vals[] = {
 
 
 static int
-dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *sub_msg_element_type_tree, guint offset, packet_info *pinfo _U_, guint optlen,  proto_item *msg_element_type_item)
+dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *sub_msg_element_type_tree, guint offset, packet_info *pinfo, guint optlen,  proto_item *msg_element_type_item)
 {
     guint element_id, i;
 
@@ -2054,7 +2054,7 @@ static const value_string cisco_ap_mode_and_type_mode_vals[] = {
 
 
 static int
-dissect_capwap_message_element_vendor_cisco_type(tvbuff_t *tvb, proto_tree *sub_msg_element_type_tree, guint offset, packet_info *pinfo _U_, guint optlen,  proto_item *msg_element_type_item)
+dissect_capwap_message_element_vendor_cisco_type(tvbuff_t *tvb, proto_tree *sub_msg_element_type_tree, guint offset, packet_info *pinfo, guint optlen,  proto_item *msg_element_type_item)
 {
     guint element_id;
 
