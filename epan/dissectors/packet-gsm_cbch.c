@@ -253,22 +253,22 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
                 else if (octet1 == 0x40)
                 {
                     /* MDT 010000000 */
-                    proto_tree_add_uint_format_value(sched_subtree, hf_gsm_cbch_slot, tvb, offset++, 1, new_slots[k],
-                                    "%d Free Message Slot, optional reading", new_slots[k]);
+                    proto_tree_add_uint_format_value(sched_subtree, hf_gsm_cbch_slot, tvb, offset++, 1, new_slots[i],
+                                    "%d Free Message Slot, optional reading", new_slots[i]);
                     other_slots[new_slots[i] - 1] = 0xFFFE;
                 }
                 else if (octet1 == 0x41)
                 {
                     /* MDT 010000001 */
-                    proto_tree_add_uint_format_value(sched_subtree, hf_gsm_cbch_slot, tvb, offset++, 1, new_slots[k],
-                                     "%d Free Message Slot, reading advised", new_slots[k]);
+                    proto_tree_add_uint_format_value(sched_subtree, hf_gsm_cbch_slot, tvb, offset++, 1, new_slots[i],
+                                     "%d Free Message Slot, reading advised", new_slots[i]);
                     other_slots[new_slots[i] - 1] = 0xFFFE;
                 }
                 else
                 {
                     /* reserved MDT */
-                    proto_tree_add_uint_format_value(sched_subtree, hf_gsm_cbch_slot, tvb, offset, 1, new_slots[k],
-                                     "%d reserved MDT: %x", new_slots[k], octet1);
+                    proto_tree_add_uint_format_value(sched_subtree, hf_gsm_cbch_slot, tvb, offset, 1, new_slots[i],
+                                     "%d reserved MDT: %x", new_slots[i], octet1);
                     other_slots[new_slots[i] - 1] = 0xFFFE;
                 }
             }
