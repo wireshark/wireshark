@@ -962,7 +962,8 @@ if (Qt5Widgets_FOUND)
 		# set(QT_WINEXTRAS_LIB 1) # Not needed?
 	endif()
 	if(NOT DEFINED MOC_OPTIONS)
-		set(MOC_OPTIONS --no-notes)
+		# Squelch moc verbose "nothing to do" output
+		set(MOC_OPTIONS -nn)
 	endif()
 # If Qt4: QT_LIBRARIES and QT_INCLUDES are not set above. They require extra magic
 elseif(QT_FOUND)

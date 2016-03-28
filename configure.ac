@@ -1704,11 +1704,13 @@ if test "x$enable_wireshark" = "xyes"; then
 				;;
 			esac
 			AC_SUBST(Qt_LDFLAGS)
-			if test -z "$MOC_OPTIONS"
+
+			if test -z "${MOC_OPTIONS+1}"
 			then
 				if test $qt_version -eq 5
 				then
-					MOC_OPTIONS="--no-notes"
+					# Squelch moc verbose "nothing to do" output
+					MOC_OPTIONS="-nn"
 				elif test $qt_version -eq 4
 				then
 					qt_minor_version=`echo "$QT_VERSION" | cut -f2 -d.`
