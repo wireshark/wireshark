@@ -326,7 +326,7 @@ dissect_amr_wb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 }
 
 static void
-dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint amr_mode) {
+dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr_mode) {
     proto_item *item;
     int         ft;
     int         bit_offset = 0;
@@ -598,7 +598,7 @@ static amr_capability_t *find_cap(const gchar *id) {
 }
 
 static int
-dissect_amr_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_amr_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     asn1_ctx_t *actx;
 

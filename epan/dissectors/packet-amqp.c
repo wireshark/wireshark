@@ -8363,7 +8363,7 @@ dissect_amqp_0_9_method_connection_close_ok(tvbuff_t *tvb _U_,
 
 static int
 dissect_amqp_0_9_method_connection_blocked(tvbuff_t *tvb,
-    int offset, proto_tree *args_tree _U_)
+    int offset, proto_tree *args_tree)
 {
     /*  reason (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_blocked_reason,
@@ -9507,7 +9507,7 @@ dissect_amqp_0_9_method_file_qos(tvbuff_t *tvb,
 
 static int
 dissect_amqp_0_9_method_file_qos_ok(tvbuff_t *tvb _U_,
-    int offset _U_, proto_tree *args_tree _U_)
+    int offset, proto_tree *args_tree _U_)
 {
     return offset;
 }
@@ -10127,8 +10127,8 @@ dissect_amqp_0_9_method_tunnel_request(tvbuff_t *tvb, packet_info *pinfo,
 /*  Dissection routine for method Confirm.Select                          */
 
 static int
-dissect_amqp_0_9_method_confirm_select(tvbuff_t *tvb _U_,
-    int offset, proto_tree *args_tree _U_)
+dissect_amqp_0_9_method_confirm_select(tvbuff_t *tvb,
+    int offset, proto_tree *args_tree)
 {
     /*  nowait (bit)             */
     proto_tree_add_item(args_tree, hf_amqp_method_confirm_select_nowait,
@@ -11045,7 +11045,7 @@ dissect_amqp_1_0_false(tvbuff_t *tvb, packet_info *pinfo _U_,
 static int
 format_amqp_1_0_null(tvbuff_t *tvb _U_,
                       guint offset _U_, guint bound _U_, guint length _U_,
-                      const char **value _U_)
+                      const char **value)
 {
     *value = "(null)";
     return 0;
@@ -11200,7 +11200,7 @@ format_amqp_1_0_uuid(tvbuff_t *tvb,
 
 static int
 format_amqp_1_0_bin(tvbuff_t *tvb,
-                    guint offset, guint bound _U_, guint length,
+                    guint offset, guint bound, guint length,
                     const char **value)
 {
     guint bin_length;

@@ -1685,8 +1685,6 @@ static int hf_artnet_poll_reply_good_input_dmx_sip = -1;
 static int hf_artnet_poll_reply_good_input_dmx_test = -1;
 static int hf_artnet_poll_reply_good_input_data = -1;
 
-static int hf_artnet_poll_reply_trailer = -1;
-
 static const int *artnet_poll_reply_status_fields[] = {
   &hf_artnet_poll_reply_status_ubea_present,
   &hf_artnet_poll_reply_status_rdm_supported,
@@ -1734,7 +1732,6 @@ static int hf_artnet_output_length = -1;
 
 /* ArtAddress */
 static int hf_artnet_address = -1;
-static int hf_artnet_address_netswitch = -1;
 static int hf_artnet_address_netswitch_special = -1;
 static int hf_artnet_address_netswitch_net = -1;
 static int hf_artnet_address_netswitch_write = -1;
@@ -1750,7 +1747,6 @@ static int hf_artnet_address_swout_1 = -1;
 static int hf_artnet_address_swout_2 = -1;
 static int hf_artnet_address_swout_3 = -1;
 static int hf_artnet_address_swout_4 = -1;
-static int hf_artnet_address_subswitch = -1;
 static int hf_artnet_address_subswitch_special = -1;
 static int hf_artnet_address_subswitch_sub = -1;
 static int hf_artnet_address_subswitch_write = -1;
@@ -1834,7 +1830,6 @@ static int hf_artnet_tod_data_port = -1;
 static int hf_artnet_tod_data_net = -1;
 static int hf_artnet_tod_data_command_response = -1;
 static int hf_artnet_tod_data_address = -1;
-static int hf_artnet_tod_data_universe = -1;
 static int hf_artnet_tod_data_uid_total = -1;
 static int hf_artnet_tod_data_block_count = -1;
 static int hf_artnet_tod_data_uid_count = -1;
@@ -1851,7 +1846,6 @@ static int hf_artnet_tod_control_universe = -1;
 static int hf_artnet_rdm = -1;
 static int hf_artnet_rdm_command = -1;
 static int hf_artnet_rdm_address = -1;
-static int hf_artnet_rdm_universe = -1;
 static int hf_artnet_rdm_sc = -1;
 
 static int hf_artnet_rdm_rdmver = -1;
@@ -3878,7 +3872,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
 /* Heuristic dissector */
 static gboolean
-dissect_artnet_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_artnet_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   guint64     qword;
 
@@ -4453,12 +4447,6 @@ proto_register_artnet(void) {
         FT_UINT8, BASE_HEX, VALS(artnet_poll_reply_status2_bigaddr_supported_vals), 0x08,
         NULL, HFILL }},
 
-    { &hf_artnet_poll_reply_trailer,
-        { "Trailer",
-          "artnet.poll_reply.trailer",
-          FT_BYTES, BASE_NONE, NULL, 0x0,
-          NULL, HFILL }},
-
 
     /* ArtOutput */
 
@@ -4504,12 +4492,6 @@ proto_register_artnet(void) {
       { "NetSwitch",
       "artnet.address.netswitch_special",
       FT_UINT8, BASE_HEX, VALS(artnet_address_switch_vals), 0,
-      NULL, HFILL }},
-
-    { &hf_artnet_address_netswitch,
-      { "NetSwitch",
-      "artnet.address.netswitch",
-      FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     { &hf_artnet_address_netswitch_net,
@@ -4600,12 +4582,6 @@ proto_register_artnet(void) {
       { "NetSwitch",
       "artnet.address.subswitch_special",
       FT_UINT8, BASE_HEX, VALS(artnet_address_switch_vals), 0,
-      NULL, HFILL }},
-
-    { &hf_artnet_address_subswitch,
-      { "SubSwitch",
-      "artnet.address.subswitch",
-      FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     { &hf_artnet_address_subswitch_sub,
@@ -4874,12 +4850,6 @@ proto_register_artnet(void) {
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_artnet_tod_data_universe,
-        { "Universe",
-        "artnet.tod_data.universe",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }},
-
     { &hf_artnet_tod_data_uid_total,
       { "UID Total",
         "artnet.tod_data.uid_total",
@@ -4952,12 +4922,6 @@ proto_register_artnet(void) {
       { "Address",
         "artnet.rdm.address",
         FT_UINT8, BASE_HEX, NULL, 0x0,
-        NULL, HFILL }},
-
-    { &hf_artnet_rdm_universe,
-        { "Universe",
-        "artnet.rdm.universe",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_artnet_rdm_sc,

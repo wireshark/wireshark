@@ -135,7 +135,7 @@ static int dissect_aim_snac_location_request_user_information(tvbuff_t *tvb, pac
 	return offset;
 }
 
-static int dissect_aim_snac_location_user_information(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_aim_snac_location_user_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int    offset		= 0;
 	guint8 buddyname_length = 0;

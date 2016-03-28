@@ -1031,7 +1031,7 @@ dissect_aim_short_capability(proto_tree *entry, tvbuff_t *tvb, int offset)
 }
 
 int
-dissect_aim_tlv_value_client_capabilities(proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
+dissect_aim_tlv_value_client_capabilities(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
 {
 	int offset = 0;
 	proto_tree *entry;
@@ -1048,7 +1048,7 @@ dissect_aim_tlv_value_client_capabilities(proto_item *ti _U_, guint16 valueid _U
 }
 
 static int
-dissect_aim_tlv_value_client_short_capabilities(proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
+dissect_aim_tlv_value_client_short_capabilities(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
 {
 	int offset = 0;
 	proto_tree *entry;
@@ -1170,7 +1170,7 @@ dissect_aim_tlv_value_string08_array (proto_item *ti, guint16 valueid _U_, tvbuf
 }
 
 int
-dissect_aim_tlv_value_bytes (proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb _U_, packet_info *pinfo _U_)
+dissect_aim_tlv_value_bytes (proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
 {
 	return tvb_reported_length(tvb);
 }
@@ -1277,7 +1277,7 @@ dissect_aim_tlv_value_messageblock (proto_item *ti, guint16 valueid _U_, tvbuff_
 
 /* Dissect a TLV value */
 int
-dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
+dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		proto_tree *tree, const aim_tlv *tlv)
 {
 	guint16 valueid;

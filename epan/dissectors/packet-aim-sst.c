@@ -45,7 +45,7 @@ static int hf_aim_sst_icon = -1;
 /* Initialize the subtree pointers */
 static gint ett_aim_sst      = -1;
 
-static int dissect_aim_sst_buddy_down_req (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_aim_sst_buddy_down_req (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = dissect_aim_buddyname(tvb, pinfo, 0, tree);
 	guint8 md5_size;
@@ -63,7 +63,7 @@ static int dissect_aim_sst_buddy_down_req (tvbuff_t *tvb, packet_info *pinfo _U_
 	return offset;
 }
 
-static int dissect_aim_sst_buddy_down_repl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_aim_sst_buddy_down_repl (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = dissect_aim_buddyname(tvb, pinfo, 0, tree);
 	guint8 md5_size;

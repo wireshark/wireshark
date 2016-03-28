@@ -787,7 +787,7 @@ static const value_string ipsilon_type_vals[] = {
 };
 
 static gboolean
-capture_atm(const guchar *pd, int offset _U_,
+capture_atm(const guchar *pd, int offset,
     int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
   if (pseudo_header->atm.aal == AAL_5) {

@@ -136,7 +136,7 @@ static struct
 };
 
 
-static int dissect_aim_tlv_value_icq(proto_item *ti _U_, guint16 subtype _U_, tvbuff_t *tvb _U_, packet_info *pinfo)
+static int dissect_aim_tlv_value_icq(proto_item *ti, guint16 subtype _U_, tvbuff_t *tvb, packet_info *pinfo)
 {
 	int         offset = 0;
 	int         i;

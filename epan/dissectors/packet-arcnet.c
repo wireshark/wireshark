@@ -85,7 +85,7 @@ static int arcnet_len(void)
 }
 
 static gboolean
-capture_arcnet_common(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_, gboolean has_exception)
+capture_arcnet_common(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header, gboolean has_exception)
 {
   if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
     return FALSE;
@@ -156,13 +156,13 @@ capture_arcnet_common(const guchar *pd, int offset, int len, capture_packet_info
 }
 
 static gboolean
-capture_arcnet (const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
+capture_arcnet (const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
   return capture_arcnet_common(pd, 4, len, cpinfo, pseudo_header, FALSE);
 }
 
 static gboolean
-capture_arcnet_has_exception(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
+capture_arcnet_has_exception(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
   return capture_arcnet_common(pd, 2, len, cpinfo, pseudo_header, TRUE);
 }

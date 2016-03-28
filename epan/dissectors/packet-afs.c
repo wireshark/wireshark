@@ -2160,7 +2160,7 @@ dissect_kauth_request(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode
  * CB Helpers
  */
 static void
-dissect_cb_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_, int opcode)
+dissect_cb_reply(ptvcursor_t *cursor, struct rxinfo *rxinfo, int opcode)
 {
 	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
 	{

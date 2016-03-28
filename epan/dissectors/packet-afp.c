@@ -2707,7 +2707,7 @@ dissect_reply_afp_write(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 /* ************************** */
 static gint
-dissect_query_afp_write_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+dissect_query_afp_write_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 	proto_tree_add_item(tree, hf_afp_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -2736,7 +2736,7 @@ dissect_reply_afp_write_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 /* ************************** */
 static gint
-dissect_query_afp_read(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+dissect_query_afp_read(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 	int param;
 
@@ -2767,7 +2767,7 @@ dissect_query_afp_read(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 /* ************************** */
 static gint
-dissect_query_afp_read_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+dissect_query_afp_read_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 	PAD(1);
 

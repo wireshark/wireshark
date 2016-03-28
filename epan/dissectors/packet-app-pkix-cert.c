@@ -46,7 +46,7 @@ static gint ett_cert = -1;
 
 
 static int
-dissect_cert(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_cert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
         proto_tree *subtree = NULL;
         proto_item *ti;

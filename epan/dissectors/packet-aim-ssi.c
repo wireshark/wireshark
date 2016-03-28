@@ -100,7 +100,7 @@ static int calc_ssi_entry_size(tvbuff_t *tvb, int offset)
 	return ssi_entry_size;
 }
 
-static int dissect_ssi_item(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *ssi_entry)
+static int dissect_ssi_item(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ssi_entry)
 {
 	guint16 buddyname_length = 0;
 	int endoffset;
@@ -192,7 +192,7 @@ static int dissect_aim_snac_ssi_time_and_items_num(tvbuff_t *tvb, packet_info *p
 	return offset;
 }
 
-static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
 	proto_tree *ssi_entry = NULL;

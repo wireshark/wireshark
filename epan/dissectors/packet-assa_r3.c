@@ -3851,7 +3851,7 @@ dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset, guint32 length, 
  *  These are passed a tvb that contains whatever occurs after the [UPSTREAMCOMMAND_*] byte
  */
 static void
-dissect_r3_upstreamcommand_reserved (tvbuff_t *tvb _U_, guint32 start_offset _U_, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
+dissect_r3_upstreamcommand_reserved (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree_add_expert(tree, pinfo, &ei_r3_reserved_upstream_command_value, tvb, start_offset, length);
 }
@@ -3953,7 +3953,7 @@ dissect_r3_upstreamcommand_retrieveuser (tvbuff_t *tvb, guint32 start_offset, gu
 }
 
 static void
-dissect_r3_upstreamcommand_queryconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreamcommand_queryconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
 {
   guint32 offset = 0;
 
@@ -4594,7 +4594,7 @@ dissect_r3_upstreammfgfield_timerchain (tvbuff_t *tvb, guint32 start_offset, gui
 }
 
 static void
-dissect_r3_upstreammfgfield_peekpoke (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreammfgfield_peekpoke (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
 {
   gint i;
   gint len;
@@ -4719,7 +4719,7 @@ static const int * r3_lockstate_flags[] = {
 }
 
 static void
-dissect_r3_upstreammfgfield_capabilities (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_upstreammfgfield_capabilities (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cf_tree;
   gint        len;
@@ -5859,7 +5859,7 @@ dissect_r3_cmd_alarmlogdump (tvbuff_t *tvb, guint32 start_offset, guint32 length
 }
 
 static void
-dissect_r3_cmd_downloadfirmware (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmd_downloadfirmware (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *dlfw_item = NULL;
   proto_item *dlfw_action_item = NULL;
@@ -6092,7 +6092,7 @@ dissect_r3_cmd_extendedresponse (tvbuff_t *tvb, guint32 start_offset, guint32 le
  * ***************************************************************************
  */
 static void
-dissect_r3_cmdmfg_setserialnumber (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_setserialnumber (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
 {
   tvbuff_t *sn_tvb = tvb_new_subset_length (tvb, start_offset + 2, 16);
 
@@ -6218,7 +6218,7 @@ dissect_r3_cmdmfg_readregisters (tvbuff_t *tvb, guint32 start_offset, guint32 le
 }
 
 static void
-dissect_r3_cmdmfg_forceoptions (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_forceoptions (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
 {
   gint    i;
   gint    len;
@@ -6326,7 +6326,7 @@ dissect_r3_cmdmfg_timerchain (tvbuff_t *tvb, guint32 start_offset, guint32 lengt
 }
 
 static void
-dissect_r3_cmdmfg_peekpoke (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+dissect_r3_cmdmfg_peekpoke (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
 {
   gint i;
   gint len;

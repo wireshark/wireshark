@@ -76,7 +76,7 @@ static int dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
 
 /* Experimental approach based upon the one used for PPP */
-static gboolean heur_dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static gboolean heur_dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     const gchar at_magic1[2] = {0x0d, 0x0a};
     const gchar at_magic2[3] = {0x0d, 0x0d, 0x0a};
