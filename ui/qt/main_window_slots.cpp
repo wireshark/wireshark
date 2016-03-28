@@ -2281,7 +2281,7 @@ void MainWindow::colorizeWithFilter()
 
     if (color_number > 0) {
         // Assume "Color X"
-        color_filters_set_tmp(color_number, filter.toUtf8().constData(), FALSE);
+        color_filters_set_tmp(color_number, filter.constData(), FALSE);
         packet_list_->recolorPackets();
     } else {
         // New coloring rule
