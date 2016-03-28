@@ -3004,6 +3004,7 @@ de_esm_pkmf_address(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
             break;
         case 2:
             proto_tree_add_item(tree, hf_nas_esm_pkmf_ipv6, tvb, curr_offset, 16, ENC_NA);
+            break;
         default:
             break;
     }
