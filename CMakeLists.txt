@@ -348,8 +348,11 @@ else()
 		-Wpointer-arith
 		-Warray-bounds
 		-Wformat-security
+		-Wused-but-marked-unused
+		-Wno-error=used-but-marked-unused
 		-fwrapv
 		-fno-strict-overflow
+		# -ferror-limit=0
 		-Wvla
 		-Waddress
 		-Wattributes
