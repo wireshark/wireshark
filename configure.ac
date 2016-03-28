@@ -2755,17 +2755,17 @@ AC_CHECK_FUNC(getopt_long,
     # Do we have optreset?
     #
     AC_CACHE_CHECK([whether optreset is defined],
-                   [ac_cv_pcap_debug_defined], [
+                   [ac_cv_optreset_defined], [
       AC_TRY_LINK([],
         [
 	extern int optreset;
 
 	return optreset;
         ],
-        ac_cv_pcap_debug_defined=yes,
-        ac_cv_pcap_debug_defined=no)
+        ac_cv_optreset_defined=yes,
+        ac_cv_optreset_defined=no)
     ])
-    if test "$ac_cv_pcap_debug_defined" = yes ; then
+    if test "$ac_cv_optreset_defined" = yes ; then
       AC_DEFINE(HAVE_OPTRESET, 1, [Define to 1 if you have the optreset variable])
     fi
   ],
