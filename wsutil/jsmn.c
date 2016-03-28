@@ -382,12 +382,12 @@ gboolean jsmn_is_json(const guint8* buf, const size_t len)
 /* WS modification ends here */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8
  * tab-width: 8
- * indent-tabs-mode: nil
+ * indent-tabs-mode: t
  * End:
  *
  * vi: set shiftwidth=8 tabstop=8 noexpandtab:
