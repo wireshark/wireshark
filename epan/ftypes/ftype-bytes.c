@@ -89,7 +89,7 @@ bytes_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 #define OID_REPR_LEN(fv) (1 + REL_OID_REPR_LEN(fv))
 
 static int
-oid_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+oid_repr_len(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return OID_REPR_LEN(fv);
 }
@@ -110,7 +110,7 @@ oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 }
 
 static int
-rel_oid_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+rel_oid_repr_len(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return REL_OID_REPR_LEN(fv);
 }

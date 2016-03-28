@@ -1204,7 +1204,7 @@ dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
  * Helper routines for dissecting NDR strings
  */
 void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
-			proto_item *item, dcerpc_info *di _U_, tvbuff_t *tvb,
+			proto_item *item, dcerpc_info *di, tvbuff_t *tvb,
 			int start_offset, int end_offset,
 			void *callback_args)
 {
@@ -1265,7 +1265,7 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 }
 
 void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
-			proto_item *item, dcerpc_info *di _U_, tvbuff_t *tvb,
+			proto_item *item, dcerpc_info *di, tvbuff_t *tvb,
 			int start_offset, int end_offset,
 			void *callback_args)
 {

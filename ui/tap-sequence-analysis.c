@@ -184,7 +184,7 @@ seq_analysis_frame_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
 /* whenever a TCP packet is seen by the tap listener */
 /* Add a new tcp frame into the graph */
 static gboolean
-seq_analysis_tcp_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *tcp_info)
+seq_analysis_tcp_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_, const void *tcp_info)
 {
     seq_analysis_info_t *sainfo = (seq_analysis_info_t *) ptr;
     const struct tcpheader *tcph = (const struct tcpheader *)tcp_info;

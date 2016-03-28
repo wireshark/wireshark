@@ -662,7 +662,7 @@ WSLUA_METAMETHOD DissectorTable__tostring(lua_State* L) {
 }
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
-static int DissectorTable__gc(lua_State* L _U_) {
+static int DissectorTable__gc(lua_State* L) {
     DissectorTable dt = toDissectorTable(L,1);
 
     if (dt->created && !dt->expired) {

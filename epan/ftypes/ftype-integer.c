@@ -300,7 +300,7 @@ ipxnet_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 }
 
 static void
-ipxnet_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
+ipxnet_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf)
 {
 	uinteger_to_repr(fv, rtype, BASE_HEX, buf);
 }
@@ -587,7 +587,7 @@ uinteger64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 }
 
 static void
-uinteger64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
+uinteger64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf)
 {
 	if ((field_display == BASE_HEX) || (field_display == BASE_HEX_DEC))
 	{

@@ -362,7 +362,7 @@ add_to_graph(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *
 /****************************************************************************/
 /* Append str to frame_label and comment in a graph item */
 /* return 0 if the frame_num is not in the graph list */
-static int append_to_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_num, const gchar *new_frame_label, const gchar *new_comment)
+static int append_to_frame_graph(voip_calls_tapinfo_t *tapinfo, guint32 frame_num, const gchar *new_frame_label, const gchar *new_comment)
 {
     seq_analysis_item_t *gai=NULL;
     gchar *frame_label = NULL;
@@ -391,7 +391,7 @@ static int append_to_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 fram
 /****************************************************************************/
 /* Change the frame_label and comment in a graph item if not NULL*/
 /* return 0 if the frame_num is not in the graph list */
-static int change_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_num, const gchar *new_frame_label, const gchar *new_comment)
+static int change_frame_graph(voip_calls_tapinfo_t *tapinfo, guint32 frame_num, const gchar *new_frame_label, const gchar *new_comment)
 {
     seq_analysis_item_t *gai=NULL;
     gchar *frame_label = NULL;
@@ -419,7 +419,7 @@ static int change_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_n
 
 /****************************************************************************/
 /* Change all the graph items with call_num to new_call_num */
-static guint change_call_num_graph(voip_calls_tapinfo_t *tapinfo _U_, guint16 call_num, guint16 new_call_num)
+static guint change_call_num_graph(voip_calls_tapinfo_t *tapinfo, guint16 call_num, guint16 new_call_num)
 {
     seq_analysis_item_t *gai;
     GList *list;

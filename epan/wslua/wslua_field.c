@@ -432,7 +432,7 @@ WSLUA_METAMETHOD FieldInfo__lt(lua_State* L) {
 }
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_META */
-static int FieldInfo__gc(lua_State* L _U_) {
+static int FieldInfo__gc(lua_State* L) {
     FieldInfo fi = toFieldInfo(L,1);
 
     if (!fi) return 0;

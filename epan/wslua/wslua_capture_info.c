@@ -81,7 +81,7 @@ WSLUA_METAMETHOD CaptureInfo__tostring(lua_State* L) {
 }
 
 
-static int CaptureInfo__gc(lua_State* L _U_) {
+static int CaptureInfo__gc(lua_State* L) {
     CaptureInfo fc = toCaptureInfo(L,1);
     if (fc)
         g_free(fc);
@@ -468,7 +468,7 @@ static int CaptureInfoConst_set_private_table(lua_State* L) {
     return set_wdh_priv_table_ref(L, fi->wdh);
 }
 
-static int CaptureInfoConst__gc(lua_State* L _U_) {
+static int CaptureInfoConst__gc(lua_State* L) {
     CaptureInfoConst fi = toCaptureInfoConst(L,1);
     if (fi)
         g_free(fi);

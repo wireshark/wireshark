@@ -122,7 +122,7 @@ sub dotap {
 		  $elems{$k} = $v;
 	}
 
-	my $code = "static void wslua_${tname}_to_table(lua_State* L, const void* p) { const $sname* v _U_; v = (const $sname*)p; lua_newtable(L);\n";
+	my $code = "static void wslua_${tname}_to_table(lua_State* L, const void* p) { const $sname* v; v = (const $sname*)p; lua_newtable(L);\n";
 	my $doc = "Tap: $tname\n";
 
 	for my $n (sort keys %elems) {
@@ -187,7 +187,7 @@ print CFILE  <<"TBLFTR";
 	{NULL,NULL}
 };
 
-int wslua_set_tap_enums(lua_State* L _U_) {
+int wslua_set_tap_enums(lua_State* L) {
 TBLFTR
 
 

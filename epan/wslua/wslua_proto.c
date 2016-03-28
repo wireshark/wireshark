@@ -497,7 +497,7 @@ static int Proto_set_experts(lua_State* L) {
 }
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
-static int Proto__gc(lua_State* L _U_) {
+static int Proto__gc(lua_State* L) {
     /* Proto is registered twice, once in protocols_table_ref and once returned from Proto_new.
      * It will not be freed unless deregistered.
      */
@@ -758,7 +758,7 @@ int Proto_commit(lua_State* L) {
 
 static guint
 wslua_dissect_tcp_get_pdu_len(packet_info *pinfo, tvbuff_t *tvb,
-                              int offset, void *data _U_)
+                              int offset, void *data)
 {
     func_saver_t* fs = (func_saver_t*)data;
     lua_State* L = fs->state;

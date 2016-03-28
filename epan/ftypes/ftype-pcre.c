@@ -110,7 +110,7 @@ val_from_string(fvalue_t *fv, const char *pattern, gchar **err_msg)
  * On failure, if err_msg is non-null, set *err_msg to point to a
  * g_malloc()ed error message. */
 static gboolean
-val_from_unparsed(fvalue_t *fv, const char *pattern, gboolean allow_partial_value _U_, gchar **err_msg)
+val_from_unparsed(fvalue_t *fv, const char *pattern, gboolean allow_partial_value, gchar **err_msg)
 {
     g_assert(! allow_partial_value);
 
