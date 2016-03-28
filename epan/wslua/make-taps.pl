@@ -26,24 +26,25 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 use strict;
+use warnings;
 
 my %types = %{{
-	'gchar[]' => 'lua_pushstring(L,(const char*)v->%s);',
-	'gchar*' => 'lua_pushstring(L,(const char*)v->%s);',
-	'guint' => 'lua_pushnumber(L,(lua_Number)v->%s);',
-	'guint8' => 'lua_pushnumber(L,(lua_Number)v->%s);',
-	'guint16' => 'lua_pushnumber(L,(lua_Number)v->%s);',
-	'guint32' => 'lua_pushnumber(L,(lua_Number)v->%s);',
-	'gint' => 'lua_pushnumber(L,(lua_Number)v->%s);',
-	'gint8' => 'lua_pushnumber(L,(lua_Number)v->%s);',
-	'gint16' => 'lua_pushnumber(L,(lua_Number)v->%s);',
-	'gint32' => 'lua_pushnumber(L,(lua_Number)v->%s);',
-	'gboolean' => 'lua_pushboolean(L,(int)v->%s);',
-	'address' => '{ Address a = (Address)g_malloc(sizeof(address)); copy_address(a, &(v->%s)); pushAddress(L,a); }',
-	'address*' => '{ Address a = (Address)g_malloc(sizeof(address)); copy_address(a, v->%s); pushAddress(L,a); }',
-	'int' => 'lua_pushnumber(L,(lua_Number)v->%s);',
-	'nstime_t' => '{ lua_Number t = (lua_Number) v->%s.secs; t += v->%s.nsecs * 1e-9; lua_pushnumber(L,t); }',
-	'nstime_t*' => '{ lua_Number t = (lua_Number) v->%s->secs; t += v->%s->nsecs * 1e-9; lua_pushnumber(L,t); }',
+	'gchar[]' => 'lua_pushstring(L,(const char*)v->STR);',
+	'gchar*' => 'lua_pushstring(L,(const char*)v->STR);',
+	'guint' => 'lua_pushnumber(L,(lua_Number)v->STR);',
+	'guint8' => 'lua_pushnumber(L,(lua_Number)v->STR);',
+	'guint16' => 'lua_pushnumber(L,(lua_Number)v->STR);',
+	'guint32' => 'lua_pushnumber(L,(lua_Number)v->STR);',
+	'gint' => 'lua_pushnumber(L,(lua_Number)v->STR);',
+	'gint8' => 'lua_pushnumber(L,(lua_Number)v->STR);',
+	'gint16' => 'lua_pushnumber(L,(lua_Number)v->STR);',
+	'gint32' => 'lua_pushnumber(L,(lua_Number)v->STR);',
+	'gboolean' => 'lua_pushboolean(L,(int)v->STR);',
+	'address' => '{ Address a = (Address)g_malloc(sizeof(address)); copy_address(a, &(v->STR)); pushAddress(L,a); }',
+	'address*' => '{ Address a = (Address)g_malloc(sizeof(address)); copy_address(a, v->STR); pushAddress(L,a); }',
+	'int' => 'lua_pushnumber(L,(lua_Number)v->STR);',
+	'nstime_t' => '{ lua_Number t = (lua_Number) v->STR.secs; t += v->STR.nsecs * 1e-9; lua_pushnumber(L,t); }',
+	'nstime_t*' => '{ lua_Number t = (lua_Number) v->STR->secs; t += v->STR->nsecs * 1e-9; lua_pushnumber(L,t); }',
 }};
 
 my %comments = %{{
@@ -88,7 +89,7 @@ sub dotap {
 
 		my $enumre = "typedef\\s+enum[^{]*{([^}]*)}[\\s\\n]*" . ${ename} . "[\\s\\n]*;";
 		if ($buf =~ s/$enumre//ms ) {
-			$types{$ename} = "lua_pushnumber(L,(lua_Number)v->%s); /* $ename */";
+			$types{$ename} = "lua_pushnumber(L,(lua_Number)v->STR); /* $ename */";
 			my $ebody = $1;
 			$ebody =~ s/\s+//msg;
 			$comments{$ename} = "$ename: { $ebody }";
@@ -132,7 +133,7 @@ sub dotap {
 
 		if ($fmt) {
 			$code .= "\tlua_pushstring(L,\"$n\");\n\t";
-			$code .= sprintf($fmt,$n,$n) . "\n\tlua_settable(L,-3);\n";
+			$code .= $fmt =~ s/\bSTR\b/$n/rg . "\n\tlua_settable(L,-3);\n";
 			$doc .= "\t$n: $comments{$elems{$n}}\n";
 		}
 
