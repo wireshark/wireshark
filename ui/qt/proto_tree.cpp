@@ -433,6 +433,8 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item)
                 item_info.append(QString(tr(", %1 bytes")).arg(finfo_length));
             }
 
+            saveSelectedField(item);
+
             emit protoItemSelected("");
             emit protoItemSelected(NULL);
             emit protoItemSelected(item_info);
@@ -594,6 +596,44 @@ void ProtoTree::selectField(field_info *fi)
     QTreeWidgetItemIterator iter(this);
     while (*iter) {
         if (fi == (*iter)->data(0, Qt::UserRole).value<field_info *>()) {
+            setCurrentItem(*iter);
+            scrollToItem(*iter);
+            break;
+        }
+        iter++;
+    }
+}
+
+// Remember the currently focussed field based on:
+// - current hf_id (obviously)
+// - parent items (to avoid selecting a text item in a different tree)
+// - position within a tree if there are multiple items (wishlist)
+static QList<int> serializeAsPath(QTreeWidgetItem *item)
+{
+    QList<int> path;
+    do {
+        field_info *fi = item->data(0, Qt::UserRole).value<field_info *>();
+        path.prepend(fi->hfinfo->id);
+    } while ((item = item->parent()));
+    return path;
+}
+void ProtoTree::saveSelectedField(QTreeWidgetItem *item)
+{
+    selected_field_path_ = serializeAsPath(item);
+}
+
+// Try to focus a tree item which was previously also visible
+void ProtoTree::restoreSelectedField()
+{
+    if (selected_field_path_.isEmpty()) {
+        return;
+    }
+    int last_hf_id = selected_field_path_.last();
+    QTreeWidgetItemIterator iter(this);
+    while (*iter) {
+        field_info *fi = (*iter)->data(0, Qt::UserRole).value<field_info *>();
+        if (last_hf_id == fi->hfinfo->id &&
+            serializeAsPath(*iter) == selected_field_path_) {
             setCurrentItem(*iter);
             scrollToItem(*iter);
             break;

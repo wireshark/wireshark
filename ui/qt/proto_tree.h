@@ -45,6 +45,8 @@ public:
     void selectField(field_info *fi);
     void closeContextMenu();
     void clear();
+    void saveSelectedField(QTreeWidgetItem *);
+    void restoreSelectedField();
 
 protected:
     virtual void contextMenuEvent(QContextMenuEvent *event);
@@ -60,6 +62,7 @@ private:
     QList<QAction *> copy_actions_;
     QFont mono_font_;
     int column_resize_timer_;
+    QList<int> selected_field_path_;
 
 signals:
     void protoItemSelected(const QString &);

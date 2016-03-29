@@ -503,6 +503,8 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
         if (fi && proto_tree_) {
             proto_tree_->selectField(fi);
         }
+    } else if (!cap_file_->search_in_progress) {
+        proto_tree_->restoreSelectedField();
     }
 }
 
