@@ -3500,7 +3500,7 @@ mptcp_get_meta_from_token(struct tcp_analysis* tcpd, tcp_flow_t *tcp_flow, guint
         }
 
         tcp_flow->mptcp_subflow->meta->token = token;
-        tcp_flow->mptcp_subflow->meta->static_flags |= MPTCP_META_HAS_TOKEN;;
+        tcp_flow->mptcp_subflow->meta->static_flags |= MPTCP_META_HAS_TOKEN;
 
         wmem_tree_insert32(mptcp_tokens, token, mptcpd);
     }
