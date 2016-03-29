@@ -2152,7 +2152,7 @@ mptcp_analysis_dsn_lookup(packet_info *pinfo , tvbuff_t *tvb,
     struct mptcp_analysis* mptcpd = tcpd->mptcp_analysis;
     proto_item *item = NULL;
     mptcp_dss_mapping_t *mapping = NULL;
-    guint32 relseq = tcph->th_seq;
+    guint32 relseq;
     guint64 rawdsn = 0;
     enum mptcp_dsn_conversion convert;
 
@@ -3507,15 +3507,6 @@ mptcp_get_meta_from_token(struct tcp_analysis* tcpd, tcp_flow_t *tcp_flow, guint
 
     DISSECTOR_ASSERT(mptcpd);
 
-    if(mptcpd->meta_flow[0].token == token) {
-        assignedMetaId = 1;
-    }
-    else if(mptcpd->meta_flow[1].token == token) {
-        assignedMetaId = 0;
-    }
-    else {
-        DISSECTOR_ASSERT_NOT_REACHED();
-    }
 
     /* compute the meta id assigned to tcp_flow */
     assignedMetaId = (tcp_flow->mptcp_subflow->meta == &mptcpd->meta_flow[0]) ? 0 : 1;
