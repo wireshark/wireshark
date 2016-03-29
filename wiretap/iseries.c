@@ -22,7 +22,7 @@
 
 /*
  * This module will read the contents of the iSeries (OS/400) Communication trace
- * Both ASCII & Unicode formatted traces are supported.
+ * Both ASCII & Unicode (little-endian UCS-2) formatted traces are supported.
  *
  * iSeries Comms traces consist of a header page and a subsequent number of packet records
  *
@@ -30,7 +30,7 @@
  * currently the following options are a requirement for this module:
  *
  * 1. Object protocol = ETHERNET (Default)
- * 2. ASCII or UNICODE file formats.
+ * 2. ASCII or Unicode file formats.
  *
  * The above can be acheived by passing option ASCII(*YES) with the trace command
  *
@@ -159,8 +159,6 @@ Number  S/R  Length    Timer                        MAC Address   MAC Address   
 
 #include <wsutil/str_util.h>
 
-#define ISERIES_HDR_MAGIC_STR         "COMMUNICATIONS TRACE"
-#define ISERIES_HDR_MAGIC_LEN         20
 #define ISERIES_LINE_LENGTH           270
 #define ISERIES_HDR_LINES_TO_CHECK    100
 #define ISERIES_PKT_LINES_TO_CHECK    4
@@ -169,6 +167,24 @@ Number  S/R  Length    Timer                        MAC Address   MAC Address   
 #define ISERIES_PKT_ALLOC_SIZE        (pkt_len*2)+1
 #define ISERIES_FORMAT_ASCII          1
 #define ISERIES_FORMAT_UNICODE        2
+
+/*
+ * Magic strings - "COMMUNICATIONS TRACE", in ASCII and little-endian UCS-2.
+ */
+static const char iseries_hdr_magic_ascii[] = {
+	'C', 'O', 'M', 'M',
+	'U', 'N', 'I', 'C',
+	'A', 'T', 'I', 'O',
+	'N', 'S', ' ', 'T',
+	'R', 'A', 'C', 'E'
+};
+static const char iseries_hdr_magic_le_ucs_2[] = {
+	'C', 0x0, 'O', 0x0, 'M', 0x0, 'M', 0x0,
+	'U', 0x0, 'N', 0x0, 'I', 0x0, 'C', 0x0,
+	'A', 0x0, 'T', 0x0, 'I', 0x0, 'O', 0x0,
+	'N', 0x0, 'S', 0x0, ' ', 0x0, 'T', 0x0,
+	'R', 0x0, 'A', 0x0, 'C', 0x0, 'E', 0x0
+};
 
 typedef struct {
   gboolean have_date;           /* TRUE if we found a capture start date */
@@ -200,11 +216,6 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
 {
   gint offset;
   char magic[ISERIES_LINE_LENGTH];
-  char unicodemagic[] =
-    { '\x43', '\x00', '\x4F', '\x00', '\x4D',
-    '\x00', '\x4D', '\x00', '\x55', '\x00', '\x4E', '\x00', '\x49', '\x00',
-    '\x43', '\x00', '\x41'
-  };
 
   /*
    * Check that file starts with a valid iSeries COMMS TRACE header
@@ -218,15 +229,16 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
     }
 
   /*
-   * Check if this is a UNICODE formatted file by scanning for the magic string
+   * Check if this is a little-endian UCS-2 Unicode formatted file by scanning
+   * for the magic string
    */
   offset=0;
-  while ((unsigned int)offset < (ISERIES_LINE_LENGTH - (sizeof unicodemagic)))
+  while ((unsigned int)offset < (ISERIES_LINE_LENGTH - (sizeof iseries_hdr_magic_le_ucs_2)))
     {
-      if (memcmp (magic + offset, unicodemagic, sizeof unicodemagic) == 0) {
+      if (memcmp (magic + offset, iseries_hdr_magic_le_ucs_2, sizeof iseries_hdr_magic_le_ucs_2) == 0) {
         if (file_seek (wth->fh, 0, SEEK_SET, err) == -1)
           {
-            return WTAP_OPEN_NOT_MINE;
+            return WTAP_OPEN_ERROR;
           }
         /*
          * Do some basic sanity checking to ensure we can handle the
@@ -260,13 +272,13 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
      * Check if this is a ASCII formatted file by scanning for the magic string
      */
     offset=0;
-    while (offset < (ISERIES_LINE_LENGTH - ISERIES_HDR_MAGIC_LEN))
+    while ((unsigned int)offset < (ISERIES_LINE_LENGTH - sizeof iseries_hdr_magic_ascii))
       {
-        if (memcmp (magic + offset, ISERIES_HDR_MAGIC_STR, ISERIES_HDR_MAGIC_LEN) == 0)
+        if (memcmp (magic + offset, iseries_hdr_magic_ascii, sizeof iseries_hdr_magic_ascii) == 0)
           {
             if (file_seek (wth->fh, 0, SEEK_SET, err) == -1)
               {
-                return WTAP_OPEN_NOT_MINE;
+                return WTAP_OPEN_ERROR;
               }
             /*
              * Do some basic sanity checking to ensure we can handle the
@@ -289,7 +301,7 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
 
             if (file_seek (wth->fh, 0, SEEK_SET, err) == -1)
               {
-                return WTAP_OPEN_NOT_MINE;
+                return WTAP_OPEN_ERROR;
               }
             return WTAP_OPEN_MINE;
           }
