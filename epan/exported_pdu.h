@@ -93,6 +93,12 @@ WS_DLL_PUBLIC GSList *get_export_pdu_tap_list(void);
                                           * during registration, e.g "sip_udp"
                                           * Will be used to call the next dissector.
                                           */
+#define EXP_PDU_TAG_DISSECTOR_TABLE_NAME 14 /**< The value part should be an ASCII non NULL terminated string
+                                          * containing the dissector table name given
+                                          * during registration, e.g "gsm_map.v3.arg.opcode"
+                                          * Will be used to call the next dissector.
+                                          */
+
 /* Add protocol type related tags here.
  * NOTE Only one protocol type tag may be present in a packet, the first one
  * found will be used*/
@@ -113,6 +119,13 @@ WS_DLL_PUBLIC GSList *get_export_pdu_tap_list(void);
 
 #define EXP_PDU_TAG_DVBCI_EVT       31
 
+#define EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL 32 /**< value part is the numeric value to be used calling the dissector table
+                                                      *  given with tag EXP_PDU_TAG_DISSECTOR_TABLE_NAME, must follow emediatly after the table tag.
+                                                      */
+
+#define EXP_PDU_TAG_COL_PROT_TEXT   33 /**< Text string to put in COL_PROTOCOL, one use case is in conjunction with dissector tables where
+                                        *   COL_PROTOCOL might not be filled in.
+                                        */
 
 typedef struct _exp_pdu_data_t {
     guint        tlv_buffer_len;
