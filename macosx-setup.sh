@@ -145,13 +145,12 @@ DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
 
 #
 # GNU autotools; they're provided with releases up to Snow Leopard, but
-# not in later releases.
+# not in later releases, and the Snow Leopard version is too old for
+# current Wireshark, so we install them unconditionally.
 #
-if [ -n "$AUTOTOOLS" -a $DARWIN_MAJOR_VERSION -gt 10 ]; then
-    AUTOCONF_VERSION=2.69
-    AUTOMAKE_VERSION=1.13.3
-    LIBTOOL_VERSION=2.4.2
-fi
+AUTOCONF_VERSION=2.69
+AUTOMAKE_VERSION=1.13.3
+LIBTOOL_VERSION=2.4.2
 
 install_xz() {
     if [ "$XZ_VERSION" -a ! -f xz-$XZ_VERSION-done ] ; then
