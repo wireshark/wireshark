@@ -2778,7 +2778,7 @@ static int rtps_util_add_bitmap(proto_tree *tree,
   /* removes all the ending '0' */
   last_one = strrchr(wmem_strbuf_get_str(temp_buff), '1');
   if (last_one) {
-    wmem_strbuf_truncate(temp_buff, (gsize) (last_one - wmem_strbuf_get_str(temp_buff)));
+    wmem_strbuf_truncate(temp_buff, (gsize) (last_one - wmem_strbuf_get_str(temp_buff)) + 1);
   }
 
   if (wmem_strbuf_get_len(temp_buff) > 0) {
