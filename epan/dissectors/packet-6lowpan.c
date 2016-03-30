@@ -2035,7 +2035,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
              * There are more LOWPAN_NHC structures to parse. Call ourself again
              * recursively to parse them and build the linked list.
              */
-            nhdr->next = dissect_6lowpan_iphc_nhc(tvb, pinfo, tree, offset, dgram_size - ext_len - (int)sizeof(struct ip6_ext), siid, diid);
+            nhdr->next = dissect_6lowpan_iphc_nhc(tvb, pinfo, tree, offset, dgram_size - nhdr->reported, siid, diid);
         }
         else if (ipv6_ext.ip6e_nxt != IP_PROTO_NONE) {
             /* Create another next header structure for the remaining payload. */
@@ -2048,7 +2048,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
                 nhdr->next->reported = tvb_reported_length_remaining(tvb, offset);
             }
             else {
-                nhdr->next->reported = dgram_size - ext_len - ext_hlen;
+                nhdr->next->reported = dgram_size - nhdr->reported;
             }
             tvb_memcpy(tvb, LOWPAN_NHDR_DATA(nhdr->next), offset, nhdr->next->length);
         }
