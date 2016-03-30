@@ -518,7 +518,6 @@ void ManageInterfacesDialog::addRemoteInterfaces(GList* rlist, remote_options *r
             continue;
         }
         ip_str = g_string_new("");
-        str = "";
         ips = 0;
         memset(&device, 0, sizeof(device));
         device.name = g_strdup(if_info->name);
