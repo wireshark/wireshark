@@ -405,7 +405,7 @@ void MulticastStatisticsDialog::updateMulticastParameters()
 
     param = buffer_alarm_threshold_le_->text().toInt(&ok);
     if (ok && param > 0) {
-        mcast_stream_trigger = param;
+        mcast_stream_bufferalarm = param;
     }
 
     param = stream_empty_speed_le_->text().toInt(&ok);
