@@ -120,7 +120,7 @@ WS_DLL_PUBLIC GSList *get_export_pdu_tap_list(void);
 #define EXP_PDU_TAG_DVBCI_EVT       31
 
 #define EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL 32 /**< value part is the numeric value to be used calling the dissector table
-                                                      *  given with tag EXP_PDU_TAG_DISSECTOR_TABLE_NAME, must follow emediatly after the table tag.
+                                                      *  given with tag EXP_PDU_TAG_DISSECTOR_TABLE_NAME, must follow immediately after the table tag.
                                                       */
 
 #define EXP_PDU_TAG_COL_PROT_TEXT   33 /**< Text string to put in COL_PROTOCOL, one use case is in conjunction with dissector tables where
