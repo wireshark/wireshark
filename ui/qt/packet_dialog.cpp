@@ -38,8 +38,6 @@
 #include <QTreeWidgetItemIterator>
 
 // To do:
-// - Don't hide the byte view when we reload.
-// - Find a way to preserve the byte view after the file closes.
 // - Copy over experimental packet editing code.
 // - Fix ElidedText width.
 
@@ -118,16 +116,6 @@ PacketDialog::~PacketDialog()
 
 void PacketDialog::captureFileClosing()
 {
-    delete byte_view_tab_;
-    byte_view_tab_ = NULL;
-
-    QTreeWidgetItemIterator iter(proto_tree_);
-    while (*iter) {
-        QTreeWidgetItem *item = (*iter);
-        item->setData(0, Qt::UserRole, QVariant());
-        ++iter;
-    }
-
     QString closed_title = tr("[%1 closed] " UTF8_MIDDLE_DOT " %2")
             .arg(cap_file_.fileName())
             .arg(col_info_);
