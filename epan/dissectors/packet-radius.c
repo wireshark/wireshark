@@ -1357,6 +1357,7 @@ vsa_buffer_table_destroy(void *table)
 	}
 }
 
+static void register_radius_fields(const char *);
 
 void
 dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, guint length)
@@ -1371,8 +1372,8 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 
 	GHashTable *vsa_buffer_table = NULL;
 
-	/* Forces load of header fields, if not already done so */
-	DISSECTOR_ASSERT(proto_registrar_get_byname("radius.code"));
+	if (hf_radius_code == -1)
+		register_radius_fields("");
 
 	/*
 	 * In case we throw an exception, clean up whatever stuff we've
@@ -1763,8 +1764,6 @@ is_radius(tvbuff_t *tvb)
 	return TRUE;
 }
 
-static void register_radius_fields(const char *);
-
 /*
  * returns true if the response authenticator is valid
  * input: tvb of the reponse, corresponding request authenticator
@@ -1846,16 +1845,15 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			val_to_str_ext_const(rh.rh_code, &radius_pkt_type_codes_ext, "Unknown Packet"),
 			rh.rh_code, rh.rh_ident, rh.rh_pktlength);
 
-	if (tree) {
-		/* Forces load of header fields, if not already done so */
-		DISSECTOR_ASSERT(proto_registrar_get_byname("radius.code"));
+	/* Load header fields if not already done */
+	if (hf_radius_code == -1)
+		register_radius_fields("");
 
-		ti = proto_tree_add_item(tree, proto_radius, tvb, 0, rh.rh_pktlength, ENC_NA);
-		radius_tree = proto_item_add_subtree(ti, ett_radius);
-		proto_tree_add_uint(radius_tree, hf_radius_code, tvb, 0, 1, rh.rh_code);
-		proto_tree_add_uint_format(radius_tree, hf_radius_id, tvb, 1, 1, rh.rh_ident,
-			"Packet identifier: 0x%01x (%d)", rh.rh_ident, rh.rh_ident);
-	}
+	ti = proto_tree_add_item(tree, proto_radius, tvb, 0, rh.rh_pktlength, ENC_NA);
+	radius_tree = proto_item_add_subtree(ti, ett_radius);
+	proto_tree_add_uint(radius_tree, hf_radius_code, tvb, 0, 1, rh.rh_code);
+	proto_tree_add_uint_format(radius_tree, hf_radius_id, tvb, 1, 1, rh.rh_ident,
+		"Packet identifier: 0x%01x (%d)", rh.rh_ident, rh.rh_ident);
 
 	/*
 	 * Make sure the length is sane.

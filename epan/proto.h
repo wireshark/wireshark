@@ -2080,6 +2080,9 @@ proto_deregister_protocol(const char *short_name);
 typedef void (*prefix_initializer_t)(const char* match);
 
 /** Register a new prefix for delayed initialization of field arrays
+    Note that the initializer function MAY NOT be called before the dissector
+    is first called.  That is, dissectors using this function must be prepared
+    to call the initializer before beginning dissection.
 @param prefix the prefix for the new protocol
 @param initializer function that will initialize the field array for the given prefix */
 WS_DLL_PUBLIC void
