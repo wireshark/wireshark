@@ -146,6 +146,7 @@ typedef struct _exp_pdu_data_t {
 
 /* 2nd byte of optional tags bitmap */
 #define EXP_PDU_TAG_DVBCI_EVT_BIT       0x01
+#define EXP_PDU_TAG_COL_PROT_BIT        0x02
 
 #define EXP_PDU_TAG_IPV4_SRC_LEN        4
 #define EXP_PDU_TAG_IPV4_DST_LEN        4

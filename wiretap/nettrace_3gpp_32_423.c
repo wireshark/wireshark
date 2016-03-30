@@ -102,6 +102,7 @@ typedef struct exported_pdu_info {
 	guint8 dst_ipv4_d3;
 	guint8 dst_ipv4_d4;
 	guint32 dst_port;
+	char* proto_col_str;
 }exported_pdu_info_t ;
 
 /* From epan/epxported_pdu.h*/
@@ -112,17 +113,43 @@ typedef struct exported_pdu_info {
 * of the registered dissector used by Wireshark e.g "sip"
 * Will be used to call the next dissector.
 */
+#define EXP_PDU_TAG_DISSECTOR_TABLE_NAME 14 /**< The value part should be an ASCII non NULL terminated string
+* containing the dissector table name given
+* during registration, e.g "gsm_map.v3.arg.opcode"
+* Will be used to call the next dissector.
+*/
 
 #define EXP_PDU_TAG_IPV4_SRC        20
 #define EXP_PDU_TAG_IPV4_DST        21
 #define EXP_PDU_TAG_SRC_PORT        25
 #define EXP_PDU_TAG_PORT_TYPE       24  /**< value part is port_type enum from epan/address.h */
 #define EXP_PDU_TAG_DST_PORT        26
+#define EXP_PDU_TAG_SS7_OPC         28
+#define EXP_PDU_TAG_SS7_DPC         29
+
+#define EXP_PDU_TAG_ORIG_FNO        30
+
+#define EXP_PDU_TAG_DVBCI_EVT       31
+
+#define EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL 32 /**< value part is the numeric value to be used calling the dissector table
+*  given with tag EXP_PDU_TAG_DISSECTOR_TABLE_NAME, must follow emediatly after the table tag.
+*/
+
+#define EXP_PDU_TAG_COL_PROT_TEXT   33 /**< Text string to put in COL_PROTOCOL, one use case is in conjunction with dissector tables where 
+*   COL_PROTOCOL might not be filled in.
+*/
 
 #define EXP_PDU_TAG_IP_SRC_BIT          0x01
 #define EXP_PDU_TAG_IP_DST_BIT          0x02
 #define EXP_PDU_TAG_SRC_PORT_BIT        0x04
 #define EXP_PDU_TAG_DST_PORT_BIT        0x08
+#define EXP_PDU_TAG_SS7_OPC_BIT         0x20
+#define EXP_PDU_TAG_SS7_DPC_BIT         0x40
+#define EXP_PDU_TAG_ORIG_FNO_BIT        0x80
+
+/* 2nd byte of optional tags bitmap */
+#define EXP_PDU_TAG_DVBCI_EVT_BIT       0x01
+#define EXP_PDU_TAG_COL_PROT_BIT        0x02
 
 #define EXP_PDU_TAG_IPV4_SRC_LEN        4
 #define EXP_PDU_TAG_IPV4_DST_LEN        4
@@ -332,16 +359,19 @@ nettrace_parse_begin_time(guint8 *curr_pos, struct wtap_pkthdr *phdr)
  * </rawMsg>
  */
 static wtap_open_return_val
-write_packet_data(wtap_dumper *wdh, struct wtap_pkthdr *phdr, int *err, gchar **err_info, guint8 *file_buf, time_t start_time, int ms, exported_pdu_info_t *exported_pdu_info)
+write_packet_data(wtap_dumper *wdh, struct wtap_pkthdr *phdr, int *err, gchar **err_info, guint8 *file_buf, time_t start_time, int ms, exported_pdu_info_t *exported_pdu_info, char name_str[64])
 {
 	char *curr_pos, *next_pos;
 	char proto_name_str[16];
+	char dissector_table_str[32];
+	int dissector_table_val=0;
 	int tag_str_len = 0;
-	int proto_str_len, raw_data_len, pkt_data_len,  exp_pdu_tags_len, i, j;
+	int proto_str_len, dissector_table_str_len, raw_data_len, pkt_data_len,  exp_pdu_tags_len, i, j;
 	guint8 *packet_buf;
 	gchar chr;
 	gint val1, val2;
 	gboolean port_type_defined = FALSE;
+	gboolean use_proto_table = FALSE;
 
 	memset(proto_name_str, 0, sizeof(proto_name_str));
 	/* Extract the protocol name */
@@ -373,6 +403,29 @@ write_packet_data(wtap_dumper *wdh, struct wtap_pkthdr *phdr, int *err, gchar **
 		proto_name_str[13] = '\0';
 		proto_str_len = 13;
 	}
+	if (strcmp(proto_name_str, "map") == 0) {
+		/* For /GSM) map, it looks like the message data is stored like SendAuthenticationInfoArg
+		 * use the GSM MAP dissector table to dissect the content.
+		 */
+		exported_pdu_info->proto_col_str = g_strdup("GSM MAP");
+
+		if (strcmp(name_str, "sai_request") == 0) {
+			use_proto_table = TRUE;
+			g_strlcpy(dissector_table_str, "gsm_map.v3.arg.opcode", 22);
+			dissector_table_str[21] = '\0';
+			dissector_table_str_len = 21;
+			dissector_table_val = 56;
+			exported_pdu_info->precense_flags = exported_pdu_info->precense_flags + EXP_PDU_TAG_COL_PROT_BIT;
+		}
+		else if (strcmp(name_str, "sai_response") == 0) {
+			use_proto_table = TRUE;
+			g_strlcpy(dissector_table_str, "gsm_map.v3.res.opcode", 22);
+			dissector_table_str[21] = '\0';
+			dissector_table_str_len = 21;
+			dissector_table_val = 56;
+			exported_pdu_info->precense_flags = exported_pdu_info->precense_flags + EXP_PDU_TAG_COL_PROT_BIT;
+		}
+	}
 	/* Find the start of the raw data*/
 	curr_pos = strstr(next_pos, ">") + 1;
 	next_pos = strstr(next_pos, "<");
@@ -380,8 +433,19 @@ write_packet_data(wtap_dumper *wdh, struct wtap_pkthdr *phdr, int *err, gchar **
 	raw_data_len = (int)(next_pos - curr_pos);
 
 	/* Calculate the space needed for exp pdu tags*/
-	tag_str_len = (proto_str_len + 3) & 0xfffffffc;
-	exp_pdu_tags_len = tag_str_len + 4;
+	if (use_proto_table == FALSE) {
+		tag_str_len = (proto_str_len + 3) & 0xfffffffc;
+		exp_pdu_tags_len = tag_str_len + 4;
+	} else {
+		tag_str_len = (dissector_table_str_len + 3) & 0xfffffffc;
+		exp_pdu_tags_len = tag_str_len + 4;
+		/* Add EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL + length*/
+		exp_pdu_tags_len = exp_pdu_tags_len + 4 + 4;
+	}
+
+	if ((exported_pdu_info->precense_flags & EXP_PDU_TAG_COL_PROT_BIT) == EXP_PDU_TAG_COL_PROT_BIT) {
+		exp_pdu_tags_len += 4 + (int)strlen(exported_pdu_info->proto_col_str);
+	}
 
 	if ((exported_pdu_info->precense_flags & EXP_PDU_TAG_IP_SRC_BIT) == EXP_PDU_TAG_IP_SRC_BIT) {
 		exp_pdu_tags_len += 4 + EXP_PDU_TAG_IPV4_SRC_LEN;
@@ -412,13 +476,55 @@ write_packet_data(wtap_dumper *wdh, struct wtap_pkthdr *phdr, int *err, gchar **
 	packet_buf = (guint8 *)g_malloc0(pkt_data_len + exp_pdu_tags_len +4);
 
 	/* Fill packet buff */
-	packet_buf[0] = 0;
-	packet_buf[1] = 12; /* EXP_PDU_TAG_PROTO_NAME */
-	packet_buf[2] = 0;
-	packet_buf[3] = tag_str_len;
-	for (i = 4, j = 0; j < tag_str_len; i++, j++){
-		packet_buf[i] = proto_name_str[j];
+	if (use_proto_table == FALSE) {
+		packet_buf[0] = 0;
+		packet_buf[1] = 12; /* EXP_PDU_TAG_PROTO_NAME */
+		packet_buf[2] = 0;
+		packet_buf[3] = tag_str_len;
+		for (i = 4, j = 0; j < tag_str_len; i++, j++) {
+			packet_buf[i] = proto_name_str[j];
+		}
+	}else{
+		packet_buf[0] = 0;
+		packet_buf[1] = 14; /* EXP_PDU_TAG_DISSECTOR_TABLE_NAME */
+		packet_buf[2] = 0;
+		packet_buf[3] = tag_str_len;
+		for (i = 4, j = 0; j < tag_str_len; i++, j++) {
+			packet_buf[i] = dissector_table_str[j];
+		}
+		packet_buf[i] = 0;
+		i++;
+		packet_buf[i] = EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL;
+		i++;
+		packet_buf[i] = 0;
+		i++;
+		packet_buf[i] = 4; /* tag length */;
+		i++;
+		packet_buf[i] = 0;
+		i++;
+		packet_buf[i] = 0;
+		i++;
+		packet_buf[i] = 0;
+		i++;
+		packet_buf[i] = dissector_table_val;
+		i++;
 	}
+
+	if ((exported_pdu_info->precense_flags & EXP_PDU_TAG_COL_PROT_BIT) == EXP_PDU_TAG_COL_PROT_BIT) {
+		packet_buf[i] = 0;
+		i++;
+		packet_buf[i] = EXP_PDU_TAG_COL_PROT_TEXT;
+		i++;
+		packet_buf[i] = 0;
+		i++;
+		packet_buf[i] = (guint8)strlen(exported_pdu_info->proto_col_str);
+		i++;
+		for (j = 0; j < (int)strlen(exported_pdu_info->proto_col_str); i++, j++) {
+			packet_buf[i] = exported_pdu_info->proto_col_str[j];
+		}
+		g_free(exported_pdu_info->proto_col_str);
+	}
+
 
 	if ((exported_pdu_info->precense_flags & EXP_PDU_TAG_IP_SRC_BIT) == EXP_PDU_TAG_IP_SRC_BIT) {
 		packet_buf[i] = 0;
@@ -626,6 +732,8 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	gboolean do_random = FALSE;
 	gchar* wireshark_ver;
 	char *curr_pos, *next_msg_pos, *next_pos, *prev_pos;
+	int name_str_len;
+	char name_str[64];
 	/* Info to build exported_pdu tags*/
 	exported_pdu_info_t  exported_pdu_info;
 
@@ -641,6 +749,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	exported_pdu_info.dst_ipv4_d3 = 0;
 	exported_pdu_info.dst_ipv4_d4 = 0;
 	exported_pdu_info.dst_port = 0;
+	exported_pdu_info.proto_col_str = NULL;
 
 	import_file_fd = create_tempfile(&(file_info->tmpname), "Wireshark_PDU_");
 
@@ -799,6 +908,24 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		 */
 		prev_pos = curr_pos;
 		ms = 0;
+		/* See if we have a "name" */
+		curr_pos = strstr(curr_pos, "name=");
+		if ((curr_pos) && (curr_pos < next_msg_pos)) {
+			/* extract the name */
+			curr_pos = curr_pos + 6;
+			next_pos = strstr(curr_pos, "\"");
+			name_str_len = (int)(next_pos - curr_pos);
+			if (name_str_len > 63) {
+				return WTAP_OPEN_ERROR;
+			}
+
+			g_strlcpy(name_str, curr_pos, name_str_len + 1);
+			ascii_strdown_inplace(name_str);
+
+		}
+		else {
+			curr_pos = prev_pos;
+		}
 		curr_pos = strstr(curr_pos, "changeTime");
 		/* Check if we have the tag or if we pased the end of the current message */
 		if ((curr_pos)&&(curr_pos < next_msg_pos)){
@@ -914,7 +1041,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		}
 		curr_pos = curr_pos + 7;
 		/* Add the raw msg*/
-		temp_val = write_packet_data(wdh_exp_pdu, &phdr, &wrt_err, &wrt_err_info, curr_pos, start_time, ms, &exported_pdu_info);
+		temp_val = write_packet_data(wdh_exp_pdu, &phdr, &wrt_err, &wrt_err_info, curr_pos, start_time, ms, &exported_pdu_info, name_str);
 		if (temp_val != WTAP_OPEN_MINE){
 			result = temp_val;
 			goto end;
