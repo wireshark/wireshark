@@ -1977,7 +1977,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				wmem_tree_insert32(radius_call_tree, pinfo->num, radius_call);
 			}
 
-			if (tree && radius_call->rsp_num) {
+			if (radius_call && radius_call->rsp_num) {
 				proto_item *item;
 				item = proto_tree_add_uint_format(radius_tree,
 					hf_radius_rsp_frame, tvb, 0, 0, radius_call->rsp_num,
