@@ -58,12 +58,16 @@ void ByteViewTab::addTab(const char *name, tvbuff_t *tvb, proto_tree *tree, QTre
 void ByteViewTab::clear()
 {
     bool visible = isVisible();
-    hide();
+    if (visible) {
+        hide();
+    }
     while (currentWidget()) {
         delete currentWidget();
     }
     addTab();
-    setVisible(visible);
+    if (visible) {
+        show();
+    }
 }
 
 // XXX How many hex dump routines do we have?
