@@ -435,7 +435,7 @@ dissect_pktc_rekey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 
     /* Timestamp: YYMMDDhhmmssZ */
     /* They really came up with a two-digit year in late 1990s! =8o */
-    timestr=tvb_get_ptr(tvb, offset, 13);
+    timestr=tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 13, ENC_ASCII);
     proto_tree_add_string_format_value(tree, hf_pktc_timestamp, tvb, offset, 13, timestr,
                                 "%.2s-%.2s-%.2s %.2s:%.2s:%.2s",
                                  timestr, timestr+2, timestr+4, timestr+6, timestr+8, timestr+10);
@@ -672,7 +672,7 @@ proto_register_pktc(void)
             "Server Kerberos Principal Identifier", "pktc.server_principal", FT_STRING, BASE_NONE,
             NULL, 0, NULL, HFILL }},
         { &hf_pktc_timestamp, {
-            "Timestamp", "pktc.timestamp", FT_STRING, BASE_NONE,
+            "Timestamp", "pktc.timestamp", FT_STRING, STR_UNICODE,
             NULL, 0, "Timestamp (UTC)", HFILL }},
         { &hf_pktc_app_spec_data, {
             "Application Specific Data", "pktc.asd", FT_NONE, BASE_NONE,
