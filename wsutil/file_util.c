@@ -533,7 +533,7 @@ ws_init_dll_search_path()
  */
 
 void *
-ws_load_library(gchar *library_name)
+ws_load_library(const gchar *library_name)
 {
       gchar   *full_path;
       wchar_t *full_path_w;

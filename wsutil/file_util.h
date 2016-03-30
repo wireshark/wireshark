@@ -140,7 +140,7 @@ gboolean ws_init_dll_search_path();
  */
 
 WS_DLL_PUBLIC
-void *ws_load_library(gchar *library_name);
+void *ws_load_library(const gchar *library_name);
 
 /** Load a DLL using g_module_open.
  * Only the system and program directories are searched.
