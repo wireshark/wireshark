@@ -1001,6 +1001,12 @@ if (!actx->value_ptr)
     }
   }
 
+# Make dissector table for V3 messages
+#.REGISTER
+
+SendAuthenticationInfoArg						N gsm_map.v3.arg.opcode 56
+SendAuthenticationInfoRes						N gsm_map.v3.res.opcode 56
+
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
 SS-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)

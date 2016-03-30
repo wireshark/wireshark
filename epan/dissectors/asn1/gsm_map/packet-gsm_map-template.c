@@ -77,6 +77,7 @@ void proto_reg_handoff_gsm_map(void);
 /* Initialize the protocol and registered fields */
 static int proto_gsm_map = -1;
 static int proto_gsm_map_dialogue = -1;
+static int proto_gsm_map_ms = -1;
 
 static int hf_gsm_map_old_Component_PDU = -1;
 static int hf_gsm_map_getPassword = -1;
@@ -3123,7 +3124,7 @@ void proto_register_gsm_map(void) {
   };
 
   /* Register protocol */
-  proto_gsm_map_dialogue =proto_gsm_map = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_gsm_map_ms = proto_gsm_map_dialogue = proto_gsm_map = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   register_dissector("gsm_map", dissect_gsm_map, proto_gsm_map);
   register_dissector("gsm_map_sccp", dissect_gsm_map_sccp, proto_gsm_map);
@@ -3133,6 +3134,9 @@ void proto_register_gsm_map(void) {
   proto_register_subtree_array(ett, array_length(ett));
   expert_gsm_map = expert_register_protocol(proto_gsm_map);
   expert_register_field_array(expert_gsm_map, ei, array_length(ei));
+
+  register_dissector_table("gsm_map.v3.arg.opcode", "GSM_MAP V3 Arg Opcodes", proto_gsm_map, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+  register_dissector_table("gsm_map.v3.res.opcode", "GSM_MAP V3 Res Opcodes", proto_gsm_map, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
   map_prop_arg_opcode_table = register_dissector_table("gsm_map.prop.arg.opcode", "GSM_MAP Proprietary Arg Opcodes", proto_gsm_map, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
   map_prop_res_opcode_table = register_dissector_table("gsm_map.prop.res.opcode", "GSM_MAP Proprietary Res Opcodes", proto_gsm_map, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

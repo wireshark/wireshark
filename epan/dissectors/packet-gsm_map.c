@@ -85,6 +85,7 @@ void proto_reg_handoff_gsm_map(void);
 /* Initialize the protocol and registered fields */
 static int proto_gsm_map = -1;
 static int proto_gsm_map_dialogue = -1;
+static int proto_gsm_map_ms = -1;
 
 static int hf_gsm_map_old_Component_PDU = -1;
 static int hf_gsm_map_getPassword = -1;
@@ -547,6 +548,8 @@ static int hf_gsm_map_om_PGW_EventList_bearerActivationModificationDeletion = -1
 
 /* --- Module MAP-MS-DataTypes --- --- ---                                    */
 
+static int hf_gsm_map_ms_gsm_map_ms_SendAuthenticationInfoArg_PDU = -1;  /* SendAuthenticationInfoArg */
+static int hf_gsm_map_ms_gsm_map_ms_SendAuthenticationInfoRes_PDU = -1;  /* SendAuthenticationInfoRes */
 static int hf_gsm_map_ms_imsi = -1;               /* IMSI */
 static int hf_gsm_map_ms_msc_Number = -1;         /* ISDN_AddressString */
 static int hf_gsm_map_ms_vlr_Number = -1;         /* ISDN_AddressString */
@@ -1939,7 +1942,7 @@ static int hf_NokiaMAP_Extensions_AccessSubscriptionListExt_item = -1;  /* Acces
 static int hf_NokiaMAP_Extensions_AllowedServiceData_amr_wb_allowed = -1;
 
 /*--- End of included file: packet-gsm_map-hf.c ---*/
-#line 152 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 153 "./asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_gsm_map = -1;
@@ -2663,7 +2666,7 @@ static gint ett_NokiaMAP_Extensions_AccessSubscriptionListExt = -1;
 static gint ett_NokiaMAP_Extensions_AllowedServiceData = -1;
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 184 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 185 "./asn1/gsm_map/packet-gsm_map-template.c"
 
 static expert_field ei_gsm_map_unknown_sequence3 = EI_INIT;
 static expert_field ei_gsm_map_unknown_sequence = EI_INIT;
@@ -14378,6 +14381,23 @@ dissect_gsm_map_ms_CancelVcsgLocationRes(gboolean implicit_tag _U_, tvbuff_t *tv
   return offset;
 }
 
+/*--- PDUs ---*/
+
+static int dissect_gsm_map_ms_SendAuthenticationInfoArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_gsm_map_ms_SendAuthenticationInfoArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_gsm_map_ms_gsm_map_ms_SendAuthenticationInfoArg_PDU);
+  return offset;
+}
+static int dissect_gsm_map_ms_SendAuthenticationInfoRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_gsm_map_ms_SendAuthenticationInfoRes(FALSE, tvb, offset, &asn1_ctx, tree, hf_gsm_map_ms_gsm_map_ms_SendAuthenticationInfoRes_PDU);
+  return offset;
+}
+
 
 /* --- Module MAP-CH-DataTypes --- --- ---                                    */
 
@@ -20724,7 +20744,7 @@ dissect_NokiaMAP_Extensions_AllowedServiceData(gboolean implicit_tag _U_, tvbuff
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 830 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 831 "./asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -20946,7 +20966,7 @@ const value_string gsm_map_opr_code_strings[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 841 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 842 "./asn1/gsm_map/packet-gsm_map-template.c"
   { 0, NULL }
 };
 
@@ -21163,7 +21183,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 847 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 848 "./asn1/gsm_map/packet-gsm_map-template.c"
     { 0, NULL }
 };
 #endif
@@ -24850,6 +24870,14 @@ void proto_register_gsm_map(void) {
 
 /* --- Module MAP-MS-DataTypes --- --- ---                                    */
 
+    { &hf_gsm_map_ms_gsm_map_ms_SendAuthenticationInfoArg_PDU,
+      { "SendAuthenticationInfoArg", "gsm_map.ms.SendAuthenticationInfoArg_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_map_ms_gsm_map_ms_SendAuthenticationInfoRes_PDU,
+      { "SendAuthenticationInfoRes", "gsm_map.ms.SendAuthenticationInfoRes_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_gsm_map_ms_imsi,
       { "imsi", "gsm_map.ms.imsi",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -30324,7 +30352,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 3054 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3055 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -31050,7 +31078,7 @@ void proto_register_gsm_map(void) {
     &ett_NokiaMAP_Extensions_AllowedServiceData,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 3088 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3089 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -31089,7 +31117,7 @@ void proto_register_gsm_map(void) {
   };
 
   /* Register protocol */
-  proto_gsm_map_dialogue =proto_gsm_map = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  proto_gsm_map_ms = proto_gsm_map_dialogue = proto_gsm_map = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   register_dissector("gsm_map", dissect_gsm_map, proto_gsm_map);
   register_dissector("gsm_map_sccp", dissect_gsm_map_sccp, proto_gsm_map);
@@ -31100,6 +31128,9 @@ void proto_register_gsm_map(void) {
   expert_gsm_map = expert_register_protocol(proto_gsm_map);
   expert_register_field_array(expert_gsm_map, ei, array_length(ei));
 
+  register_dissector_table("gsm_map.v3.arg.opcode", "GSM_MAP V3 Arg Opcodes", proto_gsm_map, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+  register_dissector_table("gsm_map.v3.res.opcode", "GSM_MAP V3 Res Opcodes", proto_gsm_map, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+
   map_prop_arg_opcode_table = register_dissector_table("gsm_map.prop.arg.opcode", "GSM_MAP Proprietary Arg Opcodes", proto_gsm_map, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
   map_prop_res_opcode_table = register_dissector_table("gsm_map.prop.res.opcode", "GSM_MAP Proprietary Res Opcodes", proto_gsm_map, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
   map_prop_err_opcode_table = register_dissector_table("gsm_map.prop.err.opcode", "GSM_MAP Proprietary Err Opcodes", proto_gsm_map, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
@@ -31109,6 +31140,24 @@ void proto_register_gsm_map(void) {
 
 /*--- Included file: packet-gsm_map-dis-tab.c ---*/
 #line 1 "./asn1/gsm_map/packet-gsm_map-dis-tab.c"
+
+/* --- Module MAP-MS-DataTypes --- --- ---                                    */
+
+  dissector_add_uint("gsm_map.v3.arg.opcode", 56, create_dissector_handle(dissect_gsm_map_ms_SendAuthenticationInfoArg_PDU, proto_gsm_map_ms));
+  dissector_add_uint("gsm_map.v3.res.opcode", 56, create_dissector_handle(dissect_gsm_map_ms_SendAuthenticationInfoRes_PDU, proto_gsm_map_ms));
+
+
+/* --- Module MAP-CH-DataTypes --- --- ---                                    */
+
+
+
+/* --- Module MAP-LCS-DataTypes --- --- ---                                   */
+
+
+
+/* --- Module MAP-GR-DataTypes --- --- ---                                    */
+
+
 
 /* --- Module MAP-DialogueInformation --- --- ---                             */
 
@@ -31172,7 +31221,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 3144 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3148 "./asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );
