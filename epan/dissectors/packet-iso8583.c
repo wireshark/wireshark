@@ -556,7 +556,7 @@ static gchar* bin2hex(const guint8 *bin, enum bin2hex_enum type, guint32 len)
   gchar* buff;
 
   /* "size" characters, plus terminating NUL */
-  ret = wmem_alloc(wmem_packet_scope(), size + 1);
+  ret = (gchar *)wmem_alloc(wmem_packet_scope(), size + 1);
   buff = ret;
   if(type == TYPE_BCD)
   {
