@@ -605,39 +605,6 @@ ws_module_open(gchar *module_name, GModuleFlags flags)
       return NULL;
 }
 
-/* utf8 version of getenv, needed to get win32 filename paths */
-char *
-getenv_utf8(const char *varname)
-{
-        char *envvar;
-        wchar_t *envvarw;
-        wchar_t *varnamew;
-
-        envvar = getenv(varname);
-
-        /* since GLib 2.6 we need an utf8 version of the filename */
-        /* using the wide char version of getenv should work under all circumstances */
-
-        /* convert given varname to utf16, needed by _wgetenv */
-        varnamew = g_utf8_to_utf16(varname, -1, NULL, NULL, NULL);
-        if (varnamew == NULL) {
-                return envvar;
-        }
-
-        /* use wide char version of getenv */
-        envvarw = _wgetenv(varnamew);
-        g_free(varnamew);
-        if (envvarw == NULL) {
-                return envvar;
-        }
-
-        /* convert value to utf8 */
-        envvar = g_utf16_to_utf8(envvarw, -1, NULL, NULL, NULL);
-        /* XXX - memleak */
-
-        return envvar;
-}
-
 /** Create or open a "Wireshark is running" mutex.
  */
 #define WIRESHARK_IS_RUNNING_UUID "9CA78EEA-EA4D-4490-9240-FC01FCEF464B"
