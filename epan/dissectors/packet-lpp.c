@@ -28,7 +28,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref 3GPP TS 36.355 version 13.0.0 Release 13
+ * Ref 3GPP TS 36.355 version 13.1.0 Release 13
  * http://www.3gpp.org
  */
 
@@ -951,7 +951,7 @@ static int hf_lpp_cause_05 = -1;                  /* T_cause_05 */
 static int hf_lpp_rsrpMeasurementNotPossible = -1;  /* NULL */
 static int hf_lpp_rsrqMeasurementNotPossible = -1;  /* NULL */
 static int hf_lpp_ueRxTxMeasurementNotPossible = -1;  /* NULL */
-static int hf_lpp_tbs_MeasurementList_r13 = -1;   /* TBS_MeasurementList_r13 */
+static int hf_lpp_tbs_MeasurementInformation_r13 = -1;  /* TBS_MeasurementInformation_r13 */
 static int hf_lpp_tbs_Error_r13 = -1;             /* TBS_Error_r13 */
 static int hf_lpp_measurementReferenceTime_r13 = -1;  /* UTCTime */
 static int hf_lpp_mbs_SgnMeasList_r13 = -1;       /* MBS_BeaconMeasList_r13 */
@@ -959,29 +959,30 @@ static int hf_lpp_MBS_BeaconMeasList_r13_item = -1;  /* MBS_BeaconMeasElement_r1
 static int hf_lpp_transmitterID_r13 = -1;         /* INTEGER_0_32767 */
 static int hf_lpp_codePhase_r13 = -1;             /* INTEGER_0_2097151 */
 static int hf_lpp_codePhaseRMSError_r13 = -1;     /* INTEGER_0_63 */
-static int hf_lpp_mbsSgnMeasListReq = -1;         /* BOOLEAN */
+static int hf_lpp_mbsSgnMeasListReq_r13 = -1;     /* BOOLEAN */
 static int hf_lpp_tbs_Modes_r13 = -1;             /* T_tbs_Modes_r13 */
 static int hf_lpp_locationServerErrorCauses_r13 = -1;  /* TBS_LocationServerErrorCauses_r13 */
 static int hf_lpp_targetDeviceErrorCauses_r13 = -1;  /* TBS_TargetDeviceErrorCauses_r13 */
 static int hf_lpp_cause_r13 = -1;                 /* T_cause_r13 */
 static int hf_lpp_cause_r13_01 = -1;              /* T_cause_r13_01 */
-static int hf_lpp_sensor_MeasurementList_r13 = -1;  /* Sensor_MeasurementList_r13 */
+static int hf_lpp_sensor_MeasurementInformation_r13 = -1;  /* Sensor_MeasurementInformation_r13 */
 static int hf_lpp_sensor_Error_r13 = -1;          /* Sensor_Error_r13 */
 static int hf_lpp_uncompensatedBarometricPressure_r13 = -1;  /* T_uncompensatedBarometricPressure_r13 */
-static int hf_lpp_uncompensatedBarometricPressureReq = -1;  /* BOOLEAN */
+static int hf_lpp_uncompensatedBarometricPressureReq_r13 = -1;  /* BOOLEAN */
 static int hf_lpp_sensor_Modes_r13 = -1;          /* T_sensor_Modes_r13 */
-static int hf_lpp_targetServerErrorCauses_r13 = -1;  /* Sensor_LocationServerErrorCauses_r13 */
+static int hf_lpp_locationServerErrorCauses_r13_01 = -1;  /* Sensor_LocationServerErrorCauses_r13 */
 static int hf_lpp_targetDeviceErrorCauses_r13_01 = -1;  /* Sensor_TargetDeviceErrorCauses_r13 */
 static int hf_lpp_cause_r13_02 = -1;              /* T_cause_r13_02 */
 static int hf_lpp_cause_r13_03 = -1;              /* T_cause_r13_03 */
-static int hf_lpp_wlan_MeasurementList_r13 = -1;  /* WLAN_MeasurementList_r13 */
+static int hf_lpp_wlan_MeasurementInformation_r13 = -1;  /* WLAN_MeasurementInformation_r13 */
 static int hf_lpp_wlan_Error_r13 = -1;            /* WLAN_Error_r13 */
+static int hf_lpp_wlan_MeasurementList_r13 = -1;  /* WLAN_MeasurementList_r13 */
 static int hf_lpp_WLAN_MeasurementList_r13_item = -1;  /* WLAN_MeasurementElement_r13 */
 static int hf_lpp_wlan_AP_Identifier_r13 = -1;    /* WLAN_AP_Identifier_r13 */
 static int hf_lpp_rssi_r13 = -1;                  /* T_rssi_r13 */
 static int hf_lpp_rtt_r13 = -1;                   /* WLAN_RTT_r13 */
-static int hf_lpp_apChannelFrequency = -1;        /* INTEGER_0_256 */
-static int hf_lpp_servingFlag = -1;               /* BOOLEAN */
+static int hf_lpp_apChannelFrequency_r13 = -1;    /* INTEGER_0_256 */
+static int hf_lpp_servingFlag_r13 = -1;           /* BOOLEAN */
 static int hf_lpp_bssid_r13 = -1;                 /* OCTET_STRING_SIZE_6 */
 static int hf_lpp_ssid_r13 = -1;                  /* T_ssid_r13 */
 static int hf_lpp_rttValue_r13 = -1;              /* INTEGER_0_16777215 */
@@ -990,20 +991,22 @@ static int hf_lpp_rttAccuracy_r13 = -1;           /* INTEGER_0_255 */
 static int hf_lpp_requestedMeasurements_r13 = -1;  /* T_requestedMeasurements_r13 */
 static int hf_lpp_wlan_Modes_r13 = -1;            /* T_wlan_Modes_r13 */
 static int hf_lpp_wlan_MeasSupported_r13 = -1;    /* T_wlan_MeasSupported_r13 */
-static int hf_lpp_locationServerErrorCauses_r13_01 = -1;  /* WLAN_LocationServerErrorCauses_r13 */
+static int hf_lpp_locationServerErrorCauses_r13_02 = -1;  /* WLAN_LocationServerErrorCauses_r13 */
 static int hf_lpp_targetDeviceErrorCauses_r13_02 = -1;  /* WLAN_TargetDeviceErrorCauses_r13 */
 static int hf_lpp_cause_r13_04 = -1;              /* T_cause_r13_04 */
 static int hf_lpp_cause_r13_05 = -1;              /* T_cause_r13_05 */
 static int hf_lpp_wlan_AP_RSSI_MeasurementNotPossible_r13 = -1;  /* NULL */
 static int hf_lpp_wlan_AP_RTT_MeasurementNotPossible_r13 = -1;  /* NULL */
-static int hf_lpp_bt_MeasurementList_r13 = -1;    /* BT_MeasurementList_r13 */
+static int hf_lpp_bt_MeasurementInformation_r13 = -1;  /* BT_MeasurementInformation_r13 */
 static int hf_lpp_bt_Error_r13 = -1;              /* BT_Error_r13 */
+static int hf_lpp_bt_MeasurementList_r13 = -1;    /* BT_MeasurementList_r13 */
 static int hf_lpp_BT_MeasurementList_r13_item = -1;  /* BT_MeasurementElement_r13 */
 static int hf_lpp_btAddr_r13 = -1;                /* T_btAddr_r13 */
 static int hf_lpp_rssi_r13_01 = -1;               /* T_rssi_r13_01 */
 static int hf_lpp_requestedMeasurements_r13_01 = -1;  /* T_requestedMeasurements_r13_01 */
 static int hf_lpp_bt_Modes_r13 = -1;              /* T_bt_Modes_r13 */
-static int hf_lpp_locationServerErrorCauses_r13_02 = -1;  /* BT_LocationServerErrorCauses_r13 */
+static int hf_lpp_bt_MeasSupported_r13 = -1;      /* T_bt_MeasSupported_r13 */
+static int hf_lpp_locationServerErrorCauses_r13_03 = -1;  /* BT_LocationServerErrorCauses_r13 */
 static int hf_lpp_targetDeviceErrorCauses_r13_03 = -1;  /* BT_TargetDeviceErrorCauses_r13 */
 static int hf_lpp_cause_r13_06 = -1;              /* T_cause_r13_06 */
 static int hf_lpp_cause_r13_07 = -1;              /* T_cause_r13_07 */
@@ -1076,6 +1079,7 @@ static int hf_lpp_T_wlan_MeasSupported_r13_rtt_r13 = -1;
 static int hf_lpp_T_requestedMeasurements_r13_01_rssi = -1;
 static int hf_lpp_T_bt_Modes_r13_standalone = -1;
 static int hf_lpp_T_bt_Modes_r13_ue_assisted = -1;
+static int hf_lpp_T_bt_MeasSupported_r13_rssi_r13 = -1;
 static int dummy_hf_lpp_eag_field = -1; /* never registered */
 
 /*--- End of included file: packet-lpp-hf.c ---*/
@@ -1416,7 +1420,7 @@ static gint ett_lpp_ECID_Error = -1;
 static gint ett_lpp_ECID_LocationServerErrorCauses = -1;
 static gint ett_lpp_ECID_TargetDeviceErrorCauses = -1;
 static gint ett_lpp_TBS_ProvideLocationInformation_r13 = -1;
-static gint ett_lpp_TBS_MeasurementList_r13 = -1;
+static gint ett_lpp_TBS_MeasurementInformation_r13 = -1;
 static gint ett_lpp_MBS_BeaconMeasList_r13 = -1;
 static gint ett_lpp_MBS_BeaconMeasElement_r13 = -1;
 static gint ett_lpp_TBS_RequestLocationInformation_r13 = -1;
@@ -1427,7 +1431,7 @@ static gint ett_lpp_TBS_Error_r13 = -1;
 static gint ett_lpp_TBS_LocationServerErrorCauses_r13 = -1;
 static gint ett_lpp_TBS_TargetDeviceErrorCauses_r13 = -1;
 static gint ett_lpp_Sensor_ProvideLocationInformation_r13 = -1;
-static gint ett_lpp_Sensor_MeasurementList_r13 = -1;
+static gint ett_lpp_Sensor_MeasurementInformation_r13 = -1;
 static gint ett_lpp_Sensor_RequestLocationInformation_r13 = -1;
 static gint ett_lpp_Sensor_ProvideCapabilities_r13 = -1;
 static gint ett_lpp_T_sensor_Modes_r13 = -1;
@@ -1436,6 +1440,7 @@ static gint ett_lpp_Sensor_Error_r13 = -1;
 static gint ett_lpp_Sensor_LocationServerErrorCauses_r13 = -1;
 static gint ett_lpp_Sensor_TargetDeviceErrorCauses_r13 = -1;
 static gint ett_lpp_WLAN_ProvideLocationInformation_r13 = -1;
+static gint ett_lpp_WLAN_MeasurementInformation_r13 = -1;
 static gint ett_lpp_WLAN_MeasurementList_r13 = -1;
 static gint ett_lpp_WLAN_MeasurementElement_r13 = -1;
 static gint ett_lpp_WLAN_AP_Identifier_r13 = -1;
@@ -1450,12 +1455,14 @@ static gint ett_lpp_WLAN_Error_r13 = -1;
 static gint ett_lpp_WLAN_LocationServerErrorCauses_r13 = -1;
 static gint ett_lpp_WLAN_TargetDeviceErrorCauses_r13 = -1;
 static gint ett_lpp_BT_ProvideLocationInformation_r13 = -1;
+static gint ett_lpp_BT_MeasurementInformation_r13 = -1;
 static gint ett_lpp_BT_MeasurementList_r13 = -1;
 static gint ett_lpp_BT_MeasurementElement_r13 = -1;
 static gint ett_lpp_BT_RequestLocationInformation_r13 = -1;
 static gint ett_lpp_T_requestedMeasurements_r13_01 = -1;
 static gint ett_lpp_BT_ProvideCapabilities_r13 = -1;
 static gint ett_lpp_T_bt_Modes_r13 = -1;
+static gint ett_lpp_T_bt_MeasSupported_r13 = -1;
 static gint ett_lpp_BT_RequestCapabilities_r13 = -1;
 static gint ett_lpp_BT_Error_r13 = -1;
 static gint ett_lpp_BT_LocationServerErrorCauses_r13 = -1;
@@ -1477,8 +1484,8 @@ static gint ett_lpp_BT_TargetDeviceErrorCauses_r13 = -1;
 #define maxFBI                         64
 #define maxFBI_Plus1                   65
 #define maxFBI2                        256
-#define maxWLANAPSize_r13              64
-#define maxBTBeaconSize_r13            32
+#define maxWLAN_AP_r13                 64
+#define maxBT_Beacon_r13               32
 
 typedef enum _T_GNSS_ID_enum {
   T_GNSS_ID_GPS =   0,
@@ -4581,7 +4588,7 @@ dissect_lpp_T_sensor_Modes_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
     if (len >= 1) {
       proto_tree_add_item(subtree, hf_lpp_T_sensor_Modes_r13_standalone, sensor_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
-    if (len >= 3) {
+    if (len >= 2) {
       proto_tree_add_item(subtree, hf_lpp_T_sensor_Modes_r13_ue_assisted, sensor_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
   }
@@ -4623,7 +4630,7 @@ dissect_lpp_T_tbs_Modes_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
     if (len >= 1) {
       proto_tree_add_item(subtree, hf_lpp_T_tbs_Modes_r13_standalone, tbs_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
-    if (len >= 3) {
+    if (len >= 2) {
       proto_tree_add_item(subtree, hf_lpp_T_tbs_Modes_r13_ue_assisted, tbs_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
   }
@@ -4665,7 +4672,7 @@ dissect_lpp_T_wlan_Modes_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
     if (len >= 1) {
       proto_tree_add_item(subtree, hf_lpp_T_wlan_Modes_r13_standalone, wlan_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
-    if (len >= 3) {
+    if (len >= 2) {
       proto_tree_add_item(subtree, hf_lpp_T_wlan_Modes_r13_ue_assisted, wlan_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
   }
@@ -4736,8 +4743,33 @@ dissect_lpp_T_bt_Modes_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
     if (len >= 1) {
       proto_tree_add_item(subtree, hf_lpp_T_bt_Modes_r13_standalone, bt_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
-    if (len >= 3) {
+    if (len >= 2) {
       proto_tree_add_item(subtree, hf_lpp_T_bt_Modes_r13_ue_assisted, bt_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+  }
+
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_lpp_T_bt_MeasSupported_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 1812 "./asn1/lpp/lpp.cnf"
+  tvbuff_t *bt_MeasSupported_tvb = NULL;
+  int len;
+
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     1, 8, FALSE, &bt_MeasSupported_tvb, &len);
+
+  if(bt_MeasSupported_tvb){
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
+    if (len >= 1) {
+      proto_tree_add_item(subtree, hf_lpp_T_bt_MeasSupported_r13_rssi_r13, bt_MeasSupported_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
   }
 
@@ -4748,6 +4780,7 @@ dissect_lpp_T_bt_Modes_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static const per_sequence_t BT_ProvideCapabilities_r13_sequence[] = {
   { &hf_lpp_bt_Modes_r13    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_bt_Modes_r13 },
+  { &hf_lpp_bt_MeasSupported_r13, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_bt_MeasSupported_r13 },
   { NULL, 0, 0, NULL }
 };
 
@@ -10125,7 +10158,7 @@ dissect_lpp_ECID_RequestLocationInformation(tvbuff_t *tvb _U_, int offset _U_, a
 
 
 static const per_sequence_t Sensor_RequestLocationInformation_r13_sequence[] = {
-  { &hf_lpp_uncompensatedBarometricPressureReq, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_BOOLEAN },
+  { &hf_lpp_uncompensatedBarometricPressureReq_r13, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_BOOLEAN },
   { NULL, 0, 0, NULL }
 };
 
@@ -10139,7 +10172,7 @@ dissect_lpp_Sensor_RequestLocationInformation_r13(tvbuff_t *tvb _U_, int offset 
 
 
 static const per_sequence_t TBS_RequestLocationInformation_r13_sequence[] = {
-  { &hf_lpp_mbsSgnMeasListReq, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_BOOLEAN },
+  { &hf_lpp_mbsSgnMeasListReq_r13, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_BOOLEAN },
   { NULL, 0, 0, NULL }
 };
 
@@ -11824,16 +11857,16 @@ dissect_lpp_T_uncompensatedBarometricPressure_r13(tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const per_sequence_t Sensor_MeasurementList_r13_sequence[] = {
+static const per_sequence_t Sensor_MeasurementInformation_r13_sequence[] = {
   { &hf_lpp_measurementReferenceTime_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_UTCTime },
   { &hf_lpp_uncompensatedBarometricPressure_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_uncompensatedBarometricPressure_r13 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lpp_Sensor_MeasurementList_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_Sensor_MeasurementInformation_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lpp_Sensor_MeasurementList_r13, Sensor_MeasurementList_r13_sequence);
+                                   ett_lpp_Sensor_MeasurementInformation_r13, Sensor_MeasurementInformation_r13_sequence);
 
   return offset;
 }
@@ -11898,13 +11931,13 @@ dissect_lpp_Sensor_TargetDeviceErrorCauses_r13(tvbuff_t *tvb _U_, int offset _U_
 
 
 static const value_string lpp_Sensor_Error_r13_vals[] = {
-  {   0, "targetServerErrorCauses-r13" },
+  {   0, "locationServerErrorCauses-r13" },
   {   1, "targetDeviceErrorCauses-r13" },
   { 0, NULL }
 };
 
 static const per_choice_t Sensor_Error_r13_choice[] = {
-  {   0, &hf_lpp_targetServerErrorCauses_r13, ASN1_EXTENSION_ROOT    , dissect_lpp_Sensor_LocationServerErrorCauses_r13 },
+  {   0, &hf_lpp_locationServerErrorCauses_r13_01, ASN1_EXTENSION_ROOT    , dissect_lpp_Sensor_LocationServerErrorCauses_r13 },
   {   1, &hf_lpp_targetDeviceErrorCauses_r13_01, ASN1_EXTENSION_ROOT    , dissect_lpp_Sensor_TargetDeviceErrorCauses_r13 },
   { 0, NULL, 0, NULL }
 };
@@ -11920,7 +11953,7 @@ dissect_lpp_Sensor_Error_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
 static const per_sequence_t Sensor_ProvideLocationInformation_r13_sequence[] = {
-  { &hf_lpp_sensor_MeasurementList_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_Sensor_MeasurementList_r13 },
+  { &hf_lpp_sensor_MeasurementInformation_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_Sensor_MeasurementInformation_r13 },
   { &hf_lpp_sensor_Error_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_Sensor_Error_r13 },
   { NULL, 0, 0, NULL }
 };
@@ -11964,16 +11997,16 @@ dissect_lpp_MBS_BeaconMeasList_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
-static const per_sequence_t TBS_MeasurementList_r13_sequence[] = {
+static const per_sequence_t TBS_MeasurementInformation_r13_sequence[] = {
   { &hf_lpp_measurementReferenceTime_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_UTCTime },
   { &hf_lpp_mbs_SgnMeasList_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_MBS_BeaconMeasList_r13 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_lpp_TBS_MeasurementList_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_TBS_MeasurementInformation_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lpp_TBS_MeasurementList_r13, TBS_MeasurementList_r13_sequence);
+                                   ett_lpp_TBS_MeasurementInformation_r13, TBS_MeasurementInformation_r13_sequence);
 
   return offset;
 }
@@ -12061,7 +12094,7 @@ dissect_lpp_TBS_Error_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
 static const per_sequence_t TBS_ProvideLocationInformation_r13_sequence[] = {
-  { &hf_lpp_tbs_MeasurementList_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_TBS_MeasurementList_r13 },
+  { &hf_lpp_tbs_MeasurementInformation_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_TBS_MeasurementInformation_r13 },
   { &hf_lpp_tbs_Error_r13   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_TBS_Error_r13 },
   { NULL, 0, 0, NULL }
 };
@@ -12180,8 +12213,8 @@ static const per_sequence_t WLAN_MeasurementElement_r13_sequence[] = {
   { &hf_lpp_wlan_AP_Identifier_r13, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_WLAN_AP_Identifier_r13 },
   { &hf_lpp_rssi_r13        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_T_rssi_r13 },
   { &hf_lpp_rtt_r13         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_WLAN_RTT_r13 },
-  { &hf_lpp_apChannelFrequency, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_INTEGER_0_256 },
-  { &hf_lpp_servingFlag     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_BOOLEAN },
+  { &hf_lpp_apChannelFrequency_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_INTEGER_0_256 },
+  { &hf_lpp_servingFlag_r13 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_BOOLEAN },
   { NULL, 0, 0, NULL }
 };
 
@@ -12202,7 +12235,22 @@ static int
 dissect_lpp_WLAN_MeasurementList_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lpp_WLAN_MeasurementList_r13, WLAN_MeasurementList_r13_sequence_of,
-                                                  1, maxWLANAPSize_r13, FALSE);
+                                                  1, maxWLAN_AP_r13, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t WLAN_MeasurementInformation_r13_sequence[] = {
+  { &hf_lpp_measurementReferenceTime_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_UTCTime },
+  { &hf_lpp_wlan_MeasurementList_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_WLAN_MeasurementList_r13 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_WLAN_MeasurementInformation_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lpp_WLAN_MeasurementInformation_r13, WLAN_MeasurementInformation_r13_sequence);
 
   return offset;
 }
@@ -12224,7 +12272,7 @@ dissect_lpp_T_cause_r13_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 
 static const per_sequence_t WLAN_LocationServerErrorCauses_r13_sequence[] = {
-  { &hf_lpp_cause_r13_04    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_T_cause_r13_04 },
+  { &hf_lpp_cause_r13_04    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_cause_r13_04 },
   { NULL, 0, 0, NULL }
 };
 
@@ -12277,7 +12325,7 @@ static const value_string lpp_WLAN_Error_r13_vals[] = {
 };
 
 static const per_choice_t WLAN_Error_r13_choice[] = {
-  {   0, &hf_lpp_locationServerErrorCauses_r13_01, ASN1_EXTENSION_ROOT    , dissect_lpp_WLAN_LocationServerErrorCauses_r13 },
+  {   0, &hf_lpp_locationServerErrorCauses_r13_02, ASN1_EXTENSION_ROOT    , dissect_lpp_WLAN_LocationServerErrorCauses_r13 },
   {   1, &hf_lpp_targetDeviceErrorCauses_r13_02, ASN1_EXTENSION_ROOT    , dissect_lpp_WLAN_TargetDeviceErrorCauses_r13 },
   { 0, NULL, 0, NULL }
 };
@@ -12293,8 +12341,7 @@ dissect_lpp_WLAN_Error_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 
 static const per_sequence_t WLAN_ProvideLocationInformation_r13_sequence[] = {
-  { &hf_lpp_wlan_MeasurementList_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_WLAN_MeasurementList_r13 },
-  { &hf_lpp_measurementReferenceTime_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_UTCTime },
+  { &hf_lpp_wlan_MeasurementInformation_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_WLAN_MeasurementInformation_r13 },
   { &hf_lpp_wlan_Error_r13  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_WLAN_Error_r13 },
   { NULL, 0, 0, NULL }
 };
@@ -12362,7 +12409,22 @@ static int
 dissect_lpp_BT_MeasurementList_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_lpp_BT_MeasurementList_r13, BT_MeasurementList_r13_sequence_of,
-                                                  1, maxBTBeaconSize_r13, FALSE);
+                                                  1, maxBT_Beacon_r13, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t BT_MeasurementInformation_r13_sequence[] = {
+  { &hf_lpp_measurementReferenceTime_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_UTCTime },
+  { &hf_lpp_bt_MeasurementList_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_BT_MeasurementList_r13 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_BT_MeasurementInformation_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lpp_BT_MeasurementInformation_r13, BT_MeasurementInformation_r13_sequence);
 
   return offset;
 }
@@ -12384,7 +12446,7 @@ dissect_lpp_T_cause_r13_06(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 
 static const per_sequence_t BT_LocationServerErrorCauses_r13_sequence[] = {
-  { &hf_lpp_cause_r13_06    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lpp_T_cause_r13_06 },
+  { &hf_lpp_cause_r13_06    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_cause_r13_06 },
   { NULL, 0, 0, NULL }
 };
 
@@ -12436,7 +12498,7 @@ static const value_string lpp_BT_Error_r13_vals[] = {
 };
 
 static const per_choice_t BT_Error_r13_choice[] = {
-  {   0, &hf_lpp_locationServerErrorCauses_r13_02, ASN1_EXTENSION_ROOT    , dissect_lpp_BT_LocationServerErrorCauses_r13 },
+  {   0, &hf_lpp_locationServerErrorCauses_r13_03, ASN1_EXTENSION_ROOT    , dissect_lpp_BT_LocationServerErrorCauses_r13 },
   {   1, &hf_lpp_targetDeviceErrorCauses_r13_03, ASN1_EXTENSION_ROOT    , dissect_lpp_BT_TargetDeviceErrorCauses_r13 },
   { 0, NULL, 0, NULL }
 };
@@ -12452,8 +12514,7 @@ dissect_lpp_BT_Error_r13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 static const per_sequence_t BT_ProvideLocationInformation_r13_sequence[] = {
-  { &hf_lpp_bt_MeasurementList_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_BT_MeasurementList_r13 },
-  { &hf_lpp_measurementReferenceTime_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_UTCTime },
+  { &hf_lpp_bt_MeasurementInformation_r13, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_BT_MeasurementInformation_r13 },
   { &hf_lpp_bt_Error_r13    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_BT_Error_r13 },
   { NULL, 0, 0, NULL }
 };
@@ -16575,8 +16636,8 @@ void proto_register_lpp(void) {
       { "ueRxTxMeasurementNotPossible", "lpp.ueRxTxMeasurementNotPossible_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lpp_tbs_MeasurementList_r13,
-      { "tbs-MeasurementList-r13", "lpp.tbs_MeasurementList_r13_element",
+    { &hf_lpp_tbs_MeasurementInformation_r13,
+      { "tbs-MeasurementInformation-r13", "lpp.tbs_MeasurementInformation_r13_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lpp_tbs_Error_r13,
@@ -16607,8 +16668,8 @@ void proto_register_lpp(void) {
       { "codePhaseRMSError-r13", "lpp.codePhaseRMSError_r13",
         FT_UINT32, BASE_CUSTOM, CF_FUNC(lpp_codePhaseRMSError_fmt), 0,
         "INTEGER_0_63", HFILL }},
-    { &hf_lpp_mbsSgnMeasListReq,
-      { "mbsSgnMeasListReq", "lpp.mbsSgnMeasListReq",
+    { &hf_lpp_mbsSgnMeasListReq_r13,
+      { "mbsSgnMeasListReq-r13", "lpp.mbsSgnMeasListReq_r13",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
     { &hf_lpp_tbs_Modes_r13,
@@ -16631,8 +16692,8 @@ void proto_register_lpp(void) {
       { "cause-r13", "lpp.cause_r13",
         FT_UINT32, BASE_DEC, VALS(lpp_T_cause_r13_01_vals), 0,
         "T_cause_r13_01", HFILL }},
-    { &hf_lpp_sensor_MeasurementList_r13,
-      { "sensor-MeasurementList-r13", "lpp.sensor_MeasurementList_r13_element",
+    { &hf_lpp_sensor_MeasurementInformation_r13,
+      { "sensor-MeasurementInformation-r13", "lpp.sensor_MeasurementInformation_r13_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lpp_sensor_Error_r13,
@@ -16643,16 +16704,16 @@ void proto_register_lpp(void) {
       { "uncompensatedBarometricPressure-r13", "lpp.uncompensatedBarometricPressure_r13",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lpp_uncompensatedBarometricPressureReq,
-      { "uncompensatedBarometricPressureReq", "lpp.uncompensatedBarometricPressureReq",
+    { &hf_lpp_uncompensatedBarometricPressureReq_r13,
+      { "uncompensatedBarometricPressureReq-r13", "lpp.uncompensatedBarometricPressureReq_r13",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
     { &hf_lpp_sensor_Modes_r13,
       { "sensor-Modes-r13", "lpp.sensor_Modes_r13",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lpp_targetServerErrorCauses_r13,
-      { "targetServerErrorCauses-r13", "lpp.targetServerErrorCauses_r13_element",
+    { &hf_lpp_locationServerErrorCauses_r13_01,
+      { "locationServerErrorCauses-r13", "lpp.locationServerErrorCauses_r13_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "Sensor_LocationServerErrorCauses_r13", HFILL }},
     { &hf_lpp_targetDeviceErrorCauses_r13_01,
@@ -16667,13 +16728,17 @@ void proto_register_lpp(void) {
       { "cause-r13", "lpp.cause_r13",
         FT_UINT32, BASE_DEC, VALS(lpp_T_cause_r13_03_vals), 0,
         "T_cause_r13_03", HFILL }},
-    { &hf_lpp_wlan_MeasurementList_r13,
-      { "wlan-MeasurementList-r13", "lpp.wlan_MeasurementList_r13",
-        FT_UINT32, BASE_DEC, NULL, 0,
+    { &hf_lpp_wlan_MeasurementInformation_r13,
+      { "wlan-MeasurementInformation-r13", "lpp.wlan_MeasurementInformation_r13_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lpp_wlan_Error_r13,
       { "wlan-Error-r13", "lpp.wlan_Error_r13",
         FT_UINT32, BASE_DEC, VALS(lpp_WLAN_Error_r13_vals), 0,
+        NULL, HFILL }},
+    { &hf_lpp_wlan_MeasurementList_r13,
+      { "wlan-MeasurementList-r13", "lpp.wlan_MeasurementList_r13",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_lpp_WLAN_MeasurementList_r13_item,
       { "WLAN-MeasurementElement-r13", "lpp.WLAN_MeasurementElement_r13_element",
@@ -16691,12 +16756,12 @@ void proto_register_lpp(void) {
       { "rtt-r13", "lpp.rtt_r13_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "WLAN_RTT_r13", HFILL }},
-    { &hf_lpp_apChannelFrequency,
-      { "apChannelFrequency", "lpp.apChannelFrequency",
+    { &hf_lpp_apChannelFrequency_r13,
+      { "apChannelFrequency-r13", "lpp.apChannelFrequency_r13",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_256", HFILL }},
-    { &hf_lpp_servingFlag,
-      { "servingFlag", "lpp.servingFlag",
+    { &hf_lpp_servingFlag_r13,
+      { "servingFlag-r13", "lpp.servingFlag_r13",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
     { &hf_lpp_bssid_r13,
@@ -16731,7 +16796,7 @@ void proto_register_lpp(void) {
       { "wlan-MeasSupported-r13", "lpp.wlan_MeasSupported_r13",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lpp_locationServerErrorCauses_r13_01,
+    { &hf_lpp_locationServerErrorCauses_r13_02,
       { "locationServerErrorCauses-r13", "lpp.locationServerErrorCauses_r13_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "WLAN_LocationServerErrorCauses_r13", HFILL }},
@@ -16755,13 +16820,17 @@ void proto_register_lpp(void) {
       { "wlan-AP-RTT-MeasurementNotPossible-r13", "lpp.wlan_AP_RTT_MeasurementNotPossible_r13_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lpp_bt_MeasurementList_r13,
-      { "bt-MeasurementList-r13", "lpp.bt_MeasurementList_r13",
-        FT_UINT32, BASE_DEC, NULL, 0,
+    { &hf_lpp_bt_MeasurementInformation_r13,
+      { "bt-MeasurementInformation-r13", "lpp.bt_MeasurementInformation_r13_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lpp_bt_Error_r13,
       { "bt-Error-r13", "lpp.bt_Error_r13",
         FT_UINT32, BASE_DEC, VALS(lpp_BT_Error_r13_vals), 0,
+        NULL, HFILL }},
+    { &hf_lpp_bt_MeasurementList_r13,
+      { "bt-MeasurementList-r13", "lpp.bt_MeasurementList_r13",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_lpp_BT_MeasurementList_r13_item,
       { "BT-MeasurementElement-r13", "lpp.BT_MeasurementElement_r13_element",
@@ -16783,7 +16852,11 @@ void proto_register_lpp(void) {
       { "bt-Modes-r13", "lpp.bt_Modes_r13",
         FT_BYTES, BASE_NONE, NULL, 0,
         "T_bt_Modes_r13", HFILL }},
-    { &hf_lpp_locationServerErrorCauses_r13_02,
+    { &hf_lpp_bt_MeasSupported_r13,
+      { "bt-MeasSupported-r13", "lpp.bt_MeasSupported_r13",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "T_bt_MeasSupported_r13", HFILL }},
+    { &hf_lpp_locationServerErrorCauses_r13_03,
       { "locationServerErrorCauses-r13", "lpp.locationServerErrorCauses_r13_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "BT_LocationServerErrorCauses_r13", HFILL }},
@@ -17025,7 +17098,7 @@ void proto_register_lpp(void) {
         NULL, HFILL }},
     { &hf_lpp_T_tbs_Modes_r13_ue_assisted,
       { "ue-assisted", "lpp.ue-assisted",
-        FT_BOOLEAN, 8, NULL, 0x20,
+        FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lpp_T_sensor_Modes_r13_standalone,
       { "standalone", "lpp.standalone",
@@ -17033,7 +17106,7 @@ void proto_register_lpp(void) {
         NULL, HFILL }},
     { &hf_lpp_T_sensor_Modes_r13_ue_assisted,
       { "ue-assisted", "lpp.ue-assisted",
-        FT_BOOLEAN, 8, NULL, 0x20,
+        FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lpp_T_requestedMeasurements_r13_rssi,
       { "rssi", "lpp.rssi",
@@ -17049,7 +17122,7 @@ void proto_register_lpp(void) {
         NULL, HFILL }},
     { &hf_lpp_T_wlan_Modes_r13_ue_assisted,
       { "ue-assisted", "lpp.ue-assisted",
-        FT_BOOLEAN, 8, NULL, 0x20,
+        FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_lpp_T_wlan_MeasSupported_r13_rssi_r13,
       { "rssi-r13", "lpp.rssi-r13",
@@ -17069,7 +17142,11 @@ void proto_register_lpp(void) {
         NULL, HFILL }},
     { &hf_lpp_T_bt_Modes_r13_ue_assisted,
       { "ue-assisted", "lpp.ue-assisted",
-        FT_BOOLEAN, 8, NULL, 0x20,
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_lpp_T_bt_MeasSupported_r13_rssi_r13,
+      { "rssi-r13", "lpp.rssi-r13",
+        FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
 
 /*--- End of included file: packet-lpp-hfarr.c ---*/
@@ -17435,7 +17512,7 @@ void proto_register_lpp(void) {
     &ett_lpp_ECID_LocationServerErrorCauses,
     &ett_lpp_ECID_TargetDeviceErrorCauses,
     &ett_lpp_TBS_ProvideLocationInformation_r13,
-    &ett_lpp_TBS_MeasurementList_r13,
+    &ett_lpp_TBS_MeasurementInformation_r13,
     &ett_lpp_MBS_BeaconMeasList_r13,
     &ett_lpp_MBS_BeaconMeasElement_r13,
     &ett_lpp_TBS_RequestLocationInformation_r13,
@@ -17446,7 +17523,7 @@ void proto_register_lpp(void) {
     &ett_lpp_TBS_LocationServerErrorCauses_r13,
     &ett_lpp_TBS_TargetDeviceErrorCauses_r13,
     &ett_lpp_Sensor_ProvideLocationInformation_r13,
-    &ett_lpp_Sensor_MeasurementList_r13,
+    &ett_lpp_Sensor_MeasurementInformation_r13,
     &ett_lpp_Sensor_RequestLocationInformation_r13,
     &ett_lpp_Sensor_ProvideCapabilities_r13,
     &ett_lpp_T_sensor_Modes_r13,
@@ -17455,6 +17532,7 @@ void proto_register_lpp(void) {
     &ett_lpp_Sensor_LocationServerErrorCauses_r13,
     &ett_lpp_Sensor_TargetDeviceErrorCauses_r13,
     &ett_lpp_WLAN_ProvideLocationInformation_r13,
+    &ett_lpp_WLAN_MeasurementInformation_r13,
     &ett_lpp_WLAN_MeasurementList_r13,
     &ett_lpp_WLAN_MeasurementElement_r13,
     &ett_lpp_WLAN_AP_Identifier_r13,
@@ -17469,12 +17547,14 @@ void proto_register_lpp(void) {
     &ett_lpp_WLAN_LocationServerErrorCauses_r13,
     &ett_lpp_WLAN_TargetDeviceErrorCauses_r13,
     &ett_lpp_BT_ProvideLocationInformation_r13,
+    &ett_lpp_BT_MeasurementInformation_r13,
     &ett_lpp_BT_MeasurementList_r13,
     &ett_lpp_BT_MeasurementElement_r13,
     &ett_lpp_BT_RequestLocationInformation_r13,
     &ett_lpp_T_requestedMeasurements_r13_01,
     &ett_lpp_BT_ProvideCapabilities_r13,
     &ett_lpp_T_bt_Modes_r13,
+    &ett_lpp_T_bt_MeasSupported_r13,
     &ett_lpp_BT_RequestCapabilities_r13,
     &ett_lpp_BT_Error_r13,
     &ett_lpp_BT_LocationServerErrorCauses_r13,

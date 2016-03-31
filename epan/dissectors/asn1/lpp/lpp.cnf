@@ -1674,12 +1674,12 @@ MBS-BeaconMeasElement-r13/codePhaseRMSError-r13 DISPLAY=BASE_CUSTOM STRINGS=CF_F
     if (len >= 1) {
       proto_tree_add_item(subtree, hf_lpp_T_tbs_Modes_r13_standalone, tbs_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
-    if (len >= 3) {
+    if (len >= 2) {
       proto_tree_add_item(subtree, hf_lpp_T_tbs_Modes_r13_ue_assisted, tbs_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
   }
 
-#.FN_FTR Sensor-MeasurementList-r13/uncompensatedBarometricPressure-r13
+#.FN_FTR Sensor-MeasurementInformation-r13/uncompensatedBarometricPressure-r13
   proto_item_append_text(actx->created_item, " Pa");
 
 #.FN_BODY Sensor-ProvideCapabilities-r13/sensor-Modes-r13 VAL_PTR = &sensor_Modes_tvb LEN_PTR = &len
@@ -1694,7 +1694,7 @@ MBS-BeaconMeasElement-r13/codePhaseRMSError-r13 DISPLAY=BASE_CUSTOM STRINGS=CF_F
     if (len >= 1) {
       proto_tree_add_item(subtree, hf_lpp_T_sensor_Modes_r13_standalone, sensor_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
-    if (len >= 3) {
+    if (len >= 2) {
       proto_tree_add_item(subtree, hf_lpp_T_sensor_Modes_r13_ue_assisted, sensor_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
   }
@@ -1743,7 +1743,7 @@ WLAN-AP-Identifier-r13/ssid-r13 TYPE=FT_STRING DISPLAY=STR_ASCII
     if (len >= 1) {
       proto_tree_add_item(subtree, hf_lpp_T_wlan_Modes_r13_standalone, wlan_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
-    if (len >= 3) {
+    if (len >= 2) {
       proto_tree_add_item(subtree, hf_lpp_T_wlan_Modes_r13_ue_assisted, wlan_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
   }
@@ -1803,7 +1803,21 @@ BT-MeasurementElement-r13/btAddr-r13 TYPE=FT_ETHER DISPLAY=BASE_NONE
     if (len >= 1) {
       proto_tree_add_item(subtree, hf_lpp_T_bt_Modes_r13_standalone, bt_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
-    if (len >= 3) {
+    if (len >= 2) {
       proto_tree_add_item(subtree, hf_lpp_T_bt_Modes_r13_ue_assisted, bt_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+  }
+
+#.FN_BODY BT-ProvideCapabilities-r13/bt-MeasSupported-r13 VAL_PTR = &bt_MeasSupported_tvb LEN_PTR = &len
+  tvbuff_t *bt_MeasSupported_tvb = NULL;
+  int len;
+
+%(DEFAULT_BODY)s
+  if(bt_MeasSupported_tvb){
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
+    if (len >= 1) {
+      proto_tree_add_item(subtree, hf_lpp_T_bt_MeasSupported_r13_rssi_r13, bt_MeasSupported_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
   }

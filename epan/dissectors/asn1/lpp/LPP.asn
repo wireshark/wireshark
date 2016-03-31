@@ -1,4 +1,4 @@
--- 3GPP TS 36.355 V13.0.0 (2015-12)
+-- 3GPP TS 36.355 V13.1.0 (2016-03)
 --
 
 LPP-PDU-Definitions {
@@ -2253,13 +2253,13 @@ ECID-TargetDeviceErrorCauses ::= SEQUENCE {
 
 
 TBS-ProvideLocationInformation-r13 ::= SEQUENCE {
-		tbs-MeasurementList-r13			TBS-MeasurementList-r13		OPTIONAL,
+	tbs-MeasurementInformation-r13			TBS-MeasurementInformation-r13		OPTIONAL,
 		tbs-Error-r13					TBS-Error-r13				OPTIONAL,
 		...
 }
 
 
-TBS-MeasurementList-r13 ::= SEQUENCE {
+TBS-MeasurementInformation-r13 ::= SEQUENCE {
 	measurementReferenceTime-r13	UTCTime	OPTIONAL,
 	mbs-SgnMeasList-r13				MBS-BeaconMeasList-r13 OPTIONAL, -- Cond MBS
 	...
@@ -2277,14 +2277,14 @@ MBS-BeaconMeasElement-r13 ::= SEQUENCE {
 
 
 TBS-RequestLocationInformation-r13 ::= SEQUENCE {
-	mbsSgnMeasListReq				BOOLEAN,
+	mbsSgnMeasListReq-r13				BOOLEAN,
 	...
 }
 
 
 TBS-ProvideCapabilities-r13 ::= SEQUENCE {
 	tbs-Modes-r13			BIT STRING { 	standalone 	(0),
-											ue-assisted	(2) } (SIZE (1..8)),
+											ue-assisted	(1) } (SIZE (1..8)),
 ...
 }
 
@@ -2318,13 +2318,13 @@ TBS-TargetDeviceErrorCauses-r13 ::= SEQUENCE {
 
 
 Sensor-ProvideLocationInformation-r13 ::= SEQUENCE {
-	sensor-MeasurementList-r13						Sensor-MeasurementList-r13	OPTIONAL,
+	sensor-MeasurementInformation-r13		Sensor-MeasurementInformation-r13		OPTIONAL,
 	sensor-Error-r13									Sensor-Error-r13	OPTIONAL,
 	...
 }
 
 
-Sensor-MeasurementList-r13 ::= SEQUENCE {
+Sensor-MeasurementInformation-r13 ::= SEQUENCE {
 	measurementReferenceTime-r13			UTCTime		OPTIONAL,
 	uncompensatedBarometricPressure-r13 	INTEGER (30000..115000)	OPTIONAL, -- Cond Barometer
 	...
@@ -2332,14 +2332,14 @@ Sensor-MeasurementList-r13 ::= SEQUENCE {
 
 
 Sensor-RequestLocationInformation-r13 ::= SEQUENCE {
-	uncompensatedBarometricPressureReq		BOOLEAN,
+	uncompensatedBarometricPressureReq-r13		BOOLEAN,
 	...
 }
 
 
 Sensor-ProvideCapabilities-r13 ::= SEQUENCE {
 	sensor-Modes-r13			BIT STRING { 	standalone	(0),
-												ue-assisted	(2)  } (SIZE (1..8)),
+												ue-assisted	(1)  } (SIZE (1..8)),
 	...
 }
 
@@ -2349,7 +2349,7 @@ Sensor-RequestCapabilities-r13 ::= SEQUENCE {
 }
 
 Sensor-Error-r13 ::= CHOICE {
-	targetServerErrorCauses-r13			Sensor-LocationServerErrorCauses-r13,
+	locationServerErrorCauses-r13		Sensor-LocationServerErrorCauses-r13,
 	targetDeviceErrorCauses-r13			Sensor-TargetDeviceErrorCauses-r13,
 	...
 }
@@ -2357,34 +2357,40 @@ Sensor-Error-r13 ::= CHOICE {
 
 Sensor-LocationServerErrorCauses-r13 ::= SEQUENCE {
 	cause-r13					ENUMERATED	{	undefined,
-												...},
+												...
+											},
 ...
 }
 
 
 Sensor-TargetDeviceErrorCauses-r13 ::= SEQUENCE {
 	cause-r13			ENUMERATED		{	undefined,
-											...},
+											...
+										},
 ...
 }
 
 
 WLAN-ProvideLocationInformation-r13 ::= SEQUENCE {
-	wlan-MeasurementList-r13		WLAN-MeasurementList-r13	OPTIONAL,
-	measurementReferenceTime-r13	UTCTime						OPTIONAL,
+	wlan-MeasurementInformation-r13		WLAN-MeasurementInformation-r13		OPTIONAL,
 	wlan-Error-r13					WLAN-Error-r13				OPTIONAL,
 	...
 }
 
 
-WLAN-MeasurementList-r13 ::= SEQUENCE (SIZE(1..maxWLANAPSize-r13)) OF WLAN-MeasurementElement-r13
+WLAN-MeasurementInformation-r13 ::= SEQUENCE {
+	measurementReferenceTime-r13		UTCTime						OPTIONAL,
+	wlan-MeasurementList-r13			WLAN-MeasurementList-r13	OPTIONAL,
+	...
+}
+WLAN-MeasurementList-r13 ::= SEQUENCE (SIZE(1..maxWLAN-AP-r13)) OF WLAN-MeasurementElement-r13
 
 WLAN-MeasurementElement-r13 ::= SEQUENCE {
 	wlan-AP-Identifier-r13		WLAN-AP-Identifier-r13,
 	rssi-r13					INTEGER(-127..128)	OPTIONAL,
 	rtt-r13						WLAN-RTT-r13	OPTIONAL,
-	apChannelFrequency			INTEGER(0..256)	OPTIONAL,
-	servingFlag					BOOLEAN			OPTIONAL,
+	apChannelFrequency-r13		INTEGER (0..256)					OPTIONAL,
+	servingFlag-r13				BOOLEAN								OPTIONAL,
 	...
 }
 
@@ -2406,7 +2412,7 @@ WLAN-RTT-r13 ::= SEQUENCE {
 	...
 }
 
-maxWLANAPSize-r13			INTEGER ::= 64
+maxWLAN-AP-r13			INTEGER ::= 64
 
 WLAN-RequestLocationInformation-r13 ::= SEQUENCE {
 	requestedMeasurements-r13	BIT STRING {
@@ -2418,7 +2424,7 @@ WLAN-RequestLocationInformation-r13 ::= SEQUENCE {
 
 WLAN-ProvideCapabilities-r13 ::= SEQUENCE {
 	wlan-Modes-r13			BIT STRING { 	standalone		(0),
-											ue-assisted		(2)}	(SIZE (1..8)),
+											ue-assisted		(1)}	(SIZE (1..8)),
 	wlan-MeasSupported-r13	BIT STRING	{
 											rssi-r13		(0),
 											rtt-r13			(1)}	(SIZE(1..8)),
@@ -2439,7 +2445,8 @@ WLAN-Error-r13 ::= CHOICE {
 
 
 WLAN-LocationServerErrorCauses-r13 ::= SEQUENCE {
-	cause-r13								ENUMERATED	{undefined,	...}
+	cause-r13								ENUMERATED	{undefined,	...},
+	...
 }
 
 
@@ -2456,14 +2463,18 @@ WLAN-TargetDeviceErrorCauses-r13 ::= SEQUENCE {
 
 
 BT-ProvideLocationInformation-r13 ::= SEQUENCE {
-	bt-MeasurementList-r13				BT-MeasurementList-r13	OPTIONAL,
-	measurementReferenceTime-r13		UTCTime	OPTIONAL,
+	bt-MeasurementInformation-r13		BT-MeasurementInformation-r13	OPTIONAL,
 	bt-Error-r13						BT-Error-r13			OPTIONAL,
 	...
 }
 
 
-BT-MeasurementList-r13 ::= SEQUENCE (SIZE(1.. maxBTBeaconSize-r13)) OF BT-MeasurementElement-r13
+BT-MeasurementInformation-r13 ::= SEQUENCE {
+	measurementReferenceTime-r13		UTCTime						OPTIONAL,
+	bt-MeasurementList-r13				BT-MeasurementList-r13		OPTIONAL,
+	...
+}
+BT-MeasurementList-r13 ::= SEQUENCE (SIZE(1..maxBT-Beacon-r13)) OF BT-MeasurementElement-r13
 
 
 BT-MeasurementElement-r13 ::= SEQUENCE {
@@ -2472,7 +2483,7 @@ BT-MeasurementElement-r13 ::= SEQUENCE {
 	...
 }
 
-maxBTBeaconSize-r13				INTEGER ::= 32
+maxBT-Beacon-r13				INTEGER ::= 32
 
 BT-RequestLocationInformation-r13 ::= SEQUENCE {
 	requestedMeasurements-r13	BIT STRING {
@@ -2483,7 +2494,8 @@ BT-RequestLocationInformation-r13 ::= SEQUENCE {
 
 BT-ProvideCapabilities-r13 ::= SEQUENCE {
 	bt-Modes-r13			BIT STRING { 	standalone		(0),
-											ue-assisted		(2)}	(SIZE (1..8)),
+											ue-assisted		(1)}	(SIZE (1..8)),
+	bt-MeasSupported-r13	BIT STRING {	rssi-r13		(0)}	(SIZE (1..8)),
 	...
 }
 
@@ -2501,7 +2513,8 @@ BT-Error-r13 ::= CHOICE {
 
 
 BT-LocationServerErrorCauses-r13 ::= SEQUENCE {
-	cause-r13								ENUMERATED	{undefined,	...}
+	cause-r13								ENUMERATED	{undefined,	...},
+	...
 }
 
 
