@@ -45,9 +45,6 @@ public:
     explicit SplashOverlay(QWidget *parent = 0);
     ~SplashOverlay();
 
-protected:
-    void paintEvent(QPaintEvent *event);
-
 private:
     Ui::SplashOverlay *so_ui_;
     bool blurred_;

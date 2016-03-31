@@ -62,7 +62,13 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
     so_ui_->progressBar->setMaximum((int)register_count() + register_add);
     elapsed_timer_.start();
 
-    setPalette(Qt::transparent);
+    QColor bg = QColor(tango_aluminium_6);
+    bg.setAlphaF(0.4);
+    QPalette pal;
+    pal.setColor(QPalette::Background, bg);
+    setPalette(pal);
+    setAutoFillBackground(true);
+
     setStyleSheet(QString(
                       "QLabel {"
                       "  color: white;"
@@ -172,18 +178,8 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
 
     so_ui_->progressBar->setValue(register_cur_);
 
-    wsApp->processEvents();
+    wsApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
     elapsed_timer_.restart();
-}
-
-void SplashOverlay::paintEvent(QPaintEvent *)
-{
-    QPainter painter(this);
-
-    painter.setRenderHint(QPainter::Antialiasing);
-    painter.setBrush(QColor(tango_aluminium_6));
-    painter.setOpacity(0.4);
-    painter.drawRect(rect());
 }
 
 /*
