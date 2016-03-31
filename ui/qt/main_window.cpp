@@ -47,9 +47,13 @@
 #include "ui/preference_utils.h"
 
 #include "byte_view_tab.h"
+#ifdef HAVE_LIBPCAP
+#include "capture_interfaces_dialog.h"
+#endif
 #include "conversation_colorize_action.h"
 #include "display_filter_edit.h"
 #include "export_dissection_dialog.h"
+#include "file_set_dialog.h"
 #include "funnel_statistics.h"
 #include "import_text_dialog.h"
 #include "packet_list.h"
@@ -263,18 +267,20 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     main_ui_(new Ui::MainWindow),
     cur_layout_(QVector<unsigned>()),
-    df_combo_box_(new DisplayFilterCombo()),
+    df_combo_box_(NULL),
     packet_list_(NULL),
     proto_tree_(NULL),
     previous_focus_(NULL),
+    file_set_dialog_(NULL),
     show_hide_actions_(NULL),
     time_display_actions_(NULL),
     time_precision_actions_(NULL),
-    funnel_statistics_(new FunnelStatistics(this, capture_file_)),
+    funnel_statistics_(NULL),
     freeze_focus_(NULL),
     capture_stopping_(false),
     capture_filter_valid_(false),
 #ifdef HAVE_LIBPCAP
+    capture_interfaces_dialog_(NULL),
     info_data_(),
 #endif
 #ifdef _WIN32
@@ -293,6 +299,10 @@ MainWindow::MainWindow(QWidget *parent) :
 #ifdef HAVE_LIBPCAP
     capture_session_init(&cap_session_, CaptureFile::globalCapFile());
 #endif
+
+    // setpUi calls QMetaObject::connectSlotsByName(this). connectSlotsByName
+    // iterates over *all* of our children, looking for matching "on_" slots.
+    // The fewer children we have at this point the better.
     main_ui_->setupUi(this);
     setWindowIcon(wsApp->normalIcon());
     setTitlebarForCaptureFile();
@@ -327,11 +337,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
     updateRecentFiles();
 
-#ifdef HAVE_LIBPCAP
-    connect(&capture_interfaces_dialog_, SIGNAL(startCapture()), this, SLOT(startCapture()));
-    connect(&capture_interfaces_dialog_, SIGNAL(stopCapture()), this, SLOT(stopCapture()));
-#endif
-
+    df_combo_box_ = new DisplayFilterCombo();
     const DisplayFilterEdit *df_edit = dynamic_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
     connect(df_edit, SIGNAL(pushFilterSyntaxStatus(const QString&)),
             main_ui_->statusBar, SLOT(pushFilterStatus(const QString&)));
@@ -343,6 +349,7 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(showPreferencesDialog(PreferencesDialog::PreferencesPane)));
     connect(wsApp, SIGNAL(preferencesChanged()), df_edit, SLOT(checkFilter()));
 
+    funnel_statistics_ = new FunnelStatistics(this, capture_file_);
     connect(df_edit, SIGNAL(textChanged(QString)), funnel_statistics_, SLOT(displayFilterTextChanged(QString)));
     connect(funnel_statistics_, SIGNAL(setDisplayFilter(QString)), df_edit, SLOT(setText(QString)));
     connect(funnel_statistics_, SIGNAL(applyDisplayFilter()), df_combo_box_, SLOT(applyDisplayFilter()));
@@ -352,10 +359,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     initMainToolbarIcons();
 
-    // In Qt4 multiple toolbars and "pretty" are mutually exculsive on OS X. If
-    // unifiedTitleAndToolBarOnMac is enabled everything ends up in the same row.
-    // https://bugreports.qt-project.org/browse/QTBUG-22433
-    // This property is obsolete in Qt5 so this issue may be fixed in that version.
     main_ui_->displayFilterToolBar->insertWidget(main_ui_->actionDisplayFilterExpression, df_combo_box_);
 
     wireless_frame_ = new WirelessFrame(this);
@@ -637,9 +640,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_ui_->statusBar, SIGNAL(editCaptureComment()),
             this, SLOT(on_actionStatisticsCaptureFileProperties_triggered()));
 
-    connect(&file_set_dialog_, SIGNAL(fileSetOpenCaptureFile(QString)),
-            this, SLOT(openCaptureFile(QString)));
-
 #ifdef HAVE_LIBPCAP
     QTreeWidget *iface_tree = findChild<QTreeWidget *>("interfaceTree");
     if (iface_tree) {
@@ -654,22 +654,7 @@ MainWindow::MainWindow(QWidget *parent) :
                 this, SLOT(showExtcapOptionsDialog(QString&)));
 #endif
 
-    connect(&capture_interfaces_dialog_, SIGNAL(getPoints(int,PointList*)),
-            this->main_welcome_->getInterfaceTree(), SLOT(getPoints(int,PointList*)));
-    // Changes in interface selections or capture filters should be propagated
-    // to the main welcome screen where they will be applied to the global
-    // capture options.
-    connect(&capture_interfaces_dialog_, SIGNAL(interfaceListChanged()),
-            this->main_welcome_->getInterfaceTree(), SLOT(interfaceListChanged()));
-    connect(&capture_interfaces_dialog_, SIGNAL(interfacesChanged()),
-            this->main_welcome_, SLOT(interfaceSelected()));
-    connect(&capture_interfaces_dialog_, SIGNAL(interfacesChanged()),
-            this->main_welcome_->getInterfaceTree(), SLOT(updateSelectedInterfaces()));
-    connect(&capture_interfaces_dialog_, SIGNAL(interfacesChanged()),
-            this->main_welcome_->getInterfaceTree(), SLOT(updateToolTips()));
-    connect(&capture_interfaces_dialog_, SIGNAL(captureFilterTextEdited(QString)),
-            this->main_welcome_, SLOT(setCaptureFilterText(QString)));
-#endif
+#endif // HAVE_LIBPCAP
 
     /* Create plugin_if hooks */
     plugin_if_register_gui_cb(PLUGIN_IF_FILTER_ACTION_APPLY, plugin_if_mainwindow_apply_filter);
@@ -808,7 +793,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     }
 
 #ifdef HAVE_LIBPCAP
-    capture_interfaces_dialog_.close();
+    if (capture_interfaces_dialog_) capture_interfaces_dialog_->close();
 #endif
     // Make sure we kill any open dumpcap processes.
     delete main_welcome_;

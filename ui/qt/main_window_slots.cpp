@@ -83,6 +83,9 @@
 #include "bluetooth_hci_summary_dialog.h"
 #include "capture_file_dialog.h"
 #include "capture_file_properties_dialog.h"
+#ifdef HAVE_LIBPCAP
+#include "capture_interfaces_dialog.h"
+#endif
 #include "color_utils.h"
 #include "coloring_rules_dialog.h"
 #include "conversation_dialog.h"
@@ -100,6 +103,7 @@
 #ifdef HAVE_EXTCAP
 #include "extcap_options_dialog.h"
 #endif
+#include "file_set_dialog.h"
 #include "filter_action.h"
 #include "filter_dialog.h"
 #include "funnel_statistics.h"
@@ -656,7 +660,9 @@ void MainWindow::captureCaptureFailed(capture_session *) {
 void MainWindow::captureFileOpened() {
     if (capture_file_.window() != this) return;
 
-    file_set_dialog_.fileOpened(capture_file_.capFile());
+    if (file_set_dialog_) {
+        file_set_dialog_->fileOpened(capture_file_.capFile());
+    }
     setMenusForFileSet(true);
     emit setCaptureFile(capture_file_.capFile());
 }
@@ -736,7 +742,9 @@ void MainWindow::captureFileClosing() {
 void MainWindow::captureFileClosed() {
     packets_bar_update();
 
-    file_set_dialog_.fileClosed();
+    if (file_set_dialog_) {
+        file_set_dialog_->fileClosed();
+    }
     setMenusForFileSet(false);
     setWindowModified(false);
 
@@ -1576,7 +1584,13 @@ void MainWindow::on_actionFileSaveAs_triggered()
 
 void MainWindow::on_actionFileSetListFiles_triggered()
 {
-    file_set_dialog_.show();
+    if (!file_set_dialog_) {
+        file_set_dialog_ = new FileSetDialog(this);
+        connect(file_set_dialog_, SIGNAL(fileSetOpenCaptureFile(QString)),
+                this, SLOT(openCaptureFile(QString)));
+    }
+
+    file_set_dialog_->show();
 }
 
 void MainWindow::on_actionFileSetNextFile_triggered()
@@ -3510,22 +3524,42 @@ void MainWindow::on_actionStatisticsProtocolHierarchy_triggered()
 #ifdef HAVE_LIBPCAP
 void MainWindow::on_actionCaptureOptions_triggered()
 {
-    connect(&capture_interfaces_dialog_, SIGNAL(setFilterValid(bool, const QString)),
-            this, SLOT(startInterfaceCapture(bool, const QString)));
-    capture_interfaces_dialog_.SetTab(0);
-    capture_interfaces_dialog_.updateInterfaces();
+    if (!capture_interfaces_dialog_) {
+        capture_interfaces_dialog_ = new CaptureInterfacesDialog(this);
 
-    if (capture_interfaces_dialog_.isMinimized() == true)
-    {
-        capture_interfaces_dialog_.showNormal();
+        connect(capture_interfaces_dialog_, SIGNAL(startCapture()), this, SLOT(startCapture()));
+        connect(capture_interfaces_dialog_, SIGNAL(stopCapture()), this, SLOT(stopCapture()));
+
+        connect(capture_interfaces_dialog_, SIGNAL(getPoints(int,PointList*)),
+                this->main_welcome_->getInterfaceTree(), SLOT(getPoints(int,PointList*)));
+        // Changes in interface selections or capture filters should be propagated
+        // to the main welcome screen where they will be applied to the global
+        // capture options.
+        connect(capture_interfaces_dialog_, SIGNAL(interfaceListChanged()),
+                this->main_welcome_->getInterfaceTree(), SLOT(interfaceListChanged()));
+        connect(capture_interfaces_dialog_, SIGNAL(interfacesChanged()),
+                this->main_welcome_, SLOT(interfaceSelected()));
+        connect(capture_interfaces_dialog_, SIGNAL(interfacesChanged()),
+                this->main_welcome_->getInterfaceTree(), SLOT(updateSelectedInterfaces()));
+        connect(capture_interfaces_dialog_, SIGNAL(interfacesChanged()),
+                this->main_welcome_->getInterfaceTree(), SLOT(updateToolTips()));
+        connect(capture_interfaces_dialog_, SIGNAL(captureFilterTextEdited(QString)),
+                this->main_welcome_, SLOT(setCaptureFilterText(QString)));
+
+        connect(capture_interfaces_dialog_, SIGNAL(setFilterValid(bool, const QString)),
+                this, SLOT(startInterfaceCapture(bool, const QString)));
     }
-    else
-    {
-        capture_interfaces_dialog_.show();
+    capture_interfaces_dialog_->SetTab(0);
+    capture_interfaces_dialog_->updateInterfaces();
+
+    if (capture_interfaces_dialog_->isMinimized()) {
+        capture_interfaces_dialog_->showNormal();
+    } else {
+        capture_interfaces_dialog_->show();
     }
 
-    capture_interfaces_dialog_.raise();
-    capture_interfaces_dialog_.activateWindow();
+    capture_interfaces_dialog_->raise();
+    capture_interfaces_dialog_->activateWindow();
 }
 
 void MainWindow::on_actionCaptureRefreshInterfaces_triggered()
