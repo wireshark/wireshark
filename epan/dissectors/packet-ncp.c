@@ -167,7 +167,7 @@ static const value_string burst_command[] = {
    And:
 
    https://www.novell.com/developer/ndk/netware_core_protocols.html
-   
+
    NCP documentation
 
    (formerly http:developer.novell.com)
