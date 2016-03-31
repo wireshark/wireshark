@@ -1311,7 +1311,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_CERT_VERIFY:
-            ssl_dissect_hnd_cli_cert_verify(&dissect_dtls_hf, tvb, ssl_hand_tree, offset, session);
+            ssl_dissect_hnd_cli_cert_verify(&dissect_dtls_hf, sub_tvb, ssl_hand_tree, 0, session);
             break;
 
           case SSL_HND_CLIENT_KEY_EXCHG:
