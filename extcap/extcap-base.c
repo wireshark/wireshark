@@ -181,9 +181,9 @@ static void extcap_iface_print(gpointer data, gpointer userdata _U_)
 
 static gint extcap_iface_compare(gconstpointer  a, gconstpointer  b)
 {
-    extcap_interface * iface_a = (extcap_interface *)a;
+    const extcap_interface * iface_a = (const extcap_interface *)a;
 
-    return (g_strcmp0(iface_a->interface, (char *) b));
+    return (g_strcmp0(iface_a->interface, (const char *) b));
 }
 
 static void extcap_print_version(extcap_parameters * extcap)
