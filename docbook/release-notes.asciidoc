@@ -34,6 +34,7 @@ the current capture file via the View menu in the Qt GUI.
 resolution some build dependencies must be present (currently c-ares). If that is not the case DNS
 name resolution will be disabled (but other name resolution mechanisms, such as host files,
 are still available).
+** Highlight hovered byte in Packet Bytes Pane
 
 //=== Removed Dissectors
 

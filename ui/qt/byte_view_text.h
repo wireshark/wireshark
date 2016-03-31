@@ -79,7 +79,7 @@ private:
     } highlight_state;
 
     void drawOffsetLine(QPainter &painter, const guint offset, const int row_y);
-    qreal flushOffsetFragment(QPainter &painter, qreal x, int y, highlight_state state, QString &text);
+    qreal flushOffsetFragment(QPainter &painter, qreal x, int y, highlight_state state, gboolean extra_highlight, QString &text);
     void scrollToByte(int byte);
     int offsetChars();
     int offsetPixels();
@@ -87,6 +87,7 @@ private:
     int asciiPixels();
     int totalPixels();
     void updateScrollbars();
+    int byteOffsetAtPixel(QPoint &pos);
     field_info *fieldAtPixel(QPoint &pos);
 
     static const int separator_interval_;
@@ -108,6 +109,7 @@ private:
     QMenu ctx_menu_;
 
     // Data highlight
+    guint hovered_byte_offset;
     QPair<guint,guint> p_bound_;
     QPair<guint,guint> f_bound_;
     QPair<guint,guint> fa_bound_;
