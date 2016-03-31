@@ -31,13 +31,9 @@
 #include <epan/epan_dissect.h>
 #include "dfilter.h"
 #include "dfilter-macro.h"
+#include "scanner_lex.h"
 
 #define DFILTER_TOKEN_ID_OFFSET	1
-
-/* From scanner.c */
-void df_scanner_text(const char *text);
-void    df_scanner_cleanup(void);
-int     df_lex(void);
 
 /* Holds the singular instance of our Lemon parser object */
 static void*	ParserObj = NULL;
@@ -214,6 +210,9 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 	int		token;
 	dfilter_t	*dfilter;
 	dfwork_t	*dfw;
+	df_scanner_state_t state;
+	yyscan_t	scanner;
+	YY_BUFFER_STATE in_buffer;
 	gboolean failure = FALSE;
 	const char	*depr_test;
 	guint		i;
@@ -233,21 +232,28 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 		return FALSE;
 	}
 
+	if (df_lex_init(&scanner) != 0) {
+		*dfp = NULL;
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("Can't initialize scanner: %s",
+			    g_strerror(errno));
+		return FALSE;
+	}
+
+	in_buffer = df__scan_string(expanded_text, scanner);
+
 	dfw = dfwork_new();
 
-	/*
-	 * XXX - if we're using a version of Flex that supports reentrant lexical
-	 * analyzers, we should put this into the lexical analyzer's state.
-	 */
-	global_dfw = dfw;
+	state.dfw = dfw;
+	state.quoted_string = NULL;
 
-	df_scanner_text(expanded_text);
+	df_set_extra(&state, scanner);
 
 	deprecated = g_ptr_array_new();
 
 	while (1) {
 		df_lval = stnode_new(STTYPE_UNINITIALIZED, NULL);
-		token = df_lex();
+		token = df_lex(scanner);
 
 		/* Check for scanner failure */
 		if (token == SCAN_FAILED) {
@@ -307,8 +313,11 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 	if (dfw->syntax_error)
 		failure = TRUE;
 
-	/* Reset flex */
-	df_scanner_cleanup();
+	/* Free scanner state */
+	if (state.quoted_string != NULL)
+		g_string_free(state.quoted_string, TRUE);
+	df__delete_buffer(in_buffer, scanner);
+	df_lex_destroy(scanner);
 
 	if (failure)
 		goto FAILURE;

@@ -28,6 +28,8 @@ AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) -DDOC_DIR=\"$(docdir)\" \
 
 noinst_LIBRARIES = libui.a libui_dirty.a
 
+BUILT_SOURCES = $(GENERATED_HEADER_FILES)
+
 CLEANFILES = \
 	doxygen-ui.tag	\
 	libui.a		\

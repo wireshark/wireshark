@@ -27,31 +27,34 @@
 #include <glib.h>
 #include "ws_symbol_export.h"
 
-extern const gchar *ascend_parse_error;
-
-/*
- * Pointer to the pseudo-header for the current packet.
- */
-extern struct ascend_phdr *pseudo_header;
-
 typedef struct {
 	time_t inittime;
 	gboolean adjusted;
 	gint64 next_packet_seek_start;
 } ascend_t;
 
-/* Here we provide interfaces to make our scanner act and look like lex */
-int ascendlex(void);
+typedef struct {
+	FILE_T fh;
+	const gchar *ascend_parse_error;
+	int *err;
+	gchar **err_info;
+	struct ascend_phdr *pseudo_header;
+	guint8 *pkt_data;
 
-void init_parse_ascend(void);
-void ascend_init_lexer(FILE_T fh);
-gboolean check_ascend(FILE_T fh, struct wtap_pkthdr *phdr);
-typedef enum {
-    PARSED_RECORD,
-    PARSED_NONRECORD,
-    PARSE_FAILED
-} parse_t;
-parse_t parse_ascend(ascend_t *ascend, FILE_T fh, struct wtap_pkthdr *phdr,
-		Buffer *buf, guint length);
+	gboolean saw_timestamp;
+	guint32 timestamp;
+
+	unsigned int bcur;
+	gint64 first_hexbyte;
+	guint32 wirelen;
+	guint32 caplen;
+	time_t secs;
+	guint32 usecs;
+} ascend_state_t;
+#define YY_EXTRA_TYPE	ascend_state_t *
+
+extern int
+run_ascend_parser(FILE_T fh, struct wtap_pkthdr *phdr, guint8 *pd,
+                  ascend_state_t *parser_state, int *err, gchar **err_info);
 
 #endif /* ! __ASCEND_INT_H__ */

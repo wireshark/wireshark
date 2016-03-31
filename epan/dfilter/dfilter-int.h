@@ -56,10 +56,12 @@ typedef struct {
 } dfwork_t;
 
 /*
- * XXX - if we're using a version of Flex that supports reentrant lexical
- * analyzers, we should put this into the lexical analyzer's state.
+ * State kept by the scanner.
  */
-extern dfwork_t *global_dfw;
+typedef struct {
+	dfwork_t *dfw;
+	GString* quoted_string;
+} df_scanner_state_t;
 
 /* Constructor/Destructor prototypes for Lemon Parser */
 void *DfilterAlloc(void* (*)(gsize));

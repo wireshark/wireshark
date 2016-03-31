@@ -126,6 +126,7 @@
 
 #include "text_import.h"
 #include "text_import_scanner.h"
+#include "text_import_scanner_lex.h"
 
 /*--- Options --------------------------------------------------------------------*/
 
@@ -902,9 +903,12 @@ parse_token (token_t token, char *str)
 /*----------------------------------------------------------------------
  * Import a text file.
  */
-void
+int
 text_import(text_import_info_t *info)
 {
+    yyscan_t scanner;
+    int ret;
+
     packet_buf = (guint8 *)g_malloc(sizeof(HDR_ETHERNET) + sizeof(HDR_IP) +
                                     sizeof(HDR_SCTP) + sizeof(HDR_DATA_CHUNK) +
                                     IMPORT_MAX_PACKET);
@@ -1014,11 +1018,21 @@ text_import(text_import_info_t *info)
 
     max_offset = info->max_frame_length;
 
-    text_importin = info->import_text_file;
+    if (text_import_lex_init(&scanner) != 0) {
+        ret = errno;
+        g_free(packet_buf);
+        return ret;
+    }
 
-    text_importlex();
+    text_import_set_in(info->import_text_file, scanner);
+
+    text_import_lex(scanner);
+
+    text_import_lex_destroy(scanner);
 
     g_free(packet_buf);
+
+    return 0;
 }
 
 /*

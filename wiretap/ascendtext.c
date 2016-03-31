@@ -220,6 +220,8 @@ found:
 wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
 {
   gint64 offset;
+  guint8 buf[ASCEND_MAX_PKT_LEN];
+  ascend_state_t parser_state;
   ws_statb64 statbuf;
   ascend_t *ascend;
 
@@ -236,8 +238,19 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
   }
 
   /* Do a trial parse of the first packet just found to see if we might really have an Ascend file */
-  init_parse_ascend();
-  if (!check_ascend(wth->fh, &wth->phdr)) {
+  if (run_ascend_parser(wth->fh, &wth->phdr, buf, &parser_state, err, err_info) != 0) {
+    if (*err != 0) {
+        /* An I/O error. */
+        return WTAP_OPEN_ERROR;
+    }
+  }
+
+  /* if we got at least some data, and didn't get an I/O error, return
+     success even if the parser reported an error. This is because the
+     debug header gives the number of bytes on the wire, not actually
+     how many bytes are in the trace.  We won't know where the data ends
+     until we run into the next packet. */
+  if (parser_state.caplen == 0) {
     return WTAP_OPEN_NOT_MINE;
   }
 
@@ -280,9 +293,111 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
   ascend->adjusted = FALSE;
   wth->file_tsprec = WTAP_TSPREC_USEC;
 
-  init_parse_ascend();
-
   return WTAP_OPEN_MINE;
+}
+
+typedef enum {
+    PARSED_RECORD,
+    PARSED_NONRECORD,
+    PARSE_FAILED
+} parse_t;
+
+/* Parse the capture file.
+   Returns:
+     PARSED_RECORD if we got a packet
+     PARSED_NONRECORD if the parser succeeded but didn't see a packet
+     PARSE_FAILED if the parser failed. */
+static parse_t
+parse_ascend(ascend_t *ascend, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
+             guint length, int *err, gchar **err_info)
+{
+  ascend_state_t parser_state;
+  int retval;
+
+  ws_buffer_assure_space(buf, length);
+  retval = run_ascend_parser(fh, phdr, ws_buffer_start_ptr(buf), &parser_state,
+                             err, err_info);
+
+  /* did we see any data (hex bytes)? if so, tip off ascend_seek()
+     as to where to look for the next packet, if any. If we didn't,
+     maybe this record was broken. Advance so we don't get into
+     an infinite loop reading a broken trace. */
+  if (parser_state.first_hexbyte) {
+    ascend->next_packet_seek_start = parser_state.first_hexbyte;
+  } else {
+    /* Sometimes, a header will be printed but the data will be omitted, or
+       worse -- two headers will be printed, followed by the data for each.
+       Because of this, we need to be fairly tolerant of what we accept
+       here.  If we didn't find any hex bytes, skip over what we've read so
+       far so we can try reading a new packet. */
+    ascend->next_packet_seek_start = file_tell(fh);
+    retval = 0;
+  }
+
+  /* if we got at least some data, return success even if the parser
+     reported an error. This is because the debug header gives the number
+     of bytes on the wire, not actually how many bytes are in the trace.
+     We won't know where the data ends until we run into the next packet. */
+  if (parser_state.caplen) {
+    if (! ascend->adjusted) {
+      ascend->adjusted = TRUE;
+      if (parser_state.saw_timestamp) {
+        /*
+         * Capture file contained a date and time.
+         * We do this only if this is the very first packet we've seen -
+         * i.e., if "ascend->adjusted" is false - because
+         * if we get a date and time after the first packet, we can't
+         * go back and adjust the time stamps of the packets we've already
+         * processed, and basing the time stamps of this and following
+         * packets on the time stamp from the file text rather than the
+         * ctime of the capture file means times before this and after
+         * this can't be compared.
+         */
+        ascend->inittime = parser_state.timestamp;
+      }
+      if (ascend->inittime > parser_state.secs)
+        ascend->inittime -= parser_state.secs;
+    }
+    phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+    phdr->ts.secs = parser_state.secs + ascend->inittime;
+    phdr->ts.nsecs = parser_state.usecs * 1000;
+    phdr->caplen = parser_state.caplen;
+    phdr->len = parser_state.wirelen;
+
+    /*
+     * For these types, the encapsulation we use is not WTAP_ENCAP_ASCEND,
+     * so set the pseudo-headers appropriately for the type (WTAP_ENCAP_ISDN
+     * or WTAP_ENCAP_ETHERNET).
+     */
+    switch(phdr->pseudo_header.ascend.type) {
+      case ASCEND_PFX_ISDN_X:
+        phdr->pseudo_header.isdn.uton = TRUE;
+        phdr->pseudo_header.isdn.channel = 0;
+        break;
+
+      case ASCEND_PFX_ISDN_R:
+        phdr->pseudo_header.isdn.uton = FALSE;
+        phdr->pseudo_header.isdn.channel = 0;
+        break;
+
+      case ASCEND_PFX_ETHER:
+        phdr->pseudo_header.eth.fcs_len = 0;
+        break;
+    }
+    return PARSED_RECORD;
+  }
+
+  /* Didn't see any data. Still, perhaps the parser was happy.  */
+  if (retval) {
+    if (*err == 0) {
+      /* Not a bad record, so a parse error.  Return WTAP_ERR_BAD_FILE,
+         with the parse error as the error string. */
+      *err = WTAP_ERR_BAD_FILE;
+      *err_info = g_strdup((parser_state.ascend_parse_error != NULL) ? parser_state.ascend_parse_error : "parse error");
+    }
+    return PARSE_FAILED;
+  } else
+    return PARSED_NONRECORD;
 }
 
 /* Read the next packet; called from wtap_read(). */
@@ -304,11 +419,8 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
   if (offset == -1)
     return FALSE;
   if (parse_ascend(ascend, wth->fh, &wth->phdr, wth->frame_buffer,
-                   wth->snapshot_length) != PARSED_RECORD) {
-    *err = WTAP_ERR_BAD_FILE;
-    *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
+                   wth->snapshot_length, err, err_info) != PARSED_RECORD)
     return FALSE;
-  }
 
   *data_offset = offset;
   return TRUE;
@@ -323,11 +435,8 @@ static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
   if (parse_ascend(ascend, wth->random_fh, phdr, buf,
-                   wth->snapshot_length) != PARSED_RECORD) {
-    *err = WTAP_ERR_BAD_FILE;
-    *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
+                   wth->snapshot_length, err, err_info) != PARSED_RECORD)
     return FALSE;
-  }
 
   return TRUE;
 }

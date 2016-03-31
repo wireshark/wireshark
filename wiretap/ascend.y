@@ -1,3 +1,28 @@
+/*
+ * We want a reentrant parser.
+ */
+%pure-parser
+
+/*
+ * We also want a reentrant scanner, so we have to pass the
+ * handle for the reentrant scanner to the parser, and the
+ * parser has to pass it to the lexical analyzer.
+ *
+ * We use void * rather than yyscan_t because, at least with some
+ * versions of Flex and Bison, if you use yyscan_t in %parse-param and
+ * %lex-param, you have to include the ascend_lex_scanner.h before
+ * ascend.h to get yyscan_t declared, and you have to include ascend.h
+ * before ascend_lex_scanner.h to get YYSTYPE declared.  Using void *
+ * breaks the cycle; the Flex documentation says yyscan_t is just a void *.
+ */
+%parse-param {void *yyscanner}
+%lex-param {void *yyscanner}
+
+/*
+ * And we need to pass the parser state to the scanner.
+ */
+%parse-param {ascend_state_t *parser_state}
+
 %{
 /* ascend.y
  *
@@ -135,22 +160,13 @@ XMIT-Max7:20: (task "_brouterControlTask" at 0xb094ac20, time: 1481.51) 20 octet
 #include <wsutil/buffer.h>
 #include "ascendtext.h"
 #include "ascend-int.h"
+#include "ascend.h"
+#include "ascend_scanner_lex.h"
 #include "file_wrappers.h"
 
 #define NO_USER "<none>"
 
-int yyparse(FILE_T fh);
-void yyerror(FILE_T fh _U_, const char *);
-
-const gchar *ascend_parse_error;
-
-static unsigned int bcur;
-static guint32 start_time, usecs, caplen, wirelen;
-static time_t secs;
-struct ascend_phdr *pseudo_header;
-static guint8 *pkt_data;
-static gint64 first_hexbyte;
-
+extern void yyerror (void *yyscanner, ascend_state_t *state, FILE_T fh _U_, const char *s);
 %}
 
 %union {
@@ -208,19 +224,19 @@ PRI-XMIT-0/2 (task "l1Task" at 0x80152b20, time: 283529.65) 10 octets @
 
 */
 deferred_isdn_hdr: isdn_prefix decnum SLASH_SUFFIX KEYWORD string KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
-  wirelen += $11;
-  caplen += $11;
-  secs = $9;
-  usecs = $10;
-  if (pseudo_header != NULL) {
-    pseudo_header->type = $1;
-    pseudo_header->sess = $2;
-    pseudo_header->call_num[0] = '\0';
-    pseudo_header->chunk = 0;
-    pseudo_header->task = $7;
+  parser_state->wirelen += $11;
+  parser_state->caplen += $11;
+  parser_state->secs = $9;
+  parser_state->usecs = $10;
+  if (parser_state->pseudo_header != NULL) {
+    parser_state->pseudo_header->type = $1;
+    parser_state->pseudo_header->sess = $2;
+    parser_state->pseudo_header->call_num[0] = '\0';
+    parser_state->pseudo_header->chunk = 0;
+    parser_state->pseudo_header->task = $7;
   }
   /* because we have two data groups */
-  first_hexbyte = 0;
+  parser_state->first_hexbyte = 0;
 }
 ;
 
@@ -230,18 +246,18 @@ PRI-XMIT-19:  (task "l1Task" at 0x10216840, time: 274758.67) 4 octets @ 0x1027c1
 PRI-RCV-27:  (task "idle task" at 0x10123570, time: 560194.01) 4 octets @ 0x1027fb00
 */
 isdn_hdr: isdn_prefix decnum KEYWORD string KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
-  wirelen = $10;
-  caplen = $10;
-  secs = $8;
-  usecs = $9;
-  if (pseudo_header != NULL) {
-    pseudo_header->type = $1;
-    pseudo_header->sess = $2;
-    pseudo_header->call_num[0] = '\0';
-    pseudo_header->chunk = 0;
-    pseudo_header->task = $6;
+  parser_state->wirelen = $10;
+  parser_state->caplen = $10;
+  parser_state->secs = $8;
+  parser_state->usecs = $9;
+  if (parser_state->pseudo_header != NULL) {
+    parser_state->pseudo_header->type = $1;
+    parser_state->pseudo_header->sess = $2;
+    parser_state->pseudo_header->call_num[0] = '\0';
+    parser_state->pseudo_header->chunk = 0;
+    parser_state->pseudo_header->task = $6;
   }
-  first_hexbyte = 0;
+  parser_state->first_hexbyte = 0;
 }
 ;
 
@@ -251,15 +267,15 @@ ETHER3ND XMIT: (task "_sarTask" at 0x802c6eb0, time: 259848.11) 414 octets @ 0xa
 */
 ether_hdr: ether_prefix string KEYWORD string KEYWORD hexnum KEYWORD decnum decnum
  decnum KEYWORD HEXNUM {
-  wirelen = $10;
-  caplen = $10;
-  secs = $8;
-  usecs = $9;
-  if (pseudo_header != NULL) {
-    pseudo_header->type = $1;
-    pseudo_header->call_num[0] = '\0';
-    pseudo_header->chunk = 0;
-    pseudo_header->task = $6;
+  parser_state->wirelen = $10;
+  parser_state->caplen = $10;
+  parser_state->secs = $8;
+  parser_state->usecs = $9;
+  if (parser_state->pseudo_header != NULL) {
+    parser_state->pseudo_header->type = $1;
+    parser_state->pseudo_header->call_num[0] = '\0';
+    parser_state->pseudo_header->chunk = 0;
+    parser_state->pseudo_header->task = $6;
   }
 }
 ;
@@ -267,17 +283,17 @@ ether_hdr: ether_prefix string KEYWORD string KEYWORD hexnum KEYWORD decnum decn
 /* RECV-iguana:241:(task: B02614C0, time: 1975432.85) 49 octets @ 8003BD94 */
 /*            1        2      3      4       5      6       7      8      9      10     11 */
 wds_hdr: wds_prefix string decnum KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
-  wirelen = $9;
-  caplen = $9;
-  secs = $7;
-  usecs = $8;
-  if (pseudo_header != NULL) {
-    /* pseudo_header->user is set in ascend_scanner.l */
-    pseudo_header->type = $1;
-    pseudo_header->sess = $3;
-    pseudo_header->call_num[0] = '\0';
-    pseudo_header->chunk = 0;
-    pseudo_header->task = $5;
+  parser_state->wirelen = $9;
+  parser_state->caplen = $9;
+  parser_state->secs = $7;
+  parser_state->usecs = $8;
+  if (parser_state->pseudo_header != NULL) {
+    /* parser_state->pseudo_header->user is set in ascend_scanner.l */
+    parser_state->pseudo_header->type = $1;
+    parser_state->pseudo_header->sess = $3;
+    parser_state->pseudo_header->call_num[0] = '\0';
+    parser_state->pseudo_header->chunk = 0;
+    parser_state->pseudo_header->task = $5;
   }
 }
 ;
@@ -285,17 +301,17 @@ wds_hdr: wds_prefix string decnum KEYWORD hexnum KEYWORD decnum decnum decnum KE
 /* RECV-Max7:20: (task "_brouterControlTask" at 0xb094ac20, time: 1481.50) 20 octets @ 0x8000d198 */
 /*                1       2       3     4       5       6      7       8      9      10     11     12      13 */
 wds8_hdr: wds_prefix string decnum KEYWORD string KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
-  wirelen = $11;
-  caplen = $11;
-  secs = $9;
-  usecs = $10;
-  if (pseudo_header != NULL) {
-    /* pseudo_header->user is set in ascend_scanner.l */
-    pseudo_header->type = $1;
-    pseudo_header->sess = $3;
-    pseudo_header->call_num[0] = '\0';
-    pseudo_header->chunk = 0;
-    pseudo_header->task = $7;
+  parser_state->wirelen = $11;
+  parser_state->caplen = $11;
+  parser_state->secs = $9;
+  parser_state->usecs = $10;
+  if (parser_state->pseudo_header != NULL) {
+    /* parser_state->pseudo_header->user is set in ascend_scanner.l */
+    parser_state->pseudo_header->type = $1;
+    parser_state->pseudo_header->sess = $3;
+    parser_state->pseudo_header->call_num[0] = '\0';
+    parser_state->pseudo_header->chunk = 0;
+    parser_state->pseudo_header->task = $7;
   }
 }
 ;
@@ -303,17 +319,17 @@ wds8_hdr: wds_prefix string decnum KEYWORD string KEYWORD hexnum KEYWORD decnum 
 /* RECV-187:(task: B050B480, time: 18042248.03) 100 octets @ 800012C0 */
 /*            1        2       3      4       5       6      7      8      9      10    */
 wdp7_hdr: wds_prefix decnum KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
-  wirelen = $8;
-  caplen = $8;
-  secs = $6;
-  usecs = $7;
-  if (pseudo_header != NULL) {
-    /* pseudo_header->user is set in ascend_scanner.l */
-    pseudo_header->type = $1;
-    pseudo_header->sess = $2;
-    pseudo_header->call_num[0] = '\0';
-    pseudo_header->chunk = 0;
-    pseudo_header->task = $4;
+  parser_state->wirelen = $8;
+  parser_state->caplen = $8;
+  parser_state->secs = $6;
+  parser_state->usecs = $7;
+  if (parser_state->pseudo_header != NULL) {
+    /* parser_state->pseudo_header->user is set in ascend_scanner.l */
+    parser_state->pseudo_header->type = $1;
+    parser_state->pseudo_header->sess = $2;
+    parser_state->pseudo_header->call_num[0] = '\0';
+    parser_state->pseudo_header->chunk = 0;
+    parser_state->pseudo_header->task = $4;
   }
 }
 ;
@@ -321,17 +337,17 @@ wdp7_hdr: wds_prefix decnum KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD 
 /* XMIT-44: (task "freedm_task" at 0xe051fd10, time: 6258.66) 29 octets @ 0x606d1f00 */
 /*              1        2       3      4       5      6      7       8      9      10     11      12 */
 wdp8_hdr: wds_prefix decnum KEYWORD string KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
-  wirelen = $10;
-  caplen = $10;
-  secs = $8;
-  usecs = $9;
-  if (pseudo_header != NULL) {
-    /* pseudo_header->user is set in ascend_scanner.l */
-    pseudo_header->type = $1;
-    pseudo_header->sess = $2;
-    pseudo_header->call_num[0] = '\0';
-    pseudo_header->chunk = 0;
-    pseudo_header->task = $6;
+  parser_state->wirelen = $10;
+  parser_state->caplen = $10;
+  parser_state->secs = $8;
+  parser_state->usecs = $9;
+  if (parser_state->pseudo_header != NULL) {
+    /* parser_state->pseudo_header->user is set in ascend_scanner.l */
+    parser_state->pseudo_header->type = $1;
+    parser_state->pseudo_header->sess = $2;
+    parser_state->pseudo_header->call_num[0] = '\0';
+    parser_state->pseudo_header->chunk = 0;
+    parser_state->pseudo_header->task = $6;
   }
 }
 ;
@@ -356,7 +372,8 @@ wdd_date: WDD_DATE decnum decnum decnum KEYWORD decnum decnum decnum KEYWORD str
   wddt.tm_year = ($4 > 1970) ? $4 - 1900 : 70;
   wddt.tm_isdst = -1;
 
-  start_time = (guint32) mktime(&wddt);
+  parser_state->timestamp = (guint32) mktime(&wddt);
+  parser_state->saw_timestamp = TRUE;
 }
 ;
 
@@ -366,17 +383,17 @@ WD_DIALOUT_DISP: chunk 2515EE type IP.
 */
 /*           1        2      3       4       5      6       7      8      9      10     11*/
 wdd_hdr: WDD_CHUNK hexnum KEYWORD KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
-  wirelen = $9;
-  caplen = $9;
-  secs = $7;
-  usecs = $8;
-  if (pseudo_header != NULL) {
-    /* pseudo_header->call_num is set in ascend_scanner.l */
-    pseudo_header->type = ASCEND_PFX_WDD;
-    pseudo_header->user[0] = '\0';
-    pseudo_header->sess = 0;
-    pseudo_header->chunk = $2;
-    pseudo_header->task = $5;
+  parser_state->wirelen = $9;
+  parser_state->caplen = $9;
+  parser_state->secs = $7;
+  parser_state->usecs = $8;
+  if (parser_state->pseudo_header != NULL) {
+    /* parser_state->pseudo_header->call_num is set in ascend_scanner.l */
+    parser_state->pseudo_header->type = ASCEND_PFX_WDD;
+    parser_state->pseudo_header->user[0] = '\0';
+    parser_state->pseudo_header->sess = 0;
+    parser_state->pseudo_header->chunk = $2;
+    parser_state->pseudo_header->task = $5;
   }
 }
 ;
@@ -384,16 +401,16 @@ wdd_hdr: WDD_CHUNK hexnum KEYWORD KEYWORD hexnum KEYWORD decnum decnum decnum KE
 byte: HEXBYTE {
   /* remember the position of the data group in the trace, to tip
      off ascend_seek() as to where to look for the next header. */
-  if (first_hexbyte == 0)
-    first_hexbyte = file_tell(fh);
+  if (parser_state->first_hexbyte == 0)
+    parser_state->first_hexbyte = file_tell(fh);
 
-  if (bcur < caplen) {
-    pkt_data[bcur] = $1;
-    bcur++;
+  if (parser_state->bcur < parser_state->caplen) {
+    parser_state->pkt_data[parser_state->bcur] = $1;
+    parser_state->bcur++;
   }
 
   /* arbitrary safety maximum... */
-  if (bcur >= ASCEND_MAX_PKT_LEN)
+  if (parser_state->bcur >= ASCEND_MAX_PKT_LEN)
     YYACCEPT;
 }
 ;
@@ -431,27 +448,42 @@ datagroup: dataln
 
 %%
 
-void
-init_parse_ascend(void)
-{
-  start_time = 0;	/* we haven't see a date/time yet */
-}
-
 /* Run the parser. */
-static int
-run_ascend_parser(FILE_T fh, struct wtap_pkthdr *phdr, guint8 *pd)
+int
+run_ascend_parser(FILE_T fh, struct wtap_pkthdr *phdr, guint8 *pd,
+                  ascend_state_t *parser_state, int *err, gchar **err_info)
 {
-  /* yydebug = 1; */
+  yyscan_t scanner = NULL;
   int retval;
 
-  ascend_init_lexer(fh);
-  pseudo_header = &phdr->pseudo_header.ascend;
-  pkt_data = pd;
+  if (ascendlex_init(&scanner) != 0) {
+    /* errno is set if this fails */
+    *err = errno;
+    *err_info = NULL;
+    return 1;
+  }
+  /* Associate the parser state with the lexical analyzer state */
+  ascendset_extra(parser_state, scanner);
+  parser_state->fh = fh;
+  parser_state->ascend_parse_error = NULL;
+  parser_state->err = err;
+  parser_state->err_info = err_info;
+  parser_state->pseudo_header = &phdr->pseudo_header.ascend;
+  parser_state->pkt_data = pd;
 
-  bcur = 0;
-  first_hexbyte = 0;
-  wirelen = 0;
-  caplen = 0;
+  /*
+   * We haven't seen a time stamp yet.
+   */
+  parser_state->saw_timestamp = FALSE;
+  parser_state->timestamp = 0;
+
+  parser_state->bcur = 0;
+  parser_state->first_hexbyte = 0;
+  parser_state->wirelen = 0;
+  parser_state->caplen = 0;
+
+  parser_state->secs = 0;
+  parser_state->usecs = 0;
 
   /*
    * Not all packets in a "wdd" dump necessarily have a "Cause an
@@ -464,125 +496,16 @@ run_ascend_parser(FILE_T fh, struct wtap_pkthdr *phdr, guint8 *pd)
    * phone number from the last call, and remember that for use
    * when doing random access.
    */
-  pseudo_header->call_num[0] = '\0';
+  parser_state->pseudo_header->call_num[0] = '\0';
 
-  retval = yyparse(fh);
-
-  caplen = bcur;
-
+  retval = yyparse(scanner, parser_state, fh);
+  if (retval == 0)
+    parser_state->caplen = parser_state->bcur;
   return retval;
 }
 
-/* Parse the capture file.
-   Returns:
-     TRUE if we got a packet
-     FALSE otherwise. */
-gboolean
-check_ascend(FILE_T fh, struct wtap_pkthdr *phdr)
-{
-  guint8 buf[ASCEND_MAX_PKT_LEN];
-
-  run_ascend_parser(fh, phdr, buf);
-  
-  /* if we got at least some data, return success even if the parser
-     reported an error. This is because the debug header gives the number
-     of bytes on the wire, not actually how many bytes are in the trace.
-     We won't know where the data ends until we run into the next packet. */
-  return (caplen != 0);
-}
-
-/* Parse the capture file.
-   Returns:
-     PARSED_RECORD if we got a packet
-     PARSED_NONRECORD if the parser succeeded but didn't see a packet
-     PARSE_FAILED if the parser failed. */
-parse_t
-parse_ascend(ascend_t *ascend, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
-             guint length)
-{
-  int retval;
-
-  ws_buffer_assure_space(buf, length);
-  retval = run_ascend_parser(fh, phdr, ws_buffer_start_ptr(buf));
-
-  /* did we see any data (hex bytes)? if so, tip off ascend_seek()
-     as to where to look for the next packet, if any. If we didn't,
-     maybe this record was broken. Advance so we don't get into
-     an infinite loop reading a broken trace. */
-  if (first_hexbyte) {
-    ascend->next_packet_seek_start = first_hexbyte;
-  } else {
-    /* Sometimes, a header will be printed but the data will be omitted, or
-       worse -- two headers will be printed, followed by the data for each.
-       Because of this, we need to be fairly tolerant of what we accept
-       here.  If we didn't find any hex bytes, skip over what we've read so
-       far so we can try reading a new packet. */
-    ascend->next_packet_seek_start = file_tell(fh);
-    retval = 0;
-  }
-
-  /* if we got at least some data, return success even if the parser
-     reported an error. This is because the debug header gives the number
-     of bytes on the wire, not actually how many bytes are in the trace.
-     We won't know where the data ends until we run into the next packet. */
-  if (caplen) {
-    if (! ascend->adjusted) {
-      ascend->adjusted = TRUE;
-      if (start_time != 0) {
-        /*
-         * Capture file contained a date and time.
-         * We do this only if this is the very first packet we've seen -
-         * i.e., if "ascend->adjusted" is false - because
-         * if we get a date and time after the first packet, we can't
-         * go back and adjust the time stamps of the packets we've already
-         * processed, and basing the time stamps of this and following
-         * packets on the time stamp from the file text rather than the
-         * ctime of the capture file means times before this and after
-         * this can't be compared.
-         */
-        ascend->inittime = start_time;
-      }
-      if (ascend->inittime > secs)
-        ascend->inittime -= secs;
-    }
-    phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-    phdr->ts.secs = secs + ascend->inittime;
-    phdr->ts.nsecs = usecs * 1000;
-    phdr->caplen = caplen;
-    phdr->len = wirelen;
- 
-    /*
-     * For these types, the encapsulation we use is not WTAP_ENCAP_ASCEND,
-     * so set the pseudo-headers appropriately for the type (WTAP_ENCAP_ISDN
-     * or WTAP_ENCAP_ETHERNET).
-     */
-    switch(phdr->pseudo_header.ascend.type) {
-      case ASCEND_PFX_ISDN_X:
-        phdr->pseudo_header.isdn.uton = TRUE;
-        phdr->pseudo_header.isdn.channel = 0;
-        break;
-
-      case ASCEND_PFX_ISDN_R:
-        phdr->pseudo_header.isdn.uton = FALSE;
-        phdr->pseudo_header.isdn.channel = 0;
-        break;
-
-      case ASCEND_PFX_ETHER:
-        phdr->pseudo_header.eth.fcs_len = 0;
-        break;
-    }
-    return PARSED_RECORD;
-  }
-
-  /* Didn't see any data. Still, perhaps the parser was happy.  */
-  if (retval)
-    return PARSE_FAILED;
-  else
-    return PARSED_NONRECORD;
-}
-
 void
-yyerror (FILE_T fh _U_, const char *s)
+yyerror (void *yyscanner, ascend_state_t *state _U_, FILE_T fh _U_, const char *s)
 {
-  ascend_parse_error = s;
+  ascendget_extra(yyscanner)->ascend_parse_error = s;
 }

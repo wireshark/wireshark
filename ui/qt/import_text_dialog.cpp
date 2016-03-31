@@ -140,7 +140,13 @@ void ImportTextDialog::convertTextFile() {
         return;
     }
 
-    text_import(&import_info_);
+    err = text_import(&import_info_);
+    if (err != 0) {
+        failure_alert_box("Can't initialize scanner: %s", g_strerror(err));
+        fclose(import_info_.import_text_file);
+        setResult(QDialog::Rejected);
+        return;
+    }
 
     if (fclose(import_info_.import_text_file))
     {

@@ -116,7 +116,8 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 BUILT_SOURCES = \
-	dtd_grammar.h
+	$(LIBWIRESHARK_GENERATED_HEADER_FILES) \
+	$(NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES)
 
 #
 # Add the object files for missing routines, if any.
