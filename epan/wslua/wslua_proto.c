@@ -112,8 +112,8 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
 
     loname = g_ascii_strdown(name, -1);
     if (proto_check_field_name(loname)) {
-        WSLUA_ARG_ERROR(Proto_new,NAME,"invalid character in name");
         g_free(loname);
+        WSLUA_ARG_ERROR(Proto_new,NAME,"invalid character in name");
         return 0;
     }
 
@@ -121,9 +121,9 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
     if ((proto_get_id_by_short_name(hiname) != -1) ||
         (proto_get_id_by_filter_name(loname) != -1))
     {
-        WSLUA_ARG_ERROR(Proto_new,NAME,"there cannot be two protocols with the same name");
         g_free(loname);
         g_free(hiname);
+        WSLUA_ARG_ERROR(Proto_new,NAME,"there cannot be two protocols with the same name");
         return 0;
     }
 
