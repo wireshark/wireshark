@@ -116,6 +116,7 @@ struct depend_dissector_list {
 	GSList		*dissectors;
 };
 
+/* Maps char *dissector_name to depend_dissector_list_t */
 static GHashTable *depend_dissector_lists = NULL;
 
 static void
@@ -124,6 +125,7 @@ destroy_depend_dissector_list(void *data)
 	depend_dissector_list_t dissector_list = (depend_dissector_list_t)data;
 	GSList **list = &(dissector_list->dissectors);
 
+	g_slist_foreach(*list, (GFunc)g_free, NULL);
 	g_slist_free(*list);
 	g_slice_free(struct depend_dissector_list, dissector_list);
 }
@@ -179,7 +181,7 @@ packet_init(void)
 			NULL, NULL);
 
 	depend_dissector_lists = g_hash_table_new_full(g_str_hash, g_str_equal,
-			NULL, destroy_depend_dissector_list);
+			g_free, destroy_depend_dissector_list);
 
 	heur_dissector_lists = g_hash_table_new_full(g_str_hash, g_str_equal,
 			NULL, destroy_heuristic_dissector_list);
@@ -2704,6 +2706,32 @@ register_dissector(const char *name, dissector_t dissector, const int proto)
 	return handle;
 }
 
+static gboolean
+remove_depend_dissector_from_list(depend_dissector_list_t sub_dissectors, const char *dependent)
+{
+	GSList *found_entry;
+
+	found_entry = g_slist_find_custom(sub_dissectors->dissectors,
+		(gpointer)dependent, (GCompareFunc)strcmp);
+
+	if (found_entry) {
+		g_free(found_entry->data);
+		sub_dissectors->dissectors = g_slist_delete_link(sub_dissectors->dissectors, found_entry);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static void
+remove_depend_dissector_ghfunc(gpointer key _U_, gpointer value, gpointer user_data)
+{
+	depend_dissector_list_t sub_dissectors = (depend_dissector_list_t) value;
+	const char *dependent = (const char *)user_data;
+
+	remove_depend_dissector_from_list(sub_dissectors, dependent);
+}
+
 /* Deregister a dissector by name. */
 void
 deregister_dissector(const char *name)
@@ -2712,6 +2740,8 @@ deregister_dissector(const char *name)
 	if (handle == NULL) return;
 
 	g_hash_table_remove(registered_dissectors, (gpointer)name);
+	g_hash_table_remove(depend_dissector_lists, (gpointer)name);
+	g_hash_table_foreach(depend_dissector_lists, remove_depend_dissector_ghfunc, (gpointer)name);
 	g_hash_table_remove(heur_dissector_lists, (gpointer)name);
 
 	destroy_dissector_handle(handle);
@@ -2839,7 +2869,7 @@ gboolean register_depend_dissector(const char* parent, const char* dependent)
 		/* parent protocol doesn't exist, create it */
 		sub_dissectors = g_slice_new(struct depend_dissector_list);
 		sub_dissectors->dissectors = NULL;	/* initially empty */
-		g_hash_table_insert(depend_dissector_lists, (gpointer)parent, (gpointer) sub_dissectors);
+		g_hash_table_insert(depend_dissector_lists, (gpointer)g_strdup(parent), (gpointer) sub_dissectors);
 	}
 
 	/* Verify that sub-dissector is not already in the list */
@@ -2852,32 +2882,18 @@ gboolean register_depend_dissector(const char* parent, const char* dependent)
 			return TRUE; /* Dependency already exists */
 	}
 
-	sub_dissectors->dissectors = g_slist_prepend(sub_dissectors->dissectors, (gpointer)dependent);
+	sub_dissectors->dissectors = g_slist_prepend(sub_dissectors->dissectors, (gpointer)g_strdup(dependent));
 	return TRUE;
-}
-
-static int
-find_matching_depend_dissector( gconstpointer a, gconstpointer b) {
-	return (strcmp((const char*)a, (const char*)b) != 0);
 }
 
 gboolean deregister_depend_dissector(const char* parent, const char* dependent)
 {
 	depend_dissector_list_t  sub_dissectors = find_depend_dissector_list(parent);
-	GSList                *found_entry;
 
 	/* sanity check */
 	g_assert(sub_dissectors != NULL);
 
-	found_entry = g_slist_find_custom(sub_dissectors->dissectors,
-		(gpointer)dependent, find_matching_depend_dissector);
-
-	if (found_entry) {
-		sub_dissectors->dissectors = g_slist_delete_link(sub_dissectors->dissectors, found_entry);
-		return TRUE;
-	}
-
-	return FALSE;
+	return remove_depend_dissector_from_list(sub_dissectors, dependent);
 }
 
 depend_dissector_list_t find_depend_dissector_list(const char* name)
