@@ -165,8 +165,12 @@ static const value_string burst_command[] = {
    ISBN: 0-929392-31-0
 
    And:
-   http:developer.novell.com
+
+   https://www.novell.com/developer/ndk/netware_core_protocols.html
+   
    NCP documentation
+
+   (formerly http:developer.novell.com)
 
 */
 
