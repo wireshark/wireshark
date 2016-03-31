@@ -48,7 +48,7 @@ typedef struct {
 guint randpkt_example_count(void);
 
 /* Return the list of the active examples */
-void randpkt_example_list(const char*** abbrev_list, const char*** longname_list, unsigned* list_num);
+void randpkt_example_list(char*** abbrev_list, char*** longname_list);
 
 /* Seed the random-number generator */
 void randpkt_seed(void);

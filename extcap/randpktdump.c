@@ -65,10 +65,9 @@ static struct option longopts[] = {
 
 static void help(const char* binname)
 {
-	unsigned i;
-	const char** abbrev_list;
-	const char** longname_list;
-	unsigned list_num;
+	unsigned i = 0;
+	char** abbrev_list;
+	char** longname_list;
 
 	printf("Help\n");
 	printf(" Usage:\n");
@@ -94,22 +93,23 @@ static void help(const char* binname)
 	printf("  --all-random: a random type is chosen for each packet\n");
 	printf("  --type <type>: the packet type\n");
 	printf("\n\nPacket types:\n");
-	randpkt_example_list(&abbrev_list, &longname_list, &list_num);
-	for (i = 0; i < list_num; i++) {
+	randpkt_example_list(&abbrev_list, &longname_list);
+	while (abbrev_list[i] && longname_list[i]) {
 		printf("\t%-16s%s\n", abbrev_list[i], longname_list[i]);
+		i++;
 	}
-	g_free((char**)abbrev_list);
-	g_free((char**)longname_list);
+	printf("\n");
+	g_strfreev(abbrev_list);
+	g_strfreev(longname_list);
 
 }
 
 static int list_config(char *interface)
 {
 	unsigned inc = 0;
-	unsigned i;
-	const char** abbrev_list;
-	const char** longname_list;
-	unsigned list_num;
+	unsigned i = 0;
+	char** abbrev_list;
+	char** longname_list;
 
 	if (!interface) {
 		errmsg_print("ERROR: No interface specified.");
@@ -138,12 +138,13 @@ static int list_config(char *interface)
 	printf("arg {number=%u}{call=--type}{display=Type of packet}"
 		"{type=selector}{tooltip=Type of packet to generate}\n",
 		inc);
-	randpkt_example_list(&abbrev_list, &longname_list, &list_num);
-	for (i = 0; i < list_num; i++) {
+	randpkt_example_list(&abbrev_list, &longname_list);
+	while (abbrev_list[i] && longname_list[i]) {
 		printf("value {arg=%u}{value=%s}{display=%s}\n", inc, abbrev_list[i], longname_list[i]);
+		i++;
 	}
-	g_free((char**)abbrev_list);
-	g_free((char**)longname_list);
+	g_strfreev(abbrev_list);
+	g_strfreev(longname_list);
 	inc++;
 
 	return EXIT_SUCCESS;

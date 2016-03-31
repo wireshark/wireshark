@@ -22,6 +22,7 @@
  */
 
 #include <glib.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <wsutil/ws_diag_control.h>
@@ -63,10 +64,9 @@ static void
 usage(gboolean is_error)
 {
 	FILE *output;
-	const char** abbrev_list;
-	const char** longname_list;
-	unsigned list_num;
-	unsigned i;
+	char** abbrev_list;
+	char** longname_list;
+	unsigned i = 0;
 
 	if (!is_error) {
 		output = stdout;
@@ -83,12 +83,14 @@ usage(gboolean is_error)
 	fprintf(output, "Types:\n");
 
 	/* Get the examples list */
-	randpkt_example_list(&abbrev_list, &longname_list, &list_num);
-	for (i = 0; i < list_num; i++) {
+	randpkt_example_list(&abbrev_list, &longname_list);
+	while (abbrev_list[i] && longname_list[i]) {
 		fprintf(output, "\t%-16s%s\n", abbrev_list[i], longname_list[i]);
+		i++;
 	}
-	g_free((char**)abbrev_list);
-	g_free((char**)longname_list);
+
+	g_strfreev(abbrev_list);
+	g_strfreev(longname_list);
 
 	fprintf(output, "\nIf type is not specified, a random packet will be chosen\n\n");
 

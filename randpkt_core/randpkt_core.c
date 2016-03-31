@@ -779,15 +779,16 @@ int randpkt_parse_type(char *string)
 	return -1;
 }
 
-void randpkt_example_list(const char*** abbrev_list, const char*** longname_list, unsigned* list_num)
+void randpkt_example_list(char*** abbrev_list, char*** longname_list)
 {
 	unsigned i;
-	*list_num = randpkt_example_count();
-	*abbrev_list = g_new0(const char*, *list_num);
-	*longname_list = g_new0(const char*, *list_num);
-	for (i = 0; i < *list_num; i++) {
-		(*abbrev_list)[i] = examples[i].abbrev;
-		(*longname_list)[i] = examples[i].longname;
+	unsigned list_num;
+	list_num = randpkt_example_count();
+	*abbrev_list = g_new0(char*, list_num + 1);
+	*longname_list = g_new0(char*, list_num + 1);
+	for (i = 0; i < list_num; i++) {
+		(*abbrev_list)[i] = g_strdup(examples[i].abbrev);
+		(*longname_list)[i] = g_strdup(examples[i].longname);
 	}
 }
 
