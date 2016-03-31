@@ -476,10 +476,10 @@ static gboolean isstrtype_ok( int type, const char* string, unsigned int size)
     case ISO_TB:
       return ishex_str(string, size);
     case ISO_TZ:
-    if(charset_pref == ASCII_CHARSET)
-      return isalnumspec_str(string, size);
-    else
-      return ishex_str(string, size);
+      if(charset_pref == ASCII_CHARSET)
+        return isalnumspec_str(string, size);
+      else
+        return ishex_str(string, size);
   }
   return 0;
 }
@@ -543,22 +543,27 @@ static guint get_iso8583_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offs
 #define NIBBLE_2_ASCHEX(nibble)\
   ( ((nibble)>9) ? (((nibble)-10))+'A' : ((nibble)+'0') )
 
-static gchar* bin2hex(gchar* buff, const guint8 *bin, enum bin2hex_enum type,  guint32 len)
-  /* buff must have size at least len + 1 */
+/*
+ * Convert a sequence of nibbles to a string of ASCII characters
+ * corresponding to the hex digits in those nibbles.
+ */
+static gchar* bin2hex(const guint8 *bin, enum bin2hex_enum type, guint32 len)
 {
+  gchar* ret;
   guint8 ch;
   const guint8* str = bin;
   guint32 size = len;
-  gchar* ret = buff;
+  gchar* buff;
 
+  /* "size" characters, plus terminating NUL */
+  ret = wmem_alloc(wmem_packet_scope(), size + 1);
+  buff = ret;
   if(type == TYPE_BCD)
   {
     if(size % 2) /* odd */
     {
       ch = *str & 0x0f;
       *buff = NIBBLE_2_ASCHEX(ch);
-      if(!g_ascii_isxdigit(*buff++))
-        return NULL;
       str++;
       size--;
     }
@@ -569,12 +574,8 @@ static gchar* bin2hex(gchar* buff, const guint8 *bin, enum bin2hex_enum type,  g
   {
     ch = (*str >> 4) & 0x0f;
     *buff = NIBBLE_2_ASCHEX(ch);
-    if(!g_ascii_isxdigit(*buff++))
-      return NULL;
     ch = *str & 0x0f;
     *buff = NIBBLE_2_ASCHEX(ch);
-    if(!g_ascii_isxdigit(*buff++))
-      return NULL;
     str++;
   }
   *buff = '\0';
@@ -606,7 +607,6 @@ static guint64 hex2bin(const char* hexstr, int len)
 
 static gchar *get_bit(guint ind, tvbuff_t *tvb, gint *off_set, proto_tree *tree, proto_item **exp, gint *length )
 {
-  static gchar val[1024];
   gchar aux[1024];
   gchar* ret=NULL;
   gint len;
@@ -615,8 +615,6 @@ static gchar *get_bit(guint ind, tvbuff_t *tvb, gint *off_set, proto_tree *tree,
 
   /* Check if it is a fixed or variable length
    * data field */
-
-  val[0] = '\0';
 
   if(data_array[ind].varlen == 0)
     len = data_array[ind].maxsize; /* fixed len */
@@ -689,7 +687,7 @@ static gchar *get_bit(guint ind, tvbuff_t *tvb, gint *off_set, proto_tree *tree,
         gint tlen = (len%2)? len/2 + 1 : len/2;
         checksize(tlen);
         tvb_memcpy(tvb, aux, offset, tlen);
-        if((ret = bin2hex(val, (guint8 *)aux, TYPE_BCD, len)) == NULL)
+        if((ret = bin2hex((guint8 *)aux, TYPE_BCD, len)) == NULL)
           return NULL;
         *length = (gint)strlen(ret);
         len = tlen;
@@ -712,7 +710,7 @@ static gchar *get_bit(guint ind, tvbuff_t *tvb, gint *off_set, proto_tree *tree,
       {
         checksize(len);
         tvb_memcpy(tvb, aux, offset, len);
-        if((ret = bin2hex(val, (guint8 *)aux, TYPE_BIN, len)) == NULL)
+        if((ret = bin2hex((guint8 *)aux, TYPE_BIN, len)) == NULL)
           return NULL;
         *length = (gint)strlen(ret);
         str_input = TRUE;
@@ -736,7 +734,10 @@ static gchar *get_bit(guint ind, tvbuff_t *tvb, gint *off_set, proto_tree *tree,
     *off_set = offset + len;
   }
   else
-    ret = val;
+  {
+    *length = 0;
+    ret = "";
+  }
 
   return ret;
 }
@@ -841,7 +842,7 @@ static int dissect_iso8583_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   guint       offset = 0;
   int         len    = 0;
   gchar *msg_type, *msg_bitmap;
-  gchar msg_types[24], aux[24], msg_bitmaps[24];
+  gchar aux[24];
   guint64 bitmap[3]= {0,0,0};
   int nofbitmaps=0;
   guint ret;
@@ -863,7 +864,7 @@ static int dissect_iso8583_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   {
     len = 2;
     tvb_memcpy(tvb, aux, 2, len);
-    if((msg_type = bin2hex(msg_types, (guint8 *)aux, TYPE_BCD, len*2)) == NULL)
+    if((msg_type = bin2hex((guint8 *)aux, TYPE_BCD, len*2)) == NULL)
       return 0;
   }
 
@@ -879,7 +880,7 @@ static int dissect_iso8583_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   else
   {
     tvb_memcpy(tvb, aux, 6, BM_LEN);
-    if((msg_bitmap = bin2hex(msg_bitmaps, (guint8 *)aux, TYPE_BCD, BM_LEN)) == NULL)
+    if((msg_bitmap = bin2hex((guint8 *)aux, TYPE_BCD, BM_LEN)) == NULL)
       return 0;
   }
 
