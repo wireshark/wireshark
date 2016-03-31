@@ -77,6 +77,10 @@ fill_from_ifaces (interface_t *device)
         if (interface_opts.linktype != -1) {
             device->active_dlt = interface_opts.linktype;
         }
+        if (!device->selected) {
+            device->selected = TRUE;
+            global_capture_opts.num_selected++;
+        }
         return;
     }
 }
