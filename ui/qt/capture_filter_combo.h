@@ -49,7 +49,8 @@ private:
     CaptureFilterEdit *cf_edit_;
 
 private slots:
-    void rebuildFilterList(bool insert_edit_text = true);
+    void saveAndRebuildFilterList();
+    void rebuildFilterList();
 };
 
 #endif // CAPTURE_FILTER_COMBO_H
