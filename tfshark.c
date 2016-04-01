@@ -35,10 +35,6 @@
 
 #include <errno.h>
 
-#ifdef HAVE_LIBZ
-#include <zlib.h>      /* to get the libz version number */
-#endif
-
 #ifndef HAVE_GETOPT_LONG
 #include "wsutil/wsgetopt.h"
 #endif
@@ -727,29 +723,8 @@ print_current_user(void) {
 }
 
 static void
-get_tfshark_compiled_version_info(GString *str)
-{
-  /* LIBZ */
-#ifdef HAVE_LIBZ
-  g_string_append(str, "with libz ");
-#ifdef ZLIB_VERSION
-  g_string_append(str, ZLIB_VERSION);
-#else /* ZLIB_VERSION */
-  g_string_append(str, "(version unknown)");
-#endif /* ZLIB_VERSION */
-#else /* HAVE_LIBZ */
-  g_string_append(str, "without libz");
-#endif /* HAVE_LIBZ */
-}
-
-static void
 get_tfshark_runtime_version_info(GString *str)
 {
-  /* zlib */
-#if defined(HAVE_LIBZ) && !defined(_WIN32)
-  g_string_append_printf(str, ", with libz %s", zlibVersion());
-#endif
-
   /* stuff used by libwireshark */
   epan_get_runtime_version_info(str);
 }
@@ -844,8 +819,7 @@ main(int argc, char *argv[])
   initialize_funnel_ops();
 
   /* Get the compile-time version information string */
-  comp_info_str = get_compiled_version_info(get_tfshark_compiled_version_info,
-                                            epan_get_compiled_version_info);
+  comp_info_str = get_compiled_version_info(NULL, epan_get_compiled_version_info);
 
   /* Get the run-time version information string */
   runtime_info_str = get_runtime_version_info(get_tfshark_runtime_version_info);

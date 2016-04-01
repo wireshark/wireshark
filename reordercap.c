@@ -32,10 +32,6 @@
 #include <getopt.h>
 #endif
 
-#ifdef HAVE_LIBZ
-#include <zlib.h>      /* to get the libz version number */
-#endif
-
 #include <wiretap/wtap.h>
 
 #ifndef HAVE_GETOPT_LONG
@@ -151,37 +147,6 @@ frames_compare(gconstpointer a, gconstpointer b)
     return nstime_cmp(time1, time2);
 }
 
-static void
-get_reordercap_compiled_info(GString *str)
-{
-    /* LIBZ */
-    g_string_append(str, ", ");
-#ifdef HAVE_LIBZ
-    g_string_append(str, "with libz ");
-#ifdef ZLIB_VERSION
-    g_string_append(str, ZLIB_VERSION);
-#else /* ZLIB_VERSION */
-    g_string_append(str, "(version unknown)");
-#endif /* ZLIB_VERSION */
-#else /* HAVE_LIBZ */
-    g_string_append(str, "without libz");
-#endif /* HAVE_LIBZ */
-}
-
-static void
-get_reordercap_runtime_info(
-#if defined(HAVE_LIBZ) && !defined(_WIN32)
-    GString *str)
-#else
-   GString *str _U_)
-#endif
-{
-    /* zlib */
-#if defined(HAVE_LIBZ) && !defined(_WIN32)
-    g_string_append_printf(str, ", with libz %s", zlibVersion());
-#endif
-}
-
 #ifdef HAVE_PLUGINS
 /*
  *  Don't report failures to load plugins because most (non-wiretap) plugins
@@ -236,10 +201,10 @@ main(int argc, char *argv[])
 #endif
 
     /* Get the compile-time version information string */
-    comp_info_str = get_compiled_version_info(NULL, get_reordercap_compiled_info);
+    comp_info_str = get_compiled_version_info(NULL, NULL);
 
     /* Get the run-time version information string */
-    runtime_info_str = get_runtime_version_info(get_reordercap_runtime_info);
+    runtime_info_str = get_runtime_version_info(NULL);
 
     /* Add it to the information to be reported on a crash. */
     ws_add_crash_info("Reordercap (Wireshark) %s\n"

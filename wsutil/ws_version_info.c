@@ -33,6 +33,10 @@
 
 #include <glib.h>
 
+#ifdef HAVE_LIBZ
+#include <zlib.h>
+#endif
+
 #include "version.h"
 
 #include <wsutil/ws_version_info.h>
@@ -69,6 +73,20 @@ end_string(GString *str)
 		}
 		p = q + 1;
 	}
+}
+
+static const gchar *
+get_zlib_compiled_version_info(void)
+{
+#ifdef HAVE_LIBZ
+#ifdef ZLIB_VERSION
+	return "with libz "ZLIB_VERSION;
+#else
+	return "with libz (version unknown)";
+#endif /* ZLIB_VERSION */
+#else
+	return "without libz";
+#endif /* HAVE_LIBZ */
 }
 
 /*
@@ -111,6 +129,8 @@ get_compiled_version_info(void (*prepend_info)(GString *),
 #else
 	    "GLib (version unknown)");
 #endif
+
+	g_string_append_printf(str, ", %s", get_zlib_compiled_version_info());
 
 	/* Additional application-dependent information */
 	if (append_info)
@@ -333,6 +353,11 @@ get_runtime_version_info(void (*additional_info)(GString *))
 	/* Additional application-dependent information */
 	if (additional_info)
 		(*additional_info)(str);
+
+	/* zlib */
+#if defined(HAVE_LIBZ) && !defined(_WIN32)
+	g_string_append_printf(str, ", with libz %s", zlibVersion());
+#endif
 
 	g_string_append(str, ".");
 
