@@ -1599,7 +1599,7 @@ ZLIB_CFLAGS=/I$(ZLIB_DIR)
 ZLIB_LIBS=$(ZLIB_DIR)\lib\zdll.lib
 ZLIB_DLL=$(ZLIB_DIR)\zlib1.dll
 # Nmake uses carets to escape special characters
-ZLIB_CONFIG=^#define HAVE_LIBZ 1
+ZLIB_CONFIG=^#define HAVE_ZLIB 1
 !else
 ZLIB_CFLAGS=
 ZLIB_LIBS=

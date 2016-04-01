@@ -256,7 +256,7 @@ static gboolean http_dechunk_body = TRUE;
 /*
  * Decompression of zlib encoded entities.
  */
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 static gboolean http_decompress_body = TRUE;
 #else
 static gboolean http_decompress_body = FALSE;
@@ -3456,7 +3456,7 @@ proto_register_http(void)
 	    "Whether to reassemble bodies of entities that are transferred "
 	    "using the \"Transfer-Encoding: chunked\" method",
 	    &http_dechunk_body);
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 	prefs_register_bool_preference(http_module, "decompress_body",
 	    "Uncompress entity bodies",
 	    "Whether to uncompress entity bodies that are compressed "

@@ -26,7 +26,7 @@
 
 #include "config.h"
 
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 #define ZLIB_CONST
 #include <zlib.h>
 #endif
@@ -1233,7 +1233,7 @@ static const ssl_alpn_protocol_t ssl_alpn_protocols[] = {
 */
 struct _SslDecompress {
     gint compression;
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
     z_stream istream;
 #endif
 };
@@ -2613,7 +2613,7 @@ ssl_decrypt_record(SslDecryptSession*ssl, SslDecoder* decoder, gint ct,
 
 #ifdef HAVE_LIBGCRYPT
 /* Record Decompression (after decryption) {{{ */
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 /* memory allocation functions for zlib initialization */
 static void* ssl_zalloc(void* opaque _U_, unsigned int no, unsigned int size)
 {
@@ -2629,7 +2629,7 @@ static SslDecompress*
 ssl_create_decompressor(gint compression)
 {
     SslDecompress *decomp;
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
     int err;
 #endif
 
@@ -2638,7 +2638,7 @@ ssl_create_decompressor(gint compression)
     decomp = (SslDecompress *)wmem_alloc(wmem_file_scope(), sizeof(SslDecompress));
     decomp->compression = compression;
     switch (decomp->compression) {
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
         case 1:  /* DEFLATE */
             decomp->istream.zalloc = ssl_zalloc;
             decomp->istream.zfree = ssl_zfree;
@@ -2661,7 +2661,7 @@ ssl_create_decompressor(gint compression)
     return decomp;
 }
 
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 static int
 ssl_decompress_record(SslDecompress* decomp, const guchar* in, guint inl, StringInfo* out_str, guint* outl)
 {

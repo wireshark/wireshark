@@ -900,9 +900,9 @@ endif()
 if(GTK2_FOUND OR GTK3_FOUND)
 	set(GTK_FOUND ON)
 endif()
-# That's the name autofoo uses
+
 if(HAVE_LIBZLIB)
-	set(HAVE_LIBZ 1)
+	set(HAVE_ZLIB 1)
 	# Always include the "true" zlib includes first. This works around a
 	# bug in the Windows setup of GTK[23] which has a faulty zconf.h.
 	include_directories(BEFORE ${ZLIB_INCLUDE_DIRS})

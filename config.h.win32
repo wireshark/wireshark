@@ -157,8 +157,8 @@
 /* #define INTTYPES_H_DEFINES_FORMATS */
 
 /* Define if you have the z library (-lz).  */
-@HAVE_LIBZ@
-#ifdef HAVE_LIBZ
+@HAVE_ZLIB@
+#ifdef HAVE_ZLIB
 #define HAVE_INFLATEPRIME 1
 #endif
 

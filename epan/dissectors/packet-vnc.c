@@ -2938,7 +2938,7 @@ vnc_h264_encoding(tvbuff_t *tvb, gint *offset, proto_tree *tree)
 	return 0; /* bytes_needed */
 }
 
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 static guint
 vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		  proto_tree *tree, const guint16 width, const guint16 height)
@@ -2949,7 +2949,7 @@ vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, gint *offset,
 #endif
 {
 	guint32 data_len;
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 	guint8 palette_size;
 	guint8 bytes_per_cpixel = vnc_get_bytes_per_pixel(pinfo);
 	gint uncomp_offset = 0;
@@ -2972,7 +2972,7 @@ vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, gint *offset,
 	proto_tree_add_item(tree, hf_vnc_zrle_data, tvb, *offset,
 			    data_len, ENC_NA);
 
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 	uncomp_tvb = tvb_child_uncompress(tvb, tvb, *offset, data_len);
 
 	if(uncomp_tvb != NULL) {
@@ -3020,7 +3020,7 @@ vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, gint *offset,
 	} else {
 		proto_tree_add_expert(tree, pinfo, &ei_vnc_zrle_failed, tvb, *offset, data_len);
 	}
-#endif /* HAVE_LIBZ */
+#endif /* HAVE_ZLIB */
 
 	*offset += data_len;
 

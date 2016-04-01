@@ -1206,7 +1206,7 @@ WSLUA_METHOD TvbRange_uncompress(lua_State* L) {
     /* Obtain an uncompressed TvbRange from a TvbRange */
 #define WSLUA_ARG_TvbRange_uncompress_NAME 2 /* The name to be given to the new data-source. */
     TvbRange tvbr = checkTvbRange(L,1);
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
     const gchar* name = luaL_optstring(L,WSLUA_ARG_TvbRange_uncompress_NAME,"Uncompressed");
     tvbuff_t *uncompr_tvb;
 #endif
@@ -1218,7 +1218,7 @@ WSLUA_METHOD TvbRange_uncompress(lua_State* L) {
         return 0;
     }
 
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
     uncompr_tvb = tvb_child_uncompress(tvbr->tvb->ws_tvb, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len);
     if (uncompr_tvb) {
        add_new_data_source (lua_pinfo, uncompr_tvb, name);

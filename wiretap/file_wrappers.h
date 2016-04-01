@@ -46,7 +46,7 @@ extern void file_fdclose(FILE_T file);
 extern int file_fdreopen(FILE_T file, const char *path);
 extern void file_close(FILE_T file);
 
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 typedef struct wtap_writer *GZWFILE_T;
 
 extern GZWFILE_T gzwfile_open(const char *path);
@@ -55,6 +55,6 @@ extern guint gzwfile_write(GZWFILE_T state, const void *buf, guint len);
 extern int gzwfile_flush(GZWFILE_T state);
 extern int gzwfile_close(GZWFILE_T state, gboolean is_stdout);
 extern int gzwfile_geterr(GZWFILE_T state);
-#endif /* HAVE_LIBZ */
+#endif /* HAVE_ZLIB */
 
 #endif /* __FILE_H__ */

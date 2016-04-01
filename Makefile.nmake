@@ -458,7 +458,7 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@VERSION_FLAVOR@/$(VERSION_FLAVOR)/" \
 	    -e "s/@HAVE_C_ARES@/$(C_ARES_CONFIG)/" \
 	    -e "s/@HAVE_KFW@/$(KFW_CONFIG)/" \
-	    -e "s/@HAVE_LIBZ@/$(ZLIB_CONFIG)/" \
+	    -e "s/@HAVE_ZLIB@/$(ZLIB_CONFIG)/" \
 	    -e "s/@HAVE_LIBPCAP@/$(WINPCAP_CONFIG)/" \
 	    -e "s/@HAVE_PCAP_FINDALLDEVS@/$(PCAP_FINDALLDEVS_CONFIG)/" \
 	    -e "s/@HAVE_PCAP_DATALINK_NAME_TO_VAL@/$(PCAP_DATALINK_NAME_TO_VAL_CONFIG)/" \

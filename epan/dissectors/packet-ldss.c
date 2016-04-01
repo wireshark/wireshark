@@ -685,7 +685,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 						    ? "Gzip compressed data: %d bytes"
 						    : "File data: %d bytes",
 						    tvb_captured_length(tvb));
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 			/* Be nice and uncompress the file data. */
 			if (compression == COMPRESSION_GZIP) {
 				tvbuff_t *uncomp_tvb;

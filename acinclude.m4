@@ -507,7 +507,7 @@ AC_DEFUN([AC_WIRESHARK_ZLIB_CHECK],
 		  AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, $zlib_dir/lib)
 		fi
 		LIBS="-lz $LIBS"
-		AC_DEFINE(HAVE_LIBZ, 1, [Define to use libz library])
+		AC_DEFINE(HAVE_ZLIB, 1, [Define to use zlib library])
 		#
 		# Check for "inflatePrime()" in zlib, which we need
 		# in order to read compressed capture files.

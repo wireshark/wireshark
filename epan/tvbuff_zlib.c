@@ -27,14 +27,14 @@
 
 #include <string.h>
 
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 #define ZLIB_CONST
 #include <zlib.h>
 #endif
 
 #include "tvbuff.h"
 
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 /*
  * Uncompresses a zlib compressed packet inside a message of tvb at offset with
  * length comprlen.  Returns an uncompressed tvbuffer if uncompression

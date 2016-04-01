@@ -2080,7 +2080,7 @@ wtap_dump_can_open(int file_type_subtype)
 	return TRUE;
 }
 
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 gboolean
 wtap_dump_can_compress(int file_type_subtype)
 {
@@ -2503,7 +2503,7 @@ wtap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 void
 wtap_dump_flush(wtap_dumper *wdh)
 {
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 	if(wdh->compressed) {
 		gzwfile_flush((GZWFILE_T)wdh->fh);
 	} else
@@ -2563,7 +2563,7 @@ wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists)
 }
 
 /* internally open a file for writing (compressed or not) */
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 static WFILE_T
 wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
 {
@@ -2582,7 +2582,7 @@ wtap_dump_file_open(wtap_dumper *wdh _U_, const char *filename)
 #endif
 
 /* internally open a file for writing (compressed or not) */
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 static WFILE_T
 wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
 {
@@ -2606,7 +2606,7 @@ wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize, int *err
 {
 	size_t nwritten;
 
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 	if (wdh->compressed) {
 		nwritten = gzwfile_write((GZWFILE_T)wdh->fh, buf, (unsigned int) bufsize);
 		/*
@@ -2640,7 +2640,7 @@ wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize, int *err
 static int
 wtap_dump_file_close(wtap_dumper *wdh)
 {
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 	if(wdh->compressed) {
 		/*
 		 * Tell gzwfile_close() whether to close the descriptor
@@ -2664,7 +2664,7 @@ wtap_dump_file_close(wtap_dumper *wdh)
 gint64
 wtap_dump_file_seek(wtap_dumper *wdh, gint64 offset, int whence, int *err)
 {
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 	if(wdh->compressed) {
 		*err = WTAP_ERR_CANT_SEEK_COMPRESSED;
 		return -1;
@@ -2685,7 +2685,7 @@ gint64
 wtap_dump_file_tell(wtap_dumper *wdh, int *err)
 {
 	gint64 rval;
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 	if(wdh->compressed) {
 		*err = WTAP_ERR_CANT_SEEK_COMPRESSED;
 		return -1;

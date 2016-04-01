@@ -33,7 +33,7 @@
 
 #include <glib.h>
 
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 #include <zlib.h>
 #endif
 
@@ -78,15 +78,15 @@ end_string(GString *str)
 static const gchar *
 get_zlib_compiled_version_info(void)
 {
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 #ifdef ZLIB_VERSION
-	return "with libz "ZLIB_VERSION;
+	return "with zlib "ZLIB_VERSION;
 #else
-	return "with libz (version unknown)";
+	return "with zlib (version unknown)";
 #endif /* ZLIB_VERSION */
 #else
-	return "without libz";
-#endif /* HAVE_LIBZ */
+	return "without zlib";
+#endif /* HAVE_ZLIB */
 }
 
 /*
@@ -355,8 +355,8 @@ get_runtime_version_info(void (*additional_info)(GString *))
 		(*additional_info)(str);
 
 	/* zlib */
-#if defined(HAVE_LIBZ) && !defined(_WIN32)
-	g_string_append_printf(str, ", with libz %s", zlibVersion());
+#if defined(HAVE_ZLIB) && !defined(_WIN32)
+	g_string_append_printf(str, ", with zlib %s", zlibVersion());
 #endif
 
 	g_string_append(str, ".");

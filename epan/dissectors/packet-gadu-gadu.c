@@ -1447,7 +1447,7 @@ dissect_gadu_gadu_userlist_xml_compressed(tvbuff_t *tvb, packet_info *pinfo, pro
 		/* XXX add DTD (pinfo->match_string) */
 		call_dissector_only(xml_handle, uncomp_tvb, pinfo, tree, NULL);
 	} else
-		proto_tree_add_bytes_format_value(tree, hfi_gadu_gadu_userlist.id, tvb, offset, remain, NULL, "[Error: Decompression failed] (or no libz)");
+		proto_tree_add_bytes_format_value(tree, hfi_gadu_gadu_userlist.id, tvb, offset, remain, NULL, "[Error: Decompression failed] (or no zlib)");
 
 	offset += remain;
 
