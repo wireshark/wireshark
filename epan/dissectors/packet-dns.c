@@ -1511,7 +1511,7 @@ add_rr_to_tree(proto_tree  *rr_tree, tvbuff_t *tvb, int offset,
     proto_tree_add_item(rr_tree, hf_dns_rr_class, tvb, offset, 2, ENC_BIG_ENDIAN);
   }
   offset += 2;
-  ttl_item = proto_tree_add_item(rr_tree, hf_dns_rr_ttl, tvb, offset, 4, ENC_BIG_ENDIAN|ENC_TIME_TIMESPEC);
+  ttl_item = proto_tree_add_item(rr_tree, hf_dns_rr_ttl, tvb, offset, 4, ENC_BIG_ENDIAN);
   if (tvb_get_ntohl(tvb, offset) & 0x80000000) {
     expert_add_info(pinfo, ttl_item, &ei_ttl_negative);
   }
@@ -4386,7 +4386,7 @@ proto_register_dns(void)
 
     { &hf_dns_rr_ttl,
       { "Time to live", "dns.resp.ttl",
-        FT_UINT32, BASE_DEC, NULL, 0x0,
+        FT_INT32, BASE_DEC, NULL, 0x0,
         "Response TTL", HFILL }},
 
     { &hf_dns_rr_len,
