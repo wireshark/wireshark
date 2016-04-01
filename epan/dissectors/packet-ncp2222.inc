@@ -6147,6 +6147,10 @@ dissect_ncp_23_26_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree)
     proto_tree_add_item(ncp_tree, hf_ncp_connection_type, tvb, 20, 1, ENC_NA);
 }
 
+/*
+ * XXX - this actually handles both 89 3 and 89 20.
+ * It should also probably handle 87 3 and 87 20.
+ */
 static void
 dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, guint32 offset, guint func)
 {
@@ -6157,6 +6161,14 @@ dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, guint32 offset
     gint length_remaining = 0;
 
     length_remaining = tvb_captured_length_remaining(tvb, offset);
+    /*
+     * XXX - the Novell documentation for function code 89 (0x59) says
+     * that the length is 1 byte if the data format byte is 0 for ASCII
+     * and 2 bytes if the data format byte is 1 for UTF-8.
+     *
+     * The documentation for function code 87 (0x57) says it's always
+     * 1 byte - and that there's no data format byte.
+     */
     if (func == 0x57)
     {
         string_len = tvb_get_guint8(tvb, offset);
@@ -6177,97 +6189,115 @@ dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, guint32 offset
     offset++;
     buffer_offset = offset;
 
+    /*
+     * XXX - should this treat ASCII and UTF-8 differently?
+     */
     for ( i = 0; i <= (gint)str_length; i++ )
     {
         c_char = tvb_get_guint8(tvb, buffer_offset );
         if (c_char<0x20 || c_char>0x7e)
         {
-            if (c_char == 0xff || c_char == 0xef)
+            /* Not printable ASCII */
+            if (c_char == 0xff)
             {
-                if (c_char == 0xff)
+                /*
+                 * 0xff is not a valid ASCII character and is not
+                 * part of a valid UTF-8 octet sequence.
+                 *
+                 * What is the significance of 0xbf, 0xaa, and 0xae
+                 * here?
+                 *
+                 * Will these show up in UTF-8 strings?
+                 */
+                buffer_offset++;
+                length_remaining--;
+                c_char = tvb_get_guint8(tvb, buffer_offset);
+                if (c_char == '?')
                 {
-                    buffer_offset++;
-                    length_remaining--;
-                    c_char = tvb_get_guint8(tvb, buffer_offset);
-                    if (c_char == 0x3f || c_char == 0x2a || c_char == 0xbf || c_char == 0xaa || c_char == 0xae)
-                    {
-                        if (c_char == 0x3f)
-                        {
-                            c_char = '?';
-                            wmem_strbuf_append_c(string_buf, c_char);
-                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "Wildcard Question");
-                        }
-                        if (c_char == 0x2a)
-                        {
-                            c_char = '*';
-                            wmem_strbuf_append_c(string_buf, c_char);
-                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "Wildcard Asterisk");
-                        }
-                        if (c_char == 0xbf)
-                        {
-                            c_char = '?';
-                            wmem_strbuf_append_c(string_buf, c_char);
-                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Question");
-                        }
-                        if (c_char == 0xaa)
-                        {
-                            c_char = '*';
-                            wmem_strbuf_append_c(string_buf, c_char);
-                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Asterisk");
-                        }
-                        if (c_char == 0xae)
-                        {
-                            c_char = '.';
-                            wmem_strbuf_append_c(string_buf, c_char);
-                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Period");
-                        }
-                    }
-                    else
-                    {
-                        c_char = '.';
-                        wmem_strbuf_append_c(string_buf, c_char);
-                    }
+                    wmem_strbuf_append_c(string_buf, '?');
+                    proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "Wildcard Question");
                 }
-                if (c_char == 0xef)
+                else if (c_char == '*')
+                {
+                    wmem_strbuf_append_c(string_buf, '*');
+                    proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "Wildcard Asterisk");
+                }
+                else if (c_char == 0xbf)
+                {
+                    /*
+                     * For what it's worth, in ISO 8859-1, 0xbf is a
+                     * Spanish-style upside-down question mark.
+                     */
+                    wmem_strbuf_append_c(string_buf, '?');
+                    proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Question");
+                }
+                else if (c_char == 0xaa)
+                {
+                    /*
+                     * But, in 8859-1, this is a feminine ordinal indicator
+                     * (underlined subscripted "a").
+                     */ 
+                    c_char = '*';
+                    wmem_strbuf_append_c(string_buf, c_char);
+                    proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Asterisk");
+                }
+                else if (c_char == 0xae)
+                {
+                    /*
+                     * And this is a registered trademark symbol.
+                     */
+                    wmem_strbuf_append_c(string_buf, '.');
+                    proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Period");
+                }
+                else
+                {
+                    wmem_strbuf_append_c(string_buf, '.');
+                }
+            }
+            else if (c_char == 0xef)
+            {
+                /*
+                 * XXX - if these 3-character sequences are considered
+                 * as UTF-8 sequences, they map to characters in the
+                 * private use range from f87b to f87f.
+                 *
+                 * Is that what's happening here?
+                 *
+                 * If so, will these show up in ASCII strings?
+                 */
+                buffer_offset++;
+                length_remaining--;
+                c_char = tvb_get_guint8(tvb, buffer_offset);
+                if (c_char == 0xa3)
                 {
                     buffer_offset++;
                     length_remaining--;
                     c_char = tvb_get_guint8(tvb, buffer_offset);
-                    if (c_char == 0xa3)
+                    if (c_char == 0xbb)
                     {
-                        buffer_offset++;
-                        length_remaining--;
-                        c_char = tvb_get_guint8(tvb, buffer_offset);
-                        if (c_char == 0xbb)
-                        {
-                            c_char = '?';
-                            wmem_strbuf_append_c(string_buf, c_char);
-                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "Wildcard Question");
-                        }
-                        if (c_char == 0xbc)
-                        {
-                            c_char = '*';
-                            wmem_strbuf_append_c(string_buf, c_char);
-                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "Wildcard Asterisk");
-                        }
-                        if (c_char == 0xbd)
-                        {
-                            c_char = '?';
-                            wmem_strbuf_append_c(string_buf, c_char);
-                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Question");
-                        }
-                        if (c_char == 0xbe)
-                        {
-                            c_char = '*';
-                            wmem_strbuf_append_c(string_buf, c_char);
-                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Asterisk");
-                        }
-                        if (c_char == 0xbf)
-                        {
-                            c_char = '.';
-                            wmem_strbuf_append_c(string_buf, c_char);
-                            proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Period");
-                        }
+                        wmem_strbuf_append_c(string_buf, '?');
+                        proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "Wildcard Question");
+                    }
+                    else if (c_char == 0xbc)
+                    {
+                        wmem_strbuf_append_c(string_buf, '*');
+                        proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "Wildcard Asterisk");
+                    }
+                    else if (c_char == 0xbd)
+                    {
+                        c_char = '?';
+                        wmem_strbuf_append_c(string_buf, c_char);
+                        proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Question");
+                    }
+                    else if (c_char == 0xbe)
+                    {
+                        wmem_strbuf_append_c(string_buf, '*');
+                        proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Asterisk");
+                    }
+                    else if (c_char == 0xbf)
+                    {
+                        wmem_strbuf_append_c(string_buf, '.');
+                        proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Period");
                     }
                 }
             }
@@ -6275,8 +6305,7 @@ dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, guint32 offset
             {
                 if (c_char != 0x00)
                 {
-                    c_char = '.';
-                    wmem_strbuf_append_c(string_buf, c_char);
+                    wmem_strbuf_append_c(string_buf, '.');
                 }
                 else
                 {
@@ -6288,6 +6317,7 @@ dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, guint32 offset
         }
         else
         {
+            /* printable ASCII */
             wmem_strbuf_append_c(string_buf, c_char);
         }
         buffer_offset++;
@@ -7298,7 +7328,13 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
         if (func == 0x59 && subfunc == 0x6) {
             dissect_ncp_89_6_request(tvb, ncp_tree, 22);
         }
-        /* Need to parse for Novell specific wildcard values in Search Pattern, decode this ncp (89)/20 and (89)/03 req manually here. */
+        /*
+         * Need to parse for Novell specific wildcard values in Search
+         * Pattern, decode this ncp (89)/20 and (89)/03 req manually here.
+         *
+         * XXX - do 0x57/87 and 0x59/89 both have this?  87 doesn't
+         * appear to have the ASCII/UTF-8 data type field.
+         */
         if (ncp_rec->func == 0x59 && (ncp_rec->subfunc == 0x14 || ncp_rec->subfunc == 0x03)) {
             if (ncp_rec->subfunc == 0x03)
             {
