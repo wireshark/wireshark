@@ -2133,10 +2133,10 @@ ncp_postseq_cleanup(void)
      * needed during random-access processing of the proto_tree.*/
 }
 
-/* NCP sequence numbers are from 0 - 255. After reaching 255 the 
+/* NCP sequence numbers are from 0 - 255. After reaching 255 the
  * sequence number wraps back to 0. Change nw_sequence to nw_sequence_long
  * and use upper bits to make sequence numbers unique. This way
- * future attempts to locate initiating packet will succeed. 
+ * future attempts to locate initiating packet will succeed.
  */
 static ncp_req_hash_value*
 ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
@@ -6236,7 +6236,7 @@ dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, guint32 offset
                     /*
                      * But, in 8859-1, this is a feminine ordinal indicator
                      * (underlined subscripted "a").
-                     */ 
+                     */
                     c_char = '*';
                     wmem_strbuf_append_c(string_buf, c_char);
                     proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Asterisk");
