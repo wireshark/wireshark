@@ -780,11 +780,11 @@ init_section_fields(wmem_array_t *hfri_table, wmem_array_t *ett_table, const erf
   section_info->tag_template = section;
   section_info->extra = erf_meta_tag_info_ex_new(wmem_epan_scope());
 
-  hfri_tmp[0].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.section_id", section->hfinfo.abbrev);
+  hfri_tmp[0].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".section_id", NULL);
   hfri_tmp[0].p_id = &section_info->hf_value;
-  hfri_tmp[1].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.section_len", section->hfinfo.abbrev);
+  hfri_tmp[1].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".section_len", NULL);
   hfri_tmp[1].p_id = &section_info->extra->hf_values[0];
-  hfri_tmp[2].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.section_hdr_rsvd", section->hfinfo.abbrev);
+  hfri_tmp[2].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".section_hdr_rsvd", NULL);
   hfri_tmp[2].p_id = &section_info->extra->hf_values[1];
 
   /* Add hf_register_info, ett entries */
@@ -824,7 +824,7 @@ init_tag_fields(wmem_array_t *hfri_table, wmem_array_t *ett_table, const erf_met
 
     hfri_tmp[0].p_id = &tag_info->hf_value;
     hfri_tmp[0].hfinfo.name = "Section Type";
-    hfri_tmp[0].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.%s.section_type", section->hfinfo.abbrev, tag->hfinfo.abbrev);
+    hfri_tmp[0].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".", tag->hfinfo.abbrev, ".section_type", NULL);
     hfri_tmp[0].hfinfo.type = FT_UINT16;
     hfri_tmp[0].hfinfo.display = BASE_DEC;
     /* XXX: Cannot set strings here as array may be realloced as more added! */
@@ -832,7 +832,7 @@ init_tag_fields(wmem_array_t *hfri_table, wmem_array_t *ett_table, const erf_met
 
     hfri_tmp[1].p_id = &tag_info->extra->hf_values[0];
     hfri_tmp[1].hfinfo.name = "Section ID";
-    hfri_tmp[1].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.%s.section_id", section->hfinfo.abbrev, tag->hfinfo.abbrev);
+    hfri_tmp[1].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".", tag->hfinfo.abbrev, ".section_id", NULL);
     hfri_tmp[1].hfinfo.type = FT_UINT16;
     hfri_tmp[1].hfinfo.display = BASE_DEC;
     hfri_len++;
@@ -844,12 +844,12 @@ init_tag_fields(wmem_array_t *hfri_table, wmem_array_t *ett_table, const erf_met
 
     hfri_tmp[0].p_id = &tag_info->hf_value;
     hfri_tmp[0].hfinfo = tag->hfinfo;
-    hfri_tmp[0].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.%s", section->hfinfo.abbrev, tag->hfinfo.abbrev);
+    hfri_tmp[0].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".", tag->hfinfo.abbrev, NULL);
     hfri_len++;
 
     hfri_tmp[1].p_id = &tag_info->extra->hf_values[0];
     hfri_tmp[1].hfinfo.name = "Link";
-    hfri_tmp[1].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.%s.link", section->hfinfo.abbrev, tag->hfinfo.abbrev);
+    hfri_tmp[1].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".", tag->hfinfo.abbrev, ".link", NULL);
     hfri_tmp[1].hfinfo.type = FT_UINT32;
     hfri_tmp[1].hfinfo.display = BASE_DEC;
     hfri_tmp[1].hfinfo.bitmask = 0x00000001;
@@ -862,14 +862,14 @@ init_tag_fields(wmem_array_t *hfri_table, wmem_array_t *ett_table, const erf_met
 
     hfri_tmp[0].p_id = &tag_info->hf_value;
     hfri_tmp[0].hfinfo = tag->hfinfo;
-    hfri_tmp[0].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.%s", section->hfinfo.abbrev, tag->hfinfo.abbrev);
+    hfri_tmp[0].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".", tag->hfinfo.abbrev, NULL);
     hfri_len++;
 
     /* Borrow hfri_tmp[1], inserting each bitfield value */
     for (i = 0; i < array_length(erf_tunneling_modes); i++) {
       hfri_tmp[1].p_id = &tag_info->extra->hf_values[i];
       hfri_tmp[1].hfinfo = erf_tunneling_modes[i];
-      hfri_tmp[1].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.%s.%s", section->hfinfo.abbrev, tag->hfinfo.abbrev, erf_tunneling_modes[i].abbrev);
+      hfri_tmp[1].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".", tag->hfinfo.abbrev, ".", erf_tunneling_modes[i].abbrev, NULL);
       wmem_array_append(hfri_table, &hfri_tmp[1], 1);
     }
     break;
@@ -891,12 +891,12 @@ init_tag_fields(wmem_array_t *hfri_table, wmem_array_t *ett_table, const erf_met
     /* Set type, etc. from template based on address type */
     hfri_tmp[0].hfinfo = tag->hfinfo;
     hfri_tmp[0].hfinfo.name = "Address";
-    hfri_tmp[0].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.%s.addr", section->hfinfo.abbrev, tag->hfinfo.abbrev);
+    hfri_tmp[0].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".", tag->hfinfo.abbrev, ".addr", NULL);
     hfri_len++;
 
     hfri_tmp[1].p_id = &tag_info->extra->hf_values[0];
     hfri_tmp[1].hfinfo.name = "Name";
-    hfri_tmp[1].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.%s.name", section->hfinfo.abbrev, tag->hfinfo.abbrev);
+    hfri_tmp[1].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".", tag->hfinfo.abbrev, ".name", NULL);
     hfri_tmp[1].hfinfo.type = FT_STRING;
     hfri_tmp[1].hfinfo.display = BASE_NONE;
     hfri_len++;
@@ -906,7 +906,7 @@ init_tag_fields(wmem_array_t *hfri_table, wmem_array_t *ett_table, const erf_met
   default:
     hfri_tmp[0].p_id = &tag_info->hf_value;
     hfri_tmp[0].hfinfo = tag->hfinfo;
-    hfri_tmp[0].hfinfo.abbrev = wmem_strdup_printf(wmem_epan_scope(), "erf.meta.%s.%s", section->hfinfo.abbrev, tag->hfinfo.abbrev);
+    hfri_tmp[0].hfinfo.abbrev = wmem_strconcat(wmem_epan_scope(), "erf.meta.", section->hfinfo.abbrev, ".", tag->hfinfo.abbrev, NULL);
     hfri_len++;
     break;
   }

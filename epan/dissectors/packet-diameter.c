@@ -1593,8 +1593,8 @@ basic_avp_reginfo(diam_avp_t *a, const char *name, enum ftenum ft,
 	/* HFILL */
 	HFILL_INIT(hf);
 
-	hf.hfinfo.name = wmem_strdup_printf(wmem_epan_scope(), "%s",name);
-	hf.hfinfo.abbrev = alnumerize(wmem_strdup_printf(wmem_epan_scope(), "diameter.%s",name));
+	hf.hfinfo.name = wmem_strdup(wmem_epan_scope(), name);
+	hf.hfinfo.abbrev = alnumerize(wmem_strconcat(wmem_epan_scope(), "diameter.", name, NULL));
 	if (vs_ext) {
 		hf.hfinfo.strings = vs_ext;
 	}
