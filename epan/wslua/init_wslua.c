@@ -717,6 +717,14 @@ wslua_get_expert_field(const int group, const int severity)
     return &ei_lua_error;
 }
 
+static void *
+wslua_allocf(void *ud _U_, void *ptr, size_t osize _U_, size_t nsize)
+{
+    /* g_realloc frees ptr if nsize==0 and returns NULL (as desired).
+     * Furthermore it simplifies error handling by aborting on OOM */
+    return g_realloc(ptr, nsize);
+}
+
 void wslua_init(register_cb cb, gpointer client_data) {
     gchar* filename;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
@@ -831,7 +839,7 @@ void wslua_init(register_cb cb, gpointer client_data) {
     }
 
     if (!L) {
-        L = luaL_newstate();
+        L = lua_newstate(wslua_allocf, NULL);
     }
 
     WSLUA_INIT(L);
