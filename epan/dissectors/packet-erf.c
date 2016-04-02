@@ -678,7 +678,7 @@ static const erf_meta_hf_template_t erf_meta_tags[] = {
   { ERF_META_TAG_dest_fc_id,        { "Destination FCID address",           "dest_fc_id",        FT_BYTES,         SEP_DOT,           NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_src_port,          { "Source Port",                        "src_port",          FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_dest_port,         { "Destination Port",                   "dest_port",         FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
-  { ERF_META_TAG_ip_proto,          { "IP Protocol",                        "ip_proto",          FT_UINT32,        BASE_DEC,          &ipproto_val_ext, 0x0, NULL, HFILL } },
+  { ERF_META_TAG_ip_proto,          { "IP Protocol",                        "ip_proto",          FT_UINT32,        BASE_DEC|BASE_EXT_STRING, &ipproto_val_ext, 0x0, NULL, HFILL } },
   { ERF_META_TAG_flow_hash,         { "Flow Hash",                          "flow_hash",         FT_UINT32,        BASE_DEC,          NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_filter_match,      { "Filter Match",                       "filter_match",      FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
   { ERF_META_TAG_filter_match_name, { "Filter Match Name",                  "filter_match_name", FT_STRING,        BASE_NONE,         NULL, 0x0, NULL, HFILL } },
