@@ -99,6 +99,12 @@ typedef enum mac_lte_carrier_id {
     carrier_id_secondary_4
 } mac_lte_carrier_id;
 
+typedef enum mac_lte_ce_mode {
+    no_ce_mode = 0,
+    ce_mode_a = 1,
+    ce_mode_b = 2
+} mac_lte_ce_mode;
+
 /* Context info attached to each LTE MAC frame */
 typedef struct mac_lte_info
 {
@@ -149,6 +155,9 @@ typedef struct mac_lte_info
 
     /* DL only.  Is this known to be a retransmission? */
     mac_lte_dl_retx dl_retx;
+
+    /* DL only. CE mode to be used for RAR decoding */
+    mac_lte_ce_mode ceMode;
 
     /* More Physical layer info (see direction above for which side of union to use) */
     union {
@@ -292,6 +301,9 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
 
 #define MAC_LTE_SIMULT_PUCCH_PUSCH_PSCELL 0x0D
 /* 0 byte */
+
+#define MAC_LTE_CE_MODE             0x0E
+/* 1 byte containing mac_lte_ce_mode enum value */
 
 /* MAC PDU. Following this tag comes the actual MAC PDU (there is no length, the PDU
    continues until the end of the frame) */

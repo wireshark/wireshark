@@ -35,7 +35,7 @@ void proto_reg_handoff_mac_lte(void);
 
 /* Described in:
  * 3GPP TS 36.321 Evolved Universal Terrestrial Radio Access (E-UTRA)
- *                Medium Access Control (MAC) protocol specification v13.0.0
+ *                Medium Access Control (MAC) protocol specification v13.1.0
  */
 
 
@@ -172,6 +172,7 @@ static int hf_mac_lte_rar_reserved = -1;
 static int hf_mac_lte_rar_body = -1;
 static int hf_mac_lte_rar_reserved2 = -1;
 static int hf_mac_lte_rar_ta = -1;
+static int hf_mac_lte_rar_ul_grant_ce_mode_b = -1;
 static int hf_mac_lte_rar_ul_grant = -1;
 static int hf_mac_lte_rar_ul_grant_hopping = -1;
 static int hf_mac_lte_rar_ul_grant_fsrba = -1;
@@ -179,6 +180,18 @@ static int hf_mac_lte_rar_ul_grant_tmcs = -1;
 static int hf_mac_lte_rar_ul_grant_tcsp = -1;
 static int hf_mac_lte_rar_ul_grant_ul_delay = -1;
 static int hf_mac_lte_rar_ul_grant_cqi_request = -1;
+static int hf_mac_lte_rar_ul_grant_msg3_pusch_nb_idx_ce_mode_a = -1;
+static int hf_mac_lte_rar_ul_grant_msg3_pusch_res_alloc_ce_mode_a = -1;
+static int hf_mac_lte_rar_ul_grant_nb_rep_msg3_pusch_ce_mode_a = -1;
+static int hf_mac_lte_rar_ul_grant_mcs_ce_mode_a = -1;
+static int hf_mac_lte_rar_ul_grant_tpc_ce_mode_a = -1;
+static int hf_mac_lte_rar_ul_grant_csi_request_ce_mode_a = -1;
+static int hf_mac_lte_rar_ul_grant_ul_delay_ce_mode_a = -1;
+static int hf_mac_lte_rar_ul_grant_msg3_msg4_mpdcch_nb_idx = -1;
+static int hf_mac_lte_rar_ul_grant_msg3_pusch_nb_idx_ce_mode_b = -1;
+static int hf_mac_lte_rar_ul_grant_msg3_pusch_res_alloc_ce_mode_b = -1;
+static int hf_mac_lte_rar_ul_grant_nb_rep_msg3_pusch_ce_mode_b = -1;
+static int hf_mac_lte_rar_ul_grant_tbs_ce_mode_b = -1;
 static int hf_mac_lte_rar_temporary_crnti = -1;
 
 /* Common channel control values */
@@ -675,15 +688,59 @@ static const value_string rar_bi_vals[] =
 
 static const value_string rar_ul_grant_tcsp_vals[] =
 {
-    { 0, "-6"},
-    { 1, "-4" },
-    { 2, "-2" },
-    { 3, "0" },
-    { 4, "2" },
-    { 5, "4" },
-    { 6, "6" },
-    { 7, "8" },
+    { 0, "-6 dB"},
+    { 1, "-4 dB" },
+    { 2, "-2 dB" },
+    { 3, "0 dB" },
+    { 4, "2 dB" },
+    { 5, "4 dB" },
+    { 6, "6 dB" },
+    { 7, "8 dB" },
     { 0, NULL }
+};
+
+
+static const value_string rar_ul_grant_msg3_pusch_nb_idx_ce_mode_b_vals[] =
+{
+    { 0, "NBrar mod Nnb"},
+    { 1, "(NBrar+1) mod Nnb"},
+    { 2, "(NBrar+2) mod Nnb"},
+    { 3, "(NBrar+3) mod Nnb"},
+    { 0, NULL}
+};
+
+
+static const value_string rar_ul_grant_msg3_msg4_mpdcch_nb_idx_vals[] =
+{
+    { 0, "NBrar mod Nnb2"},
+    { 1, "(NBrar+1) mod Nnb2"},
+    { 2, "(NBrar+2) mod Nnb2"},
+    { 3, "(NBrar+3) mod Nnb2"},
+    { 0, NULL}
+};
+
+
+static const value_string rar_ul_grant_nb_rep_msg3_pusch_ce_mode_a_vals[] =
+{
+    { 0, "Ya/8"},
+    { 1, "Ya/4"},
+    { 2, "Ya/2"},
+    { 3, "Ya"},
+    { 0, NULL}
+};
+
+
+static const value_string rar_ul_grant_nb_rep_msg3_pusch_ce_mode_b_vals[] =
+{
+    { 0, "Yb/128"},
+    { 1, "Yb/64"},
+    { 2, "Yb/32"},
+    { 3, "Yb/16"},
+    { 4, "Yb/8"},
+    { 5, "Yb/4"},
+    { 6, "Yb/2"},
+    { 7, "Yb"},
+    { 0, NULL}
 };
 
 
@@ -2319,6 +2376,11 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
             case MAC_LTE_SIMULT_PUCCH_PUSCH_PSCELL:
                 p_mac_lte_info->isSimultPUCCHPUSCHPSCell = TRUE;
                 break;
+            case MAC_LTE_CE_MODE:
+                p_mac_lte_info->ceMode =
+                    (mac_lte_ce_mode)tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
 
             case MAC_LTE_PAYLOAD_TAG:
                 /* Have reached data, so set payload length and get out of loop */
@@ -2618,7 +2680,7 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
 /* Dissect a single Random Access Reponse body */
 static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                               proto_item *pdu_ti,
-                              gint offset, guint8 rapid)
+                              gint offset, guint8 rapid, mac_lte_info *p_mac_lte_info)
 {
     guint8      reserved;
     guint       start_body_offset = offset;
@@ -2662,38 +2724,108 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     offset++;
 
     /* UL Grant */
-    ul_grant = (tvb_get_ntohl(tvb, offset) & 0x0fffff00) >> 8;
-    ul_grant_ti = proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_ul_grant, tvb, offset, 3, ENC_BIG_ENDIAN);
+    if (p_mac_lte_info->ceMode == ce_mode_b) {
+        ul_grant = tvb_get_ntohs(tvb, offset) & 0x0fff;
+        ul_grant_ti = proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_ul_grant_ce_mode_b, tvb, offset, 2, ENC_BIG_ENDIAN);
+    } else {
+        ul_grant = (tvb_get_ntohl(tvb, offset) & 0x0fffff00) >> 8;
+        ul_grant_ti = proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_ul_grant, tvb, offset, 3, ENC_BIG_ENDIAN);
+    }
 
-    /* Break these 20 bits down as described in 36.213, section 6.2 */
+    /* Break these 12/20 bits down as described in 36.213, section 6.2 */
     /* Create subtree for UL grant break-down */
     ul_grant_tree = proto_item_add_subtree(ul_grant_ti, ett_mac_lte_rar_ul_grant);
 
-    /* Hopping flag (1 bit) */
-    proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_hopping,
-                        tvb, offset, 1, ENC_BIG_ENDIAN);
+    switch (p_mac_lte_info->ceMode) {
+        case no_ce_mode:
+        default:
+            /* Hopping flag (1 bit) */
+            proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_hopping,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    /* Fixed sized resource block assignment (10 bits) */
-    proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_fsrba,
-                        tvb, offset, 2, ENC_BIG_ENDIAN);
+            /* Fixed sized resource block assignment (10 bits) */
+            proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_fsrba,
+                                tvb, offset, 2, ENC_BIG_ENDIAN);
 
-    /* Truncated Modulation and coding scheme (4 bits) */
-    proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_tmcs,
-                        tvb, offset+1, 2, ENC_BIG_ENDIAN);
+            /* Truncated Modulation and coding scheme (4 bits) */
+            proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_tmcs,
+                                tvb, offset+1, 2, ENC_BIG_ENDIAN);
 
-    /* TPC command for scheduled PUSCH (3 bits) */
-    proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_tcsp,
-                        tvb, offset+2, 1, ENC_BIG_ENDIAN);
+            /* TPC command for scheduled PUSCH (3 bits) */
+            proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_tcsp,
+                                tvb, offset+2, 1, ENC_BIG_ENDIAN);
 
-    /* UL delay (1 bit) */
-    proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_ul_delay,
-                        tvb, offset+2, 1, ENC_BIG_ENDIAN);
+            /* UL delay (1 bit) */
+            proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_ul_delay,
+                                tvb, offset+2, 1, ENC_BIG_ENDIAN);
 
-    /* CQI request (1 bit) */
-    proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_cqi_request,
-                        tvb, offset+2, 1, ENC_BIG_ENDIAN);
+            /* CQI request (1 bit) */
+            proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_cqi_request,
+                                tvb, offset+2, 1, ENC_BIG_ENDIAN);
 
-    offset += 3;
+            offset += 3;
+            break;
+
+        case ce_mode_a:
+            /* Msg3 PUSCH narrowband index (4 bits) */
+            proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_msg3_pusch_nb_idx_ce_mode_a,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
+
+            /* Msg3 PUSCH Resource allocation (4 bits) */
+            proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_msg3_pusch_res_alloc_ce_mode_a,
+                                tvb, offset+1, 1, ENC_BIG_ENDIAN);
+
+            /* Number of Repetitions for Msg3 PUSCH (2 bits) */
+            proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_nb_rep_msg3_pusch_ce_mode_a,
+                                tvb, offset+1, 1, ENC_BIG_ENDIAN);
+
+            /* MCS (3 bits) */
+            proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_mcs_ce_mode_a,
+                                tvb, offset+1, 2, ENC_BIG_ENDIAN);
+
+            /* TPC (3 bits) */
+            proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_tpc_ce_mode_a,
+                                tvb, offset+2, 1, ENC_BIG_ENDIAN);
+
+            /* CSI request (1 bit) */
+            proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_csi_request_ce_mode_a,
+                                tvb, offset+2, 1, ENC_BIG_ENDIAN);
+
+            /* UL delay (1 bit) */
+            proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_ul_delay_ce_mode_a,
+                                tvb, offset+2, 1, ENC_BIG_ENDIAN);
+
+            /* Msg3/4 MPDCCH narrowband index (2 bits) */
+            proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_msg3_msg4_mpdcch_nb_idx,
+                                tvb, offset+2, 1, ENC_BIG_ENDIAN);
+
+            offset += 3;
+            break;
+
+        case ce_mode_b:
+            /* Msg3 PUSCH narrowband index (2 bits) */
+            proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_msg3_pusch_nb_idx_ce_mode_b,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
+
+            /* Msg3 PUSCH Resource allocation (3 bits) */
+            proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_msg3_pusch_res_alloc_ce_mode_b,
+                                tvb, offset, 2, ENC_BIG_ENDIAN);
+
+            /* Number of Repetitions for Msg3 PUSCH (3 bits) */
+            proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_nb_rep_msg3_pusch_ce_mode_b,
+                                tvb, offset+1, 1, ENC_BIG_ENDIAN);
+
+            /* TBS (2 bits) */
+            proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_tbs_ce_mode_b,
+                                tvb, offset+1, 1, ENC_BIG_ENDIAN);
+
+            /* Msg3/4 MPDCCH narrowband index (2 bits) */
+            proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_msg3_msg4_mpdcch_nb_idx,
+                                tvb, offset+1, 1, ENC_BIG_ENDIAN);
+
+            offset += 2;
+            break;
+    }
 
     /* Temporary C-RNTI */
     temp_crnti = tvb_get_ntohs(tvb, offset);
@@ -2846,7 +2978,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     /***************************/
     /* Read any indicated RARs */
     for (n=0; n < number_of_rars; n++) {
-        offset = dissect_rar_entry(tvb, pinfo, tree, pdu_ti, offset, rapids[n]);
+        offset = dissect_rar_entry(tvb, pinfo, tree, pdu_ti, offset, rapids[n], p_mac_lte_info);
     }
 
     /* Update TAP info */
@@ -7676,6 +7808,12 @@ void proto_register_mac_lte(void)
               "Required adjustment to uplink transmission timing", HFILL
             }
         },
+        { &hf_mac_lte_rar_ul_grant_ce_mode_b,
+            { "UL Grant",
+              "mac-lte.rar.ul-grant", FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              "Size of UL Grant", HFILL
+            }
+        },
         { &hf_mac_lte_rar_ul_grant,
             { "UL Grant",
               "mac-lte.rar.ul-grant", FT_UINT24, BASE_DEC, NULL, 0x0fffff,
@@ -7715,6 +7853,78 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_rar_ul_grant_cqi_request,
             { "CQI Request",
               "mac-lte.rar.ul-grant.cqi-request", FT_UINT8, BASE_DEC, NULL, 0x01,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_rar_ul_grant_msg3_pusch_nb_idx_ce_mode_a,
+            { "Msg3 PUSCH narrowband index",
+              "mac-lte.rar.ul-grant.msg3-pusch-nb-idx", FT_UINT8, BASE_DEC, NULL, 0x0f,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_rar_ul_grant_msg3_pusch_res_alloc_ce_mode_a,
+            { "Msg3 PUSCH Resource allocation",
+              "mac-lte.rar.ul-grant.msg3-pusch-res-alloc", FT_UINT8, BASE_DEC, NULL, 0xf0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_rar_ul_grant_nb_rep_msg3_pusch_ce_mode_a,
+            { "Number of Repetitions for Msg3 PUSCH",
+              "mac-lte.rar.ul-grant.nb-rep-msg3-pusch", FT_UINT8, BASE_DEC, VALS(rar_ul_grant_nb_rep_msg3_pusch_ce_mode_a_vals), 0x0c,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_rar_ul_grant_mcs_ce_mode_a,
+            { "MCS",
+              "mac-lte.rar.ul-grant.mcs", FT_UINT16, BASE_DEC, NULL, 0x0380,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_rar_ul_grant_tpc_ce_mode_a,
+            { "TPC",
+              "mac-lte.rar.ul-grant.tpc", FT_UINT8, BASE_DEC, VALS(rar_ul_grant_tcsp_vals), 0x70,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_rar_ul_grant_csi_request_ce_mode_a,
+            { "CSI request",
+              "mac-lte.rar.ul-grant.csi-request", FT_UINT8, BASE_DEC, NULL, 0x08,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_rar_ul_grant_ul_delay_ce_mode_a,
+            { "UL delay",
+              "mac-lte.rar.ul-grant.ul-delay", FT_UINT8, BASE_DEC, NULL, 0x04,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_rar_ul_grant_msg3_msg4_mpdcch_nb_idx,
+            { "Msg3/4 MPDCCH narrowband index",
+              "mac-lte.rar.ul-grant.msg3-msg4-mpdcch-nb-idx", FT_UINT8, BASE_DEC, VALS(rar_ul_grant_msg3_msg4_mpdcch_nb_idx_vals), 0x03,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_rar_ul_grant_msg3_pusch_nb_idx_ce_mode_b,
+            { "Msg3 PUSCH narrowband index",
+              "mac-lte.rar.ul-grant.msg3-pusch-nb-idx", FT_UINT8, BASE_DEC, VALS(rar_ul_grant_msg3_pusch_nb_idx_ce_mode_b_vals), 0x0c,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_rar_ul_grant_msg3_pusch_res_alloc_ce_mode_b,
+            { "Msg3 PUSCH Resource allocation",
+              "mac-lte.rar.ul-grant.msg3-pusch-res-alloc", FT_UINT16, BASE_DEC, NULL, 0x0380,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_rar_ul_grant_nb_rep_msg3_pusch_ce_mode_b,
+            { "Number of Repetitions for Msg3 PUSCH",
+              "mac-lte.rar.ul-grant.nb-rep-msg3-pusch", FT_UINT8, BASE_DEC, VALS(rar_ul_grant_nb_rep_msg3_pusch_ce_mode_b_vals), 0x70,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_rar_ul_grant_tbs_ce_mode_b,
+            { "TBS",
+              "mac-lte.rar.ul-grant.tbs", FT_UINT8, BASE_DEC, NULL, 0x0c,
               NULL, HFILL
             }
         },
