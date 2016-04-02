@@ -47,7 +47,7 @@ void proto_reg_handoff_pdcp_lte(void);
 
 /* Described in:
  * 3GPP TS 36.323 Evolved Universal Terrestrial Radio Access (E-UTRA)
- *                Packet Data Convergence Protocol (PDCP) specification v13.0.0
+ *                Packet Data Convergence Protocol (PDCP) specification v13.1.0
  */
 
 
@@ -106,6 +106,14 @@ static int hf_pdcp_lte_reserved6 = -1;
 static int hf_pdcp_lte_fms3 = -1;
 static int hf_pdcp_lte_bitmap = -1;
 static int hf_pdcp_lte_bitmap_byte = -1;
+static int hf_pdcp_lte_hrw = -1;
+static int hf_pdcp_lte_nmp = -1;
+static int hf_pdcp_lte_reserved7 = -1;
+static int hf_pdcp_lte_hrw2 = -1;
+static int hf_pdcp_lte_nmp2 = -1;
+static int hf_pdcp_lte_hrw3 = -1;
+static int hf_pdcp_lte_reserved8 = -1;
+static int hf_pdcp_lte_nmp3 = -1;
 
 
 /* Sequence Analysis */
@@ -411,7 +419,8 @@ static const value_string pdu_type_vals[] = {
 
 static const value_string control_pdu_type_vals[] = {
     { 0,   "PDCP Status report" },
-    { 1,   "Header Compression Feedback Information" },
+    { 1,   "Interspersed ROHC feedback packet" },
+    { 2,   "LWA status report" },
     { 0,   NULL }
 };
 
@@ -2053,6 +2062,128 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         offset++;
                         break;  /* Drop-through to dissect feedback */
 
+
+                    case 2:     /* LWA status report */
+                        {
+                            guint32 fms;
+                            guint32 nmp;
+
+                            if (p_pdcp_info->seqnum_length == PDCP_SN_LENGTH_12_BITS) {
+                                /* First-Missing-Sequence SN */
+                                proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_lte_fms, tvb,
+                                                             offset, 2, ENC_BIG_ENDIAN, &fms);
+                                fms &= 0x0fff;
+                                offset += 2;
+
+                                /* HRW */
+                                proto_tree_add_item(pdcp_tree, hf_pdcp_lte_hrw, tvb,
+                                                    offset, 2, ENC_BIG_ENDIAN);
+                                offset += 1;
+
+                                /* NMP */
+                                proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_lte_nmp, tvb,
+                                                             offset, 2, ENC_BIG_ENDIAN, &nmp);
+                                nmp &= 0x0fff;
+                                offset += 2;
+                            } else if (p_pdcp_info->seqnum_length == PDCP_SN_LENGTH_15_BITS) {
+                                proto_item *ti;
+                                guint32 reserved_value;
+
+                                /* 5 reserved bits */
+                                ti = proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_lte_reserved4, tvb,
+                                                                  offset, 2, ENC_BIG_ENDIAN, &reserved_value);
+                                reserved_value = (reserved_value & 0x0f80) >> 7;
+                                offset++;
+                                /* Complain if not 0 */
+                                if (reserved_value != 0) {
+                                    expert_add_info_format(pinfo, ti, &ei_pdcp_lte_reserved_bits_not_zero,
+                                                           "Reserved bits have value 0x%x - should be 0x0",
+                                                           reserved_value);
+                                }
+
+                                /* First-Missing-Sequence SN */
+                                proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_lte_fms2, tvb,
+                                                             offset, 2, ENC_BIG_ENDIAN, &fms);
+                                fms &= 0x7fff;
+                                offset += 2;
+
+                                /* 1 reserved bit */
+                                ti = proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_lte_reserved7, tvb,
+                                                                  offset, 1, ENC_BIG_ENDIAN, &reserved_value);
+                                /* Complain if not 0 */
+                                if (reserved_value & 0x80) {
+                                    expert_add_info_format(pinfo, ti, &ei_pdcp_lte_reserved_bits_not_zero,
+                                                           "Reserved bits have value 0x1 - should be 0x0");
+                                }
+
+                                /* HRW */
+                                proto_tree_add_item(pdcp_tree, hf_pdcp_lte_hrw2, tvb,
+                                                    offset, 2, ENC_BIG_ENDIAN);
+                                offset += 2;
+
+                                /* 1 reserved bit */
+                                ti = proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_lte_reserved7, tvb,
+                                                                  offset, 1, ENC_BIG_ENDIAN, &reserved_value);
+                                /* Complain if not 0 */
+                                if (reserved_value & 0x80) {
+                                    expert_add_info_format(pinfo, ti, &ei_pdcp_lte_reserved_bits_not_zero,
+                                                           "Reserved bits have value 0x1 - should be 0x0");
+                                }
+
+                                /* NMP */
+                                proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_lte_nmp2, tvb,
+                                                    offset, 2, ENC_BIG_ENDIAN, &nmp);
+                                nmp &= 0x7fff;
+                                offset += 2;
+                            } else {
+                                proto_item *ti;
+                                guint32 reserved_value;
+
+                                /* 2 reserved bits */
+                                ti = proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_lte_reserved6,
+                                                                  tvb, offset, 1, ENC_BIG_ENDIAN, &reserved_value);
+                                reserved_value = (reserved_value & 0x0c) >> 2;
+                                /* Complain if not 0 */
+                                if (reserved_value != 0) {
+                                    expert_add_info_format(pinfo, ti, &ei_pdcp_lte_reserved_bits_not_zero,
+                                                           "Reserved bits have value 0x%x - should be 0x0",
+                                                           reserved_value);
+                                }
+
+                                /* First-Missing-Sequence SN */
+                                proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_lte_fms3, tvb,
+                                                             offset, 3, ENC_BIG_ENDIAN, &fms);
+                                fms &= 0x03ffff;
+                                offset += 3;
+
+                                /* HRW */
+                                proto_tree_add_item(pdcp_tree, hf_pdcp_lte_hrw3, tvb,
+                                                    offset, 3, ENC_BIG_ENDIAN);
+                                offset += 2;
+
+                                /* 4 reserved bits */
+                                ti = proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_lte_reserved8,
+                                                                  tvb, offset, 1, ENC_BIG_ENDIAN, &reserved_value);
+                                reserved_value = (reserved_value & 0x3c) >> 2;
+                                /* Complain if not 0 */
+                                if (reserved_value != 0) {
+                                    expert_add_info_format(pinfo, ti, &ei_pdcp_lte_reserved_bits_not_zero,
+                                                           "Reserved bits have value 0x%x - should be 0x0",
+                                                           reserved_value);
+                                }
+
+                                /* NMP */
+                                proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_lte_nmp3, tvb,
+                                                    offset, 3, ENC_BIG_ENDIAN, &nmp);
+                                nmp &= 0x03ffff;
+                                offset += 3;
+                            }
+
+                            write_pdu_label_and_info(root_ti, pinfo, " LWA Status Report (fms=%u) not-received=%u",
+                                                     fms, nmp);
+                        }
+                        return 1;
+
                     default:    /* Reserved */
                         return 1;
                 }
@@ -2514,6 +2645,54 @@ void proto_register_pdcp(void)
         { &hf_pdcp_lte_bitmap_byte,
             { "Bitmap byte",
               "pdcp-lte.bitmap.byte", FT_UINT8, BASE_HEX, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_pdcp_lte_hrw,
+            { "Highest Received Sequence Number on WLAN",
+              "pdcp-lte.hwr", FT_UINT16, BASE_DEC, NULL, 0xfff0,
+              NULL, HFILL
+            }
+        },
+        { &hf_pdcp_lte_nmp,
+            { "Number of Missing PDCP PDUs",
+              "pdcp-lte.nmp", FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              NULL, HFILL
+            }
+        },
+        { &hf_pdcp_lte_reserved7,
+            { "Reserved",
+              "pdcp-lte.reserved7", FT_UINT8, BASE_HEX, NULL, 0x80,
+              "1 reserved bit", HFILL
+            }
+        },
+        { &hf_pdcp_lte_hrw2,
+            { "Highest Received Sequence Number on WLAN",
+              "pdcp-lte.hwr", FT_UINT16, BASE_DEC, NULL, 0x7fff,
+              NULL, HFILL
+            }
+        },
+        { &hf_pdcp_lte_nmp2,
+            { "Number of Missing PDCP PDUs",
+              "pdcp-lte.nmp", FT_UINT16, BASE_DEC, NULL, 0x7fff,
+              NULL, HFILL
+            }
+        },
+        { &hf_pdcp_lte_hrw3,
+            { "Highest Received Sequence Number on WLAN",
+              "pdcp-lte.hwr", FT_UINT24, BASE_DEC, NULL, 0xffffc0,
+              NULL, HFILL
+            }
+        },
+        { &hf_pdcp_lte_reserved8,
+            { "Reserved",
+              "pdcp-lte.reserved8", FT_UINT8, BASE_HEX, NULL, 0x3c,
+              "4 reserved bits", HFILL
+            }
+        },
+        { &hf_pdcp_lte_nmp3,
+            { "Number of Missing PDCP PDUs",
+              "pdcp-lte.nmp", FT_UINT24, BASE_DEC, NULL, 0x03ffff,
               NULL, HFILL
             }
         },
