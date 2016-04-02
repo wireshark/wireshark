@@ -1639,14 +1639,17 @@ static int populate_stream_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseud
   wtapng_if_descr_filter_t if_filter;
   guint32 if_num = 0;
   gint32 stream_num = -1;
-  guint8 *tag_ptr_tmp = state->tag_ptr;
-  guint32 remaining_len_tmp = state->remaining_len;
+  guint8 *tag_ptr_tmp;
+  guint32 remaining_len_tmp;
   struct erf_if_info* if_info = NULL;
 
   memset(&if_filter, 0, sizeof(if_filter));
 
   if (!wth || !pseudo_header || !state || !state->if_map)
     return -1;
+
+  tag_ptr_tmp = state->tag_ptr;
+  remaining_len_tmp = state->remaining_len;
 
   /*
    * XXX: We ignore parent section ID because it doesn't represent the
