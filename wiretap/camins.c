@@ -60,8 +60,8 @@
 #include "config.h"
 
 #include <string.h>
-#include <wtap-int.h>
-#include <file_wrappers.h>
+#include "wtap-int.h"
+#include "file_wrappers.h"
 
 #include "camins.h"
 
