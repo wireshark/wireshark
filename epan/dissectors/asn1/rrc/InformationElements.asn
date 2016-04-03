@@ -1,4 +1,4 @@
--- 3GPP TS 25.331 V13.1.0 (2015-12)
+-- 3GPP TS 25.331 V13.2.0 (2016-03)
 --
 -- 11.3	Information element definitions
 --
@@ -807,13 +807,6 @@ AccessStratumReleaseIndicator ::=	ENUMERATED {
 -- by absence of the field
 ActivationTime ::=					INTEGER (0..255)
 
-AddPos-Mode ::=					ENUMERATED {
-										standalone,
-										ue-assisted,
-										both,
-										spare1
-										}
-
 BackoffControlParams ::=			SEQUENCE {
 	n-AP-RetransMax						N-AP-RetransMax,
 	n-AccessFails						N-AccessFails,
@@ -1210,8 +1203,9 @@ DL-PhysChCapabilityFDD-vc50ext ::=		SEQUENCE {
     supportofDPCCH2                                 ENUMERATED { true }			OPTIONAL
 }
 
-DL-PhysChCapabilityFDD-vdxyext ::=		SEQUENCE {
-	supportforPowerControlAlgorithm3				ENUMERATED { true }				OPTIONAL
+DL-PhysChCapabilityFDD-vd20ext ::=	SEQUENCE {
+	supportofPowerControlAlgorithm3			ENUMERATED { true }				OPTIONAL,
+	supportofBlindHarqRetransmissionsforHsdpa		ENUMERATED { true }				OPTIONAL
 }
 
 DL-PhysChCapabilityTDD ::=			SEQUENCE {
@@ -1795,6 +1789,9 @@ MultiModeRAT-Capability-vc50ext ::=	SEQUENCE {
 	supportOfRAN-AssistedWLAN-Interworking-RAN-Rules		ENUMERATED { true }		OPTIONAL,
 	supportOfRAN-AssistedWLAN-Interworking-ANDSF-Policies		ENUMERATED { true }		OPTIONAL
 }
+MultiModeRAT-Capability-vd20ext ::=	SEQUENCE {
+	supportOfExtendedEUTRAFrequencyPriority		ENUMERATED { true }		OPTIONAL
+}
 N-300 ::=							INTEGER (0..7)
 
 N-301 ::=							INTEGER (0..7)
@@ -2045,10 +2042,10 @@ PhysicalChannelCapability-vc50ext ::=	SEQUENCE {
 	}		OPTIONAL
 }
 
-PhysicalChannelCapability-vdxyext ::=	SEQUENCE {
+PhysicalChannelCapability-vd20ext ::=	SEQUENCE {
 	fddPhysChCapability						SEQUENCE {
-		downlinkPhysChCapability			DL-PhysChCapabilityFDD-vdxyext			OPTIONAL,
-		uplinkPhysChCapability			UL-PhysChCapabilityFDD-vdxyext			OPTIONAL
+		downlinkPhysChCapability					DL-PhysChCapabilityFDD-vd20ext	OPTIONAL,
+		uplinkPhysChCapability					UL-PhysChCapabilityFDD-vd20ext	OPTIONAL
 	}		OPTIONAL
 }
 
@@ -2118,8 +2115,7 @@ ProtocolErrorCause ::=				ENUMERATED {
 ProtocolErrorIndicator ::=			ENUMERATED {
 										noError, errorOccurred }
 
-ProtocolErrorIndicatorWithMoreInfo ::=
-									CHOICE {
+ProtocolErrorIndicatorWithMoreInfo ::= 	CHOICE {
 	noError								NULL,
 	errorOccurred						SEQUENCE {
 		rrc-TransactionIdentifier			RRC-TransactionIdentifier,
@@ -2724,7 +2720,8 @@ UE-AddPos-Supported-List ::= 		SEQUENCE (SIZE (1..maxAddPos)) OF UE-AddPos-eleme
 UE-AddPos-element ::= SEQUENCE{
 	addPos-ID							ENUMERATED {barometricPressure, wlan, bt, mbs,
 														spare4, spare3, spare2, spare1 },
-	addPos-Mode						AddPos-Mode
+	addPos-Mode						 ENUMERATED {standalone, ue-assisted,
+																	both, spare1 }
 }
 
 UE-BasedNetworkPerformanceMeasurementsParameters ::= 	SEQUENCE {
@@ -2882,9 +2879,9 @@ UE-RadioAccessCapability-LaterNonCriticalExtensions ::= SEQUENCE {
 							vc50NonCriticalExtensions		SEQUENCE {
 								ue-RadioAccessCapability-vc50ext
 											UE-RadioAccessCapability-vc50ext-IEs,
-								vdxyNonCriticalExtensions			SEQUENCE {
-									ue-RadioAccessCapability-vdxyext
-											UE-RadioAccessCapability-vdxyext-IEs,
+								vd20NonCriticalExtensions			SEQUENCE {
+									ue-RadioAccessCapability-vd20ext
+											UE-RadioAccessCapability-vd20ext-IEs,
 									nonCriticalExtensions			SEQUENCE {} OPTIONAL
 								} 		OPTIONAL
 							}		OPTIONAL
@@ -2951,7 +2948,8 @@ UE-RadioAccessCapability-vb50ext-IEs ::= SEQUENCE {
 	rsrvcc-SupportFromUTRA-CS-to-EUTRA-FDD	ENUMERATED { true }			OPTIONAL,
 	rsrvcc-SupportFromUTRA-CS-to-EUTRA-TDD	ENUMERATED { true }			OPTIONAL,
 	supportOfHSDPCCHPowerOffsetExtension		ENUMERATED { true }			OPTIONAL,
-	supportOfSTTDOnDLControlChannelsWhenMultiflowOperationIsActive		ENUMERATED { true }			OPTIONAL
+	supportOfSTTDOnDLControlChannelsWhenMultiflowOperationIsActive
+														ENUMERATED { true }			OPTIONAL
 }
 
 UE-RadioAccessCapability-vb70ext-IEs ::= SEQUENCE {
@@ -2974,12 +2972,18 @@ UE-RadioAccessCapability-vc50ext-IEs ::= SEQUENCE {
     physicalChannelCapability					PhysicalChannelCapability-vc50ext	OPTIONAL
 }
 
-UE-RadioAccessCapability-vdxyext-IEs ::= SEQUENCE {
-	ue-RadioAccessCapabBandCombList-vdxyext	UE-RadioAccessCapabBandCombList-vdxyext		OPTIONAL,
+UE-RadioAccessCapability-vd20ext-IEs ::=		SEQUENCE {
+	ue-RadioAccessCapabBandCombList		UE-RadioAccessCapabBandCombList-vd20ext	OPTIONAL,
+	multiModeRAT-Capability						MultiModeRAT-Capability-vd20ext			OPTIONAL,
 	-- UE physical channel capability
-    physicalChannelCapability					PhysicalChannelCapability-vdxyext	OPTIONAL,
-	-- UE radio access capability
-	ue-PositioningCapability					UE-PositioningCapability-vdxyext		OPTIONAL
+	physicalChannelCapability				PhysicalChannelCapability-vd20ext		OPTIONAL,
+	-- UE positioning capability
+	ue-PositioningCapability				UE-PositioningCapability-vd20ext			OPTIONAL,
+	-- the capability is for FDD only
+	supportofRetrievableConfigurations			ENUMERATED { true }						OPTIONAL,
+	supportofURAPCHwithSeamlessTransition		ENUMERATED { true }						OPTIONAL,
+	supportofImprovedSynchronizedRRCProcedures	ENUMERATED { true }						OPTIONAL,
+	supportofEnhancedStateTransition			ENUMERATED { true }						OPTIONAL
 }
 
 UE-ConnTimersAndConstants ::=		SEQUENCE {
@@ -3242,8 +3246,8 @@ UE-RadioAccessCapability-vbc0ext ::= SEQUENCE {
 	ue-RadioAccessCapabBandCombList-va40ext	UE-RadioAccessCapabBandCombList-va40ext																								OPTIONAL
 }
 
-UE-RadioAccessCapability-vdxyext ::= SEQUENCE {
-	ue-RadioAccessCapabBandCombList-vdxyext	UE-RadioAccessCapabBandCombList-vdxyext		OPTIONAL
+UE-RadioAccessCapability-vd20ext ::= SEQUENCE {
+	ue-RadioAccessCapabBandCombList	UE-RadioAccessCapabBandCombList-vd20ext	OPTIONAL
 }
 
 
@@ -3378,7 +3382,7 @@ UE-PositioningCapability-v860ext ::= SEQUENCE {
 										UE-GANSSPositioning-Capability-v860ext-IEs	OPTIONAL
 }
 
-UE-PositioningCapability-vdxyext ::= SEQUENCE {
+UE-PositioningCapability-vd20ext ::= SEQUENCE {
 	ue-Positioning-AddPos-Capability	UE-AddPos-Supported-List	OPTIONAL
 }
 
@@ -3507,7 +3511,7 @@ UE-RadioAccessCapabilityComp2-vc50ext ::= SEQUENCE {
 	simultaneousSupportforDCHEnhancementsAndDPCCHDiscntTx	ENUMERATED { true }		OPTIONAL
 }
 
-UE-RadioAccessCapabilityComp2-vdxyext ::= SEQUENCE {
+UE-RadioAccessCapabilityComp2-vd20ext ::= SEQUENCE {
 	supportOfDualCellEDCHwithDPDCH			ENUMERATED { true }					OPTIONAL
 }
 
@@ -3575,7 +3579,8 @@ UE-RadioAccessCapabBandCombList-vb50ext ::= SEQUENCE (SIZE (1..16)) OF
 																	SupportedCarrierCombination-ext
 
 
-UE-RadioAccessCapabBandCombList-vdxyext ::= SEQUENCE (SIZE (1..16)) OF SupportDualBandDualCellEdch
+UE-RadioAccessCapabBandCombList-vd20ext ::= SEQUENCE (SIZE (1..16)) OF
+											SupportDualBandDualCellEdch
 
 SupportedCarrierCombination ::= SEQUENCE {
 	carrierCombination12					BOOLEAN,
@@ -3670,7 +3675,7 @@ UL-PhysChCapabilityFDD-vc50ext ::=		SEQUENCE {
 	dtx-enhancements									ENUMERATED { true }		OPTIONAL
 }
 
-UL-PhysChCapabilityFDD-vdxyext ::=		SEQUENCE {
+UL-PhysChCapabilityFDD-vd20ext ::=		SEQUENCE {
 	supportOfDualCellEDCHwithDPDCH			ENUMERATED { true }				OPTIONAL
 }
 
@@ -4208,9 +4213,6 @@ PollWindow ::=						ENUMERATED {
 										pw50, pw60, pw70, pw80, pw85,
 										pw90, pw95, pw99 }
 
-PreconfiguredRetrievableConfig ::=	SEQUENCE {
-	retrievableConfigList					RetrievableConfig-List
-}
 
 PredefinedConfigIdentity ::=		INTEGER (0..15)
 
@@ -4746,11 +4748,11 @@ RetrievableConfig ::=	SEQUENCE {
 RetrievableConfigData ::=	SEQUENCE {
 	srb-InformationSetupList			SRB-InformationSetupList-r11			OPTIONAL,
 	rab-InformationSetupList			RAB-InformationSetupList-r11			OPTIONAL,
-	rb-InformationSetupList			RB-InformationSetupList-r11			OPTIONAL,
+	rb-InformationReconfigList		RB-InformationReconfigList-r11		OPTIONAL,
 	ul-CommonTransChInfo				UL-CommonTransChInfo-r12				OPTIONAL,
 	ul-TransChInfoList					UL-AddReconfTransChInfoList-r8		OPTIONAL,
 	dl-CommonTransChInfo				DL-CommonTransChInfo-r4				OPTIONAL,
-	dl-TransChInfoList					DL-AddReconfTransChInfoList-r11		OPTIONAL,
+	dl-TransChInfoList					DL-AddReconfTransChInfoList-r13		OPTIONAL,
 	dtx-drx-Info						DTX-DRX-Info-r12						OPTIONAL,
 	hs-scch-LessInfo					HS-SCCH-LessInfo-r7					OPTIONAL,
 	mimoParameters						MIMO-Parameters-r9						OPTIONAL,
@@ -4769,7 +4771,7 @@ RetrievableConfigInfo ::=			SEQUENCE {
 	retrievableConfigToBeInvoked		RetrievableConfigIdentity			OPTIONAL,
 	retrievableConfigToBeStored		RetrievableConfigIdentity			OPTIONAL,
 	retrievableConfigToBeRemoved		RetrievableConfigListToRemove		OPTIONAL,
-	preconfiguredRetrievableConfig	PreconfiguredRetrievableConfig	OPTIONAL
+	preconfiguredRetrievableConfig	RetrievableConfig-List			OPTIONAL
 }
 
 RetrievableConfig-List ::= 	SEQUENCE (SIZE(1.. maxRetrievConfig)) OF
@@ -5475,14 +5477,15 @@ DL-AddReconfTransChInfoList-r7 ::=	SEQUENCE (SIZE (1..maxTrCHpreconf)) OF
 DL-AddReconfTransChInfoList-r9 ::=	SEQUENCE (SIZE (1..maxTrCHpreconf)) OF
 										DL-AddReconfTransChInformation-r9
 
-DL-AddReconfTransChInfoList-r13 ::=	SEQUENCE (SIZE (1..maxTrCHpreconf)) OF
+DL-AddReconfTransChInfoList-r11 ::=	SEQUENCE (SIZE (1..maxTrCHpreconf)) OF
+										DL-AddReconfTransChInformation-r11
+
+DL-AddReconfTransChInfoList-r13 ::=	SEQUENCE (SIZE (1..maxTrCH)) OF
 										DL-AddReconfTransChInformation-r13
 
 DL-AddReconfTransChInfoList-TDD128-v9c0ext ::=	SEQUENCE (SIZE (1..maxTrCHpreconf)) OF
 										DL-AddReconfTransChInformation-TDD128-v9c0ext
 
-DL-AddReconfTransChInfoList-r11 ::=	SEQUENCE (SIZE (1..maxTrCHpreconf)) OF
-										DL-AddReconfTransChInformation-r11
 
 -- ASN.1 for IE "Added or Reconfigured DL TrCH information"
 -- in case of messages other than: Radio Bearer Release message and
@@ -5540,6 +5543,16 @@ DL-AddReconfTransChInformation-r9 ::= SEQUENCE {
 	dch-QualityTarget					QualityTarget						OPTIONAL
 }
 
+DL-AddReconfTransChInformation-r11 ::= SEQUENCE {
+	dl-TransportChannelType				DL-TrCH-TypeId1-r5,
+	tfs-SignallingMode					CHOICE {
+		explicit-config						TransportFormatSet,
+		sameAsULTrCH						UL-TransportChannelIdentity,
+		hsdsch								HSDSCH-Info-r11
+	},
+	dch-QualityTarget					QualityTarget						OPTIONAL
+}
+
 DL-AddReconfTransChInformation-r13 ::= SEQUENCE {
 	dl-TransportChannelType				DL-TrCH-TypeId1-r5,
 	tfs-SignallingMode						CHOICE {
@@ -5552,16 +5565,6 @@ DL-AddReconfTransChInformation-r13 ::= SEQUENCE {
 
 DL-AddReconfTransChInformation-TDD128-v9c0ext ::= SEQUENCE {
 	hsdsch								HSDSCH-Info-TDD128-v9c0ext		OPTIONAL
-}
-
-DL-AddReconfTransChInformation-r11 ::= SEQUENCE {
-	dl-TransportChannelType				DL-TrCH-TypeId1-r5,
-	tfs-SignallingMode					CHOICE {
-		explicit-config						TransportFormatSet,
-		sameAsULTrCH						UL-TransportChannelIdentity,
-		hsdsch								HSDSCH-Info-r11
-	},
-	dch-QualityTarget					QualityTarget						OPTIONAL
 }
 
 -- ASN.1 for IE "Added or Reconfigured DL TrCH information"
@@ -5790,24 +5793,24 @@ HSDSCH-Info-r9 ::=					SEQUENCE {
 	}		OPTIONAL
 }
 
-HSDSCH-Info-r13 ::=					SEQUENCE {
-	harqInfo							HARQ-Info-r13			OPTIONAL,
-	dl-MAC-HeaderType					CHOICE {
-		mac-hs								AddOrReconfMAC-dFlow,
-		mac-ehs								AddOrReconfMAC-ehs-ReordQ-r9
-	}		OPTIONAL
-}
-
-HSDSCH-Info-TDD128-v9c0ext ::=			SEQUENCE {
-	mac-ehs								AddOrReconfMAC-ehs-ReordQ-TDD128-v9c0ext		OPTIONAL
-}
-
 HSDSCH-Info-r11 ::=					SEQUENCE {
 	harqInfo							HARQ-Info-r11			OPTIONAL,
 	dl-MAC-HeaderType					CHOICE {
 		mac-hs								AddOrReconfMAC-dFlow,
 		mac-ehs								AddOrReconfMAC-ehs-ReordQ-r11
 	}		OPTIONAL
+}
+
+HSDSCH-Info-r13 ::=				SEQUENCE {
+	harqInfo							HARQ-Info-r13			OPTIONAL,
+	dl-MAC-HeaderType					CHOICE {
+		mac-hs								AddOrReconfMAC-dFlow,
+		mac-ehs								AddOrReconfMAC-ehs-ReordQ-r11
+	}		OPTIONAL
+}
+
+HSDSCH-Info-TDD128-v9c0ext ::=			SEQUENCE {
+	mac-ehs								AddOrReconfMAC-ehs-ReordQ-TDD128-v9c0ext		OPTIONAL
 }
 
 HARQ-Info ::=						SEQUENCE {
@@ -7831,7 +7834,7 @@ DL-FDPCH-InfoPerRL-r13 ::=		SEQUENCE {
 	dl-ChannelisationCode				INTEGER (0..255),
 	tpc-CombinationIndex				TPC-CombinationIndex,
 	sttdIndication						STTDIndication							OPTIONAL,
-	powerControlAlgorithm3			PowerControlAlgorithm3				OPTIONAL
+	powerControlAlgorithm3-Config	PowerControlAlgorithm3-Config			OPTIONAL
 }
 
 DL-DPCH-InfoPerRL-PostFDD ::=								SEQUENCE {
@@ -11189,9 +11192,9 @@ PowerControlAlgorithm ::=			CHOICE {
 	algorithm2							NULL
 }
 
-PowerControlAlgorithm3 ::=			SEQUENCE {
+PowerControlAlgorithm3-Config ::=	SEQUENCE {
 	tPCSlotPosition						INTEGER (0..4)					OPTIONAL,
-	tPC-StepSize						TPC-StepSizeFDD					OPTIONAL,
+	tpcStepSize						TPC-StepSizeFDD					OPTIONAL,
 	decimationFactor					ENUMERATED {slots3, slots5}		OPTIONAL
 }
 
@@ -15175,7 +15178,7 @@ EUTRA-FrequencyAndPriorityInfo-vc50ext ::=	SEQUENCE {
 	reducedMeasurementPerformance		ENUMERATED {true}							OPTIONAL
 }
 
-EUTRA-FrequencyAndPriorityInfo-vdxyext ::=	SEQUENCE {
+EUTRA-FrequencyAndPriorityInfo-vd20ext ::=	SEQUENCE {
 	subpriority							ENUMERATED {oDot2,oDot4,oDot6,oDot8}		OPTIONAL
 }
 
@@ -15205,7 +15208,7 @@ EUTRA-FrequencyAndPriorityInfoExtension-vc50ext ::=	SEQUENCE {
 	reducedMeasurementPerformance		ENUMERATED {true}							OPTIONAL
 }
 
-EUTRA-FrequencyAndPriorityInfoExtension-vdxyext ::=	SEQUENCE {
+EUTRA-FrequencyAndPriorityInfoExtension-vd20ext ::=	SEQUENCE {
 	subpriority							ENUMERATED {oDot2,oDot4,oDot6,oDot8}		OPTIONAL
 }
 
@@ -15218,8 +15221,8 @@ EUTRA-FrequencyAndPriorityInfoExtensionList-vb80ext ::=	SEQUENCE  (SIZE (1..maxN
 EUTRA-FrequencyAndPriorityInfoExtensionList-vc50ext ::=	SEQUENCE  (SIZE (1..maxNumEUTRAFreqs)) OF
 											EUTRA-FrequencyAndPriorityInfoExtension-vc50ext
 
-EUTRA-FrequencyAndPriorityInfoExtensionList-vdxyext ::=	SEQUENCE  (SIZE (1..maxNumEUTRAFreqs)) OF
-											EUTRA-FrequencyAndPriorityInfoExtension-vdxyext
+EUTRA-FrequencyAndPriorityInfoExtensionList-vd20ext ::=	SEQUENCE  (SIZE (1..maxNumEUTRAFreqs)) OF
+											EUTRA-FrequencyAndPriorityInfoExtension-vd20ext
 
 EUTRA-FrequencyAndPriorityInfoList ::=	SEQUENCE (SIZE (1..maxNumEUTRAFreqs)) OF
 											EUTRA-FrequencyAndPriorityInfo
@@ -15233,8 +15236,8 @@ EUTRA-FrequencyAndPriorityInfoList-vb50ext ::=	SEQUENCE  (SIZE (1..maxNumEUTRAFr
 EUTRA-FrequencyAndPriorityInfoList-vc50ext ::=	SEQUENCE  (SIZE (1..maxNumEUTRAFreqs)) OF
 											EUTRA-FrequencyAndPriorityInfo-vc50ext
 
-EUTRA-FrequencyAndPriorityInfoList-vdxyext ::=	SEQUENCE  (SIZE (1..maxNumEUTRAFreqs)) OF
-											EUTRA-FrequencyAndPriorityInfo-vdxyext
+EUTRA-FrequencyAndPriorityInfoList-vd20ext ::=	SEQUENCE  (SIZE (1..maxNumEUTRAFreqs)) OF
+											EUTRA-FrequencyAndPriorityInfo-vd20ext
 
 EUTRA-FrequencyList ::=				SEQUENCE {
 	eutraFrequencyRemoval				EUTRA-FrequencyRemoval,
@@ -18469,8 +18472,8 @@ MeasuredResults-v860ext ::= CHOICE {
 	ue-positioning-MeasuredResults		UE-Positioning-MeasuredResults-v860ext
 }
 
-MeasuredResults-vdxyext ::= CHOICE {
-	ue-positioning-MeasuredResults		UE-Positioning-MeasuredResults-vdxyext
+MeasuredResults-vd20ext ::= CHOICE {
+	ue-positioning-MeasuredResults		UE-Positioning-MeasuredResults-vd20ext
 }
 
 MeasuredResultsList-v920ext ::=		SEQUENCE (SIZE (1..maxAdditionalMeas)) OF
@@ -18479,8 +18482,8 @@ MeasuredResultsList-v920ext ::=		SEQUENCE (SIZE (1..maxAdditionalMeas)) OF
 MeasuredResultsList-vc50ext ::=		SEQUENCE (SIZE (1..maxAdditionalMeas)) OF
 										MeasuredResults-vc50ext
 
-MeasuredResultsList-vdxyext ::=		SEQUENCE (SIZE (1..maxAdditionalMeas)) OF
-										MeasuredResults-vdxyext
+MeasuredResultsList-vd20ext ::=		SEQUENCE (SIZE (1..maxAdditionalMeas)) OF
+										MeasuredResults-vd20ext
 
 MeasuredResultsListOnSecUlFreq ::=	SEQUENCE (SIZE (1..maxAdditionalMeas)) OF
 										MeasuredResultsOnSecUlFreq
@@ -21588,9 +21591,9 @@ UE-Positioning-MeasuredResults-vc50ext ::= SEQUENCE {
 	ue-positioning-Error					UE-Positioning-Error-vc50ext				OPTIONAL
 }
 
-UE-Positioning-MeasuredResults-vdxyext ::= SEQUENCE {
+UE-Positioning-MeasuredResults-vd20ext ::= SEQUENCE {
 	ue-positioning-AddPos-MeasurementResults 	UE-Positioning-AddPos-MeasuredResults	OPTIONAL,
-	ue-positioning-PositionEstimateInfo			UE-Positioning-PositionEstimateInfo-vdxyext
+	ue-positioning-PositionEstimateInfo		UE-Positioning-PositionEstimateInfo-vd20ext
 																						OPTIONAL
 }
 
@@ -22025,7 +22028,7 @@ UE-Positioning-PositionEstimateInfo-v770ext ::= SEQUENCE {
 								UE-Positioning-GPS-ReferenceTimeUncertainty	OPTIONAL
 }
 
-UE-Positioning-PositionEstimateInfo-vdxyext ::= SEQUENCE {
+UE-Positioning-PositionEstimateInfo-vd20ext ::= SEQUENCE {
 	locationTimeStamp					UTCTime OPTIONAL
 }
 
@@ -22359,9 +22362,11 @@ ACDC-Barring ::= 					CHOICE {
 	acdc-acb-barringBitmap			BIT STRING (SIZE (10))
 }
 
-ACDC-Parameters ::= 				CHOICE {
-	acdc-ParametersPerPLMN-List		ACDC-ParametersPerPLMN-List,
-	acdc-ParametersForAll				ACDC-ParametersForAll
+ACDC-Parameters ::= 				SEQUENCE {
+	barringRepresentation				CHOICE {
+		acdc-ParametersPerPLMN-List		ACDC-ParametersPerPLMN-List,
+		acdc-ParametersForAll				ACDC-ParametersForAll
+	}
 }
 
 ACDC-ParametersForAll ::=			SEQUENCE {
@@ -24448,8 +24453,8 @@ SysInfoType19 ::=						SEQUENCE {
 							sysInfoType19-vb80ext			SysInfoType19-vb80ext,
 							vc50NonCriticalExtensions		SEQUENCE {
 								sysInfoType19-vc50ext			SysInfoType19-vc50ext,
-								vdxyNonCriticalExtensions			SEQUENCE {
-									sysInfoType19-vdxyext			SysInfoType19-vdxyext,
+								vd20NonCriticalExtensions			SEQUENCE {
+									sysInfoType19-vd20ext			SysInfoType19-vd20ext,
 									nonCriticalExtensions			SEQUENCE {}			OPTIONAL
 								}			OPTIONAL
 							}	OPTIONAL
@@ -24495,10 +24500,10 @@ SysInfoType19-vc50ext	::=				SEQUENCE {
 									EUTRA-FrequencyAndPriorityInfoExtensionList-vc50ext		OPTIONAL
 }
 
-SysInfoType19-vdxyext	::=				SEQUENCE {
-		eutra-FrequencyAndPriorityInfoList-vdxyext	EUTRA-FrequencyAndPriorityInfoList-vdxyext OPTIONAL,
-		eutra-FrequencyAndPriorityInfoExtensionList-vdxyext
-									EUTRA-FrequencyAndPriorityInfoExtensionList-vdxyext		OPTIONAL
+SysInfoType19-vd20ext	::=				SEQUENCE {
+		eutra-FrequencyAndPriorityInfoList-vd20ext	EUTRA-FrequencyAndPriorityInfoList-vd20ext OPTIONAL,
+		eutra-FrequencyAndPriorityInfoExtensionList-vd20ext
+									EUTRA-FrequencyAndPriorityInfoExtensionList-vd20ext		OPTIONAL
 }
 
 SysInfoType20 ::=					SEQUENCE {

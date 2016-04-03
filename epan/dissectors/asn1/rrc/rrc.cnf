@@ -68,6 +68,7 @@ UE-Positioning-GANSS-Data
 GANSSDecipheringKeys
 GSM-CellID
 RRCConnectionRelease-CCCH-va40ext-IEs
+MeasuredResultsList-vd20ext
 #.END
 
 #.PDU
