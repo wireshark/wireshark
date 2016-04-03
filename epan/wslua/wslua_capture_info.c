@@ -34,7 +34,7 @@
 /* WSLUA_CONTINUE_MODULE File */
 
 
-WSLUA_CLASS_DEFINE(CaptureInfo,FAIL_ON_NULL_MEMBER_OR_EXPIRED("CaptureInfo",wth));
+WSLUA_CLASS_DEFINE(CaptureInfo,FAIL_ON_NULL_OR_EXPIRED("CaptureInfo"));
 /*
     A `CaptureInfo` object, passed into Lua as an argument by `FileHandler` callback
     function `read_open()`, `read()`, `seek_read()`, `seq_read_close()`, and `read_close()`.
@@ -50,7 +50,13 @@ WSLUA_CLASS_DEFINE(CaptureInfo,FAIL_ON_NULL_MEMBER_OR_EXPIRED("CaptureInfo",wth)
  */
 
 CaptureInfo* push_CaptureInfo(lua_State* L, wtap *wth, const gboolean first_time) {
-    CaptureInfo f = (CaptureInfo) g_malloc0(sizeof(struct _wslua_captureinfo));
+    CaptureInfo f;
+
+    if (!wth) {
+        luaL_error(L, "Internal error: wth is NULL!");
+    }
+
+    f = (CaptureInfo) g_malloc0(sizeof(struct _wslua_captureinfo));
     f->wth = wth;
     f->wdh = NULL;
     f->expired = FALSE;
@@ -300,7 +306,7 @@ int CaptureInfo_register(lua_State* L) {
 }
 
 
-WSLUA_CLASS_DEFINE(CaptureInfoConst,FAIL_ON_NULL_MEMBER_OR_EXPIRED("CaptureInfoConst",wdh));
+WSLUA_CLASS_DEFINE(CaptureInfoConst,FAIL_ON_NULL_OR_EXPIRED("CaptureInfoConst"));
 /*
     A `CaptureInfoConst` object, passed into Lua as an argument to the `FileHandler` callback
     function `write_open()`.
@@ -317,7 +323,13 @@ WSLUA_CLASS_DEFINE(CaptureInfoConst,FAIL_ON_NULL_MEMBER_OR_EXPIRED("CaptureInfoC
  */
 
 CaptureInfoConst* push_CaptureInfoConst(lua_State* L, wtap_dumper *wdh) {
-    CaptureInfoConst f = (CaptureInfoConst) g_malloc0(sizeof(struct _wslua_captureinfo));
+    CaptureInfoConst f;
+
+    if (!wdh) {
+        luaL_error(L, "Internal error: wdh is NULL!");
+    }
+
+    f = (CaptureInfoConst) g_malloc0(sizeof(struct _wslua_captureinfo));
     f->wth = NULL;
     f->wdh = wdh;
     f->expired = FALSE;

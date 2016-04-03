@@ -645,14 +645,6 @@ extern int wslua_set__index(lua_State *L);
 
 #define FAIL_ON_NULL(s) if (! *p) luaL_argerror(L,idx,"null " s)
 
-#define FAIL_ON_NULL_MEMBER_OR_EXPIRED(s,member) if (!*p) { \
-        luaL_argerror(L,idx,"null " s); \
-    } else if ((*p)->member == NULL) { \
-        luaL_argerror(L,idx,"null " s " member " #member); \
-    } else if ((*p)->expired) { \
-        luaL_argerror(L,idx,"expired " s); \
-    }
-
 #define FAIL_ON_NULL_OR_EXPIRED(s) if (!*p) { \
         luaL_argerror(L,idx,"null " s); \
     } else if ((*p)->expired) { \
