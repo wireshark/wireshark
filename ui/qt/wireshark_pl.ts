@@ -524,12 +524,12 @@
 <context>
     <name>CaptureFile</name>
     <message>
-        <location filename="capture_file.cpp" line="161"/>
+        <location filename="capture_file.cpp" line="171"/>
         <source> [closing]</source>
         <translation>[zamykanie]</translation>
     </message>
     <message>
-        <location filename="capture_file.cpp" line="166"/>
+        <location filename="capture_file.cpp" line="176"/>
         <source> [closed]</source>
         <translation>[zamknięty]</translation>
     </message>
@@ -9167,209 +9167,209 @@ text-decoration: underline;
         <translation>Ctrl+Shift+E</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="404"/>
+        <location filename="main_window.cpp" line="410"/>
         <source>Check for Updates</source>
         <oldsource>Check for Updates...</oldsource>
         <translation>Sprawdź aktualizacje</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="801"/>
+        <location filename="main_window.cpp" line="789"/>
         <source> before quitting</source>
         <translation>przed wyjściem</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="977"/>
+        <location filename="main_window.cpp" line="965"/>
         <source>Save packets before merging?</source>
         <translation>Zapisać pakiety przed scaleniem?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="978"/>
+        <location filename="main_window.cpp" line="966"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>Tymczasowy plik przechwytywania nie może zostać scalony.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="984"/>
+        <location filename="main_window.cpp" line="972"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>Zapisać zmiany w &quot;%1&quot;  przed scaleniem?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="986"/>
+        <location filename="main_window.cpp" line="974"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>Zmiany muszą być zapisane przed próbą scalenia plików.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="197"/>
+        <location filename="main_window_slots.cpp" line="199"/>
         <source>Invalid Display Filter</source>
         <translation>Niepoprawny filtr</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1023"/>
+        <location filename="main_window.cpp" line="1011"/>
         <source>Invalid Read Filter</source>
         <translation>Niepoprawny filtr wczytywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1024"/>
+        <location filename="main_window.cpp" line="1012"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation>Postać filtru wczytywania %1 nie jest poprawna. (%2).</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1114"/>
+        <location filename="main_window.cpp" line="1102"/>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
         <translation>przed zaimportowaniem nowego pliku przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1387"/>
+        <location filename="main_window.cpp" line="1375"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>Nie można wyeksportować do &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1388"/>
+        <location filename="main_window.cpp" line="1376"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>Nie można wyeksportować pakietów do aktualnego pliku.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1475"/>
-        <location filename="main_window.cpp" line="1500"/>
+        <location filename="main_window.cpp" line="1463"/>
+        <location filename="main_window.cpp" line="1488"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1547"/>
+        <location filename="main_window.cpp" line="1535"/>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Czy chcesz zapisać zrobione zmiany %1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1543"/>
-        <location filename="main_window.cpp" line="1551"/>
+        <location filename="main_window.cpp" line="1531"/>
+        <location filename="main_window.cpp" line="1539"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>Twoje przechwycone pakiety zostaną utracone jeśli nie zapiszesz ich.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1556"/>
+        <location filename="main_window.cpp" line="1544"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>Czy chcesz zapisać zmiany, które zrobiłeś do pliku przechytywania  &quot;%1&quot;%2?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1548"/>
-        <location filename="main_window.cpp" line="1557"/>
+        <location filename="main_window.cpp" line="1536"/>
+        <location filename="main_window.cpp" line="1545"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Twoje zmiany zostaną utracone jeśli nie zapiszesz ich.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1542"/>
+        <location filename="main_window.cpp" line="1530"/>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
         <translation>Czy chcesz zatrzymać przechwytywanie i zapisać przechwycone pakiety%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1550"/>
+        <location filename="main_window.cpp" line="1538"/>
         <source>Do you want to save the captured packets%1?</source>
         <translation>Czy chcesz zapisać przechwycone pakiety%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1574"/>
+        <location filename="main_window.cpp" line="1562"/>
         <source>Save before Continue</source>
         <translation>Zapisz przed kontynuowaniem</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1576"/>
+        <location filename="main_window.cpp" line="1564"/>
         <source>Stop and Save</source>
         <translation>Zatrzymaj i zapisz</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1588"/>
+        <location filename="main_window.cpp" line="1576"/>
         <source>Stop and Quit without Saving</source>
         <translation>Zatrzymaj i zamknij bez zapisywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1600"/>
+        <location filename="main_window.cpp" line="1588"/>
         <source>Quit without Saving</source>
         <translation>Wyjdź bez zapisywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1591"/>
-        <location filename="main_window.cpp" line="1604"/>
+        <location filename="main_window.cpp" line="1579"/>
+        <location filename="main_window.cpp" line="1592"/>
         <source>Continue without Saving</source>
         <translation>Kontynuuj bez zapisywaniem</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1594"/>
+        <location filename="main_window.cpp" line="1582"/>
         <source>Stop and Continue without Saving</source>
         <translation>Zatrzymaj i Kontynuuj bez zapisywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1859"/>
+        <location filename="main_window.cpp" line="1913"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Nazwa pliku nie może być przekonwertowana do formatu UTF-8)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1880"/>
+        <location filename="main_window.cpp" line="1934"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Analizator Wireshark</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1905"/>
+        <location filename="main_window.cpp" line="1959"/>
         <source>Capturing from %1</source>
         <translation>Przechwytywanie z %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="186"/>
+        <location filename="main_window_slots.cpp" line="188"/>
         <source> before opening another file</source>
         <translation>przed otwarciem nowego pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="673"/>
+        <location filename="main_window_slots.cpp" line="677"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="763"/>
+        <location filename="main_window_slots.cpp" line="769"/>
         <source>Saving %1</source>
         <translation>Zapisywanie %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="802"/>
+        <location filename="main_window_slots.cpp" line="808"/>
         <source>No interface selected</source>
         <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="812"/>
+        <location filename="main_window_slots.cpp" line="818"/>
         <source>Invalid capture filter</source>
         <translation>Niepoprawny filtr przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1026"/>
+        <location filename="main_window_slots.cpp" line="1032"/>
         <source>Clear Menu</source>
         <translation>Wyczyść Menu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1556"/>
+        <location filename="main_window_slots.cpp" line="1489"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Proszę czekać, trwa uruchamianie Wiresharka</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1637"/>
+        <location filename="main_window_slots.cpp" line="1570"/>
         <source> before closing the file</source>
         <translation>przed zapisaniem pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1714"/>
+        <location filename="main_window_slots.cpp" line="1653"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Eksportuj zaznaczony bajty pakietu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1780"/>
+        <location filename="main_window_slots.cpp" line="1719"/>
         <source>No Keys</source>
         <translation>Brak kluczy</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1781"/>
+        <location filename="main_window_slots.cpp" line="1720"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Nie ma żadnych kluczy sesji SSL do zapisu.</translation>
     </message>
     <message numerus="yes">
-        <location filename="main_window_slots.cpp" line="1787"/>
+        <location filename="main_window_slots.cpp" line="1726"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation>
@@ -9379,84 +9379,84 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1716"/>
+        <location filename="main_window_slots.cpp" line="1655"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Surowe dane (*.bin *.dat *.raw);;Dowolny plik (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1791"/>
+        <location filename="main_window_slots.cpp" line="1730"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Klucze sesji SSL (*.keys *.txt);; Dowolny plik (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1929"/>
+        <location filename="main_window_slots.cpp" line="1868"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Nie można skopiować tekstu. Spróbuj inną pozycję.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2338"/>
-        <location filename="main_window_slots.cpp" line="3412"/>
+        <location filename="main_window_slots.cpp" line="2277"/>
+        <location filename="main_window_slots.cpp" line="3365"/>
         <source>Unable to build conversation filter.</source>
         <translation>Nie można stworzyć filtru konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2475"/>
-        <location filename="main_window_slots.cpp" line="2488"/>
+        <location filename="main_window_slots.cpp" line="2422"/>
+        <location filename="main_window_slots.cpp" line="2435"/>
         <source> before reloading the file</source>
         <translation>przed przeładowaniem pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2522"/>
+        <location filename="main_window_slots.cpp" line="2469"/>
         <source>No filter available. Try another </source>
         <translation>Brak dostępnych filtrów. Spróbuj ponownie</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3419"/>
+        <location filename="main_window_slots.cpp" line="3372"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Błąd kompilacji filtru dla tej konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3428"/>
+        <location filename="main_window_slots.cpp" line="3381"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Brak poprzedniego i następnego pakietu w konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3505"/>
+        <location filename="main_window_slots.cpp" line="3458"/>
         <source>No Interface Selected</source>
         <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3512"/>
+        <location filename="main_window_slots.cpp" line="3465"/>
         <source> before starting a new capture</source>
         <translation>przed wystartowaniem nowego przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3530"/>
+        <location filename="main_window_slots.cpp" line="3483"/>
         <source> before restarting the capture</source>
         <translation>przed restartem przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3713"/>
+        <location filename="main_window_slots.cpp" line="3686"/>
         <source>Wiki Page for %1</source>
         <translation>Strona Wiki dla %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3714"/>
+        <location filename="main_window_slots.cpp" line="3687"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Strona Wiki Wiresharka jest zarządzania przez społeczność.&lt;/p&gt;&lt;p&gt;Strona którą chcesz wczytać może być wspaniała, niekompletna, błędna lub nie istnieć.&lt;/p&gt;&lt;p&gt;Kontynuować wczytywanie strony Wiki?&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="260"/>
+        <location filename="main_window.h" line="262"/>
         <source>Loading</source>
         <translation>Wczytywanie</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="262"/>
+        <location filename="main_window.h" line="264"/>
         <source>Reloading</source>
         <translation>Przeładowanie</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="263"/>
+        <location filename="main_window.h" line="265"/>
         <source>Rescanning</source>
         <translation>Przeskanowanie</translation>
     </message>
@@ -9983,12 +9983,12 @@ text-decoration: underline;
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="packet_dialog.cpp" line="55"/>
+        <location filename="packet_dialog.cpp" line="53"/>
         <source>Packet %1</source>
         <translation>Pakiet %1</translation>
     </message>
     <message>
-        <location filename="packet_dialog.cpp" line="131"/>
+        <location filename="packet_dialog.cpp" line="119"/>
         <source>[%1 closed] </source>
         <translation>[%1 zamknięty]</translation>
     </message>
@@ -10074,47 +10074,47 @@ text-decoration: underline;
         <translation>Podsumowanie jako tekst</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="652"/>
+        <location filename="packet_list.cpp" line="654"/>
         <source>Align Left</source>
         <translation>Wyrównaj do lewej</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="653"/>
+        <location filename="packet_list.cpp" line="655"/>
         <source>Align Center</source>
         <translation>Wyrównaj do środka</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="654"/>
+        <location filename="packet_list.cpp" line="656"/>
         <source>Align Right</source>
         <translation>Wyrównaj do prawej</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="656"/>
+        <location filename="packet_list.cpp" line="658"/>
         <source>Column Preferences</source>
         <translation>Ustawienia kolumny</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="657"/>
+        <location filename="packet_list.cpp" line="659"/>
         <source>Edit Column</source>
         <translation>Edytuj kolumnę</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="658"/>
+        <location filename="packet_list.cpp" line="660"/>
         <source>Resize To Contents</source>
         <translation>Dopasuj szerokość do zawartości</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="659"/>
+        <location filename="packet_list.cpp" line="661"/>
         <source>Resolve Names</source>
         <translation>Rozwiązuj nazwy</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="664"/>
+        <location filename="packet_list.cpp" line="666"/>
         <source>Remove This Column</source>
         <translation>Usuń tę kolumnę</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1020"/>
+        <location filename="packet_list.cpp" line="1022"/>
         <source>Frame %1: %2
 
 </source>
@@ -10122,7 +10122,7 @@ text-decoration: underline;
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1024"/>
+        <location filename="packet_list.cpp" line="1026"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Długość komentarza przekracza %1. Wstrzymano. ]</translation>
     </message>
@@ -10212,12 +10212,12 @@ text-decoration: underline;
 <context>
     <name>PathChooserDelegate</name>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="815"/>
+        <location filename="manage_interfaces_dialog.cpp" line="814"/>
         <source>Browse</source>
         <translation>Przeglądaj</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="868"/>
+        <location filename="manage_interfaces_dialog.cpp" line="867"/>
         <source>Open Pipe</source>
         <translation>Otwórz rurę</translation>
     </message>
@@ -10466,22 +10466,22 @@ text-decoration: underline;
 <context>
     <name>ProtoTree</name>
     <message>
-        <location filename="proto_tree.cpp" line="158"/>
+        <location filename="proto_tree.cpp" line="157"/>
         <source>Packet details</source>
         <translation>Szczegóły pakietu</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="205"/>
+        <location filename="proto_tree.cpp" line="204"/>
         <source>Colorize with Filter</source>
         <translation>Koloruj z filtrem</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="432"/>
+        <location filename="proto_tree.cpp" line="431"/>
         <source>, 1 byte</source>
         <translation>, 1 bajt</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="434"/>
+        <location filename="proto_tree.cpp" line="433"/>
         <source>, %1 bytes</source>
         <translation>, %1 bajtów</translation>
     </message>
@@ -10761,7 +10761,7 @@ text-decoration: underline;
         <translation>%1 interwał SMA</translation>
     </message>
     <message>
-        <location filename="capture_file.cpp" line="48"/>
+        <location filename="capture_file.cpp" line="50"/>
         <source>[no capture file]</source>
         <translation>[nie załadowano pliku przechytywania]</translation>
     </message>
@@ -10859,7 +10859,7 @@ text-decoration: underline;
         <translation>Każdy</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="223"/>
+        <location filename="main_window.cpp" line="229"/>
         <source>Don&apos;t show this message again.</source>
         <translation>Nie pokazuj więcej tego komunikatu.</translation>
     </message>
@@ -14139,58 +14139,58 @@ text-decoration: underline;
         <translation>Formularz</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="130"/>
+        <location filename="splash_overlay.cpp" line="136"/>
         <source>Initializing dissectors</source>
         <translation>Inicjacja dekoderów</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="133"/>
+        <location filename="splash_overlay.cpp" line="139"/>
         <source>Initializing tap listeners</source>
         <translation>Inicjacja kanałów komunikacyjnych</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="136"/>
+        <location filename="splash_overlay.cpp" line="142"/>
         <source>Registering dissectors</source>
         <translation>Rejestracja dekoderów</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="139"/>
+        <location filename="splash_overlay.cpp" line="145"/>
         <source>Registering plugins</source>
         <oldsource>Registering dissector</oldsource>
         <translation>Rejestracja wtyczek</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="142"/>
+        <location filename="splash_overlay.cpp" line="148"/>
         <source>Handing off dissectors</source>
         <translation>Finalizowanie dekoderów</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="145"/>
+        <location filename="splash_overlay.cpp" line="151"/>
         <source>Handing off plugins</source>
         <translation>Finalizowanie wtyczek</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="148"/>
+        <location filename="splash_overlay.cpp" line="154"/>
         <source>Loading Lua plugins</source>
         <translation>Ładowanie wtyczek Lua</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="151"/>
+        <location filename="splash_overlay.cpp" line="157"/>
         <source>Removing Lua plugins</source>
         <translation>Usuwanie wtyczek Lua</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="154"/>
+        <location filename="splash_overlay.cpp" line="160"/>
         <source>Loading module preferences</source>
         <translation>Ładowanie preferencji modułów</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="157"/>
+        <location filename="splash_overlay.cpp" line="163"/>
         <source>Loading configuration files</source>
         <translation>Ładowanie plików konfiguracyjnych</translation>
     </message>
     <message>
-        <location filename="splash_overlay.cpp" line="160"/>
+        <location filename="splash_overlay.cpp" line="166"/>
         <source>(Unknown action)</source>
         <translation>(Nieznana akcja)</translation>
     </message>
