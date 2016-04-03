@@ -22,7 +22,7 @@
 #define __NETMON_H__
 
 #include <glib.h>
-#include <wtap.h>
+#include "wtap.h"
 
 wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info);
 gboolean netmon_dump_open(wtap_dumper *wdh, int *err);

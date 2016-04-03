@@ -19,7 +19,7 @@
 #define __NETWORK_INSTRUMENTS_H__
 
 #include <glib.h>
-#include <wtap.h>
+#include "wtap.h"
 
 wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_info);
 int network_instruments_dump_can_write_encap(int encap);

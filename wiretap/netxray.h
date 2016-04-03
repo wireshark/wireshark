@@ -22,7 +22,7 @@
 #define __NETXRAY_H__
 
 #include <glib.h>
-#include <wtap.h>
+#include "wtap.h"
 
 wtap_open_return_val netxray_open(wtap *wth, int *err, gchar **err_info);
 int netxray_dump_can_write_encap_1_1(int encap);

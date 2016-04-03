@@ -26,7 +26,7 @@
 #define __W_PCAP_COMMON_H__
 
 #include <glib.h>
-#include <wtap.h>
+#include "wtap.h"
 #include "ws_symbol_export.h"
 
 extern int pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,

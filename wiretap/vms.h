@@ -23,7 +23,7 @@
 #define __W_VMS_H__
 
 #include <glib.h>
-#include <wtap.h>
+#include "wtap.h"
 #include "ws_symbol_export.h"
 
 wtap_open_return_val vms_open(wtap *wth, int *err, gchar **err_info);
