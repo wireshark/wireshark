@@ -99,9 +99,9 @@
 /*
  * Macros for the allocators, to discard the extra argument.
  */
-#define ascendtext_alloc(size, yyscanner)		(void *)malloc(size)
-#define ascendtext_realloc(ptr, size, yyscanner)	(void *)realloc((char *)(ptr), (size))
-#define ascendtext_free(ptr, yyscanner)			free((char *)ptr)
+#define ascendalloc(size, yyscanner)		(void *)malloc(size)
+#define ascendrealloc(ptr, size, yyscanner)	(void *)realloc((char *)(ptr), (size))
+#define ascendfree(ptr, yyscanner)		free((char *)ptr)
 
 %}
 
