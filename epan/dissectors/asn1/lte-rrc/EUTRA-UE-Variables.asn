@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V13.0.0 (2015-12)
+-- 3GPP TS 36.331 V13.1.0 (2016-03)
 --
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -21,8 +21,11 @@ IMPORTS
 	MeasId-v1250,
 	MeasIdToAddModList,
 	MeasIdToAddModListExt-r12,
+	MeasIdToAddModList-v1310,
+	MeasIdToAddModListExt-v1310,
 	MeasObjectToAddModList,
 	MeasObjectToAddModList-v9e0,
+	MeasObjectToAddModListExt-r13,
 	MeasScaleFactor-r12,
 	MobilityStateParameters,
 	NeighCellConfig,
@@ -43,7 +46,13 @@ IMPORTS
 	maxCSI-RS-Meas-r12,
 	maxMeasId,
 	maxMeasId-r12,
-	UL-DelayConfig-r13
+	UL-DelayConfig-r13,
+	WLAN-CarrierInfo-r13,
+	WLAN-Identifiers-r12,
+	WLAN-Id-List-r13,
+	WLAN-Status-r13
+
+
 FROM EUTRA-RRC-Definitions;
 
 
@@ -100,8 +109,11 @@ VarMeasConfig ::=					SEQUENCE {
 	-- Measurement identities
 	measIdList							MeasIdToAddModList					OPTIONAL,
 	measIdListExt-r12					MeasIdToAddModListExt-r12			OPTIONAL,
+	measIdList-v1310						MeasIdToAddModList-v1310				OPTIONAL,
+	measIdListExt-v1310					MeasIdToAddModListExt-v1310			OPTIONAL,
 	-- Measurement objects
 	measObjectList						MeasObjectToAddModList				OPTIONAL,
+	measObjectListExt-r13				MeasObjectToAddModListExt-r13		OPTIONAL,
 	measObjectList-v9i0					MeasObjectToAddModList-v9e0			OPTIONAL,
 	-- Reporting configurations
 	reportConfigList					ReportConfigToAddModList			OPTIONAL,
@@ -142,7 +154,8 @@ CellsTriggeredList ::=				SEQUENCE (SIZE (1..maxCellMeas)) OF CHOICE {
 		carrierFreq								CarrierFreqGERAN,
 		physCellId								PhysCellIdGERAN
 	},
-	physCellIdCDMA2000						PhysCellIdCDMA2000
+	physCellIdCDMA2000						PhysCellIdCDMA2000,
+	wlan-Identifiers-r13					WLAN-Identifiers-r12
 }
 
 CSI-RS-TriggeredList-r12 ::=		SEQUENCE (SIZE (1..maxCSI-RS-Meas-r12)) OF MeasCSI-RS-Id-r12
@@ -166,6 +179,18 @@ VarShortMAC-Input ::=					SEQUENCE {
 	physCellId								PhysCellId,
 	c-RNTI									C-RNTI
 }
+
+VarWLAN-MobilityConfig ::=					SEQUENCE {
+	wlan-MobilitySet-r13					WLAN-Id-List-r13			OPTIONAL,
+	successReportRequested					ENUMERATED {true}			OPTIONAL
+}
+
+
+VarWLAN-Status-r13 ::=				SEQUENCE {
+	status-r13								WLAN-Status-r13,
+	wlan-IdentifiersAssociated-r13			WLAN-Identifiers-r12		OPTIONAL
+}
+
 
 maxLogMeas-r10				INTEGER ::= 4060-- Maximum number of logged measurement entries
 											--  that can be stored by the UE

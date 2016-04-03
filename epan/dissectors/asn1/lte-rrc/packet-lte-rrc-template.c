@@ -1,7 +1,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V13.0.0 Release 13) packet dissection
+ * (3GPP TS 36.331 V13.1.0 Release 13) packet dissection
  * Copyright 2008, Vincent Helfre
  * Copyright 2009-2016, Pascal Quantin
  *
@@ -193,6 +193,8 @@ static int hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit1 = -1;
 static int hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2 = -1;
 static int hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit1 = -1;
 static int hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit2 = -1;
+static int hf_lte_rrc_aperiodicCSI_Reporting_r13_bit1 = -1;
+static int hf_lte_rrc_aperiodicCSI_Reporting_r13_bit2 = -1;
 static int hf_lte_rrc_codebook_HARQ_ACK_r13_bit1 = -1;
 static int hf_lte_rrc_codebook_HARQ_ACK_r13_bit2 = -1;
 static int hf_lte_rrc_sr_config_periodicity = -1;
@@ -284,6 +286,7 @@ static gint ett_lte_rrc_dataCodingScheme = -1;
 static gint ett_lte_rrc_warningMessageSegment = -1;
 static gint ett_lte_rrc_interBandTDD_CA_WithDifferentConfig = -1;
 static gint ett_lte_rrc_tdd_FDD_CA_PCellDuplex_r12 = -1;
+static gint ett_lte_rrc_aperiodicCSI_Reporting_r13 = -1;
 static gint ett_lte_rrc_codebook_HARQ_ACK_r13 = -1;
 static gint ett_lte_rrc_sr_ConfigIndex = -1;
 static gint ett_lte_rrc_transmissionModeList_r12 = -1;
@@ -729,6 +732,30 @@ static const true_false_string lte_rrc_eutra_cap_feat_group_ind_132_val = {
   "Undefined - Supported",
   "Undefined - Not supported"
 };
+
+static const value_string lte_rrc_schedulingInfoSIB1_BR_r13_vals[] = {
+  {  0, "SystemInformationBlockType1-BR is not scheduled"},
+  {  1, "4 PDSCH repetitions - TBS 208 bits"},
+  {  2, "8 PDSCH repetitions - TBS 208 bits"},
+  {  3, "16 PDSCH repetitions - TBS 208 bits"},
+  {  4, "4 PDSCH repetitions - TBS 256 bits"},
+  {  5, "8 PDSCH repetitions - TBS 256 bits"},
+  {  6, "16 PDSCH repetitions - TBS 256 bits"},
+  {  7, "4 PDSCH repetitions - TBS 328 bits"},
+  {  8, "8 PDSCH repetitions - TBS 328 bits"},
+  {  9, "16 PDSCH repetitions - TBS 328 bits"},
+  { 10, "4 PDSCH repetitions - TBS 504 bits"},
+  { 11, "8 PDSCH repetitions - TBS 504 bits"},
+  { 12, "16 PDSCH repetitions - TBS 504 bits"},
+  { 13, "4 PDSCH repetitions - TBS 712 bits"},
+  { 14, "8 PDSCH repetitions - TBS 712 bits"},
+  { 15, "16 PDSCH repetitions - TBS 712 bits"},
+  { 16, "4 PDSCH repetitions - TBS 936 bits"},
+  { 17, "8 PDSCH repetitions - TBS 936 bits"},
+  { 18, "16 PDSCH repetitions - TBS 936 bits"},
+  {  0, NULL}
+};
+static value_string_ext lte_rrc_schedulingInfoSIB1_BR_r13_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_schedulingInfoSIB1_BR_r13_vals);
 
 static const value_string lte_rrc_q_RxLevMin_vals[] = {
   { -70, "-140dBm"},
@@ -1908,6 +1935,61 @@ static const value_string lte_rrc_RSRP_RangeSL3_vals[] = {
 };
 #endif
 
+static const value_string lte_rrc_RSRP_RangeSL4_vals[] = {
+  {  0, "-130dBm"},
+  {  1, "-128dBm"},
+  {  2, "-126dBm"},
+  {  3, "-124dBm"},
+  {  4, "-122dBm"},
+  {  5, "-120dBm"},
+  {  6, "-118dBm"},
+  {  7, "-116dBm"},
+  {  8, "-114dBm"},
+  {  9, "-112dBm"},
+  { 10, "-110dBm"},
+  { 11, "-108dBm"},
+  { 12, "-106dBm"},
+  { 13, "-104dBm"},
+  { 14, "-102dBm"},
+  { 15, "-100dBm"},
+  { 16, "-98dBm"},
+  { 17, "-96dBm"},
+  { 18, "-94dBm"},
+  { 19, "-92dBm"},
+  { 20, "-90dBm"},
+  { 21, "-88dBm"},
+  { 22, "-86dBm"},
+  { 23, "-84dBm"},
+  { 24, "-82dBm"},
+  { 25, "-80dBm"},
+  { 26, "-78dBm"},
+  { 27, "-76dBm"},
+  { 28, "-74dBm"},
+  { 29, "-72dBm"},
+  { 30, "-70dBm"},
+  { 31, "-68dBm"},
+  { 32, "-66dBm"},
+  { 33, "-64dBm"},
+  { 34, "-62dBm"},
+  { 35, "-60dBm"},
+  { 36, "-58dBm"},
+  { 37, "-56dBm"},
+  { 38, "-54dBm"},
+  { 39, "-52dBm"},
+  { 40, "-50dBm"},
+  { 41, "-48dBm"},
+  { 42, "-46dBm"},
+  { 43, "-44dBm"},
+  { 44, "-42dBm"},
+  { 45, "-40dBm"},
+  { 46, "-38dBm"},
+  { 47, "-36dBm"},
+  { 48, "-34dBm"},
+  { 49, "+infinity"},
+  {  0, NULL}
+};
+static value_string_ext lte_rrc_RSRP_RangeSL4_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_RSRP_RangeSL4_vals);
+
 static const value_string lte_rrc_RSRQ_Range_vals[] = {
   {-34, "RSRQ < -36dB"},
   {-33, "-36dB <= RSRQ < -35.5dB"},
@@ -2032,6 +2114,12 @@ static const value_string lte_rrc_MBSFN_RSRQ_Range_vals[] = {
 static value_string_ext lte_rrc_MBSFN_RSRQ_Range_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_MBSFN_RSRQ_Range_vals);
 
 static void
+lte_rrc_availableAdmissionCapacityWLAN_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%uus/s (%u)", 32*v, v);
+}
+
+static void
 lte_rrc_ue_RxTxTimeDiffResult_fmt(gchar *s, guint32 v)
 {
   if (v == 0) {
@@ -2149,6 +2237,16 @@ static const true_false_string lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit2_val = {
   "FDD PCell - Not supported"
 };
 
+static const true_false_string hf_lte_rrc_aperiodicCSI_Reporting_r13_bit1_val = {
+  "Aperiodic CSI reporting with 3 bits of the CSI request field size - Supported",
+  "Aperiodic CSI reporting with 3 bits of the CSI request field size - Not supported"
+};
+
+static const true_false_string hf_lte_rrc_aperiodicCSI_Reporting_r13_bit2_val = {
+  "Aperiodic CSI reporting mode 1-0 and mode 1-1 - Supported",
+  "Aperiodic CSI reporting mode 1-0 and mode 1-1 - Not supported"
+};
+
 static const true_false_string hf_lte_rrc_codebook_HARQ_ACK_r13_bit1_val = {
   "DAI-based codebook size determination - Supported",
   "DAI-based codebook size determination - Not supported"
@@ -2162,12 +2260,6 @@ static const true_false_string hf_lte_rrc_codebook_HARQ_ACK_r13_bit2_val = {
 static const true_false_string lte_rrc_transmissionModeList_r12_val = {
   "NeighCellsInfo applies",
   "NeighCellsInfo does not apply"
-};
-
-static const value_string lte_rrc_codebooksizeDetermination_r13_vals[] = {
-  {  0, "HARQ codebook size is determined with downlink assignment indicator"},
-  {  1, "HARQ codebook size is determined with number of configured CCs"},
-  {  0, NULL},
 };
 
 static const value_string lte_rrc_excessDelay_r13_vals[] = {
@@ -2241,6 +2333,12 @@ lte_rrc_RSSI_Range_r13_fmt(gchar *s, guint32 v)
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= RSSI < %ddBm (%u)", -100+(v-1), -100+v, v);
   }
+}
+
+static void
+lte_rrc_thresholdWLAN_RSSI_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", -128+v, v);
 }
 
 static void
@@ -2853,6 +2951,21 @@ dissect_lte_rrc_BCCH_DL_SCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static int
+dissect_lte_rrc_BCCH_DL_SCH_BR(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  proto_item *ti;
+  proto_tree *lte_rrc_tree;
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC DL_SCH_BR");
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
+  lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+  dissect_BCCH_DL_SCH_Message_BR_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  return tvb_captured_length(tvb);
+}
+
+static int
 dissect_lte_rrc_PCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *ti;
@@ -2930,7 +3043,7 @@ dissect_lte_rrc_SC_MCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
   ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, ENC_NA);
   lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
-  dissect_SC_MCCH_Message_PDU(tvb, pinfo, lte_rrc_tree, NULL);
+  dissect_SC_MCCH_Message_r13_PDU(tvb, pinfo, lte_rrc_tree, NULL);
   return tvb_captured_length(tvb);
 }
 
@@ -3394,6 +3507,14 @@ void proto_register_lte_rrc(void) {
       { "Bit 2", "lte-rrc.tdd_FDD_CA_PCellDuplex_r12.bit2",
         FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit2_val), 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_aperiodicCSI_Reporting_r13_bit1,
+      { "Bit 1", "lte-rrc.aperiodicCSI_Reporting_r13.bit1",
+        FT_BOOLEAN, BASE_NONE, TFS(&hf_lte_rrc_aperiodicCSI_Reporting_r13_bit1_val), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_aperiodicCSI_Reporting_r13_bit2,
+      { "Bit 2", "lte-rrc.aperiodicCSI_Reporting_r13.bit2",
+        FT_BOOLEAN, BASE_NONE, TFS(&hf_lte_rrc_aperiodicCSI_Reporting_r13_bit2_val), 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_codebook_HARQ_ACK_r13_bit1,
       { "Bit 1", "lte-rrc.codebook_HARQ_ACK_r13.bit1",
         FT_BOOLEAN, BASE_NONE, TFS(&hf_lte_rrc_codebook_HARQ_ACK_r13_bit1_val), 0,
@@ -3696,6 +3817,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_warningMessageSegment,
     &ett_lte_rrc_interBandTDD_CA_WithDifferentConfig,
     &ett_lte_rrc_tdd_FDD_CA_PCellDuplex_r12,
+    &ett_lte_rrc_aperiodicCSI_Reporting_r13,
     &ett_lte_rrc_codebook_HARQ_ACK_r13,
     &ett_lte_rrc_sr_ConfigIndex,
     &ett_lte_rrc_transmissionModeList_r12,
@@ -3731,6 +3853,7 @@ void proto_register_lte_rrc(void) {
   register_dissector("lte_rrc.ul_dcch", dissect_lte_rrc_UL_DCCH, proto_lte_rrc);
   register_dissector("lte_rrc.bcch_bch", dissect_lte_rrc_BCCH_BCH, proto_lte_rrc);
   register_dissector("lte_rrc.bcch_dl_sch", dissect_lte_rrc_BCCH_DL_SCH, proto_lte_rrc);
+  register_dissector("lte_rrc.bcch_dl_sch_br", dissect_lte_rrc_BCCH_DL_SCH_BR, proto_lte_rrc);
   register_dissector("lte_rrc.pcch", dissect_lte_rrc_PCCH, proto_lte_rrc);
   register_dissector("lte_rrc.mcch", dissect_lte_rrc_MCCH, proto_lte_rrc);
   register_dissector("lte_rrc.handover_prep_info", dissect_lte_rrc_Handover_Preparation_Info, proto_lte_rrc);

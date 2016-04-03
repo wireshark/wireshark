@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V13.0.0 (2015-12)
+-- 3GPP TS 36.331 V13.1.0 (2016-03)
 --
 EUTRA-Sidelink-Preconf DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -9,8 +9,8 @@ IMPORTS
 	ARFCN-ValueEUTRA-r9,
 	FilterCoefficient,
 	maxSL-TxPool-r12,
-	maxSL-CommRxPoolPreconf-v13x0,
-	maxSL-CommTxPoolPreconf-v13x0,
+	maxSL-CommRxPoolPreconf-v1310,
+	maxSL-CommTxPoolPreconf-v1310,
 	maxSL-DiscRxPoolPreconf-r13,
 	maxSL-DiscTxPoolPreconf-r13,
 	P-Max,
@@ -33,9 +33,9 @@ SL-Preconfiguration-r12 ::=		SEQUENCE {
 	preconfigSync-r12					SL-PreconfigSync-r12,
 	preconfigComm-r12					SL-PreconfigCommPoolList4-r12,
 	...,
-	[[	preconfigComm-v13x0				SEQUENCE {
-			commRxPoolListExt-r13			SL-PreconfigCommRxPoolListExt-r13,
-			commTxPoolListExt-r13			SL-PreconfigCommTxPoolListExt-r13		OPTIONAL
+	[[	preconfigComm-v1310				SEQUENCE {
+			commRxPoolList-r13			SL-PreconfigCommRxPoolList-r13,
+			commTxPoolList-r13			SL-PreconfigCommTxPoolList-r13		OPTIONAL
 		}																		OPTIONAL,
 		preconfigDisc-r13				SEQUENCE {
 			discRxPoolList-r13				SL-PreconfigDiscRxPoolList-r13,
@@ -77,15 +77,15 @@ SL-PreconfigSync-r12 ::=	SEQUENCE {
 	syncRefMinHyst-r12					ENUMERATED {dB0, dB3, dB6, dB9, dB12},
 	syncRefDiffHyst-r12					ENUMERATED {dB0, dB3, dB6, dB9, dB12, dBinf},
 	...,
-	[[	syncTxPeriodic-r13					ENUMERATED {true}			OPTIONAL	-- Need OR
+	[[	syncTxPeriodic-r13					ENUMERATED {true}			OPTIONAL
 	]]
 }
 
 SL-PreconfigCommPoolList4-r12 ::=	SEQUENCE (SIZE (1..maxSL-TxPool-r12)) OF SL-PreconfigCommPool-r12
 
-SL-PreconfigCommRxPoolListExt-r13 ::=	SEQUENCE (SIZE (1..maxSL-CommRxPoolPreconf-v13x0)) OF SL-PreconfigCommPool-r12
+SL-PreconfigCommRxPoolList-r13 ::=	SEQUENCE (SIZE (1..maxSL-CommRxPoolPreconf-v1310)) OF SL-PreconfigCommPool-r12
 
-SL-PreconfigCommTxPoolListExt-r13 ::=	SEQUENCE (SIZE (1..maxSL-CommTxPoolPreconf-v13x0)) OF SL-PreconfigCommPool-r12
+SL-PreconfigCommTxPoolList-r13 ::=	SEQUENCE (SIZE (1..maxSL-CommTxPoolPreconf-v1310)) OF SL-PreconfigCommPool-r12
 
 SL-PreconfigCommPool-r12 ::=		SEQUENCE {
 -- This IE is same as SL-CommResourcePool with rxParametersNCell absent
@@ -110,9 +110,8 @@ SL-PreconfigDiscTxPoolList-r13 ::=	SEQUENCE (SIZE (1..maxSL-DiscTxPoolPreconf-r1
 SL-PreconfigDiscPool-r13 ::=		SEQUENCE {
 -- This IE is same as SL-DiscResourcePool with rxParameters absent
 	cp-Len-r13						SL-CP-Len-r12,
-	discPeriod-r13				ENUMERATED {rf4, rf7, rf8, rf14, rf16, rf28, rf32, rf64,
-										 rf128, rf256, rf512, rf1024, spare4, spare3,
-										 spare2, spare},
+	discPeriod-r13				ENUMERATED {rf4, rf6, rf7, rf8, rf12, rf14, rf16, rf24, rf28,
+										 rf32, rf64, rf128, rf256, rf512, rf1024, spare},
 	numRetx-r13					INTEGER (0..3),
 	numRepetition-r13				INTEGER (1..50),
 	tf-ResourceConfig-r13			SL-TF-ResourceConfig-r12,
@@ -124,7 +123,7 @@ SL-PreconfigDiscPool-r13 ::=		SEQUENCE {
 }
 
 SL-PreconfigRelay-r13 ::=	SEQUENCE {
-	reselectionInfoRemoteUE-OoC-r13			ReselectionInfoRelay-r13
+	reselectionInfoOoC-r13			ReselectionInfoRelay-r13
 }
 
 END
