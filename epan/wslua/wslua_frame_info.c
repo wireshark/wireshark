@@ -31,7 +31,7 @@
 /* WSLUA_CONTINUE_MODULE File */
 
 
-WSLUA_CLASS_DEFINE(FrameInfo,FAIL_ON_NULL_OR_EXPIRED("FrameInfo"),NOP);
+WSLUA_CLASS_DEFINE(FrameInfo,FAIL_ON_NULL_OR_EXPIRED("FrameInfo"));
 /*
     A FrameInfo object, passed into Lua as an argument by FileHandler callback
     functions (e.g., `read`, `seek_read`, etc.).
@@ -254,7 +254,7 @@ int FrameInfo_register(lua_State* L) {
     return 0;
 }
 
-WSLUA_CLASS_DEFINE(FrameInfoConst,FAIL_ON_NULL_OR_EXPIRED("FrameInfo"),NOP);
+WSLUA_CLASS_DEFINE(FrameInfoConst,FAIL_ON_NULL_OR_EXPIRED("FrameInfo"));
 /*
     A constant FrameInfo object, passed into Lua as an argument by the FileHandler write
     callback function.  This has similar attributes/properties as FrameInfo, but the fields can

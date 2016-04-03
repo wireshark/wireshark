@@ -35,7 +35,7 @@
 /* WSLUA_CONTINUE_MODULE Proto */
 
 
-WSLUA_CLASS_DEFINE(ProtoField,FAIL_ON_NULL("null ProtoField"),NOP);
+WSLUA_CLASS_DEFINE(ProtoField,FAIL_ON_NULL("null ProtoField"));
     /* A Protocol field (to be used when adding items to the dissection tree). */
 
 static const wslua_ft_types_t ftenums[] = {

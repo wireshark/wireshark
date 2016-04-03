@@ -362,10 +362,10 @@ typedef gchar* Struct;
  * WSLUA_CLASS_DEFINE must be used with a trailing ';'
  * (a dummy typedef is used to be syntactically correct)
  */
-#define WSLUA_CLASS_DEFINE(C,check_code,push_code) \
-    WSLUA_CLASS_DEFINE_BASE(C,check_code,push_code,NULL)
+#define WSLUA_CLASS_DEFINE(C,check_code) \
+    WSLUA_CLASS_DEFINE_BASE(C,check_code,NULL)
 
-#define WSLUA_CLASS_DEFINE_BASE(C,check_code,push_code,retval) \
+#define WSLUA_CLASS_DEFINE_BASE(C,check_code,retval) \
 C to##C(lua_State* L, int idx) { \
     C* v = (C*)lua_touserdata (L, idx); \
     if (!v) luaL_error(L, "bad argument %d (%s expected, got %s)", idx, #C, lua_typename(L, lua_type(L, idx))); \
@@ -383,7 +383,6 @@ C* push##C(lua_State* L, C v) { \
     luaL_checkstack(L,2,"Unable to grow stack\n"); \
     p = (C*)lua_newuserdata(L,sizeof(C)); *p = v; \
     luaL_getmetatable(L, #C); lua_setmetatable(L, -2); \
-    push_code; \
     return p; \
 }\
 gboolean is##C(lua_State* L,int i) { \

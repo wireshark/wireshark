@@ -41,7 +41,7 @@
  */
 
 
-WSLUA_CLASS_DEFINE(File,FAIL_ON_NULL_OR_EXPIRED("File"),NOP);
+WSLUA_CLASS_DEFINE(File,FAIL_ON_NULL_OR_EXPIRED("File"));
 /*
     A `File` object, passed into Lua as an argument by FileHandler callback
     functions (e.g., `read_open`, `read`, `write`, etc.).  This behaves similarly to the

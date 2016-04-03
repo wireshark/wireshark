@@ -77,7 +77,7 @@ void clear_outstanding_FuncSavers(void) {
 }
 
 
-WSLUA_CLASS_DEFINE(Proto,FAIL_ON_NULL("Proto"),NOP);
+WSLUA_CLASS_DEFINE(Proto,FAIL_ON_NULL("Proto"));
 /*
   A new protocol in Wireshark. Protocols have more uses, the main one is to dissect
   a protocol. But they can also be just dummies used to register preferences for

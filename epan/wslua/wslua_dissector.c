@@ -38,7 +38,7 @@
 /* WSLUA_CONTINUE_MODULE Proto */
 
 
-WSLUA_CLASS_DEFINE(Dissector,NOP,NOP);
+WSLUA_CLASS_DEFINE(Dissector,NOP);
 /*
    A refererence to a dissector, used to call a dissector against a packet or a part of it.
  */
@@ -160,7 +160,7 @@ int Dissector_register(lua_State* L) {
     return 0;
 }
 
-WSLUA_CLASS_DEFINE(DissectorTable,NOP,NOP);
+WSLUA_CLASS_DEFINE(DissectorTable,NOP);
 /*
  A table of subdissectors of a particular protocol (e.g. TCP subdissectors like http, smtp,
  sip are added to table "tcp.port").

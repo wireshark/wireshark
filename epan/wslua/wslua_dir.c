@@ -29,7 +29,7 @@
 #include "wslua.h"
 #include <wsutil/file_util.h>
 
-WSLUA_CLASS_DEFINE(Dir,FAIL_ON_NULL("Dir"),NOP); /* A Directory object, as well as associated functions. */
+WSLUA_CLASS_DEFINE(Dir,FAIL_ON_NULL("Dir")); /* A Directory object, as well as associated functions. */
 
 WSLUA_CONSTRUCTOR Dir_make(lua_State* L) {
     /* Creates a directory.

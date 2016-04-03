@@ -34,7 +34,7 @@
 #include "wslua.h"
 
 /* any call to checkFieldInfo() will now error on null or expired, so no need to check again */
-WSLUA_CLASS_DEFINE(FieldInfo,FAIL_ON_NULL_OR_EXPIRED("FieldInfo"),NOP);
+WSLUA_CLASS_DEFINE(FieldInfo,FAIL_ON_NULL_OR_EXPIRED("FieldInfo"));
 /*
    An extracted Field from dissected packet data. A `FieldInfo` object can only be used within
    the callback functions of dissectors, post-dissectors, heuristic-dissectors, and taps.
@@ -521,7 +521,7 @@ WSLUA_FUNCTION wslua_all_field_infos(lua_State* L) {
     return items_found;
 }
 
-WSLUA_CLASS_DEFINE(Field,FAIL_ON_NULL("Field"),NOP);
+WSLUA_CLASS_DEFINE(Field,FAIL_ON_NULL("Field"));
 /*
    A Field extractor to to obtain field values. A `Field` object can only be created *outside* of
    the callback functions of dissectors, post-dissectors, heuristic-dissectors, and taps.

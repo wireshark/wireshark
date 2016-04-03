@@ -34,7 +34,7 @@
 /* WSLUA_CONTINUE_MODULE File */
 
 
-WSLUA_CLASS_DEFINE(CaptureInfo,FAIL_ON_NULL_MEMBER_OR_EXPIRED("CaptureInfo",wth),NOP);
+WSLUA_CLASS_DEFINE(CaptureInfo,FAIL_ON_NULL_MEMBER_OR_EXPIRED("CaptureInfo",wth));
 /*
     A `CaptureInfo` object, passed into Lua as an argument by `FileHandler` callback
     function `read_open()`, `read()`, `seek_read()`, `seq_read_close()`, and `read_close()`.
@@ -300,7 +300,7 @@ int CaptureInfo_register(lua_State* L) {
 }
 
 
-WSLUA_CLASS_DEFINE(CaptureInfoConst,FAIL_ON_NULL_MEMBER_OR_EXPIRED("CaptureInfoConst",wdh),NOP);
+WSLUA_CLASS_DEFINE(CaptureInfoConst,FAIL_ON_NULL_MEMBER_OR_EXPIRED("CaptureInfoConst",wdh));
 /*
     A `CaptureInfoConst` object, passed into Lua as an argument to the `FileHandler` callback
     function `write_open()`.

@@ -35,7 +35,7 @@
 /* WSLUA_CONTINUE_MODULE Pinfo */
 
 
-WSLUA_CLASS_DEFINE(NSTime,FAIL_ON_NULL("NSTime"),NOP);
+WSLUA_CLASS_DEFINE(NSTime,FAIL_ON_NULL("NSTime"));
 /* NSTime represents a nstime_t.  This is an object with seconds and nanoseconds. */
 
 WSLUA_CONSTRUCTOR NSTime_new(lua_State *L) {

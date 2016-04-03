@@ -48,7 +48,7 @@ void Push_Columns(lua_State *L, Columns c)
 }
 
 
-WSLUA_CLASS_DEFINE(Column,FAIL_ON_NULL("Column"),NOP); /* A Column in the packet list. */
+WSLUA_CLASS_DEFINE(Column,FAIL_ON_NULL("Column")); /* A Column in the packet list. */
 
 struct col_names_t {
     const gchar* name;
@@ -261,7 +261,7 @@ int Column_register(lua_State *L) {
 }
 
 
-WSLUA_CLASS_DEFINE(Columns,NOP,NOP);
+WSLUA_CLASS_DEFINE(Columns,NOP);
 /* The Columns of the packet list. */
 
 WSLUA_METAMETHOD Columns__tostring(lua_State *L) {

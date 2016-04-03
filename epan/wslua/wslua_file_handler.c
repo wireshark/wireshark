@@ -31,7 +31,7 @@
 /* WSLUA_CONTINUE_MODULE File */
 
 
-WSLUA_CLASS_DEFINE(FileHandler,NOP,NOP);
+WSLUA_CLASS_DEFINE(FileHandler,NOP);
 /*
     A FileHandler object, created by a call to FileHandler.new(arg1, arg2, ...).
     The FileHandler object lets you create a file-format reader, or writer, or

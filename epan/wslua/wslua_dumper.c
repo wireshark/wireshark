@@ -41,7 +41,7 @@
 #include "wslua.h"
 #include <math.h>
 
-WSLUA_CLASS_DEFINE(PseudoHeader,NOP,NOP);
+WSLUA_CLASS_DEFINE(PseudoHeader,NOP);
 /*
  A pseudoheader to be used to save captured frames.
  */
@@ -178,7 +178,7 @@ int PseudoHeader_register(lua_State* L) {
 }
 
 
-WSLUA_CLASS_DEFINE(Dumper,FAIL_ON_NULL("Dumper already closed"),NOP);
+WSLUA_CLASS_DEFINE(Dumper,FAIL_ON_NULL("Dumper already closed"));
 
 static GHashTable* dumper_encaps = NULL;
 #define DUMPER_ENCAP(d) GPOINTER_TO_INT(g_hash_table_lookup(dumper_encaps,d))

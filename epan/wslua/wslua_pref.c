@@ -34,7 +34,7 @@
 /* WSLUA_CONTINUE_MODULE Proto */
 
 
-WSLUA_CLASS_DEFINE(Pref,NOP,NOP); /* A preference of a Protocol. */
+WSLUA_CLASS_DEFINE(Pref,NOP); /* A preference of a Protocol. */
 
 static range_t* get_range(lua_State *L, int idx_r, int idx_m);
 
@@ -327,7 +327,7 @@ WSLUA_REGISTER Pref_register(lua_State* L) {
     return 0;
 }
 
-WSLUA_CLASS_DEFINE(Prefs,NOP,NOP); /* The table of preferences of a protocol. */
+WSLUA_CLASS_DEFINE(Prefs,NOP); /* The table of preferences of a protocol. */
 
 WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
     /* Creates a new preference. */

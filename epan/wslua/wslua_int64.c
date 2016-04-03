@@ -57,7 +57,7 @@ either expressed or implied, of the FreeBSD Project.
 #define IS_LITTLE_ENDIAN FALSE
 #endif
 
-WSLUA_CLASS_DEFINE_BASE(Int64,NOP,NOP,0);
+WSLUA_CLASS_DEFINE_BASE(Int64,NOP,0);
 /*
   `Int64` represents a 64 bit signed integer.
 
@@ -611,7 +611,7 @@ LUALIB_API int Int64_register(lua_State* L) {
 
 
 
-WSLUA_CLASS_DEFINE_BASE(UInt64,NOP,NOP,0);
+WSLUA_CLASS_DEFINE_BASE(UInt64,NOP,0);
 /* `UInt64` represents a 64 bit unsigned integer, similar to `Int64`.
 
    For details, see: [[https://wiki.wireshark.org/LuaAPI/Int64]].

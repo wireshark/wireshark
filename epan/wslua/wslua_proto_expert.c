@@ -35,7 +35,7 @@
 /* WSLUA_CONTINUE_MODULE Proto */
 
 
-WSLUA_CLASS_DEFINE(ProtoExpert,FAIL_ON_NULL("null ProtoExpert"),NOP);
+WSLUA_CLASS_DEFINE(ProtoExpert,FAIL_ON_NULL("null ProtoExpert"));
     /* A Protocol expert info field, to be used when adding items to the dissection tree.
 
        @since 1.11.3

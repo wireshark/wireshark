@@ -282,7 +282,7 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
 
 
 
-WSLUA_CLASS_DEFINE(ProgDlg,FAIL_ON_NULL("ProgDlg"),NOP); /* Manages a progress bar dialog. */
+WSLUA_CLASS_DEFINE(ProgDlg,FAIL_ON_NULL("ProgDlg")); /* Manages a progress bar dialog. */
 
 WSLUA_CONSTRUCTOR ProgDlg_new(lua_State* L) { /* Creates a new `ProgDlg` progress dialog. */
 #define WSLUA_OPTARG_ProgDlg_new_TITLE 2 /* Title of the new window, defaults to "Progress". */
@@ -410,7 +410,7 @@ int ProgDlg_register(lua_State* L) {
 
 
 
-WSLUA_CLASS_DEFINE(TextWindow,FAIL_ON_NULL_OR_EXPIRED("TextWindow"),NOP); /* Manages a text window. */
+WSLUA_CLASS_DEFINE(TextWindow,FAIL_ON_NULL_OR_EXPIRED("TextWindow")); /* Manages a text window. */
 
 /* XXX: button and close callback data is being leaked */
 /* XXX: lua callback function and TextWindow are not garbage collected because

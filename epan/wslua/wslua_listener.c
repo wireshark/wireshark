@@ -32,7 +32,7 @@
 
 #include "wslua.h"
 
-WSLUA_CLASS_DEFINE(Listener,FAIL_ON_NULL("Listener"),NOP);
+WSLUA_CLASS_DEFINE(Listener,FAIL_ON_NULL("Listener"));
 /*
     A `Listener` is called once for every packet that matches a certain filter or has a certain tap.
     It can read the tree, the packet's `Tvb` buffer as well as the tapped data, but it cannot

@@ -64,7 +64,7 @@ TreeItem create_TreeItem(proto_tree* tree, proto_item* item)
 
 CLEAR_OUTSTANDING(TreeItem, expired, TRUE)
 
-WSLUA_CLASS_DEFINE(TreeItem,FAIL_ON_NULL_OR_EXPIRED("TreeItem"),NOP);
+WSLUA_CLASS_DEFINE(TreeItem,FAIL_ON_NULL_OR_EXPIRED("TreeItem"));
 /* ++TreeItem++s represent information in the packet-details pane of
    Wireshark, and the packet details view of Tshark. A `TreeItem` represents
    a node in the tree, which might also be a subtree and have a list of

@@ -59,7 +59,7 @@
  *
  */
 
-WSLUA_CLASS_DEFINE(Tvb,FAIL_ON_NULL_OR_EXPIRED("Tvb"),NOP);
+WSLUA_CLASS_DEFINE(Tvb,FAIL_ON_NULL_OR_EXPIRED("Tvb"));
 /* A `Tvb` represents the packet's buffer. It is passed as an argument to listeners and dissectors,
    and can be used to extract information (via `TvbRange`) from the packet's data.
 
@@ -330,7 +330,7 @@ int Tvb_register(lua_State* L) {
 
 
 
-WSLUA_CLASS_DEFINE(TvbRange,FAIL_ON_NULL("TvbRange"),NOP);
+WSLUA_CLASS_DEFINE(TvbRange,FAIL_ON_NULL("TvbRange"));
 /*
   A `TvbRange` represents a usable range of a `Tvb` and is used to extract data from the `Tvb` that generated it.
 

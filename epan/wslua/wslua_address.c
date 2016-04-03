@@ -36,7 +36,7 @@
 /* WSLUA_CONTINUE_MODULE Pinfo */
 
 
-WSLUA_CLASS_DEFINE(Address,FAIL_ON_NULL("Address"),NOP); /* Represents an address. */
+WSLUA_CLASS_DEFINE(Address,FAIL_ON_NULL("Address")); /* Represents an address. */
 
 WSLUA_CONSTRUCTOR Address_ip(lua_State* L) {
     /* Creates an Address Object representing an IP address. */

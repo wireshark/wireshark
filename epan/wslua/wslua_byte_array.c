@@ -36,7 +36,7 @@
 /* WSLUA_CONTINUE_MODULE Tvb */
 
 
-WSLUA_CLASS_DEFINE(ByteArray,FAIL_ON_NULL("ByteArray"),NOP);
+WSLUA_CLASS_DEFINE(ByteArray,FAIL_ON_NULL("ByteArray"));
 
 WSLUA_CONSTRUCTOR ByteArray_new(lua_State* L) {
     /* Creates a `ByteArray` object.
