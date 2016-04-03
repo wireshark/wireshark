@@ -1368,8 +1368,8 @@ dhcp-failover2    847/tcp # dhcp-failover 2 [Bernard_Volz] [Bernard_Volz]
 dhcp-failover2    847/udp # dhcp-failover 2 [Bernard_Volz] [Bernard_Volz]
 gdoi              848/tcp # GDOI [RFC3547]
 gdoi              848/udp # GDOI [RFC3547]
-domain-s          853/tcp # DNS query-response protocol run over TLS/DTLS [IETF_DPRIVE_Working_Group_Chairs] [Paul_Hoffman_1] 2015-10-08 [draft-ietf-dprive-dns-over-tls] TEMPORARY - registered 2015-10-08, expires 2016-10-08
-domain-s          853/udp # DNS query-response protocol run over TLS/DTLS [IETF_DPRIVE_Working_Group_Chairs] [Dan_Wing] 2015-10-08 [draft-ietf-dprive-dnsodtls] TEMPORARY - registered 2015-10-08, expires 2016-10-08
+domain-s          853/tcp # DNS query-response protocol run over TLS/DTLS [IESG] [IETF_Chair] 2015-10-08 2016-03-29 [RFC-ietf-dprive-dns-over-tls-09]
+domain-s          853/udp # DNS query-response protocol run over TLS/DTLS [IESG] [IETF_Chair] 2015-10-08 2016-03-29 [RFC-ietf-dprive-dns-over-tls-09]
 iscsi             860/tcp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
 iscsi             860/udp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
 owamp-control     861/tcp # OWAMP-Control [RFC4656]
@@ -7941,6 +7941,8 @@ pjj-player-disc  4416/udp # PJJ Media Player discovery [PJJ_Productions_Inc] [Br
 workflowdir      4417/tcp # Workflow Director Communication [WfDir] [Brian_Doyle] 2015-12-11
 axysbridge       4418/udp # AXYS communication protocol [Duran_Audio_B.V.] [Gerald_van_Beuningen] 2016-03-14
 cbp              4419/tcp # Colnod Binary Protocol [Colsys_s.r.o.] [Jiri_Merth] 2016-03-23
+nvm-express      4420/tcp # NVM Express over Fabrics storage access [NVM_Express_Workgroup] [Amber_Huffman] 2016-03-31
+nvm-express      4420/udp # NVM Express over Fabrics storage access [NVM_Express_Workgroup] [Amber_Huffman] 2016-03-31
 netrockey6       4425/tcp # NetROCKEY6 SMART Plus Service [Feitian_Technologies] [Feitian_Technologies] 2010-09-15
 netrockey6       4425/udp # NetROCKEY6 SMART Plus Service [Feitian_Technologies] [Feitian_Technologies] 2010-09-15
 beacon-port-2    4426/tcp # SMARTS Beacon Port [Eyal_Yardeni] [Eyal_Yardeni] 2003-11
@@ -8773,6 +8775,8 @@ spss             5443/tcp # Pearson HTTPS [Pearson] [Pearson] 2008-01-17
 spss             5443/udp # Pearson HTTPS [Pearson] [Pearson] 2008-01-17
 smbdirect        5445/tcp # Server Message Block over Remote Direct Memory Access [Microsoft_Corporation_2] [Tom_Talpey] 2012-03-15
 smbdirect        5445/sctp # Server Message Block over Remote Direct Memory Access [Microsoft_Corporation_2] [Tom_Talpey] 2012-03-15
+tiepie           5450/tcp # TiePie engineering data acquisition [TiePie_engineering] [Reinder_Feenstra] 2016-04-01
+tiepie-disc      5450/udp # TiePie engineering data acquisition (discovery) [TiePie_engineering] [Reinder_Feenstra] 2016-04-01
 surebox          5453/tcp # SureBox [Emin_BORU] [Emin_BORU] 2004-11
 surebox          5453/udp # SureBox [Emin_BORU] [Emin_BORU] 2004-11
 apc-5454         5454/tcp # APC 5454 [American_Power_Conve] [American_Power_Conve]
@@ -11090,6 +11094,8 @@ inovaport6      23005/tcp # Inova LightLink Server Type 6 [Chris_Koeritz_3] [Chr
 inovaport6      23005/udp # Inova LightLink Server Type 6 [Chris_Koeritz_3] [Chris_Koeritz_3] 2006-10
 gntp            23053/tcp # Generic Notification Transport Protocol [Growl_Project] [Chris_Forsythe] 2012-02-07
 s102            23272/udp # S102 application [Kimmo_Kymalainen] [Kimmo_Kymalainen] 2009-08-26
+5afe-dir        23294/tcp # 5AFE SDN Directory [Ayoda_GmbH] [Laurenz_Eschwey] 2016-04-01
+5afe-disc       23294/udp # 5AFE SDN Directory discovery [Ayoda_GmbH] [Laurenz_Eschwey] 2016-04-01
 elxmgmt         23333/tcp # Emulex HBAnyware Remote Management [Maziar_Tamadon] [Maziar_Tamadon] 2007-11-06
 elxmgmt         23333/udp # Emulex HBAnyware Remote Management [Maziar_Tamadon] [Maziar_Tamadon] 2007-11-06
 novar-dbase     23400/tcp # Novar Data [Keith_Kilroy] [Keith_Kilroy] 2006-02
