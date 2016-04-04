@@ -129,6 +129,7 @@ static int hf_rtps_parameter_id                 = -1;
 static int hf_rtps_parameter_id_v2              = -1;
 static int hf_rtps_parameter_id_toc             = -1;
 static int hf_rtps_parameter_id_rti             = -1;
+static int hf_rtps_parameter_id_pt              = -1;
 static int hf_rtps_parameter_length             = -1;
 static int hf_rtps_param_topic_name             = -1;
 static int hf_rtps_param_strength               = -1;
@@ -776,6 +777,35 @@ static const value_string parameter_id_rti_vals[] = {
 static const value_string parameter_id_toc_vals[] = {
   /* Vendor specific: Twin Oaks Computing */
   { PID_TYPECODE_RTPS2,                 "PID_TYPECODE_RTPS2" },
+  { 0, NULL }
+};
+
+static const value_string parameter_id_pt_vals[] = {
+  /* Vendor specific: Prismtech */
+  { PID_PRISMTECH_WRITER_INFO,                  "PID_PRISMTECH_WRITER_INFO" },
+  { PID_PRISMTECH_READER_DATA_LIFECYCLE,        "PID_PRISMTECH_READER_DATA_LIFECYCLE" },
+  { PID_PRISMTECH_WRITER_DATA_LIFECYCLE,        "PID_PRISMTECH_WRITER_DATA_LIFECYCLE" },
+  { PID_PRISMTECH_ENDPOINT_GUID,                "PID_PRISMTECH_ENDPOINT_GUID" },
+  { PID_PRISMTECH_SYNCHRONOUS_ENDPOINT,         "PID_PRISMTECH_SYNCHRONOUS_ENDPOINT" },
+  { PID_PRISMTECH_RELAXED_QOS_MATCHING,         "PID_PRISMTECH_RELAXED_QOS_MATCHING" },
+  { PID_PRISMTECH_PARTICIPANT_VERSION_INFO,     "PID_PRISMTECH_PARTICIPANT_VERSION_INFO" },
+  { PID_PRISMTECH_NODE_NAME,                    "PID_PRISMTECH_NODE_NAME" },
+  { PID_PRISMTECH_EXEC_NAME,                    "PID_PRISMTECH_EXEC_NAME" },
+  { PID_PRISMTECH_PROCESS_ID,                   "PID_PRISMTECH_PROCESS_ID" },
+  { PID_PRISMTECH_SERVICE_TYPE,                 "PID_PRISMTECH_SERVICE_TYPE" },
+  { PID_PRISMTECH_ENTITY_FACTORY,               "PID_PRISMTECH_ENTITY_FACTORY" },
+  { PID_PRISMTECH_WATCHDOG_SCHEDULING,          "PID_PRISMTECH_WATCHDOG_SCHEDULING" },
+  { PID_PRISMTECH_LISTENER_SCHEDULING,          "PID_PRISMTECH_LISTENER_SCHEDULING" },
+  { PID_PRISMTECH_SUBSCRIPTION_KEYS,            "PID_PRISMTECH_SUBSCRIPTION_KEYS" },
+  { PID_PRISMTECH_READER_LIFESPAN,              "PID_PRISMTECH_READER_LIFESPAN" },
+  { PID_PRISMTECH_SHARE,                        "PID_PRISMTECH_SHARE" },
+  { PID_PRISMTECH_TYPE_DESCRIPTION,             "PID_PRISMTECH_TYPE_DESCRIPTION" },
+  { PID_PRISMTECH_LAN_ID,                       "PID_PRISMTECH_LAN_ID" },
+  { PID_PRISMTECH_ENDPOINT_GID,                 "PID_PRISMTECH_ENDPOINT_GID" },
+  { PID_PRISMTECH_GROUP_GID,                    "PID_PRISMTECH_GROUP_GID" },
+  { PID_PRISMTECH_EOTINFO,                      "PID_PRISMTECH_EOTINFO" },
+  { PID_PRISMTECH_PART_CERT_NAME,               "PID_PRISMTECH_PART_CERT_NAME" },
+  { PID_PRISMTECH_LAN_CERT_NAME,                "PID_PRISMTECH_LAN_CERT_NAME" },
   { 0, NULL }
 };
 
@@ -3459,6 +3489,92 @@ static gboolean dissect_parameter_sequence_toc(proto_tree *rtps_parameter_tree, 
   return TRUE;
 }
 
+static gboolean dissect_parameter_sequence_pt(proto_tree *rtps_parameter_tree _U_, packet_info *pinfo _U_,
+    tvbuff_t *tvb _U_, proto_item *parameter_item _U_, proto_item *param_len_item _U_, gint offset _U_,
+    gboolean little_endian _U_, int param_length _U_,
+    guint16 parameter) {
+
+  switch(parameter) {
+
+    case PID_PRISMTECH_WRITER_INFO: {
+      break;
+    }
+    case PID_PRISMTECH_READER_DATA_LIFECYCLE: {
+      break;
+    }
+    case PID_PRISMTECH_WRITER_DATA_LIFECYCLE: {
+      break;
+    }
+    case PID_PRISMTECH_ENDPOINT_GUID: {
+      break;
+    }
+    case PID_PRISMTECH_SYNCHRONOUS_ENDPOINT: {
+      break;
+    }
+    case PID_PRISMTECH_RELAXED_QOS_MATCHING: {
+      break;
+    }
+    case PID_PRISMTECH_PARTICIPANT_VERSION_INFO: {
+      break;
+    }
+    case PID_PRISMTECH_NODE_NAME: {
+      break;
+    }
+    case PID_PRISMTECH_EXEC_NAME: {
+      break;
+    }
+    case PID_PRISMTECH_PROCESS_ID: {
+      break;
+    }
+    case PID_PRISMTECH_SERVICE_TYPE: {
+      break;
+    }
+    case PID_PRISMTECH_ENTITY_FACTORY: {
+      break;
+    }
+    case PID_PRISMTECH_WATCHDOG_SCHEDULING: {
+      break;
+    }
+    case PID_PRISMTECH_LISTENER_SCHEDULING: {
+      break;
+    }
+    case PID_PRISMTECH_SUBSCRIPTION_KEYS: {
+      break;
+    }
+    case PID_PRISMTECH_READER_LIFESPAN: {
+      break;
+    }
+    case PID_PRISMTECH_SHARE: {
+      break;
+    }
+    case PID_PRISMTECH_TYPE_DESCRIPTION: {
+      break;
+    }
+    case PID_PRISMTECH_LAN_ID: {
+      break;
+    }
+    case PID_PRISMTECH_ENDPOINT_GID: {
+      break;
+    }
+    case PID_PRISMTECH_GROUP_GID: {
+      break;
+    }
+    case PID_PRISMTECH_EOTINFO: {
+      break;
+    }
+    case PID_PRISMTECH_PART_CERT_NAME: {
+      break;
+    }
+    case PID_PRISMTECH_LAN_CERT_NAME: {
+      break;
+    }
+    default:
+      return FALSE;
+    }
+  return TRUE;
+}
+
+
 static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, packet_info *pinfo, tvbuff_t *tvb,
                         proto_item *parameter_item, proto_item * param_len_item, gint offset,
                         gboolean little_endian, int size, int param_length,
@@ -4732,6 +4848,16 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
               break;
           }
         }
+        case RTPS_VENDOR_PT_DDS: {
+          param_name = try_val_to_str(parameter, parameter_id_pt_vals);
+          if (param_name != NULL) {
+              rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
+                  ett_rtps_parameter, &param_item, val_to_str(parameter, parameter_id_pt_vals, "Unknown (0x%04x)"));
+
+              proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_pt, tvb, offset, 2, parameter);
+              break;
+          }
+        }
         default: {
           rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
               ett_rtps_parameter, &param_item, val_to_str(parameter, parameter_id_v2_vals, "Unknown (0x%04x)"));
@@ -4774,6 +4900,11 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
       }
       case RTPS_VENDOR_TOC: {
         dissect_return_value = dissect_parameter_sequence_toc(rtps_parameter_tree, pinfo, tvb,
+            param_item, param_len_item, offset, little_endian, param_length, parameter);
+        break;
+      }
+      case RTPS_VENDOR_PT_DDS: {
+        dissect_return_value = dissect_parameter_sequence_pt(rtps_parameter_tree, pinfo, tvb,
             param_item, param_len_item, offset, little_endian, param_length, parameter);
         break;
       }
@@ -8514,6 +8645,17 @@ void proto_register_rtps(void) {
         FT_UINT16,
         BASE_HEX,
         VALS(parameter_id_rti_vals),
+        0,
+        "Parameter Id",
+        HFILL }
+    },
+
+    { &hf_rtps_parameter_id_pt, {
+        "parameterId",
+        "rtps.param.id",
+        FT_UINT16,
+        BASE_HEX,
+        VALS(parameter_id_pt_vals),
         0,
         "Parameter Id",
         HFILL }
