@@ -69,9 +69,6 @@ static gint ett_v120_address = -1;
 static gint ett_v120_control = -1;
 static gint ett_v120_header = -1;
 
-static const true_false_string tfs_response_command = { "Response", "Command"  };
-static const true_false_string tfs_segmentation_no_segmentation = { "Segmentation", "No segmentation" };
-
 static int dissect_v120_header(tvbuff_t *tvb, int offset, proto_tree *tree);
 
 /* Used only for U frames */

@@ -537,6 +537,7 @@ set(DISSECTOR_SRC
 	packet-dmx.c
 	packet-dnp.c
 	packet-dns.c
+	packet-dof.c
 	packet-dplay.c
 	packet-dpnss-link.c
 	packet-dpnss.c

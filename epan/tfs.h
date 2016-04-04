@@ -66,6 +66,7 @@ WS_DLL_PUBLIC const true_false_string tfs_present_not_present;
 WS_DLL_PUBLIC const true_false_string tfs_active_inactive;
 WS_DLL_PUBLIC const true_false_string tfs_found_not_found;
 WS_DLL_PUBLIC const true_false_string tfs_command_response;
+WS_DLL_PUBLIC const true_false_string tfs_response_command;
 WS_DLL_PUBLIC const true_false_string tfs_capable_not_capable;
 WS_DLL_PUBLIC const true_false_string tfs_supported_not_supported;
 WS_DLL_PUBLIC const true_false_string tfs_used_notused;
@@ -100,12 +101,14 @@ WS_DLL_PUBLIC const true_false_string tfs_asynchronous_synchronous;
 WS_DLL_PUBLIC const true_false_string tfs_protocol_sensative_bit_transparent;
 WS_DLL_PUBLIC const true_false_string tfs_full_half;
 WS_DLL_PUBLIC const true_false_string tfs_acknowledged_not_acknowledged;
+WS_DLL_PUBLIC const true_false_string tfs_segmentation_no_segmentation;
 WS_DLL_PUBLIC const true_false_string tfs_response_request;
 WS_DLL_PUBLIC const true_false_string tfs_defined_not_defined;
 WS_DLL_PUBLIC const true_false_string tfs_constructed_primitive;
 WS_DLL_PUBLIC const true_false_string tfs_client_server;
 WS_DLL_PUBLIC const true_false_string tfs_server_client;
 WS_DLL_PUBLIC const true_false_string tfs_preferred_no_preference;
+WS_DLL_PUBLIC const true_false_string tfs_encrypt_do_not_encrypt;
 
 #ifdef __cplusplus
 }
