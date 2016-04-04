@@ -1841,7 +1841,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	rad_info->ident = rh.rh_ident;
 	tap_queue_packet(radius_tap, pinfo, rad_info);
 
-	col_add_fstr(pinfo->cinfo, COL_INFO,"%s(%d) (id=%d, l=%d)",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s(%d) (id=%d, l=%d)",
 			val_to_str_ext_const(rh.rh_code, &radius_pkt_type_codes_ext, "Unknown Packet"),
 			rh.rh_code, rh.rh_ident, rh.rh_pktlength);
 
@@ -2085,7 +2085,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 					PROTO_ITEM_SET_GENERATED(item);
 
 					if (!valid) {
-						col_append_fstr(pinfo->cinfo, COL_INFO," [incorrect authenticator]");
+						col_append_fstr(pinfo->cinfo, COL_INFO, " [incorrect authenticator]");
 					}
 				}
 			}
@@ -2389,7 +2389,7 @@ static void register_radius_fields(const char *unused _U_) {
 		{ "Time from request", "radius.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
 			"Timedelta between Request and Response", HFILL }},
 		{ &hf_radius_code,
-		{ "Code","radius.code", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &radius_pkt_type_codes_ext, 0x0,
+		{ "Code", "radius.code", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &radius_pkt_type_codes_ext, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_id,
 		{ "Identifier",	"radius.id", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -2404,37 +2404,37 @@ static void register_radius_fields(const char *unused _U_) {
 		{ "Invalid Authenticator", "radius.authenticator.invalid", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"TRUE if Authenticator is invalid", HFILL }},
 		{ &hf_radius_length,
-		{ "Length","radius.length", FT_UINT16, BASE_DEC, NULL, 0x0,
+		{ "Length", "radius.length", FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 		{ &(no_dictionary_entry.hf),
-		{ "Unknown-Attribute","radius.Unknown_Attribute", FT_BYTES, BASE_NONE, NULL, 0x0,
+		{ "Unknown-Attribute", "radius.Unknown_Attribute", FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 		{ &(no_dictionary_entry.hf_len),
-		{ "Unknown-Attribute Length","radius.Unknown_Attribute.length", FT_UINT8, BASE_DEC, NULL, 0x0,
+		{ "Unknown-Attribute Length", "radius.Unknown_Attribute.length", FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_chap_password,
-		{ "CHAP-Password","radius.CHAP_Password", FT_BYTES, BASE_NONE, NULL, 0x0,
+		{ "CHAP-Password", "radius.CHAP_Password", FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_chap_ident,
-		{ "CHAP Ident","radius.CHAP_Ident", FT_UINT8, BASE_HEX, NULL, 0x0,
+		{ "CHAP Ident", "radius.CHAP_Ident", FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_chap_string,
-		{ "CHAP String","radius.CHAP_String", FT_BYTES, BASE_NONE, NULL, 0x0,
+		{ "CHAP String", "radius.CHAP_String", FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_framed_ip_address,
-		{ "Framed-IP-Address","radius.Framed-IP-Address", FT_IPv4, BASE_NONE, NULL, 0x0,
+		{ "Framed-IP-Address", "radius.Framed-IP-Address", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_login_ip_host,
-		{ "Login-IP-Host","radius.Login-IP-Host", FT_IPv4, BASE_NONE, NULL, 0x0,
+		{ "Login-IP-Host", "radius.Login-IP-Host", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_framed_ipx_network,
-		{ "Framed-IPX-Network","radius.Framed-IPX-Network", FT_IPXNET, BASE_NONE, NULL, 0x0,
+		{ "Framed-IPX-Network", "radius.Framed-IPX-Network", FT_IPXNET, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_cosine_vpi,
-		{ "Cosine-VPI","radius.Cosine-Vpi", FT_UINT16, BASE_DEC, NULL, 0x0,
+		{ "Cosine-VPI", "radius.Cosine-Vpi", FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_cosine_vci,
-		{ "Cosine-VCI","radius.Cosine-Vci", FT_UINT16, BASE_DEC, NULL, 0x0,
+		{ "Cosine-VCI", "radius.Cosine-Vci", FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_radius_dup,
 		{ "Duplicate Message ID", "radius.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -2635,20 +2635,20 @@ proto_register_radius(void)
 	register_dissector("radius", dissect_radius, proto_radius);
 	register_init_routine(&radius_init_protocol);
 	radius_module = prefs_register_protocol(proto_radius, proto_reg_handoff_radius);
-	prefs_register_string_preference(radius_module,"shared_secret","Shared Secret",
+	prefs_register_string_preference(radius_module, "shared_secret", "Shared Secret",
 					 "Shared secret used to decode User Passwords and validate Response Authenticators",
 					 &shared_secret);
-	prefs_register_bool_preference(radius_module,"validate_authenticator","Validate Reponse Authenticator",
+	prefs_register_bool_preference(radius_module, "validate_authenticator", "Validate Reponse Authenticator",
 				       "Whether to check or not if Response Authenticator is correct. You need to define shared secret for this to work.",
 				       &validate_authenticator);
-	prefs_register_bool_preference(radius_module,"show_length","Show AVP Lengths",
+	prefs_register_bool_preference(radius_module, "show_length", "Show AVP Lengths",
 				       "Whether to add or not to the tree the AVP's payload length",
 				       &show_length);
-	prefs_register_uint_preference(radius_module, "alternate_port","Alternate Port",
+	prefs_register_uint_preference(radius_module, "alternate_port", "Alternate Port",
 				       "An alternate UDP port to decode as RADIUS", 10, &alt_port_pref);
 
 	range_convert_str(&global_ports_range, DEFAULT_RADIUS_PORT_RANGE, MAX_UDP_PORT);
-	prefs_register_range_preference(radius_module, "ports","RADIUS ports",
+	prefs_register_range_preference(radius_module, "ports", "RADIUS ports",
 				       "A list of UDP ports to decode as RADIUS", &global_ports_range, MAX_UDP_PORT);
 	prefs_register_obsolete_preference(radius_module, "request_ttl");
 
