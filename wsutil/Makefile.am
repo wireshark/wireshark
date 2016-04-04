@@ -72,10 +72,6 @@ libwsutil_la_SOURCES = \
 	$(LIBWSUTIL_SRC)	\
 	$(LIBWSUTIL_INCLUDES)
 
-if !HAVE_FLOORL
-libwsutil_la_SOURCES += floorl.c floorl.h
-endif
-
 libwsutil_sse42_la_SOURCES = \
 	ws_mempbrk_sse42.c
 

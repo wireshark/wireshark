@@ -537,7 +537,6 @@ AC_SEARCH_LIBS([cos], [m])
 # Check for C99 math functions.
 #
 AC_CHECK_FUNCS([floorl lrint])
-AM_CONDITIONAL([HAVE_FLOORL], [test "x$ac_cv_func_floorl" = xyes])
 
 #
 # Check if we need to link with -lnsl and -lsocket

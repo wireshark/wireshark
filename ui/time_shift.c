@@ -33,7 +33,7 @@
 #include "ui/ui_util.h"
 
 #ifndef HAVE_FLOORL
-# include "wsutil/floorl.h"
+#define floorl(x) floor((double)x)
 #endif
 
 #define SHIFT_POS               0
