@@ -167,4 +167,5 @@ noinst_HEADERS =	\
 	$(SHARK_COMMON_INCLUDES) \
 	$(EXTCAP_COMMON_INCLUDES) \
 	$(WIRESHARK_COMMON_INCLUDES) \
-	$(dumpcap_INCLUDES)
+	$(dumpcap_INCLUDES) \
+	ws_diag_control.h

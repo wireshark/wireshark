@@ -127,7 +127,6 @@ libwsutil_nonrepl_INCLUDES = \
 	unicode-utils.h \
 	utf8_entities.h	\
 	ws_cpuid.h	\
-	ws_diag_control.h \
 	ws_mempbrk.h	\
 	ws_mempbrk_int.h \
 	ws_version_info.h
