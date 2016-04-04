@@ -3100,11 +3100,7 @@ pre_init_prefs(void)
     prefs.gui_update_channel         = UPDATE_CHANNEL_STABLE;
     prefs.gui_update_interval        = 60*60*24; /* Seconds */
     if (prefs.gui_webbrowser) g_free(prefs.gui_webbrowser);
-#ifdef HTML_VIEWER
-    prefs.gui_webbrowser             = g_strdup(HTML_VIEWER " %s");
-#else
     prefs.gui_webbrowser             = g_strdup("");
-#endif
     if (prefs.gui_window_title) g_free(prefs.gui_window_title);
     prefs.gui_window_title           = g_strdup("");
     if (prefs.gui_prepend_window_title) g_free(prefs.gui_prepend_window_title);

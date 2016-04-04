@@ -360,9 +360,6 @@
 /* Define to 1 if you have the <winsock2.h> header file. */
 #cmakedefine HAVE_WINSOCK2_H 1
 
-/* HTML viewer, e.g. mozilla */
-#cmakedefine HTML_VIEWER "${HTML_VIEWER_EXECUTABLE}"
-
 /* Name of package */
 #cmakedefine PACKAGE
 

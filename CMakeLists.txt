@@ -658,8 +658,6 @@ if (NOT WIN32)
 	set(M_REQUIRED TRUE)
 endif()
 
-set(PACKAGELIST ${PACKAGELIST} HtmlViewer)
-
 set(PACKAGELIST ${PACKAGELIST} LIBSSH)
 set(LIBSSH_OPTIONS "0.6")
 
@@ -816,8 +814,6 @@ foreach(PACKAGE ${PACKAGELIST})
 		set(PACKAGE_VAR "PYTHONINTERP")
 	elseif(${PACKAGE} STREQUAL "Gettext")
 		set(PACKAGE_VAR "GETTEXT")
-	elseif(${PACKAGE} STREQUAL "HtmlViewer")
-		set(PACKAGE_VAR "HTML_VIEWER")
 	elseif(${PACKAGE} STREQUAL "Perl")
 		set(PACKAGE_VAR "PERL")
 	else()

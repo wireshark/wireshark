@@ -126,23 +126,23 @@
 /* Mac OS X - use Launch Services to start a browser */
 #include <CoreFoundation/CoreFoundation.h>
 #include <ApplicationServices/ApplicationServices.h>
-#elif defined(HAVE_XDG_OPEN)
-/* UNIX+X11 desktop with Portland Group stuff - use xdg-open to start a browser */
 #else
-/* Everything else - launch the browser ourselves */
-#define MUST_LAUNCH_BROWSER_OURSELVES
+/* Everything else */
+#define TRY_XDG_OPEN_THEN_BROWSER_FALLBACK
 #endif
 
-#ifdef MUST_LAUNCH_BROWSER_OURSELVES
+#ifdef TRY_XDG_OPEN_THEN_BROWSER_FALLBACK
 static gchar*   strreplace       (const gchar      *string,
                                   const gchar      *delimiter,
                                   const gchar      *replacement);
+
+static gboolean xdg_open(const gchar *url);
 #endif
 
 gboolean
 browser_needs_pref(void)
 {
-#ifdef MUST_LAUNCH_BROWSER_OURSELVES
+#ifdef TRY_XDG_OPEN_THEN_BROWSER_FALLBACK
     return TRUE;
 #else
     return FALSE;
@@ -192,50 +192,18 @@ browser_open_url (const gchar *url)
   CFRelease(url_CFURL);
   return (status == 0);
 
-#elif defined(HAVE_XDG_OPEN)
+#else
 
   GError      *error = NULL;
-  const gchar *argv[3];
+  gchar       *browser, *argument, *cmd;
+  gchar      **argv;
   gboolean     retval;
 
   g_return_val_if_fail (url != NULL, FALSE);
 
-  argv[0] = "xdg-open";
-  argv[1] = url;
-  argv[2] = NULL;
-
-  /*
-   * XXX - use g_spawn_on_screen() so the browser window shows up on
-   * the same screen?
-   *
-   * Also, g_spawn_async() shouldn't modify argv but takes it as non-const!
-   */
-  retval = g_spawn_async (NULL, (gchar**) argv, NULL,
-                          G_SPAWN_SEARCH_PATH,
-                          NULL, NULL,
-                          NULL, &error);
-
-  if (! retval)
-    {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-          "%sCould not execute xdg-open: %s\n\n\"%s\"",
-          simple_dialog_primary_start(), simple_dialog_primary_end(),
-          error->message);
-      g_error_free (error);
-    }
-
-  return retval;
-
-#elif defined(MUST_LAUNCH_BROWSER_OURSELVES)
-
-  GError    *error = NULL;
-  gchar     *browser;
-  gchar     *argument;
-  gchar     *cmd;
-  gchar    **argv;
-  gboolean   retval;
-
-  g_return_val_if_fail (url != NULL, FALSE);
+  if (xdg_open(url)) {
+    return TRUE;
+  }
 
   /*  browser = gimp_gimprc_query ("web-browser");*/
   browser = g_strdup(prefs.gui_webbrowser);
@@ -349,50 +317,18 @@ filemanager_open_directory (const gchar *path)
   CFRelease(path_CFURL);
   return (status == 0);
 
-#elif defined(HAVE_XDG_OPEN)
+#else
 
   GError      *error = NULL;
-  const gchar *argv[3];
+  gchar       *browser, *argument, *cmd;
+  gchar      **argv;
   gboolean     retval;
 
   g_return_val_if_fail (path != NULL, FALSE);
 
-  argv[0] = "xdg-open";
-  argv[1] = path;
-  argv[2] = NULL;
-
-  /*
-   * XXX - use g_spawn_on_screen() so the file managaer window shows up on
-   * the same screen?
-   *
-   * Also, g_spawn_async shouldn't modify argv but takes it as non-const!
-   */
-  retval = g_spawn_async (NULL, (gchar**) argv, NULL,
-                          G_SPAWN_SEARCH_PATH,
-                          NULL, NULL,
-                          NULL, &error);
-
-  if (! retval)
-    {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-          "%sCould not execute xdg-open: %s\n\n\"%s\"",
-          simple_dialog_primary_start(), simple_dialog_primary_end(),
-          error->message);
-      g_error_free (error);
-    }
-
-  return retval;
-
-#elif defined(MUST_LAUNCH_BROWSER_OURSELVES)
-
-  GError    *error;
-  gchar     *browser;
-  gchar     *argument;
-  gchar     *cmd;
-  gchar    **argv;
-  gboolean   retval;
-
-  g_return_val_if_fail (path != NULL, FALSE);
+  if (xdg_open(path)) {
+    return TRUE;
+  }
 
   /*  browser = gimp_gimprc_query ("web-browser");*/
   browser = g_strdup(prefs.gui_webbrowser);
@@ -466,7 +402,7 @@ filemanager_open_directory (const gchar *path)
 #endif
 }
 
-#ifdef MUST_LAUNCH_BROWSER_OURSELVES
+#ifdef TRY_XDG_OPEN_THEN_BROWSER_FALLBACK
 
 static gchar*
 strreplace (const gchar *string,
@@ -487,7 +423,36 @@ strreplace (const gchar *string,
   return ret;
 }
 
-#endif /* MUST_LAUNCH_BROWSER_OURSELVES */
+gboolean xdg_open(const gchar *url) {
+  GError      *error = NULL;
+  gchar       *argv[3];
+  gboolean     retval;
+
+  argv[0] = "xdg-open";
+DIAG_OFF(cast-qual)
+  argv[1] = (gchar *)url;
+DIAG_ON(cast-qual)
+  argv[2] = NULL;
+
+  /*
+   * XXX - use g_spawn_on_screen() so the browser window shows up on
+   * the same screen?
+   *
+   * Also, g_spawn_async() shouldn't modify argv but takes it as non-const!
+   */
+  retval = g_spawn_async (NULL, argv, NULL,
+                          G_SPAWN_SEARCH_PATH,
+                          NULL, NULL,
+                          NULL, &error);
+  if (retval)
+      return TRUE;
+
+  g_debug("Could not execute xdg-open: %s", error->message);
+  g_error_free(error);
+  return FALSE;
+}
+
+#endif /* TRY_XDG_OPEN_THEN_BROWSER_FALLBACK */
 
 
 /* browse a file relative to the data dir */

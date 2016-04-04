@@ -190,41 +190,6 @@ then
 fi
 
 #
-# Checks for programs used by Wireshark/TShark/etc.
-#
-
-#
-# XXX - this looks for various HTML viewers on the host, not the target;
-# we really want to know what's available on the target, for cross-builds.
-# That would probably require us to, at run time, look for xdg-open and,
-# if we don't find it, look for mozilla, htmlview, etc.
-#
-AC_PATH_PROG(HTML_VIEWER, xdg-open)
-if test "x$HTML_VIEWER" != x
-then
-	#
-	# XXX - the HTML_VIEWER shell variable is the full path of xdg-open.
-	# Define some variable to be that, so we just run that?
-	#
-	AC_DEFINE(HAVE_XDG_OPEN, 1, [Define if we have xdg-open])
-
-	#
-	# XXX - we have to define HTML_VIEWER for the prefs.c code that
-	# sets the default value of the Web browser preference, even
-	# though that preference won't be offered.
-	#
-	AC_DEFINE_UNQUOTED(HTML_VIEWER, "xdg-open", [HTML viewer, e.g. mozilla])
-else
-	AC_PATH_PROG(HTML_VIEWER, htmlview)
-	if test "x$HTML_VIEWER" = x
-	then
-		AC_DEFINE_UNQUOTED(HTML_VIEWER, "mozilla", [HTML viewer, e.g. mozilla])
-	else
-		AC_DEFINE_UNQUOTED(HTML_VIEWER, "htmlview", [HTML viewer, e.g. mozilla])
-	fi
-fi
-
-#
 # Set "ac_supports_gcc_flags" if the compiler is known to support GCC-style
 # flags such as -pedantic, -W warning flags and -f feature flags.  Currently,
 # we assume GCC and clang do; other compilers should be added here.
