@@ -733,7 +733,10 @@ wimaxasncp_dict_t *wimaxasncp_dict_scan(
 	WimaxasncpDict_lex(scanner);
 
 	WimaxasncpDict_lex_destroy(scanner);
-	fclose(in);
+	/*
+	 * XXX - can the lexical analyzer terminate without closing
+	 * all open input files?
+	 */
 
 	D(("\n---------------\n%s\n------- %d -------\n",
 	   state.strbuf, state.len_strbuf));
