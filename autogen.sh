@@ -107,11 +107,11 @@ else
 	LIBTOOLIZE=glibtoolize
 fi
 case "$LTVER" in
-'' | 0.* | 1.[0-3]* )
+'' | 0.* | 1.* | 2.2 )
 
   cat >&2 <<_EOF_
 
-	You must have libtool 1.4 or later installed to compile $PROJECT.
+	You must have libtool 2.2.2 or later installed to compile $PROJECT.
 	Download the appropriate package for your distribution/OS,
 	or get the source tarball at ftp://ftp.gnu.org/pub/gnu/libtool/
 _EOF_

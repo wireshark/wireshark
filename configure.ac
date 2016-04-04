@@ -54,7 +54,8 @@ AC_DEFINE(VERSION_MICRO, version_micro, [Wireshark's micro version])
 
 AC_DEFINE(VERSION_FLAVOR, "Development Build", [Wireshark's package flavor])
 
-AM_DISABLE_STATIC
+LT_PREREQ([2.2.2])
+LT_INIT([disable-static dlopen])
 
 AC_CONFIG_LIBOBJ_DIR([wsutil])
 
@@ -66,27 +67,9 @@ if test "$ac_cv_prog_cc_stdc" = "no"
 then
 	AC_MSG_ERROR([The C compiler does not support standard C])
 fi
-AC_PROG_CXX
 AC_PROG_CPP
 
-#
-# Check for versions of "sed" inadequate to handle, in libtool, a list
-# of object files as large as the list in Wireshark.
-#
-AC_PROG_SED
-
-AC_PROG_MKDIR_P
-
-# Set CC_FOR_BUILD (the *local* gcc to use for building e.g. lemon)
-if test "x$cross_compiling" = xno -a -z "$CC_FOR_BUILD"; then
-	CC_FOR_BUILD="$CC"
-fi
-AX_PROG_CC_FOR_BUILD
-
-dnl Work around libtool bug (fixed in the version 1.5a?)
-AC_DEFUN([AC_PROVIDE_AC_LIBTOOL_DLOPEN], )
-AC_LIBTOOL_DLOPEN
-AC_PROG_LIBTOOL
+AC_PROG_CXX
 if test ! -z "$CXX"; then
 	#
 	# OK, we found something AC_LANG_CXX thinks is a C++ compiler,
@@ -101,10 +84,6 @@ if test ! -z "$CXX"; then
 	#
 	# So we check by feeding the purported C++ compiler a
 	# program using C++ features (iostream).
-	#
-	# We do this after AC_PROG_LIBTOOL; if we did so before, and
-	# cleared CXX if what we had isn't a C++ compiler, that'd
-	# get undone by AC_PROG_LIBTOOL for some reason.
 	#
 	AC_MSG_CHECKING(whether $CXX is a C++ compiler)
 	AC_LANG_PUSH([C++])
@@ -123,6 +102,21 @@ if test ! -z "$CXX"; then
 		])
 	AC_LANG_POP([C++])
 fi
+
+# Set CC_FOR_BUILD (the *local* gcc to use for building e.g. lemon)
+if test "x$cross_compiling" = xno -a -z "$CC_FOR_BUILD"; then
+	CC_FOR_BUILD="$CC"
+fi
+AX_PROG_CC_FOR_BUILD
+
+#
+# Check for versions of "sed" inadequate to handle, in libtool, a list
+# of object files as large as the list in Wireshark.
+#
+AC_PROG_SED
+
+AC_PROG_MKDIR_P
+
 AC_PATH_PROG(PERL, perl)
 
 # Check for Python.
