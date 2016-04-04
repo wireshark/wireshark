@@ -801,7 +801,10 @@ ddict_scan(const char* system_directory, const char* filename, int dbg)
 	DiamDict_lex(scanner);
 
 	DiamDict_lex_destroy(scanner);
-	fclose(in);
+	/*
+	 * XXX - can the lexical analyzer terminate without closing
+	 * all open input files?
+	 */
 
 	D(("\n---------------\n%s\n------- %u -------\n",state.strbuf,state.len_strbuf));
 

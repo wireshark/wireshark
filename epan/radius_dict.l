@@ -708,8 +708,10 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 	Radius_lex(scanner);
 
 	Radius_lex_destroy(scanner);
-
-	fclose(in);
+	/*
+	 * XXX - can the lexical analyzer terminate without closing
+	 * all open input files?
+	 */
 
 	for (i = 0; i < MAX_INCLUDE_DEPTH; i++) {
 		if (state.fullpaths[i])
