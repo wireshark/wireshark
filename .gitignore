@@ -65,7 +65,6 @@ ui/gtk/wireshark-gresources.h
 # Generated makefile system #
 #############################
 .dirstamp
-*.sym
 aclocal.m4
 androiddump
 autom4te.cache
