@@ -47,6 +47,7 @@ typedef struct {
 	swapped_type_t lengths_swapped;
 	guint16	version_major;
 	guint16	version_minor;
+	void *encap_priv;
 } libpcap_t;
 
 /* On some systems, the FDDI MAC addresses are bit-swapped. */
@@ -69,6 +70,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err, gchar **err_info);
 static int libpcap_read_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
     struct pcaprec_ss990915_hdr *hdr);
+static void libpcap_close(wtap *wth);
 
 wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -263,9 +265,11 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 	libpcap->byte_swapped = byte_swapped;
 	libpcap->version_major = hdr.version_major;
 	libpcap->version_minor = hdr.version_minor;
+	libpcap->encap_priv = NULL;
 	wth->priv = (void *)libpcap;
 	wth->subtype_read = libpcap_read;
 	wth->subtype_seek_read = libpcap_seek_read;
+	wth->subtype_close = libpcap_close;
 	wth->file_encap = file_encap;
 	wth->snapshot_length = hdr.snaplen;
 
@@ -443,11 +447,8 @@ done:
 		wth->file_encap = WTAP_ENCAP_ATM_PDUS;
 
 	if (wth->file_encap == WTAP_ENCAP_ERF) {
-		/*
-		 * Populate set of interface IDs for ERF format.
-		 * Currently, this *has* to be done at open time.
-		 */
-		erf_populate_interfaces(wth);
+		/*Reset the ERF interface lookup table*/
+		libpcap->encap_priv = erf_priv_create();
 	}
 	return WTAP_OPEN_MINE;
 }
@@ -646,6 +647,8 @@ libpcap_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	int phdr_len;
 	libpcap_t *libpcap;
 
+	libpcap = (libpcap_t *)wth->priv;
+
 	if (!libpcap_read_header(wth, fh, err, err_info, &hdr))
 		return FALSE;
 
@@ -709,9 +712,13 @@ libpcap_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		else
 			phdr->ts.nsecs = hdr.hdr.ts_usec * 1000;
 	} else {
+		int interface_id;
 		/* Set interface ID for ERF format */
 		phdr->presence_flags |= WTAP_HAS_INTERFACE_ID;
-		phdr->interface_id = phdr->pseudo_header.erf.phdr.flags & 0x03;
+		if ((interface_id = erf_populate_interface_from_header((erf_t*) libpcap->encap_priv, wth, &phdr->pseudo_header)) < 0)
+			return FALSE;
+
+		phdr->interface_id = (guint) interface_id;
 	}
 	phdr->caplen = packet_size;
 	phdr->len = orig_size;
@@ -722,7 +729,6 @@ libpcap_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	if (!wtap_read_packet_bytes(fh, buf, packet_size, err, err_info))
 		return FALSE;	/* failed */
 
-	libpcap = (libpcap_t *)wth->priv;
 	pcap_read_post_process(wth->file_type_subtype, wth->file_encap,
 	    phdr, ws_buffer_start_ptr(buf), libpcap->byte_swapped, -1);
 	return TRUE;
@@ -995,6 +1001,24 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		return FALSE;
 	wdh->bytes_dumped += phdr->caplen;
 	return TRUE;
+}
+
+static void libpcap_close(wtap *wth)
+{
+	libpcap_t *libpcap = (libpcap_t *)wth->priv;
+
+	if (libpcap->encap_priv) {
+		switch (wth->file_encap) {
+
+		case WTAP_ENCAP_ERF:
+			erf_priv_free((erf_t*) libpcap->encap_priv);
+			break;
+
+		default:
+			g_free(libpcap->encap_priv);
+			break;
+		}
+	}
 }
 
 /*
