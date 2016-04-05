@@ -19,7 +19,7 @@
 %lex-param {void *yyscanner}
 
 /*
- * And we need to pass the parser state to the scanner.
+ * And we need to pass the parser/scanner state to the parser.
  */
 %parse-param {ascend_state_t *parser_state}
 

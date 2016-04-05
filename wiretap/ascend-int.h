@@ -51,7 +51,6 @@ typedef struct {
 	time_t secs;
 	guint32 usecs;
 } ascend_state_t;
-#define YY_EXTRA_TYPE	ascend_state_t *
 
 extern int
 run_ascend_parser(FILE_T fh, struct wtap_pkthdr *phdr, guint8 *pd,

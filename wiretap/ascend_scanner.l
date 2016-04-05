@@ -20,6 +20,11 @@
 %option noyywrap
 
 /*
+ * The type for the state we keep for the scanner (and parser).
+ */
+%option extra-type="ascend_state_t *"
+
+/*
  * Prefix scanner routines with "ascend" rather than "yy", so this scanner
  * can coexist with other scanners.
  */
