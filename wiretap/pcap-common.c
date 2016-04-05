@@ -1487,6 +1487,7 @@ pcap_read_erf_subheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	case ERF_TYPE_MC_ATM:
 	case ERF_TYPE_MC_RAW_CHANNEL:
 	case ERF_TYPE_MC_AAL5:
+	case ERF_TYPE_MC_AAL2:
 	case ERF_TYPE_COLOR_MC_HDLC_POS:
 		/* Extract the Multi Channel header to include it in the pseudo header part */
 		if (!wtap_read_bytes(fh, erf_subhdr, sizeof(erf_mc_header_t), err, err_info))
@@ -1494,7 +1495,7 @@ pcap_read_erf_subheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 		pseudo_header->erf.subhdr.mc_hdr = pntoh32(&erf_subhdr[0]);
 		*psize = sizeof(erf_mc_header_t);
 		break;
-	case ERF_TYPE_MC_AAL2:
+	case ERF_TYPE_AAL2:
 		/* Extract the AAL2 header to include it in the pseudo header part */
 		if (!wtap_read_bytes(fh, erf_subhdr, sizeof(erf_aal2_header_t), err, err_info))
 			return FALSE;
@@ -1504,6 +1505,7 @@ pcap_read_erf_subheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	case ERF_TYPE_ETH:
 	case ERF_TYPE_COLOR_ETH:
 	case ERF_TYPE_DSM_COLOR_ETH:
+	case ERF_TYPE_COLOR_HASH_ETH:
 		/* Extract the Ethernet additional header to include it in the pseudo header part */
 		if (!wtap_read_bytes(fh, erf_subhdr, sizeof(erf_eth_header_t), err, err_info))
 			return FALSE;
@@ -1936,10 +1938,14 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 		case ERF_TYPE_COLOR_MC_HDLC_POS:
 			hdrsize += (int)sizeof(struct erf_mc_hdr);
 			break;
+		case ERF_TYPE_AAL2:
+			hdrsize += (int)sizeof(struct erf_aal2_hdr);
+			break;
 
 		case ERF_TYPE_ETH:
 		case ERF_TYPE_COLOR_ETH:
 		case ERF_TYPE_DSM_COLOR_ETH:
+		case ERF_TYPE_COLOR_HASH_ETH:
 			hdrsize += (int)sizeof(struct erf_eth_hdr);
 			break;
 
@@ -1998,11 +2004,13 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 	guint8 mtp2_hdr[MTP2_HDR_LEN];
 	guint8 sita_hdr[SITA_HDR_LEN];
 	guint8 erf_hdr[ sizeof(struct erf_mc_phdr)];
+	guint8 erf_subhdr[sizeof(union erf_subhdr)];
 	struct i2c_file_hdr i2c_hdr;
 	struct libpcap_bt_phdr bt_hdr;
 	struct libpcap_bt_monitor_phdr bt_monitor_hdr;
 	struct libpcap_ppp_phdr ppp_hdr;
 	size_t size;
+	size_t subhdr_size = 0;
 
 	switch (encap) {
 
@@ -2122,19 +2130,21 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		case ERF_TYPE_MC_ATM:
 		case ERF_TYPE_MC_RAW_CHANNEL:
 		case ERF_TYPE_MC_AAL5:
-		case ERF_TYPE_COLOR_MC_HDLC_POS:
-			phtonl(&erf_hdr[16], pseudo_header->erf.subhdr.mc_hdr);
-			size += (int)sizeof(struct erf_mc_hdr);
-			break;
 		case ERF_TYPE_MC_AAL2:
-			phtonl(&erf_hdr[16], pseudo_header->erf.subhdr.aal2_hdr);
-			size += (int)sizeof(struct erf_aal2_hdr);
+		case ERF_TYPE_COLOR_MC_HDLC_POS:
+			phtonl(&erf_subhdr[0], pseudo_header->erf.subhdr.mc_hdr);
+			subhdr_size += (int)sizeof(struct erf_mc_hdr);
+			break;
+		case ERF_TYPE_AAL2:
+			phtonl(&erf_subhdr[0], pseudo_header->erf.subhdr.aal2_hdr);
+			subhdr_size += (int)sizeof(struct erf_aal2_hdr);
 			break;
 		case ERF_TYPE_ETH:
 		case ERF_TYPE_COLOR_ETH:
 		case ERF_TYPE_DSM_COLOR_ETH:
-			memcpy(&erf_hdr[16], &pseudo_header->erf.subhdr.eth_hdr, sizeof pseudo_header->erf.subhdr.eth_hdr);
-			size += (int)sizeof(struct erf_eth_hdr);
+		case ERF_TYPE_COLOR_HASH_ETH:
+			memcpy(&erf_subhdr[0], &pseudo_header->erf.subhdr.eth_hdr, sizeof pseudo_header->erf.subhdr.eth_hdr);
+			subhdr_size += (int)sizeof(struct erf_eth_hdr);
 			break;
 		default:
 			break;
@@ -2154,12 +2164,23 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 			do {
 				phtonll(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
 				type = erf_exhdr[0];
+				/* Clear more extension headers bit if > 8 */
+				if(i == max-1)
+					erf_exhdr[0] = erf_exhdr[0] & 0x7F;
+
 				if (!wtap_dump_file_write(wdh, erf_exhdr, 8, err))
 					return FALSE;
 				wdh->bytes_dumped += 8;
 				i++;
 			} while (type & 0x80 && i < max);
 		}
+
+		/*
+		 * Now write out the subheader.
+		 */
+		if(!wtap_dump_file_write(wdh, erf_subhdr, subhdr_size, err))
+			return FALSE;
+		wdh->bytes_dumped += subhdr_size;
 		break;
 
 	case WTAP_ENCAP_I2C:
