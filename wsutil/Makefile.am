@@ -62,18 +62,14 @@ LIBWSUTIL_SRC += cfutils.c
 LIBWSUTIL_INCLUDES += cfutils.h
 endif
 
-libwsutil_la_SOURCES = \
-	$(LIBWSUTIL_SRC)	\
-	$(LIBWSUTIL_INCLUDES)
-
 libwsutil_sse42_la_SOURCES = \
 	ws_mempbrk_sse42.c
 
 libwsutil_sse42_la_CFLAGS = $(AM_CFLAGS) $(CFLAGS_SSE42)
 
-EXTRA_libwsutil_la_SOURCES = \
-	inet_addr-int.h		\
-	wsgetopt.h
+libwsutil_la_SOURCES = \
+	$(LIBWSUTIL_SRC)	\
+	$(LIBWSUTIL_INCLUDES)
 
 EXTRA_libwsutil_la_DEPENDENCIES = \
 	$(wsutil_optional_objects)
@@ -94,9 +90,13 @@ EXTRA_DIST = \
 	Makefile.nmake	\
 	file_util.c	\
 	file_util.h	\
-	popcount.c	\
 	popcount.h	\
-	wsgcrypt.h
+	wsgcrypt.h	\
+	inet_aton.h	\
+	strptime.h	\
+	getopt_long.h	\
+	inet_addr-int.h	\
+	wsgetopt.h
 
 CLEANFILES = \
 	libwsutil.a	\
