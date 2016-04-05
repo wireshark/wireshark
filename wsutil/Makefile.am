@@ -94,6 +94,8 @@ EXTRA_DIST = \
 	Makefile.nmake	\
 	file_util.c	\
 	file_util.h	\
+	popcount.c	\
+	popcount.h	\
 	wsgcrypt.h
 
 CLEANFILES = \
