@@ -210,6 +210,13 @@ erf_t* erf_priv_free(erf_t* erf_priv)
   return NULL;
 }
 
+static void
+erf_free_data(gpointer data, gpointer user_data _U_)
+{
+    g_free(data);
+}
+
+
 extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
 {
   int              i, n, records_for_erf_check = RECORDS_FOR_ERF_CHECK;
@@ -1138,7 +1145,8 @@ static int erf_update_implicit_host_id(erf_t *erf_priv, wtap *wth, guint64 impli
       }
       /* Re-add the item under the implicit Host ID */
       if_map->host_id = implicit_host_id;
-      g_hash_table_add(erf_priv->if_map, if_map);
+      /* g_hash_table_add() only exists since 2.32. */
+      g_hash_table_replace(erf_priv->if_map, if_map, if_map);
     } while ((item = g_list_next(item)));
 
     g_list_free(implicit_list);
@@ -1177,7 +1185,9 @@ int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header 
 
   if (!if_map) {
     if_map = erf_if_mapping_create(host_id, source_id);
-    g_hash_table_add(erf_priv->if_map, if_map);
+    /* g_hash_table_add() only exists since 2.32. */
+    g_hash_table_replace(erf_priv->if_map, if_map, if_map);
+
   }
 
   /* Return the existing interface if we have it */
@@ -1780,7 +1790,9 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_h
 
   if (!state.if_map) {
     state.if_map = erf_if_mapping_create(host_id, source_id);
-    g_hash_table_add(erf_priv->if_map, state.if_map);
+    /* g_hash_table_add() only exists since 2.32. */
+    g_hash_table_replace(erf_priv->if_map, state.if_map, state.if_map);
+
   }
 
   /*
@@ -1904,8 +1916,9 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_h
           break;
       }
     } while ((item = g_list_next(item)));
-
-    g_list_free_full(post_list, g_free);
+    /* g_list_free_full() only exists since 2.28. */
+    g_list_foreach(post_list, erf_free_data, NULL);
+    g_list_free(post_list);
   }
 
   /*
