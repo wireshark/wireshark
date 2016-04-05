@@ -90,12 +90,19 @@ EXTRA_DIST = \
 	Makefile.nmake	\
 	file_util.c	\
 	file_util.h	\
-	popcount.h	\
-	wsgcrypt.h	\
-	inet_aton.h	\
-	strptime.h	\
+	getopt_long.c	\
 	getopt_long.h	\
 	inet_addr-int.h	\
+	inet_aton.c	\
+	inet_aton.h	\
+	inet_ntop.c	\
+	inet_pton.c	\
+	popcount.c	\
+	popcount.h	\
+	strptime.c	\
+	strptime.h	\
+	ws_mempbrk_sse42.c \
+	wsgcrypt.h	\
 	wsgetopt.h
 
 CLEANFILES = \

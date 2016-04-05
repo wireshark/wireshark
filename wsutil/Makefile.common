@@ -60,13 +60,13 @@ LIBWSUTIL_COMMON_SRC = \
 	os_version_info.c \
 	plugins.c	\
 	privileges.c	\
+	rc4.c		\
+	report_err.c	\
 	sha1.c		\
 	sha2.c		\
 	sober128.c	\
-	strnatcmp.c	\
 	str_util.c	\
-	rc4.c		\
-	report_err.c	\
+	strnatcmp.c	\
 	tempfile.c	\
 	time_util.c	\
 	type_util.c	\
@@ -80,8 +80,8 @@ libwsutil_nonrepl_INCLUDES = \
 	adler32.h	\
 	aes.h		\
 	base64.h	\
-	bits_ctz.h	\
 	bits_count_ones.h \
+	bits_ctz.h	\
 	bitswap.h	\
 	buffer.h	\
 	clopts_common.h	\
@@ -109,18 +109,18 @@ libwsutil_nonrepl_INCLUDES = \
 	mpeg-audio.h	\
 	nstime.h	\
 	os_version_info.h \
+	pint.h		\
 	plugins.h	\
 	privileges.h	\
 	processes.h	\
+	rc4.h		\
+	report_err.h	\
 	sha1.h		\
 	sha2.h		\
 	sign_ext.h	\
 	sober128.h	\
-	strnatcmp.h	\
 	str_util.h	\
-	pint.h		\
-	rc4.h		\
-	report_err.h	\
+	strnatcmp.h	\
 	tempfile.h	\
 	time_util.h	\
 	type_util.h	\
