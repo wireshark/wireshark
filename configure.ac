@@ -1221,8 +1221,10 @@ AC_SUBST(CFLAGS_SSE42)
 #
 if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
   AC_DEFINE(_U_, __attribute__((unused)), [Hint to the compiler that a function parameters is not used])
+  AC_DEFINE(WS_NORETURN, __attribute((noreturn)), [Hint to the compiler that a function never returns])
 else
   AC_DEFINE(_U_, , [Hint to the compiler that a function parameters is not used])
+  AC_DEFINE(WS_NORETURN, , [Hint to the compiler that a function never returns])
 fi
 
 # If we're running GCC or CLang, use FORTIFY_SOURCE=2
@@ -2650,17 +2652,6 @@ else
 	AC_WIRESHARK_LIBSSH_CHECK
 fi
 AC_SUBST(LIBSSH_LIBS)
-
-#
-# Define WS_MSVC_NORETURN appropriately for declarations of routines that
-# never return (just like Charlie on the MTA).
-#
-# Note that MSVC++ expects __declspec(noreturn) to precede the function
-# name and GCC, as far as I know, expects __attribute__((noreturn)) to
-# follow the function name, so we need two different flavors of
-# noreturn tag.
-#
-AC_DEFINE(WS_MSVC_NORETURN,, [Define as the string to precede declarations of routines that never return])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 # AC_C_CONST

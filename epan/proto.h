@@ -120,7 +120,7 @@ typedef struct _protocol protocol_t;
  *
  * @param message string to use as the message
  */
-WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *message) G_GNUC_NORETURN;
+WS_DLL_PUBLIC WS_NORETURN void proto_report_dissector_bug(const char *message);
 
 #define REPORT_DISSECTOR_BUG(message)  \
 	proto_report_dissector_bug(message)

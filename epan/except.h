@@ -92,11 +92,11 @@ WS_DLL_PUBLIC struct except_stacknode *except_pop(void);
 /* public interface functions */
 WS_DLL_PUBLIC int except_init(void);
 WS_DLL_PUBLIC void except_deinit(void);
-WS_DLL_PUBLIC WS_MSVC_NORETURN void except_rethrow(except_t *) G_GNUC_NORETURN;
-WS_DLL_PUBLIC WS_MSVC_NORETURN void except_throw(long, long, const char *) G_GNUC_NORETURN;
-WS_DLL_PUBLIC WS_MSVC_NORETURN void except_throwd(long, long, const char *, void *) G_GNUC_NORETURN;
-WS_DLL_PUBLIC WS_MSVC_NORETURN void except_throwf(long, long, const char *, ...)
-    G_GNUC_NORETURN G_GNUC_PRINTF(3, 4);
+WS_DLL_PUBLIC WS_NORETURN void except_rethrow(except_t *);
+WS_DLL_PUBLIC WS_NORETURN void except_throw(long, long, const char *);
+WS_DLL_PUBLIC WS_NORETURN void except_throwd(long, long, const char *, void *);
+WS_DLL_PUBLIC WS_NORETURN void except_throwf(long, long, const char *, ...)
+    G_GNUC_PRINTF(3, 4);
 WS_DLL_PUBLIC void (*except_unhandled_catcher(void (*)(except_t *)))(except_t *);
 extern unsigned long except_code(except_t *);
 extern unsigned long except_group(except_t *);

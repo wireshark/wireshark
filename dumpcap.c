@@ -394,7 +394,7 @@ static void capture_loop_queue_packet_cb(u_char *pcap_opts_p, const struct pcap_
 static void capture_loop_get_errmsg(char *errmsg, int errmsglen, const char *fname,
                                     int err, gboolean is_close);
 
-static void WS_MSVC_NORETURN exit_main(int err) G_GNUC_NORETURN;
+static void WS_NORETURN exit_main(int err);
 
 static void report_new_capture_file(const char *filename);
 static void report_packet_count(unsigned int packet_count);

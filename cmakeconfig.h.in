@@ -415,15 +415,6 @@
 #cmakedefine _LARGE_FILES
 #cmakedefine _FILE_OFFSET_BITS @_FILE_OFFSET_BITS@
 
-/* Define WS_MSVC_NORETURN appropriately for declarations of routines that
-   never return (just like Charlie on the MTA).
-
-   Note that MSVC++ expects __declspec(noreturn) to precede the function
-   name and GCC, as far as I know, expects __attribute__((noreturn)) to
-   follow the function name, so we need two different flavors of
-   noreturn tag.  */
-#define WS_MSVC_NORETURN @WS_MSVC_NORETURN@
-
 /* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
    `char[]'. */
 /* Note: not use in the code */
@@ -432,6 +423,9 @@
 /* _U_ isn't needed for C++, simply don't name the variable.
    However, we do need it for some headers that are shared between C and C++. */
 #define _U_ ${C_UNUSED}
+
+/* Hint to the compiler that a function never returns */
+#define WS_NORETURN @WS_NORETURN@
 
 #if defined(_WIN32)
 

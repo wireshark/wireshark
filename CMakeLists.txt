@@ -587,9 +587,14 @@ if( NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
-	set (C_UNUSED "__attribute__((unused))" )
+	set (C_UNUSED	    "__attribute__((unused))" )
+	set (WS_NORETURN    "__attribute__((noreturn))")
+elseif(MSVC)
+	set (C_UNUSED	    "")
+	set (WS_NORETURN    "__declspec(noreturn)")
 else()
-	set (C_UNUSED "" )
+	set (C_UNUSED	    "")
+	set (WS_NORETURN    "")
 endif()
 
 set(WIRESHARK_LD_FLAGS
@@ -1143,14 +1148,10 @@ gmx_test_large_files(GMX_LARGEFILES)
 add_definitions( -DTOP_SRCDIR=\"${CMAKE_SOURCE_DIR}\" )
 
 if(WIN32)
-	set(WS_MSVC_NORETURN "__declspec(noreturn)")
-
 	# Disable deprecation
 	if(MSVC80 OR MSVC90)
 		add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
 	endif()
-else()
-	set(WS_MSVC_NORETURN " ")
 endif()
 
 if (${GIT_EXECUTABLE})

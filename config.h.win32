@@ -79,17 +79,6 @@
 @PCAP_NG_DEFAULT@
 @WANT_PACKET_EDITOR@
 
-/*
- * Define WS_MSVC_NORETURN appropriately for declarations of routines that
- * never return (just like Charlie on the MTA).
- *
- * Note that MSVC++ expects __declspec(noreturn) to precede the function
- * name and GCC, as far as I know, expects __attribute__((noreturn)) to
- * follow the function name, so we need two different flavors of
- * noreturn tag.
- */
-#define WS_MSVC_NORETURN	__declspec(noreturn)
-
 /* Define if you have the floorl function. */
 #define HAVE_FLOORL 1
 
@@ -211,6 +200,9 @@
  * warnings on compilers that support such hints.
  */
 #define _U_
+
+/* Hint to the compiler that a function never returns */
+#define WS_NORETURN	__declspec(noreturn)
 
 /* Visual C 9 (2008), Visual C 10 (2010) and Visual C 11 (2012) and Visual C 12 (2013) need these prototypes */
 #if _MSC_VER >= 1500
