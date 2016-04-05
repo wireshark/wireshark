@@ -104,8 +104,9 @@ do
 done
 
 #
-# Construct the name of the header file to generate; if the .c file is
-# .../foo.c, the header file will be .../foo_lex.h.
+# We make Flex generate a header file declaring the relevant functions
+# defined by the .c file, using the --header-file= flag; if the .c file
+# is .../foo.c, the header file will be .../foo_lex.h.
 #
 #echo "Getting header file name"
 header_file=`dirname "$outfile"`/`basename "$outfile" .c`_lex.h
