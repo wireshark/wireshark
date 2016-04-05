@@ -2167,7 +2167,7 @@ deregister_dissector_table(const char *name)
 	dissector_table_t sub_dissectors = find_dissector_table(name);
 	if (!sub_dissectors) return;
 
-	g_hash_table_remove(dissector_tables, (gpointer)name);
+	g_hash_table_remove(dissector_tables, name);
 }
 
 const char *
@@ -2318,7 +2318,7 @@ heur_dissector_delete(const char *name, heur_dissector_t dissector, const int pr
 	if (found_entry) {
 		heur_dtbl_entry_t *found_hdtbl_entry = (heur_dtbl_entry_t *)(found_entry->data);
 		g_free(found_hdtbl_entry->list_name);
-		g_hash_table_remove(heuristic_short_names, (gpointer)found_hdtbl_entry->short_name);
+		g_hash_table_remove(heuristic_short_names, found_hdtbl_entry->short_name);
 		g_slice_free(heur_dtbl_entry_t, found_entry->data);
 		sub_dissectors->dissectors = g_slist_delete_link(sub_dissectors->dissectors,
 		    found_entry);
@@ -2717,7 +2717,7 @@ remove_depend_dissector_from_list(depend_dissector_list_t sub_dissectors, const 
 	GSList *found_entry;
 
 	found_entry = g_slist_find_custom(sub_dissectors->dissectors,
-		(gpointer)dependent, (GCompareFunc)strcmp);
+		dependent, (GCompareFunc)strcmp);
 
 	if (found_entry) {
 		g_free(found_entry->data);
@@ -2744,10 +2744,10 @@ deregister_dissector(const char *name)
 	dissector_handle_t handle = find_dissector(name);
 	if (handle == NULL) return;
 
-	g_hash_table_remove(registered_dissectors, (gpointer)name);
-	g_hash_table_remove(depend_dissector_lists, (gpointer)name);
+	g_hash_table_remove(registered_dissectors, name);
+	g_hash_table_remove(depend_dissector_lists, name);
 	g_hash_table_foreach(depend_dissector_lists, remove_depend_dissector_ghfunc, (gpointer)name);
-	g_hash_table_remove(heur_dissector_lists, (gpointer)name);
+	g_hash_table_remove(heur_dissector_lists, name);
 
 	destroy_dissector_handle(handle);
 }
