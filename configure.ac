@@ -2941,7 +2941,7 @@ AC_MSG_CHECKING(whether to build randpktdump)
 
 AC_ARG_ENABLE(randpktdump,
 	AC_HELP_STRING( [--enable-randpktdump],
-		[build androiddump @<:@default=yes@:>@]),
+		[build randpktdump @<:@default=yes@:>@]),
 	randpktdump=$enableval,enable_randpktdump=yes)
 
 if test "x$have_extcap" != xyes; then
