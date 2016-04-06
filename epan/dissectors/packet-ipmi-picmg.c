@@ -3625,7 +3625,7 @@ proto_register_ipmi_picmg(void)
 				"ipmi.picmg25.mp.good", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
 		{ &hf_ipmi_picmg_25_role,
 			{ "Role",
-			  "ipmi.picmg25.fault", FT_BOOLEAN, 8, TFS(&picmg_25_roles), 0x01, NULL, HFILL }},
+			  "ipmi.picmg25.role", FT_BOOLEAN, 8, TFS(&picmg_25_roles), 0x01, NULL, HFILL }},
 		{ &hf_ipmi_picmg_25_cstatus,
 			{ "Power Channel Status",
 				"ipmi.picmg25.cstatus", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
