@@ -543,7 +543,7 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tre
     len = tvb_get_guint8(tvb, offset+2);
     if (len == 0xFF) {
         len_bytes = 3;
-        len = tvb_get_ntohs(tvb, offset+3);
+        len = tvb_get_letohs(tvb, offset+3);
     }
 
     /* ZVT_APDU_MIN_LEN already includes one length byte */
