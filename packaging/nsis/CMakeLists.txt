@@ -102,13 +102,15 @@ if(BUILD_wireshark_gtk AND GTK_FOUND)
 	set (GTK_DIR "\${STAGING_DIR}")
 endif()
 
-# This *should* be compatible with the way we currently do things.
-if(MSVC12)
-	set(_vcredist_name "vcredist_${TARGET_MACHINE}.exe")
-	find_program(VCREDIST_EXE "${_vcredist_name}"
-		HINTS "${WIRESHARK_LIB_DIR}/vcredist_MSVC2013" "${WIRESHARK_LIB_DIR}"
-	)
-	file(TO_NATIVE_PATH "${VCREDIST_EXE}" VCREDIST_EXE)
+# Use the vcredist that comes with Visual Studio (From MSVC 2013?)
+set(_vcredist_name "vcredist_${TARGET_MACHINE}.exe")
+find_program(VCREDIST_EXE "${_vcredist_name}"
+	PATHS ENV "VCINSTALLDIR"
+	PATH_SUFFIXES "redist/1033"
+)
+if(VCREDIST_EXE)
+	file(TO_NATIVE_PATH "${VCREDIST_EXE}" _vcredist_exe)
+	message(STATUS "Using ${_vcredist_exe} for the installer")
 endif()
 
 if(NOT ENABLE_STATIC)
