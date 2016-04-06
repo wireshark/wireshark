@@ -2517,7 +2517,7 @@ proto_register_iax2(void)
       HFILL}},
 
     {&hf_iax2_minividmarker,
-     {"Marker", "iax2.video.marker",
+     {"Marker", "iax2.video.mini_marker",
       FT_UINT16, BASE_DEC, NULL, 0x8000,
       "RTP end-of-frame marker",
       HFILL}},
