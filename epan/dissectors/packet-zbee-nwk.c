@@ -62,6 +62,7 @@ static guint       dissect_zbee_nwk_report     (tvbuff_t *tvb, packet_info *pinf
 static guint       dissect_zbee_nwk_update     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 static guint       dissect_zbee_nwk_ed_timeout_request(tvbuff_t *tvb, proto_tree *tree, guint offset);
 static guint       dissect_zbee_nwk_ed_timeout_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+static guint       dissect_zbee_nwk_link_pwr_delta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 static void        proto_init_zbee_nwk         (void);
 static void        proto_cleanup_zbee_nwk(void);
 void               proto_register_zbee_nwk(void);
@@ -148,6 +149,10 @@ static int hf_zbee_nwk_cmd_end_device_timeout_resp_status = -1;
 static int hf_zbee_nwk_cmd_end_device_timeout_resp_parent_info = -1;
 static int hf_zbee_nwk_cmd_prnt_info_mac_data_poll_keepalive_supported = -1;
 static int hf_zbee_nwk_cmd_prnt_info_ed_to_req_keepalive_supported = -1;
+static int hf_zbee_nwk_cmd_link_pwr_list_count = -1;
+static int hf_zbee_nwk_cmd_link_pwr_type = -1;
+static int hf_zbee_nwk_cmd_link_pwr_device_address = -1;
+static int hf_zbee_nwk_cmd_link_pwr_power_delta = -1;
 
 /*  ZigBee Beacons */
 static int hf_zbee_beacon_protocol = -1;
@@ -177,6 +182,7 @@ static gint ett_zbee_nwk_cmd_options = -1;
 static gint ett_zbee_nwk_cmd_cinfo = -1;
 static gint ett_zbee_nwk_cmd_link = -1;
 static gint ett_zbee_nwk_cmd_ed_to_rsp_prnt_info = -1;
+static gint ett_zbee_nwk_cmd_link_pwr_struct = -1;
 
 static expert_field ei_zbee_nwk_missing_payload = EI_INIT;
 
@@ -203,18 +209,19 @@ static const value_string zbee_nwk_discovery_modes[] = {
 
 /* Command Names*/
 static const value_string zbee_nwk_cmd_names[] = {
-    { ZBEE_NWK_CMD_ROUTE_REQ,       "Route Request" },
-    { ZBEE_NWK_CMD_ROUTE_REPLY,     "Route Reply" },
-    { ZBEE_NWK_CMD_NWK_STATUS,      "Network Status" },
-    { ZBEE_NWK_CMD_LEAVE,           "Leave" },
-    { ZBEE_NWK_CMD_ROUTE_RECORD,    "Route Record" },
-    { ZBEE_NWK_CMD_REJOIN_REQ,      "Rejoin Request" },
-    { ZBEE_NWK_CMD_REJOIN_RESP,     "Rejoin Response" },
-    { ZBEE_NWK_CMD_LINK_STATUS,     "Link Status" },
-    { ZBEE_NWK_CMD_NWK_REPORT,      "Network Report" },
-    { ZBEE_NWK_CMD_NWK_UPDATE,      "Network Update" },
+    { ZBEE_NWK_CMD_ROUTE_REQ,           "Route Request" },
+    { ZBEE_NWK_CMD_ROUTE_REPLY,         "Route Reply" },
+    { ZBEE_NWK_CMD_NWK_STATUS,          "Network Status" },
+    { ZBEE_NWK_CMD_LEAVE,               "Leave" },
+    { ZBEE_NWK_CMD_ROUTE_RECORD,        "Route Record" },
+    { ZBEE_NWK_CMD_REJOIN_REQ,          "Rejoin Request" },
+    { ZBEE_NWK_CMD_REJOIN_RESP,         "Rejoin Response" },
+    { ZBEE_NWK_CMD_LINK_STATUS,         "Link Status" },
+    { ZBEE_NWK_CMD_NWK_REPORT,          "Network Report" },
+    { ZBEE_NWK_CMD_NWK_UPDATE,          "Network Update" },
     { ZBEE_NWK_CMD_ED_TIMEOUT_REQUEST,  "End Device Timeout Request" },
     { ZBEE_NWK_CMD_ED_TIMEOUT_RESPONSE, "End Device Timeout Response" },
+    { ZBEE_NWK_CMD_LINK_PWR_DELTA,      "Link Power Delta" },
     { 0, NULL }
 };
 
@@ -307,6 +314,14 @@ static const value_string zbee_nwk_end_device_timeout_resp_status[] = {
     { 0, NULL }
 };
 
+/* Stack Profile Values. */
+static const value_string zbee_nwk_link_power_delta_types[] = {
+    { 0x00, "Notification" },
+    { 0x01, "Request" },
+    { 0x02, "Response" },
+    { 0x03, "Reserved" },
+    { 0, NULL }
+};
 
 /* TODO: much of the following copied from ieee80154 dissector */
 /*-------------------------------------
@@ -808,6 +823,10 @@ static void dissect_zbee_nwk_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             offset = dissect_zbee_nwk_ed_timeout_response(tvb, pinfo, cmd_tree, offset);
             break;
 
+        case ZBEE_NWK_CMD_LINK_PWR_DELTA:
+            offset = dissect_zbee_nwk_link_pwr_delta(tvb, pinfo, cmd_tree, offset);
+            break;
+
         default:
             /* Just break out and let the overflow handler deal with the payload. */
             break;
@@ -1229,6 +1248,47 @@ dissect_zbee_nwk_ed_timeout_response(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     return offset;
 } /* dissect_zbee_nwk_ed_timeout_response */
+
+/**
+ *Helper dissector for the Link Power Delta command.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to the command subtree.
+ *@param  offset into the tvb to begin dissection.
+ *@return offset after command dissection.
+*/
+static guint
+dissect_zbee_nwk_link_pwr_delta(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+{
+    int     i;
+    int     count;
+    gint    delta;
+    guint8  type;
+    guint16 addr;
+    proto_tree *subtree;
+
+    type = tvb_get_guint8(tvb, offset) & ZBEE_NWK_CMD_NWK_LINK_PWR_DELTA_TYPE_MASK;
+    proto_tree_add_item(tree, hf_zbee_nwk_cmd_link_pwr_type, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    count = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_zbee_nwk_cmd_link_pwr_list_count, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_item_append_text(tree, ": %s, Count %d", val_to_str_const(type, zbee_nwk_link_power_delta_types, "Unknown"), count);
+
+    for (i=0; i<count; i++) {
+        subtree = proto_tree_add_subtree(tree, tvb, count, 3, ett_zbee_nwk_cmd_link_pwr_struct, NULL, "Power Delta Structure");
+        addr = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(subtree, hf_zbee_nwk_cmd_link_pwr_device_address, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+        delta = (char)tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(subtree, hf_zbee_nwk_cmd_link_pwr_power_delta, tvb, offset, 1, ENC_NA);
+        offset++;
+        proto_item_append_text(subtree, ": Device Address 0x%04X, Power Delta %d dBm", addr, delta);
+    }
+    return offset;
+}
 
 /**
  *Helper dissector for the Network Report command.
@@ -1857,6 +1917,22 @@ void proto_register_zbee_nwk(void)
               ZBEE_NWK_CMD_ED_TIMEO_RSP_PRNT_INFO_ED_TIMOU_REQ_KEEPAL_SUPP,
               NULL, HFILL }},
 
+            { &hf_zbee_nwk_cmd_link_pwr_type,
+            { "Type",        "zbee_nwk.cmd.link_pwr_delta.type", FT_UINT8, BASE_HEX,
+                VALS(zbee_nwk_link_power_delta_types), ZBEE_NWK_CMD_NWK_LINK_PWR_DELTA_TYPE_MASK, NULL, HFILL }},
+
+            { &hf_zbee_nwk_cmd_link_pwr_list_count,
+            { "Count",        "zbee_nwk.cmd.link_pwr_delta.list_count", FT_UINT8, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }},
+
+            { &hf_zbee_nwk_cmd_link_pwr_device_address,
+            { "Device Address",      "zbee_nwk.cmd.link_pwr_delta.address", FT_UINT16, BASE_HEX, NULL,
+                0x0, NULL, HFILL }},
+
+            { &hf_zbee_nwk_cmd_link_pwr_power_delta,
+            { "Power Delta",         "zbee_nwk.cmd.link_pwr_delta.power_delta", FT_INT8, BASE_DEC, NULL, 0x0,
+                    NULL, HFILL }},
+
             { &hf_zbee_beacon_protocol,
             { "Protocol ID",            "zbee_beacon.protocol", FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
@@ -1927,7 +2003,8 @@ void proto_register_zbee_nwk(void)
         &ett_zbee_nwk_cmd_options,
         &ett_zbee_nwk_cmd_cinfo,
         &ett_zbee_nwk_cmd_link,
-        &ett_zbee_nwk_cmd_ed_to_rsp_prnt_info
+        &ett_zbee_nwk_cmd_ed_to_rsp_prnt_info,
+        &ett_zbee_nwk_cmd_link_pwr_struct,
     };
 
     static ei_register_info ei[] = {
