@@ -368,8 +368,8 @@ static gint
 if_info_compare(gconstpointer a, gconstpointer b)
 {
     gint comp = 0;
-    if_info_t * if_a = (if_info_t *)a;
-    if_info_t * if_b = (if_info_t *)b;
+    const if_info_t * if_a = (const if_info_t *)a;
+    const if_info_t * if_b = (const if_info_t *)b;
 
     if ( (comp = g_strcmp0(if_a->name, if_b->name)) == 0 )
         return g_strcmp0(if_a->friendly_name, if_b->friendly_name);
@@ -537,7 +537,7 @@ static gboolean search_cb(const gchar *extcap _U_, const gchar *ifname _U_, gcha
                         arg->storeval = g_strdup(arg->default_complex->_val);
 
                     prefs_register_string_preference(dev_module, g_strdup(pref_ifname),
-                            arg->display, arg->display, (const gchar **)&(arg->storeval));
+                            arg->display, arg->display, (const gchar **)(void*)(&arg->storeval));
                 } else {
                     /* Been here before, restore stored value */
                     if (! arg->storeval && pref->varp.string)
