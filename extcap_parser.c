@@ -46,7 +46,7 @@ extcap_complex *extcap_parse_complex(extcap_arg_type complex_type,
 
     extcap_complex *rc = g_new0(extcap_complex, 1);
 
-    rc->_val = g_strdup( (gchar *) data);
+    rc->_val = g_strdup(data);
     rc->complex_type = complex_type;
 
     return rc;
