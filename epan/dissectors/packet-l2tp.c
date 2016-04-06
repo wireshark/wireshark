@@ -3299,11 +3299,11 @@ proto_register_l2tp(void)
             NULL, HFILL }},
 
         { &hf_l2tp_avp_csu_current_tx_speed_v3,
-          { "Current TX Connect Speed", "l2tp.avp.csu.current_tx_speed", FT_UINT64, BASE_DEC, NULL, 0x0,
+          { "Current TX Connect Speed", "l2tp.avp.csu.current_tx_speed64", FT_UINT64, BASE_DEC, NULL, 0x0,
             "Current TX Connect Speed in bps", HFILL }},
 
         { &hf_l2tp_avp_csu_current_rx_speed_v3,
-          { "Current RX Connect Speed", "l2tp.avp.csu.current_rx_speed", FT_UINT64, BASE_DEC, NULL, 0x0,
+          { "Current RX Connect Speed", "l2tp.avp.csu.current_rx_speed64", FT_UINT64, BASE_DEC, NULL, 0x0,
             "Current RX Connect Speed in bps", HFILL }},
 
       /* Generated from convert_proto_tree_add_text.pl */
