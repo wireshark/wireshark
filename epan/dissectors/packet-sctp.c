@@ -222,6 +222,11 @@ static int hf_forward_tsn_chunk_tsn = -1;
 static int hf_forward_tsn_chunk_sid = -1;
 static int hf_forward_tsn_chunk_ssn = -1;
 
+static int hf_i_forward_tsn_chunk_tsn = -1;
+static int hf_i_forward_tsn_chunk_sid = -1;
+static int hf_i_forward_tsn_chunk_res = -1;
+static int hf_i_forward_tsn_chunk_mid = -1;
+
 static int hf_asconf_ack_seq_nr = -1;
 static int hf_asconf_seq_nr = -1;
 static int hf_correlation_id = -1;
@@ -329,14 +334,15 @@ WS_DLL_PUBLIC_DEF const value_string chunk_type_values[] = {
   { SCTP_CWR_CHUNK_ID,               "CWR" },
   { SCTP_SHUTDOWN_COMPLETE_CHUNK_ID, "SHUTDOWN_COMPLETE" },
   { SCTP_AUTH_CHUNK_ID,              "AUTH" },
-  { SCTP_NR_SACK_CHUNK_ID,           "NR-SACK" },
-  { SCTP_I_DATA_CHUNK_ID,            "I-DATA" },
+  { SCTP_NR_SACK_CHUNK_ID,           "NR_SACK" },
+  { SCTP_I_DATA_CHUNK_ID,            "I_DATA" },
   { SCTP_ASCONF_ACK_CHUNK_ID,        "ASCONF_ACK" },
   { SCTP_PKTDROP_CHUNK_ID,           "PKTDROP" },
   { SCTP_RE_CONFIG_CHUNK_ID,         "RE_CONFIG" },
   { SCTP_PAD_CHUNK_ID,               "PAD" },
   { SCTP_FORWARD_TSN_CHUNK_ID,       "FORWARD_TSN" },
   { SCTP_ASCONF_CHUNK_ID,            "ASCONF" },
+  { SCTP_I_FORWARD_TSN_CHUNK_ID,     "I_FORWARD_TSN" },
   { SCTP_IETF_EXT,                   "IETF_EXTENSION" },
   { 0,                               NULL } };
 
@@ -4068,6 +4074,44 @@ dissect_forward_tsn_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, proto_tree 
   }
 }
 
+#define I_FORWARD_TSN_CHUNK_TSN_LENGTH 4
+#define I_FORWARD_TSN_CHUNK_SID_LENGTH 2
+#define I_FORWARD_TSN_CHUNK_RES_LENGTH 2
+#define I_FORWARD_TSN_CHUNK_MID_LENGTH 4
+#define I_FORWARD_TSN_CHUNK_TSN_OFFSET CHUNK_VALUE_OFFSET
+#define I_FORWARD_TSN_CHUNK_SID_OFFSET 0
+#define I_FORWARD_TSN_CHUNK_RES_OFFSET (I_FORWARD_TSN_CHUNK_SID_OFFSET + I_FORWARD_TSN_CHUNK_SID_LENGTH)
+#define I_FORWARD_TSN_CHUNK_MID_OFFSET (I_FORWARD_TSN_CHUNK_RES_OFFSET + I_FORWARD_TSN_CHUNK_RES_LENGTH)
+
+static void
+dissect_i_forward_tsn_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, proto_tree *chunk_tree, proto_item *chunk_item)
+{
+  guint   offset;
+  guint16 number_of_affected_streams, affected_stream;
+
+  /* FIXME */
+  if (chunk_length < CHUNK_HEADER_LENGTH + I_FORWARD_TSN_CHUNK_TSN_LENGTH) {
+    proto_item_append_text(chunk_item, ", bogus chunk length %u < %u)",
+                           chunk_length,
+                           CHUNK_HEADER_LENGTH + I_FORWARD_TSN_CHUNK_TSN_LENGTH);
+    return;
+  }
+  if (chunk_tree) {
+    proto_tree_add_item(chunk_tree, hf_i_forward_tsn_chunk_tsn, chunk_tvb, I_FORWARD_TSN_CHUNK_TSN_OFFSET, I_FORWARD_TSN_CHUNK_TSN_LENGTH, ENC_BIG_ENDIAN);
+    number_of_affected_streams = (chunk_length - CHUNK_HEADER_LENGTH - I_FORWARD_TSN_CHUNK_TSN_LENGTH) /
+                                 (I_FORWARD_TSN_CHUNK_SID_LENGTH + I_FORWARD_TSN_CHUNK_RES_LENGTH + I_FORWARD_TSN_CHUNK_MID_LENGTH);
+    offset = CHUNK_VALUE_OFFSET + I_FORWARD_TSN_CHUNK_TSN_LENGTH;
+
+    for(affected_stream = 0;  affected_stream < number_of_affected_streams; affected_stream++) {
+        proto_tree_add_item(chunk_tree, hf_i_forward_tsn_chunk_sid, chunk_tvb, offset + I_FORWARD_TSN_CHUNK_SID_OFFSET, I_FORWARD_TSN_CHUNK_SID_LENGTH, ENC_BIG_ENDIAN);
+        proto_tree_add_item(chunk_tree, hf_i_forward_tsn_chunk_res, chunk_tvb, offset + I_FORWARD_TSN_CHUNK_RES_OFFSET, I_FORWARD_TSN_CHUNK_RES_LENGTH, ENC_BIG_ENDIAN);
+        proto_tree_add_item(chunk_tree, hf_i_forward_tsn_chunk_mid, chunk_tvb, offset + I_FORWARD_TSN_CHUNK_MID_OFFSET, I_FORWARD_TSN_CHUNK_MID_LENGTH, ENC_BIG_ENDIAN);
+        offset += (I_FORWARD_TSN_CHUNK_SID_LENGTH + I_FORWARD_TSN_CHUNK_RES_LENGTH + I_FORWARD_TSN_CHUNK_MID_LENGTH);
+    }
+    proto_item_append_text(chunk_item, "(Cumulative TSN: %u)", tvb_get_ntohl(chunk_tvb, I_FORWARD_TSN_CHUNK_TSN_OFFSET));
+  }
+}
+
 #define RE_CONFIG_PARAMETERS_OFFSET CHUNK_HEADER_LENGTH
 
 static void
@@ -4398,6 +4442,9 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
     break;
   case SCTP_ASCONF_CHUNK_ID:
     dissect_asconf_chunk(chunk_tvb, length, pinfo, chunk_tree, chunk_item);
+    break;
+  case SCTP_I_FORWARD_TSN_CHUNK_ID:
+    dissect_i_forward_tsn_chunk(chunk_tvb, length, chunk_tree, chunk_item);
     break;
   case SCTP_PKTDROP_CHUNK_ID:
     col_set_writable(pinfo->cinfo, FALSE);
@@ -4805,6 +4852,10 @@ proto_register_sctp(void)
     { &hf_forward_tsn_chunk_tsn,                    { "New cumulative TSN",                             "sctp.forward_tsn_tsn",                                 FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_forward_tsn_chunk_sid,                    { "Stream identifier",                              "sctp.forward_tsn_sid",                                 FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_forward_tsn_chunk_ssn,                    { "Stream sequence number",                         "sctp.forward_tsn_ssn",                                 FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_i_forward_tsn_chunk_tsn,                  { "New cumulative TSN",                             "sctp.forward_tsn_tsn",                               FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_i_forward_tsn_chunk_sid,                  { "Stream identifier",                              "sctp.forward_tsn_sid",                               FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_i_forward_tsn_chunk_res,                  { "Reserved",                                       "sctp.forward_tsn_res",                               FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_i_forward_tsn_chunk_mid,                  { "Message identifier",                             "sctp.forward_tsn_mid",                               FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_parameter_type,                           { "Parameter type",                                 "sctp.parameter_type",                                  FT_UINT16,  BASE_HEX,  VALS(parameter_identifier_values),              0x0,                                NULL, HFILL } },
     { &hf_parameter_length,                         { "Parameter length",                               "sctp.parameter_length",                                FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_parameter_value,                          { "Parameter value",                                "sctp.parameter_value",                                 FT_BYTES,   BASE_NONE, NULL,                                           0x0,                                NULL, HFILL } },

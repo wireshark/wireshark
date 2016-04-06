@@ -109,6 +109,7 @@ typedef struct _sctp_frag_msg {
 #define SCTP_PAD_CHUNK_ID             0x84
 #define SCTP_FORWARD_TSN_CHUNK_ID     0xC0
 #define SCTP_ASCONF_CHUNK_ID          0xC1
+#define SCTP_I_FORWARD_TSN_CHUNK_ID   0xC2
 #define SCTP_IETF_EXT                 0xFF
 
 #define IS_SCTP_CHUNK_TYPE(t) \
