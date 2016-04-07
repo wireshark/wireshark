@@ -1107,7 +1107,7 @@ process_libs:
 !ENDIF
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		. \
-		USBPcapSetup-1.1.0.0-g794bf26-1.exe \
+		USBPcapSetup-1.1.0.0-g794bf26-3.exe \
 		"$(DOWNLOAD_TAG)" "$(WIRESHARK_TARGET_PLATFORM)"
 !IF "$(WIN_SETUP_OPT)" == "--download"
 	@$(SH) $(WIN_SETUP) --settag "$(WIRESHARK_LIB_DIR)" "$(DOWNLOAD_TAG)" "$(WIRESHARK_TARGET_PLATFORM)"

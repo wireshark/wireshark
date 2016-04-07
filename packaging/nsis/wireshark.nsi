@@ -327,7 +327,7 @@ Function DisplayWinPcapPage
 FunctionEnd
 
 Function DisplayUSBPcapPage
-  !insertmacro MUI_HEADER_TEXT "Install USBPcap?" "USBPcap is required to capture USB traffic. Should USBPcap be installed?"
+  !insertmacro MUI_HEADER_TEXT "Install USBPcap?" "USBPcap is required to capture USB traffic. Should USBPcap be installed (experimental)?"
   !insertmacro MUI_INSTALLOPTIONS_DISPLAY "USBPcapPage.ini"
 FunctionEnd
 
@@ -841,8 +841,8 @@ IfSilent SecRequired_skip_USBPcap
 ReadINIStr $0 "$PLUGINSDIR\USBPcapPage.ini" "Field 4" "State"
 StrCmp $0 "0" SecRequired_skip_USBPcap
 SetOutPath $INSTDIR
-File "${WIRESHARK_LIB_DIR}\USBPcapSetup-${USBPCAP_DISPLAY_VERSION}-1.exe"
-ExecWait '"$INSTDIR\USBPcapSetup-${USBPCAP_DISPLAY_VERSION}-1.exe"' $0
+File "${WIRESHARK_LIB_DIR}\USBPcapSetup-${USBPCAP_DISPLAY_VERSION}.exe"
+ExecWait '"$INSTDIR\USBPcapSetup-${USBPCAP_DISPLAY_VERSION}.exe"' $0
 DetailPrint "USBPcap installer returned $0"
 ${If} $0 == "0"
     ${If} ${RunningX64}
