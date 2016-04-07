@@ -1131,12 +1131,12 @@ dissect_cip_s_validator_data( proto_tree *item_tree,
 {
    proto_item                *pi, *rrsc_item;
    proto_tree                *rrsc_tree, *cmd_data_tree;
-   int                        req_path_size, gaa_offset;
+   int                        req_path_size;
    guint8                     service, gen_status, add_stat_size;
    cip_req_info_t*            preq_info;
    cip_simple_request_info_t  req_data;
 
-   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIPS Supervisor");
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIPS Validator");
 
    /* Add Service code & Request/Response tree */
    service   = tvb_get_guint8( tvb, offset );
@@ -1189,48 +1189,7 @@ dissect_cip_s_validator_data( proto_tree *item_tree,
                 (req_data.iInstance != (guint32)-1) &&
                 (req_data.iInstance != 0))
             {
-               /* Get Attribute All (instance) response */
-               proto_tree_add_item(cmd_data_tree, hf_cip_svalidator_state,
-                                   tvb, offset+4+add_stat_size, 1, ENC_LITTLE_ENDIAN );
-               gaa_offset = 1;
-               gaa_offset += dissect_s_validator_type(pinfo, cmd_data_tree, pi,
-                                                      tvb, offset+4+add_stat_size+gaa_offset, 1);
-               proto_tree_add_item(cmd_data_tree, hf_cip_svalidator_ping_eri,
-                                   tvb, offset+4+add_stat_size+gaa_offset, 2, ENC_LITTLE_ENDIAN );
-               gaa_offset += 2;
-               gaa_offset += dissect_s_validator_time_coord_msg_min_mult(pinfo, cmd_data_tree, pi,
-                                                                         tvb, offset+4+add_stat_size+gaa_offset,
-                                                                         item_length-4-add_stat_size-gaa_offset);
-               gaa_offset += dissect_s_validator_timeout_multiplier(pinfo, cmd_data_tree, pi,
-                                                                    tvb, offset+4+add_stat_size+gaa_offset,
-                                                                    item_length-4-add_stat_size-gaa_offset);
-               proto_tree_add_item(cmd_data_tree, hf_cip_svalidator_max_consumer_num,
-                                   tvb, offset+4+add_stat_size+gaa_offset, 1, ENC_LITTLE_ENDIAN );
-               gaa_offset += 1;
-               proto_tree_add_item(cmd_data_tree, hf_cip_svalidator_data_conn_inst,
-                                   tvb, offset+4+add_stat_size+gaa_offset, 2, ENC_LITTLE_ENDIAN );
-               gaa_offset += 2;
-               gaa_offset += dissect_s_validator_coordination_conn_inst(pinfo, cmd_data_tree, pi,
-                                                                        tvb, offset+4+add_stat_size+gaa_offset,
-                                                                        item_length-4-add_stat_size-gaa_offset);
-               proto_tree_add_item(cmd_data_tree, hf_cip_svalidator_correction_conn_inst,
-                                   tvb, offset+4+add_stat_size+gaa_offset, 2, ENC_LITTLE_ENDIAN );
-               gaa_offset += 2;
-               proto_tree_add_item(cmd_data_tree, hf_cip_svalidator_cco_binding,
-                                   tvb, offset+4+add_stat_size+gaa_offset, 2, ENC_LITTLE_ENDIAN );
-               gaa_offset += 2;
-               proto_tree_add_item(cmd_data_tree, hf_cip_svalidator_max_data_age,
-                                   tvb, offset+4+add_stat_size+gaa_offset, 2, ENC_LITTLE_ENDIAN );
-               gaa_offset += 2;
-               gaa_offset += dissect_s_validator_app_data_path(pinfo, cmd_data_tree, pi,
-                                                               tvb, offset+4+add_stat_size+gaa_offset,
-                                                               item_length-4-add_stat_size-gaa_offset);
-               proto_tree_add_item(cmd_data_tree, hf_cip_svalidator_error_code,
-                                   tvb, offset+4+add_stat_size+gaa_offset, 2, ENC_LITTLE_ENDIAN );
-               gaa_offset += 2;
-               /*gaa_offset +=*/ dissect_s_validator_prod_cons_fault_count(pinfo, cmd_data_tree, pi,
-                                                                           tvb, offset+4+add_stat_size+gaa_offset,
-                                                                           item_length-4-add_stat_size-gaa_offset);
+                dissect_cip_get_attribute_all_rsp(tvb, pinfo, cmd_data_tree, offset + 4 + add_stat_size, &req_data);
             }
             else
             {
@@ -1673,6 +1632,8 @@ attribute_info_t cip_safety_attribute_vals[51] = {
    {0x3A, FALSE, 11, 10, "CCO Binding", cip_uint, &hf_cip_svalidator_cco_binding, NULL},
    {0x3A, FALSE, 12, 11, "Max Data Age", cip_uint, &hf_cip_svalidator_max_data_age, NULL},
    {0x3A, FALSE, 13, 12, "Application Data Path", cip_dissector_func, NULL, dissect_s_validator_app_data_path},
+   /* TODO: GAA code can't get to "Error Code", because dissect_s_validator_app_data_path() will use
+      all remaining bytes. Waiting on clarification in a future spec update. */
    {0x3A, FALSE, 14, 13, "Error Code", cip_uint, &hf_cip_svalidator_error_code, NULL},
    {0x3A, FALSE, 15, -1, "Producer/Consumer Fault Counters", cip_dissector_func, NULL, dissect_s_validator_prod_cons_fault_count},
 

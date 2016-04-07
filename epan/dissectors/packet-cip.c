@@ -326,7 +326,6 @@ static int hf_cip_seg_safety_max_fault_number = -1;
 static int hf_cip_seg_safety_init_timestamp = -1;
 static int hf_cip_seg_safety_init_rollover = -1;
 static int hf_cip_seg_safety_data = -1;
-static int hf_cip_class_rev = -1;
 static int hf_cip_class_max_inst32 = -1;
 static int hf_cip_class_num_inst32 = -1;
 static int hf_cip_reserved8 = -1;
@@ -3436,6 +3435,18 @@ static attribute_info_t cip_attribute_vals[] = {
     /* CIP Security Object (instance attributes) */
    {0x5D, FALSE, 1, 0, "State", cip_usint, &hf_cip_security_state, NULL},
 
+   /* Connection Configuration Object (class attributes) */
+   /* Data sizes are different than common class attributes for some items. */
+   { 0xF3, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
+   { 0xF3, TRUE, 2, 1, CLASS_ATTRIBUTE_2_NAME, cip_udint, &hf_cip_class_max_inst32, NULL },
+   { 0xF3, TRUE, 3, 2, CLASS_ATTRIBUTE_3_NAME, cip_udint, &hf_cip_class_num_inst32, NULL },
+   { 0xF3, TRUE, 4, -1, CLASS_ATTRIBUTE_4_NAME, cip_dissector_func, NULL, dissect_optional_attr_list },
+   { 0xF3, TRUE, 5, -1, CLASS_ATTRIBUTE_5_NAME, cip_dissector_func, NULL, dissect_optional_service_list },
+   { 0xF3, TRUE, 6, -1, CLASS_ATTRIBUTE_6_NAME, cip_uint, &hf_attr_class_num_class_attr, NULL },
+   { 0xF3, TRUE, 7, -1, CLASS_ATTRIBUTE_7_NAME, cip_uint, &hf_attr_class_num_inst_attr, NULL },
+   { 0xF3, TRUE, 8, 3, "Format Number", cip_uint, &hf_cip_cco_format_number, NULL },
+   { 0xF3, TRUE, 9, 4, "Edit Signature", cip_udint, &hf_cip_cco_edit_signature, NULL },
+
    /* Port Object (class attributes) */
    { 0xF4, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
    { 0xF4, TRUE, 2, 1, CLASS_ATTRIBUTE_2_NAME, cip_uint, &hf_attr_class_max_instance, NULL },
@@ -4961,6 +4972,20 @@ dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tv
       consumed = 4;
       break;
    case cip_string2:
+      temp_data = tvb_get_letohs(tvb, offset) * 2;
+      if (total_len < temp_data + 2)
+      {
+         expert_add_info(pinfo, item, &ei_mal_missing_string_data);
+         consumed = total_len;
+      }
+      else
+      {
+         const char* string_text = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, temp_data, ENC_UCS_2 | ENC_LITTLE_ENDIAN);
+         proto_tree_add_string(tree, *(attr->phf), tvb, offset, temp_data + 2, string_text);
+
+         consumed = 2 + temp_data;
+      }
+      break;
    case cip_stringN:
    case cip_stringi:
       /* CURRENTLY NOT SUPPORTED */
@@ -5445,8 +5470,7 @@ static void build_get_attr_all_table(void)
    }
 }
 
-static void
-dissect_cip_get_attribute_all_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+void dissect_cip_get_attribute_all_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, cip_simple_request_info_t* req_data)
 {
    int att_size;
@@ -6613,9 +6637,6 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
    else
    {
       /* Request message */
-
-      add_cip_service_to_info_column(pinfo, service, cip_sc_vals_mb);
-
       req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
 
       /* If there is any command specific data creat a sub-tree for it */
@@ -6691,6 +6712,7 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
 
    } /* End of if-else( request ) */
 
+   add_cip_service_to_info_column(pinfo, service, cip_sc_vals_mb);
 } /* End of dissect_cip_mb_data() */
 
 static int
@@ -6946,12 +6968,7 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
                if (req_data.iInstance == 0)
                {
                   /* Get Attribute All (class) request */
-
-                  proto_tree_add_item(cmd_data_tree, hf_cip_class_rev, tvb, offset+4+add_stat_size, 2, ENC_LITTLE_ENDIAN );
-                  proto_tree_add_item(cmd_data_tree, hf_cip_class_max_inst32, tvb, offset+4+add_stat_size+2, 4, ENC_LITTLE_ENDIAN );
-                  proto_tree_add_item(cmd_data_tree, hf_cip_class_num_inst32, tvb, offset+4+add_stat_size+6, 4, ENC_LITTLE_ENDIAN );
-                  proto_tree_add_item(cmd_data_tree, hf_cip_cco_format_number, tvb, offset+4+add_stat_size+10, 2, ENC_LITTLE_ENDIAN );
-                  proto_tree_add_item(cmd_data_tree, hf_cip_cco_edit_signature, tvb, offset+4+add_stat_size+12, 4, ENC_LITTLE_ENDIAN );
+                  dissect_cip_get_attribute_all_rsp(tvb, pinfo, cmd_data_tree, offset + 4 + add_stat_size, &req_data);
                }
                else
                {
@@ -6989,9 +7006,6 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
    else
    {
       /* Request message */
-
-      add_cip_service_to_info_column(pinfo, service, cip_sc_vals_cco);
-
       req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
 
       /* If there is any command specific data create a sub-tree for it */
@@ -7033,6 +7047,7 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
 
    } /* End of if-else( request ) */
 
+   add_cip_service_to_info_column(pinfo, service, cip_sc_vals_cco);
 } /* End of dissect_cip_cco_data() */
 
 static int
@@ -7499,7 +7514,6 @@ proto_register_cip(void)
       { &hf_cip_seg_safety_init_timestamp, { "Initial Timestamp", "cip.safety_segment.init_timestamp", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_seg_safety_init_rollover, { "Initial Rollover Value", "cip.safety_segment.init_rollover", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_seg_safety_data, { "Safety Data", "cip.safety_segment.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_cip_class_rev, { "Class Revision", "cip.class.rev", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_class_max_inst32, { "Max Instance", "cip.class.max_inst", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_class_num_inst32, { "Number of Instances", "cip.class.num_inst", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_reserved8, { "Reserved", "cip.reserved", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},

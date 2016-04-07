@@ -257,6 +257,7 @@ enum cip_datatype {
    cip_ltime,
    cip_short_string,
    cip_string,
+   cip_string2,
    cip_byte,
    cip_byte_array,
    cip_word,
@@ -268,7 +269,6 @@ enum cip_datatype {
    cip_dissector_func,
 
    /* Currently not supported */
-   cip_string2,
    cip_stringN,
    cip_stringi
 };
@@ -339,6 +339,8 @@ extern void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_tree *path_t
                           gboolean is_msp_item);
 extern void dissect_cip_date_and_time(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_datetime);
 extern attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint attribute);
+extern void dissect_cip_get_attribute_all_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset, cip_simple_request_info_t* req_data);
 
 /*
 ** Exported variables
