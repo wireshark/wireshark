@@ -79,7 +79,7 @@
     <string>Copy a text representation of the tree to the clipboard</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+C</string>
+    <string notr="true">Ctrl+C</string>
    </property>
   </action>
   <action name="actionSaveAs">
@@ -90,7 +90,7 @@
     <string>Save the displayed data in various formats</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+S</string>
+    <string notr="true">Ctrl+S</string>
    </property>
   </action>
  </widget>
