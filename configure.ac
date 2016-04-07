@@ -882,22 +882,6 @@ AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-long-long)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wheader-guard)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wunused-const-variable)
 #
-# Either the version of clang on the "clang code analysis" buildbot is
-# horribly broken, or the header files on that buildbot are horribly
-# broken, as the perfectly-legitimate statement
-#
-#	if( strcmp(argv[i],"--")==0 ) dashdash = 1;
-#
-# is getting stoopid "array index 3 is past the end of the array (which
-# contains 3 elements)" complaints from the compiler.
-#
-# The macro for strcmp() in glibc(?) really seems to give C compilers
-# conniptions; I think I've seen crap from GCC as well with that macro.
-#
-# So, alas, suppress the compile-time array bounds checks.
-#
-AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wnoarray-bounds)
-#
 # The following are C only, not C++
 #
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wc++-compat, C)
