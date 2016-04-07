@@ -275,8 +275,6 @@ typedef enum {
 static gint erf_aal5_type = ERF_AAL5_GUESS;
 static dissector_handle_t atm_untruncated_handle;
 
-static gboolean erf_ethfcs = TRUE;
-
 static dissector_handle_t sdh_handle;
 
 /* ERF Header */
@@ -2964,10 +2962,11 @@ proto_register_erf(void)
                                  "Protocol encapsulated in ATM AAL5 packets",
                                  &erf_aal5_type, erf_aal5_options, FALSE);
 
-  prefs_register_bool_preference(erf_module, "ethfcs",
-                                 "Ethernet packets have FCS",
-                                 "Whether the FCS is present in Ethernet packets",
-                                 &erf_ethfcs);
+  /*
+   * We just use eth_maybefcs now and respect the Ethernet preference.
+   * ERF records usually have FCS.
+   */
+  prefs_register_obsolete_preference(erf_module, "ethfcs");
 
   erf_dissector_table = register_dissector_table("erf.types.type", "Type", proto_erf, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
