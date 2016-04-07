@@ -71,22 +71,14 @@ mktime_utc(struct tm *tm)
 #endif /* !HAVE_TIMEGM */
 }
 
-static double last_utime = 0.0;
-static double last_stime = 0.0;
-
-void log_resource_usage(gboolean reset_delta, const char *format, ...) {
-	va_list ap;
-	GString *log_str = g_string_new("");
-	double utime;
-	double stime;
-
+void get_resource_usage(double *utime, double *stime) {
 #ifndef _WIN32
 	struct rusage ru;
 
 	getrusage(RUSAGE_SELF, &ru);
 
-	utime = ru.ru_utime.tv_sec + (ru.ru_utime.tv_usec / 1000000.0);
-	stime = ru.ru_stime.tv_sec + (ru.ru_stime.tv_usec / 1000000.0);
+	*utime = ru.ru_utime.tv_sec + (ru.ru_utime.tv_usec / 1000000.0);
+	*stime = ru.ru_stime.tv_sec + (ru.ru_stime.tv_usec / 1000000.0);
 #else /* _WIN32 */
 	HANDLE h_proc = GetCurrentProcess();
 	FILETIME cft, eft, kft, uft;
@@ -96,11 +88,23 @@ void log_resource_usage(gboolean reset_delta, const char *format, ...) {
 
 	uli_time.LowPart = uft.dwLowDateTime;
 	uli_time.HighPart = uft.dwHighDateTime;
-	utime = uli_time.QuadPart / 10000000.0;
+	*utime = uli_time.QuadPart / 10000000.0;
 	uli_time.LowPart = kft.dwLowDateTime;
 	uli_time.HighPart = kft.dwHighDateTime;
-	stime = uli_time.QuadPart / 1000000000.0;
+	*stime = uli_time.QuadPart / 1000000000.0;
 #endif /* _WIN32 */
+}
+
+static double last_utime = 0.0;
+static double last_stime = 0.0;
+
+void log_resource_usage(gboolean reset_delta, const char *format, ...) {
+	va_list ap;
+	GString *log_str = g_string_new("");
+	double utime;
+	double stime;
+
+	get_resource_usage(&utime, &stime);
 
 	if (reset_delta || last_utime == 0.0) {
 		last_utime = utime;
