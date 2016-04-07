@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include>
+
+  <!-- User-selectable features -->
+  <Fragment>
+    <Feature Id="Fe.Wireshark" Title="$(var.WiresharkName)" Level="1" AllowAdvertise="yes" Display="expand" Description="The main network protocol analyzer application.">
+      <ComponentGroupRef Id="CG.Wireshark" />
+      <ComponentGroupRef Id="CG.QtDependencies" />
+      <ComponentGroupRef Id="CG.QtTranslations" />
+      <ComponentGroupRef Id="CG.WiresharkStartMenu" />
+      <ComponentGroupRef Id="CG.WiresharkDesktopIcon" />
+      <ComponentGroupRef Id="CG.WiresharkQuickLaunchIcon" />
+      <ComponentGroupRef Id="CG.WiresharkFileAssociations" />
+    </Feature>
+    <Feature Id="Fe.WiresharkRequired" Title="Required" Level="1" AllowAdvertise="yes" Display="hidden" Description="Install for every user">
+      <ComponentGroupRef Id="CG.WiresharkRequired" />
+      <ComponentGroupRef Id="CG.ColorFilters" />
+      <ComponentGroupRef Id="CG.Diameter" />
+      <ComponentGroupRef Id="CG.RadiusDict" />
+      <ComponentGroupRef Id="CG.Dtds" />
+      <ComponentGroupRef Id="CG.Tpncp" />
+      <ComponentGroupRef Id="CG.Wimaxasncp" />
+      <ComponentGroupRef Id="CG.Help" />
+      <ComponentGroupRef Id="CG.RequiredDependencies" />
+
+    </Feature>
+    <Feature Id="Fe.TShark" Title="TShark" Level="1" AllowAdvertise="yes" Display="expand" Description="Text based network protocol analyzer.">
+      <ComponentGroupRef Id="CG.TShark" />
+    </Feature>
+    <?ifdef GTK_DIR?>
+      <Feature Id="Fe.WiresharkGTK" Title="Wireshark 1" Level="1" AllowAdvertise="yes" Display="expand" Description="The classic user interface.">
+        <ComponentGroupRef Id="CG.WiresharkGTK" />
+        <ComponentGroupRef Id="CG.GTKRequiredDependencies" />
+        <ComponentGroupRef Id="CG.GTKSubdirectory" />
+        <ComponentGroupRef Id="CG.WiresharkLegacyStartMenu" />
+        <ComponentGroupRef Id="CG.WiresharkLegacyDesktopIcon" />
+        <ComponentGroupRef Id="CG.WiresharkLegacyQuickLaunchIcon" />
+        <ComponentGroupRef Id="CG.WiresharkLegacyFileAssociations" />
+      </Feature>
+    <?endif?>
+    <Feature Id="Fe.Plugins" Title="Plugins &amp; Extensions" Level="1" AllowAdvertise="yes" Display="expand" Description="Plugins and extensions for both $(var.WiresharkName) and TShark.">
+      <!-- XXX - Cleanup plugins directory on uninstall  -->
+      <Feature Id="Fe.Plugins.Dissector" Title="Dissector Plugins" Level="1" AllowAdvertise="yes" Display="expand" Description="Additional protocol dissectors.">
+        <ComponentGroupRef Id="CG.Plugins.Dissector" />
+      </Feature>
+      <Feature Id="Fe.Plugins.TreeStat" Title="Tree Statistics Plugin" Level="1" AllowAdvertise="yes" Display="expand" Description="Extended statistics.">
+        <ComponentGroupRef Id="CG.Plugins.TreeStat" />
+      </Feature>
+      <Feature Id="Fe.Plugins.Mate" Title="Mate - Meta Analysis and Tracing Engine" Level="1" AllowAdvertise="yes" Display="expand" Description="Plugin - Meta Analysis and Tracing Engine (Experimental).">
+        <ComponentGroupRef Id="CG.Plugins.Mate" />
+      </Feature>
+      <Feature Id="Fe.Plugins.ConfigurationProfiles" Title="Configuration Profiles" Level="1" AllowAdvertise="yes" Display="expand" Description="Configuration Profiles">
+        <!-- XXX - Cleanup configuration profiles directory on uninstall  -->
+        <ComponentGroupRef Id="CG.Plugins.ConfigurationProfiles" />
+      </Feature>
+      <?ifdef SMI_DIR?>
+        <Feature Id="Fe.Plugins.SNMP" Title="SNMP MIBs" Level="1" AllowAdvertise="yes" Display="expand" Description="SNMP MIBs for better SNMP dissection.">
+          <ComponentGroupRef Id="CG.Plugins.SNMP" />
+        </Feature>
+      <?endif?>
+    </Feature>
+    <Feature Id="Fe.Tools" Title="Tools" Level="1" AllowAdvertise="yes" Display="expand" Description="Additional command line based tools.">
+      <Feature Id="Fe.Tools.Editcap" Title="Editcap" Level="1" AllowAdvertise="yes" Display="expand" Description="Copy packets to a new file, optionally trimmming packets, omitting them, or saving to a different format.">
+        <ComponentGroupRef Id="CG.Tools.Editcap" />
+      </Feature>
+      <Feature Id="Fe.Tools.Text2Pcap" Title="Text2Pcap" Level="1" AllowAdvertise="yes" Display="expand" Description="Read an ASCII hex dump and write the data into a libpcap-style capture file.">
+        <ComponentGroupRef Id="CG.Tools.Text2Pcap" />
+      </Feature>
+      <Feature Id="Fe.Tools.Mergecap" Title="Mergecap" Level="1" AllowAdvertise="yes" Display="expand" Description="Combine multiple saved capture files into a single output file.">
+        <ComponentGroupRef Id="CG.Tools.Mergecap" />
+      </Feature>
+      <Feature Id="Fe.Tools.Reordercap" Title="Reordercap" Level="1" AllowAdvertise="yes" Display="expand" Description="Copy packets to a new file, sorted by time.">
+        <ComponentGroupRef Id="CG.Tools.Reordercap" />
+      </Feature>
+      <Feature Id="Fe.Tools.Capinfos" Title="Capinfos" Level="1" AllowAdvertise="yes" Display="expand" Description="Print information about capture files.">
+        <ComponentGroupRef Id="CG.Tools.Capinfos" />
+      </Feature>
+      <Feature Id="Fe.Tools.Rawshark" Title="Rawshark" Level="1" AllowAdvertise="yes" Display="expand" Description="Raw packet filter.">
+        <ComponentGroupRef Id="CG.Tools.Rawshark" />
+      </Feature>
+      <Feature Id="Fe.Tools.Androiddump" Title="Androiddump" Level="2" AllowAdvertise="yes" Display="expand" Description="Provide capture interfaces from Android devices.">
+        <ComponentGroupRef Id="CG.Tools.Androiddump" />
+      </Feature>
+      <Feature Id="Fe.Tools.Randpktdump" Title="Randpktdump" Level="2" AllowAdvertise="yes" Display="expand" Description="Provide random packet generator.">
+        <ComponentGroupRef Id="CG.Tools.Randpktdump" />
+      </Feature>
+      <!-- WIP: uncomment this section when sshdump on windows will be ready to go
+      <Feature Id="Fe.Tools.Sshdump" Title="Sshdump" Level="1" AllowAdvertise="no" Display="expand" Description="Provide remote capture through SSH.">
+        <ComponentGroupRef Id="CG.Tools.Sshdump" />
+      </Feature>
+        -->
+    </Feature>
+    <?ifdef USER_GUIDE_DIR?>
+      <Feature Id="Fe.UserGuide" Title="User's Guide" Level="1" AllowAdvertise="yes" Display="expand" Description="Install an offline copy of the User's Guide.">
+        <ComponentGroupRef Id="CG.UserGuide" />
+      </Feature>
+    <?endif?>
+    <Feature Id="VCRedist" Title="Visual C++ Runtime" AllowAdvertise="no" Display="hidden" Level="1">
+      <MergeRef Id="VCRedist"/>
+    </Feature>
+  </Fragment>
+</Include>

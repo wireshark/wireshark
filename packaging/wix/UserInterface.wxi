@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include>
+  <!-- Define the appearance, sequence, and available options in the user interface -->
+  <Fragment>
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.EulaPath)" />
+
+    <Property Id="ARPPRODUCTICON" Value="ProductIcon" />
+
+    <!-- This UI identifier will be used in the product definition-->
+    <UI Id="UI.Wireshark">
+
+      <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" ></Property>
+      <UIRef Id="WiresharkWixUI" />
+    </UI>
+  </Fragment>
+</Include>

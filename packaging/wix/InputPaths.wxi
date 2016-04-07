@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include>
+
+  <?if $(var.Platform) = x64 ?>
+  <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
+  <?else?>
+  <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+  <?endif?>
+
+  <?define VCRedist.Version = "VC120" ?>
+  <?define VCRedist.Dir ="C:\Program Files (x86)\Common Files\Merge Modules\" ?>
+
+  <?define Staging.Dir ="$(var.BuildOutputDir)" ?>
+  <?define Plugins.Dir ="$(var.Staging.Dir)\plugins" ?>
+  <?define Profiles.Dir ="$(var.Staging.Dir)\profiles" ?>
+  <?define Extcap.Dir ="$(var.Staging.Dir)\extcap" ?>
+  <?define WiresharkQt.Dir ="$(var.Staging.Dir)" ?>
+  <?define Dtds.Dir ="$(var.Staging.Dir)\dtds" ?>
+  <?define Tpncp.Dir ="$(var.Staging.Dir)\tpncp" ?>
+  <?define Wimaxasncp.Dir ="$(var.Staging.Dir)\wimaxasncp" ?>
+  <?define Help.Dir ="$(var.Staging.Dir)\help" ?>
+  <?define Epan.Lua.Dir ="..\..\epan\wslua" ?>
+  <?define GTK2_0.Dir ="$(var.Staging.Dir)\etc\gtk-2.0" ?>
+  <?define Lib_GTK2_0_Engines.Dir ="$(var.Staging.Dir)\lib\gtk-2.0\2.10.0\engines" ?>
+  <?define Lib_GTK2_0_Modules.Dir ="$(var.Staging.Dir)\lib\gtk-2.0\modules" ?>
+
+</Include>

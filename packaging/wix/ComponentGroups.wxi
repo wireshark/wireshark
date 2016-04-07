@@ -1,0 +1,1008 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include>
+
+  <!-- Wireshark -->
+    <Fragment>
+      <DirectoryRef Id="INSTALLFOLDER">
+        <Component Id="cmpWireshark_exe" Guid="*">
+          <File Id="filWireshark_exe" KeyPath="yes" Source="$(var.WiresharkQt.Dir)\Wireshark.exe" />
+        </Component>
+      </DirectoryRef>
+    </Fragment>
+    <Fragment>
+      <ComponentGroup Id="CG.Wireshark">
+        <ComponentRef Id="cmpWireshark_exe" />
+      </ComponentGroup>
+    </Fragment>
+
+  <!-- Install for every user -->
+    <Fragment>
+      <DirectoryRef Id="INSTALLFOLDER">
+        <Component Id="cmpWiretap_dll" Guid="*">
+          <File Id="filWiretap_dll" KeyPath="yes" Source="$(var.Staging.Dir)\wiretap-$(var.WiretapVersion).dll" />
+        </Component>
+        <?ifdef ENABLE_LIBWIRESHARK?>
+          <Component Id="cmpLibwireshark_dll" Guid="*">
+            <File Id="filLibwireshark_dll" KeyPath="yes" Source="$(var.Staging.Dir)\libwireshark.dll" />
+          </Component>
+        <?endif?>
+        <Component Id="cmpLibwscodecs_dll" Guid="*">
+          <File Id="filLibwscodecs_dll" KeyPath="yes" Source="$(var.Staging.Dir)\libwscodecs.dll" />
+        </Component>
+        <Component Id="cmpLibwsutil_dll" Guid="*">
+          <File Id="filLibwsutil_dll" KeyPath="yes" Source="$(var.Staging.Dir)\libwsutil.dll" />
+        </Component>
+        <Component Id="cmpCOPYING_txt" Guid="*">
+          <File Id="filCOPYING_txt" KeyPath="yes" Source="$(var.Staging.Dir)\COPYING.txt" />
+        </Component>
+        <Component Id="cmpNEWS_txt" Guid="*">
+          <File Id="filNEWS_txt" KeyPath="yes" Source="$(var.Staging.Dir)\NEWS.txt" />
+        </Component>
+        <Component Id="cmpREADME_txt" Guid="*">
+          <File Id="filREADME_txt" KeyPath="yes" Source="$(var.Staging.Dir)\README.txt" />
+        </Component>
+        <Component Id="cmpREADME_windows_txt" Guid="*">
+          <File Id="filREADME_windows_txt" KeyPath="yes" Source="$(var.Staging.Dir)\README.windows.txt" />
+        </Component>
+        <Component Id="cmpAUTHORS_SHORT" Guid="*">
+          <File Id="filAUTHORS_SHORT" KeyPath="yes" Source="$(var.Staging.Dir)\AUTHORS-SHORT" />
+        </Component>
+        <Component Id="cmpManuf" Guid="*">
+          <File Id="filManuf" KeyPath="yes" Source="$(var.Staging.Dir)\manuf" />
+        </Component>
+        <Component Id="cmpServices" Guid="*">
+          <File Id="filServices" KeyPath="yes" Source="$(var.Staging.Dir)\services" />
+        </Component>
+        <Component Id="cmpPdml2html_xsl" Guid="*">
+          <File Id="filPdml2html_xsl" KeyPath="yes" Source="$(var.Staging.Dir)\pdml2html.xsl" />
+        </Component>
+        <Component Id="cmpWs_css" Guid="*">
+          <File Id="filWs_css" KeyPath="yes" Source="$(var.Staging.Dir)\ws.css" />
+        </Component>
+        <Component Id="cmpWireshark_html" Guid="*">
+          <File Id="filWireshark_html" KeyPath="yes" Source="$(var.Staging.Dir)\wireshark.html" />
+        </Component>
+        <Component Id="cmpWireshark_filter_html" Guid="*">
+          <File Id="filWireshark_filter_html" KeyPath="yes" Source="$(var.Staging.Dir)\wireshark-filter.html" />
+        </Component>
+        <Component Id="cmpDumpcap_exe" Guid="*">
+          <File Id="filDumpcap_exe" KeyPath="yes" Source="$(var.Staging.Dir)\dumpcap.exe" />
+        </Component>
+        <Component Id="cmpDumpcap_html" Guid="*">
+          <File Id="filDumpcap_html" KeyPath="yes" Source="$(var.Staging.Dir)\dumpcap.html" />
+        </Component>
+        <Component Id="cmpExtcap_html" Guid="*">
+          <File Id="filExtcap_html" KeyPath="yes" Source="$(var.Staging.Dir)\extcap.html" />
+        </Component>
+        <Component Id="cmpIpmap_html" Guid="*">
+          <File Id="filIpmap_html" KeyPath="yes" Source="$(var.Staging.Dir)\ipmap.html" />
+        </Component>
+      </DirectoryRef>
+    </Fragment>
+    <Fragment>
+      <ComponentGroup Id="CG.WiresharkRequired">
+        <ComponentRef Id="cmpWiretap_dll" />
+        <?ifdef ENABLE_LIBWIRESHARK?>
+          <ComponentRef Id="cmpLibwireshark_dll" />
+        <?endif?>
+        <ComponentRef Id="cmpLibwscodecs_dll" />
+        <ComponentRef Id="cmpLibwsutil_dll" />
+        <ComponentRef Id="cmpCOPYING_txt" />
+        <ComponentRef Id="cmpNEWS_txt" />
+        <ComponentRef Id="cmpREADME_txt" />
+        <ComponentRef Id="cmpREADME_windows_txt" />
+        <ComponentRef Id="cmpAUTHORS_SHORT" />
+        <ComponentRef Id="cmpManuf" />
+        <ComponentRef Id="cmpServices" />
+        <ComponentRef Id="cmpPdml2html_xsl" />
+        <ComponentRef Id="cmpWs_css" />
+        <ComponentRef Id="cmpWireshark_html" />
+        <ComponentRef Id="cmpWireshark_filter_html" />
+        <ComponentRef Id="cmpDumpcap_exe" />
+        <ComponentRef Id="cmpDumpcap_html" />
+        <ComponentRef Id="cmpExtcap_html" />
+        <ComponentRef Id="cmpIpmap_html" />
+      </ComponentGroup>
+    </Fragment>
+
+  <!-- global config files By design these shouldn't be overwritten if they already exist -->
+    <Fragment>
+      <DirectoryRef Id="INSTALLFOLDER">
+        <Component Id="cmpCfilters" Guid="*">
+          <File Id="filCfilters" KeyPath="yes" Source="$(var.Staging.Dir)\cfilters" />
+        </Component>
+        <Component Id="cmpColorfilters" Guid="*">
+          <File Id="filColorfilters" KeyPath="yes" Source="$(var.Staging.Dir)\colorfilters" />
+        </Component>
+        <Component Id="cmpDfilters" Guid="*">
+          <File Id="filDfilters" KeyPath="yes" Source="$(var.Staging.Dir)\dfilters" />
+        </Component>
+        <Component Id="cmpSmi_modules" Guid="*">
+          <File Id="filSmi_modules" KeyPath="yes" Source="$(var.Staging.Dir)\smi_modules" />
+        </Component>
+      </DirectoryRef>
+    </Fragment>
+    <Fragment>
+      <ComponentGroup Id="CG.ColorFilters">
+        <ComponentRef Id="cmpCfilters" />
+        <ComponentRef Id="cmpColorfilters" />
+        <ComponentRef Id="cmpDfilters" />
+        <ComponentRef Id="cmpSmi_modules" />
+      </ComponentGroup>
+    </Fragment>
+
+  <!-- dtds -->
+    <Fragment>
+      <DirectoryRef Id="dirDtds">
+        <Component Id="cmpDc_dtd" Guid="*">
+          <File Id="filDc_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\dc.dtd" />
+        </Component>
+        <Component Id="cmpItunes_dtd" Guid="*">
+          <File Id="filItunes_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\itunes.dtd" />
+        </Component>
+        <Component Id="cmpMscml_dtd" Guid="*">
+          <File Id="filMscml_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\mscml.dtd" />
+        </Component>
+        <Component Id="cmpPocsettings_dtd" Guid="*">
+          <File Id="filPocsettings_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\pocsettings.dtd" />
+        </Component>
+        <Component Id="cmpPresence_dtd" Guid="*">
+          <File Id="filPresence_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\presence.dtd" />
+        </Component>
+        <Component Id="cmpReginfo_dtd" Guid="*">
+          <File Id="filReginfo_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\reginfo.dtd" />
+        </Component>
+        <Component Id="cmpRlmi_dtd" Guid="*">
+          <File Id="filRlmi_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\rlmi.dtd" />
+        </Component>
+        <Component Id="cmpRss_dtd" Guid="*">
+          <File Id="filRss_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\rss.dtd" />
+        </Component>
+        <Component Id="cmpSmil_dtd" Guid="*">
+          <File Id="filSmil_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\smil.dtd" />
+        </Component>
+        <Component Id="cmpXcap_caps_dtd" Guid="*">
+          <File Id="filXcap_caps_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\xcap-caps.dtd" />
+        </Component>
+        <Component Id="cmpXcap_error_dtd" Guid="*">
+          <File Id="filXcap_error_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\xcap-error.dtd" />
+        </Component>
+        <Component Id="cmpWatcherinfo_dtd" Guid="*">
+          <File Id="filWatcherinfo_dtd" KeyPath="yes" Source="$(var.Dtds.Dir)\watcherinfo.dtd" />
+        </Component>
+      </DirectoryRef>
+    </Fragment>
+    <Fragment>
+      <ComponentGroup Id="CG.Dtds">
+        <ComponentRef Id="cmpDc_dtd" />
+        <ComponentRef Id="cmpItunes_dtd" />
+        <ComponentRef Id="cmpMscml_dtd" />
+        <ComponentRef Id="cmpPocsettings_dtd" />
+        <ComponentRef Id="cmpPresence_dtd" />
+        <ComponentRef Id="cmpReginfo_dtd" />
+        <ComponentRef Id="cmpRlmi_dtd" />
+        <ComponentRef Id="cmpRss_dtd" />
+        <ComponentRef Id="cmpSmil_dtd" />
+        <ComponentRef Id="cmpXcap_caps_dtd" />
+        <ComponentRef Id="cmpXcap_error_dtd" />
+        <ComponentRef Id="cmpWatcherinfo_dtd" />
+      </ComponentGroup>
+    </Fragment>
+
+  <!-- TPNCP DAT file -->
+    <Fragment>
+        <DirectoryRef Id="dirTpncp">
+            <Component Id="cmpTpncp_dat" Guid="*">
+                <File Id="filTpncp_dat" KeyPath="yes" Source="$(var.Tpncp.Dir)\tpncp.dat" />
+            </Component>
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="CG.Tpncp">
+            <ComponentRef Id="cmpTpncp_dat" />
+        </ComponentGroup>
+    </Fragment>
+
+  <!-- wimaxasncp TLV definitions -->
+    <Fragment>
+      <DirectoryRef Id="dirWimaxasncp">
+        <Component Id="cmpWimaxasncp_dictionary_xml" Guid="*">
+          <File Id="filWimaxasncp_dictionary_xml" KeyPath="yes" Source="$(var.Wimaxasncp.Dir)\dictionary.xml" />
+        </Component>
+        <Component Id="cmpWimaxasncp_dictionary_dtd" Guid="*">
+          <File Id="filWimaxasncp_dictionary_dtd" KeyPath="yes" Source="$(var.Wimaxasncp.Dir)\dictionary.dtd" />
+        </Component>
+      </DirectoryRef>
+    </Fragment>
+    <Fragment>
+      <ComponentGroup Id="CG.Wimaxasncp">
+        <ComponentRef Id="cmpWimaxasncp_dictionary_xml" />
+        <ComponentRef Id="cmpWimaxasncp_dictionary_dtd" />
+      </ComponentGroup>
+    </Fragment>
+
+  <!-- Help files -->
+    <Fragment>
+      <DirectoryRef Id="dirHelp">
+        <Component Id="cmpHelp_toc" Guid="*">
+          <File Id="filHelp_toc" KeyPath="yes" Source="$(var.Help.Dir)\toc" />
+        </Component>
+        <Component Id="cmpHelp_overview_txt" Guid="*">
+          <File Id="filHelp_overview_txt" KeyPath="yes" Source="$(var.Help.Dir)\overview.txt" />
+        </Component>
+        <Component Id="cmpHelp_getting_started_txt" Guid="*">
+          <File Id="filHelp_getting_started_txt" KeyPath="yes" Source="$(var.Help.Dir)\getting_started.txt" />
+        </Component>
+        <Component Id="cmpHelp_capturing_txt" Guid="*">
+          <File Id="filHelp_capturing_txt" KeyPath="yes" Source="$(var.Help.Dir)\capturing.txt" />
+        </Component>
+        <Component Id="cmpHelp_capture_filters_txt" Guid="*">
+          <File Id="filHelp_capture_filters_txt" KeyPath="yes" Source="$(var.Help.Dir)\capture_filters.txt" />
+        </Component>
+        <Component Id="cmpHelp_display_filters_txt" Guid="*">
+          <File Id="filHelp_display_filters_txt" KeyPath="yes" Source="$(var.Help.Dir)\display_filters.txt" />
+        </Component>
+        <Component Id="cmpHelp_faq_txt" Guid="*">
+          <File Id="filHelp_faq_txt" KeyPath="yes" Source="$(var.Help.Dir)\faq.txt" />
+        </Component>
+      </DirectoryRef>
+    </Fragment>
+    <Fragment>
+      <ComponentGroup Id="CG.Help">
+        <ComponentRef Id="cmpHelp_toc" />
+        <ComponentRef Id="cmpHelp_overview_txt" />
+        <ComponentRef Id="cmpHelp_getting_started_txt" />
+        <ComponentRef Id="cmpHelp_capturing_txt" />
+        <ComponentRef Id="cmpHelp_capture_filters_txt" />
+        <ComponentRef Id="cmpHelp_display_filters_txt" />
+        <ComponentRef Id="cmpHelp_faq_txt" />
+      </ComponentGroup>
+    </Fragment>
+
+  <!-- TShark -->
+    <Fragment>
+        <DirectoryRef Id="INSTALLFOLDER">
+            <Component Id="cmpTShark_exe" Guid="*">
+                <File Id="filTShark_exe" KeyPath="yes" Source="$(var.Staging.Dir)\tshark.exe" />
+            </Component>
+            <Component Id="cmpTShark_html" Guid="*">
+                <File Id="filTShark_html" KeyPath="yes" Source="$(var.Staging.Dir)\tshark.html" />
+            </Component>
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="CG.TShark">
+            <ComponentRef Id="cmpTShark_exe" />
+            <ComponentRef Id="cmpTShark_html" />
+        </ComponentGroup>
+    </Fragment>
+
+  <!-- Wireshark GTK -->
+  <?ifdef GTK_DIR?>
+    <Fragment>
+      <DirectoryRef Id="INSTALLFOLDER">
+        <Component Id="cmpWiresharkGTK_exe" Guid="*">
+          <File Id="filWiresharkGTK_exe" KeyPath="yes" Source="$(var.Staging.Dir)\Wireshark-gtk.exe" />
+        </Component>
+      </DirectoryRef>
+    </Fragment>
+    <Fragment>
+      <ComponentGroup Id="CG.WiresharkGTK">
+        <ComponentRef Id="cmpWiresharkGTK_exe" />
+      </ComponentGroup>
+    </Fragment>
+  <?endif?>
+
+  <!-- Configuration Profiles -->
+  <Fragment>
+    <DirectoryRef Id="dirProfiles">
+      <Directory Id="dirBluetooth" Name="Bluetooth">
+        <Component Id="cmpBluetooth_colorfilters" Guid="*">
+          <File Id="filBluetooth_colorfilters" KeyPath="yes" Source="$(var.Profiles.Dir)\Bluetooth\colorfilters" />
+        </Component>
+      </Directory>
+      <Directory Id="dirClassic" Name="Classic">
+        <Component Id="cmpClassic_colorfilters" Guid="*">
+          <File Id="filClassic_colorfilters" KeyPath="yes" Source="$(var.Profiles.Dir)\Classic\colorfilters" />
+        </Component>
+      </Directory>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Plugins.ConfigurationProfiles">
+      <ComponentRef Id="cmpBluetooth_colorfilters" />
+      <ComponentRef Id="cmpClassic_colorfilters" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Editcap -->
+  <Fragment>
+      <DirectoryRef Id="INSTALLFOLDER">
+          <Component Id="cmpEditcap_exe" Guid="*">
+              <File Id="filEditcap_exe" KeyPath="yes" Source="$(var.Staging.Dir)\editcap.exe" />
+          </Component>
+          <Component Id="cmpEditcap_html" Guid="*">
+              <File Id="filEditcap_html" KeyPath="yes" Source="$(var.Staging.Dir)\editcap.html" />
+          </Component>
+      </DirectoryRef>
+  </Fragment>
+  <Fragment>
+      <ComponentGroup Id="CG.Tools.Editcap">
+          <ComponentRef Id="cmpEditcap_exe" />
+          <ComponentRef Id="cmpEditcap_html" />
+      </ComponentGroup>
+  </Fragment>
+
+  <!-- Text2Pcap -->
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpText2pcap_exe" Guid="*">
+        <File Id="filText2pcap_exe" KeyPath="yes" Source="$(var.Staging.Dir)\text2pcap.exe" />
+      </Component>
+      <Component Id="cmpText2pcap_html" Guid="*">
+        <File Id="filText2pcap_html" KeyPath="yes" Source="$(var.Staging.Dir)\text2pcap.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Text2Pcap">
+      <ComponentRef Id="cmpText2pcap_exe" />
+      <ComponentRef Id="cmpText2pcap_html" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Mergecap -->
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpMergecap_exe" Guid="*">
+        <File Id="filMergecap_exe" KeyPath="yes" Source="$(var.Staging.Dir)\mergecap.exe" />
+      </Component>
+      <Component Id="cmpMergecap_html" Guid="*">
+        <File Id="filMergecap_html" KeyPath="yes" Source="$(var.Staging.Dir)\mergecap.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Mergecap">
+      <ComponentRef Id="cmpMergecap_exe" />
+      <ComponentRef Id="cmpMergecap_html" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Reordercap -->
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpReordercap_exe" Guid="*">
+        <File Id="filReordercap_exe" KeyPath="yes" Source="$(var.Staging.Dir)\reordercap.exe" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Reordercap">
+      <ComponentRef Id="cmpMergecap_exe" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Capinfos -->
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpCapinfos_exe" Guid="*">
+        <File Id="filCapinfos_exe" KeyPath="yes" Source="$(var.Staging.Dir)\capinfos.exe" />
+      </Component>
+      <Component Id="cmpCapinfos_html" Guid="*">
+        <File Id="filCapinfos_html" KeyPath="yes" Source="$(var.Staging.Dir)\capinfos.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Capinfos">
+      <ComponentRef Id="cmpCapinfos_exe" />
+      <ComponentRef Id="cmpCapinfos_html" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Rawshark -->
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpRawshark_exe" Guid="*">
+        <File Id="filRawshark_exe" KeyPath="yes" Source="$(var.Staging.Dir)\rawshark.exe" />
+      </Component>
+      <Component Id="cmpRawshark_html" Guid="*">
+        <File Id="filRawshark_html" KeyPath="yes" Source="$(var.Staging.Dir)\rawshark.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Rawshark">
+      <ComponentRef Id="cmpRawshark_exe" />
+      <ComponentRef Id="cmpRawshark_html" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Andrioddump -->
+  <Fragment>
+    <DirectoryRef Id="dirExtcap">
+      <Component Id="cmpAndroiddump_exe" Guid="*">
+        <File Id="filAndroiddump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\androiddump.exe" />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpAndroiddump_html" Guid="*">
+        <File Id="filAndroiddump_html" KeyPath="yes" Source="$(var.Staging.Dir)\androiddump.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Androiddump">
+      <ComponentRef Id="cmpAndroiddump_exe" />
+      <ComponentRef Id="cmpAndroiddump_html" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Randpktdump -->
+  <Fragment>
+    <DirectoryRef Id="dirExtcap">
+      <Component Id="cmpRandpktdump_exe" Guid="*">
+        <File Id="filRandpktdump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\randpktdump.exe" />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpRandpktdump_html" Guid="*">
+        <File Id="filRandpktdump_html" KeyPath="yes" Source="$(var.Staging.Dir)\randpktdump.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Randpktdump">
+      <ComponentRef Id="cmpRandpktdump_exe" />
+      <ComponentRef Id="cmpRandpktdump_html" />
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- Sshdump - WIP: uncomment this section when sshdump on windows will be ready to go
+  <Fragment>
+    <DirectoryRef Id="dirExtcap">
+      <Component Id="cmpSshdump_exe" Guid="*">
+        <File Id="filSshdump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\sshdump.exe" />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpSshdump_html" Guid="*">
+        <File Id="filSshdump_html" KeyPath="yes" Source="$(var.Staging.Dir)\sshdump.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Randpktdump">
+      <ComponentRef Id="cmpSshdump_exe" />
+      <ComponentRef Id="cmpSshdump_html" />
+    </ComponentGroup>
+  </Fragment>
+  -->
+
+  <?ifdef USER_GUIDE_DIR?>
+    <!-- User Guide -->
+    <Fragment>
+      <DirectoryRef Id="INSTALLFOLDER">
+        <Component Id="cmpUserGuide_chm" Guid="*">
+          <File Id="filUserGuide_chm" KeyPath="yes" Source="$(var.USER_GUIDE_DIR)\user-guide.chm" />
+        </Component>
+      </DirectoryRef>
+    </Fragment>
+    <Fragment>
+      <ComponentGroup Id="CG.UserGuide">
+        <ComponentRef Id="cmpUserGuide_chm" />
+      </ComponentGroup>
+    </Fragment>
+  <?endif?>
+
+  <!-- Shortcuts -->
+  <Fragment>
+    <ComponentGroup Id="CG.WiresharkStartMenu" Directory="ProgramMenuFolder">
+      <Component Id="cmpWiresharkShortcut">
+        <Shortcut Id="scWireshark" Name="$(var.WiresharkName)" Description="The $(var.WiresharkName) Network Protocol Analyzer" Target="[#filWireshark_exe]" WorkingDirectory="INSTALLFOLDER" />
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_START_MENU = "1"</Condition>
+      </Component>
+    </ComponentGroup>
+    <ComponentGroup Id="CG.WiresharkDesktopIcon" Directory="DesktopFolder">
+      <Component Id="cmpWiresharkDesktopIcon">
+        <Shortcut Id="scWiresharkDesktop" Name="$(var.WiresharkName)" Description="The $(var.WiresharkName) Network Protocol Analyzer" Target="[#filWireshark_exe]" WorkingDirectory="INSTALLFOLDER" />
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="DesktopIcon" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_DESKTOP_ICON = "1"</Condition>
+      </Component>
+    </ComponentGroup>
+    <ComponentGroup Id="CG.WiresharkQuickLaunchIcon" Directory="QuickLaunchFolder">
+      <Component Id="cmpWiresharkQuickLaunchIcon">
+        <Shortcut Id="scWiresharkQuickLaunch" Name="$(var.WiresharkName)" Description="The $(var.WiresharkName) Network Protocol Analyzer" Target="[#filWireshark_exe]" WorkingDirectory="INSTALLFOLDER" />
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="QuickLaunchIcon" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_QUICK_LAUNCH_ICON = "1"</Condition>
+        <!-- Done to keep ICE64 happy -->
+        <RemoveFolder Id="RemoveMicrosoftFolder" Directory="MicrosoftFolder" On="uninstall" />
+        <RemoveFolder Id="RemoveInternetExplorerFolder" Directory="InternetExplorerFolder" On="uninstall" />
+        <RemoveFolder Id="RemoveQuickLaunchFolder" Directory="QuickLaunchFolder" On="uninstall" />
+      </Component>
+    </ComponentGroup>
+    <?ifdef GTK_DIR?>
+    <ComponentGroup Id="CG.WiresharkLegacyStartMenu" Directory="ProgramMenuFolder">
+      <Component Id="cmpWiresharkLegacyShortcut">
+        <Shortcut Id="scWiresharkLegacy" Name="Legacy $(var.WiresharkName)" Description="The $(var.WiresharkName) Network Protocol Analyzer (classic UI)" Target="[#filWiresharkGTK_exe]" WorkingDirectory="INSTALLFOLDER" />
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="StartMenuLegacyShortcut" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_LEGACY_START_MENU = "1"</Condition>
+      </Component>
+    </ComponentGroup>
+    <ComponentGroup Id="CG.WiresharkLegacyDesktopIcon" Directory="DesktopFolder">
+      <Component Id="cmpWiresharkLegacyDesktopIcon">
+        <Shortcut Id="scWiresharkLegacyDesktop" Name="Legacy $(var.WiresharkName)" Description="The $(var.WiresharkName) Network Protocol Analyzer (classic UI)" Target="[#filWiresharkGTK_exe]" WorkingDirectory="INSTALLFOLDER" />
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="LegacyDesktopIcon" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_LEGACY_DESKTOP_ICON = "1"</Condition>
+      </Component>
+    </ComponentGroup>
+    <ComponentGroup Id="CG.WiresharkLegacyQuickLaunchIcon" Directory="QuickLaunchFolder">
+      <Component Id="cmpWiresharkLegacyQuickLaunchIcon">
+        <Shortcut Id="scWiresharkLegacyQuickLaunch" Name="Legacy $(var.WiresharkName)" Description="The $(var.WiresharkName) Network Protocol Analyzer (classic UI)" Target="[#filWiresharkGTK_exe]" WorkingDirectory="INSTALLFOLDER" />
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="LegacyQuickLaunchIcon" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_LEGACY_QUICK_LAUNCH_ICON = "1"</Condition>
+        <!-- Done to keep ICE64 happy -->
+        <RemoveFolder Id="RemoveMicrosoftFolderGTK" Directory="MicrosoftFolder" On="uninstall" />
+        <RemoveFolder Id="RemoveInternetExplorerFolderGTK" Directory="InternetExplorerFolder" On="uninstall" />
+        <RemoveFolder Id="RemoveQuickLaunchFolderGTK" Directory="QuickLaunchFolder" On="uninstall" />
+      </Component>
+    </ComponentGroup>
+    <?endif?>
+  </Fragment>
+
+  <!-- File Associations -->
+  <Fragment>
+    <ComponentGroup Id="CG.WiresharkFileAssociations" Directory="INSTALLFOLDER">
+      <Component Id="cmpFA5vw">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="5vw">
+          <Extension Id="5vw">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="5vw" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFAacp">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="acp">
+          <Extension Id="acp">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="acp" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFAapc">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="apc">
+          <Extension Id="apc">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="apc" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFAatc">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="atc">
+          <Extension Id="atc">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="atc" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFAbfr">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="bfr">
+          <Extension Id="bfr">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="bfr" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFAcap">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="cap">
+          <Extension Id="cap">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="cap" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFAenc">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="enc">
+          <Extension Id="enc">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="enc" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFAerf">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="erf">
+          <Extension Id="erf">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="erf" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFAfdc">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="fdc">
+          <Extension Id="fdc">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="fdc" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFAmplog">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="mplog">
+          <Extension Id="mplog">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="mplog" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFAout">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="out">
+          <Extension Id="out">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="out" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFApcap">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="pcap">
+          <Extension Id="pcap">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pcap" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFApcapng">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="pcapng">
+          <Extension Id="pcapng">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pcapng" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFApkt">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="pkt">
+          <Extension Id="pkt">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pkt" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFArf5">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="rf5">
+          <Extension Id="rf5">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="rf5" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFAsnoop">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="snoop">
+          <Extension Id="snoop">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="snoop" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFAsyc">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="syc">
+          <Extension Id="syc">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="syc" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFAtpc">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="tpc">
+          <Extension Id="tpc">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="tpc" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFAtr1">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="tr1">
+          <Extension Id="tr1">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="tr1" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFAtrace">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="trace">
+          <Extension Id="trace">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="trace" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFAtrc">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="trc">
+          <Extension Id="trc">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="trc" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFAvwr">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="vwr">
+          <Extension Id="vwr">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="vwr" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFAwpc">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="wpc">
+          <Extension Id="wpc">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="wpc" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+      <Component Id="cmpFAwpz">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="wpz">
+          <Extension Id="wpz">
+            <Verb Id="open" Command="open" TargetFile="filWireshark_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="wpz" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "0"</Condition>
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <?ifdef GTK_DIR?>
+  <!-- File Associations (Wireshark GTK) -->
+  <Fragment>
+    <ComponentGroup Id="CG.WiresharkLegacyFileAssociations" Directory="INSTALLFOLDER">
+      <Component Id="cmpFA5vwLegacy" Guid="829147A9-B694-406D-950F-16DD44F2E138">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="5vw">
+          <Extension Id="5vw">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="5vw" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFAacpLegacy" Guid="9D2D4C0B-636E-4A3A-B4A1-32C6FAB2B281">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="acp">
+          <Extension Id="acp">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="acp" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFAapcLegacy" Guid="B0C2BB99-28E6-423E-B559-106BA7830D43">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="apc">
+          <Extension Id="apc">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="apc" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFAatcLegacy" Guid="84817B21-9EEB-4D97-A6C9-979B8F5BA29B">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="atc">
+          <Extension Id="atc">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="atc" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFAbfrLegacy" Guid="474A421B-3CFC-40C1-9B29-D817425D79C7">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="bfr">
+          <Extension Id="bfr">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="bfr" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFAcapLegacy" Guid="BD5F2AFA-FFD3-4EBE-BB3A-7411D6CC8070">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="cap">
+          <Extension Id="cap">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="cap" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFAencLegacy" Guid="DA5961DD-F570-43CB-8AE9-53FE2F40B52D">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="enc">
+          <Extension Id="enc">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="enc" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFAerfLegacy" Guid="{E15ECA19-E201-48D5-9889-A6149C5B428C}">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="erf">
+          <Extension Id="erf">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="erf" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFAfdcLegacy" Guid="00381091-977F-4F50-A2CC-BC1C2AACE81F">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="fdc">
+          <Extension Id="fdc">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="fdc" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFAmplogLegacy" Guid="7AA152AB-1225-466E-8C33-2DF9E6C1CBCE">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="mplog">
+          <Extension Id="mplog">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="mplog" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFAoutLegacy" Guid="75E60C7A-758F-45C9-A9CF-6B87F3609229">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="out">
+          <Extension Id="out">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="out" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFApcapLegacy" Guid="B419D3B0-2ECA-4F56-A23B-56A9A3FAAB35">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="pcap">
+          <Extension Id="pcap">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pcap" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFApcapngLegacy" Guid="5DEBBDAC-4F96-4CBF-A422-B12903ABD433">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="pcapng">
+          <Extension Id="pcapng">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pcapng" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFApktLegacy" Guid="3BF582A0-771E-4706-8414-975B24B4250B">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="pkt">
+          <Extension Id="pkt">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="pkt" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFArf5Legacy" Guid="A781EE08-BD29-4F77-9D8C-006833BF5DD3">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="rf5">
+          <Extension Id="rf5">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="rf5" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFAsnoopLegacy" Guid="B5A2660C-5EFA-445A-B951-09033DE98BEB">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="snoop">
+          <Extension Id="snoop">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="snoop" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFAsycLegacy" Guid="5727EFC5-A06B-48BE-86BE-8112574E10ED">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="syc">
+          <Extension Id="syc">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="syc" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFAtpcLegacy" Guid="1E8F12E7-0829-409C-B5CC-CE3170CFEBF5">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="tpc">
+          <Extension Id="tpc">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="tpc" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFAtr1Legacy" Guid="303B4418-0812-405A-BCFE-21DE823805D5">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="tr1">
+          <Extension Id="tr1">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="tr1" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFAtraceLegacy" Guid="CDBDB7BF-9BA1-4561-A49F-887876B0CAD3">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="trace">
+          <Extension Id="trace">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="trace" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFAtrcLegacy" Guid="A1D4B3F3-AC04-4669-9BA7-2FFCD89A02D7">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="trc">
+          <Extension Id="trc">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="trc" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFAvwrLegacy" Guid="2173A6CE-C0E5-455F-8AE3-8614B3A0602D">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="vwr">
+          <Extension Id="vwr">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="vwr" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFAwpcLegacy" Guid="34B9D0B5-483B-4906-B786-B3F7C08B28F2">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="wpc">
+          <Extension Id="wpc">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="wpc" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+      <Component Id="cmpFAwpzLegacy" Guid="F5A392F5-0C36-42E3-BF28-9B97F5475F4E">
+        <ProgId Id="$(var.WiresharkFileAssociation)" Description="wpz">
+          <Extension Id="wpz">
+            <Verb Id="open" Command="open" TargetFile="filWiresharkGTK_exe" Argument="&quot;%1&quot;"/>
+          </Extension>
+        </ProgId>
+        <RegistryValue Root="HKCU" Key="Software\$(var.WiresharkName)" Name="wpz" Type="integer" Value="1" KeyPath="yes"/>
+        <Condition>WIRESHARK_FILE_EXTENSIONS = "1"</Condition>
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+  <?endif?>
+
+  <!-- C-runtime redistributable -->
+  <Fragment>
+    <DirectoryRef Id="TARGETDIR">
+      <Merge Id="VCRedist" SourceFile="$(var.VCRedistDir)\Microsoft_$(var.VCRedistVersion)_CRT_$(var.Platform).msm" DiskId="1" Language="0"/>
+    </DirectoryRef>
+  </Fragment>
+
+</Include>

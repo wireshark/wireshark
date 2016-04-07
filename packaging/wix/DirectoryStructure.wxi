@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include>
+
+  <!-- Basic directory structure -->
+  <Fragment>
+    <!-- "Special" directory, required for the root drive -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <!-- "Special" directory for desktop -->
+      <Directory Id="DesktopFolder" Name="Desktop"/>
+      <!-- "Special" directory, required for the Program Files folder -->
+      <Directory Id="$(var.PlatformProgramFilesFolder)">
+        <!-- These directories follow the typical hierarchical structure -->
+        <Directory Id="INSTALLFOLDER" Name="$(var.WiresharkName)">
+          <Directory Id="dirDtds" Name="dtds"/>
+          <Directory Id="dirDiameter" Name="diameter"/>
+          <Directory Id="dirEtc" Name="etc">
+            <Directory Id="dirEtcGtk2_0" Name="gtk-2.0"/>
+          </Directory>
+          <Directory Id="dirExtcap" Name="extcap"/>
+          <Directory Id="dirHelp" Name="help"/>
+          <Directory Id="dirLib" Name="lib">
+            <Directory Id="dirLibGtk2_0" Name="gtk-2.0">
+              <Directory Id="dirLibGtk2_0_2_10_0" Name="2.10.0">
+                <Directory Id="dirLibGtk2_0_2_10_0_engines" Name="engines"/>
+              </Directory>
+              <Directory Id="dirLibGtk2_0_modules" Name="modules"/>
+            </Directory>
+          </Directory>
+          <Directory Id="dirRadius" Name="radius"/>
+          <Directory Id="dirPlugins" Name="plugins">
+            <Directory Id="dirPluginsVersion" Name="$(var.WiresharkVersion)"/>
+          </Directory>
+          <Directory Id="dirProfiles" Name="profiles"/>
+          <Directory Id="dirSnmp" Name="snmp">
+            <Directory Id="dirSnmpMibs" Name="mibs"/>
+          </Directory>
+          <Directory Id="dirTpncp" Name="tpncp"/>
+          <Directory Id="dirTranslations" Name="translations"/>
+          <Directory Id="dirWimaxasncp" Name="wimaxasncp"/>
+        </Directory>
+      </Directory>
+
+      <!-- "Special" directory for the Start Menu -->
+      <Directory Id="ProgramMenuFolder">
+        <!-- Shortcuts directly in menu -->
+      </Directory>
+      <!-- "Special" directory for Quick Launch -->
+      <Directory Id="AppDataFolder">
+        <Directory Id="MicrosoftFolder" Name="Microsoft">
+          <Directory Id="InternetExplorerFolder" Name="Internet Explorer">
+            <Directory Id="QuickLaunchFolder" Name="Quick Launch" />
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+
+  </Fragment>
+</Include>

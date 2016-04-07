@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include>
+
+  <!-- Plugins -->
+    <Fragment>
+        <DirectoryRef Id="dirPluginsVersion">
+            <Component Id="cmpDocsis_dll" Guid="*">
+                <File Id="filDocsis_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\docsis.dll" />
+            </Component>
+            <Component Id="cmpEthercat_dll" Guid="*">
+                <File Id="filEthercat_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\ethercat.dll" />
+            </Component>
+            <Component Id="cmpGryphon_dll" Guid="*">
+                <File Id="filGryphon_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\gryphon.dll" />
+            </Component>
+            <Component Id="cmpIrda_dll" Guid="*">
+                <File Id="filIrda_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\irda.dll" />
+            </Component>
+            <Component Id="cmpM2m_dll" Guid="*">
+                <File Id="filM2m_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\m2m.dll" />
+            </Component>
+            <Component Id="cmpOpcua_dll" Guid="*">
+                <File Id="filOpcua_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\opcua.dll" />
+            </Component>
+            <Component Id="cmpProfinet_dll" Guid="*">
+                <File Id="filProfinet_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\profinet.dll" />
+            </Component>
+            <Component Id="cmpUnistim_dll" Guid="*">
+                <File Id="filUnistim_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\unistim.dll" />
+            </Component>
+            <Component Id="cmpWimax_dll" Guid="*">
+                <File Id="filWimax_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\wimax.dll" />
+            </Component>
+            <Component Id="cmpWimaxasmcp_dll" Guid="*">
+                <File Id="filWimaxasmcp_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\wimaxasncp.dll" />
+            </Component>
+            <Component Id="cmpWimaxmacphy_dll" Guid="*">
+                <File Id="filWimaxmacphy_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\wimaxmacphy.dll" />
+            </Component>
+          <!-- Add custom plugin Components here -->
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="CG.Plugins.Dissector">
+            <ComponentRef Id="cmpDocsis_dll" />
+            <ComponentRef Id="cmpEthercat_dll" />
+            <ComponentRef Id="cmpGryphon_dll" />
+            <ComponentRef Id="cmpIrda_dll" />
+            <ComponentRef Id="cmpM2m_dll" />
+            <ComponentRef Id="cmpOpcua_dll" />
+            <ComponentRef Id="cmpProfinet_dll" />
+            <ComponentRef Id="cmpUnistim_dll" />
+            <ComponentRef Id="cmpWimax_dll" />
+            <ComponentRef Id="cmpWimaxasmcp_dll" />
+            <ComponentRef Id="cmpWimaxmacphy_dll" />
+            <!-- Add custom plugin ComponentRefs here -->
+        </ComponentGroup>
+    </Fragment>
+
+    <!-- Stats Tree -->
+    <Fragment>
+        <DirectoryRef Id="dirPluginsVersion">
+          <Component Id="cmpStatsTree_dll" Guid="*">
+            <File Id="filStatsTree_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\stats_tree.dll" />
+          </Component>
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="CG.Plugins.TreeStat">
+            <ComponentRef Id="cmpStatsTree_dll" />
+        </ComponentGroup>
+    </Fragment>
+
+  <!-- MATE -->
+  <Fragment>
+    <DirectoryRef Id="dirPluginsVersion">
+      <Component Id="cmpMate_dll" Guid="*">
+        <File Id="filMate_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\mate.dll" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Plugins.Mate">
+      <ComponentRef Id="cmpMate_dll" />
+    </ComponentGroup>
+  </Fragment>
+
+</Include>

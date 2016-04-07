@@ -1524,6 +1524,15 @@ if(WIN32)
 			COMMAND ${CMAKE_COMMAND} -E copy_directory
 				"${SMI_SHARE_DIR}/yang"
 				"${_dll_output_dir}/snmp/mibs"
+			#remove the extra directories copied (shallow copying the above would remove the need for this)
+			COMMAND ${CMAKE_COMMAND} -E remove_directory
+				"${_dll_output_dir}/snmp/mibs/iana"
+			COMMAND ${CMAKE_COMMAND} -E remove_directory
+				"${_dll_output_dir}/snmp/mibs/ietf"
+			COMMAND ${CMAKE_COMMAND} -E remove_directory
+				"${_dll_output_dir}/snmp/mibs/site"
+			COMMAND ${CMAKE_COMMAND} -E remove_directory
+				"${_dll_output_dir}/snmp/mibs/tubs"
 		)
 	endif(SMI_FOUND)
 	if (WINSPARKLE_FOUND)
@@ -2341,6 +2350,13 @@ if (WIN32)
 		add_subdirectory( packaging/nsis EXCLUDE_FROM_ALL )
 		ADD_NSIS_UNINSTALLER_TARGET()
 		ADD_NSIS_PACKAGE_TARGET()
+	endif()
+
+	find_package( WiX )
+
+	if (NOT "${WIX_CANDLE_EXECUTABLE}" STREQUAL "WIX_CANDLE_EXECUTABLE-NOTFOUND")
+		add_subdirectory( packaging/wix EXCLUDE_FROM_ALL )
+		ADD_WIX_PACKAGE_TARGET()
 	endif()
 
 	find_package( PortableApps )

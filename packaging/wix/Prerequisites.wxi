@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+
+  <!-- Check for required dependencies here -->
+  <Fragment>
+
+    <!-- Do not remove: The contents of this "fragment" will not be included in the project,
+         unless we reference at least one item defined within it.
+         This "IncludePrerequisites" property is referenced in the "Product" element,
+         to ensure the entire fragment is included. -->
+    <Property Id="IncludePrerequisites">1</Property>
+
+    <Condition Message="Windows 2000 is no longer supported. Please install $(var.WiresharkName) 1.2 or 1.0 instead.">
+      <![CDATA[Installed OR (VersionNT < 500) OR (VersionNT > 500)]]>
+    </Condition>
+
+    <Condition Message="WindowsXP is no longer supported. Please install $(var.WiresharkName) 1.12 or 1.10 instead.">
+      <![CDATA[Installed OR (VersionNT < 501) OR (VersionNT > 501)]]>
+    </Condition>
+
+    <Condition Message="Windows Server 2003 is no longer supported. Please install $(var.WiresharkName) 1.12 or 1.10 instead.">
+      <![CDATA[Installed OR (VersionNT < 502) OR (VersionNT > 502)]]>
+    </Condition>
+
+    <Condition Message="$(var.WiresharkName)$(var.WiresharkVersion) is only supported on Windows Vista, Windows Server 2008, or higher.">
+      <![CDATA[Installed OR (VersionNT >= 600)]]>
+    </Condition>
+
+  </Fragment>
+</Include>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+        <UI>
+            <Dialog Id="WiresharkOptionsDlg" Width="370" Height="320" Title="!(loc.LicenseAgreementDlg_Title)">
+                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="!(loc.LicenseAgreementDlgBannerBitmap)" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+                <Control Id="Description" Type="Text" X="25" Y="23" Width="340" Height="15" Transparent="yes" NoPrefix="yes" Text="Which additional tasks should be done?" />
+                <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="Select Additional Tasks" />
+
+                <Control Id="Shortcuts" Type="GroupBox" X="15" Y="50" Width="250" Height="125" Text="Create Shortcuts"/>
+                <Control Id="WiresharkStartMenuCB" Type="CheckBox" X="20" Y="65" Width="180" Height="15" CheckBoxValue="1"  Property="WIRESHARK_START_MENU" Text="Wireshark Start Menu Item" />
+                <Control Id="WiresharkDesktopIconCB" Type="CheckBox" X="20" Y="83" Width="180" Height="15" CheckBoxValue="1" Property="WIRESHARK_DESKTOP_ICON" Text="Wireshark Desktop Icon" />
+                <Control Id="WiresharkQuickLaunchIconCB" Type="CheckBox" X="20" Y="101" Width="180" Height="15" CheckBoxValue="1" Property="WIRESHARK_QUICK_LAUNCH_ICON" Text="Wireshark Quick Launch Icon" />
+                <Control Id="WiresharkLegacyStartMenuCB" Type="CheckBox" X="20" Y="117" Width="180" Height="15" CheckBoxValue="1" Property="WIRESHARK_LEGACY_START_MENU" Text="Wireshark Legacy Start Menu Item" />
+                <Control Id="WiresharkLegacyDesktopIconCB" Type="CheckBox" X="20" Y="135" Width="180" Height="15" CheckBoxValue="1" Property="WIRESHARK_LEGACY_DESKTOP_ICON" Text="Wireshark Legacy Desktop Icon" />
+                <Control Id="WiresharkLegacyQuickLaunchIconCB" Type="CheckBox" X="20" Y="153" Width="180" Height="15" CheckBoxValue="1" Property="WIRESHARK_LEGACY_QUICK_LAUNCH_ICON" Text="Wireshark Legacy Quick Launch Icon" />
+
+                <Control Id="FileExtensions" Type="GroupBox" X="15" Y="180" Width="250" Height="100" Text="File Extensions"/>
+                <Control Id="FileExtensionsRadio" Type="RadioButtonGroup"  X="20" Y="190" Width="235" Height="50" Property="WIRESHARK_FILE_EXTENSIONS">
+                  <RadioButtonGroup Property="WIRESHARK_FILE_EXTENSIONS">
+                    <RadioButton Value="0" X="5" Y="5" Height="15" Width="235" Text="Associate trace file extensions to Wireshark" />
+                    <RadioButton Value="1" X="5" Y="20" Height="15" Width="235" Text="Associate trace file extensions to Wireshark Legacy" />
+                    <RadioButton Value="2" X="5" Y="35" Height="15" Width="235" Text="None" />
+                  </RadioButtonGroup>
+                </Control>
+                <Control Id="FileExtensionsText1" Type="Text" X="20" Y="250" Width="235" Height="15" Transparent="yes" NoPrefix="yes" Text="Extensions: 5vw, acp, apc, atc, bfr, cap, enc, erf, fdc, mplog, out, pcap," />
+                <Control Id="FileExtensionsText2" Type="Text" X="20" Y="265" Width="235" Height="15" Transparent="yes" NoPrefix="yes" Text="pcapng, pkt, rf5, snoop, syc, tpc, tr1, trace, trc, vwr, wpc, wpz" />
+
+                <Control Id="BottomLine" Type="Line" X="0" Y="284" Width="370" Height="0" />
+                <Control Id="Back" Type="PushButton" X="180" Y="293" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+                <Control Id="Next" Type="PushButton" X="236" Y="293" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)"/>
+                <Control Id="Cancel" Type="PushButton" X="304" Y="293" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+                    <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+                </Control>
+            </Dialog>
+        </UI>
+    </Fragment>
+</Wix>
