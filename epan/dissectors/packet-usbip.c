@@ -26,6 +26,10 @@
  * on top of TCP/IP. The server exports the USB devices and the
  * clients imports them. The device driver for the exported USB
  * device runs on the client machine.
+ *
+ * See
+ *
+ *    https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/plain/Documentation/usb/usbip_protocol.txt
  */
 
 #include <config.h>
