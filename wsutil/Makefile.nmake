@@ -24,13 +24,13 @@ libwsutil_LIBS = $(GLIB_LIBS) \
 	$(GNUTLS_LIBS)
 
 OBJECTS = file_util.obj		\
+	getopt_long.obj		\
 	inet_aton.obj		\
 	inet_ntop.obj		\
 	inet_pton.obj		\
 	$(LIBWSUTIL_SRC:.c=.obj) \
 	popcount.obj		 \
 	strptime.obj		\
-	wsgetopt.obj            \
 	ws_mempbrk_sse42.obj
 
 # For use when making libwsutil.dll
