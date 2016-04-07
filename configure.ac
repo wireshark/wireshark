@@ -510,18 +510,19 @@ AX_LIB_SOCKET_NSL
 #
 AC_ARG_WITH([qt],
   AC_HELP_STRING( [--with-qt=@<:@yes/no/4/5@:>@],
-		  [use Qt @<:@default=yes@:>@]),
+		  [use Qt @<:@default=yes, if available@:>@]),
   with_qt="$withval", with_qt="unspecified")
 
-AC_ARG_WITH([gtk2],
-  AC_HELP_STRING( [--with-gtk2=@<:@yes/no@:>@],
-		  [use GTK+ 2.0 @<:@default=no@:>@]),
-  with_gtk2="$withval", with_gtk2="unspecified")
-
-AC_ARG_WITH([gtk3],
-  AC_HELP_STRING( [--with-gtk3=@<:@yes/no@:>@],
-		  [use GTK+ 3.0 instead of 2.0 @<:@default=yes@:>@]),
-  with_gtk3="$withval", with_gtk3="unspecified")
+AC_ARG_WITH([gtk],
+  AC_HELP_STRING( [--with-gtk=@<:@yes/no/2/3@:>@],
+	[use GTK+ @<:@default=yes, if available@:>@]),
+	AS_CASE([$withval],
+	  [yes], [with_gtk="3 2 fail"],
+	  [no],  [with_gtk="no"],
+	  [3],   [with_gtk="3 fail3"],
+	  [2],   [with_gtk="2 fail2"],
+	  [AC_MSG_ERROR([--with-gtk must be one of yes/no/2/3])]),
+	with_gtk="3 2")
 
 # GnuTLS
 # Version 3.0 switched from LGPLv2.1+ to LGPLv3+, then switched back to
@@ -1540,24 +1541,6 @@ AC_SUBST(QT_MIN_VERSION)
 have_qt=no
 have_gtk=no
 if test "x$enable_wireshark" = "xyes"; then
-	if test "x$with_gtk2" = "xunspecified" -a \
-		"x$with_gtk3" = "xunspecified" -a \
-		"x$with_qt" = "xunspecified"; then
-		#
-		# No GUI toolkits were explicitly specified; pick Qt
-		# and GTK+ 3.
-		#
-		with_qt=yes
-		with_gtk3=yes
-	elif test "x$with_gtk2" = "xunspecified" -a \
-		  "x$with_gtk3" = "xunspecified" -a \
-		  "x$with_qt" = "xno"; then
-		#
-		# Qt was explicitly disabled, and neither GTK+ 2 nor
-		# GTK+ 3 were explicitly specified; pick GTK+ 3.
-		#
-		with_gtk3=yes
-	fi
 	if test "x$with_qt" != "xno"; then
 		#
 		# Qt was specified; make sure we have a C++ compiler.
@@ -1655,41 +1638,28 @@ if test "x$enable_wireshark" = "xyes"; then
 		])
 	fi
 
-	if test "x$with_gtk3" = "xyes"; then
-		#
-		# GTK+ 3 was specified; make sure they didn't also
-		# specify GTK+ 2, as we don't support building both
-		# GTK+ 2 and GTK+ 3 versions at the same time.
-		#
-		if test "x$with_gtk2" = "xyes"; then
-			AC_MSG_ERROR([Both GTK+ 2 and GTK+ 3 were specified; choose one but not both])
-		fi
-
-		#
-		# Make sure we have GTK+ 3.
-		#
-		PKG_WIRESHARK_CHECK_SYSTEM_MODULES([GTK],
+	for want_gtk_version in $with_gtk; do
+		AS_CASE([$want_gtk_version],
+		  [3], [PKG_WIRESHARK_CHECK_SYSTEM_MODULES([GTK],
 			[gtk+-3.0 >= $GTK3_MIN_VERSION glib-2.0 >= $GLIB_MIN_VERSION gthread-2.0 >= $GLIB_MIN_VERSION gmodule-2.0 >= $GLIB_MIN_VERSION],
 			[
-				have_gtk=yes
-				GTK_VERSION=`$PKG_CONFIG --modversion gtk+-3.0`
-				GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-gtk3"
-			],
-			[AC_MSG_ERROR([GTK+ 3 is not available])])
-	elif test "x$with_gtk2" = "xyes"; then
-		#
-		# GTK+ 3 wasn't specified, and GTK+ 2 was specified;
-		# make sure we have GTK+ 2.
-		#
-		PKG_WIRESHARK_CHECK_SYSTEM_MODULES([GTK],
+			  have_gtk=yes
+			  GTK_VERSION=`$PKG_CONFIG --modversion gtk+-3.0`
+			  GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-gtk=3"
+			])],
+		  [2], [PKG_WIRESHARK_CHECK_SYSTEM_MODULES([GTK],
 			[gtk+-2.0 >= $GTK2_MIN_VERSION glib-2.0 >= $GLIB_MIN_VERSION gthread-2.0 >= $GLIB_MIN_VERSION gmodule-2.0 >= $GLIB_MIN_VERSION],
 			[
-				have_gtk=yes
-				GTK_VERSION=`$PKG_CONFIG --modversion gtk+-2.0`
-				GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-gtk2"
-			],
-			[AC_MSG_ERROR([GTK+ 2 is not available])])
-	fi
+			  have_gtk=yes
+			  GTK_VERSION=`$PKG_CONFIG --modversion gtk+-2.0`
+			  GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-gtk=2"
+			])],
+		  [fail3], [AC_MSG_ERROR([GTK+ 3 was requested but is not available])],
+		  [fail2], [AC_MSG_ERROR([GTK+ 2 was requested but is not available])],
+		  [fail],  [AC_MSG_ERROR([GTK+ was requested but is not available])])
+
+		AS_IF([test "x$have_gtk" = xyes], [break])
+	done
 
 	if test "$have_gtk" = "yes" ; then
 		# If we have GTK then add flags for it.
@@ -1698,11 +1668,11 @@ if test "x$enable_wireshark" = "xyes"; then
 		#
 		GTK_CONFIG="$GLIB_CONFIG"
 
-		gtk_config_major_version=`echo $GTK_VERSION | cut -d. -f1`
-		gtk_config_minor_version=`echo $GTK_VERSION | cut -d. -f2`
+		gtk_major_version=`echo $GTK_VERSION | cut -d. -f1`
+		gtk_minor_version=`echo $GTK_VERSION | cut -d. -f2`
 
 		AX_APPEND_FLAG([-DGDK_DISABLE_DEPRECATED], [GTK_CONFIG])
-		if test \( $gtk_config_major_version -eq 3 -a $gtk_config_minor_version -ge 10 \) ; then
+		if test \( $gtk_major_version -eq 3 -a $gtk_minor_version -ge 10 \) ; then
 			## Allow use of deprecated & disable deprecated warnings if Gtk >= 3.10;
 			##  The deprecations in Gtk 3.10 will not be fixed ...
 			AX_APPEND_FLAG([-DGDK_DISABLE_DEPRECATION_WARNINGS], [GTK_CONFIG])
@@ -1710,7 +1680,7 @@ if test "x$enable_wireshark" = "xyes"; then
 			AX_APPEND_FLAG([-DGTK_DISABLE_DEPRECATED], [GTK_CONFIG])
 		fi
 		AX_APPEND_FLAG([-DGTK_DISABLE_SINGLE_INCLUDES], [GTK_CONFIG])
-		if test ! \( $gtk_config_major_version -eq 2 -a $gtk_config_minor_version -lt 20 \) ; then
+		if test ! \( $gtk_major_version -eq 2 -a $gtk_minor_version -lt 20 \) ; then
 			# Enable GSEAL when building with GTK > 2.20
 			# (Versions prior to 2.22 lacked some necessary accessors.)
 			AX_APPEND_FLAG([-DGSEAL_ENABLE], [GTK_CONFIG])
@@ -1773,11 +1743,7 @@ if test "$have_gtk" = "no" -a "$have_qt" = "no" ; then
 	# problem).
 	#
 	if test "x$enable_wireshark" = "xyes"; then
-		if test "x$with_gtk3" = "xyes"; then
-			AC_MSG_ERROR([Neither Qt nor GTK+ $GTK3_MIN_VERSION or later are available, so Wireshark can't be compiled])
-		else
-			AC_MSG_ERROR([Neither Qt nor GTK+ $GTK2_MIN_VERSION or later are available, so Wireshark can't be compiled])
-		fi
+		AC_MSG_ERROR([Neither Qt nor GTK+ are available, so Wireshark can't be compiled])
 	fi
 	wireshark_bin=""
 	wireshark_man=""
@@ -2925,7 +2891,7 @@ AC_SUBST(ENABLE_STATIC)
 
 # Gather which GUI we're building for rpmbuild
 if test "x$have_gtk" = "xyes"; then
-	if test "x$with_gtk3" = "xyes"; then
+	if test "x$gtk_major_version" = "x3"; then
 		RPMBUILD_WITH_ARGS="--with gtk3 --without gtk2"
 	else
 		RPMBUILD_WITH_ARGS="--without gtk3 --with gtk2"
