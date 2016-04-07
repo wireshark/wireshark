@@ -228,7 +228,7 @@ static int parse_line(char* packet _U_, unsigned* offset, char* line, int status
 	while(*part) {
 		if (strlen(*part) > 1) {
 			value = (guint32)strtoul(*part, NULL, 16);
-			value = htonl(value);
+			value = ntohl(value);
 			size = strlen(*part) / 2;
 			memcpy(packet + *offset, &value, size);
 			*offset += (guint32)size;
