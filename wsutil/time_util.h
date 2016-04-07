@@ -33,6 +33,17 @@ extern "C" {
 WS_DLL_PUBLIC
 time_t mktime_utc(struct tm *tm);
 
+/** Fetch the process CPU time.
+ *
+ * Fetch the current process user and system CPU times, convert them to
+ * seconds, and store them in the provided parameters.
+ *
+ * @param utime Seconds spent in user mode.
+ * @param stime Seconds spent in system (kernel) mode.
+ */
+WS_DLL_PUBLIC
+void get_resource_usage(double *utime, double *stime);
+
 /** Print the process CPU time followed by a log message.
  *
  * Print the current process user and system CPU times along with the times

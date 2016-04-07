@@ -72,7 +72,8 @@ wmem_test_SOURCES = wmem_test.c
 
 wmem_test_LDADD = \
 	libwmem.la \
-	$(GLIB_LIBS)
+	$(GLIB_LIBS) \
+	wsutil/libwsutil.la
 
 test-programs: wmem_test
 
