@@ -99,7 +99,7 @@
     <string>Copy the tree as CSV</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+C</string>
+    <string notr="true">Ctrl+C</string>
    </property>
   </action>
   <action name="actionCopyAsYAML">
@@ -110,7 +110,7 @@
     <string>Copy the tree as YAML</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Y</string>
+    <string notr="true">Ctrl+Y</string>
    </property>
   </action>
  </widget>
