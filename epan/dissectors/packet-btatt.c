@@ -14046,6 +14046,7 @@ void
 proto_reg_handoff_btatt(void)
 {
     gint                i_array;
+    GString            *uuid_str = g_string_new("");
 
     http_handle = find_dissector_add_dependency("http", proto_btatt);
     usb_hid_boot_keyboard_input_report_handle  = find_dissector_add_dependency("usbhid.boot_report.keyboard.input", proto_btatt);
@@ -14072,18 +14073,19 @@ proto_reg_handoff_btatt(void)
             continue;
         }
 
-        name       = wmem_strdup_printf(wmem_epan_scope(), "Bluetooth GATT Attribute %s (UUID 0x%04x)",
-                bluetooth_uuid_vals[i_array].strptr, bluetooth_uuid_vals[i_array].value);
-        short_name = wmem_strdup_printf(wmem_epan_scope(), "BT GATT %s (UUID 0x%04x)",
-                bluetooth_uuid_vals[i_array].strptr, bluetooth_uuid_vals[i_array].value);
-        abbrev     = wmem_strdup_printf(wmem_epan_scope(), "btgatt.uuid0x%04x",
-                bluetooth_uuid_vals[i_array].value);
+        g_string_printf(uuid_str, "0x%04x", bluetooth_uuid_vals[i_array].value);
+        name       = wmem_strconcat(wmem_epan_scope(), "Bluetooth GATT Attribute ",
+                bluetooth_uuid_vals[i_array].strptr, " (UUID ", uuid_str->str, ")", NULL);
+        short_name = wmem_strconcat(wmem_epan_scope(), "BT GATT ",
+                bluetooth_uuid_vals[i_array].strptr, " (UUID ", uuid_str->str, ")", NULL);
+        abbrev     = wmem_strconcat(wmem_epan_scope(), "btgatt.uuid", uuid_str->str, NULL);
 
         proto_tmp = proto_register_protocol(name, short_name, abbrev);
         handle_tmp = register_dissector(abbrev, dissect_btgatt, proto_tmp);
 
         dissector_add_for_decode_as("btatt.handle", handle_tmp);
     }
+    g_string_free(uuid_str, TRUE);
 }
 
 void

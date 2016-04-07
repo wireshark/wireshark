@@ -1654,20 +1654,20 @@ build_address_avp(const avp_type_t *type _U_, guint32 code,
 
 	basic_avp_reginfo(a, name, FT_BYTES, BASE_NONE, NULL);
 
-	reginfo(&(t->hf_address_type), wmem_strdup_printf(wmem_epan_scope(), "%s Address Family",name),
-		alnumerize(wmem_strdup_printf(wmem_epan_scope(), "diameter.%s.addr_family",name)),
+	reginfo(&(t->hf_address_type), wmem_strconcat(wmem_epan_scope(), name, " Address Family", NULL),
+		alnumerize(wmem_strconcat(wmem_epan_scope(), "diameter.", name, ".addr_family", NULL)),
 		NULL, FT_UINT16, (field_display_e)(BASE_DEC|BASE_EXT_STRING), &diameter_avp_data_addrfamily_vals_ext, 0);
 
-	reginfo(&(t->hf_ipv4), wmem_strdup_printf(wmem_epan_scope(), "%s Address",name),
-		alnumerize(wmem_strdup_printf(wmem_epan_scope(), "diameter.%s.IPv4",name)),
+	reginfo(&(t->hf_ipv4), wmem_strconcat(wmem_epan_scope(), name, " Address", NULL),
+		alnumerize(wmem_strconcat(wmem_epan_scope(), "diameter.", name, ".IPv4", NULL)),
 		NULL, FT_IPv4, BASE_NONE, NULL, 0);
 
-	reginfo(&(t->hf_ipv6), wmem_strdup_printf(wmem_epan_scope(), "%s Address",name),
-		alnumerize(wmem_strdup_printf(wmem_epan_scope(), "diameter.%s.IPv6",name)),
+	reginfo(&(t->hf_ipv6), wmem_strconcat(wmem_epan_scope(), name, " Address", NULL),
+		alnumerize(wmem_strconcat(wmem_epan_scope(), "diameter.", name, ".IPv6", NULL)),
 		NULL, FT_IPv6, BASE_NONE, NULL, 0);
 
-	reginfo(&(t->hf_other), wmem_strdup_printf(wmem_epan_scope(), "%s Address",name),
-		alnumerize(wmem_strdup_printf(wmem_epan_scope(), "diameter.%s.Bytes",name)),
+	reginfo(&(t->hf_other), wmem_strconcat(wmem_epan_scope(), name, " Address", NULL),
+		alnumerize(wmem_strconcat(wmem_epan_scope(), "diameter.", name, ".Bytes", NULL)),
 		NULL, FT_BYTES, BASE_NONE, NULL, 0);
 
 	g_ptr_array_add(build_dict.ett,ettp);
@@ -1733,7 +1733,7 @@ build_simple_avp(const avp_type_t *type, guint32 code, diam_vnd_t *vendor,
 		while (vs[i].strptr) {
 		  i++;
 		}
-		vs_ext = value_string_ext_new(vs, i+1, wmem_strdup_printf(wmem_epan_scope(), "%s_vals_ext",name));
+		vs_ext = value_string_ext_new(vs, i+1, wmem_strconcat(wmem_epan_scope(), name, "_vals_ext", NULL));
 		base = (field_display_e)(base|BASE_EXT_STRING);
 	}
 
@@ -1899,6 +1899,7 @@ dictionary_load(void)
 
 	/* load the dictionary */
 	dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "diameter" G_DIR_SEPARATOR_S, get_datafile_dir());
+	/* XXX We don't call ddict_free anywhere. */
 	d = ddict_scan(dir,"dictionary.xml",do_debug_parser);
 	g_free(dir);
 	if (d == NULL) {
@@ -1962,7 +1963,7 @@ dictionary_load(void)
 
 		dictionary.applications = value_string_ext_new((value_string *)wmem_array_get_raw(arr),
 								wmem_array_get_count(arr),
-								wmem_strdup_printf(wmem_epan_scope(), "applications_vals_ext"));
+								wmem_strdup(wmem_epan_scope(), "applications_vals_ext"));
 	}
 
 	if ((v = d->vendors)) {

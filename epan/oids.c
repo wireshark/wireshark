@@ -437,7 +437,7 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 
 				oid1 = smiRenderOID(sN->oidlen, sN->oid, SMI_RENDER_QUALIFIED);
 				oid2 = smiRenderOID(elNode->oidlen, elNode->oid, SMI_RENDER_NAME);
-				k->name = g_strdup_printf("%s.%s", oid1, oid2);
+				k->name = g_strconcat(oid1, ".", oid2, NULL);
 				smi_free (oid1);
 				smi_free (oid2);
 
@@ -696,8 +696,8 @@ static void register_mibs(void) {
 					bits->data[n].hfid = -1;
 					bits->data[n].offset = smiEnum->value.value.integer32 / 8;
 
-					hf2.hfinfo.name = g_strdup_printf("%s:%s",oid_data->name,smiEnum->name);
-					hf2.hfinfo.abbrev = g_strdup_printf("%s.%s",base,ext);
+					hf2.hfinfo.name = g_strconcat("%s:%s",oid_data->name, ":", smiEnum->name, NULL);
+					hf2.hfinfo.abbrev = g_strconcat(base, ".", ext, NULL);
 
 					g_free(base);
 					g_free(ext);
@@ -872,7 +872,16 @@ char* rel_oid_subid2string(wmem_allocator_t *scope, guint32* subids, guint len, 
 		*w++ = '.';
 
 	do {
+#ifdef _WIN32
+		/*
+		 * GLib appears to use gnulib's snprintf on Windows, which is
+		 * slow. MSDN says that _snprintf can return -1, but that
+		 * shouldn't be possible here.
+		 */
+		w += _snprintf(w,12,"%u.",*subids++);
+#else
 		w += g_snprintf(w,12,"%u.",*subids++);
+#endif
 	} while(--len);
 
 	if (w!=s) *(w-1) = '\0'; else *(s) = '\0';
@@ -1212,7 +1221,7 @@ gchar *oid_resolved(wmem_allocator_t *scope, guint32 num_subids, guint32* subids
 			  *str1 = oid_subid2string(NULL, subids,matched),
 			  *str2 = oid_subid2string(NULL, &(subids[matched]),left);
 
-		ret = wmem_strdup_printf(scope, "%s.%s", oid->name ? oid->name : str1, str2);
+		ret = wmem_strconcat(scope, oid->name ? oid->name : str1, ".", str2, NULL);
 		wmem_free(NULL, str1);
 		wmem_free(NULL, str2);
 		return ret;

@@ -210,7 +210,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         colinfo_str = "/XML";
     } else {
         char *colinfo_str_buf;
-        colinfo_str_buf = wmem_strdup_printf(wmem_packet_scope(), "/%s", root_ns->name);
+        colinfo_str_buf = wmem_strconcat(wmem_packet_scope(), "/", root_ns->name, NULL);
         ascii_strup_inplace(colinfo_str_buf);
         colinfo_str = colinfo_str_buf;
     }
@@ -832,7 +832,7 @@ static void add_xml_field(wmem_array_t *hfs, int *p_id, const gchar *name, const
 static void add_xml_attribute_names(gpointer k, gpointer v, gpointer p)
 {
     struct _attr_reg_data *d = (struct _attr_reg_data *)p;
-    const gchar *basename = wmem_strdup_printf(wmem_epan_scope(), "%s.%s", d->basename, (gchar *)k);
+    const gchar *basename = wmem_strconcat(wmem_epan_scope(), d->basename, ".", (gchar *)k, NULL);
 
     add_xml_field(d->hf, (int*) v, (gchar *)k, basename);
 }
@@ -841,7 +841,7 @@ static void add_xml_attribute_names(gpointer k, gpointer v, gpointer p)
 static void add_xmlpi_namespace(gpointer k _U_, gpointer v, gpointer p)
 {
     xml_ns_t *ns       = (xml_ns_t *)v;
-    const gchar *basename = wmem_strdup_printf(wmem_epan_scope(), "%s.%s", (gchar *)p, ns->name);
+    const gchar *basename = wmem_strconcat(wmem_epan_scope(), (gchar *)p, ".", ns->name, NULL);
     gint     *ett_p    = &(ns->ett);
     struct _attr_reg_data d;
 
