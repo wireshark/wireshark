@@ -2700,8 +2700,6 @@ AC_C_BIGENDIAN
 # XXX - do we need this?
 AC_PROG_GCC_TRADITIONAL
 
-AC_CHECK_FUNCS([getaddrinfo])
-
 AC_REPLACE_FUNCS(getopt_long)
 dnl
 dnl Do we have optreset?
@@ -2748,6 +2746,7 @@ AC_REPLACE_FUNCS(inet_ntop)
 AC_REPLACE_FUNCS(strptime)
 AC_REPLACE_FUNCS(popcount)
 
+AC_CHECK_FUNCS(getaddrinfo)
 AC_CHECK_FUNCS(mkstemp mkdtemp)
 AC_CHECK_FUNCS(getprotobynumber)
 AC_CHECK_FUNCS(issetugid)
