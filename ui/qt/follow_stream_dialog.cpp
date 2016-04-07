@@ -461,7 +461,7 @@ FollowStreamDialog::readSslStream()
             size_t nchars = rec->data.data_len;
             // We want a deep copy.
             buffer.clear();
-            buffer.append((const char *) rec->data.data, nchars);
+            buffer.append((const char *) rec->data.data, (int)nchars);
 
             frs_return = showBuffer(buffer.data(), nchars,
                                      rec->is_from_server, rec->packet_num, global_pos);
