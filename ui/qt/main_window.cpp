@@ -1573,23 +1573,23 @@ bool MainWindow::testCaptureFileClose(QString before_what, FileCloseContext cont
             if (capture_in_progress) {
                 switch (context) {
                 case Quit:
-                    discard_button_text = tr("Stop and Quit without Saving");
+                    discard_button_text = tr("Stop and Quit &without Saving");
                     break;
                 case Restart:
-                    discard_button_text = tr("Continue without Saving");
+                    discard_button_text = tr("Continue &without Saving");
                     break;
                 default:
-                    discard_button_text = tr("Stop and Continue without Saving");
+                    discard_button_text = tr("Stop and Continue &without Saving");
                     break;
                 }
             } else {
                 switch (context) {
                 case Quit:
-                    discard_button_text = tr("Quit without Saving");
+                    discard_button_text = tr("Quit &without Saving");
                     break;
                 case Restart:
                 default:
-                    discard_button_text = tr("Continue without Saving");
+                    discard_button_text = tr("Continue &without Saving");
                     break;
                 }
             }
