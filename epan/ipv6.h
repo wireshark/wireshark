@@ -26,9 +26,7 @@
 #ifndef __IPV6_UTILS_H__
 #define __IPV6_UTILS_H__
 
-struct e_in6_addr {
-	guint8   bytes[16];		/**< 128 bit IP6 address */
-};
+#include <wsutil/inet_ipv6.h>
 
 typedef struct {
 	struct e_in6_addr addr;

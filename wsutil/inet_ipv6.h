@@ -1,4 +1,4 @@
-/* inet_addr.h
+/* inet_ipv6.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,25 +19,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __WS_INET_ADDR_H__
-#define __WS_INET_ADDR_H__
+#ifndef __INET_IPV6_H__
+#define __INET_IPV6_H__
 
-#include "ws_symbol_export.h"
-
-#include <glib.h>
-
-#include "inet_ipv6.h"
-
-WS_DLL_PUBLIC const gchar *
-ws_inet_ntop4(gconstpointer src, gchar *dst, guint dst_size);
-
-WS_DLL_PUBLIC gboolean
-ws_inet_pton4(const gchar *src, guint32 *dst);
-
-WS_DLL_PUBLIC const gchar *
-ws_inet_ntop6(gconstpointer src, gchar *dst, guint dst_size);
-
-WS_DLL_PUBLIC gboolean
-ws_inet_pton6(const gchar *src, struct e_in6_addr *dst);
+struct e_in6_addr {
+	guint8   bytes[16];		/**< 128 bit IP6 address */
+};
 
 #endif
