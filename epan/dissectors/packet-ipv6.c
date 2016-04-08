@@ -643,36 +643,6 @@ again:
     return try_capture_dissector("ipv6.nxt", nxt, pd, offset, len, cpinfo, pseudo_header);
 }
 
-/**
- * Unicast Scope
- * Note that we must check topmost 10 bits only, not 16 bits (see RFC2373).
- */
-#if 0 /* XXX Currently unused */
-static inline gboolean in6_is_addr_link_local(struct e_in6_addr *a) {
-    if ((a->bytes[0] == 0xfe) && ((a->bytes[1] & 0xc0) == 0x80)) {
-        return TRUE;
-    }
-    return FALSE;
-}
-
-static inline gboolean in6_is_addr_sitelocal(struct e_in6_addr *a) {
-    if ((a->bytes[0] == 0xfe) && ((a->bytes[1] & 0xc0) == 0xc0)) {
-        return TRUE;
-    }
-    return FALSE;
-}
-#endif
-
-/**
- * Multicast
- */
-static inline gboolean in6_is_addr_multicast(struct e_in6_addr *a) {
-    if (a->bytes[0] == 0xff) {
-        return TRUE;
-    }
-    return FALSE;
-}
-
 #ifdef HAVE_GEOIP_V6
 static void
 add_geoip_info_entry(proto_tree *geoip_info_tree, proto_item *geoip_info_item, tvbuff_t *tvb, gint offset, const struct e_in6_addr *ip, int isdst)
