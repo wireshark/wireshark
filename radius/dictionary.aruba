@@ -51,6 +51,10 @@ ATTRIBUTE	Aruba-AirGroup-Version			38	integer
 
 ATTRIBUTE	Aruba-Port-Bounce-Host			40	integer
 
+ATTRIBUTE	Aruba-Calea-Server-Ip			41	ipaddr
+
+ATTRIBUTE	Aruba-Admin-Path			42	string
+
 VALUE	Aruba-AirGroup-Device-Type	Personal-Device		1
 VALUE	Aruba-AirGroup-Device-Type	Shared-Device		2
 
