@@ -26,6 +26,10 @@
 #include <string.h>
 #include <stdarg.h>
 
+#ifdef _WIN32
+#include <stdio.h>
+#endif
+
 #include <glib.h>
 
 #include "wmem_core.h"
@@ -86,6 +90,7 @@ wmem_strdup_printf(wmem_allocator_t *allocator, const gchar *fmt, ...)
  * in my test file all strings was less than 72 characters long and quite a few
  * over 68 characters long. Chose 80 as the default.
  */
+#ifndef _WIN32
 #define WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER 80
 gchar *
 wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap)
@@ -115,6 +120,33 @@ wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap)
 
     return dst;
 }
+#else /* _WIN32 */
+/*
+ * GLib's v*printf routines are surprisingly slow on Windows, at least with
+ * GLib 2.40.0. This appears to be due to GLib using the gnulib version of
+ * vasnprintf when compiled under MinGW. If GLib ever ends up using the
+ * native Windows v*printf routines this can be removed.
+ */
+gchar *
+wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap)
+{
+    va_list ap2;
+    gchar *dst;
+    int needed_len;
+
+    G_VA_COPY(ap2, ap);
+
+    needed_len = _vscprintf(fmt, ap2) + 1;
+
+    dst = (gchar *)wmem_alloc(allocator, needed_len);
+
+    vsprintf(dst, fmt, ap2);
+
+    va_end(ap2);
+
+    return dst;
+}
+#endif /* _WIN32 */
 
 gchar *
 wmem_strconcat(wmem_allocator_t *allocator, const gchar *first, ...)
