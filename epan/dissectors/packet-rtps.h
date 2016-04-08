@@ -349,6 +349,7 @@ typedef struct _rtps_dissector_data {
 #define SUBMESSAGE_APP_ACK_CONF                         (0x1d)
 #define SUBMESSAGE_HEARTBEAT_VIRTUAL                    (0x1e)
 
+#define SUBMESSAGE_RTI_CRC                              (0x80)
 
 /* An invalid IP Address:
  * Make sure the _STRING macro is bigger than a normal IP

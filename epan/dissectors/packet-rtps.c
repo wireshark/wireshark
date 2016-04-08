@@ -353,6 +353,9 @@ static int hf_rtps_flag_participant_state_detector              = -1;
 static int hf_rtps_flag_participant_message_datawriter          = -1;
 static int hf_rtps_flag_participant_message_datareader          = -1;
 
+static int hf_rtps_sm_rti_crc_number                            = -1;
+static int hf_rtps_sm_rti_crc_result                            = -1;
+
 /* Subtree identifiers */
 static gint ett_rtps                            = -1;
 static gint ett_rtps_default_mapping            = -1;
@@ -559,6 +562,10 @@ static const value_string submessage_id_valsv2[] = {
   { 0, NULL }
 };
 
+static const value_string submessage_id_rti[] = {
+  { SUBMESSAGE_RTI_CRC,           "RTI_CRC" },
+  { 0, NULL }
+};
 
 #if 0
 static const value_string typecode_kind_vals[] = {
@@ -1126,6 +1133,17 @@ static const int* INFO_REPLY_FLAGS[] = {
   NULL
 };
 
+static const int * RTI_CRC_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_reserved04,                     /* Bit 2 */
+  &hf_rtps_flag_reserved02,                     /* Bit 1 */
+  &hf_rtps_flag_endianness,                     /* Bit 0 */
+  NULL
+};
 /* It is a 4 bytes field but with these 8 bits is enough */
 static const int* STATUS_INFO_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
@@ -3041,7 +3059,6 @@ static gboolean dissect_parameter_sequence_rti(proto_tree *rtps_parameter_tree, 
     case PID_DEFAULT_MULTICAST_LOCATOR: {
       ENSURE_LENGTH(24);
       rtps_util_add_locator_t(rtps_parameter_tree, pinfo, tvb, offset, little_endian, "locator");
-
       break;
     }
 
@@ -7529,8 +7546,6 @@ static void dissect_INFO_DST(tvbuff_t *tvb, packet_info *pinfo, gint offset, gui
   }
 }
 
-
-
 /* *********************************************************************** */
 /* *                        I N F O _ R E P L Y                          * */
 /* *********************************************************************** */
@@ -7585,6 +7600,40 @@ static void dissect_INFO_REPLY(tvbuff_t *tvb, packet_info *pinfo, gint offset, g
   }
 }
 
+/* *********************************************************************** */
+/* *                              RTI CRC                                * */
+/* *********************************************************************** */
+static void dissect_RTI_CRC(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flags,
+        gboolean little_endian, gint octets_to_next_header,proto_tree *tree) {
+   /*
+    * 0...2...........7...............15.............23...............31
+    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    * |   RTI_CRC     |X|X|X|X|X|X|X|E|      octetsToNextHeader       |
+    * +---------------+---------------+---------------+---------------+
+    * |        RTPS Message length (without the 20 bytes header)      |
+    * +---------------+---------------+---------------+---------------+
+    * |                             CRC32                             |
+    * +---------------+---------------+---------------+---------------+
+      Total 12 bytes */
+   proto_item *octet_item;
+
+   proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, RTI_CRC_FLAGS, flags);
+
+   octet_item = proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb,
+                         offset + 2, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+
+   if (octets_to_next_header != 8) {
+     expert_add_info_format(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be == 8)");
+     return;
+   }
+
+   offset += 4;
+   proto_tree_add_item(tree, hf_rtps_sm_rti_crc_number, tvb, offset, 4,
+           little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+
+   offset += 4;
+      proto_tree_add_item(tree, hf_rtps_sm_rti_crc_result, tvb, offset, 4, ENC_BIG_ENDIAN);
+}
 static gboolean dissect_rtps_submessage_v2(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flags,
                                            gboolean little_endian, guint8 submessageId, guint16 vendor_id, gint octets_to_next_header,
                                            proto_tree *rtps_submessage_tree, proto_item *submessage_item,
@@ -7646,6 +7695,12 @@ static gboolean dissect_rtps_submessage_v2(tvbuff_t *tvb, packet_info *pinfo, gi
                                 rtps_submessage_tree, vendor_id, guid);
       break;
 
+    case SUBMESSAGE_RTI_CRC:
+      if (vendor_id == RTPS_VENDOR_RTI_DDS) {
+        dissect_RTI_CRC(tvb, pinfo, offset, flags, little_endian, octets_to_next_header,
+                                rtps_submessage_tree);
+      }
+      break;
     default:
       return FALSE;
   }
@@ -7880,16 +7935,26 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       sub_hf = hf_rtps_sm_id;
       sub_vals = submessage_id_vals;
     } else {
-      sub_hf = hf_rtps_sm_idv2;
-      sub_vals = submessage_id_valsv2;
+      if ((submessageId & 0x80) && (vendor_id == RTPS_VENDOR_RTI_DDS)) {
+        sub_hf = hf_rtps_sm_idv2;
+        sub_vals = submessage_id_rti;
+      } else {
+        sub_hf = hf_rtps_sm_idv2;
+        sub_vals = submessage_id_valsv2;
+      }
     }
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str(submessageId, sub_vals, "Unknown[%02x]"));
 
     /* Creates the subtree 'Submessage: XXXX' */
     if (submessageId & 0x80) {
-      ti = proto_tree_add_uint_format_value(rtps_tree, sub_hf, tvb, offset, 1,
-                              submessageId, "Vendor-specific (0x%02x)", submessageId);
+      if (vendor_id == RTPS_VENDOR_RTI_DDS) {
+        ti = proto_tree_add_uint_format_value(rtps_tree, sub_hf, tvb, offset, 1, submessageId, "%s",
+                val_to_str(submessageId, submessage_id_rti, "Vendor-specific (0x%02x)"));
+      } else {
+        ti = proto_tree_add_uint_format_value(rtps_tree, sub_hf, tvb, offset, 1,
+                submessageId, "Vendor-specific (0x%02x)", submessageId);
+      }
     } else {
       ti = proto_tree_add_uint(rtps_tree, sub_hf, tvb, offset, 1, submessageId);
     }
@@ -9457,6 +9522,16 @@ void proto_register_rtps(void) {
     { &hf_rtps_serialized_data, {
         "serializedData", "rtps.serialized_data",
         FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_sm_rti_crc_number, {
+        "RTPS Message Length (no header)", "rtps.sm.rti_crc.message_length",
+        FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
+
+    { &hf_rtps_sm_rti_crc_result, {
+        "CRC", "rtps.sm.rti_crc",
+        FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
     },
 
     /* Flag bits */
