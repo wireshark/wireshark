@@ -109,7 +109,7 @@ find_program(VCREDIST_EXE "${_vcredist_name}"
 	PATH_SUFFIXES "redist/1033"
 )
 if(VCREDIST_EXE)
-	file(TO_NATIVE_PATH "${VCREDIST_EXE}" _vcredist_exe)
+	file(TO_NATIVE_PATH "${VCREDIST_EXE}" VCREDIST_EXE)
 	message(STATUS "Using ${_vcredist_exe} for the installer")
 endif()
 
