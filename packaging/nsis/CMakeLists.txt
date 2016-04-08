@@ -110,7 +110,7 @@ find_program(VCREDIST_EXE "${_vcredist_name}"
 )
 if(VCREDIST_EXE)
 	file(TO_NATIVE_PATH "${VCREDIST_EXE}" VCREDIST_EXE)
-	message(STATUS "Using ${_vcredist_exe} for the installer")
+	message(STATUS "Using ${VCREDIST_EXE} for the installer")
 endif()
 
 if(NOT ENABLE_STATIC)
