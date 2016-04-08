@@ -445,11 +445,11 @@ static void wslua_clear_plugin_list(void)
 static int lua_script_push_args(const int script_num) {
     gchar* argname = g_strdup_printf("lua_script%d", script_num);
     const gchar* argvalue = NULL;
-    int count = 0;
+    int i, count = ex_opt_count(argname);
 
-    while((argvalue = ex_opt_get_next(argname))) {
+    for (i = 0; i < count; i++) {
+        argvalue = ex_opt_get_nth(argname, i);
         lua_pushstring(L,argvalue);
-        count++;
     }
 
     g_free(argname);
@@ -719,12 +719,12 @@ wslua_get_expert_field(const int group, const int severity)
 
 void wslua_init(register_cb cb, gpointer client_data) {
     gchar* filename;
-    const gchar *script_filename;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
     gboolean run_anyway = FALSE;
     expert_module_t* expert_lua;
     int file_count = 1;
     static gboolean first_time = TRUE;
+    int i;
 
     static hf_register_info hf[] = {
         { &hf_wslua_fake,
@@ -928,7 +928,8 @@ void wslua_init(register_cb cb, gpointer client_data) {
         g_free(filename);
 
         /* load scripts from command line */
-        while((script_filename = ex_opt_get_next("lua_script"))) {
+        for (i = 0; i < ex_opt_count("lua_script"); i++) {
+            const gchar *script_filename = ex_opt_get_nth("lua_script", i);
             char* dirname = g_strdup(script_filename);
             char* dname = get_dirname(dirname);
 
