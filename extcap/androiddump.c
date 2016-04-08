@@ -99,7 +99,8 @@
 #define ANDROIDDUMP_VERSION_MINOR    "0"
 #define ANDROIDDUMP_VERSION_RELEASE  "3"
 
-#define SERIAL_NUMER_LENGTH_MAX  512
+#define SERIAL_NUMBER_LENGTH_MAX  512
+#define MODEL_NAME_LENGTH_MAX      64
 
 #define PACKET_LENGTH 65535
 
@@ -603,10 +604,10 @@ static int adb_send(socket_handle_t sock, const char *adb_service) {
 }
 
 static void new_interface(extcap_parameters * extcap_conf, const gchar *interface_id,
-        const gchar *serial_number, const gchar *display_name)
+        const gchar *model_name, const gchar *serial_number, const gchar *display_name)
 {
-    char * interface = g_strdup_printf("%s-%s", interface_id, serial_number);
-    char * ifdisplay = g_strdup_printf("%s %s", display_name, serial_number);
+    char *interface = g_strdup_printf("%s-%s", interface_id, serial_number);
+    char *ifdisplay = g_strdup_printf("%s %s %s", display_name, model_name, serial_number);
 
     if (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) ||
             is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER) ||
@@ -639,16 +640,20 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
     socket_handle_t        sock;
     const char            *adb_transport_serial_templace = "%04x""host:transport:%s";
     const char            *adb_check_port_templace       = "%04x""shell:cat /proc/%s/net/tcp";
-    const char            *adb_devices            = "000C""host:devices";
+    const char            *adb_devices            = "000E""host:devices-l";
     const char            *adb_api_level          = "0022""shell:getprop ro.build.version.sdk";
     const char            *adb_hcidump_version    = "0017""shell:hcidump --version";
     const char            *adb_ps_droid_bluetooth = "0018""shell:ps droid.bluetooth";
     const char            *adb_ps_bluetooth_app   = "001E""shell:ps com.android.bluetooth";
     const char            *adb_tcpdump_help       = "0010""shell:tcpdump -h";
-    char                   serial_number[SERIAL_NUMER_LENGTH_MAX];
+    char                   serial_number[SERIAL_NUMBER_LENGTH_MAX];
     size_t                 serial_number_length;
+    char                   model_name[MODEL_NAME_LENGTH_MAX];
     int                    result;
     char                  *pos;
+    char                  *i_pos;
+    char                  *model_pos;
+    char                  *device_pos;
     char                  *prev_pos;
     int                    api_level;
     int                    disable_interface;
@@ -674,7 +679,8 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
 
     while (pos < (char *) (device_list + device_length)) {
         prev_pos = pos;
-        pos = strchr(pos, '\t');
+        pos = strchr(pos, ' ');
+        i_pos = pos;
         result = (int) (pos - prev_pos);
         pos = strchr(pos, '\n') + 1;
         if (result >= (int) sizeof(serial_number)) {
@@ -685,7 +691,20 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
         serial_number[result] = '\0';
         serial_number_length = strlen(serial_number);
 
-        verbose_print("VERBOSE: Processing device: \"%s\"\n" , serial_number);
+        model_name[0] = '\0';
+        model_pos = g_strstr_len(i_pos, pos - i_pos, "model:");
+        if (model_pos) {
+            device_pos = g_strstr_len(i_pos, pos - i_pos, "device:");
+            if (device_pos && device_pos - model_pos - 6 - 1 < MODEL_NAME_LENGTH_MAX) {
+                memcpy(model_name, model_pos + 6, device_pos - model_pos - 6 - 1);
+                model_name[device_pos - model_pos - 6 - 1] = '\0';
+            }
+        }
+
+        if (model_name[0] == '\0')
+            strcpy(model_name, "unknown");
+
+        verbose_print("VERBOSE: Processing device: \"%s\" <%s>\n" , serial_number, model_name);
 
         /* Check for the presence of tcpdump in the android device. */
 
@@ -712,7 +731,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
 
                 /* If tcpdump is found in the android device, add Android Wifi Tcpdump as an interface  */
                 if (strstr(response,"tcpdump version")) {
-                    new_interface(extcap_conf, INTERFACE_ANDROID_WIFI_TCPDUMP, serial_number, "Android WiFi");
+                    new_interface(extcap_conf, INTERFACE_ANDROID_WIFI_TCPDUMP, model_name, serial_number, "Android WiFi");
                 }
             } else {
                 verbose_print("WARNING: Error on socket: <%s>\n", helpful_packet);
@@ -749,16 +768,16 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
         verbose_print("VERBOSE: Android API Level for %s is %i\n", serial_number, api_level);
 
         if (api_level < 21) {
-            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_MAIN,   serial_number, "Android Logcat Main");
-            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_SYSTEM, serial_number, "Android Logcat System");
-            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_RADIO,  serial_number, "Android Logcat Radio");
-            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_EVENTS, serial_number, "Android Logcat Events");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_MAIN,   model_name, serial_number, "Android Logcat Main");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_SYSTEM, model_name, serial_number, "Android Logcat System");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_RADIO,  model_name, serial_number, "Android Logcat Radio");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_EVENTS, model_name, serial_number, "Android Logcat Events");
         } else {
-            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN,   serial_number, "Android Logcat Main");
-            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM, serial_number, "Android Logcat System");
-            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_RADIO,  serial_number, "Android Logcat Radio");
-            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS, serial_number, "Android Logcat Events");
-            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_CRASH,  serial_number, "Android Logcat Crash");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN,   model_name, serial_number, "Android Logcat Main");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM, model_name, serial_number, "Android Logcat System");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_RADIO,  model_name, serial_number, "Android Logcat Radio");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS, model_name, serial_number, "Android Logcat Events");
+            new_interface(extcap_conf, INTERFACE_ANDROID_LOGCAT_TEXT_CRASH,  model_name, serial_number, "Android Logcat Crash");
         }
 
         if (api_level >= 5 && api_level < 17) {
@@ -800,7 +819,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
             }
 
             if (!disable_interface) {
-                new_interface(extcap_conf, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP, serial_number, "Android Bluetooth Hcidump");
+                new_interface(extcap_conf, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP, model_name, serial_number, "Android Bluetooth Hcidump");
             }
         }
 
@@ -889,7 +908,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
             }
 
             if (!disable_interface) {
-                new_interface(extcap_conf, INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER, serial_number, "Android Bluetooth External Parser");
+                new_interface(extcap_conf, INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER, model_name, serial_number, "Android Bluetooth External Parser");
             }
         }
 
@@ -981,7 +1000,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
             }
 
             if (!disable_interface) {
-                new_interface(extcap_conf, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET, serial_number, "Android Bluetooth Btsnoop Net");
+                new_interface(extcap_conf, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET, model_name, serial_number, "Android Bluetooth Btsnoop Net");
             }
         }
     }
