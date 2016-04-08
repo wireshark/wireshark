@@ -145,6 +145,7 @@ set(ASN1_DISSECTOR_SRC
 	packet-disp.c
 	packet-dop.c
 	packet-dsp.c
+	packet-ecp.c
 	packet-ess.c
 	packet-ftam.c
 	packet-goose.c

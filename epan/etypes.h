@@ -538,6 +538,10 @@ extern "C" {
 #define ETHERTYPE_HSR			0x892F  /* High-availability Seamless Redundancy (IEC62439 Part 3) */
 #endif
 
+#ifndef ETHERTYPE_ECP
+#define ETHERTYPE_ECP			0x8940  /* Edge Control Protocol */
+#endif
+
 #ifndef ETHERTYPE_NSH
 #define ETHERTYPE_NSH			0x894F  /* Network Service Header (draft-ietf-sfc-nsh-01.txt) */
 #endif

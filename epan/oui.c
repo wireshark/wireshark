@@ -46,6 +46,7 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
     { OUI_FORCE10,          "Force10 Networks" },
     { OUI_ERICSSON,         "Ericsson Group" },
     { OUI_CATENA,           "Catena Networks" },
+    { OUI_ORACLE,           "Oracle" },
     { OUI_SONY_ERICSSON,    "Sony Ericsson Mobile Communications AB" },
     { OUI_SONY_ERICSSON_2,  "Sony Ericsson Mobile Communications AB" },
     /* PROFINET */

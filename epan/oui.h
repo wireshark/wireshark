@@ -45,6 +45,7 @@
 #define OUI_ERICSSON        0x0001EC    /* Ericsson Group */
 #define OUI_CATENA          0x00025A    /* Catena Networks */
 #define OUI_ATHEROS         0x00037F    /* Atheros Communications */
+#define OUI_ORACLE          0x0003BA    /* Oracle */
 #define OUI_SONY_ERICSSON   0x000AD9    /* Sony Ericsson Mobile Communications AB */
 #define OUI_ARUBA           0x000B86    /* Aruba Networks */
 #define OUI_SONY_ERICSSON_2 0x000E07    /* Sony Ericsson Mobile Communications AB */
