@@ -498,7 +498,7 @@ static gboolean     lowpan_dlsrc_to_ifcid   (packet_info *pinfo, guint8 *ifcid);
 static gboolean     lowpan_dldst_to_ifcid   (packet_info *pinfo, guint8 *ifcid);
 static void         lowpan_addr16_to_ifcid  (guint16 addr, guint8 *ifcid);
 static void         lowpan_addr16_with_panid_to_ifcid(guint16 panid, guint16 addr, guint8 *ifcid);
-static tvbuff_t *   lowpan_reassemble_ipv6  (tvbuff_t *tvb, struct ip6_hdr * ipv6, struct lowpan_nhdr * nhdr_list);
+static tvbuff_t *   lowpan_reassemble_ipv6  (tvbuff_t *tvb, packet_info *pinfo, struct ip6_hdr * ipv6, struct lowpan_nhdr * nhdr_list);
 static guint8       lowpan_parse_nhc_proto  (tvbuff_t *tvb, gint offset);
 
 /* Context table helpers */
@@ -835,14 +835,13 @@ lowpan_dldst_to_ifcid(packet_info *pinfo, guint8 *ifcid)
  *---------------------------------------------------------------
  */
 static tvbuff_t *
-lowpan_reassemble_ipv6(tvbuff_t *tvb, struct ip6_hdr *ipv6, struct lowpan_nhdr *nhdr_list)
+lowpan_reassemble_ipv6(tvbuff_t *tvb, packet_info *pinfo, struct ip6_hdr *ipv6, struct lowpan_nhdr *nhdr_list)
 {
     gint                length = 0;
     gint                reported = 0;
     guint8 *            buffer;
     guint8 *            cursor;
     struct lowpan_nhdr *nhdr;
-    tvbuff_t           *ret;
 
     /* Compute the real and reported lengths. */
     for (nhdr = nhdr_list; nhdr; nhdr = nhdr->next) {
@@ -852,7 +851,7 @@ lowpan_reassemble_ipv6(tvbuff_t *tvb, struct ip6_hdr *ipv6, struct lowpan_nhdr *
     ipv6->ip6_plen = g_ntohs(reported);
 
     /* Allocate a buffer for the packet and copy in the IPv6 header. */
-    buffer = (guint8 *)g_malloc(length + sizeof(struct ip6_hdr));
+    buffer = (guint8 *)wmem_alloc(pinfo->pool, length + sizeof(struct ip6_hdr));
     memcpy(buffer, ipv6, sizeof(struct ip6_hdr));
     cursor = buffer + sizeof(struct ip6_hdr);
 
@@ -863,9 +862,7 @@ lowpan_reassemble_ipv6(tvbuff_t *tvb, struct ip6_hdr *ipv6, struct lowpan_nhdr *
     };
 
     /* Return the reassembled packet. */
-    ret = tvb_new_child_real_data(tvb, buffer, length + (int)sizeof(struct ip6_hdr), reported + (int)sizeof(struct ip6_hdr));
-    tvb_set_free_cb(ret, g_free);
-    return ret;
+    return tvb_new_child_real_data(tvb, buffer, length + (int)sizeof(struct ip6_hdr), reported + (int)sizeof(struct ip6_hdr));
 } /* lowpan_reassemble_ipv6 */
 
 /*FUNCTION:------------------------------------------------------
@@ -1389,7 +1386,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
     }
 
     /* Link the reassembled tvbuff together.  */
-    ipv6_tvb = lowpan_reassemble_ipv6(tvb, &ipv6, nhdr_list);
+    ipv6_tvb = lowpan_reassemble_ipv6(tvb, pinfo, &ipv6, nhdr_list);
 
     /* Add a new data source for it. */
     add_new_data_source(pinfo, ipv6_tvb, "Decompressed 6LoWPAN HC1");
@@ -1818,7 +1815,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
      *=====================================================
      */
     /* Reassemble the IPv6 packet. */
-    ipv6_tvb = lowpan_reassemble_ipv6(tvb, &ipv6, nhdr_list);
+    ipv6_tvb = lowpan_reassemble_ipv6(tvb, pinfo, &ipv6, nhdr_list);
 
     /* Add a new data source for it. */
     add_new_data_source(pinfo, ipv6_tvb, "Decompressed 6LoWPAN IPHC");
