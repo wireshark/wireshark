@@ -982,6 +982,7 @@ void wslua_reload_plugins (register_cb cb, gpointer client_data) {
     wslua_deregister_protocols(L);
     wslua_deregister_dissector_tables(L);
     wslua_deregister_listeners(L);
+    wslua_deregister_fields(L);
     wslua_deregister_filehandlers(L);
     wslua_deregister_menus();
     wslua_clear_plugin_list();
