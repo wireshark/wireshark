@@ -1630,6 +1630,12 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     cf->epan = ws_epan_new(cf);
     cf->cinfo.epan = cf->epan;
 
+    /* A new Lua tap listener may be registered in lua_prime_all_fields()
+       called via epan_new() / init_dissection() when reloading Lua plugins. */
+    if (!create_proto_tree && have_filtering_tap_listeners()) {
+      create_proto_tree = TRUE;
+    }
+
     /* We need to redissect the packets so we have to discard our old
      * packet list store. */
     packet_list_clear();

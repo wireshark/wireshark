@@ -787,6 +787,7 @@ extern int wslua_deregister_heur_dissectors(lua_State* L);
 extern int wslua_deregister_protocols(lua_State* L);
 extern int wslua_deregister_dissector_tables(lua_State* L);
 extern int wslua_deregister_listeners(lua_State* L);
+extern int wslua_deregister_fields(lua_State* L);
 extern int wslua_deregister_filehandlers(lua_State* L);
 extern void wslua_deregister_menus(void);
 

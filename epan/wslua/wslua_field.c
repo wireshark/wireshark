@@ -557,10 +557,10 @@ gboolean wslua_has_field_extractors(void) {
  * after the fields are primed.
  */
 
+static gboolean fake_tap = FALSE;
 void lua_prime_all_fields(proto_tree* tree _U_) {
     GString* fake_tap_filter = g_string_new("frame");
     guint i;
-    static gboolean fake_tap = FALSE;
     gchar *err_msg;
 
     for(i=0; i < wanted_fields->len; i++) {
@@ -596,19 +596,10 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
         if (error) {
             report_failure("while registering lua_fake_tap:\n%s",error->str);
             g_string_free(error,TRUE);
-        } else {
-            if (wslua_dfilter) {
-                dfilter_free(wslua_dfilter);
-                wslua_dfilter = NULL;
-            }
-            if (!dfilter_compile(fake_tap_filter->str, &wslua_dfilter, &err_msg)) {
-                report_failure("while compiling dfilter \"%s\" for wslua: %s", fake_tap_filter->str, err_msg);
-                g_free(err_msg);
-            }
+        } else if (!dfilter_compile(fake_tap_filter->str, &wslua_dfilter, &err_msg)) {
+            report_failure("while compiling dfilter \"%s\" for wslua: %s", fake_tap_filter->str, err_msg);
+            g_free(err_msg);
         }
-    } else if (fake_tap) {
-        remove_tap_listener(&fake_tap);
-        fake_tap = FALSE;
     }
     g_string_free(fake_tap_filter, TRUE);
 }
@@ -815,6 +806,20 @@ int Field_register(lua_State* L) {
     WSLUA_REGISTER_CLASS(Field);
     WSLUA_REGISTER_ATTRIBUTES(Field);
     outstanding_FieldInfo = g_ptr_array_new();
+
+    return 0;
+}
+
+int wslua_deregister_fields(lua_State* L _U_) {
+    if (wslua_dfilter) {
+        dfilter_free(wslua_dfilter);
+        wslua_dfilter = NULL;
+    }
+
+    if (fake_tap) {
+        remove_tap_listener(&fake_tap);
+        fake_tap = FALSE;
+    }
 
     return 0;
 }
