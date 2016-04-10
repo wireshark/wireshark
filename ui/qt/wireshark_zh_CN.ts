@@ -2697,17 +2697,17 @@ for filter files: %2.</source>
 <context>
     <name>FollowStreamDialog</name>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="99"/>
+        <location filename="follow_stream_dialog.cpp" line="102"/>
         <source>Hide this stream</source>
         <translation>隐藏这条流</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="102"/>
+        <location filename="follow_stream_dialog.cpp" line="105"/>
         <source>Print</source>
         <translation>打印</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="105"/>
+        <location filename="follow_stream_dialog.cpp" line="108"/>
         <source>Save as</source>
         <oldsource>Save as...</oldsource>
         <translation>另存为</translation>
@@ -2725,171 +2725,171 @@ for filter files: %2.</source>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="90"/>
+        <location filename="follow_stream_dialog.cpp" line="93"/>
         <source>ASCII</source>
         <translation>ASCII</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="91"/>
+        <location filename="follow_stream_dialog.cpp" line="94"/>
         <source>C Arrays</source>
         <translation>C Arrays</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="92"/>
+        <location filename="follow_stream_dialog.cpp" line="95"/>
         <source>EBCDIC</source>
         <translation>EBCDIC</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="93"/>
+        <location filename="follow_stream_dialog.cpp" line="96"/>
         <source>Hex Dump</source>
         <translation>Hex 转储</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="94"/>
+        <location filename="follow_stream_dialog.cpp" line="97"/>
         <source>UTF-8</source>
         <translation>UTF-8</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="95"/>
+        <location filename="follow_stream_dialog.cpp" line="98"/>
         <source>YAML</source>
         <translation>YAML</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="96"/>
+        <location filename="follow_stream_dialog.cpp" line="99"/>
         <source>Raw</source>
         <translation>原始数据</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="149"/>
+        <location filename="follow_stream_dialog.cpp" line="152"/>
         <source>Packet %1. </source>
         <translation>分组 %1。</translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="152"/>
+        <location filename="follow_stream_dialog.cpp" line="155"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
         <translation>
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;客户端&lt;/span&gt; 分组, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="155"/>
+        <location filename="follow_stream_dialog.cpp" line="158"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
         <translation>
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;服务器&lt;/span&gt; 分组, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="158"/>
+        <location filename="follow_stream_dialog.cpp" line="161"/>
         <source>%Ln turn(s).</source>
         <translation>
             <numerusform>%Ln turn(s).</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="161"/>
+        <location filename="follow_stream_dialog.cpp" line="164"/>
         <source> Click to select.</source>
         <translation>点击选择。</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="222"/>
+        <location filename="follow_stream_dialog.cpp" line="227"/>
         <source>Save Stream Content As</source>
         <translation>保存流的内容为</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="596"/>
+        <location filename="follow_stream_dialog.cpp" line="609"/>
         <source>
 [Stream output truncated]</source>
         <translation>[流量输出截断]</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="865"/>
+        <location filename="follow_stream_dialog.cpp" line="880"/>
         <source>No capture file.</source>
         <translation>无捕获文件。</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="865"/>
+        <location filename="follow_stream_dialog.cpp" line="880"/>
         <source>Please make sure you have a capture file opened.</source>
         <translation>请确认您已经打开一个捕获文件。</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="871"/>
-        <location filename="follow_stream_dialog.cpp" line="881"/>
-        <location filename="follow_stream_dialog.cpp" line="887"/>
-        <location filename="follow_stream_dialog.cpp" line="895"/>
+        <location filename="follow_stream_dialog.cpp" line="886"/>
+        <location filename="follow_stream_dialog.cpp" line="896"/>
+        <location filename="follow_stream_dialog.cpp" line="902"/>
+        <location filename="follow_stream_dialog.cpp" line="910"/>
         <source>Error following stream.</source>
         <translation>追踪流错误。</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="871"/>
+        <location filename="follow_stream_dialog.cpp" line="886"/>
         <source>Capture file invalid.</source>
         <translation>捕获文件无效。</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="881"/>
+        <location filename="follow_stream_dialog.cpp" line="896"/>
         <source>Please make sure you have a TCP packet selected.</source>
         <translation>请确认您已经选中一个 TCP 分组。</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="887"/>
+        <location filename="follow_stream_dialog.cpp" line="902"/>
         <source>Please make sure you have a UDP packet selected.</source>
         <translation>请确认您已经选中一个 UDP 分组。</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="896"/>
+        <location filename="follow_stream_dialog.cpp" line="911"/>
         <source>Please make sure you have an SSL packet selected.</source>
         <translation>请确认您已经选中一个 SSL 分组。</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="919"/>
+        <location filename="follow_stream_dialog.cpp" line="934"/>
         <source>Error creating filter for this stream.</source>
         <translation>为这个流创建过滤器时出错。</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="920"/>
+        <location filename="follow_stream_dialog.cpp" line="935"/>
         <source>A transport or network layer header is needed.</source>
         <translation>需要传输层或网络层头部。</translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="977"/>
-        <location filename="follow_stream_dialog.cpp" line="996"/>
+        <location filename="follow_stream_dialog.cpp" line="992"/>
+        <location filename="follow_stream_dialog.cpp" line="1011"/>
         <source>%Ln total stream(s).</source>
         <translation>
             <numerusform>%Ln 全部流。</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1058"/>
+        <location filename="follow_stream_dialog.cpp" line="1073"/>
         <source>Could not read from temporary file %1: %2</source>
         <translation>无法从临时文件%1: %2中读取</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1063"/>
-        <location filename="follow_stream_dialog.cpp" line="1312"/>
+        <location filename="follow_stream_dialog.cpp" line="1078"/>
+        <location filename="follow_stream_dialog.cpp" line="1332"/>
         <source>Short read from temporary file %1: expected %2, got %3</source>
         <translation>从临时文件 %1 中短读: 期待 %2, 获取 %3</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1218"/>
+        <location filename="follow_stream_dialog.cpp" line="1233"/>
         <source>Follow TCP Stream (%1)</source>
         <translation>追踪 TCP 流 (%1)</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1225"/>
+        <location filename="follow_stream_dialog.cpp" line="1240"/>
         <source>Follow UDP Stream (%1)</source>
         <translation>追踪 UDP 流 (%1)</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1232"/>
+        <location filename="follow_stream_dialog.cpp" line="1247"/>
         <source>Follow SSL Stream (%1)</source>
         <translation>追踪 SSL 流 (%1)</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1256"/>
+        <location filename="follow_stream_dialog.cpp" line="1273"/>
         <source>File closed.</source>
         <translation>文件关闭。</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1364"/>
+        <location filename="follow_stream_dialog.cpp" line="1388"/>
         <source>Error reading temporary file</source>
         <translation>读取临时文件错误</translation>
     </message>
