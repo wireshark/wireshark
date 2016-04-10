@@ -102,6 +102,7 @@ libwsutil_nonrepl_INCLUDES = \
 	frequency-utils.h \
 	g711.h		\
 	inet_addr.h	\
+	inet_ipv6.h	\
 	interface.h	\
 	jsmn.h		\
 	md4.h		\
