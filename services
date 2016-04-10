@@ -7943,6 +7943,7 @@ axysbridge       4418/udp # AXYS communication protocol [Duran_Audio_B.V.] [Gera
 cbp              4419/tcp # Colnod Binary Protocol [Colsys_s.r.o.] [Jiri_Merth] 2016-03-23
 nvm-express      4420/tcp # NVM Express over Fabrics storage access [NVM_Express_Workgroup] [Amber_Huffman] 2016-03-31
 nvm-express      4420/udp # NVM Express over Fabrics storage access [NVM_Express_Workgroup] [Amber_Huffman] 2016-03-31
+scaleft          4421/tcp # Multi-Platform Remote Management for Cloud Infrastructure [ScaleFT_Inc] [Paul_Querna] 2016-04-07
 netrockey6       4425/tcp # NetROCKEY6 SMART Plus Service [Feitian_Technologies] [Feitian_Technologies] 2010-09-15
 netrockey6       4425/udp # NetROCKEY6 SMART Plus Service [Feitian_Technologies] [Feitian_Technologies] 2010-09-15
 beacon-port-2    4426/tcp # SMARTS Beacon Port [Eyal_Yardeni] [Eyal_Yardeni] 2003-11
