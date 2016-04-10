@@ -739,13 +739,13 @@ static int dissect_wreth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     guint8      Offset = 0 ;
 
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Wreth");
-    /* Clear out stuff in the info column */
-    col_clear(pinfo->cinfo,COL_INFO);
-
     /*Read the packet type, if not good, exit*/
     packet_type = tvb_get_ntohs(tvb,0);
     if(packet_type != WSE_RETH_SUBTYPE) return 1;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Wreth");
+    /* Clear out stuff in the info column */
+    col_clear(pinfo->cinfo,COL_INFO);
 
     mi = proto_tree_add_protocol_format(tree, wreth_proto, tvb, Offset, -1, "WSE remote ethernet");
     pWrethTree = proto_item_add_subtree(mi, ett_wreth);
