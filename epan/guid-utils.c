@@ -34,6 +34,7 @@
 #ifdef _WIN32
 #include <tchar.h>
 #include <windows.h>
+#include <strsafe.h>
 #endif
 
 static wmem_tree_t *guid_to_name_tree = NULL;
@@ -42,7 +43,7 @@ static wmem_tree_t *guid_to_name_tree = NULL;
 #ifdef _WIN32
 /* try to resolve an DCE/RPC interface name to its name using the Windows registry entries */
 /* XXX - might be better to fill all interfaces into our database at startup instead of searching each time */
-int
+static int
 ResolveWin32UUID(e_guid_t if_id, char *uuid_name, int uuid_name_max_len)
 {
 	TCHAR *reg_uuid_name;
@@ -57,7 +58,7 @@ ResolveWin32UUID(e_guid_t if_id, char *uuid_name, int uuid_name_max_len)
 		return 0;
 	}
 	reg_uuid_name[0] = '\0';
-	_snwprintf(reg_uuid_str, MAX_PATH, _T("SOFTWARE\\Classes\\Interface\\{%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}"),
+	StringCchPrintf(reg_uuid_str, MAX_PATH, _T("SOFTWARE\\Classes\\Interface\\{%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}"),
 			if_id.data1, if_id.data2, if_id.data3,
 			if_id.data4[0], if_id.data4[1],
 			if_id.data4[2], if_id.data4[3],
