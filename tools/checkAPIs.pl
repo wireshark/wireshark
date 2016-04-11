@@ -47,7 +47,15 @@ my %APIs = (
         'prohibited' => { 'count_errors' => 1, 'functions' => [
                 # Memory-unsafe APIs
                 # Use something that won't overwrite the end of your buffer instead
-                # of these:
+                # of these.
+                #
+                # Microsoft provides lists of unsafe functions and their
+                # recommended replacements in "Security Development Lifecycle
+                # (SDL) Banned Function Calls"
+                # https://msdn.microsoft.com/en-us/library/bb288454.aspx
+                # and "Deprecated CRT Functions"
+                # https://msdn.microsoft.com/en-us/library/ms235384.aspx
+                #
                 'gets',
                 'sprintf',
                 'g_sprintf',
