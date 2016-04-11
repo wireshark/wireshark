@@ -42,6 +42,7 @@
 # include <fcntl.h>
 #endif
 
+#include "wsutil/file_util.h"
 #include "app_mem_usage.h"
 
 #define MAX_COMPONENTS 16
@@ -96,7 +97,7 @@ linux_get_memory(gsize *ptotal, gsize *prss)
 
 		g_snprintf(path, sizeof(path), "/proc/%d/statm", getpid());
 
-		fd = open(path, O_RDONLY);
+		fd = ws_open(path, O_RDONLY);
 
 		/* XXX, fallback to some other /proc file ? */
 	}
