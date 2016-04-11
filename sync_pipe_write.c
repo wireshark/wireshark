@@ -49,7 +49,7 @@ pipe_write_header(int pipe_fd, char indicator, int length)
     header[3] = (length >> 0) & 0xFF;
 
     /* write header */
-    return write(pipe_fd, header, sizeof header);
+    return ws_write(pipe_fd, header, sizeof header);
 }
 
 
@@ -80,7 +80,7 @@ pipe_write_block(int pipe_fd, char indicator, const char *msg)
     /* write value (if we have one) */
     if(len) {
         /*g_warning("write %d indicator: %c value len: %u msg: %s", pipe_fd, indicator, len, msg);*/
-        ret = write(pipe_fd, msg, len);
+        ret = ws_write(pipe_fd, msg, len);
         if(ret == -1) {
             return;
         }

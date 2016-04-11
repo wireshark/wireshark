@@ -63,7 +63,6 @@
 #endif
 
 #ifdef _WIN32
-#include <wsutil/file_util.h>
 #include <wsutil/unicode-utils.h>
 #include <process.h>    /* getpid */
 #ifdef HAVE_WINSOCK2_H
@@ -77,6 +76,7 @@
 
 #include <wsutil/crash_info.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/file_util.h>
 #include <wsutil/md5.h>
 #include <wsutil/plugins.h>
 #include <wsutil/privileges.h>
@@ -1165,7 +1165,7 @@ main(int argc, char *argv[])
                         optarg);
                 exit(1);
             }
-            srand( (unsigned int) (time(NULL) + getpid()) );
+            srand( (unsigned int) (time(NULL) + ws_getpid()) );
             break;
 
         case 'F':
@@ -2014,4 +2014,3 @@ handle_chopping(chop_t chop, struct wtap_pkthdr *out_phdr,
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

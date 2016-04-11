@@ -121,6 +121,15 @@ WS_DLL_PUBLIC FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode,
 #define ws_fstat64 _fstati64	/* use _fstati64 for 64-bit size support */
 #define ws_lseek64 _lseeki64	/* use _lseeki64 for 64-bit offset support */
 #define ws_fdopen  _fdopen
+#define ws_fileno  _fileno
+#define ws_isatty  _isatty
+
+/*
+ * Other CRT functions. getpid probably belongs in sys_util.h or proc_util.h
+ * but neither yet exist.
+ */
+#define ws_getpid  _getpid
+#define ws_umask  _umask
 
 /* DLL loading */
 
@@ -189,7 +198,13 @@ WS_DLL_PUBLIC void create_app_running_mutex();
 #define ws_fstat64 fstat	/* AC_SYS_LARGEFILE should make off_t 64-bit */
 #define ws_lseek64 lseek	/* AC_SYS_LARGEFILE should make off_t 64-bit */
 #define ws_fdopen  fdopen
+#define ws_fileno  fileno
+#define ws_isatty  isatty
 #define O_BINARY   0		/* Win32 needs the O_BINARY flag for open() */
+
+/* Other CRT functions */
+#define ws_getpid  getpid
+#define ws_umask   umask
 
 #endif /* _WIN32 */
 

@@ -2280,9 +2280,9 @@ main(int argc, char *argv[])
      * suppress the information printed for each packet, but it'll
      * also suppress the packet counts.
      */
-    if (!isatty(fileno(stderr)))
+    if (!ws_isatty(ws_fileno(stderr)))
       print_packet_counts = FALSE;
-    else if (print_packet_info && isatty(fileno(stdout)))
+    else if (print_packet_info && ws_isatty(ws_fileno(stdout)))
       print_packet_counts = FALSE;
     else if (quiet)
       print_packet_counts = FALSE;

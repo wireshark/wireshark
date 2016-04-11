@@ -249,7 +249,6 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		/DWIN32_LEAN_AND_MEAN
 		"/DMSC_VER_REQUIRED=${MSC_VER_REQUIRED}"
 		/D_CRT_SECURE_NO_DEPRECATE
-		/D_CRT_NONSTDC_NO_DEPRECATE
 		# NOMINMAX keeps windows.h from defining "min" and "max" via windef.h.
 		# This avoids conflicts with the C++ standard library.
 		/DNOMINMAX

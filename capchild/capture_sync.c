@@ -1617,7 +1617,7 @@ pipe_read_bytes(int pipe_fd, char *bytes, int required, char **msg)
     int error;
 
     while(required) {
-        newly = read(pipe_fd, &bytes[offset], required);
+        newly = ws_read(pipe_fd, &bytes[offset], required);
         if (newly == 0) {
             /* EOF */
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
@@ -1684,7 +1684,7 @@ sync_pipe_gets_nonblock(int pipe_fd, char *bytes, int max) {
         offset++;
         if (! pipe_data_available(pipe_fd))
             break;
-        newly = read(pipe_fd, &bytes[offset], 1);
+        newly = ws_read(pipe_fd, &bytes[offset], 1);
         if (newly == 0) {
             /* EOF - not necessarily an error */
             break;
@@ -1771,7 +1771,7 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
 
         /* we have a problem here, try to read some more bytes from the pipe to debug where the problem really is */
         memcpy(msg, header, sizeof(header));
-        newly = read(pipe_fd, &msg[sizeof(header)], len-sizeof(header));
+        newly = ws_read(pipe_fd, &msg[sizeof(header)], len-sizeof(header));
         if (newly < 0) { /* error */
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
                   "read from pipe %d: error(%u): %s", pipe_fd, errno, g_strerror(errno));
@@ -2189,7 +2189,7 @@ signal_pipe_capquit_to_child(capture_session *cap_session)
     /* it doesn't matter *what* we send here, the first byte will stop the capture */
     /* simply sending a "QUIT" string */
     /*pipe_write_block(cap_session->signal_pipe_write_fd, SP_QUIT, quit_msg);*/
-    ret = write(cap_session->signal_pipe_write_fd, quit_msg, sizeof quit_msg);
+    ret = ws_write(cap_session->signal_pipe_write_fd, quit_msg, sizeof quit_msg);
     if(ret == -1) {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
               "signal_pipe_capquit_to_child: %d header: error %s", cap_session->signal_pipe_write_fd, g_strerror(errno));

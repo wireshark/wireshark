@@ -3777,7 +3777,7 @@ ssl_load_key(FILE* fp)
     gint                  ret;
     guint                 bytes;
 
-    if (ws_fstat64(fileno(fp), &statbuf) == -1) {
+    if (ws_fstat64(ws_fileno(fp), &statbuf) == -1) {
         ssl_debug_printf("ssl_load_key: can't ws_fstat64 file\n");
         return NULL;
     }
@@ -4655,7 +4655,7 @@ file_needs_reopen(FILE *fp, const char *filename)
 
     /* consider a file deleted when stat fails for either file,
      * or when the residing device / inode has changed. */
-    if (0 != ws_fstat64(fileno(fp), &open_stat))
+    if (0 != ws_fstat64(ws_fileno(fp), &open_stat))
         return TRUE;
     if (0 != ws_stat64(filename, &current_stat))
         return TRUE;

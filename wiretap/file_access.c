@@ -2283,7 +2283,7 @@ wtap_dump_open_tempfile_ng(char **filenamep, const char *pfx,
 	fh = wtap_dump_file_fdopen(wdh, fd);
 	if (fh == NULL) {
 		*err = errno;
-		close(fd);
+		ws_close(fd);
 		g_free(wdh);
 		return NULL;	/* can't create file */
 	}
@@ -2461,7 +2461,7 @@ wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, gboolean compress
 	if(compressed) {
 		cant_seek = TRUE;
 	} else {
-		fd = fileno((FILE *)wdh->fh);
+		fd = ws_fileno((FILE *)wdh->fh);
 		if (ws_lseek64(fd, 1, SEEK_CUR) == (off_t) -1)
 			cant_seek = TRUE;
 		else {

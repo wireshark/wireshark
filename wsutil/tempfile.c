@@ -65,7 +65,7 @@ mkstemp (char *path_template)
     }
 
   if (g_snprintf (&path_template[len - 5], 6, "%.5u",
-                  (unsigned int) getpid () % 100000) != 5)
+                  (unsigned int) ws_getpid () % 100000) != 5)
     /* Inconceivable lossage.  */
     return -1;
 
@@ -109,7 +109,7 @@ mkdtemp (char *path_template)
     }
 
   if (g_snprintf (&path_template[len - 5], 6, "%.5u",
-                  (unsigned int) getpid () % 100000) != 5)
+                  (unsigned int) ws_getpid () % 100000) != 5)
     /* Inconceivable lossage.  */
     return NULL;
 
@@ -221,9 +221,9 @@ create_tempfile(char **namebuf, const char *pfx)
      the umask to 0077 to take away all group and other
      permissions, attempt to create the file, and then put
      the umask back. */
-  old_umask = umask(0077);
+  old_umask = ws_umask(0077);
   fd = mkstemp(tf[idx].path);
-  umask(old_umask);
+  ws_umask(old_umask);
   return fd;
 }
 

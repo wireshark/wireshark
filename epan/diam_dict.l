@@ -94,6 +94,16 @@
 #include <epan/to_str.h>
 #include <wsutil/file_util.h>
 
+/*
+ * Deprecated CRT functions. We call malloc+free quite a bit here. We could
+ * probably improve startup performance by using wmem instead.
+ */
+#ifdef _WIN32
+#define ws_strdup _strdup
+#else
+#define ws_strdup strdup
+#endif
+
 typedef struct entity_t {
 	char* name;
 	char* file;
@@ -284,10 +294,10 @@ description_attr description=\042
 }
 
 <XMLPI_ATTRS>{xmlpi_key_attr} BEGIN XMLPI_GETKEY;
-<XMLPI_GETKEY>{ndquot} { yyextra->xmlpi->key = strdup(yytext); BEGIN XMLPI_ATTRS; }
+<XMLPI_GETKEY>{ndquot} { yyextra->xmlpi->key = ws_strdup(yytext); BEGIN XMLPI_ATTRS; }
 
 <XMLPI_ATTRS>{xmlpi_value_attr} BEGIN XMLPI_GETVAL;
-<XMLPI_GETVAL>{ndquot} { yyextra->xmlpi->value = strdup(yytext); BEGIN XMLPI_ATTRS; }
+<XMLPI_GETVAL>{ndquot} { yyextra->xmlpi->value = ws_strdup(yytext); BEGIN XMLPI_ATTRS; }
 
 <XMLPI_ATTRS>.
 <XMLPI_ATTRS>{xmlpi_end} BEGIN LOADING;
@@ -296,14 +306,14 @@ description_attr description=\042
 <LOADING>{start_entity} BEGIN ENTITY;
 <ENTITY>{entityname} {
 	entity_t* e = g_new(entity_t,1);
-	e->name = strdup(yytext);
+	e->name = ws_strdup(yytext);
 	e->next = yyextra->ents;
 	yyextra->ents = e;
 	BEGIN GET_SYSTEM;
 	};
 <GET_SYSTEM>{system} BEGIN GET_FILE;
 <GET_FILE>{ndquot} {
-		yyextra->ents->file = strdup(yytext);
+		yyextra->ents->file = ws_strdup(yytext);
 		BEGIN END_ENTITY;
 	}
 <END_ENTITY>{end_entity} BEGIN LOADING;
@@ -384,7 +394,7 @@ description_attr description=\042
 
 
 <GET_ATTR>{ndquot} {
-	*(yyextra->attr_str) = strdup(yytext);
+	*(yyextra->attr_str) = ws_strdup(yytext);
 	D(("%s\n",yytext));
 	yyextra->attr_str = NULL;
 	BEGIN END_ATTR;
@@ -540,7 +550,7 @@ description_attr description=\042
 <AVP_ATTRS>{stop_end}			{ BEGIN IN_APPL; }
 
 
-<IN_AVP>{grouped_start} { yyextra->avp->type = strdup("Grouped"); };
+<IN_AVP>{grouped_start} { yyextra->avp->type = ws_strdup("Grouped"); };
 <IN_AVP>{grouped_end} ;
 
 <IN_AVP>{type_start} { BEGIN TYPE_ATTRS; }
