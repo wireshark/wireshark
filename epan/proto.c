@@ -56,11 +56,14 @@
 
 #include <wsutil/plugins.h>
 
+/* Ptvcursor limits */
 #define SUBTREE_ONCE_ALLOCATION_NUMBER 8
 #define SUBTREE_MAX_LEVELS 256
-/* Throw an exception if we exceed this many tree items. */
-/* XXX - This should probably be a preference */
+
+/* Throw an exception if our tree exceeds these. */
+/* XXX - These should probably be preferences */
 #define MAX_TREE_ITEMS (1 * 1000 * 1000)
+#define MAX_TREE_LEVELS (5 * 100)
 
 typedef struct __subtree_lvl {
 	gint        cursor_offset;
@@ -4375,6 +4378,24 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 {
 	proto_node *pnode, *tnode, *sibling;
 	field_info *tfi;
+	int depth = 1;
+
+	/*
+	 * Restrict our depth. proto_tree_traverse_pre_order and
+	 * proto_tree_traverse_post_order (and possibly others) are recursive
+	 * so we need to be mindful of our stack size.
+	 */
+	if (tree->first_child == NULL) {
+		for (tnode = tree; tnode != NULL; tnode = tnode->parent) {
+			depth++;
+			if (G_UNLIKELY(depth > MAX_TREE_LEVELS)) {
+				THROW_MESSAGE(DissectorError, wmem_strdup_printf(wmem_packet_scope(),
+						     "Maximum tree depth %d exceeded for \"%s\" - \"%s\" (%s:%u)",
+						     MAX_TREE_LEVELS,
+						     fi->hfinfo->name, fi->hfinfo->abbrev, G_STRFUNC, __LINE__));
+			}
+		}
+	}
 
 	/*
 	 * Make sure "tree" is ready to have subtrees under it, by
