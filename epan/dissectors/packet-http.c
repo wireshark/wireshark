@@ -277,6 +277,7 @@ static gboolean http_decompress_body = FALSE;
  */
 
 #define TCP_DEFAULT_RANGE "80,3128,3132,5985,8080,8088,11371,1900,2869,2710"
+#define SCTP_DEFAULT_RANGE "80"
 #define SSL_DEFAULT_RANGE "443"
 
 #define UPGRADE_WEBSOCKET 1
@@ -284,9 +285,11 @@ static gboolean http_decompress_body = FALSE;
 #define UPGRADE_SSTP 3
 
 static range_t *global_http_tcp_range = NULL;
+static range_t *global_http_sctp_range = NULL;
 static range_t *global_http_ssl_range = NULL;
 
 static range_t *http_tcp_range = NULL;
+static range_t *http_sctp_range = NULL;
 static range_t *http_ssl_range = NULL;
 
 typedef void (*ReqRespDissector)(tvbuff_t*, proto_tree*, int, const guchar*,
@@ -3133,6 +3136,11 @@ static void reinit_http(void) {
 	http_tcp_range = range_copy(global_http_tcp_range);
 	dissector_add_uint_range("tcp.port", http_tcp_range, http_handle);
 
+	dissector_delete_uint_range("sctp.port", http_sctp_range, http_handle);
+	g_free(http_sctp_range);
+	http_sctp_range = range_copy(global_http_sctp_range);
+	dissector_add_uint_range("sctp.port", http_sctp_range, http_handle);
+
 	range_foreach(http_ssl_range, range_delete_http_ssl_callback);
 	g_free(http_ssl_range);
 	http_ssl_range = range_copy(global_http_ssl_range);
@@ -3470,6 +3478,12 @@ proto_register_http(void)
 	prefs_register_range_preference(http_module, "tcp.port", "TCP Ports",
 					"TCP Ports range",
 					&global_http_tcp_range, 65535);
+
+	range_convert_str(&global_http_sctp_range, SCTP_DEFAULT_RANGE, 65535);
+	http_sctp_range = range_empty();
+	prefs_register_range_preference(http_module, "sctp.port", "SCTP Ports",
+					"SCTP Ports range",
+					&global_http_sctp_range, 65535);
 
 	range_convert_str(&global_http_ssl_range, SSL_DEFAULT_RANGE, 65535);
 	http_ssl_range = range_empty();
