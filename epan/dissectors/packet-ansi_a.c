@@ -12749,8 +12749,7 @@ proto_register_ansi_a(void)
 #define MAX_NUM_BSMAP_MSG       MAX(ANSI_A_IOS401_BSMAP_NUM_MSG, ANSI_A_IOS501_BSMAP_NUM_MSG)
 #define MAX_NUM_ELEM_1          MAX(MAX_IOS401_NUM_ELEM_1, MAX_IOS501_NUM_ELEM_1)
 #define NUM_INDIVIDUAL_ELEMS    24
-    gint **ett;
-    gint ett_len = (NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+MAX_NUM_BSMAP_MSG+MAX_NUM_ELEM_1+NUM_FWD_MS_INFO_REC+NUM_REV_MS_INFO_REC) * sizeof(gint *);
+    gint *ett[NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+MAX_NUM_BSMAP_MSG+MAX_NUM_ELEM_1+NUM_FWD_MS_INFO_REC+NUM_REV_MS_INFO_REC];
 
     static stat_tap_table_ui dtap_stat_table = {
         REGISTER_STAT_GROUP_TELEPHONY_ANSI,
@@ -12781,15 +12780,6 @@ proto_register_ansi_a(void)
         0, NULL,
         NULL
     };
-
-    /*
-     * XXX - at least one version of the HP C compiler apparently doesn't
-     * recognize constant expressions using the "?" operator as being
-     * constant expressions, so you can't use the expression that
-     * initializes "ett_let" as an array size.  Therefore, we dynamically
-     * allocate the array instead.
-     */
-    ett = (gint **) g_malloc(ett_len);
 
     memset((void *) ett_dtap_msg, -1, sizeof(ett_dtap_msg));
     memset((void *) ett_bsmap_msg, -1, sizeof(ett_bsmap_msg));
@@ -12874,7 +12864,7 @@ proto_register_ansi_a(void)
         register_dissector_table("ansi_a.pld", "IS-801 (PLD)",
         proto_a_bsmap, FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
-    proto_register_subtree_array(ett, ett_len / (int) sizeof(gint *));
+    proto_register_subtree_array(ett, array_length(ett));
 
     ansi_a_tap = register_tap("ansi_a");
 
@@ -12896,8 +12886,6 @@ proto_register_ansi_a(void)
         "Show mobile ID and service option in the INFO column",
         "Whether the mobile ID and service options are displayed in the INFO column",
         &global_a_info_display);
-
-    g_free(ett);
 
     register_stat_tap_table_ui(&dtap_stat_table);
     register_stat_tap_table_ui(&bsmap_stat_table);
