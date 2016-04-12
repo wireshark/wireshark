@@ -50,8 +50,6 @@ GSList *local_interfaces_to_list(void)
 	goto end;
     }
 
-    interfaces = g_slist_alloc();
-
     for (ifa = ifap; ifa != NULL; ifa = ifa->ifa_next) {
 	if (ifa->ifa_addr == NULL)
 	    continue;

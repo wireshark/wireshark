@@ -268,9 +268,9 @@ static char* interfaces_list_to_filter(GSList* interfaces, unsigned int remote_p
 	} else {
 		g_string_append_printf(filter, "not ((host %s", (char*)interfaces->data);
 		cur = g_slist_next(interfaces);
-		while (cur->next != NULL) {
+		while (cur) {
 			g_string_append_printf(filter, " or host %s", (char*)cur->data);
-			cur = cur->next;
+			cur = g_slist_next(cur);
 		}
 		g_string_append_printf(filter, ") and port %u)", remote_port);
 	}
