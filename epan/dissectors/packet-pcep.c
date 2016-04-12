@@ -276,6 +276,7 @@ void proto_reg_handoff_pcep(void);
 #define PCEP_TLV_STATEFUL_PCE_CAPABILITY_I  0x0004
 #define PCEP_TLV_STATEFUL_PCE_CAPABILITY_T  0x0008
 #define PCEP_TLV_STATEFUL_PCE_CAPABILITY_D  0x0010
+#define PCEP_TLV_STATEFUL_PCE_CAPABILITY_F  0x0020
 
 /* Mask for the flags of ASSOCIATION Object */
 #define PCEP_OBJ_ASSOCIATION_FLAGS_R 0x0001
@@ -525,10 +526,11 @@ static int hf_pcep_subobj_sr_nai_ipv4_node = -1;
 static int hf_pcep_subobj_sr_nai_ipv6_node = -1;
 
 static int hf_pcep_lsp_update_capability = -1;
-static int hf_pcep_lsp_include_db_version_capability = -1;
+static int hf_pcep_include_db_version = -1;
 static int hf_pcep_lsp_instantiation_capability = -1;
-static int hf_pcep_lsp_triggered_sync_capability = -1;
-static int hf_pcep_lsp_delta_lsp_sync_capability_capability = -1;
+static int hf_pcep_triggered_resync = -1;
+static int hf_pcep_delta_lsp_sync_capability = -1;
+static int hf_pcep_triggered_initial_sync = -1;
 static int hf_pcep_obj_lsp_flags = -1;
 static int hf_pcep_obj_lsp_plsp_id = -1;
 static int hf_pcep_obj_lsp_flags_d = -1;
@@ -1085,10 +1087,11 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
 
             case 16:    /* STATEFUL-PCE-CAPABILITY TLV */
                 proto_tree_add_item(tlv, hf_pcep_lsp_update_capability, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv, hf_pcep_lsp_include_db_version_capability, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_include_db_version, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv, hf_pcep_lsp_instantiation_capability, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv, hf_pcep_lsp_triggered_sync_capability, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv, hf_pcep_lsp_delta_lsp_sync_capability_capability, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_triggered_resync, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_delta_lsp_sync_capability, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_triggered_initial_sync, tvb, offset+4+j, 4, ENC_BIG_ENDIAN);
                 break;
 
             case 17:    /* SYMBOLIC-PATH-NAME TLV */
@@ -3805,28 +3808,33 @@ proto_register_pcep(void)
             NULL, HFILL }
         },
         { &hf_pcep_lsp_update_capability,
-          { "LSP Update Capability (U)", "pcep.stateful-pce-capability.lsp-update",
+          { "LSP-UPDATE-CAPABILITY (U)", "pcep.stateful-pce-capability.lsp-update",
             FT_BOOLEAN, 32, TFS(&tfs_true_false), PCEP_TLV_STATEFUL_PCE_CAPABILITY_U,
             NULL, HFILL }
         },
-        { &hf_pcep_lsp_include_db_version_capability,
-          { "LSP INCLUDE-DB-VERSION Capability (S)", "pcep.stateful-pce-capability.include-db-version",
+        { &hf_pcep_include_db_version,
+          { "INCLUDE-DB-VERSION (S)", "pcep.sync-capability.include-db-version",
             FT_BOOLEAN, 32, TFS(&tfs_true_false), PCEP_TLV_STATEFUL_PCE_CAPABILITY_S,
             NULL, HFILL }
         },
         { &hf_pcep_lsp_instantiation_capability,
-          { "LSP Instantiation Capability (I)", "pcep.stateful-pce-capability.lsp-instantiation",
+          { "LSP-INSTANTIATION-CAPABILITY (I)", "pcep.stateful-pce-capability.lsp-instantiation",
             FT_BOOLEAN, 32, TFS(&tfs_true_false), PCEP_TLV_STATEFUL_PCE_CAPABILITY_I,
             NULL, HFILL }
         },
-        { &hf_pcep_lsp_triggered_sync_capability,
-          { "LSP TRIGGERED-SYNC Capability (T)", "pcep.stateful-pce-capability.triggered-sync",
+        { &hf_pcep_triggered_resync,
+          { "TRIGGERED-RESYNC (T)", "pcep.stateful-pce-capability.triggered-resync",
             FT_BOOLEAN, 32, TFS(&tfs_true_false), PCEP_TLV_STATEFUL_PCE_CAPABILITY_T,
             NULL, HFILL }
         },
-        { &hf_pcep_lsp_delta_lsp_sync_capability_capability,
-          { "LSP DELTA-LSP-SYNC-CAPABILITY Capability (D)", "pcep.stateful-pce-capability.delta-lsp-sync",
+        { &hf_pcep_delta_lsp_sync_capability,
+          { "DELTA-LSP-SYNC-CAPABILITY (D)", "pcep.stateful-pce-capability.delta-lsp-sync",
             FT_BOOLEAN, 32, TFS(&tfs_true_false), PCEP_TLV_STATEFUL_PCE_CAPABILITY_D,
+            NULL, HFILL }
+        },
+        { &hf_pcep_triggered_initial_sync,
+          { "TRIGGERED-INITIAL-SYNC (F)", "pcep.stateful-pce-capability.triggered-initial-sync",
+            FT_BOOLEAN, 32, TFS(&tfs_true_false), PCEP_TLV_STATEFUL_PCE_CAPABILITY_F,
             NULL, HFILL }
         },
         { &hf_pcep_sr_capability_reserved16,
