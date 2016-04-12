@@ -4628,11 +4628,7 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
     if (dcm_header_len + pdv_combined_len >= global_dcm_export_minsize) {
         /* Allocate the final size */
 
-        /* The complete eo_info structure and its elements will be freed in
-           export_object.c -> eo_win_destroy_cb() using g_free()
-        */
-
-        pdv_combined = (guint8 *)g_malloc0(dcm_header_len + pdv_combined_len);
+        pdv_combined = (guint8 *)wmem_alloc0(wmem_file_scope(), dcm_header_len + pdv_combined_len);
 
         pdv_combined_curr = pdv_combined;
 
@@ -4644,17 +4640,15 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
         /* Copy PDV per PDV to target buffer */
         while (!pdv_curr->is_last_fragment) {
             memmove(pdv_combined_curr, pdv_curr->data, pdv_curr->data_len);         /* this is a copy not move */
-            g_free(pdv_curr->data);
             pdv_combined_curr += pdv_curr->data_len;
             pdv_curr = pdv_curr->next;
         }
 
         /* Last packet */
         memmove(pdv_combined_curr, pdv->data, pdv->data_len);       /* this is a copy not a move */
-        g_free(pdv_curr->data);
 
         /* Add to list */
-        eo_info = (dicom_eo_t *)g_malloc0(sizeof(dicom_eo_t));
+        eo_info = (dicom_eo_t *)wmem_alloc0(wmem_file_scope(), sizeof(dicom_eo_t));
         eo_info->hostname = g_strdup(hostname);
         eo_info->filename = g_strdup(filename);
         eo_info->content_type = g_strdup(pdv->desc);
@@ -6747,7 +6741,7 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 if (have_tap_listener(dicom_eo_tap)) {
                     /* Copy pure DICOM data to buffer, no PDV flags */
 
-                    pdv->data = g_malloc(next_tvb_length);      /* will be freed in dcm_export_create_object() */
+                    pdv->data = wmem_alloc(wmem_packet_scope(), next_tvb_length);
                     tvb_memcpy(next_tvb, pdv->data, 0, next_tvb_length);
                     pdv->data_len = next_tvb_length;
 
@@ -6765,7 +6759,7 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (have_tap_listener(dicom_eo_tap)) {
             /* Copy pure DICOM data to buffer, no PDV flags */
 
-            pdv->data = g_malloc(pdv_body_len);      /* will be freed in dcm_export_create_object() */
+            pdv->data = wmem_alloc(wmem_packet_scope(), pdv_body_len);
             tvb_memcpy(tvb, pdv->data, startpos, pdv_body_len);
             pdv->data_len = pdv_body_len;
 
@@ -7077,8 +7071,9 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     return offset;          /* return the number of processed bytes */
 }
 
-static void dcm_apply_settings(void) {
-
+static void
+dcm_apply_settings(void)
+{
     /* deregister first */
     dissector_delete_uint_range("tcp.port", global_dcm_tcp_range_backup, dcm_handle);
     g_free(global_dcm_tcp_range_backup);

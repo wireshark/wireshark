@@ -115,10 +115,10 @@ eo_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 		g_free(entry->hostname);
 		g_free(entry->content_type);
 		g_free(entry->filename);
-		g_free(entry->payload_data);
+		wmem_free(wmem_file_scope(), entry->payload_data);
 
 		slist = slist->next;
-		g_free(entry);
+		wmem_free(wmem_file_scope(), entry);
 	}
 
 	/* Free the GSList elements */
