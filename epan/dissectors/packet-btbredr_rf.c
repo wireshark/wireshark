@@ -592,7 +592,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
        }
     } else {
         if (tvb_captured_length_remaining(tvb, offset) > 0)
-            proto_tree_add_expert(btbredr_rf_tree, pinfo, &ei_unexpected_data, tvb, offset, tvb_captured_length_remaining(tvb, offset));
+                proto_tree_add_expert(btbredr_rf_tree, pinfo, &ei_unexpected_data, tvb, offset, tvb_captured_length_remaining(tvb, offset));
             offset = tvb_reported_length(tvb);
     }
 
