@@ -331,8 +331,8 @@ clean_telnet_iac(packet_info *pinfo, tvbuff_t *tvb, int offset, int len)
   int           skip_byte, len_remaining;
 
   spos=tvb_get_ptr(tvb, offset, len);
-  buf=(guint8 *)g_malloc(len);
-  dpos=buf;
+  buf = (guint8 *)wmem_alloc(pinfo->pool, len);
+  dpos = buf;
   skip_byte = 0;
   len_remaining = len;
   while(len_remaining > 0){
@@ -344,17 +344,16 @@ clean_telnet_iac(packet_info *pinfo, tvbuff_t *tvb, int offset, int len)
         if((spos[0]==0xff) && (spos[1]==0xff)){
             skip_byte++;
             len_remaining -= 2;
-            *(dpos++)=0xff;
-            spos+=2;
+            *(dpos++) = 0xff;
+            spos += 2;
             continue;
         }
     }
     /* If we only have a single byte left, or there were no sequential 0xFF's, copy byte from src tvb to dest tvb */
-    *(dpos++)=*(spos++);
+    *(dpos++) = *(spos++);
     len_remaining--;
   }
   telnet_tvb = tvb_new_child_real_data(tvb, buf, len-skip_byte, len-skip_byte);
-  tvb_set_free_cb(telnet_tvb, g_free);
   add_new_data_source(pinfo, telnet_tvb, "Processed Telnet Data");
 
   return telnet_tvb;
