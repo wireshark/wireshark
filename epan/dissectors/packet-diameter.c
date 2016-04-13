@@ -1194,6 +1194,8 @@ static const int *diameter_flags_fields[] = {
 	NULL
 };
 
+static void register_diameter_fields(const char *);
+
 static int
 dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -1217,6 +1219,9 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	nstime_t ns;
 	diam_sub_dis_t *diam_sub_dis_inf = wmem_new0(wmem_packet_scope(), diam_sub_dis_t);
 
+	/* Load header fields if not already done */
+	if (hf_diameter_code == -1)
+		register_diameter_fields("");
 
 	diam_sub_dis_inf->application_id = tvb_get_ntohl(tvb,8);
 
@@ -2111,13 +2116,12 @@ dictionary_load(void)
 }
 
 /*
- * This does most of the registration work; see proto_register_diameter()
+ * This does most of the registration work; see register_diameter_fields()
  * for the reason why we split it off.
  */
 static void
-real_proto_register_diameter(void)
+real_register_diameter_fields(void)
 {
-	module_t *diameter_module;
 	expert_module_t* expert_diameter;
 	guint i, ett_length;
 
@@ -2271,8 +2275,6 @@ real_proto_register_diameter(void)
 		g_ptr_array_add(build_dict.ett, ett_base[i]);
 	}
 
-	proto_diameter = proto_register_protocol ("Diameter Protocol", "DIAMETER", "diameter");
-
 	proto_register_field_array(proto_diameter, (hf_register_info *)wmem_array_get_raw(build_dict.hf), wmem_array_get_count(build_dict.hf));
 	proto_register_subtree_array((gint **)build_dict.ett->pdata, build_dict.ett->len);
 	expert_diameter = expert_register_protocol(proto_diameter);
@@ -2280,8 +2282,36 @@ real_proto_register_diameter(void)
 
 	g_ptr_array_free(build_dict.ett,TRUE);
 
+}
+
+static void
+register_diameter_fields(const char *unused _U_)
+{
+	/*
+	 * The hf_base[] array for Diameter refers to a variable
+	 * that is set by dictionary_load(), so we need to call
+	 * dictionary_load() before hf_base[] is initialized.
+	 *
+	 * To ensure that, we call dictionary_load() and then
+	 * call a routine that defines hf_base[] and does all
+	 * the registration work.
+	 */
+	dictionary_load();
+	real_register_diameter_fields();
+}
+
+void
+proto_register_diameter(void)
+{
+	module_t *diameter_module;
+
+	proto_diameter = proto_register_protocol ("Diameter Protocol", "DIAMETER", "diameter");
+
 	/* Allow dissector to find be found by name. */
 	register_dissector("diameter", dissect_diameter, proto_diameter);
+
+	/* Delay registration of Diameter fields */
+	proto_register_prefix("diameter", register_diameter_fields);
 
 	/* Register dissector table(s) to do sub dissection of AVPs (OctetStrings) */
 	diameter_dissector_table = register_dissector_table("diameter.base", "DIAMETER_BASE_AVPS", proto_diameter, FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
@@ -2338,22 +2368,7 @@ real_proto_register_diameter(void)
 	diameter_tap = register_tap("diameter");
 
 	register_srt_table(proto_diameter, NULL, 1, diameterstat_packet, diameterstat_init, NULL);
-}
 
-void
-proto_register_diameter(void)
-{
-	/*
-	 * The hf_base[] array for Diameter refers to a variable
-	 * that is set by dictionary_load(), so we need to call
-	 * dictionary_load() before hf_base[] is initialized.
-	 *
-	 * To ensure that, we call dictionary_load() and then
-	 * call a routine that defines hf_base[] and does all
-	 * the registration work.
-	 */
-	dictionary_load();
-	real_proto_register_diameter();
 } /* proto_register_diameter */
 
 void
