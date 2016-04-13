@@ -454,7 +454,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     offset += 1;
 
     if (!(flags & FLAGS_PACKET_HEADER_AND_BR_EDR_PAYLOAD_DEWHITENED)) {
-        header_item = proto_tree_add_item(btbredr_rf_tree, hf_whitened_packet_header, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+       proto_tree_add_item(btbredr_rf_tree, hf_whitened_packet_header, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     } else {
         header_item = proto_tree_add_item(btbredr_rf_tree, hf_packet_header, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         header_tree = proto_item_add_subtree(header_item, ett_bluetooth_header);
