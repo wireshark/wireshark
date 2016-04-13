@@ -1646,6 +1646,9 @@ if test "x$enable_wireshark" = "xyes"; then
 			  have_gtk=yes
 			  GTK_VERSION=`$PKG_CONFIG --modversion gtk+-3.0`
 			  GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-gtk=3"
+			],
+			[
+			  :
 			])],
 		  [2], [PKG_WIRESHARK_CHECK_SYSTEM_MODULES([GTK],
 			[gtk+-2.0 >= $GTK2_MIN_VERSION glib-2.0 >= $GLIB_MIN_VERSION gthread-2.0 >= $GLIB_MIN_VERSION gmodule-2.0 >= $GLIB_MIN_VERSION],
@@ -1653,6 +1656,9 @@ if test "x$enable_wireshark" = "xyes"; then
 			  have_gtk=yes
 			  GTK_VERSION=`$PKG_CONFIG --modversion gtk+-2.0`
 			  GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-gtk=2"
+			],
+			[
+			  :
 			])],
 		  [fail3], [AC_MSG_ERROR([GTK+ 3 was requested but is not available])],
 		  [fail2], [AC_MSG_ERROR([GTK+ 2 was requested but is not available])],
