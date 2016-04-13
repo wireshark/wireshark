@@ -197,11 +197,12 @@ extern GHashTable *zbee_table_link_keyring;
 
 /* ZigBee PRO beacons */
 #define ZBEE_NWK_BEACON_PROTOCOL_ID            0x00
-#define ZBEE_NWK_BEACON_STACK_PROFILE          0x0f
-#define ZBEE_NWK_BEACON_PROTOCOL_VERSION       0xf0
-#define ZBEE_NWK_BEACON_ROUTER_CAPACITY        0x04
-#define ZBEE_NWK_BEACON_NETWORK_DEPTH          0x78
-#define ZBEE_NWK_BEACON_END_DEVICE_CAPACITY    0x80
+#define ZBEE_NWK_BEACON_STACK_PROFILE        0x000f
+#define ZBEE_NWK_BEACON_PROTOCOL_VERSION     0x00f0
+#define ZBEE_NWK_BEACON_ROUTER_CAPACITY      0x0400
+#define ZBEE_NWK_BEACON_NETWORK_DEPTH        0x7800
+#define ZBEE_NWK_BEACON_END_DEVICE_CAPACITY  0x8000
+#define ZBEE_NWK_BEACON_LENGTH                   15
 
 /* ZigBee IP beacons */
 #define ZBEE_IP_BEACON_PROTOCOL_ID             0x02

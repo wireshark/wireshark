@@ -1174,6 +1174,21 @@
 #define ZBEE_PROTOABBREV_ZCL_COLOR_CONTROL  "zbee_zcl_lighting.color_ctrl"
 #define ZBEE_PROTOABBREV_ZCL_BALLAST_CONFIG "zbee_zcl_lighting.ballast_ctrl"
 
+/* ZigBee Vendor Sub IE Fields */
+#define ZBEE_ZIGBEE_IE_ID_MASK                      0xFFC0
+#define ZBEE_ZIGBEE_IE_LENGTH_MASK                  0x003F
+#define ZBEE_ZIGBEE_IE_REJOIN                         0x00
+#define ZBEE_ZIGBEE_IE_TX_POWER                       0x01
+#define ZBEE_ZIGBEE_IE_BEACON_PAYLOAD                 0x02
+
+/* ZigBee PRO beacons */
+#define ZBEE_ZIGBEE_BEACON_PROTOCOL_ID                0x00
+#define ZBEE_ZIGBEE_BEACON_STACK_PROFILE              0x0f
+#define ZBEE_ZIGBEE_BEACON_PROTOCOL_VERSION           0xf0
+#define ZBEE_ZIGBEE_BEACON_ROUTER_CAPACITY            0x04
+#define ZBEE_ZIGBEE_BEACON_NETWORK_DEPTH              0x78
+#define ZBEE_ZIGBEE_BEACON_END_DEVICE_CAPACITY        0x80
+
 /* Helper Functions */
 extern guint zbee_get_bit_field(guint input, guint mask);
 

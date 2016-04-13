@@ -175,21 +175,6 @@
 /* Vendor OUIs */
 #define IEEE802154_VENDOR_OUI_ZIGBEE      0x4A191B
 
-/* ZigBee Vendor Sub IE Fields */
-#define IEEE802154_ZIGBEE_IE_ID_MASK        0xFFC0
-#define IEEE802154_ZIGBEE_IE_LENGTH_MASK    0x003F
-#define IEEE802154_ZIGBEE_IE_REJOIN           0x00
-#define IEEE802154_ZIGBEE_IE_TX_POWER         0x01
-#define IEEE802154_ZIGBEE_IE_BEACON_PAYLOAD   0x02
-
-/* ZigBee PRO beacons */
-#define IEEE802154_ZIGBEE_BEACON_PROTOCOL_ID          0x00
-#define IEEE802154_ZIGBEE_BEACON_STACK_PROFILE        0x0f
-#define IEEE802154_ZIGBEE_BEACON_PROTOCOL_VERSION     0xf0
-#define IEEE802154_ZIGBEE_BEACON_ROUTER_CAPACITY      0x04
-#define IEEE802154_ZIGBEE_BEACON_NETWORK_DEPTH        0x78
-#define IEEE802154_ZIGBEE_BEACON_END_DEVICE_CAPACITY  0x80
-
 /*  Bit-masks for CC24xx style FCS */
 #define IEEE802154_CC24xx_CORRELATION       0x7F00
 #define IEEE802154_CC24xx_CRC_OK            0x8000
@@ -379,6 +364,11 @@ typedef struct {
     guint16             dst16;
     ieee802154_map_rec *map_rec;
 } ieee802154_hints_t;
+
+/* */
+void dissect_ieee802154_superframe      (tvbuff_t *, packet_info *, proto_tree *, guint *);
+void dissect_ieee802154_gtsinfo         (tvbuff_t *, packet_info *, proto_tree *, guint *);
+void dissect_ieee802154_pendaddr        (tvbuff_t *, packet_info *, proto_tree *, guint *);
 
 /* Short to Extended Address Prototypes */
 extern ieee802154_map_rec *ieee802154_addr_update(ieee802154_map_tab_t *, guint16, guint16, guint64,
