@@ -3089,7 +3089,7 @@ proto_register_http(void)
 		"HTTP Request Method", HFILL }},
 	    { &hf_http_request_uri,
 	      { "Request URI",	"http.request.uri",
-		FT_STRING, BASE_NONE, NULL, 0x0,
+		FT_STRING, STR_UNICODE, NULL, 0x0,
 		"HTTP Request-URI", HFILL }},
 	    { &hf_http_version,
 	      { "Request Version",	"http.request.version",
