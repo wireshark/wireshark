@@ -72,6 +72,8 @@ DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
     setWindowTitle(wsApp->windowTitleString(tr("Display Filter Expression")));
     setWindowIcon(wsApp->normalIcon());
 
+    proto_initialize_all_prefixes();
+
     ui->fieldTreeWidget->setToolTip(ui->fieldLabel->toolTip());
     ui->searchLineEdit->setToolTip(ui->searchLabel->toolTip());
     ui->relationListWidget->setToolTip(ui->relationLabel->toolTip());
