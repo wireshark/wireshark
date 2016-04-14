@@ -499,6 +499,7 @@ static int hf_btatt_heart_rate_measurement_flags_value_16 = -1;
 static int hf_btatt_heart_rate_measurement_value_8 = -1;
 static int hf_btatt_heart_rate_measurement_value_16 = -1;
 static int hf_btatt_heart_rate_measurement_energy_expended = -1;
+static int hf_btatt_heart_rate_measurement_rr_intervals = -1;
 static int hf_btatt_heart_rate_measurement_rr_interval = -1;
 static int hf_btatt_record_access_control_point_opcode = -1;
 static int hf_btatt_record_access_control_point_operator = -1;
@@ -5304,8 +5305,10 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         }
 
         if (flags & 0x10) {
+            sub_item = proto_tree_add_item(tree, hf_btatt_heart_rate_measurement_rr_intervals, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
             while (tvb_reported_length_remaining(tvb, offset)) {
-                proto_tree_add_item(tree, hf_btatt_heart_rate_measurement_rr_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(sub_tree, hf_btatt_heart_rate_measurement_rr_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
             }
         }
@@ -11926,6 +11929,11 @@ proto_register_btatt(void)
         {&hf_btatt_heart_rate_measurement_energy_expended,
             {"Energy Expended", "btatt.heart_rate_measurement.energy_expended",
             FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_heart_rate_measurement_rr_intervals,
+            {"RR Intervals", "btatt.heart_rate_measurement.rr_intervals",
+            FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_heart_rate_measurement_rr_interval,
