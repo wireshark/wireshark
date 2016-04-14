@@ -110,7 +110,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
   switch(errorCode) {
 #.TABLE2_BODY ERROR.&ParameterType
     case %(&errorCode)s:  /* %(_ident)s */
-      %(_parameter_pdu)s(tvb, actx->pinfo , tree , NULL);
+	  offset= %(_parameter_pdu)s(tvb, actx->pinfo , tree , NULL);
       break;
 #.TABLE2_FTR
   default:
