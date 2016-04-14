@@ -73,6 +73,8 @@ DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
     // XXX Use recent settings instead
     resize(parent->width() * 2 / 3, parent->height());
 
+    proto_initialize_all_prefixes();
+
     ui->fieldTreeWidget->setToolTip(ui->fieldLabel->toolTip());
     ui->searchLineEdit->setToolTip(ui->searchLabel->toolTip());
     ui->relationListWidget->setToolTip(ui->relationLabel->toolTip());
