@@ -3513,6 +3513,7 @@ mptcp_get_meta_from_token(struct tcp_analysis* tcpd, tcp_flow_t *tcp_flow, guint
             }
             tcp_flow->mptcp_subflow->meta = &mptcpd->meta_flow[assignedMetaId];
         }
+        DISSECTOR_ASSERT(tcp_flow->mptcp_subflow->meta);
 
         tcp_flow->mptcp_subflow->meta->token = token;
         tcp_flow->mptcp_subflow->meta->static_flags |= MPTCP_META_HAS_TOKEN;
@@ -3552,6 +3553,8 @@ get_or_create_mptcpd_from_key(struct tcp_analysis* tcpd, tcp_flow_t *fwd, guint6
     mptcp_cryptodata_sha1(key, &token, &expected_idsn);
 
     mptcpd = mptcp_get_meta_from_token(tcpd, fwd, token);
+
+    DISSECTOR_ASSERT(fwd->mptcp_subflow->meta);
 
     fwd->mptcp_subflow->meta->key = key;
     fwd->mptcp_subflow->meta->static_flags |= MPTCP_META_HAS_KEY;
