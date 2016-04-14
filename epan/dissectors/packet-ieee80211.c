@@ -24392,12 +24392,12 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_power_capability_min,
      {"Minimum Transmit Power", "wlan_mgt.powercap.min",
-      FT_UINT8, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_DEC_HEX, NULL, 0,
       "The nominal minimum transmit power with which the STA is capable of transmitting in the current channel", HFILL }},
 
     {&hf_ieee80211_tag_power_capability_max,
      {"Maximum Transmit Power", "wlan_mgt.powercap.max",
-      FT_UINT8, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_DEC_HEX, NULL, 0,
       "The nominal maximum transmit power with which the STA is capable of transmitting in the current channel", HFILL }},
 
     {&hf_ieee80211_tag_tpc_report_trsmt_pow,
