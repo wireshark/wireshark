@@ -5304,8 +5304,10 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         }
 
         if (flags & 0x10) {
-            proto_tree_add_item(tree, hf_btatt_heart_rate_measurement_rr_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset += 2;
+            while (tvb_reported_length_remaining(tvb, offset)) {
+                proto_tree_add_item(tree, hf_btatt_heart_rate_measurement_rr_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+            }
         }
 
         break;
