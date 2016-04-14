@@ -384,8 +384,7 @@ diameterstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_
 		g_hash_table_destroy(diameterstat_cmd_str_hash);
 	}
 
-	idx = (int *)g_malloc(sizeof(int));
-	*idx = 0;
+	idx = (int *)wmem_alloc0(wmem_epan_scope(), sizeof(int));
 	diameterstat_cmd_str_hash = g_hash_table_new(g_str_hash,g_str_equal);
 	g_hash_table_insert(diameterstat_cmd_str_hash, "Unknown", idx);
 
@@ -417,7 +416,7 @@ diameterstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 
 	idx = (int*) g_hash_table_lookup(diameterstat_cmd_str_hash, diameter->cmd_str);
 	if (idx == NULL) {
-		idx = (int *)g_malloc(sizeof(int));
+		idx = (int *)wmem_alloc(wmem_epan_scope(), sizeof(int));
 		*idx = (int) g_hash_table_size(diameterstat_cmd_str_hash);
 		g_hash_table_insert(diameterstat_cmd_str_hash, (gchar*) diameter->cmd_str, idx);
 		init_srt_table_row(diameter_srt_table, *idx,  (const char*) diameter->cmd_str);
@@ -1680,8 +1679,8 @@ build_proto_avp(const avp_type_t *type _U_, guint32 code,
 		diam_vnd_t *vendor, const char *name _U_,
 		const value_string *vs _U_, void *data)
 {
-	diam_avp_t *a = (diam_avp_t *)g_malloc0(sizeof(diam_avp_t));
-	proto_avp_t *t = (proto_avp_t *)g_malloc0(sizeof(proto_avp_t));
+	diam_avp_t *a = (diam_avp_t *)wmem_alloc0(wmem_epan_scope(), sizeof(diam_avp_t));
+	proto_avp_t *t = (proto_avp_t *)wmem_alloc0(wmem_epan_scope(), sizeof(proto_avp_t));
 	gint *ettp = &(a->ett);
 
 	a->code = code;
@@ -1898,10 +1897,9 @@ dictionary_load(void)
 	}
 
 	/* load the dictionary */
-	dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "diameter" G_DIR_SEPARATOR_S, get_datafile_dir());
+	dir = wmem_strdup_printf(wmem_epan_scope(), "%s" G_DIR_SEPARATOR_S "diameter" G_DIR_SEPARATOR_S, get_datafile_dir());
 	/* XXX We don't call ddict_free anywhere. */
 	d = ddict_scan(dir,"dictionary.xml",do_debug_parser);
-	g_free(dir);
 	if (d == NULL) {
 		g_hash_table_destroy(vendors);
 		g_array_free(vnd_shrt_arr, TRUE);
