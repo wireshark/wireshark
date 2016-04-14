@@ -9305,22 +9305,22 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
 static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx) {
   switch(errorCode) {
     case errcode_cancelFailed:  /* cancelFailed */
-      dissect_PAR_cancelFailed_PDU(tvb, actx->pinfo , tree , NULL);
+	  offset= dissect_PAR_cancelFailed_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case errcode_requestedInfoError:  /* requestedInfoError */
-      dissect_PAR_requestedInfoError_PDU(tvb, actx->pinfo , tree , NULL);
+	  offset= dissect_PAR_requestedInfoError_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case errcode_scfTaskRefused:  /* scfTaskRefused */
-      dissect_ScfTaskRefusedParameter_PDU(tvb, actx->pinfo , tree , NULL);
+	  offset= dissect_ScfTaskRefusedParameter_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case errcode_scfReferral:  /* scfReferral */
-      dissect_ReferralParameter_PDU(tvb, actx->pinfo , tree , NULL);
+	  offset= dissect_ReferralParameter_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case errcode_systemFailure:  /* systemFailure */
-      dissect_UnavailableNetworkResource_PDU(tvb, actx->pinfo , tree , NULL);
+	  offset= dissect_UnavailableNetworkResource_PDU(tvb, actx->pinfo , tree , NULL);
       break;
     case errcode_taskRefused:  /* taskRefused */
-      dissect_PAR_taskRefused_PDU(tvb, actx->pinfo , tree , NULL);
+	  offset= dissect_PAR_taskRefused_PDU(tvb, actx->pinfo , tree , NULL);
       break;
   default:
     proto_tree_add_expert_format(tree, actx->pinfo, &ei_inap_unknown_returnErrorData,
