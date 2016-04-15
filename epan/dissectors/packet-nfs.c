@@ -6842,10 +6842,10 @@ dissect_nfs_fs_layout_type(tvbuff_t *tvb, proto_tree *tree, int offset)
 	guint count, i;
 
 	count = tvb_get_ntohl(tvb, offset);
-	offset +=4;
+	offset += 4;
 
 	for (i = 0; i < count; i++)
-		offset += dissect_rpc_uint32(tvb, tree, hf_nfs4_layout_type, offset);
+		offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_layout_type, offset);
 
 	return offset;
 }
