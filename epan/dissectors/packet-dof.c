@@ -2909,7 +2909,7 @@ static int dissect_2008_16_security_9(tvbuff_t *tvb, packet_info *pinfo, proto_t
 /**
  * Security.10: Security Scope.
  */
-static int dissect_2008_16_security_10(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_2008_16_security_10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     gint offset = 0;
     guint16 count;
@@ -2994,7 +2994,7 @@ static int dissect_2008_16_security_11(tvbuff_t *tvb, packet_info *pinfo, proto_
 /**
  * Security.12: Permission Security Scope.
  */
-static int dissect_2008_16_security_12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+static int dissect_2008_16_security_12(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     gint offset = 0;
     guint8 m = tvb_get_guint8(tvb, offset) >> 6;
@@ -4834,7 +4834,7 @@ static gint read_c4(tvbuff_t *tvb, gint offset, guint32 *v, gint *L)
  * Add Expert Info if format invalid
  * This also validates Spec Type.3.1.
  */
-static void validate_c4(packet_info *pinfo _U_, proto_item *pi _U_, guint32 val, gint len)
+static void validate_c4(packet_info *pinfo, proto_item *pi, guint32 val, gint len)
 {
     if (len > 1 && val < 0x80)
     {
@@ -4896,7 +4896,7 @@ static gint read_c3(tvbuff_t *tvb, gint offset, guint32 *v, gint *L)
  * Adds Expert Info if format invalid
  * This also validates Spec Type.2.1.
  */
-static void validate_c3(packet_info *pinfo _U_, proto_item *pi _U_, guint32 val, gint len)
+static void validate_c3(packet_info *pinfo, proto_item *pi, guint32 val, gint len)
 {
     if (len > 1 && val < 0x80)
     {
@@ -4946,12 +4946,12 @@ static gint read_c2(tvbuff_t *tvb, gint offset, guint16 *v, gint *L)
  * Adds Expert Info if format invalid
  * This also validates Spec Type.1.1.
  */
-static void validate_c2(packet_info *pinfo _U_, proto_item *pi _U_, guint16 val, gint len)
+static void validate_c2(packet_info *pinfo, proto_item *pi, guint16 val, gint len)
 {
     if (len > 1 && val < 0x80)
     {
         /* SPEC Type.1.1 Violation. */
-        expert_add_info_format( pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.1.1: Compressed 16-bit Compression Manditory." );
+        expert_add_info_format(pinfo, pi, &ei_c2_c3_c4_format, "DOF Violation: Type.1.1: Compressed 16-bit Compression Manditory." );
     }
 }
 
