@@ -273,7 +273,7 @@ get_djiuav_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
 }
 
 static int
-dissect_djiuav_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_djiuav_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	if ( !test_djiuav(tvb) ) {
 		return 0;
