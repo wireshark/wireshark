@@ -27,6 +27,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/exceptions.h>
 
 #include "packet-smb.h"
 #include "packet-smb2.h"
@@ -3982,13 +3983,39 @@ static int vvalue_tvb_lpwstr(tvbuff_t *tvb, int offset, void *val)
 	return 4 + vvalue_tvb_lpwstr_len(tvb, offset + 4, 0, val);
 }
 
-static int vvalue_tvb_vector_internal(tvbuff_t *tvb, int offset, struct vt_vector *val, struct vtype_data *type, int num)
+static int vvalue_tvb_vector_internal(tvbuff_t *tvb, int offset, struct vt_vector *val, struct vtype_data *type, guint num)
 {
 	const int offset_in = offset;
 	const gboolean varsize = (type->size == -1);
-	const int elsize = varsize ? (int)sizeof(struct data_blob) : type->size;
-	guint8 *data = (guint8*)wmem_alloc(wmem_packet_scope(), elsize * num);
-	int len, i;
+	const guint elsize = varsize ? (guint)sizeof(struct data_blob) : (guint)type->size;
+	guint8 *data;
+	int len;
+	guint i;
+
+	/*
+	 * Make sure we actually *have* the data we're going to fetch
+	 * here, before making a possibly-doomed attempt to allocate
+	 * memory for it.
+	 *
+	 * First, check for an overflow.
+	 */
+	if ((guint64)elsize * (guint64)num > G_MAXUINT) {
+		/*
+		 * We never have more than G_MAXUINT bytes in a tvbuff,
+		 * so this will *definitely* fail.
+		 */
+		THROW(ReportedBoundsError);
+	}
+
+	/*
+	 * No overflow; now make sure we at least have that data.
+	 */
+	tvb_ensure_bytes_exist(tvb, offset, elsize * num);
+
+	/*
+	 * OK, it exists; allocate a buffer into which to fetch it.
+	 */
+	data = (guint8*)wmem_alloc(wmem_packet_scope(), elsize * num);
 
 	val->len = num;
 	val->u.vt_ui1 = data;
@@ -4010,7 +4037,7 @@ static int vvalue_tvb_vector_internal(tvbuff_t *tvb, int offset, struct vt_vecto
 
 static int vvalue_tvb_vector(tvbuff_t *tvb, int offset, struct vt_vector *val, struct vtype_data *type)
 {
-	const int num = tvb_get_letohl(tvb, offset);
+	const guint num = tvb_get_letohl(tvb, offset);
 	return 4 + vvalue_tvb_vector_internal(tvb, offset+4, val, type, num);
 }
 
