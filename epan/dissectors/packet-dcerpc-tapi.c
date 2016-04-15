@@ -164,14 +164,14 @@ dissect_tapi_client_request_reply(tvbuff_t *tvb, int offset,
   IDL   );
 */
 static int
-dissect_tapi_client_detach_rqst(tvbuff_t *tvb _U_, int offset _U_,
+dissect_tapi_client_detach_rqst(tvbuff_t *tvb _U_, int offset,
 			packet_info *pinfo _U_, proto_tree *tree _U_,
 			dcerpc_info *di _U_, guint8 *drep _U_)
 {
 	return offset;
 }
 static int
-dissect_tapi_client_detach_reply(tvbuff_t *tvb _U_, int offset _U_,
+dissect_tapi_client_detach_reply(tvbuff_t *tvb _U_, int offset,
 			packet_info *pinfo _U_, proto_tree *tree _U_,
 			dcerpc_info *di _U_, guint8 *drep _U_)
 {
