@@ -301,7 +301,7 @@ dissect_diameter_3gpp_sgsn_ipv6_address(tvbuff_t *tvb, packet_info *pinfo, proto
 */
 
 static int
-dissect_diameter_3gpp_imeisv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_diameter_3gpp_imeisv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     proto_item *item;
     int offset = 0, i;
@@ -334,7 +334,7 @@ static const value_string daylight_saving_time_vals[] = {
 };
 
 static int
-dissect_diameter_3gpp_ms_timezone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_diameter_3gpp_ms_timezone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     int offset = 0;
     guint8      oct, hours, minutes;
@@ -376,7 +376,7 @@ dissect_diameter_3gpp_ms_timezone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 */
 
 static int
-dissect_diameter_3gpp_af_application_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_diameter_3gpp_af_application_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     proto_item *item;
     int offset = 0, i;
@@ -402,7 +402,7 @@ dissect_diameter_3gpp_af_application_identifier(tvbuff_t *tvb, packet_info *pinf
 */
 
 static int
-dissect_diameter_3gpp_af_charging_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_diameter_3gpp_af_charging_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     proto_item *item;
     int offset = 0, i;
@@ -804,7 +804,7 @@ dissect_diameter_3gpp_sar_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  * IMS Cx Dx AVPS 3GPP TS 29.229
  */
 static int
-dissect_diameter_3gpp_user_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_diameter_3gpp_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int length = tvb_reported_length(tvb);
 
@@ -844,7 +844,7 @@ dissect_diameter_3gpp_service_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 /* AVP Code: 900 TMGI */
 static int
-dissect_diameter_3gpp_tmgi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_diameter_3gpp_tmgi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *item;
     proto_tree *sub_tree;
@@ -998,7 +998,7 @@ dissect_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer(tvbuff_t *tvb, packet_info 
  * AVP Code: 1005 Charging-Rule-Name
  */
 static int
-dissect_diameter_3gpp_charging_rule_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_diameter_3gpp_charging_rule_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
 {
     proto_item *item;
     int offset = 0, i;
@@ -1103,7 +1103,7 @@ dissect_diameter_3gpp_ula_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* AVP Code: 1407 Visited-PLMN-Id */
 static int
-dissect_diameter_3gpp_visited_plmn_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_diameter_3gpp_visited_plmn_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     int length = tvb_reported_length(tvb);
     diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
