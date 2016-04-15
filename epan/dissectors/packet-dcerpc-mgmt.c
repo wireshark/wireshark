@@ -43,7 +43,7 @@ static e_guid_t uuid_mgmt = { 0xafa8bd80, 0x7d8a, 0x11c9, { 0xbe, 0xf4, 0x08, 0x
 static guint16  ver_mgmt = 1;
 
 static int
-mgmtrpc_dissect_inq_princ_name_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
+mgmtrpc_dissect_inq_princ_name_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 
 	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep,
@@ -55,7 +55,7 @@ mgmtrpc_dissect_inq_princ_name_response(tvbuff_t *tvb _U_, int offset _U_, packe
 	return offset;
 }
 static int
-mgmtrpc_dissect_inq_princ_name_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
+mgmtrpc_dissect_inq_princ_name_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mgmt_proto, NULL);
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_mgmt_princ_size, NULL);
