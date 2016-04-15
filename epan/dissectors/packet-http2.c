@@ -28,7 +28,7 @@
  * The information used comes from:
  * RFC7540: Hypertext Transfer Protocol version 2 (HTTP/2)
  * RFC7541: HTTP Header Compression for HTTP/2
- * HTTP Alternative Services draft-ietf-httpbis-alt-svc-04
+ * RFC7838: HTTP Alternative Services
  *
  * TODO
 * Enhance display of Data
@@ -239,13 +239,9 @@ static int hf_http2_window_update_window_size_increment = -1;
 static int hf_http2_continuation_header = -1;
 static int hf_http2_continuation_padding = -1;
 /* Altsvc */
-static int hf_http2_altsvc_maxage = -1;
-static int hf_http2_altsvc_port = -1;
-static int hf_http2_altsvc_proto_len = -1;
-static int hf_http2_altsvc_protocol = -1;
-static int hf_http2_altsvc_host_len = -1;
-static int hf_http2_altsvc_host = -1;
+static int hf_http2_altsvc_origin_len = -1;
 static int hf_http2_altsvc_origin = -1;
+static int hf_http2_altsvc_field_value = -1;
 /* Blocked */
 
 /*
@@ -1296,35 +1292,19 @@ static int
 dissect_http2_altsvc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree,
                      guint offset, guint8 flags _U_, guint16 length)
 {
-    guint8 pidlen;
-    guint8 hostlen;
-    int remain;
+    guint32 origin_len;
+    int remain = length;
 
-    proto_tree_add_item(http2_tree, hf_http2_altsvc_maxage, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset+=4;
-
-    proto_tree_add_item(http2_tree, hf_http2_altsvc_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(http2_tree, hf_http2_altsvc_origin_len, tvb, offset, 2, ENC_BIG_ENDIAN, &origin_len);
     offset += 2;
+    remain -= 2;
 
-    proto_tree_add_item(http2_tree, hf_http2_altsvc_proto_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-    pidlen = tvb_get_guint8(tvb, offset);
-    offset ++;
+    proto_tree_add_item(http2_tree, hf_http2_altsvc_origin, tvb, offset, origin_len, ENC_ASCII|ENC_NA);
+    offset += origin_len;
+    remain -= origin_len;
 
-    proto_tree_add_item(http2_tree, hf_http2_altsvc_protocol, tvb, offset, pidlen, ENC_ASCII|ENC_NA);
-    offset += pidlen;
-
-    proto_tree_add_item(http2_tree, hf_http2_altsvc_host_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-    hostlen = tvb_get_guint8(tvb, offset);
-    offset ++;
-
-    proto_tree_add_item(http2_tree, hf_http2_altsvc_host, tvb, offset, hostlen, ENC_ASCII|ENC_NA);
-    offset += hostlen;
-
-    remain = length - offset;
-    if(remain > -8) {
-        /* 8 is the fixed size of the http2 frame header */
-        proto_tree_add_item(http2_tree, hf_http2_altsvc_origin, tvb,
-                            offset, remain + 8, ENC_ASCII|ENC_NA);
+    if(remain) {
+        proto_tree_add_item(http2_tree, hf_http2_altsvc_field_value, tvb, offset, remain, ENC_ASCII|ENC_NA);
         offset += remain;
     }
 
@@ -1906,36 +1886,11 @@ proto_register_http2(void)
               "Padding octets", HFILL }
         },
 
-        /* Altsvc */
-        { &hf_http2_altsvc_maxage,
-            { "Max-Age", "http2.altsvc.max-age",
-               FT_UINT32, BASE_DEC, NULL, 0x0,
-              "An unsigned, 32-bit integer indicating the freshness lifetime of the alternative service association", HFILL }
-        },
-        { &hf_http2_altsvc_port,
-            { "Port", "http2.altsvc.port",
+        /* ALTSVC */
+        { &hf_http2_altsvc_origin_len,
+            { "Origin Length", "http2.altsvc.origin.len",
                FT_UINT16, BASE_DEC, NULL, 0x0,
-              "An unsigned, 16-bit integer indicating the port that the alternative service is available upon", HFILL }
-        },
-        { &hf_http2_altsvc_proto_len,
-            { "Proto-Len", "http2.altsvc.proto_len",
-               FT_UINT8, BASE_DEC, NULL, 0x0,
-              "An unsigned, 8-bit integer indicating the length, in octets, of the PROTOCOL-ID field", HFILL }
-        },
-        { &hf_http2_altsvc_protocol,
-            { "Protocol-ID", "http2.altsvc.protocol",
-               FT_STRING, BASE_NONE, NULL, 0x0,
-              "A sequence of bytes containing the ALPN protocol identifier", HFILL }
-        },
-        { &hf_http2_altsvc_host_len,
-            { "Host-Len", "http2.altsvc.host_len",
-               FT_UINT8, BASE_DEC, NULL, 0x0,
-              "An unsigned, 8-bit integer indicating the length, in octets, of the Host field", HFILL }
-        },
-        { &hf_http2_altsvc_host,
-            { "Host", "http2.altsvc.host",
-               FT_STRING, BASE_NONE, NULL, 0x0,
-              "ASCII string indicating the host that the alternative service is available upon", HFILL }
+              "indicating the length, in octets, of the Origin field.", HFILL }
         },
         { &hf_http2_altsvc_origin,
             { "Origin", "http2.altsvc.origin",
@@ -1943,7 +1898,11 @@ proto_register_http2(void)
               "A sequence of characters containing ASCII serialisation of an "
               "origin that the alternate service is applicable to.", HFILL }
         },
-
+        { &hf_http2_altsvc_field_value,
+            { "Field/Value", "http2.altsvc.field_value",
+               FT_STRING, BASE_NONE, NULL, 0x0,
+              "A sequence of octets containing a value identical to the Alt-Svc field value", HFILL }
+        },
 
     };
 
