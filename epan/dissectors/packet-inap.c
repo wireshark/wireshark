@@ -2362,7 +2362,7 @@ dissect_inap_CalledPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   if (!parameter_tvb)
   return offset;
 
-dissect_isup_called_party_number_parameter(parameter_tvb, tree, NULL);
+dissect_isup_called_party_number_parameter(parameter_tvb, actx->pinfo, tree, NULL);
 
 
 
@@ -2413,7 +2413,7 @@ dissect_inap_CallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
   if (!parameter_tvb)
     return offset;
 
-  dissect_isup_calling_party_number_parameter(parameter_tvb, tree, NULL);
+  dissect_isup_calling_party_number_parameter(parameter_tvb, actx->pinfo, tree, NULL);
 
 
 
@@ -4808,7 +4808,7 @@ dissect_inap_RedirectingPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
   if (!parameter_tvb)
     return offset;
 
-   dissect_isup_redirecting_number_parameter(parameter_tvb, tree, NULL);
+   dissect_isup_redirecting_number_parameter(parameter_tvb, actx->pinfo, tree, NULL);
 
 
 

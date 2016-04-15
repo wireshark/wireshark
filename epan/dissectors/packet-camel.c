@@ -2182,7 +2182,7 @@ dissect_camel_CalledPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 	return offset;
 
  subtree = proto_item_add_subtree(actx->created_item, ett_camel_calledpartybcdnumber);
- dissect_isup_called_party_number_parameter(parameter_tvb, subtree, NULL);
+ dissect_isup_called_party_number_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
 
   return offset;
 }
@@ -2202,7 +2202,7 @@ dissect_camel_CallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 	return offset;
 
 subtree = proto_item_add_subtree(actx->created_item, ett_camel_callingpartynumber);
-dissect_isup_calling_party_number_parameter(parameter_tvb, subtree, NULL);
+dissect_isup_calling_party_number_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
 
   return offset;
 }
@@ -2808,7 +2808,7 @@ dissect_camel_LocationNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
         return offset;
 
 subtree = proto_item_add_subtree(actx->created_item, ett_camel_locationnumber);
-dissect_isup_location_number_parameter(parameter_tvb, subtree, NULL);
+dissect_isup_location_number_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
 
   return offset;
 }
@@ -4857,7 +4857,7 @@ dissect_camel_RedirectingPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
  if (!parameter_tvb)
 	return offset;
- dissect_isup_redirecting_number_parameter(parameter_tvb, tree, NULL);
+ dissect_isup_redirecting_number_parameter(parameter_tvb, actx->pinfo, tree, NULL);
 
   return offset;
 }

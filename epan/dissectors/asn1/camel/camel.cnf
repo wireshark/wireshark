@@ -240,7 +240,7 @@ if((camel_ver == 2)||(camel_ver == 1)){
 	return offset;
 
 subtree = proto_item_add_subtree(actx->created_item, ett_camel_callingpartynumber);
-dissect_isup_calling_party_number_parameter(parameter_tvb, subtree, NULL);
+dissect_isup_calling_party_number_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
 #.END
 
 #----------------------------------------------------------------------------------------
@@ -254,7 +254,7 @@ dissect_isup_calling_party_number_parameter(parameter_tvb, subtree, NULL);
 	return offset;
 
  subtree = proto_item_add_subtree(actx->created_item, ett_camel_calledpartybcdnumber);
- dissect_isup_called_party_number_parameter(parameter_tvb, subtree, NULL);
+ dissect_isup_called_party_number_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
 #.END
 
 #----------------------------------------------------------------------------------------
@@ -268,7 +268,7 @@ dissect_isup_calling_party_number_parameter(parameter_tvb, subtree, NULL);
         return offset;
 
 subtree = proto_item_add_subtree(actx->created_item, ett_camel_locationnumber);
-dissect_isup_location_number_parameter(parameter_tvb, subtree, NULL);
+dissect_isup_location_number_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
 #.END
 
 #----------------------------------------------------------------------------------------
@@ -449,7 +449,7 @@ proto_tree *subtree;
 
  if (!parameter_tvb)
 	return offset;
- dissect_isup_redirecting_number_parameter(parameter_tvb, tree, NULL);
+ dissect_isup_redirecting_number_parameter(parameter_tvb, actx->pinfo, tree, NULL);
 #.END
 
 #----------------------------------------------------------------------------------------
