@@ -11552,7 +11552,7 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_fattr_layout_blksize, {
-			"fileid", "nfs.fattr4.layout_blksize", FT_UINT32, BASE_DEC,
+			"blksize", "nfs.fattr4.layout_blksize", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_fattr_security_label_lfs, {
