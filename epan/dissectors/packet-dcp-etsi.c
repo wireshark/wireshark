@@ -439,7 +439,7 @@ dissect_pft_fragmented(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
  *  \param[in,out] tree The structure containing the details which will be displayed, filtered, etc.
  */
 static int
-dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
+dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 {
   guint16 plen;
   gint offset = 0;
