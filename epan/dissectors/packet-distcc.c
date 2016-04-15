@@ -114,7 +114,7 @@ dissect_distcc_stat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 }
 
 static int
-dissect_distcc_argc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint32 parameter)
+dissect_distcc_argc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint32 parameter)
 {
     proto_tree_add_uint(tree, hf_distcc_argc, tvb, offset-12, 12, parameter);
 
@@ -124,7 +124,7 @@ dissect_distcc_argc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 }
 
 static int
-dissect_distcc_argv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gint parameter)
+dissect_distcc_argv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gint parameter)
 {
     char argv[256];
     int argv_len;
@@ -151,7 +151,7 @@ dissect_distcc_argv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 }
 
 static int
-dissect_distcc_serr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gint parameter)
+dissect_distcc_serr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gint parameter)
 {
     char argv[256];
     int argv_len;
@@ -180,7 +180,7 @@ dissect_distcc_serr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 }
 
 static int
-dissect_distcc_sout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gint parameter)
+dissect_distcc_sout(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gint parameter)
 {
     char argv[256];
     int argv_len;
