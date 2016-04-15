@@ -937,7 +937,7 @@ dissect_dcom_dcerpc_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 /* XXX: handout data to generic "unknown data" dissector? */
 extern int
 dissect_dcom_tobedone_data(tvbuff_t *tvb, int offset,
-	packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int length)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep _U_, int length)
 {
 	proto_item *item;
 
@@ -956,7 +956,7 @@ dissect_dcom_tobedone_data(tvbuff_t *tvb, int offset,
 /* XXX: handout data to generic "unknown data" dissector? */
 extern int
 dissect_dcom_nospec_data(tvbuff_t *tvb, int offset,
-	packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int length)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep _U_, int length)
 {
 	proto_item *item;
 
