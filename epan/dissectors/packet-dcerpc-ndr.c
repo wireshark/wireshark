@@ -197,7 +197,7 @@ PIDL_dissect_uint16_val(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int
 PIDL_dissect_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     proto_tree *tree, dcerpc_info *di, guint8 *drep,
-                    int hfindex, guint32 param _U_)
+                    int hfindex, guint32 param)
 {
     return PIDL_dissect_uint16_val(tvb, offset, pinfo, tree, di, drep, hfindex, param, NULL);
 }
