@@ -1735,7 +1735,6 @@ if test "$have_gtk" = "yes" -a "$have_qt" = "no" ; then
 	wireshark_bin="wireshark-gtk\$(EXEEXT)"
 	wireshark_man="wireshark.1"
 	wireshark_SUBDIRS="codecs ui/gtk"
-	use_glib_cflags="false"
 	OSX_APP_FLAGS="$OSX_APP_FLAGS -gtk"
 	OSX_DMG_FLAGS="-gtk"
 fi
@@ -1753,6 +1752,7 @@ if test "$have_gtk" = "no" -a "$have_qt" = "no" ; then
 	fi
 	wireshark_bin=""
 	wireshark_man=""
+	wireshark_SUBDIRS=""
 fi
 
 #
@@ -1893,6 +1893,7 @@ fi
 
 AC_SUBST(wireshark_bin)
 AC_SUBST(wireshark_man)
+AC_SUBST(wireshark_SUBDIRS)
 AM_CONDITIONAL(HAVE_Qt, test "$have_qt" = "yes")
 AM_CONDITIONAL(HAVE_GTK, test "$have_gtk" = "yes")
 AC_SUBST(OSX_APP_FLAGS)
@@ -2666,9 +2667,6 @@ AC_CHECK_FUNCS(getprotobynumber)
 AC_CHECK_FUNCS(issetugid)
 AC_CHECK_FUNCS(sysconf)
 AC_CHECK_FUNCS(getifaddrs)
-
-dnl blank for now, but will be used in future
-AC_SUBST(wireshark_SUBDIRS)
 
 # Check Bluetooth SBC codec for RTP Player
 # git://git.kernel.org/pub/scm/bluetooth/sbc.git
