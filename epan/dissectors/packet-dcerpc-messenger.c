@@ -79,7 +79,7 @@ messenger_dissect_send_message_rqst(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 static int
 messenger_dissect_send_message_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			    proto_tree *tree, dcerpc_info *di _U_, guint8 *drep)
+			    proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep,
 				  hf_messenger_rc, NULL);
