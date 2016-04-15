@@ -186,7 +186,7 @@ dissect_vdp_fi_macvid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 
 /* Dissect Organizationally Defined TLVs */
 static gint32
-dissect_vdp_org_specific_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+dissect_vdp_org_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
 {
 	guint16 tempLen;
 	guint16 len;
