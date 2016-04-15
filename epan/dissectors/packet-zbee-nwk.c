@@ -123,6 +123,7 @@ static int hf_zbee_nwk_cmd_route_opt_resp_ext = -1;
 static int hf_zbee_nwk_cmd_route_opt_orig_ext = -1;
 static int hf_zbee_nwk_cmd_route_opt_many_to_one = -1;
 static int hf_zbee_nwk_cmd_nwk_status = -1;
+static int hf_zbee_nwk_cmd_nwk_status_command_id = -1;
 static int hf_zbee_nwk_cmd_leave_rejoin = -1;
 static int hf_zbee_nwk_cmd_leave_request = -1;
 static int hf_zbee_nwk_cmd_leave_children = -1;
@@ -1026,6 +1027,7 @@ static guint
 dissect_zbee_nwk_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     guint8  status_code;
+    guint8  command_id;
     guint16 addr;
 
     /* Get and display the status code. */
@@ -1040,6 +1042,14 @@ dissect_zbee_nwk_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
     /* Update the info column. */
     col_append_fstr(pinfo->cinfo, COL_INFO, ", 0x%04x: %s", addr, val_to_str_const(status_code, zbee_nwk_status_codes, "Unknown Status Code"));
+
+    if (status_code == ZBEE_NWK_STATUS_UNKNOWN_COMMAND) {
+        command_id = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint(tree, hf_zbee_nwk_cmd_nwk_status_command_id, tvb, offset, 1, command_id);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Unknown Command ID 0x%02x (%s)", command_id,
+                val_to_str_const(command_id, zbee_nwk_cmd_names, "Unknown ID"));
+        offset++;
+    }
 
     /* Done */
     return offset;
@@ -1904,6 +1914,10 @@ void proto_register_zbee_nwk(void)
             { &hf_zbee_nwk_cmd_nwk_status,
             { "Status Code",            "zbee_nwk.cmd.status", FT_UINT8, BASE_HEX, VALS(zbee_nwk_status_codes), 0x0,
                 NULL, HFILL }},
+
+            { &hf_zbee_nwk_cmd_nwk_status_command_id,
+            { "Unknown Command ID",     "zbee_nwk.cmd.status.unknown_command_id", FT_UINT8, BASE_HEX,
+                    VALS(zbee_nwk_cmd_names), 0x0, NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_leave_rejoin,
             { "Rejoin",                 "zbee_nwk.cmd.leave.rejoin", FT_BOOLEAN, 8, NULL,
