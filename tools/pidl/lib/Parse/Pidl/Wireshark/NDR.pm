@@ -151,7 +151,7 @@ sub Enum($$$$)
 	}
 
 	$self->pidl_hdr("extern const value_string $valsstring\[];");
-	$self->pidl_hdr("int $dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, g$e->{BASE_TYPE} *param _U_);");
+	$self->pidl_hdr("int $dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, g$e->{BASE_TYPE} *param);");
 
 	$self->pidl_def("const value_string ".$valsstring."[] = {");
 	foreach (@{$e->{ELEMENTS}}) {
@@ -164,7 +164,7 @@ sub Enum($$$$)
 
 	$self->pidl_fn_start($dissectorname);
 	$self->pidl_code("int");
-	$self->pidl_code("$dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, g$e->{BASE_TYPE} *param _U_)");
+	$self->pidl_code("$dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, g$e->{BASE_TYPE} *param)");
 	$self->pidl_code("{");
 	$self->indent;
 	$self->pidl_code("g$e->{BASE_TYPE} parameter=0;");
@@ -203,11 +203,11 @@ sub Bitmap($$$$)
 
 	$self->register_ett("ett_$ifname\_$name");
 
-	$self->pidl_hdr("int $dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);");
+	$self->pidl_hdr("int $dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param);");
 
 	$self->pidl_fn_start($dissectorname);
 	$self->pidl_code("int");
-	$self->pidl_code("$dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)");
+	$self->pidl_code("$dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)");
 	$self->pidl_code("{");
 	$self->indent;
 	$self->pidl_code("proto_item *item = NULL;");
@@ -527,10 +527,10 @@ sub Element($$$$$$)
 		}
 		next if ($_->{TYPE} eq "SWITCH");
 		next if (defined($self->{conformance}->{noemit}->{"$dissectorname$add"}));
-		$self->pidl_def("static int $dissectorname$add(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_$moreparam);");
+		$self->pidl_def("static int $dissectorname$add(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep$moreparam);");
 		$self->pidl_fn_start("$dissectorname$add");
 		$self->pidl_code("static int");
-		$self->pidl_code("$dissectorname$add(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_$moreparam)");
+		$self->pidl_code("$dissectorname$add(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep$moreparam)");
 		$self->pidl_code("{");
 		$self->indent;
 
@@ -567,7 +567,7 @@ sub Function($$$)
 	$self->PrintIdl(DumpFunction($fn->{ORIGINAL}));
 	$self->pidl_fn_start("$ifname\_dissect\_$fn_name\_response");
 	$self->pidl_code("static int");
-	$self->pidl_code("$ifname\_dissect\_${fn_name}_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)");
+	$self->pidl_code("$ifname\_dissect\_${fn_name}_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)");
 	$self->pidl_code("{");
 	$self->indent;
 	if ( not defined($fn->{RETURN_TYPE})) {
@@ -631,7 +631,7 @@ sub Function($$$)
 
 	$self->pidl_fn_start("$ifname\_dissect\_$fn_name\_request");
 	$self->pidl_code("static int");
-	$self->pidl_code("$ifname\_dissect\_${fn_name}_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)");
+	$self->pidl_code("$ifname\_dissect\_${fn_name}_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)");
 	$self->pidl_code("{");
 	$self->indent;
 	$self->pidl_code("di->dcerpc_procedure_name=\"${fn_name}\";");
@@ -703,11 +703,11 @@ sub Struct($$$$)
 		$doalign = 0;
 	}
 
-	$self->pidl_hdr("int $dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);");
+	$self->pidl_hdr("int $dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param);");
 
 	$self->pidl_fn_start($dissectorname);
 	$self->pidl_code("int");
-	$self->pidl_code("$dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)");
+	$self->pidl_code("$dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)");
 	$self->pidl_code("{");
 	$self->indent;
 	$self->pidl_code($_) foreach (@$vars);
@@ -798,7 +798,7 @@ sub Union($$$$)
 
 	$self->pidl_fn_start($dissectorname);
 	$self->pidl_code("static int");
-	$self->pidl_code("$dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)");
+	$self->pidl_code("$dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)");
 	$self->pidl_code("{");
 	$self->indent;
 	$self->pidl_code("proto_item *item = NULL;");
@@ -1134,6 +1134,9 @@ sub Parse($$$$$)
 	$self->{res}->{headers} .= "#include <glib.h>\n";
 	$self->{res}->{headers} .= "#include <string.h>\n";
 	$self->{res}->{headers} .= "#include <epan/packet.h>\n\n";
+
+
+	$self->{res}->{headers} .= "DIAG_OFF(unused-parameter)\n\n";
 
 	$self->{res}->{headers} .= "#include \"packet-dcerpc.h\"\n";
 	$self->{res}->{headers} .= "#include \"packet-dcerpc-nt.h\"\n";

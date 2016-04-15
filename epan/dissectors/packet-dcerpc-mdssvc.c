@@ -14,6 +14,8 @@
 #include <string.h>
 #include <epan/packet.h>
 
+DIAG_OFF(unused-parameter)
+
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
@@ -75,52 +77,52 @@ static e_guid_t uuid_dcerpc_mdssvc = {
 };
 static guint16 ver_dcerpc_mdssvc = 2;
 
-static int mdssvc_dissect_element_blob_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_blob_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_blob_spotlight_blob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_open_device_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_open_device_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_open_unkn2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_open_unkn2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_open_unkn3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_open_unkn3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_open_share_mount_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_open_share_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_open_share_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_open_share_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_open_share_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_unknown1_share_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_unknown1_unkn1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_unknown1_device_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_unknown1_unkn3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_unknown1_unkn4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_unknown1_unkn5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_unknown1_unkn6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_unknown1_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_unknown1_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_unknown1_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_unknown1_flags_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_unknown1_unkn7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_unknown1_unkn7_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_cmd_share_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_cmd_unkn1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_cmd_device_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_cmd_unkn3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_cmd_unkn4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_cmd_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_cmd_request_blob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_cmd_unkn5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_cmd_max_fragment_size1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_cmd_unkn6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_cmd_max_fragment_size2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_cmd_unkn7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_cmd_unkn8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_cmd_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_cmd_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_cmd_response_blob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_cmd_response_blob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_cmd_unkn9(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int mdssvc_dissect_element_cmd_unkn9_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int mdssvc_dissect_element_blob_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_blob_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_blob_spotlight_blob(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_open_device_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_open_device_id_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_open_unkn2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_open_unkn2_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_open_unkn3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_open_unkn3_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_open_share_mount_path(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_open_share_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_open_share_path(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_open_share_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_open_share_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_unknown1_share_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_unknown1_unkn1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_unknown1_device_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_unknown1_unkn3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_unknown1_unkn4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_unknown1_unkn5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_unknown1_unkn6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_unknown1_status(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_unknown1_status_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_unknown1_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_unknown1_flags_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_unknown1_unkn7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_unknown1_unkn7_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_cmd_share_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_cmd_unkn1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_cmd_device_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_cmd_unkn3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_cmd_unkn4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_cmd_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_cmd_request_blob(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_cmd_unkn5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_cmd_max_fragment_size1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_cmd_unkn6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_cmd_max_fragment_size2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_cmd_unkn7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_cmd_unkn8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_cmd_status(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_cmd_status_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_cmd_response_blob(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_cmd_response_blob_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_cmd_unkn9(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int mdssvc_dissect_element_cmd_unkn9_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 static int
 mdssvc_dissect_element_blob_spotlight_blob(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep _U_)
 {
@@ -146,7 +148,7 @@ mdssvc_dissect_element_blob_spotlight_blob(tvbuff_t *tvb, int offset, packet_inf
 /* IDL: } */
 
 static int
-mdssvc_dissect_element_blob_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_blob_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_blob_length, 0);
 
@@ -154,7 +156,7 @@ mdssvc_dissect_element_blob_length(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-mdssvc_dissect_element_blob_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_blob_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_blob_size, 0);
 
@@ -162,7 +164,7 @@ mdssvc_dissect_element_blob_size(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 int
-mdssvc_dissect_struct_blob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+mdssvc_dissect_struct_blob(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -195,7 +197,7 @@ mdssvc_dissect_struct_blob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
 }
 
 static int
-mdssvc_dissect_element_open_device_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_open_device_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, mdssvc_dissect_element_open_device_id_, NDR_POINTER_REF, "Pointer to Device Id (uint32)",hf_mdssvc_mdssvc_open_device_id);
 
@@ -203,7 +205,7 @@ mdssvc_dissect_element_open_device_id(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-mdssvc_dissect_element_open_device_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_open_device_id_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_open_device_id, 0);
 
@@ -211,7 +213,7 @@ mdssvc_dissect_element_open_device_id_(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-mdssvc_dissect_element_open_unkn2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_open_unkn2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, mdssvc_dissect_element_open_unkn2_, NDR_POINTER_REF, "Pointer to Unkn2 (uint32)",hf_mdssvc_mdssvc_open_unkn2);
 
@@ -219,7 +221,7 @@ mdssvc_dissect_element_open_unkn2(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-mdssvc_dissect_element_open_unkn2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_open_unkn2_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_open_unkn2, 0);
 
@@ -227,7 +229,7 @@ mdssvc_dissect_element_open_unkn2_(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-mdssvc_dissect_element_open_unkn3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_open_unkn3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, mdssvc_dissect_element_open_unkn3_, NDR_POINTER_REF, "Pointer to Unkn3 (uint32)",hf_mdssvc_mdssvc_open_unkn3);
 
@@ -235,7 +237,7 @@ mdssvc_dissect_element_open_unkn3(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-mdssvc_dissect_element_open_unkn3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_open_unkn3_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_open_unkn3, 0);
 
@@ -243,7 +245,7 @@ mdssvc_dissect_element_open_unkn3_(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-mdssvc_dissect_element_open_share_mount_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_open_share_mount_path(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 
@@ -254,7 +256,7 @@ mdssvc_dissect_element_open_share_mount_path(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-mdssvc_dissect_element_open_share_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_open_share_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 
@@ -265,7 +267,7 @@ mdssvc_dissect_element_open_share_name(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-mdssvc_dissect_element_open_share_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_open_share_path(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 
@@ -276,7 +278,7 @@ mdssvc_dissect_element_open_share_path(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-mdssvc_dissect_element_open_share_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_open_share_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, mdssvc_dissect_element_open_share_handle_, NDR_POINTER_REF, "Pointer to Share Handle (policy_handle)",hf_mdssvc_mdssvc_open_share_handle);
 
@@ -284,7 +286,7 @@ mdssvc_dissect_element_open_share_handle(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-mdssvc_dissect_element_open_share_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_open_share_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_open_share_handle, 0);
 
@@ -302,7 +304,7 @@ mdssvc_dissect_element_open_share_handle_(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: ); */
 
 static int
-mdssvc_dissect_open_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_open_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="open";
 	offset = mdssvc_dissect_element_open_device_id(tvb, offset, pinfo, tree, di, drep);
@@ -324,7 +326,7 @@ mdssvc_dissect_open_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 }
 
 static int
-mdssvc_dissect_open_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_open_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="open";
 	offset = mdssvc_dissect_element_open_device_id(tvb, offset, pinfo, tree, di, drep);
@@ -341,7 +343,7 @@ mdssvc_dissect_open_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 }
 
 static int
-mdssvc_dissect_element_unknown1_share_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_unknown1_share_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_unknown1_share_handle, 0);
 
@@ -349,7 +351,7 @@ mdssvc_dissect_element_unknown1_share_handle(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-mdssvc_dissect_element_unknown1_unkn1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_unknown1_unkn1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_unknown1_unkn1, 0);
 
@@ -357,7 +359,7 @@ mdssvc_dissect_element_unknown1_unkn1(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-mdssvc_dissect_element_unknown1_device_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_unknown1_device_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_unknown1_device_id, 0);
 
@@ -365,7 +367,7 @@ mdssvc_dissect_element_unknown1_device_id(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-mdssvc_dissect_element_unknown1_unkn3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_unknown1_unkn3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_unknown1_unkn3, 0);
 
@@ -373,7 +375,7 @@ mdssvc_dissect_element_unknown1_unkn3(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-mdssvc_dissect_element_unknown1_unkn4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_unknown1_unkn4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_unknown1_unkn4, 0);
 
@@ -381,7 +383,7 @@ mdssvc_dissect_element_unknown1_unkn4(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-mdssvc_dissect_element_unknown1_unkn5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_unknown1_unkn5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_unknown1_unkn5, 0);
 
@@ -389,7 +391,7 @@ mdssvc_dissect_element_unknown1_unkn5(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-mdssvc_dissect_element_unknown1_unkn6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_unknown1_unkn6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_unknown1_unkn6, 0);
 
@@ -397,7 +399,7 @@ mdssvc_dissect_element_unknown1_unkn6(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-mdssvc_dissect_element_unknown1_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_unknown1_status(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, mdssvc_dissect_element_unknown1_status_, NDR_POINTER_REF, "Pointer to Status (uint32)",hf_mdssvc_mdssvc_unknown1_status);
 
@@ -405,7 +407,7 @@ mdssvc_dissect_element_unknown1_status(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-mdssvc_dissect_element_unknown1_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_unknown1_status_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_unknown1_status, 0);
 
@@ -413,7 +415,7 @@ mdssvc_dissect_element_unknown1_status_(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-mdssvc_dissect_element_unknown1_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_unknown1_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, mdssvc_dissect_element_unknown1_flags_, NDR_POINTER_REF, "Pointer to Flags (uint32)",hf_mdssvc_mdssvc_unknown1_flags);
 
@@ -421,7 +423,7 @@ mdssvc_dissect_element_unknown1_flags(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-mdssvc_dissect_element_unknown1_flags_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_unknown1_flags_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_unknown1_flags, 0);
 
@@ -429,7 +431,7 @@ mdssvc_dissect_element_unknown1_flags_(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-mdssvc_dissect_element_unknown1_unkn7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_unknown1_unkn7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, mdssvc_dissect_element_unknown1_unkn7_, NDR_POINTER_REF, "Pointer to Unkn7 (uint32)",hf_mdssvc_mdssvc_unknown1_unkn7);
 
@@ -437,7 +439,7 @@ mdssvc_dissect_element_unknown1_unkn7(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-mdssvc_dissect_element_unknown1_unkn7_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_unknown1_unkn7_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_unknown1_unkn7, 0);
 
@@ -458,7 +460,7 @@ mdssvc_dissect_element_unknown1_unkn7_(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: ); */
 
 static int
-mdssvc_dissect_unknown1_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_unknown1_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="unknown1";
 	offset = mdssvc_dissect_element_unknown1_status(tvb, offset, pinfo, tree, di, drep);
@@ -474,7 +476,7 @@ mdssvc_dissect_unknown1_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-mdssvc_dissect_unknown1_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_unknown1_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="unknown1";
 	offset = mdssvc_dissect_element_unknown1_share_handle(tvb, offset, pinfo, tree, di, drep);
@@ -495,7 +497,7 @@ mdssvc_dissect_unknown1_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 }
 
 static int
-mdssvc_dissect_element_cmd_share_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_cmd_share_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_cmd_share_handle, 0);
 
@@ -503,7 +505,7 @@ mdssvc_dissect_element_cmd_share_handle(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-mdssvc_dissect_element_cmd_unkn1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_cmd_unkn1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_cmd_unkn1, 0);
 
@@ -511,7 +513,7 @@ mdssvc_dissect_element_cmd_unkn1(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-mdssvc_dissect_element_cmd_device_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_cmd_device_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_cmd_device_id, 0);
 
@@ -519,7 +521,7 @@ mdssvc_dissect_element_cmd_device_id(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-mdssvc_dissect_element_cmd_unkn3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_cmd_unkn3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_cmd_unkn3, 0);
 
@@ -527,7 +529,7 @@ mdssvc_dissect_element_cmd_unkn3(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-mdssvc_dissect_element_cmd_unkn4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_cmd_unkn4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_cmd_unkn4, 0);
 
@@ -535,7 +537,7 @@ mdssvc_dissect_element_cmd_unkn4(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-mdssvc_dissect_element_cmd_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_cmd_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_cmd_flags, 0);
 
@@ -543,7 +545,7 @@ mdssvc_dissect_element_cmd_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-mdssvc_dissect_element_cmd_request_blob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_cmd_request_blob(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = mdssvc_dissect_struct_blob(tvb,offset,pinfo,tree,di,drep,hf_mdssvc_mdssvc_cmd_request_blob,0);
 
@@ -551,7 +553,7 @@ mdssvc_dissect_element_cmd_request_blob(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-mdssvc_dissect_element_cmd_unkn5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_cmd_unkn5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_cmd_unkn5, 0);
 
@@ -559,7 +561,7 @@ mdssvc_dissect_element_cmd_unkn5(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-mdssvc_dissect_element_cmd_max_fragment_size1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_cmd_max_fragment_size1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_cmd_max_fragment_size1, 0);
 
@@ -567,7 +569,7 @@ mdssvc_dissect_element_cmd_max_fragment_size1(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-mdssvc_dissect_element_cmd_unkn6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_cmd_unkn6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_cmd_unkn6, 0);
 
@@ -575,7 +577,7 @@ mdssvc_dissect_element_cmd_unkn6(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-mdssvc_dissect_element_cmd_max_fragment_size2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_cmd_max_fragment_size2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_cmd_max_fragment_size2, 0);
 
@@ -583,7 +585,7 @@ mdssvc_dissect_element_cmd_max_fragment_size2(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-mdssvc_dissect_element_cmd_unkn7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_cmd_unkn7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_cmd_unkn7, 0);
 
@@ -591,7 +593,7 @@ mdssvc_dissect_element_cmd_unkn7(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-mdssvc_dissect_element_cmd_unkn8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_cmd_unkn8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_cmd_unkn8, 0);
 
@@ -599,7 +601,7 @@ mdssvc_dissect_element_cmd_unkn8(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-mdssvc_dissect_element_cmd_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_cmd_status(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, mdssvc_dissect_element_cmd_status_, NDR_POINTER_REF, "Pointer to Status (uint32)",hf_mdssvc_mdssvc_cmd_status);
 
@@ -607,7 +609,7 @@ mdssvc_dissect_element_cmd_status(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-mdssvc_dissect_element_cmd_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_cmd_status_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_cmd_status, 0);
 
@@ -615,7 +617,7 @@ mdssvc_dissect_element_cmd_status_(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-mdssvc_dissect_element_cmd_response_blob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_cmd_response_blob(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, mdssvc_dissect_element_cmd_response_blob_, NDR_POINTER_REF, "Pointer to Response Blob (mdssvc_blob)",hf_mdssvc_mdssvc_cmd_response_blob);
 
@@ -623,7 +625,7 @@ mdssvc_dissect_element_cmd_response_blob(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-mdssvc_dissect_element_cmd_response_blob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_cmd_response_blob_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = mdssvc_dissect_struct_blob(tvb,offset,pinfo,tree,di,drep,hf_mdssvc_mdssvc_cmd_response_blob,0);
 
@@ -631,7 +633,7 @@ mdssvc_dissect_element_cmd_response_blob_(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-mdssvc_dissect_element_cmd_unkn9(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_cmd_unkn9(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, mdssvc_dissect_element_cmd_unkn9_, NDR_POINTER_REF, "Pointer to Unkn9 (uint32)",hf_mdssvc_mdssvc_cmd_unkn9);
 
@@ -639,7 +641,7 @@ mdssvc_dissect_element_cmd_unkn9(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-mdssvc_dissect_element_cmd_unkn9_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_element_cmd_unkn9_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_mdssvc_mdssvc_cmd_unkn9, 0);
 
@@ -666,7 +668,7 @@ mdssvc_dissect_element_cmd_unkn9_(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: ); */
 
 static int
-mdssvc_dissect_cmd_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_cmd_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="cmd";
 	offset = mdssvc_dissect_element_cmd_status(tvb, offset, pinfo, tree, di, drep);
@@ -682,7 +684,7 @@ mdssvc_dissect_cmd_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 }
 
 static int
-mdssvc_dissect_cmd_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+mdssvc_dissect_cmd_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="cmd";
 	offset = mdssvc_dissect_element_cmd_share_handle(tvb, offset, pinfo, tree, di, drep);

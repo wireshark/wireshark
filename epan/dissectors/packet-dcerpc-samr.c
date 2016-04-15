@@ -14,6 +14,8 @@
 #include <string.h>
 #include <epan/packet.h>
 
+DIAG_OFF(unused-parameter)
+
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
@@ -675,10 +677,10 @@ static e_guid_t uuid_dcerpc_samr = {
 };
 static guint16 ver_dcerpc_samr = 1;
 
-static int samr_dissect_element_lsa_Strings_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_lsa_Strings_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_lsa_Strings_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_lsa_Strings_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_lsa_Strings_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_lsa_Strings_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_lsa_Strings_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_lsa_Strings_names__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 const value_string samr_lsa_SidType_vals[] = {
 	{ SID_NAME_USE_NONE, "SID_NAME_USE_NONE" },
 	{ SID_NAME_USER, "SID_NAME_USER" },
@@ -931,12 +933,12 @@ static const true_false_string samr_AliasAccessMask_SAMR_ALIAS_ACCESS_SET_INFO_t
    "SAMR_ALIAS_ACCESS_SET_INFO is SET",
    "SAMR_ALIAS_ACCESS_SET_INFO is NOT SET",
 };
-static int samr_dissect_element_SamEntry_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SamEntry_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SamArray_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SamArray_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SamArray_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SamArray_entries__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_SamEntry_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SamEntry_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SamArray_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SamArray_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SamArray_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SamArray_entries__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 const value_string samr_samr_DomainInfoClass_vals[] = {
 	{ DomainPasswordInformation, "DomainPasswordInformation" },
 	{ DomainGeneralInformation, "DomainGeneralInformation" },
@@ -989,56 +991,56 @@ const value_string samr_samr_DomainServerState_vals[] = {
 	{ DOMAIN_SERVER_DISABLED, "DOMAIN_SERVER_DISABLED" },
 { 0, NULL }
 };
-static int samr_dissect_element_DomInfo1_min_password_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomInfo1_password_history_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomInfo1_password_properties(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomInfo1_max_password_age(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomInfo1_min_password_age(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomGeneralInformation_force_logoff_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomGeneralInformation_oem_information(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomGeneralInformation_domain_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomGeneralInformation_primary(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomGeneralInformation_sequence_num(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomGeneralInformation_domain_server_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomGeneralInformation_role(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomGeneralInformation_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomGeneralInformation_num_users(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomGeneralInformation_num_groups(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomGeneralInformation_num_aliases(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomInfo3_force_logoff_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomOEMInformation_oem_information(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomInfo5_domain_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomInfo6_primary(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomInfo7_role(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomInfo8_sequence_num(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomInfo8_domain_create_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomInfo9_domain_server_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomGeneralInformation2_general(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomGeneralInformation2_lockout_duration(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomGeneralInformation2_lockout_window(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomGeneralInformation2_lockout_threshold(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomInfo12_lockout_duration(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomInfo12_lockout_window(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomInfo12_lockout_threshold(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomInfo13_sequence_num(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomInfo13_domain_create_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomInfo13_modified_count_at_last_promotion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomainInfo_info1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomainInfo_general(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomainInfo_info3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomainInfo_oem(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomainInfo_info5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomainInfo_info6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomainInfo_info7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomainInfo_info8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomainInfo_info9(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomainInfo_general2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomainInfo_info12(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomainInfo_info13(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Ids_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Ids_ids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Ids_ids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Ids_ids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_DomInfo1_min_password_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomInfo1_password_history_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomInfo1_password_properties(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomInfo1_max_password_age(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomInfo1_min_password_age(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomGeneralInformation_force_logoff_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomGeneralInformation_oem_information(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomGeneralInformation_domain_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomGeneralInformation_primary(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomGeneralInformation_sequence_num(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomGeneralInformation_domain_server_state(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomGeneralInformation_role(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomGeneralInformation_unknown3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomGeneralInformation_num_users(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomGeneralInformation_num_groups(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomGeneralInformation_num_aliases(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomInfo3_force_logoff_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomOEMInformation_oem_information(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomInfo5_domain_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomInfo6_primary(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomInfo7_role(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomInfo8_sequence_num(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomInfo8_domain_create_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomInfo9_domain_server_state(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomGeneralInformation2_general(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomGeneralInformation2_lockout_duration(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomGeneralInformation2_lockout_window(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomGeneralInformation2_lockout_threshold(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomInfo12_lockout_duration(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomInfo12_lockout_window(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomInfo12_lockout_threshold(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomInfo13_sequence_num(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomInfo13_domain_create_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomInfo13_modified_count_at_last_promotion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomainInfo_info1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomainInfo_general(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomainInfo_info3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomainInfo_oem(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomainInfo_info5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomainInfo_info6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomainInfo_info7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomainInfo_info8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomainInfo_info9(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomainInfo_general2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomainInfo_info12(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DomainInfo_info13(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Ids_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Ids_ids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Ids_ids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Ids_ids__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 static const true_false_string samr_GroupAttrs_SE_GROUP_MANDATORY_tfs = {
    "SE_GROUP_MANDATORY is SET",
    "SE_GROUP_MANDATORY is NOT SET",
@@ -1067,12 +1069,12 @@ static const true_false_string samr_GroupAttrs_SE_GROUP_LOGON_ID_tfs = {
    "SE_GROUP_LOGON_ID is SET",
    "SE_GROUP_LOGON_ID is NOT SET",
 };
-static int samr_dissect_element_GroupInfoAll_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GroupInfoAll_attributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GroupInfoAll_num_members(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GroupInfoAll_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GroupInfoAttributes_attributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GroupInfoDescription_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_GroupInfoAll_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GroupInfoAll_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GroupInfoAll_num_members(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GroupInfoAll_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GroupInfoAttributes_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GroupInfoDescription_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 const value_string samr_samr_GroupInfoEnum_vals[] = {
 	{ GROUPINFOALL, "GROUPINFOALL" },
 	{ GROUPINFONAME, "GROUPINFONAME" },
@@ -1081,30 +1083,30 @@ const value_string samr_samr_GroupInfoEnum_vals[] = {
 	{ GROUPINFOALL2, "GROUPINFOALL2" },
 { 0, NULL }
 };
-static int samr_dissect_element_GroupInfo_all(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GroupInfo_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GroupInfo_attributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GroupInfo_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GroupInfo_all2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RidTypeArray_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RidTypeArray_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RidTypeArray_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RidTypeArray_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RidTypeArray_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RidTypeArray_types_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RidTypeArray_types__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_AliasInfoAll_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_AliasInfoAll_num_members(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_AliasInfoAll_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_GroupInfo_all(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GroupInfo_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GroupInfo_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GroupInfo_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GroupInfo_all2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RidTypeArray_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RidTypeArray_rids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RidTypeArray_rids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RidTypeArray_rids__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RidTypeArray_types(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RidTypeArray_types_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RidTypeArray_types__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_AliasInfoAll_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_AliasInfoAll_num_members(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_AliasInfoAll_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 const value_string samr_samr_AliasInfoEnum_vals[] = {
 	{ ALIASINFOALL, "ALIASINFOALL" },
 	{ ALIASINFONAME, "ALIASINFONAME" },
 	{ ALIASINFODESCRIPTION, "ALIASINFODESCRIPTION" },
 { 0, NULL }
 };
-static int samr_dissect_element_AliasInfo_all(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_AliasInfo_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_AliasInfo_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_AliasInfo_all(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_AliasInfo_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_AliasInfo_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 const value_string samr_samr_UserInfoLevel_vals[] = {
 	{ UserGeneralInformation, "UserGeneralInformation" },
 	{ UserPreferencesInformation, "UserPreferencesInformation" },
@@ -1131,77 +1133,77 @@ const value_string samr_samr_UserInfoLevel_vals[] = {
 	{ UserInternal5InformationNew, "UserInternal5InformationNew" },
 { 0, NULL }
 };
-static int samr_dissect_element_UserInfo1_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo1_full_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo1_primary_gid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo1_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo1_comment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo2_comment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo2_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo2_country_code(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo2_code_page(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LogonHours_units_per_week(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LogonHours_bits(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LogonHours_bits_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LogonHours_bits__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo3_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo3_full_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo3_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo3_primary_gid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo3_home_directory(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo3_home_drive(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo3_logon_script(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo3_profile_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo3_workstations(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo3_last_logon(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo3_last_logoff(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo3_last_password_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo3_allow_password_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo3_force_password_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo3_logon_hours(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo3_bad_password_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo3_logon_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo3_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo4_logon_hours(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo5_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo5_full_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo5_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo5_primary_gid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo5_home_directory(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo5_home_drive(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo5_logon_script(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo5_profile_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo5_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo5_workstations(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo5_last_logon(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo5_last_logoff(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo5_logon_hours(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo5_bad_password_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo5_logon_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo5_last_password_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo5_acct_expiry(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo5_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo6_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo6_full_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo7_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo8_full_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo9_primary_gid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo10_home_directory(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo10_home_drive(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo11_logon_script(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo12_profile_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo13_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo14_workstations(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo16_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo17_acct_expiry(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Password_hash(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Password_hash_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo18_nt_pwd(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo18_lm_pwd(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo18_nt_pwd_active(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo18_lm_pwd_active(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo18_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo20_parameters(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo1_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo1_full_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo1_primary_gid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo1_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo1_comment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo2_comment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo2_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo2_country_code(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo2_code_page(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LogonHours_units_per_week(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LogonHours_bits(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LogonHours_bits_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LogonHours_bits__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo3_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo3_full_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo3_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo3_primary_gid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo3_home_directory(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo3_home_drive(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo3_logon_script(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo3_profile_path(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo3_workstations(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo3_last_logon(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo3_last_logoff(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo3_last_password_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo3_allow_password_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo3_force_password_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo3_logon_hours(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo3_bad_password_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo3_logon_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo3_acct_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo4_logon_hours(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo5_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo5_full_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo5_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo5_primary_gid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo5_home_directory(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo5_home_drive(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo5_logon_script(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo5_profile_path(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo5_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo5_workstations(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo5_last_logon(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo5_last_logoff(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo5_logon_hours(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo5_bad_password_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo5_logon_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo5_last_password_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo5_acct_expiry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo5_acct_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo6_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo6_full_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo7_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo8_full_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo9_primary_gid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo10_home_directory(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo10_home_drive(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo11_logon_script(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo12_profile_path(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo13_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo14_workstations(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo16_acct_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo17_acct_expiry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Password_hash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Password_hash_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo18_nt_pwd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo18_lm_pwd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo18_nt_pwd_active(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo18_lm_pwd_active(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo18_password_expired(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo20_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 static const true_false_string samr_FieldsPresent_SAMR_FIELD_ACCOUNT_NAME_tfs = {
    "SAMR_FIELD_ACCOUNT_NAME is SET",
    "SAMR_FIELD_ACCOUNT_NAME is NOT SET",
@@ -1322,117 +1324,117 @@ static const true_false_string samr_FieldsPresent_SAMR_FIELD_OWF_PWD_tfs = {
    "SAMR_FIELD_OWF_PWD is SET",
    "SAMR_FIELD_OWF_PWD is NOT SET",
 };
-static int samr_dissect_element_UserInfo21_last_logon(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_last_logoff(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_last_password_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_acct_expiry(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_allow_password_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_force_password_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_full_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_home_directory(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_home_drive(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_logon_script(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_profile_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_workstations(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_comment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_parameters(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_lm_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_nt_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_private(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_buf_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_buffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_buffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_buffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_primary_gid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_fields_present(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_logon_hours(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_bad_password_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_logon_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_country_code(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_code_page(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_lm_password_set(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_nt_password_set(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_unknown4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CryptPassword_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CryptPassword_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo23_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo23_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo24_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo24_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CryptPasswordEx_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CryptPasswordEx_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo25_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo25_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo26_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo26_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info9(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info10(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info11(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info12(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info13(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info14(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info16(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info17(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info18(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info20(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info21(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info23(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info24(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info25(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo_info26(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RidWithAttribute_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RidWithAttribute_attributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RidWithAttributeArray_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RidWithAttributeArray_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RidWithAttributeArray_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RidWithAttributeArray_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispEntryGeneral_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispEntryGeneral_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispEntryGeneral_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispEntryGeneral_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispEntryGeneral_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispEntryGeneral_full_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfoGeneral_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfoGeneral_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfoGeneral_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfoGeneral_entries__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispEntryFull_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispEntryFull_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispEntryFull_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispEntryFull_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispEntryFull_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfoFull_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfoFull_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfoFull_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfoFull_entries__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispEntryFullGroup_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispEntryFullGroup_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispEntryFullGroup_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispEntryFullGroup_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispEntryFullGroup_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfoFullGroups_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfoFullGroups_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfoFullGroups_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfoFullGroups_entries__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispEntryAscii_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispEntryAscii_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfoAscii_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfoAscii_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfoAscii_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfoAscii_entries__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo21_last_logon(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_last_logoff(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_last_password_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_acct_expiry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_allow_password_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_force_password_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_full_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_home_directory(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_home_drive(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_logon_script(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_profile_path(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_workstations(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_comment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_lm_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_nt_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_private(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_buf_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_buffer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_buffer_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_buffer__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_primary_gid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_acct_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_fields_present(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_logon_hours(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_bad_password_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_logon_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_country_code(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_code_page(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_lm_password_set(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_nt_password_set(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_password_expired(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo21_unknown4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CryptPassword_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CryptPassword_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo23_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo23_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo24_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo24_password_expired(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CryptPasswordEx_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CryptPasswordEx_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo25_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo25_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo26_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo26_password_expired(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info9(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info10(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info11(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info12(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info13(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info14(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info17(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info18(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info20(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info21(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info23(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info24(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info25(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_UserInfo_info26(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RidWithAttribute_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RidWithAttribute_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RidWithAttributeArray_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RidWithAttributeArray_rids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RidWithAttributeArray_rids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RidWithAttributeArray_rids__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispEntryGeneral_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispEntryGeneral_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispEntryGeneral_acct_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispEntryGeneral_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispEntryGeneral_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispEntryGeneral_full_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfoGeneral_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfoGeneral_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfoGeneral_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfoGeneral_entries__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispEntryFull_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispEntryFull_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispEntryFull_acct_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispEntryFull_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispEntryFull_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfoFull_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfoFull_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfoFull_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfoFull_entries__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispEntryFullGroup_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispEntryFullGroup_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispEntryFullGroup_acct_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispEntryFullGroup_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispEntryFullGroup_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfoFullGroups_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfoFullGroups_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfoFullGroups_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfoFullGroups_entries__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispEntryAscii_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispEntryAscii_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfoAscii_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfoAscii_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfoAscii_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfoAscii_entries__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 const value_string samr_samr_DomainDisplayInformation_vals[] = {
 	{ SAMR_DOMAIN_DISPLAY_USER, "SAMR_DOMAIN_DISPLAY_USER" },
 	{ SAMR_DOMAIN_DISPLAY_MACHINE, "SAMR_DOMAIN_DISPLAY_MACHINE" },
@@ -1441,25 +1443,25 @@ const value_string samr_samr_DomainDisplayInformation_vals[] = {
 	{ SAMR_DOMAIN_DISPLAY_OEM_GROUP, "SAMR_DOMAIN_DISPLAY_OEM_GROUP" },
 { 0, NULL }
 };
-static int samr_dissect_element_DispInfo_info1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfo_info2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfo_info3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfo_info4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DispInfo_info5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_PwInfo_min_password_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_PwInfo_password_properties(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_DispInfo_info1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfo_info2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfo_info3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfo_info4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DispInfo_info5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_PwInfo_min_password_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_PwInfo_password_properties(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 const value_string samr_samr_ConnectVersion_vals[] = {
 	{ SAMR_CONNECT_PRE_W2K, "SAMR_CONNECT_PRE_W2K" },
 	{ SAMR_CONNECT_W2K, "SAMR_CONNECT_W2K" },
 	{ SAMR_CONNECT_AFTER_W2K, "SAMR_CONNECT_AFTER_W2K" },
 { 0, NULL }
 };
-static int samr_dissect_element_ChangeReject_reason(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangeReject_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangeReject_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ConnectInfo1_client_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ConnectInfo1_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ConnectInfo_info1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_ChangeReject_reason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangeReject_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangeReject_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ConnectInfo1_client_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ConnectInfo1_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ConnectInfo_info1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 static const true_false_string samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_PASSWORD_LAST_SET_tfs = {
    "SAMR_VALIDATE_FIELD_PASSWORD_LAST_SET is SET",
    "SAMR_VALIDATE_FIELD_PASSWORD_LAST_SET is NOT SET",
@@ -1504,486 +1506,486 @@ const value_string samr_samr_ValidationStatus_vals[] = {
 	{ SAMR_VALIDATION_STATUS_PASSWORD_FILTER_ERROR, "SAMR_VALIDATION_STATUS_PASSWORD_FILTER_ERROR" },
 { 0, NULL }
 };
-static int samr_dissect_element_ValidationBlob_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidationBlob_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidationBlob_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidationBlob_data__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordInfo_fields_present(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordInfo_last_password_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordInfo_bad_password_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordInfo_lockout_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordInfo_bad_pwd_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordInfo_pwd_history_len(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordInfo_pwd_history(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordInfo_pwd_history_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordInfo_pwd_history__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordRepCtr_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordRepCtr_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordRep_ctr1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordRep_ctr2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordRep_ctr3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordReq3_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordReq3_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordReq3_account(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordReq3_hash(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordReq3_pwd_must_change_at_next_logon(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordReq3_clear_lockout(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordReq2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordReq2_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordReq2_account(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordReq2_hash(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordReq2_password_matched(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordReq1_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordReq1_password_matched(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordReq_req1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordReq_req2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePasswordReq_req3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Close_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Close_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetSecurity_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetSecurity_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetSecurity_sec_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetSecurity_sdbuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetSecurity_sdbuf_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QuerySecurity_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QuerySecurity_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QuerySecurity_sec_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QuerySecurity_sdbuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QuerySecurity_sdbuf_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QuerySecurity_sdbuf__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Shutdown_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Shutdown_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupDomain_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupDomain_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupDomain_domain_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupDomain_domain_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupDomain_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupDomain_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupDomain_sid__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomains_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomains_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomains_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomains_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomains_sam(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomains_sam_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomains_sam__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomains_buf_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomains_num_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomains_num_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenDomain_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenDomain_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenDomain_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenDomain_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenDomain_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenDomain_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenDomain_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDomainInfo_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDomainInfo_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDomainInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDomainInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDomainInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDomainInfo_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetDomainInfo_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetDomainInfo_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetDomainInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetDomainInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetDomainInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateDomainGroup_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateDomainGroup_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateDomainGroup_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateDomainGroup_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateDomainGroup_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateDomainGroup_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateDomainGroup_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateDomainGroup_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateDomainGroup_rid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainGroups_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainGroups_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainGroups_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainGroups_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainGroups_sam(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainGroups_sam_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainGroups_sam__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainGroups_max_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainGroups_num_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainGroups_num_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser_account_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser_rid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainUsers_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainUsers_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainUsers_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainUsers_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainUsers_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainUsers_sam(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainUsers_sam_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainUsers_sam__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainUsers_max_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainUsers_num_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainUsers_num_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateDomAlias_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateDomAlias_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateDomAlias_alias_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateDomAlias_alias_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateDomAlias_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateDomAlias_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateDomAlias_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateDomAlias_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateDomAlias_rid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainAliases_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainAliases_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainAliases_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainAliases_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainAliases_sam(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainAliases_sam_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainAliases_sam__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainAliases_max_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainAliases_num_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainAliases_num_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetAliasMembership_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetAliasMembership_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetAliasMembership_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetAliasMembership_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetAliasMembership_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetAliasMembership_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupNames_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupNames_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupNames_num_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupNames_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupNames_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupNames_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupNames_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupNames_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupNames_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupNames_types_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupRids_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupRids_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupRids_num_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupRids_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupRids_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupRids_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupRids_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupRids_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupRids_types_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenGroup_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenGroup_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenGroup_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenGroup_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenGroup_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenGroup_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryGroupInfo_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryGroupInfo_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryGroupInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryGroupInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryGroupInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryGroupInfo_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetGroupInfo_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetGroupInfo_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetGroupInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetGroupInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetGroupInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_AddGroupMember_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_AddGroupMember_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_AddGroupMember_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_AddGroupMember_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DeleteDomainGroup_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DeleteDomainGroup_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DeleteGroupMember_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DeleteGroupMember_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DeleteGroupMember_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryGroupMember_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryGroupMember_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryGroupMember_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryGroupMember_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryGroupMember_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetMemberAttributesOfGroup_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetMemberAttributesOfGroup_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetMemberAttributesOfGroup_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetMemberAttributesOfGroup_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenAlias_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenAlias_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenAlias_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenAlias_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenAlias_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenAlias_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryAliasInfo_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryAliasInfo_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryAliasInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryAliasInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryAliasInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryAliasInfo_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetAliasInfo_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetAliasInfo_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetAliasInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetAliasInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetAliasInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DeleteDomAlias_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DeleteDomAlias_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_AddAliasMember_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_AddAliasMember_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_AddAliasMember_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_AddAliasMember_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DeleteAliasMember_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DeleteAliasMember_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DeleteAliasMember_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DeleteAliasMember_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetMembersInAlias_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetMembersInAlias_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetMembersInAlias_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetMembersInAlias_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenUser_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenUser_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenUser_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenUser_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenUser_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OpenUser_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DeleteUser_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_DeleteUser_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryUserInfo_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryUserInfo_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryUserInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryUserInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryUserInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryUserInfo_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetUserInfo_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetUserInfo_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetUserInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetUserInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetUserInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser_lm_present(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser_old_lm_crypted(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser_old_lm_crypted_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser_new_lm_crypted(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser_new_lm_crypted_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser_nt_present(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser_old_nt_crypted(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser_old_nt_crypted_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser_new_nt_crypted(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser_new_nt_crypted_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser_cross1_present(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser_nt_cross(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser_nt_cross_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser_cross2_present(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser_lm_cross(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser_lm_cross_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetGroupsForUser_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetGroupsForUser_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetGroupsForUser_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetGroupsForUser_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetGroupsForUser_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo_start_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo_max_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo_buf_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo_total_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo_total_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo_returned_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo_returned_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetDisplayEnumerationIndex_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetDisplayEnumerationIndex_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetDisplayEnumerationIndex_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetDisplayEnumerationIndex_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetDisplayEnumerationIndex_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetDisplayEnumerationIndex_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetDisplayEnumerationIndex_idx_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_TestPrivateFunctionsDomain_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_TestPrivateFunctionsDomain_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_TestPrivateFunctionsUser_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_TestPrivateFunctionsUser_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetUserPwInfo_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetUserPwInfo_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetUserPwInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetUserPwInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RemoveMemberFromForeignDomain_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RemoveMemberFromForeignDomain_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RemoveMemberFromForeignDomain_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RemoveMemberFromForeignDomain_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDomainInfo2_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDomainInfo2_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDomainInfo2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDomainInfo2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDomainInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDomainInfo2_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryUserInfo2_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryUserInfo2_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryUserInfo2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryUserInfo2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryUserInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryUserInfo2_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo2_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo2_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo2_start_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo2_max_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo2_buf_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo2_total_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo2_total_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo2_returned_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo2_returned_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetDisplayEnumerationIndex2_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetDisplayEnumerationIndex2_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetDisplayEnumerationIndex2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetDisplayEnumerationIndex2_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetDisplayEnumerationIndex2_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetDisplayEnumerationIndex2_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetDisplayEnumerationIndex2_idx_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser2_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser2_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser2_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser2_account_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser2_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser2_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser2_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser2_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser2_access_granted(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser2_access_granted_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser2_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_CreateUser2_rid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo3_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo3_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo3_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo3_start_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo3_max_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo3_buf_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo3_total_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo3_total_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo3_returned_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo3_returned_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo3_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_QueryDisplayInfo3_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_AddMultipleMembersToAlias_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_AddMultipleMembersToAlias_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_AddMultipleMembersToAlias_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_AddMultipleMembersToAlias_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RemoveMultipleMembersFromAlias_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RemoveMultipleMembersFromAlias_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RemoveMultipleMembersFromAlias_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RemoveMultipleMembersFromAlias_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OemChangePasswordUser2_server(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OemChangePasswordUser2_server_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OemChangePasswordUser2_account(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OemChangePasswordUser2_account_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OemChangePasswordUser2_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OemChangePasswordUser2_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OemChangePasswordUser2_hash(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_OemChangePasswordUser2_hash_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser2_server(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser2_server_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser2_account(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser2_account_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser2_nt_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser2_nt_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser2_nt_verifier(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser2_nt_verifier_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser2_lm_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser2_lm_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser2_lm_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser2_lm_verifier(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser2_lm_verifier_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetDomPwInfo_domain_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetDomPwInfo_domain_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetDomPwInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetDomPwInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect2_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect2_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect2_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect2_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect2_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetUserInfo2_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetUserInfo2_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetUserInfo2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetUserInfo2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetUserInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetBootKeyInformation_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetBootKeyInformation_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetBootKeyInformation_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetBootKeyInformation_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetBootKeyInformation_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetBootKeyInformation_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetBootKeyInformation_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetBootKeyInformation_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetBootKeyInformation_unknown_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect3_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect3_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect3_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect3_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect3_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect3_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect4_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect4_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect4_client_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect4_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect4_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect4_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_server(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_server_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_account(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_account_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_nt_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_nt_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_nt_verifier(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_nt_verifier_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_lm_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_lm_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_lm_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_lm_verifier(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_lm_verifier_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_password3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_password3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_dominfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_dominfo_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_dominfo__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_reject(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_reject_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ChangePasswordUser3_reject__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect5_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect5_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect5_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect5_level_in(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect5_info_in(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect5_info_in_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect5_level_out(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect5_level_out_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect5_info_out(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect5_info_out_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect5_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_Connect5_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RidToSid_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RidToSid_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RidToSid_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RidToSid_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RidToSid_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_RidToSid_sid__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetDsrmPassword_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetDsrmPassword_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetDsrmPassword_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetDsrmPassword_hash(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetDsrmPassword_hash_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePassword_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePassword_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePassword_req_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePassword_rep(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePassword_rep_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int samr_dissect_element_ValidatePassword_rep__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_ValidationBlob_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidationBlob_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidationBlob_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidationBlob_data__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordInfo_fields_present(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordInfo_last_password_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordInfo_bad_password_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordInfo_lockout_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordInfo_bad_pwd_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordInfo_pwd_history_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordInfo_pwd_history(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordInfo_pwd_history_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordInfo_pwd_history__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordRepCtr_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordRepCtr_status(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordRep_ctr1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordRep_ctr2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordRep_ctr3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordReq3_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordReq3_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordReq3_account(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordReq3_hash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordReq3_pwd_must_change_at_next_logon(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordReq3_clear_lockout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordReq2_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordReq2_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordReq2_account(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordReq2_hash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordReq2_password_matched(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordReq1_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordReq1_password_matched(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordReq_req1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordReq_req2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePasswordReq_req3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Close_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Close_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetSecurity_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetSecurity_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetSecurity_sec_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetSecurity_sdbuf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetSecurity_sdbuf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QuerySecurity_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QuerySecurity_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QuerySecurity_sec_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QuerySecurity_sdbuf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QuerySecurity_sdbuf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QuerySecurity_sdbuf__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Shutdown_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Shutdown_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupDomain_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupDomain_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupDomain_domain_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupDomain_domain_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupDomain_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupDomain_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupDomain_sid__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomains_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomains_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomains_resume_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomains_resume_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomains_sam(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomains_sam_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomains_sam__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomains_buf_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomains_num_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomains_num_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenDomain_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenDomain_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenDomain_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenDomain_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenDomain_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenDomain_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenDomain_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDomainInfo_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDomainInfo_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDomainInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDomainInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDomainInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDomainInfo_info__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetDomainInfo_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetDomainInfo_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetDomainInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetDomainInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetDomainInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateDomainGroup_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateDomainGroup_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateDomainGroup_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateDomainGroup_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateDomainGroup_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateDomainGroup_group_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateDomainGroup_group_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateDomainGroup_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateDomainGroup_rid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainGroups_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainGroups_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainGroups_resume_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainGroups_resume_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainGroups_sam(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainGroups_sam_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainGroups_sam__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainGroups_max_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainGroups_num_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainGroups_num_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser_account_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser_rid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainUsers_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainUsers_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainUsers_resume_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainUsers_resume_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainUsers_acct_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainUsers_sam(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainUsers_sam_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainUsers_sam__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainUsers_max_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainUsers_num_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainUsers_num_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateDomAlias_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateDomAlias_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateDomAlias_alias_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateDomAlias_alias_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateDomAlias_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateDomAlias_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateDomAlias_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateDomAlias_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateDomAlias_rid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainAliases_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainAliases_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainAliases_resume_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainAliases_resume_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainAliases_sam(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainAliases_sam_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainAliases_sam__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainAliases_max_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainAliases_num_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_EnumDomainAliases_num_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetAliasMembership_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetAliasMembership_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetAliasMembership_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetAliasMembership_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetAliasMembership_rids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetAliasMembership_rids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupNames_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupNames_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupNames_num_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupNames_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupNames_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupNames_names__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupNames_rids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupNames_rids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupNames_types(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupNames_types_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupRids_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupRids_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupRids_num_rids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupRids_rids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupRids_rids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupRids_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupRids_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupRids_types(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_LookupRids_types_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenGroup_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenGroup_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenGroup_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenGroup_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenGroup_group_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenGroup_group_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryGroupInfo_group_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryGroupInfo_group_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryGroupInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryGroupInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryGroupInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryGroupInfo_info__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetGroupInfo_group_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetGroupInfo_group_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetGroupInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetGroupInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetGroupInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_AddGroupMember_group_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_AddGroupMember_group_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_AddGroupMember_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_AddGroupMember_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DeleteDomainGroup_group_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DeleteDomainGroup_group_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DeleteGroupMember_group_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DeleteGroupMember_group_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DeleteGroupMember_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryGroupMember_group_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryGroupMember_group_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryGroupMember_rids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryGroupMember_rids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryGroupMember_rids__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetMemberAttributesOfGroup_group_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetMemberAttributesOfGroup_group_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetMemberAttributesOfGroup_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetMemberAttributesOfGroup_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenAlias_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenAlias_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenAlias_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenAlias_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenAlias_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenAlias_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryAliasInfo_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryAliasInfo_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryAliasInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryAliasInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryAliasInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryAliasInfo_info__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetAliasInfo_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetAliasInfo_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetAliasInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetAliasInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetAliasInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DeleteDomAlias_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DeleteDomAlias_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_AddAliasMember_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_AddAliasMember_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_AddAliasMember_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_AddAliasMember_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DeleteAliasMember_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DeleteAliasMember_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DeleteAliasMember_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DeleteAliasMember_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetMembersInAlias_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetMembersInAlias_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetMembersInAlias_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetMembersInAlias_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenUser_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenUser_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenUser_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenUser_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenUser_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OpenUser_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DeleteUser_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_DeleteUser_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryUserInfo_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryUserInfo_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryUserInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryUserInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryUserInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryUserInfo_info__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetUserInfo_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetUserInfo_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetUserInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetUserInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetUserInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser_lm_present(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser_old_lm_crypted(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser_old_lm_crypted_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser_new_lm_crypted(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser_new_lm_crypted_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser_nt_present(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser_old_nt_crypted(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser_old_nt_crypted_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser_new_nt_crypted(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser_new_nt_crypted_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser_cross1_present(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser_nt_cross(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser_nt_cross_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser_cross2_present(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser_lm_cross(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser_lm_cross_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetGroupsForUser_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetGroupsForUser_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetGroupsForUser_rids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetGroupsForUser_rids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetGroupsForUser_rids__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo_start_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo_max_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo_buf_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo_total_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo_total_size_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo_returned_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo_returned_size_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetDisplayEnumerationIndex_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetDisplayEnumerationIndex_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetDisplayEnumerationIndex_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetDisplayEnumerationIndex_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetDisplayEnumerationIndex_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetDisplayEnumerationIndex_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetDisplayEnumerationIndex_idx_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_TestPrivateFunctionsDomain_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_TestPrivateFunctionsDomain_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_TestPrivateFunctionsUser_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_TestPrivateFunctionsUser_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetUserPwInfo_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetUserPwInfo_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetUserPwInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetUserPwInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RemoveMemberFromForeignDomain_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RemoveMemberFromForeignDomain_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RemoveMemberFromForeignDomain_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RemoveMemberFromForeignDomain_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDomainInfo2_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDomainInfo2_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDomainInfo2_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDomainInfo2_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDomainInfo2_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDomainInfo2_info__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryUserInfo2_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryUserInfo2_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryUserInfo2_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryUserInfo2_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryUserInfo2_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryUserInfo2_info__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo2_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo2_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo2_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo2_start_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo2_max_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo2_buf_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo2_total_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo2_total_size_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo2_returned_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo2_returned_size_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo2_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo2_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetDisplayEnumerationIndex2_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetDisplayEnumerationIndex2_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetDisplayEnumerationIndex2_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetDisplayEnumerationIndex2_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetDisplayEnumerationIndex2_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetDisplayEnumerationIndex2_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetDisplayEnumerationIndex2_idx_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser2_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser2_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser2_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser2_account_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser2_acct_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser2_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser2_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser2_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser2_access_granted(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser2_access_granted_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser2_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_CreateUser2_rid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo3_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo3_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo3_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo3_start_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo3_max_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo3_buf_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo3_total_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo3_total_size_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo3_returned_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo3_returned_size_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo3_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_QueryDisplayInfo3_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_AddMultipleMembersToAlias_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_AddMultipleMembersToAlias_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_AddMultipleMembersToAlias_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_AddMultipleMembersToAlias_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RemoveMultipleMembersFromAlias_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RemoveMultipleMembersFromAlias_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RemoveMultipleMembersFromAlias_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RemoveMultipleMembersFromAlias_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OemChangePasswordUser2_server(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OemChangePasswordUser2_server_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OemChangePasswordUser2_account(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OemChangePasswordUser2_account_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OemChangePasswordUser2_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OemChangePasswordUser2_password_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OemChangePasswordUser2_hash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_OemChangePasswordUser2_hash_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser2_server(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser2_server_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser2_account(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser2_account_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser2_nt_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser2_nt_password_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser2_nt_verifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser2_nt_verifier_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser2_lm_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser2_lm_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser2_lm_password_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser2_lm_verifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser2_lm_verifier_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetDomPwInfo_domain_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetDomPwInfo_domain_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetDomPwInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetDomPwInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect2_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect2_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect2_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect2_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect2_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetUserInfo2_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetUserInfo2_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetUserInfo2_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetUserInfo2_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetUserInfo2_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetBootKeyInformation_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetBootKeyInformation_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetBootKeyInformation_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetBootKeyInformation_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetBootKeyInformation_unknown3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetBootKeyInformation_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetBootKeyInformation_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetBootKeyInformation_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_GetBootKeyInformation_unknown_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect3_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect3_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect3_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect3_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect3_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect3_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect4_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect4_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect4_client_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect4_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect4_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect4_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_server(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_server_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_account(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_account_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_nt_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_nt_password_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_nt_verifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_nt_verifier_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_lm_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_lm_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_lm_password_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_lm_verifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_lm_verifier_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_password3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_password3_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_dominfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_dominfo_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_dominfo__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_reject(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_reject_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ChangePasswordUser3_reject__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect5_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect5_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect5_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect5_level_in(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect5_info_in(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect5_info_in_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect5_level_out(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect5_level_out_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect5_info_out(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect5_info_out_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect5_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_Connect5_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RidToSid_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RidToSid_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RidToSid_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RidToSid_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RidToSid_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_RidToSid_sid__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetDsrmPassword_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetDsrmPassword_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetDsrmPassword_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetDsrmPassword_hash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_SetDsrmPassword_hash_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePassword_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePassword_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePassword_req_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePassword_rep(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePassword_rep_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int samr_dissect_element_ValidatePassword_rep__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 static void
 samr_connect_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
@@ -2209,7 +2211,7 @@ cnf_dissect_samr_security_secinfo(tvbuff_t *tvb, int offset, packet_info *pinfo 
 /* IDL: } */
 
 static int
-samr_dissect_element_lsa_Strings_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_lsa_Strings_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_lsa_Strings_count, 0);
 
@@ -2217,7 +2219,7 @@ samr_dissect_element_lsa_Strings_count(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_lsa_Strings_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_lsa_Strings_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_lsa_Strings_names_, NDR_POINTER_UNIQUE, "Pointer to Names (lsa_String)",hf_samr_lsa_Strings_names);
 
@@ -2225,7 +2227,7 @@ samr_dissect_element_lsa_Strings_names(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_lsa_Strings_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_lsa_Strings_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_lsa_Strings_names__);
 
@@ -2233,7 +2235,7 @@ samr_dissect_element_lsa_Strings_names_(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_lsa_Strings_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_lsa_Strings_names__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_lsa_Strings_names);
 
@@ -2241,7 +2243,7 @@ samr_dissect_element_lsa_Strings_names__(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 int
-samr_dissect_struct_lsa_Strings(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_lsa_Strings(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2286,7 +2288,7 @@ samr_dissect_struct_lsa_Strings(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 /* IDL: } */
 
 int
-samr_dissect_enum_lsa_SidType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
+samr_dissect_enum_lsa_SidType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 *param)
 {
 	guint32 parameter=0;
 	if (param) {
@@ -2308,7 +2310,7 @@ samr_dissect_enum_lsa_SidType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: } */
 
 int
-samr_dissect_enum_RejectReason(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
+samr_dissect_enum_RejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 *param)
 {
 	guint32 parameter=0;
 	if (param) {
@@ -2346,7 +2348,7 @@ samr_dissect_enum_RejectReason(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 int
-samr_dissect_bitmap_AcctFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_bitmap_AcctFlags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2597,7 +2599,7 @@ samr_dissect_bitmap_AcctFlags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: } */
 
 static int
-samr_dissect_element_SamEntry_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SamEntry_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_SamEntry_idx, 0);
 
@@ -2605,7 +2607,7 @@ samr_dissect_element_SamEntry_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-samr_dissect_element_SamEntry_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SamEntry_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_SamEntry_name);
 
@@ -2613,7 +2615,7 @@ samr_dissect_element_SamEntry_name(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 int
-samr_dissect_struct_SamEntry(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_SamEntry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2650,7 +2652,7 @@ samr_dissect_struct_SamEntry(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 /* IDL: } */
 
 static int
-samr_dissect_element_SamArray_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SamArray_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_SamArray_count, 0);
 
@@ -2658,7 +2660,7 @@ samr_dissect_element_SamArray_count(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_SamArray_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SamArray_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_SamArray_entries_, NDR_POINTER_UNIQUE, "Pointer to Entries (samr_SamEntry)",hf_samr_samr_SamArray_entries);
 
@@ -2666,7 +2668,7 @@ samr_dissect_element_SamArray_entries(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_SamArray_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SamArray_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_SamArray_entries__);
 
@@ -2674,7 +2676,7 @@ samr_dissect_element_SamArray_entries_(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_SamArray_entries__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SamArray_entries__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_SamEntry(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_SamArray_entries,3|PIDL_SET_COL_INFO);
 
@@ -2682,7 +2684,7 @@ samr_dissect_element_SamArray_entries__(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 int
-samr_dissect_struct_SamArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_SamArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2730,7 +2732,7 @@ samr_dissect_struct_SamArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 /* IDL: } */
 
 int
-samr_dissect_enum_DomainInfoClass(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_)
+samr_dissect_enum_DomainInfoClass(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint1632 *param)
 {
 	guint1632 parameter=0;
 	if (param) {
@@ -2752,7 +2754,7 @@ samr_dissect_enum_DomainInfoClass(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: } */
 
 int
-samr_dissect_enum_Role(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
+samr_dissect_enum_Role(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 *param)
 {
 	guint32 parameter=0;
 	if (param) {
@@ -2776,7 +2778,7 @@ samr_dissect_enum_Role(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_
 /* IDL: } */
 
 int
-samr_dissect_bitmap_PasswordProperties(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_bitmap_PasswordProperties(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2857,7 +2859,7 @@ samr_dissect_bitmap_PasswordProperties(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: } */
 
 int
-samr_dissect_enum_DomainServerState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
+samr_dissect_enum_DomainServerState(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 *param)
 {
 	guint32 parameter=0;
 	if (param) {
@@ -2880,7 +2882,7 @@ samr_dissect_enum_DomainServerState(tvbuff_t *tvb _U_, int offset _U_, packet_in
 /* IDL: } */
 
 static int
-samr_dissect_element_DomInfo1_min_password_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomInfo1_min_password_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomInfo1_min_password_length, 0);
 
@@ -2888,7 +2890,7 @@ samr_dissect_element_DomInfo1_min_password_length(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_DomInfo1_password_history_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomInfo1_password_history_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomInfo1_password_history_length, 0);
 
@@ -2896,7 +2898,7 @@ samr_dissect_element_DomInfo1_password_history_length(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_DomInfo1_password_properties(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomInfo1_password_properties(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_PasswordProperties(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomInfo1_password_properties, 0);
 
@@ -2904,7 +2906,7 @@ samr_dissect_element_DomInfo1_password_properties(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_DomInfo1_max_password_age(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomInfo1_max_password_age(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomInfo1_max_password_age, NULL);
 
@@ -2912,7 +2914,7 @@ samr_dissect_element_DomInfo1_max_password_age(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_DomInfo1_min_password_age(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomInfo1_min_password_age(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomInfo1_min_password_age, NULL);
 
@@ -2920,7 +2922,7 @@ samr_dissect_element_DomInfo1_min_password_age(tvbuff_t *tvb _U_, int offset _U_
 }
 
 int
-samr_dissect_struct_DomInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DomInfo1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2972,7 +2974,7 @@ samr_dissect_struct_DomInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 /* IDL: } */
 
 static int
-samr_dissect_element_DomGeneralInformation_force_logoff_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomGeneralInformation_force_logoff_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomGeneralInformation_force_logoff_time);
 
@@ -2980,7 +2982,7 @@ samr_dissect_element_DomGeneralInformation_force_logoff_time(tvbuff_t *tvb _U_, 
 }
 
 static int
-samr_dissect_element_DomGeneralInformation_oem_information(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomGeneralInformation_oem_information(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomGeneralInformation_oem_information);
 
@@ -2988,7 +2990,7 @@ samr_dissect_element_DomGeneralInformation_oem_information(tvbuff_t *tvb _U_, in
 }
 
 static int
-samr_dissect_element_DomGeneralInformation_domain_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomGeneralInformation_domain_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomGeneralInformation_domain_name);
 
@@ -2996,7 +2998,7 @@ samr_dissect_element_DomGeneralInformation_domain_name(tvbuff_t *tvb _U_, int of
 }
 
 static int
-samr_dissect_element_DomGeneralInformation_primary(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomGeneralInformation_primary(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomGeneralInformation_primary);
 
@@ -3004,7 +3006,7 @@ samr_dissect_element_DomGeneralInformation_primary(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_DomGeneralInformation_sequence_num(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomGeneralInformation_sequence_num(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomGeneralInformation_sequence_num, NULL);
 
@@ -3012,7 +3014,7 @@ samr_dissect_element_DomGeneralInformation_sequence_num(tvbuff_t *tvb _U_, int o
 }
 
 static int
-samr_dissect_element_DomGeneralInformation_domain_server_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomGeneralInformation_domain_server_state(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_DomainServerState(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomGeneralInformation_domain_server_state, 0);
 
@@ -3020,7 +3022,7 @@ samr_dissect_element_DomGeneralInformation_domain_server_state(tvbuff_t *tvb _U_
 }
 
 static int
-samr_dissect_element_DomGeneralInformation_role(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomGeneralInformation_role(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_Role(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomGeneralInformation_role, 0);
 
@@ -3028,7 +3030,7 @@ samr_dissect_element_DomGeneralInformation_role(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_DomGeneralInformation_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomGeneralInformation_unknown3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomGeneralInformation_unknown3, 0);
 
@@ -3036,7 +3038,7 @@ samr_dissect_element_DomGeneralInformation_unknown3(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_DomGeneralInformation_num_users(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomGeneralInformation_num_users(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomGeneralInformation_num_users, 0);
 
@@ -3044,7 +3046,7 @@ samr_dissect_element_DomGeneralInformation_num_users(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_DomGeneralInformation_num_groups(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomGeneralInformation_num_groups(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomGeneralInformation_num_groups, 0);
 
@@ -3052,7 +3054,7 @@ samr_dissect_element_DomGeneralInformation_num_groups(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_DomGeneralInformation_num_aliases(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomGeneralInformation_num_aliases(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomGeneralInformation_num_aliases, 0);
 
@@ -3060,7 +3062,7 @@ samr_dissect_element_DomGeneralInformation_num_aliases(tvbuff_t *tvb _U_, int of
 }
 
 int
-samr_dissect_struct_DomGeneralInformation(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DomGeneralInformation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3114,7 +3116,7 @@ samr_dissect_struct_DomGeneralInformation(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: } */
 
 static int
-samr_dissect_element_DomInfo3_force_logoff_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomInfo3_force_logoff_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomInfo3_force_logoff_time);
 
@@ -3122,7 +3124,7 @@ samr_dissect_element_DomInfo3_force_logoff_time(tvbuff_t *tvb _U_, int offset _U
 }
 
 int
-samr_dissect_struct_DomInfo3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DomInfo3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3156,7 +3158,7 @@ samr_dissect_struct_DomInfo3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 /* IDL: } */
 
 static int
-samr_dissect_element_DomOEMInformation_oem_information(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomOEMInformation_oem_information(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomOEMInformation_oem_information);
 
@@ -3164,7 +3166,7 @@ samr_dissect_element_DomOEMInformation_oem_information(tvbuff_t *tvb _U_, int of
 }
 
 int
-samr_dissect_struct_DomOEMInformation(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DomOEMInformation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3198,7 +3200,7 @@ samr_dissect_struct_DomOEMInformation(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: } */
 
 static int
-samr_dissect_element_DomInfo5_domain_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomInfo5_domain_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomInfo5_domain_name);
 
@@ -3206,7 +3208,7 @@ samr_dissect_element_DomInfo5_domain_name(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 int
-samr_dissect_struct_DomInfo5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DomInfo5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3240,7 +3242,7 @@ samr_dissect_struct_DomInfo5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 /* IDL: } */
 
 static int
-samr_dissect_element_DomInfo6_primary(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomInfo6_primary(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomInfo6_primary);
 
@@ -3248,7 +3250,7 @@ samr_dissect_element_DomInfo6_primary(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 int
-samr_dissect_struct_DomInfo6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DomInfo6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3282,7 +3284,7 @@ samr_dissect_struct_DomInfo6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 /* IDL: } */
 
 static int
-samr_dissect_element_DomInfo7_role(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomInfo7_role(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_Role(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomInfo7_role, 0);
 
@@ -3290,7 +3292,7 @@ samr_dissect_element_DomInfo7_role(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 int
-samr_dissect_struct_DomInfo7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DomInfo7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3325,7 +3327,7 @@ samr_dissect_struct_DomInfo7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 /* IDL: } */
 
 static int
-samr_dissect_element_DomInfo8_sequence_num(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomInfo8_sequence_num(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomInfo8_sequence_num);
 
@@ -3333,7 +3335,7 @@ samr_dissect_element_DomInfo8_sequence_num(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_DomInfo8_domain_create_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomInfo8_domain_create_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomInfo8_domain_create_time);
 
@@ -3341,7 +3343,7 @@ samr_dissect_element_DomInfo8_domain_create_time(tvbuff_t *tvb _U_, int offset _
 }
 
 int
-samr_dissect_struct_DomInfo8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DomInfo8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3377,7 +3379,7 @@ samr_dissect_struct_DomInfo8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 /* IDL: } */
 
 static int
-samr_dissect_element_DomInfo9_domain_server_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomInfo9_domain_server_state(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_DomainServerState(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomInfo9_domain_server_state, 0);
 
@@ -3385,7 +3387,7 @@ samr_dissect_element_DomInfo9_domain_server_state(tvbuff_t *tvb _U_, int offset 
 }
 
 int
-samr_dissect_struct_DomInfo9(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DomInfo9(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3422,7 +3424,7 @@ samr_dissect_struct_DomInfo9(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 /* IDL: } */
 
 static int
-samr_dissect_element_DomGeneralInformation2_general(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomGeneralInformation2_general(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DomGeneralInformation(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DomGeneralInformation2_general,0);
 
@@ -3430,7 +3432,7 @@ samr_dissect_element_DomGeneralInformation2_general(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_DomGeneralInformation2_lockout_duration(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomGeneralInformation2_lockout_duration(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomGeneralInformation2_lockout_duration);
 
@@ -3438,7 +3440,7 @@ samr_dissect_element_DomGeneralInformation2_lockout_duration(tvbuff_t *tvb _U_, 
 }
 
 static int
-samr_dissect_element_DomGeneralInformation2_lockout_window(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomGeneralInformation2_lockout_window(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomGeneralInformation2_lockout_window);
 
@@ -3446,7 +3448,7 @@ samr_dissect_element_DomGeneralInformation2_lockout_window(tvbuff_t *tvb _U_, in
 }
 
 static int
-samr_dissect_element_DomGeneralInformation2_lockout_threshold(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomGeneralInformation2_lockout_threshold(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomGeneralInformation2_lockout_threshold, 0);
 
@@ -3454,7 +3456,7 @@ samr_dissect_element_DomGeneralInformation2_lockout_threshold(tvbuff_t *tvb _U_,
 }
 
 int
-samr_dissect_struct_DomGeneralInformation2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DomGeneralInformation2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3496,7 +3498,7 @@ samr_dissect_struct_DomGeneralInformation2(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: } */
 
 static int
-samr_dissect_element_DomInfo12_lockout_duration(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomInfo12_lockout_duration(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomInfo12_lockout_duration);
 
@@ -3504,7 +3506,7 @@ samr_dissect_element_DomInfo12_lockout_duration(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_DomInfo12_lockout_window(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomInfo12_lockout_window(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomInfo12_lockout_window);
 
@@ -3512,7 +3514,7 @@ samr_dissect_element_DomInfo12_lockout_window(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_DomInfo12_lockout_threshold(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomInfo12_lockout_threshold(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomInfo12_lockout_threshold, 0);
 
@@ -3520,7 +3522,7 @@ samr_dissect_element_DomInfo12_lockout_threshold(tvbuff_t *tvb _U_, int offset _
 }
 
 int
-samr_dissect_struct_DomInfo12(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DomInfo12(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3560,7 +3562,7 @@ samr_dissect_struct_DomInfo12(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: } */
 
 static int
-samr_dissect_element_DomInfo13_sequence_num(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomInfo13_sequence_num(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomInfo13_sequence_num);
 
@@ -3568,7 +3570,7 @@ samr_dissect_element_DomInfo13_sequence_num(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_DomInfo13_domain_create_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomInfo13_domain_create_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomInfo13_domain_create_time);
 
@@ -3576,7 +3578,7 @@ samr_dissect_element_DomInfo13_domain_create_time(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_DomInfo13_modified_count_at_last_promotion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomInfo13_modified_count_at_last_promotion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomInfo13_modified_count_at_last_promotion);
 
@@ -3584,7 +3586,7 @@ samr_dissect_element_DomInfo13_modified_count_at_last_promotion(tvbuff_t *tvb _U
 }
 
 int
-samr_dissect_struct_DomInfo13(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DomInfo13(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3633,7 +3635,7 @@ samr_dissect_struct_DomInfo13(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: } */
 
 static int
-samr_dissect_element_DomainInfo_info1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomainInfo_info1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DomInfo1(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DomainInfo_info1,0);
 
@@ -3641,7 +3643,7 @@ samr_dissect_element_DomainInfo_info1(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_DomainInfo_general(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomainInfo_general(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DomGeneralInformation(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DomainInfo_general,0);
 
@@ -3649,7 +3651,7 @@ samr_dissect_element_DomainInfo_general(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_DomainInfo_info3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomainInfo_info3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DomInfo3(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DomainInfo_info3,0);
 
@@ -3657,7 +3659,7 @@ samr_dissect_element_DomainInfo_info3(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_DomainInfo_oem(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomainInfo_oem(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DomOEMInformation(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DomainInfo_oem,0);
 
@@ -3665,7 +3667,7 @@ samr_dissect_element_DomainInfo_oem(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_DomainInfo_info5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomainInfo_info5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DomInfo5(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DomainInfo_info5,0);
 
@@ -3673,7 +3675,7 @@ samr_dissect_element_DomainInfo_info5(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_DomainInfo_info6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomainInfo_info6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DomInfo6(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DomainInfo_info6,0);
 
@@ -3681,7 +3683,7 @@ samr_dissect_element_DomainInfo_info6(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_DomainInfo_info7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomainInfo_info7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DomInfo7(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DomainInfo_info7,0);
 
@@ -3689,7 +3691,7 @@ samr_dissect_element_DomainInfo_info7(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_DomainInfo_info8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomainInfo_info8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DomInfo8(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DomainInfo_info8,0);
 
@@ -3697,7 +3699,7 @@ samr_dissect_element_DomainInfo_info8(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_DomainInfo_info9(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomainInfo_info9(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DomInfo9(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DomainInfo_info9,0);
 
@@ -3705,7 +3707,7 @@ samr_dissect_element_DomainInfo_info9(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_DomainInfo_general2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomainInfo_general2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DomGeneralInformation2(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DomainInfo_general2,0);
 
@@ -3713,7 +3715,7 @@ samr_dissect_element_DomainInfo_general2(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_DomainInfo_info12(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomainInfo_info12(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DomInfo12(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DomainInfo_info12,0);
 
@@ -3721,7 +3723,7 @@ samr_dissect_element_DomainInfo_info12(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_DomainInfo_info13(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DomainInfo_info13(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DomInfo13(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DomainInfo_info13,0);
 
@@ -3729,7 +3731,7 @@ samr_dissect_element_DomainInfo_info13(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_DomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_DomainInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3805,7 +3807,7 @@ samr_dissect_DomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U
 /* IDL: } */
 
 static int
-samr_dissect_element_Ids_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Ids_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_Ids_count, 0);
 
@@ -3813,7 +3815,7 @@ samr_dissect_element_Ids_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 }
 
 static int
-samr_dissect_element_Ids_ids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Ids_ids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_Ids_ids_, NDR_POINTER_UNIQUE, "Pointer to Ids (uint32)",hf_samr_rid);
 
@@ -3821,7 +3823,7 @@ samr_dissect_element_Ids_ids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 }
 
 static int
-samr_dissect_element_Ids_ids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Ids_ids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_Ids_ids__);
 
@@ -3829,7 +3831,7 @@ samr_dissect_element_Ids_ids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 }
 
 static int
-samr_dissect_element_Ids_ids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Ids_ids__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -3837,7 +3839,7 @@ samr_dissect_element_Ids_ids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 }
 
 int
-samr_dissect_struct_Ids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_Ids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3879,7 +3881,7 @@ samr_dissect_struct_Ids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U
 /* IDL: } */
 
 int
-samr_dissect_bitmap_GroupAttrs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_bitmap_GroupAttrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3970,7 +3972,7 @@ samr_dissect_bitmap_GroupAttrs(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 static int
-samr_dissect_element_GroupInfoAll_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GroupInfoAll_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_GroupInfoAll_name);
 
@@ -3978,7 +3980,7 @@ samr_dissect_element_GroupInfoAll_name(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_GroupInfoAll_attributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GroupInfoAll_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_GroupAttrs(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_GroupInfoAll_attributes, 0);
 
@@ -3986,7 +3988,7 @@ samr_dissect_element_GroupInfoAll_attributes(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_GroupInfoAll_num_members(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GroupInfoAll_num_members(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_GroupInfoAll_num_members, 0);
 
@@ -3994,7 +3996,7 @@ samr_dissect_element_GroupInfoAll_num_members(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_GroupInfoAll_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GroupInfoAll_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_GroupInfoAll_description);
 
@@ -4002,7 +4004,7 @@ samr_dissect_element_GroupInfoAll_description(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 int
-samr_dissect_struct_GroupInfoAll(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_GroupInfoAll(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4042,7 +4044,7 @@ samr_dissect_struct_GroupInfoAll(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: } */
 
 static int
-samr_dissect_element_GroupInfoAttributes_attributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GroupInfoAttributes_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_GroupAttrs(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_GroupInfoAttributes_attributes, 0);
 
@@ -4050,7 +4052,7 @@ samr_dissect_element_GroupInfoAttributes_attributes(tvbuff_t *tvb _U_, int offse
 }
 
 int
-samr_dissect_struct_GroupInfoAttributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_GroupInfoAttributes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4084,7 +4086,7 @@ samr_dissect_struct_GroupInfoAttributes(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: } */
 
 static int
-samr_dissect_element_GroupInfoDescription_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GroupInfoDescription_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_GroupInfoDescription_description);
 
@@ -4092,7 +4094,7 @@ samr_dissect_element_GroupInfoDescription_description(tvbuff_t *tvb _U_, int off
 }
 
 int
-samr_dissect_struct_GroupInfoDescription(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_GroupInfoDescription(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4130,7 +4132,7 @@ samr_dissect_struct_GroupInfoDescription(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 int
-samr_dissect_enum_GroupInfoEnum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_)
+samr_dissect_enum_GroupInfoEnum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint1632 *param)
 {
 	guint1632 parameter=0;
 	if (param) {
@@ -4153,7 +4155,7 @@ samr_dissect_enum_GroupInfoEnum(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 /* IDL: } */
 
 static int
-samr_dissect_element_GroupInfo_all(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GroupInfo_all(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_GroupInfoAll(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_GroupInfo_all,0);
 
@@ -4161,7 +4163,7 @@ samr_dissect_element_GroupInfo_all(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-samr_dissect_element_GroupInfo_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GroupInfo_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_GroupInfo_name);
 
@@ -4169,7 +4171,7 @@ samr_dissect_element_GroupInfo_name(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_GroupInfo_attributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GroupInfo_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_GroupInfoAttributes(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_GroupInfo_attributes,0);
 
@@ -4177,7 +4179,7 @@ samr_dissect_element_GroupInfo_attributes(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_GroupInfo_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GroupInfo_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_GroupInfo_description);
 
@@ -4185,7 +4187,7 @@ samr_dissect_element_GroupInfo_description(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_GroupInfo_all2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GroupInfo_all2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_GroupInfoAll(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_GroupInfo_all2,0);
 
@@ -4193,7 +4195,7 @@ samr_dissect_element_GroupInfo_all2(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_GroupInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_GroupInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4242,7 +4244,7 @@ samr_dissect_GroupInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_
 /* IDL: } */
 
 static int
-samr_dissect_element_RidTypeArray_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RidTypeArray_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_RidTypeArray_count, 0);
 
@@ -4250,7 +4252,7 @@ samr_dissect_element_RidTypeArray_count(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_RidTypeArray_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RidTypeArray_rids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_RidTypeArray_rids_, NDR_POINTER_UNIQUE, "Pointer to Rids (uint32)",hf_samr_rid);
 
@@ -4258,7 +4260,7 @@ samr_dissect_element_RidTypeArray_rids(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_RidTypeArray_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RidTypeArray_rids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_RidTypeArray_rids__);
 
@@ -4266,7 +4268,7 @@ samr_dissect_element_RidTypeArray_rids_(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_RidTypeArray_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RidTypeArray_rids__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -4274,7 +4276,7 @@ samr_dissect_element_RidTypeArray_rids__(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_RidTypeArray_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RidTypeArray_types(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_RidTypeArray_types_, NDR_POINTER_UNIQUE, "Pointer to Types (uint32)",hf_samr_samr_RidTypeArray_types);
 
@@ -4282,7 +4284,7 @@ samr_dissect_element_RidTypeArray_types(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_RidTypeArray_types_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RidTypeArray_types_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_RidTypeArray_types__);
 
@@ -4290,7 +4292,7 @@ samr_dissect_element_RidTypeArray_types_(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_RidTypeArray_types__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RidTypeArray_types__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_RidTypeArray_types, 0);
 
@@ -4298,7 +4300,7 @@ samr_dissect_element_RidTypeArray_types__(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 int
-samr_dissect_struct_RidTypeArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_RidTypeArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4338,7 +4340,7 @@ samr_dissect_struct_RidTypeArray(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: } */
 
 static int
-samr_dissect_element_AliasInfoAll_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_AliasInfoAll_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_AliasInfoAll_name);
 
@@ -4346,7 +4348,7 @@ samr_dissect_element_AliasInfoAll_name(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_AliasInfoAll_num_members(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_AliasInfoAll_num_members(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_AliasInfoAll_num_members, 0);
 
@@ -4354,7 +4356,7 @@ samr_dissect_element_AliasInfoAll_num_members(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_AliasInfoAll_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_AliasInfoAll_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_AliasInfoAll_description);
 
@@ -4362,7 +4364,7 @@ samr_dissect_element_AliasInfoAll_description(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 int
-samr_dissect_struct_AliasInfoAll(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_AliasInfoAll(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4402,7 +4404,7 @@ samr_dissect_struct_AliasInfoAll(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: } */
 
 int
-samr_dissect_enum_AliasInfoEnum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_)
+samr_dissect_enum_AliasInfoEnum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint1632 *param)
 {
 	guint1632 parameter=0;
 	if (param) {
@@ -4423,7 +4425,7 @@ samr_dissect_enum_AliasInfoEnum(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 /* IDL: } */
 
 static int
-samr_dissect_element_AliasInfo_all(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_AliasInfo_all(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_AliasInfoAll(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_AliasInfo_all,0);
 
@@ -4431,7 +4433,7 @@ samr_dissect_element_AliasInfo_all(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-samr_dissect_element_AliasInfo_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_AliasInfo_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_AliasInfo_name);
 
@@ -4439,7 +4441,7 @@ samr_dissect_element_AliasInfo_name(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_AliasInfo_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_AliasInfo_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_AliasInfo_description);
 
@@ -4447,7 +4449,7 @@ samr_dissect_element_AliasInfo_description(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_AliasInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_AliasInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4508,7 +4510,7 @@ samr_dissect_AliasInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_
 /* IDL: } */
 
 int
-samr_dissect_enum_UserInfoLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_)
+samr_dissect_enum_UserInfoLevel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint1632 *param)
 {
 	guint1632 parameter=0;
 	if (param) {
@@ -4531,7 +4533,7 @@ samr_dissect_enum_UserInfoLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo1_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo1_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo1_account_name);
 
@@ -4539,7 +4541,7 @@ samr_dissect_element_UserInfo1_account_name(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_UserInfo1_full_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo1_full_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo1_full_name);
 
@@ -4547,7 +4549,7 @@ samr_dissect_element_UserInfo1_full_name(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_UserInfo1_primary_gid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo1_primary_gid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo1_primary_gid, 0);
 
@@ -4555,7 +4557,7 @@ samr_dissect_element_UserInfo1_primary_gid(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_UserInfo1_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo1_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo1_description);
 
@@ -4563,7 +4565,7 @@ samr_dissect_element_UserInfo1_description(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_UserInfo1_comment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo1_comment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo1_comment);
 
@@ -4571,7 +4573,7 @@ samr_dissect_element_UserInfo1_comment(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 int
-samr_dissect_struct_UserInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4616,7 +4618,7 @@ samr_dissect_struct_UserInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo2_comment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo2_comment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo2_comment);
 
@@ -4624,7 +4626,7 @@ samr_dissect_element_UserInfo2_comment(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_UserInfo2_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo2_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo2_unknown);
 
@@ -4632,7 +4634,7 @@ samr_dissect_element_UserInfo2_unknown(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_UserInfo2_country_code(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo2_country_code(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo2_country_code, 0);
 
@@ -4640,7 +4642,7 @@ samr_dissect_element_UserInfo2_country_code(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_UserInfo2_code_page(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo2_code_page(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo2_code_page, 0);
 
@@ -4648,7 +4650,7 @@ samr_dissect_element_UserInfo2_code_page(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 int
-samr_dissect_struct_UserInfo2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4689,7 +4691,7 @@ samr_dissect_struct_UserInfo2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: } */
 
 static int
-samr_dissect_element_LogonHours_units_per_week(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LogonHours_units_per_week(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_LogonHours_units_per_week, 0);
 
@@ -4697,7 +4699,7 @@ samr_dissect_element_LogonHours_units_per_week(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_LogonHours_bits(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LogonHours_bits(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LogonHours_bits_, NDR_POINTER_UNIQUE, "Pointer to Bits (uint8)",hf_samr_samr_LogonHours_bits);
 
@@ -4705,7 +4707,7 @@ samr_dissect_element_LogonHours_bits(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_LogonHours_bits_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LogonHours_bits_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LogonHours_bits__);
 
@@ -4713,7 +4715,7 @@ samr_dissect_element_LogonHours_bits_(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_LogonHours_bits__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LogonHours_bits__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_LogonHours_bits, 0);
 
@@ -4721,7 +4723,7 @@ samr_dissect_element_LogonHours_bits__(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 int
-samr_dissect_struct_LogonHours(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_LogonHours(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4774,7 +4776,7 @@ samr_dissect_struct_LogonHours(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo3_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo3_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo3_account_name);
 
@@ -4782,7 +4784,7 @@ samr_dissect_element_UserInfo3_account_name(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_UserInfo3_full_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo3_full_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo3_full_name);
 
@@ -4790,7 +4792,7 @@ samr_dissect_element_UserInfo3_full_name(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_UserInfo3_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo3_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -4798,7 +4800,7 @@ samr_dissect_element_UserInfo3_rid(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-samr_dissect_element_UserInfo3_primary_gid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo3_primary_gid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo3_primary_gid, 0);
 
@@ -4806,7 +4808,7 @@ samr_dissect_element_UserInfo3_primary_gid(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_UserInfo3_home_directory(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo3_home_directory(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo3_home_directory);
 
@@ -4814,7 +4816,7 @@ samr_dissect_element_UserInfo3_home_directory(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_UserInfo3_home_drive(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo3_home_drive(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo3_home_drive);
 
@@ -4822,7 +4824,7 @@ samr_dissect_element_UserInfo3_home_drive(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_UserInfo3_logon_script(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo3_logon_script(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo3_logon_script);
 
@@ -4830,7 +4832,7 @@ samr_dissect_element_UserInfo3_logon_script(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_UserInfo3_profile_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo3_profile_path(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo3_profile_path);
 
@@ -4838,7 +4840,7 @@ samr_dissect_element_UserInfo3_profile_path(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_UserInfo3_workstations(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo3_workstations(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo3_workstations);
 
@@ -4846,7 +4848,7 @@ samr_dissect_element_UserInfo3_workstations(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_UserInfo3_last_logon(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo3_last_logon(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo3_last_logon);
 
@@ -4854,7 +4856,7 @@ samr_dissect_element_UserInfo3_last_logon(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_UserInfo3_last_logoff(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo3_last_logoff(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo3_last_logoff);
 
@@ -4862,7 +4864,7 @@ samr_dissect_element_UserInfo3_last_logoff(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_UserInfo3_last_password_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo3_last_password_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo3_last_password_change);
 
@@ -4870,7 +4872,7 @@ samr_dissect_element_UserInfo3_last_password_change(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_UserInfo3_allow_password_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo3_allow_password_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo3_allow_password_change);
 
@@ -4878,7 +4880,7 @@ samr_dissect_element_UserInfo3_allow_password_change(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_UserInfo3_force_password_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo3_force_password_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo3_force_password_change);
 
@@ -4886,7 +4888,7 @@ samr_dissect_element_UserInfo3_force_password_change(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_UserInfo3_logon_hours(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo3_logon_hours(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_LogonHours(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo3_logon_hours,0);
 
@@ -4894,7 +4896,7 @@ samr_dissect_element_UserInfo3_logon_hours(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_UserInfo3_bad_password_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo3_bad_password_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo3_bad_password_count, 0);
 
@@ -4902,7 +4904,7 @@ samr_dissect_element_UserInfo3_bad_password_count(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_UserInfo3_logon_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo3_logon_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo3_logon_count, 0);
 
@@ -4910,7 +4912,7 @@ samr_dissect_element_UserInfo3_logon_count(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_UserInfo3_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo3_acct_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_AcctFlags(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo3_acct_flags, 0);
 
@@ -4918,7 +4920,7 @@ samr_dissect_element_UserInfo3_acct_flags(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 int
-samr_dissect_struct_UserInfo3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4986,7 +4988,7 @@ samr_dissect_struct_UserInfo3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo4_logon_hours(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo4_logon_hours(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_LogonHours(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo4_logon_hours,0);
 
@@ -4994,7 +4996,7 @@ samr_dissect_element_UserInfo4_logon_hours(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 int
-samr_dissect_struct_UserInfo4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5045,7 +5047,7 @@ samr_dissect_struct_UserInfo4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo5_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo5_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo5_account_name);
 
@@ -5053,7 +5055,7 @@ samr_dissect_element_UserInfo5_account_name(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_UserInfo5_full_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo5_full_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo5_full_name);
 
@@ -5061,7 +5063,7 @@ samr_dissect_element_UserInfo5_full_name(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_UserInfo5_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo5_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -5069,7 +5071,7 @@ samr_dissect_element_UserInfo5_rid(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-samr_dissect_element_UserInfo5_primary_gid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo5_primary_gid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo5_primary_gid, 0);
 
@@ -5077,7 +5079,7 @@ samr_dissect_element_UserInfo5_primary_gid(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_UserInfo5_home_directory(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo5_home_directory(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo5_home_directory);
 
@@ -5085,7 +5087,7 @@ samr_dissect_element_UserInfo5_home_directory(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_UserInfo5_home_drive(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo5_home_drive(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo5_home_drive);
 
@@ -5093,7 +5095,7 @@ samr_dissect_element_UserInfo5_home_drive(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_UserInfo5_logon_script(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo5_logon_script(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo5_logon_script);
 
@@ -5101,7 +5103,7 @@ samr_dissect_element_UserInfo5_logon_script(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_UserInfo5_profile_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo5_profile_path(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo5_profile_path);
 
@@ -5109,7 +5111,7 @@ samr_dissect_element_UserInfo5_profile_path(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_UserInfo5_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo5_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo5_description);
 
@@ -5117,7 +5119,7 @@ samr_dissect_element_UserInfo5_description(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_UserInfo5_workstations(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo5_workstations(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo5_workstations);
 
@@ -5125,7 +5127,7 @@ samr_dissect_element_UserInfo5_workstations(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_UserInfo5_last_logon(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo5_last_logon(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo5_last_logon);
 
@@ -5133,7 +5135,7 @@ samr_dissect_element_UserInfo5_last_logon(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_UserInfo5_last_logoff(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo5_last_logoff(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo5_last_logoff);
 
@@ -5141,7 +5143,7 @@ samr_dissect_element_UserInfo5_last_logoff(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_UserInfo5_logon_hours(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo5_logon_hours(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_LogonHours(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo5_logon_hours,0);
 
@@ -5149,7 +5151,7 @@ samr_dissect_element_UserInfo5_logon_hours(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_UserInfo5_bad_password_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo5_bad_password_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo5_bad_password_count, 0);
 
@@ -5157,7 +5159,7 @@ samr_dissect_element_UserInfo5_bad_password_count(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_UserInfo5_logon_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo5_logon_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo5_logon_count, 0);
 
@@ -5165,7 +5167,7 @@ samr_dissect_element_UserInfo5_logon_count(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_UserInfo5_last_password_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo5_last_password_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo5_last_password_change);
 
@@ -5173,7 +5175,7 @@ samr_dissect_element_UserInfo5_last_password_change(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_UserInfo5_acct_expiry(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo5_acct_expiry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo5_acct_expiry);
 
@@ -5181,7 +5183,7 @@ samr_dissect_element_UserInfo5_acct_expiry(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_UserInfo5_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo5_acct_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_AcctFlags(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo5_acct_flags, 0);
 
@@ -5189,7 +5191,7 @@ samr_dissect_element_UserInfo5_acct_flags(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 int
-samr_dissect_struct_UserInfo5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5258,7 +5260,7 @@ samr_dissect_struct_UserInfo5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo6_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo6_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo6_account_name);
 
@@ -5266,7 +5268,7 @@ samr_dissect_element_UserInfo6_account_name(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_UserInfo6_full_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo6_full_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo6_full_name);
 
@@ -5274,7 +5276,7 @@ samr_dissect_element_UserInfo6_full_name(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 int
-samr_dissect_struct_UserInfo6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5310,7 +5312,7 @@ samr_dissect_struct_UserInfo6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo7_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo7_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo7_account_name);
 
@@ -5318,7 +5320,7 @@ samr_dissect_element_UserInfo7_account_name(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 int
-samr_dissect_struct_UserInfo7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5352,7 +5354,7 @@ samr_dissect_struct_UserInfo7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo8_full_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo8_full_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo8_full_name);
 
@@ -5360,7 +5362,7 @@ samr_dissect_element_UserInfo8_full_name(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 int
-samr_dissect_struct_UserInfo8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5394,7 +5396,7 @@ samr_dissect_struct_UserInfo8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo9_primary_gid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo9_primary_gid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo9_primary_gid, 0);
 
@@ -5402,7 +5404,7 @@ samr_dissect_element_UserInfo9_primary_gid(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 int
-samr_dissect_struct_UserInfo9(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo9(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5437,7 +5439,7 @@ samr_dissect_struct_UserInfo9(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo10_home_directory(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo10_home_directory(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo10_home_directory);
 
@@ -5445,7 +5447,7 @@ samr_dissect_element_UserInfo10_home_directory(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_UserInfo10_home_drive(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo10_home_drive(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo10_home_drive);
 
@@ -5453,7 +5455,7 @@ samr_dissect_element_UserInfo10_home_drive(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 int
-samr_dissect_struct_UserInfo10(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo10(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5489,7 +5491,7 @@ samr_dissect_struct_UserInfo10(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo11_logon_script(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo11_logon_script(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo11_logon_script);
 
@@ -5497,7 +5499,7 @@ samr_dissect_element_UserInfo11_logon_script(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 int
-samr_dissect_struct_UserInfo11(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo11(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5531,7 +5533,7 @@ samr_dissect_struct_UserInfo11(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo12_profile_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo12_profile_path(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo12_profile_path);
 
@@ -5539,7 +5541,7 @@ samr_dissect_element_UserInfo12_profile_path(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 int
-samr_dissect_struct_UserInfo12(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo12(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5573,7 +5575,7 @@ samr_dissect_struct_UserInfo12(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo13_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo13_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo13_description);
 
@@ -5581,7 +5583,7 @@ samr_dissect_element_UserInfo13_description(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 int
-samr_dissect_struct_UserInfo13(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo13(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5615,7 +5617,7 @@ samr_dissect_struct_UserInfo13(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo14_workstations(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo14_workstations(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo14_workstations);
 
@@ -5623,7 +5625,7 @@ samr_dissect_element_UserInfo14_workstations(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 int
-samr_dissect_struct_UserInfo14(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo14(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5657,7 +5659,7 @@ samr_dissect_struct_UserInfo14(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo16_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo16_acct_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_AcctFlags(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo16_acct_flags, 0);
 
@@ -5665,7 +5667,7 @@ samr_dissect_element_UserInfo16_acct_flags(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 int
-samr_dissect_struct_UserInfo16(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5699,7 +5701,7 @@ samr_dissect_struct_UserInfo16(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo17_acct_expiry(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo17_acct_expiry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo17_acct_expiry);
 
@@ -5707,7 +5709,7 @@ samr_dissect_element_UserInfo17_acct_expiry(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 int
-samr_dissect_struct_UserInfo17(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo17(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5741,7 +5743,7 @@ samr_dissect_struct_UserInfo17(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 static int
-samr_dissect_element_Password_hash(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Password_hash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	int i;
 	for (i = 0; i < 16; i++)
@@ -5751,7 +5753,7 @@ samr_dissect_element_Password_hash(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-samr_dissect_element_Password_hash_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Password_hash_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_Password_hash, 0);
 
@@ -5759,7 +5761,7 @@ samr_dissect_element_Password_hash_(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 int
-samr_dissect_struct_Password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_Password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5791,7 +5793,7 @@ samr_dissect_struct_Password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo18_nt_pwd(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo18_nt_pwd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_Password(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo18_nt_pwd,0);
 
@@ -5799,7 +5801,7 @@ samr_dissect_element_UserInfo18_nt_pwd(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_UserInfo18_lm_pwd(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo18_lm_pwd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_Password(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo18_lm_pwd,0);
 
@@ -5807,7 +5809,7 @@ samr_dissect_element_UserInfo18_lm_pwd(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_UserInfo18_nt_pwd_active(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo18_nt_pwd_active(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo18_nt_pwd_active, 0);
 
@@ -5815,7 +5817,7 @@ samr_dissect_element_UserInfo18_nt_pwd_active(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_UserInfo18_lm_pwd_active(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo18_lm_pwd_active(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo18_lm_pwd_active, 0);
 
@@ -5823,7 +5825,7 @@ samr_dissect_element_UserInfo18_lm_pwd_active(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_UserInfo18_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo18_password_expired(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo18_password_expired, 0);
 
@@ -5831,7 +5833,7 @@ samr_dissect_element_UserInfo18_password_expired(tvbuff_t *tvb _U_, int offset _
 }
 
 int
-samr_dissect_struct_UserInfo18(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo18(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5867,7 +5869,7 @@ samr_dissect_struct_UserInfo18(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo20_parameters(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo20_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo20_parameters);
 
@@ -5875,7 +5877,7 @@ samr_dissect_element_UserInfo20_parameters(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 int
-samr_dissect_struct_UserInfo20(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo20(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5938,7 +5940,7 @@ samr_dissect_struct_UserInfo20(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 int
-samr_dissect_bitmap_FieldsPresent(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_bitmap_FieldsPresent(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -6243,7 +6245,7 @@ samr_dissect_bitmap_FieldsPresent(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo21_last_logon(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_last_logon(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_last_logon);
 
@@ -6251,7 +6253,7 @@ samr_dissect_element_UserInfo21_last_logon(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_UserInfo21_last_logoff(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_last_logoff(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_last_logoff);
 
@@ -6259,7 +6261,7 @@ samr_dissect_element_UserInfo21_last_logoff(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_UserInfo21_last_password_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_last_password_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_last_password_change);
 
@@ -6267,7 +6269,7 @@ samr_dissect_element_UserInfo21_last_password_change(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_UserInfo21_acct_expiry(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_acct_expiry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_acct_expiry);
 
@@ -6275,7 +6277,7 @@ samr_dissect_element_UserInfo21_acct_expiry(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_UserInfo21_allow_password_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_allow_password_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_allow_password_change);
 
@@ -6283,7 +6285,7 @@ samr_dissect_element_UserInfo21_allow_password_change(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_UserInfo21_force_password_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_force_password_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_force_password_change);
 
@@ -6291,7 +6293,7 @@ samr_dissect_element_UserInfo21_force_password_change(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_UserInfo21_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_account_name);
 
@@ -6299,7 +6301,7 @@ samr_dissect_element_UserInfo21_account_name(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_UserInfo21_full_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_full_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_full_name);
 
@@ -6307,7 +6309,7 @@ samr_dissect_element_UserInfo21_full_name(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_UserInfo21_home_directory(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_home_directory(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_home_directory);
 
@@ -6315,7 +6317,7 @@ samr_dissect_element_UserInfo21_home_directory(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_UserInfo21_home_drive(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_home_drive(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_home_drive);
 
@@ -6323,7 +6325,7 @@ samr_dissect_element_UserInfo21_home_drive(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_UserInfo21_logon_script(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_logon_script(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_logon_script);
 
@@ -6331,7 +6333,7 @@ samr_dissect_element_UserInfo21_logon_script(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_UserInfo21_profile_path(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_profile_path(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_profile_path);
 
@@ -6339,7 +6341,7 @@ samr_dissect_element_UserInfo21_profile_path(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_UserInfo21_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_description);
 
@@ -6347,7 +6349,7 @@ samr_dissect_element_UserInfo21_description(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_UserInfo21_workstations(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_workstations(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_workstations);
 
@@ -6355,7 +6357,7 @@ samr_dissect_element_UserInfo21_workstations(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_UserInfo21_comment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_comment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_comment);
 
@@ -6363,7 +6365,7 @@ samr_dissect_element_UserInfo21_comment(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_UserInfo21_parameters(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_parameters);
 
@@ -6371,7 +6373,7 @@ samr_dissect_element_UserInfo21_parameters(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_UserInfo21_lm_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_lm_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_lm_password);
 
@@ -6379,7 +6381,7 @@ samr_dissect_element_UserInfo21_lm_password(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_UserInfo21_nt_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_nt_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_nt_password);
 
@@ -6387,7 +6389,7 @@ samr_dissect_element_UserInfo21_nt_password(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_UserInfo21_private(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_private(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_UserInfo21_private);
 
@@ -6395,7 +6397,7 @@ samr_dissect_element_UserInfo21_private(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_UserInfo21_buf_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_buf_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_buf_count, 0);
 
@@ -6403,7 +6405,7 @@ samr_dissect_element_UserInfo21_buf_count(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_UserInfo21_buffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_buffer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_UserInfo21_buffer_, NDR_POINTER_UNIQUE, "Pointer to Buffer (uint8)",hf_samr_samr_UserInfo21_buffer);
 
@@ -6411,7 +6413,7 @@ samr_dissect_element_UserInfo21_buffer(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_UserInfo21_buffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_buffer_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_UserInfo21_buffer__);
 
@@ -6419,7 +6421,7 @@ samr_dissect_element_UserInfo21_buffer_(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_UserInfo21_buffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_buffer__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_buffer, 0);
 
@@ -6427,7 +6429,7 @@ samr_dissect_element_UserInfo21_buffer__(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_UserInfo21_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -6435,7 +6437,7 @@ samr_dissect_element_UserInfo21_rid(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_UserInfo21_primary_gid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_primary_gid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_primary_gid, 0);
 
@@ -6443,7 +6445,7 @@ samr_dissect_element_UserInfo21_primary_gid(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_UserInfo21_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_acct_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_AcctFlags(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_acct_flags, 0);
 
@@ -6451,7 +6453,7 @@ samr_dissect_element_UserInfo21_acct_flags(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_UserInfo21_fields_present(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_fields_present(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_FieldsPresent(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_fields_present, 0);
 
@@ -6459,7 +6461,7 @@ samr_dissect_element_UserInfo21_fields_present(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_UserInfo21_logon_hours(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_logon_hours(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_LogonHours(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo21_logon_hours,0);
 
@@ -6467,7 +6469,7 @@ samr_dissect_element_UserInfo21_logon_hours(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_UserInfo21_bad_password_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_bad_password_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_bad_password_count, 0);
 
@@ -6475,7 +6477,7 @@ samr_dissect_element_UserInfo21_bad_password_count(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_UserInfo21_logon_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_logon_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_logon_count, 0);
 
@@ -6483,7 +6485,7 @@ samr_dissect_element_UserInfo21_logon_count(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_UserInfo21_country_code(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_country_code(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_country_code, 0);
 
@@ -6491,7 +6493,7 @@ samr_dissect_element_UserInfo21_country_code(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_UserInfo21_code_page(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_code_page(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_code_page, 0);
 
@@ -6499,7 +6501,7 @@ samr_dissect_element_UserInfo21_code_page(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_UserInfo21_lm_password_set(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_lm_password_set(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_lm_password_set, 0);
 
@@ -6507,7 +6509,7 @@ samr_dissect_element_UserInfo21_lm_password_set(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_UserInfo21_nt_password_set(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_nt_password_set(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_nt_password_set, 0);
 
@@ -6515,7 +6517,7 @@ samr_dissect_element_UserInfo21_nt_password_set(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_UserInfo21_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_password_expired(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_password_expired, 0);
 
@@ -6523,7 +6525,7 @@ samr_dissect_element_UserInfo21_password_expired(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_UserInfo21_unknown4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_unknown4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo21_unknown4, 0);
 
@@ -6531,7 +6533,7 @@ samr_dissect_element_UserInfo21_unknown4(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 int
-samr_dissect_struct_UserInfo21(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo21(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -6631,7 +6633,7 @@ samr_dissect_struct_UserInfo21(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 static int
-samr_dissect_element_CryptPassword_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CryptPassword_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	int i;
 	for (i = 0; i < 516; i++)
@@ -6641,7 +6643,7 @@ samr_dissect_element_CryptPassword_data(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_CryptPassword_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CryptPassword_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_CryptPassword_data, 0);
 
@@ -6649,7 +6651,7 @@ samr_dissect_element_CryptPassword_data_(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 int
-samr_dissect_struct_CryptPassword(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_CryptPassword(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -6678,7 +6680,7 @@ samr_dissect_struct_CryptPassword(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo23_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo23_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo21(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo23_info,0);
 
@@ -6686,7 +6688,7 @@ samr_dissect_element_UserInfo23_info(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_UserInfo23_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo23_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_CryptPassword(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo23_password,0);
 
@@ -6694,7 +6696,7 @@ samr_dissect_element_UserInfo23_password(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 int
-samr_dissect_struct_UserInfo23(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo23(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -6731,7 +6733,7 @@ samr_dissect_struct_UserInfo23(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo24_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo24_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_CryptPassword(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo24_password,0);
 
@@ -6739,7 +6741,7 @@ samr_dissect_element_UserInfo24_password(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_UserInfo24_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo24_password_expired(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo24_password_expired, 0);
 
@@ -6747,7 +6749,7 @@ samr_dissect_element_UserInfo24_password_expired(tvbuff_t *tvb _U_, int offset _
 }
 
 int
-samr_dissect_struct_UserInfo24(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo24(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -6777,7 +6779,7 @@ samr_dissect_struct_UserInfo24(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 static int
-samr_dissect_element_CryptPasswordEx_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CryptPasswordEx_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	int i;
 	for (i = 0; i < 532; i++)
@@ -6787,7 +6789,7 @@ samr_dissect_element_CryptPasswordEx_data(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_CryptPasswordEx_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CryptPasswordEx_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_CryptPasswordEx_data, 0);
 
@@ -6795,7 +6797,7 @@ samr_dissect_element_CryptPasswordEx_data_(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 int
-samr_dissect_struct_CryptPasswordEx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_CryptPasswordEx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -6824,7 +6826,7 @@ samr_dissect_struct_CryptPasswordEx(tvbuff_t *tvb _U_, int offset _U_, packet_in
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo25_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo25_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo21(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo25_info,0);
 
@@ -6832,7 +6834,7 @@ samr_dissect_element_UserInfo25_info(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_UserInfo25_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo25_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_CryptPasswordEx(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo25_password,0);
 
@@ -6840,7 +6842,7 @@ samr_dissect_element_UserInfo25_password(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 int
-samr_dissect_struct_UserInfo25(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo25(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -6877,7 +6879,7 @@ samr_dissect_struct_UserInfo25(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo26_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo26_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_CryptPasswordEx(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo26_password,0);
 
@@ -6885,7 +6887,7 @@ samr_dissect_element_UserInfo26_password(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_UserInfo26_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo26_password_expired(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_UserInfo26_password_expired, 0);
 
@@ -6893,7 +6895,7 @@ samr_dissect_element_UserInfo26_password_expired(tvbuff_t *tvb _U_, int offset _
 }
 
 int
-samr_dissect_struct_UserInfo26(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_UserInfo26(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -6945,7 +6947,7 @@ samr_dissect_struct_UserInfo26(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 static int
-samr_dissect_element_UserInfo_info1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo1(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info1,0);
 
@@ -6953,7 +6955,7 @@ samr_dissect_element_UserInfo_info1(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_UserInfo_info2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo2(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info2,0);
 
@@ -6961,7 +6963,7 @@ samr_dissect_element_UserInfo_info2(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_UserInfo_info3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo3(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info3,0);
 
@@ -6969,7 +6971,7 @@ samr_dissect_element_UserInfo_info3(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_UserInfo_info4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo4(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info4,0);
 
@@ -6977,7 +6979,7 @@ samr_dissect_element_UserInfo_info4(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_UserInfo_info5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo5(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info5,0);
 
@@ -6985,7 +6987,7 @@ samr_dissect_element_UserInfo_info5(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_UserInfo_info6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo6(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info6,0);
 
@@ -6993,7 +6995,7 @@ samr_dissect_element_UserInfo_info6(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_UserInfo_info7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo7(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info7,0);
 
@@ -7001,7 +7003,7 @@ samr_dissect_element_UserInfo_info7(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_UserInfo_info8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo8(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info8,0);
 
@@ -7009,7 +7011,7 @@ samr_dissect_element_UserInfo_info8(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_UserInfo_info9(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info9(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo9(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info9,0);
 
@@ -7017,7 +7019,7 @@ samr_dissect_element_UserInfo_info9(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_UserInfo_info10(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info10(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo10(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info10,0);
 
@@ -7025,7 +7027,7 @@ samr_dissect_element_UserInfo_info10(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_UserInfo_info11(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info11(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo11(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info11,0);
 
@@ -7033,7 +7035,7 @@ samr_dissect_element_UserInfo_info11(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_UserInfo_info12(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info12(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo12(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info12,0);
 
@@ -7041,7 +7043,7 @@ samr_dissect_element_UserInfo_info12(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_UserInfo_info13(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info13(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo13(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info13,0);
 
@@ -7049,7 +7051,7 @@ samr_dissect_element_UserInfo_info13(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_UserInfo_info14(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info14(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo14(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info14,0);
 
@@ -7057,7 +7059,7 @@ samr_dissect_element_UserInfo_info14(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_UserInfo_info16(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo16(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info16,0);
 
@@ -7065,7 +7067,7 @@ samr_dissect_element_UserInfo_info16(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_UserInfo_info17(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info17(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo17(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info17,0);
 
@@ -7073,7 +7075,7 @@ samr_dissect_element_UserInfo_info17(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_UserInfo_info18(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info18(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo18(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info18,0);
 
@@ -7081,7 +7083,7 @@ samr_dissect_element_UserInfo_info18(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_UserInfo_info20(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info20(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo20(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info20,0);
 
@@ -7089,7 +7091,7 @@ samr_dissect_element_UserInfo_info20(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_UserInfo_info21(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info21(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo21(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info21,0);
 
@@ -7097,7 +7099,7 @@ samr_dissect_element_UserInfo_info21(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_UserInfo_info23(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info23(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo23(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info23,0);
 
@@ -7105,7 +7107,7 @@ samr_dissect_element_UserInfo_info23(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_UserInfo_info24(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info24(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo24(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info24,0);
 
@@ -7113,7 +7115,7 @@ samr_dissect_element_UserInfo_info24(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_UserInfo_info25(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info25(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo25(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info25,0);
 
@@ -7121,7 +7123,7 @@ samr_dissect_element_UserInfo_info25(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_UserInfo_info26(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo_info26(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_UserInfo26(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_UserInfo_info26,0);
 
@@ -7129,7 +7131,7 @@ samr_dissect_element_UserInfo_info26(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_UserInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_UserInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7249,7 +7251,7 @@ samr_dissect_UserInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_,
 /* IDL: } */
 
 static int
-samr_dissect_element_RidWithAttribute_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RidWithAttribute_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -7257,7 +7259,7 @@ samr_dissect_element_RidWithAttribute_rid(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_RidWithAttribute_attributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RidWithAttribute_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_GroupAttrs(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_RidWithAttribute_attributes, 0);
 
@@ -7265,7 +7267,7 @@ samr_dissect_element_RidWithAttribute_attributes(tvbuff_t *tvb _U_, int offset _
 }
 
 int
-samr_dissect_struct_RidWithAttribute(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_RidWithAttribute(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7302,7 +7304,7 @@ samr_dissect_struct_RidWithAttribute(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: } */
 
 static int
-samr_dissect_element_RidWithAttributeArray_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RidWithAttributeArray_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_RidWithAttributeArray_count, 0);
 
@@ -7310,7 +7312,7 @@ samr_dissect_element_RidWithAttributeArray_count(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_RidWithAttributeArray_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RidWithAttributeArray_rids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_RidWithAttributeArray_rids_, NDR_POINTER_UNIQUE, "Pointer to Rids (samr_RidWithAttribute)",hf_samr_samr_RidWithAttributeArray_rids);
 
@@ -7318,7 +7320,7 @@ samr_dissect_element_RidWithAttributeArray_rids(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_RidWithAttributeArray_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RidWithAttributeArray_rids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_RidWithAttributeArray_rids__);
 
@@ -7326,7 +7328,7 @@ samr_dissect_element_RidWithAttributeArray_rids_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_RidWithAttributeArray_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RidWithAttributeArray_rids__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_RidWithAttribute(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_RidWithAttributeArray_rids,0);
 
@@ -7334,7 +7336,7 @@ samr_dissect_element_RidWithAttributeArray_rids__(tvbuff_t *tvb _U_, int offset 
 }
 
 int
-samr_dissect_struct_RidWithAttributeArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_RidWithAttributeArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7375,7 +7377,7 @@ samr_dissect_struct_RidWithAttributeArray(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: } */
 
 static int
-samr_dissect_element_DispEntryGeneral_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispEntryGeneral_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DispEntryGeneral_idx, 0);
 
@@ -7383,7 +7385,7 @@ samr_dissect_element_DispEntryGeneral_idx(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_DispEntryGeneral_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispEntryGeneral_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -7391,7 +7393,7 @@ samr_dissect_element_DispEntryGeneral_rid(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_DispEntryGeneral_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispEntryGeneral_acct_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_AcctFlags(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DispEntryGeneral_acct_flags, 0);
 
@@ -7399,7 +7401,7 @@ samr_dissect_element_DispEntryGeneral_acct_flags(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_DispEntryGeneral_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispEntryGeneral_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DispEntryGeneral_account_name);
 
@@ -7407,7 +7409,7 @@ samr_dissect_element_DispEntryGeneral_account_name(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_DispEntryGeneral_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispEntryGeneral_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DispEntryGeneral_description);
 
@@ -7415,7 +7417,7 @@ samr_dissect_element_DispEntryGeneral_description(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_DispEntryGeneral_full_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispEntryGeneral_full_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DispEntryGeneral_full_name);
 
@@ -7423,7 +7425,7 @@ samr_dissect_element_DispEntryGeneral_full_name(tvbuff_t *tvb _U_, int offset _U
 }
 
 int
-samr_dissect_struct_DispEntryGeneral(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DispEntryGeneral(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7468,7 +7470,7 @@ samr_dissect_struct_DispEntryGeneral(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: } */
 
 static int
-samr_dissect_element_DispInfoGeneral_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfoGeneral_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DispInfoGeneral_count, 0);
 
@@ -7476,7 +7478,7 @@ samr_dissect_element_DispInfoGeneral_count(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_DispInfoGeneral_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfoGeneral_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_DispInfoGeneral_entries_, NDR_POINTER_UNIQUE, "Pointer to Entries (samr_DispEntryGeneral)",hf_samr_samr_DispInfoGeneral_entries);
 
@@ -7484,7 +7486,7 @@ samr_dissect_element_DispInfoGeneral_entries(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_DispInfoGeneral_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfoGeneral_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_DispInfoGeneral_entries__);
 
@@ -7492,7 +7494,7 @@ samr_dissect_element_DispInfoGeneral_entries_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_DispInfoGeneral_entries__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfoGeneral_entries__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DispEntryGeneral(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DispInfoGeneral_entries,0);
 
@@ -7500,7 +7502,7 @@ samr_dissect_element_DispInfoGeneral_entries__(tvbuff_t *tvb _U_, int offset _U_
 }
 
 int
-samr_dissect_struct_DispInfoGeneral(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DispInfoGeneral(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7540,7 +7542,7 @@ samr_dissect_struct_DispInfoGeneral(tvbuff_t *tvb _U_, int offset _U_, packet_in
 /* IDL: } */
 
 static int
-samr_dissect_element_DispEntryFull_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispEntryFull_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DispEntryFull_idx, 0);
 
@@ -7548,7 +7550,7 @@ samr_dissect_element_DispEntryFull_idx(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_DispEntryFull_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispEntryFull_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -7556,7 +7558,7 @@ samr_dissect_element_DispEntryFull_rid(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_DispEntryFull_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispEntryFull_acct_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_AcctFlags(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DispEntryFull_acct_flags, 0);
 
@@ -7564,7 +7566,7 @@ samr_dissect_element_DispEntryFull_acct_flags(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_DispEntryFull_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispEntryFull_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DispEntryFull_account_name);
 
@@ -7572,7 +7574,7 @@ samr_dissect_element_DispEntryFull_account_name(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_DispEntryFull_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispEntryFull_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DispEntryFull_description);
 
@@ -7580,7 +7582,7 @@ samr_dissect_element_DispEntryFull_description(tvbuff_t *tvb _U_, int offset _U_
 }
 
 int
-samr_dissect_struct_DispEntryFull(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DispEntryFull(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7623,7 +7625,7 @@ samr_dissect_struct_DispEntryFull(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: } */
 
 static int
-samr_dissect_element_DispInfoFull_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfoFull_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DispInfoFull_count, 0);
 
@@ -7631,7 +7633,7 @@ samr_dissect_element_DispInfoFull_count(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_DispInfoFull_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfoFull_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_DispInfoFull_entries_, NDR_POINTER_UNIQUE, "Pointer to Entries (samr_DispEntryFull)",hf_samr_samr_DispInfoFull_entries);
 
@@ -7639,7 +7641,7 @@ samr_dissect_element_DispInfoFull_entries(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_DispInfoFull_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfoFull_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_DispInfoFull_entries__);
 
@@ -7647,7 +7649,7 @@ samr_dissect_element_DispInfoFull_entries_(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_DispInfoFull_entries__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfoFull_entries__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DispEntryFull(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DispInfoFull_entries,0);
 
@@ -7655,7 +7657,7 @@ samr_dissect_element_DispInfoFull_entries__(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 int
-samr_dissect_struct_DispInfoFull(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DispInfoFull(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7695,7 +7697,7 @@ samr_dissect_struct_DispInfoFull(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: } */
 
 static int
-samr_dissect_element_DispEntryFullGroup_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispEntryFullGroup_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DispEntryFullGroup_idx, 0);
 
@@ -7703,7 +7705,7 @@ samr_dissect_element_DispEntryFullGroup_idx(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_DispEntryFullGroup_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispEntryFullGroup_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -7711,7 +7713,7 @@ samr_dissect_element_DispEntryFullGroup_rid(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_DispEntryFullGroup_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispEntryFullGroup_acct_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_GroupAttrs(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DispEntryFullGroup_acct_flags, 0);
 
@@ -7719,7 +7721,7 @@ samr_dissect_element_DispEntryFullGroup_acct_flags(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_DispEntryFullGroup_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispEntryFullGroup_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DispEntryFullGroup_account_name);
 
@@ -7727,7 +7729,7 @@ samr_dissect_element_DispEntryFullGroup_account_name(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_DispEntryFullGroup_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispEntryFullGroup_description(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DispEntryFullGroup_description);
 
@@ -7735,7 +7737,7 @@ samr_dissect_element_DispEntryFullGroup_description(tvbuff_t *tvb _U_, int offse
 }
 
 int
-samr_dissect_struct_DispEntryFullGroup(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DispEntryFullGroup(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7778,7 +7780,7 @@ samr_dissect_struct_DispEntryFullGroup(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: } */
 
 static int
-samr_dissect_element_DispInfoFullGroups_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfoFullGroups_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DispInfoFullGroups_count, 0);
 
@@ -7786,7 +7788,7 @@ samr_dissect_element_DispInfoFullGroups_count(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_DispInfoFullGroups_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfoFullGroups_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_DispInfoFullGroups_entries_, NDR_POINTER_UNIQUE, "Pointer to Entries (samr_DispEntryFullGroup)",hf_samr_samr_DispInfoFullGroups_entries);
 
@@ -7794,7 +7796,7 @@ samr_dissect_element_DispInfoFullGroups_entries(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_DispInfoFullGroups_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfoFullGroups_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_DispInfoFullGroups_entries__);
 
@@ -7802,7 +7804,7 @@ samr_dissect_element_DispInfoFullGroups_entries_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_DispInfoFullGroups_entries__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfoFullGroups_entries__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DispEntryFullGroup(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DispInfoFullGroups_entries,0);
 
@@ -7810,7 +7812,7 @@ samr_dissect_element_DispInfoFullGroups_entries__(tvbuff_t *tvb _U_, int offset 
 }
 
 int
-samr_dissect_struct_DispInfoFullGroups(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DispInfoFullGroups(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7847,7 +7849,7 @@ samr_dissect_struct_DispInfoFullGroups(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: } */
 
 static int
-samr_dissect_element_DispEntryAscii_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispEntryAscii_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DispEntryAscii_idx, 0);
 
@@ -7855,7 +7857,7 @@ samr_dissect_element_DispEntryAscii_idx(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_DispEntryAscii_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispEntryAscii_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_lsa_AsciiString(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DispEntryAscii_account_name);
 
@@ -7863,7 +7865,7 @@ samr_dissect_element_DispEntryAscii_account_name(tvbuff_t *tvb _U_, int offset _
 }
 
 int
-samr_dissect_struct_DispEntryAscii(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DispEntryAscii(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7900,7 +7902,7 @@ samr_dissect_struct_DispEntryAscii(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 /* IDL: } */
 
 static int
-samr_dissect_element_DispInfoAscii_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfoAscii_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DispInfoAscii_count, 0);
 
@@ -7908,7 +7910,7 @@ samr_dissect_element_DispInfoAscii_count(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_DispInfoAscii_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfoAscii_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_DispInfoAscii_entries_, NDR_POINTER_UNIQUE, "Pointer to Entries (samr_DispEntryAscii)",hf_samr_samr_DispInfoAscii_entries);
 
@@ -7916,7 +7918,7 @@ samr_dissect_element_DispInfoAscii_entries(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_DispInfoAscii_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfoAscii_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_DispInfoAscii_entries__);
 
@@ -7924,7 +7926,7 @@ samr_dissect_element_DispInfoAscii_entries_(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_DispInfoAscii_entries__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfoAscii_entries__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DispEntryAscii(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DispInfoAscii_entries,0);
 
@@ -7932,7 +7934,7 @@ samr_dissect_element_DispInfoAscii_entries__(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 int
-samr_dissect_struct_DispInfoAscii(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_DispInfoAscii(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7972,7 +7974,7 @@ samr_dissect_struct_DispInfoAscii(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: } */
 
 int
-samr_dissect_enum_DomainDisplayInformation(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_)
+samr_dissect_enum_DomainDisplayInformation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint1632 *param)
 {
 	guint1632 parameter=0;
 	if (param) {
@@ -7995,7 +7997,7 @@ samr_dissect_enum_DomainDisplayInformation(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: } */
 
 static int
-samr_dissect_element_DispInfo_info1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfo_info1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DispInfoGeneral(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DispInfo_info1,0);
 
@@ -8003,7 +8005,7 @@ samr_dissect_element_DispInfo_info1(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_DispInfo_info2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfo_info2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DispInfoFull(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DispInfo_info2,0);
 
@@ -8011,7 +8013,7 @@ samr_dissect_element_DispInfo_info2(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_DispInfo_info3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfo_info3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DispInfoFullGroups(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DispInfo_info3,0);
 
@@ -8019,7 +8021,7 @@ samr_dissect_element_DispInfo_info3(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_DispInfo_info4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfo_info4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DispInfoAscii(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DispInfo_info4,0);
 
@@ -8027,7 +8029,7 @@ samr_dissect_element_DispInfo_info4(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_DispInfo_info5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DispInfo_info5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DispInfoAscii(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_DispInfo_info5,0);
 
@@ -8035,7 +8037,7 @@ samr_dissect_element_DispInfo_info5(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_DispInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_DispInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -8083,7 +8085,7 @@ samr_dissect_DispInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_,
 /* IDL: } */
 
 static int
-samr_dissect_element_PwInfo_min_password_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_PwInfo_min_password_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_PwInfo_min_password_length, 0);
 
@@ -8091,7 +8093,7 @@ samr_dissect_element_PwInfo_min_password_length(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_PwInfo_password_properties(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_PwInfo_password_properties(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_PasswordProperties(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_PwInfo_password_properties, 0);
 
@@ -8099,7 +8101,7 @@ samr_dissect_element_PwInfo_password_properties(tvbuff_t *tvb _U_, int offset _U
 }
 
 int
-samr_dissect_struct_PwInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_PwInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -8137,7 +8139,7 @@ samr_dissect_struct_PwInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
 /* IDL: } */
 
 int
-samr_dissect_enum_ConnectVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
+samr_dissect_enum_ConnectVersion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 *param)
 {
 	guint32 parameter=0;
 	if (param) {
@@ -8158,7 +8160,7 @@ samr_dissect_enum_ConnectVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: } */
 
 static int
-samr_dissect_element_ChangeReject_reason(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangeReject_reason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_RejectReason(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ChangeReject_reason, 0);
 
@@ -8166,7 +8168,7 @@ samr_dissect_element_ChangeReject_reason(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_ChangeReject_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangeReject_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ChangeReject_unknown1, 0);
 
@@ -8174,7 +8176,7 @@ samr_dissect_element_ChangeReject_unknown1(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_ChangeReject_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangeReject_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ChangeReject_unknown2, 0);
 
@@ -8182,7 +8184,7 @@ samr_dissect_element_ChangeReject_unknown2(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 int
-samr_dissect_struct_ChangeReject(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_ChangeReject(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -8221,7 +8223,7 @@ samr_dissect_struct_ChangeReject(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: } */
 
 static int
-samr_dissect_element_ConnectInfo1_client_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ConnectInfo1_client_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_ConnectVersion(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ConnectInfo1_client_version, 0);
 
@@ -8229,7 +8231,7 @@ samr_dissect_element_ConnectInfo1_client_version(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_ConnectInfo1_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ConnectInfo1_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ConnectInfo1_unknown2, 0);
 
@@ -8237,7 +8239,7 @@ samr_dissect_element_ConnectInfo1_unknown2(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 int
-samr_dissect_struct_ConnectInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_ConnectInfo1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -8273,7 +8275,7 @@ samr_dissect_struct_ConnectInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: } */
 
 static int
-samr_dissect_element_ConnectInfo_info1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ConnectInfo_info1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_ConnectInfo1(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ConnectInfo_info1,0);
 
@@ -8281,7 +8283,7 @@ samr_dissect_element_ConnectInfo_info1(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_ConnectInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_ConnectInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -8317,7 +8319,7 @@ samr_dissect_ConnectInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _
 /* IDL: } */
 
 int
-samr_dissect_bitmap_ValidateFieldsPresent(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_bitmap_ValidateFieldsPresent(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -8399,7 +8401,7 @@ samr_dissect_bitmap_ValidateFieldsPresent(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: } */
 
 int
-samr_dissect_enum_ValidatePasswordLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_)
+samr_dissect_enum_ValidatePasswordLevel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint1632 *param)
 {
 	guint1632 parameter=0;
 	if (param) {
@@ -8428,7 +8430,7 @@ samr_dissect_enum_ValidatePasswordLevel(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: } */
 
 int
-samr_dissect_enum_ValidationStatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_)
+samr_dissect_enum_ValidationStatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint1632 *param)
 {
 	guint1632 parameter=0;
 	if (param) {
@@ -8448,7 +8450,7 @@ samr_dissect_enum_ValidationStatus(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 /* IDL: } */
 
 static int
-samr_dissect_element_ValidationBlob_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidationBlob_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidationBlob_length, 0);
 
@@ -8456,7 +8458,7 @@ samr_dissect_element_ValidationBlob_length(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_ValidationBlob_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidationBlob_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ValidationBlob_data_, NDR_POINTER_UNIQUE, "Pointer to Data (uint8)",hf_samr_samr_ValidationBlob_data);
 
@@ -8464,7 +8466,7 @@ samr_dissect_element_ValidationBlob_data(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_ValidationBlob_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidationBlob_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ValidationBlob_data__);
 
@@ -8472,7 +8474,7 @@ samr_dissect_element_ValidationBlob_data_(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_ValidationBlob_data__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidationBlob_data__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidationBlob_data, 0);
 
@@ -8480,7 +8482,7 @@ samr_dissect_element_ValidationBlob_data__(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 int
-samr_dissect_struct_ValidationBlob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_ValidationBlob(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -8522,7 +8524,7 @@ samr_dissect_struct_ValidationBlob(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 /* IDL: } */
 
 static int
-samr_dissect_element_ValidatePasswordInfo_fields_present(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordInfo_fields_present(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_ValidateFieldsPresent(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePasswordInfo_fields_present, 0);
 
@@ -8530,7 +8532,7 @@ samr_dissect_element_ValidatePasswordInfo_fields_present(tvbuff_t *tvb _U_, int 
 }
 
 static int
-samr_dissect_element_ValidatePasswordInfo_last_password_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordInfo_last_password_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePasswordInfo_last_password_change);
 
@@ -8538,7 +8540,7 @@ samr_dissect_element_ValidatePasswordInfo_last_password_change(tvbuff_t *tvb _U_
 }
 
 static int
-samr_dissect_element_ValidatePasswordInfo_bad_password_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordInfo_bad_password_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePasswordInfo_bad_password_time);
 
@@ -8546,7 +8548,7 @@ samr_dissect_element_ValidatePasswordInfo_bad_password_time(tvbuff_t *tvb _U_, i
 }
 
 static int
-samr_dissect_element_ValidatePasswordInfo_lockout_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordInfo_lockout_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePasswordInfo_lockout_time);
 
@@ -8554,7 +8556,7 @@ samr_dissect_element_ValidatePasswordInfo_lockout_time(tvbuff_t *tvb _U_, int of
 }
 
 static int
-samr_dissect_element_ValidatePasswordInfo_bad_pwd_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordInfo_bad_pwd_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePasswordInfo_bad_pwd_count, 0);
 
@@ -8562,7 +8564,7 @@ samr_dissect_element_ValidatePasswordInfo_bad_pwd_count(tvbuff_t *tvb _U_, int o
 }
 
 static int
-samr_dissect_element_ValidatePasswordInfo_pwd_history_len(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordInfo_pwd_history_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePasswordInfo_pwd_history_len, 0);
 
@@ -8570,7 +8572,7 @@ samr_dissect_element_ValidatePasswordInfo_pwd_history_len(tvbuff_t *tvb _U_, int
 }
 
 static int
-samr_dissect_element_ValidatePasswordInfo_pwd_history(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordInfo_pwd_history(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ValidatePasswordInfo_pwd_history_, NDR_POINTER_UNIQUE, "Pointer to Pwd History (samr_ValidationBlob)",hf_samr_samr_ValidatePasswordInfo_pwd_history);
 
@@ -8578,7 +8580,7 @@ samr_dissect_element_ValidatePasswordInfo_pwd_history(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_ValidatePasswordInfo_pwd_history_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordInfo_pwd_history_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ValidatePasswordInfo_pwd_history__);
 
@@ -8586,7 +8588,7 @@ samr_dissect_element_ValidatePasswordInfo_pwd_history_(tvbuff_t *tvb _U_, int of
 }
 
 static int
-samr_dissect_element_ValidatePasswordInfo_pwd_history__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordInfo_pwd_history__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_ValidationBlob(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ValidatePasswordInfo_pwd_history,0);
 
@@ -8594,7 +8596,7 @@ samr_dissect_element_ValidatePasswordInfo_pwd_history__(tvbuff_t *tvb _U_, int o
 }
 
 int
-samr_dissect_struct_ValidatePasswordInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_ValidatePasswordInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -8641,7 +8643,7 @@ samr_dissect_struct_ValidatePasswordInfo(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 static int
-samr_dissect_element_ValidatePasswordRepCtr_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordRepCtr_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_ValidatePasswordInfo(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ValidatePasswordRepCtr_info,0);
 
@@ -8649,7 +8651,7 @@ samr_dissect_element_ValidatePasswordRepCtr_info(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_ValidatePasswordRepCtr_status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordRepCtr_status(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_ValidationStatus(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePasswordRepCtr_status, 0);
 
@@ -8657,7 +8659,7 @@ samr_dissect_element_ValidatePasswordRepCtr_status(tvbuff_t *tvb _U_, int offset
 }
 
 int
-samr_dissect_struct_ValidatePasswordRepCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_ValidatePasswordRepCtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -8695,7 +8697,7 @@ samr_dissect_struct_ValidatePasswordRepCtr(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: } */
 
 static int
-samr_dissect_element_ValidatePasswordRep_ctr1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordRep_ctr1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_ValidatePasswordRepCtr(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ValidatePasswordRep_ctr1,0);
 
@@ -8703,7 +8705,7 @@ samr_dissect_element_ValidatePasswordRep_ctr1(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_ValidatePasswordRep_ctr2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordRep_ctr2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_ValidatePasswordRepCtr(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ValidatePasswordRep_ctr2,0);
 
@@ -8711,7 +8713,7 @@ samr_dissect_element_ValidatePasswordRep_ctr2(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_ValidatePasswordRep_ctr3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordRep_ctr3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_ValidatePasswordRepCtr(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ValidatePasswordRep_ctr3,0);
 
@@ -8719,7 +8721,7 @@ samr_dissect_element_ValidatePasswordRep_ctr3(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_ValidatePasswordRep(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_ValidatePasswordRep(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -8763,7 +8765,7 @@ samr_dissect_ValidatePasswordRep(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: } */
 
 static int
-samr_dissect_element_ValidatePasswordReq3_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordReq3_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_ValidatePasswordInfo(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ValidatePasswordReq3_info,0);
 
@@ -8771,7 +8773,7 @@ samr_dissect_element_ValidatePasswordReq3_info(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_ValidatePasswordReq3_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordReq3_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_ValidatePasswordReq3_password);
 
@@ -8779,7 +8781,7 @@ samr_dissect_element_ValidatePasswordReq3_password(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_ValidatePasswordReq3_account(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordReq3_account(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_ValidatePasswordReq3_account);
 
@@ -8787,7 +8789,7 @@ samr_dissect_element_ValidatePasswordReq3_account(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_ValidatePasswordReq3_hash(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordReq3_hash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_ValidationBlob(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ValidatePasswordReq3_hash,0);
 
@@ -8795,7 +8797,7 @@ samr_dissect_element_ValidatePasswordReq3_hash(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_ValidatePasswordReq3_pwd_must_change_at_next_logon(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordReq3_pwd_must_change_at_next_logon(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePasswordReq3_pwd_must_change_at_next_logon, 0);
 
@@ -8803,7 +8805,7 @@ samr_dissect_element_ValidatePasswordReq3_pwd_must_change_at_next_logon(tvbuff_t
 }
 
 static int
-samr_dissect_element_ValidatePasswordReq3_clear_lockout(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordReq3_clear_lockout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePasswordReq3_clear_lockout, 0);
 
@@ -8811,7 +8813,7 @@ samr_dissect_element_ValidatePasswordReq3_clear_lockout(tvbuff_t *tvb _U_, int o
 }
 
 int
-samr_dissect_struct_ValidatePasswordReq3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_ValidatePasswordReq3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -8859,7 +8861,7 @@ samr_dissect_struct_ValidatePasswordReq3(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 static int
-samr_dissect_element_ValidatePasswordReq2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordReq2_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_ValidatePasswordInfo(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ValidatePasswordReq2_info,0);
 
@@ -8867,7 +8869,7 @@ samr_dissect_element_ValidatePasswordReq2_info(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_ValidatePasswordReq2_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordReq2_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_ValidatePasswordReq2_password);
 
@@ -8875,7 +8877,7 @@ samr_dissect_element_ValidatePasswordReq2_password(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_ValidatePasswordReq2_account(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordReq2_account(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_ValidatePasswordReq2_account);
 
@@ -8883,7 +8885,7 @@ samr_dissect_element_ValidatePasswordReq2_account(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_ValidatePasswordReq2_hash(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordReq2_hash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_ValidationBlob(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ValidatePasswordReq2_hash,0);
 
@@ -8891,7 +8893,7 @@ samr_dissect_element_ValidatePasswordReq2_hash(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_ValidatePasswordReq2_password_matched(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordReq2_password_matched(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePasswordReq2_password_matched, 0);
 
@@ -8899,7 +8901,7 @@ samr_dissect_element_ValidatePasswordReq2_password_matched(tvbuff_t *tvb _U_, in
 }
 
 int
-samr_dissect_struct_ValidatePasswordReq2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_ValidatePasswordReq2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -8942,7 +8944,7 @@ samr_dissect_struct_ValidatePasswordReq2(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 static int
-samr_dissect_element_ValidatePasswordReq1_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordReq1_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_ValidatePasswordInfo(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ValidatePasswordReq1_info,0);
 
@@ -8950,7 +8952,7 @@ samr_dissect_element_ValidatePasswordReq1_info(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_ValidatePasswordReq1_password_matched(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordReq1_password_matched(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePasswordReq1_password_matched, 0);
 
@@ -8958,7 +8960,7 @@ samr_dissect_element_ValidatePasswordReq1_password_matched(tvbuff_t *tvb _U_, in
 }
 
 int
-samr_dissect_struct_ValidatePasswordReq1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_ValidatePasswordReq1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -8996,7 +8998,7 @@ samr_dissect_struct_ValidatePasswordReq1(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 static int
-samr_dissect_element_ValidatePasswordReq_req1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordReq_req1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_ValidatePasswordReq1(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ValidatePasswordReq_req1,0);
 
@@ -9004,7 +9006,7 @@ samr_dissect_element_ValidatePasswordReq_req1(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_ValidatePasswordReq_req2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordReq_req2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_ValidatePasswordReq2(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ValidatePasswordReq_req2,0);
 
@@ -9012,7 +9014,7 @@ samr_dissect_element_ValidatePasswordReq_req2(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_ValidatePasswordReq_req3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePasswordReq_req3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_ValidatePasswordReq3(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ValidatePasswordReq_req3,0);
 
@@ -9020,7 +9022,7 @@ samr_dissect_element_ValidatePasswordReq_req3(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_ValidatePasswordReq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_ValidatePasswordReq(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -9054,7 +9056,7 @@ samr_dissect_ValidatePasswordReq(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 	return offset;
 }
 static int
-samr_dissect_element_Connect_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_Connect_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_samr_samr_Connect_system_name);
 
@@ -9062,7 +9064,7 @@ samr_dissect_element_Connect_system_name(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_Connect_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_Connect_system_name, 0);
 
@@ -9070,7 +9072,7 @@ samr_dissect_element_Connect_system_name_(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_Connect_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_ConnectAccessMask(tvb, offset, pinfo, tree, di, drep, hf_samr_connect_access_mask, 0);
 
@@ -9078,7 +9080,7 @@ samr_dissect_element_Connect_access_mask(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_Connect_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_Connect_connect_handle_, NDR_POINTER_REF, "Pointer to Connect Handle (policy_handle)",hf_samr_connect_handle);
 
@@ -9086,7 +9088,7 @@ samr_dissect_element_Connect_connect_handle(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_Connect_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_connect_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_CONNECT);
 
@@ -9100,7 +9102,7 @@ samr_dissect_element_Connect_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: ); */
 
 static int
-samr_dissect_Connect_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_Connect_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9117,7 +9119,7 @@ samr_dissect_Connect_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 }
 
 static int
-samr_dissect_Connect_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_Connect_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="Connect";
 	offset = samr_dissect_element_Connect_system_name(tvb, offset, pinfo, tree, di, drep);
@@ -9128,7 +9130,7 @@ samr_dissect_Connect_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 }
 
 static int
-samr_dissect_element_Close_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Close_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_Close_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_samr_handle);
 
@@ -9136,7 +9138,7 @@ samr_dissect_element_Close_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-samr_dissect_element_Close_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Close_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_handle, PIDL_POLHND_CLOSE);
 
@@ -9148,7 +9150,7 @@ samr_dissect_element_Close_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 /* IDL: ); */
 
 static int
-samr_dissect_Close_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_Close_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9165,7 +9167,7 @@ samr_dissect_Close_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 }
 
 static int
-samr_dissect_Close_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_Close_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="Close";
 	offset = samr_dissect_element_Close_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9174,7 +9176,7 @@ samr_dissect_Close_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
 }
 
 static int
-samr_dissect_element_SetSecurity_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetSecurity_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_SetSecurity_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_samr_handle);
 
@@ -9182,7 +9184,7 @@ samr_dissect_element_SetSecurity_handle(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_SetSecurity_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetSecurity_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_handle, 0);
 
@@ -9190,7 +9192,7 @@ samr_dissect_element_SetSecurity_handle_(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_SetSecurity_sec_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetSecurity_sec_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_samr_security_secinfo(tvb, offset, pinfo, tree, drep);
 
@@ -9198,7 +9200,7 @@ samr_dissect_element_SetSecurity_sec_info(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_SetSecurity_sdbuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetSecurity_sdbuf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_SetSecurity_sdbuf_, NDR_POINTER_REF, "Pointer to Sdbuf (sec_desc_buf)",hf_samr_samr_SetSecurity_sdbuf);
 
@@ -9206,7 +9208,7 @@ samr_dissect_element_SetSecurity_sdbuf(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_SetSecurity_sdbuf_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetSecurity_sdbuf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);
 
@@ -9220,7 +9222,7 @@ samr_dissect_element_SetSecurity_sdbuf_(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: ); */
 
 static int
-samr_dissect_SetSecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_SetSecurity_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9234,7 +9236,7 @@ samr_dissect_SetSecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-samr_dissect_SetSecurity_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_SetSecurity_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="SetSecurity";
 	offset = samr_dissect_element_SetSecurity_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9247,7 +9249,7 @@ samr_dissect_SetSecurity_request(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-samr_dissect_element_QuerySecurity_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QuerySecurity_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QuerySecurity_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_samr_handle);
 
@@ -9255,7 +9257,7 @@ samr_dissect_element_QuerySecurity_handle(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_QuerySecurity_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QuerySecurity_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_handle, 0);
 
@@ -9263,7 +9265,7 @@ samr_dissect_element_QuerySecurity_handle_(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_QuerySecurity_sec_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QuerySecurity_sec_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_samr_security_secinfo(tvb, offset, pinfo, tree, drep);
 
@@ -9271,7 +9273,7 @@ samr_dissect_element_QuerySecurity_sec_info(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_QuerySecurity_sdbuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QuerySecurity_sdbuf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QuerySecurity_sdbuf_, NDR_POINTER_REF, "Pointer to Sdbuf (sec_desc_buf)",hf_samr_samr_QuerySecurity_sdbuf);
 
@@ -9279,7 +9281,7 @@ samr_dissect_element_QuerySecurity_sdbuf(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_QuerySecurity_sdbuf_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QuerySecurity_sdbuf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QuerySecurity_sdbuf__, NDR_POINTER_UNIQUE, "Pointer to Sdbuf (sec_desc_buf)",hf_samr_samr_QuerySecurity_sdbuf);
 
@@ -9287,7 +9289,7 @@ samr_dissect_element_QuerySecurity_sdbuf_(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_QuerySecurity_sdbuf__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QuerySecurity_sdbuf__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);
 
@@ -9301,7 +9303,7 @@ samr_dissect_element_QuerySecurity_sdbuf__(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: ); */
 
 static int
-samr_dissect_QuerySecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QuerySecurity_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9318,7 +9320,7 @@ samr_dissect_QuerySecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_QuerySecurity_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QuerySecurity_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="QuerySecurity";
 	offset = samr_dissect_element_QuerySecurity_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9329,7 +9331,7 @@ samr_dissect_QuerySecurity_request(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-samr_dissect_element_Shutdown_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Shutdown_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_Shutdown_connect_handle_, NDR_POINTER_REF, "Pointer to Connect Handle (policy_handle)",hf_samr_samr_Shutdown_connect_handle);
 
@@ -9337,7 +9339,7 @@ samr_dissect_element_Shutdown_connect_handle(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_Shutdown_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Shutdown_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_Shutdown_connect_handle, PIDL_POLHND_CLOSE);
 
@@ -9349,7 +9351,7 @@ samr_dissect_element_Shutdown_connect_handle_(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: ); */
 
 static int
-samr_dissect_Shutdown_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_Shutdown_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9363,7 +9365,7 @@ samr_dissect_Shutdown_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 }
 
 static int
-samr_dissect_Shutdown_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_Shutdown_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="Shutdown";
 	offset = samr_dissect_element_Shutdown_connect_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9372,7 +9374,7 @@ samr_dissect_Shutdown_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 }
 
 static int
-samr_dissect_element_LookupDomain_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupDomain_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupDomain_connect_handle_, NDR_POINTER_REF, "Pointer to Connect Handle (policy_handle)",hf_samr_connect_handle);
 
@@ -9380,7 +9382,7 @@ samr_dissect_element_LookupDomain_connect_handle(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_LookupDomain_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupDomain_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_connect_handle, 0);
 
@@ -9388,7 +9390,7 @@ samr_dissect_element_LookupDomain_connect_handle_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_LookupDomain_domain_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupDomain_domain_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupDomain_domain_name_, NDR_POINTER_REF, "Pointer to Domain Name (lsa_String)",hf_samr_samr_LookupDomain_domain_name);
 
@@ -9396,7 +9398,7 @@ samr_dissect_element_LookupDomain_domain_name(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_LookupDomain_domain_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupDomain_domain_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 3|PIDL_SET_COL_INFO, hf_samr_samr_LookupDomain_domain_name);
 
@@ -9404,7 +9406,7 @@ samr_dissect_element_LookupDomain_domain_name_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_LookupDomain_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupDomain_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupDomain_sid_, NDR_POINTER_REF, "Pointer to Sid (dom_sid2)",hf_samr_samr_LookupDomain_sid);
 
@@ -9412,7 +9414,7 @@ samr_dissect_element_LookupDomain_sid(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_LookupDomain_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupDomain_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupDomain_sid__, NDR_POINTER_UNIQUE, "Pointer to Sid (dom_sid2)",hf_samr_samr_LookupDomain_sid);
 
@@ -9420,7 +9422,7 @@ samr_dissect_element_LookupDomain_sid_(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_LookupDomain_sid__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupDomain_sid__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_dom_sid2(tvb, offset, pinfo, tree, di, drep);
 
@@ -9434,7 +9436,7 @@ samr_dissect_element_LookupDomain_sid__(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: ); */
 
 static int
-samr_dissect_LookupDomain_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_LookupDomain_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9451,7 +9453,7 @@ samr_dissect_LookupDomain_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-samr_dissect_LookupDomain_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_LookupDomain_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="LookupDomain";
 	offset = samr_dissect_element_LookupDomain_connect_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9462,7 +9464,7 @@ samr_dissect_LookupDomain_request(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-samr_dissect_element_EnumDomains_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomains_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomains_connect_handle_, NDR_POINTER_REF, "Pointer to Connect Handle (policy_handle)",hf_samr_samr_EnumDomains_connect_handle);
 
@@ -9470,7 +9472,7 @@ samr_dissect_element_EnumDomains_connect_handle(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_EnumDomains_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomains_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EnumDomains_connect_handle, 0);
 
@@ -9478,7 +9480,7 @@ samr_dissect_element_EnumDomains_connect_handle_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_EnumDomains_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomains_resume_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomains_resume_handle_, NDR_POINTER_REF, "Pointer to Resume Handle (uint32)",hf_samr_samr_EnumDomains_resume_handle);
 
@@ -9486,7 +9488,7 @@ samr_dissect_element_EnumDomains_resume_handle(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_EnumDomains_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomains_resume_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EnumDomains_resume_handle, 0);
 
@@ -9494,7 +9496,7 @@ samr_dissect_element_EnumDomains_resume_handle_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_EnumDomains_sam(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomains_sam(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomains_sam_, NDR_POINTER_REF, "Pointer to Sam (samr_SamArray)",hf_samr_samr_EnumDomains_sam);
 
@@ -9502,7 +9504,7 @@ samr_dissect_element_EnumDomains_sam(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_EnumDomains_sam_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomains_sam_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomains_sam__, NDR_POINTER_UNIQUE, "Pointer to Sam (samr_SamArray)",hf_samr_samr_EnumDomains_sam);
 
@@ -9510,7 +9512,7 @@ samr_dissect_element_EnumDomains_sam_(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_EnumDomains_sam__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomains_sam__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_SamArray(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_EnumDomains_sam,0);
 
@@ -9518,7 +9520,7 @@ samr_dissect_element_EnumDomains_sam__(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_EnumDomains_buf_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomains_buf_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EnumDomains_buf_size, 0);
 
@@ -9526,7 +9528,7 @@ samr_dissect_element_EnumDomains_buf_size(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_EnumDomains_num_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomains_num_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomains_num_entries_, NDR_POINTER_REF, "Pointer to Num Entries (uint32)",hf_samr_samr_EnumDomains_num_entries);
 
@@ -9534,7 +9536,7 @@ samr_dissect_element_EnumDomains_num_entries(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_EnumDomains_num_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomains_num_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EnumDomains_num_entries, 0);
 
@@ -9550,7 +9552,7 @@ samr_dissect_element_EnumDomains_num_entries_(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: ); */
 
 static int
-samr_dissect_EnumDomains_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_EnumDomains_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9573,7 +9575,7 @@ samr_dissect_EnumDomains_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-samr_dissect_EnumDomains_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_EnumDomains_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="EnumDomains";
 	offset = samr_dissect_element_EnumDomains_connect_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9586,7 +9588,7 @@ samr_dissect_EnumDomains_request(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-samr_dissect_element_OpenDomain_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenDomain_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_OpenDomain_connect_handle_, NDR_POINTER_REF, "Pointer to Connect Handle (policy_handle)",hf_samr_connect_handle);
 
@@ -9594,7 +9596,7 @@ samr_dissect_element_OpenDomain_connect_handle(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_OpenDomain_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenDomain_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_connect_handle, 0);
 
@@ -9602,7 +9604,7 @@ samr_dissect_element_OpenDomain_connect_handle_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_OpenDomain_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenDomain_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_DomainAccessMask(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_access_mask, 0);
 
@@ -9610,7 +9612,7 @@ samr_dissect_element_OpenDomain_access_mask(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_OpenDomain_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenDomain_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_OpenDomain_sid_, NDR_POINTER_REF, "Pointer to Sid (dom_sid2)",hf_samr_samr_OpenDomain_sid);
 
@@ -9618,7 +9620,7 @@ samr_dissect_element_OpenDomain_sid(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_OpenDomain_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenDomain_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_dom_sid2(tvb, offset, pinfo, tree, di, drep);
 
@@ -9626,7 +9628,7 @@ samr_dissect_element_OpenDomain_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_OpenDomain_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenDomain_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_OpenDomain_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -9634,7 +9636,7 @@ samr_dissect_element_OpenDomain_domain_handle(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_OpenDomain_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenDomain_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_DOMAIN);
 
@@ -9649,7 +9651,7 @@ samr_dissect_element_OpenDomain_domain_handle_(tvbuff_t *tvb _U_, int offset _U_
 /* IDL: ); */
 
 static int
-samr_dissect_OpenDomain_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_OpenDomain_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9666,7 +9668,7 @@ samr_dissect_OpenDomain_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-samr_dissect_OpenDomain_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_OpenDomain_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="OpenDomain";
 	offset = samr_dissect_element_OpenDomain_connect_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9679,7 +9681,7 @@ samr_dissect_OpenDomain_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 }
 
 static int
-samr_dissect_element_QueryDomainInfo_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDomainInfo_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryDomainInfo_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -9687,7 +9689,7 @@ samr_dissect_element_QueryDomainInfo_domain_handle(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_QueryDomainInfo_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDomainInfo_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -9695,7 +9697,7 @@ samr_dissect_element_QueryDomainInfo_domain_handle_(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_QueryDomainInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDomainInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_DomainInfoClass(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDomainInfo_level, 0);
 
@@ -9703,7 +9705,7 @@ samr_dissect_element_QueryDomainInfo_level(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_QueryDomainInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDomainInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryDomainInfo_info_, NDR_POINTER_REF, "Pointer to Info (samr_DomainInfo)",hf_samr_samr_QueryDomainInfo_info);
 
@@ -9711,7 +9713,7 @@ samr_dissect_element_QueryDomainInfo_info(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_QueryDomainInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDomainInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryDomainInfo_info__, NDR_POINTER_UNIQUE, "Pointer to Info (samr_DomainInfo)",hf_samr_samr_QueryDomainInfo_info);
 
@@ -9719,7 +9721,7 @@ samr_dissect_element_QueryDomainInfo_info_(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_QueryDomainInfo_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDomainInfo_info__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_DomainInfo(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDomainInfo_info, 0);
 
@@ -9733,7 +9735,7 @@ samr_dissect_element_QueryDomainInfo_info__(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: ); */
 
 static int
-samr_dissect_QueryDomainInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryDomainInfo_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9750,7 +9752,7 @@ samr_dissect_QueryDomainInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_QueryDomainInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryDomainInfo_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="QueryDomainInfo";
 	offset = samr_dissect_element_QueryDomainInfo_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9761,7 +9763,7 @@ samr_dissect_QueryDomainInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_SetDomainInfo_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetDomainInfo_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_SetDomainInfo_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -9769,7 +9771,7 @@ samr_dissect_element_SetDomainInfo_domain_handle(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_SetDomainInfo_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetDomainInfo_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -9777,7 +9779,7 @@ samr_dissect_element_SetDomainInfo_domain_handle_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_SetDomainInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetDomainInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_DomainInfoClass(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_SetDomainInfo_level, 0);
 
@@ -9785,7 +9787,7 @@ samr_dissect_element_SetDomainInfo_level(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_SetDomainInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetDomainInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_SetDomainInfo_info_, NDR_POINTER_REF, "Pointer to Info (samr_DomainInfo)",hf_samr_samr_SetDomainInfo_info);
 
@@ -9793,7 +9795,7 @@ samr_dissect_element_SetDomainInfo_info(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_SetDomainInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetDomainInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_DomainInfo(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_SetDomainInfo_info, 0);
 
@@ -9807,7 +9809,7 @@ samr_dissect_element_SetDomainInfo_info_(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: ); */
 
 static int
-samr_dissect_SetDomainInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_SetDomainInfo_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9821,7 +9823,7 @@ samr_dissect_SetDomainInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_SetDomainInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_SetDomainInfo_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="SetDomainInfo";
 	offset = samr_dissect_element_SetDomainInfo_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9834,7 +9836,7 @@ samr_dissect_SetDomainInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-samr_dissect_element_CreateDomainGroup_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateDomainGroup_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_CreateDomainGroup_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -9842,7 +9844,7 @@ samr_dissect_element_CreateDomainGroup_domain_handle(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_CreateDomainGroup_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateDomainGroup_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -9850,7 +9852,7 @@ samr_dissect_element_CreateDomainGroup_domain_handle_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_CreateDomainGroup_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateDomainGroup_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_CreateDomainGroup_name_, NDR_POINTER_REF, "Pointer to Name (lsa_String)",hf_samr_samr_CreateDomainGroup_name);
 
@@ -9858,7 +9860,7 @@ samr_dissect_element_CreateDomainGroup_name(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_CreateDomainGroup_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateDomainGroup_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_CreateDomainGroup_name);
 
@@ -9866,7 +9868,7 @@ samr_dissect_element_CreateDomainGroup_name_(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_CreateDomainGroup_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateDomainGroup_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_GroupAccessMask(tvb, offset, pinfo, tree, di, drep, hf_samr_group_access_mask, 0);
 
@@ -9874,7 +9876,7 @@ samr_dissect_element_CreateDomainGroup_access_mask(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_CreateDomainGroup_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateDomainGroup_group_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_CreateDomainGroup_group_handle_, NDR_POINTER_REF, "Pointer to Group Handle (policy_handle)",hf_samr_group_handle);
 
@@ -9882,7 +9884,7 @@ samr_dissect_element_CreateDomainGroup_group_handle(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_CreateDomainGroup_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateDomainGroup_group_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_group_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_GROUP);
 
@@ -9890,7 +9892,7 @@ samr_dissect_element_CreateDomainGroup_group_handle_(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_CreateDomainGroup_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateDomainGroup_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_CreateDomainGroup_rid_, NDR_POINTER_REF, "Pointer to Rid (uint32)",hf_samr_rid);
 
@@ -9898,7 +9900,7 @@ samr_dissect_element_CreateDomainGroup_rid(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_CreateDomainGroup_rid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateDomainGroup_rid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -9914,7 +9916,7 @@ samr_dissect_element_CreateDomainGroup_rid_(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: ); */
 
 static int
-samr_dissect_CreateDomainGroup_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_CreateDomainGroup_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9934,7 +9936,7 @@ samr_dissect_CreateDomainGroup_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_CreateDomainGroup_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_CreateDomainGroup_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="CreateDomainGroup";
 	offset = samr_dissect_element_CreateDomainGroup_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9947,7 +9949,7 @@ samr_dissect_CreateDomainGroup_request(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_EnumDomainGroups_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainGroups_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomainGroups_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -9955,7 +9957,7 @@ samr_dissect_element_EnumDomainGroups_domain_handle(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_EnumDomainGroups_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainGroups_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -9963,7 +9965,7 @@ samr_dissect_element_EnumDomainGroups_domain_handle_(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_EnumDomainGroups_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainGroups_resume_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomainGroups_resume_handle_, NDR_POINTER_REF, "Pointer to Resume Handle (uint32)",hf_samr_samr_EnumDomainGroups_resume_handle);
 
@@ -9971,7 +9973,7 @@ samr_dissect_element_EnumDomainGroups_resume_handle(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_EnumDomainGroups_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainGroups_resume_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EnumDomainGroups_resume_handle, 0);
 
@@ -9979,7 +9981,7 @@ samr_dissect_element_EnumDomainGroups_resume_handle_(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_EnumDomainGroups_sam(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainGroups_sam(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomainGroups_sam_, NDR_POINTER_REF, "Pointer to Sam (samr_SamArray)",hf_samr_samr_EnumDomainGroups_sam);
 
@@ -9987,7 +9989,7 @@ samr_dissect_element_EnumDomainGroups_sam(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_EnumDomainGroups_sam_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainGroups_sam_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomainGroups_sam__, NDR_POINTER_UNIQUE, "Pointer to Sam (samr_SamArray)",hf_samr_samr_EnumDomainGroups_sam);
 
@@ -9995,7 +9997,7 @@ samr_dissect_element_EnumDomainGroups_sam_(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_EnumDomainGroups_sam__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainGroups_sam__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_SamArray(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_EnumDomainGroups_sam,0);
 
@@ -10003,7 +10005,7 @@ samr_dissect_element_EnumDomainGroups_sam__(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_EnumDomainGroups_max_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainGroups_max_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EnumDomainGroups_max_size, 0);
 
@@ -10011,7 +10013,7 @@ samr_dissect_element_EnumDomainGroups_max_size(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_EnumDomainGroups_num_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainGroups_num_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomainGroups_num_entries_, NDR_POINTER_REF, "Pointer to Num Entries (uint32)",hf_samr_samr_EnumDomainGroups_num_entries);
 
@@ -10019,7 +10021,7 @@ samr_dissect_element_EnumDomainGroups_num_entries(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_EnumDomainGroups_num_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainGroups_num_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EnumDomainGroups_num_entries, 0);
 
@@ -10035,7 +10037,7 @@ samr_dissect_element_EnumDomainGroups_num_entries_(tvbuff_t *tvb _U_, int offset
 /* IDL: ); */
 
 static int
-samr_dissect_EnumDomainGroups_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_EnumDomainGroups_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10058,7 +10060,7 @@ samr_dissect_EnumDomainGroups_response(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_EnumDomainGroups_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_EnumDomainGroups_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="EnumDomainGroups";
 	offset = samr_dissect_element_EnumDomainGroups_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -10071,7 +10073,7 @@ samr_dissect_EnumDomainGroups_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_CreateUser_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_CreateUser_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -10079,7 +10081,7 @@ samr_dissect_element_CreateUser_domain_handle(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_CreateUser_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -10087,7 +10089,7 @@ samr_dissect_element_CreateUser_domain_handle_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_CreateUser_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_CreateUser_account_name_, NDR_POINTER_REF, "Pointer to Account Name (lsa_String)",hf_samr_samr_CreateUser_account_name);
 
@@ -10095,7 +10097,7 @@ samr_dissect_element_CreateUser_account_name(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_CreateUser_account_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser_account_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 3|PIDL_SET_COL_INFO|PIDL_STR_SAVE, hf_samr_samr_CreateUser_account_name);
 
@@ -10103,7 +10105,7 @@ samr_dissect_element_CreateUser_account_name_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_CreateUser_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_UserAccessMask(tvb, offset, pinfo, tree, di, drep, hf_samr_user_access_mask, 0);
 
@@ -10111,7 +10113,7 @@ samr_dissect_element_CreateUser_access_mask(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_CreateUser_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_CreateUser_user_handle_, NDR_POINTER_REF, "Pointer to User Handle (policy_handle)",hf_samr_user_handle);
 
@@ -10119,7 +10121,7 @@ samr_dissect_element_CreateUser_user_handle(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_CreateUser_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_user_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_USER);
 
@@ -10127,7 +10129,7 @@ samr_dissect_element_CreateUser_user_handle_(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_CreateUser_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_CreateUser_rid_, NDR_POINTER_REF, "Pointer to Rid (uint32)",hf_samr_rid);
 
@@ -10135,7 +10137,7 @@ samr_dissect_element_CreateUser_rid(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_CreateUser_rid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser_rid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -10151,7 +10153,7 @@ samr_dissect_element_CreateUser_rid_(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: ); */
 
 static int
-samr_dissect_CreateUser_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_CreateUser_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10171,7 +10173,7 @@ samr_dissect_CreateUser_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-samr_dissect_CreateUser_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_CreateUser_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="CreateUser";
 	offset = samr_dissect_element_CreateUser_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -10184,7 +10186,7 @@ samr_dissect_CreateUser_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 }
 
 static int
-samr_dissect_element_EnumDomainUsers_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainUsers_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomainUsers_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -10192,7 +10194,7 @@ samr_dissect_element_EnumDomainUsers_domain_handle(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_EnumDomainUsers_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainUsers_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -10200,7 +10202,7 @@ samr_dissect_element_EnumDomainUsers_domain_handle_(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_EnumDomainUsers_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainUsers_resume_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomainUsers_resume_handle_, NDR_POINTER_REF, "Pointer to Resume Handle (uint32)",hf_samr_samr_EnumDomainUsers_resume_handle);
 
@@ -10208,7 +10210,7 @@ samr_dissect_element_EnumDomainUsers_resume_handle(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_EnumDomainUsers_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainUsers_resume_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EnumDomainUsers_resume_handle, 0);
 
@@ -10216,7 +10218,7 @@ samr_dissect_element_EnumDomainUsers_resume_handle_(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_EnumDomainUsers_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainUsers_acct_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_AcctFlags(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EnumDomainUsers_acct_flags, 0);
 
@@ -10224,7 +10226,7 @@ samr_dissect_element_EnumDomainUsers_acct_flags(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_EnumDomainUsers_sam(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainUsers_sam(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomainUsers_sam_, NDR_POINTER_REF, "Pointer to Sam (samr_SamArray)",hf_samr_samr_EnumDomainUsers_sam);
 
@@ -10232,7 +10234,7 @@ samr_dissect_element_EnumDomainUsers_sam(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_EnumDomainUsers_sam_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainUsers_sam_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomainUsers_sam__, NDR_POINTER_UNIQUE, "Pointer to Sam (samr_SamArray)",hf_samr_samr_EnumDomainUsers_sam);
 
@@ -10240,7 +10242,7 @@ samr_dissect_element_EnumDomainUsers_sam_(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_EnumDomainUsers_sam__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainUsers_sam__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_SamArray(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_EnumDomainUsers_sam,0);
 
@@ -10248,7 +10250,7 @@ samr_dissect_element_EnumDomainUsers_sam__(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_EnumDomainUsers_max_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainUsers_max_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EnumDomainUsers_max_size, 0);
 
@@ -10256,7 +10258,7 @@ samr_dissect_element_EnumDomainUsers_max_size(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_EnumDomainUsers_num_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainUsers_num_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomainUsers_num_entries_, NDR_POINTER_REF, "Pointer to Num Entries (uint32)",hf_samr_samr_EnumDomainUsers_num_entries);
 
@@ -10264,7 +10266,7 @@ samr_dissect_element_EnumDomainUsers_num_entries(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_EnumDomainUsers_num_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainUsers_num_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EnumDomainUsers_num_entries, 0);
 
@@ -10281,7 +10283,7 @@ samr_dissect_element_EnumDomainUsers_num_entries_(tvbuff_t *tvb _U_, int offset 
 /* IDL: ); */
 
 static int
-samr_dissect_EnumDomainUsers_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_EnumDomainUsers_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10304,7 +10306,7 @@ samr_dissect_EnumDomainUsers_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_EnumDomainUsers_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_EnumDomainUsers_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="EnumDomainUsers";
 	offset = samr_dissect_element_EnumDomainUsers_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -10319,7 +10321,7 @@ samr_dissect_EnumDomainUsers_request(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_CreateDomAlias_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateDomAlias_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_CreateDomAlias_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -10327,7 +10329,7 @@ samr_dissect_element_CreateDomAlias_domain_handle(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_CreateDomAlias_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateDomAlias_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -10335,7 +10337,7 @@ samr_dissect_element_CreateDomAlias_domain_handle_(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_CreateDomAlias_alias_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateDomAlias_alias_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_CreateDomAlias_alias_name_, NDR_POINTER_REF, "Pointer to Alias Name (lsa_String)",hf_samr_samr_CreateDomAlias_alias_name);
 
@@ -10343,7 +10345,7 @@ samr_dissect_element_CreateDomAlias_alias_name(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_CreateDomAlias_alias_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateDomAlias_alias_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_CreateDomAlias_alias_name);
 
@@ -10351,7 +10353,7 @@ samr_dissect_element_CreateDomAlias_alias_name_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_CreateDomAlias_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateDomAlias_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_AliasAccessMask(tvb, offset, pinfo, tree, di, drep, hf_samr_alias_access_mask, 0);
 
@@ -10359,7 +10361,7 @@ samr_dissect_element_CreateDomAlias_access_mask(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_CreateDomAlias_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateDomAlias_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_CreateDomAlias_alias_handle_, NDR_POINTER_REF, "Pointer to Alias Handle (policy_handle)",hf_samr_alias_handle);
 
@@ -10367,7 +10369,7 @@ samr_dissect_element_CreateDomAlias_alias_handle(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_CreateDomAlias_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateDomAlias_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_alias_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_ALIAS);
 
@@ -10375,7 +10377,7 @@ samr_dissect_element_CreateDomAlias_alias_handle_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_CreateDomAlias_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateDomAlias_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_CreateDomAlias_rid_, NDR_POINTER_REF, "Pointer to Rid (uint32)",hf_samr_rid);
 
@@ -10383,7 +10385,7 @@ samr_dissect_element_CreateDomAlias_rid(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_CreateDomAlias_rid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateDomAlias_rid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -10399,7 +10401,7 @@ samr_dissect_element_CreateDomAlias_rid_(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: ); */
 
 static int
-samr_dissect_CreateDomAlias_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_CreateDomAlias_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10419,7 +10421,7 @@ samr_dissect_CreateDomAlias_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_CreateDomAlias_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_CreateDomAlias_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="CreateDomAlias";
 	offset = samr_dissect_element_CreateDomAlias_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -10432,7 +10434,7 @@ samr_dissect_CreateDomAlias_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_EnumDomainAliases_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainAliases_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomainAliases_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -10440,7 +10442,7 @@ samr_dissect_element_EnumDomainAliases_domain_handle(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_EnumDomainAliases_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainAliases_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -10448,7 +10450,7 @@ samr_dissect_element_EnumDomainAliases_domain_handle_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_EnumDomainAliases_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainAliases_resume_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomainAliases_resume_handle_, NDR_POINTER_REF, "Pointer to Resume Handle (uint32)",hf_samr_samr_EnumDomainAliases_resume_handle);
 
@@ -10456,7 +10458,7 @@ samr_dissect_element_EnumDomainAliases_resume_handle(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_EnumDomainAliases_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainAliases_resume_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EnumDomainAliases_resume_handle, 0);
 
@@ -10464,7 +10466,7 @@ samr_dissect_element_EnumDomainAliases_resume_handle_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_EnumDomainAliases_sam(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainAliases_sam(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomainAliases_sam_, NDR_POINTER_REF, "Pointer to Sam (samr_SamArray)",hf_samr_samr_EnumDomainAliases_sam);
 
@@ -10472,7 +10474,7 @@ samr_dissect_element_EnumDomainAliases_sam(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_EnumDomainAliases_sam_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainAliases_sam_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomainAliases_sam__, NDR_POINTER_UNIQUE, "Pointer to Sam (samr_SamArray)",hf_samr_samr_EnumDomainAliases_sam);
 
@@ -10480,7 +10482,7 @@ samr_dissect_element_EnumDomainAliases_sam_(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_EnumDomainAliases_sam__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainAliases_sam__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_SamArray(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_EnumDomainAliases_sam,0);
 
@@ -10488,7 +10490,7 @@ samr_dissect_element_EnumDomainAliases_sam__(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_EnumDomainAliases_max_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainAliases_max_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EnumDomainAliases_max_size, 0);
 
@@ -10496,7 +10498,7 @@ samr_dissect_element_EnumDomainAliases_max_size(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_EnumDomainAliases_num_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainAliases_num_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomainAliases_num_entries_, NDR_POINTER_REF, "Pointer to Num Entries (uint32)",hf_samr_samr_EnumDomainAliases_num_entries);
 
@@ -10504,7 +10506,7 @@ samr_dissect_element_EnumDomainAliases_num_entries(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_EnumDomainAliases_num_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_EnumDomainAliases_num_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EnumDomainAliases_num_entries, 0);
 
@@ -10520,7 +10522,7 @@ samr_dissect_element_EnumDomainAliases_num_entries_(tvbuff_t *tvb _U_, int offse
 /* IDL: ); */
 
 static int
-samr_dissect_EnumDomainAliases_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_EnumDomainAliases_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10543,7 +10545,7 @@ samr_dissect_EnumDomainAliases_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_EnumDomainAliases_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_EnumDomainAliases_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="EnumDomainAliases";
 	offset = samr_dissect_element_EnumDomainAliases_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -10556,7 +10558,7 @@ samr_dissect_EnumDomainAliases_request(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_GetAliasMembership_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetAliasMembership_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetAliasMembership_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -10564,7 +10566,7 @@ samr_dissect_element_GetAliasMembership_domain_handle(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_GetAliasMembership_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetAliasMembership_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -10572,7 +10574,7 @@ samr_dissect_element_GetAliasMembership_domain_handle_(tvbuff_t *tvb _U_, int of
 }
 
 static int
-samr_dissect_element_GetAliasMembership_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetAliasMembership_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetAliasMembership_sids_, NDR_POINTER_REF, "Pointer to Sids (lsa_SidArray)",hf_samr_samr_GetAliasMembership_sids);
 
@@ -10580,7 +10582,7 @@ samr_dissect_element_GetAliasMembership_sids(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_GetAliasMembership_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetAliasMembership_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_lsa_SidArray(tvb, offset, pinfo, tree, di, drep);
 
@@ -10588,7 +10590,7 @@ samr_dissect_element_GetAliasMembership_sids_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_GetAliasMembership_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetAliasMembership_rids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetAliasMembership_rids_, NDR_POINTER_REF, "Pointer to Rids (samr_Ids)",hf_samr_samr_GetAliasMembership_rids);
 
@@ -10596,7 +10598,7 @@ samr_dissect_element_GetAliasMembership_rids(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_GetAliasMembership_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetAliasMembership_rids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_Ids(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_GetAliasMembership_rids,0);
 
@@ -10610,7 +10612,7 @@ samr_dissect_element_GetAliasMembership_rids_(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: ); */
 
 static int
-samr_dissect_GetAliasMembership_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_GetAliasMembership_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10627,7 +10629,7 @@ samr_dissect_GetAliasMembership_response(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_GetAliasMembership_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_GetAliasMembership_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="GetAliasMembership";
 	offset = samr_dissect_element_GetAliasMembership_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -10638,7 +10640,7 @@ samr_dissect_GetAliasMembership_request(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_LookupNames_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupNames_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupNames_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -10646,7 +10648,7 @@ samr_dissect_element_LookupNames_domain_handle(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_LookupNames_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupNames_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -10654,7 +10656,7 @@ samr_dissect_element_LookupNames_domain_handle_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_LookupNames_num_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupNames_num_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_LookupNames_num_names, 0);
 
@@ -10662,7 +10664,7 @@ samr_dissect_element_LookupNames_num_names(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_LookupNames_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupNames_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupNames_names_, NDR_POINTER_REF, "Pointer to Names (lsa_String)",hf_samr_samr_LookupNames_names);
 
@@ -10670,7 +10672,7 @@ samr_dissect_element_LookupNames_names(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_LookupNames_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupNames_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupNames_names__);
 
@@ -10678,7 +10680,7 @@ samr_dissect_element_LookupNames_names_(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_LookupNames_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupNames_names__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_LookupNames_names);
 
@@ -10686,7 +10688,7 @@ samr_dissect_element_LookupNames_names__(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_LookupNames_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupNames_rids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupNames_rids_, NDR_POINTER_REF, "Pointer to Rids (samr_Ids)",hf_samr_samr_LookupNames_rids);
 
@@ -10694,7 +10696,7 @@ samr_dissect_element_LookupNames_rids(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_LookupNames_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupNames_rids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_Ids(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_LookupNames_rids,0);
 
@@ -10702,7 +10704,7 @@ samr_dissect_element_LookupNames_rids_(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_LookupNames_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupNames_types(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupNames_types_, NDR_POINTER_REF, "Pointer to Types (samr_Ids)",hf_samr_samr_LookupNames_types);
 
@@ -10710,7 +10712,7 @@ samr_dissect_element_LookupNames_types(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_LookupNames_types_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupNames_types_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_Ids(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_LookupNames_types,0);
 
@@ -10726,7 +10728,7 @@ samr_dissect_element_LookupNames_types_(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: ); */
 
 static int
-samr_dissect_LookupNames_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_LookupNames_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10746,7 +10748,7 @@ samr_dissect_LookupNames_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-samr_dissect_LookupNames_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_LookupNames_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="LookupNames";
 	offset = samr_dissect_element_LookupNames_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -10759,7 +10761,7 @@ samr_dissect_LookupNames_request(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-samr_dissect_element_LookupRids_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupRids_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupRids_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -10767,7 +10769,7 @@ samr_dissect_element_LookupRids_domain_handle(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_LookupRids_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupRids_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -10775,7 +10777,7 @@ samr_dissect_element_LookupRids_domain_handle_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_LookupRids_num_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupRids_num_rids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_LookupRids_num_rids, 0);
 
@@ -10783,7 +10785,7 @@ samr_dissect_element_LookupRids_num_rids(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_LookupRids_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupRids_rids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupRids_rids_);
 
@@ -10791,7 +10793,7 @@ samr_dissect_element_LookupRids_rids(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_LookupRids_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupRids_rids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -10799,7 +10801,7 @@ samr_dissect_element_LookupRids_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_LookupRids_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupRids_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupRids_names_, NDR_POINTER_REF, "Pointer to Names (lsa_Strings)",hf_samr_samr_LookupRids_names);
 
@@ -10807,7 +10809,7 @@ samr_dissect_element_LookupRids_names(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_LookupRids_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupRids_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_lsa_Strings(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_LookupRids_names,0);
 
@@ -10815,7 +10817,7 @@ samr_dissect_element_LookupRids_names_(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_LookupRids_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupRids_types(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupRids_types_, NDR_POINTER_REF, "Pointer to Types (samr_Ids)",hf_samr_samr_LookupRids_types);
 
@@ -10823,7 +10825,7 @@ samr_dissect_element_LookupRids_types(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_LookupRids_types_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_LookupRids_types_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_Ids(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_LookupRids_types,0);
 
@@ -10839,7 +10841,7 @@ samr_dissect_element_LookupRids_types_(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: ); */
 
 static int
-samr_dissect_LookupRids_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_LookupRids_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10859,7 +10861,7 @@ samr_dissect_LookupRids_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-samr_dissect_LookupRids_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_LookupRids_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="LookupRids";
 	offset = samr_dissect_element_LookupRids_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -10872,7 +10874,7 @@ samr_dissect_LookupRids_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 }
 
 static int
-samr_dissect_element_OpenGroup_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenGroup_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_OpenGroup_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -10880,7 +10882,7 @@ samr_dissect_element_OpenGroup_domain_handle(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_OpenGroup_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenGroup_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -10888,7 +10890,7 @@ samr_dissect_element_OpenGroup_domain_handle_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_OpenGroup_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenGroup_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_GroupAccessMask(tvb, offset, pinfo, tree, di, drep, hf_samr_group_access_mask, 0);
 
@@ -10896,7 +10898,7 @@ samr_dissect_element_OpenGroup_access_mask(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_OpenGroup_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenGroup_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -10904,7 +10906,7 @@ samr_dissect_element_OpenGroup_rid(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-samr_dissect_element_OpenGroup_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenGroup_group_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_OpenGroup_group_handle_, NDR_POINTER_REF, "Pointer to Group Handle (policy_handle)",hf_samr_group_handle);
 
@@ -10912,7 +10914,7 @@ samr_dissect_element_OpenGroup_group_handle(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_OpenGroup_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenGroup_group_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_group_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_GROUP);
 
@@ -10927,7 +10929,7 @@ samr_dissect_element_OpenGroup_group_handle_(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: ); */
 
 static int
-samr_dissect_OpenGroup_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_OpenGroup_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10944,7 +10946,7 @@ samr_dissect_OpenGroup_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 }
 
 static int
-samr_dissect_OpenGroup_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_OpenGroup_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="OpenGroup";
 	offset = samr_dissect_element_OpenGroup_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -10957,7 +10959,7 @@ samr_dissect_OpenGroup_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 }
 
 static int
-samr_dissect_element_QueryGroupInfo_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryGroupInfo_group_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryGroupInfo_group_handle_, NDR_POINTER_REF, "Pointer to Group Handle (policy_handle)",hf_samr_group_handle);
 
@@ -10965,7 +10967,7 @@ samr_dissect_element_QueryGroupInfo_group_handle(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_QueryGroupInfo_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryGroupInfo_group_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_group_handle, 0);
 
@@ -10973,7 +10975,7 @@ samr_dissect_element_QueryGroupInfo_group_handle_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_QueryGroupInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryGroupInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_GroupInfoEnum(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryGroupInfo_level, 0);
 
@@ -10981,7 +10983,7 @@ samr_dissect_element_QueryGroupInfo_level(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_QueryGroupInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryGroupInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryGroupInfo_info_, NDR_POINTER_REF, "Pointer to Info (samr_GroupInfo)",hf_samr_samr_QueryGroupInfo_info);
 
@@ -10989,7 +10991,7 @@ samr_dissect_element_QueryGroupInfo_info(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_QueryGroupInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryGroupInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryGroupInfo_info__, NDR_POINTER_UNIQUE, "Pointer to Info (samr_GroupInfo)",hf_samr_samr_QueryGroupInfo_info);
 
@@ -10997,7 +10999,7 @@ samr_dissect_element_QueryGroupInfo_info_(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_QueryGroupInfo_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryGroupInfo_info__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_GroupInfo(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryGroupInfo_info, 0);
 
@@ -11011,7 +11013,7 @@ samr_dissect_element_QueryGroupInfo_info__(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: ); */
 
 static int
-samr_dissect_QueryGroupInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryGroupInfo_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11028,7 +11030,7 @@ samr_dissect_QueryGroupInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_QueryGroupInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryGroupInfo_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="QueryGroupInfo";
 	offset = samr_dissect_element_QueryGroupInfo_group_handle(tvb, offset, pinfo, tree, di, drep);
@@ -11039,7 +11041,7 @@ samr_dissect_QueryGroupInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_SetGroupInfo_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetGroupInfo_group_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_SetGroupInfo_group_handle_, NDR_POINTER_REF, "Pointer to Group Handle (policy_handle)",hf_samr_group_handle);
 
@@ -11047,7 +11049,7 @@ samr_dissect_element_SetGroupInfo_group_handle(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_SetGroupInfo_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetGroupInfo_group_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_group_handle, 0);
 
@@ -11055,7 +11057,7 @@ samr_dissect_element_SetGroupInfo_group_handle_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_SetGroupInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetGroupInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_GroupInfoEnum(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_SetGroupInfo_level, 0);
 
@@ -11063,7 +11065,7 @@ samr_dissect_element_SetGroupInfo_level(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_SetGroupInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetGroupInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_SetGroupInfo_info_, NDR_POINTER_REF, "Pointer to Info (samr_GroupInfo)",hf_samr_samr_SetGroupInfo_info);
 
@@ -11071,7 +11073,7 @@ samr_dissect_element_SetGroupInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_SetGroupInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetGroupInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_GroupInfo(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_SetGroupInfo_info, 0);
 
@@ -11085,7 +11087,7 @@ samr_dissect_element_SetGroupInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: ); */
 
 static int
-samr_dissect_SetGroupInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_SetGroupInfo_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11099,7 +11101,7 @@ samr_dissect_SetGroupInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-samr_dissect_SetGroupInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_SetGroupInfo_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="SetGroupInfo";
 	offset = samr_dissect_element_SetGroupInfo_group_handle(tvb, offset, pinfo, tree, di, drep);
@@ -11112,7 +11114,7 @@ samr_dissect_SetGroupInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-samr_dissect_element_AddGroupMember_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_AddGroupMember_group_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_AddGroupMember_group_handle_, NDR_POINTER_REF, "Pointer to Group Handle (policy_handle)",hf_samr_group_handle);
 
@@ -11120,7 +11122,7 @@ samr_dissect_element_AddGroupMember_group_handle(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_AddGroupMember_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_AddGroupMember_group_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_group_handle, 0);
 
@@ -11128,7 +11130,7 @@ samr_dissect_element_AddGroupMember_group_handle_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_AddGroupMember_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_AddGroupMember_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -11136,7 +11138,7 @@ samr_dissect_element_AddGroupMember_rid(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_AddGroupMember_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_AddGroupMember_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_AddGroupMember_flags, 0);
 
@@ -11150,7 +11152,7 @@ samr_dissect_element_AddGroupMember_flags(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: ); */
 
 static int
-samr_dissect_AddGroupMember_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_AddGroupMember_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11164,7 +11166,7 @@ samr_dissect_AddGroupMember_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_AddGroupMember_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_AddGroupMember_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="AddGroupMember";
 	offset = samr_dissect_element_AddGroupMember_group_handle(tvb, offset, pinfo, tree, di, drep);
@@ -11177,7 +11179,7 @@ samr_dissect_AddGroupMember_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_DeleteDomainGroup_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DeleteDomainGroup_group_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_DeleteDomainGroup_group_handle_, NDR_POINTER_REF, "Pointer to Group Handle (policy_handle)",hf_samr_group_handle);
 
@@ -11185,7 +11187,7 @@ samr_dissect_element_DeleteDomainGroup_group_handle(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_DeleteDomainGroup_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DeleteDomainGroup_group_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_group_handle, PIDL_POLHND_CLOSE);
 
@@ -11197,7 +11199,7 @@ samr_dissect_element_DeleteDomainGroup_group_handle_(tvbuff_t *tvb _U_, int offs
 /* IDL: ); */
 
 static int
-samr_dissect_DeleteDomainGroup_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_DeleteDomainGroup_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11214,7 +11216,7 @@ samr_dissect_DeleteDomainGroup_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_DeleteDomainGroup_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_DeleteDomainGroup_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="DeleteDomainGroup";
 	offset = samr_dissect_element_DeleteDomainGroup_group_handle(tvb, offset, pinfo, tree, di, drep);
@@ -11223,7 +11225,7 @@ samr_dissect_DeleteDomainGroup_request(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_DeleteGroupMember_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DeleteGroupMember_group_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_DeleteGroupMember_group_handle_, NDR_POINTER_REF, "Pointer to Group Handle (policy_handle)",hf_samr_group_handle);
 
@@ -11231,7 +11233,7 @@ samr_dissect_element_DeleteGroupMember_group_handle(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_DeleteGroupMember_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DeleteGroupMember_group_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_group_handle, 0);
 
@@ -11239,7 +11241,7 @@ samr_dissect_element_DeleteGroupMember_group_handle_(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_DeleteGroupMember_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DeleteGroupMember_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -11252,7 +11254,7 @@ samr_dissect_element_DeleteGroupMember_rid(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: ); */
 
 static int
-samr_dissect_DeleteGroupMember_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_DeleteGroupMember_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11266,7 +11268,7 @@ samr_dissect_DeleteGroupMember_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_DeleteGroupMember_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_DeleteGroupMember_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="DeleteGroupMember";
 	offset = samr_dissect_element_DeleteGroupMember_group_handle(tvb, offset, pinfo, tree, di, drep);
@@ -11277,7 +11279,7 @@ samr_dissect_DeleteGroupMember_request(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_QueryGroupMember_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryGroupMember_group_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryGroupMember_group_handle_, NDR_POINTER_REF, "Pointer to Group Handle (policy_handle)",hf_samr_group_handle);
 
@@ -11285,7 +11287,7 @@ samr_dissect_element_QueryGroupMember_group_handle(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_QueryGroupMember_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryGroupMember_group_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_group_handle, 0);
 
@@ -11293,7 +11295,7 @@ samr_dissect_element_QueryGroupMember_group_handle_(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_QueryGroupMember_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryGroupMember_rids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryGroupMember_rids_, NDR_POINTER_REF, "Pointer to Rids (samr_RidTypeArray)",hf_samr_samr_QueryGroupMember_rids);
 
@@ -11301,7 +11303,7 @@ samr_dissect_element_QueryGroupMember_rids(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_QueryGroupMember_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryGroupMember_rids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryGroupMember_rids__, NDR_POINTER_UNIQUE, "Pointer to Rids (samr_RidTypeArray)",hf_samr_samr_QueryGroupMember_rids);
 
@@ -11309,7 +11311,7 @@ samr_dissect_element_QueryGroupMember_rids_(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_QueryGroupMember_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryGroupMember_rids__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_RidTypeArray(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_QueryGroupMember_rids,0);
 
@@ -11322,7 +11324,7 @@ samr_dissect_element_QueryGroupMember_rids__(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: ); */
 
 static int
-samr_dissect_QueryGroupMember_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryGroupMember_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11339,7 +11341,7 @@ samr_dissect_QueryGroupMember_response(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_QueryGroupMember_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryGroupMember_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="QueryGroupMember";
 	offset = samr_dissect_element_QueryGroupMember_group_handle(tvb, offset, pinfo, tree, di, drep);
@@ -11348,7 +11350,7 @@ samr_dissect_QueryGroupMember_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_SetMemberAttributesOfGroup_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetMemberAttributesOfGroup_group_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_SetMemberAttributesOfGroup_group_handle_, NDR_POINTER_REF, "Pointer to Group Handle (policy_handle)",hf_samr_group_handle);
 
@@ -11356,7 +11358,7 @@ samr_dissect_element_SetMemberAttributesOfGroup_group_handle(tvbuff_t *tvb _U_, 
 }
 
 static int
-samr_dissect_element_SetMemberAttributesOfGroup_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetMemberAttributesOfGroup_group_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_group_handle, 0);
 
@@ -11364,7 +11366,7 @@ samr_dissect_element_SetMemberAttributesOfGroup_group_handle_(tvbuff_t *tvb _U_,
 }
 
 static int
-samr_dissect_element_SetMemberAttributesOfGroup_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetMemberAttributesOfGroup_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_SetMemberAttributesOfGroup_unknown1, 0);
 
@@ -11372,7 +11374,7 @@ samr_dissect_element_SetMemberAttributesOfGroup_unknown1(tvbuff_t *tvb _U_, int 
 }
 
 static int
-samr_dissect_element_SetMemberAttributesOfGroup_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetMemberAttributesOfGroup_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_SetMemberAttributesOfGroup_unknown2, 0);
 
@@ -11386,7 +11388,7 @@ samr_dissect_element_SetMemberAttributesOfGroup_unknown2(tvbuff_t *tvb _U_, int 
 /* IDL: ); */
 
 static int
-samr_dissect_SetMemberAttributesOfGroup_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_SetMemberAttributesOfGroup_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11400,7 +11402,7 @@ samr_dissect_SetMemberAttributesOfGroup_response(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_SetMemberAttributesOfGroup_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_SetMemberAttributesOfGroup_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="SetMemberAttributesOfGroup";
 	offset = samr_dissect_element_SetMemberAttributesOfGroup_group_handle(tvb, offset, pinfo, tree, di, drep);
@@ -11413,7 +11415,7 @@ samr_dissect_SetMemberAttributesOfGroup_request(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_OpenAlias_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenAlias_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_OpenAlias_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -11421,7 +11423,7 @@ samr_dissect_element_OpenAlias_domain_handle(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_OpenAlias_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenAlias_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -11429,7 +11431,7 @@ samr_dissect_element_OpenAlias_domain_handle_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_OpenAlias_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenAlias_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_AliasAccessMask(tvb, offset, pinfo, tree, di, drep, hf_samr_alias_access_mask, 0);
 
@@ -11437,7 +11439,7 @@ samr_dissect_element_OpenAlias_access_mask(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_OpenAlias_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenAlias_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -11445,7 +11447,7 @@ samr_dissect_element_OpenAlias_rid(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-samr_dissect_element_OpenAlias_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenAlias_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_OpenAlias_alias_handle_, NDR_POINTER_REF, "Pointer to Alias Handle (policy_handle)",hf_samr_alias_handle);
 
@@ -11453,7 +11455,7 @@ samr_dissect_element_OpenAlias_alias_handle(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_OpenAlias_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenAlias_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_alias_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_ALIAS);
 
@@ -11468,7 +11470,7 @@ samr_dissect_element_OpenAlias_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: ); */
 
 static int
-samr_dissect_OpenAlias_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_OpenAlias_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11485,7 +11487,7 @@ samr_dissect_OpenAlias_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 }
 
 static int
-samr_dissect_OpenAlias_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_OpenAlias_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="OpenAlias";
 	offset = samr_dissect_element_OpenAlias_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -11498,7 +11500,7 @@ samr_dissect_OpenAlias_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 }
 
 static int
-samr_dissect_element_QueryAliasInfo_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryAliasInfo_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryAliasInfo_alias_handle_, NDR_POINTER_REF, "Pointer to Alias Handle (policy_handle)",hf_samr_alias_handle);
 
@@ -11506,7 +11508,7 @@ samr_dissect_element_QueryAliasInfo_alias_handle(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_QueryAliasInfo_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryAliasInfo_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_alias_handle, 0);
 
@@ -11514,7 +11516,7 @@ samr_dissect_element_QueryAliasInfo_alias_handle_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_QueryAliasInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryAliasInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_AliasInfoEnum(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryAliasInfo_level, 0);
 
@@ -11522,7 +11524,7 @@ samr_dissect_element_QueryAliasInfo_level(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_QueryAliasInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryAliasInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryAliasInfo_info_, NDR_POINTER_REF, "Pointer to Info (samr_AliasInfo)",hf_samr_samr_QueryAliasInfo_info);
 
@@ -11530,7 +11532,7 @@ samr_dissect_element_QueryAliasInfo_info(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_QueryAliasInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryAliasInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryAliasInfo_info__, NDR_POINTER_UNIQUE, "Pointer to Info (samr_AliasInfo)",hf_samr_samr_QueryAliasInfo_info);
 
@@ -11538,7 +11540,7 @@ samr_dissect_element_QueryAliasInfo_info_(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_QueryAliasInfo_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryAliasInfo_info__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_AliasInfo(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryAliasInfo_info, 0);
 
@@ -11552,7 +11554,7 @@ samr_dissect_element_QueryAliasInfo_info__(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: ); */
 
 static int
-samr_dissect_QueryAliasInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryAliasInfo_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11569,7 +11571,7 @@ samr_dissect_QueryAliasInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_QueryAliasInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryAliasInfo_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="QueryAliasInfo";
 	offset = samr_dissect_element_QueryAliasInfo_alias_handle(tvb, offset, pinfo, tree, di, drep);
@@ -11580,7 +11582,7 @@ samr_dissect_QueryAliasInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_SetAliasInfo_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetAliasInfo_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_SetAliasInfo_alias_handle_, NDR_POINTER_REF, "Pointer to Alias Handle (policy_handle)",hf_samr_alias_handle);
 
@@ -11588,7 +11590,7 @@ samr_dissect_element_SetAliasInfo_alias_handle(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_SetAliasInfo_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetAliasInfo_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_alias_handle, 0);
 
@@ -11596,7 +11598,7 @@ samr_dissect_element_SetAliasInfo_alias_handle_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_SetAliasInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetAliasInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_AliasInfoEnum(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_SetAliasInfo_level, 0);
 
@@ -11604,7 +11606,7 @@ samr_dissect_element_SetAliasInfo_level(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_SetAliasInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetAliasInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_SetAliasInfo_info_, NDR_POINTER_REF, "Pointer to Info (samr_AliasInfo)",hf_samr_samr_SetAliasInfo_info);
 
@@ -11612,7 +11614,7 @@ samr_dissect_element_SetAliasInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_SetAliasInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetAliasInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_AliasInfo(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_SetAliasInfo_info, 0);
 
@@ -11626,7 +11628,7 @@ samr_dissect_element_SetAliasInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: ); */
 
 static int
-samr_dissect_SetAliasInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_SetAliasInfo_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11640,7 +11642,7 @@ samr_dissect_SetAliasInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-samr_dissect_SetAliasInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_SetAliasInfo_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="SetAliasInfo";
 	offset = samr_dissect_element_SetAliasInfo_alias_handle(tvb, offset, pinfo, tree, di, drep);
@@ -11653,7 +11655,7 @@ samr_dissect_SetAliasInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-samr_dissect_element_DeleteDomAlias_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DeleteDomAlias_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_DeleteDomAlias_alias_handle_, NDR_POINTER_REF, "Pointer to Alias Handle (policy_handle)",hf_samr_alias_handle);
 
@@ -11661,7 +11663,7 @@ samr_dissect_element_DeleteDomAlias_alias_handle(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_DeleteDomAlias_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DeleteDomAlias_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_alias_handle, PIDL_POLHND_CLOSE);
 
@@ -11673,7 +11675,7 @@ samr_dissect_element_DeleteDomAlias_alias_handle_(tvbuff_t *tvb _U_, int offset 
 /* IDL: ); */
 
 static int
-samr_dissect_DeleteDomAlias_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_DeleteDomAlias_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11690,7 +11692,7 @@ samr_dissect_DeleteDomAlias_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_DeleteDomAlias_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_DeleteDomAlias_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="DeleteDomAlias";
 	offset = samr_dissect_element_DeleteDomAlias_alias_handle(tvb, offset, pinfo, tree, di, drep);
@@ -11699,7 +11701,7 @@ samr_dissect_DeleteDomAlias_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_AddAliasMember_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_AddAliasMember_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_AddAliasMember_alias_handle_, NDR_POINTER_REF, "Pointer to Alias Handle (policy_handle)",hf_samr_alias_handle);
 
@@ -11707,7 +11709,7 @@ samr_dissect_element_AddAliasMember_alias_handle(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_AddAliasMember_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_AddAliasMember_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_alias_handle, 0);
 
@@ -11715,7 +11717,7 @@ samr_dissect_element_AddAliasMember_alias_handle_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_AddAliasMember_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_AddAliasMember_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_AddAliasMember_sid_, NDR_POINTER_REF, "Pointer to Sid (dom_sid2)",hf_samr_samr_AddAliasMember_sid);
 
@@ -11723,7 +11725,7 @@ samr_dissect_element_AddAliasMember_sid(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_AddAliasMember_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_AddAliasMember_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_dom_sid2(tvb, offset, pinfo, tree, di, drep);
 
@@ -11736,7 +11738,7 @@ samr_dissect_element_AddAliasMember_sid_(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: ); */
 
 static int
-samr_dissect_AddAliasMember_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_AddAliasMember_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11750,7 +11752,7 @@ samr_dissect_AddAliasMember_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_AddAliasMember_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_AddAliasMember_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="AddAliasMember";
 	offset = samr_dissect_element_AddAliasMember_alias_handle(tvb, offset, pinfo, tree, di, drep);
@@ -11761,7 +11763,7 @@ samr_dissect_AddAliasMember_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_DeleteAliasMember_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DeleteAliasMember_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_DeleteAliasMember_alias_handle_, NDR_POINTER_REF, "Pointer to Alias Handle (policy_handle)",hf_samr_alias_handle);
 
@@ -11769,7 +11771,7 @@ samr_dissect_element_DeleteAliasMember_alias_handle(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_DeleteAliasMember_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DeleteAliasMember_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_alias_handle, 0);
 
@@ -11777,7 +11779,7 @@ samr_dissect_element_DeleteAliasMember_alias_handle_(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_DeleteAliasMember_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DeleteAliasMember_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_DeleteAliasMember_sid_, NDR_POINTER_REF, "Pointer to Sid (dom_sid2)",hf_samr_samr_DeleteAliasMember_sid);
 
@@ -11785,7 +11787,7 @@ samr_dissect_element_DeleteAliasMember_sid(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_DeleteAliasMember_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DeleteAliasMember_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_dom_sid2(tvb, offset, pinfo, tree, di, drep);
 
@@ -11798,7 +11800,7 @@ samr_dissect_element_DeleteAliasMember_sid_(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: ); */
 
 static int
-samr_dissect_DeleteAliasMember_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_DeleteAliasMember_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11812,7 +11814,7 @@ samr_dissect_DeleteAliasMember_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_DeleteAliasMember_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_DeleteAliasMember_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="DeleteAliasMember";
 	offset = samr_dissect_element_DeleteAliasMember_alias_handle(tvb, offset, pinfo, tree, di, drep);
@@ -11823,7 +11825,7 @@ samr_dissect_DeleteAliasMember_request(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_GetMembersInAlias_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetMembersInAlias_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetMembersInAlias_alias_handle_, NDR_POINTER_REF, "Pointer to Alias Handle (policy_handle)",hf_samr_alias_handle);
 
@@ -11831,7 +11833,7 @@ samr_dissect_element_GetMembersInAlias_alias_handle(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_GetMembersInAlias_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetMembersInAlias_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_alias_handle, 0);
 
@@ -11839,7 +11841,7 @@ samr_dissect_element_GetMembersInAlias_alias_handle_(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_GetMembersInAlias_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetMembersInAlias_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetMembersInAlias_sids_, NDR_POINTER_REF, "Pointer to Sids (lsa_SidArray)",hf_samr_samr_GetMembersInAlias_sids);
 
@@ -11847,7 +11849,7 @@ samr_dissect_element_GetMembersInAlias_sids(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_GetMembersInAlias_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetMembersInAlias_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_lsa_SidArray(tvb, offset, pinfo, tree, di, drep);
 
@@ -11860,7 +11862,7 @@ samr_dissect_element_GetMembersInAlias_sids_(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: ); */
 
 static int
-samr_dissect_GetMembersInAlias_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_GetMembersInAlias_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11877,7 +11879,7 @@ samr_dissect_GetMembersInAlias_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_GetMembersInAlias_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_GetMembersInAlias_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="GetMembersInAlias";
 	offset = samr_dissect_element_GetMembersInAlias_alias_handle(tvb, offset, pinfo, tree, di, drep);
@@ -11886,7 +11888,7 @@ samr_dissect_GetMembersInAlias_request(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_OpenUser_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenUser_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_OpenUser_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -11894,7 +11896,7 @@ samr_dissect_element_OpenUser_domain_handle(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_OpenUser_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenUser_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -11902,7 +11904,7 @@ samr_dissect_element_OpenUser_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_OpenUser_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenUser_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_UserAccessMask(tvb, offset, pinfo, tree, di, drep, hf_samr_user_access_mask, 0);
 
@@ -11910,7 +11912,7 @@ samr_dissect_element_OpenUser_access_mask(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_OpenUser_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenUser_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -11918,7 +11920,7 @@ samr_dissect_element_OpenUser_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-samr_dissect_element_OpenUser_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenUser_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_OpenUser_user_handle_, NDR_POINTER_REF, "Pointer to User Handle (policy_handle)",hf_samr_user_handle);
 
@@ -11926,7 +11928,7 @@ samr_dissect_element_OpenUser_user_handle(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_OpenUser_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OpenUser_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_user_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_USER);
 
@@ -11941,7 +11943,7 @@ samr_dissect_element_OpenUser_user_handle_(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: ); */
 
 static int
-samr_dissect_OpenUser_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_OpenUser_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11958,7 +11960,7 @@ samr_dissect_OpenUser_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 }
 
 static int
-samr_dissect_OpenUser_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_OpenUser_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="OpenUser";
 	offset = samr_dissect_element_OpenUser_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -11971,7 +11973,7 @@ samr_dissect_OpenUser_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 }
 
 static int
-samr_dissect_element_DeleteUser_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DeleteUser_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_DeleteUser_user_handle_, NDR_POINTER_REF, "Pointer to User Handle (policy_handle)",hf_samr_user_handle);
 
@@ -11979,7 +11981,7 @@ samr_dissect_element_DeleteUser_user_handle(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_DeleteUser_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_DeleteUser_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_user_handle, PIDL_POLHND_CLOSE);
 
@@ -11991,7 +11993,7 @@ samr_dissect_element_DeleteUser_user_handle_(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: ); */
 
 static int
-samr_dissect_DeleteUser_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_DeleteUser_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -12008,7 +12010,7 @@ samr_dissect_DeleteUser_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-samr_dissect_DeleteUser_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_DeleteUser_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="DeleteUser";
 	offset = samr_dissect_element_DeleteUser_user_handle(tvb, offset, pinfo, tree, di, drep);
@@ -12017,7 +12019,7 @@ samr_dissect_DeleteUser_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 }
 
 static int
-samr_dissect_element_QueryUserInfo_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryUserInfo_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryUserInfo_user_handle_, NDR_POINTER_REF, "Pointer to User Handle (policy_handle)",hf_samr_user_handle);
 
@@ -12025,7 +12027,7 @@ samr_dissect_element_QueryUserInfo_user_handle(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_QueryUserInfo_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryUserInfo_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_user_handle, 0);
 
@@ -12033,7 +12035,7 @@ samr_dissect_element_QueryUserInfo_user_handle_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_QueryUserInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryUserInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_UserInfoLevel(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryUserInfo_level, 0);
 
@@ -12041,7 +12043,7 @@ samr_dissect_element_QueryUserInfo_level(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_QueryUserInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryUserInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryUserInfo_info_, NDR_POINTER_REF, "Pointer to Info (samr_UserInfo)",hf_samr_samr_QueryUserInfo_info);
 
@@ -12049,7 +12051,7 @@ samr_dissect_element_QueryUserInfo_info(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_QueryUserInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryUserInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryUserInfo_info__, NDR_POINTER_UNIQUE, "Pointer to Info (samr_UserInfo)",hf_samr_samr_QueryUserInfo_info);
 
@@ -12057,7 +12059,7 @@ samr_dissect_element_QueryUserInfo_info_(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_QueryUserInfo_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryUserInfo_info__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_UserInfo(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryUserInfo_info, 0);
 
@@ -12071,7 +12073,7 @@ samr_dissect_element_QueryUserInfo_info__(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: ); */
 
 static int
-samr_dissect_QueryUserInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryUserInfo_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -12088,7 +12090,7 @@ samr_dissect_QueryUserInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_QueryUserInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryUserInfo_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="QueryUserInfo";
 	offset = samr_dissect_element_QueryUserInfo_user_handle(tvb, offset, pinfo, tree, di, drep);
@@ -12099,7 +12101,7 @@ samr_dissect_QueryUserInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-samr_dissect_element_SetUserInfo_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetUserInfo_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_SetUserInfo_user_handle_, NDR_POINTER_REF, "Pointer to User Handle (policy_handle)",hf_samr_user_handle);
 
@@ -12107,7 +12109,7 @@ samr_dissect_element_SetUserInfo_user_handle(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_SetUserInfo_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetUserInfo_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_user_handle, 0);
 
@@ -12115,7 +12117,7 @@ samr_dissect_element_SetUserInfo_user_handle_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_SetUserInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetUserInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_UserInfoLevel(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_SetUserInfo_level, 0);
 
@@ -12123,7 +12125,7 @@ samr_dissect_element_SetUserInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_SetUserInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetUserInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_SetUserInfo_info_, NDR_POINTER_REF, "Pointer to Info (samr_UserInfo)",hf_samr_samr_SetUserInfo_info);
 
@@ -12131,7 +12133,7 @@ samr_dissect_element_SetUserInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_SetUserInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetUserInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_UserInfo(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_SetUserInfo_info, 0);
 
@@ -12145,7 +12147,7 @@ samr_dissect_element_SetUserInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: ); */
 
 static int
-samr_dissect_SetUserInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_SetUserInfo_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -12159,7 +12161,7 @@ samr_dissect_SetUserInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-samr_dissect_SetUserInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_SetUserInfo_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="SetUserInfo";
 	offset = samr_dissect_element_SetUserInfo_user_handle(tvb, offset, pinfo, tree, di, drep);
@@ -12172,7 +12174,7 @@ samr_dissect_SetUserInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-samr_dissect_element_ChangePasswordUser_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser_user_handle_, NDR_POINTER_REF, "Pointer to User Handle (policy_handle)",hf_samr_user_handle);
 
@@ -12180,7 +12182,7 @@ samr_dissect_element_ChangePasswordUser_user_handle(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_ChangePasswordUser_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_user_handle, 0);
 
@@ -12188,7 +12190,7 @@ samr_dissect_element_ChangePasswordUser_user_handle_(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_ChangePasswordUser_lm_present(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser_lm_present(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ChangePasswordUser_lm_present, 0);
 
@@ -12196,7 +12198,7 @@ samr_dissect_element_ChangePasswordUser_lm_present(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_ChangePasswordUser_old_lm_crypted(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser_old_lm_crypted(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser_old_lm_crypted_, NDR_POINTER_UNIQUE, "Pointer to Old Lm Crypted (samr_Password)",hf_samr_samr_ChangePasswordUser_old_lm_crypted);
 
@@ -12204,7 +12206,7 @@ samr_dissect_element_ChangePasswordUser_old_lm_crypted(tvbuff_t *tvb _U_, int of
 }
 
 static int
-samr_dissect_element_ChangePasswordUser_old_lm_crypted_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser_old_lm_crypted_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_Password(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser_old_lm_crypted,0);
 
@@ -12212,7 +12214,7 @@ samr_dissect_element_ChangePasswordUser_old_lm_crypted_(tvbuff_t *tvb _U_, int o
 }
 
 static int
-samr_dissect_element_ChangePasswordUser_new_lm_crypted(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser_new_lm_crypted(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser_new_lm_crypted_, NDR_POINTER_UNIQUE, "Pointer to New Lm Crypted (samr_Password)",hf_samr_samr_ChangePasswordUser_new_lm_crypted);
 
@@ -12220,7 +12222,7 @@ samr_dissect_element_ChangePasswordUser_new_lm_crypted(tvbuff_t *tvb _U_, int of
 }
 
 static int
-samr_dissect_element_ChangePasswordUser_new_lm_crypted_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser_new_lm_crypted_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_Password(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser_new_lm_crypted,0);
 
@@ -12228,7 +12230,7 @@ samr_dissect_element_ChangePasswordUser_new_lm_crypted_(tvbuff_t *tvb _U_, int o
 }
 
 static int
-samr_dissect_element_ChangePasswordUser_nt_present(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser_nt_present(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ChangePasswordUser_nt_present, 0);
 
@@ -12236,7 +12238,7 @@ samr_dissect_element_ChangePasswordUser_nt_present(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_ChangePasswordUser_old_nt_crypted(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser_old_nt_crypted(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser_old_nt_crypted_, NDR_POINTER_UNIQUE, "Pointer to Old Nt Crypted (samr_Password)",hf_samr_samr_ChangePasswordUser_old_nt_crypted);
 
@@ -12244,7 +12246,7 @@ samr_dissect_element_ChangePasswordUser_old_nt_crypted(tvbuff_t *tvb _U_, int of
 }
 
 static int
-samr_dissect_element_ChangePasswordUser_old_nt_crypted_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser_old_nt_crypted_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_Password(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser_old_nt_crypted,0);
 
@@ -12252,7 +12254,7 @@ samr_dissect_element_ChangePasswordUser_old_nt_crypted_(tvbuff_t *tvb _U_, int o
 }
 
 static int
-samr_dissect_element_ChangePasswordUser_new_nt_crypted(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser_new_nt_crypted(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser_new_nt_crypted_, NDR_POINTER_UNIQUE, "Pointer to New Nt Crypted (samr_Password)",hf_samr_samr_ChangePasswordUser_new_nt_crypted);
 
@@ -12260,7 +12262,7 @@ samr_dissect_element_ChangePasswordUser_new_nt_crypted(tvbuff_t *tvb _U_, int of
 }
 
 static int
-samr_dissect_element_ChangePasswordUser_new_nt_crypted_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser_new_nt_crypted_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_Password(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser_new_nt_crypted,0);
 
@@ -12268,7 +12270,7 @@ samr_dissect_element_ChangePasswordUser_new_nt_crypted_(tvbuff_t *tvb _U_, int o
 }
 
 static int
-samr_dissect_element_ChangePasswordUser_cross1_present(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser_cross1_present(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ChangePasswordUser_cross1_present, 0);
 
@@ -12276,7 +12278,7 @@ samr_dissect_element_ChangePasswordUser_cross1_present(tvbuff_t *tvb _U_, int of
 }
 
 static int
-samr_dissect_element_ChangePasswordUser_nt_cross(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser_nt_cross(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser_nt_cross_, NDR_POINTER_UNIQUE, "Pointer to Nt Cross (samr_Password)",hf_samr_samr_ChangePasswordUser_nt_cross);
 
@@ -12284,7 +12286,7 @@ samr_dissect_element_ChangePasswordUser_nt_cross(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_ChangePasswordUser_nt_cross_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser_nt_cross_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_Password(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser_nt_cross,0);
 
@@ -12292,7 +12294,7 @@ samr_dissect_element_ChangePasswordUser_nt_cross_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_ChangePasswordUser_cross2_present(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser_cross2_present(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ChangePasswordUser_cross2_present, 0);
 
@@ -12300,7 +12302,7 @@ samr_dissect_element_ChangePasswordUser_cross2_present(tvbuff_t *tvb _U_, int of
 }
 
 static int
-samr_dissect_element_ChangePasswordUser_lm_cross(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser_lm_cross(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser_lm_cross_, NDR_POINTER_UNIQUE, "Pointer to Lm Cross (samr_Password)",hf_samr_samr_ChangePasswordUser_lm_cross);
 
@@ -12308,7 +12310,7 @@ samr_dissect_element_ChangePasswordUser_lm_cross(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_ChangePasswordUser_lm_cross_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser_lm_cross_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_Password(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser_lm_cross,0);
 
@@ -12330,7 +12332,7 @@ samr_dissect_element_ChangePasswordUser_lm_cross_(tvbuff_t *tvb _U_, int offset 
 /* IDL: ); */
 
 static int
-samr_dissect_ChangePasswordUser_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_ChangePasswordUser_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -12344,7 +12346,7 @@ samr_dissect_ChangePasswordUser_response(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_ChangePasswordUser_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_ChangePasswordUser_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="ChangePasswordUser";
 	offset = samr_dissect_element_ChangePasswordUser_user_handle(tvb, offset, pinfo, tree, di, drep);
@@ -12373,7 +12375,7 @@ samr_dissect_ChangePasswordUser_request(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_GetGroupsForUser_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetGroupsForUser_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetGroupsForUser_user_handle_, NDR_POINTER_REF, "Pointer to User Handle (policy_handle)",hf_samr_user_handle);
 
@@ -12381,7 +12383,7 @@ samr_dissect_element_GetGroupsForUser_user_handle(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_GetGroupsForUser_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetGroupsForUser_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_user_handle, 0);
 
@@ -12389,7 +12391,7 @@ samr_dissect_element_GetGroupsForUser_user_handle_(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_GetGroupsForUser_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetGroupsForUser_rids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetGroupsForUser_rids_, NDR_POINTER_REF, "Pointer to Rids (samr_RidWithAttributeArray)",hf_samr_samr_GetGroupsForUser_rids);
 
@@ -12397,7 +12399,7 @@ samr_dissect_element_GetGroupsForUser_rids(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_GetGroupsForUser_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetGroupsForUser_rids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetGroupsForUser_rids__, NDR_POINTER_UNIQUE, "Pointer to Rids (samr_RidWithAttributeArray)",hf_samr_samr_GetGroupsForUser_rids);
 
@@ -12405,7 +12407,7 @@ samr_dissect_element_GetGroupsForUser_rids_(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_GetGroupsForUser_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetGroupsForUser_rids__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_RidWithAttributeArray(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_GetGroupsForUser_rids,0);
 
@@ -12418,7 +12420,7 @@ samr_dissect_element_GetGroupsForUser_rids__(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: ); */
 
 static int
-samr_dissect_GetGroupsForUser_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_GetGroupsForUser_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -12435,7 +12437,7 @@ samr_dissect_GetGroupsForUser_response(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_GetGroupsForUser_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_GetGroupsForUser_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="GetGroupsForUser";
 	offset = samr_dissect_element_GetGroupsForUser_user_handle(tvb, offset, pinfo, tree, di, drep);
@@ -12444,7 +12446,7 @@ samr_dissect_GetGroupsForUser_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryDisplayInfo_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -12452,7 +12454,7 @@ samr_dissect_element_QueryDisplayInfo_domain_handle(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -12460,7 +12462,7 @@ samr_dissect_element_QueryDisplayInfo_domain_handle_(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_DomainDisplayInformation(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo_level, 0);
 
@@ -12468,7 +12470,7 @@ samr_dissect_element_QueryDisplayInfo_level(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo_start_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo_start_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo_start_idx, 0);
 
@@ -12476,7 +12478,7 @@ samr_dissect_element_QueryDisplayInfo_start_idx(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo_max_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo_max_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo_max_entries, 0);
 
@@ -12484,7 +12486,7 @@ samr_dissect_element_QueryDisplayInfo_max_entries(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo_buf_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo_buf_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo_buf_size, 0);
 
@@ -12492,7 +12494,7 @@ samr_dissect_element_QueryDisplayInfo_buf_size(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo_total_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo_total_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryDisplayInfo_total_size_, NDR_POINTER_REF, "Pointer to Total Size (uint32)",hf_samr_samr_QueryDisplayInfo_total_size);
 
@@ -12500,7 +12502,7 @@ samr_dissect_element_QueryDisplayInfo_total_size(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo_total_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo_total_size_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo_total_size, 0);
 
@@ -12508,7 +12510,7 @@ samr_dissect_element_QueryDisplayInfo_total_size_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo_returned_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo_returned_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryDisplayInfo_returned_size_, NDR_POINTER_REF, "Pointer to Returned Size (uint32)",hf_samr_samr_QueryDisplayInfo_returned_size);
 
@@ -12516,7 +12518,7 @@ samr_dissect_element_QueryDisplayInfo_returned_size(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo_returned_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo_returned_size_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo_returned_size, 0);
 
@@ -12524,7 +12526,7 @@ samr_dissect_element_QueryDisplayInfo_returned_size_(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryDisplayInfo_info_, NDR_POINTER_REF, "Pointer to Info (samr_DispInfo)",hf_samr_samr_QueryDisplayInfo_info);
 
@@ -12532,7 +12534,7 @@ samr_dissect_element_QueryDisplayInfo_info(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_DispInfo(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo_info, 0);
 
@@ -12551,7 +12553,7 @@ samr_dissect_element_QueryDisplayInfo_info_(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: ); */
 
 static int
-samr_dissect_QueryDisplayInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryDisplayInfo_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -12574,7 +12576,7 @@ samr_dissect_QueryDisplayInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_QueryDisplayInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryDisplayInfo_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="QueryDisplayInfo";
 	offset = samr_dissect_element_QueryDisplayInfo_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -12591,7 +12593,7 @@ samr_dissect_QueryDisplayInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_GetDisplayEnumerationIndex_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetDisplayEnumerationIndex_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetDisplayEnumerationIndex_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -12599,7 +12601,7 @@ samr_dissect_element_GetDisplayEnumerationIndex_domain_handle(tvbuff_t *tvb _U_,
 }
 
 static int
-samr_dissect_element_GetDisplayEnumerationIndex_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetDisplayEnumerationIndex_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -12607,7 +12609,7 @@ samr_dissect_element_GetDisplayEnumerationIndex_domain_handle_(tvbuff_t *tvb _U_
 }
 
 static int
-samr_dissect_element_GetDisplayEnumerationIndex_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetDisplayEnumerationIndex_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_GetDisplayEnumerationIndex_level, 0);
 
@@ -12615,7 +12617,7 @@ samr_dissect_element_GetDisplayEnumerationIndex_level(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_GetDisplayEnumerationIndex_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetDisplayEnumerationIndex_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetDisplayEnumerationIndex_name_, NDR_POINTER_REF, "Pointer to Name (lsa_String)",hf_samr_samr_GetDisplayEnumerationIndex_name);
 
@@ -12623,7 +12625,7 @@ samr_dissect_element_GetDisplayEnumerationIndex_name(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_GetDisplayEnumerationIndex_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetDisplayEnumerationIndex_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_GetDisplayEnumerationIndex_name);
 
@@ -12631,7 +12633,7 @@ samr_dissect_element_GetDisplayEnumerationIndex_name_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_GetDisplayEnumerationIndex_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetDisplayEnumerationIndex_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetDisplayEnumerationIndex_idx_, NDR_POINTER_REF, "Pointer to Idx (uint32)",hf_samr_samr_GetDisplayEnumerationIndex_idx);
 
@@ -12639,7 +12641,7 @@ samr_dissect_element_GetDisplayEnumerationIndex_idx(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_GetDisplayEnumerationIndex_idx_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetDisplayEnumerationIndex_idx_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_GetDisplayEnumerationIndex_idx, 0);
 
@@ -12654,7 +12656,7 @@ samr_dissect_element_GetDisplayEnumerationIndex_idx_(tvbuff_t *tvb _U_, int offs
 /* IDL: ); */
 
 static int
-samr_dissect_GetDisplayEnumerationIndex_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_GetDisplayEnumerationIndex_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -12671,7 +12673,7 @@ samr_dissect_GetDisplayEnumerationIndex_response(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_GetDisplayEnumerationIndex_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_GetDisplayEnumerationIndex_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="GetDisplayEnumerationIndex";
 	offset = samr_dissect_element_GetDisplayEnumerationIndex_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -12684,7 +12686,7 @@ samr_dissect_GetDisplayEnumerationIndex_request(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_TestPrivateFunctionsDomain_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_TestPrivateFunctionsDomain_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_TestPrivateFunctionsDomain_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -12692,7 +12694,7 @@ samr_dissect_element_TestPrivateFunctionsDomain_domain_handle(tvbuff_t *tvb _U_,
 }
 
 static int
-samr_dissect_element_TestPrivateFunctionsDomain_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_TestPrivateFunctionsDomain_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -12704,7 +12706,7 @@ samr_dissect_element_TestPrivateFunctionsDomain_domain_handle_(tvbuff_t *tvb _U_
 /* IDL: ); */
 
 static int
-samr_dissect_TestPrivateFunctionsDomain_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_TestPrivateFunctionsDomain_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -12718,7 +12720,7 @@ samr_dissect_TestPrivateFunctionsDomain_response(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_TestPrivateFunctionsDomain_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_TestPrivateFunctionsDomain_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="TestPrivateFunctionsDomain";
 	offset = samr_dissect_element_TestPrivateFunctionsDomain_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -12727,7 +12729,7 @@ samr_dissect_TestPrivateFunctionsDomain_request(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_TestPrivateFunctionsUser_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_TestPrivateFunctionsUser_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_TestPrivateFunctionsUser_user_handle_, NDR_POINTER_REF, "Pointer to User Handle (policy_handle)",hf_samr_user_handle);
 
@@ -12735,7 +12737,7 @@ samr_dissect_element_TestPrivateFunctionsUser_user_handle(tvbuff_t *tvb _U_, int
 }
 
 static int
-samr_dissect_element_TestPrivateFunctionsUser_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_TestPrivateFunctionsUser_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_user_handle, 0);
 
@@ -12747,7 +12749,7 @@ samr_dissect_element_TestPrivateFunctionsUser_user_handle_(tvbuff_t *tvb _U_, in
 /* IDL: ); */
 
 static int
-samr_dissect_TestPrivateFunctionsUser_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_TestPrivateFunctionsUser_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -12761,7 +12763,7 @@ samr_dissect_TestPrivateFunctionsUser_response(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_TestPrivateFunctionsUser_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_TestPrivateFunctionsUser_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="TestPrivateFunctionsUser";
 	offset = samr_dissect_element_TestPrivateFunctionsUser_user_handle(tvb, offset, pinfo, tree, di, drep);
@@ -12770,7 +12772,7 @@ samr_dissect_TestPrivateFunctionsUser_request(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_GetUserPwInfo_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetUserPwInfo_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetUserPwInfo_user_handle_, NDR_POINTER_REF, "Pointer to User Handle (policy_handle)",hf_samr_user_handle);
 
@@ -12778,7 +12780,7 @@ samr_dissect_element_GetUserPwInfo_user_handle(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_GetUserPwInfo_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetUserPwInfo_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_user_handle, 0);
 
@@ -12786,7 +12788,7 @@ samr_dissect_element_GetUserPwInfo_user_handle_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_GetUserPwInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetUserPwInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetUserPwInfo_info_, NDR_POINTER_REF, "Pointer to Info (samr_PwInfo)",hf_samr_samr_GetUserPwInfo_info);
 
@@ -12794,7 +12796,7 @@ samr_dissect_element_GetUserPwInfo_info(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_GetUserPwInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetUserPwInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_PwInfo(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_GetUserPwInfo_info,0);
 
@@ -12807,7 +12809,7 @@ samr_dissect_element_GetUserPwInfo_info_(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: ); */
 
 static int
-samr_dissect_GetUserPwInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_GetUserPwInfo_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -12824,7 +12826,7 @@ samr_dissect_GetUserPwInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_GetUserPwInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_GetUserPwInfo_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="GetUserPwInfo";
 	offset = samr_dissect_element_GetUserPwInfo_user_handle(tvb, offset, pinfo, tree, di, drep);
@@ -12833,7 +12835,7 @@ samr_dissect_GetUserPwInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-samr_dissect_element_RemoveMemberFromForeignDomain_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RemoveMemberFromForeignDomain_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_RemoveMemberFromForeignDomain_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -12841,7 +12843,7 @@ samr_dissect_element_RemoveMemberFromForeignDomain_domain_handle(tvbuff_t *tvb _
 }
 
 static int
-samr_dissect_element_RemoveMemberFromForeignDomain_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RemoveMemberFromForeignDomain_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -12849,7 +12851,7 @@ samr_dissect_element_RemoveMemberFromForeignDomain_domain_handle_(tvbuff_t *tvb 
 }
 
 static int
-samr_dissect_element_RemoveMemberFromForeignDomain_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RemoveMemberFromForeignDomain_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_RemoveMemberFromForeignDomain_sid_, NDR_POINTER_REF, "Pointer to Sid (dom_sid2)",hf_samr_samr_RemoveMemberFromForeignDomain_sid);
 
@@ -12857,7 +12859,7 @@ samr_dissect_element_RemoveMemberFromForeignDomain_sid(tvbuff_t *tvb _U_, int of
 }
 
 static int
-samr_dissect_element_RemoveMemberFromForeignDomain_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RemoveMemberFromForeignDomain_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_dom_sid2(tvb, offset, pinfo, tree, di, drep);
 
@@ -12870,7 +12872,7 @@ samr_dissect_element_RemoveMemberFromForeignDomain_sid_(tvbuff_t *tvb _U_, int o
 /* IDL: ); */
 
 static int
-samr_dissect_RemoveMemberFromForeignDomain_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_RemoveMemberFromForeignDomain_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -12884,7 +12886,7 @@ samr_dissect_RemoveMemberFromForeignDomain_response(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_RemoveMemberFromForeignDomain_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_RemoveMemberFromForeignDomain_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="RemoveMemberFromForeignDomain";
 	offset = samr_dissect_element_RemoveMemberFromForeignDomain_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -12895,7 +12897,7 @@ samr_dissect_RemoveMemberFromForeignDomain_request(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_QueryDomainInfo2_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDomainInfo2_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryDomainInfo2_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -12903,7 +12905,7 @@ samr_dissect_element_QueryDomainInfo2_domain_handle(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_QueryDomainInfo2_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDomainInfo2_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -12911,7 +12913,7 @@ samr_dissect_element_QueryDomainInfo2_domain_handle_(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_QueryDomainInfo2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDomainInfo2_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_DomainInfoClass(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDomainInfo2_level, 0);
 
@@ -12919,7 +12921,7 @@ samr_dissect_element_QueryDomainInfo2_level(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_QueryDomainInfo2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDomainInfo2_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryDomainInfo2_info_, NDR_POINTER_REF, "Pointer to Info (samr_DomainInfo)",hf_samr_samr_QueryDomainInfo2_info);
 
@@ -12927,7 +12929,7 @@ samr_dissect_element_QueryDomainInfo2_info(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_QueryDomainInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDomainInfo2_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryDomainInfo2_info__, NDR_POINTER_UNIQUE, "Pointer to Info (samr_DomainInfo)",hf_samr_samr_QueryDomainInfo2_info);
 
@@ -12935,7 +12937,7 @@ samr_dissect_element_QueryDomainInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_QueryDomainInfo2_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDomainInfo2_info__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_DomainInfo(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDomainInfo2_info, 0);
 
@@ -12949,7 +12951,7 @@ samr_dissect_element_QueryDomainInfo2_info__(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: ); */
 
 static int
-samr_dissect_QueryDomainInfo2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryDomainInfo2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -12966,7 +12968,7 @@ samr_dissect_QueryDomainInfo2_response(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_QueryDomainInfo2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryDomainInfo2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="QueryDomainInfo2";
 	offset = samr_dissect_element_QueryDomainInfo2_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -12977,7 +12979,7 @@ samr_dissect_QueryDomainInfo2_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_QueryUserInfo2_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryUserInfo2_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryUserInfo2_user_handle_, NDR_POINTER_REF, "Pointer to User Handle (policy_handle)",hf_samr_user_handle);
 
@@ -12985,7 +12987,7 @@ samr_dissect_element_QueryUserInfo2_user_handle(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_QueryUserInfo2_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryUserInfo2_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_user_handle, 0);
 
@@ -12993,7 +12995,7 @@ samr_dissect_element_QueryUserInfo2_user_handle_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_QueryUserInfo2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryUserInfo2_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_UserInfoLevel(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryUserInfo2_level, 0);
 
@@ -13001,7 +13003,7 @@ samr_dissect_element_QueryUserInfo2_level(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_QueryUserInfo2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryUserInfo2_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryUserInfo2_info_, NDR_POINTER_REF, "Pointer to Info (samr_UserInfo)",hf_samr_samr_QueryUserInfo2_info);
 
@@ -13009,7 +13011,7 @@ samr_dissect_element_QueryUserInfo2_info(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_QueryUserInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryUserInfo2_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryUserInfo2_info__, NDR_POINTER_UNIQUE, "Pointer to Info (samr_UserInfo)",hf_samr_samr_QueryUserInfo2_info);
 
@@ -13017,7 +13019,7 @@ samr_dissect_element_QueryUserInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_QueryUserInfo2_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryUserInfo2_info__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_UserInfo(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryUserInfo2_info, 0);
 
@@ -13031,7 +13033,7 @@ samr_dissect_element_QueryUserInfo2_info__(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: ); */
 
 static int
-samr_dissect_QueryUserInfo2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryUserInfo2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -13048,7 +13050,7 @@ samr_dissect_QueryUserInfo2_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_QueryUserInfo2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryUserInfo2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="QueryUserInfo2";
 	offset = samr_dissect_element_QueryUserInfo2_user_handle(tvb, offset, pinfo, tree, di, drep);
@@ -13059,7 +13061,7 @@ samr_dissect_QueryUserInfo2_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo2_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo2_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryDisplayInfo2_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -13067,7 +13069,7 @@ samr_dissect_element_QueryDisplayInfo2_domain_handle(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo2_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo2_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -13075,7 +13077,7 @@ samr_dissect_element_QueryDisplayInfo2_domain_handle_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo2_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_DomainDisplayInformation(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo2_level, 0);
 
@@ -13083,7 +13085,7 @@ samr_dissect_element_QueryDisplayInfo2_level(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo2_start_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo2_start_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo2_start_idx, 0);
 
@@ -13091,7 +13093,7 @@ samr_dissect_element_QueryDisplayInfo2_start_idx(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo2_max_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo2_max_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo2_max_entries, 0);
 
@@ -13099,7 +13101,7 @@ samr_dissect_element_QueryDisplayInfo2_max_entries(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo2_buf_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo2_buf_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo2_buf_size, 0);
 
@@ -13107,7 +13109,7 @@ samr_dissect_element_QueryDisplayInfo2_buf_size(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo2_total_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo2_total_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryDisplayInfo2_total_size_, NDR_POINTER_REF, "Pointer to Total Size (uint32)",hf_samr_samr_QueryDisplayInfo2_total_size);
 
@@ -13115,7 +13117,7 @@ samr_dissect_element_QueryDisplayInfo2_total_size(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo2_total_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo2_total_size_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo2_total_size, 0);
 
@@ -13123,7 +13125,7 @@ samr_dissect_element_QueryDisplayInfo2_total_size_(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo2_returned_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo2_returned_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryDisplayInfo2_returned_size_, NDR_POINTER_REF, "Pointer to Returned Size (uint32)",hf_samr_samr_QueryDisplayInfo2_returned_size);
 
@@ -13131,7 +13133,7 @@ samr_dissect_element_QueryDisplayInfo2_returned_size(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo2_returned_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo2_returned_size_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo2_returned_size, 0);
 
@@ -13139,7 +13141,7 @@ samr_dissect_element_QueryDisplayInfo2_returned_size_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo2_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryDisplayInfo2_info_, NDR_POINTER_REF, "Pointer to Info (samr_DispInfo)",hf_samr_samr_QueryDisplayInfo2_info);
 
@@ -13147,7 +13149,7 @@ samr_dissect_element_QueryDisplayInfo2_info(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo2_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_DispInfo(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo2_info, 0);
 
@@ -13166,7 +13168,7 @@ samr_dissect_element_QueryDisplayInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: ); */
 
 static int
-samr_dissect_QueryDisplayInfo2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryDisplayInfo2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -13189,7 +13191,7 @@ samr_dissect_QueryDisplayInfo2_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_QueryDisplayInfo2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryDisplayInfo2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="QueryDisplayInfo2";
 	offset = samr_dissect_element_QueryDisplayInfo2_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -13206,7 +13208,7 @@ samr_dissect_QueryDisplayInfo2_request(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_GetDisplayEnumerationIndex2_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetDisplayEnumerationIndex2_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetDisplayEnumerationIndex2_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -13214,7 +13216,7 @@ samr_dissect_element_GetDisplayEnumerationIndex2_domain_handle(tvbuff_t *tvb _U_
 }
 
 static int
-samr_dissect_element_GetDisplayEnumerationIndex2_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetDisplayEnumerationIndex2_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -13222,7 +13224,7 @@ samr_dissect_element_GetDisplayEnumerationIndex2_domain_handle_(tvbuff_t *tvb _U
 }
 
 static int
-samr_dissect_element_GetDisplayEnumerationIndex2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetDisplayEnumerationIndex2_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_DomainDisplayInformation(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_GetDisplayEnumerationIndex2_level, 0);
 
@@ -13230,7 +13232,7 @@ samr_dissect_element_GetDisplayEnumerationIndex2_level(tvbuff_t *tvb _U_, int of
 }
 
 static int
-samr_dissect_element_GetDisplayEnumerationIndex2_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetDisplayEnumerationIndex2_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetDisplayEnumerationIndex2_name_, NDR_POINTER_REF, "Pointer to Name (lsa_String)",hf_samr_samr_GetDisplayEnumerationIndex2_name);
 
@@ -13238,7 +13240,7 @@ samr_dissect_element_GetDisplayEnumerationIndex2_name(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_GetDisplayEnumerationIndex2_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetDisplayEnumerationIndex2_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_GetDisplayEnumerationIndex2_name);
 
@@ -13246,7 +13248,7 @@ samr_dissect_element_GetDisplayEnumerationIndex2_name_(tvbuff_t *tvb _U_, int of
 }
 
 static int
-samr_dissect_element_GetDisplayEnumerationIndex2_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetDisplayEnumerationIndex2_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetDisplayEnumerationIndex2_idx_, NDR_POINTER_REF, "Pointer to Idx (uint32)",hf_samr_samr_GetDisplayEnumerationIndex2_idx);
 
@@ -13254,7 +13256,7 @@ samr_dissect_element_GetDisplayEnumerationIndex2_idx(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_GetDisplayEnumerationIndex2_idx_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetDisplayEnumerationIndex2_idx_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_GetDisplayEnumerationIndex2_idx, 0);
 
@@ -13269,7 +13271,7 @@ samr_dissect_element_GetDisplayEnumerationIndex2_idx_(tvbuff_t *tvb _U_, int off
 /* IDL: ); */
 
 static int
-samr_dissect_GetDisplayEnumerationIndex2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_GetDisplayEnumerationIndex2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -13286,7 +13288,7 @@ samr_dissect_GetDisplayEnumerationIndex2_response(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_GetDisplayEnumerationIndex2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_GetDisplayEnumerationIndex2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="GetDisplayEnumerationIndex2";
 	offset = samr_dissect_element_GetDisplayEnumerationIndex2_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -13299,7 +13301,7 @@ samr_dissect_GetDisplayEnumerationIndex2_request(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_CreateUser2_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser2_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_CreateUser2_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -13307,7 +13309,7 @@ samr_dissect_element_CreateUser2_domain_handle(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_CreateUser2_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser2_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -13315,7 +13317,7 @@ samr_dissect_element_CreateUser2_domain_handle_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_CreateUser2_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser2_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_CreateUser2_account_name_, NDR_POINTER_REF, "Pointer to Account Name (lsa_String)",hf_samr_samr_CreateUser2_account_name);
 
@@ -13323,7 +13325,7 @@ samr_dissect_element_CreateUser2_account_name(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_CreateUser2_account_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser2_account_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 3|PIDL_SET_COL_INFO|PIDL_STR_SAVE, hf_samr_samr_CreateUser2_account_name);
 
@@ -13331,7 +13333,7 @@ samr_dissect_element_CreateUser2_account_name_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_CreateUser2_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser2_acct_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_AcctFlags(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_CreateUser2_acct_flags, 0);
 
@@ -13339,7 +13341,7 @@ samr_dissect_element_CreateUser2_acct_flags(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_CreateUser2_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser2_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_UserAccessMask(tvb, offset, pinfo, tree, di, drep, hf_samr_user_access_mask, 0);
 
@@ -13347,7 +13349,7 @@ samr_dissect_element_CreateUser2_access_mask(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_CreateUser2_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser2_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_CreateUser2_user_handle_, NDR_POINTER_REF, "Pointer to User Handle (policy_handle)",hf_samr_user_handle);
 
@@ -13355,7 +13357,7 @@ samr_dissect_element_CreateUser2_user_handle(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_CreateUser2_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser2_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_user_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_USER);
 
@@ -13363,7 +13365,7 @@ samr_dissect_element_CreateUser2_user_handle_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_CreateUser2_access_granted(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser2_access_granted(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_CreateUser2_access_granted_, NDR_POINTER_REF, "Pointer to Access Granted (uint32)",hf_samr_samr_CreateUser2_access_granted);
 
@@ -13371,7 +13373,7 @@ samr_dissect_element_CreateUser2_access_granted(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_CreateUser2_access_granted_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser2_access_granted_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_CreateUser2_access_granted, 0);
 
@@ -13379,7 +13381,7 @@ samr_dissect_element_CreateUser2_access_granted_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_CreateUser2_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser2_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_CreateUser2_rid_, NDR_POINTER_REF, "Pointer to Rid (uint32)",hf_samr_rid);
 
@@ -13387,7 +13389,7 @@ samr_dissect_element_CreateUser2_rid(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_CreateUser2_rid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_CreateUser2_rid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -13405,7 +13407,7 @@ samr_dissect_element_CreateUser2_rid_(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: ); */
 
 static int
-samr_dissect_CreateUser2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_CreateUser2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -13428,7 +13430,7 @@ samr_dissect_CreateUser2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-samr_dissect_CreateUser2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_CreateUser2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="CreateUser2";
 	offset = samr_dissect_element_CreateUser2_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -13443,7 +13445,7 @@ samr_dissect_CreateUser2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo3_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo3_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryDisplayInfo3_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -13451,7 +13453,7 @@ samr_dissect_element_QueryDisplayInfo3_domain_handle(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo3_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo3_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -13459,7 +13461,7 @@ samr_dissect_element_QueryDisplayInfo3_domain_handle_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo3_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo3_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_DomainDisplayInformation(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo3_level, 0);
 
@@ -13467,7 +13469,7 @@ samr_dissect_element_QueryDisplayInfo3_level(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo3_start_idx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo3_start_idx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo3_start_idx, 0);
 
@@ -13475,7 +13477,7 @@ samr_dissect_element_QueryDisplayInfo3_start_idx(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo3_max_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo3_max_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo3_max_entries, 0);
 
@@ -13483,7 +13485,7 @@ samr_dissect_element_QueryDisplayInfo3_max_entries(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo3_buf_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo3_buf_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo3_buf_size, 0);
 
@@ -13491,7 +13493,7 @@ samr_dissect_element_QueryDisplayInfo3_buf_size(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo3_total_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo3_total_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryDisplayInfo3_total_size_, NDR_POINTER_REF, "Pointer to Total Size (uint32)",hf_samr_samr_QueryDisplayInfo3_total_size);
 
@@ -13499,7 +13501,7 @@ samr_dissect_element_QueryDisplayInfo3_total_size(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo3_total_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo3_total_size_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo3_total_size, 0);
 
@@ -13507,7 +13509,7 @@ samr_dissect_element_QueryDisplayInfo3_total_size_(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo3_returned_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo3_returned_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryDisplayInfo3_returned_size_, NDR_POINTER_REF, "Pointer to Returned Size (uint32)",hf_samr_samr_QueryDisplayInfo3_returned_size);
 
@@ -13515,7 +13517,7 @@ samr_dissect_element_QueryDisplayInfo3_returned_size(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo3_returned_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo3_returned_size_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo3_returned_size, 0);
 
@@ -13523,7 +13525,7 @@ samr_dissect_element_QueryDisplayInfo3_returned_size_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo3_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo3_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_QueryDisplayInfo3_info_, NDR_POINTER_REF, "Pointer to Info (samr_DispInfo)",hf_samr_samr_QueryDisplayInfo3_info);
 
@@ -13531,7 +13533,7 @@ samr_dissect_element_QueryDisplayInfo3_info(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_QueryDisplayInfo3_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_QueryDisplayInfo3_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_DispInfo(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_QueryDisplayInfo3_info, 0);
 
@@ -13550,7 +13552,7 @@ samr_dissect_element_QueryDisplayInfo3_info_(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: ); */
 
 static int
-samr_dissect_QueryDisplayInfo3_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryDisplayInfo3_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -13573,7 +13575,7 @@ samr_dissect_QueryDisplayInfo3_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_QueryDisplayInfo3_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_QueryDisplayInfo3_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="QueryDisplayInfo3";
 	offset = samr_dissect_element_QueryDisplayInfo3_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -13590,7 +13592,7 @@ samr_dissect_QueryDisplayInfo3_request(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_AddMultipleMembersToAlias_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_AddMultipleMembersToAlias_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_AddMultipleMembersToAlias_alias_handle_, NDR_POINTER_REF, "Pointer to Alias Handle (policy_handle)",hf_samr_alias_handle);
 
@@ -13598,7 +13600,7 @@ samr_dissect_element_AddMultipleMembersToAlias_alias_handle(tvbuff_t *tvb _U_, i
 }
 
 static int
-samr_dissect_element_AddMultipleMembersToAlias_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_AddMultipleMembersToAlias_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_alias_handle, 0);
 
@@ -13606,7 +13608,7 @@ samr_dissect_element_AddMultipleMembersToAlias_alias_handle_(tvbuff_t *tvb _U_, 
 }
 
 static int
-samr_dissect_element_AddMultipleMembersToAlias_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_AddMultipleMembersToAlias_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_AddMultipleMembersToAlias_sids_, NDR_POINTER_REF, "Pointer to Sids (lsa_SidArray)",hf_samr_samr_AddMultipleMembersToAlias_sids);
 
@@ -13614,7 +13616,7 @@ samr_dissect_element_AddMultipleMembersToAlias_sids(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_AddMultipleMembersToAlias_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_AddMultipleMembersToAlias_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_lsa_SidArray(tvb, offset, pinfo, tree, di, drep);
 
@@ -13627,7 +13629,7 @@ samr_dissect_element_AddMultipleMembersToAlias_sids_(tvbuff_t *tvb _U_, int offs
 /* IDL: ); */
 
 static int
-samr_dissect_AddMultipleMembersToAlias_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_AddMultipleMembersToAlias_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -13641,7 +13643,7 @@ samr_dissect_AddMultipleMembersToAlias_response(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_AddMultipleMembersToAlias_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_AddMultipleMembersToAlias_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="AddMultipleMembersToAlias";
 	offset = samr_dissect_element_AddMultipleMembersToAlias_alias_handle(tvb, offset, pinfo, tree, di, drep);
@@ -13652,7 +13654,7 @@ samr_dissect_AddMultipleMembersToAlias_request(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_RemoveMultipleMembersFromAlias_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RemoveMultipleMembersFromAlias_alias_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_RemoveMultipleMembersFromAlias_alias_handle_, NDR_POINTER_REF, "Pointer to Alias Handle (policy_handle)",hf_samr_alias_handle);
 
@@ -13660,7 +13662,7 @@ samr_dissect_element_RemoveMultipleMembersFromAlias_alias_handle(tvbuff_t *tvb _
 }
 
 static int
-samr_dissect_element_RemoveMultipleMembersFromAlias_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RemoveMultipleMembersFromAlias_alias_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_alias_handle, 0);
 
@@ -13668,7 +13670,7 @@ samr_dissect_element_RemoveMultipleMembersFromAlias_alias_handle_(tvbuff_t *tvb 
 }
 
 static int
-samr_dissect_element_RemoveMultipleMembersFromAlias_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RemoveMultipleMembersFromAlias_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_RemoveMultipleMembersFromAlias_sids_, NDR_POINTER_REF, "Pointer to Sids (lsa_SidArray)",hf_samr_samr_RemoveMultipleMembersFromAlias_sids);
 
@@ -13676,7 +13678,7 @@ samr_dissect_element_RemoveMultipleMembersFromAlias_sids(tvbuff_t *tvb _U_, int 
 }
 
 static int
-samr_dissect_element_RemoveMultipleMembersFromAlias_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RemoveMultipleMembersFromAlias_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_lsa_SidArray(tvb, offset, pinfo, tree, di, drep);
 
@@ -13689,7 +13691,7 @@ samr_dissect_element_RemoveMultipleMembersFromAlias_sids_(tvbuff_t *tvb _U_, int
 /* IDL: ); */
 
 static int
-samr_dissect_RemoveMultipleMembersFromAlias_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_RemoveMultipleMembersFromAlias_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -13703,7 +13705,7 @@ samr_dissect_RemoveMultipleMembersFromAlias_response(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_RemoveMultipleMembersFromAlias_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_RemoveMultipleMembersFromAlias_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="RemoveMultipleMembersFromAlias";
 	offset = samr_dissect_element_RemoveMultipleMembersFromAlias_alias_handle(tvb, offset, pinfo, tree, di, drep);
@@ -13714,7 +13716,7 @@ samr_dissect_RemoveMultipleMembersFromAlias_request(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_OemChangePasswordUser2_server(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OemChangePasswordUser2_server(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_OemChangePasswordUser2_server_, NDR_POINTER_UNIQUE, "Pointer to Server (lsa_AsciiString)",hf_samr_samr_OemChangePasswordUser2_server);
 
@@ -13722,7 +13724,7 @@ samr_dissect_element_OemChangePasswordUser2_server(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_OemChangePasswordUser2_server_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OemChangePasswordUser2_server_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_lsa_AsciiString(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_OemChangePasswordUser2_server);
 
@@ -13730,7 +13732,7 @@ samr_dissect_element_OemChangePasswordUser2_server_(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_OemChangePasswordUser2_account(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OemChangePasswordUser2_account(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_OemChangePasswordUser2_account_, NDR_POINTER_REF, "Pointer to Account (lsa_AsciiString)",hf_samr_samr_OemChangePasswordUser2_account);
 
@@ -13738,7 +13740,7 @@ samr_dissect_element_OemChangePasswordUser2_account(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_OemChangePasswordUser2_account_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OemChangePasswordUser2_account_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_lsa_AsciiString(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_OemChangePasswordUser2_account);
 
@@ -13746,7 +13748,7 @@ samr_dissect_element_OemChangePasswordUser2_account_(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_OemChangePasswordUser2_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OemChangePasswordUser2_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_OemChangePasswordUser2_password_, NDR_POINTER_UNIQUE, "Pointer to Password (samr_CryptPassword)",hf_samr_samr_OemChangePasswordUser2_password);
 
@@ -13754,7 +13756,7 @@ samr_dissect_element_OemChangePasswordUser2_password(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_OemChangePasswordUser2_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OemChangePasswordUser2_password_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_CryptPassword(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_OemChangePasswordUser2_password,0);
 
@@ -13762,7 +13764,7 @@ samr_dissect_element_OemChangePasswordUser2_password_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_OemChangePasswordUser2_hash(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OemChangePasswordUser2_hash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_OemChangePasswordUser2_hash_, NDR_POINTER_UNIQUE, "Pointer to Hash (samr_Password)",hf_samr_samr_OemChangePasswordUser2_hash);
 
@@ -13770,7 +13772,7 @@ samr_dissect_element_OemChangePasswordUser2_hash(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_OemChangePasswordUser2_hash_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_OemChangePasswordUser2_hash_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_Password(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_OemChangePasswordUser2_hash,0);
 
@@ -13785,7 +13787,7 @@ samr_dissect_element_OemChangePasswordUser2_hash_(tvbuff_t *tvb _U_, int offset 
 /* IDL: ); */
 
 static int
-samr_dissect_OemChangePasswordUser2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_OemChangePasswordUser2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -13799,7 +13801,7 @@ samr_dissect_OemChangePasswordUser2_response(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_OemChangePasswordUser2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_OemChangePasswordUser2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="OemChangePasswordUser2";
 	offset = samr_dissect_element_OemChangePasswordUser2_server(tvb, offset, pinfo, tree, di, drep);
@@ -13814,7 +13816,7 @@ samr_dissect_OemChangePasswordUser2_request(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_ChangePasswordUser2_server(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser2_server(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser2_server_, NDR_POINTER_UNIQUE, "Pointer to Server (lsa_String)",hf_samr_samr_ChangePasswordUser2_server);
 
@@ -13822,7 +13824,7 @@ samr_dissect_element_ChangePasswordUser2_server(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_ChangePasswordUser2_server_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser2_server_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_ChangePasswordUser2_server);
 
@@ -13830,7 +13832,7 @@ samr_dissect_element_ChangePasswordUser2_server_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_ChangePasswordUser2_account(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser2_account(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser2_account_, NDR_POINTER_REF, "Pointer to Account (lsa_String)",hf_samr_samr_ChangePasswordUser2_account);
 
@@ -13838,7 +13840,7 @@ samr_dissect_element_ChangePasswordUser2_account(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_ChangePasswordUser2_account_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser2_account_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_ChangePasswordUser2_account);
 
@@ -13846,7 +13848,7 @@ samr_dissect_element_ChangePasswordUser2_account_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_ChangePasswordUser2_nt_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser2_nt_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser2_nt_password_, NDR_POINTER_UNIQUE, "Pointer to Nt Password (samr_CryptPassword)",hf_samr_samr_ChangePasswordUser2_nt_password);
 
@@ -13854,7 +13856,7 @@ samr_dissect_element_ChangePasswordUser2_nt_password(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_ChangePasswordUser2_nt_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser2_nt_password_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_CryptPassword(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser2_nt_password,0);
 
@@ -13862,7 +13864,7 @@ samr_dissect_element_ChangePasswordUser2_nt_password_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_ChangePasswordUser2_nt_verifier(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser2_nt_verifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser2_nt_verifier_, NDR_POINTER_UNIQUE, "Pointer to Nt Verifier (samr_Password)",hf_samr_samr_ChangePasswordUser2_nt_verifier);
 
@@ -13870,7 +13872,7 @@ samr_dissect_element_ChangePasswordUser2_nt_verifier(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_ChangePasswordUser2_nt_verifier_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser2_nt_verifier_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_Password(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser2_nt_verifier,0);
 
@@ -13878,7 +13880,7 @@ samr_dissect_element_ChangePasswordUser2_nt_verifier_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_ChangePasswordUser2_lm_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser2_lm_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ChangePasswordUser2_lm_change, 0);
 
@@ -13886,7 +13888,7 @@ samr_dissect_element_ChangePasswordUser2_lm_change(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_ChangePasswordUser2_lm_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser2_lm_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser2_lm_password_, NDR_POINTER_UNIQUE, "Pointer to Lm Password (samr_CryptPassword)",hf_samr_samr_ChangePasswordUser2_lm_password);
 
@@ -13894,7 +13896,7 @@ samr_dissect_element_ChangePasswordUser2_lm_password(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_ChangePasswordUser2_lm_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser2_lm_password_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_CryptPassword(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser2_lm_password,0);
 
@@ -13902,7 +13904,7 @@ samr_dissect_element_ChangePasswordUser2_lm_password_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_ChangePasswordUser2_lm_verifier(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser2_lm_verifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser2_lm_verifier_, NDR_POINTER_UNIQUE, "Pointer to Lm Verifier (samr_Password)",hf_samr_samr_ChangePasswordUser2_lm_verifier);
 
@@ -13910,7 +13912,7 @@ samr_dissect_element_ChangePasswordUser2_lm_verifier(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_ChangePasswordUser2_lm_verifier_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser2_lm_verifier_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_Password(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser2_lm_verifier,0);
 
@@ -13928,7 +13930,7 @@ samr_dissect_element_ChangePasswordUser2_lm_verifier_(tvbuff_t *tvb _U_, int off
 /* IDL: ); */
 
 static int
-samr_dissect_ChangePasswordUser2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_ChangePasswordUser2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -13942,7 +13944,7 @@ samr_dissect_ChangePasswordUser2_response(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_ChangePasswordUser2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_ChangePasswordUser2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="ChangePasswordUser2";
 	offset = samr_dissect_element_ChangePasswordUser2_server(tvb, offset, pinfo, tree, di, drep);
@@ -13963,7 +13965,7 @@ samr_dissect_ChangePasswordUser2_request(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_GetDomPwInfo_domain_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetDomPwInfo_domain_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetDomPwInfo_domain_name_, NDR_POINTER_UNIQUE, "Pointer to Domain Name (lsa_String)",hf_samr_samr_GetDomPwInfo_domain_name);
 
@@ -13971,7 +13973,7 @@ samr_dissect_element_GetDomPwInfo_domain_name(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_GetDomPwInfo_domain_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetDomPwInfo_domain_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 3|PIDL_SET_COL_INFO, hf_samr_samr_GetDomPwInfo_domain_name);
 
@@ -13979,7 +13981,7 @@ samr_dissect_element_GetDomPwInfo_domain_name_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_GetDomPwInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetDomPwInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetDomPwInfo_info_, NDR_POINTER_REF, "Pointer to Info (samr_PwInfo)",hf_samr_samr_GetDomPwInfo_info);
 
@@ -13987,7 +13989,7 @@ samr_dissect_element_GetDomPwInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_GetDomPwInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetDomPwInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_PwInfo(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_GetDomPwInfo_info,0);
 
@@ -14000,7 +14002,7 @@ samr_dissect_element_GetDomPwInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: ); */
 
 static int
-samr_dissect_GetDomPwInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_GetDomPwInfo_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -14017,7 +14019,7 @@ samr_dissect_GetDomPwInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-samr_dissect_GetDomPwInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_GetDomPwInfo_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="GetDomPwInfo";
 	offset = samr_dissect_element_GetDomPwInfo_domain_name(tvb, offset, pinfo, tree, di, drep);
@@ -14026,7 +14028,7 @@ samr_dissect_GetDomPwInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-samr_dissect_element_Connect2_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect2_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_Connect2_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_samr_samr_Connect2_system_name);
 
@@ -14034,7 +14036,7 @@ samr_dissect_element_Connect2_system_name(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_Connect2_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect2_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 
@@ -14045,7 +14047,7 @@ samr_dissect_element_Connect2_system_name_(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_Connect2_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect2_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_ConnectAccessMask(tvb, offset, pinfo, tree, di, drep, hf_samr_connect_access_mask, 0);
 
@@ -14053,7 +14055,7 @@ samr_dissect_element_Connect2_access_mask(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_Connect2_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect2_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_Connect2_connect_handle_, NDR_POINTER_REF, "Pointer to Connect Handle (policy_handle)",hf_samr_connect_handle);
 
@@ -14061,7 +14063,7 @@ samr_dissect_element_Connect2_connect_handle(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_Connect2_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect2_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_connect_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_CONNECT);
 
@@ -14075,7 +14077,7 @@ samr_dissect_element_Connect2_connect_handle_(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: ); */
 
 static int
-samr_dissect_Connect2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_Connect2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -14092,7 +14094,7 @@ samr_dissect_Connect2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 }
 
 static int
-samr_dissect_Connect2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_Connect2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="Connect2";
 	offset = samr_dissect_element_Connect2_system_name(tvb, offset, pinfo, tree, di, drep);
@@ -14103,7 +14105,7 @@ samr_dissect_Connect2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 }
 
 static int
-samr_dissect_element_SetUserInfo2_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetUserInfo2_user_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_SetUserInfo2_user_handle_, NDR_POINTER_REF, "Pointer to User Handle (policy_handle)",hf_samr_user_handle);
 
@@ -14111,7 +14113,7 @@ samr_dissect_element_SetUserInfo2_user_handle(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-samr_dissect_element_SetUserInfo2_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetUserInfo2_user_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_user_handle, 0);
 
@@ -14119,7 +14121,7 @@ samr_dissect_element_SetUserInfo2_user_handle_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_SetUserInfo2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetUserInfo2_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_UserInfoLevel(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_SetUserInfo2_level, 0);
 
@@ -14127,7 +14129,7 @@ samr_dissect_element_SetUserInfo2_level(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_SetUserInfo2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetUserInfo2_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_SetUserInfo2_info_, NDR_POINTER_REF, "Pointer to Info (samr_UserInfo)",hf_samr_samr_SetUserInfo2_info);
 
@@ -14135,7 +14137,7 @@ samr_dissect_element_SetUserInfo2_info(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_SetUserInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetUserInfo2_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_UserInfo(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_SetUserInfo2_info, 0);
 
@@ -14149,7 +14151,7 @@ samr_dissect_element_SetUserInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: ); */
 
 static int
-samr_dissect_SetUserInfo2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_SetUserInfo2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -14163,7 +14165,7 @@ samr_dissect_SetUserInfo2_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-samr_dissect_SetUserInfo2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_SetUserInfo2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="SetUserInfo2";
 	offset = samr_dissect_element_SetUserInfo2_user_handle(tvb, offset, pinfo, tree, di, drep);
@@ -14176,7 +14178,7 @@ samr_dissect_SetUserInfo2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-samr_dissect_element_SetBootKeyInformation_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetBootKeyInformation_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_SetBootKeyInformation_connect_handle_, NDR_POINTER_REF, "Pointer to Connect Handle (policy_handle)",hf_samr_connect_handle);
 
@@ -14184,7 +14186,7 @@ samr_dissect_element_SetBootKeyInformation_connect_handle(tvbuff_t *tvb _U_, int
 }
 
 static int
-samr_dissect_element_SetBootKeyInformation_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetBootKeyInformation_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_connect_handle, 0);
 
@@ -14192,7 +14194,7 @@ samr_dissect_element_SetBootKeyInformation_connect_handle_(tvbuff_t *tvb _U_, in
 }
 
 static int
-samr_dissect_element_SetBootKeyInformation_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetBootKeyInformation_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_SetBootKeyInformation_unknown1, 0);
 
@@ -14200,7 +14202,7 @@ samr_dissect_element_SetBootKeyInformation_unknown1(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_SetBootKeyInformation_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetBootKeyInformation_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_SetBootKeyInformation_unknown2, 0);
 
@@ -14208,7 +14210,7 @@ samr_dissect_element_SetBootKeyInformation_unknown2(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_SetBootKeyInformation_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetBootKeyInformation_unknown3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_SetBootKeyInformation_unknown3, 0);
 
@@ -14223,7 +14225,7 @@ samr_dissect_element_SetBootKeyInformation_unknown3(tvbuff_t *tvb _U_, int offse
 /* IDL: ); */
 
 static int
-samr_dissect_SetBootKeyInformation_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_SetBootKeyInformation_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -14237,7 +14239,7 @@ samr_dissect_SetBootKeyInformation_response(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_SetBootKeyInformation_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_SetBootKeyInformation_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="SetBootKeyInformation";
 	offset = samr_dissect_element_SetBootKeyInformation_connect_handle(tvb, offset, pinfo, tree, di, drep);
@@ -14252,7 +14254,7 @@ samr_dissect_SetBootKeyInformation_request(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_GetBootKeyInformation_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetBootKeyInformation_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetBootKeyInformation_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_samr_GetBootKeyInformation_domain_handle);
 
@@ -14260,7 +14262,7 @@ samr_dissect_element_GetBootKeyInformation_domain_handle(tvbuff_t *tvb _U_, int 
 }
 
 static int
-samr_dissect_element_GetBootKeyInformation_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetBootKeyInformation_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_GetBootKeyInformation_domain_handle, 0);
 
@@ -14268,7 +14270,7 @@ samr_dissect_element_GetBootKeyInformation_domain_handle_(tvbuff_t *tvb _U_, int
 }
 
 static int
-samr_dissect_element_GetBootKeyInformation_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetBootKeyInformation_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetBootKeyInformation_unknown_, NDR_POINTER_REF, "Pointer to Unknown (uint32)",hf_samr_samr_GetBootKeyInformation_unknown);
 
@@ -14276,7 +14278,7 @@ samr_dissect_element_GetBootKeyInformation_unknown(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_GetBootKeyInformation_unknown_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_GetBootKeyInformation_unknown_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_GetBootKeyInformation_unknown, 0);
 
@@ -14289,7 +14291,7 @@ samr_dissect_element_GetBootKeyInformation_unknown_(tvbuff_t *tvb _U_, int offse
 /* IDL: ); */
 
 static int
-samr_dissect_GetBootKeyInformation_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_GetBootKeyInformation_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -14306,7 +14308,7 @@ samr_dissect_GetBootKeyInformation_response(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_GetBootKeyInformation_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_GetBootKeyInformation_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="GetBootKeyInformation";
 	offset = samr_dissect_element_GetBootKeyInformation_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -14315,7 +14317,7 @@ samr_dissect_GetBootKeyInformation_request(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_Connect3_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect3_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_Connect3_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_samr_samr_Connect3_system_name);
 
@@ -14323,7 +14325,7 @@ samr_dissect_element_Connect3_system_name(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_Connect3_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect3_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 
@@ -14334,7 +14336,7 @@ samr_dissect_element_Connect3_system_name_(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_Connect3_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect3_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_Connect3_unknown, 0);
 
@@ -14342,7 +14344,7 @@ samr_dissect_element_Connect3_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_Connect3_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect3_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_ConnectAccessMask(tvb, offset, pinfo, tree, di, drep, hf_samr_connect_access_mask, 0);
 
@@ -14350,7 +14352,7 @@ samr_dissect_element_Connect3_access_mask(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_Connect3_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect3_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_Connect3_connect_handle_, NDR_POINTER_REF, "Pointer to Connect Handle (policy_handle)",hf_samr_connect_handle);
 
@@ -14358,7 +14360,7 @@ samr_dissect_element_Connect3_connect_handle(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_Connect3_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect3_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_connect_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_CONNECT);
 
@@ -14373,7 +14375,7 @@ samr_dissect_element_Connect3_connect_handle_(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: ); */
 
 static int
-samr_dissect_Connect3_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_Connect3_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -14390,7 +14392,7 @@ samr_dissect_Connect3_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 }
 
 static int
-samr_dissect_Connect3_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_Connect3_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="Connect3";
 	offset = samr_dissect_element_Connect3_system_name(tvb, offset, pinfo, tree, di, drep);
@@ -14403,7 +14405,7 @@ samr_dissect_Connect3_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 }
 
 static int
-samr_dissect_element_Connect4_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect4_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_Connect4_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_samr_samr_Connect4_system_name);
 
@@ -14411,7 +14413,7 @@ samr_dissect_element_Connect4_system_name(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_Connect4_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect4_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 
@@ -14422,7 +14424,7 @@ samr_dissect_element_Connect4_system_name_(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_Connect4_client_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect4_client_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_ConnectVersion(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_Connect4_client_version, 0);
 
@@ -14430,7 +14432,7 @@ samr_dissect_element_Connect4_client_version(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_Connect4_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect4_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_ConnectAccessMask(tvb, offset, pinfo, tree, di, drep, hf_samr_connect_access_mask, 0);
 
@@ -14438,7 +14440,7 @@ samr_dissect_element_Connect4_access_mask(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_Connect4_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect4_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_Connect4_connect_handle_, NDR_POINTER_REF, "Pointer to Connect Handle (policy_handle)",hf_samr_connect_handle);
 
@@ -14446,7 +14448,7 @@ samr_dissect_element_Connect4_connect_handle(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_Connect4_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect4_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_connect_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_CONNECT);
 
@@ -14461,7 +14463,7 @@ samr_dissect_element_Connect4_connect_handle_(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: ); */
 
 static int
-samr_dissect_Connect4_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_Connect4_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -14478,7 +14480,7 @@ samr_dissect_Connect4_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 }
 
 static int
-samr_dissect_Connect4_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_Connect4_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="Connect4";
 	offset = samr_dissect_element_Connect4_system_name(tvb, offset, pinfo, tree, di, drep);
@@ -14491,7 +14493,7 @@ samr_dissect_Connect4_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_server(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_server(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser3_server_, NDR_POINTER_UNIQUE, "Pointer to Server (lsa_String)",hf_samr_samr_ChangePasswordUser3_server);
 
@@ -14499,7 +14501,7 @@ samr_dissect_element_ChangePasswordUser3_server(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_server_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_server_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_ChangePasswordUser3_server);
 
@@ -14507,7 +14509,7 @@ samr_dissect_element_ChangePasswordUser3_server_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_account(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_account(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser3_account_, NDR_POINTER_REF, "Pointer to Account (lsa_String)",hf_samr_samr_ChangePasswordUser3_account);
 
@@ -14515,7 +14517,7 @@ samr_dissect_element_ChangePasswordUser3_account(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_account_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_account_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_ChangePasswordUser3_account);
 
@@ -14523,7 +14525,7 @@ samr_dissect_element_ChangePasswordUser3_account_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_nt_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_nt_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser3_nt_password_, NDR_POINTER_UNIQUE, "Pointer to Nt Password (samr_CryptPassword)",hf_samr_samr_ChangePasswordUser3_nt_password);
 
@@ -14531,7 +14533,7 @@ samr_dissect_element_ChangePasswordUser3_nt_password(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_nt_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_nt_password_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_CryptPassword(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser3_nt_password,0);
 
@@ -14539,7 +14541,7 @@ samr_dissect_element_ChangePasswordUser3_nt_password_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_nt_verifier(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_nt_verifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser3_nt_verifier_, NDR_POINTER_UNIQUE, "Pointer to Nt Verifier (samr_Password)",hf_samr_samr_ChangePasswordUser3_nt_verifier);
 
@@ -14547,7 +14549,7 @@ samr_dissect_element_ChangePasswordUser3_nt_verifier(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_nt_verifier_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_nt_verifier_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_Password(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser3_nt_verifier,0);
 
@@ -14555,7 +14557,7 @@ samr_dissect_element_ChangePasswordUser3_nt_verifier_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_lm_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_lm_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ChangePasswordUser3_lm_change, 0);
 
@@ -14563,7 +14565,7 @@ samr_dissect_element_ChangePasswordUser3_lm_change(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_lm_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_lm_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser3_lm_password_, NDR_POINTER_UNIQUE, "Pointer to Lm Password (samr_CryptPassword)",hf_samr_samr_ChangePasswordUser3_lm_password);
 
@@ -14571,7 +14573,7 @@ samr_dissect_element_ChangePasswordUser3_lm_password(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_lm_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_lm_password_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_CryptPassword(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser3_lm_password,0);
 
@@ -14579,7 +14581,7 @@ samr_dissect_element_ChangePasswordUser3_lm_password_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_lm_verifier(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_lm_verifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser3_lm_verifier_, NDR_POINTER_UNIQUE, "Pointer to Lm Verifier (samr_Password)",hf_samr_samr_ChangePasswordUser3_lm_verifier);
 
@@ -14587,7 +14589,7 @@ samr_dissect_element_ChangePasswordUser3_lm_verifier(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_lm_verifier_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_lm_verifier_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_Password(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser3_lm_verifier,0);
 
@@ -14595,7 +14597,7 @@ samr_dissect_element_ChangePasswordUser3_lm_verifier_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_password3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_password3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser3_password3_, NDR_POINTER_UNIQUE, "Pointer to Password3 (samr_CryptPassword)",hf_samr_samr_ChangePasswordUser3_password3);
 
@@ -14603,7 +14605,7 @@ samr_dissect_element_ChangePasswordUser3_password3(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_password3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_password3_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_CryptPassword(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser3_password3,0);
 
@@ -14611,7 +14613,7 @@ samr_dissect_element_ChangePasswordUser3_password3_(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_dominfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_dominfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser3_dominfo_, NDR_POINTER_REF, "Pointer to Dominfo (samr_DomInfo1)",hf_samr_samr_ChangePasswordUser3_dominfo);
 
@@ -14619,7 +14621,7 @@ samr_dissect_element_ChangePasswordUser3_dominfo(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_dominfo_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_dominfo_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser3_dominfo__, NDR_POINTER_UNIQUE, "Pointer to Dominfo (samr_DomInfo1)",hf_samr_samr_ChangePasswordUser3_dominfo);
 
@@ -14627,7 +14629,7 @@ samr_dissect_element_ChangePasswordUser3_dominfo_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_dominfo__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_dominfo__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_DomInfo1(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser3_dominfo,0);
 
@@ -14635,7 +14637,7 @@ samr_dissect_element_ChangePasswordUser3_dominfo__(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_reject(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_reject(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser3_reject_, NDR_POINTER_REF, "Pointer to Reject (samr_ChangeReject)",hf_samr_samr_ChangePasswordUser3_reject);
 
@@ -14643,7 +14645,7 @@ samr_dissect_element_ChangePasswordUser3_reject(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_reject_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_reject_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ChangePasswordUser3_reject__, NDR_POINTER_UNIQUE, "Pointer to Reject (samr_ChangeReject)",hf_samr_samr_ChangePasswordUser3_reject);
 
@@ -14651,7 +14653,7 @@ samr_dissect_element_ChangePasswordUser3_reject_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-samr_dissect_element_ChangePasswordUser3_reject__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ChangePasswordUser3_reject__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_ChangeReject(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_ChangePasswordUser3_reject,0);
 
@@ -14672,7 +14674,7 @@ samr_dissect_element_ChangePasswordUser3_reject__(tvbuff_t *tvb _U_, int offset 
 /* IDL: ); */
 
 static int
-samr_dissect_ChangePasswordUser3_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_ChangePasswordUser3_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -14692,7 +14694,7 @@ samr_dissect_ChangePasswordUser3_response(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_ChangePasswordUser3_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_ChangePasswordUser3_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="ChangePasswordUser3";
 	offset = samr_dissect_element_ChangePasswordUser3_server(tvb, offset, pinfo, tree, di, drep);
@@ -14715,7 +14717,7 @@ samr_dissect_ChangePasswordUser3_request(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_Connect5_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect5_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_Connect5_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_samr_samr_Connect5_system_name);
 
@@ -14723,7 +14725,7 @@ samr_dissect_element_Connect5_system_name(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_Connect5_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect5_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 
@@ -14734,7 +14736,7 @@ samr_dissect_element_Connect5_system_name_(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_Connect5_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect5_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_bitmap_ConnectAccessMask(tvb, offset, pinfo, tree, di, drep, hf_samr_connect_access_mask, 0);
 
@@ -14742,7 +14744,7 @@ samr_dissect_element_Connect5_access_mask(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_Connect5_level_in(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect5_level_in(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_Connect5_level_in, 0);
 
@@ -14750,7 +14752,7 @@ samr_dissect_element_Connect5_level_in(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_Connect5_info_in(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect5_info_in(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_Connect5_info_in_, NDR_POINTER_REF, "Pointer to Info In (samr_ConnectInfo)",hf_samr_samr_Connect5_info_in);
 
@@ -14758,7 +14760,7 @@ samr_dissect_element_Connect5_info_in(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_Connect5_info_in_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect5_info_in_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_ConnectInfo(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_Connect5_info_in, 0);
 
@@ -14766,7 +14768,7 @@ samr_dissect_element_Connect5_info_in_(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_Connect5_level_out(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect5_level_out(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_Connect5_level_out_, NDR_POINTER_REF, "Pointer to Level Out (uint32)",hf_samr_samr_Connect5_level_out);
 
@@ -14774,7 +14776,7 @@ samr_dissect_element_Connect5_level_out(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_Connect5_level_out_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect5_level_out_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_Connect5_level_out, 0);
 
@@ -14782,7 +14784,7 @@ samr_dissect_element_Connect5_level_out_(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_Connect5_info_out(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect5_info_out(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_Connect5_info_out_, NDR_POINTER_REF, "Pointer to Info Out (samr_ConnectInfo)",hf_samr_samr_Connect5_info_out);
 
@@ -14790,7 +14792,7 @@ samr_dissect_element_Connect5_info_out(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_element_Connect5_info_out_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect5_info_out_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_ConnectInfo(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_Connect5_info_out, 0);
 
@@ -14798,7 +14800,7 @@ samr_dissect_element_Connect5_info_out_(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-samr_dissect_element_Connect5_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect5_connect_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_Connect5_connect_handle_, NDR_POINTER_REF, "Pointer to Connect Handle (policy_handle)",hf_samr_connect_handle);
 
@@ -14806,7 +14808,7 @@ samr_dissect_element_Connect5_connect_handle(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_Connect5_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_Connect5_connect_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_connect_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_SAMR_CONNECT);
 
@@ -14824,7 +14826,7 @@ samr_dissect_element_Connect5_connect_handle_(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: ); */
 
 static int
-samr_dissect_Connect5_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_Connect5_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -14847,7 +14849,7 @@ samr_dissect_Connect5_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 }
 
 static int
-samr_dissect_Connect5_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_Connect5_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="Connect5";
 	offset = samr_dissect_element_Connect5_system_name(tvb, offset, pinfo, tree, di, drep);
@@ -14862,7 +14864,7 @@ samr_dissect_Connect5_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 }
 
 static int
-samr_dissect_element_RidToSid_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RidToSid_domain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_RidToSid_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_domain_handle);
 
@@ -14870,7 +14872,7 @@ samr_dissect_element_RidToSid_domain_handle(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_RidToSid_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RidToSid_domain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_domain_handle, 0);
 
@@ -14878,7 +14880,7 @@ samr_dissect_element_RidToSid_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_RidToSid_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RidToSid_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -14886,7 +14888,7 @@ samr_dissect_element_RidToSid_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-samr_dissect_element_RidToSid_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RidToSid_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_RidToSid_sid_, NDR_POINTER_REF, "Pointer to Sid (dom_sid2)",hf_samr_samr_RidToSid_sid);
 
@@ -14894,7 +14896,7 @@ samr_dissect_element_RidToSid_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-samr_dissect_element_RidToSid_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RidToSid_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_RidToSid_sid__, NDR_POINTER_UNIQUE, "Pointer to Sid (dom_sid2)",hf_samr_samr_RidToSid_sid);
 
@@ -14902,7 +14904,7 @@ samr_dissect_element_RidToSid_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-samr_dissect_element_RidToSid_sid__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_RidToSid_sid__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_dom_sid2(tvb, offset, pinfo, tree, di, drep);
 
@@ -14916,7 +14918,7 @@ samr_dissect_element_RidToSid_sid__(tvbuff_t *tvb _U_, int offset _U_, packet_in
 /* IDL: ); */
 
 static int
-samr_dissect_RidToSid_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_RidToSid_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -14933,7 +14935,7 @@ samr_dissect_RidToSid_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 }
 
 static int
-samr_dissect_RidToSid_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_RidToSid_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="RidToSid";
 	offset = samr_dissect_element_RidToSid_domain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -14944,7 +14946,7 @@ samr_dissect_RidToSid_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 }
 
 static int
-samr_dissect_element_SetDsrmPassword_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetDsrmPassword_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_SetDsrmPassword_name_, NDR_POINTER_UNIQUE, "Pointer to Name (lsa_String)",hf_samr_samr_SetDsrmPassword_name);
 
@@ -14952,7 +14954,7 @@ samr_dissect_element_SetDsrmPassword_name(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_SetDsrmPassword_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetDsrmPassword_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_SetDsrmPassword_name);
 
@@ -14960,7 +14962,7 @@ samr_dissect_element_SetDsrmPassword_name_(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_SetDsrmPassword_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetDsrmPassword_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_SetDsrmPassword_unknown, 0);
 
@@ -14968,7 +14970,7 @@ samr_dissect_element_SetDsrmPassword_unknown(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-samr_dissect_element_SetDsrmPassword_hash(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetDsrmPassword_hash(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_SetDsrmPassword_hash_, NDR_POINTER_UNIQUE, "Pointer to Hash (samr_Password)",hf_samr_samr_SetDsrmPassword_hash);
 
@@ -14976,7 +14978,7 @@ samr_dissect_element_SetDsrmPassword_hash(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_SetDsrmPassword_hash_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_SetDsrmPassword_hash_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_struct_Password(tvb,offset,pinfo,tree,di,drep,hf_samr_samr_SetDsrmPassword_hash,0);
 
@@ -14990,7 +14992,7 @@ samr_dissect_element_SetDsrmPassword_hash_(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: ); */
 
 static int
-samr_dissect_SetDsrmPassword_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_SetDsrmPassword_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -15004,7 +15006,7 @@ samr_dissect_SetDsrmPassword_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_SetDsrmPassword_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_SetDsrmPassword_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="SetDsrmPassword";
 	offset = samr_dissect_element_SetDsrmPassword_name(tvb, offset, pinfo, tree, di, drep);
@@ -15017,7 +15019,7 @@ samr_dissect_SetDsrmPassword_request(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-samr_dissect_element_ValidatePassword_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePassword_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_enum_ValidatePasswordLevel(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePassword_level, 0);
 
@@ -15025,7 +15027,7 @@ samr_dissect_element_ValidatePassword_level(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-samr_dissect_element_ValidatePassword_req(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePassword_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ValidatePassword_req_, NDR_POINTER_REF, "Pointer to Req (samr_ValidatePasswordReq)",hf_samr_samr_ValidatePassword_req);
 
@@ -15033,7 +15035,7 @@ samr_dissect_element_ValidatePassword_req(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_ValidatePassword_req_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePassword_req_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_ValidatePasswordReq(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePassword_req, 0);
 
@@ -15041,7 +15043,7 @@ samr_dissect_element_ValidatePassword_req_(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_ValidatePassword_rep(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePassword_rep(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ValidatePassword_rep_, NDR_POINTER_REF, "Pointer to Rep (samr_ValidatePasswordRep)",hf_samr_samr_ValidatePassword_rep);
 
@@ -15049,7 +15051,7 @@ samr_dissect_element_ValidatePassword_rep(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_ValidatePassword_rep_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePassword_rep_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_ValidatePassword_rep__, NDR_POINTER_UNIQUE, "Pointer to Rep (samr_ValidatePasswordRep)",hf_samr_samr_ValidatePassword_rep);
 
@@ -15057,7 +15059,7 @@ samr_dissect_element_ValidatePassword_rep_(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_ValidatePassword_rep__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_element_ValidatePassword_rep__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = samr_dissect_ValidatePasswordRep(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_ValidatePassword_rep, 0);
 
@@ -15071,7 +15073,7 @@ samr_dissect_element_ValidatePassword_rep__(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: ); */
 
 static int
-samr_dissect_ValidatePassword_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_ValidatePassword_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -15088,7 +15090,7 @@ samr_dissect_ValidatePassword_response(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-samr_dissect_ValidatePassword_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+samr_dissect_ValidatePassword_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="ValidatePassword";
 	offset = samr_dissect_element_ValidatePassword_level(tvb, offset, pinfo, tree, di, drep);

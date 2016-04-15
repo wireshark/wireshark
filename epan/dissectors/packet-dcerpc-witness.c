@@ -14,6 +14,8 @@
 #include <string.h>
 #include <epan/packet.h>
 
+DIAG_OFF(unused-parameter)
+
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
@@ -127,15 +129,15 @@ static const true_false_string witness_interfaceInfo_flags_WITNESS_INFO_WITNESS_
    "WITNESS_INFO_WITNESS_IF is SET",
    "WITNESS_INFO_WITNESS_IF is NOT SET",
 };
-static int witness_dissect_element_interfaceInfo_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_interfaceInfo_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_interfaceInfo_ipv4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_interfaceInfo_ipv6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_interfaceInfo_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_interfaceList_num_interfaces(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_interfaceList_interfaces(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_interfaceList_interfaces_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_interfaceList_interfaces__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int witness_dissect_element_interfaceInfo_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_interfaceInfo_state(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_interfaceInfo_ipv4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_interfaceInfo_ipv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_interfaceInfo_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_interfaceList_num_interfaces(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_interfaceList_interfaces(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_interfaceList_interfaces_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_interfaceList_interfaces__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 const value_string witness_witness_notifyResponse_type_vals[] = {
 	{ WITNESS_NOTIFY_RESOURCE_CHANGE, "WITNESS_NOTIFY_RESOURCE_CHANGE" },
 	{ WITNESS_NOTIFY_CLIENT_MOVE, "WITNESS_NOTIFY_CLIENT_MOVE" },
@@ -149,9 +151,9 @@ const value_string witness_witness_ResourceChange_type_vals[] = {
 	{ WITNESS_RESOURCE_STATE_UNAVAILABLE, "WITNESS_RESOURCE_STATE_UNAVAILABLE" },
 { 0, NULL }
 };
-static int witness_dissect_element_ResourceChange_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_ResourceChange_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_ResourceChange_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int witness_dissect_element_ResourceChange_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_ResourceChange_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_ResourceChange_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 static const true_false_string witness_IPaddrInfo_flags_WITNESS_IPADDR_V4_tfs = {
    "WITNESS_IPADDR_V4 is SET",
    "WITNESS_IPADDR_V4 is NOT SET",
@@ -168,20 +170,20 @@ static const true_false_string witness_IPaddrInfo_flags_WITNESS_IPADDR_OFFLINE_t
    "WITNESS_IPADDR_OFFLINE is SET",
    "WITNESS_IPADDR_OFFLINE is NOT SET",
 };
-static int witness_dissect_element_IPaddrInfo_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_IPaddrInfo_ipv4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_IPaddrInfo_ipv6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_IPaddrInfoList_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_IPaddrInfoList_reserved(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_IPaddrInfoList_num(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_notifyResponse_message_resource_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_notifyResponse_message_client_move(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_notifyResponse_message_share_move(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_notifyResponse_message_ip_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_notifyResponse_message_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_notifyResponse_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, guint32 *type);
-static int witness_dissect_element_notifyResponse_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_notifyResponse_num(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int witness_dissect_element_IPaddrInfo_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_IPaddrInfo_ipv4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_IPaddrInfo_ipv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_IPaddrInfoList_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_IPaddrInfoList_reserved(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_IPaddrInfoList_num(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_notifyResponse_message_resource_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_notifyResponse_message_client_move(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_notifyResponse_message_share_move(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_notifyResponse_message_ip_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_notifyResponse_message_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_notifyResponse_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, guint32 *type);
+static int witness_dissect_element_notifyResponse_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_notifyResponse_num(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 static const true_false_string witness_RegisterEx_flags_WITNESS_REGISTER_NONE_tfs = {
    "WITNESS_REGISTER_NONE is SET",
    "WITNESS_REGISTER_NONE is NOT SET",
@@ -190,43 +192,43 @@ static const true_false_string witness_RegisterEx_flags_WITNESS_REGISTER_IP_NOTI
    "WITNESS_REGISTER_IP_NOTIFICATION is SET",
    "WITNESS_REGISTER_IP_NOTIFICATION is NOT SET",
 };
-static int witness_dissect_element_GetInterfaceList_interface_list(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_GetInterfaceList_interface_list_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_GetInterfaceList_interface_list__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_Register_context_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_Register_context_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_Register_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_Register_net_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_Register_net_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_Register_ip_address(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_Register_ip_address_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_Register_client_computer_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_Register_client_computer_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_UnRegister_context_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_AsyncNotify_context_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_AsyncNotify_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_AsyncNotify_response_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_AsyncNotify_response__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_RegisterEx_context_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_RegisterEx_context_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_RegisterEx_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_RegisterEx_net_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_RegisterEx_net_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_RegisterEx_share_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_RegisterEx_share_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_RegisterEx_ip_address(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_RegisterEx_ip_address_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_RegisterEx_client_computer_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_RegisterEx_client_computer_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_RegisterEx_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int witness_dissect_element_RegisterEx_timeout(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int witness_dissect_element_GetInterfaceList_interface_list(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_GetInterfaceList_interface_list_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_GetInterfaceList_interface_list__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_Register_context_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_Register_context_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_Register_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_Register_net_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_Register_net_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_Register_ip_address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_Register_ip_address_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_Register_client_computer_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_Register_client_computer_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_UnRegister_context_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_AsyncNotify_context_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_AsyncNotify_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_AsyncNotify_response_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_AsyncNotify_response__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_RegisterEx_context_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_RegisterEx_context_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_RegisterEx_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_RegisterEx_net_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_RegisterEx_net_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_RegisterEx_share_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_RegisterEx_share_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_RegisterEx_ip_address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_RegisterEx_ip_address_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_RegisterEx_client_computer_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_RegisterEx_client_computer_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_RegisterEx_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int witness_dissect_element_RegisterEx_timeout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
  #include "packet-smb-common.h"
  #include "to_str.h"
 static int
-witness_dissect_notifyResponse_message(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+witness_dissect_notifyResponse_message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param);
 static int
-witness_dissect_notifyResponse_message_(tvbuff_t *tvb, int offset, int length _U_, packet_info *pinfo,
-				        proto_tree *tree, dcerpc_info *di, guint8 *drep _U_)
+witness_dissect_notifyResponse_message_(tvbuff_t *tvb, int offset, int length, packet_info *pinfo,
+				        proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	guint32 *type = (guint32 *)di->private_data;
 	guint8 le_drep[4] = { DREP_LITTLE_ENDIAN, };
@@ -234,14 +236,14 @@ witness_dissect_notifyResponse_message_(tvbuff_t *tvb, int offset, int length _U
 						      hf_witness_witness_notifyResponse_messages_, *type);
 }
 static int
-witness_dissect_element_notifyResponse_messages(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
+witness_dissect_element_notifyResponse_messages(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray_block(tvb, offset, pinfo, tree, di, drep,
 					   witness_dissect_notifyResponse_message_);
 	return offset;
 }
 int
-witness_dissect_struct_notifyResponse(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+witness_dissect_struct_notifyResponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	guint32 *type = NULL;
 	proto_item *item = NULL;
@@ -270,13 +272,13 @@ witness_dissect_struct_notifyResponse(tvbuff_t *tvb _U_, int offset _U_, packet_
 	return offset;
 }
 static int
-witness_dissect_element_IPaddrInfoList_addr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_IPaddrInfoList_addr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = witness_dissect_struct_IPaddrInfo(tvb,offset,pinfo,tree,di,drep,hf_witness_witness_IPaddrInfoList_addr,0);
 	return offset;
 }
 int
-witness_dissect_struct_IPaddrInfoList(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+witness_dissect_struct_IPaddrInfoList(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -301,7 +303,7 @@ witness_dissect_struct_IPaddrInfoList(tvbuff_t *tvb _U_, int offset _U_, packet_
 	return offset;
 }
 static int
-witness_dissect_element_interfaceInfo_group_name(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_)
+witness_dissect_element_interfaceInfo_group_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
 	const gchar *str;
 	int len = 260;
@@ -317,7 +319,7 @@ witness_dissect_element_interfaceInfo_group_name(tvbuff_t *tvb, int offset, pack
 	return offset + 2*260;
 }
 static int
-PIDL_dissect_ipv4address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep _U_, int hfindex, guint32 param)
+PIDL_dissect_ipv4address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex, guint32 param)
 {
 	if (di->conformant_run) {
 		/* just a run to handle conformant arrays, no scalars to dissect */
@@ -336,7 +338,7 @@ PIDL_dissect_ipv4address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	return offset + 4;
 }
 static int
-PIDL_dissect_ipv6address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep _U_, int hfindex, guint32 param)
+PIDL_dissect_ipv6address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex, guint32 param)
 {
 	if (di->conformant_run) {
 		/* just a run to handle conformant arrays, no scalars to dissect */
@@ -363,7 +365,7 @@ PIDL_dissect_ipv6address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 /* IDL: } */
 
 int
-witness_dissect_enum_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
+witness_dissect_enum_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 *param)
 {
 	guint32 parameter=0;
 	if (param) {
@@ -384,7 +386,7 @@ witness_dissect_enum_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 /* IDL: } */
 
 int
-witness_dissect_enum_interfaceInfo_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint16 *param _U_)
+witness_dissect_enum_interfaceInfo_state(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint16 *param)
 {
 	guint16 parameter=0;
 	if (param) {
@@ -405,7 +407,7 @@ witness_dissect_enum_interfaceInfo_state(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 int
-witness_dissect_bitmap_interfaceInfo_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+witness_dissect_bitmap_interfaceInfo_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -466,7 +468,7 @@ witness_dissect_bitmap_interfaceInfo_flags(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: } */
 
 static int
-witness_dissect_element_interfaceInfo_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_interfaceInfo_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = witness_dissect_enum_version(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_interfaceInfo_version, 0);
 
@@ -474,7 +476,7 @@ witness_dissect_element_interfaceInfo_version(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-witness_dissect_element_interfaceInfo_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_interfaceInfo_state(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = witness_dissect_enum_interfaceInfo_state(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_interfaceInfo_state, 0);
 
@@ -482,7 +484,7 @@ witness_dissect_element_interfaceInfo_state(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-witness_dissect_element_interfaceInfo_ipv4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_interfaceInfo_ipv4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=PIDL_dissect_ipv4address(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_interfaceInfo_ipv4, PIDL_SET_COL_INFO);
 
@@ -490,7 +492,7 @@ witness_dissect_element_interfaceInfo_ipv4(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-witness_dissect_element_interfaceInfo_ipv6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_interfaceInfo_ipv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=PIDL_dissect_ipv6address(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_interfaceInfo_ipv6, PIDL_SET_COL_INFO);
 
@@ -498,7 +500,7 @@ witness_dissect_element_interfaceInfo_ipv6(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-witness_dissect_element_interfaceInfo_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_interfaceInfo_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = witness_dissect_bitmap_interfaceInfo_flags(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_interfaceInfo_flags, 0);
 
@@ -506,7 +508,7 @@ witness_dissect_element_interfaceInfo_flags(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 int
-witness_dissect_struct_interfaceInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+witness_dissect_struct_interfaceInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -551,7 +553,7 @@ witness_dissect_struct_interfaceInfo(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: } */
 
 static int
-witness_dissect_element_interfaceList_num_interfaces(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_interfaceList_num_interfaces(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_interfaceList_num_interfaces, 0);
 
@@ -559,7 +561,7 @@ witness_dissect_element_interfaceList_num_interfaces(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-witness_dissect_element_interfaceList_interfaces(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_interfaceList_interfaces(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, witness_dissect_element_interfaceList_interfaces_, NDR_POINTER_UNIQUE, "Pointer to Interfaces (witness_interfaceInfo)",hf_witness_witness_interfaceList_interfaces);
 
@@ -567,7 +569,7 @@ witness_dissect_element_interfaceList_interfaces(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-witness_dissect_element_interfaceList_interfaces_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_interfaceList_interfaces_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, witness_dissect_element_interfaceList_interfaces__);
 
@@ -575,7 +577,7 @@ witness_dissect_element_interfaceList_interfaces_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-witness_dissect_element_interfaceList_interfaces__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_interfaceList_interfaces__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = witness_dissect_struct_interfaceInfo(tvb,offset,pinfo,tree,di,drep,hf_witness_witness_interfaceList_interfaces,0);
 
@@ -583,7 +585,7 @@ witness_dissect_element_interfaceList_interfaces__(tvbuff_t *tvb _U_, int offset
 }
 
 int
-witness_dissect_struct_interfaceList(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+witness_dissect_struct_interfaceList(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -622,7 +624,7 @@ witness_dissect_struct_interfaceList(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: } */
 
 int
-witness_dissect_enum_notifyResponse_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
+witness_dissect_enum_notifyResponse_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 *param)
 {
 	guint32 parameter=0;
 	if (param) {
@@ -643,7 +645,7 @@ witness_dissect_enum_notifyResponse_type(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 int
-witness_dissect_enum_ResourceChange_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
+witness_dissect_enum_ResourceChange_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 *param)
 {
 	guint32 parameter=0;
 	if (param) {
@@ -664,7 +666,7 @@ witness_dissect_enum_ResourceChange_type(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 static int
-witness_dissect_element_ResourceChange_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_ResourceChange_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_ResourceChange_length, 0);
 
@@ -672,7 +674,7 @@ witness_dissect_element_ResourceChange_length(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-witness_dissect_element_ResourceChange_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_ResourceChange_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = witness_dissect_enum_ResourceChange_type(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_ResourceChange_type, 0);
 
@@ -680,7 +682,7 @@ witness_dissect_element_ResourceChange_type(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-witness_dissect_element_ResourceChange_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_ResourceChange_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_witness_witness_ResourceChange_name , 0);
 
@@ -688,7 +690,7 @@ witness_dissect_element_ResourceChange_name(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 int
-witness_dissect_struct_ResourceChange(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+witness_dissect_struct_ResourceChange(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -728,7 +730,7 @@ witness_dissect_struct_ResourceChange(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: } */
 
 int
-witness_dissect_bitmap_IPaddrInfo_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+witness_dissect_bitmap_IPaddrInfo_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -794,7 +796,7 @@ witness_dissect_bitmap_IPaddrInfo_flags(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: } */
 
 static int
-witness_dissect_element_IPaddrInfo_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_IPaddrInfo_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = witness_dissect_bitmap_IPaddrInfo_flags(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_IPaddrInfo_flags, 0);
 
@@ -802,7 +804,7 @@ witness_dissect_element_IPaddrInfo_flags(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-witness_dissect_element_IPaddrInfo_ipv4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_IPaddrInfo_ipv4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=PIDL_dissect_ipv4address(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_IPaddrInfo_ipv4, PIDL_SET_COL_INFO);
 
@@ -810,7 +812,7 @@ witness_dissect_element_IPaddrInfo_ipv4(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-witness_dissect_element_IPaddrInfo_ipv6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_IPaddrInfo_ipv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=PIDL_dissect_ipv6address(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_IPaddrInfo_ipv6, PIDL_SET_COL_INFO);
 
@@ -818,7 +820,7 @@ witness_dissect_element_IPaddrInfo_ipv6(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 int
-witness_dissect_struct_IPaddrInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+witness_dissect_struct_IPaddrInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -858,7 +860,7 @@ witness_dissect_struct_IPaddrInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: } */
 
 static int
-witness_dissect_element_IPaddrInfoList_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_IPaddrInfoList_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_IPaddrInfoList_length, 0);
 
@@ -866,7 +868,7 @@ witness_dissect_element_IPaddrInfoList_length(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-witness_dissect_element_IPaddrInfoList_reserved(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_IPaddrInfoList_reserved(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_IPaddrInfoList_reserved, 0);
 
@@ -874,7 +876,7 @@ witness_dissect_element_IPaddrInfoList_reserved(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-witness_dissect_element_IPaddrInfoList_num(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_IPaddrInfoList_num(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_IPaddrInfoList_num, 0);
 
@@ -891,7 +893,7 @@ witness_dissect_element_IPaddrInfoList_num(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: } */
 
 static int
-witness_dissect_element_notifyResponse_message_resource_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_notifyResponse_message_resource_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = witness_dissect_struct_ResourceChange(tvb,offset,pinfo,tree,di,drep,hf_witness_witness_notifyResponse_message_resource_change,0);
 
@@ -899,7 +901,7 @@ witness_dissect_element_notifyResponse_message_resource_change(tvbuff_t *tvb _U_
 }
 
 static int
-witness_dissect_element_notifyResponse_message_client_move(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_notifyResponse_message_client_move(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = witness_dissect_struct_IPaddrInfoList(tvb,offset,pinfo,tree,di,drep,hf_witness_witness_notifyResponse_message_client_move,0);
 
@@ -907,7 +909,7 @@ witness_dissect_element_notifyResponse_message_client_move(tvbuff_t *tvb _U_, in
 }
 
 static int
-witness_dissect_element_notifyResponse_message_share_move(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_notifyResponse_message_share_move(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = witness_dissect_struct_IPaddrInfoList(tvb,offset,pinfo,tree,di,drep,hf_witness_witness_notifyResponse_message_share_move,0);
 
@@ -915,7 +917,7 @@ witness_dissect_element_notifyResponse_message_share_move(tvbuff_t *tvb _U_, int
 }
 
 static int
-witness_dissect_element_notifyResponse_message_ip_change(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_notifyResponse_message_ip_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = witness_dissect_struct_IPaddrInfoList(tvb,offset,pinfo,tree,di,drep,hf_witness_witness_notifyResponse_message_ip_change,0);
 
@@ -923,7 +925,7 @@ witness_dissect_element_notifyResponse_message_ip_change(tvbuff_t *tvb _U_, int 
 }
 
 static int
-witness_dissect_element_notifyResponse_message_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_notifyResponse_message_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_datablob(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_notifyResponse_message_data, 1);
 
@@ -931,7 +933,7 @@ witness_dissect_element_notifyResponse_message_data(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-witness_dissect_notifyResponse_message(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+witness_dissect_notifyResponse_message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -978,7 +980,7 @@ witness_dissect_notifyResponse_message(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: } */
 
 static int
-witness_dissect_element_notifyResponse_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, guint32 *type)
+witness_dissect_element_notifyResponse_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, guint32 *type)
 {
 	offset = witness_dissect_enum_notifyResponse_type(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_notifyResponse_type, type);
 
@@ -986,7 +988,7 @@ witness_dissect_element_notifyResponse_type(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-witness_dissect_element_notifyResponse_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_notifyResponse_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_notifyResponse_length, 0);
 
@@ -994,7 +996,7 @@ witness_dissect_element_notifyResponse_length(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-witness_dissect_element_notifyResponse_num(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_notifyResponse_num(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_notifyResponse_num, 0);
 
@@ -1008,7 +1010,7 @@ witness_dissect_element_notifyResponse_num(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: } */
 
 int
-witness_dissect_bitmap_RegisterEx_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+witness_dissect_bitmap_RegisterEx_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -1051,7 +1053,7 @@ witness_dissect_bitmap_RegisterEx_flags(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-witness_dissect_element_GetInterfaceList_interface_list(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_GetInterfaceList_interface_list(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, witness_dissect_element_GetInterfaceList_interface_list_, NDR_POINTER_REF, "Pointer to Interface List (witness_interfaceList)",hf_witness_witness_GetInterfaceList_interface_list);
 
@@ -1059,7 +1061,7 @@ witness_dissect_element_GetInterfaceList_interface_list(tvbuff_t *tvb _U_, int o
 }
 
 static int
-witness_dissect_element_GetInterfaceList_interface_list_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_GetInterfaceList_interface_list_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, witness_dissect_element_GetInterfaceList_interface_list__, NDR_POINTER_UNIQUE, "Pointer to Interface List (witness_interfaceList)",hf_witness_witness_GetInterfaceList_interface_list);
 
@@ -1067,7 +1069,7 @@ witness_dissect_element_GetInterfaceList_interface_list_(tvbuff_t *tvb _U_, int 
 }
 
 static int
-witness_dissect_element_GetInterfaceList_interface_list__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_GetInterfaceList_interface_list__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = witness_dissect_struct_interfaceList(tvb,offset,pinfo,tree,di,drep,hf_witness_witness_GetInterfaceList_interface_list,0);
 
@@ -1079,7 +1081,7 @@ witness_dissect_element_GetInterfaceList_interface_list__(tvbuff_t *tvb _U_, int
 /* IDL: ); */
 
 static int
-witness_dissect_GetInterfaceList_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_GetInterfaceList_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -1096,14 +1098,14 @@ witness_dissect_GetInterfaceList_response(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-witness_dissect_GetInterfaceList_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_GetInterfaceList_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="GetInterfaceList";
 	return offset;
 }
 
 static int
-witness_dissect_element_Register_context_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_Register_context_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, witness_dissect_element_Register_context_handle_, NDR_POINTER_REF, "Pointer to Context Handle (policy_handle)",hf_witness_witness_Register_context_handle);
 
@@ -1111,7 +1113,7 @@ witness_dissect_element_Register_context_handle(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-witness_dissect_element_Register_context_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_Register_context_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_Register_context_handle, 0);
 
@@ -1119,7 +1121,7 @@ witness_dissect_element_Register_context_handle_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-witness_dissect_element_Register_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_Register_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = witness_dissect_enum_version(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_Register_version, 0);
 
@@ -1127,7 +1129,7 @@ witness_dissect_element_Register_version(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-witness_dissect_element_Register_net_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_Register_net_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, witness_dissect_element_Register_net_name_, NDR_POINTER_UNIQUE, "Pointer to Net Name (uint16)",hf_witness_witness_Register_net_name);
 
@@ -1135,7 +1137,7 @@ witness_dissect_element_Register_net_name(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-witness_dissect_element_Register_net_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_Register_net_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 
@@ -1146,7 +1148,7 @@ witness_dissect_element_Register_net_name_(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-witness_dissect_element_Register_ip_address(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_Register_ip_address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, witness_dissect_element_Register_ip_address_, NDR_POINTER_UNIQUE, "Pointer to Ip Address (uint16)",hf_witness_witness_Register_ip_address);
 
@@ -1154,7 +1156,7 @@ witness_dissect_element_Register_ip_address(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-witness_dissect_element_Register_ip_address_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_Register_ip_address_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 
@@ -1165,7 +1167,7 @@ witness_dissect_element_Register_ip_address_(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-witness_dissect_element_Register_client_computer_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_Register_client_computer_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, witness_dissect_element_Register_client_computer_name_, NDR_POINTER_UNIQUE, "Pointer to Client Computer Name (uint16)",hf_witness_witness_Register_client_computer_name);
 
@@ -1173,7 +1175,7 @@ witness_dissect_element_Register_client_computer_name(tvbuff_t *tvb _U_, int off
 }
 
 static int
-witness_dissect_element_Register_client_computer_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_Register_client_computer_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 
@@ -1192,7 +1194,7 @@ witness_dissect_element_Register_client_computer_name_(tvbuff_t *tvb _U_, int of
 /* IDL: ); */
 
 static int
-witness_dissect_Register_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_Register_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -1209,7 +1211,7 @@ witness_dissect_Register_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-witness_dissect_Register_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_Register_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="Register";
 	offset = witness_dissect_element_Register_version(tvb, offset, pinfo, tree, di, drep);
@@ -1224,7 +1226,7 @@ witness_dissect_Register_request(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-witness_dissect_element_UnRegister_context_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_UnRegister_context_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_UnRegister_context_handle, 0);
 
@@ -1236,7 +1238,7 @@ witness_dissect_element_UnRegister_context_handle(tvbuff_t *tvb _U_, int offset 
 /* IDL: ); */
 
 static int
-witness_dissect_UnRegister_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_UnRegister_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -1250,7 +1252,7 @@ witness_dissect_UnRegister_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-witness_dissect_UnRegister_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_UnRegister_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="UnRegister";
 	offset = witness_dissect_element_UnRegister_context_handle(tvb, offset, pinfo, tree, di, drep);
@@ -1259,7 +1261,7 @@ witness_dissect_UnRegister_request(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-witness_dissect_element_AsyncNotify_context_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_AsyncNotify_context_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_AsyncNotify_context_handle, 0);
 
@@ -1267,7 +1269,7 @@ witness_dissect_element_AsyncNotify_context_handle(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-witness_dissect_element_AsyncNotify_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_AsyncNotify_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, witness_dissect_element_AsyncNotify_response_, NDR_POINTER_REF, "Pointer to Response (witness_notifyResponse)",hf_witness_witness_AsyncNotify_response);
 
@@ -1275,7 +1277,7 @@ witness_dissect_element_AsyncNotify_response(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-witness_dissect_element_AsyncNotify_response_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_AsyncNotify_response_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, witness_dissect_element_AsyncNotify_response__, NDR_POINTER_UNIQUE, "Pointer to Response (witness_notifyResponse)",hf_witness_witness_AsyncNotify_response);
 
@@ -1283,7 +1285,7 @@ witness_dissect_element_AsyncNotify_response_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-witness_dissect_element_AsyncNotify_response__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_AsyncNotify_response__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = witness_dissect_struct_notifyResponse(tvb,offset,pinfo,tree,di,drep,hf_witness_witness_AsyncNotify_response,0);
 
@@ -1296,7 +1298,7 @@ witness_dissect_element_AsyncNotify_response__(tvbuff_t *tvb _U_, int offset _U_
 /* IDL: ); */
 
 static int
-witness_dissect_AsyncNotify_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_AsyncNotify_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -1313,7 +1315,7 @@ witness_dissect_AsyncNotify_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-witness_dissect_AsyncNotify_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_AsyncNotify_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="AsyncNotify";
 	offset = witness_dissect_element_AsyncNotify_context_handle(tvb, offset, pinfo, tree, di, drep);
@@ -1322,7 +1324,7 @@ witness_dissect_AsyncNotify_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-witness_dissect_element_RegisterEx_context_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_RegisterEx_context_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, witness_dissect_element_RegisterEx_context_handle_, NDR_POINTER_REF, "Pointer to Context Handle (policy_handle)",hf_witness_witness_RegisterEx_context_handle);
 
@@ -1330,7 +1332,7 @@ witness_dissect_element_RegisterEx_context_handle(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-witness_dissect_element_RegisterEx_context_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_RegisterEx_context_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_RegisterEx_context_handle, 0);
 
@@ -1338,7 +1340,7 @@ witness_dissect_element_RegisterEx_context_handle_(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-witness_dissect_element_RegisterEx_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_RegisterEx_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = witness_dissect_enum_version(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_RegisterEx_version, 0);
 
@@ -1346,7 +1348,7 @@ witness_dissect_element_RegisterEx_version(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-witness_dissect_element_RegisterEx_net_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_RegisterEx_net_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, witness_dissect_element_RegisterEx_net_name_, NDR_POINTER_UNIQUE, "Pointer to Net Name (uint16)",hf_witness_witness_RegisterEx_net_name);
 
@@ -1354,7 +1356,7 @@ witness_dissect_element_RegisterEx_net_name(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-witness_dissect_element_RegisterEx_net_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_RegisterEx_net_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 
@@ -1365,7 +1367,7 @@ witness_dissect_element_RegisterEx_net_name_(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-witness_dissect_element_RegisterEx_share_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_RegisterEx_share_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, witness_dissect_element_RegisterEx_share_name_, NDR_POINTER_UNIQUE, "Pointer to Share Name (uint16)",hf_witness_witness_RegisterEx_share_name);
 
@@ -1373,7 +1375,7 @@ witness_dissect_element_RegisterEx_share_name(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-witness_dissect_element_RegisterEx_share_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_RegisterEx_share_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 
@@ -1384,7 +1386,7 @@ witness_dissect_element_RegisterEx_share_name_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-witness_dissect_element_RegisterEx_ip_address(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_RegisterEx_ip_address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, witness_dissect_element_RegisterEx_ip_address_, NDR_POINTER_UNIQUE, "Pointer to Ip Address (uint16)",hf_witness_witness_RegisterEx_ip_address);
 
@@ -1392,7 +1394,7 @@ witness_dissect_element_RegisterEx_ip_address(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-witness_dissect_element_RegisterEx_ip_address_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_RegisterEx_ip_address_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 
@@ -1403,7 +1405,7 @@ witness_dissect_element_RegisterEx_ip_address_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-witness_dissect_element_RegisterEx_client_computer_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_RegisterEx_client_computer_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, witness_dissect_element_RegisterEx_client_computer_name_, NDR_POINTER_UNIQUE, "Pointer to Client Computer Name (uint16)",hf_witness_witness_RegisterEx_client_computer_name);
 
@@ -1411,7 +1413,7 @@ witness_dissect_element_RegisterEx_client_computer_name(tvbuff_t *tvb _U_, int o
 }
 
 static int
-witness_dissect_element_RegisterEx_client_computer_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_RegisterEx_client_computer_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 
@@ -1422,7 +1424,7 @@ witness_dissect_element_RegisterEx_client_computer_name_(tvbuff_t *tvb _U_, int 
 }
 
 static int
-witness_dissect_element_RegisterEx_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_RegisterEx_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = witness_dissect_bitmap_RegisterEx_flags(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_RegisterEx_flags, 0);
 
@@ -1430,7 +1432,7 @@ witness_dissect_element_RegisterEx_flags(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-witness_dissect_element_RegisterEx_timeout(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_element_RegisterEx_timeout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_witness_witness_RegisterEx_timeout, 0);
 
@@ -1449,7 +1451,7 @@ witness_dissect_element_RegisterEx_timeout(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: ); */
 
 static int
-witness_dissect_RegisterEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_RegisterEx_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -1466,7 +1468,7 @@ witness_dissect_RegisterEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-witness_dissect_RegisterEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+witness_dissect_RegisterEx_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="RegisterEx";
 	offset = witness_dissect_element_RegisterEx_version(tvb, offset, pinfo, tree, di, drep);

@@ -14,6 +14,8 @@
 #include <string.h>
 #include <epan/packet.h>
 
+DIAG_OFF(unused-parameter)
+
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
@@ -632,36 +634,36 @@ static const true_false_string lsa_SecretAccessMask_LSA_SECRET_SET_VALUE_tfs = {
    "LSA_SECRET_SET_VALUE is SET",
    "LSA_SECRET_SET_VALUE is NOT SET",
 };
-static int lsarpc_dissect_element_lsa_String_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_String_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_String_string(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_String_string_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_StringLarge_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_StringLarge_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_StringLarge_string(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_StringLarge_string_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_Strings_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_Strings_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_Strings_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_Strings_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AsciiString_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AsciiString_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AsciiString_string(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AsciiString_string_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AsciiString_string__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AsciiStringLarge_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AsciiStringLarge_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AsciiStringLarge_string(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AsciiStringLarge_string_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AsciiStringLarge_string__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LUID_low(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LUID_high(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PrivEntry_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PrivEntry_luid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PrivArray_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PrivArray_privs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PrivArray_privs_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PrivArray_privs__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_String_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_String_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_String_string(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_String_string_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_StringLarge_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_StringLarge_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_StringLarge_string(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_StringLarge_string_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_Strings_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_Strings_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_Strings_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_Strings_names__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AsciiString_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AsciiString_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AsciiString_string(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AsciiString_string_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AsciiString_string__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AsciiStringLarge_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AsciiStringLarge_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AsciiStringLarge_string(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AsciiStringLarge_string_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AsciiStringLarge_string__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LUID_low(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LUID_high(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PrivEntry_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PrivEntry_luid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PrivArray_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PrivArray_privs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PrivArray_privs_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PrivArray_privs__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 const value_string lsarpc_lsa_SecurityImpersonationLevel_vals[] = {
 	{ LSA_SECURITY_ANONYMOUS, "LSA_SECURITY_ANONYMOUS" },
 	{ LSA_SECURITY_IDENTIFICATION, "LSA_SECURITY_IDENTIFICATION" },
@@ -669,27 +671,27 @@ const value_string lsarpc_lsa_SecurityImpersonationLevel_vals[] = {
 	{ LSA_SECURITY_DELEGATION, "LSA_SECURITY_DELEGATION" },
 { 0, NULL }
 };
-static int lsarpc_dissect_element_lsa_QosInfo_len(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QosInfo_impersonation_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QosInfo_context_mode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QosInfo_effective_only(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ObjectAttribute_len(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ObjectAttribute_root_dir(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ObjectAttribute_root_dir_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ObjectAttribute_object_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ObjectAttribute_object_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ObjectAttribute_attributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ObjectAttribute_sec_desc(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ObjectAttribute_sec_desc_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ObjectAttribute_sec_qos(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ObjectAttribute_sec_qos_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AuditLogInfo_percent_full(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AuditLogInfo_log_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AuditLogInfo_retention_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AuditLogInfo_shutdown_in_progress(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AuditLogInfo_time_to_shutdown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AuditLogInfo_next_audit_record(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AuditLogInfo_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_QosInfo_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QosInfo_impersonation_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QosInfo_context_mode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QosInfo_effective_only(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ObjectAttribute_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ObjectAttribute_root_dir(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ObjectAttribute_root_dir_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ObjectAttribute_object_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ObjectAttribute_object_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ObjectAttribute_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ObjectAttribute_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ObjectAttribute_sec_desc_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ObjectAttribute_sec_qos(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ObjectAttribute_sec_qos_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AuditLogInfo_percent_full(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AuditLogInfo_log_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AuditLogInfo_retention_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AuditLogInfo_shutdown_in_progress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AuditLogInfo_time_to_shutdown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AuditLogInfo_next_audit_record(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AuditLogInfo_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 const value_string lsarpc_lsa_PolicyAuditPolicy_vals[] = {
 	{ LSA_AUDIT_POLICY_NONE, "LSA_AUDIT_POLICY_NONE" },
 	{ LSA_AUDIT_POLICY_SUCCESS, "LSA_AUDIT_POLICY_SUCCESS" },
@@ -710,41 +712,41 @@ const value_string lsarpc_lsa_PolicyAuditEventType_vals[] = {
 	{ LSA_AUDIT_CATEGORY_ACCOUNT_LOGON, "LSA_AUDIT_CATEGORY_ACCOUNT_LOGON" },
 { 0, NULL }
 };
-static int lsarpc_dissect_element_lsa_AuditEventsInfo_auditing_mode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AuditEventsInfo_settings(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AuditEventsInfo_settings_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AuditEventsInfo_settings__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AuditEventsInfo_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainInfo_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainInfo_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainInfo_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PDAccountInfo_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_AuditEventsInfo_auditing_mode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AuditEventsInfo_settings(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AuditEventsInfo_settings_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AuditEventsInfo_settings__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AuditEventsInfo_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainInfo_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainInfo_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainInfo_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PDAccountInfo_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 const value_string lsarpc_lsa_PolicyServerRole_vals[] = {
 	{ LSA_POLICY_ROLE_BACKUP, "LSA_POLICY_ROLE_BACKUP" },
 	{ LSA_POLICY_ROLE_PRIMARY, "LSA_POLICY_ROLE_PRIMARY" },
 { 0, NULL }
 };
-static int lsarpc_dissect_element_lsa_ServerRole_role(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ReplicaSourceInfo_source(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ReplicaSourceInfo_account(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DefaultQuotaInfo_paged_pool(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DefaultQuotaInfo_non_paged_pool(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DefaultQuotaInfo_min_wss(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DefaultQuotaInfo_max_wss(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DefaultQuotaInfo_pagefile(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DefaultQuotaInfo_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ModificationInfo_modified_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ModificationInfo_db_create_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AuditFullSetInfo_shutdown_on_full(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AuditFullQueryInfo_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AuditFullQueryInfo_shutdown_on_full(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AuditFullQueryInfo_log_is_full(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DnsDomainInfo_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DnsDomainInfo_dns_domain(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DnsDomainInfo_dns_forest(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DnsDomainInfo_domain_guid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DnsDomainInfo_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DnsDomainInfo_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_ServerRole_role(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ReplicaSourceInfo_source(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ReplicaSourceInfo_account(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DefaultQuotaInfo_paged_pool(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DefaultQuotaInfo_non_paged_pool(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DefaultQuotaInfo_min_wss(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DefaultQuotaInfo_max_wss(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DefaultQuotaInfo_pagefile(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DefaultQuotaInfo_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ModificationInfo_modified_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ModificationInfo_db_create_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AuditFullSetInfo_shutdown_on_full(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AuditFullQueryInfo_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AuditFullQueryInfo_shutdown_on_full(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AuditFullQueryInfo_log_is_full(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DnsDomainInfo_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DnsDomainInfo_dns_domain(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DnsDomainInfo_dns_forest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DnsDomainInfo_domain_guid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DnsDomainInfo_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DnsDomainInfo_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 const value_string lsarpc_lsa_PolicyInfo_vals[] = {
 	{ LSA_POLICY_INFO_AUDIT_LOG, "LSA_POLICY_INFO_AUDIT_LOG" },
 	{ LSA_POLICY_INFO_AUDIT_EVENTS, "LSA_POLICY_INFO_AUDIT_EVENTS" },
@@ -762,28 +764,28 @@ const value_string lsarpc_lsa_PolicyInfo_vals[] = {
 	{ LSA_POLICY_INFO_LOCAL_ACCOUNT_DOMAIN, "LSA_POLICY_INFO_LOCAL_ACCOUNT_DOMAIN" },
 { 0, NULL }
 };
-static int lsarpc_dissect_element_lsa_PolicyInformation_audit_log(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PolicyInformation_audit_events(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PolicyInformation_domain(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PolicyInformation_pd(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PolicyInformation_account_domain(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PolicyInformation_role(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PolicyInformation_replica(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PolicyInformation_quota(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PolicyInformation_db(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PolicyInformation_auditfullset(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PolicyInformation_auditfullquery(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PolicyInformation_dns(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SidPtr_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SidPtr_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SidArray_num_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SidArray_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SidArray_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SidArray_sids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainList_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainList_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainList_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainList_domains__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_PolicyInformation_audit_log(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PolicyInformation_audit_events(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PolicyInformation_domain(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PolicyInformation_pd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PolicyInformation_account_domain(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PolicyInformation_role(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PolicyInformation_replica(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PolicyInformation_quota(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PolicyInformation_db(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PolicyInformation_auditfullset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PolicyInformation_auditfullquery(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PolicyInformation_dns(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SidPtr_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SidPtr_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SidArray_num_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SidArray_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SidArray_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SidArray_sids__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainList_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainList_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainList_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainList_domains__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 const value_string lsarpc_lsa_SidType_vals[] = {
 	{ SID_NAME_USE_NONE, "SID_NAME_USE_NONE" },
 	{ SID_NAME_USER, "SID_NAME_USER" },
@@ -797,18 +799,18 @@ const value_string lsarpc_lsa_SidType_vals[] = {
 	{ SID_NAME_COMPUTER, "SID_NAME_COMPUTER" },
 { 0, NULL }
 };
-static int lsarpc_dissect_element_lsa_TranslatedSid_sid_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TranslatedSid_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TranslatedSid_sid_index(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransSidArray_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransSidArray_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransSidArray_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransSidArray_sids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RefDomainList_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RefDomainList_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RefDomainList_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RefDomainList_domains__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RefDomainList_max_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_TranslatedSid_sid_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TranslatedSid_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TranslatedSid_sid_index(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransSidArray_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransSidArray_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransSidArray_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransSidArray_sids__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RefDomainList_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RefDomainList_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RefDomainList_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RefDomainList_domains__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RefDomainList_max_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 const value_string lsarpc_lsa_LookupNamesLevel_vals[] = {
 	{ LSA_LOOKUP_NAMES_ALL, "LSA_LOOKUP_NAMES_ALL" },
 	{ LSA_LOOKUP_NAMES_DOMAINS_ONLY, "LSA_LOOKUP_NAMES_DOMAINS_ONLY" },
@@ -818,28 +820,28 @@ const value_string lsarpc_lsa_LookupNamesLevel_vals[] = {
 	{ LSA_LOOKUP_NAMES_UPLEVEL_TRUSTS_ONLY2, "LSA_LOOKUP_NAMES_UPLEVEL_TRUSTS_ONLY2" },
 { 0, NULL }
 };
-static int lsarpc_dissect_element_lsa_TranslatedName_sid_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TranslatedName_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TranslatedName_sid_index(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransNameArray_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransNameArray_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransNameArray_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransNameArray_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LUIDAttribute_luid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LUIDAttribute_attribute(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PrivilegeSet_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PrivilegeSet_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PrivilegeSet_set(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_PrivilegeSet_set_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DATA_BUF_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DATA_BUF_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DATA_BUF_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DATA_BUF_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DATA_BUF_data__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DATA_BUF2_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DATA_BUF2_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DATA_BUF2_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DATA_BUF2_data__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_TranslatedName_sid_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TranslatedName_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TranslatedName_sid_index(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransNameArray_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransNameArray_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransNameArray_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransNameArray_names__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LUIDAttribute_luid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LUIDAttribute_attribute(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PrivilegeSet_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PrivilegeSet_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PrivilegeSet_set(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_PrivilegeSet_set_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DATA_BUF_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DATA_BUF_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DATA_BUF_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DATA_BUF_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DATA_BUF_data__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DATA_BUF2_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DATA_BUF2_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DATA_BUF2_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DATA_BUF2_data__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 const value_string lsarpc_lsa_TrustDomInfoEnum_vals[] = {
 	{ LSA_TRUSTED_DOMAIN_INFO_NAME, "LSA_TRUSTED_DOMAIN_INFO_NAME" },
 	{ LSA_TRUSTED_DOMAIN_INFO_CONTROLLERS_INFO, "LSA_TRUSTED_DOMAIN_INFO_CONTROLLERS_INFO" },
@@ -853,121 +855,121 @@ const value_string lsarpc_lsa_TrustDomInfoEnum_vals[] = {
 	{ LSA_TRUSTED_DOMAIN_INFO_INFO_ALL, "LSA_TRUSTED_DOMAIN_INFO_INFO_ALL" },
 { 0, NULL }
 };
-static int lsarpc_dissect_element_lsa_TrustDomainInfoName_netbios_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoPosixOffset_posix_offset(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoPassword_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoPassword_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoPassword_old_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoPassword_old_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoBasic_netbios_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoBasic_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoBasic_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_domain_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_netbios_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_trust_direction(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_trust_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_trust_attributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoBuffer_last_update_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoBuffer_secret_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoBuffer_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_current_auth_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_current_auth_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_previous_auth_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_previous_auth_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_current_auth_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_current_auth_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_previous_auth_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_previous_auth_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoFullInfo_info_ex(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoFullInfo_posix_offset(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoFullInfo_auth_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfo11_info_ex(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfo11_data1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_info_ex(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_data1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_posix_offset(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_auth_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustedDomainInfo_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustedDomainInfo_posix_offset(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustedDomainInfo_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustedDomainInfo_info_basic(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustedDomainInfo_info_ex(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustedDomainInfo_auth_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustedDomainInfo_full_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustedDomainInfo_info11(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TrustedDomainInfo_info_all(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DATA_BUF_PTR_buf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DATA_BUF_PTR_buf_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RightAttribute_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RightAttribute_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RightSet_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RightSet_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RightSet_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RightSet_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_StringPointer_string(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_StringPointer_string_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainListEx_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainListEx_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainListEx_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainListEx_domains__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainInfoKerberos_enforce_restrictions(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainInfoKerberos_service_tkt_lifetime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainInfoKerberos_user_tkt_lifetime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainInfoKerberos_user_tkt_renewaltime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainInfoKerberos_clock_skew(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainInfoKerberos_unknown6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainInfoEfs_blob_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoName_netbios_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoPosixOffset_posix_offset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoPassword_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoPassword_password_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoPassword_old_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoPassword_old_password_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoBasic_netbios_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoBasic_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoBasic_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_domain_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_netbios_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_trust_direction(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_trust_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_trust_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoBuffer_last_update_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoBuffer_secret_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoBuffer_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_current_auth_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_current_auth_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_previous_auth_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_previous_auth_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_current_auth_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_current_auth_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_previous_auth_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_previous_auth_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoFullInfo_info_ex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoFullInfo_posix_offset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoFullInfo_auth_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfo11_info_ex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfo11_data1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_info_ex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_data1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_posix_offset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_auth_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustedDomainInfo_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustedDomainInfo_posix_offset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustedDomainInfo_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustedDomainInfo_info_basic(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustedDomainInfo_info_ex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustedDomainInfo_auth_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustedDomainInfo_full_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustedDomainInfo_info11(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TrustedDomainInfo_info_all(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DATA_BUF_PTR_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DATA_BUF_PTR_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RightAttribute_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RightAttribute_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RightSet_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RightSet_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RightSet_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RightSet_names__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_StringPointer_string(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_StringPointer_string_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainListEx_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainListEx_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainListEx_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainListEx_domains__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainInfoKerberos_enforce_restrictions(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainInfoKerberos_service_tkt_lifetime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainInfoKerberos_user_tkt_lifetime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainInfoKerberos_user_tkt_renewaltime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainInfoKerberos_clock_skew(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainInfoKerberos_unknown6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainInfoEfs_blob_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 const value_string lsarpc_lsa_DomainInfoEnum_vals[] = {
 	{ LSA_DOMAIN_INFO_POLICY_QOS, "LSA_DOMAIN_INFO_POLICY_QOS" },
 	{ LSA_DOMAIN_INFO_POLICY_EFS, "LSA_DOMAIN_INFO_POLICY_EFS" },
 	{ LSA_DOMAIN_INFO_POLICY_KERBEROS, "LSA_DOMAIN_INFO_POLICY_KERBEROS" },
 { 0, NULL }
 };
-static int lsarpc_dissect_element_lsa_DomainInformationPolicy_efs_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainInformationPolicy_kerberos_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TranslatedName2_sid_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TranslatedName2_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TranslatedName2_sid_index(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TranslatedName2_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransNameArray2_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransNameArray2_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransNameArray2_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransNameArray2_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TranslatedSid2_sid_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TranslatedSid2_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TranslatedSid2_sid_index(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TranslatedSid2_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransSidArray2_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransSidArray2_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransSidArray2_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransSidArray2_sids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TranslatedSid3_sid_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TranslatedSid3_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TranslatedSid3_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TranslatedSid3_sid_index(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TranslatedSid3_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransSidArray3_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransSidArray3_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransSidArray3_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_TransSidArray3_sids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ForestTrustBinaryData_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ForestTrustBinaryData_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ForestTrustBinaryData_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ForestTrustBinaryData_data__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ForestTrustDomainInfo_domain_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ForestTrustDomainInfo_domain_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ForestTrustDomainInfo_dns_domain_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ForestTrustDomainInfo_netbios_domain_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ForestTrustData_top_level_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ForestTrustData_top_level_name_ex(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ForestTrustData_domain_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ForestTrustData_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_DomainInformationPolicy_efs_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DomainInformationPolicy_kerberos_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TranslatedName2_sid_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TranslatedName2_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TranslatedName2_sid_index(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TranslatedName2_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransNameArray2_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransNameArray2_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransNameArray2_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransNameArray2_names__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TranslatedSid2_sid_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TranslatedSid2_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TranslatedSid2_sid_index(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TranslatedSid2_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransSidArray2_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransSidArray2_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransSidArray2_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransSidArray2_sids__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TranslatedSid3_sid_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TranslatedSid3_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TranslatedSid3_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TranslatedSid3_sid_index(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TranslatedSid3_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransSidArray3_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransSidArray3_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransSidArray3_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_TransSidArray3_sids__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ForestTrustBinaryData_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ForestTrustBinaryData_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ForestTrustBinaryData_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ForestTrustBinaryData_data__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ForestTrustDomainInfo_domain_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ForestTrustDomainInfo_domain_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ForestTrustDomainInfo_dns_domain_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ForestTrustDomainInfo_netbios_domain_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ForestTrustData_top_level_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ForestTrustData_top_level_name_ex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ForestTrustData_domain_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ForestTrustData_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 const value_string lsarpc_lsa_ForestTrustRecordType_vals[] = {
 	{ LSA_FOREST_TRUST_TOP_LEVEL_NAME, "LSA_FOREST_TRUST_TOP_LEVEL_NAME" },
 	{ LSA_FOREST_TRUST_TOP_LEVEL_NAME_EX, "LSA_FOREST_TRUST_TOP_LEVEL_NAME_EX" },
@@ -975,347 +977,347 @@ const value_string lsarpc_lsa_ForestTrustRecordType_vals[] = {
 	{ LSA_FOREST_TRUST_RECORD_TYPE_LAST, "LSA_FOREST_TRUST_RECORD_TYPE_LAST" },
 { 0, NULL }
 };
-static int lsarpc_dissect_element_lsa_ForestTrustRecord_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ForestTrustRecord_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, guint32 *level);
-static int lsarpc_dissect_element_lsa_ForestTrustRecord_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ForestTrustRecord_forest_trust_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, guint32 *level);
-static int lsarpc_dissect_element_lsa_ForestTrustInformation_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ForestTrustInformation_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ForestTrustInformation_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ForestTrustInformation_entries__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_ForestTrustInformation_entries___(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_Close_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_Close_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_Delete_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_Delete_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumPrivs_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumPrivs_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumPrivs_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumPrivs_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumPrivs_max_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumPrivs_privs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumPrivs_privs_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QuerySecurity_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QuerySecurity_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QuerySecurity_sec_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QuerySecurity_sdbuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QuerySecurity_sdbuf_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenPolicy_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenPolicy_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenPolicy_attr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenPolicy_attr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenPolicy_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenPolicy_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenPolicy_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryInfoPolicy_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryInfoPolicy_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryInfoPolicy_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryInfoPolicy_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryInfoPolicy_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetInfoPolicy_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetInfoPolicy_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetInfoPolicy_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetInfoPolicy_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetInfoPolicy_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateAccount_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateAccount_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateAccount_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateAccount_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateAccount_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateAccount_acct_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateAccount_acct_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumAccounts_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumAccounts_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumAccounts_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumAccounts_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumAccounts_num_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumAccounts_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumAccounts_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateTrustedDomain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateTrustedDomain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateTrustedDomain_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateTrustedDomain_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateTrustedDomain_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateTrustedDomain_trustdom_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateTrustedDomain_trustdom_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumTrustDom_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumTrustDom_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumTrustDom_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumTrustDom_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumTrustDom_max_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumTrustDom_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumTrustDom_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames_num_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames_count_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids_count_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateSecret_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateSecret_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateSecret_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateSecret_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateSecret_sec_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CreateSecret_sec_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenAccount_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenAccount_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenAccount_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenAccount_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenAccount_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenAccount_acct_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenAccount_acct_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumPrivsAccount_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumPrivsAccount_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumPrivsAccount_privs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumPrivsAccount_privs_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AddPrivilegesToAccount_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AddPrivilegesToAccount_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AddPrivilegesToAccount_privs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AddPrivilegesToAccount_privs_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_remove_all(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_privs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_privs_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenTrustedDomain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenTrustedDomain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenTrustedDomain_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenTrustedDomain_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenTrustedDomain_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenTrustedDomain_trustdom_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenTrustedDomain_trustdom_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_trustdom_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_trustdom_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenSecret_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenSecret_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenSecret_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenSecret_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenSecret_sec_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenSecret_sec_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetSecret_sec_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetSecret_sec_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetSecret_new_val(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetSecret_new_val_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetSecret_old_val(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetSecret_old_val_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QuerySecret_sec_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QuerySecret_sec_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QuerySecret_new_val(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QuerySecret_new_val_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QuerySecret_new_mtime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QuerySecret_new_mtime_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QuerySecret_old_val(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QuerySecret_old_val_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QuerySecret_old_mtime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QuerySecret_old_mtime_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivValue_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivValue_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivValue_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivValue_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivValue_luid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivValue_luid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivName_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivName_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivName_luid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivName_luid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivName_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivName_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_language_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_language_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumAccountRights_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumAccountRights_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumAccountRights_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumAccountRights_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumAccountRights_rights(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumAccountRights_rights_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AddAccountRights_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AddAccountRights_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AddAccountRights_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AddAccountRights_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AddAccountRights_rights(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_AddAccountRights_rights_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RemoveAccountRights_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RemoveAccountRights_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RemoveAccountRights_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RemoveAccountRights_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RemoveAccountRights_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RemoveAccountRights_rights(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_RemoveAccountRights_rights_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_dom_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_dom_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DeleteTrustedDomain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DeleteTrustedDomain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DeleteTrustedDomain_dom_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DeleteTrustedDomain_dom_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenPolicy2_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenPolicy2_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenPolicy2_attr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenPolicy2_attr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenPolicy2_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenPolicy2_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenPolicy2_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_GetUserName_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_GetUserName_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_GetUserName_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_GetUserName_account_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_GetUserName_authority_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_GetUserName_authority_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryInfoPolicy2_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryInfoPolicy2_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryInfoPolicy2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryInfoPolicy2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryInfoPolicy2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetInfoPolicy2_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetInfoPolicy2_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetInfoPolicy2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetInfoPolicy2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetInfoPolicy2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_trusted_domain(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_trusted_domain(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_max_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CloseTrustedDomainEx_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_CloseTrustedDomainEx_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetDomainInformationPolicy_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetDomainInformationPolicy_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetDomainInformationPolicy_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetDomainInformationPolicy_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_SetDomainInformationPolicy_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenTrustedDomainByName_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenTrustedDomainByName_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenTrustedDomainByName_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenTrustedDomainByName_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenTrustedDomainByName_trustdom_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_OpenTrustedDomainByName_trustdom_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids2_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids2_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids2_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids2_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids2_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids2_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids2_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids2_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids2_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids2_count_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids2_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids2_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames2_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames2_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames2_num_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames2_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames2_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames2_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames2_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames2_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames2_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames2_count_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames2_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames2_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames3_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames3_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames3_num_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames3_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames3_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames3_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames3_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames3_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames3_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames3_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames3_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames3_count_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames3_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames3_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_trusted_domain_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_trusted_domain_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_forest_trust_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_forest_trust_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_forest_trust_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids3_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids3_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids3_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids3_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids3_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids3_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids3_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids3_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids3_count_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids3_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupSids3_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames4_num_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames4_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames4_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames4_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames4_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames4_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames4_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames4_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames4_count_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames4_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_LookupNames4_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_ForestTrustRecord_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ForestTrustRecord_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, guint32 *level);
+static int lsarpc_dissect_element_lsa_ForestTrustRecord_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ForestTrustRecord_forest_trust_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, guint32 *level);
+static int lsarpc_dissect_element_lsa_ForestTrustInformation_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ForestTrustInformation_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ForestTrustInformation_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ForestTrustInformation_entries__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_ForestTrustInformation_entries___(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_Close_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_Close_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_Delete_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_Delete_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumPrivs_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumPrivs_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumPrivs_resume_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumPrivs_resume_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumPrivs_max_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumPrivs_privs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumPrivs_privs_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QuerySecurity_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QuerySecurity_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QuerySecurity_sec_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QuerySecurity_sdbuf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QuerySecurity_sdbuf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenPolicy_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenPolicy_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenPolicy_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenPolicy_attr_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenPolicy_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenPolicy_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenPolicy_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryInfoPolicy_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryInfoPolicy_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryInfoPolicy_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryInfoPolicy_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryInfoPolicy_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetInfoPolicy_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetInfoPolicy_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetInfoPolicy_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetInfoPolicy_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetInfoPolicy_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateAccount_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateAccount_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateAccount_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateAccount_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateAccount_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateAccount_acct_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateAccount_acct_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumAccounts_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumAccounts_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumAccounts_resume_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumAccounts_resume_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumAccounts_num_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumAccounts_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumAccounts_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateTrustedDomain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateTrustedDomain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateTrustedDomain_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateTrustedDomain_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateTrustedDomain_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateTrustedDomain_trustdom_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateTrustedDomain_trustdom_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumTrustDom_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumTrustDom_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumTrustDom_resume_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumTrustDom_resume_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumTrustDom_max_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumTrustDom_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumTrustDom_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames_num_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames_count_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids_count_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateSecret_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateSecret_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateSecret_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateSecret_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateSecret_sec_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CreateSecret_sec_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenAccount_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenAccount_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenAccount_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenAccount_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenAccount_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenAccount_acct_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenAccount_acct_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumPrivsAccount_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumPrivsAccount_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumPrivsAccount_privs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumPrivsAccount_privs_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AddPrivilegesToAccount_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AddPrivilegesToAccount_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AddPrivilegesToAccount_privs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AddPrivilegesToAccount_privs_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_remove_all(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_privs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_privs_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenTrustedDomain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenTrustedDomain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenTrustedDomain_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenTrustedDomain_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenTrustedDomain_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenTrustedDomain_trustdom_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenTrustedDomain_trustdom_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_trustdom_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_trustdom_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenSecret_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenSecret_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenSecret_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenSecret_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenSecret_sec_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenSecret_sec_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetSecret_sec_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetSecret_sec_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetSecret_new_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetSecret_new_val_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetSecret_old_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetSecret_old_val_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QuerySecret_sec_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QuerySecret_sec_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QuerySecret_new_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QuerySecret_new_val_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QuerySecret_new_mtime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QuerySecret_new_mtime_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QuerySecret_old_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QuerySecret_old_val_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QuerySecret_old_mtime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QuerySecret_old_mtime_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivValue_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivValue_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivValue_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivValue_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivValue_luid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivValue_luid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivName_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivName_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivName_luid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivName_luid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivName_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivName_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_language_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_language_id_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumAccountRights_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumAccountRights_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumAccountRights_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumAccountRights_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumAccountRights_rights(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumAccountRights_rights_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AddAccountRights_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AddAccountRights_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AddAccountRights_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AddAccountRights_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AddAccountRights_rights(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_AddAccountRights_rights_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RemoveAccountRights_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RemoveAccountRights_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RemoveAccountRights_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RemoveAccountRights_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RemoveAccountRights_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RemoveAccountRights_rights(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_RemoveAccountRights_rights_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_dom_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_dom_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DeleteTrustedDomain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DeleteTrustedDomain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DeleteTrustedDomain_dom_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_DeleteTrustedDomain_dom_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenPolicy2_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenPolicy2_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenPolicy2_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenPolicy2_attr_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenPolicy2_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenPolicy2_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenPolicy2_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_GetUserName_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_GetUserName_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_GetUserName_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_GetUserName_account_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_GetUserName_authority_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_GetUserName_authority_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryInfoPolicy2_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryInfoPolicy2_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryInfoPolicy2_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryInfoPolicy2_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryInfoPolicy2_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetInfoPolicy2_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetInfoPolicy2_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetInfoPolicy2_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetInfoPolicy2_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetInfoPolicy2_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_trusted_domain(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_trusted_domain(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_resume_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_resume_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_max_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CloseTrustedDomainEx_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_CloseTrustedDomainEx_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetDomainInformationPolicy_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetDomainInformationPolicy_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetDomainInformationPolicy_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetDomainInformationPolicy_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_SetDomainInformationPolicy_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenTrustedDomainByName_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenTrustedDomainByName_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenTrustedDomainByName_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenTrustedDomainByName_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenTrustedDomainByName_trustdom_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_OpenTrustedDomainByName_trustdom_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids2_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids2_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids2_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids2_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids2_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids2_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids2_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids2_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids2_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids2_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids2_count_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids2_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids2_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames2_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames2_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames2_num_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames2_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames2_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames2_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames2_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames2_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames2_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames2_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames2_count_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames2_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames2_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames3_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames3_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames3_num_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames3_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames3_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames3_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames3_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames3_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames3_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames3_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames3_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames3_count_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames3_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames3_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_trusted_domain_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_trusted_domain_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_forest_trust_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_forest_trust_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_forest_trust_info__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids3_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids3_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids3_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids3_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids3_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids3_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids3_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids3_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids3_count_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids3_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupSids3_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames4_num_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames4_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames4_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames4_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames4_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames4_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames4_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames4_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames4_count_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames4_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int lsarpc_dissect_element_lsa_LookupNames4_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
 static void
-lsarpc_policy_specific_rights(tvbuff_t *tvb _U_, gint offset _U_, proto_tree *tree _U_, guint32 access _U_)
+lsarpc_policy_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
 	proto_tree_add_boolean(tree, hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_NOTIFICATION, tvb, offset, 4, access);
 	proto_tree_add_boolean(tree, hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_LOOKUP_NAMES, tvb, offset, 4, access);
@@ -1332,7 +1334,7 @@ lsarpc_policy_specific_rights(tvbuff_t *tvb _U_, gint offset _U_, proto_tree *tr
 	proto_tree_add_boolean(tree, hf_lsarpc_lsa_PolicyAccessMask_LSA_POLICY_VIEW_LOCAL_INFORMATION, tvb, offset, 4, access);
 }
 static void
-lsarpc_account_specific_rights(tvbuff_t *tvb _U_, gint offset _U_, proto_tree *tree _U_, guint32 access _U_)
+lsarpc_account_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
 	proto_tree_add_boolean(tree, hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_SYSTEM_ACCESS, tvb, offset, 4, access);
 	proto_tree_add_boolean(tree, hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_QUOTAS, tvb, offset, 4, access);
@@ -1340,13 +1342,13 @@ lsarpc_account_specific_rights(tvbuff_t *tvb _U_, gint offset _U_, proto_tree *t
 	proto_tree_add_boolean(tree, hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_VIEW, tvb, offset, 4, access);
 }
 static void
-lsarpc_secret_specific_rights(tvbuff_t *tvb _U_, gint offset _U_, proto_tree *tree _U_, guint32 access _U_)
+lsarpc_secret_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
 	proto_tree_add_boolean(tree, hf_lsarpc_lsa_SecretAccessMask_LSA_SECRET_QUERY_VALUE, tvb, offset, 4, access);
 	proto_tree_add_boolean(tree, hf_lsarpc_lsa_SecretAccessMask_LSA_SECRET_SET_VALUE, tvb, offset, 4, access);
 }
 static void
-lsarpc_domain_specific_rights(tvbuff_t *tvb _U_, gint offset _U_, proto_tree *tree _U_, guint32 access _U_)
+lsarpc_domain_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
 	proto_tree_add_boolean(tree, hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_QUERY_AUTH, tvb, offset, 4, access);
 	proto_tree_add_boolean(tree, hf_lsarpc_lsa_DomainAccessMask_LSA_DOMAIN_SET_AUTH, tvb, offset, 4, access);
@@ -1381,7 +1383,7 @@ struct access_mask_info lsarpc_domain_access_mask_info = {
 	NULL				/* Standard mapping table */
 };
 int
-lsarpc_dissect_bitmap_lsa_PolicyAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_bitmap_lsa_PolicyAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, di, drep, hf_lsarpc_policy_access_mask,
@@ -1389,7 +1391,7 @@ lsarpc_dissect_bitmap_lsa_PolicyAccessMask(tvbuff_t *tvb, int offset, packet_inf
 	return offset;
 }
 int
-lsarpc_dissect_bitmap_lsa_AccountAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_bitmap_lsa_AccountAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, di, drep, hf_lsarpc_account_access_mask,
@@ -1397,7 +1399,7 @@ lsarpc_dissect_bitmap_lsa_AccountAccessMask(tvbuff_t *tvb, int offset, packet_in
 	return offset;
 }
 int
-lsarpc_dissect_bitmap_lsa_SecretAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_bitmap_lsa_SecretAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, di, drep, hf_lsarpc_secret_access_mask,
@@ -1405,7 +1407,7 @@ lsarpc_dissect_bitmap_lsa_SecretAccessMask(tvbuff_t *tvb, int offset, packet_inf
 	return offset;
 }
 int
-lsarpc_dissect_bitmap_lsa_DomainAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_bitmap_lsa_DomainAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, di, drep, hf_lsarpc_domain_access_mask,
@@ -1472,22 +1474,22 @@ lsarpc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	return cnf_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);
 }
 static int
-lsarpc_dissect_struct_security_descriptor(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, guint8 *drep _U_, int unused1 _U_, int unused2 _U_){
+lsarpc_dissect_struct_security_descriptor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int unused1, int unused2){
 	return cnf_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);
 } 
 int
-lsarpc_dissect_struct_dom_sid2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, guint8 *drep _U_, int unused1 _U_, int unused2 _U_) {
+lsarpc_dissect_struct_dom_sid2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int unused1, int unused2) {
 	/* sid */
 	return dissect_ndr_nt_SID(tvb, offset, pinfo, tree, di, drep);
 }
 static int
-cnf_dissect_hyper(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, guint32 param _U_, int hfindex)
+cnf_dissect_hyper(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, guint32 param, int hfindex)
 {
 	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hfindex, NULL);
 	return offset;
 }
 static int
-lsarpc_dissect_element_lsa_LookupNames3_names_X(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames3_names_X(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -1501,31 +1503,31 @@ lsarpc_dissect_element_lsa_LookupNames3_names_X(tvbuff_t *tvb _U_, int offset _U
 	return offset;
 }
 static int
-lsarpc_dissect_element_lsa_LookupNames_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames3_names_X, NDR_POINTER_REF, "Pointer to Names", hf_lsarpc_names);
 	return offset;
 }
 static int
-lsarpc_dissect_element_lsa_LookupNames2_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames2_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames3_names_X, NDR_POINTER_REF, "Pointer to Names", hf_lsarpc_names);
 	return offset;
 }
 static int
-lsarpc_dissect_element_lsa_LookupNames3_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames3_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames3_names_X, NDR_POINTER_REF, "Pointer to Names", hf_lsarpc_names);
 	return offset;
 }
 static int
-lsarpc_dissect_element_lsa_LookupNames4_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames4_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames3_names_X, NDR_POINTER_REF, "Pointer to Names", hf_lsarpc_names);
 	return offset;
 }
 static int
-lsarpc_dissect_element_lsa_String_string_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_String_string_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_lsarpc_String_name, FALSE, &data);
@@ -1533,7 +1535,7 @@ lsarpc_dissect_element_lsa_String_string_(tvbuff_t *tvb _U_, int offset _U_, pac
 	return offset;
 }
 static int
-lsarpc_dissect_element_lsa_StringLarge_string_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_StringLarge_string_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_lsarpc_String_name, FALSE, &data);
@@ -1541,7 +1543,7 @@ lsarpc_dissect_element_lsa_StringLarge_string_(tvbuff_t *tvb _U_, int offset _U_
 	return offset;
 }
 static int
-lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	tvbuff_t *next_tvb;
 	gint len, reported_len;
@@ -1612,7 +1614,7 @@ lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_(tvbuff_t *tvb _U_, int offset
 /* IDL: } */
 
 int
-lsarpc_dissect_bitmap_security_secinfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_bitmap_security_secinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -1646,7 +1648,7 @@ lsarpc_dissect_bitmap_security_secinfo(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_String_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_String_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_String_length, 0);
 
@@ -1654,7 +1656,7 @@ lsarpc_dissect_element_lsa_String_length(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-lsarpc_dissect_element_lsa_String_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_String_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_String_size, 0);
 
@@ -1662,7 +1664,7 @@ lsarpc_dissect_element_lsa_String_size(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-lsarpc_dissect_element_lsa_String_string(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_String_string(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_String_string_, NDR_POINTER_UNIQUE, "Pointer to String (uint16)",hf_lsarpc_lsa_String_string);
 
@@ -1670,7 +1672,7 @@ lsarpc_dissect_element_lsa_String_string(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 int
-lsarpc_dissect_struct_lsa_String(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -1710,7 +1712,7 @@ lsarpc_dissect_struct_lsa_String(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_StringLarge_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_StringLarge_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_StringLarge_length, 0);
 
@@ -1718,7 +1720,7 @@ lsarpc_dissect_element_lsa_StringLarge_length(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_StringLarge_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_StringLarge_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_StringLarge_size, 0);
 
@@ -1726,7 +1728,7 @@ lsarpc_dissect_element_lsa_StringLarge_size(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_StringLarge_string(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_StringLarge_string(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_StringLarge_string_, NDR_POINTER_UNIQUE, "Pointer to String (uint16)",hf_lsarpc_lsa_StringLarge_string);
 
@@ -1734,7 +1736,7 @@ lsarpc_dissect_element_lsa_StringLarge_string(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 int
-lsarpc_dissect_struct_lsa_StringLarge(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_StringLarge(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -1773,7 +1775,7 @@ lsarpc_dissect_struct_lsa_StringLarge(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_Strings_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_Strings_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_Strings_count, 0);
 
@@ -1781,7 +1783,7 @@ lsarpc_dissect_element_lsa_Strings_count(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-lsarpc_dissect_element_lsa_Strings_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_Strings_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_Strings_names_, NDR_POINTER_UNIQUE, "Pointer to Names (lsa_String)",hf_lsarpc_lsa_Strings_names);
 
@@ -1789,7 +1791,7 @@ lsarpc_dissect_element_lsa_Strings_names(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-lsarpc_dissect_element_lsa_Strings_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_Strings_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_Strings_names__);
 
@@ -1797,7 +1799,7 @@ lsarpc_dissect_element_lsa_Strings_names_(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-lsarpc_dissect_element_lsa_Strings_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_Strings_names__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_Strings_names,0);
 
@@ -1805,7 +1807,7 @@ lsarpc_dissect_element_lsa_Strings_names__(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 int
-lsarpc_dissect_struct_lsa_Strings(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_Strings(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -1843,7 +1845,7 @@ lsarpc_dissect_struct_lsa_Strings(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_AsciiString_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AsciiString_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AsciiString_length, 0);
 
@@ -1851,7 +1853,7 @@ lsarpc_dissect_element_lsa_AsciiString_length(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_AsciiString_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AsciiString_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AsciiString_size, 0);
 
@@ -1859,7 +1861,7 @@ lsarpc_dissect_element_lsa_AsciiString_size(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_AsciiString_string(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AsciiString_string(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_AsciiString_string_, NDR_POINTER_UNIQUE, "Pointer to String (uint8)",hf_lsarpc_lsa_AsciiString_string);
 
@@ -1867,7 +1869,7 @@ lsarpc_dissect_element_lsa_AsciiString_string(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_AsciiString_string_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AsciiString_string_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_AsciiString_string__);
 
@@ -1875,7 +1877,7 @@ lsarpc_dissect_element_lsa_AsciiString_string_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_AsciiString_string__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AsciiString_string__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AsciiString_string, 0);
 
@@ -1883,7 +1885,7 @@ lsarpc_dissect_element_lsa_AsciiString_string__(tvbuff_t *tvb _U_, int offset _U
 }
 
 int
-lsarpc_dissect_struct_lsa_AsciiString(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_AsciiString(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -1923,7 +1925,7 @@ lsarpc_dissect_struct_lsa_AsciiString(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_AsciiStringLarge_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AsciiStringLarge_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AsciiStringLarge_length, 0);
 
@@ -1931,7 +1933,7 @@ lsarpc_dissect_element_lsa_AsciiStringLarge_length(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_AsciiStringLarge_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AsciiStringLarge_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AsciiStringLarge_size, 0);
 
@@ -1939,7 +1941,7 @@ lsarpc_dissect_element_lsa_AsciiStringLarge_size(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_AsciiStringLarge_string(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AsciiStringLarge_string(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_AsciiStringLarge_string_, NDR_POINTER_UNIQUE, "Pointer to String (uint8)",hf_lsarpc_lsa_AsciiStringLarge_string);
 
@@ -1947,7 +1949,7 @@ lsarpc_dissect_element_lsa_AsciiStringLarge_string(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_AsciiStringLarge_string_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AsciiStringLarge_string_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_AsciiStringLarge_string__);
 
@@ -1955,7 +1957,7 @@ lsarpc_dissect_element_lsa_AsciiStringLarge_string_(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_AsciiStringLarge_string__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AsciiStringLarge_string__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AsciiStringLarge_string, 0);
 
@@ -1963,7 +1965,7 @@ lsarpc_dissect_element_lsa_AsciiStringLarge_string__(tvbuff_t *tvb _U_, int offs
 }
 
 int
-lsarpc_dissect_struct_lsa_AsciiStringLarge(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_AsciiStringLarge(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2002,7 +2004,7 @@ lsarpc_dissect_struct_lsa_AsciiStringLarge(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_LUID_low(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LUID_low(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LUID_low, 0);
 
@@ -2010,7 +2012,7 @@ lsarpc_dissect_element_lsa_LUID_low(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-lsarpc_dissect_element_lsa_LUID_high(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LUID_high(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LUID_high, 0);
 
@@ -2018,7 +2020,7 @@ lsarpc_dissect_element_lsa_LUID_high(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 int
-lsarpc_dissect_struct_lsa_LUID(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_LUID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2055,7 +2057,7 @@ lsarpc_dissect_struct_lsa_LUID(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_PrivEntry_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PrivEntry_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_PrivEntry_name,0);
 
@@ -2063,7 +2065,7 @@ lsarpc_dissect_element_lsa_PrivEntry_name(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-lsarpc_dissect_element_lsa_PrivEntry_luid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PrivEntry_luid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_LUID(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_PrivEntry_luid,0);
 
@@ -2071,7 +2073,7 @@ lsarpc_dissect_element_lsa_PrivEntry_luid(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 int
-lsarpc_dissect_struct_lsa_PrivEntry(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_PrivEntry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2108,7 +2110,7 @@ lsarpc_dissect_struct_lsa_PrivEntry(tvbuff_t *tvb _U_, int offset _U_, packet_in
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_PrivArray_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PrivArray_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_PrivArray_count, 0);
 
@@ -2116,7 +2118,7 @@ lsarpc_dissect_element_lsa_PrivArray_count(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-lsarpc_dissect_element_lsa_PrivArray_privs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PrivArray_privs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_PrivArray_privs_, NDR_POINTER_UNIQUE, "Pointer to Privs (lsa_PrivEntry)",hf_lsarpc_lsa_PrivArray_privs);
 
@@ -2124,7 +2126,7 @@ lsarpc_dissect_element_lsa_PrivArray_privs(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-lsarpc_dissect_element_lsa_PrivArray_privs_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PrivArray_privs_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_PrivArray_privs__);
 
@@ -2132,7 +2134,7 @@ lsarpc_dissect_element_lsa_PrivArray_privs_(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_PrivArray_privs__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PrivArray_privs__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_PrivEntry(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_PrivArray_privs,0);
 
@@ -2140,7 +2142,7 @@ lsarpc_dissect_element_lsa_PrivArray_privs__(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 int
-lsarpc_dissect_struct_lsa_PrivArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_PrivArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2179,7 +2181,7 @@ lsarpc_dissect_struct_lsa_PrivArray(tvbuff_t *tvb _U_, int offset _U_, packet_in
 /* IDL: } */
 
 int
-lsarpc_dissect_enum_lsa_SecurityImpersonationLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_)
+lsarpc_dissect_enum_lsa_SecurityImpersonationLevel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint1632 *param)
 {
 	guint1632 parameter=0;
 	if (param) {
@@ -2201,7 +2203,7 @@ lsarpc_dissect_enum_lsa_SecurityImpersonationLevel(tvbuff_t *tvb _U_, int offset
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_QosInfo_len(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QosInfo_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QosInfo_len, 0);
 
@@ -2209,7 +2211,7 @@ lsarpc_dissect_element_lsa_QosInfo_len(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-lsarpc_dissect_element_lsa_QosInfo_impersonation_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QosInfo_impersonation_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_SecurityImpersonationLevel(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QosInfo_impersonation_level, 0);
 
@@ -2217,7 +2219,7 @@ lsarpc_dissect_element_lsa_QosInfo_impersonation_level(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_QosInfo_context_mode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QosInfo_context_mode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QosInfo_context_mode, 0);
 
@@ -2225,7 +2227,7 @@ lsarpc_dissect_element_lsa_QosInfo_context_mode(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_QosInfo_effective_only(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QosInfo_effective_only(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QosInfo_effective_only, 0);
 
@@ -2233,7 +2235,7 @@ lsarpc_dissect_element_lsa_QosInfo_effective_only(tvbuff_t *tvb _U_, int offset 
 }
 
 int
-lsarpc_dissect_struct_lsa_QosInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_QosInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2278,7 +2280,7 @@ lsarpc_dissect_struct_lsa_QosInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_ObjectAttribute_len(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ObjectAttribute_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_ObjectAttribute_len, 0);
 
@@ -2286,7 +2288,7 @@ lsarpc_dissect_element_lsa_ObjectAttribute_len(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_ObjectAttribute_root_dir(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ObjectAttribute_root_dir(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_ObjectAttribute_root_dir_, NDR_POINTER_UNIQUE, "Pointer to Root Dir (uint8)",hf_lsarpc_lsa_ObjectAttribute_root_dir);
 
@@ -2294,7 +2296,7 @@ lsarpc_dissect_element_lsa_ObjectAttribute_root_dir(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_ObjectAttribute_root_dir_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ObjectAttribute_root_dir_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_ObjectAttribute_root_dir, 0);
 
@@ -2302,7 +2304,7 @@ lsarpc_dissect_element_lsa_ObjectAttribute_root_dir_(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_element_lsa_ObjectAttribute_object_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ObjectAttribute_object_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_ObjectAttribute_object_name_, NDR_POINTER_UNIQUE, "Pointer to Object Name (uint16)",hf_lsarpc_lsa_ObjectAttribute_object_name);
 
@@ -2310,7 +2312,7 @@ lsarpc_dissect_element_lsa_ObjectAttribute_object_name(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_ObjectAttribute_object_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ObjectAttribute_object_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 
@@ -2321,7 +2323,7 @@ lsarpc_dissect_element_lsa_ObjectAttribute_object_name_(tvbuff_t *tvb _U_, int o
 }
 
 static int
-lsarpc_dissect_element_lsa_ObjectAttribute_attributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ObjectAttribute_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_ObjectAttribute_attributes, 0);
 
@@ -2329,7 +2331,7 @@ lsarpc_dissect_element_lsa_ObjectAttribute_attributes(tvbuff_t *tvb _U_, int off
 }
 
 static int
-lsarpc_dissect_element_lsa_ObjectAttribute_sec_desc(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ObjectAttribute_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_ObjectAttribute_sec_desc_, NDR_POINTER_UNIQUE, "Pointer to Sec Desc (security_descriptor)",hf_lsarpc_lsa_ObjectAttribute_sec_desc);
 
@@ -2337,7 +2339,7 @@ lsarpc_dissect_element_lsa_ObjectAttribute_sec_desc(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_ObjectAttribute_sec_desc_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ObjectAttribute_sec_desc_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_security_descriptor(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_ObjectAttribute_sec_desc,0);
 
@@ -2345,7 +2347,7 @@ lsarpc_dissect_element_lsa_ObjectAttribute_sec_desc_(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_element_lsa_ObjectAttribute_sec_qos(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ObjectAttribute_sec_qos(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_ObjectAttribute_sec_qos_, NDR_POINTER_UNIQUE, "Pointer to Sec Qos (lsa_QosInfo)",hf_lsarpc_lsa_ObjectAttribute_sec_qos);
 
@@ -2353,7 +2355,7 @@ lsarpc_dissect_element_lsa_ObjectAttribute_sec_qos(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_ObjectAttribute_sec_qos_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ObjectAttribute_sec_qos_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_QosInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_ObjectAttribute_sec_qos,0);
 
@@ -2361,7 +2363,7 @@ lsarpc_dissect_element_lsa_ObjectAttribute_sec_qos_(tvbuff_t *tvb _U_, int offse
 }
 
 int
-lsarpc_dissect_struct_lsa_ObjectAttribute(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_ObjectAttribute(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2411,7 +2413,7 @@ lsarpc_dissect_struct_lsa_ObjectAttribute(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_AuditLogInfo_percent_full(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AuditLogInfo_percent_full(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AuditLogInfo_percent_full, 0);
 
@@ -2419,7 +2421,7 @@ lsarpc_dissect_element_lsa_AuditLogInfo_percent_full(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_element_lsa_AuditLogInfo_log_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AuditLogInfo_log_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AuditLogInfo_log_size, 0);
 
@@ -2427,7 +2429,7 @@ lsarpc_dissect_element_lsa_AuditLogInfo_log_size(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_AuditLogInfo_retention_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AuditLogInfo_retention_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AuditLogInfo_retention_time);
 
@@ -2435,7 +2437,7 @@ lsarpc_dissect_element_lsa_AuditLogInfo_retention_time(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_AuditLogInfo_shutdown_in_progress(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AuditLogInfo_shutdown_in_progress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AuditLogInfo_shutdown_in_progress, 0);
 
@@ -2443,7 +2445,7 @@ lsarpc_dissect_element_lsa_AuditLogInfo_shutdown_in_progress(tvbuff_t *tvb _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_AuditLogInfo_time_to_shutdown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AuditLogInfo_time_to_shutdown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AuditLogInfo_time_to_shutdown);
 
@@ -2451,7 +2453,7 @@ lsarpc_dissect_element_lsa_AuditLogInfo_time_to_shutdown(tvbuff_t *tvb _U_, int 
 }
 
 static int
-lsarpc_dissect_element_lsa_AuditLogInfo_next_audit_record(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AuditLogInfo_next_audit_record(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AuditLogInfo_next_audit_record, 0);
 
@@ -2459,7 +2461,7 @@ lsarpc_dissect_element_lsa_AuditLogInfo_next_audit_record(tvbuff_t *tvb _U_, int
 }
 
 static int
-lsarpc_dissect_element_lsa_AuditLogInfo_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AuditLogInfo_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AuditLogInfo_unknown, 0);
 
@@ -2467,7 +2469,7 @@ lsarpc_dissect_element_lsa_AuditLogInfo_unknown(tvbuff_t *tvb _U_, int offset _U
 }
 
 int
-lsarpc_dissect_struct_lsa_AuditLogInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_AuditLogInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2517,7 +2519,7 @@ lsarpc_dissect_struct_lsa_AuditLogInfo(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: } */
 
 int
-lsarpc_dissect_enum_lsa_PolicyAuditPolicy(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
+lsarpc_dissect_enum_lsa_PolicyAuditPolicy(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 *param)
 {
 	guint32 parameter=0;
 	if (param) {
@@ -2544,7 +2546,7 @@ lsarpc_dissect_enum_lsa_PolicyAuditPolicy(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: } */
 
 int
-lsarpc_dissect_enum_lsa_PolicyAuditEventType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_)
+lsarpc_dissect_enum_lsa_PolicyAuditEventType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint1632 *param)
 {
 	guint1632 parameter=0;
 	if (param) {
@@ -2565,7 +2567,7 @@ lsarpc_dissect_enum_lsa_PolicyAuditEventType(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_AuditEventsInfo_auditing_mode(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AuditEventsInfo_auditing_mode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AuditEventsInfo_auditing_mode, 0);
 
@@ -2573,7 +2575,7 @@ lsarpc_dissect_element_lsa_AuditEventsInfo_auditing_mode(tvbuff_t *tvb _U_, int 
 }
 
 static int
-lsarpc_dissect_element_lsa_AuditEventsInfo_settings(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AuditEventsInfo_settings(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_AuditEventsInfo_settings_, NDR_POINTER_UNIQUE, "Pointer to Settings (lsa_PolicyAuditPolicy)",hf_lsarpc_lsa_AuditEventsInfo_settings);
 
@@ -2581,7 +2583,7 @@ lsarpc_dissect_element_lsa_AuditEventsInfo_settings(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_AuditEventsInfo_settings_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AuditEventsInfo_settings_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_AuditEventsInfo_settings__);
 
@@ -2589,7 +2591,7 @@ lsarpc_dissect_element_lsa_AuditEventsInfo_settings_(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_element_lsa_AuditEventsInfo_settings__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AuditEventsInfo_settings__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_PolicyAuditPolicy(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AuditEventsInfo_settings, 0);
 
@@ -2597,7 +2599,7 @@ lsarpc_dissect_element_lsa_AuditEventsInfo_settings__(tvbuff_t *tvb _U_, int off
 }
 
 static int
-lsarpc_dissect_element_lsa_AuditEventsInfo_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AuditEventsInfo_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AuditEventsInfo_count, 0);
 
@@ -2605,7 +2607,7 @@ lsarpc_dissect_element_lsa_AuditEventsInfo_count(tvbuff_t *tvb _U_, int offset _
 }
 
 int
-lsarpc_dissect_struct_lsa_AuditEventsInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_AuditEventsInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2644,7 +2646,7 @@ lsarpc_dissect_struct_lsa_AuditEventsInfo(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_DomainInfo_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainInfo_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_DomainInfo_name,0);
 
@@ -2652,7 +2654,7 @@ lsarpc_dissect_element_lsa_DomainInfo_name(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-lsarpc_dissect_element_lsa_DomainInfo_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainInfo_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_DomainInfo_sid_, NDR_POINTER_UNIQUE, "Pointer to Sid (dom_sid2)",hf_lsarpc_lsa_DomainInfo_sid);
 
@@ -2660,7 +2662,7 @@ lsarpc_dissect_element_lsa_DomainInfo_sid(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-lsarpc_dissect_element_lsa_DomainInfo_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainInfo_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_dom_sid2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_DomainInfo_sid,0);
 
@@ -2668,7 +2670,7 @@ lsarpc_dissect_element_lsa_DomainInfo_sid_(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 int
-lsarpc_dissect_struct_lsa_DomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_DomainInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2704,7 +2706,7 @@ lsarpc_dissect_struct_lsa_DomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_PDAccountInfo_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PDAccountInfo_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_PDAccountInfo_name,0);
 
@@ -2712,7 +2714,7 @@ lsarpc_dissect_element_lsa_PDAccountInfo_name(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 int
-lsarpc_dissect_struct_lsa_PDAccountInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_PDAccountInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2747,7 +2749,7 @@ lsarpc_dissect_struct_lsa_PDAccountInfo(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: } */
 
 int
-lsarpc_dissect_enum_lsa_PolicyServerRole(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_)
+lsarpc_dissect_enum_lsa_PolicyServerRole(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint1632 *param)
 {
 	guint1632 parameter=0;
 	if (param) {
@@ -2766,7 +2768,7 @@ lsarpc_dissect_enum_lsa_PolicyServerRole(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_ServerRole_role(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ServerRole_role(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_PolicyServerRole(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_ServerRole_role, 0);
 
@@ -2774,7 +2776,7 @@ lsarpc_dissect_element_lsa_ServerRole_role(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 int
-lsarpc_dissect_struct_lsa_ServerRole(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_ServerRole(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2809,7 +2811,7 @@ lsarpc_dissect_struct_lsa_ServerRole(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_ReplicaSourceInfo_source(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ReplicaSourceInfo_source(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_ReplicaSourceInfo_source,0);
 
@@ -2817,7 +2819,7 @@ lsarpc_dissect_element_lsa_ReplicaSourceInfo_source(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_ReplicaSourceInfo_account(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ReplicaSourceInfo_account(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_ReplicaSourceInfo_account,0);
 
@@ -2825,7 +2827,7 @@ lsarpc_dissect_element_lsa_ReplicaSourceInfo_account(tvbuff_t *tvb _U_, int offs
 }
 
 int
-lsarpc_dissect_struct_lsa_ReplicaSourceInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_ReplicaSourceInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2866,7 +2868,7 @@ lsarpc_dissect_struct_lsa_ReplicaSourceInfo(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_DefaultQuotaInfo_paged_pool(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DefaultQuotaInfo_paged_pool(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DefaultQuotaInfo_paged_pool, 0);
 
@@ -2874,7 +2876,7 @@ lsarpc_dissect_element_lsa_DefaultQuotaInfo_paged_pool(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_DefaultQuotaInfo_non_paged_pool(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DefaultQuotaInfo_non_paged_pool(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DefaultQuotaInfo_non_paged_pool, 0);
 
@@ -2882,7 +2884,7 @@ lsarpc_dissect_element_lsa_DefaultQuotaInfo_non_paged_pool(tvbuff_t *tvb _U_, in
 }
 
 static int
-lsarpc_dissect_element_lsa_DefaultQuotaInfo_min_wss(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DefaultQuotaInfo_min_wss(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DefaultQuotaInfo_min_wss, 0);
 
@@ -2890,7 +2892,7 @@ lsarpc_dissect_element_lsa_DefaultQuotaInfo_min_wss(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_DefaultQuotaInfo_max_wss(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DefaultQuotaInfo_max_wss(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DefaultQuotaInfo_max_wss, 0);
 
@@ -2898,7 +2900,7 @@ lsarpc_dissect_element_lsa_DefaultQuotaInfo_max_wss(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_DefaultQuotaInfo_pagefile(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DefaultQuotaInfo_pagefile(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DefaultQuotaInfo_pagefile, 0);
 
@@ -2906,7 +2908,7 @@ lsarpc_dissect_element_lsa_DefaultQuotaInfo_pagefile(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_element_lsa_DefaultQuotaInfo_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DefaultQuotaInfo_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_lsarpc_lsa_DefaultQuotaInfo_unknown);
 
@@ -2914,7 +2916,7 @@ lsarpc_dissect_element_lsa_DefaultQuotaInfo_unknown(tvbuff_t *tvb _U_, int offse
 }
 
 int
-lsarpc_dissect_struct_lsa_DefaultQuotaInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_DefaultQuotaInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2959,7 +2961,7 @@ lsarpc_dissect_struct_lsa_DefaultQuotaInfo(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_ModificationInfo_modified_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ModificationInfo_modified_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_lsarpc_lsa_ModificationInfo_modified_id);
 
@@ -2967,7 +2969,7 @@ lsarpc_dissect_element_lsa_ModificationInfo_modified_id(tvbuff_t *tvb _U_, int o
 }
 
 static int
-lsarpc_dissect_element_lsa_ModificationInfo_db_create_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ModificationInfo_db_create_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_ModificationInfo_db_create_time);
 
@@ -2975,7 +2977,7 @@ lsarpc_dissect_element_lsa_ModificationInfo_db_create_time(tvbuff_t *tvb _U_, in
 }
 
 int
-lsarpc_dissect_struct_lsa_ModificationInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_ModificationInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3011,7 +3013,7 @@ lsarpc_dissect_struct_lsa_ModificationInfo(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_AuditFullSetInfo_shutdown_on_full(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AuditFullSetInfo_shutdown_on_full(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AuditFullSetInfo_shutdown_on_full, 0);
 
@@ -3019,7 +3021,7 @@ lsarpc_dissect_element_lsa_AuditFullSetInfo_shutdown_on_full(tvbuff_t *tvb _U_, 
 }
 
 int
-lsarpc_dissect_struct_lsa_AuditFullSetInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_AuditFullSetInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3049,7 +3051,7 @@ lsarpc_dissect_struct_lsa_AuditFullSetInfo(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_AuditFullQueryInfo_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AuditFullQueryInfo_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AuditFullQueryInfo_unknown, 0);
 
@@ -3057,7 +3059,7 @@ lsarpc_dissect_element_lsa_AuditFullQueryInfo_unknown(tvbuff_t *tvb _U_, int off
 }
 
 static int
-lsarpc_dissect_element_lsa_AuditFullQueryInfo_shutdown_on_full(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AuditFullQueryInfo_shutdown_on_full(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AuditFullQueryInfo_shutdown_on_full, 0);
 
@@ -3065,7 +3067,7 @@ lsarpc_dissect_element_lsa_AuditFullQueryInfo_shutdown_on_full(tvbuff_t *tvb _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_AuditFullQueryInfo_log_is_full(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AuditFullQueryInfo_log_is_full(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AuditFullQueryInfo_log_is_full, 0);
 
@@ -3073,7 +3075,7 @@ lsarpc_dissect_element_lsa_AuditFullQueryInfo_log_is_full(tvbuff_t *tvb _U_, int
 }
 
 int
-lsarpc_dissect_struct_lsa_AuditFullQueryInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_AuditFullQueryInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3115,7 +3117,7 @@ lsarpc_dissect_struct_lsa_AuditFullQueryInfo(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_DnsDomainInfo_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DnsDomainInfo_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_DnsDomainInfo_name,0);
 
@@ -3123,7 +3125,7 @@ lsarpc_dissect_element_lsa_DnsDomainInfo_name(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_DnsDomainInfo_dns_domain(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DnsDomainInfo_dns_domain(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_DnsDomainInfo_dns_domain,0);
 
@@ -3131,7 +3133,7 @@ lsarpc_dissect_element_lsa_DnsDomainInfo_dns_domain(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_DnsDomainInfo_dns_forest(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DnsDomainInfo_dns_forest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_DnsDomainInfo_dns_forest,0);
 
@@ -3139,7 +3141,7 @@ lsarpc_dissect_element_lsa_DnsDomainInfo_dns_forest(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_DnsDomainInfo_domain_guid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DnsDomainInfo_domain_guid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DnsDomainInfo_domain_guid, NULL);
 
@@ -3147,7 +3149,7 @@ lsarpc_dissect_element_lsa_DnsDomainInfo_domain_guid(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_element_lsa_DnsDomainInfo_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DnsDomainInfo_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_DnsDomainInfo_sid_, NDR_POINTER_UNIQUE, "Pointer to Sid (dom_sid2)",hf_lsarpc_lsa_DnsDomainInfo_sid);
 
@@ -3155,7 +3157,7 @@ lsarpc_dissect_element_lsa_DnsDomainInfo_sid(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_DnsDomainInfo_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DnsDomainInfo_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_dom_sid2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_DnsDomainInfo_sid,0);
 
@@ -3163,7 +3165,7 @@ lsarpc_dissect_element_lsa_DnsDomainInfo_sid_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 int
-lsarpc_dissect_struct_lsa_DnsDomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_DnsDomainInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3218,7 +3220,7 @@ lsarpc_dissect_struct_lsa_DnsDomainInfo(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: } */
 
 int
-lsarpc_dissect_enum_lsa_PolicyInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_)
+lsarpc_dissect_enum_lsa_PolicyInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint1632 *param)
 {
 	guint1632 parameter=0;
 	if (param) {
@@ -3248,7 +3250,7 @@ lsarpc_dissect_enum_lsa_PolicyInfo(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_PolicyInformation_audit_log(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PolicyInformation_audit_log(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_AuditLogInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_PolicyInformation_audit_log,0);
 
@@ -3256,7 +3258,7 @@ lsarpc_dissect_element_lsa_PolicyInformation_audit_log(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_PolicyInformation_audit_events(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PolicyInformation_audit_events(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_AuditEventsInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_PolicyInformation_audit_events,0);
 
@@ -3264,7 +3266,7 @@ lsarpc_dissect_element_lsa_PolicyInformation_audit_events(tvbuff_t *tvb _U_, int
 }
 
 static int
-lsarpc_dissect_element_lsa_PolicyInformation_domain(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PolicyInformation_domain(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DomainInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_PolicyInformation_domain,0);
 
@@ -3272,7 +3274,7 @@ lsarpc_dissect_element_lsa_PolicyInformation_domain(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_PolicyInformation_pd(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PolicyInformation_pd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_PDAccountInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_PolicyInformation_pd,0);
 
@@ -3280,7 +3282,7 @@ lsarpc_dissect_element_lsa_PolicyInformation_pd(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_PolicyInformation_account_domain(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PolicyInformation_account_domain(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DomainInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_PolicyInformation_account_domain,0);
 
@@ -3288,7 +3290,7 @@ lsarpc_dissect_element_lsa_PolicyInformation_account_domain(tvbuff_t *tvb _U_, i
 }
 
 static int
-lsarpc_dissect_element_lsa_PolicyInformation_role(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PolicyInformation_role(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_ServerRole(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_PolicyInformation_role,0);
 
@@ -3296,7 +3298,7 @@ lsarpc_dissect_element_lsa_PolicyInformation_role(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_PolicyInformation_replica(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PolicyInformation_replica(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_ReplicaSourceInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_PolicyInformation_replica,0);
 
@@ -3304,7 +3306,7 @@ lsarpc_dissect_element_lsa_PolicyInformation_replica(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_element_lsa_PolicyInformation_quota(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PolicyInformation_quota(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DefaultQuotaInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_PolicyInformation_quota,0);
 
@@ -3312,7 +3314,7 @@ lsarpc_dissect_element_lsa_PolicyInformation_quota(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_PolicyInformation_db(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PolicyInformation_db(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_ModificationInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_PolicyInformation_db,0);
 
@@ -3320,7 +3322,7 @@ lsarpc_dissect_element_lsa_PolicyInformation_db(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_PolicyInformation_auditfullset(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PolicyInformation_auditfullset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_AuditFullSetInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_PolicyInformation_auditfullset,0);
 
@@ -3328,7 +3330,7 @@ lsarpc_dissect_element_lsa_PolicyInformation_auditfullset(tvbuff_t *tvb _U_, int
 }
 
 static int
-lsarpc_dissect_element_lsa_PolicyInformation_auditfullquery(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PolicyInformation_auditfullquery(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_AuditFullQueryInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_PolicyInformation_auditfullquery,0);
 
@@ -3336,7 +3338,7 @@ lsarpc_dissect_element_lsa_PolicyInformation_auditfullquery(tvbuff_t *tvb _U_, i
 }
 
 static int
-lsarpc_dissect_element_lsa_PolicyInformation_dns(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PolicyInformation_dns(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DnsDomainInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_PolicyInformation_dns,0);
 
@@ -3344,7 +3346,7 @@ lsarpc_dissect_element_lsa_PolicyInformation_dns(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_lsa_PolicyInformation(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_lsa_PolicyInformation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3419,7 +3421,7 @@ lsarpc_dissect_lsa_PolicyInformation(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_SidPtr_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SidPtr_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_SidPtr_sid_, NDR_POINTER_UNIQUE, "Pointer to Sid (dom_sid2)",hf_lsarpc_lsa_SidPtr_sid);
 
@@ -3427,7 +3429,7 @@ lsarpc_dissect_element_lsa_SidPtr_sid(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-lsarpc_dissect_element_lsa_SidPtr_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SidPtr_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_dom_sid2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_SidPtr_sid,0);
 
@@ -3435,7 +3437,7 @@ lsarpc_dissect_element_lsa_SidPtr_sid_(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 int
-lsarpc_dissect_struct_lsa_SidPtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_SidPtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3470,7 +3472,7 @@ lsarpc_dissect_struct_lsa_SidPtr(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_SidArray_num_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SidArray_num_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_SidArray_num_sids, 0);
 
@@ -3478,7 +3480,7 @@ lsarpc_dissect_element_lsa_SidArray_num_sids(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_SidArray_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SidArray_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_SidArray_sids_, NDR_POINTER_UNIQUE, "Pointer to Sids (lsa_SidPtr)",hf_lsarpc_lsa_SidArray_sids);
 
@@ -3486,7 +3488,7 @@ lsarpc_dissect_element_lsa_SidArray_sids(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-lsarpc_dissect_element_lsa_SidArray_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SidArray_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_SidArray_sids__);
 
@@ -3494,7 +3496,7 @@ lsarpc_dissect_element_lsa_SidArray_sids_(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-lsarpc_dissect_element_lsa_SidArray_sids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SidArray_sids__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_SidPtr(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_SidArray_sids,0);
 
@@ -3502,7 +3504,7 @@ lsarpc_dissect_element_lsa_SidArray_sids__(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 int
-lsarpc_dissect_struct_lsa_SidArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_SidArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3539,7 +3541,7 @@ lsarpc_dissect_struct_lsa_SidArray(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_DomainList_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainList_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DomainList_count, 0);
 
@@ -3547,7 +3549,7 @@ lsarpc_dissect_element_lsa_DomainList_count(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_DomainList_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainList_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_DomainList_domains_, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_DomainInfo)",hf_lsarpc_lsa_DomainList_domains);
 
@@ -3555,7 +3557,7 @@ lsarpc_dissect_element_lsa_DomainList_domains(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_DomainList_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainList_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_DomainList_domains__);
 
@@ -3563,7 +3565,7 @@ lsarpc_dissect_element_lsa_DomainList_domains_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_DomainList_domains__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainList_domains__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DomainInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_DomainList_domains,0);
 
@@ -3571,7 +3573,7 @@ lsarpc_dissect_element_lsa_DomainList_domains__(tvbuff_t *tvb _U_, int offset _U
 }
 
 int
-lsarpc_dissect_struct_lsa_DomainList(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_DomainList(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3616,7 +3618,7 @@ lsarpc_dissect_struct_lsa_DomainList(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: } */
 
 int
-lsarpc_dissect_enum_lsa_SidType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_)
+lsarpc_dissect_enum_lsa_SidType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint1632 *param)
 {
 	guint1632 parameter=0;
 	if (param) {
@@ -3637,7 +3639,7 @@ lsarpc_dissect_enum_lsa_SidType(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TranslatedSid_sid_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TranslatedSid_sid_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_SidType(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TranslatedSid_sid_type, 0);
 
@@ -3645,7 +3647,7 @@ lsarpc_dissect_element_lsa_TranslatedSid_sid_type(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_TranslatedSid_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TranslatedSid_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TranslatedSid_rid, 0);
 
@@ -3653,7 +3655,7 @@ lsarpc_dissect_element_lsa_TranslatedSid_rid(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_TranslatedSid_sid_index(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TranslatedSid_sid_index(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TranslatedSid_sid_index, 0);
 
@@ -3661,7 +3663,7 @@ lsarpc_dissect_element_lsa_TranslatedSid_sid_index(tvbuff_t *tvb _U_, int offset
 }
 
 int
-lsarpc_dissect_struct_lsa_TranslatedSid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TranslatedSid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3700,7 +3702,7 @@ lsarpc_dissect_struct_lsa_TranslatedSid(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TransSidArray_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransSidArray_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TransSidArray_count, 0);
 
@@ -3708,7 +3710,7 @@ lsarpc_dissect_element_lsa_TransSidArray_count(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_TransSidArray_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransSidArray_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_TransSidArray_sids_, NDR_POINTER_UNIQUE, "Pointer to Sids (lsa_TranslatedSid)",hf_lsarpc_lsa_TransSidArray_sids);
 
@@ -3716,7 +3718,7 @@ lsarpc_dissect_element_lsa_TransSidArray_sids(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_TransSidArray_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransSidArray_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_TransSidArray_sids__);
 
@@ -3724,7 +3726,7 @@ lsarpc_dissect_element_lsa_TransSidArray_sids_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_TransSidArray_sids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransSidArray_sids__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TranslatedSid(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TransSidArray_sids,0);
 
@@ -3732,7 +3734,7 @@ lsarpc_dissect_element_lsa_TransSidArray_sids__(tvbuff_t *tvb _U_, int offset _U
 }
 
 int
-lsarpc_dissect_struct_lsa_TransSidArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TransSidArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3770,7 +3772,7 @@ lsarpc_dissect_struct_lsa_TransSidArray(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_RefDomainList_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RefDomainList_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_RefDomainList_count, 0);
 
@@ -3778,7 +3780,7 @@ lsarpc_dissect_element_lsa_RefDomainList_count(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_RefDomainList_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RefDomainList_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_RefDomainList_domains_, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_DomainInfo)",hf_lsarpc_lsa_RefDomainList_domains);
 
@@ -3786,7 +3788,7 @@ lsarpc_dissect_element_lsa_RefDomainList_domains(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_RefDomainList_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RefDomainList_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_RefDomainList_domains__);
 
@@ -3794,7 +3796,7 @@ lsarpc_dissect_element_lsa_RefDomainList_domains_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_RefDomainList_domains__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RefDomainList_domains__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DomainInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_RefDomainList_domains,0);
 
@@ -3802,7 +3804,7 @@ lsarpc_dissect_element_lsa_RefDomainList_domains__(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_RefDomainList_max_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RefDomainList_max_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_RefDomainList_max_size, 0);
 
@@ -3810,7 +3812,7 @@ lsarpc_dissect_element_lsa_RefDomainList_max_size(tvbuff_t *tvb _U_, int offset 
 }
 
 int
-lsarpc_dissect_struct_lsa_RefDomainList(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_RefDomainList(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3853,7 +3855,7 @@ lsarpc_dissect_struct_lsa_RefDomainList(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: } */
 
 int
-lsarpc_dissect_enum_lsa_LookupNamesLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_)
+lsarpc_dissect_enum_lsa_LookupNamesLevel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint1632 *param)
 {
 	guint1632 parameter=0;
 	if (param) {
@@ -3874,7 +3876,7 @@ lsarpc_dissect_enum_lsa_LookupNamesLevel(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TranslatedName_sid_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TranslatedName_sid_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_SidType(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TranslatedName_sid_type, 0);
 
@@ -3882,7 +3884,7 @@ lsarpc_dissect_element_lsa_TranslatedName_sid_type(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_TranslatedName_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TranslatedName_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TranslatedName_name,0);
 
@@ -3890,7 +3892,7 @@ lsarpc_dissect_element_lsa_TranslatedName_name(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_TranslatedName_sid_index(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TranslatedName_sid_index(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TranslatedName_sid_index, 0);
 
@@ -3898,7 +3900,7 @@ lsarpc_dissect_element_lsa_TranslatedName_sid_index(tvbuff_t *tvb _U_, int offse
 }
 
 int
-lsarpc_dissect_struct_lsa_TranslatedName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TranslatedName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -3937,7 +3939,7 @@ lsarpc_dissect_struct_lsa_TranslatedName(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TransNameArray_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransNameArray_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TransNameArray_count, 0);
 
@@ -3945,7 +3947,7 @@ lsarpc_dissect_element_lsa_TransNameArray_count(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_TransNameArray_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransNameArray_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_TransNameArray_names_, NDR_POINTER_UNIQUE, "Pointer to Names (lsa_TranslatedName)",hf_lsarpc_lsa_TransNameArray_names);
 
@@ -3953,7 +3955,7 @@ lsarpc_dissect_element_lsa_TransNameArray_names(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_TransNameArray_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransNameArray_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_TransNameArray_names__);
 
@@ -3961,7 +3963,7 @@ lsarpc_dissect_element_lsa_TransNameArray_names_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_TransNameArray_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransNameArray_names__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TranslatedName(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TransNameArray_names,0);
 
@@ -3969,7 +3971,7 @@ lsarpc_dissect_element_lsa_TransNameArray_names__(tvbuff_t *tvb _U_, int offset 
 }
 
 int
-lsarpc_dissect_struct_lsa_TransNameArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TransNameArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4006,7 +4008,7 @@ lsarpc_dissect_struct_lsa_TransNameArray(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_LUIDAttribute_luid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LUIDAttribute_luid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_LUID(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LUIDAttribute_luid,0);
 
@@ -4014,7 +4016,7 @@ lsarpc_dissect_element_lsa_LUIDAttribute_luid(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_LUIDAttribute_attribute(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LUIDAttribute_attribute(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LUIDAttribute_attribute, 0);
 
@@ -4022,7 +4024,7 @@ lsarpc_dissect_element_lsa_LUIDAttribute_attribute(tvbuff_t *tvb _U_, int offset
 }
 
 int
-lsarpc_dissect_struct_lsa_LUIDAttribute(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_LUIDAttribute(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4060,7 +4062,7 @@ lsarpc_dissect_struct_lsa_LUIDAttribute(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_PrivilegeSet_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PrivilegeSet_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_PrivilegeSet_count, 0);
 
@@ -4068,7 +4070,7 @@ lsarpc_dissect_element_lsa_PrivilegeSet_count(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_PrivilegeSet_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PrivilegeSet_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_PrivilegeSet_unknown, 0);
 
@@ -4076,7 +4078,7 @@ lsarpc_dissect_element_lsa_PrivilegeSet_unknown(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_PrivilegeSet_set(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PrivilegeSet_set(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_PrivilegeSet_set_);
 
@@ -4084,7 +4086,7 @@ lsarpc_dissect_element_lsa_PrivilegeSet_set(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_PrivilegeSet_set_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_PrivilegeSet_set_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_LUIDAttribute(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_PrivilegeSet_set,0);
 
@@ -4092,7 +4094,7 @@ lsarpc_dissect_element_lsa_PrivilegeSet_set_(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 int
-lsarpc_dissect_struct_lsa_PrivilegeSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_PrivilegeSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4132,7 +4134,7 @@ lsarpc_dissect_struct_lsa_PrivilegeSet(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_DATA_BUF_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DATA_BUF_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DATA_BUF_length, 0);
 
@@ -4140,7 +4142,7 @@ lsarpc_dissect_element_lsa_DATA_BUF_length(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-lsarpc_dissect_element_lsa_DATA_BUF_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DATA_BUF_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DATA_BUF_size, 0);
 
@@ -4148,7 +4150,7 @@ lsarpc_dissect_element_lsa_DATA_BUF_size(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-lsarpc_dissect_element_lsa_DATA_BUF_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DATA_BUF_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_DATA_BUF_data_, NDR_POINTER_UNIQUE, "Pointer to Data (uint8)",hf_lsarpc_lsa_DATA_BUF_data);
 
@@ -4156,7 +4158,7 @@ lsarpc_dissect_element_lsa_DATA_BUF_data(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-lsarpc_dissect_element_lsa_DATA_BUF_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DATA_BUF_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_DATA_BUF_data__);
 
@@ -4164,7 +4166,7 @@ lsarpc_dissect_element_lsa_DATA_BUF_data_(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-lsarpc_dissect_element_lsa_DATA_BUF_data__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DATA_BUF_data__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DATA_BUF_data, 0);
 
@@ -4172,7 +4174,7 @@ lsarpc_dissect_element_lsa_DATA_BUF_data__(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 int
-lsarpc_dissect_struct_lsa_DATA_BUF(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_DATA_BUF(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4211,7 +4213,7 @@ lsarpc_dissect_struct_lsa_DATA_BUF(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_DATA_BUF2_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DATA_BUF2_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DATA_BUF2_size, 0);
 
@@ -4219,7 +4221,7 @@ lsarpc_dissect_element_lsa_DATA_BUF2_size(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-lsarpc_dissect_element_lsa_DATA_BUF2_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DATA_BUF2_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_DATA_BUF2_data_, NDR_POINTER_UNIQUE, "Pointer to Data (uint8)",hf_lsarpc_lsa_DATA_BUF2_data);
 
@@ -4227,7 +4229,7 @@ lsarpc_dissect_element_lsa_DATA_BUF2_data(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-lsarpc_dissect_element_lsa_DATA_BUF2_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DATA_BUF2_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_DATA_BUF2_data__);
 
@@ -4235,7 +4237,7 @@ lsarpc_dissect_element_lsa_DATA_BUF2_data_(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-lsarpc_dissect_element_lsa_DATA_BUF2_data__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DATA_BUF2_data__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DATA_BUF2_data, 0);
 
@@ -4243,7 +4245,7 @@ lsarpc_dissect_element_lsa_DATA_BUF2_data__(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 int
-lsarpc_dissect_struct_lsa_DATA_BUF2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_DATA_BUF2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4288,7 +4290,7 @@ lsarpc_dissect_struct_lsa_DATA_BUF2(tvbuff_t *tvb _U_, int offset _U_, packet_in
 /* IDL: } */
 
 int
-lsarpc_dissect_enum_lsa_TrustDomInfoEnum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_)
+lsarpc_dissect_enum_lsa_TrustDomInfoEnum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint1632 *param)
 {
 	guint1632 parameter=0;
 	if (param) {
@@ -4307,7 +4309,7 @@ lsarpc_dissect_enum_lsa_TrustDomInfoEnum(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoName_netbios_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoName_netbios_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoName_netbios_name,0);
 
@@ -4315,7 +4317,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoName_netbios_name(tvbuff_t *tvb _U_, i
 }
 
 int
-lsarpc_dissect_struct_lsa_TrustDomainInfoName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TrustDomainInfoName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4349,7 +4351,7 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoName(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoPosixOffset_posix_offset(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoPosixOffset_posix_offset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TrustDomainInfoPosixOffset_posix_offset, 0);
 
@@ -4357,7 +4359,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoPosixOffset_posix_offset(tvbuff_t *tvb
 }
 
 int
-lsarpc_dissect_struct_lsa_TrustDomainInfoPosixOffset(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TrustDomainInfoPosixOffset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4392,7 +4394,7 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoPosixOffset(tvbuff_t *tvb _U_, int offs
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoPassword_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoPassword_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_TrustDomainInfoPassword_password_, NDR_POINTER_UNIQUE, "Pointer to Password (lsa_DATA_BUF)",hf_lsarpc_lsa_TrustDomainInfoPassword_password);
 
@@ -4400,7 +4402,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoPassword_password(tvbuff_t *tvb _U_, i
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoPassword_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoPassword_password_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DATA_BUF(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoPassword_password,0);
 
@@ -4408,7 +4410,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoPassword_password_(tvbuff_t *tvb _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoPassword_old_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoPassword_old_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_TrustDomainInfoPassword_old_password_, NDR_POINTER_UNIQUE, "Pointer to Old Password (lsa_DATA_BUF)",hf_lsarpc_lsa_TrustDomainInfoPassword_old_password);
 
@@ -4416,7 +4418,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoPassword_old_password(tvbuff_t *tvb _U
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoPassword_old_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoPassword_old_password_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DATA_BUF(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoPassword_old_password,0);
 
@@ -4424,7 +4426,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoPassword_old_password_(tvbuff_t *tvb _
 }
 
 int
-lsarpc_dissect_struct_lsa_TrustDomainInfoPassword(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TrustDomainInfoPassword(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4461,7 +4463,7 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoPassword(tvbuff_t *tvb _U_, int offset 
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoBasic_netbios_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoBasic_netbios_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoBasic_netbios_name,0);
 
@@ -4469,7 +4471,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoBasic_netbios_name(tvbuff_t *tvb _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoBasic_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoBasic_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_TrustDomainInfoBasic_sid_, NDR_POINTER_UNIQUE, "Pointer to Sid (dom_sid2)",hf_lsarpc_lsa_TrustDomainInfoBasic_sid);
 
@@ -4477,7 +4479,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoBasic_sid(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoBasic_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoBasic_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_dom_sid2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoBasic_sid,0);
 
@@ -4485,7 +4487,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoBasic_sid_(tvbuff_t *tvb _U_, int offs
 }
 
 int
-lsarpc_dissect_struct_lsa_TrustDomainInfoBasic(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TrustDomainInfoBasic(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4526,7 +4528,7 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoBasic(tvbuff_t *tvb _U_, int offset _U_
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_domain_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_domain_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoInfoEx_domain_name,0);
 
@@ -4534,7 +4536,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_domain_name(tvbuff_t *tvb _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_netbios_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_netbios_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoInfoEx_netbios_name,0);
 
@@ -4542,7 +4544,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_netbios_name(tvbuff_t *tvb _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_sid_, NDR_POINTER_UNIQUE, "Pointer to Sid (dom_sid2)",hf_lsarpc_lsa_TrustDomainInfoInfoEx_sid);
 
@@ -4550,7 +4552,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_sid(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_dom_sid2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoInfoEx_sid,0);
 
@@ -4558,7 +4560,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_sid_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_trust_direction(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_trust_direction(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TrustDomainInfoInfoEx_trust_direction, 0);
 
@@ -4566,7 +4568,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_trust_direction(tvbuff_t *tvb _
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_trust_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_trust_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TrustDomainInfoInfoEx_trust_type, 0);
 
@@ -4574,7 +4576,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_trust_type(tvbuff_t *tvb _U_, i
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_trust_attributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_trust_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TrustDomainInfoInfoEx_trust_attributes, 0);
 
@@ -4582,7 +4584,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoInfoEx_trust_attributes(tvbuff_t *tvb 
 }
 
 int
-lsarpc_dissect_struct_lsa_TrustDomainInfoInfoEx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TrustDomainInfoInfoEx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4628,7 +4630,7 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoInfoEx(tvbuff_t *tvb _U_, int offset _U
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoBuffer_last_update_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoBuffer_last_update_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TrustDomainInfoBuffer_last_update_time);
 
@@ -4636,7 +4638,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoBuffer_last_update_time(tvbuff_t *tvb 
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoBuffer_secret_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoBuffer_secret_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TrustDomainInfoBuffer_secret_type, 0);
 
@@ -4644,7 +4646,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoBuffer_secret_type(tvbuff_t *tvb _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoBuffer_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoBuffer_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DATA_BUF2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoBuffer_data,0);
 
@@ -4652,7 +4654,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoBuffer_data(tvbuff_t *tvb _U_, int off
 }
 
 int
-lsarpc_dissect_struct_lsa_TrustDomainInfoBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TrustDomainInfoBuffer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4695,7 +4697,7 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoBuffer(tvbuff_t *tvb _U_, int offset _U
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TrustDomainInfoAuthInfo_incoming_count, 0);
 
@@ -4703,7 +4705,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_count(tvbuff_t *tvb 
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_current_auth_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_current_auth_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_current_auth_info_, NDR_POINTER_UNIQUE, "Pointer to Incoming Current Auth Info (lsa_TrustDomainInfoBuffer)",hf_lsarpc_lsa_TrustDomainInfoAuthInfo_incoming_current_auth_info);
 
@@ -4711,7 +4713,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_current_auth_info(tv
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_current_auth_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_current_auth_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoBuffer(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoAuthInfo_incoming_current_auth_info,0);
 
@@ -4719,7 +4721,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_current_auth_info_(t
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_previous_auth_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_previous_auth_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_previous_auth_info_, NDR_POINTER_UNIQUE, "Pointer to Incoming Previous Auth Info (lsa_TrustDomainInfoBuffer)",hf_lsarpc_lsa_TrustDomainInfoAuthInfo_incoming_previous_auth_info);
 
@@ -4727,7 +4729,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_previous_auth_info(t
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_previous_auth_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_previous_auth_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoBuffer(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoAuthInfo_incoming_previous_auth_info,0);
 
@@ -4735,7 +4737,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_incoming_previous_auth_info_(
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TrustDomainInfoAuthInfo_outgoing_count, 0);
 
@@ -4743,7 +4745,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_count(tvbuff_t *tvb 
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_current_auth_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_current_auth_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_current_auth_info_, NDR_POINTER_UNIQUE, "Pointer to Outgoing Current Auth Info (lsa_TrustDomainInfoBuffer)",hf_lsarpc_lsa_TrustDomainInfoAuthInfo_outgoing_current_auth_info);
 
@@ -4751,7 +4753,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_current_auth_info(tv
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_current_auth_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_current_auth_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoBuffer(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoAuthInfo_outgoing_current_auth_info,0);
 
@@ -4759,7 +4761,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_current_auth_info_(t
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_previous_auth_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_previous_auth_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_previous_auth_info_, NDR_POINTER_UNIQUE, "Pointer to Outgoing Previous Auth Info (lsa_TrustDomainInfoBuffer)",hf_lsarpc_lsa_TrustDomainInfoAuthInfo_outgoing_previous_auth_info);
 
@@ -4767,7 +4769,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_previous_auth_info(t
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_previous_auth_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_previous_auth_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoBuffer(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoAuthInfo_outgoing_previous_auth_info,0);
 
@@ -4775,7 +4777,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoAuthInfo_outgoing_previous_auth_info_(
 }
 
 int
-lsarpc_dissect_struct_lsa_TrustDomainInfoAuthInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TrustDomainInfoAuthInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4821,7 +4823,7 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoAuthInfo(tvbuff_t *tvb _U_, int offset 
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoFullInfo_info_ex(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoFullInfo_info_ex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoInfoEx(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoFullInfo_info_ex,0);
 
@@ -4829,7 +4831,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoFullInfo_info_ex(tvbuff_t *tvb _U_, in
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoFullInfo_posix_offset(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoFullInfo_posix_offset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoPosixOffset(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoFullInfo_posix_offset,0);
 
@@ -4837,7 +4839,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoFullInfo_posix_offset(tvbuff_t *tvb _U
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoFullInfo_auth_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoFullInfo_auth_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoAuthInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoFullInfo_auth_info,0);
 
@@ -4845,7 +4847,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoFullInfo_auth_info(tvbuff_t *tvb _U_, 
 }
 
 int
-lsarpc_dissect_struct_lsa_TrustDomainInfoFullInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TrustDomainInfoFullInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4884,7 +4886,7 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoFullInfo(tvbuff_t *tvb _U_, int offset 
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfo11_info_ex(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfo11_info_ex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoInfoEx(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfo11_info_ex,0);
 
@@ -4892,7 +4894,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfo11_info_ex(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfo11_data1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfo11_data1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DATA_BUF2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfo11_data1,0);
 
@@ -4900,7 +4902,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfo11_data1(tvbuff_t *tvb _U_, int offset
 }
 
 int
-lsarpc_dissect_struct_lsa_TrustDomainInfo11(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TrustDomainInfo11(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4939,7 +4941,7 @@ lsarpc_dissect_struct_lsa_TrustDomainInfo11(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_info_ex(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_info_ex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoInfoEx(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoInfoAll_info_ex,0);
 
@@ -4947,7 +4949,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_info_ex(tvbuff_t *tvb _U_, int
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_data1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_data1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DATA_BUF2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoInfoAll_data1,0);
 
@@ -4955,7 +4957,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_data1(tvbuff_t *tvb _U_, int o
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_posix_offset(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_posix_offset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoPosixOffset(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoInfoAll_posix_offset,0);
 
@@ -4963,7 +4965,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_posix_offset(tvbuff_t *tvb _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_auth_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_auth_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoAuthInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustDomainInfoInfoAll_auth_info,0);
 
@@ -4971,7 +4973,7 @@ lsarpc_dissect_element_lsa_TrustDomainInfoInfoAll_auth_info(tvbuff_t *tvb _U_, i
 }
 
 int
-lsarpc_dissect_struct_lsa_TrustDomainInfoInfoAll(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TrustDomainInfoInfoAll(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5019,7 +5021,7 @@ lsarpc_dissect_struct_lsa_TrustDomainInfoInfoAll(tvbuff_t *tvb _U_, int offset _
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TrustedDomainInfo_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustedDomainInfo_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoName(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustedDomainInfo_name,0);
 
@@ -5027,7 +5029,7 @@ lsarpc_dissect_element_lsa_TrustedDomainInfo_name(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustedDomainInfo_posix_offset(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustedDomainInfo_posix_offset(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoPosixOffset(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustedDomainInfo_posix_offset,0);
 
@@ -5035,7 +5037,7 @@ lsarpc_dissect_element_lsa_TrustedDomainInfo_posix_offset(tvbuff_t *tvb _U_, int
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustedDomainInfo_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustedDomainInfo_password(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoPassword(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustedDomainInfo_password,0);
 
@@ -5043,7 +5045,7 @@ lsarpc_dissect_element_lsa_TrustedDomainInfo_password(tvbuff_t *tvb _U_, int off
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustedDomainInfo_info_basic(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustedDomainInfo_info_basic(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoBasic(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustedDomainInfo_info_basic,0);
 
@@ -5051,7 +5053,7 @@ lsarpc_dissect_element_lsa_TrustedDomainInfo_info_basic(tvbuff_t *tvb _U_, int o
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustedDomainInfo_info_ex(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustedDomainInfo_info_ex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoInfoEx(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustedDomainInfo_info_ex,0);
 
@@ -5059,7 +5061,7 @@ lsarpc_dissect_element_lsa_TrustedDomainInfo_info_ex(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustedDomainInfo_auth_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustedDomainInfo_auth_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoAuthInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustedDomainInfo_auth_info,0);
 
@@ -5067,7 +5069,7 @@ lsarpc_dissect_element_lsa_TrustedDomainInfo_auth_info(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustedDomainInfo_full_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustedDomainInfo_full_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoFullInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustedDomainInfo_full_info,0);
 
@@ -5075,7 +5077,7 @@ lsarpc_dissect_element_lsa_TrustedDomainInfo_full_info(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustedDomainInfo_info11(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustedDomainInfo_info11(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfo11(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustedDomainInfo_info11,0);
 
@@ -5083,7 +5085,7 @@ lsarpc_dissect_element_lsa_TrustedDomainInfo_info11(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_TrustedDomainInfo_info_all(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TrustedDomainInfo_info_all(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoInfoAll(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TrustedDomainInfo_info_all,0);
 
@@ -5091,7 +5093,7 @@ lsarpc_dissect_element_lsa_TrustedDomainInfo_info_all(tvbuff_t *tvb _U_, int off
 }
 
 static int
-lsarpc_dissect_lsa_TrustedDomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_lsa_TrustedDomainInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5154,7 +5156,7 @@ lsarpc_dissect_lsa_TrustedDomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_DATA_BUF_PTR_buf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DATA_BUF_PTR_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_DATA_BUF_PTR_buf_, NDR_POINTER_UNIQUE, "Pointer to Buf (lsa_DATA_BUF)",hf_lsarpc_lsa_DATA_BUF_PTR_buf);
 
@@ -5162,7 +5164,7 @@ lsarpc_dissect_element_lsa_DATA_BUF_PTR_buf(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_DATA_BUF_PTR_buf_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DATA_BUF_PTR_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DATA_BUF(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_DATA_BUF_PTR_buf,0);
 
@@ -5170,7 +5172,7 @@ lsarpc_dissect_element_lsa_DATA_BUF_PTR_buf_(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 int
-lsarpc_dissect_struct_lsa_DATA_BUF_PTR(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_DATA_BUF_PTR(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5204,7 +5206,7 @@ lsarpc_dissect_struct_lsa_DATA_BUF_PTR(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_RightAttribute_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RightAttribute_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_RightAttribute_name_, NDR_POINTER_UNIQUE, "Pointer to Name (uint16)",hf_lsarpc_lsa_RightAttribute_name);
 
@@ -5212,7 +5214,7 @@ lsarpc_dissect_element_lsa_RightAttribute_name(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_RightAttribute_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RightAttribute_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 
@@ -5223,7 +5225,7 @@ lsarpc_dissect_element_lsa_RightAttribute_name_(tvbuff_t *tvb _U_, int offset _U
 }
 
 int
-lsarpc_dissect_struct_lsa_RightAttribute(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_RightAttribute(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5258,7 +5260,7 @@ lsarpc_dissect_struct_lsa_RightAttribute(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_RightSet_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RightSet_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_RightSet_count, 0);
 
@@ -5266,7 +5268,7 @@ lsarpc_dissect_element_lsa_RightSet_count(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-lsarpc_dissect_element_lsa_RightSet_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RightSet_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_RightSet_names_, NDR_POINTER_UNIQUE, "Pointer to Names (lsa_StringLarge)",hf_lsarpc_lsa_RightSet_names);
 
@@ -5274,7 +5276,7 @@ lsarpc_dissect_element_lsa_RightSet_names(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-lsarpc_dissect_element_lsa_RightSet_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RightSet_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_RightSet_names__);
 
@@ -5282,7 +5284,7 @@ lsarpc_dissect_element_lsa_RightSet_names_(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-lsarpc_dissect_element_lsa_RightSet_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RightSet_names__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_RightSet_names,0);
 
@@ -5290,7 +5292,7 @@ lsarpc_dissect_element_lsa_RightSet_names__(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 int
-lsarpc_dissect_struct_lsa_RightSet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_RightSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5326,7 +5328,7 @@ lsarpc_dissect_struct_lsa_RightSet(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_StringPointer_string(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_StringPointer_string(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_StringPointer_string_, NDR_POINTER_UNIQUE, "Pointer to String (lsa_String)",hf_lsarpc_lsa_StringPointer_string);
 
@@ -5334,7 +5336,7 @@ lsarpc_dissect_element_lsa_StringPointer_string(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_StringPointer_string_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_StringPointer_string_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_StringPointer_string,0);
 
@@ -5342,7 +5344,7 @@ lsarpc_dissect_element_lsa_StringPointer_string_(tvbuff_t *tvb _U_, int offset _
 }
 
 int
-lsarpc_dissect_struct_lsa_StringPointer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_StringPointer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5377,7 +5379,7 @@ lsarpc_dissect_struct_lsa_StringPointer(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_DomainListEx_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainListEx_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DomainListEx_count, 0);
 
@@ -5385,7 +5387,7 @@ lsarpc_dissect_element_lsa_DomainListEx_count(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_DomainListEx_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainListEx_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_DomainListEx_domains_, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_TrustDomainInfoInfoEx)",hf_lsarpc_lsa_DomainListEx_domains);
 
@@ -5393,7 +5395,7 @@ lsarpc_dissect_element_lsa_DomainListEx_domains(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_DomainListEx_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainListEx_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_DomainListEx_domains__);
 
@@ -5401,7 +5403,7 @@ lsarpc_dissect_element_lsa_DomainListEx_domains_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_DomainListEx_domains__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainListEx_domains__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TrustDomainInfoInfoEx(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_DomainListEx_domains,0);
 
@@ -5409,7 +5411,7 @@ lsarpc_dissect_element_lsa_DomainListEx_domains__(tvbuff_t *tvb _U_, int offset 
 }
 
 int
-lsarpc_dissect_struct_lsa_DomainListEx(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_DomainListEx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5450,7 +5452,7 @@ lsarpc_dissect_struct_lsa_DomainListEx(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_DomainInfoKerberos_enforce_restrictions(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainInfoKerberos_enforce_restrictions(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DomainInfoKerberos_enforce_restrictions, 0);
 
@@ -5458,7 +5460,7 @@ lsarpc_dissect_element_lsa_DomainInfoKerberos_enforce_restrictions(tvbuff_t *tvb
 }
 
 static int
-lsarpc_dissect_element_lsa_DomainInfoKerberos_service_tkt_lifetime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainInfoKerberos_service_tkt_lifetime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_lsarpc_lsa_DomainInfoKerberos_service_tkt_lifetime);
 
@@ -5466,7 +5468,7 @@ lsarpc_dissect_element_lsa_DomainInfoKerberos_service_tkt_lifetime(tvbuff_t *tvb
 }
 
 static int
-lsarpc_dissect_element_lsa_DomainInfoKerberos_user_tkt_lifetime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainInfoKerberos_user_tkt_lifetime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_lsarpc_lsa_DomainInfoKerberos_user_tkt_lifetime);
 
@@ -5474,7 +5476,7 @@ lsarpc_dissect_element_lsa_DomainInfoKerberos_user_tkt_lifetime(tvbuff_t *tvb _U
 }
 
 static int
-lsarpc_dissect_element_lsa_DomainInfoKerberos_user_tkt_renewaltime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainInfoKerberos_user_tkt_renewaltime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_lsarpc_lsa_DomainInfoKerberos_user_tkt_renewaltime);
 
@@ -5482,7 +5484,7 @@ lsarpc_dissect_element_lsa_DomainInfoKerberos_user_tkt_renewaltime(tvbuff_t *tvb
 }
 
 static int
-lsarpc_dissect_element_lsa_DomainInfoKerberos_clock_skew(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainInfoKerberos_clock_skew(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_lsarpc_lsa_DomainInfoKerberos_clock_skew);
 
@@ -5490,7 +5492,7 @@ lsarpc_dissect_element_lsa_DomainInfoKerberos_clock_skew(tvbuff_t *tvb _U_, int 
 }
 
 static int
-lsarpc_dissect_element_lsa_DomainInfoKerberos_unknown6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainInfoKerberos_unknown6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_lsarpc_lsa_DomainInfoKerberos_unknown6);
 
@@ -5498,7 +5500,7 @@ lsarpc_dissect_element_lsa_DomainInfoKerberos_unknown6(tvbuff_t *tvb _U_, int of
 }
 
 int
-lsarpc_dissect_struct_lsa_DomainInfoKerberos(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_DomainInfoKerberos(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5543,7 +5545,7 @@ lsarpc_dissect_struct_lsa_DomainInfoKerberos(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_DomainInfoEfs_blob_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainInfoEfs_blob_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DomainInfoEfs_blob_size, 0);
 
@@ -5551,7 +5553,7 @@ lsarpc_dissect_element_lsa_DomainInfoEfs_blob_size(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_, NDR_POINTER_UNIQUE, "Pointer to Efs Blob (uint8)",hf_lsarpc_lsa_DomainInfoEfs_efs_blob);
 
@@ -5559,7 +5561,7 @@ lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob(tvbuff_t *tvb _U_, int offset 
 }
 
 int
-lsarpc_dissect_struct_lsa_DomainInfoEfs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_DomainInfoEfs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5597,7 +5599,7 @@ lsarpc_dissect_struct_lsa_DomainInfoEfs(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: } */
 
 int
-lsarpc_dissect_enum_lsa_DomainInfoEnum(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_)
+lsarpc_dissect_enum_lsa_DomainInfoEnum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint1632 *param)
 {
 	guint1632 parameter=0;
 	if (param) {
@@ -5617,7 +5619,7 @@ lsarpc_dissect_enum_lsa_DomainInfoEnum(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_DomainInformationPolicy_efs_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainInformationPolicy_efs_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DomainInfoEfs(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_DomainInformationPolicy_efs_info,0);
 
@@ -5625,7 +5627,7 @@ lsarpc_dissect_element_lsa_DomainInformationPolicy_efs_info(tvbuff_t *tvb _U_, i
 }
 
 static int
-lsarpc_dissect_element_lsa_DomainInformationPolicy_kerberos_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DomainInformationPolicy_kerberos_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DomainInfoKerberos(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_DomainInformationPolicy_kerberos_info,0);
 
@@ -5633,7 +5635,7 @@ lsarpc_dissect_element_lsa_DomainInformationPolicy_kerberos_info(tvbuff_t *tvb _
 }
 
 static int
-lsarpc_dissect_lsa_DomainInformationPolicy(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_lsa_DomainInformationPolicy(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5671,7 +5673,7 @@ lsarpc_dissect_lsa_DomainInformationPolicy(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TranslatedName2_sid_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TranslatedName2_sid_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_SidType(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TranslatedName2_sid_type, 0);
 
@@ -5679,7 +5681,7 @@ lsarpc_dissect_element_lsa_TranslatedName2_sid_type(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_TranslatedName2_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TranslatedName2_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TranslatedName2_name,0);
 
@@ -5687,7 +5689,7 @@ lsarpc_dissect_element_lsa_TranslatedName2_name(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_TranslatedName2_sid_index(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TranslatedName2_sid_index(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TranslatedName2_sid_index, 0);
 
@@ -5695,7 +5697,7 @@ lsarpc_dissect_element_lsa_TranslatedName2_sid_index(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_element_lsa_TranslatedName2_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TranslatedName2_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TranslatedName2_unknown, 0);
 
@@ -5703,7 +5705,7 @@ lsarpc_dissect_element_lsa_TranslatedName2_unknown(tvbuff_t *tvb _U_, int offset
 }
 
 int
-lsarpc_dissect_struct_lsa_TranslatedName2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TranslatedName2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5744,7 +5746,7 @@ lsarpc_dissect_struct_lsa_TranslatedName2(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TransNameArray2_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransNameArray2_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TransNameArray2_count, 0);
 
@@ -5752,7 +5754,7 @@ lsarpc_dissect_element_lsa_TransNameArray2_count(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_TransNameArray2_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransNameArray2_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_TransNameArray2_names_, NDR_POINTER_UNIQUE, "Pointer to Names (lsa_TranslatedName2)",hf_lsarpc_lsa_TransNameArray2_names);
 
@@ -5760,7 +5762,7 @@ lsarpc_dissect_element_lsa_TransNameArray2_names(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_TransNameArray2_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransNameArray2_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_TransNameArray2_names__);
 
@@ -5768,7 +5770,7 @@ lsarpc_dissect_element_lsa_TransNameArray2_names_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_TransNameArray2_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransNameArray2_names__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TranslatedName2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TransNameArray2_names,0);
 
@@ -5776,7 +5778,7 @@ lsarpc_dissect_element_lsa_TransNameArray2_names__(tvbuff_t *tvb _U_, int offset
 }
 
 int
-lsarpc_dissect_struct_lsa_TransNameArray2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TransNameArray2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5815,7 +5817,7 @@ lsarpc_dissect_struct_lsa_TransNameArray2(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TranslatedSid2_sid_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TranslatedSid2_sid_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_SidType(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TranslatedSid2_sid_type, 0);
 
@@ -5823,7 +5825,7 @@ lsarpc_dissect_element_lsa_TranslatedSid2_sid_type(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_TranslatedSid2_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TranslatedSid2_rid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TranslatedSid2_rid, 0);
 
@@ -5831,7 +5833,7 @@ lsarpc_dissect_element_lsa_TranslatedSid2_rid(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_TranslatedSid2_sid_index(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TranslatedSid2_sid_index(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TranslatedSid2_sid_index, 0);
 
@@ -5839,7 +5841,7 @@ lsarpc_dissect_element_lsa_TranslatedSid2_sid_index(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_TranslatedSid2_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TranslatedSid2_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TranslatedSid2_unknown, 0);
 
@@ -5847,7 +5849,7 @@ lsarpc_dissect_element_lsa_TranslatedSid2_unknown(tvbuff_t *tvb _U_, int offset 
 }
 
 int
-lsarpc_dissect_struct_lsa_TranslatedSid2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TranslatedSid2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5888,7 +5890,7 @@ lsarpc_dissect_struct_lsa_TranslatedSid2(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TransSidArray2_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransSidArray2_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TransSidArray2_count, 0);
 
@@ -5896,7 +5898,7 @@ lsarpc_dissect_element_lsa_TransSidArray2_count(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_TransSidArray2_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransSidArray2_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_TransSidArray2_sids_, NDR_POINTER_UNIQUE, "Pointer to Sids (lsa_TranslatedSid2)",hf_lsarpc_lsa_TransSidArray2_sids);
 
@@ -5904,7 +5906,7 @@ lsarpc_dissect_element_lsa_TransSidArray2_sids(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_TransSidArray2_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransSidArray2_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_TransSidArray2_sids__);
 
@@ -5912,7 +5914,7 @@ lsarpc_dissect_element_lsa_TransSidArray2_sids_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_TransSidArray2_sids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransSidArray2_sids__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TranslatedSid2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TransSidArray2_sids,0);
 
@@ -5920,7 +5922,7 @@ lsarpc_dissect_element_lsa_TransSidArray2_sids__(tvbuff_t *tvb _U_, int offset _
 }
 
 int
-lsarpc_dissect_struct_lsa_TransSidArray2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TransSidArray2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -5959,7 +5961,7 @@ lsarpc_dissect_struct_lsa_TransSidArray2(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TranslatedSid3_sid_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TranslatedSid3_sid_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_SidType(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TranslatedSid3_sid_type, 0);
 
@@ -5967,7 +5969,7 @@ lsarpc_dissect_element_lsa_TranslatedSid3_sid_type(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_TranslatedSid3_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TranslatedSid3_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_TranslatedSid3_sid_, NDR_POINTER_UNIQUE, "Pointer to Sid (dom_sid2)",hf_lsarpc_lsa_TranslatedSid3_sid);
 
@@ -5975,7 +5977,7 @@ lsarpc_dissect_element_lsa_TranslatedSid3_sid(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_TranslatedSid3_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TranslatedSid3_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_dom_sid2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TranslatedSid3_sid,0);
 
@@ -5983,7 +5985,7 @@ lsarpc_dissect_element_lsa_TranslatedSid3_sid_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_TranslatedSid3_sid_index(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TranslatedSid3_sid_index(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TranslatedSid3_sid_index, 0);
 
@@ -5991,7 +5993,7 @@ lsarpc_dissect_element_lsa_TranslatedSid3_sid_index(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_TranslatedSid3_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TranslatedSid3_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TranslatedSid3_unknown, 0);
 
@@ -5999,7 +6001,7 @@ lsarpc_dissect_element_lsa_TranslatedSid3_unknown(tvbuff_t *tvb _U_, int offset 
 }
 
 int
-lsarpc_dissect_struct_lsa_TranslatedSid3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TranslatedSid3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -6040,7 +6042,7 @@ lsarpc_dissect_struct_lsa_TranslatedSid3(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_TransSidArray3_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransSidArray3_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_TransSidArray3_count, 0);
 
@@ -6048,7 +6050,7 @@ lsarpc_dissect_element_lsa_TransSidArray3_count(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_TransSidArray3_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransSidArray3_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_TransSidArray3_sids_, NDR_POINTER_UNIQUE, "Pointer to Sids (lsa_TranslatedSid3)",hf_lsarpc_lsa_TransSidArray3_sids);
 
@@ -6056,7 +6058,7 @@ lsarpc_dissect_element_lsa_TransSidArray3_sids(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_TransSidArray3_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransSidArray3_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_TransSidArray3_sids__);
 
@@ -6064,7 +6066,7 @@ lsarpc_dissect_element_lsa_TransSidArray3_sids_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_TransSidArray3_sids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_TransSidArray3_sids__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TranslatedSid3(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_TransSidArray3_sids,0);
 
@@ -6072,7 +6074,7 @@ lsarpc_dissect_element_lsa_TransSidArray3_sids__(tvbuff_t *tvb _U_, int offset _
 }
 
 int
-lsarpc_dissect_struct_lsa_TransSidArray3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_TransSidArray3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -6109,7 +6111,7 @@ lsarpc_dissect_struct_lsa_TransSidArray3(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustBinaryData_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ForestTrustBinaryData_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_ForestTrustBinaryData_length, 0);
 
@@ -6117,7 +6119,7 @@ lsarpc_dissect_element_lsa_ForestTrustBinaryData_length(tvbuff_t *tvb _U_, int o
 }
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustBinaryData_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ForestTrustBinaryData_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_ForestTrustBinaryData_data_, NDR_POINTER_UNIQUE, "Pointer to Data (uint8)",hf_lsarpc_lsa_ForestTrustBinaryData_data);
 
@@ -6125,7 +6127,7 @@ lsarpc_dissect_element_lsa_ForestTrustBinaryData_data(tvbuff_t *tvb _U_, int off
 }
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustBinaryData_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ForestTrustBinaryData_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_ForestTrustBinaryData_data__);
 
@@ -6133,7 +6135,7 @@ lsarpc_dissect_element_lsa_ForestTrustBinaryData_data_(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustBinaryData_data__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ForestTrustBinaryData_data__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_ForestTrustBinaryData_data, 0);
 
@@ -6141,7 +6143,7 @@ lsarpc_dissect_element_lsa_ForestTrustBinaryData_data__(tvbuff_t *tvb _U_, int o
 }
 
 int
-lsarpc_dissect_struct_lsa_ForestTrustBinaryData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_ForestTrustBinaryData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -6179,7 +6181,7 @@ lsarpc_dissect_struct_lsa_ForestTrustBinaryData(tvbuff_t *tvb _U_, int offset _U
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustDomainInfo_domain_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ForestTrustDomainInfo_domain_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_ForestTrustDomainInfo_domain_sid_, NDR_POINTER_UNIQUE, "Pointer to Domain Sid (dom_sid2)",hf_lsarpc_lsa_ForestTrustDomainInfo_domain_sid);
 
@@ -6187,7 +6189,7 @@ lsarpc_dissect_element_lsa_ForestTrustDomainInfo_domain_sid(tvbuff_t *tvb _U_, i
 }
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustDomainInfo_domain_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ForestTrustDomainInfo_domain_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_dom_sid2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_ForestTrustDomainInfo_domain_sid,0);
 
@@ -6195,7 +6197,7 @@ lsarpc_dissect_element_lsa_ForestTrustDomainInfo_domain_sid_(tvbuff_t *tvb _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustDomainInfo_dns_domain_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ForestTrustDomainInfo_dns_domain_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_ForestTrustDomainInfo_dns_domain_name,0);
 
@@ -6203,7 +6205,7 @@ lsarpc_dissect_element_lsa_ForestTrustDomainInfo_dns_domain_name(tvbuff_t *tvb _
 }
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustDomainInfo_netbios_domain_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ForestTrustDomainInfo_netbios_domain_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_ForestTrustDomainInfo_netbios_domain_name,0);
 
@@ -6211,7 +6213,7 @@ lsarpc_dissect_element_lsa_ForestTrustDomainInfo_netbios_domain_name(tvbuff_t *t
 }
 
 int
-lsarpc_dissect_struct_lsa_ForestTrustDomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_ForestTrustDomainInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -6252,7 +6254,7 @@ lsarpc_dissect_struct_lsa_ForestTrustDomainInfo(tvbuff_t *tvb _U_, int offset _U
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustData_top_level_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ForestTrustData_top_level_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_ForestTrustData_top_level_name,0);
 
@@ -6260,7 +6262,7 @@ lsarpc_dissect_element_lsa_ForestTrustData_top_level_name(tvbuff_t *tvb _U_, int
 }
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustData_top_level_name_ex(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ForestTrustData_top_level_name_ex(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_ForestTrustData_top_level_name_ex,0);
 
@@ -6268,7 +6270,7 @@ lsarpc_dissect_element_lsa_ForestTrustData_top_level_name_ex(tvbuff_t *tvb _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustData_domain_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ForestTrustData_domain_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_ForestTrustDomainInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_ForestTrustData_domain_info,0);
 
@@ -6276,7 +6278,7 @@ lsarpc_dissect_element_lsa_ForestTrustData_domain_info(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustData_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ForestTrustData_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_ForestTrustBinaryData(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_ForestTrustData_data,0);
 
@@ -6284,7 +6286,7 @@ lsarpc_dissect_element_lsa_ForestTrustData_data(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_lsa_ForestTrustData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_lsa_ForestTrustData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -6330,7 +6332,7 @@ lsarpc_dissect_lsa_ForestTrustData(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 /* IDL: } */
 
 int
-lsarpc_dissect_enum_lsa_ForestTrustRecordType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
+lsarpc_dissect_enum_lsa_ForestTrustRecordType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 *param)
 {
 	guint32 parameter=0;
 	if (param) {
@@ -6352,7 +6354,7 @@ lsarpc_dissect_enum_lsa_ForestTrustRecordType(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustRecord_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ForestTrustRecord_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_ForestTrustRecord_flags, 0);
 
@@ -6360,7 +6362,7 @@ lsarpc_dissect_element_lsa_ForestTrustRecord_flags(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustRecord_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, guint32 *level)
+lsarpc_dissect_element_lsa_ForestTrustRecord_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, guint32 *level)
 {
 	offset = lsarpc_dissect_enum_lsa_ForestTrustRecordType(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_ForestTrustRecord_level, level);
 
@@ -6368,7 +6370,7 @@ lsarpc_dissect_element_lsa_ForestTrustRecord_level(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustRecord_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ForestTrustRecord_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_lsarpc_lsa_ForestTrustRecord_unknown);
 
@@ -6376,7 +6378,7 @@ lsarpc_dissect_element_lsa_ForestTrustRecord_unknown(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustRecord_forest_trust_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, guint32 *level)
+lsarpc_dissect_element_lsa_ForestTrustRecord_forest_trust_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, guint32 *level)
 {
 	offset = lsarpc_dissect_lsa_ForestTrustData(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_ForestTrustRecord_forest_trust_data, *level);
 
@@ -6384,7 +6386,7 @@ lsarpc_dissect_element_lsa_ForestTrustRecord_forest_trust_data(tvbuff_t *tvb _U_
 }
 
 int
-lsarpc_dissect_struct_lsa_ForestTrustRecord(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_ForestTrustRecord(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	guint32 level = 0;
 	proto_item *item = NULL;
@@ -6426,7 +6428,7 @@ lsarpc_dissect_struct_lsa_ForestTrustRecord(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: } */
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustInformation_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ForestTrustInformation_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_ForestTrustInformation_count, 0);
 
@@ -6434,7 +6436,7 @@ lsarpc_dissect_element_lsa_ForestTrustInformation_count(tvbuff_t *tvb _U_, int o
 }
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustInformation_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ForestTrustInformation_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_ForestTrustInformation_entries_, NDR_POINTER_UNIQUE, "Pointer to Entries (lsa_ForestTrustRecord)",hf_lsarpc_lsa_ForestTrustInformation_entries);
 
@@ -6442,7 +6444,7 @@ lsarpc_dissect_element_lsa_ForestTrustInformation_entries(tvbuff_t *tvb _U_, int
 }
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustInformation_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ForestTrustInformation_entries_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_ForestTrustInformation_entries__);
 
@@ -6450,7 +6452,7 @@ lsarpc_dissect_element_lsa_ForestTrustInformation_entries_(tvbuff_t *tvb _U_, in
 }
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustInformation_entries__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ForestTrustInformation_entries__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_ForestTrustInformation_entries___, NDR_POINTER_UNIQUE, "Pointer to Entries (lsa_ForestTrustRecord)",hf_lsarpc_lsa_ForestTrustInformation_entries);
 
@@ -6458,7 +6460,7 @@ lsarpc_dissect_element_lsa_ForestTrustInformation_entries__(tvbuff_t *tvb _U_, i
 }
 
 static int
-lsarpc_dissect_element_lsa_ForestTrustInformation_entries___(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_ForestTrustInformation_entries___(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_ForestTrustRecord(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_ForestTrustInformation_entries,0);
 
@@ -6466,7 +6468,7 @@ lsarpc_dissect_element_lsa_ForestTrustInformation_entries___(tvbuff_t *tvb _U_, 
 }
 
 int
-lsarpc_dissect_struct_lsa_ForestTrustInformation(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+lsarpc_dissect_struct_lsa_ForestTrustInformation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -6497,7 +6499,7 @@ lsarpc_dissect_struct_lsa_ForestTrustInformation(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_Close_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_Close_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_Close_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_Close_handle);
 
@@ -6505,7 +6507,7 @@ lsarpc_dissect_element_lsa_Close_handle(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-lsarpc_dissect_element_lsa_Close_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_Close_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_Close_handle, PIDL_POLHND_CLOSE);
 
@@ -6517,7 +6519,7 @@ lsarpc_dissect_element_lsa_Close_handle_(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_Close_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_Close_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -6534,7 +6536,7 @@ lsarpc_dissect_lsa_Close_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-lsarpc_dissect_lsa_Close_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_Close_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_Close";
 	offset = lsarpc_dissect_element_lsa_Close_handle(tvb, offset, pinfo, tree, di, drep);
@@ -6543,7 +6545,7 @@ lsarpc_dissect_lsa_Close_request(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-lsarpc_dissect_element_lsa_Delete_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_Delete_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_Delete_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_Delete_handle);
 
@@ -6551,7 +6553,7 @@ lsarpc_dissect_element_lsa_Delete_handle(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-lsarpc_dissect_element_lsa_Delete_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_Delete_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_Delete_handle, PIDL_POLHND_CLOSE);
 
@@ -6563,7 +6565,7 @@ lsarpc_dissect_element_lsa_Delete_handle_(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_Delete_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_Delete_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -6577,7 +6579,7 @@ lsarpc_dissect_lsa_Delete_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-lsarpc_dissect_lsa_Delete_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_Delete_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_Delete";
 	offset = lsarpc_dissect_element_lsa_Delete_handle(tvb, offset, pinfo, tree, di, drep);
@@ -6586,7 +6588,7 @@ lsarpc_dissect_lsa_Delete_request(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumPrivs_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumPrivs_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumPrivs_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_EnumPrivs_handle);
 
@@ -6594,7 +6596,7 @@ lsarpc_dissect_element_lsa_EnumPrivs_handle(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumPrivs_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumPrivs_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_EnumPrivs_handle, 0);
 
@@ -6602,7 +6604,7 @@ lsarpc_dissect_element_lsa_EnumPrivs_handle_(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumPrivs_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumPrivs_resume_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumPrivs_resume_handle_, NDR_POINTER_REF, "Pointer to Resume Handle (uint32)",hf_lsarpc_lsa_EnumPrivs_resume_handle);
 
@@ -6610,7 +6612,7 @@ lsarpc_dissect_element_lsa_EnumPrivs_resume_handle(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumPrivs_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumPrivs_resume_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_EnumPrivs_resume_handle, 0);
 
@@ -6618,7 +6620,7 @@ lsarpc_dissect_element_lsa_EnumPrivs_resume_handle_(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumPrivs_max_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumPrivs_max_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_EnumPrivs_max_count, 0);
 
@@ -6626,7 +6628,7 @@ lsarpc_dissect_element_lsa_EnumPrivs_max_count(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumPrivs_privs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumPrivs_privs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumPrivs_privs_, NDR_POINTER_REF, "Pointer to Privs (lsa_PrivArray)",hf_lsarpc_lsa_EnumPrivs_privs);
 
@@ -6634,7 +6636,7 @@ lsarpc_dissect_element_lsa_EnumPrivs_privs(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumPrivs_privs_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumPrivs_privs_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_PrivArray(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_EnumPrivs_privs,0);
 
@@ -6649,7 +6651,7 @@ lsarpc_dissect_element_lsa_EnumPrivs_privs_(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_EnumPrivs_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_EnumPrivs_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -6669,7 +6671,7 @@ lsarpc_dissect_lsa_EnumPrivs_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-lsarpc_dissect_lsa_EnumPrivs_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_EnumPrivs_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_EnumPrivs";
 	offset = lsarpc_dissect_element_lsa_EnumPrivs_handle(tvb, offset, pinfo, tree, di, drep);
@@ -6682,7 +6684,7 @@ lsarpc_dissect_lsa_EnumPrivs_request(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-lsarpc_dissect_element_lsa_QuerySecurity_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QuerySecurity_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QuerySecurity_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_QuerySecurity_handle);
 
@@ -6690,7 +6692,7 @@ lsarpc_dissect_element_lsa_QuerySecurity_handle(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_QuerySecurity_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QuerySecurity_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QuerySecurity_handle, 0);
 
@@ -6698,7 +6700,7 @@ lsarpc_dissect_element_lsa_QuerySecurity_handle_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_QuerySecurity_sec_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QuerySecurity_sec_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_bitmap_security_secinfo(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QuerySecurity_sec_info, 0);
 
@@ -6706,7 +6708,7 @@ lsarpc_dissect_element_lsa_QuerySecurity_sec_info(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_QuerySecurity_sdbuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QuerySecurity_sdbuf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QuerySecurity_sdbuf_, NDR_POINTER_UNIQUE, "Pointer to Sdbuf (sec_desc_buf)",hf_lsarpc_lsa_QuerySecurity_sdbuf);
 
@@ -6714,7 +6716,7 @@ lsarpc_dissect_element_lsa_QuerySecurity_sdbuf(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_QuerySecurity_sdbuf_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QuerySecurity_sdbuf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset=cnf_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);
 
@@ -6728,7 +6730,7 @@ lsarpc_dissect_element_lsa_QuerySecurity_sdbuf_(tvbuff_t *tvb _U_, int offset _U
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_QuerySecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_QuerySecurity_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -6745,7 +6747,7 @@ lsarpc_dissect_lsa_QuerySecurity_response(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-lsarpc_dissect_lsa_QuerySecurity_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_QuerySecurity_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_QuerySecurity";
 	offset = lsarpc_dissect_element_lsa_QuerySecurity_handle(tvb, offset, pinfo, tree, di, drep);
@@ -6760,7 +6762,7 @@ lsarpc_dissect_lsa_QuerySecurity_request(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_SetSecObj_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetSecObj_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -6774,7 +6776,7 @@ lsarpc_dissect_lsa_SetSecObj_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-lsarpc_dissect_lsa_SetSecObj_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetSecObj_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_SetSecObj";
 	return offset;
@@ -6785,7 +6787,7 @@ lsarpc_dissect_lsa_SetSecObj_request(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_ChangePassword_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_ChangePassword_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -6799,14 +6801,14 @@ lsarpc_dissect_lsa_ChangePassword_response(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-lsarpc_dissect_lsa_ChangePassword_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_ChangePassword_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_ChangePassword";
 	return offset;
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenPolicy_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenPolicy_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_OpenPolicy_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_lsarpc_lsa_OpenPolicy_system_name);
 
@@ -6814,7 +6816,7 @@ lsarpc_dissect_element_lsa_OpenPolicy_system_name(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenPolicy_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenPolicy_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_OpenPolicy_system_name, 0);
 
@@ -6822,7 +6824,7 @@ lsarpc_dissect_element_lsa_OpenPolicy_system_name_(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenPolicy_attr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenPolicy_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_OpenPolicy_attr_, NDR_POINTER_REF, "Pointer to Attr (lsa_ObjectAttribute)",hf_lsarpc_lsa_OpenPolicy_attr);
 
@@ -6830,7 +6832,7 @@ lsarpc_dissect_element_lsa_OpenPolicy_attr(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenPolicy_attr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenPolicy_attr_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_ObjectAttribute(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_OpenPolicy_attr,0);
 
@@ -6838,7 +6840,7 @@ lsarpc_dissect_element_lsa_OpenPolicy_attr_(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenPolicy_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenPolicy_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_bitmap_lsa_PolicyAccessMask(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_OpenPolicy_access_mask, 0);
 
@@ -6846,7 +6848,7 @@ lsarpc_dissect_element_lsa_OpenPolicy_access_mask(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenPolicy_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenPolicy_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_OpenPolicy_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_OpenPolicy_handle);
 
@@ -6854,7 +6856,7 @@ lsarpc_dissect_element_lsa_OpenPolicy_handle(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenPolicy_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenPolicy_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_OpenPolicy_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_LSA_POLICY);
 
@@ -6869,7 +6871,7 @@ lsarpc_dissect_element_lsa_OpenPolicy_handle_(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_OpenPolicy_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_OpenPolicy_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -6886,7 +6888,7 @@ lsarpc_dissect_lsa_OpenPolicy_response(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-lsarpc_dissect_lsa_OpenPolicy_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_OpenPolicy_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_OpenPolicy";
 	offset = lsarpc_dissect_element_lsa_OpenPolicy_system_name(tvb, offset, pinfo, tree, di, drep);
@@ -6899,7 +6901,7 @@ lsarpc_dissect_lsa_OpenPolicy_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryInfoPolicy_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryInfoPolicy_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryInfoPolicy_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_QueryInfoPolicy_handle);
 
@@ -6907,7 +6909,7 @@ lsarpc_dissect_element_lsa_QueryInfoPolicy_handle(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryInfoPolicy_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryInfoPolicy_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryInfoPolicy_handle, 0);
 
@@ -6915,7 +6917,7 @@ lsarpc_dissect_element_lsa_QueryInfoPolicy_handle_(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryInfoPolicy_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryInfoPolicy_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_PolicyInfo(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryInfoPolicy_level, 0);
 
@@ -6923,7 +6925,7 @@ lsarpc_dissect_element_lsa_QueryInfoPolicy_level(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryInfoPolicy_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryInfoPolicy_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryInfoPolicy_info_, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_PolicyInformation)",hf_lsarpc_lsa_QueryInfoPolicy_info);
 
@@ -6931,7 +6933,7 @@ lsarpc_dissect_element_lsa_QueryInfoPolicy_info(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryInfoPolicy_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryInfoPolicy_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_lsa_PolicyInformation(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryInfoPolicy_info, 0);
 
@@ -6945,7 +6947,7 @@ lsarpc_dissect_element_lsa_QueryInfoPolicy_info_(tvbuff_t *tvb _U_, int offset _
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_QueryInfoPolicy_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_QueryInfoPolicy_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -6962,7 +6964,7 @@ lsarpc_dissect_lsa_QueryInfoPolicy_response(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_lsa_QueryInfoPolicy_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_QueryInfoPolicy_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_QueryInfoPolicy";
 	offset = lsarpc_dissect_element_lsa_QueryInfoPolicy_handle(tvb, offset, pinfo, tree, di, drep);
@@ -6973,7 +6975,7 @@ lsarpc_dissect_lsa_QueryInfoPolicy_request(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-lsarpc_dissect_element_lsa_SetInfoPolicy_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetInfoPolicy_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_SetInfoPolicy_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_SetInfoPolicy_handle);
 
@@ -6981,7 +6983,7 @@ lsarpc_dissect_element_lsa_SetInfoPolicy_handle(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_SetInfoPolicy_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetInfoPolicy_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_SetInfoPolicy_handle, 0);
 
@@ -6989,7 +6991,7 @@ lsarpc_dissect_element_lsa_SetInfoPolicy_handle_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_SetInfoPolicy_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetInfoPolicy_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_PolicyInfo(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_SetInfoPolicy_level, 0);
 
@@ -6997,7 +6999,7 @@ lsarpc_dissect_element_lsa_SetInfoPolicy_level(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_SetInfoPolicy_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetInfoPolicy_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_SetInfoPolicy_info_, NDR_POINTER_REF, "Pointer to Info (lsa_PolicyInformation)",hf_lsarpc_lsa_SetInfoPolicy_info);
 
@@ -7005,7 +7007,7 @@ lsarpc_dissect_element_lsa_SetInfoPolicy_info(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_SetInfoPolicy_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetInfoPolicy_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_lsa_PolicyInformation(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_SetInfoPolicy_info, 0);
 
@@ -7019,7 +7021,7 @@ lsarpc_dissect_element_lsa_SetInfoPolicy_info_(tvbuff_t *tvb _U_, int offset _U_
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_SetInfoPolicy_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetInfoPolicy_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -7033,7 +7035,7 @@ lsarpc_dissect_lsa_SetInfoPolicy_response(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-lsarpc_dissect_lsa_SetInfoPolicy_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetInfoPolicy_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_SetInfoPolicy";
 	offset = lsarpc_dissect_element_lsa_SetInfoPolicy_handle(tvb, offset, pinfo, tree, di, drep);
@@ -7050,7 +7052,7 @@ lsarpc_dissect_lsa_SetInfoPolicy_request(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_ClearAuditLog_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_ClearAuditLog_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -7064,14 +7066,14 @@ lsarpc_dissect_lsa_ClearAuditLog_response(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-lsarpc_dissect_lsa_ClearAuditLog_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_ClearAuditLog_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_ClearAuditLog";
 	return offset;
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateAccount_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateAccount_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_CreateAccount_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_CreateAccount_handle);
 
@@ -7079,7 +7081,7 @@ lsarpc_dissect_element_lsa_CreateAccount_handle(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateAccount_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateAccount_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_CreateAccount_handle, 0);
 
@@ -7087,7 +7089,7 @@ lsarpc_dissect_element_lsa_CreateAccount_handle_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateAccount_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateAccount_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_CreateAccount_sid_, NDR_POINTER_REF, "Pointer to Sid (dom_sid2)",hf_lsarpc_lsa_CreateAccount_sid);
 
@@ -7095,7 +7097,7 @@ lsarpc_dissect_element_lsa_CreateAccount_sid(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateAccount_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateAccount_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_dom_sid2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_CreateAccount_sid,0);
 
@@ -7103,7 +7105,7 @@ lsarpc_dissect_element_lsa_CreateAccount_sid_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateAccount_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateAccount_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_bitmap_lsa_AccountAccessMask(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_CreateAccount_access_mask, 0);
 
@@ -7111,7 +7113,7 @@ lsarpc_dissect_element_lsa_CreateAccount_access_mask(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateAccount_acct_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateAccount_acct_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_CreateAccount_acct_handle_, NDR_POINTER_REF, "Pointer to Acct Handle (policy_handle)",hf_lsarpc_lsa_CreateAccount_acct_handle);
 
@@ -7119,7 +7121,7 @@ lsarpc_dissect_element_lsa_CreateAccount_acct_handle(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateAccount_acct_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateAccount_acct_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_CreateAccount_acct_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_LSA_ACCOUNT);
 
@@ -7134,7 +7136,7 @@ lsarpc_dissect_element_lsa_CreateAccount_acct_handle_(tvbuff_t *tvb _U_, int off
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_CreateAccount_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CreateAccount_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -7151,7 +7153,7 @@ lsarpc_dissect_lsa_CreateAccount_response(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-lsarpc_dissect_lsa_CreateAccount_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CreateAccount_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_CreateAccount";
 	offset = lsarpc_dissect_element_lsa_CreateAccount_handle(tvb, offset, pinfo, tree, di, drep);
@@ -7164,7 +7166,7 @@ lsarpc_dissect_lsa_CreateAccount_request(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumAccounts_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumAccounts_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumAccounts_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_EnumAccounts_handle);
 
@@ -7172,7 +7174,7 @@ lsarpc_dissect_element_lsa_EnumAccounts_handle(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumAccounts_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumAccounts_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_EnumAccounts_handle, 0);
 
@@ -7180,7 +7182,7 @@ lsarpc_dissect_element_lsa_EnumAccounts_handle_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumAccounts_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumAccounts_resume_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumAccounts_resume_handle_, NDR_POINTER_REF, "Pointer to Resume Handle (uint32)",hf_lsarpc_lsa_EnumAccounts_resume_handle);
 
@@ -7188,7 +7190,7 @@ lsarpc_dissect_element_lsa_EnumAccounts_resume_handle(tvbuff_t *tvb _U_, int off
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumAccounts_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumAccounts_resume_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_EnumAccounts_resume_handle, 0);
 
@@ -7196,7 +7198,7 @@ lsarpc_dissect_element_lsa_EnumAccounts_resume_handle_(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumAccounts_num_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumAccounts_num_entries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_EnumAccounts_num_entries, 0);
 
@@ -7204,7 +7206,7 @@ lsarpc_dissect_element_lsa_EnumAccounts_num_entries(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumAccounts_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumAccounts_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumAccounts_sids_, NDR_POINTER_REF, "Pointer to Sids (lsa_SidArray)",hf_lsarpc_lsa_EnumAccounts_sids);
 
@@ -7212,7 +7214,7 @@ lsarpc_dissect_element_lsa_EnumAccounts_sids(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumAccounts_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumAccounts_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_SidArray(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_EnumAccounts_sids,0);
 
@@ -7227,7 +7229,7 @@ lsarpc_dissect_element_lsa_EnumAccounts_sids_(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_EnumAccounts_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_EnumAccounts_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -7247,7 +7249,7 @@ lsarpc_dissect_lsa_EnumAccounts_response(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-lsarpc_dissect_lsa_EnumAccounts_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_EnumAccounts_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_EnumAccounts";
 	offset = lsarpc_dissect_element_lsa_EnumAccounts_handle(tvb, offset, pinfo, tree, di, drep);
@@ -7260,7 +7262,7 @@ lsarpc_dissect_lsa_EnumAccounts_request(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateTrustedDomain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateTrustedDomain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_CreateTrustedDomain_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_CreateTrustedDomain_handle);
 
@@ -7268,7 +7270,7 @@ lsarpc_dissect_element_lsa_CreateTrustedDomain_handle(tvbuff_t *tvb _U_, int off
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateTrustedDomain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateTrustedDomain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_CreateTrustedDomain_handle, 0);
 
@@ -7276,7 +7278,7 @@ lsarpc_dissect_element_lsa_CreateTrustedDomain_handle_(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateTrustedDomain_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateTrustedDomain_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_CreateTrustedDomain_info_, NDR_POINTER_REF, "Pointer to Info (lsa_DomainInfo)",hf_lsarpc_lsa_CreateTrustedDomain_info);
 
@@ -7284,7 +7286,7 @@ lsarpc_dissect_element_lsa_CreateTrustedDomain_info(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateTrustedDomain_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateTrustedDomain_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DomainInfo(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_CreateTrustedDomain_info,0);
 
@@ -7292,7 +7294,7 @@ lsarpc_dissect_element_lsa_CreateTrustedDomain_info_(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateTrustedDomain_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateTrustedDomain_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_bitmap_lsa_DomainAccessMask(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_CreateTrustedDomain_access_mask, 0);
 
@@ -7300,7 +7302,7 @@ lsarpc_dissect_element_lsa_CreateTrustedDomain_access_mask(tvbuff_t *tvb _U_, in
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateTrustedDomain_trustdom_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateTrustedDomain_trustdom_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_CreateTrustedDomain_trustdom_handle_, NDR_POINTER_REF, "Pointer to Trustdom Handle (policy_handle)",hf_lsarpc_lsa_CreateTrustedDomain_trustdom_handle);
 
@@ -7308,7 +7310,7 @@ lsarpc_dissect_element_lsa_CreateTrustedDomain_trustdom_handle(tvbuff_t *tvb _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateTrustedDomain_trustdom_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateTrustedDomain_trustdom_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_CreateTrustedDomain_trustdom_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_LSA_DOMAIN);
 
@@ -7323,7 +7325,7 @@ lsarpc_dissect_element_lsa_CreateTrustedDomain_trustdom_handle_(tvbuff_t *tvb _U
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_CreateTrustedDomain_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CreateTrustedDomain_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -7340,7 +7342,7 @@ lsarpc_dissect_lsa_CreateTrustedDomain_response(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_lsa_CreateTrustedDomain_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CreateTrustedDomain_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_CreateTrustedDomain";
 	offset = lsarpc_dissect_element_lsa_CreateTrustedDomain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -7353,7 +7355,7 @@ lsarpc_dissect_lsa_CreateTrustedDomain_request(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumTrustDom_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumTrustDom_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumTrustDom_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_EnumTrustDom_handle);
 
@@ -7361,7 +7363,7 @@ lsarpc_dissect_element_lsa_EnumTrustDom_handle(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumTrustDom_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumTrustDom_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_EnumTrustDom_handle, 0);
 
@@ -7369,7 +7371,7 @@ lsarpc_dissect_element_lsa_EnumTrustDom_handle_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumTrustDom_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumTrustDom_resume_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumTrustDom_resume_handle_, NDR_POINTER_REF, "Pointer to Resume Handle (uint32)",hf_lsarpc_lsa_EnumTrustDom_resume_handle);
 
@@ -7377,7 +7379,7 @@ lsarpc_dissect_element_lsa_EnumTrustDom_resume_handle(tvbuff_t *tvb _U_, int off
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumTrustDom_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumTrustDom_resume_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_EnumTrustDom_resume_handle, 0);
 
@@ -7385,7 +7387,7 @@ lsarpc_dissect_element_lsa_EnumTrustDom_resume_handle_(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumTrustDom_max_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumTrustDom_max_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_EnumTrustDom_max_size, 0);
 
@@ -7393,7 +7395,7 @@ lsarpc_dissect_element_lsa_EnumTrustDom_max_size(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumTrustDom_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumTrustDom_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumTrustDom_domains_, NDR_POINTER_REF, "Pointer to Domains (lsa_DomainList)",hf_lsarpc_lsa_EnumTrustDom_domains);
 
@@ -7401,7 +7403,7 @@ lsarpc_dissect_element_lsa_EnumTrustDom_domains(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumTrustDom_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumTrustDom_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DomainList(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_EnumTrustDom_domains,0);
 
@@ -7416,7 +7418,7 @@ lsarpc_dissect_element_lsa_EnumTrustDom_domains_(tvbuff_t *tvb _U_, int offset _
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_EnumTrustDom_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_EnumTrustDom_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -7436,7 +7438,7 @@ lsarpc_dissect_lsa_EnumTrustDom_response(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-lsarpc_dissect_lsa_EnumTrustDom_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_EnumTrustDom_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_EnumTrustDom";
 	offset = lsarpc_dissect_element_lsa_EnumTrustDom_handle(tvb, offset, pinfo, tree, di, drep);
@@ -7449,7 +7451,7 @@ lsarpc_dissect_lsa_EnumTrustDom_request(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_LookupNames_handle);
 
@@ -7457,7 +7459,7 @@ lsarpc_dissect_element_lsa_LookupNames_handle(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames_handle, 0);
 
@@ -7465,7 +7467,7 @@ lsarpc_dissect_element_lsa_LookupNames_handle_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames_num_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames_num_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames_num_names, 0);
 
@@ -7473,7 +7475,7 @@ lsarpc_dissect_element_lsa_LookupNames_num_names(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames_domains_, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupNames_domains);
 
@@ -7481,7 +7483,7 @@ lsarpc_dissect_element_lsa_LookupNames_domains(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_RefDomainList(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupNames_domains,0);
 
@@ -7489,7 +7491,7 @@ lsarpc_dissect_element_lsa_LookupNames_domains_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames_sids_, NDR_POINTER_REF, "Pointer to Sids (lsa_TransSidArray)",hf_lsarpc_lsa_LookupNames_sids);
 
@@ -7497,7 +7499,7 @@ lsarpc_dissect_element_lsa_LookupNames_sids(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TransSidArray(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupNames_sids,0);
 
@@ -7505,7 +7507,7 @@ lsarpc_dissect_element_lsa_LookupNames_sids_(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_LookupNamesLevel(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames_level, 0);
 
@@ -7513,7 +7515,7 @@ lsarpc_dissect_element_lsa_LookupNames_level(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames_count_, NDR_POINTER_REF, "Pointer to Count (uint32)",hf_lsarpc_lsa_LookupNames_count);
 
@@ -7521,7 +7523,7 @@ lsarpc_dissect_element_lsa_LookupNames_count(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames_count_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames_count_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames_count, 0);
 
@@ -7539,7 +7541,7 @@ lsarpc_dissect_element_lsa_LookupNames_count_(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_LookupNames_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupNames_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -7562,7 +7564,7 @@ lsarpc_dissect_lsa_LookupNames_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-lsarpc_dissect_lsa_LookupNames_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupNames_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_LookupNames";
 	offset = lsarpc_dissect_element_lsa_LookupNames_handle(tvb, offset, pinfo, tree, di, drep);
@@ -7581,7 +7583,7 @@ lsarpc_dissect_lsa_LookupNames_request(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_LookupSids_handle);
 
@@ -7589,7 +7591,7 @@ lsarpc_dissect_element_lsa_LookupSids_handle(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupSids_handle, 0);
 
@@ -7597,7 +7599,7 @@ lsarpc_dissect_element_lsa_LookupSids_handle_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids_sids_, NDR_POINTER_REF, "Pointer to Sids (lsa_SidArray)",hf_lsarpc_lsa_LookupSids_sids);
 
@@ -7605,7 +7607,7 @@ lsarpc_dissect_element_lsa_LookupSids_sids(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_SidArray(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupSids_sids,0);
 
@@ -7613,7 +7615,7 @@ lsarpc_dissect_element_lsa_LookupSids_sids_(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids_domains_, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupSids_domains);
 
@@ -7621,7 +7623,7 @@ lsarpc_dissect_element_lsa_LookupSids_domains(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_RefDomainList(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupSids_domains,0);
 
@@ -7629,7 +7631,7 @@ lsarpc_dissect_element_lsa_LookupSids_domains_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids_names_, NDR_POINTER_REF, "Pointer to Names (lsa_TransNameArray)",hf_lsarpc_lsa_LookupSids_names);
 
@@ -7637,7 +7639,7 @@ lsarpc_dissect_element_lsa_LookupSids_names(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TransNameArray(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupSids_names,0);
 
@@ -7645,7 +7647,7 @@ lsarpc_dissect_element_lsa_LookupSids_names_(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupSids_level, 0);
 
@@ -7653,7 +7655,7 @@ lsarpc_dissect_element_lsa_LookupSids_level(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids_count_, NDR_POINTER_REF, "Pointer to Count (uint32)",hf_lsarpc_lsa_LookupSids_count);
 
@@ -7661,7 +7663,7 @@ lsarpc_dissect_element_lsa_LookupSids_count(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids_count_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids_count_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupSids_count, 0);
 
@@ -7678,7 +7680,7 @@ lsarpc_dissect_element_lsa_LookupSids_count_(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_LookupSids_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupSids_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -7701,7 +7703,7 @@ lsarpc_dissect_lsa_LookupSids_response(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-lsarpc_dissect_lsa_LookupSids_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupSids_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_LookupSids";
 	offset = lsarpc_dissect_element_lsa_LookupSids_handle(tvb, offset, pinfo, tree, di, drep);
@@ -7718,7 +7720,7 @@ lsarpc_dissect_lsa_LookupSids_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateSecret_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateSecret_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_CreateSecret_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_CreateSecret_handle);
 
@@ -7726,7 +7728,7 @@ lsarpc_dissect_element_lsa_CreateSecret_handle(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateSecret_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateSecret_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_CreateSecret_handle, 0);
 
@@ -7734,7 +7736,7 @@ lsarpc_dissect_element_lsa_CreateSecret_handle_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateSecret_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateSecret_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_CreateSecret_name,0);
 
@@ -7742,7 +7744,7 @@ lsarpc_dissect_element_lsa_CreateSecret_name(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateSecret_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateSecret_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_bitmap_lsa_SecretAccessMask(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_CreateSecret_access_mask, 0);
 
@@ -7750,7 +7752,7 @@ lsarpc_dissect_element_lsa_CreateSecret_access_mask(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateSecret_sec_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateSecret_sec_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_CreateSecret_sec_handle_, NDR_POINTER_REF, "Pointer to Sec Handle (policy_handle)",hf_lsarpc_lsa_CreateSecret_sec_handle);
 
@@ -7758,7 +7760,7 @@ lsarpc_dissect_element_lsa_CreateSecret_sec_handle(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_CreateSecret_sec_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CreateSecret_sec_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_CreateSecret_sec_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_LSA_SECRET);
 
@@ -7773,7 +7775,7 @@ lsarpc_dissect_element_lsa_CreateSecret_sec_handle_(tvbuff_t *tvb _U_, int offse
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_CreateSecret_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CreateSecret_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -7790,7 +7792,7 @@ lsarpc_dissect_lsa_CreateSecret_response(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-lsarpc_dissect_lsa_CreateSecret_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CreateSecret_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_CreateSecret";
 	offset = lsarpc_dissect_element_lsa_CreateSecret_handle(tvb, offset, pinfo, tree, di, drep);
@@ -7803,7 +7805,7 @@ lsarpc_dissect_lsa_CreateSecret_request(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenAccount_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenAccount_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_OpenAccount_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_OpenAccount_handle);
 
@@ -7811,7 +7813,7 @@ lsarpc_dissect_element_lsa_OpenAccount_handle(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenAccount_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenAccount_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_OpenAccount_handle, 0);
 
@@ -7819,7 +7821,7 @@ lsarpc_dissect_element_lsa_OpenAccount_handle_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenAccount_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenAccount_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_OpenAccount_sid_, NDR_POINTER_REF, "Pointer to Sid (dom_sid2)",hf_lsarpc_lsa_OpenAccount_sid);
 
@@ -7827,7 +7829,7 @@ lsarpc_dissect_element_lsa_OpenAccount_sid(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenAccount_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenAccount_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_dom_sid2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_OpenAccount_sid,0);
 
@@ -7835,7 +7837,7 @@ lsarpc_dissect_element_lsa_OpenAccount_sid_(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenAccount_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenAccount_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_bitmap_lsa_AccountAccessMask(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_OpenAccount_access_mask, 0);
 
@@ -7843,7 +7845,7 @@ lsarpc_dissect_element_lsa_OpenAccount_access_mask(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenAccount_acct_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenAccount_acct_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_OpenAccount_acct_handle_, NDR_POINTER_REF, "Pointer to Acct Handle (policy_handle)",hf_lsarpc_lsa_OpenAccount_acct_handle);
 
@@ -7851,7 +7853,7 @@ lsarpc_dissect_element_lsa_OpenAccount_acct_handle(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenAccount_acct_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenAccount_acct_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_OpenAccount_acct_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_LSA_ACCOUNT);
 
@@ -7866,7 +7868,7 @@ lsarpc_dissect_element_lsa_OpenAccount_acct_handle_(tvbuff_t *tvb _U_, int offse
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_OpenAccount_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_OpenAccount_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -7883,7 +7885,7 @@ lsarpc_dissect_lsa_OpenAccount_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-lsarpc_dissect_lsa_OpenAccount_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_OpenAccount_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_OpenAccount";
 	offset = lsarpc_dissect_element_lsa_OpenAccount_handle(tvb, offset, pinfo, tree, di, drep);
@@ -7896,7 +7898,7 @@ lsarpc_dissect_lsa_OpenAccount_request(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumPrivsAccount_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumPrivsAccount_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumPrivsAccount_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_EnumPrivsAccount_handle);
 
@@ -7904,7 +7906,7 @@ lsarpc_dissect_element_lsa_EnumPrivsAccount_handle(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumPrivsAccount_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumPrivsAccount_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_EnumPrivsAccount_handle, 0);
 
@@ -7912,7 +7914,7 @@ lsarpc_dissect_element_lsa_EnumPrivsAccount_handle_(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumPrivsAccount_privs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumPrivsAccount_privs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumPrivsAccount_privs_, NDR_POINTER_UNIQUE, "Pointer to Privs (lsa_PrivilegeSet)",hf_lsarpc_lsa_EnumPrivsAccount_privs);
 
@@ -7920,7 +7922,7 @@ lsarpc_dissect_element_lsa_EnumPrivsAccount_privs(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumPrivsAccount_privs_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumPrivsAccount_privs_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_PrivilegeSet(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_EnumPrivsAccount_privs,0);
 
@@ -7933,7 +7935,7 @@ lsarpc_dissect_element_lsa_EnumPrivsAccount_privs_(tvbuff_t *tvb _U_, int offset
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_EnumPrivsAccount_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_EnumPrivsAccount_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -7950,7 +7952,7 @@ lsarpc_dissect_lsa_EnumPrivsAccount_response(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_lsa_EnumPrivsAccount_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_EnumPrivsAccount_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_EnumPrivsAccount";
 	offset = lsarpc_dissect_element_lsa_EnumPrivsAccount_handle(tvb, offset, pinfo, tree, di, drep);
@@ -7959,7 +7961,7 @@ lsarpc_dissect_lsa_EnumPrivsAccount_request(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_AddPrivilegesToAccount_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AddPrivilegesToAccount_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_AddPrivilegesToAccount_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_AddPrivilegesToAccount_handle);
 
@@ -7967,7 +7969,7 @@ lsarpc_dissect_element_lsa_AddPrivilegesToAccount_handle(tvbuff_t *tvb _U_, int 
 }
 
 static int
-lsarpc_dissect_element_lsa_AddPrivilegesToAccount_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AddPrivilegesToAccount_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AddPrivilegesToAccount_handle, 0);
 
@@ -7975,7 +7977,7 @@ lsarpc_dissect_element_lsa_AddPrivilegesToAccount_handle_(tvbuff_t *tvb _U_, int
 }
 
 static int
-lsarpc_dissect_element_lsa_AddPrivilegesToAccount_privs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AddPrivilegesToAccount_privs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_AddPrivilegesToAccount_privs_, NDR_POINTER_REF, "Pointer to Privs (lsa_PrivilegeSet)",hf_lsarpc_lsa_AddPrivilegesToAccount_privs);
 
@@ -7983,7 +7985,7 @@ lsarpc_dissect_element_lsa_AddPrivilegesToAccount_privs(tvbuff_t *tvb _U_, int o
 }
 
 static int
-lsarpc_dissect_element_lsa_AddPrivilegesToAccount_privs_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AddPrivilegesToAccount_privs_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_PrivilegeSet(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_AddPrivilegesToAccount_privs,0);
 
@@ -7996,7 +7998,7 @@ lsarpc_dissect_element_lsa_AddPrivilegesToAccount_privs_(tvbuff_t *tvb _U_, int 
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_AddPrivilegesToAccount_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_AddPrivilegesToAccount_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -8010,7 +8012,7 @@ lsarpc_dissect_lsa_AddPrivilegesToAccount_response(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_lsa_AddPrivilegesToAccount_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_AddPrivilegesToAccount_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_AddPrivilegesToAccount";
 	offset = lsarpc_dissect_element_lsa_AddPrivilegesToAccount_handle(tvb, offset, pinfo, tree, di, drep);
@@ -8021,7 +8023,7 @@ lsarpc_dissect_lsa_AddPrivilegesToAccount_request(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_RemovePrivilegesFromAccount_handle);
 
@@ -8029,7 +8031,7 @@ lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_handle(tvbuff_t *tvb _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_RemovePrivilegesFromAccount_handle, 0);
 
@@ -8037,7 +8039,7 @@ lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_handle_(tvbuff_t *tvb _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_remove_all(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_remove_all(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_RemovePrivilegesFromAccount_remove_all, 0);
 
@@ -8045,7 +8047,7 @@ lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_remove_all(tvbuff_t *tvb 
 }
 
 static int
-lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_privs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_privs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_privs_, NDR_POINTER_UNIQUE, "Pointer to Privs (lsa_PrivilegeSet)",hf_lsarpc_lsa_RemovePrivilegesFromAccount_privs);
 
@@ -8053,7 +8055,7 @@ lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_privs(tvbuff_t *tvb _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_privs_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_privs_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_PrivilegeSet(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_RemovePrivilegesFromAccount_privs,0);
 
@@ -8067,7 +8069,7 @@ lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_privs_(tvbuff_t *tvb _U_,
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_RemovePrivilegesFromAccount_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_RemovePrivilegesFromAccount_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -8081,7 +8083,7 @@ lsarpc_dissect_lsa_RemovePrivilegesFromAccount_response(tvbuff_t *tvb _U_, int o
 }
 
 static int
-lsarpc_dissect_lsa_RemovePrivilegesFromAccount_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_RemovePrivilegesFromAccount_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_RemovePrivilegesFromAccount";
 	offset = lsarpc_dissect_element_lsa_RemovePrivilegesFromAccount_handle(tvb, offset, pinfo, tree, di, drep);
@@ -8098,7 +8100,7 @@ lsarpc_dissect_lsa_RemovePrivilegesFromAccount_request(tvbuff_t *tvb _U_, int of
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_GetQuotasForAccount_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_GetQuotasForAccount_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -8112,7 +8114,7 @@ lsarpc_dissect_lsa_GetQuotasForAccount_response(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_lsa_GetQuotasForAccount_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_GetQuotasForAccount_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_GetQuotasForAccount";
 	return offset;
@@ -8123,7 +8125,7 @@ lsarpc_dissect_lsa_GetQuotasForAccount_request(tvbuff_t *tvb _U_, int offset _U_
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_SetQuotasForAccount_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetQuotasForAccount_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -8137,7 +8139,7 @@ lsarpc_dissect_lsa_SetQuotasForAccount_response(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_lsa_SetQuotasForAccount_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetQuotasForAccount_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_SetQuotasForAccount";
 	return offset;
@@ -8148,7 +8150,7 @@ lsarpc_dissect_lsa_SetQuotasForAccount_request(tvbuff_t *tvb _U_, int offset _U_
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_GetSystemAccessAccount_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_GetSystemAccessAccount_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -8162,7 +8164,7 @@ lsarpc_dissect_lsa_GetSystemAccessAccount_response(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_lsa_GetSystemAccessAccount_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_GetSystemAccessAccount_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_GetSystemAccessAccount";
 	return offset;
@@ -8173,7 +8175,7 @@ lsarpc_dissect_lsa_GetSystemAccessAccount_request(tvbuff_t *tvb _U_, int offset 
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_SetSystemAccessAccount_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetSystemAccessAccount_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -8187,14 +8189,14 @@ lsarpc_dissect_lsa_SetSystemAccessAccount_response(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_lsa_SetSystemAccessAccount_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetSystemAccessAccount_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_SetSystemAccessAccount";
 	return offset;
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenTrustedDomain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenTrustedDomain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_OpenTrustedDomain_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_OpenTrustedDomain_handle);
 
@@ -8202,7 +8204,7 @@ lsarpc_dissect_element_lsa_OpenTrustedDomain_handle(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenTrustedDomain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenTrustedDomain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_OpenTrustedDomain_handle, 0);
 
@@ -8210,7 +8212,7 @@ lsarpc_dissect_element_lsa_OpenTrustedDomain_handle_(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenTrustedDomain_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenTrustedDomain_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_OpenTrustedDomain_sid_, NDR_POINTER_REF, "Pointer to Sid (dom_sid2)",hf_lsarpc_lsa_OpenTrustedDomain_sid);
 
@@ -8218,7 +8220,7 @@ lsarpc_dissect_element_lsa_OpenTrustedDomain_sid(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenTrustedDomain_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenTrustedDomain_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_dom_sid2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_OpenTrustedDomain_sid,0);
 
@@ -8226,7 +8228,7 @@ lsarpc_dissect_element_lsa_OpenTrustedDomain_sid_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenTrustedDomain_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenTrustedDomain_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_bitmap_lsa_DomainAccessMask(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_OpenTrustedDomain_access_mask, 0);
 
@@ -8234,7 +8236,7 @@ lsarpc_dissect_element_lsa_OpenTrustedDomain_access_mask(tvbuff_t *tvb _U_, int 
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenTrustedDomain_trustdom_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenTrustedDomain_trustdom_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_OpenTrustedDomain_trustdom_handle_, NDR_POINTER_REF, "Pointer to Trustdom Handle (policy_handle)",hf_lsarpc_lsa_OpenTrustedDomain_trustdom_handle);
 
@@ -8242,7 +8244,7 @@ lsarpc_dissect_element_lsa_OpenTrustedDomain_trustdom_handle(tvbuff_t *tvb _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenTrustedDomain_trustdom_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenTrustedDomain_trustdom_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_OpenTrustedDomain_trustdom_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_LSA_DOMAIN);
 
@@ -8257,7 +8259,7 @@ lsarpc_dissect_element_lsa_OpenTrustedDomain_trustdom_handle_(tvbuff_t *tvb _U_,
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_OpenTrustedDomain_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_OpenTrustedDomain_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -8274,7 +8276,7 @@ lsarpc_dissect_lsa_OpenTrustedDomain_response(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_lsa_OpenTrustedDomain_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_OpenTrustedDomain_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_OpenTrustedDomain";
 	offset = lsarpc_dissect_element_lsa_OpenTrustedDomain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -8287,7 +8289,7 @@ lsarpc_dissect_lsa_OpenTrustedDomain_request(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_trustdom_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_trustdom_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_trustdom_handle_, NDR_POINTER_REF, "Pointer to Trustdom Handle (policy_handle)",hf_lsarpc_lsa_QueryTrustedDomainInfo_trustdom_handle);
 
@@ -8295,7 +8297,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_trustdom_handle(tvbuff_t *tvb 
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_trustdom_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_trustdom_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryTrustedDomainInfo_trustdom_handle, 0);
 
@@ -8303,7 +8305,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_trustdom_handle_(tvbuff_t *tvb
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_TrustDomInfoEnum(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryTrustedDomainInfo_level, 0);
 
@@ -8311,7 +8313,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_level(tvbuff_t *tvb _U_, int o
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info_, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_TrustedDomainInfo)",hf_lsarpc_lsa_QueryTrustedDomainInfo_info);
 
@@ -8319,7 +8321,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_lsa_TrustedDomainInfo(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryTrustedDomainInfo_info, 0);
 
@@ -8333,7 +8335,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info_(tvbuff_t *tvb _U_, int o
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_QueryTrustedDomainInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_QueryTrustedDomainInfo_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -8350,7 +8352,7 @@ lsarpc_dissect_lsa_QueryTrustedDomainInfo_response(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_lsa_QueryTrustedDomainInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_QueryTrustedDomainInfo_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_QueryTrustedDomainInfo";
 	offset = lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_trustdom_handle(tvb, offset, pinfo, tree, di, drep);
@@ -8365,7 +8367,7 @@ lsarpc_dissect_lsa_QueryTrustedDomainInfo_request(tvbuff_t *tvb _U_, int offset 
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_SetInformationTrustedDomain_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetInformationTrustedDomain_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -8379,14 +8381,14 @@ lsarpc_dissect_lsa_SetInformationTrustedDomain_response(tvbuff_t *tvb _U_, int o
 }
 
 static int
-lsarpc_dissect_lsa_SetInformationTrustedDomain_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetInformationTrustedDomain_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_SetInformationTrustedDomain";
 	return offset;
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenSecret_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenSecret_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_OpenSecret_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_OpenSecret_handle);
 
@@ -8394,7 +8396,7 @@ lsarpc_dissect_element_lsa_OpenSecret_handle(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenSecret_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenSecret_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_OpenSecret_handle, 0);
 
@@ -8402,7 +8404,7 @@ lsarpc_dissect_element_lsa_OpenSecret_handle_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenSecret_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenSecret_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_OpenSecret_name,0);
 
@@ -8410,7 +8412,7 @@ lsarpc_dissect_element_lsa_OpenSecret_name(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenSecret_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenSecret_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_bitmap_lsa_SecretAccessMask(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_OpenSecret_access_mask, 0);
 
@@ -8418,7 +8420,7 @@ lsarpc_dissect_element_lsa_OpenSecret_access_mask(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenSecret_sec_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenSecret_sec_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_OpenSecret_sec_handle_, NDR_POINTER_REF, "Pointer to Sec Handle (policy_handle)",hf_lsarpc_lsa_OpenSecret_sec_handle);
 
@@ -8426,7 +8428,7 @@ lsarpc_dissect_element_lsa_OpenSecret_sec_handle(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenSecret_sec_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenSecret_sec_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_OpenSecret_sec_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_LSA_SECRET);
 
@@ -8441,7 +8443,7 @@ lsarpc_dissect_element_lsa_OpenSecret_sec_handle_(tvbuff_t *tvb _U_, int offset 
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_OpenSecret_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_OpenSecret_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -8458,7 +8460,7 @@ lsarpc_dissect_lsa_OpenSecret_response(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-lsarpc_dissect_lsa_OpenSecret_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_OpenSecret_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_OpenSecret";
 	offset = lsarpc_dissect_element_lsa_OpenSecret_handle(tvb, offset, pinfo, tree, di, drep);
@@ -8471,7 +8473,7 @@ lsarpc_dissect_lsa_OpenSecret_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-lsarpc_dissect_element_lsa_SetSecret_sec_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetSecret_sec_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_SetSecret_sec_handle_, NDR_POINTER_REF, "Pointer to Sec Handle (policy_handle)",hf_lsarpc_lsa_SetSecret_sec_handle);
 
@@ -8479,7 +8481,7 @@ lsarpc_dissect_element_lsa_SetSecret_sec_handle(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_SetSecret_sec_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetSecret_sec_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_SetSecret_sec_handle, 0);
 
@@ -8487,7 +8489,7 @@ lsarpc_dissect_element_lsa_SetSecret_sec_handle_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_SetSecret_new_val(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetSecret_new_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_SetSecret_new_val_, NDR_POINTER_UNIQUE, "Pointer to New Val (lsa_DATA_BUF)",hf_lsarpc_lsa_SetSecret_new_val);
 
@@ -8495,7 +8497,7 @@ lsarpc_dissect_element_lsa_SetSecret_new_val(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_SetSecret_new_val_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetSecret_new_val_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DATA_BUF(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_SetSecret_new_val,0);
 
@@ -8503,7 +8505,7 @@ lsarpc_dissect_element_lsa_SetSecret_new_val_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_SetSecret_old_val(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetSecret_old_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_SetSecret_old_val_, NDR_POINTER_UNIQUE, "Pointer to Old Val (lsa_DATA_BUF)",hf_lsarpc_lsa_SetSecret_old_val);
 
@@ -8511,7 +8513,7 @@ lsarpc_dissect_element_lsa_SetSecret_old_val(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_SetSecret_old_val_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetSecret_old_val_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DATA_BUF(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_SetSecret_old_val,0);
 
@@ -8525,7 +8527,7 @@ lsarpc_dissect_element_lsa_SetSecret_old_val_(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_SetSecret_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetSecret_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -8539,7 +8541,7 @@ lsarpc_dissect_lsa_SetSecret_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-lsarpc_dissect_lsa_SetSecret_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetSecret_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_SetSecret";
 	offset = lsarpc_dissect_element_lsa_SetSecret_sec_handle(tvb, offset, pinfo, tree, di, drep);
@@ -8552,7 +8554,7 @@ lsarpc_dissect_lsa_SetSecret_request(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-lsarpc_dissect_element_lsa_QuerySecret_sec_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QuerySecret_sec_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QuerySecret_sec_handle_, NDR_POINTER_REF, "Pointer to Sec Handle (policy_handle)",hf_lsarpc_lsa_QuerySecret_sec_handle);
 
@@ -8560,7 +8562,7 @@ lsarpc_dissect_element_lsa_QuerySecret_sec_handle(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_QuerySecret_sec_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QuerySecret_sec_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QuerySecret_sec_handle, 0);
 
@@ -8568,7 +8570,7 @@ lsarpc_dissect_element_lsa_QuerySecret_sec_handle_(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_QuerySecret_new_val(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QuerySecret_new_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QuerySecret_new_val_, NDR_POINTER_UNIQUE, "Pointer to New Val (lsa_DATA_BUF_PTR)",hf_lsarpc_lsa_QuerySecret_new_val);
 
@@ -8576,7 +8578,7 @@ lsarpc_dissect_element_lsa_QuerySecret_new_val(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_QuerySecret_new_val_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QuerySecret_new_val_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DATA_BUF_PTR(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_QuerySecret_new_val,0);
 
@@ -8584,7 +8586,7 @@ lsarpc_dissect_element_lsa_QuerySecret_new_val_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_QuerySecret_new_mtime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QuerySecret_new_mtime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QuerySecret_new_mtime_, NDR_POINTER_UNIQUE, "Pointer to New Mtime (NTTIME_hyper)",hf_lsarpc_lsa_QuerySecret_new_mtime);
 
@@ -8592,7 +8594,7 @@ lsarpc_dissect_element_lsa_QuerySecret_new_mtime(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_QuerySecret_new_mtime_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QuerySecret_new_mtime_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QuerySecret_new_mtime);
 
@@ -8600,7 +8602,7 @@ lsarpc_dissect_element_lsa_QuerySecret_new_mtime_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_QuerySecret_old_val(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QuerySecret_old_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QuerySecret_old_val_, NDR_POINTER_UNIQUE, "Pointer to Old Val (lsa_DATA_BUF_PTR)",hf_lsarpc_lsa_QuerySecret_old_val);
 
@@ -8608,7 +8610,7 @@ lsarpc_dissect_element_lsa_QuerySecret_old_val(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_QuerySecret_old_val_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QuerySecret_old_val_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DATA_BUF_PTR(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_QuerySecret_old_val,0);
 
@@ -8616,7 +8618,7 @@ lsarpc_dissect_element_lsa_QuerySecret_old_val_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_QuerySecret_old_mtime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QuerySecret_old_mtime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QuerySecret_old_mtime_, NDR_POINTER_UNIQUE, "Pointer to Old Mtime (NTTIME_hyper)",hf_lsarpc_lsa_QuerySecret_old_mtime);
 
@@ -8624,7 +8626,7 @@ lsarpc_dissect_element_lsa_QuerySecret_old_mtime(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_QuerySecret_old_mtime_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QuerySecret_old_mtime_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QuerySecret_old_mtime);
 
@@ -8640,7 +8642,7 @@ lsarpc_dissect_element_lsa_QuerySecret_old_mtime_(tvbuff_t *tvb _U_, int offset 
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_QuerySecret_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_QuerySecret_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -8666,7 +8668,7 @@ lsarpc_dissect_lsa_QuerySecret_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-lsarpc_dissect_lsa_QuerySecret_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_QuerySecret_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_QuerySecret";
 	offset = lsarpc_dissect_element_lsa_QuerySecret_sec_handle(tvb, offset, pinfo, tree, di, drep);
@@ -8683,7 +8685,7 @@ lsarpc_dissect_lsa_QuerySecret_request(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivValue_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivValue_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupPrivValue_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_LookupPrivValue_handle);
 
@@ -8691,7 +8693,7 @@ lsarpc_dissect_element_lsa_LookupPrivValue_handle(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivValue_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivValue_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupPrivValue_handle, 0);
 
@@ -8699,7 +8701,7 @@ lsarpc_dissect_element_lsa_LookupPrivValue_handle_(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivValue_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivValue_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupPrivValue_name_, NDR_POINTER_REF, "Pointer to Name (lsa_String)",hf_lsarpc_lsa_LookupPrivValue_name);
 
@@ -8707,7 +8709,7 @@ lsarpc_dissect_element_lsa_LookupPrivValue_name(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivValue_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivValue_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupPrivValue_name,0);
 
@@ -8715,7 +8717,7 @@ lsarpc_dissect_element_lsa_LookupPrivValue_name_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivValue_luid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivValue_luid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupPrivValue_luid_, NDR_POINTER_REF, "Pointer to Luid (lsa_LUID)",hf_lsarpc_lsa_LookupPrivValue_luid);
 
@@ -8723,7 +8725,7 @@ lsarpc_dissect_element_lsa_LookupPrivValue_luid(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivValue_luid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivValue_luid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_LUID(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupPrivValue_luid,0);
 
@@ -8737,7 +8739,7 @@ lsarpc_dissect_element_lsa_LookupPrivValue_luid_(tvbuff_t *tvb _U_, int offset _
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_LookupPrivValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupPrivValue_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -8754,7 +8756,7 @@ lsarpc_dissect_lsa_LookupPrivValue_response(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_lsa_LookupPrivValue_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupPrivValue_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_LookupPrivValue";
 	offset = lsarpc_dissect_element_lsa_LookupPrivValue_handle(tvb, offset, pinfo, tree, di, drep);
@@ -8765,7 +8767,7 @@ lsarpc_dissect_lsa_LookupPrivValue_request(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivName_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivName_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupPrivName_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_LookupPrivName_handle);
 
@@ -8773,7 +8775,7 @@ lsarpc_dissect_element_lsa_LookupPrivName_handle(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivName_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivName_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupPrivName_handle, 0);
 
@@ -8781,7 +8783,7 @@ lsarpc_dissect_element_lsa_LookupPrivName_handle_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivName_luid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivName_luid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupPrivName_luid_, NDR_POINTER_REF, "Pointer to Luid (lsa_LUID)",hf_lsarpc_lsa_LookupPrivName_luid);
 
@@ -8789,7 +8791,7 @@ lsarpc_dissect_element_lsa_LookupPrivName_luid(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivName_luid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivName_luid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_LUID(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupPrivName_luid,0);
 
@@ -8797,7 +8799,7 @@ lsarpc_dissect_element_lsa_LookupPrivName_luid_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivName_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivName_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupPrivName_name_, NDR_POINTER_UNIQUE, "Pointer to Name (lsa_StringLarge)",hf_lsarpc_lsa_LookupPrivName_name);
 
@@ -8805,7 +8807,7 @@ lsarpc_dissect_element_lsa_LookupPrivName_name(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivName_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivName_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupPrivName_name,0);
 
@@ -8819,7 +8821,7 @@ lsarpc_dissect_element_lsa_LookupPrivName_name_(tvbuff_t *tvb _U_, int offset _U
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_LookupPrivName_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupPrivName_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -8836,7 +8838,7 @@ lsarpc_dissect_lsa_LookupPrivName_response(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-lsarpc_dissect_lsa_LookupPrivName_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupPrivName_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_LookupPrivName";
 	offset = lsarpc_dissect_element_lsa_LookupPrivName_handle(tvb, offset, pinfo, tree, di, drep);
@@ -8847,7 +8849,7 @@ lsarpc_dissect_lsa_LookupPrivName_request(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivDisplayName_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivDisplayName_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupPrivDisplayName_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_LookupPrivDisplayName_handle);
 
@@ -8855,7 +8857,7 @@ lsarpc_dissect_element_lsa_LookupPrivDisplayName_handle(tvbuff_t *tvb _U_, int o
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivDisplayName_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivDisplayName_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupPrivDisplayName_handle, 0);
 
@@ -8863,7 +8865,7 @@ lsarpc_dissect_element_lsa_LookupPrivDisplayName_handle_(tvbuff_t *tvb _U_, int 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivDisplayName_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivDisplayName_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupPrivDisplayName_name_, NDR_POINTER_REF, "Pointer to Name (lsa_String)",hf_lsarpc_lsa_LookupPrivDisplayName_name);
 
@@ -8871,7 +8873,7 @@ lsarpc_dissect_element_lsa_LookupPrivDisplayName_name(tvbuff_t *tvb _U_, int off
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivDisplayName_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivDisplayName_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupPrivDisplayName_name,0);
 
@@ -8879,7 +8881,7 @@ lsarpc_dissect_element_lsa_LookupPrivDisplayName_name_(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name_, NDR_POINTER_UNIQUE, "Pointer to Disp Name (lsa_StringLarge)",hf_lsarpc_lsa_LookupPrivDisplayName_disp_name);
 
@@ -8887,7 +8889,7 @@ lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name(tvbuff_t *tvb _U_, in
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupPrivDisplayName_disp_name,0);
 
@@ -8895,7 +8897,7 @@ lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name_(tvbuff_t *tvb _U_, i
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivDisplayName_language_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivDisplayName_language_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupPrivDisplayName_language_id_, NDR_POINTER_REF, "Pointer to Language Id (uint16)",hf_lsarpc_lsa_LookupPrivDisplayName_language_id);
 
@@ -8903,7 +8905,7 @@ lsarpc_dissect_element_lsa_LookupPrivDisplayName_language_id(tvbuff_t *tvb _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivDisplayName_language_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivDisplayName_language_id_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupPrivDisplayName_language_id, 0);
 
@@ -8911,7 +8913,7 @@ lsarpc_dissect_element_lsa_LookupPrivDisplayName_language_id_(tvbuff_t *tvb _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupPrivDisplayName_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupPrivDisplayName_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupPrivDisplayName_unknown, 0);
 
@@ -8927,7 +8929,7 @@ lsarpc_dissect_element_lsa_LookupPrivDisplayName_unknown(tvbuff_t *tvb _U_, int 
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_LookupPrivDisplayName_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupPrivDisplayName_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -8947,7 +8949,7 @@ lsarpc_dissect_lsa_LookupPrivDisplayName_response(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_lsa_LookupPrivDisplayName_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupPrivDisplayName_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_LookupPrivDisplayName";
 	offset = lsarpc_dissect_element_lsa_LookupPrivDisplayName_handle(tvb, offset, pinfo, tree, di, drep);
@@ -8966,7 +8968,7 @@ lsarpc_dissect_lsa_LookupPrivDisplayName_request(tvbuff_t *tvb _U_, int offset _
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_DeleteObject_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_DeleteObject_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -8980,14 +8982,14 @@ lsarpc_dissect_lsa_DeleteObject_response(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-lsarpc_dissect_lsa_DeleteObject_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_DeleteObject_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_DeleteObject";
 	return offset;
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_EnumAccountsWithUserRight_handle);
 
@@ -8995,7 +8997,7 @@ lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_handle(tvbuff_t *tvb _U_, i
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_EnumAccountsWithUserRight_handle, 0);
 
@@ -9003,7 +9005,7 @@ lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_handle_(tvbuff_t *tvb _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_name_, NDR_POINTER_UNIQUE, "Pointer to Name (lsa_String)",hf_lsarpc_lsa_EnumAccountsWithUserRight_name);
 
@@ -9011,7 +9013,7 @@ lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_name(tvbuff_t *tvb _U_, int
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_EnumAccountsWithUserRight_name,0);
 
@@ -9019,7 +9021,7 @@ lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_name_(tvbuff_t *tvb _U_, in
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_sids_, NDR_POINTER_REF, "Pointer to Sids (lsa_SidArray)",hf_lsarpc_lsa_EnumAccountsWithUserRight_sids);
 
@@ -9027,7 +9029,7 @@ lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_sids(tvbuff_t *tvb _U_, int
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_SidArray(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_EnumAccountsWithUserRight_sids,0);
 
@@ -9041,7 +9043,7 @@ lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_sids_(tvbuff_t *tvb _U_, in
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_EnumAccountsWithUserRight_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_EnumAccountsWithUserRight_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9058,7 +9060,7 @@ lsarpc_dissect_lsa_EnumAccountsWithUserRight_response(tvbuff_t *tvb _U_, int off
 }
 
 static int
-lsarpc_dissect_lsa_EnumAccountsWithUserRight_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_EnumAccountsWithUserRight_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_EnumAccountsWithUserRight";
 	offset = lsarpc_dissect_element_lsa_EnumAccountsWithUserRight_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9069,7 +9071,7 @@ lsarpc_dissect_lsa_EnumAccountsWithUserRight_request(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumAccountRights_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumAccountRights_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumAccountRights_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_EnumAccountRights_handle);
 
@@ -9077,7 +9079,7 @@ lsarpc_dissect_element_lsa_EnumAccountRights_handle(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumAccountRights_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumAccountRights_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_EnumAccountRights_handle, 0);
 
@@ -9085,7 +9087,7 @@ lsarpc_dissect_element_lsa_EnumAccountRights_handle_(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumAccountRights_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumAccountRights_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumAccountRights_sid_, NDR_POINTER_REF, "Pointer to Sid (dom_sid2)",hf_lsarpc_lsa_EnumAccountRights_sid);
 
@@ -9093,7 +9095,7 @@ lsarpc_dissect_element_lsa_EnumAccountRights_sid(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumAccountRights_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumAccountRights_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_dom_sid2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_EnumAccountRights_sid,0);
 
@@ -9101,7 +9103,7 @@ lsarpc_dissect_element_lsa_EnumAccountRights_sid_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumAccountRights_rights(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumAccountRights_rights(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumAccountRights_rights_, NDR_POINTER_REF, "Pointer to Rights (lsa_RightSet)",hf_lsarpc_lsa_EnumAccountRights_rights);
 
@@ -9109,7 +9111,7 @@ lsarpc_dissect_element_lsa_EnumAccountRights_rights(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumAccountRights_rights_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumAccountRights_rights_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_RightSet(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_EnumAccountRights_rights,0);
 
@@ -9123,7 +9125,7 @@ lsarpc_dissect_element_lsa_EnumAccountRights_rights_(tvbuff_t *tvb _U_, int offs
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_EnumAccountRights_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_EnumAccountRights_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9140,7 +9142,7 @@ lsarpc_dissect_lsa_EnumAccountRights_response(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_lsa_EnumAccountRights_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_EnumAccountRights_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_EnumAccountRights";
 	offset = lsarpc_dissect_element_lsa_EnumAccountRights_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9151,7 +9153,7 @@ lsarpc_dissect_lsa_EnumAccountRights_request(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_AddAccountRights_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AddAccountRights_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_AddAccountRights_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_AddAccountRights_handle);
 
@@ -9159,7 +9161,7 @@ lsarpc_dissect_element_lsa_AddAccountRights_handle(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_AddAccountRights_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AddAccountRights_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AddAccountRights_handle, 0);
 
@@ -9167,7 +9169,7 @@ lsarpc_dissect_element_lsa_AddAccountRights_handle_(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_AddAccountRights_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AddAccountRights_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_AddAccountRights_sid_, NDR_POINTER_REF, "Pointer to Sid (dom_sid2)",hf_lsarpc_lsa_AddAccountRights_sid);
 
@@ -9175,7 +9177,7 @@ lsarpc_dissect_element_lsa_AddAccountRights_sid(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_AddAccountRights_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AddAccountRights_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_dom_sid2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_AddAccountRights_sid,0);
 
@@ -9183,7 +9185,7 @@ lsarpc_dissect_element_lsa_AddAccountRights_sid_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_AddAccountRights_rights(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AddAccountRights_rights(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_AddAccountRights_rights_, NDR_POINTER_REF, "Pointer to Rights (lsa_RightSet)",hf_lsarpc_lsa_AddAccountRights_rights);
 
@@ -9191,7 +9193,7 @@ lsarpc_dissect_element_lsa_AddAccountRights_rights(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_AddAccountRights_rights_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_AddAccountRights_rights_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_RightSet(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_AddAccountRights_rights,0);
 
@@ -9205,7 +9207,7 @@ lsarpc_dissect_element_lsa_AddAccountRights_rights_(tvbuff_t *tvb _U_, int offse
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_AddAccountRights_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_AddAccountRights_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9219,7 +9221,7 @@ lsarpc_dissect_lsa_AddAccountRights_response(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_lsa_AddAccountRights_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_AddAccountRights_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_AddAccountRights";
 	offset = lsarpc_dissect_element_lsa_AddAccountRights_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9232,7 +9234,7 @@ lsarpc_dissect_lsa_AddAccountRights_request(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_RemoveAccountRights_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RemoveAccountRights_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_RemoveAccountRights_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_RemoveAccountRights_handle);
 
@@ -9240,7 +9242,7 @@ lsarpc_dissect_element_lsa_RemoveAccountRights_handle(tvbuff_t *tvb _U_, int off
 }
 
 static int
-lsarpc_dissect_element_lsa_RemoveAccountRights_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RemoveAccountRights_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_RemoveAccountRights_handle, 0);
 
@@ -9248,7 +9250,7 @@ lsarpc_dissect_element_lsa_RemoveAccountRights_handle_(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_RemoveAccountRights_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RemoveAccountRights_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_RemoveAccountRights_sid_, NDR_POINTER_REF, "Pointer to Sid (dom_sid2)",hf_lsarpc_lsa_RemoveAccountRights_sid);
 
@@ -9256,7 +9258,7 @@ lsarpc_dissect_element_lsa_RemoveAccountRights_sid(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_RemoveAccountRights_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RemoveAccountRights_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_dom_sid2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_RemoveAccountRights_sid,0);
 
@@ -9264,7 +9266,7 @@ lsarpc_dissect_element_lsa_RemoveAccountRights_sid_(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_RemoveAccountRights_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RemoveAccountRights_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_RemoveAccountRights_unknown, 0);
 
@@ -9272,7 +9274,7 @@ lsarpc_dissect_element_lsa_RemoveAccountRights_unknown(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_RemoveAccountRights_rights(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RemoveAccountRights_rights(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_RemoveAccountRights_rights_, NDR_POINTER_REF, "Pointer to Rights (lsa_RightSet)",hf_lsarpc_lsa_RemoveAccountRights_rights);
 
@@ -9280,7 +9282,7 @@ lsarpc_dissect_element_lsa_RemoveAccountRights_rights(tvbuff_t *tvb _U_, int off
 }
 
 static int
-lsarpc_dissect_element_lsa_RemoveAccountRights_rights_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_RemoveAccountRights_rights_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_RightSet(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_RemoveAccountRights_rights,0);
 
@@ -9295,7 +9297,7 @@ lsarpc_dissect_element_lsa_RemoveAccountRights_rights_(tvbuff_t *tvb _U_, int of
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_RemoveAccountRights_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_RemoveAccountRights_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9309,7 +9311,7 @@ lsarpc_dissect_lsa_RemoveAccountRights_response(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_lsa_RemoveAccountRights_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_RemoveAccountRights_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_RemoveAccountRights";
 	offset = lsarpc_dissect_element_lsa_RemoveAccountRights_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9324,7 +9326,7 @@ lsarpc_dissect_lsa_RemoveAccountRights_request(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_handle);
 
@@ -9332,7 +9334,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_handle(tvbuff_t *tvb _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_handle, 0);
 
@@ -9340,7 +9342,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_handle_(tvbuff_t *tvb _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_dom_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_dom_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_dom_sid_, NDR_POINTER_REF, "Pointer to Dom Sid (dom_sid2)",hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_dom_sid);
 
@@ -9348,7 +9350,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_dom_sid(tvbuff_t *tvb _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_dom_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_dom_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_dom_sid2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_dom_sid,0);
 
@@ -9356,7 +9358,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_dom_sid_(tvbuff_t *tvb _U
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_TrustDomInfoEnum(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_level, 0);
 
@@ -9364,7 +9366,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_level(tvbuff_t *tvb _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info_, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_TrustedDomainInfo)",hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_info);
 
@@ -9372,7 +9374,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info(tvbuff_t *tvb _U_, i
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_lsa_TrustedDomainInfo(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_info, 0);
 
@@ -9387,7 +9389,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info_(tvbuff_t *tvb _U_, 
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_QueryTrustedDomainInfoBySid_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_QueryTrustedDomainInfoBySid_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9404,7 +9406,7 @@ lsarpc_dissect_lsa_QueryTrustedDomainInfoBySid_response(tvbuff_t *tvb _U_, int o
 }
 
 static int
-lsarpc_dissect_lsa_QueryTrustedDomainInfoBySid_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_QueryTrustedDomainInfoBySid_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_QueryTrustedDomainInfoBySid";
 	offset = lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9421,7 +9423,7 @@ lsarpc_dissect_lsa_QueryTrustedDomainInfoBySid_request(tvbuff_t *tvb _U_, int of
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_SetTrustedDomainInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetTrustedDomainInfo_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9435,14 +9437,14 @@ lsarpc_dissect_lsa_SetTrustedDomainInfo_response(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_lsa_SetTrustedDomainInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetTrustedDomainInfo_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_SetTrustedDomainInfo";
 	return offset;
 }
 
 static int
-lsarpc_dissect_element_lsa_DeleteTrustedDomain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DeleteTrustedDomain_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_DeleteTrustedDomain_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_DeleteTrustedDomain_handle);
 
@@ -9450,7 +9452,7 @@ lsarpc_dissect_element_lsa_DeleteTrustedDomain_handle(tvbuff_t *tvb _U_, int off
 }
 
 static int
-lsarpc_dissect_element_lsa_DeleteTrustedDomain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DeleteTrustedDomain_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DeleteTrustedDomain_handle, 0);
 
@@ -9458,7 +9460,7 @@ lsarpc_dissect_element_lsa_DeleteTrustedDomain_handle_(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_DeleteTrustedDomain_dom_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DeleteTrustedDomain_dom_sid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_DeleteTrustedDomain_dom_sid_, NDR_POINTER_REF, "Pointer to Dom Sid (dom_sid2)",hf_lsarpc_lsa_DeleteTrustedDomain_dom_sid);
 
@@ -9466,7 +9468,7 @@ lsarpc_dissect_element_lsa_DeleteTrustedDomain_dom_sid(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_DeleteTrustedDomain_dom_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_DeleteTrustedDomain_dom_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_dom_sid2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_DeleteTrustedDomain_dom_sid,0);
 
@@ -9479,7 +9481,7 @@ lsarpc_dissect_element_lsa_DeleteTrustedDomain_dom_sid_(tvbuff_t *tvb _U_, int o
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_DeleteTrustedDomain_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_DeleteTrustedDomain_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9493,7 +9495,7 @@ lsarpc_dissect_lsa_DeleteTrustedDomain_response(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_lsa_DeleteTrustedDomain_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_DeleteTrustedDomain_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_DeleteTrustedDomain";
 	offset = lsarpc_dissect_element_lsa_DeleteTrustedDomain_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9508,7 +9510,7 @@ lsarpc_dissect_lsa_DeleteTrustedDomain_request(tvbuff_t *tvb _U_, int offset _U_
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_StorePrivateData_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_StorePrivateData_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9522,7 +9524,7 @@ lsarpc_dissect_lsa_StorePrivateData_response(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_lsa_StorePrivateData_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_StorePrivateData_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_StorePrivateData";
 	return offset;
@@ -9533,7 +9535,7 @@ lsarpc_dissect_lsa_StorePrivateData_request(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_RetrievePrivateData_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_RetrievePrivateData_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9547,14 +9549,14 @@ lsarpc_dissect_lsa_RetrievePrivateData_response(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_lsa_RetrievePrivateData_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_RetrievePrivateData_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_RetrievePrivateData";
 	return offset;
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenPolicy2_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenPolicy2_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_OpenPolicy2_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_lsarpc_lsa_OpenPolicy2_system_name);
 
@@ -9562,7 +9564,7 @@ lsarpc_dissect_element_lsa_OpenPolicy2_system_name(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenPolicy2_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenPolicy2_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 
@@ -9573,7 +9575,7 @@ lsarpc_dissect_element_lsa_OpenPolicy2_system_name_(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenPolicy2_attr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenPolicy2_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_OpenPolicy2_attr_, NDR_POINTER_REF, "Pointer to Attr (lsa_ObjectAttribute)",hf_lsarpc_lsa_OpenPolicy2_attr);
 
@@ -9581,7 +9583,7 @@ lsarpc_dissect_element_lsa_OpenPolicy2_attr(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenPolicy2_attr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenPolicy2_attr_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_ObjectAttribute(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_OpenPolicy2_attr,0);
 
@@ -9589,7 +9591,7 @@ lsarpc_dissect_element_lsa_OpenPolicy2_attr_(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenPolicy2_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenPolicy2_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_bitmap_lsa_PolicyAccessMask(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_OpenPolicy2_access_mask, 0);
 
@@ -9597,7 +9599,7 @@ lsarpc_dissect_element_lsa_OpenPolicy2_access_mask(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenPolicy2_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenPolicy2_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_OpenPolicy2_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_OpenPolicy2_handle);
 
@@ -9605,7 +9607,7 @@ lsarpc_dissect_element_lsa_OpenPolicy2_handle(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenPolicy2_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenPolicy2_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_OpenPolicy2_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_LSA_POLICY);
 
@@ -9620,7 +9622,7 @@ lsarpc_dissect_element_lsa_OpenPolicy2_handle_(tvbuff_t *tvb _U_, int offset _U_
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_OpenPolicy2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_OpenPolicy2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9637,7 +9639,7 @@ lsarpc_dissect_lsa_OpenPolicy2_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-lsarpc_dissect_lsa_OpenPolicy2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_OpenPolicy2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_OpenPolicy2";
 	offset = lsarpc_dissect_element_lsa_OpenPolicy2_system_name(tvb, offset, pinfo, tree, di, drep);
@@ -9650,7 +9652,7 @@ lsarpc_dissect_lsa_OpenPolicy2_request(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-lsarpc_dissect_element_lsa_GetUserName_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_GetUserName_system_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_GetUserName_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_lsarpc_lsa_GetUserName_system_name);
 
@@ -9658,7 +9660,7 @@ lsarpc_dissect_element_lsa_GetUserName_system_name(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_GetUserName_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_GetUserName_system_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	char *data;
 
@@ -9669,7 +9671,7 @@ lsarpc_dissect_element_lsa_GetUserName_system_name_(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_GetUserName_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_GetUserName_account_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_GetUserName_account_name_, NDR_POINTER_UNIQUE, "Pointer to Account Name (lsa_String)",hf_lsarpc_lsa_GetUserName_account_name);
 
@@ -9677,7 +9679,7 @@ lsarpc_dissect_element_lsa_GetUserName_account_name(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_GetUserName_account_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_GetUserName_account_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_GetUserName_account_name,0);
 
@@ -9685,7 +9687,7 @@ lsarpc_dissect_element_lsa_GetUserName_account_name_(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_element_lsa_GetUserName_authority_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_GetUserName_authority_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_GetUserName_authority_name_, NDR_POINTER_UNIQUE, "Pointer to Authority Name (lsa_StringPointer)",hf_lsarpc_lsa_GetUserName_authority_name);
 
@@ -9693,7 +9695,7 @@ lsarpc_dissect_element_lsa_GetUserName_authority_name(tvbuff_t *tvb _U_, int off
 }
 
 static int
-lsarpc_dissect_element_lsa_GetUserName_authority_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_GetUserName_authority_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_StringPointer(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_GetUserName_authority_name,0);
 
@@ -9707,7 +9709,7 @@ lsarpc_dissect_element_lsa_GetUserName_authority_name_(tvbuff_t *tvb _U_, int of
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_GetUserName_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_GetUserName_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9727,7 +9729,7 @@ lsarpc_dissect_lsa_GetUserName_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-lsarpc_dissect_lsa_GetUserName_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_GetUserName_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_GetUserName";
 	offset = lsarpc_dissect_element_lsa_GetUserName_system_name(tvb, offset, pinfo, tree, di, drep);
@@ -9740,7 +9742,7 @@ lsarpc_dissect_lsa_GetUserName_request(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryInfoPolicy2_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryInfoPolicy2_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryInfoPolicy2_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_QueryInfoPolicy2_handle);
 
@@ -9748,7 +9750,7 @@ lsarpc_dissect_element_lsa_QueryInfoPolicy2_handle(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryInfoPolicy2_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryInfoPolicy2_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryInfoPolicy2_handle, 0);
 
@@ -9756,7 +9758,7 @@ lsarpc_dissect_element_lsa_QueryInfoPolicy2_handle_(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryInfoPolicy2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryInfoPolicy2_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_PolicyInfo(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryInfoPolicy2_level, 0);
 
@@ -9764,7 +9766,7 @@ lsarpc_dissect_element_lsa_QueryInfoPolicy2_level(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryInfoPolicy2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryInfoPolicy2_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryInfoPolicy2_info_, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_PolicyInformation)",hf_lsarpc_lsa_QueryInfoPolicy2_info);
 
@@ -9772,7 +9774,7 @@ lsarpc_dissect_element_lsa_QueryInfoPolicy2_info(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryInfoPolicy2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryInfoPolicy2_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_lsa_PolicyInformation(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryInfoPolicy2_info, 0);
 
@@ -9786,7 +9788,7 @@ lsarpc_dissect_element_lsa_QueryInfoPolicy2_info_(tvbuff_t *tvb _U_, int offset 
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_QueryInfoPolicy2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_QueryInfoPolicy2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9803,7 +9805,7 @@ lsarpc_dissect_lsa_QueryInfoPolicy2_response(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_lsa_QueryInfoPolicy2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_QueryInfoPolicy2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_QueryInfoPolicy2";
 	offset = lsarpc_dissect_element_lsa_QueryInfoPolicy2_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9814,7 +9816,7 @@ lsarpc_dissect_lsa_QueryInfoPolicy2_request(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_SetInfoPolicy2_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetInfoPolicy2_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_SetInfoPolicy2_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_SetInfoPolicy2_handle);
 
@@ -9822,7 +9824,7 @@ lsarpc_dissect_element_lsa_SetInfoPolicy2_handle(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_SetInfoPolicy2_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetInfoPolicy2_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_SetInfoPolicy2_handle, 0);
 
@@ -9830,7 +9832,7 @@ lsarpc_dissect_element_lsa_SetInfoPolicy2_handle_(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_SetInfoPolicy2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetInfoPolicy2_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_PolicyInfo(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_SetInfoPolicy2_level, 0);
 
@@ -9838,7 +9840,7 @@ lsarpc_dissect_element_lsa_SetInfoPolicy2_level(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_SetInfoPolicy2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetInfoPolicy2_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_SetInfoPolicy2_info_, NDR_POINTER_REF, "Pointer to Info (lsa_PolicyInformation)",hf_lsarpc_lsa_SetInfoPolicy2_info);
 
@@ -9846,7 +9848,7 @@ lsarpc_dissect_element_lsa_SetInfoPolicy2_info(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_SetInfoPolicy2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetInfoPolicy2_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_lsa_PolicyInformation(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_SetInfoPolicy2_info, 0);
 
@@ -9860,7 +9862,7 @@ lsarpc_dissect_element_lsa_SetInfoPolicy2_info_(tvbuff_t *tvb _U_, int offset _U
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_SetInfoPolicy2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetInfoPolicy2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9874,7 +9876,7 @@ lsarpc_dissect_lsa_SetInfoPolicy2_response(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-lsarpc_dissect_lsa_SetInfoPolicy2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetInfoPolicy2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_SetInfoPolicy2";
 	offset = lsarpc_dissect_element_lsa_SetInfoPolicy2_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9887,7 +9889,7 @@ lsarpc_dissect_lsa_SetInfoPolicy2_request(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_QueryTrustedDomainInfoByName_handle);
 
@@ -9895,7 +9897,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_handle(tvbuff_t *tvb _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryTrustedDomainInfoByName_handle, 0);
 
@@ -9903,7 +9905,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_handle_(tvbuff_t *tvb _U
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_trusted_domain(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_trusted_domain(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_QueryTrustedDomainInfoByName_trusted_domain,0);
 
@@ -9911,7 +9913,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_trusted_domain(tvbuff_t 
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_TrustDomInfoEnum(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryTrustedDomainInfoByName_level, 0);
 
@@ -9919,7 +9921,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_level(tvbuff_t *tvb _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info_, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_TrustedDomainInfo)",hf_lsarpc_lsa_QueryTrustedDomainInfoByName_info);
 
@@ -9927,7 +9929,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info(tvbuff_t *tvb _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_lsa_TrustedDomainInfo(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryTrustedDomainInfoByName_info, 0);
 
@@ -9942,7 +9944,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info_(tvbuff_t *tvb _U_,
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_QueryTrustedDomainInfoByName_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_QueryTrustedDomainInfoByName_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -9959,7 +9961,7 @@ lsarpc_dissect_lsa_QueryTrustedDomainInfoByName_response(tvbuff_t *tvb _U_, int 
 }
 
 static int
-lsarpc_dissect_lsa_QueryTrustedDomainInfoByName_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_QueryTrustedDomainInfoByName_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_QueryTrustedDomainInfoByName";
 	offset = lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_handle(tvb, offset, pinfo, tree, di, drep);
@@ -9972,7 +9974,7 @@ lsarpc_dissect_lsa_QueryTrustedDomainInfoByName_request(tvbuff_t *tvb _U_, int o
 }
 
 static int
-lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_SetTrustedDomainInfoByName_handle);
 
@@ -9980,7 +9982,7 @@ lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_handle(tvbuff_t *tvb _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_SetTrustedDomainInfoByName_handle, 0);
 
@@ -9988,7 +9990,7 @@ lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_handle_(tvbuff_t *tvb _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_trusted_domain(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_trusted_domain(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_SetTrustedDomainInfoByName_trusted_domain,0);
 
@@ -9996,7 +9998,7 @@ lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_trusted_domain(tvbuff_t *t
 }
 
 static int
-lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_TrustDomInfoEnum(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_SetTrustedDomainInfoByName_level, 0);
 
@@ -10004,7 +10006,7 @@ lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_level(tvbuff_t *tvb _U_, i
 }
 
 static int
-lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_info_, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_TrustedDomainInfo)",hf_lsarpc_lsa_SetTrustedDomainInfoByName_info);
 
@@ -10012,7 +10014,7 @@ lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_info(tvbuff_t *tvb _U_, in
 }
 
 static int
-lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_lsa_TrustedDomainInfo(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_SetTrustedDomainInfoByName_info, 0);
 
@@ -10027,7 +10029,7 @@ lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_info_(tvbuff_t *tvb _U_, i
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_SetTrustedDomainInfoByName_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetTrustedDomainInfoByName_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10041,7 +10043,7 @@ lsarpc_dissect_lsa_SetTrustedDomainInfoByName_response(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_lsa_SetTrustedDomainInfoByName_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetTrustedDomainInfoByName_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_SetTrustedDomainInfoByName";
 	offset = lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_handle(tvb, offset, pinfo, tree, di, drep);
@@ -10056,7 +10058,7 @@ lsarpc_dissect_lsa_SetTrustedDomainInfoByName_request(tvbuff_t *tvb _U_, int off
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_EnumTrustedDomainsEx_handle);
 
@@ -10064,7 +10066,7 @@ lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_handle(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_EnumTrustedDomainsEx_handle, 0);
 
@@ -10072,7 +10074,7 @@ lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_handle_(tvbuff_t *tvb _U_, int o
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_resume_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_resume_handle_, NDR_POINTER_REF, "Pointer to Resume Handle (uint32)",hf_lsarpc_lsa_EnumTrustedDomainsEx_resume_handle);
 
@@ -10080,7 +10082,7 @@ lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_resume_handle(tvbuff_t *tvb _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_resume_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_EnumTrustedDomainsEx_resume_handle, 0);
 
@@ -10088,7 +10090,7 @@ lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_resume_handle_(tvbuff_t *tvb _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_domains_, NDR_POINTER_REF, "Pointer to Domains (lsa_DomainListEx)",hf_lsarpc_lsa_EnumTrustedDomainsEx_domains);
 
@@ -10096,7 +10098,7 @@ lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_domains(tvbuff_t *tvb _U_, int o
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_DomainListEx(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_EnumTrustedDomainsEx_domains,0);
 
@@ -10104,7 +10106,7 @@ lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_domains_(tvbuff_t *tvb _U_, int 
 }
 
 static int
-lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_max_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_max_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_EnumTrustedDomainsEx_max_size, 0);
 
@@ -10119,7 +10121,7 @@ lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_max_size(tvbuff_t *tvb _U_, int 
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_EnumTrustedDomainsEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_EnumTrustedDomainsEx_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10139,7 +10141,7 @@ lsarpc_dissect_lsa_EnumTrustedDomainsEx_response(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_lsa_EnumTrustedDomainsEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_EnumTrustedDomainsEx_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_EnumTrustedDomainsEx";
 	offset = lsarpc_dissect_element_lsa_EnumTrustedDomainsEx_handle(tvb, offset, pinfo, tree, di, drep);
@@ -10156,7 +10158,7 @@ lsarpc_dissect_lsa_EnumTrustedDomainsEx_request(tvbuff_t *tvb _U_, int offset _U
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_CreateTrustedDomainEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CreateTrustedDomainEx_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10170,14 +10172,14 @@ lsarpc_dissect_lsa_CreateTrustedDomainEx_response(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_lsa_CreateTrustedDomainEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CreateTrustedDomainEx_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_CreateTrustedDomainEx";
 	return offset;
 }
 
 static int
-lsarpc_dissect_element_lsa_CloseTrustedDomainEx_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CloseTrustedDomainEx_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_CloseTrustedDomainEx_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_CloseTrustedDomainEx_handle);
 
@@ -10185,7 +10187,7 @@ lsarpc_dissect_element_lsa_CloseTrustedDomainEx_handle(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_element_lsa_CloseTrustedDomainEx_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_CloseTrustedDomainEx_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_CloseTrustedDomainEx_handle, PIDL_POLHND_CLOSE);
 
@@ -10197,7 +10199,7 @@ lsarpc_dissect_element_lsa_CloseTrustedDomainEx_handle_(tvbuff_t *tvb _U_, int o
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_CloseTrustedDomainEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CloseTrustedDomainEx_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10214,7 +10216,7 @@ lsarpc_dissect_lsa_CloseTrustedDomainEx_response(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_lsa_CloseTrustedDomainEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CloseTrustedDomainEx_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_CloseTrustedDomainEx";
 	offset = lsarpc_dissect_element_lsa_CloseTrustedDomainEx_handle(tvb, offset, pinfo, tree, di, drep);
@@ -10223,7 +10225,7 @@ lsarpc_dissect_lsa_CloseTrustedDomainEx_request(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_QueryDomainInformationPolicy_handle);
 
@@ -10231,7 +10233,7 @@ lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_handle(tvbuff_t *tvb _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryDomainInformationPolicy_handle, 0);
 
@@ -10239,7 +10241,7 @@ lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_handle_(tvbuff_t *tvb _U
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_DomainInfoEnum(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryDomainInformationPolicy_level, 0);
 
@@ -10247,7 +10249,7 @@ lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_level(tvbuff_t *tvb _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info_, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_DomainInformationPolicy)",hf_lsarpc_lsa_QueryDomainInformationPolicy_info);
 
@@ -10255,7 +10257,7 @@ lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info(tvbuff_t *tvb _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_lsa_DomainInformationPolicy(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryDomainInformationPolicy_info, 0);
 
@@ -10269,7 +10271,7 @@ lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info_(tvbuff_t *tvb _U_,
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_QueryDomainInformationPolicy_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_QueryDomainInformationPolicy_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10286,7 +10288,7 @@ lsarpc_dissect_lsa_QueryDomainInformationPolicy_response(tvbuff_t *tvb _U_, int 
 }
 
 static int
-lsarpc_dissect_lsa_QueryDomainInformationPolicy_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_QueryDomainInformationPolicy_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_QueryDomainInformationPolicy";
 	offset = lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_handle(tvb, offset, pinfo, tree, di, drep);
@@ -10297,7 +10299,7 @@ lsarpc_dissect_lsa_QueryDomainInformationPolicy_request(tvbuff_t *tvb _U_, int o
 }
 
 static int
-lsarpc_dissect_element_lsa_SetDomainInformationPolicy_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetDomainInformationPolicy_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_SetDomainInformationPolicy_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_SetDomainInformationPolicy_handle);
 
@@ -10305,7 +10307,7 @@ lsarpc_dissect_element_lsa_SetDomainInformationPolicy_handle(tvbuff_t *tvb _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_SetDomainInformationPolicy_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetDomainInformationPolicy_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_SetDomainInformationPolicy_handle, 0);
 
@@ -10313,7 +10315,7 @@ lsarpc_dissect_element_lsa_SetDomainInformationPolicy_handle_(tvbuff_t *tvb _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_SetDomainInformationPolicy_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetDomainInformationPolicy_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_DomainInfoEnum(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_SetDomainInformationPolicy_level, 0);
 
@@ -10321,7 +10323,7 @@ lsarpc_dissect_element_lsa_SetDomainInformationPolicy_level(tvbuff_t *tvb _U_, i
 }
 
 static int
-lsarpc_dissect_element_lsa_SetDomainInformationPolicy_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetDomainInformationPolicy_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_SetDomainInformationPolicy_info_, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_DomainInformationPolicy)",hf_lsarpc_lsa_SetDomainInformationPolicy_info);
 
@@ -10329,7 +10331,7 @@ lsarpc_dissect_element_lsa_SetDomainInformationPolicy_info(tvbuff_t *tvb _U_, in
 }
 
 static int
-lsarpc_dissect_element_lsa_SetDomainInformationPolicy_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_SetDomainInformationPolicy_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_lsa_DomainInformationPolicy(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_SetDomainInformationPolicy_info, 0);
 
@@ -10343,7 +10345,7 @@ lsarpc_dissect_element_lsa_SetDomainInformationPolicy_info_(tvbuff_t *tvb _U_, i
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_SetDomainInformationPolicy_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetDomainInformationPolicy_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10357,7 +10359,7 @@ lsarpc_dissect_lsa_SetDomainInformationPolicy_response(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_lsa_SetDomainInformationPolicy_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_SetDomainInformationPolicy_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_SetDomainInformationPolicy";
 	offset = lsarpc_dissect_element_lsa_SetDomainInformationPolicy_handle(tvb, offset, pinfo, tree, di, drep);
@@ -10370,7 +10372,7 @@ lsarpc_dissect_lsa_SetDomainInformationPolicy_request(tvbuff_t *tvb _U_, int off
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenTrustedDomainByName_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenTrustedDomainByName_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_OpenTrustedDomainByName_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_OpenTrustedDomainByName_handle);
 
@@ -10378,7 +10380,7 @@ lsarpc_dissect_element_lsa_OpenTrustedDomainByName_handle(tvbuff_t *tvb _U_, int
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenTrustedDomainByName_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenTrustedDomainByName_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_OpenTrustedDomainByName_handle, 0);
 
@@ -10386,7 +10388,7 @@ lsarpc_dissect_element_lsa_OpenTrustedDomainByName_handle_(tvbuff_t *tvb _U_, in
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenTrustedDomainByName_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenTrustedDomainByName_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_OpenTrustedDomainByName_name,0);
 
@@ -10394,7 +10396,7 @@ lsarpc_dissect_element_lsa_OpenTrustedDomainByName_name(tvbuff_t *tvb _U_, int o
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenTrustedDomainByName_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenTrustedDomainByName_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_bitmap_lsa_DomainAccessMask(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_OpenTrustedDomainByName_access_mask, 0);
 
@@ -10402,7 +10404,7 @@ lsarpc_dissect_element_lsa_OpenTrustedDomainByName_access_mask(tvbuff_t *tvb _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenTrustedDomainByName_trustdom_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenTrustedDomainByName_trustdom_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_OpenTrustedDomainByName_trustdom_handle_, NDR_POINTER_REF, "Pointer to Trustdom Handle (policy_handle)",hf_lsarpc_lsa_OpenTrustedDomainByName_trustdom_handle);
 
@@ -10410,7 +10412,7 @@ lsarpc_dissect_element_lsa_OpenTrustedDomainByName_trustdom_handle(tvbuff_t *tvb
 }
 
 static int
-lsarpc_dissect_element_lsa_OpenTrustedDomainByName_trustdom_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_OpenTrustedDomainByName_trustdom_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_OpenTrustedDomainByName_trustdom_handle, PIDL_POLHND_OPEN|PIDL_POLHND_TYPE_LSA_DOMAIN);
 
@@ -10425,7 +10427,7 @@ lsarpc_dissect_element_lsa_OpenTrustedDomainByName_trustdom_handle_(tvbuff_t *tv
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_OpenTrustedDomainByName_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_OpenTrustedDomainByName_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10442,7 +10444,7 @@ lsarpc_dissect_lsa_OpenTrustedDomainByName_response(tvbuff_t *tvb _U_, int offse
 }
 
 static int
-lsarpc_dissect_lsa_OpenTrustedDomainByName_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_OpenTrustedDomainByName_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_OpenTrustedDomainByName";
 	offset = lsarpc_dissect_element_lsa_OpenTrustedDomainByName_handle(tvb, offset, pinfo, tree, di, drep);
@@ -10459,7 +10461,7 @@ lsarpc_dissect_lsa_OpenTrustedDomainByName_request(tvbuff_t *tvb _U_, int offset
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_TestCall_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_TestCall_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10473,14 +10475,14 @@ lsarpc_dissect_lsa_TestCall_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-lsarpc_dissect_lsa_TestCall_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_TestCall_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_TestCall";
 	return offset;
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids2_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids2_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids2_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_LookupSids2_handle);
 
@@ -10488,7 +10490,7 @@ lsarpc_dissect_element_lsa_LookupSids2_handle(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids2_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids2_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupSids2_handle, 0);
 
@@ -10496,7 +10498,7 @@ lsarpc_dissect_element_lsa_LookupSids2_handle_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids2_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids2_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids2_sids_, NDR_POINTER_REF, "Pointer to Sids (lsa_SidArray)",hf_lsarpc_lsa_LookupSids2_sids);
 
@@ -10504,7 +10506,7 @@ lsarpc_dissect_element_lsa_LookupSids2_sids(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids2_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids2_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_SidArray(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupSids2_sids,0);
 
@@ -10512,7 +10514,7 @@ lsarpc_dissect_element_lsa_LookupSids2_sids_(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids2_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids2_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids2_domains_, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupSids2_domains);
 
@@ -10520,7 +10522,7 @@ lsarpc_dissect_element_lsa_LookupSids2_domains(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids2_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids2_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_RefDomainList(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupSids2_domains,0);
 
@@ -10528,7 +10530,7 @@ lsarpc_dissect_element_lsa_LookupSids2_domains_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids2_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids2_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids2_names_, NDR_POINTER_REF, "Pointer to Names (lsa_TransNameArray2)",hf_lsarpc_lsa_LookupSids2_names);
 
@@ -10536,7 +10538,7 @@ lsarpc_dissect_element_lsa_LookupSids2_names(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids2_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids2_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TransNameArray2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupSids2_names,0);
 
@@ -10544,7 +10546,7 @@ lsarpc_dissect_element_lsa_LookupSids2_names_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids2_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupSids2_level, 0);
 
@@ -10552,7 +10554,7 @@ lsarpc_dissect_element_lsa_LookupSids2_level(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids2_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids2_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids2_count_, NDR_POINTER_REF, "Pointer to Count (uint32)",hf_lsarpc_lsa_LookupSids2_count);
 
@@ -10560,7 +10562,7 @@ lsarpc_dissect_element_lsa_LookupSids2_count(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids2_count_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids2_count_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupSids2_count, 0);
 
@@ -10568,7 +10570,7 @@ lsarpc_dissect_element_lsa_LookupSids2_count_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids2_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids2_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupSids2_unknown1, 0);
 
@@ -10576,7 +10578,7 @@ lsarpc_dissect_element_lsa_LookupSids2_unknown1(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids2_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids2_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupSids2_unknown2, 0);
 
@@ -10595,7 +10597,7 @@ lsarpc_dissect_element_lsa_LookupSids2_unknown2(tvbuff_t *tvb _U_, int offset _U
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_LookupSids2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupSids2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10618,7 +10620,7 @@ lsarpc_dissect_lsa_LookupSids2_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-lsarpc_dissect_lsa_LookupSids2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupSids2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_LookupSids2";
 	offset = lsarpc_dissect_element_lsa_LookupSids2_handle(tvb, offset, pinfo, tree, di, drep);
@@ -10639,7 +10641,7 @@ lsarpc_dissect_lsa_LookupSids2_request(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames2_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames2_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames2_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_LookupNames2_handle);
 
@@ -10647,7 +10649,7 @@ lsarpc_dissect_element_lsa_LookupNames2_handle(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames2_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames2_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames2_handle, 0);
 
@@ -10655,7 +10657,7 @@ lsarpc_dissect_element_lsa_LookupNames2_handle_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames2_num_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames2_num_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames2_num_names, 0);
 
@@ -10663,7 +10665,7 @@ lsarpc_dissect_element_lsa_LookupNames2_num_names(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames2_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames2_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames2_domains_, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupNames2_domains);
 
@@ -10671,7 +10673,7 @@ lsarpc_dissect_element_lsa_LookupNames2_domains(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames2_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames2_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_RefDomainList(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupNames2_domains,0);
 
@@ -10679,7 +10681,7 @@ lsarpc_dissect_element_lsa_LookupNames2_domains_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames2_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames2_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames2_sids_, NDR_POINTER_REF, "Pointer to Sids (lsa_TransSidArray2)",hf_lsarpc_lsa_LookupNames2_sids);
 
@@ -10687,7 +10689,7 @@ lsarpc_dissect_element_lsa_LookupNames2_sids(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames2_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames2_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TransSidArray2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupNames2_sids,0);
 
@@ -10695,7 +10697,7 @@ lsarpc_dissect_element_lsa_LookupNames2_sids_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames2_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_LookupNamesLevel(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames2_level, 0);
 
@@ -10703,7 +10705,7 @@ lsarpc_dissect_element_lsa_LookupNames2_level(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames2_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames2_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames2_count_, NDR_POINTER_REF, "Pointer to Count (uint32)",hf_lsarpc_lsa_LookupNames2_count);
 
@@ -10711,7 +10713,7 @@ lsarpc_dissect_element_lsa_LookupNames2_count(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames2_count_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames2_count_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames2_count, 0);
 
@@ -10719,7 +10721,7 @@ lsarpc_dissect_element_lsa_LookupNames2_count_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames2_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames2_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames2_unknown1, 0);
 
@@ -10727,7 +10729,7 @@ lsarpc_dissect_element_lsa_LookupNames2_unknown1(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames2_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames2_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames2_unknown2, 0);
 
@@ -10747,7 +10749,7 @@ lsarpc_dissect_element_lsa_LookupNames2_unknown2(tvbuff_t *tvb _U_, int offset _
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_LookupNames2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupNames2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10770,7 +10772,7 @@ lsarpc_dissect_lsa_LookupNames2_response(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-lsarpc_dissect_lsa_LookupNames2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupNames2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_LookupNames2";
 	offset = lsarpc_dissect_element_lsa_LookupNames2_handle(tvb, offset, pinfo, tree, di, drep);
@@ -10797,7 +10799,7 @@ lsarpc_dissect_lsa_LookupNames2_request(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_CreateTrustedDomainEx2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CreateTrustedDomainEx2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10811,7 +10813,7 @@ lsarpc_dissect_lsa_CreateTrustedDomainEx2_response(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_lsa_CreateTrustedDomainEx2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CreateTrustedDomainEx2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_CreateTrustedDomainEx2";
 	return offset;
@@ -10822,7 +10824,7 @@ lsarpc_dissect_lsa_CreateTrustedDomainEx2_request(tvbuff_t *tvb _U_, int offset 
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_CREDRWRITE_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRWRITE_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10836,7 +10838,7 @@ lsarpc_dissect_lsa_CREDRWRITE_response(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-lsarpc_dissect_lsa_CREDRWRITE_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRWRITE_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_CREDRWRITE";
 	return offset;
@@ -10847,7 +10849,7 @@ lsarpc_dissect_lsa_CREDRWRITE_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_CREDRREAD_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRREAD_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10861,7 +10863,7 @@ lsarpc_dissect_lsa_CREDRREAD_response(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-lsarpc_dissect_lsa_CREDRREAD_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRREAD_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_CREDRREAD";
 	return offset;
@@ -10872,7 +10874,7 @@ lsarpc_dissect_lsa_CREDRREAD_request(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_CREDRENUMERATE_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRENUMERATE_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10886,7 +10888,7 @@ lsarpc_dissect_lsa_CREDRENUMERATE_response(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-lsarpc_dissect_lsa_CREDRENUMERATE_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRENUMERATE_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_CREDRENUMERATE";
 	return offset;
@@ -10897,7 +10899,7 @@ lsarpc_dissect_lsa_CREDRENUMERATE_request(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_CREDRWRITEDOMAINCREDENTIALS_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRWRITEDOMAINCREDENTIALS_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10911,7 +10913,7 @@ lsarpc_dissect_lsa_CREDRWRITEDOMAINCREDENTIALS_response(tvbuff_t *tvb _U_, int o
 }
 
 static int
-lsarpc_dissect_lsa_CREDRWRITEDOMAINCREDENTIALS_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRWRITEDOMAINCREDENTIALS_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_CREDRWRITEDOMAINCREDENTIALS";
 	return offset;
@@ -10922,7 +10924,7 @@ lsarpc_dissect_lsa_CREDRWRITEDOMAINCREDENTIALS_request(tvbuff_t *tvb _U_, int of
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_CREDRREADDOMAINCREDENTIALS_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRREADDOMAINCREDENTIALS_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10936,7 +10938,7 @@ lsarpc_dissect_lsa_CREDRREADDOMAINCREDENTIALS_response(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_lsa_CREDRREADDOMAINCREDENTIALS_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRREADDOMAINCREDENTIALS_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_CREDRREADDOMAINCREDENTIALS";
 	return offset;
@@ -10947,7 +10949,7 @@ lsarpc_dissect_lsa_CREDRREADDOMAINCREDENTIALS_request(tvbuff_t *tvb _U_, int off
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_CREDRDELETE_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRDELETE_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10961,7 +10963,7 @@ lsarpc_dissect_lsa_CREDRDELETE_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-lsarpc_dissect_lsa_CREDRDELETE_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRDELETE_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_CREDRDELETE";
 	return offset;
@@ -10972,7 +10974,7 @@ lsarpc_dissect_lsa_CREDRDELETE_request(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_CREDRGETTARGETINFO_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRGETTARGETINFO_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -10986,7 +10988,7 @@ lsarpc_dissect_lsa_CREDRGETTARGETINFO_response(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_lsa_CREDRGETTARGETINFO_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRGETTARGETINFO_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_CREDRGETTARGETINFO";
 	return offset;
@@ -10997,7 +10999,7 @@ lsarpc_dissect_lsa_CREDRGETTARGETINFO_request(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_CREDRPROFILELOADED_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRPROFILELOADED_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11011,14 +11013,14 @@ lsarpc_dissect_lsa_CREDRPROFILELOADED_response(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_lsa_CREDRPROFILELOADED_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRPROFILELOADED_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_CREDRPROFILELOADED";
 	return offset;
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames3_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames3_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames3_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_LookupNames3_handle);
 
@@ -11026,7 +11028,7 @@ lsarpc_dissect_element_lsa_LookupNames3_handle(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames3_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames3_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames3_handle, 0);
 
@@ -11034,7 +11036,7 @@ lsarpc_dissect_element_lsa_LookupNames3_handle_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames3_num_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames3_num_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames3_num_names, 0);
 
@@ -11042,7 +11044,7 @@ lsarpc_dissect_element_lsa_LookupNames3_num_names(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames3_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames3_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupNames3_names,0);
 
@@ -11050,7 +11052,7 @@ lsarpc_dissect_element_lsa_LookupNames3_names_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames3_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames3_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames3_domains_, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupNames3_domains);
 
@@ -11058,7 +11060,7 @@ lsarpc_dissect_element_lsa_LookupNames3_domains(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames3_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames3_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_RefDomainList(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupNames3_domains,0);
 
@@ -11066,7 +11068,7 @@ lsarpc_dissect_element_lsa_LookupNames3_domains_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames3_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames3_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames3_sids_, NDR_POINTER_REF, "Pointer to Sids (lsa_TransSidArray3)",hf_lsarpc_lsa_LookupNames3_sids);
 
@@ -11074,7 +11076,7 @@ lsarpc_dissect_element_lsa_LookupNames3_sids(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames3_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames3_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TransSidArray3(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupNames3_sids,0);
 
@@ -11082,7 +11084,7 @@ lsarpc_dissect_element_lsa_LookupNames3_sids_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames3_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames3_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_LookupNamesLevel(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames3_level, 0);
 
@@ -11090,7 +11092,7 @@ lsarpc_dissect_element_lsa_LookupNames3_level(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames3_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames3_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames3_count_, NDR_POINTER_REF, "Pointer to Count (uint32)",hf_lsarpc_lsa_LookupNames3_count);
 
@@ -11098,7 +11100,7 @@ lsarpc_dissect_element_lsa_LookupNames3_count(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames3_count_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames3_count_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames3_count, 0);
 
@@ -11106,7 +11108,7 @@ lsarpc_dissect_element_lsa_LookupNames3_count_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames3_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames3_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames3_unknown1, 0);
 
@@ -11114,7 +11116,7 @@ lsarpc_dissect_element_lsa_LookupNames3_unknown1(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames3_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames3_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames3_unknown2, 0);
 
@@ -11134,7 +11136,7 @@ lsarpc_dissect_element_lsa_LookupNames3_unknown2(tvbuff_t *tvb _U_, int offset _
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_LookupNames3_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupNames3_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11157,7 +11159,7 @@ lsarpc_dissect_lsa_LookupNames3_response(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-lsarpc_dissect_lsa_LookupNames3_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupNames3_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_LookupNames3";
 	offset = lsarpc_dissect_element_lsa_LookupNames3_handle(tvb, offset, pinfo, tree, di, drep);
@@ -11184,7 +11186,7 @@ lsarpc_dissect_lsa_LookupNames3_request(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_CREDRGETSESSIONTYPES_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRGETSESSIONTYPES_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11198,7 +11200,7 @@ lsarpc_dissect_lsa_CREDRGETSESSIONTYPES_response(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_lsa_CREDRGETSESSIONTYPES_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRGETSESSIONTYPES_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_CREDRGETSESSIONTYPES";
 	return offset;
@@ -11209,7 +11211,7 @@ lsarpc_dissect_lsa_CREDRGETSESSIONTYPES_request(tvbuff_t *tvb _U_, int offset _U
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_LSARREGISTERAUDITEVENT_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LSARREGISTERAUDITEVENT_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11223,7 +11225,7 @@ lsarpc_dissect_lsa_LSARREGISTERAUDITEVENT_response(tvbuff_t *tvb _U_, int offset
 }
 
 static int
-lsarpc_dissect_lsa_LSARREGISTERAUDITEVENT_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LSARREGISTERAUDITEVENT_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_LSARREGISTERAUDITEVENT";
 	return offset;
@@ -11234,7 +11236,7 @@ lsarpc_dissect_lsa_LSARREGISTERAUDITEVENT_request(tvbuff_t *tvb _U_, int offset 
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_LSARGENAUDITEVENT_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LSARGENAUDITEVENT_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11248,7 +11250,7 @@ lsarpc_dissect_lsa_LSARGENAUDITEVENT_response(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_lsa_LSARGENAUDITEVENT_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LSARGENAUDITEVENT_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_LSARGENAUDITEVENT";
 	return offset;
@@ -11259,7 +11261,7 @@ lsarpc_dissect_lsa_LSARGENAUDITEVENT_request(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_LSARUNREGISTERAUDITEVENT_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LSARUNREGISTERAUDITEVENT_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11273,14 +11275,14 @@ lsarpc_dissect_lsa_LSARUNREGISTERAUDITEVENT_response(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-lsarpc_dissect_lsa_LSARUNREGISTERAUDITEVENT_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LSARUNREGISTERAUDITEVENT_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_LSARUNREGISTERAUDITEVENT";
 	return offset;
 }
 
 static int
-lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_lsaRQueryForestTrustInformation_handle);
 
@@ -11288,7 +11290,7 @@ lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_handle(tvbuff_t *tvb 
 }
 
 static int
-lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_lsaRQueryForestTrustInformation_handle, 0);
 
@@ -11296,7 +11298,7 @@ lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_handle_(tvbuff_t *tvb
 }
 
 static int
-lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_trusted_domain_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_trusted_domain_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_trusted_domain_name_, NDR_POINTER_REF, "Pointer to Trusted Domain Name (lsa_String)",hf_lsarpc_lsa_lsaRQueryForestTrustInformation_trusted_domain_name);
 
@@ -11304,7 +11306,7 @@ lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_trusted_domain_name(t
 }
 
 static int
-lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_trusted_domain_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_trusted_domain_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_String(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_lsaRQueryForestTrustInformation_trusted_domain_name,0);
 
@@ -11312,7 +11314,7 @@ lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_trusted_domain_name_(
 }
 
 static int
-lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_lsaRQueryForestTrustInformation_unknown, 0);
 
@@ -11320,7 +11322,7 @@ lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_unknown(tvbuff_t *tvb
 }
 
 static int
-lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_forest_trust_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_forest_trust_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_forest_trust_info_, NDR_POINTER_REF, "Pointer to Forest Trust Info (lsa_ForestTrustInformation)",hf_lsarpc_lsa_lsaRQueryForestTrustInformation_forest_trust_info);
 
@@ -11328,7 +11330,7 @@ lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_forest_trust_info(tvb
 }
 
 static int
-lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_forest_trust_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_forest_trust_info_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_forest_trust_info__, NDR_POINTER_UNIQUE, "Pointer to Forest Trust Info (lsa_ForestTrustInformation)",hf_lsarpc_lsa_lsaRQueryForestTrustInformation_forest_trust_info);
 
@@ -11336,7 +11338,7 @@ lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_forest_trust_info_(tv
 }
 
 static int
-lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_forest_trust_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_forest_trust_info__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_ForestTrustInformation(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_lsaRQueryForestTrustInformation_forest_trust_info,0);
 
@@ -11351,7 +11353,7 @@ lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_forest_trust_info__(t
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_lsaRQueryForestTrustInformation_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_lsaRQueryForestTrustInformation_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11368,7 +11370,7 @@ lsarpc_dissect_lsa_lsaRQueryForestTrustInformation_response(tvbuff_t *tvb _U_, i
 }
 
 static int
-lsarpc_dissect_lsa_lsaRQueryForestTrustInformation_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_lsaRQueryForestTrustInformation_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_lsaRQueryForestTrustInformation";
 	offset = lsarpc_dissect_element_lsa_lsaRQueryForestTrustInformation_handle(tvb, offset, pinfo, tree, di, drep);
@@ -11385,7 +11387,7 @@ lsarpc_dissect_lsa_lsaRQueryForestTrustInformation_request(tvbuff_t *tvb _U_, in
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_LSARSETFORESTTRUSTINFORMATION_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LSARSETFORESTTRUSTINFORMATION_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11399,7 +11401,7 @@ lsarpc_dissect_lsa_LSARSETFORESTTRUSTINFORMATION_response(tvbuff_t *tvb _U_, int
 }
 
 static int
-lsarpc_dissect_lsa_LSARSETFORESTTRUSTINFORMATION_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LSARSETFORESTTRUSTINFORMATION_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_LSARSETFORESTTRUSTINFORMATION";
 	return offset;
@@ -11410,7 +11412,7 @@ lsarpc_dissect_lsa_LSARSETFORESTTRUSTINFORMATION_request(tvbuff_t *tvb _U_, int 
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_CREDRRENAME_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRRENAME_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11424,14 +11426,14 @@ lsarpc_dissect_lsa_CREDRRENAME_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-lsarpc_dissect_lsa_CREDRRENAME_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_CREDRRENAME_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_CREDRRENAME";
 	return offset;
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids3_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids3_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids3_sids_, NDR_POINTER_REF, "Pointer to Sids (lsa_SidArray)",hf_lsarpc_lsa_LookupSids3_sids);
 
@@ -11439,7 +11441,7 @@ lsarpc_dissect_element_lsa_LookupSids3_sids(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids3_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids3_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_SidArray(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupSids3_sids,0);
 
@@ -11447,7 +11449,7 @@ lsarpc_dissect_element_lsa_LookupSids3_sids_(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids3_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids3_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids3_domains_, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupSids3_domains);
 
@@ -11455,7 +11457,7 @@ lsarpc_dissect_element_lsa_LookupSids3_domains(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids3_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids3_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_RefDomainList(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupSids3_domains,0);
 
@@ -11463,7 +11465,7 @@ lsarpc_dissect_element_lsa_LookupSids3_domains_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids3_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids3_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids3_names_, NDR_POINTER_REF, "Pointer to Names (lsa_TransNameArray2)",hf_lsarpc_lsa_LookupSids3_names);
 
@@ -11471,7 +11473,7 @@ lsarpc_dissect_element_lsa_LookupSids3_names(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids3_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids3_names_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TransNameArray2(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupSids3_names,0);
 
@@ -11479,7 +11481,7 @@ lsarpc_dissect_element_lsa_LookupSids3_names_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids3_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids3_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupSids3_level, 0);
 
@@ -11487,7 +11489,7 @@ lsarpc_dissect_element_lsa_LookupSids3_level(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids3_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids3_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids3_count_, NDR_POINTER_REF, "Pointer to Count (uint32)",hf_lsarpc_lsa_LookupSids3_count);
 
@@ -11495,7 +11497,7 @@ lsarpc_dissect_element_lsa_LookupSids3_count(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids3_count_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids3_count_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupSids3_count, 0);
 
@@ -11503,7 +11505,7 @@ lsarpc_dissect_element_lsa_LookupSids3_count_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids3_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids3_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupSids3_unknown1, 0);
 
@@ -11511,7 +11513,7 @@ lsarpc_dissect_element_lsa_LookupSids3_unknown1(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupSids3_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupSids3_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupSids3_unknown2, 0);
 
@@ -11529,7 +11531,7 @@ lsarpc_dissect_element_lsa_LookupSids3_unknown2(tvbuff_t *tvb _U_, int offset _U
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_LookupSids3_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupSids3_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11552,7 +11554,7 @@ lsarpc_dissect_lsa_LookupSids3_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-lsarpc_dissect_lsa_LookupSids3_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupSids3_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_LookupSids3";
 	offset = lsarpc_dissect_element_lsa_LookupSids3_sids(tvb, offset, pinfo, tree, di, drep);
@@ -11571,7 +11573,7 @@ lsarpc_dissect_lsa_LookupSids3_request(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames4_num_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames4_num_names(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames4_num_names, 0);
 
@@ -11579,7 +11581,7 @@ lsarpc_dissect_element_lsa_LookupNames4_num_names(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames4_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames4_domains(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames4_domains_, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupNames4_domains);
 
@@ -11587,7 +11589,7 @@ lsarpc_dissect_element_lsa_LookupNames4_domains(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames4_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames4_domains_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_RefDomainList(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupNames4_domains,0);
 
@@ -11595,7 +11597,7 @@ lsarpc_dissect_element_lsa_LookupNames4_domains_(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames4_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames4_sids(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames4_sids_, NDR_POINTER_REF, "Pointer to Sids (lsa_TransSidArray3)",hf_lsarpc_lsa_LookupNames4_sids);
 
@@ -11603,7 +11605,7 @@ lsarpc_dissect_element_lsa_LookupNames4_sids(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames4_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames4_sids_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_struct_lsa_TransSidArray3(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupNames4_sids,0);
 
@@ -11611,7 +11613,7 @@ lsarpc_dissect_element_lsa_LookupNames4_sids_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames4_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames4_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = lsarpc_dissect_enum_lsa_LookupNamesLevel(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames4_level, 0);
 
@@ -11619,7 +11621,7 @@ lsarpc_dissect_element_lsa_LookupNames4_level(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames4_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames4_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames4_count_, NDR_POINTER_REF, "Pointer to Count (uint32)",hf_lsarpc_lsa_LookupNames4_count);
 
@@ -11627,7 +11629,7 @@ lsarpc_dissect_element_lsa_LookupNames4_count(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames4_count_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames4_count_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames4_count, 0);
 
@@ -11635,7 +11637,7 @@ lsarpc_dissect_element_lsa_LookupNames4_count_(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames4_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames4_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames4_unknown1, 0);
 
@@ -11643,7 +11645,7 @@ lsarpc_dissect_element_lsa_LookupNames4_unknown1(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-lsarpc_dissect_element_lsa_LookupNames4_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_element_lsa_LookupNames4_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LookupNames4_unknown2, 0);
 
@@ -11662,7 +11664,7 @@ lsarpc_dissect_element_lsa_LookupNames4_unknown2(tvbuff_t *tvb _U_, int offset _
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_LookupNames4_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupNames4_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11685,7 +11687,7 @@ lsarpc_dissect_lsa_LookupNames4_response(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-lsarpc_dissect_lsa_LookupNames4_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LookupNames4_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_LookupNames4";
 	offset = lsarpc_dissect_element_lsa_LookupNames4_num_names(tvb, offset, pinfo, tree, di, drep);
@@ -11710,7 +11712,7 @@ lsarpc_dissect_lsa_LookupNames4_request(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_LSAROPENPOLICYSCE_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LSAROPENPOLICYSCE_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11724,7 +11726,7 @@ lsarpc_dissect_lsa_LSAROPENPOLICYSCE_response(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-lsarpc_dissect_lsa_LSAROPENPOLICYSCE_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LSAROPENPOLICYSCE_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_LSAROPENPOLICYSCE";
 	return offset;
@@ -11735,7 +11737,7 @@ lsarpc_dissect_lsa_LSAROPENPOLICYSCE_request(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_LSARADTREGISTERSECURITYEVENTSOURCE_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LSARADTREGISTERSECURITYEVENTSOURCE_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11749,7 +11751,7 @@ lsarpc_dissect_lsa_LSARADTREGISTERSECURITYEVENTSOURCE_response(tvbuff_t *tvb _U_
 }
 
 static int
-lsarpc_dissect_lsa_LSARADTREGISTERSECURITYEVENTSOURCE_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LSARADTREGISTERSECURITYEVENTSOURCE_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_LSARADTREGISTERSECURITYEVENTSOURCE";
 	return offset;
@@ -11760,7 +11762,7 @@ lsarpc_dissect_lsa_LSARADTREGISTERSECURITYEVENTSOURCE_request(tvbuff_t *tvb _U_,
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_LSARADTUNREGISTERSECURITYEVENTSOURCE_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LSARADTUNREGISTERSECURITYEVENTSOURCE_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11774,7 +11776,7 @@ lsarpc_dissect_lsa_LSARADTUNREGISTERSECURITYEVENTSOURCE_response(tvbuff_t *tvb _
 }
 
 static int
-lsarpc_dissect_lsa_LSARADTUNREGISTERSECURITYEVENTSOURCE_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LSARADTUNREGISTERSECURITYEVENTSOURCE_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_LSARADTUNREGISTERSECURITYEVENTSOURCE";
 	return offset;
@@ -11785,7 +11787,7 @@ lsarpc_dissect_lsa_LSARADTUNREGISTERSECURITYEVENTSOURCE_request(tvbuff_t *tvb _U
 /* IDL: ); */
 
 static int
-lsarpc_dissect_lsa_LSARADTREPORTSECURITYEVENT_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LSARADTREPORTSECURITYEVENT_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	guint32 status;
 
@@ -11799,7 +11801,7 @@ lsarpc_dissect_lsa_LSARADTREPORTSECURITYEVENT_response(tvbuff_t *tvb _U_, int of
 }
 
 static int
-lsarpc_dissect_lsa_LSARADTREPORTSECURITYEVENT_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+lsarpc_dissect_lsa_LSARADTREPORTSECURITYEVENT_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
 {
 	di->dcerpc_procedure_name="lsa_LSARADTREPORTSECURITYEVENT";
 	return offset;
