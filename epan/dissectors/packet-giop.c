@@ -65,7 +65,7 @@
  * 21. Add complete_request_packet_list and complete_reply_packet_hash.[done]
  * 22. Handle case where users click in any order, AND try and match
  *     REPLY msg to the correct REQUEST msg when we have a request_id collision.[done]
- * 23. Clean up memory management for all those g_malloc's etc
+ * 23. Clean up memory management for all those g_malloc's etc [done]
  * 24. register_giop_user_module could return a key for every distinct Module/Interface
  *     the sub_dissector uses. So, instead of strcmp()'s when  handling the
  *     namespace of an operation, we could have a lookup table instead.
@@ -1348,12 +1348,12 @@ void register_giop_user_module(giop_sub_dissector_t *sub, const gchar *name, con
   printf("giop:register_module: Module sub dissector name is %s \n", name);
 #endif
 
-  new_module_key = (struct giop_module_key *)g_malloc(sizeof(struct giop_module_key));
+  new_module_key = (struct giop_module_key *)wmem_alloc(wmem_epan_scope(), sizeof(struct giop_module_key));
   new_module_key->module = module; /* save Module or interface name from IDL */
 
-  module_val = (struct giop_module_val *)g_malloc(sizeof(struct giop_module_val));
+  module_val = (struct giop_module_val *)wmem_alloc(wmem_epan_scope(), sizeof(struct giop_module_val));
 
-  module_val->subh = (giop_sub_handle_t *)g_malloc(sizeof (giop_sub_handle_t)); /* init subh  */
+  module_val->subh = (giop_sub_handle_t *)wmem_alloc(wmem_epan_scope(), sizeof (giop_sub_handle_t)); /* init subh  */
 
   module_val->subh->sub_name = name;    /* save dissector name */
   module_val->subh->sub_fn = sub;       /* save subdissector*/
@@ -1625,7 +1625,7 @@ void register_giop_user(giop_sub_dissector_t *sub, const gchar *name, int sub_pr
 
   giop_sub_handle_t *subh;
 
-  subh = (giop_sub_handle_t *)g_malloc(sizeof (giop_sub_handle_t));
+  subh = (giop_sub_handle_t *)wmem_alloc(wmem_epan_scope(), sizeof (giop_sub_handle_t));
 
   subh->sub_name = name;
   subh->sub_fn = sub;
