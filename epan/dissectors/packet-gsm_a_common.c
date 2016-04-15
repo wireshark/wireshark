@@ -2191,6 +2191,9 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 
         proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
+        if (curr_offset - offset >= len) /* Sanity check */
+            return (curr_offset - offset);
+
         digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb ,curr_offset , len - (curr_offset - offset), NULL, TRUE);
 
         proto_tree_add_string_format(tree,
