@@ -608,7 +608,7 @@ dissect_dcom_InstantiationInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 static int
-dissect_ActCtxInfo_PropCtx(tvbuff_t *tvb _U_, gint offset _U_,
+dissect_ActCtxInfo_PropCtx(tvbuff_t *tvb _U_, gint offset,
         packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info *di _U_, guint8 *drep _U_)
 {
     /*TBD*/
