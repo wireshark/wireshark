@@ -5632,9 +5632,9 @@ dissect_ndr_ulongs_as_counted_string(tvbuff_t *tvb, int offset,
 }
 
 static int
-DomainInfo_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info *di, guint8 *drep _U_)
+DomainInfo_sid_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-    offset = lsarpc_dissect_struct_dom_sid2(tvb,offset,pinfo,tree,di,drep,DomainInfo_sid,0);
+    offset = lsarpc_dissect_struct_dom_sid2(tvb, offset, pinfo, tree, di, drep, DomainInfo_sid, 0);
 
     return offset;
 }
@@ -5646,7 +5646,7 @@ dissect_element_lsa_DnsDomainInfo_sid(tvbuff_t *tvb , int offset , packet_info *
     return offset;
 }
 static int
-dissect_element_lsa_DnsDomainInfo_domain_guid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info *di, guint8 *drep )
+dissect_element_lsa_DnsDomainInfo_domain_guid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep )
 {
     offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, di, drep, DnsDomainInfo_domain_guid, NULL);
 
@@ -5657,11 +5657,11 @@ dissect_element_lsa_DnsDomainInfo_domain_guid(tvbuff_t *tvb _U_, int offset _U_,
 static int dissect_part_DnsDomainInfo(tvbuff_t *tvb , int offset, packet_info *pinfo, proto_tree *tree , dcerpc_info *di, guint8 *drep,  int hf_index _U_, guint32 param _U_)
 {
 
-    offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset,pinfo,tree,di,drep,DnsDomainInfo_name,0);
+    offset = lsarpc_dissect_struct_lsa_StringLarge(tvb, offset, pinfo, tree, di, drep, DnsDomainInfo_name, 0);
 
-    offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset,pinfo,tree,di,drep,DnsDomainInfo_dns_domain,0);
+    offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset, pinfo, tree, di, drep, DnsDomainInfo_dns_domain, 0);
 
-    offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset,pinfo,tree,di,drep,DnsDomainInfo_dns_forest,0);
+    offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset, pinfo, tree, di, drep, DnsDomainInfo_dns_forest, 0);
 
     offset = dissect_element_lsa_DnsDomainInfo_domain_guid(tvb, offset, pinfo, tree, di, drep);
 
@@ -5731,9 +5731,9 @@ netlogon_dissect_DOMAIN_TRUST_INFO(tvbuff_t *tvb, int offset,
 
 
 static int
-netlogon_dissect_LSA_POLICY_INFO(tvbuff_t *tvb _U_, int offset,
-                                 packet_info *pinfo _U_, proto_tree *tree _U_,
-                                 dcerpc_info *di, guint8 *drep _U_ )
+netlogon_dissect_LSA_POLICY_INFO(tvbuff_t *tvb, int offset,
+                                 packet_info *pinfo, proto_tree *tree,
+                                 dcerpc_info *di, guint8 *drep )
 {
     proto_item *item=NULL;
     proto_tree *subtree=NULL;
@@ -6558,7 +6558,7 @@ static void str_to_unicode(const char *nt_password, char *nt_password_unicode)
 }
 #endif
 
-static guint32 get_keytab_as_list(md4_pass **p_pass_list,const char* ntlm_pass _U_)
+static guint32 get_keytab_as_list(md4_pass **p_pass_list, const char* ntlm_pass)
 {
 #ifdef HAVE_KERBEROS
     enc_key_t *ek;
@@ -7747,8 +7747,8 @@ static tvbuff_t* dissect_response_data( tvbuff_t *tvb ,tvbuff_t *auth_tvb ,
 
 /* MS-NRPC 2.2.1.3.2 */
 static int
-dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                     proto_tree *tree, guint8 *drep _U_, unsigned char is_server)
+dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                     proto_tree *tree, guint8 *drep, unsigned char is_server)
 {
     netlogon_auth_vars *vars;
     netlogon_auth_key key;
