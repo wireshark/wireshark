@@ -500,7 +500,7 @@ dissect_diameter_other_vendor_exp_res(tvbuff_t *tvb, proto_tree *tree, diam_sub_
 
 /* From RFC 3162 section 2.3 */
 static int
-dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
 	guint8 prefix_len, prefix_len_bytes;
@@ -1751,7 +1751,7 @@ build_simple_avp(const avp_type_t *type, guint32 code, diam_vnd_t *vendor,
 
 static diam_avp_t *
 build_appid_avp(const avp_type_t *type, guint32 code, diam_vnd_t *vendor,
-		const char *name, const value_string *vs _U_, void *data _U_)
+		const char *name, const value_string *vs, void *data _U_)
 {
 	diam_avp_t *a;
 	field_display_e base;
