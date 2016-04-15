@@ -1593,9 +1593,9 @@ epl_duplication_insert(GHashTable* table, gpointer ptr, guint32 frame)
 	/* insert the data struct into the table */
 	else
 	{
-		key = (duplication_key *)g_memdup(ptr,sizeof(duplication_key));
+		key = (duplication_key *)wmem_memdup(wmem_file_scope(), ptr,sizeof(duplication_key));
 		/* create memory */
-		data = (duplication_data *)g_malloc0(sizeof(duplication_data));
+		data = (duplication_data *)wmem_alloc0(wmem_file_scope(), sizeof(duplication_data));
 		data->frame = frame;
 		g_hash_table_insert(table,(gpointer)key, data);
 	}
