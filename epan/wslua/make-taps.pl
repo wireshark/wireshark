@@ -130,10 +130,13 @@ sub dotap {
 
 	for my $n (sort keys %elems) {
 		my $fmt = $types{$elems{$n}};
+		my $lua_type;
 
 		if ($fmt) {
 			$code .= "\tlua_pushstring(L,\"$n\");\n\t";
-			$code .= $fmt =~ s/\bSTR\b/$n/rg . "\n\tlua_settable(L,-3);\n";
+			($lua_type = $fmt) =~ s/\bSTR\b/$n/g;
+			$code .= $lua_type;
+			$code .= "\n\tlua_settable(L,-3);\n";
 			$doc .= "\t$n: $comments{$elems{$n}}\n";
 		}
 
