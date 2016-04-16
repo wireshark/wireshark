@@ -3374,7 +3374,7 @@ static void secmode_list_update_cb(void *r, const char **err)
     size = (guint32)strlen(rec->identity);
     if (!VALIDHEX(rec->identity[0]) && !dof_oid_create_internal(rec->identity, &size, NULL))
     {
-        *err = wmem_strdup_printf(wmem_packet_scope(), "Invalid domain [must be valid OID].");
+        *err = wmem_strdup_printf(wmem_packet_scope(), "Invalid identity [must be valid OID].");
         return;
     }
     else if (!count_hex_bytes(rec->identity))
