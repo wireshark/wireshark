@@ -9961,7 +9961,7 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                     if (identity_length == gidentity->identity_length &&
                         memcmp(identity_buf, gidentity->identity, identity_length) == 0)
                     {
-                        trp_pkt_data = (trp_packet_data *)wmem_alloc0(wmem_file_scope(), sizeof(trp_pkt_data));
+                        trp_pkt_data = (trp_packet_data *)wmem_alloc0(wmem_file_scope(), sizeof(trp_packet_data));
                         dof_packet_add_proto_data(packet_data, proto_trp, trp_pkt_data);
 
                         trp_pkt_data->domain_length = domain_length;
