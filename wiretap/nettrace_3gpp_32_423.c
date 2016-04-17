@@ -148,8 +148,8 @@ typedef struct exported_pdu_info {
 #define EXP_PDU_TAG_ORIG_FNO_BIT        0x80
 
 /* 2nd byte of optional tags bitmap */
-#define EXP_PDU_TAG_DVBCI_EVT_BIT       0x01
-#define EXP_PDU_TAG_COL_PROT_BIT        0x02
+#define EXP_PDU_TAG_DVBCI_EVT_BIT       0x0100
+#define EXP_PDU_TAG_COL_PROT_BIT        0x0200
 
 #define EXP_PDU_TAG_IPV4_SRC_LEN        4
 #define EXP_PDU_TAG_IPV4_DST_LEN        4
