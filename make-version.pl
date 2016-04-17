@@ -779,12 +779,16 @@ make-version.pl [options] [source directory]
     --set-vcs, -s              Set the information in version.h
     --print-vcs                Print the vcs version to standard output
     --set-version, -v          Set the major, minor, and micro versions in
-                               configure.ac, config.nmake, debian/changelog,
-			       and docbook/asciidoc.conf.
+                               the top-level CMakeLists.txt, configure.ac,
+                               config.nmake, docbook/asciidoc.conf,
+                               debian/changelog, the Makefile.am for all
+                               libraries, and the CMakeLists.txt for all
+                               libraries.
                                Resets the release information when used by
-			       itself.
-    --set-release, -r          Set the release information in configure.ac
-                               and config.nmake
+                               itself.
+    --set-release, -r          Set the release information in the top-level
+                               CMakeLists.txt, configure.ac, and
+                               config.nmake.
     --package-version, -p      Deprecated. Same as --set-release.
     --verbose                  Print diagnostic messages to STDERR.
 
