@@ -2046,7 +2046,7 @@ conversation_dissector_is_http(conversation_t *conv, guint32 frame_num)
 	if (conv == NULL)
 		return FALSE;
 	conv_handle = conversation_get_dissector(conv, frame_num);
-	return conv_handle == http_handle || 
+	return conv_handle == http_handle ||
 	       conv_handle == http_tcp_handle ||
 	       conv_handle == http_sctp_handle;
 }
