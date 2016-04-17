@@ -1775,7 +1775,11 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 			dup_handle = (dissector_handle_t)entry->data;
 			if (dup_handle->protocol == handle->protocol)
 			{
-				fprintf(stderr, "Duplicative protocol %s in %s\n", proto_get_protocol_short_name(handle->protocol), name);
+				fprintf(stderr, "Duplicate dissectors %s and %s for protocol %s in dissector table %s\n",
+				    dissector_handle_get_dissector_name(handle),
+				    dissector_handle_get_dissector_name(dup_handle),
+				    proto_get_protocol_short_name(handle->protocol),
+				    name);
 				if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
 					abort();
 			}
