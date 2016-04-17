@@ -760,6 +760,7 @@ static guint
 wslua_dissect_tcp_get_pdu_len(packet_info *pinfo, tvbuff_t *tvb,
                               int offset, void *data)
 {
+    /* WARNING: called from a TRY block, do not call luaL_error! */
     func_saver_t* fs = (func_saver_t*)data;
     lua_State* L = fs->state;
     int pdu_len = 0;
@@ -774,7 +775,7 @@ wslua_dissect_tcp_get_pdu_len(packet_info *pinfo, tvbuff_t *tvb,
         lua_pushinteger(L,offset);
 
         if  ( lua_pcall(L,3,1,0) ) {
-            luaL_error(L, "Lua Error in dissect_tcp_pdus get_len_func: %s", lua_tostring(L,-1));
+            THROW_LUA_ERROR("Lua Error in dissect_tcp_pdus get_len_func: %s", lua_tostring(L,-1));
         } else {
             /* if the Lua dissector reported the consumed bytes, pass it to our caller */
             if (lua_isnumber(L, -1)) {
@@ -782,12 +783,12 @@ wslua_dissect_tcp_get_pdu_len(packet_info *pinfo, tvbuff_t *tvb,
                 pdu_len = wslua_togint(L, -1);
                 lua_pop(L, 1);
             } else {
-                luaL_error(L,"Lua Error dissect_tcp_pdus: get_len_func did not return a Lua number of the PDU length");
+                THROW_LUA_ERROR("Lua Error dissect_tcp_pdus: get_len_func did not return a Lua number of the PDU length");
             }
         }
 
     } else {
-        luaL_error(L,"Lua Error in dissect_tcp_pdus: did not find the get_len_func dissector");
+        REPORT_DISSECTOR_BUG("Lua Error in dissect_tcp_pdus: did not find the get_len_func dissector");
     }
 
     return pdu_len;
