@@ -792,7 +792,7 @@ make-version.pl [options] [source directory]
     --package-version, -p      Deprecated. Same as --set-release.
     --verbose                  Print diagnostic messages to STDERR.
 
-Options can be used in any combination. If none are specified B<--set-svn>
+Options can be used in any combination. If none are specified B<--set-vcs>
 is assumed.
 
 =cut
