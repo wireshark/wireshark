@@ -2041,12 +2041,12 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>显示过滤器表达式</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="188"/>
+        <location filename="display_filter_expression_dialog.cpp" line="190"/>
         <source>Select a field name to get started</source>
         <translation>选择一个字段名称以开始</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="192"/>
+        <location filename="display_filter_expression_dialog.cpp" line="194"/>
         <source>Click OK to insert this filter</source>
         <translation>点击确定插入此过滤器</translation>
     </message>

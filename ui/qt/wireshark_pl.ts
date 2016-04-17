@@ -2041,12 +2041,12 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <translation>Wyrażenie filtru wyświetlania</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="188"/>
+        <location filename="display_filter_expression_dialog.cpp" line="190"/>
         <source>Select a field name to get started</source>
         <translation>Wybierz nazwę pola by rozpocząć</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="192"/>
+        <location filename="display_filter_expression_dialog.cpp" line="194"/>
         <source>Click OK to insert this filter</source>
         <translation>Kliknij OK by dodać filtr</translation>
     </message>

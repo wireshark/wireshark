@@ -2043,12 +2043,12 @@ si vous voulez utiliser des fichiers multiples.</translation>
         <translation>Affiche Expression de Filtre</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="188"/>
+        <location filename="display_filter_expression_dialog.cpp" line="190"/>
         <source>Select a field name to get started</source>
         <translation>Sélectionner un nom de champ pour commencer</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="192"/>
+        <location filename="display_filter_expression_dialog.cpp" line="194"/>
         <source>Click OK to insert this filter</source>
         <translation>Cliquer OK pour insérer ce filtre</translation>
     </message>
