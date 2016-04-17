@@ -7348,8 +7348,8 @@ citysearch       3974/tcp # Remote Applicant Tracking Service [Marc_Castelluccio
 citysearch       3974/udp # Remote Applicant Tracking Service [Marc_Castelluccio] [Marc_Castelluccio] 2005-08
 airshot          3975/tcp # Air Shot [Shingo_Kimura] [Shingo_Kimura] 2005-08
 airshot          3975/udp # Air Shot [Shingo_Kimura] [Shingo_Kimura] 2005-08
-opswagent        3976/tcp # Opsware Agent
-opswagent        3976/udp # Opsware Agent
+opswagent        3976/tcp # Server Automation Agent [Hewlett_Packard_Enterprise] [Cristi_Fati] 2016-04-14
+opswagent        3976/udp # Server Automation Agent [Hewlett_Packard_Enterprise] [Cristi_Fati] 2016-04-14
 opswmanager      3977/tcp # Opsware Manager [Dave_Jagoda] [Dave_Jagoda] 2006-06
 opswmanager      3977/udp # Opsware Manager [Dave_Jagoda] [Dave_Jagoda] 2006-06
 secure-cfg-svr   3978/tcp # Secured Configuration Server [Dr_Anupam_Bharali] [Dr_Anupam_Bharali] 2006-06
@@ -9624,8 +9624,8 @@ citrixuppg       7229/tcp # Citrix UPP Gateway [Gary_Barton] [Gary_Barton] 2011-
 aspcoordination  7235/udp # ASP Coordination Protocol [Wi-Fi_Alliance_2] [Mick_Conley] 2013-12-31
 display          7236/tcp # Wi-Fi Alliance Wi-Fi Display Protocol [Wi-Fi_Alliance] [Thomas_Sciorilli] 2012-04-09 Defined TXT keys: _display.tcp. Display Protocol
 pads             7237/tcp # PADS (Public Area Display System) Server [Willie_Jan_Bons] [Willie_Jan_Bons] 2011-03-10
-cnap             7262/tcp # Calypso Network Access Protocol [Scott_Halberg] [Scott_Halberg] 2009-06-02
-cnap             7262/udp # Calypso Network Access Protocol [Scott_Halberg] [Scott_Halberg] 2009-06-02
+cnap             7262/tcp # Calypso Network Access Protocol [Frontrow_Calypso_LLC] [Scott_Halberg] 2009-06-02
+cnap             7262/udp # Calypso Network Access Protocol [Frontrow_Calypso_LLC] [Scott_Halberg] 2009-06-02
 watchme-7272     7272/tcp # WatchMe Monitoring 7272 [Oliver_Heinz] [Oliver_Heinz] 2005-08
 watchme-7272     7272/udp # WatchMe Monitoring 7272 [Oliver_Heinz] [Oliver_Heinz] 2005-08
 oma-rlp          7273/tcp # OMA Roaming Location [Larry_A_Young] [Larry_A_Young] 2005-08
@@ -9976,7 +9976,7 @@ indigo-vbcp      8131/tcp # INDIGO-VBCP [Colin_Caughie] [Colin_Caughie]
 indigo-vbcp      8131/udp # INDIGO-VBCP [Colin_Caughie] [Colin_Caughie]
 dbabble          8132/tcp # dbabble [Chris_Pugmire] [Chris_Pugmire]
 dbabble          8132/udp # dbabble [Chris_Pugmire] [Chris_Pugmire]
-puppet           8140/tcp # The Puppet master service [Puppet_Labs] [Zach_Leslie] 2014-09-18
+puppet           8140/tcp # The Puppet master service [Puppet] [Charles_Dunbar] 2014-09-18
 isdd             8148/tcp # i-SDD file transfer [Frank_Waarsenburg] [Frank_Waarsenburg] 2004-11
 isdd             8148/udp # i-SDD file transfer [Frank_Waarsenburg] [Frank_Waarsenburg] 2004-11
 eor-game         8149/udp # Edge of Reality game data [Sky_Schulz] [Sky_Schulz] 2011-05-09
