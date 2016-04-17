@@ -743,6 +743,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_udp_stream_count@Base 1.12.0~rc1
  get_unichar2_string@Base 1.12.0~rc1
  get_utf_16_string@Base 1.12.0~rc1
+ get_vlan_hash_table@Base 2.1.0
  get_wka_hashtable@Base 1.12.0~rc1
  golay_decode@Base 1.9.1
  golay_encode@Base 1.9.1
@@ -786,8 +787,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  hfinfo_bitshift@Base 1.12.0~rc1
  host_name_lookup_process@Base 1.9.1
  hostlist_table_set_gui_info@Base 1.99.0
- http_dissector_add@Base 1.9.1
- http_port_add@Base 1.9.1
+ http_tcp_dissector_add@Base 2.1.0
+ http_tcp_port_add@Base 2.1.0
  ieee80211_ht_Dbps@Base 2.1.0
  ieee80211_htrate@Base 2.1.0
  ieee80211_supported_rates_vals_ext@Base 1.99.1
@@ -1356,6 +1357,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_disabled_enabled@Base 1.9.1
  tfs_do_not_clear_clear@Base 1.12.0~rc1
  tfs_enabled_disabled@Base 1.9.1
+ tfs_encrypt_do_not_encrypt@Base 2.1.0
  tfs_enforced_not_enforced@Base 1.12.0~rc1
  tfs_error_ok@Base 1.9.1
  tfs_fail_success@Base 1.9.1
@@ -1374,6 +1376,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_ok_error@Base 1.9.1
  tfs_on_off@Base 1.9.1
  tfs_possible_not_possible@Base 1.99.0
+ tfs_preferred_no_preference@Base 2.1.0
  tfs_present_absent@Base 1.9.1
  tfs_present_not_present@Base 1.9.1
  tfs_pressed_not_pressed@Base 1.9.1
@@ -1383,8 +1386,10 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_reliable_not_reliable@Base 1.9.1
  tfs_requested_not_requested@Base 1.9.1
  tfs_required_not_required@Base 1.99.0
+ tfs_response_command@Base 2.1.0
  tfs_response_request@Base 1.99.8
  tfs_restricted_allowed@Base 1.9.1
+ tfs_segmentation_no_segmentation@Base 2.1.0
  tfs_server_client@Base 2.1.0
  tfs_set_notset@Base 1.9.1
  tfs_shared_independent@Base 1.9.1
@@ -1602,10 +1607,12 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_alloc@Base 1.9.1
  wmem_allocator_new@Base 1.9.1
  wmem_array_append@Base 1.12.0~rc1
+ wmem_array_bzero@Base 2.1.0
  wmem_array_get_count@Base 1.12.0~rc1
  wmem_array_get_raw@Base 1.12.0~rc1
  wmem_array_index@Base 1.12.0~rc1
  wmem_array_new@Base 1.12.0~rc1
+ wmem_array_set_null_terminator@Base 2.1.0
  wmem_array_sized_new@Base 1.12.0~rc1
  wmem_array_sort@Base 1.12.0~rc1
  wmem_ascii_strdown@Base 1.12.0~rc1
