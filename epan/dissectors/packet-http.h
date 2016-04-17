@@ -28,9 +28,9 @@
 extern const value_string vals_http_status_code[];
 
 WS_DLL_PUBLIC
-void http_dissector_add(guint32 port, dissector_handle_t handle);
+void http_tcp_dissector_add(guint32 port, dissector_handle_t handle);
 WS_DLL_PUBLIC
-void http_port_add(guint32 port);
+void http_tcp_port_add(guint32 port);
 
 /* Used for HTTP statistics */
 typedef struct _http_info_value_t {

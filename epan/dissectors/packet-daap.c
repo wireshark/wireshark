@@ -775,7 +775,7 @@ proto_reg_handoff_daap(void)
    dissector_handle_t daap_handle;
 
    daap_handle = create_dissector_handle(dissect_daap, proto_daap);
-   http_port_add(TCP_PORT_DAAP);
+   http_tcp_port_add(TCP_PORT_DAAP);
    dissector_add_string("media_type", "application/x-dmap-tagged", daap_handle);
 
    png_handle = find_dissector_add_dependency("png", proto_daap);

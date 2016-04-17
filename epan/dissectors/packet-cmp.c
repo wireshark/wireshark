@@ -2538,7 +2538,7 @@ void proto_reg_handoff_cmp(void) {
 			dissector_delete_uint("http.port", cmp_alternate_http_port_prev, NULL);
 		}
 		if (cmp_alternate_http_port != 0)
-			http_dissector_add( cmp_alternate_http_port, cmp_http_handle);
+			http_tcp_dissector_add( cmp_alternate_http_port, cmp_http_handle);
 		cmp_alternate_http_port_prev = cmp_alternate_http_port;
 	}
 
@@ -2549,7 +2549,7 @@ void proto_reg_handoff_cmp(void) {
 			dissector_delete_uint("http.port", cmp_alternate_tcp_style_http_port_prev, NULL);
 		}
 		if (cmp_alternate_tcp_style_http_port != 0)
-			http_dissector_add( cmp_alternate_tcp_style_http_port, cmp_tcp_style_http_handle);
+			http_tcp_dissector_add( cmp_alternate_tcp_style_http_port, cmp_tcp_style_http_handle);
 		cmp_alternate_tcp_style_http_port_prev = cmp_alternate_tcp_style_http_port;
 	}
 

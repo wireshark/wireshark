@@ -151,6 +151,9 @@ static expert_field ei_http_ssl_port = EI_INIT;
 static expert_field ei_http_leading_crlf = EI_INIT;
 
 static dissector_handle_t http_handle;
+static dissector_handle_t http_tcp_handle;
+static dissector_handle_t http_ssl_handle;
+static dissector_handle_t http_sctp_handle;
 
 static dissector_handle_t media_handle;
 static dissector_handle_t websocket_handle;
@@ -723,7 +726,8 @@ static http_info_value_t	*stat_info;
 
 static int
 dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		     proto_tree *tree, http_conv_t *conv_data, const char* proto_tag, int proto, struct tcpinfo *tcpinfo)
+		     proto_tree *tree, http_conv_t *conv_data,
+		     const char* proto_tag, int proto, gboolean end_of_stream)
 {
 	proto_tree	*http_tree = NULL;
 	proto_item	*ti = NULL;
@@ -830,7 +834,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		gboolean try_desegment_body = (http_desegment_body &&
 			(!(conv_data->request_method && g_str_equal(conv_data->request_method, "HEAD"))) &&
-			((tcpinfo == NULL) || (!IS_TH_FIN(tcpinfo->flags))));
+			!end_of_stream);
 		if (!req_resp_hdrs_do_reassembly(tvb, offset, pinfo,
 		    http_desegment_headers, try_desegment_body)) {
 			/*
@@ -2034,6 +2038,19 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 }
 #endif
 
+static gboolean
+conversation_dissector_is_http(conversation_t *conv, guint32 frame_num)
+{
+	dissector_handle_t conv_handle;
+
+	if (conv == NULL)
+		return FALSE;
+	conv_handle = conversation_get_dissector(conv, frame_num);
+	return conv_handle == http_handle || 
+	       conv_handle == http_tcp_handle ||
+	       conv_handle == http_sctp_handle;
+}
+
 /* Call a subdissector to handle HTTP CONNECT's traffic */
 static void
 http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
@@ -2086,7 +2103,8 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 		 * conversation (e.g., one we detected heuristically or via Decode-As) call the data
 		 * dissector directly.
 		 */
-		if (value_is_in_range(http_tcp_range, uri_port) || (conv && conversation_get_dissector(conv, pinfo->num) == http_handle)) {
+		if (value_is_in_range(http_tcp_range, uri_port) ||
+		    conversation_dissector_is_http(conv, pinfo->num)) {
 			call_data_dissector(tvb, pinfo, tree);
 		} else {
 			/* set pinfo->{src/dst port} and call the TCP sub-dissector lookup */
@@ -3009,17 +3027,58 @@ check_auth_kerberos(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, con
 	return FALSE;
 }
 
-static int
-dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+static void
+dissect_http_on_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    http_conv_t *conv_data, gboolean end_of_stream)
 {
-	http_conv_t	*conv_data;
 	int		offset = 0;
 	int		len;
-	conversation_t *conversation;
 	dissector_handle_t next_handle = NULL;
+
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
+		if (conv_data->upgrade == UPGRADE_WEBSOCKET && pinfo->num >= conv_data->startframe) {
+			next_handle = websocket_handle;
+		}
+		if (conv_data->upgrade == UPGRADE_HTTP2 && pinfo->num >= conv_data->startframe) {
+			next_handle = http2_handle;
+		}
+		if (conv_data->upgrade == UPGRADE_SSTP && conv_data->response_code == 200 && pinfo->num >= conv_data->startframe) {
+			next_handle = sstp_handle;
+		}
+		if (next_handle) {
+			/* Increase pinfo->can_desegment because we are traversing
+			 * http and want to preserve desegmentation functionality for
+			 * the proxied protocol
+			 */
+			if (pinfo->can_desegment > 0)
+				pinfo->can_desegment++;
+			call_dissector_only(next_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
+			break;
+		}
+		len = dissect_http_message(tvb, offset, pinfo, tree, conv_data, "HTTP", proto_http, end_of_stream);
+		if (len == -1)
+			break;
+		offset += len;
+
+		/*
+		 * OK, we've set the Protocol and Info columns for the
+		 * first HTTP message; set a fence so that subsequent
+		 * HTTP messages don't overwrite the Info column.
+		 */
+		col_set_fence(pinfo->cinfo, COL_INFO);
+	}
+}
+
+static int
+dissect_http_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
 	struct tcpinfo *tcpinfo = (struct tcpinfo *)data;
+	conversation_t *conversation;
+	http_conv_t *conv_data;
+	gboolean end_of_stream;
 
 	conv_data = get_http_conversation_data(pinfo, &conversation);
+
 	/* Call HTTP2 dissector directly when detected via heuristics, but not
 	 * when it was upgraded (the conversation started with HTTP). */
 	if (conversation_get_proto_data(conversation, proto_http2) &&
@@ -3041,42 +3100,12 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		if(conv_data->startframe == 0 && !pinfo->fd->flags.visited)
 			conv_data->startframe = pinfo->num;
 		http_payload_subdissector(tvb, tree, pinfo, conv_data, data);
-	} else {
-		while (tvb_reported_length_remaining(tvb, offset) > 0) {
-			if (conv_data->upgrade == UPGRADE_WEBSOCKET && pinfo->num >= conv_data->startframe) {
-				next_handle = websocket_handle;
-			}
-			if (conv_data->upgrade == UPGRADE_HTTP2 && pinfo->num >= conv_data->startframe) {
-				next_handle = http2_handle;
-			}
-			if (conv_data->upgrade == UPGRADE_SSTP && conv_data->response_code == 200 && pinfo->num >= conv_data->startframe) {
-				next_handle = sstp_handle;
-			}
-			if (next_handle) {
-				/* Increase pinfo->can_desegment because we are traversing
-				 * http and want to preserve desegmentation functionality for
-				 * the proxied protocol
-				 */
-				if (pinfo->can_desegment > 0)
-					pinfo->can_desegment++;
 
-				call_dissector_only(next_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
-				break;
-			}
-			len = dissect_http_message(tvb, offset, pinfo, tree, conv_data, "HTTP", proto_http, tcpinfo);
-			if (len == -1)
-				break;
-			offset += len;
-
-			/*
-			 * OK, we've set the Protocol and Info columns for the
-			 * first HTTP message; set a fence so that subsequent
-			 * HTTP messages don't overwrite the Info column.
-			 */
-			col_set_fence(pinfo->cinfo, COL_INFO);
-		}
+		return tvb_captured_length(tvb);
 	}
 
+	end_of_stream = IS_TH_FIN(tcpinfo->flags);
+	dissect_http_on_stream(tvb, pinfo, tree, conv_data, end_of_stream);
 	return tvb_captured_length(tvb);
 }
 
@@ -3101,12 +3130,58 @@ dissect_http_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	/* Check if the line start or ends with the HTTP token */
 	if((tvb_strncaseeql(tvb, linelen-8, "HTTP/1.1", 8) == 0)||(tvb_strncaseeql(tvb, 0, "HTTP/1.1", 8) == 0)){
 		conversation = find_or_create_conversation(pinfo);
-		conversation_set_dissector_from_frame_number(conversation, pinfo->num, http_handle);
-		dissect_http(tvb, pinfo, tree, data);
+		conversation_set_dissector_from_frame_number(conversation, pinfo->num, http_tcp_handle);
+		dissect_http_tcp(tvb, pinfo, tree, data);
 		return TRUE;
 	}
 
 	return FALSE;
+}
+
+static int
+dissect_http_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	conversation_t *conversation;
+	http_conv_t *conv_data;
+
+	conv_data = get_http_conversation_data(pinfo, &conversation);
+
+	/*
+	 * XXX - we need to provide an end-of-stream indication.
+	 */
+	dissect_http_on_stream(tvb, pinfo, tree, conv_data, FALSE);
+	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_http_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	conversation_t *conversation;
+	http_conv_t *conv_data;
+
+	conv_data = get_http_conversation_data(pinfo, &conversation);
+
+	/*
+	 * XXX - we need to provide an end-of-stream indication.
+	 */
+	dissect_http_on_stream(tvb, pinfo, tree, conv_data, FALSE);
+	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	conversation_t *conversation;
+	http_conv_t *conv_data;
+
+	conv_data = get_http_conversation_data(pinfo, &conversation);
+
+	/*
+	 * XXX - what should be done about reassembly, pipelining, etc.
+	 * here?
+	 */
+	dissect_http_on_stream(tvb, pinfo, tree, conv_data, FALSE);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -3116,30 +3191,30 @@ dissect_ssdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	http_conv_t	*conv_data;
 
 	conv_data = get_http_conversation_data(pinfo, &conversation);
-	dissect_http_message(tvb, 0, pinfo, tree, conv_data, "SSDP", proto_ssdp, NULL);
+	dissect_http_message(tvb, 0, pinfo, tree, conv_data, "SSDP", proto_ssdp, FALSE);
 	return tvb_captured_length(tvb);
 }
 
 static void
 range_delete_http_ssl_callback(guint32 port) {
-	ssl_dissector_delete(port, http_handle);
+	ssl_dissector_delete(port, http_ssl_handle);
 }
 
 static void
 range_add_http_ssl_callback(guint32 port) {
-	ssl_dissector_add(port, http_handle);
+	ssl_dissector_add(port, http_ssl_handle);
 }
 
 static void reinit_http(void) {
-	dissector_delete_uint_range("tcp.port", http_tcp_range, http_handle);
+	dissector_delete_uint_range("tcp.port", http_tcp_range, http_tcp_handle);
 	g_free(http_tcp_range);
 	http_tcp_range = range_copy(global_http_tcp_range);
-	dissector_add_uint_range("tcp.port", http_tcp_range, http_handle);
+	dissector_add_uint_range("tcp.port", http_tcp_range, http_tcp_handle);
 
-	dissector_delete_uint_range("sctp.port", http_sctp_range, http_handle);
+	dissector_delete_uint_range("sctp.port", http_sctp_range, http_sctp_handle);
 	g_free(http_sctp_range);
 	http_sctp_range = range_copy(global_http_sctp_range);
-	dissector_add_uint_range("sctp.port", http_sctp_range, http_handle);
+	dissector_add_uint_range("sctp.port", http_sctp_range, http_sctp_handle);
 
 	range_foreach(http_ssl_range, range_delete_http_ssl_callback);
 	g_free(http_ssl_range);
@@ -3441,6 +3516,9 @@ proto_register_http(void)
 	expert_register_field_array(expert_http, ei, array_length(ei));
 
 	http_handle = register_dissector("http", dissect_http, proto_http);
+	http_tcp_handle = register_dissector("http-over-tcp", dissect_http_tcp, proto_http);
+	http_ssl_handle = register_dissector("http-over-ssl", dissect_http_ssl, proto_http);
+	http_sctp_handle = register_dissector("http-over-sctp", dissect_http_sctp, proto_http);
 
 	http_module = prefs_register_protocol(proto_http, reinit_http);
 	prefs_register_bool_preference(http_module, "desegment_headers",
@@ -3514,7 +3592,7 @@ proto_register_http(void)
 
 	/*
 	 * Dissectors shouldn't register themselves in this table;
-	 * instead, they should call "http_dissector_add()", and
+	 * instead, they should call "http_tcp_dissector_add()", and
 	 * we'll register the port number they specify as a port
 	 * for HTTP, and register them in our subdissector table.
 	 *
@@ -3555,13 +3633,13 @@ proto_register_http(void)
  * Called by dissectors for protocols that run atop HTTP/TCP.
  */
 void
-http_dissector_add(guint32 port, dissector_handle_t handle)
+http_tcp_dissector_add(guint32 port, dissector_handle_t handle)
 {
 	/*
 	 * Register ourselves as the handler for that port number
 	 * over TCP.
 	 */
-	dissector_add_uint("tcp.port", port, http_handle);
+	dissector_add_uint("tcp.port", port, http_tcp_handle);
 
 	/*
 	 * And register them in *our* table for that port.
@@ -3570,14 +3648,14 @@ http_dissector_add(guint32 port, dissector_handle_t handle)
 }
 
 void
-http_port_add(guint32 port)
+http_tcp_port_add(guint32 port)
 {
 	/*
 	 * Register ourselves as the handler for that port number
 	 * over TCP.  We rely on our caller having registered
 	 * themselves for the appropriate media type.
 	 */
-	dissector_add_uint("tcp.port", port, http_handle);
+	dissector_add_uint("tcp.port", port, http_tcp_handle);
 }
 
 void
