@@ -8782,7 +8782,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	offset += 2;
 
 	/* this is a padding byte */
-	if (offset%1) {
+	if (offset&1) {
 		/* pad byte */
 	        proto_tree_add_item(tree, hf_smb_padding, tvb, offset, 1, ENC_NA);
 		offset += 1;
