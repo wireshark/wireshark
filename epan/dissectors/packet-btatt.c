@@ -5305,12 +5305,17 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         }
 
         if (flags & 0x10) {
+            guint interval_count = 0;
+
             sub_item = proto_tree_add_item(tree, hf_btatt_heart_rate_measurement_rr_intervals, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
             while (tvb_reported_length_remaining(tvb, offset)) {
                 proto_tree_add_item(sub_tree, hf_btatt_heart_rate_measurement_rr_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
+                interval_count += 1;
             }
+
+            proto_item_append_text(sub_item, " [count = %2u]", interval_count);
         }
 
         break;
