@@ -369,12 +369,12 @@ static guint rtp_rfc2198_pt = 99;
 #define RTP_ED137A_feature_sqi_qidx_ml_rssi     0
 #define RTP_ED137A_feature_sqi_qidx_rssi_max    15
 
-/* RFC 5215 one byte header signature */
-#define RTP_RFC5215_ONE_BYTE_SIG        0xBEDE
+/* RFC 5285 one byte header signature */
+#define RTP_RFC5285_ONE_BYTE_SIG        0xBEDE
 
-/* RFC 5215 two byte header mask and signature */
-#define RTP_RFC5215_TWO_BYTE_MASK       0xFFF0
-#define RTP_RFC5215_TWO_BYTE_SIG        0x1000
+/* RFC 5285 two byte header mask and signature */
+#define RTP_RFC5285_TWO_BYTE_MASK       0xFFF0
+#define RTP_RFC5285_TWO_BYTE_SIG        0x1000
 
 /* CSRC count is the last four bits */
 #define RTP_CSRC_COUNT(octet)   ((octet) & 0xF)
@@ -1822,7 +1822,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 }
 
 static void
-dissect_rtp_hext_rfc5215_onebyte( tvbuff_t *tvb, packet_info *pinfo,
+dissect_rtp_hext_rfc5285_onebyte( tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *rtp_hext_tree )
 {
     proto_tree *rtp_hext_rfc5285_tree = NULL;
@@ -1845,7 +1845,7 @@ dissect_rtp_hext_rfc5215_onebyte( tvbuff_t *tvb, packet_info *pinfo,
 
         /* Add padding */
         if (ext_offset > start_ext_offset)
-            proto_tree_add_item(rtp_hext_tree, hf_rtp_padding_data, tvb, ext_offset, ext_offset-start_ext_offset, ENC_NA );
+            proto_tree_add_item(rtp_hext_tree, hf_rtp_padding_data, tvb, start_ext_offset, ext_offset-start_ext_offset, ENC_NA );
 
         ext_hdr_hdr = tvb_get_guint8 (tvb, ext_offset);
         ext_id = ext_hdr_hdr >> 4;
@@ -1882,7 +1882,7 @@ dissect_rtp_hext_rfc5215_onebyte( tvbuff_t *tvb, packet_info *pinfo,
 
 
 static void
-dissect_rtp_hext_rfc5215_twobytes(tvbuff_t *parent_tvb, guint id_offset,
+dissect_rtp_hext_rfc5285_twobytes(tvbuff_t *parent_tvb, guint id_offset,
         guint8 id, tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtp_hext_tree)
 {
     proto_tree *rtp_hext_rfc5285_tree = NULL;
@@ -1902,7 +1902,7 @@ dissect_rtp_hext_rfc5215_twobytes(tvbuff_t *parent_tvb, guint id_offset,
         }
         /* Add padding */
         if (ext_offset > start_ext_offset)
-            proto_tree_add_item(rtp_hext_tree, hf_rtp_padding_data, tvb, ext_offset, ext_offset-start_ext_offset, ENC_NA );
+            proto_tree_add_item(rtp_hext_tree, hf_rtp_padding_data, tvb, start_ext_offset, ext_offset-start_ext_offset, ENC_NA );
 
         ext_id = tvb_get_guint8 (tvb, ext_offset);
         ext_length = tvb_get_guint8 (tvb, ext_offset + 1);
@@ -2241,11 +2241,11 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             /* pass interpretation of header extension to a registered subdissector */
             newtvb = tvb_new_subset_length(tvb, offset, hdr_extension_len * 4);
 
-            if (hdr_extension_id == RTP_RFC5215_ONE_BYTE_SIG) {
-                dissect_rtp_hext_rfc5215_onebyte (newtvb, pinfo, rtp_hext_tree);
+            if (hdr_extension_id == RTP_RFC5285_ONE_BYTE_SIG) {
+                dissect_rtp_hext_rfc5285_onebyte (newtvb, pinfo, rtp_hext_tree);
             }
-            else if ((hdr_extension_id & RTP_RFC5215_TWO_BYTE_MASK) == RTP_RFC5215_TWO_BYTE_SIG) {
-                dissect_rtp_hext_rfc5215_twobytes(tvb,
+            else if ((hdr_extension_id & RTP_RFC5285_TWO_BYTE_MASK) == RTP_RFC5285_TWO_BYTE_SIG) {
+                dissect_rtp_hext_rfc5285_twobytes(tvb,
                     offset - 4, hdr_extension_id, newtvb,
                     pinfo, rtp_hext_tree);
             }
