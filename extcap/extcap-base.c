@@ -252,7 +252,9 @@ static void extcap_iface_free(gpointer data)
 
 void extcap_base_cleanup(extcap_parameters ** extcap)
 {
-    g_list_free_full((*extcap)->interfaces, extcap_iface_free);
+    /* g_list_free_full() only exists since 2.28. g_list_free_full((*extcap)->interfaces, extcap_iface_free);*/
+    g_list_foreach((*extcap)->interfaces, (GFunc)extcap_iface_free, NULL);
+    g_list_free((*extcap)->interfaces);
     g_free((*extcap)->fifo);
     g_free((*extcap)->interface);
     g_free((*extcap)->version);
