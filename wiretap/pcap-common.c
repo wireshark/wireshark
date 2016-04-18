@@ -1883,6 +1883,15 @@ pcap_read_post_process(int file_type, int wtap_encap,
 		if (bytes_swapped)
 			pcap_byteswap_nflog_pseudoheader(phdr, pd);
 		break;
+	case WTAP_ENCAP_ERF:
+		/*
+		 * Update packet size to account for ERF padding and snapping.
+		 * Captured length is minimum of wlen and previously calculated
+		 * caplen (which would have included padding but not phdr).
+		 */
+		phdr->len = phdr->pseudo_header.erf.phdr.wlen;
+		phdr->caplen = MIN(phdr->len, phdr->caplen);
+		break;
 
 	default:
 		break;
@@ -2107,7 +2116,17 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		phtolell(&erf_hdr[0], pseudo_header->erf.phdr.ts);
 		erf_hdr[8] = pseudo_header->erf.phdr.type;
 		erf_hdr[9] = pseudo_header->erf.phdr.flags;
-		phtons(&erf_hdr[10], pseudo_header->erf.phdr.rlen);
+
+		/*
+		 * Recalculate rlen as padding (and maybe extension headers)
+		 * have been stripped from caplen.
+		 *
+		 * XXX: Since we don't have phdr->caplen here, assume caplen was
+		 * calculated correctly and recalculate from wlen.
+		 */
+		phtons(&erf_hdr[10],
+			MIN(pseudo_header->erf.phdr.rlen, pseudo_header->erf.phdr.wlen + pcap_get_phdr_size(WTAP_ENCAP_ERF, pseudo_header)));
+
 		phtons(&erf_hdr[12], pseudo_header->erf.phdr.lctr);
 		phtons(&erf_hdr[14], pseudo_header->erf.phdr.wlen);
 		size = sizeof(struct erf_phdr);
