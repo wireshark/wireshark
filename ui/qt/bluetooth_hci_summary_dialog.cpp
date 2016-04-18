@@ -180,6 +180,13 @@ void BluetoothHciSummaryDialog::changeEvent(QEvent *event)
 }
 
 
+void BluetoothHciSummaryDialog::keyPressEvent(QKeyEvent *)
+{
+/* NOTE: Do nothing, but in real it "takes focus" from button_box so allow user
+ * to use Enter button to jump to frame from tree widget */
+}
+
+
 void BluetoothHciSummaryDialog::tableContextMenu(const QPoint &pos)
 {
     context_menu_.exec(ui->tableTreeWidget->viewport()->mapToGlobal(pos));

@@ -127,6 +127,13 @@ void BluetoothAttServerAttributesDialog::changeEvent(QEvent *event)
 }
 
 
+void BluetoothAttServerAttributesDialog::keyPressEvent(QKeyEvent *)
+{
+/* NOTE: Do nothing, but in real it "takes focus" from button_box so allow user
+ * to use Enter button to jump to frame from tree widget */
+}
+
+
 void BluetoothAttServerAttributesDialog::tableContextMenu(const QPoint &pos)
 {
     context_menu_.exec(ui->tableTreeWidget->viewport()->mapToGlobal(pos));

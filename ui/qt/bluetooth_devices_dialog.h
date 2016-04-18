@@ -63,6 +63,7 @@ signals:
     void goToPacket(int packet_num);
 
 protected:
+    void keyPressEvent(QKeyEvent *event);
 
 protected slots:
     void changeEvent(QEvent* event);
