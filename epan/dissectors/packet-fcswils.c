@@ -1401,7 +1401,7 @@ dissect_swils_rca(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *rca_tree, g
 }
 
 static void
-dissect_swils_sfc(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *sfc_tree, guint8 isreq)
+dissect_swils_sfc(tvbuff_t *tvb, packet_info* pinfo, proto_tree *sfc_tree, guint8 isreq)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int         offset = 0;
