@@ -163,4 +163,14 @@
     <glob pattern="*.rf5"/>
     <glob pattern="*.rf5.gz"/>
   </mime-type>
+
+  <mime-type type="application/x-micropross-mplog">
+    <comment>Packet Capture (mplog)</comment>
+    <generic-icon name="application-wireshark-doc"/>
+    <magic>
+      <match type="string" offset="0" value="MPCSII"/>
+    </magic>
+    <glob pattern="*.mplog"/>
+    <glob pattern="*.mplog.gz"/>
+  </mime-type>
 </mime-info>

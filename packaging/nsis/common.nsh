@@ -118,6 +118,7 @@ Exec '"$SYSDIR\ie4uinit.exe" -ClearIconCache'
     Push ".apc"
     Push ".acp"
     Push ".5vw"
+    Push ".mplog"
 !macroend
 
 !macro IsWiresharkRunning

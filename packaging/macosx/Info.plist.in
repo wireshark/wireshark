@@ -47,6 +47,18 @@
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>mplog</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Micropross mplog capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
 		<!-- XXX - This dictionary needs a lot more entries -->
 	</array>
 	<key>CFBundleInfoDictionaryVersion</key>
