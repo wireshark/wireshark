@@ -137,7 +137,7 @@ static void init_gdb_parser(void) {
 
 
 static void
-dissect_gdb_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_gdb_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item  *ti;
     proto_tree  *gdb_tree;
