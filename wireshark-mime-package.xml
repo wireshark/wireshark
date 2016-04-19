@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!--
+    This file allows freedesktop.org-compliant desktops (such as GNOME and
+    KDE) to know which files should be opened by what program (and what icon
+    to show for the file in a file browser).
+
+    Both magic and file name glob patterns are supported; glob patterns are
+    preferred since they don't require require opening and reading part of
+    the file to determine its type.
+
+    The specification for this file can be found here:
+    https://standards.freedesktop.org/shared-mime-info-spec/latest/
+
+
+    Note that ideally the MIME types listed here should be IANA-registered:
+
+    https://www.iana.org/assignments/media-types/media-types.xhtml
+
+    If your file type is not registered then using one of the
+    (not-really-a-good-idea and deprecated) x- media types is the only option
+    if you want files to be associated with Wireshark in
+    freedesktop.org-compliant file browsers.
+
+
+    NOTE: if you do add a MIME type here, don't forget to add it to the list
+    of MIME types handled by Wireshark in wireshark.desktop.
+-->
+
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
   <mime-type type="application/vnd.tcpdump.pcap">
     <comment>Packet Capture (PCAP)</comment>
