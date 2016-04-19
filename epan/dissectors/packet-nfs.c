@@ -504,6 +504,16 @@ static int hf_nfs4_deviceidx = -1;
 static int hf_nfs4_layout = -1;
 /* static int hf_nfs4_stripedevs = -1; */
 /* static int hf_nfs4_devaddr = -1; */
+static int hf_nfs4_devaddr_ssv_start = -1;
+static int hf_nfs4_devaddr_ssv_length = -1;
+static int hf_nfs4_devaddr_scsi_vol_type = -1;
+static int hf_nfs4_devaddr_scsi_vol_index = -1;
+static int hf_nfs4_devaddr_scsi_vol_ref_index = -1;
+static int hf_nfs4_devaddr_ssv_stripe_unit = -1;
+static int hf_nfs4_devaddr_scsi_vpd_code_set = -1;
+static int hf_nfs4_devaddr_scsi_vpd_designator_type = -1;
+static int hf_nfs4_devaddr_scsi_vpd_designator = -1;
+static int hf_nfs4_devaddr_scsi_private_key = -1;
 static int hf_nfs4_return_on_close = -1;
 static int hf_nfs4_slotid = -1;
 static int hf_nfs4_high_slotid = -1;
@@ -832,6 +842,8 @@ static gint ett_nfs4_seek = -1;
 static gint ett_nfs4_chan_attrs = -1;
 static gint ett_nfs4_want_notify_flags = -1;
 static gint ett_nfs4_ff_layout_flags = -1;
+static gint ett_nfs4_scsi_layout_vol = -1;
+static gint ett_nfs4_scsi_layout_vol_indices = -1;
 static gint ett_nfs4_layoutstats = -1;
 static gint ett_nfs4_io_info = -1;
 static gint ett_nfs4_io_latency = -1;
@@ -8710,6 +8722,131 @@ dissect_nfs4_devices_flexfile(tvbuff_t *tvb, int offset, proto_tree *tree)
 	return offset;
 }
 
+static const value_string scsi_vol_type_names[] = {
+#define PNFS_SCSI_VOLUME_SLICE      1
+	{	PNFS_SCSI_VOLUME_SLICE,    "Slice" },
+#define PNFS_SCSI_VOLUME_CONCAT     2
+	{	PNFS_SCSI_VOLUME_CONCAT,   "Concat"},
+#define PNFS_SCSI_VOLUME_STRIPE     3
+	{	PNFS_SCSI_VOLUME_STRIPE,   "Stripe"},
+#define PNFS_SCSI_VOLUME_BASE       4
+	{	PNFS_SCSI_VOLUME_BASE,     "Base"  },
+	{	0,	NULL	}
+};
+
+static const value_string scsi_vpd_designator_type_names[] = {
+#define PS_DESIGNATOR_T10       1
+    {   PS_DESIGNATOR_T10,     "T10"  },
+#define PS_DESIGNATOR_EUI64     2
+    {   PS_DESIGNATOR_EUI64,   "EUI64"},
+#define PS_DESIGNATOR_NAA       3
+    {   PS_DESIGNATOR_NAA,     "NAA"  },
+#define PS_DESIGNATOR_NAME      8
+    {   PS_DESIGNATOR_NAME,    "Name" },
+    {   0,  NULL    }
+};
+
+static const value_string scsi_vpd_code_set_names[] = {
+#define PS_CODE_SET_BINARY   1
+    {   PS_CODE_SET_BINARY, "binary"},
+#define PS_CODE_SET_ASCII    2
+    {   PS_CODE_SET_ASCII,  "ASCII" },
+#define PS_CODE_SET_UTF8     3
+    {   PS_CODE_SET_UTF8,   "UTF8"  },
+    { 0, NULL }
+};
+
+static int
+dissect_nfs4_devices_scsi_base_volume(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	guint32 desig_len;
+
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_devaddr_scsi_vpd_code_set, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_devaddr_scsi_vpd_designator_type, offset);
+
+	desig_len = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+	proto_tree_add_item(tree, hf_nfs4_devaddr_scsi_vpd_designator,
+		tvb, offset, desig_len, ENC_NA);
+	offset += desig_len;
+
+	proto_tree_add_item(tree, hf_nfs4_devaddr_scsi_private_key,
+		tvb, offset, 8, ENC_NA);
+	offset += 8;
+
+	return offset;
+}
+
+static int
+dissect_nfs4_vol_indices(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	guint i;
+	guint32 num_vols;
+	proto_item *indices_item;
+	proto_tree *indices_tree;
+
+	num_vols = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+	if (num_vols == 0)
+		return offset;
+
+	indices_tree = proto_tree_add_subtree_format(tree, tvb, offset, 0,
+				ett_nfs4_scsi_layout_vol_indices, &indices_item,
+				"volume indices");
+	for (i = 0; i < num_vols; i++) {
+		proto_tree_add_item(indices_tree, hf_nfs4_devaddr_scsi_vol_ref_index,
+				tvb, offset, 4, ENC_BIG_ENDIAN);
+	}
+	return offset;
+}
+
+static int
+dissect_nfs4_devices_scsi(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	guint i;
+	proto_item *vol_item;
+	proto_tree *vol_tree;
+	int old_offset = offset;
+	guint32 num_vols;
+	guint32 vol_type;
+
+	num_vols = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+
+	for (i = 0; i < num_vols; i++) {
+
+	vol_type = tvb_get_ntohl(tvb, offset);
+	vol_item = proto_tree_add_item(tree, hf_nfs4_devaddr_scsi_vol_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+	vol_tree = proto_item_add_subtree(vol_item, ett_nfs4_scsi_layout_vol);
+	offset += 4;
+	proto_tree_add_uint(vol_tree, hf_nfs4_devaddr_scsi_vol_index, tvb, offset, 0, i);
+	switch (vol_type)
+	{
+	case PNFS_SCSI_VOLUME_SLICE:
+		proto_tree_add_item(vol_tree, hf_nfs4_devaddr_ssv_start, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(vol_tree, hf_nfs4_devaddr_ssv_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(vol_tree, hf_nfs4_devaddr_scsi_vol_ref_index, tvb, offset, 4, ENC_BIG_ENDIAN);
+		break;
+	case PNFS_SCSI_VOLUME_CONCAT:
+		offset = dissect_nfs4_vol_indices(tvb, offset, vol_tree);
+		break;
+	case PNFS_SCSI_VOLUME_STRIPE:
+		proto_tree_add_item(vol_tree, hf_nfs4_devaddr_ssv_stripe_unit, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset = dissect_nfs4_vol_indices(tvb, offset, vol_tree);
+		break;
+	case PNFS_SCSI_VOLUME_BASE:
+		offset = dissect_nfs4_devices_scsi_base_volume(tvb, offset, vol_tree);
+		break;
+	}
+
+	proto_item_set_len(vol_item, offset - old_offset);
+	old_offset = offset;
+	}
+
+	return offset;
+}
+
+
 static int
 dissect_nfs4_test_stateid_arg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
@@ -8852,6 +8989,9 @@ dissect_nfs4_deviceaddr(tvbuff_t *tvb, int offset, proto_tree *tree)
 	case LAYOUT4_FLEX_FILES:
 		offset = dissect_nfs4_devices_flexfile(tvb, offset, tree);
 		break;
+	case LAYOUT4_SCSI:
+		offset = dissect_nfs4_devices_scsi(tvb, offset, tree);
+	break;
 	default:
 		/* back up to re-read the length field when treating as
 		 * opaque */
@@ -10786,6 +10926,7 @@ static const value_string layouttype_names[] = {
 	{ 2, "LAYOUT4_OSD2_OBJECTS"  },
 	{ 3, "LAYOUT4_BLOCK_VOLUME"  },
 	{ 4, "LAYOUT4_FLEX_FILES"  },
+	{ 5, "LAYOUT4_SCSI"  },
 	{ 0, NULL }
 };
 
@@ -12687,6 +12828,46 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 #endif
 
+		{ &hf_nfs4_devaddr_ssv_start, {
+			"slice start", "nfs.devaddr.ssv_start", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_devaddr_ssv_length, {
+			"slice length", "nfs.devaddr.ssv_length", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_devaddr_scsi_vol_type, {
+			"SCSI volume type", "nfs.devaddr.scsi_volume_type", FT_UINT32, BASE_DEC,
+			VALS(scsi_vol_type_names), 0, NULL, HFILL }},
+
+		{ &hf_nfs4_devaddr_scsi_vol_index, {
+			"volume index", "nfs.devaddr.scsi_volume_index", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_devaddr_scsi_vol_ref_index, {
+			"volume index ref", "nfs.devaddr.scsi_volume_ref_index", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_devaddr_ssv_stripe_unit, {
+			"stripe size", "nfs.devaddr.ssv_stripe_unit", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_devaddr_scsi_vpd_code_set, {
+			"VPD code set", "nfs.devaddr.scsi_vpd_code_set", FT_UINT32, BASE_DEC,
+			VALS(scsi_vpd_code_set_names), 0, NULL, HFILL }},
+
+		{ &hf_nfs4_devaddr_scsi_vpd_designator_type, {
+			"VPD designator type", "nfs.devaddr.scsi_vpd_designator_type", FT_UINT32, BASE_DEC,
+			VALS(scsi_vpd_designator_type_names), 0, NULL, HFILL }},
+
+		{ &hf_nfs4_devaddr_scsi_vpd_designator, {
+			"VPD designator", "nfs.devaddr.scsi_vpd_designator",
+			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_devaddr_scsi_private_key, {
+			"private key", "nfs.devaddr.scsi_private_key",
+			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
 		{ &hf_nfs4_return_on_close, {
 			"return on close?", "nfs.retclose4", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
@@ -13642,6 +13823,8 @@ proto_register_nfs(void)
 		&ett_nfs4_sequence_status_flags,
 		&ett_nfs4_want_notify_flags,
 		&ett_nfs4_ff_layout_flags,
+		&ett_nfs4_scsi_layout_vol,
+		&ett_nfs4_scsi_layout_vol_indices,
 		&ett_nfs4_layoutstats,
 		&ett_nfs4_io_info,
 		&ett_nfs4_io_latency,

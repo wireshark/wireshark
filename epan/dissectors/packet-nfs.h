@@ -190,6 +190,7 @@
 #define LAYOUT4_OSD2_OBJECTS              2
 #define LAYOUT4_BLOCK_VOLUME              3
 #define LAYOUT4_FLEX_FILES                4
+#define LAYOUT4_SCSI                      5
 
 /* NFSv4.2 */
 
