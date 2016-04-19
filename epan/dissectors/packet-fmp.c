@@ -1470,7 +1470,7 @@ dissect_FMP_OpenGetMapEx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 
 static int
-dissect_FMP_OpenGetMapEx_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_FMP_OpenGetMapEx_reply(tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree, void* data _U_)
 {
     int rval;
