@@ -836,7 +836,7 @@ dissect_gadu_gadu_login_failed(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree
 }
 
 static int
-dissect_gadu_gadu_login_ok80(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, int offset)
+dissect_gadu_gadu_login_ok80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	col_set_str(pinfo->cinfo, COL_INFO, "Login success (8.0)");
 
