@@ -201,7 +201,7 @@ fddi_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
 }
 
 static gboolean
-capture_fddi(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
+capture_fddi(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
   int fc;
 
