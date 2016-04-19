@@ -128,7 +128,7 @@ static expert_field ei_gmhdr_field_length_invalid = EI_INIT;
 static expert_field ei_gmhdr_len = EI_INIT;
 
 static void
-dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, guint offset, guint16 length)
+dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gmhdr_tree, guint offset, guint16 length)
 {
   proto_tree *ti;
   proto_tree *srcport_tree;
@@ -339,7 +339,7 @@ dissect_gmtimestamp_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 static int
-dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_tree *ti;
   guint tvblen, length;
