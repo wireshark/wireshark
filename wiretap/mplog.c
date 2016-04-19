@@ -126,8 +126,15 @@ static gboolean mplog_read_packet(FILE_T fh, struct wtap_pkthdr *phdr,
     p += ISO14443_PSEUDO_HDR_LEN;
 
     do {
-        if (!wtap_read_bytes_or_eof(fh, block, sizeof(block), err, err_info))
+        if (!wtap_read_bytes_or_eof(fh, block, sizeof(block), err, err_info)) {
+            /* If we've already read some data, if this failed with an EOF,
+               so that *err is 0, it's a short read. */
+            if (pkt_bytes != 0) {
+                if (*err == 0)
+                    *err = WTAP_ERR_SHORT_READ;
+            }
             break;
+        }
         data = block[0];
         type = block[1];
         ctr = pletoh48(&block[2]);
@@ -204,7 +211,13 @@ mplog_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *pkthdr,
     if (-1 == file_seek(wth->random_fh, seek_off, SEEK_SET, err))
         return FALSE;
 
-    return mplog_read_packet(wth->random_fh, pkthdr, buf, err, err_info);
+    if (!mplog_read_packet(wth->random_fh, pkthdr, buf, err, err_info)) {
+        /* Even if we got an immediate EOF, that's an error. */
+        if (*err == 0)
+            *err = WTAP_ERR_SHORT_READ;
+        return FALSE;
+    }
+    return TRUE;
 }
 
 
