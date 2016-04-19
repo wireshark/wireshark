@@ -211,7 +211,7 @@ mplog_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *pkthdr,
 wtap_open_return_val mplog_open(wtap *wth, int *err, gchar **err_info _U_)
 {
     gboolean ok;
-    guint8 str[10];
+    guint8 str[6];
 
     /* rewind the fh so we re-read from the beginning */
     if (-1 == file_seek(wth->fh, 0, SEEK_SET, err))
@@ -220,7 +220,7 @@ wtap_open_return_val mplog_open(wtap *wth, int *err, gchar **err_info _U_)
     ok = wtap_read_bytes_or_eof(wth->fh, str, 6, err, err_info);
     if (!ok)
         return WTAP_OPEN_NOT_MINE;
-    if (strncmp(str, "MPCSII", 6))
+    if (memcmp(str, "MPCSII", 6) != 0)
         return WTAP_OPEN_NOT_MINE;
 
     wth->file_encap = WTAP_ENCAP_ISO14443;
