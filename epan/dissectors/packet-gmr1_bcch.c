@@ -640,7 +640,7 @@ CSN_DESCR_END  (Segment2Bbis_t)
 
 	/* Segment 3A - [1] 11.5.2.71 */
 static gint16
-Seg3A_LAI_Dissector(proto_tree *tree _U_, csnStream_t* ar, tvbuff_t *tvb, void* data, int ett_csn1)
+Seg3A_LAI_Dissector(proto_tree *tree, csnStream_t* ar, tvbuff_t *tvb, void* data, int ett_csn1)
 {
 	Seg3A_LAI_t *LAI = (Seg3A_LAI_t *)data;
 	proto_item *lac_item;
