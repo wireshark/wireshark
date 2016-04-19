@@ -14,12 +14,85 @@ The following vulnerabilities have been fixed:
 
 * ws-salink:2016-19[]
 +
-A dissector went awry.
-(ws-buglink:xxxxx[])
+The NCP dissector could crash.
+(ws-buglink:11591[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: xxxxx
-// Fixed in master-2.0: xxxxx
-// Fixed in master-1.12: xxxxx
+// Fixed in master: ea8e695
+// Fixed in master-2.0: a48b776
+// Fixed in master-1.12: N/A
+
+* ws-salink:2016-20[]
++
+TShark could crash due to a packet reassembly bug.
+(ws-buglink:11799[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: c5b2c1e
+// Fixed in master-2.0: ca2c9c8
+// Fixed in master-1.12: N/A
+
+* ws-salink:2016-21[]
++
+The IEEE 802.11 dissector could crash.
+(ws-buglink:11824[], ws-buglink:12187[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: e2745d7
+// Fixed in master-2.0: 6c9fc36
+// Fixed in master-1.12: N/A
+
+* ws-salink:2016-22[]
++
+The PKTC dissector could crash.
+(ws-buglink:12206[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 4cdc9ee
+// Fixed in master-2.0: 99d549f
+// Fixed in master-1.12: 4446971
+
+* ws-salink:2016-23[]
++
+The PKTC dissector could crash.
+(ws-buglink:12242[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: ad09738
+// Fixed in master-2.0: a7fcd61
+// Fixed in master-1.12: df3d07b
+
+* ws-salink:2016-24[]
++
+The IAX2 dissector could go into an infinite loop.
+(ws-buglink:12260[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 42f299b
+// Fixed in master-2.0: fedd01d
+// Fixed in master-1.12: 73dbc54
+
+* ws-salink:2016-25[]
++
+Wireshark and TShark could exhaust the stack.
+(ws-buglink:12268[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 8dc9551
+// Fixed in master-2.0: fcff256
+// Fixed in master-1.12: c5a9678
+
+* ws-salink:2016-26[]
++
+The GSM CBCH dissector could crash.
+(ws-buglink:12278[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 0fe522d
+// Fixed in master-2.0: 363dc72
+// Fixed in master-1.12: edf4950
+
+* ws-salink:2016-27[]
++
+MS-WSP dissector crash.
+(ws-buglink:12341[])
+//cve-idlink:2015-XXXX[]
+// Fixed in master: 66417b1
+// Fixed in master-2.0: 15d6b59e8
+// Fixed in master-1.12: N/A
+
 
 The following bugs have been fixed:
 
@@ -28,6 +101,85 @@ The following bugs have been fixed:
 //* cve-idlink:2016-7000[]
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.3rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Protocol Hierarchy Statistics shows LDAP lines recursively. (ws-buglink:1734[])
+
+* UTF-8 replacement characters in FT_STRINGs are escaped for presentation. (ws-buglink:10681[])
+
+* DTLS : reassembly error, protocol DTLS: New fragment overlaps old data. (ws-buglink:11477[])
+
+* Packet byte pane in Qt version of packet window isn't being displayed. (ws-buglink:11760[])
+
+* "wireshark -i usbmon2 -k" results in "No interfaces selected" when restarting a capture. (ws-buglink:11939[])
+
+* Crash when changing the "which packets to print" radio button in the Print dialog. (ws-buglink:12040[])
+
+* Selecting packets causes memory leak. (ws-buglink:12044[])
+
+* Client Hello not dissected when failed SSL handshake fully captured. (ws-buglink:12132[])
+
+* TCP graphs - wrong stream graphed if stream index > 99. (ws-buglink:12163[])
+
+* Typo in packet-gsm_a_dtap.c. (ws-buglink:12186[])
+
+* Lua dot file error. (ws-buglink:12196[])
+
+* "All Files" does not allow selecting files without period. (ws-buglink:12203[])
+
+* wlan, wlan_mgt, Length error shown for IE BSS AC Access Delay/WAPI Parameter Set (68). (ws-buglink:12223[])
+
+* Qt GUI very slow when expanding packet details with a lot of items. (ws-buglink:12228[])
+
+* Comparing a boolean field against 1 always succeeds on big-endian machines. (ws-buglink:12236[])
+
+* FIN flag not always correctly passed to subdissectors. (ws-buglink:12238[])
+
+* Interpretation of BGP NLRI for default route cause malformed packet. (ws-buglink:12240[])
+
+* Capture Interfaces dialog crashes after clicking the bookmark menu. (ws-buglink:12241[])
+
+* Wireshark crashes right after a capture filter is selected. (ws-buglink:12245[])
+
+* GSM GMM Identity Response dissection error. (ws-buglink:12246[])
+
+* Crash reloading "dissector.lua" from the Wireshark website. (ws-buglink:12251[])
+
+* VoIP calls does not show IAX2 calls. (ws-buglink:12254[])
+
+* Wireshark CPU usage has dramatically increased. (ws-buglink:12258[])
+
+* RPC/NFS incorrectly decodes as ACAP. (ws-buglink:12265[])
+
+* Wireshark mistakenly flags CF-End packets as being Malformed. (ws-buglink:12266[])
+
+* ASTERIX Category 48 Reserved Expansion Field. (ws-buglink:12267[])
+
+* It is not possible to enter characters requiring "Alt Gr" in the display filter box such as "[" on a Swedish keyboard. (ws-buglink:12270[])
+
+* tshark crashes when trying to export to pdml. (ws-buglink:12276[])
+
+* Build fails on Centos 6.5 with gtk2 in ui/gtk/rtp_player.c rtp_channel_info_r has no no member start_time. (ws-buglink:12277[])
+
+* TCP Dissector - spurious retransmissions not always recognized. (ws-buglink:12282[])
+
+* PRA Identifier of the IE PRA Action should use 3 octets (6 to 8) and not 2 in GTPv2. (ws-buglink:12284[])
+
+* Dissector bug, failed assertion, proto_desegment pinfo->can_desegment. (ws-buglink:12285[])
+
+* Colorize with filter, new coloring rule, is labeled as new conversation rule. (ws-buglink:12289[])
+
+* Qt Multicast Stream Dialog error in input field Burst alarm threshold and Buffer alarm. (ws-buglink:12309[])
+
+* 6LoWPAN reassembly incorrect if extension header padding was elided. (ws-buglink:12310[])
+
+* USBPcap prevents keyboard from working. (ws-buglink:12316[])
+
+* Crash when reloading Lua script when Field is gone. (ws-buglink:12328[])
+
+* Wrong display of USSD strings in the GSM 7-bit alphabet for non-ASCII characters in Wireshark 2.0.x. (ws-buglink:12337[])
+
+* Malformed Packet: RTP. (ws-buglink:12339[])
+
 
 Windows installers and PortableApps(R) packages are dual signed using SHA-1 and SHA-256
 in order to comply with
@@ -55,12 +207,45 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+6LoWPAN
+ACAP
+Asterix
+BGP
+DMP
+DNS
+DTLS
+EAP
+FMTP
+GPRS LLC
+GSM A
+GSM A GM
+GSM CBCH
+GSM MAP
+GTPv2
+IAX2
+IEEE 802.11
+HTTP
+MS-WSP
+MySQL
+NCP
+PKTC
+QUIC
+R3
+RTP
+SPRT
+TCP
+ZEP
+ZigBee
+ZigBee NWK
+ZigBee ZCL SE
+ZVT
 --sort-and-group--
 
 === New and Updated Capture File Support
 
 //There is no new or updated capture file support in this release.
 --sort-and-group--
+Gammu DCT3
 --sort-and-group--
 
 === New and Updated Capture Interfaces support
