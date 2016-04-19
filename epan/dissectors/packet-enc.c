@@ -63,7 +63,7 @@ static gint ett_enc = -1;
 static gint ett_enc_flag = -1;
 
 static gboolean
-capture_enc(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
+capture_enc(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
   guint32 af;
 
