@@ -508,7 +508,7 @@ static int add_byte_array(proto_tree *tree, int hf_len, int hf_byte, tvbuff_t *t
 }
 
 static int
-gdsdb_dummy(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int offset _U_)
+gdsdb_dummy(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, int offset _U_)
 {
 	/* Ignore data */
 	return tvb_reported_length(tvb);
@@ -619,7 +619,7 @@ gdsdb_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offse
 }
 
 static int
-gdsdb_attach(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+gdsdb_attach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	int total_length = 12;
 	int size, length = tvb_reported_length_remaining(tvb, offset);
@@ -1157,7 +1157,7 @@ gdsdb_exec_immediate2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, i
 }
 
 static int
-gdsdb_prepare(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+gdsdb_prepare(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	int total_length = 20;
 	int length = tvb_reported_length_remaining(tvb, offset);
