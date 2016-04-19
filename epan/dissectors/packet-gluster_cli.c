@@ -71,7 +71,7 @@ gluster_cli_2_common_call(tvbuff_t *tvb,
 
 static int
 gluster_cli_2_common_reply(tvbuff_t *tvb, packet_info *pinfo,
-							proto_tree *tree, void* data _U_)
+							proto_tree *tree, void* data)
 {
 	int offset = 0;
 
@@ -85,7 +85,7 @@ gluster_cli_2_common_reply(tvbuff_t *tvb, packet_info *pinfo,
 
 static int
 gluster_cli_2_probe_reply(tvbuff_t *tvb, packet_info *pinfo,
-							proto_tree *tree, void* data _U_)
+							proto_tree *tree, void* data)
 {
 	int offset = 0;
 
@@ -114,7 +114,7 @@ gluster_cli_2_probe_call(tvbuff_t *tvb,
 
 static int
 gluster_cli_2_deprobe_reply(tvbuff_t *tvb, packet_info *pinfo,
-							proto_tree *tree, void* data _U_)
+							proto_tree *tree, void* data)
 {
 	int offset = 0;
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
@@ -146,7 +146,7 @@ gluster_cli_2_fsm_log_call(tvbuff_t *tvb,
 
 static int
 gluster_cli_2_getwd_reply(tvbuff_t *tvb, packet_info *pinfo,
-							proto_tree *tree, void* data _U_)
+							proto_tree *tree, void* data)
 {
 	int offset = 0;
 
@@ -178,7 +178,7 @@ gluster_cli_2_mount_call(tvbuff_t *tvb,
 
 static int
 gluster_cli_2_mount_reply(tvbuff_t *tvb, packet_info *pinfo,
-							proto_tree *tree, void* data _U_)
+							proto_tree *tree, void* data)
 {
 	int offset = 0;
 
@@ -202,7 +202,7 @@ gluster_cli_2_umount_call(tvbuff_t *tvb,
 
 static int
 gluster_cli_dissect_common_reply(tvbuff_t *tvb,
-				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+				packet_info *pinfo, proto_tree *tree, void* data)
 {
 	return gluster_dissect_common_reply(tvb, 0, pinfo, tree, data);
 }
