@@ -77,10 +77,10 @@ proto_register_gprscdr(void)
   };
 
   /* List of subtrees */
-    static gint *ett[] = {
+  static gint *ett[] = {
     &ett_gprscdr,
-	&ett_gprscdr_timestamp,
-	&ett_gprscdr_plmn_id,
+    &ett_gprscdr_timestamp,
+    &ett_gprscdr_plmn_id,
     &ett_gprscdr_managementextension_information,
 #include "packet-gprscdr-ettarr.c"
         };
@@ -102,3 +102,15 @@ proto_register_gprscdr(void)
 
 /* The registration hand-off routine */
 
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

@@ -664,9 +664,9 @@ dissect_gprscdr_T_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   proto_tree *ext_tree;
   ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_gprscdr_managementextension_information, NULL, "Information");
   if (obj_id){
-	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, ext_tree, NULL);
+    offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, ext_tree, NULL);
   }else{
-	 proto_tree_add_expert(ext_tree, actx->pinfo, &ei_gprscdr_not_dissected, tvb, offset, -1);
+    proto_tree_add_expert(ext_tree, actx->pinfo, &ei_gprscdr_not_dissected, tvb, offset, -1);
   }
 
 
@@ -987,29 +987,29 @@ dissect_gprscdr_MSTimeZone(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
  *
  * 1.Octet: Time Zone and 2. Octet: Daylight saving time, see TS 29.060 [75]
  */
- tvbuff_t	*parameter_tvb;
- guint8 data, data2;
- char sign;
+  tvbuff_t *parameter_tvb;
+  guint8 data, data2;
+  char sign;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
 
- if (!parameter_tvb)
-	return offset;
+  if (!parameter_tvb)
+    return offset;
 
-	data = tvb_get_guint8(parameter_tvb, 0);
-	sign = (data & 0x08) ? '-' : '+';
-	data = (data >> 4) + (data & 0x07) * 10;
+  data = tvb_get_guint8(parameter_tvb, 0);
+  sign = (data & 0x08) ? '-' : '+';
+  data = (data >> 4) + (data & 0x07) * 10;
 
-	data2 = tvb_get_guint8(tvb, 1) & 0x3;
+  data2 = tvb_get_guint8(tvb, 1) & 0x3;
 
-	proto_item_append_text(actx->created_item, " (GMT %c %d hours %d minutes %s)",
-			sign,
-			data / 4,
-			data % 4 * 15,
-			val_to_str_const(data2, gprscdr_daylight_saving_time_vals, "Unknown")
-			);
+  proto_item_append_text(actx->created_item, " (GMT %c %d hours %d minutes %s)",
+                         sign,
+                         data / 4,
+                         data % 4 * 15,
+                         val_to_str_const(data2, gprscdr_daylight_saving_time_vals, "Unknown")
+                        );
 
 
 
@@ -1238,37 +1238,37 @@ dissect_gprscdr_TimeStamp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
  * transmission overhead
  * e.g. YYMMDDhhmmssShhmm
  * where
- * YY 	= 	Year 00 to 99		BCD encoded
- * MM 	= 	Month 01 to 12 		BCD encoded
- * DD	=	Day 01 to 31		BCD encoded
- * hh	=	hour 00 to 23		BCD encoded
- * mm	=	minute 00 to 59		BCD encoded
- * ss	=	second 00 to 59		BCD encoded
- * S	=	Sign 0 = "+", "-"	ASCII encoded
- * hh	=	hour 00 to 23		BCD encoded
- * mm	=	minute 00 to 59		BCD encoded
+ * YY   =       Year 00 to 99           BCD encoded
+ * MM   =       Month 01 to 12          BCD encoded
+ * DD   =       Day 01 to 31            BCD encoded
+ * hh   =       hour 00 to 23           BCD encoded
+ * mm   =       minute 00 to 59         BCD encoded
+ * ss   =       second 00 to 59         BCD encoded
+ * S    =       Sign 0 = "+", "-"       ASCII encoded
+ * hh   =       hour 00 to 23           BCD encoded
+ * mm   =       minute 00 to 59         BCD encoded
  */
 
- tvbuff_t	*parameter_tvb;
+ tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
 
- if (!parameter_tvb)
-	return offset;
+  if (!parameter_tvb)
+    return offset;
 
- proto_item_append_text(actx->created_item, " (UTC %x-%x-%x %x:%x:%x %s%x:%x)",
-			tvb_get_guint8(parameter_tvb,0),                        /* Year */
-			tvb_get_guint8(parameter_tvb,1),                        /* Month */
-			tvb_get_guint8(parameter_tvb,2),                        /* Day */
-			tvb_get_guint8(parameter_tvb,3),                        /* Hour */
-			tvb_get_guint8(parameter_tvb,4),                        /* Minute */
-			tvb_get_guint8(parameter_tvb,5),                        /* Second */
-			tvb_get_string_enc(wmem_packet_scope(), parameter_tvb,6,1,ENC_ASCII|ENC_NA), /* Sign */
-			tvb_get_guint8(parameter_tvb,7),                        /* Hour */
-			tvb_get_guint8(parameter_tvb,8)                         /* Minute */
-			);
+  proto_item_append_text(actx->created_item, " (UTC %x-%x-%x %x:%x:%x %s%x:%x)",
+                         tvb_get_guint8(parameter_tvb,0),                        /* Year */
+                         tvb_get_guint8(parameter_tvb,1),                        /* Month */
+                         tvb_get_guint8(parameter_tvb,2),                        /* Day */
+                         tvb_get_guint8(parameter_tvb,3),                        /* Hour */
+                         tvb_get_guint8(parameter_tvb,4),                        /* Minute */
+                         tvb_get_guint8(parameter_tvb,5),                        /* Second */
+                         tvb_get_string_enc(wmem_packet_scope(), parameter_tvb,6,1,ENC_ASCII|ENC_NA), /* Sign */
+                         tvb_get_guint8(parameter_tvb,7),                        /* Hour */
+                         tvb_get_guint8(parameter_tvb,8)                         /* Minute */
+                        );
 
 
 
@@ -1722,18 +1722,18 @@ dissect_gprscdr_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_gprscdr_PLMN_Id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 145 "./asn1/gprscdr/gprscdr.cnf"
- tvbuff_t	*parameter_tvb;
- proto_tree *subtree;
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
 
- if (!parameter_tvb)
-	return offset;
+  if (!parameter_tvb)
+    return offset;
 
- subtree = proto_item_add_subtree(actx->created_item, ett_gprscdr_plmn_id);
- dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, TRUE);
+  subtree = proto_item_add_subtree(actx->created_item, ett_gprscdr_plmn_id);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, TRUE);
 
 
 
@@ -3368,16 +3368,16 @@ proto_item *item;
 gint branch_taken, t_offset = offset;
 gint32   tag;
 
-   offset = dissect_ber_choice(actx, tree, tvb, offset,
+    offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  GPRSRecord_choice, hf_index, ett_gprscdr_GPRSRecord,
                                  &branch_taken);
 
 
- if(branch_taken == -1){
+  if(branch_taken == -1){
     get_ber_identifier(tvb, t_offset, NULL, NULL, &tag);
-	item = proto_tree_add_uint(tree, hf_index, tvb, t_offset, 1, tag);
-	dissect_ber_identifier(actx->pinfo, tree, tvb, t_offset, NULL, NULL, &tag);
-	expert_add_info_format(actx->pinfo, item, &ei_gprscdr_choice_not_found,
+    item = proto_tree_add_uint(tree, hf_index, tvb, t_offset, 1, tag);
+    dissect_ber_identifier(actx->pinfo, tree, tvb, t_offset, NULL, NULL, &tag);
+    expert_add_info_format(actx->pinfo, item, &ei_gprscdr_choice_not_found,
               "Record type(BER choice) not found: %u", tag);
  }
 
@@ -4791,10 +4791,10 @@ proto_register_gprscdr(void)
   };
 
   /* List of subtrees */
-    static gint *ett[] = {
+  static gint *ett[] = {
     &ett_gprscdr,
-	&ett_gprscdr_timestamp,
-	&ett_gprscdr_plmn_id,
+    &ett_gprscdr_timestamp,
+    &ett_gprscdr_plmn_id,
     &ett_gprscdr_managementextension_information,
 
 /*--- Included file: packet-gprscdr-ettarr.c ---*/
@@ -4887,3 +4887,15 @@ proto_register_gprscdr(void)
 
 /* The registration hand-off routine */
 
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
