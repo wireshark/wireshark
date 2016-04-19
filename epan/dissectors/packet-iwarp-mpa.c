@@ -714,12 +714,13 @@ dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * that	exactly one MPA FPDU is contained in one TCP segment and starts
 		 * always either with a Marker or the ULPDU_LENGTH header field.
 		 */
+		pad_length = fpdu_pad_length(ulpdu_length);
 		exp_ulpdu_length = expected_ulpdu_length(state, tcpinfo, endpoint);
-		if (!exp_ulpdu_length || exp_ulpdu_length != ulpdu_length) {
+		if (!exp_ulpdu_length || exp_ulpdu_length != (ulpdu_length + pad_length)) {
 			proto_tree_add_expert_format(tree, pinfo, &ei_mpa_bad_length, tvb, offset,
 				MPA_ULPDU_LENGTH_LEN,
 				"[ULPDU length [%u] field does not contain the expected length[%u]]",
-				exp_ulpdu_length, ulpdu_length);
+				exp_ulpdu_length, ulpdu_length + pad_length);
 		}
 
 		mpa_item = proto_tree_add_item(tree, proto_iwarp_mpa, tvb, 0,
@@ -736,8 +737,6 @@ dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				hf_mpa_ulpdu_length, tvb, offset,
 				MPA_ULPDU_LENGTH_LEN, ulpdu_length, "%u bytes",
 				ulpdu_length);
-
-		pad_length = fpdu_pad_length(ulpdu_length);
 
 		/* Markers are present in this FPDU */
 		if (state->minfo[endpoint].valid && num_of_m > 0) {
