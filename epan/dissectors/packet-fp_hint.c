@@ -267,7 +267,7 @@ static void assign_fph_pch(tvbuff_t *tvb, packet_info *pinfo _U_, guint16 offset
     fpi->chan_num_tbs[0] = blkcnt;
 }
 
-static void assign_fph_rach(tvbuff_t *tvb, packet_info *pinfo _U_, guint16 offset, fp_info *fpi, proto_tree *tree)
+static void assign_fph_rach(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, fp_info *fpi, proto_tree *tree)
 {
     const guint8 *hdr;
     guint8 rbcnt;
