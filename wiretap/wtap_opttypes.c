@@ -155,6 +155,7 @@ static void wtap_optionblock_free_options(wtap_optionblock_t block)
 
 void wtap_optionblock_free(wtap_optionblock_t block)
 {
+    unsigned i;
     if (block != NULL)
     {
         if (block->info->free_mand != NULL)
@@ -162,10 +163,12 @@ void wtap_optionblock_free(wtap_optionblock_t block)
 
         g_free(block->mandatory_data);
         wtap_optionblock_free_options(block);
+        for (i = 0; i < block->option_infos->len; i++)
+            g_free(g_array_index(block->option_infos, wtap_optblock_internal_t*, i));
         if (block->option_infos != NULL)
-            g_array_free(block->option_infos, FALSE);
+            g_array_free(block->option_infos, TRUE);
         if (block->option_values != NULL)
-            g_array_free(block->option_values, FALSE);
+            g_array_free(block->option_values, TRUE);
         g_free(block);
     }
 }
