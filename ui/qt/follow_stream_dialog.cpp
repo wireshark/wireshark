@@ -41,7 +41,7 @@
 
 #include "wsutil/file_util.h"
 #include "wsutil/str_util.h"
-#include "wsutil/ws_version_info.h"
+#include "ws_version_info.h"
 
 #include "ws_symbol_export.h"
 

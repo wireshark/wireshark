@@ -71,8 +71,7 @@ LIBWSUTIL_COMMON_SRC = \
 	time_util.c	\
 	type_util.c	\
 	unicode-utils.c	\
-	ws_mempbrk.c	\
-	ws_version_info.c
+	ws_mempbrk.c
 
 # Header files that don't declare replacement functions for functions
 # present in the APIs/ABIs of some, but not all, targets.
@@ -129,8 +128,7 @@ libwsutil_nonrepl_INCLUDES = \
 	utf8_entities.h	\
 	ws_cpuid.h	\
 	ws_mempbrk.h	\
-	ws_mempbrk_int.h \
-	ws_version_info.h
+	ws_mempbrk_int.h
 
 # Header files that are not generated from other files
 LIBWSUTIL_COMMON_INCLUDES = \

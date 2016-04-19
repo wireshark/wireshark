@@ -31,7 +31,8 @@ OBJECTS = file_util.obj		\
 	$(LIBWSUTIL_SRC:.c=.obj) \
 	popcount.obj		 \
 	strptime.obj		\
-	ws_mempbrk_sse42.obj
+	ws_mempbrk_sse42.obj	\
+	..\ws_version_info.obj
 
 # For use when making libwsutil.dll
 libwsutil.lib: libwsutil.dll
@@ -50,7 +51,7 @@ libwsutil.dll : $(OBJECTS) ..\image\libwsutil.res
 # The following target will rebuild its obj
 # if and when version.h should change.
 #
-ws_version_info.obj: ..\version.h
+..\ws_version_info.obj: ..\version.h
 
 clean:
 	rm -f $(OBJECTS) \

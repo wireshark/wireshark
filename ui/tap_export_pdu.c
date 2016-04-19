@@ -27,7 +27,7 @@
 #include "wiretap/pcap-encap.h"
 #include "wsutil/tempfile.h"
 #include "wsutil/os_version_info.h"
-#include "wsutil/ws_version_info.h"
+#include "ws_version_info.h"
 
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>

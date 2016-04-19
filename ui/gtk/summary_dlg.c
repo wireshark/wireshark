@@ -28,7 +28,7 @@
 
 
 
-#include <wsutil/ws_version_info.h>
+#include <ws_version_info.h>
 
 #include "../../file.h"
 #include "../../summary.h"

@@ -81,6 +81,7 @@ set(WIRETAP_FILES
 	vwr.c
 	wtap.c
 	wtap_opttypes.c
+	${CMAKE_SOURCE_DIR}/ws_version_info.c
 )
 
 if (WERROR_COMMON_FLAGS)

@@ -54,7 +54,8 @@ libwireshark_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
 #files with the "stop on warning" barrier.
 libwireshark_la_SOURCES = \
 	$(LIBWIRESHARK_SRC)	\
-	$(LIBWIRESHARK_INCLUDES)
+	$(LIBWIRESHARK_INCLUDES)	\
+	ws_version_info.c
 
 libwireshark_la_CPPFLAGS = $(AM_CPPFLAGS) -DWS_BUILD_DLL
 
@@ -104,7 +105,8 @@ CLEANFILES = \
 DISTCLEANFILES = \
 	$(NODIST_LIBWIRESHARK_GENERATED_C_FILES) \
 	$(NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES) \
-	dtd_grammar.out
+	dtd_grammar.out \
+	ws_version_info.c
 
 MAINTAINERCLEANFILES = \
 	$(LIBWIRESHARK_GENERATED_C_FILES) \
@@ -113,7 +115,8 @@ MAINTAINERCLEANFILES = \
 
 BUILT_SOURCES = \
 	$(LIBWIRESHARK_GENERATED_HEADER_FILES) \
-	$(NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES)
+	$(NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES) \
+	ws_version_info.c
 
 #
 # Add the object files for missing routines, if any.
@@ -193,6 +196,9 @@ uat_load_lex.h: uat_load.c
 dtd_grammar.h: dtd_grammar.c
 dtd_grammar.c : $(LEMON) $(lemon_srcdir)/lempar.c $(srcdir)/dtd_grammar.lemon
 	$(AM_V_LEMON)$(LEMON) T=$(lemon_srcdir)/lempar.c $(srcdir)/dtd_grammar.lemon
+
+ws_version_info.c: $(top_srcdir)/ws_version_info.c
+	$(LN_S) $<
 
 tvbtest.o exntest.o oids_test.o: exceptions.h
 

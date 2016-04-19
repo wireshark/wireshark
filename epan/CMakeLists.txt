@@ -168,6 +168,7 @@ set(LIBWIRESHARK_FILES
 	uat.c
 	value_string.c
 	xdlc.c
+	${CMAKE_SOURCE_DIR}/ws_version_info.c
 )
 
 set(LIBWIRESHARK_CLEAN_FILES

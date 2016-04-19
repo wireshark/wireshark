@@ -36,6 +36,9 @@ CLEANFILES = \
 	libwiretap_generated.la	\
 	*~
 
+DISTCLEANFILES = \
+	ws_version_info.c
+
 MAINTAINERCLEANFILES = \
 	$(GENERATED_FILES)	\
 	Makefile.in
@@ -46,14 +49,15 @@ MAINTAINERCLEANFILES = \
 #files with the "stop on warning" barrier.
 libwiretap_la_SOURCES = \
 	$(NONGENERATED_C_FILES)	\
-	$(NONGENERATED_HEADER_FILES)
+	$(NONGENERATED_HEADER_FILES)	\
+	ws_version_info.c
 
 libwiretap_generated_la_SOURCES = \
 	$(GENERATED_C_FILES)
 
 libwiretap_generated_la_CFLAGS = $(GENERATED_CFLAGS)
 
-BUILT_SOURCES = $(GENERATED_HEADER_FILES)
+BUILT_SOURCES = $(GENERATED_HEADER_FILES) ws_version_info.c
 
 EXTRA_DIST = \
 	.editorconfig		\
@@ -81,6 +85,9 @@ ascend.c: $(srcdir)/ascend.y ascend_scanner_lex.h
 		exit 1; \
 	fi
 	$(AM_V_YACC)$(YACC) -d -p ascend -o ascend.c $(srcdir)/ascend.y
+
+ws_version_info.c: $(top_srcdir)/ws_version_info.c
+	$(LN_S) $<
 
 # ABI compliance checker can be obtained from
 # http://ispras.linux-foundation.org/index.php/ABI_compliance_checker

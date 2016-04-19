@@ -27,7 +27,7 @@
 
 #include "ui/capture_globals.h"
 
-#include "wsutil/ws_version_info.h"
+#include "ws_version_info.h"
 
 #include "main_welcome.h"
 #include <ui_main_welcome.h>

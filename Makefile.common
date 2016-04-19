@@ -71,7 +71,8 @@ WIRESHARK_COMMON_SRC =	\
 	file.c		\
 	fileset.c	\
 	filter_files.c \
-	summary.c
+	summary.c	\
+	ws_version_info.c
 
 # corresponding headers
 WIRESHARK_COMMON_INCLUDES =	\
@@ -88,45 +89,54 @@ tshark_SOURCES =	\
 	$(SHARK_COMMON_SRC)	\
 	capture_opts.c		\
 	filter_files.c		\
-	tshark.c
+	tshark.c		\
+	ws_version_info.c
 
 # tfshark specifics
 tfshark_SOURCES =	\
 	$(SHARK_COMMON_SRC)	\
-	tfshark.c
+	tfshark.c		\
+	ws_version_info.c
 
 # rawshark specifics
 rawshark_SOURCES =	\
 	$(SHARK_COMMON_SRC)	\
-	rawshark.c
+	rawshark.c		\
+	ws_version_info.c
 
 # text2pcap specifics
 text2pcap_SOURCES = \
 	text2pcap.c		\
-	text2pcap-scanner.l
+	text2pcap-scanner.l	\
+	ws_version_info.c
 
 text2pcap_INCLUDES = \
 	text2pcap.h
 
 # mergecap specifics
 mergecap_SOURCES = \
-	mergecap.c
+	mergecap.c	\
+	ws_version_info.c
 
 # editcap specifics
 editcap_SOURCES = \
-	editcap.c
+	editcap.c	\
+	ws_version_info.c
 
 # reordercap specifics
 reordercap_SOURCES = \
-	reordercap.c
+	reordercap.c	\
+	ws_version_info.c
 
 # capinfos specifics
 capinfos_SOURCES = \
-	capinfos.c
+	capinfos.c	\
+	ws_version_info.c
 
 # captype specifics
 captype_SOURCES = \
-	captype.c
+	captype.c	\
+	ws_version_info.c
 
 # dftest specifics
 dftest_SOURCES =	\
@@ -144,7 +154,8 @@ echld_test_SOURCES =	\
 
 # randpkt specifics
 randpkt_SOURCES = \
-	randpkt.c
+	randpkt.c	\
+	ws_version_info.c
 
 # dumpcap specifics
 dumpcap_SOURCES =	\
@@ -154,7 +165,8 @@ dumpcap_SOURCES =	\
 	dumpcap.c	\
 	filter_files.c	\
 	ringbuffer.c	\
-	sync_pipe_write.c
+	sync_pipe_write.c	\
+	ws_version_info.c
 
 # corresponding headers
 dumpcap_INCLUDES = \
@@ -168,4 +180,5 @@ noinst_HEADERS =	\
 	$(EXTCAP_COMMON_INCLUDES) \
 	$(WIRESHARK_COMMON_INCLUDES) \
 	$(dumpcap_INCLUDES) \
-	ws_diag_control.h
+	ws_diag_control.h	\
+	ws_version_info.h

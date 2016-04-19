@@ -42,7 +42,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
-#include <wsutil/ws_version_info.h>
+#include <ws_version_info.h>
 #include <wiretap/wtap_opttypes.h>
 
 #ifdef HAVE_PLUGINS

@@ -42,6 +42,7 @@ epan/register_wslua.c
 epan/taps.txt
 epan/taps_wslua.c
 epan/uat_load.c
+epan/ws_version_info.c
 epan/wslua/declare_wslua.h
 epan/wslua/register_wslua.c
 epan/wslua/taps.txt
@@ -57,6 +58,7 @@ tshark-tap-register.c
 wiretap/ascend.c
 wiretap/ascend.h
 wiretap/k12text.c
+wiretap/ws_version_info.c
 wireshark-tap-register.c
 wireshark-tap-register-cache.pkl
 ui/gtk/wireshark-gresources.c

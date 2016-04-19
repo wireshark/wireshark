@@ -21,10 +21,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __WSUTIL_WS_VERSION_INFO_H__
-#define __WSUTIL_WS_VERSION_INFO_H__
+#ifndef __WS_VERSION_INFO_H__
+#define __WS_VERSION_INFO_H__
 
-#include "ws_symbol_export.h"
+#include <glib.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,7 +43,7 @@ extern "C" {
  * at the end of the string, as we currently don't use Portaudio in
  * TShark.
  */
-WS_DLL_PUBLIC GString *get_compiled_version_info(void (*prepend_info)(GString *),
+GString *get_compiled_version_info(void (*prepend_info)(GString *),
                                                  void (*append_info)(GString *));
 
 /*
@@ -55,19 +55,19 @@ WS_DLL_PUBLIC GString *get_compiled_version_info(void (*prepend_info)(GString *)
  * Portaudio information at the end of the string, as we currently
  * don't use Portaudio in TShark.
  */
-WS_DLL_PUBLIC GString *get_runtime_version_info(void (*additional_info)(GString *));
+GString *get_runtime_version_info(void (*additional_info)(GString *));
 
-WS_DLL_PUBLIC void show_version(const gchar *prog_name, GString *comp_info_str, GString *runtime_info_str);
+void show_version(const gchar *prog_name, GString *comp_info_str, GString *runtime_info_str);
 
 /*
  * Return a version number string for Wireshark, including, for builds
  * from a tree checked out from Wireshark's version control system,
  * something identifying what version was checked out.
  */
-WS_DLL_PUBLIC const char *get_ws_vcs_version_info(void);
+const char *get_ws_vcs_version_info(void);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __WSUTIL_WS_VERSION_INFO_H__ */
+#endif /* __WS_VERSION_INFO_H__ */

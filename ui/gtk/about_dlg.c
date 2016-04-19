@@ -29,7 +29,7 @@
 
 #include <wsutil/filesystem.h>
 #include <wsutil/copyright_info.h>
-#include <wsutil/ws_version_info.h>
+#include <ws_version_info.h>
 #ifdef HAVE_LIBSMI
 #include <epan/oids.h>
 #endif

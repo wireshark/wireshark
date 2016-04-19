@@ -33,7 +33,7 @@
 #include <wsutil/tempfile.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/ws_version_info.h>
+#include <ws_version_info.h>
 
 #include <wiretap/merge.h>
 

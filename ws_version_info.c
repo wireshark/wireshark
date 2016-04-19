@@ -39,7 +39,7 @@
 
 #include "version.h"
 
-#include <wsutil/ws_version_info.h>
+#include "ws_version_info.h"
 
 #include <wsutil/ws_cpuid.h>
 #include <wsutil/copyright_info.h>

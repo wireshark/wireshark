@@ -132,9 +132,5 @@ indent_size = tab
 [ws_mempbrk_sse42.[ch]]
 indent_size = 2
 
-[ws_version_info.[ch]]
-indent_style = tab
-indent_size = tab
-
 [wsgetopt.[ch]]
 indent_size = 2

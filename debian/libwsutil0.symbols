@@ -55,7 +55,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  find_last_pathname_separator@Base 1.12.0~rc1
  format_size@Base 1.10.0
  get_basename@Base 1.12.0~rc1
- get_compiled_version_info@Base 1.99.2
  get_copyright_info@Base 1.99.0
  get_cur_groupname@Base 1.10.0
  get_cur_username@Base 1.10.0
@@ -74,10 +73,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  get_profile_name@Base 1.12.0~rc1
  get_profiles_dir@Base 1.12.0~rc1
  get_progfile_dir@Base 1.12.0~rc1
- get_runtime_version_info@Base 1.99.2
  get_systemfile_dir@Base 1.12.0~rc1
  get_tempfile_path@Base 1.12.0~rc1
- get_ws_vcs_version_info@Base 1.99.0
  has_global_profiles@Base 1.12.0~rc1
  ieee80211_chan_to_mhz@Base 1.99.7
  ieee80211_mhz_to_chan@Base 1.99.7
@@ -152,7 +149,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  sha256_hmac_update@Base 2.1.0
  sha256_starts@Base 2.1.0
  sha256_update@Base 2.1.0
- show_version@Base 1.99.2
  sober128_add_entropy@Base 1.99.0
  sober128_read@Base 1.99.0
  sober128_start@Base 1.99.0

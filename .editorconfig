@@ -68,3 +68,7 @@ indent_size = 2
 [randpkt_core.[ch]]
 indent_style = tab
 indent_size = tab
+
+[ws_version_info.[ch]]
+indent_style = tab
+indent_size = tab

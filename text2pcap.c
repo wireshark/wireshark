@@ -112,7 +112,7 @@
 #include <string.h>
 #include <wsutil/file_util.h>
 #include <wsutil/crash_info.h>
-#include <wsutil/ws_version_info.h>
+#include <ws_version_info.h>
 #include <wsutil/inet_addr.h>
 
 #include <time.h>

@@ -75,7 +75,6 @@ set(WSUTIL_FILES
 	type_util.c
 	unicode-utils.c
 	ws_mempbrk.c
-	ws_version_info.c
 	${WSUTIL_PLATFORM_FILES}
 )
 
