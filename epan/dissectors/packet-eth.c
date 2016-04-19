@@ -192,7 +192,7 @@ eth_build_filter(packet_info *pinfo)
 #define ETHERNET_SNAP   3
 
 gboolean
-capture_eth(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
+capture_eth(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
   guint16 etype, length;
   int ethhdr_type;          /* the type of ethernet frame */
