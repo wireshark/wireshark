@@ -1671,7 +1671,7 @@ dissect_fcels_rpsc (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 
 static void
-dissect_fcels_cbind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_fcels_cbind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_item *ti)
 {
     int offset = 0;
@@ -1706,7 +1706,7 @@ dissect_fcels_cbind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_fcels_unbind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_fcels_unbind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_item *ti)
 {
     int offset = 0;
