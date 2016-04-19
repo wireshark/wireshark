@@ -68,7 +68,7 @@ static gint ett_gluster_dump_detail = -1;
 /* PMAP PORTBYBRICK */
 static int
 gluster_pmap_portbybrick_reply(tvbuff_t *tvb, packet_info *pinfo,
-							proto_tree *tree, void* data _U_)
+							proto_tree *tree, void* data)
 {
 	int offset = 0;
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
@@ -117,7 +117,7 @@ gluster_dump_reply_detail(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 gluster_dump_reply(tvbuff_t *tvb, packet_info *pinfo,
-							proto_tree *tree, void* data _U_)
+							proto_tree *tree, void* data)
 {
 	int offset = 0;
 
