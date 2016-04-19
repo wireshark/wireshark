@@ -436,7 +436,7 @@ dissect_display_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, p
 }
 
 static int
-dissect_null_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, proto_tree *tree)
+dissect_null_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
 {
 	proto_item	*null_item;
 	proto_tree	*null_tree;
@@ -677,7 +677,7 @@ dissect_esrp_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 }
 
 static int
-dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, proto_tree *tree)
+dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
 {
 	proto_item	*eaps_item;
 	proto_tree	*eaps_tree;
