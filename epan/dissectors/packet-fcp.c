@@ -426,7 +426,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
 }
 
 static void
-dissect_fcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, conversation_t *conversation _U_, itlq_nexus_t *itlq, guint32 relative_offset)
+dissect_fcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, conversation_t *conversation, itlq_nexus_t *itlq, guint32 relative_offset)
 {
     itl_nexus_t itl;
     itlq_nexus_t empty_itlq;
