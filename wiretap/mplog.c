@@ -224,15 +224,15 @@ mplog_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *pkthdr,
 wtap_open_return_val mplog_open(wtap *wth, int *err, gchar **err_info _U_)
 {
     gboolean ok;
-    guint8 str[6];
+    guint8 magic[6];
 
-    ok = wtap_read_bytes(wth->fh, str, 6, err, err_info);
+    ok = wtap_read_bytes(wth->fh, magic, 6, err, err_info);
     if (!ok) {
         if (*err != WTAP_ERR_SHORT_READ)
             return WTAP_OPEN_ERROR;
         return WTAP_OPEN_NOT_MINE;
     }
-    if (memcmp(str, "MPCSII", 6) != 0)
+    if (memcmp(magic, "MPCSII", 6) != 0)
         return WTAP_OPEN_NOT_MINE;
 
     wth->file_encap = WTAP_ENCAP_ISO14443;
