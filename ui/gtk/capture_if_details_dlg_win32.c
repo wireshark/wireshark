@@ -321,9 +321,9 @@ typedef struct _NDIS_TASK_OFFLOAD
 /* NDIS driver medium (OID_GEN_MEDIA_SUPPORTED / OID_GEN_MEDIA_IN_USE) */
 /* Do not use NdisMediumXXX to avoid any dependency on the SDK version installed */
 static const value_string win32_802_3_medium_vals[] = {
-    { -6 /*WinPcap NdisMediumPpi*/,        "AirPcap 802.11 + PPI" },
-    { -5 /*WinPcap NdisMediumRadio80211*/, "AirPcap 802.11 + Radio" },
-    { -4 /*WinPcap NdisMediumBare80211*/,  "AirPcap 802.11" },
+    { -6 /*WinPcap NdisMediumPpi*/,        "802.11 + PPI" },
+    { -5 /*WinPcap NdisMediumRadio80211*/, "802.11 + Radio" },
+    { -4 /*WinPcap NdisMediumBare80211*/,  "802.11" },
     { -3 /*WinPcap NdisMediumPPPSerial*/,  "PPP Serial" },
     { -2 /*WinPcap NdisMediumCHDLC*/,      "CHDLC" },
     { -1 /*WinPcap NdisMediumNull*/,       "Null/Loopback" },
