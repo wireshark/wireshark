@@ -207,7 +207,7 @@ static const xdlc_cf_items fr_cf_items_ext = {
 };
 
 static gboolean
-capture_fr(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
+capture_fr(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
   guint8  fr_octet;
   guint32 addr;
