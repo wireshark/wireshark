@@ -2001,8 +2001,8 @@ tcp_sequence_number_analysis_print_zero_window(packet_info * pinfo,
 /* Prints results of the sequence number analysis concerning how many bytes of data are in flight */
 static void
 tcp_sequence_number_analysis_print_bytes_in_flight(packet_info * pinfo _U_,
-                          tvbuff_t * tvb _U_,
-                          proto_tree * flags_tree _U_,
+                          tvbuff_t * tvb,
+                          proto_tree * flags_tree,
                           struct tcp_acked *ta
                         )
 {
@@ -2268,8 +2268,7 @@ mptcp_analysis_dsn_lookup(packet_info *pinfo , tvbuff_t *tvb,
 /* Print subflow list */
 static void
 mptcp_add_analysis_subtree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree,
-                          struct tcp_analysis *tcpd, struct mptcp_analysis *mptcpd, struct tcpheader * tcph _U_
-                        )
+                          struct tcp_analysis *tcpd, struct mptcp_analysis *mptcpd, struct tcpheader * tcph)
 {
 
     proto_item *item = NULL;
@@ -2322,8 +2321,8 @@ mptcp_add_analysis_subtree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent
 
 static void
 tcp_sequence_number_analysis_print_push_bytes_sent(packet_info * pinfo _U_,
-                          tvbuff_t * tvb _U_,
-                          proto_tree * flags_tree _U_,
+                          tvbuff_t * tvb,
+                          proto_tree * flags_tree,
                           struct tcp_acked *ta
                         )
 {
@@ -5223,7 +5222,7 @@ tcp_flags_to_str_first_letter(const struct tcpheader *tcph)
 }
 
 static gboolean
-capture_tcp(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
+capture_tcp(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
     guint16 src_port, dst_port, low_port, high_port;
 
