@@ -221,7 +221,7 @@ mplog_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *pkthdr,
 }
 
 
-wtap_open_return_val mplog_open(wtap *wth, int *err, gchar **err_info _U_)
+wtap_open_return_val mplog_open(wtap *wth, int *err, gchar **err_info)
 {
     gboolean ok;
     guint8 magic[6];
