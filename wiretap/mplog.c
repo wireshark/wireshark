@@ -226,10 +226,6 @@ wtap_open_return_val mplog_open(wtap *wth, int *err, gchar **err_info _U_)
     gboolean ok;
     guint8 str[6];
 
-    /* rewind the fh so we re-read from the beginning */
-    if (-1 == file_seek(wth->fh, 0, SEEK_SET, err))
-        return WTAP_OPEN_ERROR;
-
     ok = wtap_read_bytes_or_eof(wth->fh, str, 6, err, err_info);
     if (!ok)
         return WTAP_OPEN_NOT_MINE;
