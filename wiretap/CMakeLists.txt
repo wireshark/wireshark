@@ -113,6 +113,8 @@ add_library(wiretap ${LINK_MODE_LIB}
 	${CMAKE_BINARY_DIR}/image/wiretap.rc
 )
 
+add_dependencies(wiretap version)
+
 set(FULL_SO_VERSION "0.0.0")
 
 set_target_properties(wiretap PROPERTIES

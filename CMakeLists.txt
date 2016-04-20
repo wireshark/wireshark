@@ -1162,17 +1162,16 @@ if (${GIT_EXECUTABLE})
 	set(GIT_BIN_PARAM "--git-bin ${GIT_EXECUTABLE}")
 endif()
 set( VERSION ${PROJECT_VERSION} )
-execute_process(
+add_custom_target(version
 	COMMAND ${PERL_EXECUTABLE}
-		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
-		--print-vcs ${GIT_BIN_PARAM}
-		${CMAKE_CURRENT_SOURCE_DIR}
-	OUTPUT_VARIABLE VERSION_H_CONTENT
+		${CMAKE_SOURCE_DIR}/make-version.pl
+		--set-vcs ${GIT_BIN_PARAM}
+		${CMAKE_SOURCE_DIR}
 )
+set_target_properties(version PROPERTIES FOLDER "Auxiliary")
+
 set( configure_input "Built with CMake ${CMAKE_VERSION}" )
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
-configure_file(${CMAKE_SOURCE_DIR}/version.h.in ${CMAKE_BINARY_DIR}/version.h)
-#set_target_properties(${CMAKE_BINARY_DIR}/version.h PROPERTIES FOLDER "Auxiliary")
 
 set( prefix "${CMAKE_INSTALL_PREFIX}" )
 set( exec_prefix "\${prefix}" )
@@ -1803,6 +1802,7 @@ if(BUILD_wireshark AND QT_FOUND)
 	endif()
 
 	add_executable(wireshark WIN32 MACOSX_BUNDLE wireshark-qt.cpp ${wireshark_FILES} ${EXTRA_BUNDLE_FILES})
+	add_dependencies(wireshark version)
 	set(PROGLIST ${PROGLIST} wireshark)
 	set_target_properties(wireshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	set_target_properties(wireshark PROPERTIES FOLDER "Executables")
@@ -1956,6 +1956,7 @@ if(BUILD_wireshark_gtk AND GTK_FOUND)
 	# wireshark and wireshark-gtk share wireshark_FILES
 
 	add_executable(wireshark-gtk WIN32 ${wireshark_FILES})
+	add_dependencies(wireshark-gtk version)
 	set(PROGLIST ${PROGLIST} wireshark-gtk)
 	set_target_properties(wireshark-gtk PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	set_target_properties(wireshark-gtk PROPERTIES FOLDER "Executables")
@@ -2067,6 +2068,7 @@ if(BUILD_tshark)
 		${CMAKE_BINARY_DIR}/image/tshark.rc
 	)
 	add_executable(tshark ${tshark_FILES})
+	add_dependencies(tshark version)
 	set_extra_executable_properties(tshark "Executables")
 	target_link_libraries(tshark ${tshark_LIBS})
 	install(TARGETS tshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2086,6 +2088,7 @@ if(BUILD_tfshark)
 		${CMAKE_BINARY_DIR}/image/tfshark.rc
 	)
 	add_executable(tfshark ${tfshark_FILES})
+	add_dependencies(tfshark version)
 	set_extra_executable_properties(tfshark "Executables")
 	target_link_libraries(tfshark ${tfshark_LIBS})
 	install(TARGETS tfshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2105,6 +2108,7 @@ if(BUILD_rawshark AND PCAP_FOUND)
 		${CMAKE_BINARY_DIR}/image/rawshark.rc
 	)
 	add_executable(rawshark ${rawshark_FILES})
+	add_dependencies(rawshark version)
 	set_extra_executable_properties(rawshark "Executables")
 	target_link_libraries(rawshark ${rawshark_LIBS})
 	install(TARGETS rawshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2119,6 +2123,7 @@ if(BUILD_dftest)
 		ui/util.c
 	)
 	add_executable(dftest ${dftest_FILES})
+	add_dependencies(dftest version)
 	set_extra_executable_properties(dftest "Tests")
 	target_link_libraries(dftest ${dftest_LIBS})
 	install(TARGETS dftest RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2139,6 +2144,7 @@ if(BUILD_randpkt)
 		ws_version_info.c
 	)
 	add_executable(randpkt ${randpkt_FILES})
+	add_dependencies(randpkt version)
 	set_extra_executable_properties(randpkt "Executables")
 	target_link_libraries(randpkt ${randpkt_LIBS})
 	install(TARGETS randpkt RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2163,6 +2169,7 @@ if(BUILD_text2pcap)
 		text2pcap-scanner.l
 	)
 	add_executable(text2pcap ${text2pcap_FILES})
+	add_dependencies(text2pcap version)
 	set_extra_executable_properties(text2pcap "Executables")
 	target_link_libraries(text2pcap ${text2pcap_LIBS})
 	install(TARGETS text2pcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2180,6 +2187,7 @@ if(BUILD_mergecap)
 		${CMAKE_BINARY_DIR}/image/mergecap.rc
 	)
 	add_executable(mergecap ${mergecap_FILES})
+	add_dependencies(mergecap version)
 	set_extra_executable_properties(mergecap "Executables")
 	target_link_libraries(mergecap ${mergecap_LIBS})
 	install(TARGETS mergecap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2197,6 +2205,7 @@ if(BUILD_reordercap)
 		${CMAKE_BINARY_DIR}/image/reordercap.rc
 	)
 	add_executable(reordercap ${reordercap_FILES})
+	add_dependencies(reordercap version)
 	set_extra_executable_properties(reordercap "Executables")
 	target_link_libraries(reordercap ${reordercap_LIBS})
 	install(TARGETS reordercap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2216,6 +2225,7 @@ if(BUILD_capinfos)
 		${CMAKE_BINARY_DIR}/image/capinfos.rc
 	)
 	add_executable(capinfos ${capinfos_FILES})
+	add_dependencies(capinfos version)
 	set_extra_executable_properties(capinfos "Executables")
 	target_link_libraries(capinfos ${capinfos_LIBS})
 	install(TARGETS capinfos RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2234,6 +2244,7 @@ if(BUILD_captype)
 		${CMAKE_BINARY_DIR}/image/captype.rc
 	)
 	add_executable(captype ${captype_FILES})
+	add_dependencies(captype version)
 	set_extra_executable_properties(captype "Executables")
 	target_link_libraries(captype ${captype_LIBS})
 	install(TARGETS captype RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2251,6 +2262,7 @@ if(BUILD_editcap)
 		${CMAKE_BINARY_DIR}/image/editcap.rc
 	)
 	add_executable(editcap ${editcap_FILES})
+	add_dependencies(editcap version)
 	set_extra_executable_properties(editcap "Executables")
 	target_link_libraries(editcap ${editcap_LIBS})
 	install(TARGETS editcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2282,6 +2294,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		${CMAKE_BINARY_DIR}/image/dumpcap.rc
 	)
 	add_executable(dumpcap ${dumpcap_FILES})
+	add_dependencies(dumpcap version)
 	set_extra_executable_properties(dumpcap "Executables")
 	target_link_libraries(dumpcap ${dumpcap_LIBS})
 	install(TARGETS dumpcap

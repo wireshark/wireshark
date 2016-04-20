@@ -231,6 +231,8 @@ add_library(epan ${LINK_MODE_LIB}
 	${CMAKE_BINARY_DIR}/image/libwireshark.rc
 )
 
+add_dependencies(epan version)
+
 set(FULL_SO_VERSION "0.0.0")
 
 set_target_properties(epan PROPERTIES COMPILE_DEFINITIONS "WS_BUILD_DLL")
