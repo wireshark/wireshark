@@ -595,7 +595,7 @@ typedef struct _dns_conv_info_t {
 #define O_CLIENT_SUBNET_EXP 0x50fa      /* Client subnet (placeholder value, draft-vandergaast-edns-client-subnet) */
 #define O_COOKIE        10              /* draft-ietf-dnsop-cookie */
 #define O_EDNS_TCP_KA   11              /* draft-ietf-dnsop-edns-tcp-keepalive */
-#define O_PADDING       12              /* draft-ietf-dprive-edns0-padding */
+#define O_PADDING       12              /* EDNS(0) Padding Option (RFC7830) */
 #define O_CHAIN         13              /* draft-ietf-dnsop-edns-chain-query */
 
 static const true_false_string tfs_flags_response = {
@@ -5085,7 +5085,7 @@ proto_register_dns(void)
     { &hf_dns_opt_padding,
       { "Padding", "dns.opt.padding",
         FT_BYTES, BASE_NONE, NULL, 0x0,
-        "The PADDING octets MUST be set to 0x00", HFILL }},
+        "The PADDING octets SHOULD be set to 0x00", HFILL }},
 
     { &hf_dns_opt_chain_fqdn,
       { "Closest Trust Point", "dns.opt.chain.fqdn",
