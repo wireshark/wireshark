@@ -105,6 +105,7 @@ my %version_pref = (
 my $srcdir = ".";
 my $info_cmd = "";
 my $verbose = 0;
+my $devnull = File::Spec->devnull();
 
 # Ensure we run with correct locale
 $ENV{LANG} = "C";
@@ -125,7 +126,6 @@ sub read_repo_info {
 	my $repo_version;
 	my $do_hack = 1;
 	my $info_source = "Unknown";
-	my $devnull = File::Spec->devnull();
 
 	# Make sure git is available.
 	if (!`$git_executable --version`) {
@@ -636,6 +636,13 @@ sub update_versioned_files
 sub new_version_h
 {
 	my $VCS_REVISION;
+	my $set_header = shift @_;
+
+	if (!$set_header) {
+		$VCS_REVISION = "/* #undef VCSVERSION */\n";
+		$VCS_REVISION .= "/* #undef VCSBRANCH */\n";
+		return $VCS_REVISION;
+	}
 
 	if ($git_description) {
 		$VCS_REVISION = "#define VCSVERSION \"" .
@@ -658,8 +665,18 @@ sub new_version_h
 # Don't change the file if it is not needed.
 sub print_VCS_REVISION
 {
-	my $VCS_REVISION = new_version_h();
+	my $VCS_REVISION;
 	my $needs_update = 1;
+	my $set_header = 1;
+	my $git_cdir;
+
+	chomp($git_cdir = qx{git --git-dir="$srcdir/.git" rev-parse --git-common-dir 2> $devnull});
+	if ($git_cdir && -f "$git_cdir/wireshark-disable-versioning") {
+		print_diag "Header versioning disabled using git override.\n";
+		$set_header = 0;
+	}
+
+	$VCS_REVISION = new_version_h($set_header);
 	if (open(OLDREV, "<$version_file")) {
 		my $old_VCS_REVISION = <OLDREV> . <OLDREV>;
 		if ($old_VCS_REVISION eq $VCS_REVISION) {
@@ -676,6 +693,8 @@ sub print_VCS_REVISION
 		print VER "$VCS_REVISION";
 		close VER;
 		print "$version_file has been updated.\n";
+	} elsif (!$set_header) {
+		print "$version_file disabled.\n";
 	} else {
 		print "$version_file unchanged.\n";
 	}

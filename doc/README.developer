@@ -708,6 +708,16 @@ to avoid warnings at all.
 The compiler flags in the Makefiles are set to "treat warnings as errors",
 so your code won't even compile when warnings occur.
 
+7. Miscellaneous notes
+
+Each commit in your branch corresponds to a different VCSVERSION string
+automatically defined in the header 'version.h' during the build. If you happen
+to find it convenient to disable this feature it can be done using:
+
+    touch .git/wireshark-disable-versioning
+
+i.e., the file 'wireshark-disable-versioning' must exist in the git repo dir.
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
