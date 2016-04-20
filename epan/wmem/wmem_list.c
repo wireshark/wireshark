@@ -200,6 +200,18 @@ wmem_destroy_list(wmem_list_t *list)
     wmem_free(list->allocator, list);
 }
 
+void
+wmem_list_foreach(wmem_list_t *list, GFunc foreach_func, gpointer user_data)
+{
+    wmem_list_frame_t *cur;
+
+    cur = list->head;
+
+    while (cur) {
+        foreach_func(cur->data, user_data);
+        cur = cur->next;
+    }
+}
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *

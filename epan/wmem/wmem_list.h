@@ -102,6 +102,10 @@ G_GNUC_MALLOC;
 
 WS_DLL_PUBLIC
 void
+wmem_list_foreach(wmem_list_t *list, GFunc foreach_func, gpointer user_data);
+
+WS_DLL_PUBLIC
+void
 wmem_destroy_list(wmem_list_t *list);
 
 /**   @}

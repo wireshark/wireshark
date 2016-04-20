@@ -549,6 +549,12 @@ wmem_test_array(void)
 }
 
 static void
+checkval(gpointer val, gpointer val_to_check)
+{
+    g_assert(val == val_to_check);
+}
+
+static void
 wmem_test_list(void)
 {
     wmem_allocator_t  *allocator;
@@ -634,6 +640,13 @@ wmem_test_list(void)
         wmem_list_prepend(list, GINT_TO_POINTER(i));
     }
     g_assert(wmem_list_count(list) == CONTAINER_ITERS);
+    wmem_destroy_list(list);
+
+    list = wmem_list_new(NULL);
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        wmem_list_append(list, GINT_TO_POINTER(1));
+    }
+    wmem_list_foreach(list, checkval, GINT_TO_POINTER(1));
     wmem_destroy_list(list);
 }
 
