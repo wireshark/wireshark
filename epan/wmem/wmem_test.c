@@ -549,7 +549,7 @@ wmem_test_array(void)
 }
 
 static void
-checkval(gpointer val, gpointer val_to_check)
+check_val_list(gpointer val, gpointer val_to_check)
 {
     g_assert(val == val_to_check);
 }
@@ -646,8 +646,14 @@ wmem_test_list(void)
     for (i=0; i<CONTAINER_ITERS; i++) {
         wmem_list_append(list, GINT_TO_POINTER(1));
     }
-    wmem_list_foreach(list, checkval, GINT_TO_POINTER(1));
+    wmem_list_foreach(list, check_val_list, GINT_TO_POINTER(1));
     wmem_destroy_list(list);
+}
+
+void
+check_val_map(gpointer key _U_, gpointer val, gpointer user_data)
+{
+    g_assert(val == user_data);
 }
 
 static void
@@ -695,6 +701,15 @@ wmem_test_map(void)
         ret = wmem_map_lookup(map, str_key);
         g_assert(ret == GINT_TO_POINTER(i));
     }
+
+    /* test foreach */
+    map = wmem_map_new(allocator, wmem_str_hash, g_str_equal);
+    g_assert(map);
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        str_key = wmem_test_rand_string(allocator, 1, 64);
+        wmem_map_insert(map, str_key, GINT_TO_POINTER(2));
+    }
+    wmem_map_foreach(map, check_val_map, GINT_TO_POINTER(2));
 
     wmem_destroy_allocator(allocator);
 }

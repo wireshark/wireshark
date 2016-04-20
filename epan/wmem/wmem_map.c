@@ -214,6 +214,21 @@ wmem_map_remove(wmem_map_t *map, const void *key)
     return NULL;
 }
 
+void
+wmem_map_foreach(wmem_map_t *map, GHFunc foreach_func, gpointer user_data)
+{
+    wmem_map_item_t *cur;
+    unsigned i;
+
+    for (i = 0; i < CAPACITY(map); i++) {
+        cur = map->table[i];
+        while (cur) {
+            foreach_func((gpointer)cur->key, (gpointer)cur->value, user_data);
+            cur = cur->next;
+        }
+    }
+}
+
 /* Borrowed from Perl 5.18. This is based on Bob Jenkin's one-at-a-time
  * algorithm with some additional randomness seeded in. It is believed to be
  * generally secure against collision attacks. See

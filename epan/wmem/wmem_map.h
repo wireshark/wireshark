@@ -102,6 +102,17 @@ WS_DLL_PUBLIC
 void *
 wmem_map_remove(wmem_map_t *map, const void *key);
 
+/** Run a function against all key/value pairs in the map. The order
+ * of the calls is unpredictable, since it is based on the internal
+ * storage of data.
+ *
+ * @param map The map to use
+ * @param foreach_func the function to call for each key/value pair
+ * @param user_data user data to pass to the function
+ */
+WS_DLL_PUBLIC
+void
+wmem_map_foreach(wmem_map_t *map, GHFunc foreach_func, gpointer user_data);
 
 /** Compute a strong hash value for an arbitrary sequence of bytes. Use of this
  * hash value should be secure against algorithmic complexity attacks, even for
