@@ -594,7 +594,7 @@ typedef struct _dns_conv_info_t {
 #define O_EDNS_EXPIRE    9              /* EDNS Expire (RFC7314) */
 #define O_CLIENT_SUBNET_EXP 0x50fa      /* Client subnet (placeholder value, draft-vandergaast-edns-client-subnet) */
 #define O_COOKIE        10              /* draft-ietf-dnsop-cookie */
-#define O_EDNS_TCP_KA   11              /* draft-ietf-dnsop-edns-tcp-keepalive */
+#define O_EDNS_TCP_KA   11              /* edns-tcp-keepalive EDNS0 Option (RFC7828) */
 #define O_PADDING       12              /* EDNS(0) Padding Option (RFC7830) */
 #define O_CHAIN         13              /* draft-ietf-dnsop-edns-chain-query */
 
