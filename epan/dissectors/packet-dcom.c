@@ -1945,7 +1945,7 @@ dissect_dcom_STDOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
  */
 
 int
-dcom_register_rountine(dcom_dissect_fn_t routine, e_guid_t* uuid)
+dcom_register_routine(dcom_dissect_fn_t routine, e_guid_t* uuid)
 {
 	dcom_marshaler_t *marshaler;
 
