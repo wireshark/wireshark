@@ -8,8 +8,9 @@
 m4_define([version_major], [2])
 m4_define([version_minor], [1])
 m4_define([version_micro], [0])
-m4_define([version_micro_extra], version_micro)
-m4_append([version_micro_extra], [])
+dnl Updated by make-version.pl
+m4_define([version_extra], [-git])
+m4_define([version_micro_extra], m4_join([], version_micro, version_extra))
 
 AC_INIT(wireshark, [version_major.version_minor.version_micro_extra], http://bugs.wireshark.org/, , http://www.wireshark.org/)
 CONFIG_ARGS="$*"

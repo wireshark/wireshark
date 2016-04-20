@@ -421,8 +421,8 @@ sub update_cmakelists_txt
 			$line = sprintf("set(PROJECT_MINOR_VERSION %d)$1", $version_pref{"version_minor"});
 		} elsif ($line =~ /^set *\( *PROJECT_PATCH_VERSION .*([\r\n]+)$/) {
 			$line = sprintf("set(PROJECT_PATCH_VERSION %d)$1", $version_pref{"version_micro"});
-		} elsif ($line =~ /^set *\( *PROJECT_VERSION_EXTENSION.*([\r\n]+)$/) {
-			$line = sprintf("set(PROJECT_VERSION_EXTENSION \"%s\")$1", $cmake_package_string);
+		} elsif ($line =~ /^set *\( *PROJECT_VERSION_EXTENSION\b.*\) *$/) {
+			$line = sprintf("set(PROJECT_VERSION_EXTENSION \"%s\")\n", $cmake_package_string);
 		}
 		$contents .= $line
 	}
@@ -452,8 +452,8 @@ sub update_configure_ac
 			$line = sprintf("m4_define([version_minor], [%d])$1", $version_pref{"version_minor"});
 		} elsif ($line =~ /^m4_define\( *\[?version_micro\]? *,.*([\r\n]+)$/) {
 			$line = sprintf("m4_define([version_micro], [%d])$1", $version_pref{"version_micro"});
-		} elsif ($line =~ /^m4_append\( *\[?version_micro_extra\]? *,.*([\r\n]+)$/) {
-			$line = sprintf("m4_append([version_micro_extra], [%s])$1", $package_string);
+		} elsif ($line =~ /^m4_define\( *\[?version_extra\]? *,.*([\r\n]+)$/) {
+			$line = sprintf("m4_define([version_extra], [%s])$1", $package_string);
 		}
 		$contents .= $line
 	}
