@@ -8925,12 +8925,12 @@ static int dissect_sgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         {
             /* SGMP Key Request - Security.4 */
             {
-                dof_2008_16_security_4 *response;
+                dof_2008_16_security_4 response;
                 offset = dof_dissect_pdu_as_field(dissect_2008_16_security_4, tvb, pinfo, sgmp_tree,
-                                                  offset, hf_initiator_block, ett_initiator_block, (void **)&response);
-                if (response && !packet_data->processed)
+                                                  offset, hf_initiator_block, ett_initiator_block, &response);
+                if (!packet_data->processed)
                 {
-                    tvbuff_t *identity = response->identity;
+                    tvbuff_t *identity = response.identity;
                     guint8 identity_length = tvb_reported_length(identity);
                     guint8 *identity_buf = (guint8 *)wmem_alloc0(wmem_file_scope(), identity_length);
 
@@ -9931,17 +9931,17 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
         /* Initiator Block - TRP.4.1.1 */
         {
-            dof_2008_16_security_4 *response;
+            dof_2008_16_security_4 response;
             trp_packet_data *trp_pkt_data = NULL;
 
             start_offset = offset;
 
             /* Initiator Key Request - Security.4 */
             offset = dof_dissect_pdu_as_field(dissect_2008_16_security_4, tvb, pinfo, trp_tree,
-                                              offset, hf_initiator_request, ett_initiator_request, (void **)&response);
-            if (response && !packet_data->processed)
+                                              offset, hf_initiator_request, ett_initiator_request, &response);
+            if (!packet_data->processed)
             {
-                tvbuff_t *identity = response->identity;
+                tvbuff_t *identity = response.identity;
                 guint8 identity_length = tvb_reported_length(identity);
                 guint8 *identity_buf = (guint8 *)wmem_alloc0(wmem_packet_scope(), identity_length);
                 int i;
@@ -10243,17 +10243,17 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
         /* Initiator Block - TRP.6.1.1 */
         {
-            dof_2008_16_security_4 *response;
+            dof_2008_16_security_4 response;
             trp_packet_data *trp_pkt_data = NULL;
 
             start_offset = offset;
 
             /* Initiator Key Request - Security.4 */
             offset = dof_dissect_pdu_as_field(dissect_2008_16_security_4, tvb, pinfo, trp_tree,
-                                              offset, hf_initiator_request, ett_initiator_request, (void **)&response);
-            if (response && !packet_data->processed)
+                                              offset, hf_initiator_request, ett_initiator_request, &response);
+            if (!packet_data->processed)
             {
-                tvbuff_t *identity = response->identity;
+                tvbuff_t *identity = response.identity;
                 guint8 identity_length = tvb_reported_length(identity);
                 guint8 *identity_buf = (guint8 *)wmem_alloc0(wmem_packet_scope(), identity_length);
                 int i;
@@ -10332,7 +10332,7 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
         /* Initiator Block - TRP.5.1.1 */
         {
-            dof_2008_16_security_4 *response;
+            dof_2008_16_security_4 response;
             trp_packet_data *trp_pk_data = NULL;
 
             start_offset = offset;
@@ -10343,10 +10343,10 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
             /* Initiator Key Request - Security.4 */
             offset = dof_dissect_pdu_as_field(dissect_2008_16_security_4, tvb, pinfo, trp_tree,
-                                              offset, hf_initiator_request, ett_initiator_request, (void **)&response);
-            if (response && !packet_data->processed)
+                                              offset, hf_initiator_request, ett_initiator_request, &response);
+            if (!packet_data->processed)
             {
-                tvbuff_t *identity = response->identity;
+                tvbuff_t *identity = response.identity;
                 guint8 identity_length = tvb_reported_length(identity);
                 guint8 *identity_buf = (guint8 *)wmem_alloc0(wmem_packet_scope(), identity_length);
                 int i;
