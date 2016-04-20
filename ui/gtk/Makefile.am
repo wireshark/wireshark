@@ -28,7 +28,7 @@ NODIST_GENERATED_FILES += \
 	wireshark-gresources.c
 else
 BUILD_PIXBUF_CSOURCE = \
-	pixbuf-csource.h
+	pixbuf-csource.h	\
 	pixbuf-csource.c
 endif
 
