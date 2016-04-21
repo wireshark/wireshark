@@ -2217,7 +2217,7 @@ read_subnets_file (const char *subnetspath)
 
         subnet_entry_set(host_addr, (guint32)mask_length, cp);
     }
-    g_free(line);
+    wmem_free(wmem_epan_scope(), line);
 
     fclose(hf);
     return TRUE;
