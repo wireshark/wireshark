@@ -71,8 +71,8 @@ static void
 hosts_draw(void *dummy _U_)
 {
 
-	GHashTable *ipv4_hash_table;
-	GHashTable *ipv6_hash_table;
+	wmem_map_t *ipv4_hash_table;
+	wmem_map_t *ipv6_hash_table;
 
 	printf("# TShark hosts output\n");
 	printf("#\n");
@@ -81,12 +81,12 @@ hosts_draw(void *dummy _U_)
 
 	ipv4_hash_table = get_ipv4_hash_table();
 	if (ipv4_hash_table) {
-		g_hash_table_foreach( ipv4_hash_table, ipv4_hash_table_print_resolved, NULL);
+		wmem_map_foreach( ipv4_hash_table, ipv4_hash_table_print_resolved, NULL);
 	}
 
 	ipv6_hash_table = get_ipv6_hash_table();
 	if (ipv6_hash_table) {
-		g_hash_table_foreach( ipv6_hash_table, ipv6_hash_table_print_resolved, NULL);
+		wmem_map_foreach( ipv6_hash_table, ipv6_hash_table_print_resolved, NULL);
 	}
 
 }

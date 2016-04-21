@@ -29,8 +29,7 @@
 #include <gtk/gtk.h>
 
 #include <epan/addr_resolv.h>
-
-
+#include <epan/wmem/wmem.h>
 
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/font_utils.h"
@@ -182,12 +181,12 @@ static void
 addres_resolution_to_texbuff(GtkTextBuffer *buffer)
 {
     gchar string_buff[ADDRESS_STR_MAX];
-    GHashTable *manuf_hashtable;
-    GHashTable *wka_hashtable;
-    GHashTable *eth_hashtable;
-    GHashTable *serv_port_hashtable;
-    GHashTable *ipv4_hash_table;
-    GHashTable *ipv6_hash_table;
+    wmem_map_t *manuf_hashtable;
+    wmem_map_t *wka_hashtable;
+    wmem_map_t *eth_hashtable;
+    wmem_map_t *serv_port_hashtable;
+    wmem_map_t *ipv4_hash_table;
+    wmem_map_t *ipv6_hash_table;
 
     g_snprintf(string_buff, ADDRESS_STR_MAX, "# Hosts information in Wireshark \n#\n");
     gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
@@ -197,30 +196,30 @@ addres_resolution_to_texbuff(GtkTextBuffer *buffer)
     /* Dump the v4 addresses first, then v6 */
     ipv4_hash_table = get_ipv4_hash_table();
     if(ipv4_hash_table){
-        g_hash_table_foreach( ipv4_hash_table, ipv4_hash_table_resolved_to_texbuff, buffer);
+        wmem_map_foreach( ipv4_hash_table, ipv4_hash_table_resolved_to_texbuff, buffer);
     }
 
     ipv6_hash_table = get_ipv6_hash_table();
     if(ipv6_hash_table){
-        g_hash_table_foreach( ipv6_hash_table, ipv6_hash_table_resolved_to_texbuff, buffer);
+        wmem_map_foreach( ipv6_hash_table, ipv6_hash_table_resolved_to_texbuff, buffer);
     }
 
     g_snprintf(string_buff, ADDRESS_STR_MAX, "\n\n# Address resolution IPv4 Hash table \n#\n");
     gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
     if(ipv4_hash_table){
-        g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", g_hash_table_size(ipv4_hash_table));
+        g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", wmem_map_size(ipv4_hash_table));
         gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
-        g_hash_table_foreach( ipv4_hash_table, ipv4_hash_table_to_texbuff, buffer);
+        wmem_map_foreach( ipv4_hash_table, ipv4_hash_table_to_texbuff, buffer);
     }
 
     g_snprintf(string_buff, ADDRESS_STR_MAX, "\n\n# Address resolution IPv6 Hash table \n#\n");
     gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
     if(ipv6_hash_table){
-        g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", g_hash_table_size(ipv6_hash_table));
+        g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", wmem_map_size(ipv6_hash_table));
         gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
-        g_hash_table_foreach( ipv6_hash_table, ipv6_hash_table_to_texbuff, buffer);
+        wmem_map_foreach( ipv6_hash_table, ipv6_hash_table_to_texbuff, buffer);
     }
 
 
@@ -229,9 +228,9 @@ addres_resolution_to_texbuff(GtkTextBuffer *buffer)
 
     serv_port_hashtable = get_serv_port_hashtable();
     if(serv_port_hashtable){
-        g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", g_hash_table_size(serv_port_hashtable));
+        g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", wmem_map_size(serv_port_hashtable));
         gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
-        g_hash_table_foreach( serv_port_hashtable, serv_port_hash_to_texbuff, buffer);
+        wmem_map_foreach( serv_port_hashtable, serv_port_hash_to_texbuff, buffer);
     }
 
     g_snprintf(string_buff, ADDRESS_STR_MAX, "\n\n# Eth names information in Wireshark \n#\n");
@@ -239,9 +238,9 @@ addres_resolution_to_texbuff(GtkTextBuffer *buffer)
 
     eth_hashtable = get_eth_hashtable();
     if(eth_hashtable){
-        g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", g_hash_table_size(eth_hashtable));
+        g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", wmem_map_size(eth_hashtable));
         gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
-        g_hash_table_foreach( eth_hashtable, eth_hash_to_texbuff, buffer);
+        wmem_map_foreach( eth_hashtable, eth_hash_to_texbuff, buffer);
     }
 
     g_snprintf(string_buff, ADDRESS_STR_MAX, "\n\n# Manuf information in Wireshark \n#\n");
@@ -249,9 +248,9 @@ addres_resolution_to_texbuff(GtkTextBuffer *buffer)
 
     manuf_hashtable = get_manuf_hashtable();
     if(manuf_hashtable){
-        g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", g_hash_table_size(manuf_hashtable));
+        g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", wmem_map_size(manuf_hashtable));
         gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
-        g_hash_table_foreach( manuf_hashtable, manuf_hash_to_texbuff, buffer);
+        wmem_map_foreach( manuf_hashtable, manuf_hash_to_texbuff, buffer);
     }
 
     g_snprintf(string_buff, ADDRESS_STR_MAX, "\n\n# wka information in Wireshark \n#\n");
@@ -259,9 +258,9 @@ addres_resolution_to_texbuff(GtkTextBuffer *buffer)
 
     wka_hashtable = get_wka_hashtable();
     if(wka_hashtable){
-        g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", g_hash_table_size(wka_hashtable));
+        g_snprintf(string_buff, ADDRESS_STR_MAX, "# With %i entries\n#\n", wmem_map_size(wka_hashtable));
         gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
-        g_hash_table_foreach( wka_hashtable, wka_hash_to_texbuff, buffer);
+        wmem_map_foreach( wka_hashtable, wka_hash_to_texbuff, buffer);
     }
 
 

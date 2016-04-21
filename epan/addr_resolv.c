@@ -199,10 +199,10 @@ typedef struct _vlan
     char              name[MAXVLANNAMELEN];
 } vlan_t;
 
-static GHashTable   *ipxnet_hash_table = NULL;
-static GHashTable   *ipv4_hash_table = NULL;
-static GHashTable   *ipv6_hash_table = NULL;
-static GHashTable   *vlan_hash_table = NULL;
+static wmem_map_t *ipxnet_hash_table = NULL;
+static wmem_map_t *ipv4_hash_table = NULL;
+static wmem_map_t *ipv6_hash_table = NULL;
+static wmem_map_t *vlan_hash_table = NULL;
 
 static wmem_list_t *manually_resolved_ipv4_list = NULL;
 static wmem_list_t *manually_resolved_ipv6_list = NULL;
@@ -225,10 +225,10 @@ static gchar        *cb_service;
 static port_type    cb_proto = PT_NONE;
 
 
-static GHashTable *manuf_hashtable = NULL;
-static GHashTable *wka_hashtable = NULL;
-static GHashTable *eth_hashtable = NULL;
-static GHashTable *serv_port_hashtable = NULL;
+static wmem_map_t *manuf_hashtable = NULL;
+static wmem_map_t *wka_hashtable = NULL;
+static wmem_map_t *eth_hashtable = NULL;
+static wmem_map_t *serv_port_hashtable = NULL;
 
 static subnet_length_entry_t subnet_length_entries[SUBNETLENGTHSIZE]; /* Ordered array of entries */
 static gboolean have_subnet_entry = FALSE;
@@ -424,10 +424,10 @@ add_service_name(port_type proto, const guint port, const char *service_name)
     key = (int *)wmem_new(wmem_epan_scope(), int);
     *key = port;
 
-    serv_port_table = (serv_port_t *)g_hash_table_lookup(serv_port_hashtable, &port);
+    serv_port_table = (serv_port_t *)wmem_map_lookup(serv_port_hashtable, &port);
     if (serv_port_table == NULL) {
         serv_port_table = wmem_new0(wmem_epan_scope(), serv_port_t);
-        g_hash_table_insert(serv_port_hashtable, key, serv_port_table);
+        wmem_map_insert(serv_port_hashtable, key, serv_port_table);
     }
     else {
         wmem_free(wmem_epan_scope(), key);
@@ -574,7 +574,7 @@ _serv_name_lookup(port_type proto, guint port, serv_port_t **value_ret)
 {
     serv_port_t *serv_port_table;
 
-    serv_port_table = (serv_port_t *)g_hash_table_lookup(serv_port_hashtable, &port);
+    serv_port_table = (serv_port_t *)wmem_map_lookup(serv_port_hashtable, &port);
 
     if (value_ret != NULL)
         *value_ret = serv_port_table;
@@ -618,7 +618,7 @@ serv_name_lookup(port_type proto, guint port)
         key = (guint *)wmem_new(wmem_epan_scope(), guint);
         *key = port;
         serv_port_table = wmem_new0(wmem_epan_scope(), serv_port_t);
-        g_hash_table_insert(serv_port_hashtable, key, serv_port_table);
+        wmem_map_insert(serv_port_hashtable, key, serv_port_table);
     }
     if (serv_port_table->numeric == NULL) {
         serv_port_table->numeric = wmem_strdup_printf(wmem_epan_scope(), "%u", port);
@@ -628,22 +628,10 @@ serv_name_lookup(port_type proto, guint port)
 }
 
 static void
-destroy_serv_port(gpointer data)
-{
-    serv_port_t *table = (serv_port_t*)data;
-    wmem_free(wmem_epan_scope(), table->udp_name);
-    wmem_free(wmem_epan_scope(), table->tcp_name);
-    wmem_free(wmem_epan_scope(), table->sctp_name);
-    wmem_free(wmem_epan_scope(), table->dccp_name);
-    wmem_free(wmem_epan_scope(), table->numeric);
-    wmem_free(wmem_epan_scope(), table);
-}
-
-static void
 initialize_services(void)
 {
     g_assert(serv_port_hashtable == NULL);
-    serv_port_hashtable = g_hash_table_new_full(g_int_hash, g_int_equal, NULL, destroy_serv_port);
+    serv_port_hashtable = wmem_map_new(wmem_epan_scope(), g_int_hash, g_int_equal);
 
     /* Compute the pathname of the services file. */
     if (g_services_path == NULL) {
@@ -661,10 +649,7 @@ initialize_services(void)
 static void
 service_name_lookup_cleanup(void)
 {
-    if (serv_port_hashtable) {
-        g_hash_table_destroy(serv_port_hashtable);
-        serv_port_hashtable = NULL;
-    }
+    serv_port_hashtable = NULL;
 }
 
 /* Fill in an IP4 structure with info from subnets file or just with the
@@ -785,14 +770,14 @@ host_lookup(const guint addr)
 {
     hashipv4_t * volatile tp;
 
-    tp = (hashipv4_t *)g_hash_table_lookup(ipv4_hash_table, GUINT_TO_POINTER(addr));
+    tp = (hashipv4_t *)wmem_map_lookup(ipv4_hash_table, GUINT_TO_POINTER(addr));
     if (tp == NULL) {
         /*
          * We don't already have an entry for this host name; create one,
          * and then try to resolve it.
          */
         tp = new_ipv4(addr);
-        g_hash_table_insert(ipv4_hash_table, GUINT_TO_POINTER(addr), tp);
+        wmem_map_insert(ipv4_hash_table, GUINT_TO_POINTER(addr), tp);
     } else if ((tp->flags & DUMMY_AND_RESOLVE_FLGS) != DUMMY_ADDRESS_ENTRY) {
         return tp;
     }
@@ -841,7 +826,7 @@ host_lookup6(const struct e_in6_addr *addr)
     async_dns_queue_msg_t *caqm;
 #endif
 
-    tp = (hashipv6_t *)g_hash_table_lookup(ipv6_hash_table, addr);
+    tp = (hashipv6_t *)wmem_map_lookup(ipv6_hash_table, addr);
     if (tp == NULL) {
         /*
          * We don't already have an entry for this host name; create one,
@@ -852,7 +837,7 @@ host_lookup6(const struct e_in6_addr *addr)
         addr_key = wmem_new(wmem_epan_scope(), struct e_in6_addr);
         tp = new_ipv6(addr);
         memcpy(addr_key, addr, 16);
-        g_hash_table_insert(ipv6_hash_table, addr_key, tp);
+        wmem_map_insert(ipv6_hash_table, addr_key, tp);
     } else if ((tp->flags & DUMMY_AND_RESOLVE_FLGS) != DUMMY_ADDRESS_ENTRY) {
         return tp;
     }
@@ -1159,7 +1144,7 @@ static hashmanuf_t *manuf_hash_new_entry(const guint8 *addr, char* name)
     endp = bytes_to_hexstr_punct(manuf_value->hexaddr, addr, sizeof(manuf_value->addr), ':');
     *endp = '\0';
 
-    g_hash_table_insert(manuf_hashtable, manuf_key, manuf_value);
+    wmem_map_insert(manuf_hashtable, manuf_key, manuf_value);
     return manuf_value;
 }
 
@@ -1193,7 +1178,7 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
     wka_key = (guint8 *)wmem_alloc(wmem_epan_scope(), 6);
     memcpy(wka_key, addr, 6);
 
-    g_hash_table_insert(wka_hashtable, wka_key, wmem_strdup(wmem_epan_scope(), name));
+    wmem_map_insert(wka_hashtable, wka_key, wmem_strdup(wmem_epan_scope(), name));
 
 } /* add_manuf_name */
 
@@ -1215,7 +1200,7 @@ manuf_name_lookup(const guint8 *addr)
 
 
     /* first try to find a "perfect match" */
-    manuf_value = (hashmanuf_t*)g_hash_table_lookup(manuf_hashtable, &manuf_key);
+    manuf_value = (hashmanuf_t*)wmem_map_lookup(manuf_hashtable, &manuf_key);
     if (manuf_value != NULL) {
         return manuf_value;
     }
@@ -1227,7 +1212,7 @@ manuf_name_lookup(const guint8 *addr)
      * 0x02 locally administered bit */
     if ((manuf_key & 0x00010000) != 0) {
         manuf_key &= 0x00FEFFFF;
-        manuf_value = (hashmanuf_t*)g_hash_table_lookup(manuf_hashtable, &manuf_key);
+        manuf_value = (hashmanuf_t*)wmem_map_lookup(manuf_hashtable, &manuf_key);
         if (manuf_value != NULL) {
             return manuf_value;
         }
@@ -1259,7 +1244,7 @@ wka_name_lookup(const guint8 *addr, const unsigned int mask)
     for (; i < 6; i++)
         masked_addr[i] = 0;
 
-    name = (gchar *)g_hash_table_lookup(wka_hashtable, masked_addr);
+    name = (gchar *)wmem_map_lookup(wka_hashtable, masked_addr);
 
     return name;
 
@@ -1301,9 +1286,9 @@ initialize_ethers(void)
     guint    mask = 0;
 
     /* hash table initialization */
-    wka_hashtable   = g_hash_table_new(eth_addr_hash, eth_addr_cmp);
-    manuf_hashtable = g_hash_table_new(g_int_hash, g_int_equal);
-    eth_hashtable   = g_hash_table_new(eth_addr_hash, eth_addr_cmp);
+    wka_hashtable   = wmem_map_new(NULL, eth_addr_hash, eth_addr_cmp);
+    manuf_hashtable = wmem_map_new(NULL, g_int_hash, g_int_equal);
+    eth_hashtable   = wmem_map_new(NULL, eth_addr_hash, eth_addr_cmp);
 
     /* Compute the pathname of the ethers file. */
     if (g_ethers_path == NULL) {
@@ -1337,21 +1322,12 @@ initialize_ethers(void)
 static void
 eth_name_lookup_cleanup(void)
 {
-
-    if (manuf_hashtable) {
-        g_hash_table_destroy(manuf_hashtable);
-        manuf_hashtable = NULL;
-    }
-    if (wka_hashtable) {
-        g_hash_table_destroy(wka_hashtable);
-        wka_hashtable = NULL;
-    }
-
-    if (eth_hashtable) {
-        g_hash_table_destroy(eth_hashtable);
-        eth_hashtable = NULL;
-    }
-
+    wmem_free(NULL, manuf_hashtable);
+    manuf_hashtable = NULL;
+    wmem_free(NULL, wka_hashtable);
+    wka_hashtable = NULL;
+    wmem_free(NULL, eth_hashtable);
+    eth_hashtable = NULL;
 }
 
 /* Resolve ethernet address */
@@ -1492,7 +1468,7 @@ eth_hash_new_entry(const guint8 *addr, const gboolean resolve)
     if (resolve)
         eth_addr_resolve(tp);
 
-    g_hash_table_insert(eth_hashtable, tp->addr, tp);
+    wmem_map_insert(eth_hashtable, tp->addr, tp);
 
     return tp;
 } /* eth_hash_new_entry */
@@ -1502,7 +1478,7 @@ add_eth_name(const guint8 *addr, const gchar *name)
 {
     hashether_t *tp;
 
-    tp = (hashether_t *)g_hash_table_lookup(eth_hashtable, addr);
+    tp = (hashether_t *)wmem_map_lookup(eth_hashtable, addr);
 
     if (tp == NULL) {
         tp = eth_hash_new_entry(addr, FALSE);
@@ -1522,7 +1498,7 @@ eth_name_lookup(const guint8 *addr, const gboolean resolve)
 {
     hashether_t  *tp;
 
-    tp = (hashether_t *)g_hash_table_lookup(eth_hashtable, addr);
+    tp = (hashether_t *)wmem_map_lookup(eth_hashtable, addr);
     if (tp == NULL) {
         tp = eth_hash_new_entry(addr, resolve);
     } else {
@@ -1742,11 +1718,7 @@ initialize_ipxnets(void)
 static void
 ipx_name_lookup_cleanup(void)
 {
-    if (ipxnet_hash_table) {
-        g_hash_table_destroy(ipxnet_hash_table);
-        ipxnet_hash_table = NULL;
-    }
-
+    ipxnet_hash_table = NULL;
 }
 
 #if 0
@@ -1784,14 +1756,14 @@ ipxnet_name_lookup(wmem_allocator_t *allocator, const guint addr)
     hashipxnet_t *tp;
     ipxnet_t *ipxnet;
 
-    tp = (hashipxnet_t *)g_hash_table_lookup(ipxnet_hash_table, &addr);
+    tp = (hashipxnet_t *)wmem_map_lookup(ipxnet_hash_table, &addr);
     if (tp == NULL) {
         int *key;
 
         key = (int *)wmem_new(wmem_epan_scope(), int);
         *key = addr;
         tp = wmem_new(wmem_epan_scope(), hashipxnet_t);
-        g_hash_table_insert(ipxnet_hash_table, key, tp);
+        wmem_map_insert(ipxnet_hash_table, key, tp);
     } else {
         return wmem_strdup(allocator, tp->name);
     }
@@ -1944,7 +1916,7 @@ static void
 initialize_vlans(void)
 {
     g_assert(vlan_hash_table == NULL);
-    vlan_hash_table = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
+    vlan_hash_table = wmem_map_new(wmem_epan_scope(), g_int_hash, g_int_equal);
 
     /* Set g_pipxnets_path here, but don't actually do anything
      * with it. It's used in get_ipxnetbyname() and get_ipxnetbyaddr()
@@ -1957,11 +1929,7 @@ initialize_vlans(void)
 static void
 vlan_name_lookup_cleanup(void)
 {
-    if (vlan_hash_table) {
-        g_hash_table_destroy(vlan_hash_table);
-        vlan_hash_table = NULL;
-    }
-
+    vlan_hash_table = NULL;
 }
 
 static const gchar *
@@ -1970,14 +1938,14 @@ vlan_name_lookup(const guint id)
     hashvlan_t *tp;
     vlan_t *vlan;
 
-    tp = (hashvlan_t *)g_hash_table_lookup(vlan_hash_table, &id);
+    tp = (hashvlan_t *)wmem_map_lookup(vlan_hash_table, &id);
     if (tp == NULL) {
         int *key;
 
         key = (int *)wmem_new(wmem_epan_scope(), int);
         *key = id;
         tp = wmem_new(wmem_epan_scope(), hashvlan_t);
-        g_hash_table_insert(vlan_hash_table, key, tp);
+        wmem_map_insert(vlan_hash_table, key, tp);
     } else {
         return tp->name;
     }
@@ -2144,14 +2112,14 @@ ipv6_hash_table_resolved_to_list(gpointer key _U_, gpointer value, gpointer user
 }
 
 addrinfo_lists_t *
-get_addrinfo_list(void) {
-
+get_addrinfo_list(void)
+{
     if (ipv4_hash_table) {
-        g_hash_table_foreach(ipv4_hash_table, ipv4_hash_table_resolved_to_list, &addrinfo_lists);
+        wmem_map_foreach(ipv4_hash_table, ipv4_hash_table_resolved_to_list, &addrinfo_lists);
     }
 
     if (ipv6_hash_table) {
-        g_hash_table_foreach(ipv6_hash_table, ipv6_hash_table_resolved_to_list, &addrinfo_lists);
+        wmem_map_foreach(ipv6_hash_table, ipv6_hash_table_resolved_to_list, &addrinfo_lists);
     }
 
     return &addrinfo_lists;
@@ -2559,10 +2527,10 @@ add_ipv4_name(const guint addr, const gchar *name)
     if (!name || name[0] == '\0')
         return;
 
-    tp = (hashipv4_t *)g_hash_table_lookup(ipv4_hash_table, GUINT_TO_POINTER(addr));
+    tp = (hashipv4_t *)wmem_map_lookup(ipv4_hash_table, GUINT_TO_POINTER(addr));
     if (!tp) {
         tp = new_ipv4(addr);
-        g_hash_table_insert(ipv4_hash_table, GUINT_TO_POINTER(addr), tp);
+        wmem_map_insert(ipv4_hash_table, GUINT_TO_POINTER(addr), tp);
     }
 
     if (g_ascii_strcasecmp(tp->name, name)) {
@@ -2585,14 +2553,14 @@ add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
     if (!name || name[0] == '\0')
         return;
 
-    tp = (hashipv6_t *)g_hash_table_lookup(ipv6_hash_table, addrp);
+    tp = (hashipv6_t *)wmem_map_lookup(ipv6_hash_table, addrp);
     if (!tp) {
         struct e_in6_addr *addr_key;
 
         addr_key = wmem_new(wmem_epan_scope(), struct e_in6_addr);
         tp = new_ipv6(addrp);
         memcpy(addr_key, addrp, 16);
-        g_hash_table_insert(ipv6_hash_table, addr_key, tp);
+        wmem_map_insert(ipv6_hash_table, addr_key, tp);
     }
 
     if (g_ascii_strcasecmp(tp->name, name)) {
@@ -2637,13 +2605,13 @@ host_name_lookup_init(void)
     guint i;
 
     g_assert(ipxnet_hash_table == NULL);
-    ipxnet_hash_table = g_hash_table_new(g_int_hash, g_int_equal);
+    ipxnet_hash_table = wmem_map_new(wmem_epan_scope(), g_int_hash, g_int_equal);
 
     g_assert(ipv4_hash_table == NULL);
-    ipv4_hash_table = g_hash_table_new(g_direct_hash, g_direct_equal);
+    ipv4_hash_table = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
 
     g_assert(ipv6_hash_table == NULL);
-    ipv6_hash_table = g_hash_table_new(ipv6_oat_hash, ipv6_equal);
+    ipv6_hash_table = wmem_map_new(wmem_epan_scope(), ipv6_oat_hash, ipv6_equal);
 
 #ifdef HAVE_C_ARES
     g_assert(async_dns_queue_head == NULL);
@@ -2706,20 +2674,9 @@ host_name_lookup_cleanup(void)
 
     _host_name_lookup_cleanup();
 
-    if (ipxnet_hash_table) {
-        g_hash_table_destroy(ipxnet_hash_table);
-        ipxnet_hash_table = NULL;
-    }
-
-    if (ipv4_hash_table) {
-        g_hash_table_destroy(ipv4_hash_table);
-        ipv4_hash_table = NULL;
-    }
-
-    if (ipv6_hash_table) {
-        g_hash_table_destroy(ipv6_hash_table);
-        ipv6_hash_table = NULL;
-    }
+    ipxnet_hash_table = NULL;
+    ipv4_hash_table = NULL;
+    ipv6_hash_table = NULL;
 
     for(i = 0; i < SUBNETLENGTHSIZE; ++i) {
         if (subnet_length_entries[i].subnet_addresses != NULL) {
@@ -2739,35 +2696,13 @@ host_name_lookup_cleanup(void)
     new_resolved_objects = FALSE;
 }
 
-static void
-free_manually_resolved_ipv4(gpointer data, gpointer user_data _U_)
-{
-    resolved_ipv4_t *resolved_ipv4_entry = (resolved_ipv4_t *)data;
-
-    g_free(resolved_ipv4_entry);
-}
-
-static void
-free_manually_resolved_ipv6(gpointer data, gpointer user_data _U_)
-{
-    resolved_ipv6_t *resolved_ipv6_entry = (resolved_ipv6_t *)data;
-
-    g_free(resolved_ipv6_entry);
-}
-
 void
 manually_resolve_cleanup(void)
 {
-    if (manually_resolved_ipv4_list) {
-        wmem_list_foreach(manually_resolved_ipv4_list, free_manually_resolved_ipv4, NULL);
-        manually_resolved_ipv4_list = NULL;
-    }
-
-    if (manually_resolved_ipv6_list) {
-        wmem_list_foreach(manually_resolved_ipv6_list, free_manually_resolved_ipv6, NULL);
-        manually_resolved_ipv6_list = NULL;
-    }
-
+    wmem_destroy_list(manually_resolved_ipv4_list);
+    manually_resolved_ipv4_list = NULL;
+    wmem_destroy_list(manually_resolved_ipv6_list);
+    manually_resolved_ipv6_list = NULL;
 }
 
 gchar *
@@ -3017,7 +2952,7 @@ get_manuf_name_if_known(const guint8 *addr)
     oct = addr[2];
     manuf_key = manuf_key | oct;
 
-    manuf_value = (hashmanuf_t *)g_hash_table_lookup(manuf_hashtable, &manuf_key);
+    manuf_value = (hashmanuf_t *)wmem_map_lookup(manuf_hashtable, &manuf_key);
     if ((manuf_value == NULL) || (manuf_value->status != HASHETHER_STATUS_UNRESOLVED)) {
         return NULL;
     }
@@ -3031,7 +2966,7 @@ uint_get_manuf_name_if_known(const guint manuf_key)
 {
     hashmanuf_t *manuf_value;
 
-    manuf_value = (hashmanuf_t *)g_hash_table_lookup(manuf_hashtable, &manuf_key);
+    manuf_value = (hashmanuf_t *)wmem_map_lookup(manuf_hashtable, &manuf_key);
     if ((manuf_value == NULL) || (manuf_value->status != HASHETHER_STATUS_UNRESOLVED)) {
         return NULL;
     }
@@ -3231,49 +3166,49 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
     return FALSE;
 }
 
-GHashTable *
+wmem_map_t *
 get_manuf_hashtable(void)
 {
     return manuf_hashtable;
 }
 
-GHashTable *
+wmem_map_t *
 get_wka_hashtable(void)
 {
     return wka_hashtable;
 }
 
-GHashTable *
+wmem_map_t *
 get_eth_hashtable(void)
 {
     return eth_hashtable;
 }
 
-GHashTable *
+wmem_map_t *
 get_serv_port_hashtable(void)
 {
     return serv_port_hashtable;
 }
 
-GHashTable *
+wmem_map_t *
 get_ipxnet_hash_table(void)
 {
         return ipxnet_hash_table;
 }
 
-GHashTable *
+wmem_map_t *
 get_vlan_hash_table(void)
 {
         return vlan_hash_table;
 }
 
-GHashTable *
+wmem_map_t *
 get_ipv4_hash_table(void)
 {
         return ipv4_hash_table;
 }
 
-GHashTable *
+wmem_map_t *
 get_ipv6_hash_table(void)
 {
         return ipv6_hash_table;
@@ -3294,10 +3229,10 @@ addr_resolv_init(void)
 void
 addr_resolv_cleanup(void)
 {
-    service_name_lookup_cleanup();
     eth_name_lookup_cleanup();
-    ipx_name_lookup_cleanup();
     vlan_name_lookup_cleanup();
+    service_name_lookup_cleanup();
+    ipx_name_lookup_cleanup();
     /* host name initialization is done on a per-capture-file basis */
     /*host_name_lookup_cleanup();*/
 }

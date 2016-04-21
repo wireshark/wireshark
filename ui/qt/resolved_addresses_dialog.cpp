@@ -201,36 +201,36 @@ ResolvedAddressesDialog::ResolvedAddressesDialog(QWidget *parent, CaptureFile *c
         }
     }
 
-    GHashTable *ipv4_hash_table = get_ipv4_hash_table();
+    wmem_map_t *ipv4_hash_table = get_ipv4_hash_table();
     if (ipv4_hash_table) {
-        g_hash_table_foreach(ipv4_hash_table, ipv4_hash_table_resolved_to_qstringlist, &host_addresses_);
-        g_hash_table_foreach(ipv4_hash_table, ipv4_hash_table_to_qstringlist, &v4_hash_addrs_);
+        wmem_map_foreach(ipv4_hash_table, ipv4_hash_table_resolved_to_qstringlist, &host_addresses_);
+        wmem_map_foreach(ipv4_hash_table, ipv4_hash_table_to_qstringlist, &v4_hash_addrs_);
     }
 
-    GHashTable *ipv6_hash_table = get_ipv6_hash_table();
+    wmem_map_t *ipv6_hash_table = get_ipv6_hash_table();
     if (ipv6_hash_table) {
-        g_hash_table_foreach(ipv6_hash_table, ipv6_hash_table_resolved_to_qstringlist, &host_addresses_);
-        g_hash_table_foreach(ipv6_hash_table, ipv6_hash_table_to_qstringlist, &v6_hash_addrs_);
+        wmem_map_foreach(ipv6_hash_table, ipv6_hash_table_resolved_to_qstringlist, &host_addresses_);
+        wmem_map_foreach(ipv6_hash_table, ipv6_hash_table_to_qstringlist, &v6_hash_addrs_);
     }
 
-    GHashTable *serv_port_hashtable = get_serv_port_hashtable();
+    wmem_map_t *serv_port_hashtable = get_serv_port_hashtable();
     if(serv_port_hashtable){
-        g_hash_table_foreach(serv_port_hashtable, serv_port_hash_to_qstringlist, &service_ports_);
+        wmem_map_foreach(serv_port_hashtable, serv_port_hash_to_qstringlist, &service_ports_);
     }
 
-    GHashTable *eth_hashtable = get_eth_hashtable();
+    wmem_map_t *eth_hashtable = get_eth_hashtable();
     if (eth_hashtable){
-        g_hash_table_foreach(eth_hashtable, eth_hash_to_qstringlist, &ethernet_addresses_);
+        wmem_map_foreach(eth_hashtable, eth_hash_to_qstringlist, &ethernet_addresses_);
     }
 
-    GHashTable *manuf_hashtable = get_manuf_hashtable();
+    wmem_map_t *manuf_hashtable = get_manuf_hashtable();
     if (manuf_hashtable){
-        g_hash_table_foreach(manuf_hashtable, manuf_hash_to_qstringlist, &ethernet_manufacturers_);
+        wmem_map_foreach(manuf_hashtable, manuf_hash_to_qstringlist, &ethernet_manufacturers_);
     }
 
-    GHashTable *wka_hashtable = get_wka_hashtable();
+    wmem_map_t *wka_hashtable = get_wka_hashtable();
     if(wka_hashtable){
-        g_hash_table_foreach(wka_hashtable, wka_hash_to_qstringlist, &ethernet_well_known_);
+        wmem_map_foreach(wka_hashtable, wka_hash_to_qstringlist, &ethernet_well_known_);
     }
 
     fillShowMenu();

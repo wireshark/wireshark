@@ -324,28 +324,28 @@ WS_DLL_PUBLIC
 gboolean get_host_ipaddr6(const char *host, struct e_in6_addr *addrp);
 
 WS_DLL_PUBLIC
-GHashTable *get_manuf_hashtable(void);
+wmem_map_t *get_manuf_hashtable(void);
 
 WS_DLL_PUBLIC
-GHashTable *get_wka_hashtable(void);
+wmem_map_t *get_wka_hashtable(void);
 
 WS_DLL_PUBLIC
-GHashTable *get_eth_hashtable(void);
+wmem_map_t *get_eth_hashtable(void);
 
 WS_DLL_PUBLIC
-GHashTable *get_serv_port_hashtable(void);
+wmem_map_t *get_serv_port_hashtable(void);
 
 WS_DLL_PUBLIC
-GHashTable *get_ipxnet_hash_table(void);
+wmem_map_t *get_ipxnet_hash_table(void);
 
 WS_DLL_PUBLIC
-GHashTable *get_vlan_hash_table(void);
+wmem_map_t *get_vlan_hash_table(void);
 
 WS_DLL_PUBLIC
-GHashTable *get_ipv4_hash_table(void);
+wmem_map_t *get_ipv4_hash_table(void);
 
 WS_DLL_PUBLIC
-GHashTable *get_ipv6_hash_table(void);
+wmem_map_t *get_ipv6_hash_table(void);
 
 /*
  * private functions (should only be called by epan directly)
