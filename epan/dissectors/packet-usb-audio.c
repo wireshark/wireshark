@@ -429,6 +429,7 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
                 dissect_ac_if_hdr_body(tvb, offset, pinfo, desc_tree, usb_conv_info);
                 break;
             default:
+                proto_tree_add_expert(desc_tree, pinfo, &ei_usb_audio_undecoded, tvb, offset-3, desc_len);
                 break;
         }
 
@@ -458,6 +459,7 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
                         desc_tree, usb_conv_info);
                 break;
             default:
+                proto_tree_add_expert(desc_tree, pinfo, &ei_usb_audio_undecoded, tvb, offset-3, desc_len);
                 break;
         }
     }
