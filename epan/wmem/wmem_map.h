@@ -114,6 +114,15 @@ WS_DLL_PUBLIC
 void
 wmem_map_foreach(wmem_map_t *map, GHFunc foreach_func, gpointer user_data);
 
+/** Return the number of elements of the map.
+ *
+ * @param map The map to use
+ * @return the number of elements
+*/
+WS_DLL_PUBLIC
+guint
+wmem_map_size(wmem_map_t *map);
+
 /** Compute a strong hash value for an arbitrary sequence of bytes. Use of this
  * hash value should be secure against algorithmic complexity attacks, even for
  * short keys. The computation uses a random seed which is generated on wmem

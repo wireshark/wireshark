@@ -711,6 +711,14 @@ wmem_test_map(void)
     }
     wmem_map_foreach(map, check_val_map, GINT_TO_POINTER(2));
 
+    /* test size */
+    map = wmem_map_new(allocator, g_direct_hash, g_direct_equal);
+    g_assert(map);
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        wmem_map_insert(map, GINT_TO_POINTER(i), GINT_TO_POINTER(i));
+    }
+    g_assert(wmem_map_size(map) == CONTAINER_ITERS);
+
     wmem_destroy_allocator(allocator);
 }
 
