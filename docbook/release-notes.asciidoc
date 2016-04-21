@@ -180,6 +180,10 @@ The following bugs have been fixed:
 
 * Malformed Packet: RTP. (ws-buglink:12339[])
 
+* Incorrect error on MPA pdu length on iWARP packets. (ws-buglink:12348[])
+
+* Endpoints window doesn't show name resolution. (ws-buglink:12353[])
+
 
 Windows installers and PortableApps(R) packages are dual signed using SHA-1 and SHA-256
 in order to comply with
@@ -224,14 +228,17 @@ GSM MAP
 GTPv2
 IAX2
 IEEE 802.11
+iWARP MPA
 HTTP
 MS-WSP
 MySQL
 NCP
+NFS
 PKTC
 QUIC
 R3
 RTP
+SMB
 SPRT
 TCP
 ZEP
