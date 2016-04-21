@@ -6556,11 +6556,9 @@ static void str_to_unicode(const char *nt_password, char *nt_password_unicode)
         nt_password_unicode[2*password_len]='\0';
     }
 }
-#endif
 
 static guint32 get_keytab_as_list(md4_pass **p_pass_list, const char* ntlm_pass)
 {
-#ifdef HAVE_KERBEROS
     enc_key_t *ek;
     md4_pass* pass_list;
     md4_pass ntlm_pass_hash;
@@ -6607,11 +6605,8 @@ static guint32 get_keytab_as_list(md4_pass **p_pass_list, const char* ntlm_pass)
         }
     }
     return nb_pass;
-#else
-    *p_pass_list = NULL;
-    return 0;
-#endif
 }
+#endif
 
 static int
 netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
@@ -6650,18 +6645,23 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
             debugprintf("Something strange happened while searching for authenticate_reply\n");
         }
         else {
+#ifdef HAVE_KERBEROS
             md4_pass *pass_list=NULL;
             guint32 list_size = 0;
-            guint8 session_key[16];
-            md4_pass password;
-            int found = 0;
             unsigned int i = 0;
+            md4_pass password;
+#endif
+            guint8 session_key[16];
+            int found = 0;
 
             vars->flags = flags;
             vars->can_decrypt = FALSE;
+#ifdef HAVE_KERBEROS
             list_size = get_keytab_as_list(&pass_list,gbl_nt_password);
             debugprintf("Found %d passwords \n",list_size);
+#endif
             if( flags & NETLOGON_FLAG_STRONGKEY ) {
+#ifdef HAVE_KERBEROS
                 guint8 zeros[4];
                 guint8 md5[16];
                 md5_state_t md5state;
@@ -6693,6 +6693,7 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
                         break;
                     }
                 }
+#endif
             }
             else if( flags&NETLOGON_FLAG_USEAES)
             {
