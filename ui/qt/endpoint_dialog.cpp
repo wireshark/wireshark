@@ -81,6 +81,7 @@ EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_i
 
     fillTypeMenu(endp_protos);
 
+    updateWidgets();
 #ifdef HAVE_GEOIP
     tabChanged();
 #endif
