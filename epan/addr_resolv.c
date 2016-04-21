@@ -2049,7 +2049,7 @@ read_hosts_file (const char *hostspath, gboolean store_entries)
             }
         }
     }
-    g_free(line);
+    wmem_free(wmem_epan_scope(), line);
 
     fclose(hf);
     return entry_found ? TRUE : FALSE;
