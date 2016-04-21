@@ -708,7 +708,7 @@ dissect_printerdata_data(tvbuff_t *tvb, int offset,
 
 		switch(type) {
 		case DCERPC_REG_SZ: {
-			char *data = tvb_get_string_enc(NULL, tvb, offset - size, size, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+			char *data = tvb_get_string_enc(wmem_packet_scope(), tvb, offset - size, size, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
 			proto_item_append_text(item, ": %s", data);
 
@@ -719,8 +719,6 @@ dissect_printerdata_data(tvbuff_t *tvb, int offset,
 				tree, hf_printerdata_data_sz, tvb,
 				offset - size, size, data);
 			PROTO_ITEM_SET_HIDDEN(hidden_item);
-
-			g_free(data);
 
 			break;
 		}
@@ -1093,19 +1091,17 @@ dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	remaining = tvb_reported_length_remaining(tvb, offset);
 	if (remaining <= 0) {
 		if (data)
-			*data = g_strdup("");
+			*data = wmem_strdup(wmem_packet_scope(), "");
 		return offset;
 	}
 
-	text = tvb_get_string_enc(NULL, tvb, offset, remaining, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+	text = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, remaining, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 	len = (int)strlen(text);
 
 	proto_tree_add_string(tree, hf_name, tvb, offset, len * 2, text);
 
 	if (data)
 		*data = text;
-	else
-		g_free(text);
 
 	return offset + (len + 1) * 2;
 }
@@ -1681,7 +1677,7 @@ dissect_spoolss_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		relstr_end = dissect_spoolss_uint16uni(
 			tvb, relstr_start, pinfo, NULL, drep, &text, hf_relative_string);
 	} else { 			/* relstr_offset == 0 is a NULL string */
-		text = g_strdup("");
+		text = wmem_strdup(wmem_packet_scope(), "");
 		relstr_end = relstr_start;
 	}
 
@@ -1699,8 +1695,6 @@ dissect_spoolss_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (data)
 		*data = text;
-	else
-		g_free(text);
 
 	return offset;
 }
@@ -1736,7 +1730,7 @@ dissect_spoolss_relstrarray(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/*relstr_end = */dissect_spoolss_uint16uni(
 			tvb, relstr_start, pinfo, subtree, drep, &text, hf_relative_string);
 	else {
-		text = g_strdup("NULL");
+		text = wmem_strdup(wmem_packet_scope(), "NULL");
 		/*relstr_end = offset;*/
 	}
 
@@ -1746,8 +1740,6 @@ dissect_spoolss_relstrarray(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (data)
 		*data = text;
-	else
-		g_free(text);
 
 	return offset;
 }
@@ -3369,7 +3361,6 @@ dissect_FORM_REL(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (name) {
 		proto_item_append_text(item, ": %s", name);
-		g_free(name);
 	}
 
 	offset = dissect_ndr_uint32(
@@ -3646,8 +3637,6 @@ SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 		hidden_item = proto_tree_add_string(
 			tree, hf_printerdata_value, tvb, offset, 0, value);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
-
-		g_free(value);
 	}
 
 	proto_item_set_len(value_item, value_len * 2 + 4);
@@ -4217,7 +4206,6 @@ dissect_spoolss_JOB_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		struct_start, &document_name);
 
 	proto_item_append_text(item, ": %s", document_name);
-	g_free(document_name);
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, subtree, di, drep, hf_datatype,
@@ -4288,7 +4276,6 @@ dissect_spoolss_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		struct_start, &document_name);
 
 	proto_item_append_text(item, ": %s", document_name);
-	g_free(document_name);
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, subtree, di, drep, hf_notifyname,
@@ -5485,7 +5472,7 @@ cb_notify_str_postprocess(packet_info *pinfo _U_,
 
 	len = tvb_get_letohl(tvb, start_offset);
 
-	s = tvb_get_string_enc(NULL,
+	s = tvb_get_string_enc(wmem_packet_scope(),
 		tvb, start_offset + 4, (end_offset - start_offset - 4), ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
 	/* Append string to upper-level proto_items */
@@ -5515,8 +5502,6 @@ cb_notify_str_postprocess(packet_info *pinfo _U_,
 			tree, hf_index, tvb, start_offset, len, s);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
-
-	g_free(s);
 }
 
 /* Return the hf_index for a printer notify field.  This is used to
@@ -6344,7 +6329,7 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 
 	if (val_len == 0) {
 		proto_tree_add_uint_format_value(subtree, hf_enumprinterdataex_value_null, tvb, start_offset + val_offset, 4, 0, "(null)");
-		goto done;
+		return offset;
 	}
 
 	switch(val_type) {
@@ -6381,8 +6366,6 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 
 		proto_item_append_text(item, ", Value: %s", value);
 
-		g_free(value);
-
 		break;
 	}
 	case DCERPC_REG_BINARY:
@@ -6402,9 +6385,6 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 	default:
 		proto_tree_add_expert_format( subtree, pinfo, &ei_enumprinterdataex_value, tvb, start_offset + val_offset, val_len, "%s: unknown type %d", name, val_type);
 	}
-
- done:
-	g_free(name);
 
 	return offset;
 }

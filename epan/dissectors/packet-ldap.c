@@ -1322,7 +1322,7 @@ char *mechanism = NULL;
      * different type and/or mechanism.
      */
     if(!actx->pinfo->fd->flags.visited) {
-        mechanism = tvb_get_string_enc(NULL, parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), ENC_UTF_8|ENC_NA);
+        mechanism = tvb_get_string_enc(wmem_file_scope(), parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), ENC_UTF_8|ENC_NA);
         ldap_info->first_auth_frame = 0;	/* not known until we see the bind reply */
         /*
          * If the mechanism in this request is an empty string (which is
@@ -1331,7 +1331,7 @@ char *mechanism = NULL;
          * save this mechanism.
          */
         if (mechanism != NULL) {
-          g_free(ldap_info->auth_mech);
+          wmem_free(wmem_file_scope(), ldap_info->auth_mech);
           ldap_info->auth_mech = mechanism;
         }
     }
@@ -4033,7 +4033,7 @@ static void
     &&(tvb_get_guint8(tvb, offset+4)==0x60) ){
       ldap_info->auth_type=LDAP_AUTH_SASL;
       ldap_info->first_auth_frame=pinfo->num;
-      ldap_info->auth_mech=g_strdup("GSS-SPNEGO");
+      ldap_info->auth_mech=wmem_strdup(wmem_file_scope(), "GSS-SPNEGO");
       doing_sasl_security=TRUE;
   }
 
@@ -4819,7 +4819,6 @@ ldap_cleanup(void)
   for (ldap_info = ldap_info_items; ldap_info != NULL; ) {
     ldap_conv_info_t *next;
 
-    g_free(ldap_info->auth_mech);
     g_hash_table_destroy(ldap_info->matched);
     g_hash_table_destroy(ldap_info->unmatched);
 
@@ -5674,7 +5673,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2190 "./asn1/ldap/packet-ldap-template.c"
+#line 2189 "./asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5748,7 +5747,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2204 "./asn1/ldap/packet-ldap-template.c"
+#line 2203 "./asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5918,7 +5917,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2357 "./asn1/ldap/packet-ldap-template.c"
+#line 2356 "./asn1/ldap/packet-ldap-template.c"
 
 
 }

@@ -238,9 +238,8 @@ static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         return TRUE;
     } else if (pref_heuristic_unicode) {
         /* XXX - UCS-2, or UTF-16? */
-        const guint8 *data_str    = tvb_get_string_enc(NULL, tvb, 0, tvb_captured_length(tvb), ENC_UCS_2|ENC_LITTLE_ENDIAN);
+        const guint8 *data_str    = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb), ENC_UCS_2|ENC_LITTLE_ENDIAN);
         tvbuff_t     *unicode_tvb = tvb_new_child_real_data(tvb, data_str, tvb_captured_length(tvb)/2, tvb_captured_length(tvb)/2);
-        tvb_set_free_cb(unicode_tvb, g_free);
         if (tvbparse_peek(tvbparse_init(unicode_tvb, 0, -1, NULL, want_ignore), want_heur)) {
             add_new_data_source(pinfo, unicode_tvb, "UTF8");
             dissect_xml(unicode_tvb, pinfo, tree, data);

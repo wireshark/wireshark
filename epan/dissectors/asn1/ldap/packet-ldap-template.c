@@ -1114,7 +1114,7 @@ static void
     &&(tvb_get_guint8(tvb, offset+4)==0x60) ){
       ldap_info->auth_type=LDAP_AUTH_SASL;
       ldap_info->first_auth_frame=pinfo->num;
-      ldap_info->auth_mech=g_strdup("GSS-SPNEGO");
+      ldap_info->auth_mech=wmem_strdup(wmem_file_scope(), "GSS-SPNEGO");
       doing_sasl_security=TRUE;
   }
 
@@ -1900,7 +1900,6 @@ ldap_cleanup(void)
   for (ldap_info = ldap_info_items; ldap_info != NULL; ) {
     ldap_conv_info_t *next;
 
-    g_free(ldap_info->auth_mech);
     g_hash_table_destroy(ldap_info->matched);
     g_hash_table_destroy(ldap_info->unmatched);
 

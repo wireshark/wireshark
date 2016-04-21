@@ -173,7 +173,7 @@ char *mechanism = NULL;
      * different type and/or mechanism.
      */
     if(!actx->pinfo->fd->flags.visited) {
-        mechanism = tvb_get_string_enc(NULL, parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), ENC_UTF_8|ENC_NA);
+        mechanism = tvb_get_string_enc(wmem_file_scope(), parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), ENC_UTF_8|ENC_NA);
         ldap_info->first_auth_frame = 0;	/* not known until we see the bind reply */
         /*
          * If the mechanism in this request is an empty string (which is
@@ -182,7 +182,7 @@ char *mechanism = NULL;
          * save this mechanism.
          */
         if (mechanism != NULL) {
-          g_free(ldap_info->auth_mech);
+          wmem_free(wmem_file_scope(), ldap_info->auth_mech);
           ldap_info->auth_mech = mechanism;
         }
     }

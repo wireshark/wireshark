@@ -844,11 +844,8 @@ dissect_xtp_jcntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_xtp_diag(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	guint32          len   = tvb_reported_length_remaining(tvb, offset);
-	guint32          start = offset;
 	proto_item      *ti;
 	proto_tree      *xtp_subtree;
-	struct xtp_diag  diag[1];
-	guint32          msg_len;
 
 	xtp_subtree = proto_tree_add_subtree(tree, tvb, offset, len, ett_xtp_diag, &ti, "Diagnostic Segment");
 
@@ -859,31 +856,17 @@ dissect_xtp_diag(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 		return;
 	}
 
-	/** parse **/
 	/* code(4) */
-	diag->code = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_item(xtp_subtree, hf_xtp_diag_code,
+			tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	/* val(4) */
-	diag->val = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_item(xtp_subtree, hf_xtp_diag_val,
+			tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	/* message(n) */
-	msg_len = tvb_reported_length_remaining(tvb, offset);
-	diag->msg = tvb_get_string_enc(NULL, tvb, offset, msg_len, ENC_ASCII);
-
-	/** display **/
-	offset = start;
-	/* code(4) */
-	proto_tree_add_uint(xtp_subtree, hf_xtp_diag_code,
-			tvb, offset, 4, diag->code);
-	offset += 4;
-	/* val(4) */
-	proto_tree_add_uint(xtp_subtree, hf_xtp_diag_val,
-			tvb, offset, 4, diag->val);
-	offset += 4;
-	/* message(4) */
-	proto_tree_add_string(xtp_subtree, hf_xtp_diag_msg,
-			tvb, offset, msg_len, diag->msg);
-	g_free(diag->msg);
+	proto_tree_add_item(xtp_subtree, hf_xtp_diag_msg,
+			tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
 
 	return;
 }
