@@ -1207,7 +1207,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     length += data_fragment->length;
                 }
 
-                reassembled = (guint8 *) wmem_alloc(wmem_file_scope(), length);
+                reassembled = (guint8 *) wmem_alloc(pinfo->pool, length);
 
                 for (i_frame = 1; i_frame <= fragment->count; ++i_frame) {
                     data_fragment = (data_fragment_t *)wmem_tree_lookup32_le(fragment->fragments, i_frame);

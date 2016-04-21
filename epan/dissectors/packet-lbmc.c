@@ -9967,7 +9967,7 @@ static int dissect_nhdr_extopt(tvbuff_t * tvb, int offset, packet_info * pinfo, 
             {
                 tvb_memcpy(tvb, reassembly->data + fragment_offset, data_offset, data_len);
                 reassembly->len += data_len;
-                buf = (gchar *) wmem_memdup(wmem_file_scope(), reassembly->data, reassembly->len);
+                buf = (gchar *) wmem_memdup(pinfo->pool, reassembly->data, reassembly->len);
                 reassembly_tvb = tvb_new_real_data(buf, reassembly->len, reassembly->len);
                 add_new_data_source(pinfo, reassembly_tvb, "Reassembled EXTOPT fragment data");
             }
@@ -11367,7 +11367,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                     gchar * buf = NULL;
 
                     /* Create a new real data tvb of the reassembled data. */
-                    buf = (gchar *)wmem_alloc(wmem_file_scope(), (size_t)msg->total_len);
+                    buf = (gchar *)wmem_alloc(pinfo->pool, (size_t)msg->total_len);
                     cur = msg->entry;
                     while (cur != NULL)
                     {

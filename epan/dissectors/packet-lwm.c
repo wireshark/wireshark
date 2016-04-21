@@ -429,7 +429,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             payload_length=tvb_reported_length(new_tvb) - LWM_MIC_LEN;
 
             /* ECB - Nwk security vector*/
-            text = (guint8 *)tvb_memdup(NULL, new_tvb, 0, payload_length);
+            text = (guint8 *)tvb_memdup(pinfo->pool, new_tvb, 0, payload_length);
             payload_offset=0;
 
             /*Decrypt the actual data */
@@ -478,7 +478,6 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 decrypted_tvb = tvb_new_real_data(text,length, length);
                 call_data_dissector(decrypted_tvb, pinfo, lwm_tree);
                 /* XXX - needed?
-                   tvb_set_free_cb(decrypted_tvb, g_free);
                    add_new_data_source(pinfo, decrypted_tvb, "Decrypted LWmesh Payload"); */
                 col_append_fstr(pinfo->cinfo, COL_INFO, ",  MIC SUCCESS");
 

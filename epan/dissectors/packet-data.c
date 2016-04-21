@@ -70,9 +70,8 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			proto_item *ti;
 			proto_tree *data_tree;
 			if (new_pane) {
-				guint8 *real_data = (guint8 *)tvb_memdup(NULL, tvb, 0, bytes);
+				guint8 *real_data = (guint8 *)tvb_memdup(pinfo->pool, tvb, 0, bytes);
 				data_tvb = tvb_new_child_real_data(tvb,real_data,bytes,bytes);
-				tvb_set_free_cb(data_tvb, g_free);
 				add_new_data_source(pinfo, data_tvb, "Not dissected data bytes");
 			} else {
 				data_tvb = tvb;

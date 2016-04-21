@@ -112,7 +112,13 @@ composite_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 		return tvb_get_ptr(member_tvb, member_offset, abs_length);
 	}
 	else {
-		tvb->real_data = (guint8 *)tvb_memdup(NULL, tvb, 0, -1);
+		abs_offset = 0;
+		abs_length = 0;
+
+		tvb_check_offset_length(tvb, 0, -1, &abs_offset, &abs_length);
+
+		tvb->real_data = (guint8 *)g_malloc(abs_length);
+		tvb_memcpy(tvb, (void *)tvb->real_data, 0, abs_length);
 		return tvb->real_data + abs_offset;
 	}
 

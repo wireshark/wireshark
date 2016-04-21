@@ -284,7 +284,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	digest_type = tvb_get_guint8 (tvb,  2);
 	compression = tvb_get_guint8 (tvb,  3);
 	cookie      = tvb_get_ntohl  (tvb,  4);
-	digest      = (guint8 *)tvb_memdup (NULL, tvb,  8, DIGEST_LEN);
+	digest      = (guint8 *)tvb_memdup (wmem_file_scope(), tvb,  8, DIGEST_LEN);
 	size	    = tvb_get_ntoh64 (tvb, 40);
 	offset	    = tvb_get_ntoh64 (tvb, 48);
 	targetTime  = tvb_get_ntohl  (tvb, 56);
@@ -520,7 +520,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
 			/* Include new-line in line */
-			line = (guint8 *)tvb_memdup(NULL, tvb, offset, linelen+1); /* XXX - memory leak? */
+			line = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset, linelen+1); /* XXX - memory leak? */
 
 			line_tree = proto_tree_add_subtree(ldss_tree, tvb, offset, linelen,
 							 ett_ldss_transfer_req, NULL,

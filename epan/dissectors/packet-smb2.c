@@ -7710,11 +7710,11 @@ dissect_smb2_transform_header(packet_info *pinfo _U_, proto_tree *tree,
 
 		memcpy(&A_1[1], sti->nonce, 15 - 4);
 
-		plain_data = (guint8 *)tvb_memdup(NULL, tvb, offset, sti->size);
+		plain_data = (guint8 *)tvb_memdup(pinfo->pool, tvb, offset, sti->size);
 
 		/* Open the cipher. */
 		if (gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0)) {
-			g_free(plain_data);
+			wmem_free(pinfo->pool, plain_data);
 			plain_data = NULL;
 			goto done_decryption;
 		}
@@ -7722,20 +7722,20 @@ dissect_smb2_transform_header(packet_info *pinfo _U_, proto_tree *tree,
 		/* Set the key and initial value. */
 		if (gcry_cipher_setkey(cipher_hd, decryption_key, 16)) {
 			gcry_cipher_close(cipher_hd);
-			g_free(plain_data);
+			wmem_free(pinfo->pool, plain_data);
 			plain_data = NULL;
 			goto done_decryption;
 		}
 		if (gcry_cipher_setctr(cipher_hd, A_1, 16)) {
 			gcry_cipher_close(cipher_hd);
-			g_free(plain_data);
+			wmem_free(pinfo->pool, plain_data);
 			plain_data = NULL;
 			goto done_decryption;
 		}
 
 		if (gcry_cipher_encrypt(cipher_hd, plain_data, sti->size, NULL, 0)) {
 			gcry_cipher_close(cipher_hd);
-			g_free(plain_data);
+			wmem_free(pinfo->pool, plain_data);
 			plain_data = NULL;
 			goto done_decryption;
 		}
@@ -7749,7 +7749,6 @@ done_decryption:
 
 	if (plain_data != NULL) {
 		*plain_tvb = tvb_new_child_real_data(*enc_tvb, plain_data, sti->size, sti->size);
-		tvb_set_free_cb(*plain_tvb, g_free);
 		add_new_data_source(pinfo, *plain_tvb, "Decrypted SMB3");
 	}
 

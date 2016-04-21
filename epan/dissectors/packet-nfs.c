@@ -1039,8 +1039,8 @@ nfs_name_snoop_value_destroy(gpointer value)
 
 	g_free((gpointer)nns->name);
 	g_free((gpointer)nns->full_name);
-	g_free((gpointer)nns->parent);
-	g_free((gpointer)nns->fh);
+	wmem_free(NULL, nns->parent);
+	wmem_free(NULL, nns->fh);
 	g_free(nns);
 }
 
@@ -1257,7 +1257,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 
 		fhlen = fh_length;
 		/* align it */
-		fhdata = (guint32 *)tvb_memdup(NULL, tvb, fh_offset, fh_length);
+		fhdata = (guint32 *)tvb_memdup(wmem_packet_scope(), tvb, fh_offset, fh_length);
 		fhkey[0].length = 1;
 		fhkey[0].key	= &fhlen;
 		fhkey[1].length = fhlen/4;
@@ -1265,7 +1265,6 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 		fhkey[2].length = 0;
 
 		nns = (nfs_name_snoop_t *)wmem_tree_lookup32_array(nfs_name_snoop_known, &fhkey[0]);
-		g_free(fhdata);
 	}
 
 	/* if we know the mapping, print the filename */

@@ -2047,7 +2047,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
 
       /* Store the decrypted contents in the packet state struct
          (of course at this point, they aren't decrypted yet) */
-      packet_ntlmssp_info->decrypted_payload = (guint8 *)tvb_memdup(NULL, tvb, offset,
+      packet_ntlmssp_info->decrypted_payload = (guint8 *)tvb_memdup(wmem_file_scope(), tvb, offset,
                                                           encrypted_block_length);
       packet_ntlmssp_info->payload_len = encrypted_block_length;
       decrypted_payloads = g_slist_prepend(decrypted_payloads,
@@ -2541,7 +2541,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
 
     /* Store the decrypted contents in the packet state struct
        (of course at this point, they aren't decrypted yet) */
-    packet_ntlmssp_info->decrypted_payload = tvb_memdup(NULL, data_tvb, offset,
+    packet_ntlmssp_info->decrypted_payload = tvb_memdup(wmem_file_scope(), data_tvb, offset,
                                                         encrypted_block_length);
     decrypted_payloads = g_slist_prepend(decrypted_payloads,
                                          packet_ntlmssp_info->decrypted_payload);
@@ -2568,12 +2568,6 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
   return decr_tvb;
 }
 #endif
-
-static void
-free_payload(gpointer decrypted_payload, gpointer user_data _U_)
-{
-  g_free(decrypted_payload);
-}
 
 static guint
 header_hash(gconstpointer pointer)
@@ -2604,7 +2598,6 @@ static void
 ntlmssp_cleanup_protocol(void)
 {
   if (decrypted_payloads != NULL) {
-    g_slist_foreach(decrypted_payloads, free_payload, NULL);
     g_slist_free(decrypted_payloads);
     decrypted_payloads = NULL;
   }

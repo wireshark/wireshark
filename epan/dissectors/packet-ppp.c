@@ -4953,7 +4953,7 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     tvb_ensure_bytes_exist (tvb, 0, hdr_len);  /* ip_hdr_len + 8 */
 
     /* allocate a copy of the IP packet */
-    ip_packet = (guchar *)tvb_memdup(NULL, tvb, 0, length);
+    ip_packet = (guchar *)tvb_memdup(pinfo->pool, tvb, 0, length);
 
     /* restore the proper values to the IP and UDP length fields */
     ip_packet[2] = length >> 8;
@@ -4964,7 +4964,6 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
     next_tvb = tvb_new_child_real_data(tvb, ip_packet, length, length);
     add_new_data_source(pinfo, next_tvb, "Decompressed Data");
-    tvb_set_free_cb(next_tvb, g_free);
 
     if (!dissector_try_uint(ppp_subdissector_table, PPP_IP, next_tvb, pinfo,
         info_tree)) {

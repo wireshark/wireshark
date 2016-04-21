@@ -68,7 +68,8 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 		return NULL;
 	}
 
-	compr = (guint8 *)tvb_memdup(NULL, tvb, offset, comprlen);
+	compr = (guint8 *)g_malloc(comprlen);
+	tvb_memcpy(tvb, compr, offset, comprlen);
 
 	if (!compr)
 		return NULL;

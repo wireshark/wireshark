@@ -950,7 +950,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       encrypted = TRUE;
 #ifdef HAVE_LIBGCRYPT
       if (c1222_decrypt) {
-        buffer = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, len2);
+        buffer = (guchar *)tvb_memdup(pinfo->pool, tvb, offset, len2);
         if (!decrypt_packet(buffer, len2, TRUE)) {
           crypto_bad = TRUE;
         } else {

@@ -383,7 +383,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     length += fragment->length;
                 }
 
-                reassembled = (guint8 *) wmem_alloc(wmem_file_scope(), length);
+                reassembled = (guint8 *) wmem_alloc(pinfo->pool, length);
 
                 for (i_frame = 1; i_frame <= fragments->count; ++i_frame) {
                     fragment = (fragment_t *)wmem_tree_lookup32_le(fragments->fragment, i_frame);
