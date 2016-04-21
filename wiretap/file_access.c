@@ -139,6 +139,7 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "Tektronix K12xx 32-bit .rf5 format", "rf5" },
 	{ "Savvius *Peek", "pkt;tpc;apc;wpz" },
 	{ "Catapult DCT2000 trace (.out format)", "out" },
+	{ "Micropross mplog", "mplog" },
 	{ "MPEG files", "mpg;mp3" },
 	{ "TamoSoft CommView", "ncf" },
 	{ "Symbian OS btsnoop", "log" },
