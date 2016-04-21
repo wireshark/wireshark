@@ -765,7 +765,7 @@ c_ares_ghba_cb(
             }
         }
     }
-    g_free(caqm);
+    wmem_free(wmem_epan_scope(), caqm);
 }
 #endif /* HAVE_C_ARES */
 
