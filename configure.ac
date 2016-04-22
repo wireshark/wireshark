@@ -2920,6 +2920,7 @@ else
 	RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --without lua"
 fi
 AC_SUBST(RPMBUILD_WITH_ARGS)
+AC_SUBST(RPM_VERSION, version_major.version_minor.version_micro)
 
 AC_SUBST(WS_CPPFLAGS)
 AC_SUBST(WS_CFLAGS)

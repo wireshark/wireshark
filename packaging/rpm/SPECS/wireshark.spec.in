@@ -22,16 +22,18 @@
 # are set.
 %global use_wireshark_group 1
 
+%global package_version @VERSION@
+
 
 Summary:	Wireshark is the world's foremost protocol analyzer
 Name:		wireshark
-Version:	@VERSION@
+Version:	@RPM_VERSION@
 Release:	1
 License:	GPLv2+
 Group:		Applications/Internet
-Source:		https://wireshark.org/download/src/%{name}-%{version}.tar.bz2
+Source:		https://wireshark.org/download/src/%{name}-%{package_version}.tar.bz2
 # Or this URL for automated builds:
-#Source:	https://wireshark.org/download/automated/src/%{name}-%{version}.tar.bz2
+#Source:	https://wireshark.org/download/automated/src/%{name}-%{package_version}.tar.bz2
 URL:		https://www.wireshark.org/
 Packager:	Gerald Combs <gerald[AT]wireshark.org>
 # Some distributions create a wireshark-devel package; get rid of it
@@ -214,7 +216,7 @@ This package contains the GTK+ Wireshark GUI and desktop integration files.
 
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q -n %{name}-%{package_version}
 
 # Don't specify the prefix here: configure is a macro which expands to set
 # the prefix and everything else too.  If you need to change the prefix
