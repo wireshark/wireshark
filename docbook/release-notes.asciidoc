@@ -13,79 +13,21 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* ws-salink:2016-22[]
+* ws-salink:2016-29[]
 +
-The PKTC dissector could crash.
-(ws-buglink:12206[])
+A dissector went awry.
+(ws-buglink:xxxxx[])
 //cve-idlink:2015-XXXX[]
-// Fixed in master: 4cdc9ee
-// Fixed in master-2.0: 99d549f
-// Fixed in master-1.12: 4446971
+// Fixed in master: xxxxx
+// Fixed in master-2.0: xxxxx
+// Fixed in master-1.12: xxxxx
 
-* ws-salink:2016-23[]
-+
-The PKTC dissector could crash.
-(ws-buglink:12242[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: ad09738
-// Fixed in master-2.0: a7fcd61
-// Fixed in master-1.12: df3d07b
-
-* ws-salink:2016-24[]
-+
-The IAX2 dissector could go into an infinite loop.
-(ws-buglink:12260[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: 42f299b
-// Fixed in master-2.0: fedd01d
-// Fixed in master-1.12: 73dbc54
-
-* ws-salink:2016-25[]
-+
-Wireshark and TShark could exhaust the stack.
-(ws-buglink:12268[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: 8dc9551
-// Fixed in master-2.0: fcff256
-// Fixed in master-1.12: c5a9678
-
-* ws-salink:2016-26[]
-+
-The GSM CBCH dissector could crash.
-(ws-buglink:12278[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: 0fe522d
-// Fixed in master-2.0: 363dc72
-// Fixed in master-1.12: edf4950
-
-* ws-salink:2016-28[]
-+
-The NCP dissector could crash.
-(ws-buglink:12293[])
-//cve-idlink:2015-XXXX[]
-// Fixed in master: N/A
-// Fixed in master-2.0: N/A
-// Fixed in master-1.12: 99efcb0
 
 The following bugs have been fixed:
 
 //* Wireshark always manages to score tickets for Burning Man, Coachella, and
 //  SXSW while you end up working double shifts. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v1.12.11rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* wlan, wlan_mgt, Length error shown for IE BSS AC Access Delay/WAPI Parameter Set (68). (ws-buglink:12223[])
-
-* RPC/NFS incorrectly decodes as ACAP. (ws-buglink:12265[])
-
-* Wireshark mistakenly flags CF-End packets as being Malformed. (ws-buglink:12266[])
-
-* ASTERIX Category 48 Reserved Expansion Field. (ws-buglink:12267[])
-
-* Dissector bug, failed assertion, proto_desegment pinfo->can_desegment. (ws-buglink:12285[])
-
-* Malformed Packet: RTP. (ws-buglink:12339[])
-
-* Incorrect error on MPA pdu length on iWARP packets. (ws-buglink:12348[])
 
 
 Windows installers and PortableApps(R) packages are dual signed using SHA-1 and SHA-256
@@ -107,26 +49,12 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-ACAP
-Asterix
-GPRS LLC
-GSM
-IAX2
-IEEE 802.11
-INAP
-iWARP MPA
-Kerberos
-MySQL
-NCP
-RTP
-SMB
 --sort-and-group--
 
 === New and Updated Capture File Support
 
 //There is no new or updated capture file support in this release.
 --sort-and-group--
-Gammu DCT3
 --sort-and-group--
 
 == Getting Wireshark
