@@ -723,7 +723,6 @@ EXTRA_DIST = \
 	README.cmake		\
 	ConfigureChecks.cmake	\
 	cmake			\
-	version.h.in		\
 	CPackConfig.txt
 
 install-exec-hook:
