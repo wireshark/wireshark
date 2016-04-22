@@ -2657,11 +2657,11 @@ host_name_lookup_init(void)
     g_assert(async_dns_queue_head == NULL);
     async_dns_queue_head = wmem_list_new(wmem_epan_scope());
 
-    g_assert(manually_resolved_ipv4_list == NULL);
-    manually_resolved_ipv4_list = wmem_list_new(wmem_epan_scope());
+    if (manually_resolved_ipv4_list == NULL)
+        manually_resolved_ipv4_list = wmem_list_new(wmem_epan_scope());
 
-    g_assert(manually_resolved_ipv6_list == NULL);
-    manually_resolved_ipv6_list = wmem_list_new(wmem_epan_scope());
+    if (manually_resolved_ipv6_list == NULL)
+        manually_resolved_ipv6_list = wmem_list_new(wmem_epan_scope());
 
     /*
      * Load the global hosts file, if we have one.
