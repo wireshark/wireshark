@@ -27,6 +27,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/charsets.h>
 
 #include "packet-e212.h"
 #include "packet-gsm_a_common.h"
@@ -51,8 +52,13 @@ static int hf_ctlv_cmd_qual_loci = -1;
 static int hf_ctlv_cmd_qual_timer_mgmt = -1;
 static int hf_ctlv_cmd_qual_send_data = -1;
 static int hf_ctlv_cmd_qual = -1;
-static int hf_ctlv_dur_time_intv = -1;
 static int hf_ctlv_dur_time_unit = -1;
+static int hf_ctlv_dur_time_intv = -1;
+static int hf_ctlv_alpha_id_string = -1;
+static int hf_ctlv_address_ton = -1;
+static int hf_ctlv_address_npi = -1;
+static int hf_ctlv_address_string = -1;
+static int hf_ctlv_subaddress_string = -1;
 static int hf_ctlv_result_gen = -1;
 static int hf_ctlv_result_term = -1;
 static int hf_ctlv_result_launch_browser = -1;
@@ -64,6 +70,8 @@ static int hf_ctlv_text_string_enc = -1;
 static int hf_ctlv_text_string = -1;
 static int hf_ctlv_event = -1;
 static int hf_ctlv_tone = -1;
+static int hf_ctlv_item_id = -1;
+static int hf_ctlv_item_string = -1;
 static int hf_ctlv_loc_status = -1;
 static int hf_ctlv_timer_val_hr = -1;
 static int hf_ctlv_timer_val_min = -1;
@@ -77,6 +85,7 @@ static int hf_ctlv_date_time_sec = -1;
 static int hf_ctlv_date_time_tz = -1;
 static int hf_ctlv_at_cmd = -1;
 static int hf_ctlv_at_rsp = -1;
+static int hf_ctlv_dtmf_string = -1;
 static int hf_ctlv_language = -1;
 static int hf_ctlv_me_status = -1;
 static int hf_ctlv_timing_adv = -1;
@@ -428,6 +437,26 @@ static const value_string time_unit_vals[] = {
 	{ 0x00, "minutes" },
 	{ 0x01, "seconds" },
 	{ 0x02, "tenths of seconds" },
+	{ 0, NULL }
+};
+
+/* TS 102 223 Chapter 8.1 */
+static const value_string ton_vals[] = {
+	{ 0x00, "Unknown" },
+	{ 0x01, "International Number" },
+	{ 0x02, "National Number" },
+	{ 0x03, "Network Specific Number" },
+	{ 0, NULL }
+};
+
+/* TS 102 223 Chapter 8.1 */
+static const value_string npi_vals[] = {
+	{ 0x00, "Unknown" },
+	{ 0x01, "ISDN/telephony numbering plan (Recommendation ITU-Ts E.164 and E.163" },
+	{ 0x03, "Data numbering plan (Recommendation ITU-T X.121)" },
+	{ 0x04, "Telex numbering plan (Recommendation ITU-T F.69)" },
+	{ 0x09, "Private numbering plan" },
+	{ 0x0f, "Reserved for extension" },
 	{ 0, NULL }
 };
 
@@ -956,6 +985,93 @@ static const value_string aid_pix_app_code_3gpp2_vals[] = {
 	{ 0, NULL}
 };
 
+static void
+dissect_cat_efadn_coding(tvbuff_t *tvb, proto_tree *tree, guint32 pos, guint32 len, int hf_entry)
+{
+	if (len) {
+		guint32 i;
+
+		guint8 first_byte = tvb_get_guint8(tvb, pos);
+		if ((first_byte & 0x80) == 0) {
+			wmem_strbuf_t *strbuf = wmem_strbuf_sized_new(wmem_packet_scope(), len+1, 0);
+			for (i = 0; i < len; i++) {
+				guint8 gsm_chars[2];
+				gsm_chars[0] = tvb_get_guint8(tvb, pos+i);
+				if (gsm_chars[0] == 0x1b) {
+					/* Escape character */
+					guint8 second_byte;
+					i++;
+					second_byte = tvb_get_guint8(tvb, pos+i);
+					gsm_chars[0] |= second_byte << 7;
+					gsm_chars[1] = second_byte >> 1;
+					wmem_strbuf_append(strbuf, get_ts_23_038_7bits_string(wmem_packet_scope(), gsm_chars, 0, 2));
+				} else {
+					wmem_strbuf_append(strbuf, get_ts_23_038_7bits_string(wmem_packet_scope(), gsm_chars, 0, 1));
+				}
+			}
+			proto_tree_add_string(tree, hf_entry, tvb, pos, len, wmem_strbuf_finalize(strbuf));
+		} else if (first_byte == 0x80) {
+			proto_tree_add_item(tree, hf_entry, tvb, pos+1, len-1, ENC_UCS_2|ENC_BIG_ENDIAN);
+		} else if (first_byte == 0x81) {
+			guint8 string_len = tvb_get_guint8(tvb, pos+1);
+			guint16 ucs2_base = tvb_get_guint8(tvb, pos+2) << 7;
+			wmem_strbuf_t *strbuf = wmem_strbuf_sized_new(wmem_packet_scope(), 2*string_len+1, 0);
+			for (i = 0; i < string_len; i++) {
+				guint8 byte = tvb_get_guint8(tvb, pos+3+i);
+				if ((byte & 0x80) == 0) {
+					guint8 gsm_chars[2];
+					gsm_chars[0] = byte;
+					if (gsm_chars[0] == 0x1b) {
+						/* Escape character */
+						guint8 second_byte;
+						i++;
+						second_byte = tvb_get_guint8(tvb, pos+3+i);
+						gsm_chars[0] |= second_byte << 7;
+						gsm_chars[1] = second_byte >> 1;
+						wmem_strbuf_append(strbuf, get_ts_23_038_7bits_string(wmem_packet_scope(), gsm_chars, 0, 2));
+					} else {
+						wmem_strbuf_append(strbuf, get_ts_23_038_7bits_string(wmem_packet_scope(), gsm_chars, 0, 1));
+					}
+				} else {
+					guint8 ucs2_char[2];
+					ucs2_char[0] = ucs2_base >> 8;
+					ucs2_char[1] = (ucs2_base & 0xff) + (byte & 0x7f);
+					wmem_strbuf_append(strbuf, get_ucs_2_string(wmem_packet_scope(), ucs2_char, 2, ENC_BIG_ENDIAN));
+				}
+			}
+			proto_tree_add_string(tree, hf_entry, tvb, pos, len, wmem_strbuf_finalize(strbuf));
+		} else if (first_byte == 0x82) {
+			guint8 string_len = tvb_get_guint8(tvb, pos+1);
+			guint16 ucs2_base = tvb_get_ntohs(tvb, pos+2);
+			wmem_strbuf_t *strbuf = wmem_strbuf_sized_new(wmem_packet_scope(), 2*string_len+1, 0);
+			for (i = 0; i < string_len; i++) {
+				guint8 byte = tvb_get_guint8(tvb, pos+4+i);
+				if ((byte & 0x80) == 0) {
+					guint8 gsm_chars[2];
+					gsm_chars[0] = byte;
+					if (gsm_chars[0] == 0x1b) {
+						/* Escape character */
+						guint8 second_byte;
+						i++;
+						second_byte = tvb_get_guint8(tvb, pos+4+i);
+						gsm_chars[0] |= second_byte << 7;
+						gsm_chars[1] = second_byte >> 1;
+						wmem_strbuf_append(strbuf, get_ts_23_038_7bits_string(wmem_packet_scope(), gsm_chars, 0, 2));
+					} else {
+						wmem_strbuf_append(strbuf, get_ts_23_038_7bits_string(wmem_packet_scope(), gsm_chars, 0, 1));
+					}
+				} else {
+					guint8 ucs2_char[2];
+					ucs2_char[0] = ucs2_base >> 8;
+					ucs2_char[1] = (ucs2_base & 0xff) + (byte & 0x7f);
+					wmem_strbuf_append(strbuf, get_ucs_2_string(wmem_packet_scope(), ucs2_char, 2, ENC_BIG_ENDIAN));
+				}
+			}
+			proto_tree_add_string(tree, hf_entry, tvb, pos, len, wmem_strbuf_finalize(strbuf));
+		}
+	}
+}
+
 static int
 dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -1081,13 +1197,19 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		case 0x04:	/* Duration */
 			if (len < 2)
 				break;
-			proto_tree_add_item(elem_tree, hf_ctlv_dur_time_intv, tvb, pos+1, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(elem_tree, hf_ctlv_dur_time_unit, tvb, pos, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(elem_tree, hf_ctlv_dur_time_intv, tvb, pos+1, 1, ENC_BIG_ENDIAN);
 			break;
 		case 0x05:	/* alpha identifier */
+			dissect_cat_efadn_coding(tvb, elem_tree, pos, len, hf_ctlv_alpha_id_string);
 			break;
 		case 0x06:	/* address */
-			de_cld_party_bcd_num(tvb, elem_tree, pinfo, pos, len, NULL, 0);
+			proto_tree_add_item(elem_tree, hf_ctlv_address_ton, tvb, pos, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(elem_tree, hf_ctlv_address_npi, tvb, pos, 1, ENC_BIG_ENDIAN);
+			dissect_cat_efadn_coding(tvb, elem_tree, pos+1, len-1, hf_ctlv_address_string);
+			break;
+		case 0x08:	/* subaddress */
+			dissect_cat_efadn_coding(tvb, elem_tree, pos, len, hf_ctlv_subaddress_string);
 			break;
 		case 0x0b:	/* sms tpdu */
 			new_tvb = tvb_new_subset_length(tvb, pos, len);
@@ -1140,6 +1262,12 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			if (len < 1)
 				break;
 			proto_tree_add_item(elem_tree, hf_ctlv_tone, tvb, pos, 1, ENC_BIG_ENDIAN);
+			break;
+		case 0x0f:	/* item */
+			if (len) {
+				proto_tree_add_item(elem_tree, hf_ctlv_item_id, tvb, pos, 1, ENC_BIG_ENDIAN);
+				dissect_cat_efadn_coding(tvb, elem_tree, pos+1, len-1, hf_ctlv_item_string);
+			}
 			break;
 		case 0x13:	/* location information */
 			if (len == 0)
@@ -1214,6 +1342,9 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			break;
 		case 0x29:	/* AT Response */
 			proto_tree_add_item(elem_tree, hf_ctlv_at_rsp, tvb, pos, len, ENC_ASCII|ENC_NA);
+			break;
+		case 0x2c:	/* DTMF string */
+			dissect_cat_efadn_coding(tvb, elem_tree, pos, len, hf_ctlv_dtmf_string);
 			break;
 		case 0x2d:	/* language */
 			proto_tree_add_item(elem_tree, hf_ctlv_language, tvb, pos, len, ENC_ASCII|ENC_NA);
@@ -1455,14 +1586,39 @@ proto_register_card_app_toolkit(void)
 			  FT_UINT8, BASE_HEX, NULL, 0,
 			  NULL, HFILL },
 		},
+		{ &hf_ctlv_dur_time_unit,
+			{ "Time Unit", "etsi_cat.comp_tlv.time_unit",
+			  FT_UINT8, BASE_HEX, VALS(time_unit_vals), 0,
+			  NULL, HFILL },
+		},
 		{ &hf_ctlv_dur_time_intv,
 			{ "Time Interval", "etsi_cat.comp_tlv.time_interval",
 			  FT_UINT8, BASE_DEC, NULL, 0,
 			  NULL, HFILL },
 		},
-		{ &hf_ctlv_dur_time_unit,
-			{ "Time Unit", "etsi_cat.comp_tlv.time_unit",
-			  FT_UINT8, BASE_HEX, VALS(time_unit_vals), 0,
+		{ &hf_ctlv_alpha_id_string,
+			{ "Alpha Identifier String", "etsi_cat.comp_tlv.alpha_id.string",
+			  FT_STRING, STR_UNICODE, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_address_ton,
+			{ "TON", "etsi_cat.comp_tlv.address.ton",
+			  FT_UINT8,  BASE_HEX, VALS(ton_vals), 0x70,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_address_npi,
+			{ "NPI", "etsi_cat.comp_tlv.address.npi",
+			  FT_UINT8,  BASE_HEX, VALS(npi_vals), 0x0f,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_address_string,
+			{ "Address String", "etsi_cat.comp_tlv.address.string",
+			  FT_STRING, STR_UNICODE, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_subaddress_string,
+			{ "Subaddress String", "etsi_cat.comp_tlv.subaddress.string",
+			  FT_STRING, STR_UNICODE, NULL, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_result_gen,
@@ -1518,6 +1674,16 @@ proto_register_card_app_toolkit(void)
 		{ &hf_ctlv_tone,
 			{ "Tone", "etsi_cat.comp_tlv.tone",
 			  FT_UINT8, BASE_HEX | BASE_EXT_STRING, &tone_vals_ext, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_item_id,
+			{ "Item Identifier", "etsi_cat.comp_tlv.item.id",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_item_string,
+			{ "Item String", "etsi_cat.comp_tlv.item.string",
+			  FT_STRING, STR_UNICODE, NULL, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_loc_status,
@@ -1577,17 +1743,22 @@ proto_register_card_app_toolkit(void)
 		},
 		{ &hf_ctlv_at_cmd,
 			{ "AT Command", "etsi_cat.comp_tlv.at_cmd",
-			  FT_STRING, BASE_NONE, NULL, 0,
+			  FT_STRING, STR_UNICODE, NULL, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_at_rsp,
 			{ "AT Response", "etsi_cat.comp_tlv.at_rsp",
-			  FT_STRING, BASE_NONE, NULL, 0,
+			  FT_STRING, STR_UNICODE, NULL, 0,
+			  NULL, HFILL },
+		},
+		{ &hf_ctlv_dtmf_string,
+			{ "DMTF String", "etsi_cat.comp_tlv.dtmf.string",
+			  FT_STRING, STR_UNICODE, NULL, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_language,
 			{ "Language", "etsi_cat.comp_tlv.language",
-			  FT_STRING, BASE_NONE, NULL, 0,
+			  FT_STRING, STR_UNICODE, NULL, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_me_status,
@@ -1852,7 +2023,7 @@ proto_register_card_app_toolkit(void)
 		},
 		{ &hf_ctlv_ims_status_code,
 			{ "IMS Status-Code", "etsi_cat.comp_tlv.ims_status_code",
-			  FT_STRING, BASE_NONE, NULL, 0,
+			  FT_STRING, STR_UNICODE, NULL, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_broadcast_nw_tech,

@@ -40,6 +40,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include <epan/charsets.h>
 #include "packet-gsm_sms.h"
 
 void proto_register_gsm_sms(void);
@@ -1929,7 +1930,23 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
             /* as defined in TS 23.038 with bit 8 set to 0 */
             if(!(reassembled && pinfo->num == reassembled_in))
             {
-                proto_tree_add_item(subtree, hf_gsm_sms_text, tvb, offset, length, ENC_ASCII|ENC_NA);
+                wmem_strbuf_t *strbuf = wmem_strbuf_sized_new(wmem_packet_scope(), length+1, 0);
+                for (i = 0; i < length; i++) {
+                    guint8 gsm_chars[2];
+                    gsm_chars[0] = tvb_get_guint8(tvb, offset+i);
+                    if (gsm_chars[0] == 0x1b) {
+                            /* Escape character */
+                            guint8 second_byte;
+                            i++;
+                            second_byte = tvb_get_guint8(tvb, offset+i);
+                            gsm_chars[0] |= second_byte << 7;
+                            gsm_chars[1] = second_byte >> 1;
+                            wmem_strbuf_append(strbuf, get_ts_23_038_7bits_string(wmem_packet_scope(), gsm_chars, 0, 2));
+                    } else {
+                            wmem_strbuf_append(strbuf, get_ts_23_038_7bits_string(wmem_packet_scope(), gsm_chars, 0, 1));
+                    }
+                }
+                proto_tree_add_string(subtree, hf_gsm_sms_text, tvb, offset, length, wmem_strbuf_finalize(strbuf));
             }
             else
             {
