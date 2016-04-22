@@ -2191,7 +2191,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Traccia i terminatori IPv4 o IPv6 su una mappa.</translation>
     </message>
     <message>
-        <location filename="endpoint_dialog.cpp" line="189"/>
+        <location filename="endpoint_dialog.cpp" line="190"/>
         <source>Map file error</source>
         <translation>Errore nel file di mappa</translation>
     </message>

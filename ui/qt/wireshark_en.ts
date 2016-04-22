@@ -2180,7 +2180,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="endpoint_dialog.cpp" line="189"/>
+        <location filename="endpoint_dialog.cpp" line="190"/>
         <source>Map file error</source>
         <translation type="unfinished"></translation>
     </message>

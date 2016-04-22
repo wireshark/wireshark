@@ -2191,7 +2191,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>IPv4 und IPv6 Endpunkte auf einer Karte anzeigen.</translation>
     </message>
     <message>
-        <location filename="endpoint_dialog.cpp" line="189"/>
+        <location filename="endpoint_dialog.cpp" line="190"/>
         <source>Map file error</source>
         <translation>Fehler bei der Kartendatei</translation>
     </message>

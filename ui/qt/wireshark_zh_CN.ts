@@ -2190,7 +2190,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>将IPv4或IPv6端点画在映射上。</translation>
     </message>
     <message>
-        <location filename="endpoint_dialog.cpp" line="189"/>
+        <location filename="endpoint_dialog.cpp" line="190"/>
         <source>Map file error</source>
         <translation>映射文件错误</translation>
     </message>

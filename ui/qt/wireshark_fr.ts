@@ -2192,7 +2192,7 @@ si vous voulez utiliser des fichiers multiples.</translation>
         <translation>Dessine des extrémités IPv4 ou IPv6 sur une carte.</translation>
     </message>
     <message>
-        <location filename="endpoint_dialog.cpp" line="189"/>
+        <location filename="endpoint_dialog.cpp" line="190"/>
         <source>Map file error</source>
         <translation>Erreur de fichier de carte</translation>
     </message>

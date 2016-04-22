@@ -2190,7 +2190,7 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <translation>Dodaj punkty krańcowe IPv4 lub IPv6.</translation>
     </message>
     <message>
-        <location filename="endpoint_dialog.cpp" line="189"/>
+        <location filename="endpoint_dialog.cpp" line="190"/>
         <source>Map file error</source>
         <translation>Błąd mapowania pliku</translation>
     </message>
