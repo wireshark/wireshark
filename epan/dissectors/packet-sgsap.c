@@ -1371,8 +1371,8 @@ sgsap_mo_csfb_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     curr_offset = offset;
     curr_len    = len;
 
-    /* IMSI IMSI 9.4.6 M LV 6-10 */
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL);
+    /* IMSI IMSI 9.4.6 M TLV 6-10 */
+    ELEM_MAND_TLV(0x01, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL, ei_sgsap_missing_mandatory_element);
     /* TAI Tracking Area Identity 9.4.21a O TLV 7 */
     ELEM_OPT_TLV(0x23, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID, NULL);
     /* E-CGI E-UTRAN Cell Global Identity 9.4.3a O TLV 9 */
