@@ -128,9 +128,6 @@ void UatDialog::keyPressEvent(QKeyEvent *evt)
         switch (evt->key()) {
         case Qt::Key_Escape:
             cur_line_edit_->setText(saved_string_pref_);
-            /* Fall Through */
-        case Qt::Key_Enter:
-        case Qt::Key_Return:
             stringPrefEditingFinished();
             return;
         default:
@@ -320,6 +317,7 @@ void UatDialog::on_uatTreeWidget_itemActivated(QTreeWidgetItem *item, int column
         cur_line_edit_->selectAll();
         connect(cur_line_edit_, SIGNAL(destroyed()), this, SLOT(lineEditPrefDestroyed()));
         connect(cur_line_edit_, SIGNAL(textChanged(QString)), this, SLOT(stringPrefTextChanged(QString)));
+        connect(cur_line_edit_, SIGNAL(editingFinished()), this, SLOT(stringPrefEditingFinished()));
     }
     if (cur_combo_box_) {
         editor = cur_combo_box_;
@@ -388,12 +386,25 @@ void UatDialog::enumPrefCurrentIndexChanged(int index)
         g_free(err);
         ok_button_->setEnabled(false);
         uat_update_record(uat_, rec, FALSE);
+    } else if (uat_ && uat_->update_cb) {
+        field->cb.set(rec, enum_txt.constData(), (unsigned) enum_txt.size(), field->cbdata.set, field->fld_data);
+
+        if (!uat_->update_cb(rec, &err)) {
+            QString err_string = "<font color='red'>%1</font>";
+            ui->hintLabel->setText(err_string.arg(err));
+            g_free(err);
+            ok_button_->setEnabled(false);
+        } else {
+            ui->hintLabel->clear();
+            ok_button_->setEnabled(true);
+        }
     } else {
         ui->hintLabel->clear();
         field->cb.set(rec, enum_txt.constData(), (unsigned) enum_txt.size(), field->cbdata.set, field->fld_data);
         ok_button_->setEnabled(true);
         uat_update_record(uat_, rec, TRUE);
     }
+
     this->update();
     uat_->changed = TRUE;
 }
@@ -477,6 +488,7 @@ void UatDialog::stringPrefEditingFinished()
         this->update();
     }
 
+    cur_line_edit_ = NULL;
     updateItem(*item);
 }
 
