@@ -2473,6 +2473,8 @@ host_name_lookup_process(void) {
                     AF_INET6, c_ares_ghba_cb, caqm);
             async_dns_in_flight++;
         }
+
+        head = wmem_list_head(async_dns_queue_head);
     }
 
     FD_ZERO(&rfds);
