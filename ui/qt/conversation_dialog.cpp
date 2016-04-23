@@ -272,11 +272,6 @@ void ConversationDialog::itemSelectionChanged()
     graph_bt_->setEnabled(graph_enable);
 }
 
-void ConversationDialog::on_nameResolutionCheckBox_toggled(bool)
-{
-    updateWidgets();
-}
-
 void ConversationDialog::on_displayFilterCheckBox_toggled(bool checked)
 {
     if (file_closed_) {
