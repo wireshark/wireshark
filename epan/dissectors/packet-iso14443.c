@@ -115,8 +115,7 @@ static const value_string iso14443_short_frame[] = {
 static const guint16 code_to_len[] = {
     16, 24, 32, 40, 48, 64, 96, 128, 256
 };
-/* XXX - do we have a generic macro for this? */
-#define LEN_CODE_MAX (sizeof(code_to_len) / sizeof(code_to_len[0]))
+#define LEN_CODE_MAX array_length(code_to_len)
 
 /* the bits in the ATS' TO byte indicating which other bytes are transmitted */
 #define HAVE_TC1 0x40
