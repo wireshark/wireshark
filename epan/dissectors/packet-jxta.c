@@ -924,9 +924,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
             col_append_str(pinfo->cinfo, COL_INFO, *current_token);
 
             if (NULL != found_addr) {
-                found_addr->type = uri_address_type;
-                found_addr->len = (int) strlen(*current_token);
-                found_addr->data = wmem_strdup(wmem_file_scope(), *current_token);
+                set_address(found_addr, uri_address_type, (int)strlen(*current_token) + 1, wmem_strdup(wmem_file_scope(), *current_token));
             }
 
             token_offset += (guint) strlen(*current_token) + 1;
