@@ -779,8 +779,22 @@ fi
 AC_SUBST(HAVE_SVR4_PACKAGING)
 
 # RPM
-AC_WIRESHARK_RPM_CHECK
-AC_SUBST(HAVE_RPM)
+#
+# Looks for the rpmbuild program, and checks to see if we can redefine "_topdir".
+#
+AC_CHECK_PROGS(RPMBUILD, [rpmbuild], [false])
+if test "x$RPMBUILD" != "xfalse" ; then
+	AC_MSG_CHECKING([to see if we can redefine _topdir])
+	$RPMBUILD --define '_topdir /tmp' > /dev/null 2>&1
+	if test $? -eq 0 ; then
+		AC_MSG_RESULT(yes)
+		have_rpm=yes
+	else
+		AC_MSG_RESULT([no, you'll have to build packages manually])
+		have_rpm=no
+	fi
+fi
+AM_CONDITIONAL(HAVE_RPM, [test "x$have_rpm" = xyes])
 
 # Debian
 AC_CHECK_PROG(HAVE_DPKG_BUILDPACKAGE, dpkg-buildpackage, "yes", "no")

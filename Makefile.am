@@ -968,20 +968,20 @@ svr4-package: $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA)
 
 rpm_topdir=`cd $(top_builddir) && pwd`/packaging/rpm
 rpm-package: dist
-	@if test x$(HAVE_RPM) = xyes ; then \
-		cd $(rpm_topdir) ; \
-		mkdir -p BUILD RPMS SOURCES SRPMS; \
-		cd SOURCES ; \
-		ln -sf ../../../$(distdir).tar.bz2 ; \
-		cd .. ; \
-		rpmbuild --define "_topdir `cd . && pwd`" --define "_prefix $(prefix)" \
-			@RPMBUILD_WITH_ARGS@ --clean -ba SPECS/wireshark.spec && \
-			echo "Package successfully built in `pwd`/RPMS." && \
-			rm -f SOURCES/$(distdir).tar.bz2 $(distdir).tar.bz2 ; \
-	else \
-		echo "Error: RPM executable and/or source directory not found." ; \
-		false; \
-	fi
+if HAVE_RPM
+	@cd $(rpm_topdir) && \
+	  mkdir -p BUILD RPMS SOURCES SRPMS && \
+	  cd SOURCES && \
+	  ln -sf ../../../$(distdir).tar.bz2 && \
+	  cd .. && \
+	  $(RPMBUILD) --define "_topdir `cd . && pwd`" --define "_prefix $(prefix)" \
+		@RPMBUILD_WITH_ARGS@ --clean -ba SPECS/wireshark.spec && \
+	  echo "Package successfully built in `pwd`/RPMS." ; \
+	  rm -f SOURCES/$(distdir).tar.bz2 $(distdir).tar.bz2
+else
+	@echo "RPM executable not available." ; \
+	  false
+endif
 
 # XXX - This assumes we're building from the source directory.
 osx-app: $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) packaging/macosx/Info.plist
