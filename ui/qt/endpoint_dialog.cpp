@@ -223,10 +223,8 @@ public:
                    : TrafficTableTreeWidgetItem (parent, strings)  {}
 
     // Set column text to its cooked representation.
-    void update(gboolean resolve_names) {
+    void update(gboolean resolve_names, bool force) {
         hostlist_talker_t *endp_item = data(ei_col_, Qt::UserRole).value<hostlist_talker_t *>();
-        bool ok;
-        quint64 cur_packets = data(pkts_col_, Qt::UserRole).toULongLong(&ok);
         char *addr_str, *port_str;
 
         if (!endp_item) {
@@ -234,8 +232,13 @@ public:
         }
 
         quint64 packets = endp_item->tx_frames + endp_item->rx_frames;
-        if (ok && cur_packets == packets) {
-            return;
+        if (!force) {
+            bool ok;
+            quint64 cur_packets = data(pkts_col_, Qt::UserRole).toULongLong(&ok);
+
+            if (ok && cur_packets == packets) {
+                return;
+            }
         }
 
         addr_str = get_conversation_address(NULL, &endp_item->myaddress, resolve_names);
@@ -504,7 +507,7 @@ EndpointTreeWidget::EndpointTreeWidget(QWidget *parent, register_ct_t *table) :
         connect(fa, SIGNAL(triggered()), this, SLOT(filterActionTriggered()));
     }
 
-    updateItems();
+    updateItems(false);
 
 }
 
@@ -529,10 +532,10 @@ void EndpointTreeWidget::tapDraw(void *conv_hash_ptr)
     EndpointTreeWidget *endp_tree = static_cast<EndpointTreeWidget *>(hash->user_data);
     if (!endp_tree) return;
 
-    endp_tree->updateItems();
+    endp_tree->updateItems(false);
 }
 
-void EndpointTreeWidget::updateItems()
+void EndpointTreeWidget::updateItems(bool force)
 {
     title_ = proto_get_protocol_short_name(find_protocol_by_id(get_conversation_proto_id(table_)));
 
@@ -574,7 +577,7 @@ void EndpointTreeWidget::updateItems()
     QTreeWidgetItemIterator iter(this);
     while (*iter) {
         EndpointTreeWidgetItem *ei = static_cast<EndpointTreeWidgetItem *>(*iter);
-        ei->update(resolve_names_);
+        ei->update(resolve_names_, force);
         ++iter;
     }
     setSortingEnabled(true);

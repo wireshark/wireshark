@@ -303,7 +303,7 @@ TrafficTableTreeWidget::TrafficTableTreeWidget(QWidget *parent, register_ct_t *t
     setRootIsDecorated(false);
     sortByColumn(0, Qt::AscendingOrder);
 
-    connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(updateItems()));
+    connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(updateItemsForSettingChange()));
 }
 
 TrafficTableTreeWidget::~TrafficTableTreeWidget()
@@ -339,7 +339,7 @@ void TrafficTableTreeWidget::setNameResolutionEnabled(bool enable)
 {
     if (resolve_names_ != enable) {
         resolve_names_ = enable;
-        updateItems();
+        updateItems(true);
     }
 }
 
@@ -352,6 +352,12 @@ void TrafficTableTreeWidget::contextMenuEvent(QContextMenuEvent *event)
     }
 
     ctx_menu_.exec(event->globalPos());
+
+}
+
+void TrafficTableTreeWidget::updateItemsForSettingChange()
+{
+    updateItems(true);
 }
 
 /*

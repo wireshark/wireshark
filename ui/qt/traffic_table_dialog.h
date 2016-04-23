@@ -85,9 +85,11 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event);
 
 private:
+    virtual void updateItems(bool) {}
 
 private slots:
-    virtual void updateItems() {}
+    // Updates all items
+    void updateItemsForSettingChange();
 
 signals:
     void titleChanged(QWidget *tree, const QString &text);

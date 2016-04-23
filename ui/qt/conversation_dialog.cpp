@@ -331,10 +331,8 @@ public:
                    : TrafficTableTreeWidgetItem (parent, strings)  {}
 
     // Set column text to its cooked representation.
-    void update(gboolean resolve_names) {
+    void update(gboolean resolve_names, bool force) {
         conv_item_t *conv_item = data(ci_col_, Qt::UserRole).value<conv_item_t *>();
-        bool ok;
-        quint64 cur_packets = data(pkts_col_, Qt::UserRole).toULongLong(&ok);
         char *src_addr, *dst_addr, *src_port, *dst_port;
 
         if (!conv_item) {
@@ -342,8 +340,13 @@ public:
         }
 
         quint64 packets = conv_item->tx_frames + conv_item->rx_frames;
-        if (ok && cur_packets == packets) {
-            return;
+        if (!force) {
+            bool ok;
+            quint64 cur_packets = data(pkts_col_, Qt::UserRole).toULongLong(&ok);
+
+            if (ok && cur_packets == packets) {
+                return;
+            }
         }
 
         src_addr = get_conversation_address(NULL, &conv_item->src_address, resolve_names);
@@ -604,7 +607,7 @@ ConversationTreeWidget::ConversationTreeWidget(QWidget *parent, register_ct_t* t
         connect(fa, SIGNAL(triggered()), this, SLOT(filterActionTriggered()));
     }
 
-    updateItems();
+    updateItems(false);
 }
 
 ConversationTreeWidget::~ConversationTreeWidget() {
@@ -628,7 +631,7 @@ void ConversationTreeWidget::tapDraw(void *conv_hash_ptr)
     ConversationTreeWidget *conv_tree = static_cast<ConversationTreeWidget *>(hash->user_data);
     if (!conv_tree) return;
 
-    conv_tree->updateItems();
+    conv_tree->updateItems(false);
 }
 
 QMap<FilterAction::ActionDirection, conv_direction_e> fad_to_cd_;
@@ -650,7 +653,7 @@ void ConversationTreeWidget::initDirectionMap()
     fad_to_cd_[FilterAction::ActionDirectionAnyFromB] = CONV_DIR_ANY_FROM_B;
 }
 
-void ConversationTreeWidget::updateItems() {
+void ConversationTreeWidget::updateItems(bool force) {
     title_ = proto_get_protocol_short_name(find_protocol_by_id(get_conversation_proto_id(table_)));
 
     if (hash_.conv_array && hash_.conv_array->len > 0) {
@@ -683,7 +686,7 @@ void ConversationTreeWidget::updateItems() {
     QTreeWidgetItemIterator iter(this);
     while (*iter) {
         ConversationTreeWidgetItem *ci = static_cast<ConversationTreeWidgetItem *>(*iter);
-        ci->update(resolve_names_);
+        ci->update(resolve_names_, force);
         ++iter;
     }
     setSortingEnabled(true);
