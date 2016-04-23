@@ -10739,7 +10739,7 @@ dissect_zcl_pwr_prof_enphsschednotif(tvbuff_t *tvb, proto_tree *tree, guint *off
     *offset += 1;
 
     /* Scheduled Energy Phases decoding */
-    for (i=0 ; i<num_of_sched_phases ; i++) {
+    for (i=0 ; (i<num_of_sched_phases && i < ZBEE_ZCL_PWR_PROF_NUM_EN_PHS_ETT); i++) {
         /* Create subtree */
         sub_tree = proto_tree_add_subtree_format(tree, tvb, *offset, 1,
                         ett_zbee_zcl_pwr_prof_enphases[i], NULL, "Energy Phase #%u", i);
@@ -10826,7 +10826,7 @@ dissect_zcl_pwr_prof_pwrprofnotif(tvbuff_t *tvb, proto_tree *tree, guint *offset
         *offset += 1;
 
         /* Energy Phases decoding */
-        for ( i=0 ; i<num_of_transferred_phases ; i++) {
+        for ( i=0 ; (i<num_of_transferred_phases && i < ZBEE_ZCL_PWR_PROF_NUM_EN_PHS_ETT); i++) {
             /* Create subtree */
             sub_tree = proto_tree_add_subtree_format(tree, tvb, *offset, 1,
                         ett_zbee_zcl_pwr_prof_enphases[i], NULL, "Energy Phase #%u", i);
