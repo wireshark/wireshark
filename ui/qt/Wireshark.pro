@@ -198,7 +198,8 @@ SOURCES_WS_C = \
     ../../filter_files.c \
     ../../frame_tvbuff.c \
     ../../summary.c \
-    ../../sync_pipe_write.c
+    ../../sync_pipe_write.c \
+    ../../ws_version_info.c
 
 win32:SOURCES_WS_C += \
     ../../ui/win32/console_win32.c \

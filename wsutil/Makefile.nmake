@@ -32,7 +32,7 @@ OBJECTS = file_util.obj		\
 	popcount.obj		 \
 	strptime.obj		\
 	ws_mempbrk_sse42.obj	\
-	..\ws_version_info.obj
+	ws_version_info.obj
 
 # For use when making libwsutil.dll
 libwsutil.lib: libwsutil.dll

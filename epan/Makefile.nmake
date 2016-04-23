@@ -107,7 +107,7 @@ libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) compress crypt ftypes dfil
 		/OUT:libwireshark.dll \
 		/IMPLIB:libwireshark.lib $(LIBWIRESHARK_OBJECTS) \
 		$(libwireshark_LIBS) ..\image\libwireshark.res \
-		dissectors\register.obj \
+		..\wsutil\ws_version_info.obj dissectors\register.obj \
 		$(EXTRA_OBJECTS)
 
 libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) compress crypt ftypes dfilter wmem $(WSLUA_DIR) nghttp2 dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \

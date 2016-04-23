@@ -416,7 +416,7 @@ reordercap.exe	: $(LIBS_CHECK)  config.h $(reordercap_OBJECTS) wsutil\libwsutil.
 text2pcap.exe	: $(LIBS_CHECK) config.h text2pcap.obj text2pcap-scanner.obj writecap wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\text2pcap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) text2pcap.obj text2pcap-scanner.obj $(text2pcap_LIBS) image\text2pcap.res
+		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) text2pcap.obj text2pcap-scanner.obj wsutil\ws_version_info.obj $(text2pcap_LIBS) image\text2pcap.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "text2pcap.exe.manifest" -outputresource:text2pcap.exe;1

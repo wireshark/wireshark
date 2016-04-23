@@ -37,7 +37,7 @@ wiretap-$(WTAP_VERSION).dll : $(OBJECTS) ..\image\wiretap.res
 		/OUT:wiretap-$(WTAP_VERSION).dll \
 		/IMPLIB:wiretap-$(WTAP_VERSION).lib \
 		..\image\wiretap.res \
-		$(OBJECTS) $(wiretap_LIBS)
+		$(OBJECTS) ..\wsutil\ws_version_info.obj $(wiretap_LIBS)
 
 RUNLEX = ../tools/runlex.sh
 
