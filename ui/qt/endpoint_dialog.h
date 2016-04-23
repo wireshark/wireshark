@@ -52,8 +52,10 @@ private:
     bool has_geoip_data_;
 #endif
 
+private:
+    void updateItems(bool force);
+
 private slots:
-    void updateItems();
     void filterActionTriggered();
 };
 

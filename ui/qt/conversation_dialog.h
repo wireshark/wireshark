@@ -38,9 +38,9 @@ public:
 
 private:
     void initDirectionMap();
+    void updateItems(bool force);
 
 private slots:
-    void updateItems();
     void filterActionTriggered();
 };
 
