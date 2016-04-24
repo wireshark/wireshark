@@ -501,22 +501,22 @@
 <context>
     <name>ByteViewText</name>
     <message>
-        <location filename="byte_view_text.cpp" line="68"/>
+        <location filename="byte_view_text.cpp" line="69"/>
         <source>Show bytes as hexadecimal</source>
         <translation>Mostra byte in esadecimale</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="74"/>
+        <location filename="byte_view_text.cpp" line="75"/>
         <source>Show bytes as bits</source>
         <translation>Mostra byte come bit</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="257"/>
+        <location filename="byte_view_text.cpp" line="260"/>
         <source>Byte %1</source>
         <translation>Byte %1</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="260"/>
+        <location filename="byte_view_text.cpp" line="263"/>
         <source>Bytes %1-%2</source>
         <translation>Byte %1-%2</translation>
     </message>
@@ -2181,7 +2181,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Traccia i terminatori IPv4 o IPv6 su una mappa.</translation>
     </message>
     <message>
-        <location filename="endpoint_dialog.cpp" line="191"/>
+        <location filename="endpoint_dialog.cpp" line="192"/>
         <source>Map file error</source>
         <translation>Errore nel file di mappa</translation>
     </message>
@@ -4630,9 +4630,8 @@ per i file di filtro: %2.</translation>
         <translation>Copia l&apos;albero come CSV</translation>
     </message>
     <message>
-        <location filename="lbm_lbtrm_transport_dialog.ui" line="447"/>
         <source>Ctrl+C</source>
-        <translation>Ctrl+C</translation>
+        <translation type="vanished">Ctrl+C</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="452"/>
@@ -4645,9 +4644,8 @@ per i file di filtro: %2.</translation>
         <translation>Copia l&apos;albero come YAML</translation>
     </message>
     <message>
-        <location filename="lbm_lbtrm_transport_dialog.ui" line="458"/>
         <source>Ctrl+Y</source>
-        <translation>Ctrl+Y</translation>
+        <translation type="vanished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="469"/>
@@ -5151,9 +5149,8 @@ per i file di filtro: %2.</translation>
         <translation>Copia l&apos;albero come CSV</translation>
     </message>
     <message>
-        <location filename="lbm_lbtru_transport_dialog.ui" line="651"/>
         <source>Ctrl+C</source>
-        <translation>Ctrl+C</translation>
+        <translation type="vanished">Ctrl+C</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="656"/>
@@ -5166,9 +5163,8 @@ per i file di filtro: %2.</translation>
         <translation>Copia l&apos;albero come YAML</translation>
     </message>
     <message>
-        <location filename="lbm_lbtru_transport_dialog.ui" line="662"/>
         <source>Ctrl+Y</source>
-        <translation>Ctrl+Y</translation>
+        <translation type="vanished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="673"/>
@@ -5456,9 +5452,8 @@ per i file di filtro: %2.</translation>
         <translation>Copia l&apos;albero come CSV</translation>
     </message>
     <message>
-        <location filename="lbm_stream_dialog.ui" line="102"/>
         <source>Ctrl+C</source>
-        <translation>Ctrl+C</translation>
+        <translation type="vanished">Ctrl+C</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="107"/>
@@ -5471,9 +5466,8 @@ per i file di filtro: %2.</translation>
         <translation>Copia l&apos;albero come YAML</translation>
     </message>
     <message>
-        <location filename="lbm_stream_dialog.ui" line="113"/>
         <source>Ctrl+Y</source>
-        <translation>Ctrl+Y</translation>
+        <translation type="vanished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.cpp" line="392"/>
@@ -6812,9 +6806,8 @@ a:hover {
         <translation>Apri un file di cattura</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="767"/>
         <source>Ctrl+O</source>
-        <translation>Ctrl+O</translation>
+        <translation type="vanished">Ctrl+O</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="775"/>
@@ -6827,9 +6820,8 @@ a:hover {
         <translation>Esci da Wireshark</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="781"/>
         <source>Ctrl+Q</source>
-        <translation>Ctrl+Q</translation>
+        <translation type="vanished">Ctrl+Q</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="792"/>
@@ -6842,10 +6834,8 @@ a:hover {
         <translation>Avvia la cattura dei pacchetti</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="798"/>
-        <location filename="main_window.ui" line="809"/>
         <source>Ctrl+E</source>
-        <translation>Ctrl+E</translation>
+        <translation type="vanished">Ctrl+E</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="803"/>
@@ -6863,9 +6853,8 @@ a:hover {
         <translation>Chiudi</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="820"/>
         <source>Ctrl+W</source>
-        <translation>Ctrl+W</translation>
+        <translation type="vanished">Ctrl+W</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="831"/>
@@ -6878,9 +6867,8 @@ a:hover {
         <translation>&amp;Contenuti</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="842"/>
         <source>F1</source>
-        <translation>F1</translation>
+        <translation type="vanished">F1</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="855"/>
@@ -6963,9 +6951,8 @@ a:hover {
         <translation>Vai al pacchetto successivo</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="952"/>
         <source>Ctrl+Down</source>
-        <translation>Ctrl+Giù</translation>
+        <translation type="vanished">Ctrl+Giù</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="957"/>
@@ -6978,9 +6965,8 @@ a:hover {
         <translation>Vai al pacchetto precedente</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="963"/>
         <source>Ctrl+Up</source>
-        <translation>Ctrl+Su</translation>
+        <translation type="vanished">Ctrl+Su</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="990"/>
@@ -6993,9 +6979,8 @@ a:hover {
         <translation>Vai al primo pacchetto</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="996"/>
         <source>Ctrl+Home</source>
-        <translation>Ctrl+Home</translation>
+        <translation type="vanished">Ctrl+Home</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1001"/>
@@ -7008,9 +6993,8 @@ a:hover {
         <translation>Vai all&apos;ultimo pacchetto</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1007"/>
         <source>Ctrl+End</source>
-        <translation>Ctrl+Fine</translation>
+        <translation type="vanished">Ctrl+Fine</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1015"/>
@@ -7023,9 +7007,8 @@ a:hover {
         <translation>Espande i dettagli del pacchetto attuale</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1021"/>
         <source>Shift+Right</source>
-        <translation>Shift+Destra</translation>
+        <translation type="vanished">Shift+Destra</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1026"/>
@@ -7038,9 +7021,8 @@ a:hover {
         <translation>Espandi i dettagli del pacchetto</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1032"/>
         <source>Ctrl+Right</source>
-        <translation>Ctrl+Destra</translation>
+        <translation type="vanished">Ctrl+Destra</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1037"/>
@@ -7053,9 +7035,8 @@ a:hover {
         <translation>Contrai tutti i dettagli del pacchetto</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1043"/>
         <source>Ctrl+Left</source>
-        <translation>Ctrl+Sinistra</translation>
+        <translation type="vanished">Ctrl+Sinistra</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1054"/>
@@ -7063,9 +7044,8 @@ a:hover {
         <translation>Vai al pacchetto specificato</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1057"/>
         <source>Ctrl+G</source>
-        <translation>Ctrl+G</translation>
+        <translation type="vanished">Ctrl+G</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1065"/>
@@ -7083,9 +7063,8 @@ a:hover {
         <translation>&amp;Salva</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1084"/>
         <source>Ctrl+S</source>
-        <translation>Ctrl+S</translation>
+        <translation type="vanished">Ctrl+S</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1095"/>
@@ -7093,9 +7072,8 @@ a:hover {
         <translation>Salva come file diverso</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1098"/>
         <source>Ctrl+Shift+S</source>
-        <translation>Ctrl+Shift+S</translation>
+        <translation type="vanished">Ctrl+Shift+S</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1106"/>
@@ -7103,14 +7081,12 @@ a:hover {
         <translation>Esporta i pacchetti specificati</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1114"/>
         <source>Ctrl+H</source>
-        <translation>Ctrl+H</translation>
+        <translation type="vanished">Ctrl+H</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1127"/>
         <source>Ctrl+P</source>
-        <translation>Ctrl+S</translation>
+        <translation type="vanished">Ctrl+S</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1132"/>
@@ -7133,10 +7109,8 @@ a:hover {
         <translation>&amp;Ricarica</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1153"/>
-        <location filename="main_window.ui" line="1211"/>
         <source>Ctrl+R</source>
-        <translation>Ctrl+R</translation>
+        <translation type="vanished">Ctrl+R</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1172"/>
@@ -7149,9 +7123,8 @@ a:hover {
         <translation>Opzioni di cattura</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1178"/>
         <source>Ctrl+K</source>
-        <translation>Ctrl+K</translation>
+        <translation type="vanished">Ctrl+K</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1189"/>
@@ -7184,10 +7157,8 @@ a:hover {
         <translation>Descrizione</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1262"/>
-        <location filename="main_window.ui" line="1526"/>
         <source>Ctrl+Shift+D</source>
-        <translation>Ctrl+Shift+D</translation>
+        <translation type="vanished">Ctrl+Shift+D</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1277"/>
@@ -7195,10 +7166,8 @@ a:hover {
         <translation>Nome campo</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1164"/>
-        <location filename="main_window.ui" line="1283"/>
         <source>Ctrl+Shift+F</source>
-        <translation>Ctrl+Shift+C</translation>
+        <translation type="vanished">Ctrl+Shift+C</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1288"/>
@@ -7206,9 +7175,8 @@ a:hover {
         <translation>Valore</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1294"/>
         <source>Ctrl+Shift+V</source>
-        <translation>Ctrl+Shift+V</translation>
+        <translation type="vanished">Ctrl+Shift+V</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1299"/>
@@ -7216,9 +7184,8 @@ a:hover {
         <translation>Come filtro</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1305"/>
         <source>Ctrl+Shift+C</source>
-        <translation>Ctrl+Shift+C</translation>
+        <translation type="vanished">Ctrl+Shift+C</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1310"/>
@@ -7315,9 +7282,8 @@ a:hover {
         <translation>Vai al pacchetto successivo in questa conversazione</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="974"/>
         <source>Ctrl+.</source>
-        <translation>Ctrl+.</translation>
+        <translation type="vanished">Ctrl+.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="979"/>
@@ -7330,9 +7296,8 @@ a:hover {
         <translation>Vai al pacchetto precedente in questa conversazione</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="985"/>
         <source>Ctrl+,</source>
-        <translation>Ctrl+,</translation>
+        <translation type="vanished">Ctrl+,</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1051"/>
@@ -7390,9 +7355,8 @@ a:hover {
         <translation>Ricarica come file di formato/cattura</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1200"/>
         <source>F5</source>
-        <translation>F5</translation>
+        <translation type="vanished">F5</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1259"/>
@@ -7430,9 +7394,8 @@ a:hover {
         <translation>Trova un pacchetto</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1427"/>
         <source>Ctrl+F</source>
-        <translation>Ctrl+T</translation>
+        <translation type="vanished">Ctrl+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1435"/>
@@ -7440,9 +7403,8 @@ a:hover {
         <translation>Vai al pacchetto successivo</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1438"/>
         <source>Ctrl+N</source>
-        <translation>Ctrl+P</translation>
+        <translation type="vanished">Ctrl+P</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1446"/>
@@ -7450,9 +7412,8 @@ a:hover {
         <translation>Vai al pacchetto precedente</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1449"/>
         <source>Ctrl+B</source>
-        <translation>Ctrl+R</translation>
+        <translation type="vanished">Ctrl+R</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1454"/>
@@ -7465,9 +7426,8 @@ a:hover {
         <translation>Marca o rimuovi la selezione di questo pacchetto</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1460"/>
         <source>Ctrl+M</source>
-        <translation>Ctrl+M</translation>
+        <translation type="vanished">Ctrl+M</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1465"/>
@@ -7480,9 +7440,8 @@ a:hover {
         <translation>Marca tutti i pacchetti visualizzati</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1471"/>
         <source>Ctrl+Shift+M</source>
-        <translation>Ctrl+Shift+M</translation>
+        <translation type="vanished">Ctrl+Shift+M</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1476"/>
@@ -7495,10 +7454,9 @@ a:hover {
         <translation>Rimuovi la selezione da tutti i pacchetti visualizzati</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1482"/>
         <source>Ctrl+Alt+M</source>
         <oldsource>Meta+Alt+M</oldsource>
-        <translation>Ctrl+Alt+M</translation>
+        <translation type="vanished">Ctrl+Alt+M</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1487"/>
@@ -7511,10 +7469,9 @@ a:hover {
         <translation>Vai al prossimo pacchetto marcato</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1493"/>
         <source>Ctrl+Shift+N</source>
         <oldsource>Meta+Shift+N</oldsource>
-        <translation>Ctrl+Maiusc+N</translation>
+        <translation type="vanished">Ctrl+Maiusc+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1498"/>
@@ -7527,10 +7484,9 @@ a:hover {
         <translation>Val al prossimo pacchetto marchiato</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1504"/>
         <source>Ctrl+Shift+B</source>
         <oldsource>Meta+Shift+B</oldsource>
-        <translation>Ctrl+Maiusc+B</translation>
+        <translation type="vanished">Ctrl+Maiusc+B</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1509"/>
@@ -7543,9 +7499,8 @@ a:hover {
         <translation>Ignora o considera questo pacchetto</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1515"/>
         <source>Ctrl+D</source>
-        <translation>Ctrl+D</translation>
+        <translation type="vanished">Ctrl+D</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1520"/>
@@ -7568,9 +7523,8 @@ a:hover {
         <translation>Considera tutti i pacchetti visualizzati</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1537"/>
         <source>Ctrl+Alt+D</source>
-        <translation>Ctrl+Alt+D</translation>
+        <translation type="vanished">Ctrl+Alt+D</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1542"/>
@@ -7583,9 +7537,8 @@ a:hover {
         <translation>Imposta o rimuovi il riferimento temporale per questo pacchetto</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1548"/>
         <source>Ctrl+T</source>
-        <translation>Ctrl+T</translation>
+        <translation type="vanished">Ctrl+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1553"/>
@@ -7598,9 +7551,8 @@ a:hover {
         <translation>Elimina tutti i riferimenti temporali</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1559"/>
         <source>Ctrl+Alt+T</source>
-        <translation>Ctrl+Alt+T</translation>
+        <translation type="vanished">Ctrl+Alt+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1564"/>
@@ -7613,9 +7565,8 @@ a:hover {
         <translation>Vai al riferimento temporale successivo</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1570"/>
         <source>Ctrl+Alt+N</source>
-        <translation>Ctrl+Alt+N</translation>
+        <translation type="vanished">Ctrl+Alt+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1575"/>
@@ -7628,9 +7579,8 @@ a:hover {
         <translation>Vai al riferimento temporale precedente</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1581"/>
         <source>Ctrl+Alt+B</source>
-        <translation>Ctrl+Alt+B</translation>
+        <translation type="vanished">Ctrl+Alt+B</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1589"/>
@@ -7638,9 +7588,8 @@ a:hover {
         <translation>Scorri o cambia la marca temporale del pacchetto</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1592"/>
         <source>Ctrl+Shift+T</source>
-        <translation>Ctrl+Shift+T</translation>
+        <translation type="vanished">Ctrl+Shift+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1600"/>
@@ -7658,9 +7607,8 @@ a:hover {
         <translation>Gestisci i tuoi profili di configurazione</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1617"/>
         <source>Ctrl+Shift+A</source>
-        <translation>Ctrl+Shift+A</translation>
+        <translation type="vanished">Ctrl+Shift+A</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1628"/>
@@ -7668,9 +7616,8 @@ a:hover {
         <translation>Gestisci le preferenze di Wireshark</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1631"/>
         <source>Ctrl+Shift+P</source>
-        <translation>Ctrl+Shift+P</translation>
+        <translation type="vanished">Ctrl+Shift+P</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1642"/>
@@ -7979,9 +7926,8 @@ a:hover {
         <translation>Ricarica i plugin Lua</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1927"/>
         <source>Ctrl+Shift+L</source>
-        <translation>Ctrl+Maiusc+L</translation>
+        <translation type="vanished">Ctrl+Maiusc+L</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1937"/>
@@ -8162,49 +8108,40 @@ a:hover {
         <translation>Nessuna statistica MTP3 registrata</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2709"/>
         <source>Ctrl+1</source>
-        <translation>Ctrl+1</translation>
+        <translation type="vanished">Ctrl+1</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2720"/>
         <source>Ctrl+2</source>
-        <translation>Ctrl+2</translation>
+        <translation type="vanished">Ctrl+2</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2731"/>
         <source>Ctrl+3</source>
-        <translation>Ctrl+3</translation>
+        <translation type="vanished">Ctrl+3</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2742"/>
         <source>Ctrl+4</source>
-        <translation>Ctrl+4</translation>
+        <translation type="vanished">Ctrl+4</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2753"/>
         <source>Ctrl+5</source>
-        <translation>Ctrl+5</translation>
+        <translation type="vanished">Ctrl+5</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2764"/>
         <source>Ctrl+6</source>
-        <translation>Ctrl+6</translation>
+        <translation type="vanished">Ctrl+6</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2775"/>
         <source>Ctrl+7</source>
-        <translation>Ctrl+7</translation>
+        <translation type="vanished">Ctrl+7</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2786"/>
         <source>Ctrl+8</source>
-        <translation>Ctrl+8</translation>
+        <translation type="vanished">Ctrl+8</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2797"/>
         <source>Ctrl+9</source>
-        <translation>Ctrl+9</translation>
+        <translation type="vanished">Ctrl+9</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2829"/>
@@ -8511,9 +8448,8 @@ a:hover {
         <translation>Ingrandisci il testo della finestra principale</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2099"/>
         <source>Ctrl++</source>
-        <translation>Ctrl++</translation>
+        <translation type="vanished">Ctrl++</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2104"/>
@@ -8521,9 +8457,8 @@ a:hover {
         <translation>Rimpicciolisci</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2110"/>
         <source>Ctrl+-</source>
-        <translation>Ctrl+-</translation>
+        <translation type="vanished">Ctrl+-</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2115"/>
@@ -8531,9 +8466,8 @@ a:hover {
         <translation>Dimensione normale</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2121"/>
         <source>Ctrl+0</source>
-        <translation>Ctrl+0</translation>
+        <translation type="vanished">Ctrl+0</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2126"/>
@@ -8546,9 +8480,8 @@ a:hover {
         <translation>Ridimensiona le colonne dell&apos;elenco dei pacchetti per adattare il contenuto</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2132"/>
         <source>Ctrl+Shift+R</source>
-        <translation>Ctrl+Shift+R</translation>
+        <translation type="vanished">Ctrl+Shift+R</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2140"/>
@@ -8563,10 +8496,9 @@ a:hover {
         <translation>Mostra gli orari dei pacchetti come date e ora del giorno.</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2146"/>
         <source>Ctrl+Alt+1</source>
         <oldsource>Meta+Alt+1</oldsource>
-        <translation>Ctrl+Alt+1</translation>
+        <translation type="vanished">Ctrl+Alt+1</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2154"/>
@@ -8584,10 +8516,9 @@ a:hover {
         <translation>Ora del giorno (01:02:03.123456)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2171"/>
         <source>Ctrl+Alt+2</source>
         <oldsource>Meta+Alt+2</oldsource>
-        <translation>Ctrl+Alt+2</translation>
+        <translation type="vanished">Ctrl+Alt+2</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2179"/>
@@ -8600,10 +8531,9 @@ a:hover {
         <translation>Mostra gli orari del pacchetto come secondi dalla epoch UNIX/POSIX (1970-01-01).</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2185"/>
         <source>Ctrl+Alt+3</source>
         <oldsource>Meta+Alt+3</oldsource>
-        <translation>Ctrl+Alt+3</translation>
+        <translation type="vanished">Ctrl+Alt+3</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2193"/>
@@ -8611,10 +8541,9 @@ a:hover {
         <translation>Secondi dall&apos;inizio della cattura</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2199"/>
         <source>Ctrl+Alt+4</source>
         <oldsource>Meta+Alt+4</oldsource>
-        <translation>Ctrl+Alt+4</translation>
+        <translation type="vanished">Ctrl+Alt+4</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2207"/>
@@ -8627,10 +8556,9 @@ a:hover {
         <translation>Mostra gli orari del pacchetto come secondi dal precedente pacchetto catturato.</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2213"/>
         <source>Ctrl+Alt+5</source>
         <oldsource>Meta+Alt+5</oldsource>
-        <translation>Ctrl+Alt+5</translation>
+        <translation type="vanished">Ctrl+Alt+5</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2221"/>
@@ -8643,10 +8571,9 @@ a:hover {
         <translation>Mostra gli orari del pacchetto come secondi dal precedente pacchetto visualizzato.</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2227"/>
         <source>Ctrl+Alt+6</source>
         <oldsource>Meta+Alt+6</oldsource>
-        <translation>Ctrl+Alt+6</translation>
+        <translation type="vanished">Ctrl+Alt+6</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2235"/>
@@ -8659,10 +8586,9 @@ a:hover {
         <translation>Mostra gli orari del pacchetto come data e ora del giorno UTC.</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2241"/>
         <source>Ctrl+Alt+7</source>
         <oldsource>Meta+Alt+7</oldsource>
-        <translation>Ctrl+Alt+7</translation>
+        <translation type="vanished">Ctrl+Alt+7</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2249"/>
@@ -8685,10 +8611,9 @@ a:hover {
         <translation>Mostra l&apos;orario dei pacchetti come ora del giorno UTC.</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2266"/>
         <source>Ctrl+Alt+8</source>
         <oldsource>Meta+Alt+8</oldsource>
-        <translation>Ctrl+Alt+8</translation>
+        <translation type="vanished">Ctrl+Alt+8</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2274"/>
@@ -9136,9 +9061,8 @@ a:hover {
         <translation>Ripristina le conversazioni colorate.</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2824"/>
         <source>Ctrl+Space</source>
-        <translation>Ctrl+Barra spaziatrice</translation>
+        <translation type="vanished">Ctrl+Barra spaziatrice</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2832"/>
@@ -9161,9 +9085,8 @@ a:hover {
         <translation>Abilita e disabilita protocolli specifici</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2859"/>
         <source>Ctrl+Shift+E</source>
-        <translation>Ctrl+Maiusc+E</translation>
+        <translation type="vanished">Ctrl+Maiusc+E</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="410"/>
@@ -10779,7 +10702,7 @@ a:hover {
         <translation>Conversazione</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="322"/>
+        <location filename="conversation_dialog.cpp" line="317"/>
         <source>N/A</source>
         <translation>N/D</translation>
     </message>
@@ -14958,9 +14881,8 @@ a:hover {
         <translation>Copia una rappresentazione testuale dell&apos;albero negli appunti</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="82"/>
         <source>Ctrl+C</source>
-        <translation>Ctrl+C</translation>
+        <translation type="vanished">Ctrl+C</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.ui" line="87"/>
@@ -14974,9 +14896,8 @@ a:hover {
         <translation>Salva i dati visualizzati in vari formati</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="93"/>
         <source>Ctrl+S</source>
-        <translation>Ctrl+S</translation>
+        <translation type="vanished">Ctrl+S</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.cpp" line="93"/>
@@ -15127,7 +15048,7 @@ a:hover {
         <translation>Copia tutti i valori di questa pagina negli appunti nel formato di serializzazione dati YAML.</translation>
     </message>
     <message>
-        <location filename="traffic_table_dialog.h" line="109"/>
+        <location filename="traffic_table_dialog.h" line="111"/>
         <source>Unknown</source>
         <translation>Sconosciuto</translation>
     </message>
@@ -15162,12 +15083,12 @@ a:hover {
         <translation>Apri </translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="404"/>
+        <location filename="uat_dialog.cpp" line="415"/>
         <source>Uneven number of chars hex string (%1)</source>
         <translation>Numero irregolare di caratteri della stringa esadecimale (%1)</translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="411"/>
+        <location filename="uat_dialog.cpp" line="422"/>
         <source>Error parsing hex string</source>
         <translation>Errore di elaborazione della stringa esadecimale</translation>
     </message>
@@ -15235,9 +15156,8 @@ a:hover {
         <translation>Seleziona tutte le chiamate</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="104"/>
         <source>Ctrl+A</source>
-        <translation>Ctrl+T</translation>
+        <translation type="vanished">Ctrl+T</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="184"/>

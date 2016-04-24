@@ -501,22 +501,22 @@
 <context>
     <name>ByteViewText</name>
     <message>
-        <location filename="byte_view_text.cpp" line="68"/>
+        <location filename="byte_view_text.cpp" line="69"/>
         <source>Show bytes as hexadecimal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="74"/>
+        <location filename="byte_view_text.cpp" line="75"/>
         <source>Show bytes as bits</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="257"/>
+        <location filename="byte_view_text.cpp" line="260"/>
         <source>Byte %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="260"/>
+        <location filename="byte_view_text.cpp" line="263"/>
         <source>Bytes %1-%2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2170,7 +2170,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="endpoint_dialog.cpp" line="191"/>
+        <location filename="endpoint_dialog.cpp" line="192"/>
         <source>Map file error</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4586,11 +4586,6 @@ for filter files: %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lbm_lbtrm_transport_dialog.ui" line="447"/>
-        <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="452"/>
         <source>Copy as YAML</source>
         <translation type="unfinished"></translation>
@@ -4598,11 +4593,6 @@ for filter files: %2.</source>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="455"/>
         <source>Copy the tree as YAML</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="lbm_lbtrm_transport_dialog.ui" line="458"/>
-        <source>Ctrl+Y</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5107,11 +5097,6 @@ for filter files: %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lbm_lbtru_transport_dialog.ui" line="651"/>
-        <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="656"/>
         <source>Copy as YAML</source>
         <translation type="unfinished"></translation>
@@ -5119,11 +5104,6 @@ for filter files: %2.</source>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="659"/>
         <source>Copy the tree as YAML</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="lbm_lbtru_transport_dialog.ui" line="662"/>
-        <source>Ctrl+Y</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5412,11 +5392,6 @@ for filter files: %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lbm_stream_dialog.ui" line="102"/>
-        <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="lbm_stream_dialog.ui" line="107"/>
         <source>Copy as YAML</source>
         <translation type="unfinished"></translation>
@@ -5424,11 +5399,6 @@ for filter files: %2.</source>
     <message>
         <location filename="lbm_stream_dialog.ui" line="110"/>
         <source>Copy the tree as YAML</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="lbm_stream_dialog.ui" line="113"/>
-        <source>Ctrl+Y</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6694,11 +6664,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="767"/>
-        <source>Ctrl+O</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="775"/>
         <source>Quit</source>
         <translation type="unfinished"></translation>
@@ -6709,11 +6674,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="781"/>
-        <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="792"/>
         <source>&amp;Start</source>
         <translation type="unfinished"></translation>
@@ -6721,12 +6681,6 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="795"/>
         <source>Start capturing packets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="798"/>
-        <location filename="main_window.ui" line="809"/>
-        <source>Ctrl+E</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6745,11 +6699,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="820"/>
-        <source>Ctrl+W</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="831"/>
         <source>No files found</source>
         <translation type="unfinished"></translation>
@@ -6757,11 +6706,6 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="836"/>
         <source>&amp;Contents</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="842"/>
-        <source>F1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6845,11 +6789,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="952"/>
-        <source>Ctrl+Down</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="957"/>
         <source>Previous Packet</source>
         <translation type="unfinished"></translation>
@@ -6857,11 +6796,6 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="960"/>
         <source>Go to the previous packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="963"/>
-        <source>Ctrl+Up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6875,11 +6809,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="996"/>
-        <source>Ctrl+Home</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1001"/>
         <source>Last Packet</source>
         <translation type="unfinished"></translation>
@@ -6887,11 +6816,6 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1004"/>
         <source>Go to the last packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1007"/>
-        <source>Ctrl+End</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6905,11 +6829,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1021"/>
-        <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1026"/>
         <source>&amp;Expand All</source>
         <translation type="unfinished"></translation>
@@ -6917,11 +6836,6 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1029"/>
         <source>Expand packet details</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1032"/>
-        <source>Ctrl+Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6935,18 +6849,8 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1043"/>
-        <source>Ctrl+Left</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1054"/>
         <source>Go to specified packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1057"/>
-        <source>Ctrl+G</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6965,33 +6869,13 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1084"/>
-        <source>Ctrl+S</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1095"/>
         <source>Save as a different file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1098"/>
-        <source>Ctrl+Shift+S</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1106"/>
         <source>Export specified packets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1114"/>
-        <source>Ctrl+H</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1127"/>
-        <source>Ctrl+P</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7015,12 +6899,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1153"/>
-        <location filename="main_window.ui" line="1211"/>
-        <source>Ctrl+R</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1172"/>
         <source>Options</source>
         <translation type="unfinished"></translation>
@@ -7028,11 +6906,6 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1175"/>
         <source>Capture options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1178"/>
-        <source>Ctrl+K</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7066,20 +6939,8 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1262"/>
-        <location filename="main_window.ui" line="1526"/>
-        <source>Ctrl+Shift+D</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1277"/>
         <source>Field Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1164"/>
-        <location filename="main_window.ui" line="1283"/>
-        <source>Ctrl+Shift+F</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7088,18 +6949,8 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1294"/>
-        <source>Ctrl+Shift+V</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1299"/>
         <source>As Filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1305"/>
-        <source>Ctrl+Shift+C</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7197,11 +7048,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="974"/>
-        <source>Ctrl+.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="979"/>
         <source>Previous Packet in Conversation</source>
         <translation type="unfinished"></translation>
@@ -7209,11 +7055,6 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="982"/>
         <source>Go to the previous packet in this conversation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="985"/>
-        <source>Ctrl+,</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7272,11 +7113,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1200"/>
-        <source>F5</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1259"/>
         <source>Copy this item&apos;s description</source>
         <translation type="unfinished"></translation>
@@ -7312,28 +7148,13 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1427"/>
-        <source>Ctrl+F</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1435"/>
         <source>Find the next packet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1438"/>
-        <source>Ctrl+N</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1446"/>
         <source>Find the previous packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1449"/>
-        <source>Ctrl+B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7347,11 +7168,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1460"/>
-        <source>Ctrl+M</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1465"/>
         <source>Mark All Displayed</source>
         <translation type="unfinished"></translation>
@@ -7359,11 +7175,6 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1468"/>
         <source>Mark all displayed packets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1471"/>
-        <source>Ctrl+Shift+M</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7377,12 +7188,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1482"/>
-        <source>Ctrl+Alt+M</source>
-        <oldsource>Meta+Alt+M</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1487"/>
         <source>Next Mark</source>
         <translation type="unfinished"></translation>
@@ -7390,12 +7195,6 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1490"/>
         <source>Go to the next marked packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1493"/>
-        <source>Ctrl+Shift+N</source>
-        <oldsource>Meta+Shift+N</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7409,12 +7208,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1504"/>
-        <source>Ctrl+Shift+B</source>
-        <oldsource>Meta+Shift+B</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1509"/>
         <source>&amp;Ignore/Unignore Packet</source>
         <translation type="unfinished"></translation>
@@ -7422,11 +7215,6 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1512"/>
         <source>Ignore or unignore this packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1515"/>
-        <source>Ctrl+D</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7450,11 +7238,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1537"/>
-        <source>Ctrl+Alt+D</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1542"/>
         <source>Set/Unset Time Reference</source>
         <translation type="unfinished"></translation>
@@ -7462,11 +7245,6 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1545"/>
         <source>Set or unset a time reference for this packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1548"/>
-        <source>Ctrl+T</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7480,11 +7258,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1559"/>
-        <source>Ctrl+Alt+T</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1564"/>
         <source>Next Time Reference</source>
         <translation type="unfinished"></translation>
@@ -7492,11 +7265,6 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1567"/>
         <source>Go to the next time reference</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1570"/>
-        <source>Ctrl+Alt+N</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7510,18 +7278,8 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1581"/>
-        <source>Ctrl+Alt+B</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1589"/>
         <source>Shift or change packet timestamps</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1592"/>
-        <source>Ctrl+Shift+T</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7540,18 +7298,8 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1617"/>
-        <source>Ctrl+Shift+A</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1628"/>
         <source>Manage Wireshark&apos;s preferences</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1631"/>
-        <source>Ctrl+Shift+P</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7861,11 +7609,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1927"/>
-        <source>Ctrl+Shift+L</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1937"/>
         <source>Advertisements by Topic</source>
         <translation type="unfinished"></translation>
@@ -8041,51 +7784,6 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2690"/>
         <source>No MTP3 statistics registered</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2709"/>
-        <source>Ctrl+1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2720"/>
-        <source>Ctrl+2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2731"/>
-        <source>Ctrl+3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2742"/>
-        <source>Ctrl+4</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2753"/>
-        <source>Ctrl+5</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2764"/>
-        <source>Ctrl+6</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2775"/>
-        <source>Ctrl+7</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2786"/>
-        <source>Ctrl+8</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2797"/>
-        <source>Ctrl+9</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8393,28 +8091,13 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2099"/>
-        <source>Ctrl++</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2104"/>
         <source>Zoom Out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2110"/>
-        <source>Ctrl+-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2115"/>
         <source>Normal Size</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2121"/>
-        <source>Ctrl+0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8428,11 +8111,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2132"/>
-        <source>Ctrl+Shift+R</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2140"/>
         <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
         <translation type="unfinished"></translation>
@@ -8442,12 +8120,6 @@ a:hover {
         <location filename="main_window.ui" line="2168"/>
         <location filename="main_window.ui" line="2196"/>
         <source>Show packet times as the date and time of day.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2146"/>
-        <source>Ctrl+Alt+1</source>
-        <oldsource>Meta+Alt+1</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8466,12 +8138,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2171"/>
-        <source>Ctrl+Alt+2</source>
-        <oldsource>Meta+Alt+2</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2179"/>
         <source>Seconds Since 1970-01-01</source>
         <translation type="unfinished"></translation>
@@ -8482,20 +8148,8 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2185"/>
-        <source>Ctrl+Alt+3</source>
-        <oldsource>Meta+Alt+3</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2193"/>
         <source>Seconds Since Beginning of Capture</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2199"/>
-        <source>Ctrl+Alt+4</source>
-        <oldsource>Meta+Alt+4</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8509,12 +8163,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2213"/>
-        <source>Ctrl+Alt+5</source>
-        <oldsource>Meta+Alt+5</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2221"/>
         <source>Seconds Since Previous Displayed Packet</source>
         <translation type="unfinished"></translation>
@@ -8525,12 +8173,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2227"/>
-        <source>Ctrl+Alt+6</source>
-        <oldsource>Meta+Alt+6</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2235"/>
         <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
         <translation type="unfinished"></translation>
@@ -8538,12 +8180,6 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2238"/>
         <source>Show packet times as the UTC date and time of day.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2241"/>
-        <source>Ctrl+Alt+7</source>
-        <oldsource>Meta+Alt+7</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8564,12 +8200,6 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2263"/>
         <source>Show packet times as the UTC time of day.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2266"/>
-        <source>Ctrl+Alt+8</source>
-        <oldsource>Meta+Alt+8</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -9018,11 +8648,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2824"/>
-        <source>Ctrl+Space</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2832"/>
         <source>RTP Stream Analysis</source>
         <translation type="unfinished"></translation>
@@ -9040,11 +8665,6 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2856"/>
         <source>Enable and disable specific protocols</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2859"/>
-        <source>Ctrl+Shift+E</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10659,7 +10279,7 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="322"/>
+        <location filename="conversation_dialog.cpp" line="317"/>
         <source>N/A</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14742,11 +14362,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="82"/>
-        <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="tap_parameter_dialog.ui" line="87"/>
         <source>Save as…</source>
         <oldsource>Save as...</oldsource>
@@ -14755,11 +14370,6 @@ a:hover {
     <message>
         <location filename="tap_parameter_dialog.ui" line="90"/>
         <source>Save the displayed data in various formats</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="tap_parameter_dialog.ui" line="93"/>
-        <source>Ctrl+S</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14911,7 +14521,7 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="traffic_table_dialog.h" line="109"/>
+        <location filename="traffic_table_dialog.h" line="111"/>
         <source>Unknown</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14946,12 +14556,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="404"/>
+        <location filename="uat_dialog.cpp" line="415"/>
         <source>Uneven number of chars hex string (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="411"/>
+        <location filename="uat_dialog.cpp" line="422"/>
         <source>Error parsing hex string</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15016,11 +14626,6 @@ a:hover {
     <message>
         <location filename="voip_calls_dialog.ui" line="101"/>
         <source>Select all calls</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="voip_calls_dialog.ui" line="104"/>
-        <source>Ctrl+A</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

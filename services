@@ -9624,6 +9624,8 @@ citrixuppg       7229/tcp # Citrix UPP Gateway [Gary_Barton] [Gary_Barton] 2011-
 aspcoordination  7235/udp # ASP Coordination Protocol [Wi-Fi_Alliance_2] [Mick_Conley] 2013-12-31
 display          7236/tcp # Wi-Fi Alliance Wi-Fi Display Protocol [Wi-Fi_Alliance] [Thomas_Sciorilli] 2012-04-09 Defined TXT keys: _display.tcp. Display Protocol
 pads             7237/tcp # PADS (Public Area Display System) Server [Willie_Jan_Bons] [Willie_Jan_Bons] 2011-03-10
+frc-hicp         7244/tcp # FrontRow Calypso Human Interface Control Protocol [Frontrow_Calypso_LLC] [Scott_Halberg] 2016-04-19
+frc-hicp-disc    7244/udp # FrontRow Calypso Human Interface Control Protocol [Frontrow_Calypso_LLC] [Scott_Halberg] 2016-04-19
 cnap             7262/tcp # Calypso Network Access Protocol [Frontrow_Calypso_LLC] [Scott_Halberg] 2009-06-02
 cnap             7262/udp # Calypso Network Access Protocol [Frontrow_Calypso_LLC] [Scott_Halberg] 2009-06-02
 watchme-7272     7272/tcp # WatchMe Monitoring 7272 [Oliver_Heinz] [Oliver_Heinz] 2005-08
@@ -10019,8 +10021,8 @@ lm-webwatcher    8208/tcp # LM Webwatcher [Chris_Flynn] [Chris_Flynn]
 lm-webwatcher    8208/udp # LM Webwatcher [Chris_Flynn] [Chris_Flynn]
 rexecj           8230/tcp # RexecJ Server [Curtiss_Howard] [Curtiss_Howard] 2004-11
 rexecj           8230/udp # RexecJ Server [Curtiss_Howard] [Curtiss_Howard] 2004-11
-hncp-udp-port    8231/udp # HNCP [IESG] [IETF_Chair] 2016-01-13 [RFC-ietf-homenet-hncp-10]
-hncp-dtls-port   8232/udp # HNCP over DTLS [IESG] [IETF_Chair] 2016-01-13 [RFC-ietf-homenet-hncp-10]
+hncp-udp-port    8231/udp # HNCP [IESG] [IETF_Chair] 2016-01-13 [RFC7788]
+hncp-dtls-port   8232/udp # HNCP over DTLS [IESG] [IETF_Chair] 2016-01-13 [RFC7788]
 synapse-nhttps   8243/tcp # Synapse Non Blocking HTTPS [Ruwan_Linton] [Ruwan_Linton] 2008-07-10
 synapse-nhttps   8243/udp # Synapse Non Blocking HTTPS [Ruwan_Linton] [Ruwan_Linton] 2008-07-10
 pando-sec        8276/tcp # Pando Media Controlled Distribution [Laird_Popkin] [Laird_Popkin] 2008-02-27
