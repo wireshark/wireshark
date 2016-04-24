@@ -81,37 +81,6 @@ DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
     ui->enumListWidget->setToolTip(ui->enumLabel->toolTip());
     ui->rangeLineEdit->setToolTip(ui->rangeLabel->toolTip());
 
-    // Field tree
-    ui->fieldTreeWidget->setUpdatesEnabled(false);
-    void *proto_cookie;
-    for (int proto_id = proto_get_first_protocol(&proto_cookie); proto_id != -1; proto_id = proto_get_next_protocol(&proto_cookie)) {
-        protocol_t *protocol = find_protocol_by_id(proto_id);
-        if (!proto_is_protocol_enabled(protocol)) continue;
-
-        QTreeWidgetItem *proto_ti = new QTreeWidgetItem(proto_type_);
-        QString label = QString("%1 " UTF8_MIDDLE_DOT " %3")
-                .arg(proto_get_protocol_short_name(protocol))
-                .arg(proto_get_protocol_long_name(protocol));
-        proto_ti->setText(0, label);
-        proto_ti->setData(0, Qt::UserRole, qVariantFromValue(proto_id));
-
-        QList<QTreeWidgetItem *> fti_list;
-        void *field_cookie;
-        for (header_field_info *hfinfo = proto_get_first_protocol_field(proto_id, &field_cookie); hfinfo; hfinfo = proto_get_next_protocol_field(proto_id, &field_cookie)) {
-            if (hfinfo->same_name_prev_id != -1) continue; // Ignore duplicate names.
-
-            QTreeWidgetItem *field_ti = new QTreeWidgetItem(field_type_);
-            label = QString("%1 " UTF8_MIDDLE_DOT " %3").arg(hfinfo->abbrev).arg(hfinfo->name);
-            field_ti->setText(0, label);
-            field_ti->setData(0, Qt::UserRole, qVariantFromValue(hfinfo));
-            fti_list << field_ti;
-        }
-        proto_ti->addChildren(fti_list);
-        ui->fieldTreeWidget->addTopLevelItem(proto_ti);
-    }
-    ui->fieldTreeWidget->sortByColumn(0, Qt::AscendingOrder);
-    ui->fieldTreeWidget->setUpdatesEnabled(true);
-
     // Relation list
     new QListWidgetItem("is present", ui->relationListWidget, present_op_);
     new QListWidgetItem("==", ui->relationListWidget, eq_op_);
@@ -130,14 +99,67 @@ DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
 
     // Trigger updateWidgets
     ui->fieldTreeWidget->selectionModel()->clear();
-//    if (ui->fieldTreeWidget->topLevelItemCount() > 0) {
-//        ui->fieldTreeWidget->topLevelItem(0)->setSelected(true);
-//    }
+
+    QTimer::singleShot(0, this, SLOT(fillTree()));
 }
 
 DisplayFilterExpressionDialog::~DisplayFilterExpressionDialog()
 {
     delete ui;
+}
+
+// Nearly identical to SupportedProtocolsDialog::fillTree.
+void DisplayFilterExpressionDialog::fillTree()
+{
+    void *proto_cookie;
+    QList <QTreeWidgetItem *> proto_list;
+
+    for (int proto_id = proto_get_first_protocol(&proto_cookie); proto_id != -1;
+         proto_id = proto_get_next_protocol(&proto_cookie)) {
+        protocol_t *protocol = find_protocol_by_id(proto_id);
+        if (!proto_is_protocol_enabled(protocol)) continue;
+
+        QTreeWidgetItem *proto_ti = new QTreeWidgetItem(proto_type_);
+        QString label = QString("%1 " UTF8_MIDDLE_DOT " %3")
+                .arg(proto_get_protocol_short_name(protocol))
+                .arg(proto_get_protocol_long_name(protocol));
+        proto_ti->setText(0, label);
+        proto_ti->setData(0, Qt::UserRole, qVariantFromValue(proto_id));
+        proto_list << proto_ti;
+    }
+
+    wsApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
+
+    ui->fieldTreeWidget->invisibleRootItem()->addChildren(proto_list);
+    ui->fieldTreeWidget->sortByColumn(0, Qt::AscendingOrder);
+
+    int field_count = 0;
+    foreach (QTreeWidgetItem *proto_ti, proto_list) {
+        void *field_cookie;
+        int proto_id = proto_ti->data(0, Qt::UserRole).toInt();
+
+        QList <QTreeWidgetItem *> field_list;
+        for (header_field_info *hfinfo = proto_get_first_protocol_field(proto_id, &field_cookie); hfinfo != NULL;
+             hfinfo = proto_get_next_protocol_field(proto_id, &field_cookie)) {
+            if (hfinfo->same_name_prev_id != -1) continue; // Ignore duplicate names.
+
+            QTreeWidgetItem *field_ti = new QTreeWidgetItem(field_type_);
+            QString label = QString("%1 " UTF8_MIDDLE_DOT " %3").arg(hfinfo->abbrev).arg(hfinfo->name);
+            field_ti->setText(0, label);
+            field_ti->setData(0, Qt::UserRole, qVariantFromValue(hfinfo));
+            field_list << field_ti;
+
+            field_count++;
+            if (field_count % 10000 == 0) {
+                wsApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
+            }
+        }
+        std::sort(field_list.begin(), field_list.end());
+        proto_ti->addChildren(field_list);
+    }
+
+    wsApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
+    ui->fieldTreeWidget->sortByColumn(0, Qt::AscendingOrder);
 }
 
 void DisplayFilterExpressionDialog::updateWidgets()
@@ -394,6 +416,7 @@ void DisplayFilterExpressionDialog::on_enumListWidget_itemSelectionChanged()
 
 void DisplayFilterExpressionDialog::on_searchLineEdit_textChanged(const QString &search_re)
 {
+    ui->fieldTreeWidget->setUpdatesEnabled(false);
     QTreeWidgetItemIterator it(ui->fieldTreeWidget);
     QRegExp regex(search_re, Qt::CaseInsensitive);
     while (*it) {
@@ -407,6 +430,7 @@ void DisplayFilterExpressionDialog::on_searchLineEdit_textChanged(const QString 
         (*it)->setHidden(hidden);
         ++it;
     }
+    ui->fieldTreeWidget->setUpdatesEnabled(true);
 }
 
 void DisplayFilterExpressionDialog::on_buttonBox_accepted()

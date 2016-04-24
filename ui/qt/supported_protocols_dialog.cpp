@@ -80,6 +80,7 @@ void SupportedProtocolsDialog::updateStatistics()
     wsApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
 }
 
+// Nearly identical to DisplayFilterExpressionDialog::fillTree.
 void SupportedProtocolsDialog::fillTree()
 {
     void *proto_cookie;

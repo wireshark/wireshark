@@ -49,6 +49,7 @@ signals:
     void insertDisplayFilter(const QString &filter);
 
 private slots:
+    void fillTree();
     void updateWidgets();
 
     void on_fieldTreeWidget_itemSelectionChanged();
