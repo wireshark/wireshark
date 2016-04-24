@@ -10625,7 +10625,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <translation>Conversation</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="319"/>
+        <location filename="conversation_dialog.cpp" line="314"/>
         <source>N/A</source>
         <translation>N/A</translation>
     </message>
@@ -14802,7 +14802,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Copier toutes les valeurs de cette page dans le presse-papier en format de sérialisation de données YAML .</translation>
     </message>
     <message>
-        <location filename="traffic_table_dialog.h" line="109"/>
+        <location filename="traffic_table_dialog.h" line="111"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>

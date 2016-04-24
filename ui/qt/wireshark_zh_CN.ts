@@ -10637,7 +10637,7 @@ text-decoration: underline;
         <translation>对话</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="319"/>
+        <location filename="conversation_dialog.cpp" line="314"/>
         <source>N/A</source>
         <translation>N/A</translation>
     </message>
@@ -14816,7 +14816,7 @@ text-decoration: underline;
         <translation>复制此页的所有值到剪贴板，使用 YAML 数据串行格式。</translation>
     </message>
     <message>
-        <location filename="traffic_table_dialog.h" line="109"/>
+        <location filename="traffic_table_dialog.h" line="111"/>
         <source>Unknown</source>
         <translation>未知</translation>
     </message>

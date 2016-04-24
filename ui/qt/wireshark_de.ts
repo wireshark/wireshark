@@ -10649,7 +10649,7 @@ text-decoration: underline;
         <translation>Verbindungen</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="319"/>
+        <location filename="conversation_dialog.cpp" line="314"/>
         <source>N/A</source>
         <translation>Entfällt</translation>
     </message>
@@ -14834,7 +14834,7 @@ text-decoration: underline;
         <translation>Alle Werte dieser Seite im YAML-Format in die Zwischenablage kopieren.</translation>
     </message>
     <message>
-        <location filename="traffic_table_dialog.h" line="109"/>
+        <location filename="traffic_table_dialog.h" line="111"/>
         <source>Unknown</source>
         <translation>Unbekannt</translation>
     </message>

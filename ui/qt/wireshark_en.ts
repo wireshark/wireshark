@@ -10527,7 +10527,7 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="319"/>
+        <location filename="conversation_dialog.cpp" line="314"/>
         <source>N/A</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14611,7 +14611,7 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="traffic_table_dialog.h" line="109"/>
+        <location filename="traffic_table_dialog.h" line="111"/>
         <source>Unknown</source>
         <translation type="unfinished"></translation>
     </message>

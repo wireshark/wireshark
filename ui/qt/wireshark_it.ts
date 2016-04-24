@@ -10647,7 +10647,7 @@ a:hover {
         <translation>Conversazione</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="319"/>
+        <location filename="conversation_dialog.cpp" line="314"/>
         <source>N/A</source>
         <translation>N/D</translation>
     </message>
@@ -14827,7 +14827,7 @@ a:hover {
         <translation>Copia tutti i valori di questa pagina negli appunti nel formato di serializzazione dati YAML.</translation>
     </message>
     <message>
-        <location filename="traffic_table_dialog.h" line="109"/>
+        <location filename="traffic_table_dialog.h" line="111"/>
         <source>Unknown</source>
         <translation>Sconosciuto</translation>
     </message>

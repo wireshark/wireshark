@@ -10646,7 +10646,7 @@ text-decoration: underline;
         <translation>Konwersacja</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="319"/>
+        <location filename="conversation_dialog.cpp" line="314"/>
         <source>N/A</source>
         <translation>N/A</translation>
     </message>
@@ -14828,7 +14828,7 @@ text-decoration: underline;
         <translation>Kopiuj wszystkie wartości z tej strony w formacie serializacji YAML do schowka.</translation>
     </message>
     <message>
-        <location filename="traffic_table_dialog.h" line="109"/>
+        <location filename="traffic_table_dialog.h" line="111"/>
         <source>Unknown</source>
         <translation>Nieznany</translation>
     </message>
