@@ -474,6 +474,10 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 		record_type = "Report";
 		break;
 
+	case REC_TYPE_SYSCALL:
+		record_type = "System Call";
+		break;
+
 	default:
 		/*
 		 * XXX - if we add record types that shouldn't be

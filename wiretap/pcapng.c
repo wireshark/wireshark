@@ -146,7 +146,8 @@ typedef struct pcapng_name_resolution_block_s {
 /*
  * Minimum Sysdig size = minimum block size + packed size of sysdig_event_phdr.
  */
-#define MIN_SYSDIG_EVENT_SIZE    ((guint32)(MIN_BLOCK_SIZE)) + ((16 + 64 + 64 + 32 + 16) / 8)
+#define SYSDIG_EVENT_HEADER_SIZE ((16 + 64 + 64 + 32 + 16)/8) /* CPU ID + TS + TID + Event len + Event type */
+#define MIN_SYSDIG_EVENT_SIZE    ((guint32)(MIN_BLOCK_SIZE + SYSDIG_EVENT_HEADER_SIZE))
 
 /* pcapng: common option header file encoding for every option type */
 typedef struct pcapng_option_header_s {
@@ -2144,7 +2145,7 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *p
     pcapng_debug("pcapng_read_sysdig_event_block: block_total_length %u",
                   bh->block_total_length);
 
-    wblock->packet_header->rec_type = REC_TYPE_FT_SPECIFIC_EVENT;
+    wblock->packet_header->rec_type = REC_TYPE_SYSCALL;
     wblock->packet_header->pseudo_header.sysdig_event.record_type = BLOCK_TYPE_SYSDIG_EVENT;
     wblock->packet_header->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN /*|WTAP_HAS_INTERFACE_ID */;
     wblock->packet_header->pkt_tsprec = WTAP_TSPREC_NSEC;
@@ -2175,6 +2176,7 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *p
     block_read -= MIN_SYSDIG_EVENT_SIZE;
     wblock->packet_header->pseudo_header.sysdig_event.byte_order = G_BYTE_ORDER;
 
+    /* XXX Use Gxxx_FROM_LE macros instead? */
     if (pn->byte_swapped) {
         wblock->packet_header->pseudo_header.sysdig_event.byte_order =
                 G_BYTE_ORDER == G_LITTLE_ENDIAN ? G_BIG_ENDIAN : G_LITTLE_ENDIAN;
@@ -2201,6 +2203,8 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *p
     if (!wtap_read_packet_bytes(fh, wblock->frame_buffer,
                                 block_read, err, err_info))
         return FALSE;
+
+    /* XXX Read comment? */
 
     return TRUE;
 }
@@ -3097,6 +3101,118 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
     return TRUE;
 }
 
+static gboolean
+pcapng_write_sysdig_event_block(wtap_dumper *wdh,
+                                   const struct wtap_pkthdr *phdr,
+                                   const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err)
+{
+    pcapng_block_header_t bh;
+    const guint32 zero_pad = 0;
+    guint32 pad_len;
+    guint32 phdr_len;
+#if 0
+    gboolean have_options = FALSE;
+    struct option option_hdr;
+    guint32 comment_len = 0, comment_pad_len = 0;
+#endif
+    guint32 options_total_length = 0;
+    guint16 cpu_id;
+    guint64 hdr_ts;
+    guint64 ts;
+    guint64 thread_id;
+    guint32 event_len;
+    guint16 event_type;
+
+    /* Don't write anything we're not willing to read. */
+    if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+        *err = WTAP_ERR_PACKET_TOO_LARGE;
+        return FALSE;
+    }
+
+    phdr_len = (guint32)pcap_get_phdr_size(phdr->pkt_encap, pseudo_header);
+    if ((phdr_len + phdr->caplen) % 4) {
+        pad_len = 4 - ((phdr_len + phdr->caplen) % 4);
+    } else {
+        pad_len = 0;
+    }
+
+#if 0
+    /* Check if we should write comment option */
+    if (phdr->opt_comment) {
+        have_options = TRUE;
+        comment_len = (guint32)strlen(phdr->opt_comment) & 0xffff;
+        if ((comment_len % 4)) {
+            comment_pad_len = 4 - (comment_len % 4);
+        } else {
+            comment_pad_len = 0;
+        }
+        options_total_length = options_total_length + comment_len + comment_pad_len + 4 /* comment options tag */ ;
+    }
+    if (have_options) {
+        /* End-of options tag */
+        options_total_length += 4;
+    }
+#endif
+
+    /* write sysdig event block header */
+    bh.block_type = BLOCK_TYPE_SYSDIG_EVENT;
+    bh.block_total_length = (guint32)sizeof(bh) + SYSDIG_EVENT_HEADER_SIZE + phdr_len + phdr->caplen + pad_len + options_total_length + 4;
+
+    if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
+        return FALSE;
+    wdh->bytes_dumped += sizeof bh;
+
+    /* Sysdig is always LE? */
+    cpu_id = GUINT16_TO_LE(pseudo_header->sysdig_event.cpu_id);
+    hdr_ts = (((guint64)phdr->ts.secs) * 1000000000) + phdr->ts.nsecs;
+    ts = GUINT64_TO_LE(hdr_ts);
+    thread_id = GUINT64_TO_LE(pseudo_header->sysdig_event.thread_id);
+    event_len = GUINT32_TO_LE(pseudo_header->sysdig_event.event_len);
+    event_type = GUINT16_TO_LE(pseudo_header->sysdig_event.event_type);
+
+    if (!wtap_dump_file_write(wdh, &cpu_id, sizeof cpu_id, err))
+        return FALSE;
+    wdh->bytes_dumped += sizeof cpu_id;
+
+    if (!wtap_dump_file_write(wdh, &ts, sizeof ts, err))
+        return FALSE;
+    wdh->bytes_dumped += sizeof ts;
+
+    if (!wtap_dump_file_write(wdh, &thread_id, sizeof thread_id, err))
+        return FALSE;
+    wdh->bytes_dumped += sizeof thread_id;
+
+    if (!wtap_dump_file_write(wdh, &event_len, sizeof event_len, err))
+        return FALSE;
+    wdh->bytes_dumped += sizeof event_len;
+
+    if (!wtap_dump_file_write(wdh, &event_type, sizeof event_type, err))
+        return FALSE;
+    wdh->bytes_dumped += sizeof event_type;
+
+    /* write event data */
+    if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+        return FALSE;
+    wdh->bytes_dumped += phdr->caplen;
+
+    /* write padding (if any) */
+    if (pad_len != 0) {
+        if (!wtap_dump_file_write(wdh, &zero_pad, pad_len, err))
+            return FALSE;
+        wdh->bytes_dumped += pad_len;
+    }
+
+    /* XXX Write comment? */
+
+    /* write block footer */
+    if (!wtap_dump_file_write(wdh, &bh.block_total_length,
+                              sizeof bh.block_total_length, err))
+        return FALSE;
+
+    return TRUE;
+
+}
+
 /* Arbitrary. */
 #define NRES_REC_MAX_SIZE ((WTAP_MAX_PACKET_SIZE * 4) + 16)
 static gboolean
@@ -3838,6 +3954,12 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
             {
                 /* No. */
                 *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
+                return FALSE;
+            }
+            break;
+
+        case REC_TYPE_SYSCALL:
+            if (!pcapng_write_sysdig_event_block(wdh, phdr, pseudo_header, pd, err)) {
                 return FALSE;
             }
             break;

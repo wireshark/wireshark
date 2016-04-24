@@ -699,11 +699,14 @@ map_phdr_interface_id(struct wtap_pkthdr *phdr, const merge_in_file_t *in_file)
 
     if (phdr->presence_flags & WTAP_HAS_INTERFACE_ID) {
         current_interface_id = phdr->interface_id;
+    } else {
+        return TRUE;
     }
 
     if (current_interface_id >= in_file->idb_index_map->len) {
         /* this shouldn't happen, but in a malformed input file it could */
-        merge_debug("merge::map_phdr_interface_id: current_interface_id >= in_file->idb_index_map->len (ERROR?)");
+        merge_debug("merge::map_phdr_interface_id: current_interface_id (%u) >= in_file->idb_index_map->len (%u) (ERROR?)",
+            current_interface_id, in_file->idb_index_map->len);
         return FALSE;
     }
 

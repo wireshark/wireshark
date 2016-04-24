@@ -2176,6 +2176,8 @@ proto_register_sysdig_event(void)
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_sysdig_event, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    register_dissector("sysdig", dissect_sysdig_event, proto_sysdig_event);
 }
 
 #define BLOCK_TYPE_SYSDIG_EVENT 0x00000204

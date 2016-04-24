@@ -1203,6 +1203,7 @@ union wtap_pseudo_header {
 #define REC_TYPE_PACKET               0    /**< packet */
 #define REC_TYPE_FT_SPECIFIC_EVENT    1    /**< file-type-specific event */
 #define REC_TYPE_FT_SPECIFIC_REPORT   2    /**< file-type-specific report */
+#define REC_TYPE_SYSCALL              3    /**< system call */
 
 struct wtap_pkthdr {
     guint     rec_type;         /* what type of record is this? */

@@ -51,6 +51,8 @@ void proto_reg_handoff_frame(void);
 
 static int proto_frame = -1;
 static int proto_pkt_comment = -1;
+static int proto_syscall = -1;
+
 static int hf_frame_arrival_time = -1;
 static int hf_frame_shift_offset = -1;
 static int hf_frame_arrival_time_epoch = -1;
@@ -98,6 +100,7 @@ static expert_field ei_incomplete = EI_INIT;
 static int frame_tap = -1;
 
 static dissector_handle_t docsis_handle;
+static dissector_handle_t sysdig_handle;
 
 /* Preferences */
 static gboolean show_file_off       = FALSE;
@@ -250,6 +253,10 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		pinfo->current_proto = "Report";
 		break;
 
+	case REC_TYPE_SYSCALL:
+		pinfo->current_proto = "System Call";
+		break;
+
 	default:
 		g_assert_not_reached();
 		break;
@@ -283,17 +290,37 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		cap_plurality = plurality(cap_len, "", "s");
 		frame_plurality = plurality(frame_len, "", "s");
 
-		ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
-		    "Frame %u: %u byte%s on wire",
-		    pinfo->num, frame_len, frame_plurality);
-		if (generate_bits_field)
-			proto_item_append_text(ti, " (%u bits)", frame_len * 8);
-		proto_item_append_text(ti, ", %u byte%s captured",
-		    cap_len, cap_plurality);
-		if (generate_bits_field) {
-			proto_item_append_text(ti, " (%u bits)",
-			    cap_len * 8);
+		switch (pinfo->phdr->rec_type) {
+		case REC_TYPE_PACKET:
+		case REC_TYPE_FT_SPECIFIC_EVENT:
+		case REC_TYPE_FT_SPECIFIC_REPORT:
+			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
+			"Frame %u: %u byte%s on wire",
+			pinfo->num, frame_len, frame_plurality);
+			if (generate_bits_field)
+				proto_item_append_text(ti, " (%u bits)", frame_len * 8);
+			proto_item_append_text(ti, ", %u byte%s captured",
+			cap_len, cap_plurality);
+			if (generate_bits_field) {
+				proto_item_append_text(ti, " (%u bits)",
+				cap_len * 8);
+			}
+			break;
+
+		case REC_TYPE_SYSCALL:
+			/*
+			 * This gives us a top-of-tree "syscall" protocol
+			 * with "frame" fields underneath. Should we create
+			 * corresponding syscall.time, .time_epoch, etc
+			 * fields and use them instead or would frame.*
+			 * be preferred?
+			 */
+			ti = proto_tree_add_protocol_format(tree, proto_syscall, tvb, 0, tvb_captured_length(tvb),
+			"System Call %u: %u byte%s",
+			pinfo->num, frame_len, frame_plurality);
+			break;
 		}
+
 		if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID) {
 			proto_item_append_text(ti, " on interface %u",
 			    pinfo->phdr->interface_id);
@@ -499,6 +526,15 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 							     file_type_subtype);
 						call_data_dissector(tvb, pinfo, parent_tree);
 					}
+				}
+				break;
+
+			case REC_TYPE_SYSCALL:
+				/* Sysdig is the only type we currently handle. */
+				if (sysdig_handle) {
+					call_dissector_with_data(sysdig_handle,
+					    tvb, pinfo, parent_tree,
+					    (void *)pinfo->pseudo_header);
 				}
 				break;
 			}
@@ -867,6 +903,8 @@ proto_register_frame(void)
 
 	proto_frame = proto_register_protocol("Frame", "Frame", "frame");
 	proto_pkt_comment = proto_register_protocol("Packet comments", "Pkt_Comment", "pkt_comment");
+	proto_syscall = proto_register_protocol("System Call", "Syscall", "syscall");
+
 	proto_register_field_array(proto_frame, hf, array_length(hf));
 	proto_register_field_array(proto_frame, &hf_encap, 1);
 	proto_register_subtree_array(ett, array_length(ett));
@@ -914,6 +952,7 @@ void
 proto_reg_handoff_frame(void)
 {
 	docsis_handle = find_dissector_add_dependency("docsis", proto_frame);
+	sysdig_handle = find_dissector_add_dependency("sysdig", proto_frame);
 }
 
 /*
