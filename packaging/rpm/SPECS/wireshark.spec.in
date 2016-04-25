@@ -383,7 +383,7 @@ fi
 %endif
 
 %{_libdir}/lib*.so*
-%exclude %{_libdir}/%{name}/plugins/%{version}/*.la
+%exclude %{_libdir}/%{name}/plugins/%{package_version}/*.la
 %exclude %{_libdir}/*.la
 %{_libdir}/wireshark
 # Don't pick up the wireshark (GUI) man page
