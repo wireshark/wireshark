@@ -967,8 +967,8 @@ svr4-package: $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA)
 
 
 rpm_topdir=`cd $(top_builddir) && pwd`/packaging/rpm
-rpm-package: dist
 if HAVE_RPM
+rpm-package: dist
 	@cd $(rpm_topdir) && \
 	  mkdir -p BUILD RPMS SOURCES SRPMS && \
 	  cd SOURCES && \
@@ -979,6 +979,7 @@ if HAVE_RPM
 	  echo "Package successfully built in `pwd`/RPMS." ; \
 	  rm -f SOURCES/$(distdir).tar.bz2 $(distdir).tar.bz2
 else
+rpm-package:
 	@echo "RPM executable not available." ; \
 	  false
 endif
