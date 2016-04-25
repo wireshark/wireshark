@@ -2656,8 +2656,10 @@ host_name_lookup_init(void)
     g_assert(ipv6_hash_table == NULL);
     ipv6_hash_table = g_hash_table_new(ipv6_oat_hash, ipv6_equal);
 
+#ifdef HAVE_C_ARES
     g_assert(async_dns_queue_head == NULL);
     async_dns_queue_head = wmem_list_new(wmem_epan_scope());
+#endif
 
     if (manually_resolved_ipv4_list == NULL)
         manually_resolved_ipv4_list = wmem_list_new(wmem_epan_scope());
