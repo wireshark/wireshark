@@ -977,7 +977,7 @@ rpm-package: dist
 	  $(RPMBUILD) --define "_topdir `cd . && pwd`" --define "_prefix $(prefix)" \
 		@RPMBUILD_WITH_ARGS@ --clean -ba SPECS/wireshark.spec && \
 	  echo "Package successfully built in `pwd`/RPMS." ; \
-	  rm -f SOURCES/$(distdir).tar.bz2 $(distdir).tar.bz2
+	  rm -f SOURCES/$(distdir).tar.bz2 ../../$(distdir).tar.bz2
 else
 rpm-package:
 	@echo "RPM executable not available." ; \
