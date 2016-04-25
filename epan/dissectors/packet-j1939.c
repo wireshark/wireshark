@@ -333,7 +333,7 @@ void proto_register_j1939(void)
         },
         { &hf_j1939_data,
             {"Data", "j1939.data",
-            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+            FT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0x0, NULL, HFILL }
         },
     };
 
