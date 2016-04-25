@@ -196,7 +196,7 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "J1939");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    ti = proto_tree_add_item(tree, proto_j1939, tvb, offset, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_j1939, tvb, offset, tvb_reported_length(tvb), ENC_NA);
     j1939_tree = proto_item_add_subtree(ti, ett_j1939);
 
     can_tree = proto_tree_add_subtree_format(j1939_tree, tvb, 0, 0,
@@ -247,14 +247,14 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     /* For now just include raw bytes */
     col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, 0, data_length, ' '));
 
-    msg_tree = proto_tree_add_subtree(j1939_tree, tvb, 0, -1, ett_j1939_message, NULL, "Message");
+    msg_tree = proto_tree_add_subtree(j1939_tree, tvb, 0, tvb_reported_length(tvb), ett_j1939_message, NULL, "Message");
 
     ti = proto_tree_add_uint(msg_tree, hf_j1939_pgn, tvb, 0, 0, pgn);
     PROTO_ITEM_SET_GENERATED(ti);
 
     if (!dissector_try_uint_new(subdissector_pgn_table, pgn, tvb, pinfo, msg_tree, TRUE, data))
     {
-        proto_tree_add_item(msg_tree, hf_j1939_data, tvb, 0, -1, ENC_NA);
+        proto_tree_add_item(msg_tree, hf_j1939_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
     }
 
     return tvb_captured_length(tvb);
