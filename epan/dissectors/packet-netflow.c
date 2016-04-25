@@ -976,6 +976,14 @@ static const value_string v10_template_types_ixia[] = {
     {  163, "Browser Name" },
     {  176, "Reverse Octet Delta Count" },
     {  177, "Reverse Packet Delta Count" },
+    {  178, "Connection encryption type" },
+    {  179, "Encryption Cipher Suite" },
+    {  180, "Encryption Key Length" },
+    {  181, "IMSI for 3/4G subscriber" },
+    {  182, "HTTP Request User-Agent" },
+    {  183, "Host Name" },
+    {  184, "HTTP URI" },
+    {  185, "DNS record TXT" },
     { 0, NULL }
 };
 static value_string_ext v10_template_types_ixia_ext = VALUE_STRING_EXT_INIT(v10_template_types_ixia);
@@ -1995,6 +2003,14 @@ static int      hf_pie_ixia_browser_id                  = -1;
 static int      hf_pie_ixia_browser_name                = -1;
 static int      hf_pie_ixia_reverse_octet_delta_count   = -1;
 static int      hf_pie_ixia_reverse_packet_delta_count  = -1;
+static int      hf_pie_ixia_conn_encryption_type        = -1;
+static int      hf_pie_ixia_encryption_cipher           = -1;
+static int      hf_pie_ixia_encryption_keylen           = -1;
+static int      hf_pie_ixia_imsi                        = -1;
+static int      hf_pie_ixia_user_agent                  = -1;
+static int      hf_pie_ixia_host_name                   = -1;
+static int      hf_pie_ixia_uri                         = -1;
+static int      hf_pie_ixia_dns_txt                     = -1;
 
 static int      hf_pie_netscaler                                         = -1;
 static int      hf_pie_netscaler_roundtriptime                           = -1;
@@ -6467,6 +6483,38 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case ((VENDOR_IXIA << 16) | 177):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_reverse_packet_delta_count,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 178):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_conn_encryption_type,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 179):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_encryption_cipher,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 180):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_encryption_keylen,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 181):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_imsi,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 182):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_user_agent,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 183):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_host_name,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 184):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_uri,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 185):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_txt,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
             break;
             /* END Ixia Communications */
 
@@ -10956,6 +11004,62 @@ proto_register_netflow(void)
          {"Reverse octet packet count", "cflow.pie.ixia.reverse-packet-delta-count",
           FT_UINT64, BASE_DEC, NULL, 0x0,
           "In bi-directional flows, packet count for the server back to client", HFILL}
+        },
+
+        /* ixia, 3054 / 178 */
+        {&hf_pie_ixia_conn_encryption_type,
+         {"Connection Encryption Type", "cflow.pie.ixia.conn-encryption-type",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "Whether the connection is encrypted", HFILL}
+        },
+
+        /* ixia, 3054 / 179 */
+        {&hf_pie_ixia_encryption_cipher,
+         {"Encryption Cipher", "cflow.pie.ixia.encryption-cipher",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "Cipher used in the encryption", HFILL}
+        },
+
+        /* ixia, 3054 / 180 */
+        {&hf_pie_ixia_encryption_keylen,
+         {"Encryption Key Length", "cflow.pie.ixia.encryption-keylen",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "Length of the encryption key in bytes", HFILL}
+        },
+
+        /* ixia, 3054 / 181 */
+        {&hf_pie_ixia_imsi,
+         {"IMSI", "cflow.pie.ixia.imsi",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "IMSI associated with a GTP tunneled flow", HFILL}
+        },
+
+        /* ixia, 3054 / 182 */
+        {&hf_pie_ixia_user_agent,
+         {"HTTP User Agent", "cflow.pie.ixia.http-user-agent",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "User-Agent string in HTTP requests", HFILL}
+        },
+
+        /* ixia, 3054 / 183 */
+        {&hf_pie_ixia_host_name,
+         {"Host Name", "cflow.pie.ixia.hostname",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "HTTP Hostname", HFILL}
+        },
+
+        /* ixia, 3054 / 184 */
+        {&hf_pie_ixia_uri,
+         {"HTTP URI", "cflow.pie.ixia.http-uri",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "URI in HTTP requests", HFILL}
+        },
+
+        /* ixia, 3054 / 185 */
+        {&hf_pie_ixia_dns_txt,
+         {"DNS TXT", "cflow.pie.ixia.dns-txt",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "TXT record in DNS query", HFILL}
         },
 
         /* Netscaler root (a hidden item to allow filtering) */
