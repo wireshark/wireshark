@@ -160,10 +160,6 @@ mp2t_read_pcr(guint8 *buffer)
     return (base * 300 + ext);
 }
 
-/*
- * XXX - should we limit this to a fixed number of frames, rather than
- * potentially scanning the entire file for a PCR?
- */
 static gboolean
 mp2t_find_next_pcr(wtap *wth, guint8 trailer_len,
         int *err, gchar **err_info, guint32 *idx, guint64 *pcr, guint16 *pid)
@@ -171,9 +167,10 @@ mp2t_find_next_pcr(wtap *wth, guint8 trailer_len,
     guint8 buffer[MP2T_SIZE+TRAILER_LEN_MAX];
     gboolean found;
     guint8 afc;
+    guint timeout = 0;
 
     found = FALSE;
-    while (FALSE == found) {
+    while (FALSE == found && timeout++ < SYNC_STEPS * SYNC_STEPS) {
         (*idx)++;
         if (!wtap_read_bytes_or_eof(
                     wth->fh, buffer, MP2T_SIZE+trailer_len, err, err_info)) {
@@ -207,7 +204,7 @@ mp2t_find_next_pcr(wtap *wth, guint8 trailer_len,
         found = TRUE;
     }
 
-    return TRUE;
+    return found;
 }
 
 static wtap_open_return_val
