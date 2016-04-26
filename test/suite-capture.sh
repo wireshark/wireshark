@@ -43,6 +43,17 @@ capture_test_output_print() {
 	done
 }
 
+capture_test_output_capinfos() {
+	wait
+	for f in "$@"; do
+		if [[ -f "$f" ]]; then
+			$CAPINFOS "$f"
+		else
+			printf "$f not found.\n"
+		fi
+	done
+}
+
 traffic_gen_ping() {
 	# Generate some traffic for quiet networks.
 	# The following will run in the background and return immediately
@@ -225,6 +236,7 @@ capture_step_stdin() {
         set +xv
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		capture_test_output_print ./testout.txt ./testerr.txt ./dumpcap_debug_log.tmp
+		capture_test_output_capinfos ./testout.pcap
 		test_step_failed "Exit status of $DUT: $RETURNVALUE"
 		return
 	fi
