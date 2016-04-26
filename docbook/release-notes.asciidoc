@@ -72,6 +72,7 @@ Metamako trailers
 ISO 8583-1
 Bluetooth Pseudoheader for BR/EDR
 Edge Control Protocol (ECP)
+Bachmann bluecom Protocol
 
 // Items in --sort-and-group-- blocks will be sorted and comma-separated.
 --sort-and-group--

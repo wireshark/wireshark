@@ -582,6 +582,11 @@ extern "C" {
 #define ETHERTYPE_ROCE			0x8915 /* Infiniband RDMA over Converged Ethernet */
 #endif
 
+#ifndef ETHERTYPE_BLUECOM
+#define ETHERTYPE_BLUECOM		0x892D /* Bachmann bluecom protocol */
+#endif
+
+
 WS_DLL_PUBLIC const value_string etype_vals[];
 
 #ifdef __cplusplus

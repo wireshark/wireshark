@@ -352,6 +352,7 @@ set(DISSECTOR_SRC
 	packet-bitcoin.c
 	packet-bittorrent.c
 	packet-bjnp.c
+	packet-bluecom.c
 	packet-bluetooth.c
 	packet-bmc.c
 	packet-bmp.c
