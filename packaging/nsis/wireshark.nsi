@@ -391,16 +391,12 @@ File "${VCREDIST_EXE}"
 ; http://blogs.msdn.com/b/astebner/archive/2010/10/20/10078468.aspx
 ; http://allthingsconfigmgr.wordpress.com/2013/12/17/visual-c-redistributables-made-simple/
 ; "!if ${MSVC_VER_REQUIRED} >= 1600" doesn't work.
-!searchparse /noerrors ${MSVC_VER_REQUIRED} "1400" VCREDIST_FLAGS_Q "1500" VCREDIST_FLAGS_Q "1600" VCREDIST_FLAGS_Q_NORESTART
-!ifdef VCREDIST_FLAGS_Q
-StrCpy $VCREDIST_FLAGS "/q"
-!else ; VCREDIST_FLAGS_Q
+!searchparse /noerrors ${MSVC_VER_REQUIRED} "1600" VCREDIST_FLAGS_Q_NORESTART
 !ifdef VCREDIST_FLAGS_Q_NORESTART
 StrCpy $VCREDIST_FLAGS "/q /norestart"
 !else ; VCREDIST_FLAGS_Q_NORESTART
-StrCpy $VCREDIST_FLAGS "/quiet /norestart"
+StrCpy $VCREDIST_FLAGS "/install /quiet /norestart"
 !endif ; VCREDIST_FLAGS_Q_NORESTART
-!endif ; VCREDIST_FLAGS_Q
 
 ExecWait '"$INSTDIR\vcredist_${TARGET_MACHINE}.exe" $VCREDIST_FLAGS' $0
 DetailPrint "vcredist_${TARGET_MACHINE} returned $0"
