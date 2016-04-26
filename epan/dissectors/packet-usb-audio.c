@@ -58,6 +58,23 @@ static int hf_ac_if_output_terminaltype = -1;
 static int hf_ac_if_output_assocterminal = -1;
 static int hf_ac_if_output_sourceid = -1;
 static int hf_ac_if_output_terminal = -1;
+static int hf_ac_if_fu_unitid = -1;
+static int hf_ac_if_fu_sourceid = -1;
+static int hf_ac_if_fu_controlsize = -1;
+static int hf_ac_if_fu_controls = -1;
+static int hf_ac_if_fu_control = -1;
+static int hf_ac_if_fu_controls_d0 = -1;
+static int hf_ac_if_fu_controls_d1 = -1;
+static int hf_ac_if_fu_controls_d2 = -1;
+static int hf_ac_if_fu_controls_d3 = -1;
+static int hf_ac_if_fu_controls_d4 = -1;
+static int hf_ac_if_fu_controls_d5 = -1;
+static int hf_ac_if_fu_controls_d6 = -1;
+static int hf_ac_if_fu_controls_d7 = -1;
+static int hf_ac_if_fu_controls_d8 = -1;
+static int hf_ac_if_fu_controls_d9 = -1;
+static int hf_ac_if_fu_controls_rsv = -1;
+static int hf_ac_if_fu_ifeature = -1;
 static int hf_as_if_desc_subtype = -1;
 static int hf_as_if_gen_term_id = -1;
 static int hf_as_if_gen_delay = -1;
@@ -78,6 +95,10 @@ static reassembly_table midi_data_reassembly_table;
 
 static gint ett_usb_audio      = -1;
 static gint ett_usb_audio_desc = -1;
+
+static gint ett_ac_if_fu_controls = -1;
+static gint ett_ac_if_fu_controls0 = -1;
+static gint ett_ac_if_fu_controls1 = -1;
 
 static dissector_handle_t sysex_handle;
 
@@ -498,6 +519,61 @@ dissect_ac_if_output_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_
 }
 
 static gint
+dissect_ac_if_feature_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+        proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
+{
+    gint     offset_start;
+    guint8 controlsize;
+    proto_tree *bitmap_tree;
+    proto_item *ti;
+
+    static const int *fu_controls0[] = {
+        &hf_ac_if_fu_controls_d0,
+        &hf_ac_if_fu_controls_d1,
+        &hf_ac_if_fu_controls_d2,
+        &hf_ac_if_fu_controls_d3,
+        &hf_ac_if_fu_controls_d4,
+        &hf_ac_if_fu_controls_d5,
+        &hf_ac_if_fu_controls_d6,
+        &hf_ac_if_fu_controls_d7,
+        NULL };
+
+    static const int *fu_controls1[] = {
+        &hf_ac_if_fu_controls_d8,
+        &hf_ac_if_fu_controls_d9,
+        &hf_ac_if_fu_controls_rsv,
+        NULL };
+
+    offset_start = offset;
+
+    proto_tree_add_item(tree, hf_ac_if_fu_unitid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ac_if_fu_sourceid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ac_if_fu_controlsize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    controlsize = tvb_get_guint8(tvb, offset) + 1;
+    offset += 1;
+
+    ti = proto_tree_add_item(tree, hf_ac_if_fu_controls, tvb, offset, controlsize, ENC_NA);
+    bitmap_tree = proto_item_add_subtree(ti, ett_ac_if_fu_controls);
+
+    proto_tree_add_bitmask(bitmap_tree, tvb, offset, hf_ac_if_fu_control, ett_ac_if_fu_controls0, fu_controls0, ENC_LITTLE_ENDIAN);
+
+    if(controlsize >= 1){
+        proto_tree_add_bitmask(bitmap_tree, tvb, offset + 1, hf_ac_if_fu_control, ett_ac_if_fu_controls1, fu_controls1, ENC_LITTLE_ENDIAN);
+    }
+
+    offset += controlsize;
+
+    proto_tree_add_item(tree, hf_ac_if_fu_ifeature, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    return offset-offset_start;
+}
+
+static gint
 dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
@@ -658,6 +734,9 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
                 break;
             case AC_SUBTYPE_OUTPUT_TERMINAL:
                 dissect_ac_if_output_terminal(tvb, offset, pinfo, desc_tree, usb_conv_info);
+                break;
+            case AC_SUBTYPE_FEATURE_UNIT:
+                dissect_ac_if_feature_unit(tvb, offset, pinfo, desc_tree, usb_conv_info);
                 break;
             default:
                 proto_tree_add_expert(desc_tree, pinfo, &ei_usb_audio_undecoded, tvb, offset-3, desc_len);
@@ -839,6 +918,57 @@ proto_register_usb_audio(void)
         { &hf_ac_if_output_terminal,
             { "Terminal", "usbaudio.ac_if_output.iTerminal",
               FT_UINT8, BASE_DEC, NULL, 0x00, "iTerminal", HFILL }},
+        { &hf_ac_if_fu_unitid,
+            { "Unit ID", "usbaudio.ac_if_fu.bUnitID",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bUnitID", HFILL }},
+        { &hf_ac_if_fu_sourceid,
+            { "Source ID", "usbaudio.ac_if_fu.bSourceID",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bSourceID", HFILL }},
+        { &hf_ac_if_fu_controlsize,
+            { "Control Size", "usbaudio.ac_if_fu.bControlSize",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bControlSize", HFILL }},
+        { &hf_ac_if_fu_controls,
+            { "Controls", "usbaudio.ac_if_fu.bmaControls",
+              FT_BYTES, BASE_NONE, NULL, 0x00, "bmaControls", HFILL }},
+        { &hf_ac_if_fu_control,
+            { "Control", "usbaudio.ac_if_fu.bmaControl",
+              FT_UINT8, BASE_HEX, NULL, 0x00, "bmaControls", HFILL }},
+        { &hf_ac_if_fu_controls_d0,
+            { "Mute", "usbaudio.ac_if_fu.bmaControls.d0",
+              FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+        { &hf_ac_if_fu_controls_d1,
+            { "Volume", "usbaudio.ac_if_fu.bmaControls.d1",
+              FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+        { &hf_ac_if_fu_controls_d2,
+            { "Bass", "usbaudio.ac_if_fu.bmaControls.d2",
+              FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+        { &hf_ac_if_fu_controls_d3,
+            { "Mid", "usbaudio.ac_if_fu.bmaControls.d3",
+              FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
+        { &hf_ac_if_fu_controls_d4,
+            { "Treble", "usbaudio.ac_if_fu.bmaControls.d4",
+              FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
+        { &hf_ac_if_fu_controls_d5,
+            { "Graphic Equalizer", "usbaudio.ac_if_fu.bmaControls.d5",
+              FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
+        { &hf_ac_if_fu_controls_d6,
+            { "Automatic Gain", "usbaudio.ac_if_fu.bmaControls.d6",
+              FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
+        { &hf_ac_if_fu_controls_d7,
+            { "Delay", "usbaudio.ac_if_fu.bmaControls.d7",
+              FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
+        { &hf_ac_if_fu_controls_d8,
+            { "Bass Boost", "usbaudio.ac_if_fu.bmaControls.d8",
+              FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+        { &hf_ac_if_fu_controls_d9,
+            { "Loudness", "usbaudio.ac_if_fu.bmaControls.d9",
+              FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+        { &hf_ac_if_fu_controls_rsv,
+            { "Reserved", "usbaudio.ac_if_fu.bmaControls.rsv",
+              FT_UINT8, BASE_HEX, NULL, 0xFC, "Must be zero", HFILL }},
+        { &hf_ac_if_fu_ifeature,
+            { "Feature", "usbaudio.ac_if_fu.iFeature",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "iFeature", HFILL }},
         { &hf_as_if_desc_subtype,
             { "Subtype", "usbaudio.as_if_subtype", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
                 &as_subtype_vals_ext, 0x00, "bDescriptorSubtype", HFILL }},
@@ -926,7 +1056,10 @@ proto_register_usb_audio(void)
         &ett_usb_audio,
         &ett_usb_audio_desc,
         &ett_sysex_msg_fragment,
-        &ett_sysex_msg_fragments
+        &ett_sysex_msg_fragments,
+        &ett_ac_if_fu_controls,
+        &ett_ac_if_fu_controls0,
+        &ett_ac_if_fu_controls1
     };
 
     static ei_register_info ei[] = {
