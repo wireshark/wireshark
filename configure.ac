@@ -46,7 +46,11 @@ dnl AC_CANONICAL_BUILD
 dnl AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE([1.9 tar-ustar dist-bzip2 no-dist-gzip subdir-objects])
+AM_INIT_AUTOMAKE([1.11 tar-ustar dist-bzip2 no-dist-gzip subdir-objects])
+
+# Enable silent builds by default. Verbose builds can be enabled with "./configure
+# --enable-silent-rules ..." or "make V=1 ..."
+AM_SILENT_RULES([yes])
 
 # Make Wireshark's version available in config.h
 AC_DEFINE(VERSION_MAJOR, version_major, [Wireshark's major version])
@@ -1342,12 +1346,6 @@ cygwin*)
 	;;
 esac
 AC_SUBST(LDFLAGS_SHAREDLIB)
-
-# Enable silent builds by default
-# Verbose builds can be enabled with "./configure
-# --enable-silent-rules ..." or "make V=1 ..."
-m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])],
-  [AC_SUBST([AM_DEFAULT_VERBOSITY], [1])])
 
 #
 # On "Darwin", which we assume to mean "OS X" rather than "iOS" or

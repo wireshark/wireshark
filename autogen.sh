@@ -73,14 +73,14 @@ esac
 
 AMVER=`$AUTOMAKE --version | grep '^automake' | sed 's/.*) *//'`
 case "$AMVER" in
-1.9* | 1.[1][0-9]*)
+1.11* | 1.1[2-9]*)
   ;;
 
 *)
 
   cat >&2 <<_EOF_
 
-	You must have automake 1.9 or later installed to compile $PROJECT.
+	You must have automake 1.11 or later installed to compile $PROJECT.
 	Download the appropriate package for your distribution/OS,
 	or get the source tarball at ftp://ftp.gnu.org/pub/gnu/automake/
 _EOF_
