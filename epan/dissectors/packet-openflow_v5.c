@@ -3918,6 +3918,7 @@ dissect_openflow_flow_monitor_request_v5(tvbuff_t *tvb, packet_info *pinfo _U_, 
 
     /* uint32_t monitor_id; */
     proto_tree_add_item(tree, hf_openflow_v5_flow_monitor_request_monitor_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset+=4;
 
     /* uint32_t out_port; */
     if (tvb_get_ntohl(tvb, offset) <= OFPP_MAX) {
@@ -3946,7 +3947,7 @@ dissect_openflow_flow_monitor_request_v5(tvbuff_t *tvb, packet_info *pinfo _U_, 
     proto_tree_add_item(flags_tree, hf_openflow_v5_flow_monitor_request_flags_instructions, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(flags_tree, hf_openflow_v5_flow_monitor_request_flags_no_abbrev, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(flags_tree, hf_openflow_v5_flow_monitor_request_flags_only_own, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset+=4;
+    offset+=2;
 
     /* uint8_t table_id; */
     if (tvb_get_guint8(tvb, offset) <= OFPTT_MAX) {
@@ -3958,6 +3959,7 @@ dissect_openflow_flow_monitor_request_v5(tvbuff_t *tvb, packet_info *pinfo _U_, 
 
     /* uint8_t command; */
     proto_tree_add_item(tree, hf_openflow_v5_flow_monitor_request_command, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset+=1;
 
     /* struct ofp_match match; */
     dissect_openflow_match_v5(tvb, pinfo, tree, offset, length);
@@ -8018,7 +8020,7 @@ proto_register_openflow_v5(void)
                NULL, HFILL }
         },
         { &hf_openflow_v5_flow_monitor_request_monitor_id,
-            { "Queue ID", "openflow_v5.flow_monitor_request.monitor_id",
+            { "Monitor ID", "openflow_v5.flow_monitor_request.monitor_id",
                FT_UINT32, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
