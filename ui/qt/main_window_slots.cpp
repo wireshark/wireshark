@@ -772,10 +772,10 @@ void MainWindow::captureFileSaveStarted(const QString &file_path)
 void MainWindow::filterExpressionsChanged()
 {
     // Recreate filter buttons
-    foreach (QAction *act, main_ui_->displayFilterToolBar->actions()) {
+    foreach (QAction *act, filter_expression_toolbar_->actions()) {
         // Permanent actions shouldn't have data
         if (act->property(dfe_property_).isValid()) {
-            main_ui_->displayFilterToolBar->removeAction(act);
+            filter_expression_toolbar_->removeAction(act);
             delete act;
         }
     }
@@ -783,13 +783,14 @@ void MainWindow::filterExpressionsChanged()
     // XXX Add a context menu for removing and changing buttons.
     for (struct filter_expression *fe = *pfilter_expression_head; fe != NULL; fe = fe->next) {
         if (!fe->enabled) continue;
-        QAction *dfb_action = new QAction(fe->label, main_ui_->displayFilterToolBar);
+        QAction *dfb_action = new QAction(fe->label, filter_expression_toolbar_);
         dfb_action->setToolTip(fe->expression);
         dfb_action->setData(fe->expression);
         dfb_action->setProperty(dfe_property_, true);
-        main_ui_->displayFilterToolBar->addAction(dfb_action);
+        filter_expression_toolbar_->addAction(dfb_action);
         connect(dfb_action, SIGNAL(triggered()), this, SLOT(displayFilterButtonClicked()));
     }
+    main_ui_->displayFilterToolBar->update();
 }
 
 //

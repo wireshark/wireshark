@@ -361,6 +361,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     main_ui_->displayFilterToolBar->insertWidget(main_ui_->actionDisplayFilterExpression, df_combo_box_);
 
+    // Make sure filter expressions overflow into a menu instead of a
+    // larger toolbar. We do this by adding them to a child toolbar.
+    // https://bugreports.qt.io/browse/QTBUG-2472
+    filter_expression_toolbar_ = new QToolBar();
+    filter_expression_toolbar_->setStyleSheet("QToolBar { background: none; border: none; }");
+    main_ui_->displayFilterToolBar->addWidget(filter_expression_toolbar_);
+
     wireless_frame_ = new WirelessFrame(this);
     main_ui_->wirelessToolBar->addWidget(wireless_frame_);
     connect(wireless_frame_, SIGNAL(pushAdapterStatus(const QString&)),
@@ -2137,6 +2144,11 @@ void MainWindow::changeEvent(QEvent* event)
         }
     }
     QMainWindow::changeEvent(event);
+}
+
+void MainWindow::resizeEvent(QResizeEvent *)
+{
+    df_combo_box_->setMinimumWidth(width() * 2 / 3); // Arbitrary
 }
 
 /* Update main window items based on whether there's a capture in progress. */
