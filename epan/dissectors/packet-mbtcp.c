@@ -158,6 +158,7 @@ static gint ett_device_id_object_items = -1;
 
 static expert_field ei_mbrtu_crc16_incorrect = EI_INIT;
 static expert_field ei_modbus_data_decode = EI_INIT;
+static expert_field ei_mbtcp_cannot_classify = EI_INIT;
 
 static dissector_handle_t modbus_handle;
 static dissector_handle_t mbtcp_handle;
@@ -496,6 +497,9 @@ dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     mi = proto_tree_add_protocol_format(tree, proto_mbtcp, tvb, offset,
             len+6, "Modbus/TCP");
     mbtcp_tree = proto_item_add_subtree(mi, ett_mbtcp);
+
+    if (packet_type == CANNOT_CLASSIFY)
+        expert_add_info(pinfo, mi, &ei_mbtcp_cannot_classify);
 
     /* Add items to protocol tree specific to Modbus/TCP */
     proto_tree_add_uint(mbtcp_tree, hf_mbtcp_transid, tvb, offset, 2, transaction_id);
@@ -1556,6 +1560,13 @@ proto_register_modbus(void)
         },
     };
 
+    static ei_register_info mbtcp_ei[] = {
+        { &ei_mbtcp_cannot_classify,
+          { "mbtcp.cannot_classify", PI_PROTOCOL, PI_WARN,
+            "Cannot classify packet type. Try setting Modbus/TCP Port preference to this destination or source port", EXPFILL }
+        },
+    };
+
     /* Modbus RTU header fields */
     static hf_register_info mbrtu_hf[] = {
         { &hf_mbrtu_unitid,
@@ -1898,6 +1909,7 @@ proto_register_modbus(void)
     module_t *mbtcp_module;
     module_t *mbrtu_module;
     module_t *modbus_module;
+    expert_module_t* expert_mbtcp;
     expert_module_t* expert_mbrtu;
     expert_module_t* expert_modbus;
 
@@ -1920,6 +1932,8 @@ proto_register_modbus(void)
     proto_register_field_array(proto_mbrtu, mbrtu_hf, array_length(mbrtu_hf));
     proto_register_field_array(proto_modbus, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_mbtcp = expert_register_protocol(proto_mbtcp);
+    expert_register_field_array(expert_mbtcp, mbtcp_ei, array_length(mbtcp_ei));
     expert_mbrtu = expert_register_protocol(proto_mbrtu);
     expert_register_field_array(expert_mbrtu, mbrtu_ei, array_length(mbrtu_ei));
     expert_modbus = expert_register_protocol(proto_modbus);
