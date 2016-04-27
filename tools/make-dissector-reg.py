@@ -206,6 +206,18 @@ if registertype == "plugin" or registertype == "plugin_wtap":
 WS_DLL_PUBLIC_DEF void plugin_register (void);
 WS_DLL_PUBLIC_DEF const gchar version[] = VERSION;
 
+"""
+else:
+    reg_code += """
+#include "register.h"
+
+"""
+
+for symbol in regs['proto_reg']:
+    reg_code += "extern void %s(void);\n" % (symbol)
+
+if registertype == "plugin" or registertype == "plugin_wtap":
+    reg_code += """
 /* Start the functions we need for the plugin stuff */
 
 WS_DLL_PUBLIC_DEF void
@@ -214,22 +226,27 @@ plugin_register (void)
 """
 else:
     reg_code += """
-#include "register.h"
+#define CALLBACK_REGISTER(proto, data) \\
+    if (cb) cb(RA_REGISTER, proto, data)
+
 void
-register_all_protocols(register_cb cb, gpointer client_data)
+register_all_protocols(register_cb cb, gpointer cb_data)
 {
 """
 
 for symbol in regs['proto_reg']:
-    if registertype == "plugin" or registertype == "plugin_wtap":
-        reg_code += "    {extern void %s (void); %s ();}\n" % (symbol, symbol)
-    else:
-        reg_code += "    {extern void %s (void); if(cb) (*cb)(RA_REGISTER, \"%s\", client_data); %s ();}\n" % (symbol, symbol, symbol)
+    if registertype != "plugin" and registertype != "plugin_wtap":
+        reg_code += "    CALLBACK_REGISTER(\"%s\", cb_data);\n" % (symbol)
+    reg_code += "    %s();\n" % (symbol)
 
-reg_code += "}\n"
+reg_code += "}\n\n"
 
 
 # Make the routine to register all protocol handoffs
+
+for symbol in regs['handoff_reg']:
+    reg_code += "extern void %s(void);\n" % (symbol)
+
 if registertype == "plugin" or registertype == "plugin_wtap":
     reg_code += """
 WS_DLL_PUBLIC_DEF void plugin_reg_handoff(void);
@@ -240,16 +257,18 @@ plugin_reg_handoff(void)
 """
 else:
     reg_code += """
+#define CALLBACK_HANDOFF(proto, data) \\
+    if (cb) cb(RA_HANDOFF, proto, data)
+
 void
-register_all_protocol_handoffs(register_cb cb, gpointer client_data)
+register_all_protocol_handoffs(register_cb cb, gpointer cb_data)
 {
 """
 
 for symbol in regs['handoff_reg']:
-    if registertype == "plugin" or registertype == "plugin_wtap":
-        reg_code += "    {extern void %s (void); %s ();}\n" % (symbol, symbol)
-    else:
-        reg_code += "    {extern void %s (void); if(cb) (*cb)(RA_HANDOFF, \"%s\", client_data); %s ();}\n" % (symbol, symbol, symbol)
+    if registertype != "plugin" and registertype != "plugin_wtap":
+        reg_code += "    CALLBACK_HANDOFF(\"%s\", cb_data);\n" % (symbol)
+    reg_code += "    %s();\n" % (symbol)
 
 reg_code += "}\n"
 
@@ -287,7 +306,6 @@ gulong register_count(void)
 {
     return proto_reg_count() + handoff_reg_count();
 }
-
 """ % {
     'proto_reg_len': len(regs['proto_reg']),
     'handoff_reg_len': len(regs['handoff_reg'])
