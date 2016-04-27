@@ -785,7 +785,7 @@ AC_SUBST(HAVE_SVR4_PACKAGING)
 AC_CHECK_PROGS(RPMBUILD, [rpmbuild], [false])
 if test "x$RPMBUILD" != "xfalse" ; then
 	AC_MSG_CHECKING([to see if we can redefine _topdir])
-	$RPMBUILD --define '_topdir /tmp' > /dev/null 2>&1
+	rpm --define '_topdir /tmp' > /dev/null 2>&1
 	if test $? -eq 0 ; then
 		AC_MSG_RESULT(yes)
 		have_rpm=yes
