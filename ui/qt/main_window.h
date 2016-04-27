@@ -145,6 +145,7 @@ private:
     QWidget *freeze_focus_;
     QMap<QAction *, ts_type> td_actions;
     QMap<QAction *, ts_precision> tp_actions;
+    QToolBar *filter_expression_toolbar_;
 
     bool capture_stopping_;
     bool capture_filter_valid_;
@@ -590,7 +591,8 @@ private slots:
     void on_actionContextWikiProtocolPage_triggered();
     void on_actionContextFilterFieldReference_triggered();
 
-    void changeEvent(QEvent* event);
+    virtual void changeEvent(QEvent* event);
+    virtual void resizeEvent(QResizeEvent *);
 
 #if HAVE_EXTCAP
     void extcap_options_finished(int result);
