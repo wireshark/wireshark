@@ -5159,7 +5159,7 @@ dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 seq,
 
         /* Give the follow tap what we've currently dissected */
         if(have_tap_listener(tcp_follow_tap)) {
-            tap_queue_packet(tcp_follow_tap, pinfo, tvb_new_subset_length(tvb, 0, offset));
+            tap_queue_packet(tcp_follow_tap, pinfo, tvb_new_subset_remaining(tvb, offset));
         }
 
         process_tcp_payload(tvb, offset, pinfo, tree, tcp_tree, sport, dport,
