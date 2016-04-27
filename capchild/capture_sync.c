@@ -98,12 +98,11 @@
 #include <process.h>    /* For spawning child process */
 #endif
 
-
-
 #ifdef _WIN32
 static void create_dummy_signal_pipe();
 static HANDLE dummy_signal_pipe; /* Dummy named pipe which lets the child check for a dropped connection */
 static gchar *dummy_control_id;
+static gboolean pipe_wait_for_init(int pipe_fd);
 #else
 static const char *sync_pipe_signame(int);
 #endif
@@ -696,6 +695,10 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
         g_free( (gpointer) argv);
         return FALSE;
     }
+    if (!pipe_wait_for_init(sync_pipe_read_fd)) {
+        return FALSE;
+    }
+
     cap_session->fork_child = pi.hProcess;
     /* We may need to store this and close it later */
     CloseHandle(pi.hThread);
@@ -950,6 +953,10 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
         g_free( (gpointer) argv);
         return -1;
     }
+    if (!pipe_wait_for_init(*message_read_fd)) {
+        return -1;
+    }
+
     *fork_child = pi.hProcess;
     /* We may need to store this and close it later */
     CloseHandle(pi.hThread);
@@ -1715,6 +1722,28 @@ pipe_convert_header(const guchar *header, int header_len, char *indicator, int *
     *indicator = header[0];
     *block_len = (header[1]&0xFF)<<16 | (header[2]&0xFF)<<8 | (header[3]&0xFF);
 }
+
+#ifdef _WIN32
+/* CreateProcess returns immediately. Wait for the child process to send
+   us SP_INIT. Note that WaitForInputIdle is the wrong call to use here
+   as it only applies to GUI applications:
+   https://blogs.msdn.microsoft.com/oldnewthing/20100325-00/?p=14493
+ */
+gboolean
+pipe_wait_for_init(int pipe_fd) {
+    char indicator;
+    char buffer[SP_MAX_MSG_LEN+1] = {0};
+    char *primary_msg;
+
+    pipe_read_block(pipe_fd, &indicator, SP_MAX_MSG_LEN, buffer, &primary_msg);
+    if (indicator != SP_INIT) {
+        report_failure("Child sent startup indicator '%c', expected '%c'.",
+            indicator, SP_INIT);
+        return FALSE;
+    }
+    return TRUE;
+}
+#endif
 
 /* read a message from the sending pipe in the standard format
    (1-byte message indicator, 3-byte message length (excluding length
