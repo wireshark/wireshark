@@ -2304,7 +2304,7 @@ subnet_entry_set(guint32 subnet_addr, const guint32 mask_length, const gchar* na
             }
         }
 
-        new_tp = g_new(sub_net_hashipv4_t, 1);
+        new_tp = wmem_new(wmem_epan_scope(), sub_net_hashipv4_t);
         tp->next = new_tp;
         tp = new_tp;
     } else {
