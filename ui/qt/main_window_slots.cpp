@@ -810,7 +810,7 @@ void MainWindow::filterExpressionsChanged()
         filter_expression_toolbar_->addAction(dfb_action);
         connect(dfb_action, SIGNAL(triggered()), this, SLOT(displayFilterButtonClicked()));
     }
-    main_ui_->displayFilterToolBar->update();
+    main_ui_->displayFilterToolBar->adjustSize();
 }
 
 //
