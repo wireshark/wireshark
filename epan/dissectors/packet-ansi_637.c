@@ -290,6 +290,7 @@ static int hf_ansi_637_reserved_bits_8_07 = -1;
 static int hf_ansi_637_reserved_bits_8_0f = -1;
 static int hf_ansi_637_reserved_bits_8_3f = -1;
 static int hf_ansi_637_reserved_bits_8_7f = -1;
+static int hf_ansi_637_reserved_bits_16_generic = -1;
 static int hf_ansi_637_tele_cmas_encoding = -1;
 static int hf_ansi_637_tele_cmas_num_fields = -1;
 static int hf_ansi_637_tele_cmas_protocol_version = -1;
@@ -1120,7 +1121,25 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         switch (cset)
         {
         case GSM_7BITS:
-            proto_tree_add_bits_item(tree, hf_ansi_637_reserved_bits_8_generic, tvb, ((orig_offset + len - 1)*8), reserved_bits, ENC_NA); /* MSBs */
+            {
+                crumb_spec_t crumbs[3];
+                guint8 i = 0;
+                guint bits_offset;
+
+                if (reserved_bits > 3) {
+                    bits_offset = ((orig_offset + len - 2)*8)+5;
+                    crumbs[i].crumb_bit_offset = 0;
+                    crumbs[i++].crumb_bit_length = reserved_bits - 3;
+                    crumbs[i].crumb_bit_offset = 8;
+                } else {
+                    bits_offset = ((orig_offset + len - 1)*8)+5;
+                    crumbs[i].crumb_bit_offset = 0;
+                }
+                crumbs[i++].crumb_bit_length = 3;
+                crumbs[i].crumb_bit_offset = 0;
+                crumbs[i].crumb_bit_length = 0;
+                proto_tree_add_split_bits_item_ret_val(tree, hf_ansi_637_reserved_bits_16_generic, tvb, bits_offset, crumbs, NULL);
+            }
             break;
 
         default:
@@ -1522,7 +1541,25 @@ tele_param_mult_enc_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         switch (cset)
         {
         case GSM_7BITS:
-            proto_tree_add_bits_item(tree, hf_ansi_637_reserved_bits_8_generic, tvb, ((orig_offset + len - 1)*8), reserved_bits, ENC_NA); /* MSBs */
+            {
+                crumb_spec_t crumbs[3];
+                guint8 i = 0;
+                guint bits_offset;
+
+                if (reserved_bits > 3) {
+                    bits_offset = ((orig_offset + len - 2)*8)+5;
+                    crumbs[i].crumb_bit_offset = 0;
+                    crumbs[i++].crumb_bit_length = reserved_bits - 3;
+                    crumbs[i].crumb_bit_offset = 8;
+                } else {
+                    bits_offset = ((orig_offset + len - 1)*8)+5;
+                    crumbs[i].crumb_bit_offset = 0;
+                }
+                crumbs[i++].crumb_bit_length = 3;
+                crumbs[i].crumb_bit_offset = 0;
+                crumbs[i].crumb_bit_length = 0;
+                proto_tree_add_split_bits_item_ret_val(tree, hf_ansi_637_reserved_bits_16_generic, tvb, bits_offset, crumbs, NULL);
+            }
             break;
 
         default:
@@ -1670,7 +1707,25 @@ tele_param_srvc_cat_prog_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         switch (cset)
         {
         case GSM_7BITS:
-            proto_tree_add_bits_item(tree, hf_ansi_637_reserved_bits_8_generic, tvb, ((orig_offset + len - 1)*8), reserved_bits, ENC_NA); /* MSBs */
+            {
+                crumb_spec_t crumbs[3];
+                guint8 i = 0;
+                guint bits_offset;
+
+                if (reserved_bits > 3) {
+                    bits_offset = ((orig_offset + len - 2)*8)+5;
+                    crumbs[i].crumb_bit_offset = 0;
+                    crumbs[i++].crumb_bit_length = reserved_bits - 3;
+                    crumbs[i].crumb_bit_offset = 8;
+                } else {
+                    bits_offset = ((orig_offset + len - 1)*8)+5;
+                    crumbs[i].crumb_bit_offset = 0;
+                }
+                crumbs[i++].crumb_bit_length = 3;
+                crumbs[i].crumb_bit_offset = 0;
+                crumbs[i].crumb_bit_length = 0;
+                proto_tree_add_split_bits_item_ret_val(tree, hf_ansi_637_reserved_bits_16_generic, tvb, bits_offset, crumbs, NULL);
+            }
             break;
 
         default:
@@ -3061,6 +3116,11 @@ proto_register_ansi_637(void)
         { &hf_ansi_637_reserved_bits_8_7f,
             { "Reserved bit(s)", "ansi_637_tele.reserved",
             FT_UINT8, BASE_DEC, NULL, 0x7f,
+            NULL, HFILL }
+        },
+        { &hf_ansi_637_reserved_bits_16_generic,
+            { "Reserved bit(s)", "ansi_637_tele.reserved",
+            FT_UINT16, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
         { &hf_ansi_637_tele_cmas_encoding,
