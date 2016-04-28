@@ -622,6 +622,11 @@ sub update_cmake_lib_releases
 # Update distributed files that contain any version information
 sub update_versioned_files
 {
+        # Matches CMakeLists.txt
+        printf "GR: %d, MaV: %d, MiV: %d, PL: %d, EV: %s\n",
+                $num_commits, $version_pref{"version_major"},
+                $version_pref{"version_minor"}, $version_pref{"version_micro"},
+                $package_string;
 	&update_cmakelists_txt;
 	&update_configure_ac;
 	&update_config_nmake;
@@ -756,7 +761,7 @@ sub get_config {
 
 if ($set_version || $set_release) {
 	if ($set_version) {
-		print "Generating version information\n";
+		print "Generating version information.\n";
 	}
 
 	if ($version_pref{"enable"} == 0) {
@@ -765,7 +770,7 @@ if ($set_version || $set_release) {
 	}
 
 	if ($set_release) {
-		print "Generating release information\n";
+		print "Generating release information.\n";
 	} else {
 		print "Resetting release information\n";
 		$num_commits = 0;
