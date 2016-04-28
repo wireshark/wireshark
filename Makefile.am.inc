@@ -22,8 +22,10 @@
 AUTOMAKE_OPTIONS = -Wno-portability
 
 lemon_srcdir = $(top_srcdir)/tools/lemon
-
-LEMON = $(top_builddir)/tools/lemon/lemon$(EXEEXT)
+lemon_builddir = $(top_builddir)/tools/lemon
+LEMON = $(lemon_builddir)/lemon$(EXEEXT)
+$(LEMON):
+	cd $(lemon_builddir) && $(MAKE)
 
 RUNLEX = $(top_srcdir)/tools/runlex.sh
 

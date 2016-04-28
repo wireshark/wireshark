@@ -93,6 +93,6 @@ EXTRA_DIST = \
 mate_parser_lex.h : mate_parser.c
 
 mate_grammar.h : mate_grammar.c
-mate_grammar.c : mate_grammar.lemon mate.h mate_util.h $(LEMON)
+mate_grammar.c : mate_grammar.lemon mate.h mate_util.h $(LEMON) $(lemon_srcdir)/lempar.c
 	$(AM_V_LEMON)$(LEMON) T=$(lemon_srcdir)/lempar.c $(srcdir)/mate_grammar.lemon || \
 		(rm -f grammar.c grammar.h ; false)
