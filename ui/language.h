@@ -28,6 +28,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#define USE_SYSTEM_LANGUAGE	"system"
+
 extern char *language;
 
 extern void  read_language_prefs(void);
