@@ -311,6 +311,15 @@ typedef struct tcp_analyze_seq_flow_info_t {
 
 } tcp_analyze_seq_flow_info_t;
 
+	/* Process info, currently discovered via IPFIX */
+typedef struct tcp_process_info_t {
+	guint32 process_uid;	/* UID of local process */
+	guint32 process_pid;	/* PID of local process */
+	gchar  *username;		/* Username of the local process */
+	gchar  *command;		/* Local process name + path + args */
+
+} tcp_process_info_t;
+
 typedef struct _tcp_flow_t {
 	guint8 static_flags; /* true if base seq set */
 	guint32 base_seq;	/* base seq number (used by relative sequence numbers)*/
@@ -341,10 +350,7 @@ typedef struct _tcp_flow_t {
 	wmem_tree_t *multisegment_pdus;
 
 	/* Process info, currently discovered via IPFIX */
-	guint32 process_uid;    /* UID of local process */
-	guint32 process_pid;    /* PID of local process */
-	gchar *username;	/* Username of the local process */
-	gchar *command;         /* Local process name + path + args */
+	tcp_process_info_t* process_info;
 
 	/* MPTCP subflow intel */
 	struct mptcp_subflow *mptcp_subflow;

@@ -410,6 +410,9 @@ static gboolean tcp_no_subdissector_on_error = TRUE;
  */
 static gboolean tcp_exp_options_with_magic = TRUE;
 
+/* Process info, currently discovered via IPFIX */
+static gboolean tcp_display_process_info = FALSE;
+
 /*
  *  TCP option
  */
@@ -914,17 +917,10 @@ init_tcp_conversation_data(packet_info *pinfo)
     tcpd->flow1.win_scale=-1;
     tcpd->flow1.window = G_MAXUINT32;
     tcpd->flow1.multisegment_pdus=wmem_tree_new(wmem_file_scope());
-    /*
-    tcpd->flow1.username = NULL;
-    tcpd->flow1.command = NULL;
-    */
+
     tcpd->flow2.window = G_MAXUINT32;
     tcpd->flow2.win_scale=-1;
     tcpd->flow2.multisegment_pdus=wmem_tree_new(wmem_file_scope());
-    /*
-    tcpd->flow2.username = NULL;
-    tcpd->flow2.command = NULL;
-    */
 
     /* Only allocate the data if its actually going to be analyzed */
     if (tcp_analyze_seq)
@@ -932,6 +928,13 @@ init_tcp_conversation_data(packet_info *pinfo)
         tcpd->flow1.tcp_analyze_seq_info = wmem_new0(wmem_file_scope(), struct tcp_analyze_seq_flow_info_t);
         tcpd->flow2.tcp_analyze_seq_info = wmem_new0(wmem_file_scope(), struct tcp_analyze_seq_flow_info_t);
     }
+    /* Only allocate the data if its actually going to be displayed */
+    if (tcp_display_process_info)
+    {
+        tcpd->flow1.process_info = wmem_new0(wmem_file_scope(), struct tcp_process_info_t);
+        tcpd->flow2.process_info = wmem_new0(wmem_file_scope(), struct tcp_process_info_t);
+    }
+
     tcpd->acked_table=wmem_tree_new(wmem_file_scope());
     tcpd->ts_first.secs=pinfo->abs_ts.secs;
     tcpd->ts_first.nsecs=pinfo->abs_ts.nsecs;
@@ -1037,6 +1040,9 @@ add_tcp_process_info(guint32 frame_num, address *local_addr, address *remote_add
     struct tcp_analysis *tcpd;
     tcp_flow_t *flow = NULL;
 
+    if (!tcp_display_process_info)
+        return;
+
     conv = find_conversation(frame_num, local_addr, remote_addr, PT_TCP, local_port, remote_port, 0);
     if (!conv) {
         return;
@@ -1052,14 +1058,17 @@ add_tcp_process_info(guint32 frame_num, address *local_addr, address *remote_add
     } else if (cmp_address(remote_addr, &conv->key_ptr->addr1) == 0 && remote_port == conv->key_ptr->port1) {
         flow = &tcpd->flow2;
     }
-    if (!flow || flow->command) {
+    if (!flow || (flow->process_info && flow->process_info->command)) {
         return;
     }
 
-    flow->process_uid = uid;
-    flow->process_pid = pid;
-    flow->username = wmem_strdup(wmem_file_scope(), username);
-    flow->command = wmem_strdup(wmem_file_scope(), command);
+    if (flow->process_info == NULL)
+        flow->process_info = wmem_new0(wmem_file_scope(), struct tcp_process_info_t);
+
+    flow->process_info->process_uid = uid;
+    flow->process_info->process_pid = pid;
+    flow->process_info->username = wmem_strdup(wmem_file_scope(), username);
+    flow->process_info->command = wmem_strdup(wmem_file_scope(), command);
 }
 
 /* Return the current stream count */
@@ -6023,28 +6032,21 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
     }
 
-    if (tcpd && ((tcpd->fwd && tcpd->fwd->command) || (tcpd->rev && tcpd->rev->command))) {
+    if (tcp_display_process_info && tcpd && ((tcpd->fwd && tcpd->fwd->process_info && tcpd->fwd->process_info->command) ||
+                 (tcpd->rev && tcpd->rev->process_info && tcpd->rev->process_info->command))) {
         field_tree = proto_tree_add_subtree(tcp_tree, tvb, offset, 0, ett_tcp_process_info, &ti, "Process Information");
         PROTO_ITEM_SET_GENERATED(ti);
-        if (tcpd->fwd && tcpd->fwd->command) {
-            proto_tree_add_uint_format_value(field_tree, hf_tcp_proc_dst_uid, tvb, 0, 0,
-                                             tcpd->fwd->process_uid, "%u", tcpd->fwd->process_uid);
-            proto_tree_add_uint_format_value(field_tree, hf_tcp_proc_dst_pid, tvb, 0, 0,
-                                             tcpd->fwd->process_pid, "%u", tcpd->fwd->process_pid);
-            proto_tree_add_string_format_value(field_tree, hf_tcp_proc_dst_uname, tvb, 0, 0,
-                                               tcpd->fwd->username, "%s", tcpd->fwd->username);
-            proto_tree_add_string_format_value(field_tree, hf_tcp_proc_dst_cmd, tvb, 0, 0,
-                                               tcpd->fwd->command, "%s", tcpd->fwd->command);
+        if (tcpd->fwd && tcpd->fwd->process_info && tcpd->fwd->process_info->command) {
+            proto_tree_add_uint(field_tree, hf_tcp_proc_dst_uid, tvb, 0, 0, tcpd->fwd->process_info->process_uid);
+            proto_tree_add_uint(field_tree, hf_tcp_proc_dst_pid, tvb, 0, 0, tcpd->fwd->process_info->process_pid);
+            proto_tree_add_string(field_tree, hf_tcp_proc_dst_uname, tvb, 0, 0, tcpd->fwd->process_info->username);
+            proto_tree_add_string(field_tree, hf_tcp_proc_dst_cmd, tvb, 0, 0, tcpd->fwd->process_info->command);
         }
-        if (tcpd->rev && tcpd->rev->command) {
-            proto_tree_add_uint_format_value(field_tree, hf_tcp_proc_src_uid, tvb, 0, 0,
-                                             tcpd->rev->process_uid, "%u", tcpd->rev->process_uid);
-            proto_tree_add_uint_format_value(field_tree, hf_tcp_proc_src_pid, tvb, 0, 0,
-                                             tcpd->rev->process_pid, "%u", tcpd->rev->process_pid);
-            proto_tree_add_string_format_value(field_tree, hf_tcp_proc_src_uname, tvb, 0, 0,
-                                               tcpd->rev->username, "%s", tcpd->rev->username);
-            proto_tree_add_string_format_value(field_tree, hf_tcp_proc_src_cmd, tvb, 0, 0,
-                                               tcpd->rev->command, "%s", tcpd->rev->command);
+        if (tcpd->rev && tcpd->rev->process_info && tcpd->rev->process_info->command) {
+            proto_tree_add_uint(field_tree, hf_tcp_proc_src_uid, tvb, 0, 0, tcpd->rev->process_info->process_uid);
+            proto_tree_add_uint(field_tree, hf_tcp_proc_src_pid, tvb, 0, 0, tcpd->rev->process_info->process_pid);
+            proto_tree_add_string(field_tree, hf_tcp_proc_src_uname, tvb, 0, 0, tcpd->rev->process_info->username);
+            proto_tree_add_string(field_tree, hf_tcp_proc_src_cmd, tvb, 0, 0, tcpd->rev->process_info->command);
         }
     }
 
@@ -7121,6 +7123,11 @@ proto_register_tcp(void)
         "TCP Experimental Options with a Magic Number",
         "Assume TCP Experimental Options (253, 254) have a Magic Number and use it for dissection",
         &tcp_exp_options_with_magic);
+
+    prefs_register_bool_preference(tcp_module, "display_process_info_from_ipfix",
+        "Display process information via IPFIX",
+        "Collect and store process information retrieved from IPFIX dissector",
+        &tcp_display_process_info);
 
     register_init_routine(tcp_init);
     register_cleanup_routine(tcp_cleanup);

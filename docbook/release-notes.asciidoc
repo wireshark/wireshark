@@ -82,6 +82,9 @@ Edge Control Protocol (ECP)
 Bluetooth OBEX dissector (btobex) was renamed to Obex Dissector (obex), allow to
 DecodeAs it over USB, TCP and UDP.
 
+A preference was added to TCP dissector for handling IPFIX process
+information.  It has been disabled by default.
+
 Too many protocols have been updated to list here.
 
 === New and Updated Capture File Support
