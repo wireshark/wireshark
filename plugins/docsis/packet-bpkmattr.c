@@ -190,7 +190,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                                  length, ENC_ASCII|ENC_NA);
             break;
           case BPKM_AUTH_KEY:
-            if ((length == 96) || (length == 128))
+            if ((length == 96) || (length == 128) || (length == 256))
               proto_tree_add_item (tree, hf_docsis_bpkmattr_auth_key, tvb, pos,
                                    length, ENC_NA);
             else
