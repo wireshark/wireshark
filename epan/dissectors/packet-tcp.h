@@ -287,14 +287,12 @@ typedef enum {
 
 #define MPTCP_CHECKSUM_MASK                 0x80
 
-
-typedef struct _tcp_flow_t {
-	guint8 static_flags; /* true if base seq set */
-	guint32 base_seq;	/* base seq number (used by relative sequence numbers)*/
-#define TCP_MAX_UNACKED_SEGMENTS 1000 /* The most unacked segments we'll store */
+/* Information in a flow that is only used when tcp_analyze_seq preference
+ * is enabled, so save the memory when it isn't
+ */
+typedef struct tcp_analyze_seq_flow_info_t {
 	tcp_unacked_t *segments;/* List of segments for which we haven't seen an ACK */
 	guint16 segment_count;	/* How many unacked segments we're currently storing */
-	guint32 fin;		/* frame number of the final FIN */
 	guint32 lastack;	/* last seen ack */
 	nstime_t lastacktime;	/* Time of the last ack packet */
 	guint32 lastnondupack;	/* frame number of last seen non dupack */
@@ -310,6 +308,14 @@ typedef struct _tcp_flow_t {
 				 * distinguish between retransmission,
 				 * fast retransmissions and outoforder
 				 */
+
+} tcp_analyze_seq_flow_info_t;
+
+typedef struct _tcp_flow_t {
+	guint8 static_flags; /* true if base seq set */
+	guint32 base_seq;	/* base seq number (used by relative sequence numbers)*/
+#define TCP_MAX_UNACKED_SEGMENTS 1000 /* The most unacked segments we'll store */
+	guint32 fin;		/* frame number of the final FIN */
 	guint32 window;		/* last seen window */
 	gint16	win_scale;	/* -1 is we don't know, -2 is window scaling is not used */
 	gint16  scps_capable;   /* flow advertised scps capabilities */
@@ -317,6 +323,8 @@ typedef struct _tcp_flow_t {
 	gboolean valid_bif;     /* if lost pkts, disable BiF until ACK is recvd */
 	guint32 push_bytes_sent; /* bytes since the last PSH flag */
 	gboolean push_set_last; /* tracking last time PSH flag was set */
+
+	tcp_analyze_seq_flow_info_t* tcp_analyze_seq_info;
 
 /* This tcp flow/session contains only one single PDU and should
  * be reassembled until the final FIN segment.
