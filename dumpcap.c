@@ -4131,8 +4131,6 @@ main(int argc, char *argv[])
                     exit_main(1);
                 }
             }
-            /* Let our parent know we're fully initialized. */
-            pipe_write_block(2, SP_INIT, "All systems go.");
 #endif
             break;
 

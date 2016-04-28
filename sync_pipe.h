@@ -62,7 +62,6 @@
  * Win32 only: Indications sent out on the signal pipe (from parent to child)
  * (UNIX-like sends signals for this)
  */
-#define SP_INIT         'I'     /* child process initialized */
 #define SP_QUIT         'Q'     /* "gracefully" capture quit message (SIGUSR1) */
 
 /* write a single message header to the recipient pipe */
