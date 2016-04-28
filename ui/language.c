@@ -48,8 +48,19 @@ read_language_pref(gchar *key, const gchar *value,
     if (strcmp(key, LANGUAGE_PREF_LANGUAGE) == 0) {
         if (language)
             g_free(language);
-        if (!value || !*value)
-            language = g_strdup("auto");
+        /*
+         * For backwards compatibility, treat "auto" as meaning "use the
+         * system language".
+         *
+         * To handle the old buggy code that didn't check whether "language"
+         * was null before trying to print it, treat "(null)" - which many,
+         * but *NOT* all, system printfs print for a null pointer (some
+         * printfs, such as the one in Solaris, *crash* with %s and a null
+         * pointer) - as meaning "use the system language".
+         */
+        if (!value || !*value || strcmp(value, "auto") == 0 ||
+            strcmp(value, "(null)") == 0)
+            language = g_strdup(USE_SYSTEM_LANGUAGE);
         else
             language = g_strdup(value);
     }
@@ -113,7 +124,7 @@ write_language_prefs(void)
         "# So be careful, if you want to make manual changes here.\n"
         "\n", rf);
 
-    fprintf(rf, LANGUAGE_PREF_LANGUAGE ": %s\n", language);
+    fprintf(rf, LANGUAGE_PREF_LANGUAGE ": %s\n", language ? language : USE_SYSTEM_LANGUAGE);
 
     fclose(rf);
 

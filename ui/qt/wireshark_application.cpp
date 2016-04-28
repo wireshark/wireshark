@@ -43,6 +43,7 @@
 #include "ui/decode_as_utils.h"
 #include "ui/preference_utils.h"
 #include "ui/iface_lists.h"
+#include "ui/language.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
 #include "ui/util.h"
@@ -1055,7 +1056,7 @@ void WiresharkApplication::loadLanguage(const QString& newLanguage)
     QLocale locale;
     QString localeLanguage;
 
-    if (newLanguage.isEmpty() || newLanguage == "system") {
+    if (newLanguage.isEmpty() || newLanguage == USE_SYSTEM_LANGUAGE) {
         localeLanguage = QLocale::system().name();
     } else {
         localeLanguage = newLanguage;

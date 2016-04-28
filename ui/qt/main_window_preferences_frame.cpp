@@ -96,7 +96,7 @@ MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
         ui->languageComboBox->addItem(ico, lang, locale);
     }
 
-    ui->languageComboBox->setItemData(0, "system");
+    ui->languageComboBox->setItemData(0, USE_SYSTEM_LANGUAGE);
     ui->languageComboBox->model()->sort(0);
 
     for (int i = 0; i < ui->languageComboBox->count(); i += 1) {
