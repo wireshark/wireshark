@@ -723,6 +723,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dissector_handle_t handle;
 	gboolean	dissected = FALSE;
 	gboolean	first_loop = TRUE;
+	gboolean	have_seen_http = FALSE;
 	/*guint		i;*/
 	/*http_info_value_t *si;*/
 	http_eo_t       *eo_info;
@@ -742,21 +743,51 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 *   the server is reading the protocol stream at the beginning of a
 	 *   message and receives a CRLF first, it should ignore the CRLF.
 	 */
-	if(reported_length > 3){
+	if (reported_length > 3) {
 		word = tvb_get_ntohs(tvb,offset);
-		if(word == 0x0d0a){
+		if (word == 0x0d0a) {
 			leading_crlf = TRUE;
-			offset+=2;
+			offset += 2;
 		}
 	}
 
 	/*
-	 * If this should be a request or response, do this quick check to see if
-	 * it begins with a string...
-	 * Otherwise, looking for the end of line in a binary file can take a long time
-	 * and this probably isn't HTTP
+	 * If we previously dissected an HTTP request in this conversation then
+	 * we should be pretty sure that whatever we got in this TVB is
+	 * actually HTTP (even if what we have here is part of a file being
+	 * transferred over HTTP).
+	 */
+	if (conv_data->request_uri)
+		have_seen_http = TRUE;
+
+	switch (pinfo->match_uint) {
+
+	case TCP_PORT_SSDP:	/* TCP_PORT_SSDP = UDP_PORT_SSDP */
+		proto_tag = "SSDP";
+		break;
+
+	default:
+		proto_tag = "HTTP";
+		break;
+	}
+
+	/*
+	 * If this is binary data then there's no point in doing all the string
+	 * operations below: they'll just be slow on this data.
 	 */
 	if (!g_ascii_isprint(tvb_get_guint8(tvb, offset))) {
+		/*
+		 * But, if we've seen some real HTTP then we're sure this is
+		 * an HTTP conversation.  Mark it as such.
+		 */
+		if (have_seen_http) {
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_tag);
+			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+			ti = proto_tree_add_item(tree, proto_http, tvb, offset, -1, ENC_NA);
+			http_tree = proto_item_add_subtree(ti, ett_http);
+
+			call_dissector(data_handle, tvb, pinfo, http_tree);
+		}
 		return -1;
 	}
 
@@ -796,15 +827,23 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	is_request_or_reply = is_http_request_or_reply((const gchar *)firstline,
 	    first_linelen, &http_type, NULL, conv_data);
 	if (is_request_or_reply) {
+		gboolean try_desegment_body;
+
 		/*
 		 * Yes, it's a request or response.
+		 * Put the first line from the buffer into the summary
+		 * (but leave out the line terminator).
+		 */
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", format_text(firstline, first_linelen));
+
+		/*
 		 * Do header desegmentation if we've been told to,
 		 * and do body desegmentation if we've been told to and
 		 * we find a Content-Length header. Responses to HEAD MUST NOT
 		 * contain a message body, so ignore the Content-Length header
 		 * which is done by disabling body desegmentation.
 		 */
-		gboolean try_desegment_body = (http_desegment_body &&
+		try_desegment_body = (http_desegment_body &&
 			(!(conv_data->request_method && g_str_equal(conv_data->request_method, "HEAD"))) &&
 			((tcpinfo == NULL) || (tcpinfo->fin == FALSE)));
 		if (!req_resp_hdrs_do_reassembly(tvb, offset, pinfo,
@@ -813,6 +852,25 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * More data needed for desegmentation.
 			 */
 			return -1;
+		}
+	} else if (have_seen_http) {
+		 /*
+		  * If we know this is HTTP then call it continuation.
+		  */
+		col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+	}
+
+	if (is_request_or_reply || have_seen_http) {
+		/*
+		 * Now set COL_PROTOCOL and create the http tree for the
+		 * cases where we set COL_INFO above.
+		 */
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_tag);
+		ti = proto_tree_add_item(tree, proto_http, tvb, offset, -1, ENC_NA);
+		http_tree = proto_item_add_subtree(ti, ett_http);
+
+		if (leading_crlf) {
+			proto_tree_add_expert(http_tree, pinfo, &ei_http_leading_crlf, tvb, offset-2, 2);
 		}
 	}
 
@@ -824,17 +882,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	stat_info->request_method = NULL;
 	stat_info->request_uri = NULL;
 	stat_info->http_host = NULL;
-
-	switch (pinfo->match_uint) {
-
-	case TCP_PORT_SSDP:	/* TCP_PORT_SSDP = UDP_PORT_SSDP */
-		proto_tag = "SSDP";
-		break;
-
-	default:
-		proto_tag = "HTTP";
-		break;
-	}
 
 	orig_offset = offset;
 
@@ -994,25 +1041,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		break;
 
 	is_http:
-		if (first_loop) {
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_tag);
-
-			/*
-			 * Put the first line from the buffer into the summary
-			 * if it's an HTTP request or reply (but leave out the
-			 * line terminator).
-			 * Otherwise, just call it a continuation.
-			 */
-			if (is_request_or_reply)
-				col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", format_text(firstline, first_linelen));
-			else
-				col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
-		}
-
 		if ((tree) && (http_tree == NULL)) {
 			ti = proto_tree_add_item(tree, proto_http, tvb, orig_offset, -1, ENC_NA);
 			http_tree = proto_item_add_subtree(ti, ett_http);
-			if(leading_crlf){
+			if (leading_crlf) {
 				proto_tree_add_expert(http_tree, pinfo, &ei_http_leading_crlf, tvb, orig_offset-2, 2);
 			}
 		}
