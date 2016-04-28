@@ -387,7 +387,7 @@ void UatDialog::enumPrefCurrentIndexChanged(int index)
         g_free(err);
         ok_button_->setEnabled(false);
         uat_update_record(uat_, rec, FALSE);
-    } else if (uat_ && uat_->update_cb) {
+    } else if (uat_->update_cb) {
         field->cb.set(rec, enum_txt.constData(), (unsigned) enum_txt.size(), field->cbdata.set, field->fld_data);
 
         if (!uat_->update_cb(rec, &err)) {
