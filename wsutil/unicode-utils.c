@@ -59,7 +59,7 @@ ws_utf8_char_len(guint8 ch)
  */
 
 /* Convert from UTF-8 to UTF-16. */
-wchar_t *
+const wchar_t *
 utf_8to16(const char *utf8str)
 {
   static wchar_t *utf16buf[3];

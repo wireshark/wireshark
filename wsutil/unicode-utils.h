@@ -55,7 +55,7 @@ int ws_utf8_char_len(guint8 ch);
  * NULL.  The return value should NOT be freed by the caller.
  */
 WS_DLL_PUBLIC
-wchar_t * utf_8to16(const char *utf8str);
+const wchar_t * utf_8to16(const char *utf8str);
 
 /** Create a UTF-16 string (in place) according to the format string.
  *

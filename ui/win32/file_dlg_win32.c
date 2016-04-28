@@ -1438,7 +1438,7 @@ append_file_extension_type(GArray *sa, int et)
     GString* description_str = g_string_new("");
     gchar sep;
     GSList *extensions_list, *extension;
-    TCHAR *str16;
+    const TCHAR *str16;
     guint16 zero = 0;
 
     /* Construct the list of patterns. */
@@ -1471,7 +1471,7 @@ append_file_extension_type(GArray *sa, int et)
 
 static TCHAR *
 build_file_open_type_list(void) {
-    TCHAR *str16;
+    const TCHAR *str16;
     int et;
     GArray* sa;
     static const guint16 zero = 0;
@@ -1565,7 +1565,7 @@ append_file_type(GArray *sa, int ft)
     GString* description_str = g_string_new("");
     gchar sep;
     GSList *extensions_list, *extension;
-    TCHAR *str16;
+    const TCHAR *str16;
     guint16 zero = 0;
 
     extensions_list = wtap_get_file_extensions_list(ft, TRUE);

@@ -367,6 +367,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
     HANDLE signal_pipe;                     /* named pipe used to send messages from parent to child (currently only stop) */
     GString *args = g_string_sized_new(200);
     gchar *quoted_arg;
+    gunichar2 *wcommandline;
     SECURITY_ATTRIBUTES sa;
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -681,9 +682,10 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
         g_string_append(args, quoted_arg);
         g_free(quoted_arg);
     }
+    wcommandline = g_utf8_to_utf16(args->str, (glong)args->len, NULL, NULL, NULL);
 
     /* call dumpcap */
-    if(!CreateProcess(utf_8to16(argv[0]), utf_8to16(args->str), NULL, NULL, TRUE,
+    if(!CreateProcess(utf_8to16(argv[0]), wcommandline, NULL, NULL, TRUE,
                       CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
         report_failure("Couldn't run %s in child process: %s",
                        args->str, win32strerror(GetLastError()));
@@ -694,12 +696,15 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
             g_free( (gpointer) argv[i]);
         }
         g_free( (gpointer) argv);
+        g_string_free(args, TRUE);
+        g_free(wcommandline);
         return FALSE;
     }
     cap_session->fork_child = pi.hProcess;
     /* We may need to store this and close it later */
     CloseHandle(pi.hThread);
     g_string_free(args, TRUE);
+    g_free(wcommandline);
 
     cap_session->signal_pipe_write_fd = signal_pipe_write_fd;
 
@@ -814,6 +819,7 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
     HANDLE data_pipe[2];                    /* pipe used to send data from child to parent */
     GString *args = g_string_sized_new(200);
     gchar *quoted_arg;
+    gunichar2 *wcommandline;
     SECURITY_ATTRIBUTES sa;
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -934,9 +940,10 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
         g_string_append(args, quoted_arg);
         g_free(quoted_arg);
     }
+    wcommandline = g_utf8_to_utf16(args->str, (glong)args->len, NULL, NULL, NULL);
 
     /* call dumpcap */
-    if(!CreateProcess(utf_8to16(argv[0]), utf_8to16(args->str), NULL, NULL, TRUE,
+    if(!CreateProcess(utf_8to16(argv[0]), wcommandline, NULL, NULL, TRUE,
                       CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
         *msg = g_strdup_printf("Couldn't run %s in child process: %s",
                                args->str, win32strerror(GetLastError()));
@@ -948,12 +955,15 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
             g_free( (gpointer) argv[i]);
         }
         g_free( (gpointer) argv);
+        g_string_free(args, TRUE);
+        g_free(wcommandline);
         return -1;
     }
     *fork_child = pi.hProcess;
     /* We may need to store this and close it later */
     CloseHandle(pi.hThread);
     g_string_free(args, TRUE);
+    g_free(wcommandline);
 #else /* _WIN32 */
     /* Create a pipe for the child process to send us messages */
     if (pipe(sync_pipe) < 0) {
