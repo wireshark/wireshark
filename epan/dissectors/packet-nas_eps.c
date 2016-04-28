@@ -5710,7 +5710,7 @@ proto_register_nas_eps(void)
     },
     { &hf_nas_eps_emm_tai_tac,
         { "Tracking area code(TAC)","nas_eps.emm.tai_tac",
-        FT_UINT16, BASE_HEX,  NULL, 0x0,
+        FT_UINT16, BASE_DEC,  NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_eea0,
