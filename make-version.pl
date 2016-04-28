@@ -142,7 +142,7 @@ sub read_repo_info {
 		$version_pref{"git_client"} = 1;
 	} elsif (-d "$srcdir/.svn" or -d "$srcdir/../.svn") {
 		$info_source = "Command line (svn info)";
-		$info_cmd = "svn info $srcdir";
+		$info_cmd = "cd $srcdir; svn info";
 		$version_pref{"svn_client"} = 1;
 	} elsif (-d "$srcdir/.git/svn") {
 		$info_source = "Command line (git-svn)";
