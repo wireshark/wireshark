@@ -645,9 +645,10 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
         return FALSE;
     }
 
-    /* init STARTUPINFO */
+    /* init STARTUPINFO & PROCESS_INFORMATION */
     memset(&si, 0, sizeof(si));
     si.cb           = sizeof(si);
+    memset(&pi, 0, sizeof(pi));
 #ifdef DEBUG_CHILD
     si.dwFlags = STARTF_USESHOWWINDOW;
     si.wShowWindow  = SW_SHOW;
@@ -916,9 +917,10 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
         return -1;
     }
 
-    /* init STARTUPINFO */
+    /* init STARTUPINFO & PROCESS_INFORMATION */
     memset(&si, 0, sizeof(si));
     si.cb           = sizeof(si);
+    memset(&pi, 0, sizeof(pi));
 #ifdef DEBUG_CHILD
     si.dwFlags = STARTF_USESHOWWINDOW;
     si.wShowWindow  = SW_SHOW;
