@@ -130,7 +130,6 @@ typedef struct sub_net_hashipv4 {
     guint             addr;
     guint8            flags;          /* B0 dummy_entry, B1 resolve, B2 If the address is used in the trace */
     struct sub_net_hashipv4   *next;
-    gchar             ip[16];
     gchar             name[MAXNAMELEN];
 } sub_net_hashipv4_t;
 
@@ -2350,16 +2349,6 @@ subnet_name_lookup_init(void)
     g_free(subnetspath);
 }
 
-static void
-cleanup_subnet_entry(sub_net_hashipv4_t* entry)
-{
-    if ((entry != NULL) && (entry->next != NULL)) {
-        cleanup_subnet_entry(entry->next);
-    }
-
-    wmem_free(wmem_epan_scope(), entry);
-}
-
 /*
  *  External Functions
  */
@@ -2713,6 +2702,8 @@ void
 host_name_lookup_cleanup(void)
 {
     guint32 i, j;
+    sub_net_hashipv4_t *entry, *next_entry;
+
     _host_name_lookup_cleanup();
 
     if (ipxnet_hash_table) {
@@ -2733,9 +2724,10 @@ host_name_lookup_cleanup(void)
     for(i = 0; i < SUBNETLENGTHSIZE; ++i) {
         if (subnet_length_entries[i].subnet_addresses != NULL) {
             for (j = 0; j < HASHHOSTSIZE; j++) {
-                if (subnet_length_entries[i].subnet_addresses[j] != NULL)
-                {
-                    cleanup_subnet_entry(subnet_length_entries[i].subnet_addresses[j]);
+                for (entry = subnet_length_entries[i].subnet_addresses[j];
+                     entry != NULL; entry = next_entry) {
+                    next_entry = entry->next;
+                    wmem_free(wmem_epan_scope(), entry);
                 }
             }
             wmem_free(wmem_epan_scope(), subnet_length_entries[i].subnet_addresses);
