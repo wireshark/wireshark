@@ -421,8 +421,8 @@ sub update_cmakelists_txt
 			$line = sprintf("set(PROJECT_MINOR_VERSION %d)$1", $version_pref{"version_minor"});
 		} elsif ($line =~ /^set *\( *PROJECT_PATCH_VERSION .*([\r\n]+)$/) {
 			$line = sprintf("set(PROJECT_PATCH_VERSION %d)$1", $version_pref{"version_micro"});
-		} elsif ($line =~ /^set *\( *PROJECT_VERSION_EXTENSION\b.*\) *$/) {
-			$line = sprintf("set(PROJECT_VERSION_EXTENSION \"%s\")\n", $cmake_package_string);
+		} elsif ($line =~ /^set *\( *PROJECT_VERSION_EXTENSION\b.*\) *([\r\n]+)$/) {
+			$line = sprintf("set(PROJECT_VERSION_EXTENSION \"%s\")$1", $cmake_package_string);
 		}
 		$contents .= $line
 	}
