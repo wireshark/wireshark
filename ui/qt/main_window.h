@@ -592,7 +592,7 @@ private slots:
     void on_actionContextFilterFieldReference_triggered();
 
     virtual void changeEvent(QEvent* event);
-    virtual void resizeEvent(QResizeEvent *);
+    virtual void resizeEvent(QResizeEvent *event);
 
 #if HAVE_EXTCAP
     void extcap_options_finished(int result);
