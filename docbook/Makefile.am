@@ -195,7 +195,8 @@ release-notes.txt: $(RELEASE_NOTES_SOURCE)
 	TZ=UTC $(A2X) --format=text $(A2X_TEXT_OPTS) \
 		--xsltproc-opts "--stringparam generate.toc \"article nop\"" \
 		--destination-dir=$(builddir) \
-		$(srcdir)/release-notes.asciidoc
+		$(srcdir)/release-notes.asciidoc && \
+		mv release-notes.text $@
 
 news: release-notes.txt
 	cp release-notes.txt ../NEWS
