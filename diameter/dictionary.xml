@@ -2620,8 +2620,10 @@
 		617 ALRP-Value [RFC6735]
 		618 ERP-RK-Request [RFC6942]
 		619 ERP-Realm [RFC6942]
-		620 Redirect-Realm [RFC7075]
 		-->
+		<avp name="Redirect-Realm" code="620" mandatory="may" may-encrypt="no" protected="may" vendor-bit="mustnot">
+			<type type-name="DiameterIdentity"/>
+		</avp>
 		<avp name="OC-Supported-Features" code="621" mandatory="may">
 			<grouped>
 				<gavp name="OC-Feature-Vector"/>
