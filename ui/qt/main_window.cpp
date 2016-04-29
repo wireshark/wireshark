@@ -278,15 +278,18 @@ MainWindow::MainWindow(QWidget *parent) :
     funnel_statistics_(NULL),
     freeze_focus_(NULL),
     capture_stopping_(false),
-    capture_filter_valid_(false),
+    capture_filter_valid_(false)
 #ifdef HAVE_LIBPCAP
-    capture_interfaces_dialog_(NULL),
-    info_data_(),
+    , capture_interfaces_dialog_(NULL)
+    , info_data_()
 #endif
 #ifdef _WIN32
-    pipe_timer_(NULL)
+    , pipe_timer_(NULL)
 #else
-    pipe_notifier_(NULL)
+    , pipe_notifier_(NULL)
+#endif
+#if defined(Q_OS_MAC) && QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+    , dock_menu_(NULL)
 #endif
 {
     if (!gbl_cur_main_window_) {

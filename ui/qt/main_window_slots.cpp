@@ -156,6 +156,14 @@
 #include <QUrl>
 #include <QDebug>
 
+// XXX You must uncomment QT_WINEXTRAS_LIB lines in CMakeList.txt and
+// cmakeconfig.h.in.
+// #if defined(QT_WINEXTRAS_LIB) && QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+// #include <QWinJumpList>
+// #include <QWinJumpListCategory>
+// #include <QWinJumpListItem>
+// #endif
+
 //
 // Public slots
 //
@@ -1000,8 +1008,23 @@ void MainWindow::updateRecentFiles() {
     if (!recentMenu) {
         return;
     }
-
     recentMenu->clear();
+
+// #if defined(QT_WINEXTRAS_LIB) && QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+//     QWinJumpList recent_jl(this);
+//     QWinJumpListCategory *recent_jlc = recent_jl.recent();
+//     if (recent_jlc) {
+//         recent_jlc->clear();
+//         recent_jlc->setVisible(true);
+//     }
+// #endif
+#if defined(Q_OS_MAC) && QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+    if (!dock_menu_) {
+        dock_menu_ = new QMenu();
+        dock_menu_->setAsDockMenu();
+    }
+    dock_menu_->clear();
+#endif
 
     /* Iterate through the actions in menuOpenRecentCaptureFile,
      * removing special items, a maybe duplicate entry and every item above count_max */
@@ -1020,6 +1043,29 @@ void MainWindow::updateRecentFiles() {
         }
         ra->setText(action_cf_name);
         connect(ra, SIGNAL(triggered()), this, SLOT(recentActionTriggered()));
+
+// This is slow, at least on my VM here. The added links also open Wireshark
+// in a new window. It might make more sense to add a recent item when we
+// open a capture file.
+// #if defined(QT_WINEXTRAS_LIB) && QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+//     if (recent_jlc) {
+//         QFileInfo fi(ri->filename);
+//         QWinJumpListItem *jli = recent_jlc->addLink(
+//             fi.fileName(),
+//             QApplication::applicationFilePath(),
+//             QStringList() << "-r" << ri->filename
+//         );
+//         // XXX set icon
+//         jli->setWorkingDirectory(QDir::toNativeSeparators(QApplication::applicationDirPath()));
+//     }
+// #endif
+#if defined(Q_OS_MAC) && QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+        QAction *rda = new QAction(dock_menu_);
+        QFileInfo fi(ri->filename);
+        rda->setText(fi.fileName());
+        dock_menu_->insertAction(NULL, rda);
+        connect(rda, SIGNAL(triggered()), ra, SLOT(trigger()));
+#endif
     }
 
     if (recentMenu->actions().count() > 0) {

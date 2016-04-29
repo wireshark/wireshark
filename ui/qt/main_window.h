@@ -129,7 +129,6 @@ private:
     };
 
     Ui::MainWindow *main_ui_;
-    QMenu *open_recent_menu_;
     QSplitter master_split_;
     QSplitter extra_split_;
     QVector<unsigned> cur_layout_;
@@ -174,6 +173,11 @@ private:
 #else
     QSocketNotifier *pipe_notifier_;
 #endif
+
+#if defined(Q_OS_MAC) && QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+    QMenu *dock_menu_;
+#endif
+
 
     QWidget* getLayoutWidget(layout_pane_content_e type);
 
