@@ -2149,9 +2149,10 @@ void MainWindow::changeEvent(QEvent* event)
     QMainWindow::changeEvent(event);
 }
 
-void MainWindow::resizeEvent(QResizeEvent *)
+void MainWindow::resizeEvent(QResizeEvent *event)
 {
     df_combo_box_->setMinimumWidth(width() * 2 / 3); // Arbitrary
+    QMainWindow::resizeEvent(event);
 }
 
 /* Update main window items based on whether there's a capture in progress. */
