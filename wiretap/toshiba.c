@@ -98,11 +98,6 @@ static const char toshiba_hdr_magic[]  =
 static const char toshiba_rec_magic[]  = { '[', 'N', 'o', '.' };
 #define TOSHIBA_REC_MAGIC_SIZE  (sizeof toshiba_rec_magic  / sizeof toshiba_rec_magic[0])
 
-/*
- * XXX - is this the biggest packet we can get?
- */
-#define TOSHIBA_MAX_PACKET_LEN	16384
-
 static gboolean toshiba_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean toshiba_seek_read(wtap *wth, gint64 seek_off,
@@ -253,7 +248,8 @@ parse_toshiba_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	char	line[TOSHIBA_LINE_LENGTH];
 	int	num_items_scanned;
-	int	pkt_len, pktnum, hr, min, sec, csec;
+	guint	pkt_len;
+	int	pktnum, hr, min, sec, csec;
 	char	channel[10], direction[10];
 	int	i, hex_lines;
 	guint8	*pd;
@@ -305,10 +301,20 @@ parse_toshiba_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 
 	} while (strcmp(line, "OFFSET 0001-0203") != 0);
 
-	num_items_scanned = sscanf(line+64, "LEN=%9d", &pkt_len);
+	num_items_scanned = sscanf(line+64, "LEN=%9u", &pkt_len);
 	if (num_items_scanned != 1) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("toshiba: OFFSET line doesn't have valid LEN item");
+		return FALSE;
+	}
+	if (pkt_len > WTAP_MAX_PACKET_SIZE) {
+		/*
+		 * Probably a corrupt capture file; don't blow up trying
+		 * to allocate space for an immensely-large packet.
+		 */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("toshiba: File has %u-byte packet, bigger than maximum of %u",
+		    pkt_len, WTAP_MAX_PACKET_SIZE);
 		return FALSE;
 	}
 
@@ -341,7 +347,7 @@ parse_toshiba_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	}
 
 	/* Make sure we have enough room for the packet */
-	ws_buffer_assure_space(buf, TOSHIBA_MAX_PACKET_LEN);
+	ws_buffer_assure_space(buf, pkt_len);
 	pd = ws_buffer_start_ptr(buf);
 
 	/* Calculate the number of hex dump lines, each
