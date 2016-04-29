@@ -2760,18 +2760,18 @@ AC_SUBST(ADNS_LIBS)
 if test "x$have_good_c_ares" != "xyes" -a "x$have_good_adns" != "xyes"; then
 	# We don't have an asynchronous name resolver, look for a synchronous one
 
-	dnl Checks for "getaddrinfo()" - and "-lnsl", if we need it to get
-	dnl "getaddrinfo()".
+	dnl Checks for "getaddrinfo()" - and "-lsocket" and possibly "-lnsl",
+	dnl if we need one or both of them to get "getaddrinfo()".
 	AC_WIRESHARK_GETADDRINFO_LIB_CHECK
 
-	if test "x$ac_cv_func_getaddrinfo" != "xyes" ; then
+	if test "x$found_getaddrinfo" != "xyes" ; then
 		# We don't have the modern name resolver, try older stuff
 
-		dnl Checks for "gethostbyname()" - and "-lnsl", if we need it to get
-		dnl "gethostbyname()".
+		dnl Checks for "gethostbyname()" - and "-lnsl", if we need
+		dnl it to get "gethostbyname()".
 		AC_WIRESHARK_GETHOSTBY_LIB_CHECK
 
-		if test "x$ac_cv_func_gethostbyname" != "xyes" ; then
+		if test "x$found_gethostbyname" != "xyes" ; then
 			# Hopefully this never actually happens.
 			# The code works even without name resolvers but we
 			# alert the user to this unusual condition.

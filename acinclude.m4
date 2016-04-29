@@ -266,18 +266,69 @@ yes
 ])
 
 #
+# AC_WIRESHARK_SOCKET_LIB_CHECK
+#
+# Checks whether we need "-lsocket" to get "socket()", which is used
+# by libpcap on some platforms - and, in effect, "gethostbyname()" or
+# "getaddrinfo()" on most if not all platforms (so that it can use NIS or
+# DNS or... to look up host names).  Check first for just -lsocket, and,
+# if that doesn't work, check for it in -lsocket and also link with -lnsl.
+#
+# Adapted from stuff in the AC_PATH_XTRA macro in "acspecific.m4" in
+# GNU Autoconf 2.13; the comment came from there.
+# Done by Guy Harris <guy@alum.mit.edu> on 2000-01-14.
+#
+# We use "connect" because that's what AC_PATH_XTRA did.
+#
+AC_DEFUN([AC_WIRESHARK_SOCKET_LIB_CHECK],
+[
+    # -lsocket is broken on IRIX 5.2 (and is not necessary on later
+    # versions), says simon@lia.di.epfl.ch: it contains gethostby*
+    # variants that don't use the nameserver (or something).
+    # -lsocket must be given before -lnsl if both are needed.
+    # We assume that if connect needs -lnsl, so does gethostbyname.
+    AC_CHECK_FUNC(connect, ,
+      AC_CHECK_LIB(socket, connect,
+	SOCKET_LIBS="-lsocket",
+	[
+	  #
+	  # Try it with -lsocket and -lnsl.
+	  #
+	  AC_CHECK_LIB(socket, connect,
+	    [
+	      SOCKET_LIBS="-lsocket"
+	      NSL_LIBS="-lnsl"
+	    ],
+	    AC_MSG_ERROR(Function 'socket' not found.),
+	    -lnsl)
+	]))
+    AC_SUBST(SOCKET_LIBS)
+    AC_SUBST(NSL_LIBS)
+])
+
+#
 # AC_WIRESHARK_GETADDRINFO_LIB_CHECK
 #
-# Checks whether we have "getaddrinfo()" and whether we need "-lnsl" to get it.
+# Checks whether we have "getaddrinfo()" and whether we need "-lsocket"
+# to get it.  (Yes, in Solaris 10 and Solaris 11, it's in -lsocket,
+# even though the gethosby*() routines are in -lnsl.  Go figure.)
+# If we link with -lsocket, also link with $NSL_LIBS.
+#
 AC_DEFUN([AC_WIRESHARK_GETADDRINFO_LIB_CHECK],
 [
-    AC_CHECK_FUNCS(getaddrinfo, ,
-	AC_CHECK_LIB(nsl, getaddrinfo,
-		     [
-			 NSL_LIBS="-lnsl"
-			 AC_DEFINE(HAVE_GETADDRINFO, 1, [Defined if we have getaddrinfo])
-		     ]))
-    AC_SUBST(NSL_LIBS)
+    AC_CHECK_FUNCS(getaddrinfo, found_getaddrinfo=yes,
+	AC_CHECK_LIB(socket, getaddrinfo,
+	    [
+		#
+		# If we haven't already set SOCKET_LIBS, set it to
+		# -lsocket, so we link with it.
+		#
+		if test x$SOCKET_LIBS = x ; then
+		    SOCKET_LIBS=-lsocket
+		fi
+		AC_DEFINE(HAVE_GETADDRINFO, 1, [Defined if we have getaddrinfo])
+		found_getaddrinfo=yes
+	    ], , $NSL_LIBS))
 ])
 
 #
@@ -292,48 +343,21 @@ AC_DEFUN([AC_WIRESHARK_GETADDRINFO_LIB_CHECK],
 #
 AC_DEFUN([AC_WIRESHARK_GETHOSTBY_LIB_CHECK],
 [
-    # msh@cis.ufl.edu says -lnsl (and -lsocket) are needed for his 386/AT,
-    # to get the SysV transport functions.
-    # chad@anasazi.com says the Pyramid MIS-ES running DC/OSx (SVR4)
-    # needs -lnsl.
     # The nsl library prevents programs from opening the X display
     # on Irix 5.2, according to dickey@clark.net.
-    AC_CHECK_FUNCS(gethostbyname, ,
+    AC_CHECK_FUNCS(gethostbyname, found_gethostbyname=yes,
 	AC_CHECK_LIB(nsl, gethostbyname,
-		     [
-			NSL_LIBS="-lnsl"
-			AC_DEFINE(HAVE_GETHOSTBYNAME, 1, [Defined if we have gethostbyname])
-		     ]))
-    AC_SUBST(NSL_LIBS)
-])
-
-#
-# AC_WIRESHARK_SOCKET_LIB_CHECK
-#
-# Checks whether we need "-lsocket" to get "socket()", which is used
-# by libpcap on some platforms - and, in effect, "gethostbyname()" or
-# "getaddrinfo()" on most if not all platforms (so that it can use NIS or
-# DNS or... to look up host names).
-#
-# Adapted from stuff in the AC_PATH_XTRA macro in "acspecific.m4" in
-# GNU Autoconf 2.13; the comment came from there.
-# Done by Guy Harris <guy@alum.mit.edu> on 2000-01-14.
-#
-# We use "connect" because that's what AC_PATH_XTRA did.
-#
-AC_DEFUN([AC_WIRESHARK_SOCKET_LIB_CHECK],
-[
-    # lieder@skyler.mavd.honeywell.com says without -lsocket,
-    # socket/setsockopt and other routines are undefined under SCO ODT
-    # 2.0.  But -lsocket is broken on IRIX 5.2 (and is not necessary
-    # on later versions), says simon@lia.di.epfl.ch: it contains
-    # gethostby* variants that don't use the nameserver (or something).
-    # -lsocket must be given before -lnsl if both are needed.
-    # We assume that if connect needs -lnsl, so does gethostbyname.
-    AC_CHECK_FUNC(connect, ,
-      AC_CHECK_LIB(socket, connect, SOCKET_LIBS="-lsocket",
-		AC_MSG_ERROR(Function 'socket' not found.), $NSL_LIBS))
-    AC_SUBST(SOCKET_LIBS)
+	    [
+		#
+		# If we haven't already set SOCKET_LIBS, set it to
+		# -lsocket, so we link with it.
+		#
+		if test x$NSL_LIBS = x ; then
+		    NSL_LIBS="-lnsl"
+		fi
+		AC_DEFINE(HAVE_GETHOSTBYNAME, 1, [Defined if we have gethostbyname])
+		found_gethostbyname=yes
+	     ]))
 ])
 
 #
