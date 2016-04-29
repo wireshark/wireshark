@@ -166,16 +166,13 @@ static expert_field ei_quic_tag_unknown = EI_INIT;
 /**************************************************************************/
 #define PUFLAGS_VRSN    0x01
 #define PUFLAGS_RST     0x02
-#define PUFLAGS_CID     0x0C
+#define PUFLAGS_CID     0x08
 #define PUFLAGS_SEQ     0x30
-#define PUFLAGS_RSV     0xC0
+#define PUFLAGS_RSV     0xC4
 
-static const value_string puflags_cid_vals[] = {
-    { 0, "0 Byte" },
-    { 1, "1 Bytes" },
-    { 2, "4 Bytes" },
-    { 3, "8 Bytes" },
-    { 0, NULL }
+static const true_false_string puflags_cid_tfs = {
+    "8 Bytes",
+    "0 Byte"
 };
 
 static const value_string puflags_seq_vals[] = {
@@ -1496,8 +1493,8 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti, *ti_puflags; /*, *expert_ti*/
     proto_tree *quic_tree, *puflags_tree;
     guint offset = 0;
-    guint8 puflags, len_cid, len_seq;
-    guint64 cid, seq;
+    guint8 puflags, len_cid = 0, len_seq;
+    guint64 cid = 0, seq;
 
     if (tvb_captured_length(tvb) < QUIC_MIN_LENGTH)
         return 0;
@@ -1522,28 +1519,10 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* CID */
 
-    /* Get len of CID (and CID), may be a more easy function to get the length... */
-    switch((puflags & PUFLAGS_CID) >> 2){
-        case 0:
-            len_cid = 0;
-            cid = 0;
-        break;
-        case 1:
-            len_cid = 1;
-            cid = tvb_get_guint8(tvb, offset);
-        break;
-        case 2:
-            len_cid = 4;
-            cid = tvb_get_letohl(tvb, offset);
-        break;
-        case 3:
-            len_cid = 8;
-            cid = tvb_get_letoh64(tvb, offset);
-        break;
-        default: /* It is only between 0..3 but Clang(Analyser) i don't like this... ;-) */
-            len_cid = 8;
-            cid = tvb_get_letoh64(tvb, offset);
-        break;
+    /* Get len of CID (and CID), */
+    if(puflags & PUFLAGS_CID){
+        len_cid = 8;
+        cid = tvb_get_letoh64(tvb, offset);
     }
 
     if (len_cid) {
@@ -1634,7 +1613,7 @@ proto_register_quic(void)
         },
         { &hf_quic_puflags_cid,
             { "CID Length", "quic.puflags.cid",
-               FT_UINT8, BASE_HEX, VALS(puflags_cid_vals), PUFLAGS_CID,
+               FT_BOOLEAN, 8, TFS(&puflags_cid_tfs), PUFLAGS_CID,
               "Signifies the Length of CID", HFILL }
         },
         { &hf_quic_puflags_seq,
