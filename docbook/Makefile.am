@@ -14,10 +14,6 @@ FOP_OPTS=-Xmx256m
 A2X_HTML_OPTS="--stylesheet=ws.css"
 A2X_TEXT_OPTS=
 
-#if HAVE_LYNX
-A2X_TEXT_OPTS+="--lynx"
-#endif
-
 ############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
 
 include Makefile.common
@@ -25,28 +21,16 @@ include Makefile.common
 # Automatically generate .pdf files from .fo files
 # Suse needs FOP_OPTS, Debian needs JAVA_OPTS
 .fo.pdf:
-if HAVE_FOP
 	FOP_OPTS=$(FOP_OPTS) JAVA_OPTS=$(FOP_OPTS) $(FOP) $< $@
-else
-	@echo
-	@echo "Error: FOP is needed to create PDFs!"
-	@false
-endif
 
-if HAVE_XSLTPROC
-ALL_TARGETS=wsug wsdg release_notes
-endif
+all: wsug wsdg release-notes
 
-all: $(ALL_TARGETS)
+all-pdf: wsug-pdf wsdg-pdf release-notes-pdf
 
 # Wireshark User Guide
-if HAVE_FOP
-WSUG_TARGETS=wsug_html_chunked wsug_html user-guide-a4.pdf user-guide-us.pdf
-else
-WSUG_TARGETS=wsug_html_chunked wsug_html
-endif
+wsug: wsug_html_chunked wsug_html
 
-wsug: $(WSUG_TARGETS)
+wsug-pdf: wsug user-guide-a4.pdf user-guide-us.pdf
 
 user-guide.xml: user-guide.asciidoc $(WSUG_FILES)
 	$(A2X) --verbose \
@@ -106,17 +90,9 @@ wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
 
 
 # Wireshark Developer Guide
-if HAVE_A2X
-if HAVE_FOP
-WSDG_TARGETS=wsdg_html_chunked wsdg_html developer-guide-a4.pdf developer-guide-us.pdf
-else
-WSDG_TARGETS=wsdg_html_chunked wsdg_html
-endif
-else
-WSDG_TARGETS=
-endif
+wsdg: wsdg_html_chunked wsdg_html
 
-wsdg: $(WSDG_TARGETS)
+wsdg-pdf: wsdg developer-guide-a4.pdf developer-guide-us.pdf
 
 developer-guide.xml: developer-guide.asciidoc $(WSDG_FILES)
 	$(A2X) --verbose \
@@ -173,14 +149,14 @@ developer-guide-a4.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 		    --path .:wsluarm_src:$(srcdir) \
 		    --nonet $(srcdir)/custom_layer_pdf.xsl $< > $@
 
-
-if HAVE_FOP
-RELEASE_NOTES_TARGETS=release-notes.html release-notes.txt release-notes-a4.pdf release-notes-us.pdf
+# Release notes
+if HAVE_A2X_TEXT
+release-notes: release-notes.html release-notes.txt
 else
-RELEASE_NOTES_TARGETS=release-notes.html release-notes.txt
+release-notes: release-notes.html
 endif
 
-release_notes: $(RELEASE_NOTES_TARGETS)
+release-notes-pdf: release-notes release-notes-a4.pdf release-notes-us.pdf
 
 # create html single page file
 release-notes.html: $(RELEASE_NOTES_SOURCE)
@@ -192,7 +168,7 @@ release-notes.html: $(RELEASE_NOTES_SOURCE)
 # create txt single page file (through HTML)
 release-notes.txt: $(RELEASE_NOTES_SOURCE)
 	@ echo --- RELEASE NOTES - TXT ---
-	TZ=UTC $(A2X) --format=text $(A2X_TEXT_OPTS) \
+	TZ=UTC $(A2X) --format=text @A2X_LYNX@ $(A2X_TEXT_OPTS) \
 		--xsltproc-opts "--stringparam generate.toc \"article nop\"" \
 		--destination-dir=$(builddir) \
 		$(srcdir)/release-notes.asciidoc && \

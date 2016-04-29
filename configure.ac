@@ -726,34 +726,19 @@ AX_LIBSMI
 #
 # Check for programs used when building DocBook documentation.
 #
+AC_CHECK_PROGS(XSLTPROC, xsltproc, xsltproc)
+AC_CHECK_PROGS(A2X, a2x, a2x)
+AC_CHECK_PROGS(FOP, fop, fop)
 
-# Check for a2x (convert asciidoc to another format)
-AC_PATH_PROG(A2X, a2x)
-AC_CHECK_PROG(HAVE_A2X, a2x, "yes", "no")
-AM_CONDITIONAL(HAVE_A2X, test x$HAVE_A2X = xyes)
-
-# Check for fop (translate .fo to e.g. pdf)
-AC_PATH_PROG(FOP, fop)
-AC_CHECK_PROG(HAVE_FOP, fop, "yes", "no")
-AM_CONDITIONAL(HAVE_FOP, test x$HAVE_FOP = xyes)
-
-# TODO: HAVE_LYNX and HAVE_W3M are unused. Maybe require one of them
-# to be found when a2x is enabled? Otherwise it will fail later...
-# Check for lynx (asciidoc text format from html)
-AC_PATH_PROG(LYNX, lynx)
-AC_CHECK_PROG(HAVE_LYNX, lynx, "yes", "no")
-AM_CONDITIONAL(HAVE_LYNX, test x$HAVE_LYNX = xyes)
-
-# Check for w3m (asciidoc text format from html)
-AC_PATH_PROG(W3M, w3m)
-AC_CHECK_PROG(HAVE_W3M, w3m, "yes", "no")
-AM_CONDITIONAL(HAVE_W3M, test x$HAVE_W3M = xyes)
-
-# Check for xsltproc
-AC_PATH_PROG(XSLTPROC, xsltproc)
-AC_CHECK_PROG(HAVE_XSLTPROC, xsltproc, "yes", "no")
-AM_CONDITIONAL(HAVE_XSLTPROC, test x$HAVE_XSLTPROC = xyes)
-
+# HTML to text processor
+AC_MSG_CHECKING([for an HTML to text processor])
+AS_IF([w3m -version >&AS_MESSAGE_LOG_FD 2>&1], [have_a2x_text=w3m],
+	[lynx -version >&AS_MESSAGE_LOG_FD 2>&1], [have_a2x_text=lynx],
+	[have_a2x_text=no])
+AC_MSG_RESULT([$have_a2x_text])
+AM_CONDITIONAL(HAVE_A2X_TEXT, [test "x$have_a2x_text" != xno])
+AS_IF([test $have_a2x_text = lynx], [A2X_LYNX="--lynx"])
+AC_SUBST(A2X_LYNX)
 
 # Check for packaging utilities
 # For now, we check to see if the various packaging utilites are in our
