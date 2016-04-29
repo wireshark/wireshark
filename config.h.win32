@@ -82,9 +82,6 @@
 /* Define if you have the floorl function. */
 #define HAVE_FLOORL 1
 
-/* Define if you have the getaddrinfo function.  */
-#define HAVE_GETADDRINFO 1
-
 /* Define if you have the getprotobynumber function.  */
 /* #undef HAVE_GETPROTOBYNUMBER */
 

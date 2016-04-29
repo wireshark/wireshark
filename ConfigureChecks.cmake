@@ -104,8 +104,6 @@ check_symbol_exists("floorl" "math.h"    HAVE_FLOORL)
 check_symbol_exists("lrint"  "math.h"    HAVE_LRINT)
 cmake_pop_check_state()
 
-check_function_exists("getaddrinfo"      HAVE_GETADDRINFO)
-
 check_function_exists("getopt_long"      HAVE_GETOPT_LONG)
 if(HAVE_GETOPT_LONG)
 	if(HAVE_GETOPT_H)
