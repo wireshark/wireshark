@@ -2052,13 +2052,13 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
                  "Bogus IP header length (%u, must be at least %u)",
                  hlen, IPH_MIN_LEN);
 
-    proto_tree_add_uint_format_value(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen/4,
+    proto_tree_add_uint_bits_format_value(ip_tree, hf_ip_hdr_len, tvb, (offset<<3)+4, 4, hlen,
                                  "%u bytes (bogus, must be at least %u)", hlen, IPH_MIN_LEN);
     return tvb_captured_length(tvb);
   }
 
-  proto_tree_add_uint_format_value(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen/4,
-                               "%u bytes", hlen);
+  proto_tree_add_uint_bits_format_value(ip_tree, hf_ip_hdr_len, tvb, (offset<<3)+4, 4, hlen,
+                               "%u bytes (%u)", hlen, hlen>>2);
 
   iph->ip_tos = tvb_get_guint8(tvb, offset + 1);
   if (g_ip_dscp_actif) {
@@ -2624,7 +2624,7 @@ proto_register_ip(void)
 
     { &hf_ip_hdr_len,
       { "Header Length", "ip.hdr_len", FT_UINT8, BASE_DEC,
-        NULL, 0x0F, NULL, HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
     { &hf_ip_dsfield,
       { "Differentiated Services Field", "ip.dsfield", FT_UINT8, BASE_HEX,
