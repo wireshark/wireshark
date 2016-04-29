@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <algorithm>
+
 #include "display_filter_expression_dialog.h"
 #include <ui_display_filter_expression_dialog.h>
 
