@@ -41,6 +41,7 @@
 
 
 #include "ui/tap_export_pdu.h"
+#include "ui/export_pdu_ui_utils.h"
 #include "ui/gtk/export_pdu_dlg.h"
 
 static GtkWidget *export_pdu_dlg = NULL;

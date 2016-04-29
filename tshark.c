@@ -84,6 +84,7 @@
 #include "ui/ui_util.h"
 #include "ui/decode_as_utils.h"
 #include "ui/cli/tshark-tap.h"
+#include "ui/tap_export_pdu.h"
 #include "register.h"
 #include "filter_files.h"
 #include <epan/epan_dissect.h>
@@ -390,6 +391,7 @@ print_usage(FILE *output)
   fprintf(output, "  -W n                     Save extra information in the file, if supported.\n");
   fprintf(output, "                           n = write network address resolution information\n");
   fprintf(output, "  -X <key>:<value>         eXtension options, see the man page for details\n");
+  fprintf(output, "  -U tap_name[,filter]     PDUs export mode, see the man page for details\n");
   fprintf(output, "  -z <statistics>          various statistics, see the man page for details\n");
   fprintf(output, "  --capture-comment <comment>\n");
   fprintf(output, "                           add a capture comment to the newly created\n");
@@ -993,6 +995,8 @@ main(int argc, char *argv[])
   GSList              *disable_protocol_slist = NULL;
   GSList              *enable_heur_slist = NULL;
   GSList              *disable_heur_slist = NULL;
+  gchar              **volatile pdu_export_args = NULL;
+  exp_pdu_t            exp_pdu_tap_data;
 
 /*
  * The leading + ensures that getopt_long() does not permute the argv[]
@@ -1013,7 +1017,7 @@ main(int argc, char *argv[])
  * We do *not* use a leading - because the behavior of a leading - is
  * platform-dependent.
  */
-#define OPTSTRING "+2" OPTSTRING_CAPTURE_COMMON "C:d:e:E:F:gG:hH:" "K:lnN:o:O:PqQr:R:S:t:T:u:vVw:W:xX:Y:z:"
+#define OPTSTRING "+2" OPTSTRING_CAPTURE_COMMON "C:d:e:E:F:gG:hH:" "K:lnN:o:O:PqQr:R:S:t:T:u:U:vVw:W:xX:Y:z:"
 
   static const char    optstring[] = OPTSTRING;
 
@@ -1665,6 +1669,13 @@ main(int argc, char *argv[])
         return 1;
       }
       break;
+    case 'U':        /* Export PDUs to file */
+        if (!*optarg) {
+            cmdarg_err("Tap name is required!");
+            return 1;
+        }
+        pdu_export_args = g_strsplit(optarg, ",", 2);
+        break;
     case 'v':         /* Show version and exit */
       comp_info_str = get_compiled_version_info(get_tshark_compiled_version_info,
                                                 epan_get_compiled_version_info);
@@ -2163,6 +2174,55 @@ main(int argc, char *argv[])
     }
   }
 
+  /* PDU export requested. Take the ownership of the '-w' file, apply tap
+  * filters and start tapping. */
+  if (pdu_export_args) {
+      const char *exp_pdu_filename;
+      const char *exp_pdu_tap_name = pdu_export_args[0];
+      const char *exp_pdu_filter = pdu_export_args[1]; /* may be NULL to disable filter */
+      char       *exp_pdu_error;
+      int         exp_fd;
+
+      if (!cf_name) {
+          cmdarg_err("PDUs export requires a capture file (specify with -r).");
+          return 1;
+      }
+      /* Take ownership of the '-w' output file. */
+#ifdef HAVE_LIBPCAP
+      exp_pdu_filename = global_capture_opts.save_file;
+      global_capture_opts.save_file = NULL;
+#else
+      exp_pdu_filename = output_file_name;
+      output_file_name = NULL;
+#endif
+      if (exp_pdu_filename == NULL) {
+          cmdarg_err("PDUs export requires an output file (-w).");
+          return 1;
+      }
+
+      exp_pdu_error = exp_pdu_pre_open(exp_pdu_tap_name, exp_pdu_filter,
+          &exp_pdu_tap_data);
+      if (exp_pdu_error) {
+          cmdarg_err("Cannot register tap: %s", exp_pdu_error);
+          g_free(exp_pdu_error);
+          return 2;
+      }
+
+      exp_fd = ws_open(exp_pdu_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
+      if (exp_fd == -1) {
+          cmdarg_err("%s: %s", exp_pdu_filename, file_open_error_message(errno, TRUE));
+          return 2;
+      }
+
+      /* Activate the export PDU tap */
+      err = exp_pdu_open(&exp_pdu_tap_data, exp_fd,
+          g_strdup_printf("Dump of PDUs from %s", cf_name));
+      if (err != 0) {
+          cmdarg_err("Failed to start the PDU export: %s", g_strerror(err));
+          return 2;
+      }
+  }
+
   /* We have to dissect each packet if:
 
         we're printing information about each packet;
@@ -2171,8 +2231,11 @@ main(int argc, char *argv[])
 
         we're using a display filter on the packets;
 
+        we're exporting PDUs;
+
         we're using any taps that need dissection. */
-  do_dissection = print_packet_info || rfcode || dfcode || tap_listeners_require_dissection();
+  do_dissection = print_packet_info || rfcode || dfcode || pdu_export_args ||
+      tap_listeners_require_dissection();
   tshark_debug("tshark: do_dissection = %s", do_dissection ? "TRUE" : "FALSE");
 
   if (cf_name) {
@@ -2211,6 +2274,15 @@ main(int argc, char *argv[])
       /* We still dump out the results of taps, etc., as we might have
          read some packets; however, we exit with an error status. */
       exit_status = 2;
+    }
+
+    if (pdu_export_args) {
+        err = exp_pdu_close(&exp_pdu_tap_data);
+        if (err) {
+            cmdarg_err("%s", wtap_strerror(err));
+            exit_status = 2;
+        }
+        g_strfreev(pdu_export_args);
     }
   } else {
     tshark_debug("tshark: no capture file specified");

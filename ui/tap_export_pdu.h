@@ -32,7 +32,29 @@ typedef struct _exp_pdu_t {
     wtap_dumper* wdh;
 } exp_pdu_t;
 
-gboolean do_export_pdu(const char *filter, gchar *tap_name, exp_pdu_t *data);
+/**
+* Registers the tap listener which will add matching packets to the exported
+* file. Must be called before exp_pdu_open.
+*
+* @param tap_name  One of the names registered with register_export_pdu_tap().
+* @param filter    An tap filter, may be NULL to disable filtering which
+* improves performance if you do not need a filter.
+* @return NULL on success or an error string on failure which must be freed
+* with g_free(). Failure could occur when the filter or tap_name are invalid.
+*/
+char *exp_pdu_pre_open(const char *tap_name, const char *filter,
+    exp_pdu_t *exp_pdu_tap_data);
+
+/**
+* Use the given file descriptor for writing an output file. Can only be called
+* once and exp_pdu_pre_open() must be called before.
+*
+* @return 0 on success or a wtap error code.
+*/
+int exp_pdu_open(exp_pdu_t *data, int fd, char *comment);
+
+/* Stops the PDUs export. */
+int exp_pdu_close(exp_pdu_t *exp_pdu_tap_data);
 
 #ifdef __cplusplus
 }

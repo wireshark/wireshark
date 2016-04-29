@@ -25,18 +25,16 @@
 
 #include "globals.h"
 #include "wiretap/pcap-encap.h"
-#include "wsutil/tempfile.h"
 #include "wsutil/os_version_info.h"
 #include "ws_version_info.h"
 
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>
 #include <epan/epan_dissect.h>
+#include <wiretap/wtap.h>
 #include <wiretap/wtap_opttypes.h>
 #include <wiretap/pcapng.h>
 
-#include "ui/alert_box.h"
-#include "ui/simple_dialog.h"
 #include "tap_export_pdu.h"
 
 /* Main entry point to the tap */
@@ -97,10 +95,10 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
     return FALSE; /* Do not redraw */
 }
 
-static void
-exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
+int
+exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, char *comment)
 {
-    char *tmpname, *capfile_name;
+
     int   err;
 
     /* pcapng defs */
@@ -118,7 +116,7 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
     shb_hdr = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_SECTION);
 
     /* options */
-    opt_comment = g_strdup_printf("Dump of PDUs from %s", cfile.filename);
+    opt_comment = comment;
     wtap_optionblock_set_option_string(shb_hdr, OPT_COMMENT, opt_comment);
     g_free(opt_comment);
 
@@ -153,78 +151,51 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
     g_array_append_val(idb_inf->interface_data, int_data);
 
     /* Use a random name for the temporary import buffer */
-    exp_pdu_tap_data->wdh = wtap_dump_open_tempfile_ng(&tmpname, "Wireshark_PDU_",
-                                                       WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
-                                                       WTAP_ENCAP_WIRESHARK_UPPER_PDU, WTAP_MAX_PACKET_SIZE,
-                                                       FALSE, shb_hdr, idb_inf, NULL, &err);
-    capfile_name = g_strdup(tmpname);
+    exp_pdu_tap_data->wdh = wtap_dump_fdopen_ng(fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG, WTAP_ENCAP_WIRESHARK_UPPER_PDU, WTAP_MAX_PACKET_SIZE, FALSE,
+        shb_hdr, idb_inf, NULL, &err);
     if (exp_pdu_tap_data->wdh == NULL) {
-        open_failure_alert_box(capfile_name ? capfile_name : "temporary file", err, TRUE);
-        goto end;
+        g_assert(err != 0);
+        return err;
     }
 
-    /* Run the tap */
-    cf_retap_packets(&cfile);
-
-
-    if (!wtap_dump_close(exp_pdu_tap_data->wdh, &err)) {
-        write_failure_alert_box(capfile_name, err);
-    }
-
-    remove_tap_listener(exp_pdu_tap_data);
-
-    /* XXX: should this use the open_routine type in the cfile instead of WTAP_TYPE_AUTO? */
-    if (cf_open(&cfile, capfile_name, WTAP_TYPE_AUTO, TRUE /* temporary file */, &err) != CF_OK) {
-        open_failure_alert_box(capfile_name, err, FALSE);
-        goto end;
-    }
-
-    switch (cf_read(&cfile, FALSE)) {
-    case CF_READ_OK:
-    case CF_READ_ERROR:
-    /* Just because we got an error, that doesn't mean we were unable
-       to read any of the file; we handle what we could get from the
-       file. */
-    break;
-
-    case CF_READ_ABORTED:
-    /* The user bailed out of re-reading the capture file; the
-       capture file has been closed - just free the capture file name
-       string and return (without changing the last containing
-       directory). */
-    break;
-    }
-
-end:
-    g_free(capfile_name);
-    wtap_optionblock_free(shb_hdr);
-    wtap_free_idb_info(idb_inf);
+    return 0;
 }
 
-gboolean
-do_export_pdu(const char *filter, gchar *tap_name, exp_pdu_t *exp_pdu_tap_data)
+int
+exp_pdu_close(exp_pdu_t *exp_pdu_tap_data)
+{
+    int err = 0;
+    if (!wtap_dump_close(exp_pdu_tap_data->wdh, &err))
+        g_assert(err != 0);
+
+    remove_tap_listener(exp_pdu_tap_data);
+    return err;
+}
+
+
+char *
+exp_pdu_pre_open(const char *tap_name, const char *filter, exp_pdu_t *exp_pdu_tap_data)
 {
     GString        *error_string;
+
+    /* XXX: can we always assume WTAP_ENCAP_WIRESHARK_UPPER_PDU? */
+    exp_pdu_tap_data->pkt_encap = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_WIRESHARK_UPPER_PDU);
 
     /* Register this tap listener now */
     error_string = register_tap_listener(tap_name,             /* The name of the tap we want to listen to */
                                          exp_pdu_tap_data,     /* instance identifier/pointer to a struct holding
                                                                 * all state variables */
                                          filter,               /* pointer to a filter string */
-                                         TL_REQUIRES_NOTHING,  /* flags for the tap listener */
+                                         TL_REQUIRES_PROTO_TREE,  /* flags for the tap listener */
                                          NULL,
                                          export_pdu_packet,
                                          NULL);
-    if (error_string){
-        /* Error.  We failed to attach to the tap. Clean up */
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
-        g_string_free(error_string, TRUE);
-        return FALSE;
-    }
+    if (error_string != NULL)
+        return g_string_free(error_string, FALSE);
 
-    exp_pdu_file_open(exp_pdu_tap_data);
-    return TRUE;
+    return NULL;
 }
+
 
 /*
  * Editor modelines

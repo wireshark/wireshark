@@ -32,6 +32,7 @@
 #include <epan/exported_pdu.h>
 
 #include "ui/tap_export_pdu.h"
+#include "ui/export_pdu_ui_utils.h"
 
 ExportPDUDialog::ExportPDUDialog(QWidget *parent) :
     QDialog(parent),
