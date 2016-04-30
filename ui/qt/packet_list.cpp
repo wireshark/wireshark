@@ -1519,8 +1519,8 @@ void PacketList::drawFarOverlay()
     if (!prefs.gui_packet_list_show_minimap) return;
 
     QSize groove_size = overlay_sb_->grooveRect().size();
-    qreal dp_ratio = 1.0;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
+    qreal dp_ratio = 1.0;
     dp_ratio = overlay_sb_->devicePixelRatio();
     groove_size *= dp_ratio;
 #endif

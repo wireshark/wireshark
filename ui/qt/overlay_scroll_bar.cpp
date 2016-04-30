@@ -193,9 +193,9 @@ bool OverlayScrollBar::eventFilter(QObject *watched, QEvent *event)
         ret = true;
 
         if (!marked_packet_img_.isNull()) {
-            qreal dp_ratio = 1.0;
             QRect groove_rect = grooveRect();
 #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
+            qreal dp_ratio = 1.0;
             dp_ratio = devicePixelRatio();
             groove_rect.setTopLeft(groove_rect.topLeft() * dp_ratio);
             groove_rect.setSize(groove_rect.size() * dp_ratio);
