@@ -390,6 +390,17 @@ parse_vms_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gch
             break;
         }
     } while (! isdumpline(line));
+    if (pkt_len > WTAP_MAX_PACKET_SIZE) {
+        /*
+         * Probably a corrupt capture file; return an error,
+         * so that our caller doesn't blow up trying to allocate
+         * space for an immensely-large packet.
+         */
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup_printf("vms: File has %u-byte packet, bigger than maximum of %u",
+                                    pkt_len, WTAP_MAX_PACKET_SIZE);
+        return FALSE;
+    }
 
     p = strstr(months, mon);
     if (p)
