@@ -1298,6 +1298,11 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 		*err_info = g_strdup("ngsniffer: Record length is less than packet size");
 		return -1;
 	}
+	/*
+	 * The maximum value of length is 65535, which is less than
+	 * WTAP_MAX_PACKET_SIZE will ever be, so we don't need to check
+	 * it.
+	 */
 
 	if (padding != NULL) {
 		/*

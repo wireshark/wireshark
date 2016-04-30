@@ -157,6 +157,11 @@ ipfix_read_message(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err, g
 
     if (!ipfix_read_message_header(&msg_hdr, fh, err, err_info))
         return FALSE;
+    /*
+     * The maximum value of msg_hdr.message_length is 65535, which is
+     * less than WTAP_MAX_PACKET_SIZE will ever be, so we don't need
+     * to check it.
+     */
 
     phdr->rec_type = REC_TYPE_PACKET;
     phdr->presence_flags = WTAP_HAS_TS;

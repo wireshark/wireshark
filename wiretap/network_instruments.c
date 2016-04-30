@@ -471,6 +471,11 @@ process_packet_header(wtap *wth, packet_entry_header *packet_header,
         phdr->len = packet_header->network_size - 4;
         phdr->caplen = MIN(packet_header->captured_size, phdr->len);
     }
+    /*
+     * The maximum value of packet_header->captured_size is 65535, which
+     * is less than WTAP_MAX_PACKET_SIZE will ever be, so we don't need
+     * to check it.
+     */
 
     /* set the wiretap timestamp, assuming for the moment that Observer encoded it in GMT */
     phdr->ts.secs = (time_t) ((packet_header->nano_seconds_since_2000 / 1000000000) + ansi_to_observer_epoch_offset);

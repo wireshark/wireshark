@@ -482,6 +482,11 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
 
       true_size = pletoh16(&descriptor[4]);
       packet_size = pletoh16(&descriptor[6]);
+      /*
+       * The maximum value of packet_size is 65535, which is less than
+       * WTAP_MAX_PACKET_SIZE will ever be, so we don't need to check
+       * it.
+       */
 
       /*
        * OK, is the frame data size greater than than what's left of the

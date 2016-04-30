@@ -244,6 +244,12 @@ camins_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 
     if (!find_next_pkt_dat_type_len(fh, &dat_trans_type, &dat_len, err, err_info))
         return FALSE;
+    /*
+     * The maximum value of length is 65535, which, even after
+     * DVB_CI_PSEUDO_HDR_LEN is added to it, is less than
+     * WTAP_MAX_PACKET_SIZE will ever be, so we don't need to check
+     * it.
+     */
 
     ws_buffer_assure_space(buf, DVB_CI_PSEUDO_HDR_LEN+dat_len);
     p = ws_buffer_start_ptr(buf);
