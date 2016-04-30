@@ -67,6 +67,10 @@ mp2t_read_packet(mp2t_filetype_t *mp2t, FILE_T fh, gint64 offset,
 {
     guint64 tmp;
 
+    /*
+     * MP2T_SIZE will always be less than WTAP_MAX_PACKET_SIZE, so
+     * we don't have to worry about the packet being too big.
+     */
     ws_buffer_assure_space(buf, MP2T_SIZE);
     if (!wtap_read_bytes_or_eof(fh, ws_buffer_start_ptr(buf), MP2T_SIZE, err, err_info))
         return FALSE;
