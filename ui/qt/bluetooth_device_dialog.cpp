@@ -22,10 +22,13 @@
 #include "bluetooth_device_dialog.h"
 #include <ui_bluetooth_device_dialog.h>
 
+#include "color_utils.h"
+
 #include "epan/epan.h"
 #include "epan/addr_resolv.h"
 #include "epan/to_str.h"
 #include "epan/epan_dissect.h"
+#include "epan/prefs.h"
 #include "epan/dissectors/packet-bthci_cmd.h"
 #include "epan/dissectors/packet-bthci_evt.h"
 
@@ -135,6 +138,8 @@ BluetoothDeviceDialog::BluetoothDeviceDialog(QWidget &parent, CaptureFile &cf, Q
 
     ui->tableWidget->setStyleSheet("QTableView::item:hover{background-color:lightyellow; color:black;}");
 
+    context_menu_.addActions(QList<QAction *>() << ui->actionMark_Unmark_Cell);
+    context_menu_.addActions(QList<QAction *>() << ui->actionMark_Unmark_Row);
     context_menu_.addActions(QList<QAction *>() << ui->actionCopy_Cell);
     context_menu_.addActions(QList<QAction *>() << ui->actionCopy_Rows);
     context_menu_.addActions(QList<QAction *>() << ui->actionCopy_All);
@@ -216,10 +221,57 @@ void BluetoothDeviceDialog::changeEvent(QEvent *event)
 }
 
 
-void BluetoothDeviceDialog::keyPressEvent(QKeyEvent *)
+void BluetoothDeviceDialog::keyPressEvent(QKeyEvent *event)
 {
-/* NOTE: Do nothing, but in real it "takes focus" from button_box so allow user
- * to use Enter button to jump to frame from table widget */
+/* NOTE: Do nothing*, but in real it "takes focus" from button_box so allow user
+ * to use Enter button to jump to frame from tree widget */
+/* * - reimplement shortcuts from contex menu */
+
+   if (event->modifiers() & Qt::ControlModifier && event->key()== Qt::Key_M)
+        on_actionMark_Unmark_Row_triggered();
+}
+
+void BluetoothDeviceDialog::on_actionMark_Unmark_Cell_triggered()
+{
+    QBrush fg;
+    QBrush bg;
+
+    if (ui->tableWidget->currentItem()->background() == QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg))) {
+        fg = QBrush();
+        bg = QBrush();
+    } else {
+        fg = QBrush(ColorUtils::fromColorT(&prefs.gui_marked_fg));
+        bg = QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg));
+    }
+
+    ui->tableWidget->currentItem()->setForeground(fg);
+    ui->tableWidget->currentItem()->setBackground(bg);
+}
+
+
+void BluetoothDeviceDialog::on_actionMark_Unmark_Row_triggered()
+{
+    QBrush fg;
+    QBrush bg;
+    bool   is_marked = TRUE;
+
+    for (int i = 0; i < ui->tableWidget->columnCount(); i += 1) {
+        if (ui->tableWidget->item((ui->tableWidget->currentItem())->row(), i)->background() != QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg)))
+            is_marked = FALSE;
+    }
+
+    if (is_marked) {
+        fg = QBrush();
+        bg = QBrush();
+    } else {
+        fg = QBrush(ColorUtils::fromColorT(&prefs.gui_marked_fg));
+        bg = QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg));
+    }
+
+    for (int i = 0; i < ui->tableWidget->columnCount(); i += 1) {
+        ui->tableWidget->item((ui->tableWidget->currentItem())->row(), i)->setForeground(fg);
+        ui->tableWidget->item((ui->tableWidget->currentItem())->row(), i)->setBackground(bg);
+    }
 }
 
 

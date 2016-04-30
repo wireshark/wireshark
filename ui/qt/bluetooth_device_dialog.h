@@ -93,6 +93,8 @@ private slots:
     void setTitle(QString bdAddr, QString name);
     void on_tableWidget_itemActivated(QTableWidgetItem *item);
     void on_buttonBox_clicked(QAbstractButton *button);
+    void on_actionMark_Unmark_Cell_triggered();
+    void on_actionMark_Unmark_Row_triggered();
     void on_actionCopy_Cell_triggered();
     void on_actionCopy_Rows_triggered();
     void on_actionCopy_All_triggered();

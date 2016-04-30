@@ -622,6 +622,22 @@
     <string>Save as image</string>
    </property>
   </action>
+  <action name="actionMark_Unmark_Row">
+   <property name="text">
+    <string>Mark/Unmark Row</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark/Unmark Row</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="actionMark_Unmark_Cell">
+   <property name="text">
+    <string>Mark/Unmark Cell</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections>

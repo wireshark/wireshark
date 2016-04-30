@@ -98,6 +98,8 @@ private slots:
     void recursiveCopyTreeItems(QTreeWidgetItem *item, QString &copy, int ident_level);
     void on_tableTreeWidget_itemActivated(QTreeWidgetItem *item, int);
     void on_buttonBox_clicked(QAbstractButton *button);
+    void on_actionMark_Unmark_Cell_triggered();
+    void on_actionMark_Unmark_Row_triggered();
     void on_actionCopy_Cell_triggered();
     void on_actionCopy_Rows_triggered();
     void on_actionCopy_All_triggered();

@@ -22,9 +22,12 @@
 #include "bluetooth_att_server_attributes_dialog.h"
 #include <ui_bluetooth_att_server_attributes_dialog.h>
 
+#include "color_utils.h"
+
 #include "epan/epan.h"
 #include "epan/to_str.h"
 #include "epan/epan_dissect.h"
+#include "epan/prefs.h"
 #include "epan/dissectors/packet-bluetooth.h"
 #include "epan/dissectors/packet-btatt.h"
 
@@ -76,7 +79,8 @@ BluetoothAttServerAttributesDialog::BluetoothAttServerAttributesDialog(QWidget &
 
     ui->tableTreeWidget->setStyleSheet("QTreeView::item:hover{background-color:lightyellow; color:black;}");
 
-
+    context_menu_.addActions(QList<QAction *>() << ui->actionMark_Unmark_Cell);
+    context_menu_.addActions(QList<QAction *>() << ui->actionMark_Unmark_Row);
     context_menu_.addActions(QList<QAction *>() << ui->actionCopy_Cell);
     context_menu_.addActions(QList<QAction *>() << ui->actionCopy_Rows);
     context_menu_.addActions(QList<QAction *>() << ui->actionCopy_All);
@@ -130,16 +134,64 @@ void BluetoothAttServerAttributesDialog::changeEvent(QEvent *event)
 }
 
 
-void BluetoothAttServerAttributesDialog::keyPressEvent(QKeyEvent *)
+void BluetoothAttServerAttributesDialog::keyPressEvent(QKeyEvent *event)
 {
-/* NOTE: Do nothing, but in real it "takes focus" from button_box so allow user
+/* NOTE: Do nothing*, but in real it "takes focus" from button_box so allow user
  * to use Enter button to jump to frame from tree widget */
+/* * - reimplement shortcuts from contex menu */
+
+   if (event->modifiers() & Qt::ControlModifier && event->key()== Qt::Key_M)
+        on_actionMark_Unmark_Row_triggered();
 }
 
 
 void BluetoothAttServerAttributesDialog::tableContextMenu(const QPoint &pos)
 {
     context_menu_.exec(ui->tableTreeWidget->viewport()->mapToGlobal(pos));
+}
+
+
+void BluetoothAttServerAttributesDialog::on_actionMark_Unmark_Cell_triggered()
+{
+    QBrush fg;
+    QBrush bg;
+
+    if (ui->tableTreeWidget->currentItem()->background(ui->tableTreeWidget->currentColumn()) == QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg))) {
+        fg = QBrush();
+        bg = QBrush();
+    } else {
+        fg = QBrush(ColorUtils::fromColorT(&prefs.gui_marked_fg));
+        bg = QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg));
+    }
+
+    ui->tableTreeWidget->currentItem()->setForeground(ui->tableTreeWidget->currentColumn(), fg);
+    ui->tableTreeWidget->currentItem()->setBackground(ui->tableTreeWidget->currentColumn(), bg);
+}
+
+
+void BluetoothAttServerAttributesDialog::on_actionMark_Unmark_Row_triggered()
+{
+    QBrush fg;
+    QBrush bg;
+    bool   is_marked = TRUE;
+
+    for (int i = 0; i < ui->tableTreeWidget->columnCount(); i += 1) {
+        if (ui->tableTreeWidget->currentItem()->background(i) != QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg)))
+            is_marked = FALSE;
+    }
+
+    if (is_marked) {
+        fg = QBrush();
+        bg = QBrush();
+    } else {
+        fg = QBrush(ColorUtils::fromColorT(&prefs.gui_marked_fg));
+        bg = QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg));
+    }
+
+    for (int i = 0; i < ui->tableTreeWidget->columnCount(); i += 1) {
+        ui->tableTreeWidget->currentItem()->setForeground(i, fg);
+        ui->tableTreeWidget->currentItem()->setBackground(i, bg);
+    }
 }
 
 
