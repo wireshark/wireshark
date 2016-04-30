@@ -1035,6 +1035,10 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
      * header, which is why we fill in those extra zero bytes.
      *
      * We include the length of the metadata headers in the packet lengths.
+     *
+     * The maximum value of actual_octets is 65535, which, even after
+     * adding the lengths of the metadata headers, is less than
+     * WTAP_MAX_PACKET_SIZE will ever be, so we don't need to check it.
      */
     phdr->len = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + 1 + 16 + actual_octets;
     phdr->caplen = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + 1 + 16 + actual_octets;
@@ -1469,6 +1473,17 @@ static gboolean vwr_read_s2_s3_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
      */
     phdr->len = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + 1 + 16 + actual_octets;
     phdr->caplen = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + 1 + 16 + actual_octets;
+    if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+        /*
+         * Probably a corrupt capture file; return an error,
+         * so that our caller doesn't blow up trying to allocate
+         * space for an immensely-large packet.
+         */
+        *err_info = g_strdup_printf("vwr: File has %u-byte packet, bigger than maximum of %u",
+                                    phdr->caplen, WTAP_MAX_PACKET_SIZE);
+        *err = WTAP_ERR_BAD_FILE;
+        return FALSE;
+    }
 
     phdr->ts.secs   = (time_t)s_sec;
     phdr->ts.nsecs  = (int)(s_usec * 1000);
@@ -1675,6 +1690,11 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
         *err = WTAP_ERR_BAD_FILE;
         return FALSE;
     }
+    /*
+     * The maximum value of actual_octets is 65535, which, even after
+     * adding the lengths of the metadata headers, is less than
+     * WTAP_MAX_PACKET_SIZE will ever be, so we don't need to check it.
+     */
 
     vc_id = pntoh16(&s_ptr[vwr->VCID_OFF]) & vwr->VCID_MASK;
     flow_seq   = s_ptr[vwr->FLOWSEQ_OFF];
