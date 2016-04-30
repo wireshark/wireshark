@@ -310,6 +310,17 @@ aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
 		    (unsigned int)(sizeof *hdr - sizeof hdr->rec_size));
 		return FALSE;
 	}
+	if (rec_size > WTAP_MAX_PACKET_SIZE) {
+		/*
+		 * Probably a corrupt capture file; return an error,
+		 * so that our caller doesn't blow up trying to allocate
+		 * space for an immensely-large packet.
+		 */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("aethra: File has %u-byte packet, bigger than maximum of %u",
+		    rec_size, WTAP_MAX_PACKET_SIZE);
+		return FALSE;
+	}
 
 	packet_size = rec_size - (guint32)(sizeof *hdr - sizeof hdr->rec_size);
 
