@@ -97,11 +97,6 @@ static const unsigned char eyesdn_hdr_magic[]  =
 /* Size of a record header */
 #define EYESDN_HDR_LENGTH		12
 
-/*
- * XXX - is this the biggest packet we can get?
- */
-#define EYESDN_MAX_PACKET_LEN	16384
-
 static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean eyesdn_seek_read(wtap *wth, gint64 seek_off,
@@ -305,10 +300,10 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 		break;
 	}
 
-	if(pkt_len > EYESDN_MAX_PACKET_LEN) {
+	if(pkt_len > WTAP_MAX_PACKET_SIZE) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("eyesdn: File has %u-byte packet, bigger than maximum of %u",
-		    pkt_len, EYESDN_MAX_PACKET_LEN);
+		    pkt_len, WTAP_MAX_PACKET_SIZE);
 		return FALSE;
 	}
 
@@ -320,7 +315,7 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 	phdr->len = pkt_len;
 
 	/* Make sure we have enough room for the packet */
-	ws_buffer_assure_space(buf, EYESDN_MAX_PACKET_LEN);
+	ws_buffer_assure_space(buf, pkt_len);
 
 	pd = ws_buffer_start_ptr(buf);
 	if (!esc_read(fh, pd, pkt_len, err, err_info))
