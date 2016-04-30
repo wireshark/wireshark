@@ -1165,10 +1165,10 @@ static const value_string rpl_option_vals[] = {
 #define ND_OPT_6CIO_FLAG_UNASSIGNED 0xFFFE
 
 static int
-dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_contained_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gboolean  save_in_error_pkt;
-    tvbuff_t *next_tvb;
+    gint offset;
 
     /* Save the current value of the "we're inside an error packet"
        flag, and set that flag; subdissectors may treat packets
@@ -1177,14 +1177,13 @@ dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
     save_in_error_pkt = pinfo->flags.in_error_pkt;
     pinfo->flags.in_error_pkt = TRUE;
 
-    next_tvb = tvb_new_subset_remaining(tvb, offset);
-
     /* tiny sanity check */
-    if ((tvb_get_guint8(tvb, offset) & 0xf0) == 0x60) {
+    if ((tvb_get_guint8(tvb, 0) & 0xf0) == 0x60) {
         /* The contained packet is an IPv6 datagram; dissect it. */
-        offset += call_dissector(ipv6_handle, next_tvb, pinfo, tree);
-    } else
-        offset += call_data_dissector(next_tvb, pinfo, tree);
+        offset = call_dissector(ipv6_handle, tvb, pinfo, tree);
+    } else {
+        offset = call_data_dissector(tvb, pinfo, tree);
+    }
 
     /* Restore the "we're inside an error packet" flag. */
     pinfo->flags.in_error_pkt = save_in_error_pkt;
@@ -1392,6 +1391,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
     guint8      opt_type;
     int         opt_len;
     int         opt_offset;
+    tvbuff_t   *opt_tvb;
 
     while ((int)tvb_reported_length(tvb) > offset) {
         /* there are more options */
@@ -1553,9 +1553,11 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 6, ENC_NA);
                 opt_offset += 6;
 
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_redirected_packet, tvb, opt_offset, -1, ENC_NA);
-
-                opt_offset = dissect_contained_icmpv6(tvb, opt_offset, pinfo, icmp6opt_tree);
+                if (opt_len > 8) {
+                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_redirected_packet, tvb, opt_offset, opt_len - 8, ENC_NA);
+                    opt_tvb = tvb_new_subset_length(tvb, opt_offset, opt_len - 8);
+                    opt_offset += dissect_contained_icmpv6(opt_tvb, pinfo, icmp6opt_tree);
+                }
                 break;
             case ND_OPT_MTU: /* MTU (5) */
 
@@ -3648,21 +3650,24 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 4, ENC_NA);
                 offset += 4;
 
-                offset = dissect_contained_icmpv6(tvb, offset, pinfo, icmp6_tree);
+                next_tvb = tvb_new_subset_remaining(tvb, offset);
+                offset += dissect_contained_icmpv6(next_tvb, pinfo, icmp6_tree);
                 break;
             case ICMP6_PACKET_TOO_BIG: /* Packet Too Big (2) */
                 /* MTU */
                 proto_tree_add_item(icmp6_tree, hf_icmpv6_mtu, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
-                offset = dissect_contained_icmpv6(tvb, offset, pinfo, icmp6_tree);
+                next_tvb = tvb_new_subset_remaining(tvb, offset);
+                offset += dissect_contained_icmpv6(next_tvb, pinfo, icmp6_tree);
                 break;
             case ICMP6_PARAM_PROB: /* Parameter Problem (4) */
                 /* MTU */
                 proto_tree_add_item(icmp6_tree, hf_icmpv6_pointer, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
-                offset = dissect_contained_icmpv6(tvb, offset, pinfo, icmp6_tree);
+                next_tvb = tvb_new_subset_remaining(tvb, offset);
+                offset += dissect_contained_icmpv6(next_tvb, pinfo, icmp6_tree);
                 break;
             case ICMP6_ECHO_REQUEST:    /* Echo Request (128) */
             case ICMP6_ECHO_REPLY:      /* Echo Reply (129) */
