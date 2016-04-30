@@ -78,11 +78,8 @@ static gboolean daintree_sna_read(wtap *wth, int *err, gchar **err_info,
 static gboolean daintree_sna_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 
-static gboolean daintree_sna_scan_header(struct wtap_pkthdr *phdr,
-	char *readLine, char *readData, int *err, gchar **err_info);
-
-static gboolean daintree_sna_process_hex_data(struct wtap_pkthdr *phdr,
-	Buffer *buf, char *readData, int *err, gchar **err_info);
+static gboolean daintree_sna_read_packet(FILE_T fh, struct wtap_pkthdr *phdr,
+	Buffer *buf, int *err, gchar **err_info);
 
 /* Open a file and determine if it's a Daintree file */
 wtap_open_return_val daintree_sna_open(wtap *wth, int *err, gchar **err_info)
@@ -129,28 +126,11 @@ wtap_open_return_val daintree_sna_open(wtap *wth, int *err, gchar **err_info)
 static gboolean
 daintree_sna_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
-	char readLine[DAINTREE_MAX_LINE_SIZE];
-	char readData[READDATA_BUF_SIZE];
-
 	*data_offset = file_tell(wth->fh);
 
-	/* we've only seen file header lines starting with '#', but
-	 * if others appear in the file, they are tossed */
-	do {
-		if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wth->fh) == NULL) {
-			*err = file_error(wth->fh, err_info);
-			return FALSE; /* all done */
-		}
-	} while (readLine[0] == COMMENT_LINE);
-
-	/* parse one line of capture data */
-	if (!daintree_sna_scan_header(&wth->phdr, readLine, readData,
-	    err, err_info))
-		return FALSE;
-
-	/* process packet data */
-	return daintree_sna_process_hex_data(&wth->phdr, wth->frame_buffer,
-	    readData, err, err_info);
+	/* parse that line and the following packet data */
+	return daintree_sna_read_packet(wth->fh, &wth->phdr,
+	    wth->frame_buffer, err, err_info);
 }
 
 /* Read the capture file randomly
@@ -159,37 +139,38 @@ static gboolean
 daintree_sna_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 	Buffer *buf, int *err, gchar **err_info)
 {
-	char readLine[DAINTREE_MAX_LINE_SIZE];
-	char readData[READDATA_BUF_SIZE];
-
 	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	/* It appears only file header lines start with '#', but
-	 * if we find any others, we toss them */
-	do {
-		if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wth->random_fh) == NULL) {
-			*err = file_error(wth->random_fh, err_info);
-			return FALSE; /* all done */
-		}
-	} while (readLine[0] == COMMENT_LINE);
-
-	/* parse one line of capture data */
-	if (!daintree_sna_scan_header(phdr, readLine, readData, err, err_info))
-		return FALSE;
-
-	/* process packet data */
-	return daintree_sna_process_hex_data(phdr, buf, readData, err,
+	/* parse that line and the following packet data */
+	return daintree_sna_read_packet(wth->random_fh, phdr, buf, err,
 	    err_info);
 }
 
-/* Scan a header line and fill in a struct wtap_pkthdr */
+/* Read a header line, scan it, and fill in a struct wtap_pkthdr.
+ * Then convert packet data from ASCII hex string to binary in place,
+ * sanity-check its length against what we assume is the packet length field,
+ * and copy it into a Buffer. */
 static gboolean
-daintree_sna_scan_header(struct wtap_pkthdr *phdr, char *readLine,
-    char *readData, int *err, gchar **err_info)
+daintree_sna_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
+    int *err, gchar **err_info)
 {
 	guint64 seconds;
 	int useconds;
+	char readLine[DAINTREE_MAX_LINE_SIZE];
+	char readData[READDATA_BUF_SIZE];
+	guchar *str = (guchar *)readData;
+	guint bytes;
+	guint8 *p;
+
+	/* we've only seen file header lines starting with '#', but
+	 * if others appear in the file, they are tossed */
+	do {
+		if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, fh) == NULL) {
+			*err = file_error(fh, err_info);
+			return FALSE; /* all done */
+		}
+	} while (readLine[0] == COMMENT_LINE);
 
 	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
@@ -213,20 +194,11 @@ daintree_sna_scan_header(struct wtap_pkthdr *phdr, char *readLine,
 	phdr->ts.secs = (time_t) seconds;
 	phdr->ts.nsecs = useconds * 1000; /* convert mS to nS */
 
-	return TRUE;
-}
-
-/* Convert packet data from ASCII hex string to binary in place,
- * sanity-check its length against what we assume is the packet length field,
- * and copy it into a Buffer */
-static gboolean
-daintree_sna_process_hex_data(struct wtap_pkthdr *phdr, Buffer *buf,
-    char *readData, int *err, gchar **err_info)
-{
-	guchar *str = (guchar *)readData;
-	guint bytes;
-	guint8 *p;
-
+	/*
+	 * READDATA_BUF_SIZE is < WTAP_MAX_PACKET_SIZE, and is the maximum
+	 * number of bytes of packet data we can generate, so we don't
+	 * need to check the packet length.
+	 */
 	p = str; /* overlay source buffer */
 	bytes = 0;
 	/* convert hex string to guint8 */
