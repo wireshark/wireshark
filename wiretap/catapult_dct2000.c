@@ -129,17 +129,19 @@ static gboolean parse_line(char *linebuff, gint line_length,
                            gchar *context_name, guint8 *context_portp,
                            gchar *protocol_name, gchar *variant_name,
                            gchar *outhdr_name);
-static void process_parsed_line(wtap *wth,
-                                dct2000_file_externals_t *file_externals,
-                                struct wtap_pkthdr *phdr,
-                                Buffer *buf, gint64 file_offset,
-                                char *linebuff, long dollar_offset,
-                                int seconds, int useconds, gchar *timestamp_string,
-                                packet_direction_t direction, int encap,
-                                gchar *context_name, guint8 context_port,
-                                gchar *protocol_name, gchar *variant_name,
-                                gchar *outhdr_name, gchar *aal_header_chars,
-                                gboolean is_comment, int data_chars);
+static gboolean process_parsed_line(wtap *wth,
+                                    dct2000_file_externals_t *file_externals,
+                                    struct wtap_pkthdr *phdr,
+                                    Buffer *buf, gint64 file_offset,
+                                    char *linebuff, long dollar_offset,
+                                    int seconds, int useconds,
+                                    gchar *timestamp_string,
+                                    packet_direction_t direction, int encap,
+                                    gchar *context_name, guint8 context_port,
+                                    gchar *protocol_name, gchar *variant_name,
+                                    gchar *outhdr_name, gchar *aal_header_chars,
+                                    gboolean is_comment, int data_chars,
+                                    int *err, gchar **err_info);
 static guint8 hex_from_char(gchar c);
 static void   prepare_hex_byte_from_chars_table(void);
 static guint8 hex_byte_from_chars(gchar *c);
@@ -392,16 +394,19 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
             */
             *data_offset = this_offset;
 
-            process_parsed_line(wth, file_externals,
-                                &wth->phdr,
-                                wth->frame_buffer, this_offset,
-                                linebuff, dollar_offset,
-                                seconds, useconds, timestamp_string,
-                                direction, encap,
-                                context_name, context_port,
-                                protocol_name, variant_name,
-                                outhdr_name, aal_header_chars,
-                                is_comment, data_chars);
+            if (!process_parsed_line(wth, file_externals,
+                                     &wth->phdr,
+                                     wth->frame_buffer, this_offset,
+                                     linebuff, dollar_offset,
+                                     seconds, useconds,
+                                     timestamp_string,
+                                     direction, encap,
+                                     context_name, context_port,
+                                     protocol_name, variant_name,
+                                     outhdr_name, aal_header_chars,
+                                     is_comment, data_chars,
+                                     err, err_info))
+                return FALSE;
 
             /* Store the packet prefix in the hash table */
             line_prefix_info = g_new(line_prefix_info_t,1);
@@ -495,15 +500,18 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
 
         write_timestamp_string(timestamp_string, seconds, useconds/100);
 
-        process_parsed_line(wth, file_externals,
-                            phdr, buf, seek_off,
-                            linebuff, dollar_offset,
-                            seconds, useconds, timestamp_string,
-                            direction, encap,
-                            context_name, context_port,
-                            protocol_name, variant_name,
-                            outhdr_name, aal_header_chars,
-                            is_comment, data_chars);
+        if (!process_parsed_line(wth, file_externals,
+                                 phdr, buf, seek_off,
+                                 linebuff, dollar_offset,
+                                 seconds, useconds,
+                                 timestamp_string,
+                                 direction, encap,
+                                 context_name, context_port,
+                                 protocol_name, variant_name,
+                                 outhdr_name, aal_header_chars,
+                                 is_comment, data_chars,
+                                 err, err_info))
+            return FALSE;
 
         *err = errno = 0;
         return TRUE;
@@ -1263,7 +1271,7 @@ parse_line(gchar *linebuff, gint line_length,
 /***********************************/
 /* Process results of parse_line() */
 /***********************************/
-static void
+static gboolean
 process_parsed_line(wtap *wth, dct2000_file_externals_t *file_externals,
                     struct wtap_pkthdr *phdr,
                     Buffer *buf, gint64 file_offset,
@@ -1273,7 +1281,8 @@ process_parsed_line(wtap *wth, dct2000_file_externals_t *file_externals,
                     gchar *context_name, guint8 context_port,
                     gchar *protocol_name, gchar *variant_name,
                     gchar *outhdr_name, gchar *aal_header_chars,
-                    gboolean is_comment, int data_chars)
+                    gboolean is_comment, int data_chars,
+                    int *err, gchar **err_info)
 {
     int n;
     int stub_offset = 0;
@@ -1294,18 +1303,35 @@ process_parsed_line(wtap *wth, dct2000_file_externals_t *file_externals,
     phdr->ts.nsecs =
         ((file_externals->start_usecs + useconds) % 1000000) *1000;
 
+    /*
+     * Calculate the length of the stub info and the packet data.
+     * The packet data length is half bytestring length.
+     */
+    phdr->caplen = (guint)strlen(context_name)+1 +     /* Context name */
+                   1 +                                 /* port */
+                   (guint)strlen(timestamp_string)+1 + /* timestamp */
+                   (guint)strlen(variant_name)+1 +     /* variant */
+                   (guint)strlen(outhdr_name)+1 +      /* outhdr */
+                   (guint)strlen(protocol_name)+1 +    /* Protocol name */
+                   1 +                                 /* direction */
+                   1 +                                 /* encap */
+                   (is_comment ? data_chars : (data_chars/2));
+    if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+        /*
+         * Probably a corrupt capture file; return an error,
+         * so that our caller doesn't blow up trying to allocate
+         * space for an immensely-large packet.
+         */
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup_printf("catapult dct2000: File has %u-byte packet, bigger than maximum of %u",
+                                    phdr->caplen, WTAP_MAX_PACKET_SIZE);
+        return FALSE;
+    }
+    phdr->len = phdr->caplen;
+
     /*****************************/
     /* Get the data buffer ready */
-    ws_buffer_assure_space(buf,
-                        strlen(context_name)+1 +     /* Context name */
-                        1 +                          /* port */
-                        strlen(timestamp_string)+1 + /* timestamp */
-                        strlen(variant_name)+1 +     /* variant */
-                        strlen(outhdr_name)+1 +      /* outhdr */
-                        strlen(protocol_name)+1 +    /* Protocol name */
-                        1 +                          /* direction */
-                        1 +                          /* encap */
-                        (is_comment ? data_chars : (data_chars/2)));
+    ws_buffer_assure_space(buf, phdr->caplen);
     frame_buffer = ws_buffer_start_ptr(buf);
 
     /******************************************/
@@ -1343,10 +1369,6 @@ process_parsed_line(wtap *wth, dct2000_file_externals_t *file_externals,
     frame_buffer[stub_offset] = (guint8)encap;
     stub_offset++;
 
-    /* Binary data length is half bytestring length + stub header */
-    phdr->len = stub_offset + (is_comment ? data_chars : (data_chars/2));
-    phdr->caplen = stub_offset + (is_comment ? data_chars : (data_chars/2));
-
     if (!is_comment) {
         /***********************************************************/
         /* Copy packet data into buffer, converting from ascii hex */
@@ -1383,6 +1405,8 @@ process_parsed_line(wtap *wth, dct2000_file_externals_t *file_externals,
             /* Other supported types don't need to set anything here... */
             break;
     }
+
+    return TRUE;
 }
 
 /*********************************************/
