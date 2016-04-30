@@ -49,7 +49,7 @@ class OsbProxyStyle : public QProxyStyle
   public:
     // Hack to keep the scrollbar from disappearing on OS X. We should
     // handle this more gracefully.
-    virtual int styleHint(StyleHint hint, const QStyleOption *option = Q_NULLPTR, const QWidget *widget = Q_NULLPTR, QStyleHintReturn *returnData = Q_NULLPTR) const {
+    virtual int styleHint(StyleHint hint, const QStyleOption *option = NULL, const QWidget *widget = NULL, QStyleHintReturn *returnData = NULL) const {
         if (hint == SH_ScrollBar_Transient) return false;
 
         return QProxyStyle::styleHint(hint, option, widget, returnData);
