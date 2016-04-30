@@ -84,6 +84,9 @@ Daniel Thompson (STMicroelectronics) <daniel.thompson@st.com>
 /* this buffer must be at least (2*PPPD_MTU) + sizeof(ppp_header) +
  * sizeof(lcp_header) + sizeof(ipcp_header).  PPPD_MTU is *very* rarely
  * larger than 1500 so this value is fine.
+ *
+ * It's less than WTAP_MAX_PACKET_SIZE, so we don't have to worry about
+ * too-large packets.
  */
 #define PPPD_BUF_SIZE		8192
 
@@ -429,7 +432,9 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
 					}
 
 					if (num_written > PPPD_BUF_SIZE) {
-						*err = WTAP_ERR_UNC_OVERFLOW;
+						*err = WTAP_ERR_BAD_FILE;
+						*err_info = g_strdup_printf("pppdump: File has %u-byte packet, bigger than maximum of %u",
+						    num_written, PPPD_BUF_SIZE);
 						return -1;
 					}
 
@@ -521,7 +526,9 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
 				}
 
 				if (pkt->cnt >= PPPD_BUF_SIZE) {
-					*err = WTAP_ERR_UNC_OVERFLOW;
+					*err = WTAP_ERR_BAD_FILE;
+					*err_info = g_strdup_printf("pppdump: File has %u-byte packet, bigger than maximum of %u",
+					    pkt->cnt - 1, PPPD_BUF_SIZE);
 					return -1;
 				}
 				pkt->buf[pkt->cnt++] = c;
