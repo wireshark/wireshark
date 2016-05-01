@@ -248,8 +248,7 @@ parse_toshiba_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	char	line[TOSHIBA_LINE_LENGTH];
 	int	num_items_scanned;
-	guint	pkt_len;
-	int	pktnum, hr, min, sec, csec;
+	int	pkt_len, pktnum, hr, min, sec, csec;
 	char	channel[10], direction[10];
 	int	i, hex_lines;
 	guint8	*pd;
@@ -301,10 +300,15 @@ parse_toshiba_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 
 	} while (strcmp(line, "OFFSET 0001-0203") != 0);
 
-	num_items_scanned = sscanf(line+64, "LEN=%9u", &pkt_len);
+	num_items_scanned = sscanf(line+64, "LEN=%9d", &pkt_len);
 	if (num_items_scanned != 1) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("toshiba: OFFSET line doesn't have valid LEN item");
+		return FALSE;
+	}
+	if (pkt_len < 0) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup("toshiba: packet header has a negative packet length");
 		return FALSE;
 	}
 	if (pkt_len > WTAP_MAX_PACKET_SIZE) {
