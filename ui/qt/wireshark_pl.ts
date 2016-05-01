@@ -2031,12 +2031,12 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <translation>Wyrażenie filtru wyświetlania</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="189"/>
+        <location filename="display_filter_expression_dialog.cpp" line="211"/>
         <source>Select a field name to get started</source>
         <translation>Wybierz nazwę pola by rozpocząć</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="193"/>
+        <location filename="display_filter_expression_dialog.cpp" line="215"/>
         <source>Click OK to insert this filter</source>
         <translation>Kliknij OK by dodać filtr</translation>
     </message>
@@ -4629,10 +4629,6 @@ dla plików filtrów: %2.</translation>
         <translation>Kopiuj drzewo jako CSV</translation>
     </message>
     <message>
-        <source>Ctrl+C</source>
-        <translation type="vanished">Ctrl+C</translation>
-    </message>
-    <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="452"/>
         <source>Copy as YAML</source>
         <translation>Kopiuj jako YAML</translation>
@@ -4641,10 +4637,6 @@ dla plików filtrów: %2.</translation>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="455"/>
         <source>Copy the tree as YAML</source>
         <translation>Kopiuj drzewo jako YAML</translation>
-    </message>
-    <message>
-        <source>Ctrl+Y</source>
-        <translation type="vanished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="469"/>
@@ -5148,10 +5140,6 @@ dla plików filtrów: %2.</translation>
         <translation>Kopiuj drzewo jako CSV</translation>
     </message>
     <message>
-        <source>Ctrl+C</source>
-        <translation type="vanished">Ctrl+C</translation>
-    </message>
-    <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="656"/>
         <source>Copy as YAML</source>
         <translation>Kopiuj jako YAML</translation>
@@ -5160,10 +5148,6 @@ dla plików filtrów: %2.</translation>
         <location filename="lbm_lbtru_transport_dialog.ui" line="659"/>
         <source>Copy the tree as YAML</source>
         <translation>Kopiuj drzewo jako YAML</translation>
-    </message>
-    <message>
-        <source>Ctrl+Y</source>
-        <translation type="vanished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="673"/>
@@ -5451,10 +5435,6 @@ dla plików filtrów: %2.</translation>
         <translation>Kopiuj drzewo jako CSV</translation>
     </message>
     <message>
-        <source>Ctrl+C</source>
-        <translation type="vanished">Ctrl+C</translation>
-    </message>
-    <message>
         <location filename="lbm_stream_dialog.ui" line="107"/>
         <source>Copy as YAML</source>
         <translation>Kopiuj jako YAML</translation>
@@ -5463,10 +5443,6 @@ dla plików filtrów: %2.</translation>
         <location filename="lbm_stream_dialog.ui" line="110"/>
         <source>Copy the tree as YAML</source>
         <translation>Kopiuj drzewo jako YAML</translation>
-    </message>
-    <message>
-        <source>Ctrl+Y</source>
-        <translation type="vanished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.cpp" line="392"/>
@@ -6807,10 +6783,6 @@ text-decoration: underline;
         <translation>Otwórz plik</translation>
     </message>
     <message>
-        <source>Ctrl+O</source>
-        <translation type="vanished">Ctrl+O</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="775"/>
         <source>Quit</source>
         <translation>Zamknij</translation>
@@ -6821,10 +6793,6 @@ text-decoration: underline;
         <translation>Zamknij Wiresharka</translation>
     </message>
     <message>
-        <source>Ctrl+Q</source>
-        <translation type="vanished">Ctrl+Q</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="792"/>
         <source>&amp;Start</source>
         <translation>&amp;Start</translation>
@@ -6833,10 +6801,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="795"/>
         <source>Start capturing packets</source>
         <translation>Uruchom przechwytywanie pakietów</translation>
-    </message>
-    <message>
-        <source>Ctrl+E</source>
-        <translation type="vanished">Ctrl+E</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="803"/>
@@ -6854,10 +6818,6 @@ text-decoration: underline;
         <translation>Zamknij</translation>
     </message>
     <message>
-        <source>Ctrl+W</source>
-        <translation type="vanished">Ctrl+W</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="831"/>
         <source>No files found</source>
         <translation>Nie znaleziono pliku</translation>
@@ -6866,10 +6826,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="836"/>
         <source>&amp;Contents</source>
         <translation>Podrę&amp;cznik</translation>
-    </message>
-    <message>
-        <source>F1</source>
-        <translation type="vanished">F1</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="855"/>
@@ -6952,10 +6908,6 @@ text-decoration: underline;
         <translation>Idź do następnego pakietu</translation>
     </message>
     <message>
-        <source>Ctrl+Down</source>
-        <translation type="vanished">Ctrl+w dół</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="957"/>
         <source>Previous Packet</source>
         <translation>Poprzedni pakiet</translation>
@@ -6964,10 +6916,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="960"/>
         <source>Go to the previous packet</source>
         <translation>Idź do poprzedniego pakietu</translation>
-    </message>
-    <message>
-        <source>Ctrl+Up</source>
-        <translation type="vanished">Ctrl+w górę</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="990"/>
@@ -6980,10 +6928,6 @@ text-decoration: underline;
         <translation>Idź do pierwszego pakietu</translation>
     </message>
     <message>
-        <source>Ctrl+Home</source>
-        <translation type="vanished">Ctrl+Home</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1001"/>
         <source>Last Packet</source>
         <translation>Ostatni pakiet</translation>
@@ -6992,10 +6936,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1004"/>
         <source>Go to the last packet</source>
         <translation>Idź do ostatniego pakietu</translation>
-    </message>
-    <message>
-        <source>Ctrl+End</source>
-        <translation type="vanished">Ctrl+End</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1015"/>
@@ -7008,10 +6948,6 @@ text-decoration: underline;
         <translation>Rozwiń szczegóły pakietu</translation>
     </message>
     <message>
-        <source>Shift+Right</source>
-        <translation type="vanished">Shift+w prawo</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1026"/>
         <source>&amp;Expand All</source>
         <translation>Rozwiń wszystko</translation>
@@ -7020,10 +6956,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1029"/>
         <source>Expand packet details</source>
         <translation>Rozwiń szczegóły pakietu</translation>
-    </message>
-    <message>
-        <source>Ctrl+Right</source>
-        <translation type="vanished">Ctrl+w prawo</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1037"/>
@@ -7036,17 +6968,9 @@ text-decoration: underline;
         <translation>Zwiń wszystkie szczegóły pakietu</translation>
     </message>
     <message>
-        <source>Ctrl+Left</source>
-        <translation type="vanished">Ctrl+w lewo</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1054"/>
         <source>Go to specified packet</source>
         <translation>Idź do wybranego pakietu</translation>
-    </message>
-    <message>
-        <source>Ctrl+G</source>
-        <translation type="vanished">Ctrl+G</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1065"/>
@@ -7064,30 +6988,14 @@ text-decoration: underline;
         <translation>Zapisz</translation>
     </message>
     <message>
-        <source>Ctrl+S</source>
-        <translation type="vanished">Ctrl+S</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1095"/>
         <source>Save as a different file</source>
         <translation>Zapisz jako inny plik</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+S</source>
-        <translation type="vanished">Ctrl+Shift+S</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1106"/>
         <source>Export specified packets</source>
         <translation>Eksportuj wybrane pakiety</translation>
-    </message>
-    <message>
-        <source>Ctrl+H</source>
-        <translation type="vanished">Ctrl+H</translation>
-    </message>
-    <message>
-        <source>Ctrl+P</source>
-        <translation type="vanished">Ctrl+P</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1132"/>
@@ -7110,10 +7018,6 @@ text-decoration: underline;
         <translation>Przeładuj</translation>
     </message>
     <message>
-        <source>Ctrl+R</source>
-        <translation type="vanished">Ctrl+R</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1172"/>
         <source>Options</source>
         <translation>Opcje</translation>
@@ -7122,10 +7026,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1175"/>
         <source>Capture options</source>
         <translation>Opcje przechwytywania</translation>
-    </message>
-    <message>
-        <source>Ctrl+K</source>
-        <translation type="vanished">Ctrl+K</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1189"/>
@@ -7158,17 +7058,9 @@ text-decoration: underline;
         <translation>Opis</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+D</source>
-        <translation type="vanished">Ctrl+Shift+D</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1277"/>
         <source>Field Name</source>
         <translation>Nazwa pola</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+F</source>
-        <translation type="vanished">Ctrl+Shift+F</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1288"/>
@@ -7176,17 +7068,9 @@ text-decoration: underline;
         <translation>Wartość</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+V</source>
-        <translation type="vanished">Ctrl+Shift+V</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1299"/>
         <source>As Filter</source>
         <translation>Jako filtr</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+C</source>
-        <translation type="vanished">Ctrl+Shift+C</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1310"/>
@@ -7283,10 +7167,6 @@ text-decoration: underline;
         <translation>Idź do następnego pakietu w konwersacji</translation>
     </message>
     <message>
-        <source>Ctrl+.</source>
-        <translation type="vanished">Ctrl+.</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="979"/>
         <source>Previous Packet in Conversation</source>
         <translation>Poprzedni pakiet w konwersacji</translation>
@@ -7295,10 +7175,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="982"/>
         <source>Go to the previous packet in this conversation</source>
         <translation>Idź do poprzedniego pakietu w konwersacji</translation>
-    </message>
-    <message>
-        <source>Ctrl+,</source>
-        <translation type="vanished">Ctrl+,</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1051"/>
@@ -7356,10 +7232,6 @@ text-decoration: underline;
         <translation>Przeładuj jako format pliku/plik przechwytywania</translation>
     </message>
     <message>
-        <source>F5</source>
-        <translation type="vanished">F5</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1259"/>
         <source>Copy this item&apos;s description</source>
         <translation>Kopiuj opis tej pozycji</translation>
@@ -7395,26 +7267,14 @@ text-decoration: underline;
         <translation>Znajdź pakiet</translation>
     </message>
     <message>
-        <source>Ctrl+F</source>
-        <translation type="vanished">Ctrl+F</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1435"/>
         <source>Find the next packet</source>
         <translation>Znajdź następny pakiet</translation>
     </message>
     <message>
-        <source>Ctrl+N</source>
-        <translation type="vanished">Ctrl+N</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1446"/>
         <source>Find the previous packet</source>
         <translation>Znajdź poprzedni pakiet</translation>
-    </message>
-    <message>
-        <source>Ctrl+B</source>
-        <translation type="vanished">Ctrl+B</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1454"/>
@@ -7427,10 +7287,6 @@ text-decoration: underline;
         <translation>Zaznacz lub odznacz ten pakiet</translation>
     </message>
     <message>
-        <source>Ctrl+M</source>
-        <translation type="vanished">Ctrl+M</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1465"/>
         <source>Mark All Displayed</source>
         <translation>Zaznacz wszystkie wyświetlane</translation>
@@ -7439,10 +7295,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1468"/>
         <source>Mark all displayed packets</source>
         <translation>Zaznacz wszystkie wyświetlane pakiety</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+M</source>
-        <translation type="vanished">Ctrl+Shift+M</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1476"/>
@@ -7455,11 +7307,6 @@ text-decoration: underline;
         <translation>Odzaznacz wszystkie wyświetlane pakiety</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+M</source>
-        <oldsource>Meta+Alt+M</oldsource>
-        <translation type="vanished">Ctrl+Alt+M</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1487"/>
         <source>Next Mark</source>
         <translation>Następne zaznaczenie</translation>
@@ -7468,11 +7315,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1490"/>
         <source>Go to the next marked packet</source>
         <translation>Idź do następnego zaznaczonego pakietu</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+N</source>
-        <oldsource>Meta+Shift+N</oldsource>
-        <translation type="vanished">Ctrl+Shift+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1498"/>
@@ -7485,11 +7327,6 @@ text-decoration: underline;
         <translation>Idź do poprzedniego zaznaczonego pakietu</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+B</source>
-        <oldsource>Meta+Shift+B</oldsource>
-        <translation type="vanished">Ctrl+Shift+B</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1509"/>
         <source>&amp;Ignore/Unignore Packet</source>
         <translation>Ignoruj/odignoruj pakiet</translation>
@@ -7498,10 +7335,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1512"/>
         <source>Ignore or unignore this packet</source>
         <translation>Ignoruj/odignoruj pakiet</translation>
-    </message>
-    <message>
-        <source>Ctrl+D</source>
-        <translation type="vanished">Ctrl+D</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1520"/>
@@ -7524,10 +7357,6 @@ text-decoration: underline;
         <translation>Odignoruj wszystkie wyświetlane pakiety</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+D</source>
-        <translation type="vanished">Ctrl+Alt+D</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1542"/>
         <source>Set/Unset Time Reference</source>
         <translation>Ustaw/wyłącz referencje czasu</translation>
@@ -7536,10 +7365,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1545"/>
         <source>Set or unset a time reference for this packet</source>
         <translation>Ustaw/wyłącz referencje czasu dla pakietu</translation>
-    </message>
-    <message>
-        <source>Ctrl+T</source>
-        <translation type="vanished">Ctrl+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1553"/>
@@ -7552,10 +7377,6 @@ text-decoration: underline;
         <translation>Usuń wszystkie referencje czasu</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+T</source>
-        <translation type="vanished">Ctrl+Alt+T</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1564"/>
         <source>Next Time Reference</source>
         <translation>Następna referencja czasu</translation>
@@ -7564,10 +7385,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1567"/>
         <source>Go to the next time reference</source>
         <translation>Idź do następnej referencji czasu</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+N</source>
-        <translation type="vanished">Ctrl+Alt+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1575"/>
@@ -7580,17 +7397,9 @@ text-decoration: underline;
         <translation>Idź do poprzedniej referencji czasu</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+B</source>
-        <translation type="vanished">Ctrl+Alt+B</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1589"/>
         <source>Shift or change packet timestamps</source>
         <translation>Przesuń lub zmień czas pakietu</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+T</source>
-        <translation type="vanished">Ctrl+Shift+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1600"/>
@@ -7608,17 +7417,9 @@ text-decoration: underline;
         <translation>Zarządzaj swoimi konfiguracjami profili</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+A</source>
-        <translation type="vanished">Ctrl+Shift+A</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1628"/>
         <source>Manage Wireshark&apos;s preferences</source>
         <translation>Zarządzaj preferencjami Wiresharka</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+P</source>
-        <translation type="vanished">Ctrl+Shift+P</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1642"/>
@@ -7927,10 +7728,6 @@ text-decoration: underline;
         <translation>Przeładuj wtyczki Lua</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+L</source>
-        <translation type="vanished">Ctrl+Shift+L</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1937"/>
         <source>Advertisements by Topic</source>
         <translation>Ogłoszenia według tematu</translation>
@@ -8107,42 +7904,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2690"/>
         <source>No MTP3 statistics registered</source>
         <translation>Brak zarejestrowanych statystyk MTP3</translation>
-    </message>
-    <message>
-        <source>Ctrl+1</source>
-        <translation type="vanished">Ctrl+1</translation>
-    </message>
-    <message>
-        <source>Ctrl+2</source>
-        <translation type="vanished">Ctrl+2</translation>
-    </message>
-    <message>
-        <source>Ctrl+3</source>
-        <translation type="vanished">Ctrl+3</translation>
-    </message>
-    <message>
-        <source>Ctrl+4</source>
-        <translation type="vanished">Ctrl+4</translation>
-    </message>
-    <message>
-        <source>Ctrl+5</source>
-        <translation type="vanished">Ctrl+5</translation>
-    </message>
-    <message>
-        <source>Ctrl+6</source>
-        <translation type="vanished">Ctrl+6</translation>
-    </message>
-    <message>
-        <source>Ctrl+7</source>
-        <translation type="vanished">Ctrl+7</translation>
-    </message>
-    <message>
-        <source>Ctrl+8</source>
-        <translation type="vanished">Ctrl+8</translation>
-    </message>
-    <message>
-        <source>Ctrl+9</source>
-        <translation type="vanished">Ctrl+9</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2829"/>
@@ -8449,26 +8210,14 @@ text-decoration: underline;
         <translation>Powiększ</translation>
     </message>
     <message>
-        <source>Ctrl++</source>
-        <translation type="vanished">Ctrl++</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2104"/>
         <source>Zoom Out</source>
         <translation>Pomniejsz</translation>
     </message>
     <message>
-        <source>Ctrl+-</source>
-        <translation type="vanished">Ctrl+-</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2115"/>
         <source>Normal Size</source>
         <translation>Normalny rozmiar</translation>
-    </message>
-    <message>
-        <source>Ctrl+0</source>
-        <translation type="vanished">Ctrl+0</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2126"/>
@@ -8481,10 +8230,6 @@ text-decoration: underline;
         <translation>Dostosuj rozmiar kolumn do zawartości</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+R</source>
-        <translation type="vanished">Ctrl+Shift+R</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2140"/>
         <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
         <translation>Data i czas  (1970-01-01 01:02:03.123456)</translation>
@@ -8495,11 +8240,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2196"/>
         <source>Show packet times as the date and time of day.</source>
         <translation>Jako czas pakietów pokazuj datę i czas.</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+1</source>
-        <oldsource>Meta+Alt+1</oldsource>
-        <translation type="vanished">Ctrl+Alt+1</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2154"/>
@@ -8517,11 +8257,6 @@ text-decoration: underline;
         <translation>Czas dnia (01:02:03.123456)</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+2</source>
-        <oldsource>Meta+Alt+2</oldsource>
-        <translation type="vanished">Ctrl+Alt+2</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2179"/>
         <source>Seconds Since 1970-01-01</source>
         <translation>Sekundy od  1970-01-01</translation>
@@ -8532,19 +8267,9 @@ text-decoration: underline;
         <translation>Jako czas pakietów pokazuj sekundy od ery UNIX/POSIX (1970-01-01).</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+3</source>
-        <oldsource>Meta+Alt+3</oldsource>
-        <translation type="vanished">Ctrl+Alt+3</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2193"/>
         <source>Seconds Since Beginning of Capture</source>
         <translation>Sekundy od początku przechwytywania</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+4</source>
-        <oldsource>Meta+Alt+4</oldsource>
-        <translation type="vanished">Ctrl+Alt+4</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2207"/>
@@ -8557,11 +8282,6 @@ text-decoration: underline;
         <translation>Jako czas pakietów pokazuj sekundy od poprzedniego przechwyconego pakietu.</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+5</source>
-        <oldsource>Meta+Alt+5</oldsource>
-        <translation type="vanished">Ctrl+Alt+5</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2221"/>
         <source>Seconds Since Previous Displayed Packet</source>
         <translation>Sekundy od poprzedniego wyświetlanego pakiety</translation>
@@ -8572,11 +8292,6 @@ text-decoration: underline;
         <translation>Jako czas pakietów pokazuj sekundy od poprzedniego wyświetlonego pakietu.</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+6</source>
-        <oldsource>Meta+Alt+6</oldsource>
-        <translation type="vanished">Ctrl+Alt+6</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2235"/>
         <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
         <translation>UTC (1970-01-01 01:02:03.123456) </translation>
@@ -8585,11 +8300,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2238"/>
         <source>Show packet times as the UTC date and time of day.</source>
         <translation>Wyświetl czas w formacie UTC</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+7</source>
-        <oldsource>Meta+Alt+7</oldsource>
-        <translation type="vanished">Ctrl+Alt+7</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2249"/>
@@ -8610,11 +8320,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2263"/>
         <source>Show packet times as the UTC time of day.</source>
         <translation>Wyświetlaj czas w formacie UTC</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+8</source>
-        <oldsource>Meta+Alt+8</oldsource>
-        <translation type="vanished">Ctrl+Alt+8</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2274"/>
@@ -9062,10 +8767,6 @@ text-decoration: underline;
         <translation>Resetuj kolorowanie konwersacji.</translation>
     </message>
     <message>
-        <source>Ctrl+Space</source>
-        <translation type="vanished">Ctrl+Spacja</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2832"/>
         <source>RTP Stream Analysis</source>
         <translation>Analiza strumienia RTP</translation>
@@ -9086,217 +8787,213 @@ text-decoration: underline;
         <translation>Włącz lub wyłącz wybrane protokoły</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+E</source>
-        <translation type="vanished">Ctrl+Shift+E</translation>
-    </message>
-    <message>
-        <location filename="main_window.cpp" line="410"/>
+        <location filename="main_window.cpp" line="420"/>
         <source>Check for Updates</source>
         <oldsource>Check for Updates...</oldsource>
         <translation>Sprawdź aktualizacje</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="789"/>
+        <location filename="main_window.cpp" line="799"/>
         <source> before quitting</source>
         <translation>przed wyjściem</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="965"/>
+        <location filename="main_window.cpp" line="975"/>
         <source>Save packets before merging?</source>
         <translation>Zapisać pakiety przed scaleniem?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="966"/>
+        <location filename="main_window.cpp" line="976"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>Tymczasowy plik przechwytywania nie może zostać scalony.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="972"/>
+        <location filename="main_window.cpp" line="982"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>Zapisać zmiany w &quot;%1&quot;  przed scaleniem?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="974"/>
+        <location filename="main_window.cpp" line="984"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>Zmiany muszą być zapisane przed próbą scalenia plików.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="199"/>
+        <location filename="main_window_slots.cpp" line="207"/>
         <source>Invalid Display Filter</source>
         <translation>Niepoprawny filtr</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1011"/>
+        <location filename="main_window.cpp" line="1021"/>
         <source>Invalid Read Filter</source>
         <translation>Niepoprawny filtr wczytywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1012"/>
+        <location filename="main_window.cpp" line="1022"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation>Postać filtru wczytywania %1 nie jest poprawna. (%2).</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1102"/>
+        <location filename="main_window.cpp" line="1112"/>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
         <translation>przed zaimportowaniem nowego pliku przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1375"/>
+        <location filename="main_window.cpp" line="1385"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>Nie można wyeksportować do &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1376"/>
+        <location filename="main_window.cpp" line="1386"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>Nie można wyeksportować pakietów do aktualnego pliku.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1463"/>
-        <location filename="main_window.cpp" line="1488"/>
+        <location filename="main_window.cpp" line="1473"/>
+        <location filename="main_window.cpp" line="1498"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1535"/>
+        <location filename="main_window.cpp" line="1545"/>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Czy chcesz zapisać zrobione zmiany %1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1531"/>
-        <location filename="main_window.cpp" line="1539"/>
+        <location filename="main_window.cpp" line="1541"/>
+        <location filename="main_window.cpp" line="1549"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>Twoje przechwycone pakiety zostaną utracone jeśli nie zapiszesz ich.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1544"/>
+        <location filename="main_window.cpp" line="1554"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>Czy chcesz zapisać zmiany, które zrobiłeś do pliku przechytywania  &quot;%1&quot;%2?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1536"/>
-        <location filename="main_window.cpp" line="1545"/>
+        <location filename="main_window.cpp" line="1546"/>
+        <location filename="main_window.cpp" line="1555"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Twoje zmiany zostaną utracone jeśli nie zapiszesz ich.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1530"/>
+        <location filename="main_window.cpp" line="1540"/>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
         <translation>Czy chcesz zatrzymać przechwytywanie i zapisać przechwycone pakiety%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1538"/>
+        <location filename="main_window.cpp" line="1548"/>
         <source>Do you want to save the captured packets%1?</source>
         <translation>Czy chcesz zapisać przechwycone pakiety%1?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1562"/>
+        <location filename="main_window.cpp" line="1572"/>
         <source>Save before Continue</source>
         <translation>Zapisz przed kontynuowaniem</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1564"/>
+        <location filename="main_window.cpp" line="1574"/>
         <source>Stop and Save</source>
         <translation>Zatrzymaj i zapisz</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1576"/>
+        <location filename="main_window.cpp" line="1586"/>
         <source>Stop and Quit &amp;without Saving</source>
         <oldsource>Stop and Quit without Saving</oldsource>
         <translation>Zatrzymaj i wyjdź bez zapisy&amp;wania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1588"/>
+        <location filename="main_window.cpp" line="1598"/>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
         <translation>Wyjdź bez zapisy&amp;wania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1579"/>
-        <location filename="main_window.cpp" line="1592"/>
+        <location filename="main_window.cpp" line="1589"/>
+        <location filename="main_window.cpp" line="1602"/>
         <source>Continue &amp;without Saving</source>
         <oldsource>Continue without Saving</oldsource>
         <translation>Kontynuuj bez zapisy&amp;wania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1582"/>
+        <location filename="main_window.cpp" line="1592"/>
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
         <translation>Zatrzymaj i kontynuuj bez zapisy&amp;wania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1913"/>
+        <location filename="main_window.cpp" line="1923"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Nazwa pliku nie może być przekonwertowana do formatu UTF-8)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1934"/>
+        <location filename="main_window.cpp" line="1944"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Analizator Wireshark</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1959"/>
+        <location filename="main_window.cpp" line="1969"/>
         <source>Capturing from %1</source>
         <translation>Przechwytywanie z %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="188"/>
+        <location filename="main_window_slots.cpp" line="196"/>
         <source> before opening another file</source>
         <translation>przed otwarciem nowego pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="677"/>
+        <location filename="main_window_slots.cpp" line="685"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="769"/>
+        <location filename="main_window_slots.cpp" line="777"/>
         <source>Saving %1</source>
         <translation>Zapisywanie %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="808"/>
+        <location filename="main_window_slots.cpp" line="817"/>
         <source>No interface selected</source>
         <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="818"/>
+        <location filename="main_window_slots.cpp" line="827"/>
         <source>Invalid capture filter</source>
         <translation>Niepoprawny filtr przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1032"/>
+        <location filename="main_window_slots.cpp" line="1079"/>
         <source>Clear Menu</source>
         <translation>Wyczyść Menu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1495"/>
+        <location filename="main_window_slots.cpp" line="1542"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Proszę czekać, trwa uruchamianie Wiresharka</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1576"/>
+        <location filename="main_window_slots.cpp" line="1623"/>
         <source> before closing the file</source>
         <translation>przed zapisaniem pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1659"/>
+        <location filename="main_window_slots.cpp" line="1706"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Eksportuj zaznaczony bajty pakietu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1725"/>
+        <location filename="main_window_slots.cpp" line="1772"/>
         <source>No Keys</source>
         <translation>Brak kluczy</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1726"/>
+        <location filename="main_window_slots.cpp" line="1773"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Nie ma żadnych kluczy sesji SSL do zapisu.</translation>
     </message>
     <message numerus="yes">
-        <location filename="main_window_slots.cpp" line="1732"/>
+        <location filename="main_window_slots.cpp" line="1779"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation>
@@ -9306,84 +9003,84 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1661"/>
+        <location filename="main_window_slots.cpp" line="1708"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Surowe dane (*.bin *.dat *.raw);;Dowolny plik (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1736"/>
+        <location filename="main_window_slots.cpp" line="1783"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Klucze sesji SSL (*.keys *.txt);; Dowolny plik (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1874"/>
+        <location filename="main_window_slots.cpp" line="1921"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Nie można skopiować tekstu. Spróbuj inną pozycję.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2283"/>
-        <location filename="main_window_slots.cpp" line="3371"/>
+        <location filename="main_window_slots.cpp" line="2330"/>
+        <location filename="main_window_slots.cpp" line="3418"/>
         <source>Unable to build conversation filter.</source>
         <translation>Nie można stworzyć filtru konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2428"/>
-        <location filename="main_window_slots.cpp" line="2441"/>
+        <location filename="main_window_slots.cpp" line="2475"/>
+        <location filename="main_window_slots.cpp" line="2488"/>
         <source> before reloading the file</source>
         <translation>przed przeładowaniem pliku</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2475"/>
+        <location filename="main_window_slots.cpp" line="2522"/>
         <source>No filter available. Try another </source>
         <translation>Brak dostępnych filtrów. Spróbuj ponownie</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3378"/>
+        <location filename="main_window_slots.cpp" line="3425"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Błąd kompilacji filtru dla tej konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3387"/>
+        <location filename="main_window_slots.cpp" line="3434"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Brak poprzedniego i następnego pakietu w konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3464"/>
+        <location filename="main_window_slots.cpp" line="3511"/>
         <source>No Interface Selected</source>
         <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3471"/>
+        <location filename="main_window_slots.cpp" line="3518"/>
         <source> before starting a new capture</source>
         <translation>przed wystartowaniem nowego przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3489"/>
+        <location filename="main_window_slots.cpp" line="3536"/>
         <source> before restarting the capture</source>
         <translation>przed restartem przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3692"/>
+        <location filename="main_window_slots.cpp" line="3739"/>
         <source>Wiki Page for %1</source>
         <translation>Strona Wiki dla %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3693"/>
+        <location filename="main_window_slots.cpp" line="3740"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Strona Wiki Wiresharka jest zarządzania przez społeczność.&lt;/p&gt;&lt;p&gt;Strona którą chcesz wczytać może być wspaniała, niekompletna, błędna lub nie istnieć.&lt;/p&gt;&lt;p&gt;Kontynuować wczytywanie strony Wiki?&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="262"/>
+        <location filename="main_window.h" line="267"/>
         <source>Loading</source>
         <translation>Wczytywanie</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="264"/>
+        <location filename="main_window.h" line="269"/>
         <source>Reloading</source>
         <translation>Przeładowanie</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="265"/>
+        <location filename="main_window.h" line="270"/>
         <source>Rescanning</source>
         <translation>Przeskanowanie</translation>
     </message>
@@ -10001,47 +9698,47 @@ text-decoration: underline;
         <translation>Podsumowanie jako tekst</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="654"/>
+        <location filename="packet_list.cpp" line="661"/>
         <source>Align Left</source>
         <translation>Wyrównaj do lewej</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="655"/>
+        <location filename="packet_list.cpp" line="662"/>
         <source>Align Center</source>
         <translation>Wyrównaj do środka</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="656"/>
+        <location filename="packet_list.cpp" line="663"/>
         <source>Align Right</source>
         <translation>Wyrównaj do prawej</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="658"/>
+        <location filename="packet_list.cpp" line="665"/>
         <source>Column Preferences</source>
         <translation>Ustawienia kolumny</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="659"/>
+        <location filename="packet_list.cpp" line="666"/>
         <source>Edit Column</source>
         <translation>Edytuj kolumnę</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="660"/>
+        <location filename="packet_list.cpp" line="667"/>
         <source>Resize To Contents</source>
         <translation>Dopasuj szerokość do zawartości</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="661"/>
+        <location filename="packet_list.cpp" line="668"/>
         <source>Resolve Names</source>
         <translation>Rozwiązuj nazwy</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="666"/>
+        <location filename="packet_list.cpp" line="673"/>
         <source>Remove This Column</source>
         <translation>Usuń tę kolumnę</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1022"/>
+        <location filename="packet_list.cpp" line="1029"/>
         <source>Frame %1: %2
 
 </source>
@@ -10049,7 +9746,7 @@ text-decoration: underline;
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1026"/>
+        <location filename="packet_list.cpp" line="1033"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Długość komentarza przekracza %1. Wstrzymano. ]</translation>
     </message>
@@ -14886,10 +14583,6 @@ text-decoration: underline;
         <translation>Kopiuj reprezentację tekstową drzewa do schowka</translation>
     </message>
     <message>
-        <source>Ctrl+C</source>
-        <translation type="vanished">Ctrl+C</translation>
-    </message>
-    <message>
         <location filename="tap_parameter_dialog.ui" line="87"/>
         <source>Save as…</source>
         <oldsource>Save as...</oldsource>
@@ -14899,10 +14592,6 @@ text-decoration: underline;
         <location filename="tap_parameter_dialog.ui" line="90"/>
         <source>Save the displayed data in various formats</source>
         <translation>Zapisywanie wyświetlonych dane w różnych formatach</translation>
-    </message>
-    <message>
-        <source>Ctrl+S</source>
-        <translation type="vanished">Ctrl+S</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.cpp" line="93"/>
@@ -15159,10 +14848,6 @@ text-decoration: underline;
         <location filename="voip_calls_dialog.ui" line="101"/>
         <source>Select all calls</source>
         <translation>Zaznacz wszystkie połączenia</translation>
-    </message>
-    <message>
-        <source>Ctrl+A</source>
-        <translation type="vanished">Ctrl+A</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="184"/>

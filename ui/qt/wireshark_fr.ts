@@ -2033,12 +2033,12 @@ si vous voulez utiliser des fichiers multiples.</translation>
         <translation>Affiche Expression de Filtre</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="189"/>
+        <location filename="display_filter_expression_dialog.cpp" line="211"/>
         <source>Select a field name to get started</source>
         <translation>Sélectionner un nom de champ pour commencer</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="193"/>
+        <location filename="display_filter_expression_dialog.cpp" line="215"/>
         <source>Click OK to insert this filter</source>
         <translation>Cliquer OK pour insérer ce filtre</translation>
     </message>
@@ -4635,10 +4635,6 @@ pour fichiers de filtre : %2.</translation>
         <translation>Copier l&apos;arbre en tant que CSV</translation>
     </message>
     <message>
-        <source>Ctrl+C</source>
-        <translation type="vanished">Ctrl+C</translation>
-    </message>
-    <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="452"/>
         <source>Copy as YAML</source>
         <translation>Copier en tant que YAML</translation>
@@ -4647,10 +4643,6 @@ pour fichiers de filtre : %2.</translation>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="455"/>
         <source>Copy the tree as YAML</source>
         <translation>Copier l&apos;arbre en tant que YAML</translation>
-    </message>
-    <message>
-        <source>Ctrl+Y</source>
-        <translation type="vanished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="469"/>
@@ -5154,10 +5146,6 @@ pour fichiers de filtre : %2.</translation>
         <translation>Copier l&apos;arbre en tant que CSV</translation>
     </message>
     <message>
-        <source>Ctrl+C</source>
-        <translation type="vanished">Ctrl+C</translation>
-    </message>
-    <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="656"/>
         <source>Copy as YAML</source>
         <translation>Copier en tant que YAML</translation>
@@ -5166,10 +5154,6 @@ pour fichiers de filtre : %2.</translation>
         <location filename="lbm_lbtru_transport_dialog.ui" line="659"/>
         <source>Copy the tree as YAML</source>
         <translation>Copier l&apos;arbre en tant que YAML</translation>
-    </message>
-    <message>
-        <source>Ctrl+Y</source>
-        <translation type="vanished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="673"/>
@@ -5457,10 +5441,6 @@ pour fichiers de filtre : %2.</translation>
         <translation>Copier l&apos;arbre en tant que CSV</translation>
     </message>
     <message>
-        <source>Ctrl+C</source>
-        <translation type="vanished">Ctrl+C</translation>
-    </message>
-    <message>
         <location filename="lbm_stream_dialog.ui" line="107"/>
         <source>Copy as YAML</source>
         <translation>Copier en tant que YAML</translation>
@@ -5469,10 +5449,6 @@ pour fichiers de filtre : %2.</translation>
         <location filename="lbm_stream_dialog.ui" line="110"/>
         <source>Copy the tree as YAML</source>
         <translation>Copier l&apos;arbre en tant que YAML</translation>
-    </message>
-    <message>
-        <source>Ctrl+Y</source>
-        <translation type="vanished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.cpp" line="392"/>
@@ -6780,10 +6756,6 @@ a:hover {
         <translation>Ouvrir un fichier de capture</translation>
     </message>
     <message>
-        <source>Ctrl+O</source>
-        <translation type="vanished">Ctrl+O</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="775"/>
         <source>Quit</source>
         <translation>Quitter</translation>
@@ -6794,10 +6766,6 @@ a:hover {
         <translation>Quitter Wireshark</translation>
     </message>
     <message>
-        <source>Ctrl+Q</source>
-        <translation type="vanished">Ctrl+Q</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="792"/>
         <source>&amp;Start</source>
         <translation>&amp;Démarrer</translation>
@@ -6806,10 +6774,6 @@ a:hover {
         <location filename="main_window.ui" line="795"/>
         <source>Start capturing packets</source>
         <translation>Démarrer la capture de paquet</translation>
-    </message>
-    <message>
-        <source>Ctrl+E</source>
-        <translation type="vanished">Ctrl+E</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="803"/>
@@ -6827,10 +6791,6 @@ a:hover {
         <translation>Fermer</translation>
     </message>
     <message>
-        <source>Ctrl+W</source>
-        <translation type="vanished">Ctrl+W</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="831"/>
         <source>No files found</source>
         <translation>Pas de fichier trouvé</translation>
@@ -6839,10 +6799,6 @@ a:hover {
         <location filename="main_window.ui" line="836"/>
         <source>&amp;Contents</source>
         <translation>&amp;Aide</translation>
-    </message>
-    <message>
-        <source>F1</source>
-        <translation type="vanished">F1</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="855"/>
@@ -6925,10 +6881,6 @@ a:hover {
         <translation>ALler au paquet suviant</translation>
     </message>
     <message>
-        <source>Ctrl+Down</source>
-        <translation type="vanished">Ctrl+Bas</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="957"/>
         <source>Previous Packet</source>
         <translation>Paquet précédent</translation>
@@ -6937,10 +6889,6 @@ a:hover {
         <location filename="main_window.ui" line="960"/>
         <source>Go to the previous packet</source>
         <translation>Aller au paquet précédent</translation>
-    </message>
-    <message>
-        <source>Ctrl+Up</source>
-        <translation type="vanished">Ctrl+Haut</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="990"/>
@@ -6963,10 +6911,6 @@ a:hover {
         <translation>Aller au dernier paquet</translation>
     </message>
     <message>
-        <source>Ctrl+End</source>
-        <translation type="vanished">Ctrl+Fin</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1015"/>
         <source>E&amp;xpand Subtrees</source>
         <translation>E&amp;tendre les sous menus</translation>
@@ -6975,10 +6919,6 @@ a:hover {
         <location filename="main_window.ui" line="1018"/>
         <source>Expand the current packet detail</source>
         <translation>Etendre les détails du paquet en cours</translation>
-    </message>
-    <message>
-        <source>Shift+Right</source>
-        <translation type="vanished">Maj+Droite</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1026"/>
@@ -6991,10 +6931,6 @@ a:hover {
         <translation>Etendre les détails du paquet</translation>
     </message>
     <message>
-        <source>Ctrl+Right</source>
-        <translation type="vanished">Ctrl+Droite</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1037"/>
         <source>Collapse &amp;All</source>
         <translation>Reduire &amp;Tout</translation>
@@ -7005,17 +6941,9 @@ a:hover {
         <translation>Reduire les détails de tous les paquets</translation>
     </message>
     <message>
-        <source>Ctrl+Left</source>
-        <translation type="vanished">Ctrl+Gauche</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1054"/>
         <source>Go to specified packet</source>
         <translation>Aller au paquet</translation>
-    </message>
-    <message>
-        <source>Ctrl+G</source>
-        <translation type="vanished">Ctrl+G</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1065"/>
@@ -7033,30 +6961,14 @@ a:hover {
         <translation>&amp;Sauvegarder</translation>
     </message>
     <message>
-        <source>Ctrl+S</source>
-        <translation type="vanished">Ctrl+S</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1095"/>
         <source>Save as a different file</source>
         <translation>Sauvegarder dans un fichier différent</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+S</source>
-        <translation type="vanished">Ctrl+Shift+S</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1106"/>
         <source>Export specified packets</source>
         <translation>Exporter les paquets specifiés</translation>
-    </message>
-    <message>
-        <source>Ctrl+H</source>
-        <translation type="vanished">Ctrl+H</translation>
-    </message>
-    <message>
-        <source>Ctrl+P</source>
-        <translation type="vanished">Ctrl+P</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1132"/>
@@ -7079,10 +6991,6 @@ a:hover {
         <translation>&amp;Recharger</translation>
     </message>
     <message>
-        <source>Ctrl+R</source>
-        <translation type="vanished">Ctrl+R</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1172"/>
         <source>Options</source>
         <translation>Options</translation>
@@ -7091,10 +6999,6 @@ a:hover {
         <location filename="main_window.ui" line="1175"/>
         <source>Capture options</source>
         <translation>Options de capture</translation>
-    </message>
-    <message>
-        <source>Ctrl+K</source>
-        <translation type="vanished">Ctrl+K</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1189"/>
@@ -7127,17 +7031,9 @@ a:hover {
         <translation>Description</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+D</source>
-        <translation type="vanished">Ctrl+Shift+D</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1277"/>
         <source>Field Name</source>
         <translation>Nom du champs</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+F</source>
-        <translation type="vanished">Ctrl+Shift+F</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1288"/>
@@ -7145,17 +7041,9 @@ a:hover {
         <translation>Valeur</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+V</source>
-        <translation type="vanished">Ctrl+Shift+V</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1299"/>
         <source>As Filter</source>
         <translation>Comme un Filtre</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+C</source>
-        <translation type="vanished">Ctrl+Shift+C</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1310"/>
@@ -7252,10 +7140,6 @@ a:hover {
         <translation>Aller au paquet suivant de cette conversation</translation>
     </message>
     <message>
-        <source>Ctrl+.</source>
-        <translation type="vanished">Ctrl+.</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="979"/>
         <source>Previous Packet in Conversation</source>
         <translation>Paquet Précédent dans la Conversation</translation>
@@ -7264,10 +7148,6 @@ a:hover {
         <location filename="main_window.ui" line="982"/>
         <source>Go to the previous packet in this conversation</source>
         <translation>Aller au paquet précédent de cette conversation</translation>
-    </message>
-    <message>
-        <source>Ctrl+,</source>
-        <translation type="vanished">Ctrl+,</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1051"/>
@@ -7325,10 +7205,6 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>F5</source>
-        <translation type="vanished">F5</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1259"/>
         <source>Copy this item&apos;s description</source>
         <translation>Copier la description de cet élément</translation>
@@ -7364,26 +7240,14 @@ a:hover {
         <translation>Trouver un paquet</translation>
     </message>
     <message>
-        <source>Ctrl+F</source>
-        <translation type="vanished">Ctrl+F</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1435"/>
         <source>Find the next packet</source>
         <translation>Trouver le paquet suivant</translation>
     </message>
     <message>
-        <source>Ctrl+N</source>
-        <translation type="vanished">Ctrl+N</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1446"/>
         <source>Find the previous packet</source>
         <translation>Trouver le paquet précédent</translation>
-    </message>
-    <message>
-        <source>Ctrl+B</source>
-        <translation type="vanished">Ctrl+B</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1454"/>
@@ -7396,10 +7260,6 @@ a:hover {
         <translation>Marquer ou Démarquer ce paquet</translation>
     </message>
     <message>
-        <source>Ctrl+M</source>
-        <translation type="vanished">Ctrl+M</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1465"/>
         <source>Mark All Displayed</source>
         <translation>Marquer tout comme Affichées</translation>
@@ -7408,10 +7268,6 @@ a:hover {
         <location filename="main_window.ui" line="1468"/>
         <source>Mark all displayed packets</source>
         <translation>Marquer tous les paquets affichés</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+M</source>
-        <translation type="vanished">Ctrl+Shift+M</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1476"/>
@@ -7424,11 +7280,6 @@ a:hover {
         <translation>Démarquer tous paquets affichés</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+M</source>
-        <oldsource>Meta+Alt+M</oldsource>
-        <translation type="vanished">Ctrl+Alt+M</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1487"/>
         <source>Next Mark</source>
         <translation>Marque suivante</translation>
@@ -7437,11 +7288,6 @@ a:hover {
         <location filename="main_window.ui" line="1490"/>
         <source>Go to the next marked packet</source>
         <translation>Aller au prochain paquet marqués</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+N</source>
-        <oldsource>Meta+Shift+N</oldsource>
-        <translation type="vanished">Ctrl+Maj+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1498"/>
@@ -7454,11 +7300,6 @@ a:hover {
         <translation>Aller au paquet précédent marqué</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+B</source>
-        <oldsource>Meta+Shift+B</oldsource>
-        <translation type="vanished">Ctrl+Maj+B</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1509"/>
         <source>&amp;Ignore/Unignore Packet</source>
         <translation>&amp;Ignorer/Ne plus ignorer un paquet</translation>
@@ -7467,10 +7308,6 @@ a:hover {
         <location filename="main_window.ui" line="1512"/>
         <source>Ignore or unignore this packet</source>
         <translation>Ignorer ou ne plus ignorer ce paquet</translation>
-    </message>
-    <message>
-        <source>Ctrl+D</source>
-        <translation type="vanished">Ctrl+D</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1520"/>
@@ -7493,10 +7330,6 @@ a:hover {
         <translation>Ne plus ignorer tous les paquets affichés</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+D</source>
-        <translation type="vanished">Ctrl+Alt+D</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1542"/>
         <source>Set/Unset Time Reference</source>
         <translation>Fixer/Defixer le Temps de Réference</translation>
@@ -7505,10 +7338,6 @@ a:hover {
         <location filename="main_window.ui" line="1545"/>
         <source>Set or unset a time reference for this packet</source>
         <translation>Fixer ou défixer le temps de réference de ce paquet</translation>
-    </message>
-    <message>
-        <source>Ctrl+T</source>
-        <translation type="vanished">Ctrl+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1553"/>
@@ -7521,10 +7350,6 @@ a:hover {
         <translation>Supprimer tous les temps de réferences</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+T</source>
-        <translation type="vanished">Ctrl+Alt+T</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1564"/>
         <source>Next Time Reference</source>
         <translation>Prochain Temps de Réference</translation>
@@ -7533,10 +7358,6 @@ a:hover {
         <location filename="main_window.ui" line="1567"/>
         <source>Go to the next time reference</source>
         <translation>Aller au prochain temps de réference</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+N</source>
-        <translation type="vanished">Ctrl+Alt+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1575"/>
@@ -7549,17 +7370,9 @@ a:hover {
         <translation>Aller au précédent temps de réference</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+B</source>
-        <translation type="vanished">Ctrl+Alt+B</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1589"/>
         <source>Shift or change packet timestamps</source>
         <translation>Décalager ou changer le temps des paquets</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+T</source>
-        <translation type="vanished">Ctrl+Shift+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1600"/>
@@ -7577,17 +7390,9 @@ a:hover {
         <translation>Gerer mes profils de configuration</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+A</source>
-        <translation type="vanished">Ctrl+Shift+A</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1628"/>
         <source>Manage Wireshark&apos;s preferences</source>
         <translation>Gerer les préferences de Wireshark</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+P</source>
-        <translation type="vanished">Ctrl+Shift+P</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1642"/>
@@ -7896,10 +7701,6 @@ a:hover {
         <translation>Recharger plugins Lua</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+L</source>
-        <translation type="vanished">Ctrl+Shift+L</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1937"/>
         <source>Advertisements by Topic</source>
         <translation>Annonces par Sujet</translation>
@@ -8076,42 +7877,6 @@ a:hover {
         <location filename="main_window.ui" line="2690"/>
         <source>No MTP3 statistics registered</source>
         <translation>Aucune statistique MTP3 enregistrée</translation>
-    </message>
-    <message>
-        <source>Ctrl+1</source>
-        <translation type="vanished">Ctrl+1</translation>
-    </message>
-    <message>
-        <source>Ctrl+2</source>
-        <translation type="vanished">Ctrl+2</translation>
-    </message>
-    <message>
-        <source>Ctrl+3</source>
-        <translation type="vanished">Ctrl+3</translation>
-    </message>
-    <message>
-        <source>Ctrl+4</source>
-        <translation type="vanished">Ctrl+4</translation>
-    </message>
-    <message>
-        <source>Ctrl+5</source>
-        <translation type="vanished">Ctrl+5</translation>
-    </message>
-    <message>
-        <source>Ctrl+6</source>
-        <translation type="vanished">Ctrl+6</translation>
-    </message>
-    <message>
-        <source>Ctrl+7</source>
-        <translation type="vanished">Ctrl+7</translation>
-    </message>
-    <message>
-        <source>Ctrl+8</source>
-        <translation type="vanished">Ctrl+8</translation>
-    </message>
-    <message>
-        <source>Ctrl+9</source>
-        <translation type="vanished">Ctrl+9</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2829"/>
@@ -8418,26 +8183,14 @@ a:hover {
         <translation>Agrandir le texte de la fenêtre principale</translation>
     </message>
     <message>
-        <source>Ctrl++</source>
-        <translation type="vanished">Ctrl++</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2104"/>
         <source>Zoom Out</source>
         <translation>Zoom arrière</translation>
     </message>
     <message>
-        <source>Ctrl+-</source>
-        <translation type="vanished">Ctrl+-</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2115"/>
         <source>Normal Size</source>
         <translation>Taille Normale</translation>
-    </message>
-    <message>
-        <source>Ctrl+0</source>
-        <translation type="vanished">Ctrl+0</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2126"/>
@@ -8450,10 +8203,6 @@ a:hover {
         <translation>Ajuster les colonnes de la liste des paquets au contenu</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+R</source>
-        <translation type="vanished">Ctrl+Shift+R</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2140"/>
         <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
         <translation>Date et Heure du Jour (1970-01-01 01:02:03.123456)</translation>
@@ -8464,11 +8213,6 @@ a:hover {
         <location filename="main_window.ui" line="2196"/>
         <source>Show packet times as the date and time of day.</source>
         <translation>Voir les temps paquets comme la date et l&apos;heure du jour.</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+1</source>
-        <oldsource>Meta+Alt+1</oldsource>
-        <translation type="vanished">Ctrl+Alt+1</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2154"/>
@@ -8486,11 +8230,6 @@ a:hover {
         <translation>Heure du Jour (01:02:03.123456)</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+2</source>
-        <oldsource>Meta+Alt+2</oldsource>
-        <translation type="vanished">Ctrl+Alt+2</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2179"/>
         <source>Seconds Since 1970-01-01</source>
         <translation>Secondes depuis 01-01-1970</translation>
@@ -8501,19 +8240,9 @@ a:hover {
         <translation>Afficher les temps paquets en secondes depuis UNIX / POSIX epoch (1970-01-01).</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+3</source>
-        <oldsource>Meta+Alt+3</oldsource>
-        <translation type="vanished">Ctrl+Alt+3</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2193"/>
         <source>Seconds Since Beginning of Capture</source>
         <translation>Secondes Depuis le Début de la Capture</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+4</source>
-        <oldsource>Meta+Alt+4</oldsource>
-        <translation type="vanished">Ctrl+Alt+4</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2207"/>
@@ -8526,11 +8255,6 @@ a:hover {
         <translation>Afficher les temps paquets en secondes depuis le précédent paquet capturé.</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+5</source>
-        <oldsource>Meta+Alt+5</oldsource>
-        <translation type="vanished">Ctrl+Alt+5</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2221"/>
         <source>Seconds Since Previous Displayed Packet</source>
         <translation>Secondes Depuis le Paquet Affiché Précédent</translation>
@@ -8541,11 +8265,6 @@ a:hover {
         <translation>Afficher les temps paquets en secondes depuis le précédent paquet affiché.</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+6</source>
-        <oldsource>Meta+Alt+6</oldsource>
-        <translation type="vanished">Ctrl+Alt+6</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2235"/>
         <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
         <translation>Date et Heure du jour UTC (1970-01-01 01:02:03.123456)</translation>
@@ -8554,11 +8273,6 @@ a:hover {
         <location filename="main_window.ui" line="2238"/>
         <source>Show packet times as the UTC date and time of day.</source>
         <translation>Voir les paquets avec la date et l&apos;heure du jour UTC.</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+7</source>
-        <oldsource>Meta+Alt+7</oldsource>
-        <translation type="vanished">Ctrl+Alt+7</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2249"/>
@@ -8579,11 +8293,6 @@ a:hover {
         <location filename="main_window.ui" line="2263"/>
         <source>Show packet times as the UTC time of day.</source>
         <translation>Afficher les paquets avec l&apos;heure du jour UTC.</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+8</source>
-        <oldsource>Meta+Alt+8</oldsource>
-        <translation type="vanished">Ctrl+Alt+8</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2274"/>
@@ -9031,10 +8740,6 @@ a:hover {
         <translation>Rétablit conversations coloriées.</translation>
     </message>
     <message>
-        <source>Ctrl+Space</source>
-        <translation type="vanished">Ctrl+Espace</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2832"/>
         <source>RTP Stream Analysis</source>
         <translation>Analyse flux RTP</translation>
@@ -9055,217 +8760,213 @@ a:hover {
         <translation>Active et désactive des protocoles spécifiques</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+E</source>
-        <translation type="vanished">Ctrl+Shift+E</translation>
-    </message>
-    <message>
-        <location filename="main_window.cpp" line="410"/>
+        <location filename="main_window.cpp" line="420"/>
         <source>Check for Updates</source>
         <oldsource>Check for Updates...</oldsource>
         <translation>Vérifier Mises à Jour</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="789"/>
+        <location filename="main_window.cpp" line="799"/>
         <source> before quitting</source>
         <translation>avant de quitter</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="965"/>
+        <location filename="main_window.cpp" line="975"/>
         <source>Save packets before merging?</source>
         <translation>Sauvegarder les paquets avant la fusion?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="966"/>
+        <location filename="main_window.cpp" line="976"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>une capture temporaire ne peut pas etre fusionner.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="972"/>
+        <location filename="main_window.cpp" line="982"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>Sauvegarder les changements dans &quot;%1&quot; avant la fusion?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="974"/>
+        <location filename="main_window.cpp" line="984"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>Les changements doivent etre sauvegarder avant la fusion de fichier.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="199"/>
+        <location filename="main_window_slots.cpp" line="207"/>
         <source>Invalid Display Filter</source>
         <translation>Filtre d&apos;affichage invalide</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1011"/>
+        <location filename="main_window.cpp" line="1021"/>
         <source>Invalid Read Filter</source>
         <translation>Filtre de Lecture Invalide</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1012"/>
+        <location filename="main_window.cpp" line="1022"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation>L&apos;expression de filtre %1 n&apos;est pas un filtre de lecture valide. (%2).</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1102"/>
+        <location filename="main_window.cpp" line="1112"/>
         <source> before importing a capture</source>
         <oldsource> before importing a new capture</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1375"/>
+        <location filename="main_window.cpp" line="1385"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>Impossible d&apos;exporter dans &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1376"/>
+        <location filename="main_window.cpp" line="1386"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>Vous ne pouvez pas exporter les paquets de la capture en cours.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1463"/>
-        <location filename="main_window.cpp" line="1488"/>
+        <location filename="main_window.cpp" line="1473"/>
+        <location filename="main_window.cpp" line="1498"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1535"/>
+        <location filename="main_window.cpp" line="1545"/>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1531"/>
-        <location filename="main_window.cpp" line="1539"/>
+        <location filename="main_window.cpp" line="1541"/>
+        <location filename="main_window.cpp" line="1549"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>Votre capture de paquet sera perdu si vous ne les enregistrez pas.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1544"/>
+        <location filename="main_window.cpp" line="1554"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>Voulez-vous enregistrer les modifications que vous avez apportées au fichier de capture &quot;%1&quot;%2?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1536"/>
-        <location filename="main_window.cpp" line="1545"/>
+        <location filename="main_window.cpp" line="1546"/>
+        <location filename="main_window.cpp" line="1555"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Vos changements seront perdus si vous ne les enregistrez pas.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1530"/>
+        <location filename="main_window.cpp" line="1540"/>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1538"/>
+        <location filename="main_window.cpp" line="1548"/>
         <source>Do you want to save the captured packets%1?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1562"/>
+        <location filename="main_window.cpp" line="1572"/>
         <source>Save before Continue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1564"/>
+        <location filename="main_window.cpp" line="1574"/>
         <source>Stop and Save</source>
         <translation>Arreter et Sauvegarder</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1576"/>
+        <location filename="main_window.cpp" line="1586"/>
         <source>Stop and Quit &amp;without Saving</source>
         <oldsource>Stop and Quit without Saving</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1588"/>
+        <location filename="main_window.cpp" line="1598"/>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1579"/>
-        <location filename="main_window.cpp" line="1592"/>
+        <location filename="main_window.cpp" line="1589"/>
+        <location filename="main_window.cpp" line="1602"/>
         <source>Continue &amp;without Saving</source>
         <oldsource>Continue without Saving</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1582"/>
+        <location filename="main_window.cpp" line="1592"/>
         <source>Stop and Continue &amp;without Saving</source>
         <oldsource>Stop and Continue without Saving</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1913"/>
+        <location filename="main_window.cpp" line="1923"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Nom du fichier ne peut pas être mappé à l&apos;UTF-8)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1934"/>
+        <location filename="main_window.cpp" line="1944"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>L&apos;analyseur de réseau Wireshark</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1959"/>
+        <location filename="main_window.cpp" line="1969"/>
         <source>Capturing from %1</source>
         <translation>Capture en cours de %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="188"/>
+        <location filename="main_window_slots.cpp" line="196"/>
         <source> before opening another file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="677"/>
+        <location filename="main_window_slots.cpp" line="685"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="769"/>
+        <location filename="main_window_slots.cpp" line="777"/>
         <source>Saving %1</source>
         <translation>Sauvegarde en cours %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="808"/>
+        <location filename="main_window_slots.cpp" line="817"/>
         <source>No interface selected</source>
         <translation>Aucune interface sélectionnée</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="818"/>
+        <location filename="main_window_slots.cpp" line="827"/>
         <source>Invalid capture filter</source>
         <translation>Filtre de capture invalide</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1032"/>
+        <location filename="main_window_slots.cpp" line="1079"/>
         <source>Clear Menu</source>
         <translation>Effacer les fichiers récemment ouverts</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1495"/>
+        <location filename="main_window_slots.cpp" line="1542"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Veuillez patienter pendant que Wireshark s&apos;initialise. . .</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1576"/>
+        <location filename="main_window_slots.cpp" line="1623"/>
         <source> before closing the file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1659"/>
+        <location filename="main_window_slots.cpp" line="1706"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Exporter Octets de Paquets Sélectionnés</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1725"/>
+        <location filename="main_window_slots.cpp" line="1772"/>
         <source>No Keys</source>
         <translation>Aucune clés</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1726"/>
+        <location filename="main_window_slots.cpp" line="1773"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Il y a aucune clé de Session SSL à sauvegarder.</translation>
     </message>
     <message numerus="yes">
-        <location filename="main_window_slots.cpp" line="1732"/>
+        <location filename="main_window_slots.cpp" line="1779"/>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation type="unfinished">
@@ -9274,86 +8975,86 @@ a:hover {
         </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1661"/>
+        <location filename="main_window_slots.cpp" line="1708"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1736"/>
+        <location filename="main_window_slots.cpp" line="1783"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1874"/>
+        <location filename="main_window_slots.cpp" line="1921"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Impossible de copier le texte. Essayer un autre item.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2283"/>
-        <location filename="main_window_slots.cpp" line="3371"/>
+        <location filename="main_window_slots.cpp" line="2330"/>
+        <location filename="main_window_slots.cpp" line="3418"/>
         <source>Unable to build conversation filter.</source>
         <translation>Impossible de construire un filtre de conversation.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2428"/>
-        <location filename="main_window_slots.cpp" line="2441"/>
+        <location filename="main_window_slots.cpp" line="2475"/>
+        <location filename="main_window_slots.cpp" line="2488"/>
         <source> before reloading the file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2475"/>
+        <location filename="main_window_slots.cpp" line="2522"/>
         <source>No filter available. Try another </source>
         <translation>Aucun filtre disponible. Essayer un autre</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3378"/>
+        <location filename="main_window_slots.cpp" line="3425"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Erreur dans la compilation du filtre pour cette conversation.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3387"/>
+        <location filename="main_window_slots.cpp" line="3434"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Aucun paquet précédent/suivant dans la conversation</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3464"/>
+        <location filename="main_window_slots.cpp" line="3511"/>
         <source>No Interface Selected</source>
         <translation>Aucune Interface Sélectionnée</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3471"/>
+        <location filename="main_window_slots.cpp" line="3518"/>
         <source> before starting a new capture</source>
         <translation>avant de commencer une nouvelle capture</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3489"/>
+        <location filename="main_window_slots.cpp" line="3536"/>
         <source> before restarting the capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3692"/>
+        <location filename="main_window_slots.cpp" line="3739"/>
         <source>Wiki Page for %1</source>
         <translation>Page Wiki pour %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3693"/>
+        <location filename="main_window_slots.cpp" line="3740"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Le Wiki Wireshark est maintenu par la communauté&lt;/p&gt;
 &lt;p&gt;La page que vous vous apprêtez à charger peut être magnifique, incomplète, fausse ou inexistante&lt;/p&gt;
 &lt;p&gt;Poursuivre vers le wiki?&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="262"/>
+        <location filename="main_window.h" line="267"/>
         <source>Loading</source>
         <translation>Chargement</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="264"/>
+        <location filename="main_window.h" line="269"/>
         <source>Reloading</source>
         <translation>Rechargement</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="265"/>
+        <location filename="main_window.h" line="270"/>
         <source>Rescanning</source>
         <translation>Rebalayage</translation>
     </message>
@@ -9971,47 +9672,47 @@ a:hover {
         <translation>Résumé en Texte</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="654"/>
+        <location filename="packet_list.cpp" line="661"/>
         <source>Align Left</source>
         <translation>Aligner à gauche</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="655"/>
+        <location filename="packet_list.cpp" line="662"/>
         <source>Align Center</source>
         <translation>Aligner au centre</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="656"/>
+        <location filename="packet_list.cpp" line="663"/>
         <source>Align Right</source>
         <translation>Aligner à droite</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="658"/>
+        <location filename="packet_list.cpp" line="665"/>
         <source>Column Preferences</source>
         <translation>Préferences de la colonne</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="659"/>
+        <location filename="packet_list.cpp" line="666"/>
         <source>Edit Column</source>
         <translation>Éditer la colonne</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="660"/>
+        <location filename="packet_list.cpp" line="667"/>
         <source>Resize To Contents</source>
         <translation>Ajuster la taille au contenu</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="661"/>
+        <location filename="packet_list.cpp" line="668"/>
         <source>Resolve Names</source>
         <translation>Résoudre les noms</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="666"/>
+        <location filename="packet_list.cpp" line="673"/>
         <source>Remove This Column</source>
         <translation>Supprimer cette colonne</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1022"/>
+        <location filename="packet_list.cpp" line="1029"/>
         <source>Frame %1: %2
 
 </source>
@@ -10020,7 +9721,7 @@ a:hover {
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1026"/>
+        <location filename="packet_list.cpp" line="1033"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Taille maximum de commentaire dépassé %1 Arrêt !]</translation>
     </message>
@@ -14853,10 +14554,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Copie une représentation texte de l&apos;arborescence dans le presse-papiers</translation>
     </message>
     <message>
-        <source>Ctrl+C</source>
-        <translation type="vanished">Ctrl+C</translation>
-    </message>
-    <message>
         <location filename="tap_parameter_dialog.ui" line="87"/>
         <source>Save as…</source>
         <oldsource>Save as...</oldsource>
@@ -14866,10 +14563,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <location filename="tap_parameter_dialog.ui" line="90"/>
         <source>Save the displayed data in various formats</source>
         <translation>Sauvegarde l&apos;information affichée sous divers formats</translation>
-    </message>
-    <message>
-        <source>Ctrl+S</source>
-        <translation type="vanished">Ctrl+S</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.cpp" line="93"/>
@@ -15126,10 +14819,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <location filename="voip_calls_dialog.ui" line="101"/>
         <source>Select all calls</source>
         <translation>Sélectionner tous les appels</translation>
-    </message>
-    <message>
-        <source>Ctrl+A</source>
-        <translation type="vanished">Ctrl+A</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="184"/>
