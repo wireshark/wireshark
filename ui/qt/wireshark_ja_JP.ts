@@ -2038,12 +2038,12 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>表示フィルタ式</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="190"/>
+        <location filename="display_filter_expression_dialog.cpp" line="212"/>
         <source>Select a field name to get started</source>
         <translation>開始するフィールド名を選択</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="194"/>
+        <location filename="display_filter_expression_dialog.cpp" line="216"/>
         <source>Click OK to insert this filter</source>
         <translation>OKをクリックしてこのフィルタを挿入</translation>
     </message>
@@ -4639,9 +4639,8 @@ for filter files: %2.</source>
         <translation>ツリーをCSVとしてコピー</translation>
     </message>
     <message>
-        <location filename="lbm_lbtrm_transport_dialog.ui" line="447"/>
         <source>Ctrl+C</source>
-        <translation>Ctrl+C</translation>
+        <translation type="vanished">Ctrl+C</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="452"/>
@@ -4654,9 +4653,8 @@ for filter files: %2.</source>
         <translation>ツリーをYAMLとしてコピー</translation>
     </message>
     <message>
-        <location filename="lbm_lbtrm_transport_dialog.ui" line="458"/>
         <source>Ctrl+Y</source>
-        <translation>Ctrl+Y</translation>
+        <translation type="vanished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="469"/>
@@ -5160,9 +5158,8 @@ for filter files: %2.</source>
         <translation>CSVとしてツリーをコピー</translation>
     </message>
     <message>
-        <location filename="lbm_lbtru_transport_dialog.ui" line="651"/>
         <source>Ctrl+C</source>
-        <translation>Ctrl+C</translation>
+        <translation type="vanished">Ctrl+C</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="656"/>
@@ -5175,9 +5172,8 @@ for filter files: %2.</source>
         <translation>YAMLとしてツリーをコピー</translation>
     </message>
     <message>
-        <location filename="lbm_lbtru_transport_dialog.ui" line="662"/>
         <source>Ctrl+Y</source>
-        <translation>Ctrl+Y</translation>
+        <translation type="vanished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="673"/>
@@ -5465,9 +5461,8 @@ for filter files: %2.</source>
         <translation>ツリーをCSVとしてコピー</translation>
     </message>
     <message>
-        <location filename="lbm_stream_dialog.ui" line="102"/>
         <source>Ctrl+C</source>
-        <translation>Ctrl+C</translation>
+        <translation type="vanished">Ctrl+C</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="107"/>
@@ -5480,9 +5475,8 @@ for filter files: %2.</source>
         <translation>ツリーをYAMLとしてコピー</translation>
     </message>
     <message>
-        <location filename="lbm_stream_dialog.ui" line="113"/>
         <source>Ctrl+Y</source>
-        <translation>Ctrl+Y</translation>
+        <translation type="vanished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.cpp" line="392"/>
@@ -6669,9 +6663,8 @@ a:hover {
         <translation>キャプチャファイルを開きます</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="765"/>
         <source>Ctrl+O</source>
-        <translation>Ctrl+O</translation>
+        <translation type="vanished">Ctrl+O</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="773"/>
@@ -6684,9 +6677,8 @@ a:hover {
         <translation>Wiresharkを終了します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="779"/>
         <source>Ctrl+Q</source>
-        <translation>Ctrl+Q</translation>
+        <translation type="vanished">Ctrl+Q</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="790"/>
@@ -6699,10 +6691,8 @@ a:hover {
         <translation>パケットキャプチャを開始します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="796"/>
-        <location filename="main_window.ui" line="807"/>
         <source>Ctrl+E</source>
-        <translation>Ctrl+E</translation>
+        <translation type="vanished">Ctrl+E</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="801"/>
@@ -6720,9 +6710,8 @@ a:hover {
         <translation>閉じる</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="818"/>
         <source>Ctrl+W</source>
-        <translation>Ctrl+W</translation>
+        <translation type="vanished">Ctrl+W</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="829"/>
@@ -6735,9 +6724,8 @@ a:hover {
         <translation>目次(&amp;C)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="840"/>
         <source>F1</source>
-        <translation>F1</translation>
+        <translation type="vanished">F1</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="853"/>
@@ -6820,9 +6808,8 @@ a:hover {
         <translation>次のパケットに移動します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="950"/>
         <source>Ctrl+Down</source>
-        <translation>Ctrl+Down</translation>
+        <translation type="vanished">Ctrl+Down</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="955"/>
@@ -6835,9 +6822,8 @@ a:hover {
         <translation>前のパケットに移動します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="961"/>
         <source>Ctrl+Up</source>
-        <translation>Ctrl+Up</translation>
+        <translation type="vanished">Ctrl+Up</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="988"/>
@@ -6850,9 +6836,8 @@ a:hover {
         <translation>最初のパケットに移動します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="994"/>
         <source>Ctrl+Home</source>
-        <translation>Ctrl+Home</translation>
+        <translation type="vanished">Ctrl+Home</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="999"/>
@@ -6865,9 +6850,8 @@ a:hover {
         <translation>最後のパケットに移動します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1005"/>
         <source>Ctrl+End</source>
-        <translation>Ctrl+End</translation>
+        <translation type="vanished">Ctrl+End</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1013"/>
@@ -6880,9 +6864,8 @@ a:hover {
         <translation>現在のパケット詳細を展開します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1019"/>
         <source>Shift+Right</source>
-        <translation>Shift+Right</translation>
+        <translation type="vanished">Shift+Right</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1024"/>
@@ -6895,9 +6878,8 @@ a:hover {
         <translation>パケット詳細を展開</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1030"/>
         <source>Ctrl+Right</source>
-        <translation>Ctrl+Right</translation>
+        <translation type="vanished">Ctrl+Right</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1035"/>
@@ -6910,9 +6892,8 @@ a:hover {
         <translation>すべてのパケット詳細を閉じます</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1041"/>
         <source>Ctrl+Left</source>
-        <translation>Ctrl+Left</translation>
+        <translation type="vanished">Ctrl+Left</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1052"/>
@@ -6920,9 +6901,8 @@ a:hover {
         <translation>指定したパケットへ移動します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1055"/>
         <source>Ctrl+G</source>
-        <translation>Ctrl+G</translation>
+        <translation type="vanished">Ctrl+G</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1063"/>
@@ -6940,9 +6920,8 @@ a:hover {
         <translation>保存(&amp;S)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1082"/>
         <source>Ctrl+S</source>
-        <translation>Ctrl+S</translation>
+        <translation type="vanished">Ctrl+S</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1093"/>
@@ -6950,9 +6929,8 @@ a:hover {
         <translation>異なるファイルとして保存</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1096"/>
         <source>Ctrl+Shift+S</source>
-        <translation>Ctrl+Shift+S</translation>
+        <translation type="vanished">Ctrl+Shift+S</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1104"/>
@@ -6960,14 +6938,12 @@ a:hover {
         <translation>指定したパケットを出力</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1112"/>
         <source>Ctrl+H</source>
-        <translation>Ctrl+H</translation>
+        <translation type="vanished">Ctrl+H</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1125"/>
         <source>Ctrl+P</source>
-        <translation>Ctrl+P</translation>
+        <translation type="vanished">Ctrl+P</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1130"/>
@@ -6990,10 +6966,8 @@ a:hover {
         <translation>再読込(&amp;R)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1151"/>
-        <location filename="main_window.ui" line="1201"/>
         <source>Ctrl+R</source>
-        <translation>Ctrl+R</translation>
+        <translation type="vanished">Ctrl+R</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1162"/>
@@ -7006,9 +6980,8 @@ a:hover {
         <translation>キャプチャオプション</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1168"/>
         <source>Ctrl+K</source>
-        <translation>Ctrl+K</translation>
+        <translation type="vanished">Ctrl+K</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1179"/>
@@ -7041,10 +7014,8 @@ a:hover {
         <translation>記述</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1252"/>
-        <location filename="main_window.ui" line="1516"/>
         <source>Ctrl+Shift+D</source>
-        <translation>Ctrl+Shift+D</translation>
+        <translation type="vanished">Ctrl+Shift+D</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1267"/>
@@ -7052,9 +7023,8 @@ a:hover {
         <translation>フィールド名</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1273"/>
         <source>Ctrl+Shift+F</source>
-        <translation>Ctrl+Shift+F</translation>
+        <translation type="vanished">Ctrl+Shift+F</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1278"/>
@@ -7062,9 +7032,8 @@ a:hover {
         <translation>値</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1284"/>
         <source>Ctrl+Shift+V</source>
-        <translation>Ctrl+Shift+V</translation>
+        <translation type="vanished">Ctrl+Shift+V</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1289"/>
@@ -7072,9 +7041,8 @@ a:hover {
         <translation>フィルタとして</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1295"/>
         <source>Ctrl+Shift+C</source>
-        <translation>Ctrl+Shift+C</translation>
+        <translation type="vanished">Ctrl+Shift+C</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1300"/>
@@ -7171,9 +7139,8 @@ a:hover {
         <translation>この対話の次のパケットに移動します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="972"/>
         <source>Ctrl+.</source>
-        <translation>Ctrl+.</translation>
+        <translation type="vanished">Ctrl+.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="977"/>
@@ -7186,9 +7153,8 @@ a:hover {
         <translation>この対話の前のパケットに移動します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="983"/>
         <source>Ctrl+,</source>
-        <translation>Ctrl+,</translation>
+        <translation type="vanished">Ctrl+,</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1049"/>
@@ -7241,9 +7207,8 @@ a:hover {
         <translation>このファイルを再読み込み</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1190"/>
         <source>F5</source>
-        <translation>F5</translation>
+        <translation type="vanished">F5</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1249"/>
@@ -7281,9 +7246,8 @@ a:hover {
         <translation>パケットを検索します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1417"/>
         <source>Ctrl+F</source>
-        <translation>Ctrl+F</translation>
+        <translation type="vanished">Ctrl+F</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1425"/>
@@ -7291,9 +7255,8 @@ a:hover {
         <translation>次のパケットを検索します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1428"/>
         <source>Ctrl+N</source>
-        <translation>Ctrl+N</translation>
+        <translation type="vanished">Ctrl+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1436"/>
@@ -7301,9 +7264,8 @@ a:hover {
         <translation>前のパケットを検索します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1439"/>
         <source>Ctrl+B</source>
-        <translation>Ctrl+B</translation>
+        <translation type="vanished">Ctrl+B</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1444"/>
@@ -7316,9 +7278,8 @@ a:hover {
         <translation>このパケットをマーク/マーク解除します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1450"/>
         <source>Ctrl+M</source>
-        <translation>Ctrl+M</translation>
+        <translation type="vanished">Ctrl+M</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1455"/>
@@ -7331,9 +7292,8 @@ a:hover {
         <translation>すべての表示されているパケットをマークします</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1461"/>
         <source>Ctrl+Shift+M</source>
-        <translation>Ctrl+Shift+M</translation>
+        <translation type="vanished">Ctrl+Shift+M</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1466"/>
@@ -7346,10 +7306,9 @@ a:hover {
         <translation>すべての表示されているパケットをマーク解除します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1472"/>
         <source>Ctrl+Alt+M</source>
         <oldsource>Meta+Alt+M</oldsource>
-        <translation>Ctrl+Alt+M</translation>
+        <translation type="vanished">Ctrl+Alt+M</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1477"/>
@@ -7362,10 +7321,9 @@ a:hover {
         <translation>次にマークされたパケットに移動します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1483"/>
         <source>Ctrl+Shift+N</source>
         <oldsource>Meta+Shift+N</oldsource>
-        <translation>Ctrl+Shift+N</translation>
+        <translation type="vanished">Ctrl+Shift+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1488"/>
@@ -7378,10 +7336,9 @@ a:hover {
         <translation>前にマークされたパケットに移動します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1494"/>
         <source>Ctrl+Shift+B</source>
         <oldsource>Meta+Shift+B</oldsource>
-        <translation>Ctrl+Shift+B</translation>
+        <translation type="vanished">Ctrl+Shift+B</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1499"/>
@@ -7394,9 +7351,8 @@ a:hover {
         <translation>このパケットを無視するか無視しないようにします</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1505"/>
         <source>Ctrl+D</source>
-        <translation>Ctrl+D</translation>
+        <translation type="vanished">Ctrl+D</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1510"/>
@@ -7419,9 +7375,8 @@ a:hover {
         <translation>すべての表示されたパケットの無視を解除します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1527"/>
         <source>Ctrl+Alt+D</source>
-        <translation>Ctrl+Alt+D</translation>
+        <translation type="vanished">Ctrl+Alt+D</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1532"/>
@@ -7434,9 +7389,8 @@ a:hover {
         <translation>このパケットの時間参照を設定または設定解除します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1538"/>
         <source>Ctrl+T</source>
-        <translation>Ctrl+T</translation>
+        <translation type="vanished">Ctrl+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1543"/>
@@ -7449,9 +7403,8 @@ a:hover {
         <translation>すべての時間参照を削除</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1549"/>
         <source>Ctrl+Alt+T</source>
-        <translation>Ctrl+Alt+T</translation>
+        <translation type="vanished">Ctrl+Alt+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1554"/>
@@ -7464,9 +7417,8 @@ a:hover {
         <translation>次の時間参照へ移動します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1560"/>
         <source>Ctrl+Alt+N</source>
-        <translation>Ctrl+Alt+N</translation>
+        <translation type="vanished">Ctrl+Alt+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1565"/>
@@ -7479,9 +7431,8 @@ a:hover {
         <translation>前の時間参照へ移動</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1571"/>
         <source>Ctrl+Alt+B</source>
-        <translation>Ctrl+Alt+B</translation>
+        <translation type="vanished">Ctrl+Alt+B</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1579"/>
@@ -7489,9 +7440,8 @@ a:hover {
         <translation>パケットのタイムスタンプをずらすもしくは変更します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1582"/>
         <source>Ctrl+Shift+T</source>
-        <translation>Ctrl+Shift+T</translation>
+        <translation type="vanished">Ctrl+Shift+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1590"/>
@@ -7509,9 +7459,8 @@ a:hover {
         <translation>設定プロファイルを管理します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1607"/>
         <source>Ctrl+Shift+A</source>
-        <translation>Ctrl+Shift+A</translation>
+        <translation type="vanished">Ctrl+Shift+A</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1618"/>
@@ -7519,9 +7468,8 @@ a:hover {
         <translation>Wiresharkの設定を管理します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1621"/>
         <source>Ctrl+Shift+P</source>
-        <translation>Ctrl+Shift+P</translation>
+        <translation type="vanished">Ctrl+Shift+P</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1632"/>
@@ -7825,9 +7773,8 @@ a:hover {
         <translation>Luaプラグインを再読込します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="1909"/>
         <source>Ctrl+Shift+L</source>
-        <translation>Ctrl+Shift+L</translation>
+        <translation type="vanished">Ctrl+Shift+L</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1919"/>
@@ -8008,49 +7955,40 @@ a:hover {
         <translation>MTP3統計が登録されていません</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2691"/>
         <source>Ctrl+1</source>
-        <translation>Ctrl+1</translation>
+        <translation type="vanished">Ctrl+1</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2702"/>
         <source>Ctrl+2</source>
-        <translation>Ctrl+2</translation>
+        <translation type="vanished">Ctrl+2</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2713"/>
         <source>Ctrl+3</source>
-        <translation>Ctrl+3</translation>
+        <translation type="vanished">Ctrl+3</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2724"/>
         <source>Ctrl+4</source>
-        <translation>Ctrl+4</translation>
+        <translation type="vanished">Ctrl+4</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2735"/>
         <source>Ctrl+5</source>
-        <translation>Ctrl+5</translation>
+        <translation type="vanished">Ctrl+5</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2746"/>
         <source>Ctrl+6</source>
-        <translation>Ctrl+6</translation>
+        <translation type="vanished">Ctrl+6</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2757"/>
         <source>Ctrl+7</source>
-        <translation>Ctrl+7</translation>
+        <translation type="vanished">Ctrl+7</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2768"/>
         <source>Ctrl+8</source>
-        <translation>Ctrl+8</translation>
+        <translation type="vanished">Ctrl+8</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2779"/>
         <source>Ctrl+9</source>
-        <translation>Ctrl+9</translation>
+        <translation type="vanished">Ctrl+9</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2811"/>
@@ -8352,9 +8290,8 @@ a:hover {
         <translation>メインウインドウのテキストを拡大します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2081"/>
         <source>Ctrl++</source>
-        <translation>Ctrl++</translation>
+        <translation type="vanished">Ctrl++</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2086"/>
@@ -8362,9 +8299,8 @@ a:hover {
         <translation>縮小</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2092"/>
         <source>Ctrl+-</source>
-        <translation>Ctrl+-</translation>
+        <translation type="vanished">Ctrl+-</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2097"/>
@@ -8372,9 +8308,8 @@ a:hover {
         <translation>標準サイズ</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2103"/>
         <source>Ctrl+0</source>
-        <translation>Ctrl+O</translation>
+        <translation type="vanished">Ctrl+O</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2108"/>
@@ -8387,9 +8322,8 @@ a:hover {
         <translation>列の内容に合わせてパケット一覧の列幅を調整します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2114"/>
         <source>Ctrl+Shift+R</source>
-        <translation>Ctrl+Shift+R</translation>
+        <translation type="vanished">Ctrl+Shift+R</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2122"/>
@@ -8404,10 +8338,9 @@ a:hover {
         <translation>パケット時間を日付と時刻で表示します。</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2128"/>
         <source>Ctrl+Alt+1</source>
         <oldsource>Meta+Alt+1</oldsource>
-        <translation>Ctrl+Alt+1</translation>
+        <translation type="vanished">Ctrl+Alt+1</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2136"/>
@@ -8425,10 +8358,9 @@ a:hover {
         <translation>時刻 (01:02:03.123456)</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2153"/>
         <source>Ctrl+Alt+2</source>
         <oldsource>Meta+Alt+2</oldsource>
-        <translation>Ctrl+Alt+2</translation>
+        <translation type="vanished">Ctrl+Alt+2</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2161"/>
@@ -8441,10 +8373,9 @@ a:hover {
         <translation>パケットの時間をUNIX/POSIX起源(1970-01-01)以来の秒数で表示します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2167"/>
         <source>Ctrl+Alt+3</source>
         <oldsource>Meta+Alt+3</oldsource>
-        <translation>Ctrl+Alt+3</translation>
+        <translation type="vanished">Ctrl+Alt+3</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2175"/>
@@ -8452,10 +8383,9 @@ a:hover {
         <translation>キャプチャ開始からの秒数</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2181"/>
         <source>Ctrl+Alt+4</source>
         <oldsource>Meta+Alt+4</oldsource>
-        <translation>Ctrl+Alt+4</translation>
+        <translation type="vanished">Ctrl+Alt+4</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2189"/>
@@ -8468,10 +8398,9 @@ a:hover {
         <translation>パケット時間を前にキャプチャされたパケットからの秒数で表示します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2195"/>
         <source>Ctrl+Alt+5</source>
         <oldsource>Meta+Alt+5</oldsource>
-        <translation>Ctrl+Alt+5</translation>
+        <translation type="vanished">Ctrl+Alt+5</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2203"/>
@@ -8484,10 +8413,9 @@ a:hover {
         <translation>パケット時間を前に表示されたパケットからの秒数で表示します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2209"/>
         <source>Ctrl+Alt+6</source>
         <oldsource>Meta+Alt+6</oldsource>
-        <translation>Ctrl+Alt+6</translation>
+        <translation type="vanished">Ctrl+Alt+6</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2217"/>
@@ -8500,10 +8428,9 @@ a:hover {
         <translation>パケット時間をUTC日付および時刻で表示します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2223"/>
         <source>Ctrl+Alt+7</source>
         <oldsource>Meta+Alt+7</oldsource>
-        <translation>Ctrl+Alt+7</translation>
+        <translation type="vanished">Ctrl+Alt+7</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2231"/>
@@ -8526,10 +8453,9 @@ a:hover {
         <translation>パケット時間をUTC時刻として表示します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2248"/>
         <source>Ctrl+Alt+8</source>
         <oldsource>Meta+Alt+8</oldsource>
-        <translation>Ctrl+Alt+8</translation>
+        <translation type="vanished">Ctrl+Alt+8</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2256"/>
@@ -8977,9 +8903,8 @@ a:hover {
         <translation>対話の色付けをリセットします</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2806"/>
         <source>Ctrl+Space</source>
-        <translation>Ctrl+Space</translation>
+        <translation type="vanished">Ctrl+Space</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2814"/>
@@ -9002,38 +8927,37 @@ a:hover {
         <translation>指定プロトコルを有効および無効化します</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2841"/>
         <source>Ctrl+Shift+E</source>
-        <translation>Ctrl+Shift+E</translation>
+        <translation type="vanished">Ctrl+Shift+E</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="358"/>
+        <location filename="main_window.cpp" line="365"/>
         <source>Check for Updates</source>
         <oldsource>Check for Updates...</oldsource>
         <translation>更新を確認…</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="750"/>
+        <location filename="main_window.cpp" line="757"/>
         <source> before quitting</source>
         <translation>終了前</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="926"/>
+        <location filename="main_window.cpp" line="933"/>
         <source>Save packets before merging?</source>
         <translation>結合する前にパケットを保存しますか？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="927"/>
+        <location filename="main_window.cpp" line="934"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>一時的なキャプチャファイルは結合することができません</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="933"/>
+        <location filename="main_window.cpp" line="940"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>結合する前に &quot;%1&quot; に変更を保存しますか？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="935"/>
+        <location filename="main_window.cpp" line="942"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>ファイルを結合する前に変更を保存する必要があります</translation>
     </message>
@@ -9043,115 +8967,115 @@ a:hover {
         <translation>無効な表示フィルタ</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="992"/>
+        <location filename="main_window.cpp" line="999"/>
         <source>Invalid Read Filter</source>
         <translation>無効な読込フィルタ</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="993"/>
+        <location filename="main_window.cpp" line="1000"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation>フィルタ式 %1 は有効な読込みフィルタではありません(%2)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1083"/>
+        <location filename="main_window.cpp" line="1090"/>
         <source> before importing a new capture</source>
         <translation>新しいキャプチャファイルのインポートする前</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1396"/>
+        <location filename="main_window.cpp" line="1403"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>&quot;%1&quot; をエクスポートすることができません</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1397"/>
+        <location filename="main_window.cpp" line="1404"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>現在のキャプチャファイルへパケットをエクスポートすることはできません</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1484"/>
-        <location filename="main_window.cpp" line="1509"/>
+        <location filename="main_window.cpp" line="1491"/>
+        <location filename="main_window.cpp" line="1516"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1550"/>
+        <location filename="main_window.cpp" line="1557"/>
         <source>You have unsaved packets</source>
         <translation>保存していないパケットがあります。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1551"/>
+        <location filename="main_window.cpp" line="1558"/>
         <source>They will be lost if you don&apos;t save them.</source>
         <translation>保存しない場合、これらは失われます。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1554"/>
-        <location filename="main_window.cpp" line="1567"/>
+        <location filename="main_window.cpp" line="1561"/>
+        <location filename="main_window.cpp" line="1574"/>
         <source>Do you want to stop the capture and save the captured packets</source>
         <translation>キャプチャを停止してキャプチャパケットを保存しますか</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1556"/>
+        <location filename="main_window.cpp" line="1563"/>
         <source>Do you want to save the captured packets</source>
         <translation>キャプチャされたパケットを保存したいですか</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1558"/>
-        <location filename="main_window.cpp" line="1568"/>
+        <location filename="main_window.cpp" line="1565"/>
+        <location filename="main_window.cpp" line="1575"/>
         <source>?</source>
         <translation>？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1570"/>
+        <location filename="main_window.cpp" line="1577"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>保存しない場合キャプチャしたパケットは失われます</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1573"/>
+        <location filename="main_window.cpp" line="1580"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>キャプチャスタイルに行った変更を保存しますか</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1579"/>
+        <location filename="main_window.cpp" line="1586"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>保存しない場合変更は失われます</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1591"/>
+        <location filename="main_window.cpp" line="1598"/>
         <source>Stop and Save</source>
         <translation>停止して保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1599"/>
+        <location filename="main_window.cpp" line="1606"/>
         <source>Stop and Quit without Saving</source>
         <translation>停止して保存しないで終了</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1602"/>
+        <location filename="main_window.cpp" line="1609"/>
         <source>Quit without Saving</source>
         <translation>保存しないで終了</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1607"/>
+        <location filename="main_window.cpp" line="1614"/>
         <source>Stop and Continue without Saving</source>
         <translation>停止して保存しないで続ける</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1610"/>
+        <location filename="main_window.cpp" line="1617"/>
         <source>Continue &amp;without Saving</source>
         <translation>保存しないで続ける</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1928"/>
+        <location filename="main_window.cpp" line="1935"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>ファイル名をUTF-8形式に割り当てできません</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1941"/>
+        <location filename="main_window.cpp" line="1948"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>ワイヤーシャークネットワークアナライザ</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1960"/>
+        <location filename="main_window.cpp" line="1967"/>
         <source>Capturing from %1</source>
         <translation>%1 からキャプチャ中</translation>
     </message>
@@ -9166,113 +9090,113 @@ a:hover {
         <translation>保存中 %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="828"/>
+        <location filename="main_window_slots.cpp" line="829"/>
         <source>No interface selected</source>
         <translation>インターフェースが選択されていません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="838"/>
+        <location filename="main_window_slots.cpp" line="839"/>
         <source>Invalid capture filter</source>
         <translation>無効なキャプチャフィルタ</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1052"/>
+        <location filename="main_window_slots.cpp" line="1053"/>
         <source>Clear Menu</source>
         <translation>メニューをクリア</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1471"/>
+        <location filename="main_window_slots.cpp" line="1472"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Wiresharkが初期化している間お待ちください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1628"/>
+        <location filename="main_window_slots.cpp" line="1629"/>
         <source>Export Selected Packet Bytes</source>
         <translation>選択したパケットバイト列をエクスポート</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1687"/>
+        <location filename="main_window_slots.cpp" line="1688"/>
         <source>No Keys</source>
         <translation>キーはありません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1688"/>
+        <location filename="main_window_slots.cpp" line="1689"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>保存するSSLセッション鍵はありません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1694"/>
+        <location filename="main_window_slots.cpp" line="1695"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation>SSLセッション鍵をエキスポート (%1 鍵%2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1630"/>
+        <location filename="main_window_slots.cpp" line="1631"/>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Raw(無加工)データ形式 (*.bin *.dat *.raw);;すべてのファイル(</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1699"/>
+        <location filename="main_window_slots.cpp" line="1700"/>
         <source>SSL Session Keys (*.keys *.txt);;All Files (</source>
         <translation>SSLセッション鍵 (*.keys *.txt);;すべてのファイル (</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1837"/>
+        <location filename="main_window_slots.cpp" line="1838"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>テキストをコピーできません 別の項目を試してみてください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2246"/>
-        <location filename="main_window_slots.cpp" line="3296"/>
+        <location filename="main_window_slots.cpp" line="2247"/>
+        <location filename="main_window_slots.cpp" line="3297"/>
         <source>Unable to build conversation filter.</source>
         <translation>会話フィルタを作成できません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2399"/>
+        <location filename="main_window_slots.cpp" line="2400"/>
         <source>No filter available. Try another </source>
         <translation>フィルタが利用できません 別のものを試してください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3303"/>
+        <location filename="main_window_slots.cpp" line="3304"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>この対話の間のフィルタ翻訳エラー</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3312"/>
+        <location filename="main_window_slots.cpp" line="3313"/>
         <source>No previous/next packet in conversation.</source>
         <translation>対話の前/次のパケットがありません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3389"/>
+        <location filename="main_window_slots.cpp" line="3390"/>
         <source>No Interface Selected</source>
         <translation>インターフェースが選択されていません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3396"/>
+        <location filename="main_window_slots.cpp" line="3397"/>
         <source> before starting a new capture</source>
         <translation>新規キャプチャを開始する前に</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3602"/>
+        <location filename="main_window_slots.cpp" line="3603"/>
         <source>Wiki Page for %1</source>
         <translation>%1 の Wikiページ</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3603"/>
+        <location filename="main_window_slots.cpp" line="3604"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;ワイヤーシャークWikiはコミュニティによって運営されています &lt;/p&gt;&lt;p&gt;いま見ているページはすばらしかったり、不完全だったり、間違っていたり、存在しないかもしれません。&lt;/p&gt;&lt;p&gt;Wikiに移動しますか？&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="251"/>
+        <location filename="main_window.h" line="252"/>
         <source>Loading</source>
         <translation>ロード中</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="253"/>
+        <location filename="main_window.h" line="254"/>
         <source>Reloading</source>
         <translation>再読み込み中</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="254"/>
+        <location filename="main_window.h" line="255"/>
         <source>Rescanning</source>
         <translation>再スキャニング中</translation>
     </message>
@@ -14607,9 +14531,8 @@ a:hover {
         <translation>ツリーのテキスト表記をクリップボードにコピーします</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="82"/>
         <source>Ctrl+C</source>
-        <translation>Ctrl+C</translation>
+        <translation type="vanished">Ctrl+C</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.ui" line="87"/>
@@ -14623,9 +14546,8 @@ a:hover {
         <translation>様々な形式で表示データを保存します</translation>
     </message>
     <message>
-        <location filename="tap_parameter_dialog.ui" line="93"/>
         <source>Ctrl+S</source>
-        <translation>Ctrl+S</translation>
+        <translation type="vanished">Ctrl+S</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.cpp" line="96"/>
@@ -14811,12 +14733,12 @@ a:hover {
         <translation>開く </translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="403"/>
+        <location filename="uat_dialog.cpp" line="414"/>
         <source>Uneven number of chars hex string (%1)</source>
         <translation>奇数番号の16進数文字(%1)</translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="410"/>
+        <location filename="uat_dialog.cpp" line="421"/>
         <source>Error parsing hex string</source>
         <translation>16進数文字列の解釈エラー</translation>
     </message>
@@ -14884,9 +14806,8 @@ a:hover {
         <translation>すべての通話を選択します</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.ui" line="104"/>
         <source>Ctrl+A</source>
-        <translation>Ctrl+A</translation>
+        <translation type="vanished">Ctrl+A</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="182"/>
