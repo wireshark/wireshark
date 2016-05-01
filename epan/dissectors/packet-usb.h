@@ -79,6 +79,8 @@ typedef struct _usb_trans_info_t {
     usb_conv_info_t *interface_info;
 } usb_trans_info_t;
 
+enum usb_conv_class_data_type {USB_CONV_UNKNOWN = 0, USB_CONV_AUDIO, USB_CONV_VIDEO, USB_CONV_MASS_STORAGE};
+
 /* Conversation Structure
  * there is one such structure for each device/endpoint conversation */
 struct _usb_conv_info_t {
@@ -102,7 +104,8 @@ struct _usb_conv_info_t {
     wmem_tree_t *transactions;
     usb_trans_info_t *usb_trans_info; /* pointer to the current transaction */
 
-    void *class_data;	/* private class/id decode data */
+    void *class_data;           /* private class/id decode data */
+    enum usb_conv_class_data_type class_data_type;
 };
 
 /* This is what a tap will tap */
