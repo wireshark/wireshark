@@ -51,7 +51,8 @@ libwsutil.dll : $(OBJECTS) ..\image\libwsutil.res
 # The following target will rebuild its obj
 # if and when version.h should change.
 #
-..\ws_version_info.obj: ..\version.h
+ws_version_info.obj: ..\ws_version_info.c ..\version.h
+	$(CC) $(CFLAGS) -Fd.\ -c ..\ws_version_info.c
 
 clean:
 	rm -f $(OBJECTS) \
