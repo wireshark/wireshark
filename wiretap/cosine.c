@@ -330,8 +330,7 @@ parse_cosine_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 {
 	union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	int	num_items_scanned;
-	int	yy, mm, dd, hr, min, sec, csec;
-	guint	pkt_len;
+	int	yy, mm, dd, hr, min, sec, csec, pkt_len;
 	int	pro, off, pri, rm, error;
 	guint	code1, code2;
 	char	if_name[COSINE_MAX_IF_NAME_LEN] = "", direction[6] = "";
@@ -343,7 +342,7 @@ parse_cosine_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		   &yy, &mm, &dd, &hr, &min, &sec, &csec) == 7) {
 		/* appears to be output to a control blade */
 		num_items_scanned = sscanf(line,
-		   "%4d-%2d-%2d,%2d:%2d:%2d.%9d: %5s (%127[A-Za-z0-9/:]), Length:%9u, Pro:%9d, Off:%9d, Pri:%9d, RM:%9d, Err:%9d [%8x, %8x]",
+		   "%4d-%2d-%2d,%2d:%2d:%2d.%9d: %5s (%127[A-Za-z0-9/:]), Length:%9d, Pro:%9d, Off:%9d, Pri:%9d, RM:%9d, Err:%9d [%8x, %8x]",
 			&yy, &mm, &dd, &hr, &min, &sec, &csec,
 				   direction, if_name, &pkt_len,
 				   &pro, &off, &pri, &rm, &error,
@@ -357,7 +356,7 @@ parse_cosine_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	} else {
 		/* appears to be output to PE */
 		num_items_scanned = sscanf(line,
-		   "%5s (%127[A-Za-z0-9/:]), Length:%9u, Pro:%9d, Off:%9d, Pri:%9d, RM:%9d, Err:%9d [%8x, %8x]",
+		   "%5s (%127[A-Za-z0-9/:]), Length:%9d, Pro:%9d, Off:%9d, Pri:%9d, RM:%9d, Err:%9d [%8x, %8x]",
 				   direction, if_name, &pkt_len,
 				   &pro, &off, &pri, &rm, &error,
 				   &code1, &code2);
@@ -368,6 +367,11 @@ parse_cosine_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 			return FALSE;
 		}
 		yy = mm = dd = hr = min = sec = csec = 0;
+	}
+	if (pkt_len < 0) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup("cosine: packet header has a negative packet length");
+		return FALSE;
 	}
 	if (pkt_len > WTAP_MAX_PACKET_SIZE) {
 		/*
