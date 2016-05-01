@@ -323,8 +323,12 @@ dissect_ac_if_hdr_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     if(!audio_conv_info) {
         audio_conv_info = wmem_new(wmem_file_scope(), audio_conv_info_t);
         usb_conv_info->class_data = audio_conv_info;
+        usb_conv_info->class_data_type = USB_CONV_AUDIO;
         /* XXX - set reasonable default values for all components
            that are not filled in by this function */
+    } else if (usb_conv_info->class_data_type != USB_CONV_AUDIO) {
+        /* Don't dissect if another USB type is in the conversation */
+        return 0;
     }
     audio_conv_info->ver_major = ver_major;
     offset += 2;

@@ -1035,6 +1035,10 @@ dissect_usb_video_control_interface_descriptor(proto_tree *parent_tree, tvbuff_t
             video_conv_info = wmem_new(wmem_file_scope(), video_conv_info_t);
             video_conv_info->entities = wmem_tree_new(wmem_file_scope());
             usb_conv_info->class_data = video_conv_info;
+            usb_conv_info->class_data_type = USB_CONV_VIDEO;
+        } else if (usb_conv_info->class_data_type != USB_CONV_VIDEO) {
+            /* Stop dissection if another USB type is in the conversation */
+            return descriptor_len;
         }
 
         entity = (video_entity_t*) wmem_tree_lookup32(video_conv_info->entities, entity_id);
