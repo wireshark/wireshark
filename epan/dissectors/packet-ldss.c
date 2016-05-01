@@ -327,66 +327,64 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* If we have a non-null tree (ie we are building the proto_tree
 	 * instead of just filling out the columns), then give more detail. */
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ldss,
-					 tvb, 0, (tvb_captured_length(tvb) > 72) ? tvb_captured_length(tvb) : 72, ENC_NA);
-		ldss_tree = proto_item_add_subtree(ti, ett_ldss_broadcast);
+	ti = proto_tree_add_item(tree, proto_ldss,
+			tvb, 0, (tvb_captured_length(tvb) > 72) ? tvb_captured_length(tvb) : 72, ENC_NA);
+	ldss_tree = proto_item_add_subtree(ti, ett_ldss_broadcast);
 
-		proto_tree_add_item(ldss_tree, hf_ldss_message_id,
-				    tvb, 0, 2, ENC_BIG_ENDIAN);
-		ti = proto_tree_add_uint(ldss_tree, hf_ldss_message_detail,
-					 tvb, 0, 0, messageDetail);
-		PROTO_ITEM_SET_GENERATED(ti);
-		proto_tree_add_item(ldss_tree, hf_ldss_digest_type,
-				    tvb, 2,	    1,	ENC_BIG_ENDIAN);
-		proto_tree_add_item(ldss_tree, hf_ldss_compression,
-				    tvb, 3,	    1,	ENC_BIG_ENDIAN);
-		proto_tree_add_uint_format_value(ldss_tree, hf_ldss_cookie,
-						 tvb, 4,	    4,	FALSE,
-						 "0x%x%s",
-						 cookie,
-						 (cookie == 0)
-						 ? " - shutdown (promises from this peer are no longer valid)"
-						 : "");
-		proto_tree_add_item(ldss_tree, hf_ldss_digest,
-				    tvb, 8,	    DIGEST_LEN, ENC_NA);
-		proto_tree_add_item(ldss_tree, hf_ldss_size,
-				    tvb, 40,    8,	ENC_BIG_ENDIAN);
-		proto_tree_add_item(ldss_tree, hf_ldss_offset,
-				    tvb, 48,    8,	ENC_BIG_ENDIAN);
-		proto_tree_add_uint_format_value(ldss_tree, hf_ldss_target_time,
-						 tvb, 56,    4,	FALSE,
-						 "%d:%02d:%02d",
-						 (int)(targetTime / 3600),
-						 (int)((targetTime / 60) % 60),
-						 (int)(targetTime % 60));
-		proto_tree_add_item(ldss_tree, hf_ldss_reserved_1,
-				    tvb, 60,    4,	ENC_BIG_ENDIAN);
-		proto_tree_add_uint_format_value(ldss_tree, hf_ldss_port,
-						 tvb, 64,    2,	FALSE,
-						 "%d%s",
-						 port,
-						 (messageID == MESSAGE_ID_WILLSEND &&
-						  size > 0 &&
-						  size == offset)
-						 ? " - file can be pulled at this TCP port"
-						 : (messageID == MESSAGE_ID_NEEDFILE
-						    ? " - file can be pushed to this TCP port"
-						    : ""));
-		proto_tree_add_uint_format_value(ldss_tree, hf_ldss_rate,
-						 tvb, 66,    2,	FALSE,
-						 "%ld",
-						 (rate > 0)
-						 ? (long)floor(exp(rate * G_LN2 / 2048))
-						 : 0);
-		proto_tree_add_item(ldss_tree, hf_ldss_priority,
-				    tvb, 68, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(ldss_tree, hf_ldss_property_count,
-				    tvb, 70, 2, ENC_BIG_ENDIAN);
-		if (tvb_reported_length(tvb) > 72) {
-			proto_tree_add_item(ldss_tree, hf_ldss_properties,
-					    tvb, 72, tvb_captured_length(tvb) - 72, ENC_NA);
-		}
+	proto_tree_add_item(ldss_tree, hf_ldss_message_id,
+			tvb, 0, 2, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_uint(ldss_tree, hf_ldss_message_detail,
+			tvb, 0, 0, messageDetail);
+	PROTO_ITEM_SET_GENERATED(ti);
+	proto_tree_add_item(ldss_tree, hf_ldss_digest_type,
+			tvb, 2,	    1,	ENC_BIG_ENDIAN);
+	proto_tree_add_item(ldss_tree, hf_ldss_compression,
+			tvb, 3,	    1,	ENC_BIG_ENDIAN);
+	proto_tree_add_uint_format_value(ldss_tree, hf_ldss_cookie,
+			tvb, 4,	    4,	FALSE,
+			"0x%x%s",
+			cookie,
+			(cookie == 0)
+			? " - shutdown (promises from this peer are no longer valid)"
+			: "");
+	proto_tree_add_item(ldss_tree, hf_ldss_digest,
+			tvb, 8,	    DIGEST_LEN, ENC_NA);
+	proto_tree_add_item(ldss_tree, hf_ldss_size,
+			tvb, 40,    8,	ENC_BIG_ENDIAN);
+	proto_tree_add_item(ldss_tree, hf_ldss_offset,
+			tvb, 48,    8,	ENC_BIG_ENDIAN);
+	proto_tree_add_uint_format_value(ldss_tree, hf_ldss_target_time,
+			tvb, 56,    4,	FALSE,
+			"%d:%02d:%02d",
+			(int)(targetTime / 3600),
+			(int)((targetTime / 60) % 60),
+			(int)(targetTime % 60));
+	proto_tree_add_item(ldss_tree, hf_ldss_reserved_1,
+			tvb, 60,    4,	ENC_BIG_ENDIAN);
+	proto_tree_add_uint_format_value(ldss_tree, hf_ldss_port,
+			tvb, 64,    2,	FALSE,
+			"%d%s",
+			port,
+			(messageID == MESSAGE_ID_WILLSEND &&
+			 size > 0 &&
+			 size == offset)
+			? " - file can be pulled at this TCP port"
+			: (messageID == MESSAGE_ID_NEEDFILE
+				? " - file can be pushed to this TCP port"
+				: ""));
+	proto_tree_add_uint_format_value(ldss_tree, hf_ldss_rate,
+			tvb, 66,    2,	FALSE,
+			"%ld",
+			(rate > 0)
+			? (long)floor(exp(rate * G_LN2 / 2048))
+			: 0);
+	proto_tree_add_item(ldss_tree, hf_ldss_priority,
+			tvb, 68, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(ldss_tree, hf_ldss_property_count,
+			tvb, 70, 2, ENC_BIG_ENDIAN);
+	if (tvb_reported_length(tvb) > 72) {
+		proto_tree_add_item(ldss_tree, hf_ldss_properties,
+				tvb, 72, tvb_captured_length(tvb) - 72, ENC_NA);
 	}
 
 	/* Finally, store the broadcast and register ourselves to dissect
@@ -499,11 +497,9 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			highest_num_seen = pinfo->num;
 		}
 
-		if (tree) {
-			ti = proto_tree_add_item(tree, proto_ldss,
-						 tvb, 0, tvb_reported_length(tvb), ENC_NA);
-			ldss_tree = proto_item_add_subtree(ti, ett_ldss_transfer);
-		}
+		ti = proto_tree_add_item(tree, proto_ldss,
+				tvb, 0, tvb_reported_length(tvb), ENC_NA);
+		ldss_tree = proto_item_add_subtree(ti, ett_ldss_transfer);
 
 		/* Populate digest data into the file struct in the request */
 		transfer_info->file = transfer_info->req->file;
@@ -555,37 +551,33 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				/* Sample size line:
 				 * Size: 2550\n */
 				transfer_info->req->size = g_ascii_strtoull(line+6, NULL, 10);
-				if (tree) {
-					ti = proto_tree_add_uint64(line_tree, hf_ldss_size,
-								   tvb, offset+6, linelen-6, transfer_info->req->size);
-					PROTO_ITEM_SET_GENERATED(ti);
-				}
+				ti = proto_tree_add_uint64(line_tree, hf_ldss_size,
+						tvb, offset+6, linelen-6, transfer_info->req->size);
+				PROTO_ITEM_SET_GENERATED(ti);
 			}
 			else if (strncmp(line, "Start: ", 7)==0) {
 				/* Sample offset line:
 				 * Start: 0\n */
 				transfer_info->req->offset = g_ascii_strtoull(line+7, NULL, 10);
-				if (tree) {
-					ti = proto_tree_add_uint64(line_tree, hf_ldss_offset,
-								   tvb, offset+7, linelen-7, transfer_info->req->offset);
-					PROTO_ITEM_SET_GENERATED(ti);
-				}
+				ti = proto_tree_add_uint64(line_tree, hf_ldss_offset,
+						tvb, offset+7, linelen-7, transfer_info->req->offset);
+				PROTO_ITEM_SET_GENERATED(ti);
 			}
 			else if (strncmp(line, "Compression: ", 13)==0) {
 				/* Sample compression line:
 				 * Compression: 0\n */
 				transfer_info->req->compression = (gint8)strtol(line+13, NULL, 10); /* XXX - bad cast */
-				if (tree) {
-					ti = proto_tree_add_uint(line_tree, hf_ldss_compression,
-								 tvb, offset+13, linelen-13, transfer_info->req->compression);
-					PROTO_ITEM_SET_GENERATED(ti);
-				}
+				ti = proto_tree_add_uint(line_tree, hf_ldss_compression,
+						tvb, offset+13, linelen-13, transfer_info->req->compression);
+				PROTO_ITEM_SET_GENERATED(ti);
 			}
 			else {
 				proto_tree_add_expert(line_tree, pinfo, &ei_ldss_unrecognized_line, tvb, offset, linelen);
 			}
 
 			if (is_digest_line) {
+				proto_item *tii = NULL;
+
 				/* Sample digest-type/digest line:
 				 * md5:0123456789ABCDEF\n */
 				if (!already_dissected) {
@@ -593,8 +585,8 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 					digest_bytes = g_byte_array_new();
 					hex_str_to_bytes(
-						tvb_get_ptr(tvb, offset+digest_type_len, linelen-digest_type_len),
-						digest_bytes, FALSE);
+							tvb_get_ptr(tvb, offset+digest_type_len, linelen-digest_type_len),
+							digest_bytes, FALSE);
 
 					if(digest_bytes->len >= DIGEST_LEN)
 						digest_bytes->len = (DIGEST_LEN-1);
@@ -604,24 +596,21 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 					g_byte_array_free(digest_bytes, TRUE);
 				}
-				if (tree) {
-					proto_item *tii = NULL;
 
-					tii = proto_tree_add_uint(line_tree, hf_ldss_digest_type,
-								 tvb, offset, digest_type_len, transfer_info->file->digest_type);
-					PROTO_ITEM_SET_GENERATED(tii);
-					tii = proto_tree_add_bytes(line_tree, hf_ldss_digest,
-								  tvb, offset+digest_type_len, MIN(linelen-digest_type_len, DIGEST_LEN),
-								  transfer_info->file->digest);
-					PROTO_ITEM_SET_GENERATED(tii);
-				}
+				tii = proto_tree_add_uint(line_tree, hf_ldss_digest_type,
+						tvb, offset, digest_type_len, transfer_info->file->digest_type);
+				PROTO_ITEM_SET_GENERATED(tii);
+				tii = proto_tree_add_bytes(line_tree, hf_ldss_digest,
+						tvb, offset+digest_type_len, MIN(linelen-digest_type_len, DIGEST_LEN),
+						transfer_info->file->digest);
+				PROTO_ITEM_SET_GENERATED(tii);
 			}
 
 			offset = next_offset;
 		}
 
 		/* Link forwards to the response for this pull. */
-		if (tree && transfer_info->resp_num != 0) {
+		if (transfer_info->resp_num != 0) {
 			ti = proto_tree_add_uint(ldss_tree, hf_ldss_response_in,
 						 tvb, 0, 0, transfer_info->resp_num);
 			PROTO_ITEM_SET_GENERATED(ti);
@@ -675,67 +664,65 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				     ? "pull"
 				     : "push");
 
-		if (tree) {
-			ti = proto_tree_add_item(tree, proto_ldss,
-						 tvb, 0, tvb_reported_length(tvb), ENC_NA);
-			ldss_tree = proto_item_add_subtree(ti, ett_ldss_transfer);
-			proto_tree_add_bytes_format(ldss_tree, hf_ldss_file_data,
-						    tvb, 0, tvb_captured_length(tvb), NULL,
-						    compression == COMPRESSION_GZIP
-						    ? "Gzip compressed data: %d bytes"
-						    : "File data: %d bytes",
-						    tvb_captured_length(tvb));
+		ti = proto_tree_add_item(tree, proto_ldss,
+				tvb, 0, tvb_reported_length(tvb), ENC_NA);
+		ldss_tree = proto_item_add_subtree(ti, ett_ldss_transfer);
+		proto_tree_add_bytes_format(ldss_tree, hf_ldss_file_data,
+				tvb, 0, tvb_captured_length(tvb), NULL,
+				compression == COMPRESSION_GZIP
+				? "Gzip compressed data: %d bytes"
+				: "File data: %d bytes",
+				tvb_captured_length(tvb));
 #ifdef HAVE_ZLIB
-			/* Be nice and uncompress the file data. */
-			if (compression == COMPRESSION_GZIP) {
-				tvbuff_t *uncomp_tvb;
-				uncomp_tvb = tvb_child_uncompress(tvb, tvb, 0, tvb_captured_length(tvb));
-				if (uncomp_tvb != NULL) {
-					/* XXX: Maybe not a good idea to add a data_source for
-					        what may very well be a large buffer since then
-						the full uncompressed buffer will be shown in a tab
-						in the hex bytes pane ?
-						However, if we don't, bytes in an unrelated tab will
-						be highlighted.
-					*/
-					add_new_data_source(pinfo, uncomp_tvb, "Uncompressed Data");
-					proto_tree_add_bytes_format_value(ldss_tree, hf_ldss_file_data,
-									  uncomp_tvb, 0, tvb_captured_length(uncomp_tvb),
-									  NULL, "Uncompressed data: %d bytes",
-									  tvb_captured_length(uncomp_tvb));
-				}
+		/* Be nice and uncompress the file data. */
+		if (compression == COMPRESSION_GZIP) {
+			tvbuff_t *uncomp_tvb;
+			uncomp_tvb = tvb_child_uncompress(tvb, tvb, 0, tvb_captured_length(tvb));
+			if (uncomp_tvb != NULL) {
+				/* XXX: Maybe not a good idea to add a data_source for
+				   what may very well be a large buffer since then
+				   the full uncompressed buffer will be shown in a tab
+				   in the hex bytes pane ?
+				   However, if we don't, bytes in an unrelated tab will
+				   be highlighted.
+				 */
+				add_new_data_source(pinfo, uncomp_tvb, "Uncompressed Data");
+				proto_tree_add_bytes_format_value(ldss_tree, hf_ldss_file_data,
+						uncomp_tvb, 0, tvb_captured_length(uncomp_tvb),
+						NULL, "Uncompressed data: %d bytes",
+						tvb_captured_length(uncomp_tvb));
 			}
+		}
 #endif
-			ti = proto_tree_add_uint(ldss_tree, hf_ldss_digest_type,
-						 tvb, 0, 0, transfer_info->file->digest_type);
+		ti = proto_tree_add_uint(ldss_tree, hf_ldss_digest_type,
+				tvb, 0, 0, transfer_info->file->digest_type);
+		PROTO_ITEM_SET_GENERATED(ti);
+		if (transfer_info->file->digest != NULL) {
+			/* This is ugly. You can't add bytes of nonzero length and have
+			 * filtering work correctly unless you give a valid location in
+			 * the packet. This hack pretends the first 32 bytes of the packet
+			 * are the digest, which they aren't: they're actually the first 32
+			 * bytes of the file that was sent. */
+			ti = proto_tree_add_bytes(ldss_tree, hf_ldss_digest,
+					tvb, 0, DIGEST_LEN, transfer_info->file->digest);
+		}
+		PROTO_ITEM_SET_GENERATED(ti);
+		ti = proto_tree_add_uint64(ldss_tree, hf_ldss_size,
+				tvb, 0, 0, size);
+		PROTO_ITEM_SET_GENERATED(ti);
+		ti = proto_tree_add_uint64(ldss_tree, hf_ldss_offset,
+				tvb, 0, 0, offset);
+		PROTO_ITEM_SET_GENERATED(ti);
+		ti = proto_tree_add_uint(ldss_tree, hf_ldss_compression,
+				tvb, 0, 0, compression);
+		PROTO_ITEM_SET_GENERATED(ti);
+		/* Link to the request for a pull. */
+		if (transfer_info->broadcast->message_id == MESSAGE_ID_WILLSEND &&
+				transfer_info->req != NULL &&
+				transfer_info->req->num != 0) {
+			ti = proto_tree_add_uint(ldss_tree, hf_ldss_response_to,
+					tvb, 0, 0, transfer_info->req->num);
 			PROTO_ITEM_SET_GENERATED(ti);
-			if (transfer_info->file->digest != NULL) {
-				/* This is ugly. You can't add bytes of nonzero length and have
-				 * filtering work correctly unless you give a valid location in
-				 * the packet. This hack pretends the first 32 bytes of the packet
-				 * are the digest, which they aren't: they're actually the first 32
-				 * bytes of the file that was sent. */
-				ti = proto_tree_add_bytes(ldss_tree, hf_ldss_digest,
-							  tvb, 0, DIGEST_LEN, transfer_info->file->digest);
-			}
-			PROTO_ITEM_SET_GENERATED(ti);
-			ti = proto_tree_add_uint64(ldss_tree, hf_ldss_size,
-						   tvb, 0, 0, size);
-			PROTO_ITEM_SET_GENERATED(ti);
-			ti = proto_tree_add_uint64(ldss_tree, hf_ldss_offset,
-						   tvb, 0, 0, offset);
-			PROTO_ITEM_SET_GENERATED(ti);
-			ti = proto_tree_add_uint(ldss_tree, hf_ldss_compression,
-						 tvb, 0, 0, compression);
-			PROTO_ITEM_SET_GENERATED(ti);
-			/* Link to the request for a pull. */
-			if (transfer_info->broadcast->message_id == MESSAGE_ID_WILLSEND &&
-			    transfer_info->req != NULL &&
-			    transfer_info->req->num != 0) {
-				ti = proto_tree_add_uint(ldss_tree, hf_ldss_response_to,
-							 tvb, 0, 0, transfer_info->req->num);
-				PROTO_ITEM_SET_GENERATED(ti);
-			}
 		}
 	}
 
