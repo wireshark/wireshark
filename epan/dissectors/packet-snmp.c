@@ -3157,13 +3157,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 */
 			pinfo->desegment_offset = offset;
 			pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-
-			/*
-			 * Return 0, which means "I didn't dissect anything
-			 * because I don't have enough data - we need
-			 * to desegment".
-			 */
-			return 0;
+			return -1;
 		}
 	}
 
@@ -3901,7 +3895,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2431 "./asn1/snmp/packet-snmp-template.c"
+#line 2425 "./asn1/snmp/packet-snmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -3941,7 +3935,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2447 "./asn1/snmp/packet-snmp-template.c"
+#line 2441 "./asn1/snmp/packet-snmp-template.c"
 	};
 	static ei_register_info ei[] = {
 		{ &ei_snmp_failed_decrypted_data_pdu, { "snmp.failed_decrypted_data_pdu", PI_MALFORMED, PI_WARN, "Failed to decrypt encryptedPDU", EXPFILL }},

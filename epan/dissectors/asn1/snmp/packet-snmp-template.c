@@ -1948,13 +1948,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 */
 			pinfo->desegment_offset = offset;
 			pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-
-			/*
-			 * Return 0, which means "I didn't dissect anything
-			 * because I don't have enough data - we need
-			 * to desegment".
-			 */
-			return 0;
+			return -1;
 		}
 	}
 
