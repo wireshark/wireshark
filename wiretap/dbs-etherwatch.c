@@ -275,14 +275,13 @@ parse_dbs_etherwatch_packet(struct wtap_pkthdr *phdr, FILE_T fh, Buffer* buf,
 	guint8 *pd;
 	char	line[DBS_ETHERWATCH_LINE_LENGTH];
 	int	num_items_scanned;
-	int	eth_hdr_len, csec;
-	guint pkt_len;
+	int	eth_hdr_len, pkt_len, csec;
 	int length_pos, length_from, length;
 	struct tm tm;
 	char mon[4] = "xxx";
 	gchar *p;
 	static const gchar months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
-	guint	count, line_count;
+	int	count, line_count;
 
 	/* Make sure we have enough room for a regular Ethernet packet */
 	buffer_assure_space(buf, DBS_ETHERWATCH_MAX_ETHERNET_PACKET_LEN);
@@ -353,7 +352,7 @@ parse_dbs_etherwatch_packet(struct wtap_pkthdr *phdr, FILE_T fh, Buffer* buf,
 	}
 
 	num_items_scanned = sscanf(line + LENGTH_POS,
-				"%9u byte buffer at %2d-%3s-%4d %2d:%2d:%2d.%9d",
+				"%9d byte buffer at %2d-%3s-%4d %2d:%2d:%2d.%9d",
 				&pkt_len,
 				&tm.tm_mday, mon,
 				&tm.tm_year, &tm.tm_hour, &tm.tm_min,
@@ -362,6 +361,12 @@ parse_dbs_etherwatch_packet(struct wtap_pkthdr *phdr, FILE_T fh, Buffer* buf,
 	if (num_items_scanned != 8) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("dbs_etherwatch: header line not valid");
+		return FALSE;
+	}
+
+	if (pkt_len < 0) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup("dbs_etherwatch: packet header has a negative packet length");
 		return FALSE;
 	}
 
