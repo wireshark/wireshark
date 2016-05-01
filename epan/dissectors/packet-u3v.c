@@ -1683,6 +1683,10 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     if (!u3v_conv_info) {
         u3v_conv_info = wmem_new0(wmem_file_scope(), u3v_conv_info_t);
         usb_conv_info->class_data = u3v_conv_info;
+        usb_conv_info->class_data_type = USB_CONV_U3V;
+    } else if (usb_conv_info->class_data_type != USB_CONV_U3V) {
+        /* Don't dissect if another USB type is in the conversation */
+        return 0;
     }
 
     prefix = tvb_get_letohl(tvb, 0);

@@ -199,8 +199,11 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
         usb_ms_conv_info->itl=wmem_tree_new(wmem_file_scope());
         usb_ms_conv_info->itlq=wmem_tree_new(wmem_file_scope());
         usb_conv_info->class_data=usb_ms_conv_info;
+        usb_conv_info->class_data_type = USB_CONV_MASS_STORAGE;
+    } else if (usb_conv_info->class_data_type != USB_CONV_MASS_STORAGE) {
+        /* Don't dissect if another USB type is in the conversation */
+        return 0;
     }
-
 
     is_request=(pinfo->srcport==NO_ENDPOINT);
 
