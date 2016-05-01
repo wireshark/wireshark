@@ -747,6 +747,7 @@ dissect_zvt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         if (pinfo->can_desegment) {
             pinfo->desegment_offset = offset;
             pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+            return -1;
         }
         return zvt_len;
     }
