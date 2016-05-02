@@ -14,8 +14,6 @@
 #include <string.h>
 #include <epan/packet.h>
 
-DIAG_OFF(unused-parameter)
-
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
@@ -56,17 +54,17 @@ static e_guid_t uuid_dcerpc_misc = {
 };
 static guint16 ver_dcerpc_misc = 1;
 
-static int misc_dissect_element_GUID_time_low(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int misc_dissect_element_GUID_time_mid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int misc_dissect_element_GUID_time_hi_and_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int misc_dissect_element_GUID_clock_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int misc_dissect_element_GUID_clock_seq_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int misc_dissect_element_GUID_node(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int misc_dissect_element_GUID_node_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int misc_dissect_element_ndr_syntax_id_uuid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int misc_dissect_element_ndr_syntax_id_if_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int misc_dissect_element_policy_handle_handle_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int misc_dissect_element_policy_handle_uuid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int misc_dissect_element_GUID_time_low(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int misc_dissect_element_GUID_time_mid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int misc_dissect_element_GUID_time_hi_and_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int misc_dissect_element_GUID_clock_seq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int misc_dissect_element_GUID_clock_seq_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int misc_dissect_element_GUID_node(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int misc_dissect_element_GUID_node_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int misc_dissect_element_ndr_syntax_id_uuid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int misc_dissect_element_ndr_syntax_id_if_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int misc_dissect_element_policy_handle_handle_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int misc_dissect_element_policy_handle_uuid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 const value_string misc_netr_SchannelType_vals[] = {
 	{ SEC_CHAN_NULL, "SEC_CHAN_NULL" },
 	{ SEC_CHAN_LOCAL, "SEC_CHAN_LOCAL" },
@@ -78,9 +76,9 @@ const value_string misc_netr_SchannelType_vals[] = {
 	{ SEC_CHAN_RODC, "SEC_CHAN_RODC" },
 { 0, NULL }
 };
-static int misc_dissect_element_KRB5_EDATA_NTSTATUS_ntstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int misc_dissect_element_KRB5_EDATA_NTSTATUS_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int misc_dissect_element_KRB5_EDATA_NTSTATUS_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int misc_dissect_element_KRB5_EDATA_NTSTATUS_ntstatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int misc_dissect_element_KRB5_EDATA_NTSTATUS_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int misc_dissect_element_KRB5_EDATA_NTSTATUS_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 const value_string misc_winreg_Type_vals[] = {
 	{ REG_NONE, "REG_NONE" },
 	{ REG_SZ, "REG_SZ" },
@@ -107,7 +105,7 @@ const value_string misc_winreg_Type_vals[] = {
 /* IDL: } */
 
 static int
-misc_dissect_element_GUID_time_low(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+misc_dissect_element_GUID_time_low(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_misc_GUID_time_low, 0);
 
@@ -115,7 +113,7 @@ misc_dissect_element_GUID_time_low(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 static int
-misc_dissect_element_GUID_time_mid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+misc_dissect_element_GUID_time_mid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_misc_GUID_time_mid, 0);
 
@@ -123,7 +121,7 @@ misc_dissect_element_GUID_time_mid(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 static int
-misc_dissect_element_GUID_time_hi_and_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+misc_dissect_element_GUID_time_hi_and_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_misc_GUID_time_hi_and_version, 0);
 
@@ -131,7 +129,7 @@ misc_dissect_element_GUID_time_hi_and_version(tvbuff_t *tvb, int offset, packet_
 }
 
 static int
-misc_dissect_element_GUID_clock_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+misc_dissect_element_GUID_clock_seq(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	int i;
 	for (i = 0; i < 2; i++)
@@ -141,7 +139,7 @@ misc_dissect_element_GUID_clock_seq(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 
 static int
-misc_dissect_element_GUID_clock_seq_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+misc_dissect_element_GUID_clock_seq_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_misc_GUID_clock_seq, 0);
 
@@ -149,7 +147,7 @@ misc_dissect_element_GUID_clock_seq_(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 static int
-misc_dissect_element_GUID_node(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+misc_dissect_element_GUID_node(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	int i;
 	for (i = 0; i < 6; i++)
@@ -159,7 +157,7 @@ misc_dissect_element_GUID_node(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 static int
-misc_dissect_element_GUID_node_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+misc_dissect_element_GUID_node_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_misc_GUID_node, 0);
 
@@ -167,7 +165,7 @@ misc_dissect_element_GUID_node_(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 int
-misc_dissect_struct_GUID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
+misc_dissect_struct_GUID(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -210,7 +208,7 @@ misc_dissect_struct_GUID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 /* IDL: } */
 
 static int
-misc_dissect_element_ndr_syntax_id_uuid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+misc_dissect_element_ndr_syntax_id_uuid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, di, drep, hf_misc_ndr_syntax_id_uuid, NULL);
 
@@ -218,7 +216,7 @@ misc_dissect_element_ndr_syntax_id_uuid(tvbuff_t *tvb, int offset, packet_info *
 }
 
 static int
-misc_dissect_element_ndr_syntax_id_if_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+misc_dissect_element_ndr_syntax_id_if_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_misc_ndr_syntax_id_if_version, 0);
 
@@ -226,7 +224,7 @@ misc_dissect_element_ndr_syntax_id_if_version(tvbuff_t *tvb, int offset, packet_
 }
 
 int
-misc_dissect_struct_ndr_syntax_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
+misc_dissect_struct_ndr_syntax_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -263,7 +261,7 @@ misc_dissect_struct_ndr_syntax_id(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* IDL: } */
 
 static int
-misc_dissect_element_policy_handle_handle_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+misc_dissect_element_policy_handle_handle_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_misc_policy_handle_handle_type, 0);
 
@@ -271,7 +269,7 @@ misc_dissect_element_policy_handle_handle_type(tvbuff_t *tvb, int offset, packet
 }
 
 static int
-misc_dissect_element_policy_handle_uuid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+misc_dissect_element_policy_handle_uuid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, di, drep, hf_misc_policy_handle_uuid, NULL);
 
@@ -279,7 +277,7 @@ misc_dissect_element_policy_handle_uuid(tvbuff_t *tvb, int offset, packet_info *
 }
 
 int
-misc_dissect_struct_policy_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
+misc_dissect_struct_policy_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -322,7 +320,7 @@ misc_dissect_struct_policy_handle(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* IDL: } */
 
 int
-misc_dissect_enum_netr_SchannelType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint1632 *param)
+misc_dissect_enum_netr_SchannelType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_)
 {
 	guint1632 parameter=0;
 	if (param) {
@@ -343,7 +341,7 @@ misc_dissect_enum_netr_SchannelType(tvbuff_t *tvb, int offset, packet_info *pinf
 /* IDL: } */
 
 static int
-misc_dissect_element_KRB5_EDATA_NTSTATUS_ntstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+misc_dissect_element_KRB5_EDATA_NTSTATUS_ntstatus(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_misc_KRB5_EDATA_NTSTATUS_ntstatus, 0);
 
@@ -351,7 +349,7 @@ misc_dissect_element_KRB5_EDATA_NTSTATUS_ntstatus(tvbuff_t *tvb, int offset, pac
 }
 
 static int
-misc_dissect_element_KRB5_EDATA_NTSTATUS_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+misc_dissect_element_KRB5_EDATA_NTSTATUS_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_misc_KRB5_EDATA_NTSTATUS_unknown1, 0);
 
@@ -359,7 +357,7 @@ misc_dissect_element_KRB5_EDATA_NTSTATUS_unknown1(tvbuff_t *tvb, int offset, pac
 }
 
 static int
-misc_dissect_element_KRB5_EDATA_NTSTATUS_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+misc_dissect_element_KRB5_EDATA_NTSTATUS_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_misc_KRB5_EDATA_NTSTATUS_unknown2, 0);
 
@@ -367,7 +365,7 @@ misc_dissect_element_KRB5_EDATA_NTSTATUS_unknown2(tvbuff_t *tvb, int offset, pac
 }
 
 int
-misc_dissect_struct_KRB5_EDATA_NTSTATUS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
+misc_dissect_struct_KRB5_EDATA_NTSTATUS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -416,7 +414,7 @@ misc_dissect_struct_KRB5_EDATA_NTSTATUS(tvbuff_t *tvb, int offset, packet_info *
 /* IDL: } */
 
 int
-misc_dissect_enum_winreg_Type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 *param)
+misc_dissect_enum_winreg_Type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
 	guint32 parameter=0;
 	if (param) {

@@ -14,8 +14,6 @@
 #include <string.h>
 #include <epan/packet.h>
 
-DIAG_OFF(unused-parameter)
-
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
@@ -201,9 +199,9 @@ const value_string dnsserver_DNS_RPC_CLIENT_VERSION_vals[] = {
 	{ DNS_CLIENT_VERSION_LONGHORN, "DNS_CLIENT_VERSION_LONGHORN" },
 { 0, NULL }
 };
-static int dnsserver_dissect_element_DNS_RPC_VERSION_OSMajorVersion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_VERSION_OSMinorVersion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_VERSION_ServicePackVersion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int dnsserver_dissect_element_DNS_RPC_VERSION_OSMajorVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_VERSION_OSMinorVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_VERSION_ServicePackVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 const value_string dnsserver_DNS_RPC_BOOT_METHOD_vals[] = {
 	{ DNS_RPC_BOOT_METHOD_FILE, "DNS_RPC_BOOT_METHOD_FILE" },
 	{ DNS_RPC_BOOT_METHOD_REGISTRY, "DNS_RPC_BOOT_METHOD_REGISTRY" },
@@ -390,104 +388,104 @@ static const true_false_string DNS_RPC_NODE_FLAGS_DNS_RPC_FLAG_SUPPRESS_NOTIFY_t
    "DNS_RPC_FLAG_SUPPRESS_NOTIFY is SET",
    "DNS_RPC_FLAG_SUPPRESS_NOTIFY is NOT SET",
 };
-static int dnsserver_dissect_element_DNS_RPC_RECORD_NODE_NAME_Name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_RECORD_UNION_NodeName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_RECORD_DataLength(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_RECORD_Type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, guint16 *Type);
-static int dnsserver_dissect_element_DNS_RPC_RECORD_Flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_RECORD_Serial(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_RECORD_TtlSeconds(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_RECORD_TimeStamp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_RECORD_reserved(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_RECORD_record(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, guint16 *Type);
-static int dnsserver_dissect_element_DNS_RPC_NODE_Length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_NODE_RecordCount(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_NODE_Flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_NODE_Childcount(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_NODE_NodeName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_NODE_records(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_NODE_records_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_IP4_ARRAY_AddrCount(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_IP4_ARRAY_AddrArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_IP4_ARRAY_AddrArray_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RpcStructureVersion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserved0(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_Version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_BootMethod(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AdminConfigured(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AllowUpdate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsAvailable(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerName_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsContainer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsContainer_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerAddrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerAddrs_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ListenAddrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ListenAddrs_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_Forwarders(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_Forwarders_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilter_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilePath(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilePath_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainName_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestName_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainDirectoryPartition(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainDirectoryPartition_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestDirectoryPartition(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestDirectoryPartition_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension0(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension0_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension1_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension2_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension3_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension4_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension5_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogLevel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DebugLevel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForwardTimeout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RpcProtocol(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_NameCheckFlag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AddressAnswerLimit(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RecursionRetry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RecursionTimeout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_MaxCacheTtl(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsPollingInterval(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriorityNetmask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ScavengingInterval(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DefaultRefreshInterval(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DefaultNoRefreshInterval(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LastScavengeTime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_EventLogLevel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFileMaxSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsForestVersion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsDomainVersion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsDsaVersion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AutoReverseZones(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AutoCacheUpdate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RecurseAfterForwarding(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForwardDelegations(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_NoRecursion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_SecureResponses(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RoundRobin(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriority(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_BindSecondaries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_WriteAuthorityNs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_StrictFileParsing(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LooseWildcarding(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DefaultAgingState(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array2_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int dnsserver_dissect_element_DNS_RPC_RECORD_NODE_NAME_Name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_RECORD_UNION_NodeName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_RECORD_DataLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_RECORD_Type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, guint16 *Type);
+static int dnsserver_dissect_element_DNS_RPC_RECORD_Flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_RECORD_Serial(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_RECORD_TtlSeconds(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_RECORD_TimeStamp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_RECORD_reserved(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_RECORD_record(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, guint16 *Type);
+static int dnsserver_dissect_element_DNS_RPC_NODE_Length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_NODE_RecordCount(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_NODE_Flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_NODE_Childcount(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_NODE_NodeName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_NODE_records(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_NODE_records_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_IP4_ARRAY_AddrCount(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_IP4_ARRAY_AddrArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_IP4_ARRAY_AddrArray_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RpcStructureVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserved0(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_Version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_BootMethod(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AdminConfigured(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AllowUpdate(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsAvailable(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerAddrs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerAddrs_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ListenAddrs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ListenAddrs_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_Forwarders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_Forwarders_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilter_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilePath(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilePath_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainDirectoryPartition(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainDirectoryPartition_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestDirectoryPartition(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestDirectoryPartition_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension0(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension0_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension4_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension5_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DebugLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForwardTimeout(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RpcProtocol(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_NameCheckFlag(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AddressAnswerLimit(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RecursionRetry(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RecursionTimeout(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_MaxCacheTtl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsPollingInterval(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriorityNetmask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ScavengingInterval(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DefaultRefreshInterval(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DefaultNoRefreshInterval(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LastScavengeTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_EventLogLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFileMaxSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsForestVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsDomainVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsDsaVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AutoReverseZones(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AutoCacheUpdate(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RecurseAfterForwarding(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForwardDelegations(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_NoRecursion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_SecureResponses(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RoundRobin(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriority(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_BindSecondaries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_WriteAuthorityNs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_StrictFileParsing(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LooseWildcarding(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DefaultAgingState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 const value_string dnsserver_DnssrvRpcTypeId_vals[] = {
 	{ DNSSRV_TYPEID_NULL, "DNSSRV_TYPEID_NULL" },
 	{ DNSSRV_TYPEID_DWORD, "DNSSRV_TYPEID_DWORD" },
@@ -536,48 +534,48 @@ const value_string dnsserver_DnssrvRpcTypeId_vals[] = {
 	{ DNSSRV_TYPEID_UNICODE_STRING_LIST, "DNSSRV_TYPEID_UNICODE_STRING_LIST" },
 { 0, NULL }
 };
-static int dnsserver_dissect_element_DNSSRV_RPC_UNION_null(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNSSRV_RPC_UNION_null_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNSSRV_RPC_UNION_dword(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNSSRV_RPC_UNION_ServerInfoDotnet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNSSRV_RPC_UNION_ServerInfoDotnet_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DNS_RECORD_BUFFER_rpc_node(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvQuery2_client_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvQuery2_setting_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvQuery2_server_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvQuery2_server_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvQuery2_zone(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvQuery2_zone_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvQuery2_operation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvQuery2_operation_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvQuery2_type_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvQuery2_type_id_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvQuery2_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvQuery2_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_client_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_setting_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_server_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_server_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_zone(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_zone_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_node_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_node_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_start_child(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_start_child_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_record_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_select_flag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_filter_start(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_filter_start_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_filter_stop(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_filter_stop_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_buffer_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_buffer_length_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
-static int dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep);
+static int dnsserver_dissect_element_DNSSRV_RPC_UNION_null(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNSSRV_RPC_UNION_null_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNSSRV_RPC_UNION_dword(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNSSRV_RPC_UNION_ServerInfoDotnet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNSSRV_RPC_UNION_ServerInfoDotnet_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DNS_RECORD_BUFFER_rpc_node(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvQuery2_client_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvQuery2_setting_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvQuery2_server_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvQuery2_server_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvQuery2_zone(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvQuery2_zone_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvQuery2_operation(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvQuery2_operation_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvQuery2_type_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvQuery2_type_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvQuery2_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvQuery2_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_client_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_setting_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_server_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_server_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_zone(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_zone_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_node_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_node_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_start_child(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_start_child_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_record_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_select_flag(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_filter_start(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_filter_start_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_filter_stop(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_filter_stop_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_buffer_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_buffer_length_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 	#include "packet-smb-common.h"
 int
-dnsserver_dissect_struct_DNS_RPC_NAME(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
+dnsserver_dissect_struct_DNS_RPC_NAME(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -609,7 +607,7 @@ dnsserver_dissect_struct_DNS_RPC_NAME(tvbuff_t *tvb, int offset, packet_info *pi
 }
 static guint16 node_record_count;
 static int
-dnsserver_dissect_element_DNS_RPC_NODE_RecordCount(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_NODE_RecordCount(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, guint8 *drep _U_)
 {
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
@@ -619,7 +617,7 @@ dnsserver_dissect_element_DNS_RPC_NODE_RecordCount(tvbuff_t *tvb, int offset, pa
 	return offset;
 }
 static int
-dnsserver_dissect_element_DNS_RPC_NODE_records(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_NODE_records(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, guint8 *drep _U_)
 {
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
@@ -639,7 +637,7 @@ dnsserver_dissect_element_DNS_RPC_NODE_records(tvbuff_t *tvb, int offset, packet
 /* IDL: } */
 
 int
-dnsserver_dissect_enum_DNS_RPC_CLIENT_VERSION(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 *param)
+dnsserver_dissect_enum_DNS_RPC_CLIENT_VERSION(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
 	guint32 parameter=0;
 	if (param) {
@@ -660,7 +658,7 @@ dnsserver_dissect_enum_DNS_RPC_CLIENT_VERSION(tvbuff_t *tvb, int offset, packet_
 /* IDL: } */
 
 static int
-dnsserver_dissect_element_DNS_RPC_VERSION_OSMajorVersion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_VERSION_OSMajorVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_VERSION_OSMajorVersion, 0);
 
@@ -668,7 +666,7 @@ dnsserver_dissect_element_DNS_RPC_VERSION_OSMajorVersion(tvbuff_t *tvb, int offs
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_VERSION_OSMinorVersion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_VERSION_OSMinorVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_VERSION_OSMinorVersion, 0);
 
@@ -676,7 +674,7 @@ dnsserver_dissect_element_DNS_RPC_VERSION_OSMinorVersion(tvbuff_t *tvb, int offs
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_VERSION_ServicePackVersion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_VERSION_ServicePackVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_VERSION_ServicePackVersion, 0);
 
@@ -684,7 +682,7 @@ dnsserver_dissect_element_DNS_RPC_VERSION_ServicePackVersion(tvbuff_t *tvb, int 
 }
 
 int
-dnsserver_dissect_struct_DNS_RPC_VERSION(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
+dnsserver_dissect_struct_DNS_RPC_VERSION(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -724,7 +722,7 @@ dnsserver_dissect_struct_DNS_RPC_VERSION(tvbuff_t *tvb, int offset, packet_info 
 /* IDL: } */
 
 int
-dnsserver_dissect_enum_DNS_RPC_BOOT_METHOD(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint8 *param)
+dnsserver_dissect_enum_DNS_RPC_BOOT_METHOD(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint8 *param _U_)
 {
 	guint8 parameter=0;
 	if (param) {
@@ -753,7 +751,7 @@ dnsserver_dissect_enum_DNS_RPC_BOOT_METHOD(tvbuff_t *tvb, int offset, packet_inf
 /* IDL: } */
 
 int
-dnsserver_dissect_bitmap_DNS_LOG_LEVELS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
+dnsserver_dissect_bitmap_DNS_LOG_LEVELS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -875,7 +873,7 @@ dnsserver_dissect_bitmap_DNS_LOG_LEVELS(tvbuff_t *tvb, int offset, packet_info *
 /* IDL: } */
 
 int
-dnsserver_dissect_bitmap_DNS_RPC_PROTOCOLS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
+dnsserver_dissect_bitmap_DNS_RPC_PROTOCOLS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -934,7 +932,7 @@ dnsserver_dissect_bitmap_DNS_RPC_PROTOCOLS(tvbuff_t *tvb, int offset, packet_inf
 /* IDL: } */
 
 int
-dnsserver_dissect_enum_DNS_NAME_CHECK_FLAGS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 *param)
+dnsserver_dissect_enum_DNS_NAME_CHECK_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
 	guint32 parameter=0;
 	if (param) {
@@ -990,7 +988,7 @@ dnsserver_dissect_enum_DNS_NAME_CHECK_FLAGS(tvbuff_t *tvb, int offset, packet_in
 /* IDL: } */
 
 int
-dnsserver_dissect_enum_DNS_RECORD_TYPE(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint16 *param)
+dnsserver_dissect_enum_DNS_RECORD_TYPE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint16 *param _U_)
 {
 	guint16 parameter=0;
 	if (param) {
@@ -1015,7 +1013,7 @@ dnsserver_dissect_enum_DNS_RECORD_TYPE(tvbuff_t *tvb, int offset, packet_info *p
 /* IDL: } */
 
 int
-dnsserver_dissect_bitmap_DNS_SELECT_FLAGS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
+dnsserver_dissect_bitmap_DNS_SELECT_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -1114,7 +1112,7 @@ dnsserver_dissect_bitmap_DNS_SELECT_FLAGS(tvbuff_t *tvb, int offset, packet_info
 /* IDL: } */
 
 int
-dnsserver_dissect_bitmap_DNS_RPC_NODE_FLAGS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
+dnsserver_dissect_bitmap_DNS_RPC_NODE_FLAGS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -1248,7 +1246,7 @@ dnsserver_dissect_bitmap_DNS_RPC_NODE_FLAGS(tvbuff_t *tvb, int offset, packet_in
 /* IDL: } */
 
 static int
-dnsserver_dissect_element_DNS_RPC_RECORD_NODE_NAME_Name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_RECORD_NODE_NAME_Name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_struct_DNS_RPC_NAME(tvb,offset,pinfo,tree,di,drep,hf_dnsserver_DNS_RPC_RECORD_NODE_NAME_Name,0);
 
@@ -1256,7 +1254,7 @@ dnsserver_dissect_element_DNS_RPC_RECORD_NODE_NAME_Name(tvbuff_t *tvb, int offse
 }
 
 int
-dnsserver_dissect_struct_DNS_RPC_RECORD_NODE_NAME(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
+dnsserver_dissect_struct_DNS_RPC_RECORD_NODE_NAME(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -1284,7 +1282,7 @@ dnsserver_dissect_struct_DNS_RPC_RECORD_NODE_NAME(tvbuff_t *tvb, int offset, pac
 /* IDL: } */
 
 static int
-dnsserver_dissect_element_DNS_RPC_RECORD_UNION_NodeName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_RECORD_UNION_NodeName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_struct_DNS_RPC_RECORD_NODE_NAME(tvb,offset,pinfo,tree,di,drep,hf_dnsserver_DNS_RPC_RECORD_UNION_NodeName,0);
 
@@ -1292,7 +1290,7 @@ dnsserver_dissect_element_DNS_RPC_RECORD_UNION_NodeName(tvbuff_t *tvb, int offse
 }
 
 static int
-dnsserver_dissect_DNS_RPC_RECORD_UNION(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
+dnsserver_dissect_DNS_RPC_RECORD_UNION(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -1328,7 +1326,7 @@ dnsserver_dissect_DNS_RPC_RECORD_UNION(tvbuff_t *tvb, int offset, packet_info *p
 /* IDL: } */
 
 static int
-dnsserver_dissect_element_DNS_RPC_RECORD_DataLength(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_RECORD_DataLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_RECORD_DataLength, 0);
 
@@ -1336,7 +1334,7 @@ dnsserver_dissect_element_DNS_RPC_RECORD_DataLength(tvbuff_t *tvb, int offset, p
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_RECORD_Type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, guint16 *Type)
+dnsserver_dissect_element_DNS_RPC_RECORD_Type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, guint16 *Type)
 {
 	offset = dnsserver_dissect_enum_DNS_RECORD_TYPE(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_RECORD_Type, Type);
 
@@ -1344,7 +1342,7 @@ dnsserver_dissect_element_DNS_RPC_RECORD_Type(tvbuff_t *tvb, int offset, packet_
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_RECORD_Flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_RECORD_Flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_RECORD_Flags, 0);
 
@@ -1352,7 +1350,7 @@ dnsserver_dissect_element_DNS_RPC_RECORD_Flags(tvbuff_t *tvb, int offset, packet
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_RECORD_Serial(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_RECORD_Serial(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_RECORD_Serial, 0);
 
@@ -1360,7 +1358,7 @@ dnsserver_dissect_element_DNS_RPC_RECORD_Serial(tvbuff_t *tvb, int offset, packe
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_RECORD_TtlSeconds(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_RECORD_TtlSeconds(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_RECORD_TtlSeconds, 0);
 
@@ -1368,7 +1366,7 @@ dnsserver_dissect_element_DNS_RPC_RECORD_TtlSeconds(tvbuff_t *tvb, int offset, p
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_RECORD_TimeStamp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_RECORD_TimeStamp(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_RECORD_TimeStamp, 0);
 
@@ -1376,7 +1374,7 @@ dnsserver_dissect_element_DNS_RPC_RECORD_TimeStamp(tvbuff_t *tvb, int offset, pa
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_RECORD_reserved(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_RECORD_reserved(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_RECORD_reserved, 0);
 
@@ -1384,7 +1382,7 @@ dnsserver_dissect_element_DNS_RPC_RECORD_reserved(tvbuff_t *tvb, int offset, pac
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_RECORD_record(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, guint16 *Type)
+dnsserver_dissect_element_DNS_RPC_RECORD_record(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, guint16 *Type)
 {
 	offset = dnsserver_dissect_DNS_RPC_RECORD_UNION(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_RECORD_record, *Type);
 
@@ -1392,7 +1390,7 @@ dnsserver_dissect_element_DNS_RPC_RECORD_record(tvbuff_t *tvb, int offset, packe
 }
 
 int
-dnsserver_dissect_struct_DNS_RPC_RECORD(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
+dnsserver_dissect_struct_DNS_RPC_RECORD(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	guint16 Type = 0;
 	proto_item *item = NULL;
@@ -1446,7 +1444,7 @@ dnsserver_dissect_struct_DNS_RPC_RECORD(tvbuff_t *tvb, int offset, packet_info *
 /* IDL: } */
 
 static int
-dnsserver_dissect_element_DNS_RPC_NODE_Length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_NODE_Length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_NODE_Length, 0);
 
@@ -1454,7 +1452,7 @@ dnsserver_dissect_element_DNS_RPC_NODE_Length(tvbuff_t *tvb, int offset, packet_
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_NODE_Flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_NODE_Flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_bitmap_DNS_RPC_NODE_FLAGS(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_NODE_Flags, 0);
 
@@ -1462,7 +1460,7 @@ dnsserver_dissect_element_DNS_RPC_NODE_Flags(tvbuff_t *tvb, int offset, packet_i
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_NODE_Childcount(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_NODE_Childcount(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_NODE_Childcount, 0);
 
@@ -1470,7 +1468,7 @@ dnsserver_dissect_element_DNS_RPC_NODE_Childcount(tvbuff_t *tvb, int offset, pac
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_NODE_NodeName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_NODE_NodeName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_struct_DNS_RPC_NAME(tvb,offset,pinfo,tree,di,drep,hf_dnsserver_DNS_RPC_NODE_NodeName,0);
 
@@ -1478,7 +1476,7 @@ dnsserver_dissect_element_DNS_RPC_NODE_NodeName(tvbuff_t *tvb, int offset, packe
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_NODE_records_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_NODE_records_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_struct_DNS_RPC_RECORD(tvb,offset,pinfo,tree,di,drep,hf_dnsserver_DNS_RPC_NODE_records,0);
 
@@ -1486,7 +1484,7 @@ dnsserver_dissect_element_DNS_RPC_NODE_records_(tvbuff_t *tvb, int offset, packe
 }
 
 int
-dnsserver_dissect_struct_DNS_RPC_NODE(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
+dnsserver_dissect_struct_DNS_RPC_NODE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -1531,7 +1529,7 @@ dnsserver_dissect_struct_DNS_RPC_NODE(tvbuff_t *tvb, int offset, packet_info *pi
 /* IDL: } */
 
 static int
-dnsserver_dissect_element_IP4_ARRAY_AddrCount(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_IP4_ARRAY_AddrCount(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_IP4_ARRAY_AddrCount, 0);
 
@@ -1539,7 +1537,7 @@ dnsserver_dissect_element_IP4_ARRAY_AddrCount(tvbuff_t *tvb, int offset, packet_
 }
 
 static int
-dnsserver_dissect_element_IP4_ARRAY_AddrArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_IP4_ARRAY_AddrArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_IP4_ARRAY_AddrArray_);
 
@@ -1547,7 +1545,7 @@ dnsserver_dissect_element_IP4_ARRAY_AddrArray(tvbuff_t *tvb, int offset, packet_
 }
 
 static int
-dnsserver_dissect_element_IP4_ARRAY_AddrArray_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_IP4_ARRAY_AddrArray_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_IP4_ARRAY_AddrArray, 0);
 
@@ -1555,7 +1553,7 @@ dnsserver_dissect_element_IP4_ARRAY_AddrArray_(tvbuff_t *tvb, int offset, packet
 }
 
 int
-dnsserver_dissect_struct_IP4_ARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
+dnsserver_dissect_struct_IP4_ARRAY(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -1649,7 +1647,7 @@ dnsserver_dissect_struct_IP4_ARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo
 /* IDL: } */
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RpcStructureVersion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RpcStructureVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RpcStructureVersion, 0);
 
@@ -1657,7 +1655,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RpcStructureVersion(tvbuff_
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserved0(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserved0(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_reserved0, 0);
 
@@ -1665,7 +1663,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserved0(tvbuff_t *tvb, in
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_Version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_Version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_struct_DNS_RPC_VERSION(tvb,offset,pinfo,tree,di,drep,hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_Version,0);
 
@@ -1673,7 +1671,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_Version(tvbuff_t *tvb, int 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_BootMethod(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_BootMethod(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_enum_DNS_RPC_BOOT_METHOD(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_BootMethod, 0);
 
@@ -1681,7 +1679,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_BootMethod(tvbuff_t *tvb, i
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AdminConfigured(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AdminConfigured(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AdminConfigured, 0);
 
@@ -1689,7 +1687,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AdminConfigured(tvbuff_t *t
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AllowUpdate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AllowUpdate(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AllowUpdate, 0);
 
@@ -1697,7 +1695,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AllowUpdate(tvbuff_t *tvb, 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsAvailable(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsAvailable(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsAvailable, 0);
 
@@ -1705,7 +1703,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsAvailable(tvbuff_t *tvb, 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerName_, NDR_POINTER_UNIQUE, "Pointer to Servername (uint8)",hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ServerName);
 
@@ -1713,7 +1711,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerName(tvbuff_t *tvb, i
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerName_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -1724,7 +1722,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerName_(tvbuff_t *tvb, 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsContainer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsContainer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsContainer_, NDR_POINTER_UNIQUE, "Pointer to Dscontainer (uint16)",hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsContainer);
 
@@ -1732,7 +1730,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsContainer(tvbuff_t *tvb, 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsContainer_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsContainer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -1743,7 +1741,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsContainer_(tvbuff_t *tvb,
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerAddrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerAddrs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerAddrs_, NDR_POINTER_UNIQUE, "Pointer to Serveraddrs (IP4_ARRAY)",hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ServerAddrs);
 
@@ -1751,7 +1749,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerAddrs(tvbuff_t *tvb, 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerAddrs_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerAddrs_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_struct_IP4_ARRAY(tvb,offset,pinfo,tree,di,drep,hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ServerAddrs,0);
 
@@ -1759,7 +1757,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ServerAddrs_(tvbuff_t *tvb,
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ListenAddrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ListenAddrs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ListenAddrs_, NDR_POINTER_UNIQUE, "Pointer to Listenaddrs (IP4_ARRAY)",hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ListenAddrs);
 
@@ -1767,7 +1765,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ListenAddrs(tvbuff_t *tvb, 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ListenAddrs_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ListenAddrs_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_struct_IP4_ARRAY(tvb,offset,pinfo,tree,di,drep,hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ListenAddrs,0);
 
@@ -1775,7 +1773,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ListenAddrs_(tvbuff_t *tvb,
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_Forwarders(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_Forwarders(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_Forwarders_, NDR_POINTER_UNIQUE, "Pointer to Forwarders (IP4_ARRAY)",hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_Forwarders);
 
@@ -1783,7 +1781,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_Forwarders(tvbuff_t *tvb, i
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_Forwarders_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_Forwarders_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_struct_IP4_ARRAY(tvb,offset,pinfo,tree,di,drep,hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_Forwarders,0);
 
@@ -1791,7 +1789,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_Forwarders_(tvbuff_t *tvb, 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilter(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilter_, NDR_POINTER_UNIQUE, "Pointer to Logfilter (IP4_ARRAY)",hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogFilter);
 
@@ -1799,7 +1797,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilter(tvbuff_t *tvb, in
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilter_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilter_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_struct_IP4_ARRAY(tvb,offset,pinfo,tree,di,drep,hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogFilter,0);
 
@@ -1807,7 +1805,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilter_(tvbuff_t *tvb, i
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilePath(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilePath(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilePath_, NDR_POINTER_UNIQUE, "Pointer to Logfilepath (uint16)",hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogFilePath);
 
@@ -1815,7 +1813,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilePath(tvbuff_t *tvb, 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilePath_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilePath_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -1826,7 +1824,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFilePath_(tvbuff_t *tvb,
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainName_, NDR_POINTER_UNIQUE, "Pointer to Domainname (uint8)",hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DomainName);
 
@@ -1834,7 +1832,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainName(tvbuff_t *tvb, i
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainName_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -1845,7 +1843,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainName_(tvbuff_t *tvb, 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestName_, NDR_POINTER_UNIQUE, "Pointer to Forestname (uint8)",hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForestName);
 
@@ -1853,7 +1851,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestName(tvbuff_t *tvb, i
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestName_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -1864,7 +1862,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestName_(tvbuff_t *tvb, 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainDirectoryPartition(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainDirectoryPartition(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainDirectoryPartition_, NDR_POINTER_UNIQUE, "Pointer to Domaindirectorypartition (uint8)",hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DomainDirectoryPartition);
 
@@ -1872,7 +1870,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainDirectoryPartition(tv
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainDirectoryPartition_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainDirectoryPartition_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -1883,7 +1881,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DomainDirectoryPartition_(t
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestDirectoryPartition(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestDirectoryPartition(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestDirectoryPartition_, NDR_POINTER_UNIQUE, "Pointer to Forestdirectorypartition (uint8)",hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForestDirectoryPartition);
 
@@ -1891,7 +1889,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestDirectoryPartition(tv
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestDirectoryPartition_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestDirectoryPartition_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -1902,7 +1900,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForestDirectoryPartition_(t
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension0(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension0(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension0_, NDR_POINTER_UNIQUE, "Pointer to Extension0 (uint8)",hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension0);
 
@@ -1910,7 +1908,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension0(tvbuff_t *tvb, i
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension0_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension0_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -1921,7 +1919,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension0_(tvbuff_t *tvb, 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension1_, NDR_POINTER_UNIQUE, "Pointer to Extension1 (uint8)",hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension1);
 
@@ -1929,7 +1927,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension1(tvbuff_t *tvb, i
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension1_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension1_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -1940,7 +1938,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension1_(tvbuff_t *tvb, 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension2_, NDR_POINTER_UNIQUE, "Pointer to Extension2 (uint8)",hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension2);
 
@@ -1948,7 +1946,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension2(tvbuff_t *tvb, i
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension2_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -1959,7 +1957,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension2_(tvbuff_t *tvb, 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension3_, NDR_POINTER_UNIQUE, "Pointer to Extension3 (uint8)",hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension3);
 
@@ -1967,7 +1965,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension3(tvbuff_t *tvb, i
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension3_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension3_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -1978,7 +1976,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension3_(tvbuff_t *tvb, 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension4_, NDR_POINTER_UNIQUE, "Pointer to Extension4 (uint8)",hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension4);
 
@@ -1986,7 +1984,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension4(tvbuff_t *tvb, i
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension4_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension4_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -1997,7 +1995,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension4_(tvbuff_t *tvb, 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension5_, NDR_POINTER_UNIQUE, "Pointer to Extension5 (uint8)",hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_extension5);
 
@@ -2005,7 +2003,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension5(tvbuff_t *tvb, i
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension5_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension5_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -2016,7 +2014,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_extension5_(tvbuff_t *tvb, 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogLevel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_bitmap_DNS_LOG_LEVELS(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogLevel, 0);
 
@@ -2024,7 +2022,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogLevel(tvbuff_t *tvb, int
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DebugLevel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DebugLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DebugLevel, 0);
 
@@ -2032,7 +2030,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DebugLevel(tvbuff_t *tvb, i
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForwardTimeout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForwardTimeout(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForwardTimeout, 0);
 
@@ -2040,7 +2038,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForwardTimeout(tvbuff_t *tv
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RpcProtocol(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RpcProtocol(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_bitmap_DNS_RPC_PROTOCOLS(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RpcProtocol, 0);
 
@@ -2048,7 +2046,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RpcProtocol(tvbuff_t *tvb, 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_NameCheckFlag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_NameCheckFlag(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_enum_DNS_NAME_CHECK_FLAGS(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_NameCheckFlag, 0);
 
@@ -2056,7 +2054,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_NameCheckFlag(tvbuff_t *tvb
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AddressAnswerLimit(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AddressAnswerLimit(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AddressAnswerLimit, 0);
 
@@ -2064,7 +2062,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AddressAnswerLimit(tvbuff_t
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RecursionRetry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RecursionRetry(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RecursionRetry, 0);
 
@@ -2072,7 +2070,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RecursionRetry(tvbuff_t *tv
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RecursionTimeout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RecursionTimeout(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RecursionTimeout, 0);
 
@@ -2080,7 +2078,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RecursionTimeout(tvbuff_t *
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_MaxCacheTtl(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_MaxCacheTtl(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_MaxCacheTtl, 0);
 
@@ -2088,7 +2086,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_MaxCacheTtl(tvbuff_t *tvb, 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsPollingInterval(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsPollingInterval(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsPollingInterval, 0);
 
@@ -2096,7 +2094,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsPollingInterval(tvbuff_t 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriorityNetmask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriorityNetmask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriorityNetmask, 0);
 
@@ -2104,7 +2102,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriorityNetmask(tvb
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ScavengingInterval(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ScavengingInterval(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ScavengingInterval, 0);
 
@@ -2112,7 +2110,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ScavengingInterval(tvbuff_t
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DefaultRefreshInterval(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DefaultRefreshInterval(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DefaultRefreshInterval, 0);
 
@@ -2120,7 +2118,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DefaultRefreshInterval(tvbu
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DefaultNoRefreshInterval(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DefaultNoRefreshInterval(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DefaultNoRefreshInterval, 0);
 
@@ -2128,7 +2126,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DefaultNoRefreshInterval(tv
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LastScavengeTime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LastScavengeTime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LastScavengeTime, 0);
 
@@ -2136,7 +2134,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LastScavengeTime(tvbuff_t *
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_EventLogLevel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_EventLogLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_EventLogLevel, 0);
 
@@ -2144,7 +2142,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_EventLogLevel(tvbuff_t *tvb
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFileMaxSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFileMaxSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LogFileMaxSize, 0);
 
@@ -2152,7 +2150,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LogFileMaxSize(tvbuff_t *tv
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsForestVersion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsForestVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsForestVersion, 0);
 
@@ -2160,7 +2158,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsForestVersion(tvbuff_t *t
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsDomainVersion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsDomainVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsDomainVersion, 0);
 
@@ -2168,7 +2166,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsDomainVersion(tvbuff_t *t
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsDsaVersion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsDsaVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DsDsaVersion, 0);
 
@@ -2176,7 +2174,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DsDsaVersion(tvbuff_t *tvb,
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	int i;
 	for (i = 0; i < 4; i++)
@@ -2186,7 +2184,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array(tvbuff_t *tvb
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_reserve_array, 0);
 
@@ -2194,7 +2192,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array_(tvbuff_t *tv
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AutoReverseZones(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AutoReverseZones(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AutoReverseZones, 0);
 
@@ -2202,7 +2200,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AutoReverseZones(tvbuff_t *
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AutoCacheUpdate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AutoCacheUpdate(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_AutoCacheUpdate, 0);
 
@@ -2210,7 +2208,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_AutoCacheUpdate(tvbuff_t *t
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RecurseAfterForwarding(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RecurseAfterForwarding(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RecurseAfterForwarding, 0);
 
@@ -2218,7 +2216,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RecurseAfterForwarding(tvbu
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForwardDelegations(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForwardDelegations(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_ForwardDelegations, 0);
 
@@ -2226,7 +2224,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_ForwardDelegations(tvbuff_t
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_NoRecursion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_NoRecursion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_NoRecursion, 0);
 
@@ -2234,7 +2232,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_NoRecursion(tvbuff_t *tvb, 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_SecureResponses(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_SecureResponses(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_SecureResponses, 0);
 
@@ -2242,7 +2240,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_SecureResponses(tvbuff_t *t
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RoundRobin(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RoundRobin(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_RoundRobin, 0);
 
@@ -2250,7 +2248,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_RoundRobin(tvbuff_t *tvb, i
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriority(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriority(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriority, 0);
 
@@ -2258,7 +2256,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LocalNetPriority(tvbuff_t *
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_BindSecondaries(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_BindSecondaries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_BindSecondaries, 0);
 
@@ -2266,7 +2264,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_BindSecondaries(tvbuff_t *t
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_WriteAuthorityNs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_WriteAuthorityNs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_WriteAuthorityNs, 0);
 
@@ -2274,7 +2272,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_WriteAuthorityNs(tvbuff_t *
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_StrictFileParsing(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_StrictFileParsing(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_StrictFileParsing, 0);
 
@@ -2282,7 +2280,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_StrictFileParsing(tvbuff_t 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LooseWildcarding(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LooseWildcarding(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_LooseWildcarding, 0);
 
@@ -2290,7 +2288,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_LooseWildcarding(tvbuff_t *
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DefaultAgingState(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DefaultAgingState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_DefaultAgingState, 0);
 
@@ -2298,7 +2296,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_DefaultAgingState(tvbuff_t 
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	int i;
 	for (i = 0; i < 15; i++)
@@ -2308,7 +2306,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array2(tvbuff_t *tv
 }
 
 static int
-dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array2_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array2_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNS_RPC_SERVER_INFO_DOTNET_reserve_array2, 0);
 
@@ -2316,7 +2314,7 @@ dnsserver_dissect_element_DNS_RPC_SERVER_INFO_DOTNET_reserve_array2_(tvbuff_t *t
 }
 
 int
-dnsserver_dissect_struct_DNS_RPC_SERVER_INFO_DOTNET(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
+dnsserver_dissect_struct_DNS_RPC_SERVER_INFO_DOTNET(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2510,7 +2508,7 @@ dnsserver_dissect_struct_DNS_RPC_SERVER_INFO_DOTNET(tvbuff_t *tvb, int offset, p
 /* IDL: } */
 
 int
-dnsserver_dissect_enum_DnssrvRpcTypeId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 *param)
+dnsserver_dissect_enum_DnssrvRpcTypeId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
 {
 	guint32 parameter=0;
 	if (param) {
@@ -2531,7 +2529,7 @@ dnsserver_dissect_enum_DnssrvRpcTypeId(tvbuff_t *tvb, int offset, packet_info *p
 /* IDL: } */
 
 static int
-dnsserver_dissect_element_DNSSRV_RPC_UNION_null(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNSSRV_RPC_UNION_null(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DNSSRV_RPC_UNION_null_, NDR_POINTER_UNIQUE, "Pointer to Null (uint8)",hf_dnsserver_DNSSRV_RPC_UNION_null);
 
@@ -2539,7 +2537,7 @@ dnsserver_dissect_element_DNSSRV_RPC_UNION_null(tvbuff_t *tvb, int offset, packe
 }
 
 static int
-dnsserver_dissect_element_DNSSRV_RPC_UNION_null_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNSSRV_RPC_UNION_null_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNSSRV_RPC_UNION_null, 0);
 
@@ -2547,7 +2545,7 @@ dnsserver_dissect_element_DNSSRV_RPC_UNION_null_(tvbuff_t *tvb, int offset, pack
 }
 
 static int
-dnsserver_dissect_element_DNSSRV_RPC_UNION_dword(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNSSRV_RPC_UNION_dword(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DNSSRV_RPC_UNION_dword, 0);
 
@@ -2555,7 +2553,7 @@ dnsserver_dissect_element_DNSSRV_RPC_UNION_dword(tvbuff_t *tvb, int offset, pack
 }
 
 static int
-dnsserver_dissect_element_DNSSRV_RPC_UNION_ServerInfoDotnet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNSSRV_RPC_UNION_ServerInfoDotnet(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DNSSRV_RPC_UNION_ServerInfoDotnet_, NDR_POINTER_UNIQUE, "Pointer to Serverinfodotnet (DNS_RPC_SERVER_INFO_DOTNET)",hf_dnsserver_DNSSRV_RPC_UNION_ServerInfoDotnet);
 
@@ -2563,7 +2561,7 @@ dnsserver_dissect_element_DNSSRV_RPC_UNION_ServerInfoDotnet(tvbuff_t *tvb, int o
 }
 
 static int
-dnsserver_dissect_element_DNSSRV_RPC_UNION_ServerInfoDotnet_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNSSRV_RPC_UNION_ServerInfoDotnet_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_struct_DNS_RPC_SERVER_INFO_DOTNET(tvb,offset,pinfo,tree,di,drep,hf_dnsserver_DNSSRV_RPC_UNION_ServerInfoDotnet,0);
 
@@ -2571,7 +2569,7 @@ dnsserver_dissect_element_DNSSRV_RPC_UNION_ServerInfoDotnet_(tvbuff_t *tvb, int 
 }
 
 static int
-dnsserver_dissect_DNSSRV_RPC_UNION(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
+dnsserver_dissect_DNSSRV_RPC_UNION(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2610,7 +2608,7 @@ dnsserver_dissect_DNSSRV_RPC_UNION(tvbuff_t *tvb, int offset, packet_info *pinfo
 /* IDL: } */
 
 static int
-dnsserver_dissect_element_DNS_RECORD_BUFFER_rpc_node(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DNS_RECORD_BUFFER_rpc_node(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_struct_DNS_RPC_NODE(tvb,offset,pinfo,tree,di,drep,hf_dnsserver_DNS_RECORD_BUFFER_rpc_node,0);
 
@@ -2618,7 +2616,7 @@ dnsserver_dissect_element_DNS_RECORD_BUFFER_rpc_node(tvbuff_t *tvb, int offset, 
 }
 
 int
-dnsserver_dissect_struct_DNS_RECORD_BUFFER(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, guint32 param)
+dnsserver_dissect_struct_DNS_RECORD_BUFFER(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2651,7 +2649,7 @@ dnsserver_dissect_struct_DNS_RECORD_BUFFER(tvbuff_t *tvb, int offset, packet_inf
 /* IDL: ); */
 
 static int
-dnsserver_dissect_DnssrvOperation_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvOperation_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
@@ -2665,7 +2663,7 @@ dnsserver_dissect_DnssrvOperation_response(tvbuff_t *tvb, int offset, packet_inf
 }
 
 static int
-dnsserver_dissect_DnssrvOperation_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvOperation_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	di->dcerpc_procedure_name="DnssrvOperation";
 	return offset;
@@ -2676,7 +2674,7 @@ dnsserver_dissect_DnssrvOperation_request(tvbuff_t *tvb, int offset, packet_info
 /* IDL: ); */
 
 static int
-dnsserver_dissect_DnssrvQuery_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvQuery_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
@@ -2690,7 +2688,7 @@ dnsserver_dissect_DnssrvQuery_response(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 static int
-dnsserver_dissect_DnssrvQuery_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvQuery_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	di->dcerpc_procedure_name="DnssrvQuery";
 	return offset;
@@ -2701,7 +2699,7 @@ dnsserver_dissect_DnssrvQuery_request(tvbuff_t *tvb, int offset, packet_info *pi
 /* IDL: ); */
 
 static int
-dnsserver_dissect_DnssrvComplexOperation_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvComplexOperation_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
@@ -2715,7 +2713,7 @@ dnsserver_dissect_DnssrvComplexOperation_response(tvbuff_t *tvb, int offset, pac
 }
 
 static int
-dnsserver_dissect_DnssrvComplexOperation_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvComplexOperation_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	di->dcerpc_procedure_name="DnssrvComplexOperation";
 	return offset;
@@ -2726,7 +2724,7 @@ dnsserver_dissect_DnssrvComplexOperation_request(tvbuff_t *tvb, int offset, pack
 /* IDL: ); */
 
 static int
-dnsserver_dissect_DnssrvEnumRecords_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvEnumRecords_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
@@ -2740,7 +2738,7 @@ dnsserver_dissect_DnssrvEnumRecords_response(tvbuff_t *tvb, int offset, packet_i
 }
 
 static int
-dnsserver_dissect_DnssrvEnumRecords_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvEnumRecords_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	di->dcerpc_procedure_name="DnssrvEnumRecords";
 	return offset;
@@ -2751,7 +2749,7 @@ dnsserver_dissect_DnssrvEnumRecords_request(tvbuff_t *tvb, int offset, packet_in
 /* IDL: ); */
 
 static int
-dnsserver_dissect_DnssrvUpdateRecord_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvUpdateRecord_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
@@ -2765,7 +2763,7 @@ dnsserver_dissect_DnssrvUpdateRecord_response(tvbuff_t *tvb, int offset, packet_
 }
 
 static int
-dnsserver_dissect_DnssrvUpdateRecord_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvUpdateRecord_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	di->dcerpc_procedure_name="DnssrvUpdateRecord";
 	return offset;
@@ -2776,7 +2774,7 @@ dnsserver_dissect_DnssrvUpdateRecord_request(tvbuff_t *tvb, int offset, packet_i
 /* IDL: ); */
 
 static int
-dnsserver_dissect_DnssrvOperation2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvOperation2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
@@ -2790,14 +2788,14 @@ dnsserver_dissect_DnssrvOperation2_response(tvbuff_t *tvb, int offset, packet_in
 }
 
 static int
-dnsserver_dissect_DnssrvOperation2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvOperation2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	di->dcerpc_procedure_name="DnssrvOperation2";
 	return offset;
 }
 
 static int
-dnsserver_dissect_element_DnssrvQuery2_client_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvQuery2_client_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_enum_DNS_RPC_CLIENT_VERSION(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DnssrvQuery2_client_version, 0);
 
@@ -2805,7 +2803,7 @@ dnsserver_dissect_element_DnssrvQuery2_client_version(tvbuff_t *tvb, int offset,
 }
 
 static int
-dnsserver_dissect_element_DnssrvQuery2_setting_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvQuery2_setting_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DnssrvQuery2_setting_flags, 0);
 
@@ -2813,7 +2811,7 @@ dnsserver_dissect_element_DnssrvQuery2_setting_flags(tvbuff_t *tvb, int offset, 
 }
 
 static int
-dnsserver_dissect_element_DnssrvQuery2_server_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvQuery2_server_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DnssrvQuery2_server_name_, NDR_POINTER_UNIQUE, "Pointer to Server Name (uint16)",hf_dnsserver_DnssrvQuery2_server_name);
 
@@ -2821,7 +2819,7 @@ dnsserver_dissect_element_DnssrvQuery2_server_name(tvbuff_t *tvb, int offset, pa
 }
 
 static int
-dnsserver_dissect_element_DnssrvQuery2_server_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvQuery2_server_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -2832,7 +2830,7 @@ dnsserver_dissect_element_DnssrvQuery2_server_name_(tvbuff_t *tvb, int offset, p
 }
 
 static int
-dnsserver_dissect_element_DnssrvQuery2_zone(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvQuery2_zone(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DnssrvQuery2_zone_, NDR_POINTER_UNIQUE, "Pointer to Zone (uint8)",hf_dnsserver_DnssrvQuery2_zone);
 
@@ -2840,7 +2838,7 @@ dnsserver_dissect_element_DnssrvQuery2_zone(tvbuff_t *tvb, int offset, packet_in
 }
 
 static int
-dnsserver_dissect_element_DnssrvQuery2_zone_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvQuery2_zone_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -2851,7 +2849,7 @@ dnsserver_dissect_element_DnssrvQuery2_zone_(tvbuff_t *tvb, int offset, packet_i
 }
 
 static int
-dnsserver_dissect_element_DnssrvQuery2_operation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvQuery2_operation(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DnssrvQuery2_operation_, NDR_POINTER_UNIQUE, "Pointer to Operation (uint8)",hf_dnsserver_DnssrvQuery2_operation);
 
@@ -2859,7 +2857,7 @@ dnsserver_dissect_element_DnssrvQuery2_operation(tvbuff_t *tvb, int offset, pack
 }
 
 static int
-dnsserver_dissect_element_DnssrvQuery2_operation_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvQuery2_operation_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -2870,7 +2868,7 @@ dnsserver_dissect_element_DnssrvQuery2_operation_(tvbuff_t *tvb, int offset, pac
 }
 
 static int
-dnsserver_dissect_element_DnssrvQuery2_type_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvQuery2_type_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DnssrvQuery2_type_id_, NDR_POINTER_REF, "Pointer to Type Id (DnssrvRpcTypeId)",hf_dnsserver_DnssrvQuery2_type_id);
 
@@ -2878,7 +2876,7 @@ dnsserver_dissect_element_DnssrvQuery2_type_id(tvbuff_t *tvb, int offset, packet
 }
 
 static int
-dnsserver_dissect_element_DnssrvQuery2_type_id_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvQuery2_type_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_enum_DnssrvRpcTypeId(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DnssrvQuery2_type_id, 0);
 
@@ -2886,7 +2884,7 @@ dnsserver_dissect_element_DnssrvQuery2_type_id_(tvbuff_t *tvb, int offset, packe
 }
 
 static int
-dnsserver_dissect_element_DnssrvQuery2_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvQuery2_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DnssrvQuery2_data_, NDR_POINTER_REF, "Pointer to Data (DNSSRV_RPC_UNION)",hf_dnsserver_DnssrvQuery2_data);
 
@@ -2894,7 +2892,7 @@ dnsserver_dissect_element_DnssrvQuery2_data(tvbuff_t *tvb, int offset, packet_in
 }
 
 static int
-dnsserver_dissect_element_DnssrvQuery2_data_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvQuery2_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_DNSSRV_RPC_UNION(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DnssrvQuery2_data, 0);
 
@@ -2912,7 +2910,7 @@ dnsserver_dissect_element_DnssrvQuery2_data_(tvbuff_t *tvb, int offset, packet_i
 /* IDL: ); */
 
 static int
-dnsserver_dissect_DnssrvQuery2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvQuery2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
@@ -2932,7 +2930,7 @@ dnsserver_dissect_DnssrvQuery2_response(tvbuff_t *tvb, int offset, packet_info *
 }
 
 static int
-dnsserver_dissect_DnssrvQuery2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvQuery2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	di->dcerpc_procedure_name="DnssrvQuery2";
 	offset = dnsserver_dissect_element_DnssrvQuery2_client_version(tvb, offset, pinfo, tree, di, drep);
@@ -2953,7 +2951,7 @@ dnsserver_dissect_DnssrvQuery2_request(tvbuff_t *tvb, int offset, packet_info *p
 /* IDL: ); */
 
 static int
-dnsserver_dissect_DnssrvComplexOperation2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvComplexOperation2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
@@ -2967,14 +2965,14 @@ dnsserver_dissect_DnssrvComplexOperation2_response(tvbuff_t *tvb, int offset, pa
 }
 
 static int
-dnsserver_dissect_DnssrvComplexOperation2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvComplexOperation2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	di->dcerpc_procedure_name="DnssrvComplexOperation2";
 	return offset;
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_client_version(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_client_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_enum_DNS_RPC_CLIENT_VERSION(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DnssrvEnumRecords2_client_version, 0);
 
@@ -2982,7 +2980,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_client_version(tvbuff_t *tvb, int o
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_setting_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_setting_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DnssrvEnumRecords2_setting_flags, 0);
 
@@ -2990,7 +2988,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_setting_flags(tvbuff_t *tvb, int of
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_server_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_server_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DnssrvEnumRecords2_server_name_, NDR_POINTER_UNIQUE, "Pointer to Server Name (uint16)",hf_dnsserver_DnssrvEnumRecords2_server_name);
 
@@ -2998,7 +2996,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_server_name(tvbuff_t *tvb, int offs
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_server_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_server_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -3009,7 +3007,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_server_name_(tvbuff_t *tvb, int off
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_zone(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_zone(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DnssrvEnumRecords2_zone_, NDR_POINTER_UNIQUE, "Pointer to Zone (uint8)",hf_dnsserver_DnssrvEnumRecords2_zone);
 
@@ -3017,7 +3015,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_zone(tvbuff_t *tvb, int offset, pac
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_zone_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_zone_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -3028,7 +3026,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_zone_(tvbuff_t *tvb, int offset, pa
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_node_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_node_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DnssrvEnumRecords2_node_name_, NDR_POINTER_UNIQUE, "Pointer to Node Name (uint8)",hf_dnsserver_DnssrvEnumRecords2_node_name);
 
@@ -3036,7 +3034,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_node_name(tvbuff_t *tvb, int offset
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_node_name_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_node_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -3047,7 +3045,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_node_name_(tvbuff_t *tvb, int offse
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_start_child(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_start_child(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DnssrvEnumRecords2_start_child_, NDR_POINTER_UNIQUE, "Pointer to Start Child (uint8)",hf_dnsserver_DnssrvEnumRecords2_start_child);
 
@@ -3055,7 +3053,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_start_child(tvbuff_t *tvb, int offs
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_start_child_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_start_child_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -3066,7 +3064,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_start_child_(tvbuff_t *tvb, int off
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_record_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_record_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_enum_DNS_RECORD_TYPE(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DnssrvEnumRecords2_record_type, 0);
 
@@ -3074,7 +3072,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_record_type(tvbuff_t *tvb, int offs
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_select_flag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_select_flag(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_bitmap_DNS_SELECT_FLAGS(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DnssrvEnumRecords2_select_flag, 0);
 
@@ -3082,7 +3080,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_select_flag(tvbuff_t *tvb, int offs
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_filter_start(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_filter_start(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DnssrvEnumRecords2_filter_start_, NDR_POINTER_UNIQUE, "Pointer to Filter Start (uint8)",hf_dnsserver_DnssrvEnumRecords2_filter_start);
 
@@ -3090,7 +3088,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_filter_start(tvbuff_t *tvb, int off
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_filter_start_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_filter_start_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -3101,7 +3099,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_filter_start_(tvbuff_t *tvb, int of
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_filter_stop(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_filter_stop(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DnssrvEnumRecords2_filter_stop_, NDR_POINTER_UNIQUE, "Pointer to Filter Stop (uint8)",hf_dnsserver_DnssrvEnumRecords2_filter_stop);
 
@@ -3109,7 +3107,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_filter_stop(tvbuff_t *tvb, int offs
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_filter_stop_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_filter_stop_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	char *data;
 
@@ -3120,7 +3118,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_filter_stop_(tvbuff_t *tvb, int off
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_buffer_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_buffer_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DnssrvEnumRecords2_buffer_length_, NDR_POINTER_REF, "Pointer to Buffer Length (uint32)",hf_dnsserver_DnssrvEnumRecords2_buffer_length);
 
@@ -3128,7 +3126,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_buffer_length(tvbuff_t *tvb, int of
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_buffer_length_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_buffer_length_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_dnsserver_DnssrvEnumRecords2_buffer_length, 0);
 
@@ -3136,7 +3134,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_buffer_length_(tvbuff_t *tvb, int o
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer_, NDR_POINTER_UNIQUE, "Pointer to Record Buffer (DNS_RPC_NODE)",hf_dnsserver_DnssrvEnumRecords2_record_buffer);
 
@@ -3144,7 +3142,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer(tvbuff_t *tvb, int of
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	guint3264 size;
 	int conformant = di->conformant_run;
@@ -3164,7 +3162,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer_(tvbuff_t *tvb, int o
 }
 
 static int
-dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer__(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dnsserver_dissect_struct_DNS_RPC_NODE(tvb,offset,pinfo,tree,di,drep,hf_dnsserver_DnssrvEnumRecords2_record_buffer,0);
 
@@ -3187,7 +3185,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer__(tvbuff_t *tvb, int 
 /* IDL: ); */
 
 static int
-dnsserver_dissect_DnssrvEnumRecords2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvEnumRecords2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
@@ -3207,7 +3205,7 @@ dnsserver_dissect_DnssrvEnumRecords2_response(tvbuff_t *tvb, int offset, packet_
 }
 
 static int
-dnsserver_dissect_DnssrvEnumRecords2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvEnumRecords2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	di->dcerpc_procedure_name="DnssrvEnumRecords2";
 	offset = dnsserver_dissect_element_DnssrvEnumRecords2_client_version(tvb, offset, pinfo, tree, di, drep);
@@ -3238,7 +3236,7 @@ dnsserver_dissect_DnssrvEnumRecords2_request(tvbuff_t *tvb, int offset, packet_i
 /* IDL: ); */
 
 static int
-dnsserver_dissect_DnssrvUpdateRecord2_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvUpdateRecord2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
@@ -3252,7 +3250,7 @@ dnsserver_dissect_DnssrvUpdateRecord2_response(tvbuff_t *tvb, int offset, packet
 }
 
 static int
-dnsserver_dissect_DnssrvUpdateRecord2_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+dnsserver_dissect_DnssrvUpdateRecord2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	di->dcerpc_procedure_name="DnssrvUpdateRecord2";
 	return offset;
