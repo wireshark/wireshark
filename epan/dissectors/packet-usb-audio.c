@@ -75,6 +75,14 @@ static int hf_ac_if_fu_controls_d8 = -1;
 static int hf_ac_if_fu_controls_d9 = -1;
 static int hf_ac_if_fu_controls_rsv = -1;
 static int hf_ac_if_fu_ifeature = -1;
+static int hf_ac_if_mu_unitid = -1;
+static int hf_ac_if_mu_nrinpins = -1;
+static int hf_ac_if_mu_sourceid = -1;
+static int hf_ac_if_mu_nrchannels = -1;
+static int hf_ac_if_mu_channelconfig = -1;
+static int hf_ac_if_mu_channelnames = -1;
+static int hf_ac_if_mu_controls = -1;
+static int hf_ac_if_mu_imixer = -1;
 static int hf_as_if_desc_subtype = -1;
 static int hf_as_if_gen_term_id = -1;
 static int hf_as_if_gen_delay = -1;
@@ -578,6 +586,45 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 }
 
 static gint
+dissect_ac_if_mixed_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+        proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
+{
+    gint     offset_start;
+    guint8 nrinpins;
+    offset_start = offset;
+
+    proto_tree_add_item(tree, hf_ac_if_mu_unitid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ac_if_mu_nrinpins, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    nrinpins = tvb_get_guint8(tvb, offset);
+    offset += 1;
+
+    while(nrinpins){
+        proto_tree_add_item(tree, hf_ac_if_mu_sourceid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        nrinpins--;
+        offset += 1;
+    }
+
+    proto_tree_add_item(tree, hf_ac_if_mu_nrchannels, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ac_if_mu_channelconfig, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_ac_if_mu_channelnames, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ac_if_mu_controls, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ac_if_mu_imixer, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    return offset-offset_start;
+}
+
+static gint
 dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
@@ -738,6 +785,9 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
                 break;
             case AC_SUBTYPE_OUTPUT_TERMINAL:
                 dissect_ac_if_output_terminal(tvb, offset, pinfo, desc_tree, usb_conv_info);
+                break;
+            case AC_SUBTYPE_MIXER_UNIT:
+                dissect_ac_if_mixed_unit(tvb, offset, pinfo, desc_tree, usb_conv_info);
                 break;
             case AC_SUBTYPE_FEATURE_UNIT:
                 dissect_ac_if_feature_unit(tvb, offset, pinfo, desc_tree, usb_conv_info);
@@ -973,6 +1023,30 @@ proto_register_usb_audio(void)
         { &hf_ac_if_fu_ifeature,
             { "Feature", "usbaudio.ac_if_fu.iFeature",
               FT_UINT8, BASE_DEC, NULL, 0x00, "iFeature", HFILL }},
+        { &hf_ac_if_mu_unitid,
+            { "Unit ID", "usbaudio.ac_if_mu.bUnitID",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bUnitID", HFILL }},
+        { &hf_ac_if_mu_nrinpins,
+            { "Number In Pins", "usbaudio.ac_if_mu.bNrInPins",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bNrInPins", HFILL }},
+        { &hf_ac_if_mu_sourceid,
+            { "Source ID", "usbaudio.ac_if_mu.baSourceID",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "baSourceID", HFILL }},
+        { &hf_ac_if_mu_nrchannels,
+            { "Number Channels", "usbaudio.ac_if_mu.bNrChannels",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bNrChannels", HFILL }},
+        { &hf_ac_if_mu_channelconfig,
+            { "Channel Config", "usbaudio.ac_if_mu.wChannelConfig",
+              FT_UINT8, BASE_HEX, NULL, 0x00, "wChannelConfig", HFILL }},
+        { &hf_ac_if_mu_channelnames,
+            { "Channel Names", "usbaudio.ac_if_mu.iChannelNames",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "iChannelNames", HFILL }},
+        { &hf_ac_if_mu_controls,
+            { "Controls", "usbaudio.ac_if_mu.bmControls",
+              FT_UINT8, BASE_HEX, NULL, 0x00, "bmControls", HFILL }},
+        { &hf_ac_if_mu_imixer,
+            { "Mixer", "usbaudio.ac_if_mu.iMixer",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "iMixer", HFILL }},
         { &hf_as_if_desc_subtype,
             { "Subtype", "usbaudio.as_if_subtype", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
                 &as_subtype_vals_ext, 0x00, "bDescriptorSubtype", HFILL }},
