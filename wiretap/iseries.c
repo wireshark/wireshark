@@ -166,9 +166,7 @@ Number  S/R  Length    Timer                        MAC Address   MAC Address   
 #define ISERIES_LINE_LENGTH           270
 #define ISERIES_HDR_LINES_TO_CHECK    100
 #define ISERIES_PKT_LINES_TO_CHECK    4
-#define ISERIES_MAX_PACKET_LEN        16384
 #define ISERIES_MAX_TRACE_LEN         99999999
-#define ISERIES_PKT_ALLOC_SIZE        (pkt_len*2)+1
 #define ISERIES_FORMAT_ASCII          1
 #define ISERIES_FORMAT_UNICODE        2
 
@@ -695,8 +693,8 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
   phdr->pkt_encap                 = WTAP_ENCAP_ETHERNET;
   phdr->pseudo_header.eth.fcs_len = -1;
 
-  ascii_buf = (char *)g_malloc (ISERIES_PKT_ALLOC_SIZE);
-  g_snprintf(ascii_buf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s", destmac, srcmac, type);
+  ascii_buf = (char *)g_malloc ((pkt_len*2)+1);
+  g_snprintf(ascii_buf, (pkt_len*2)+1, "%s%s%s", destmac, srcmac, type);
   ascii_offset = 14*2; /* 14-byte Ethernet header, 2 characters per byte */
 
   /*
@@ -759,7 +757,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
               strncmp(data + 22, "Option  Hdr:  ", 14) == 0)
             {
               ascii_offset = append_hex_digits(ascii_buf, ascii_offset,
-                                               ISERIES_PKT_ALLOC_SIZE - 1,
+                                               pkt_len*2,
                                                data + 22 + 14, err,
                                                err_info);
               if (ascii_offset == -1)
@@ -781,7 +779,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
           if (strncmp(data + 9, "Data . . . . . :  ", 18) == 0)
             {
               ascii_offset = append_hex_digits(ascii_buf, ascii_offset,
-                                               ISERIES_PKT_ALLOC_SIZE - 1,
+                                               pkt_len*2,
                                                data + 9 + 18, err,
                                                err_info);
               if (ascii_offset == -1)
@@ -804,7 +802,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
       if (offset == 36 || offset == 27)
         {
           ascii_offset = append_hex_digits(ascii_buf, ascii_offset,
-                                           ISERIES_PKT_ALLOC_SIZE - 1,
+                                           pkt_len*2,
                                            data + offset, err,
                                            err_info);
           if (ascii_offset == -1)
@@ -853,7 +851,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
   phdr->caplen = ((guint32) strlen (ascii_buf))/2;
 
   /* Make sure we have enough room for the packet. */
-  buffer_assure_space (buf, ISERIES_MAX_PACKET_LEN);
+  buffer_assure_space (buf, phdr->caplen);
   /* Convert ascii data to binary and return in the frame buffer */
   iseries_parse_hex_string (ascii_buf, buffer_start_ptr (buf), strlen (ascii_buf));
 
