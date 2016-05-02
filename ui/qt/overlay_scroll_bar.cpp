@@ -63,6 +63,7 @@ OverlayScrollBar::OverlayScrollBar(Qt::Orientation orientation, QWidget *parent)
     child_sb_(orientation, this),
     packet_map_img_(QImage()),
     packet_map_width_(0),
+    marked_packet_width_(0),
     start_pos_(-1),
     end_pos_(-1),
     selected_pos_(-1)
