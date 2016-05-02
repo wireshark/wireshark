@@ -486,7 +486,7 @@ static int cond_hash(tvbparse_t* tt, const int offset, const tvbparse_wanted_t* 
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_HASH) g_warning("cond_hash: got key='%s'",key);
 #endif
 
-    if ((value_wanted = (tvbparse_wanted_t *)g_hash_table_lookup(wanted->control.hash.table,key))) {
+    if ((value_wanted = (tvbparse_wanted_t *)wmem_map_lookup(wanted->control.hash.table,key))) {
         value_len = value_wanted->condition(tt, offset + key_len, value_wanted,  &value_elem);
     } else if (wanted->control.hash.other) {
         value_len = wanted->control.hash.other->condition(tt, offset+key_len, wanted->control.hash.other,  &value_elem);
@@ -527,7 +527,7 @@ tvbparse_wanted_t* tvbparse_hashed(const int id,
     w->data = data;
     w->before = before_cb;
     w->after = after_cb;
-    w->control.hash.table = g_hash_table_new(g_str_hash,g_str_equal);
+    w->control.hash.table = wmem_map_new(wmem_epan_scope(), g_str_hash,g_str_equal);
     w->control.hash.key = key;
     w->control.hash.other = other;
 
@@ -535,7 +535,7 @@ tvbparse_wanted_t* tvbparse_hashed(const int id,
 
     while(( name = va_arg(ap,gchar*) )) {
         el = va_arg(ap,tvbparse_wanted_t*);
-        g_hash_table_insert(w->control.hash.table,name,el);
+        wmem_map_insert(w->control.hash.table,name,el);
     }
 
     va_end(ap);
@@ -552,7 +552,7 @@ void tvbparse_hashed_add(tvbparse_wanted_t* w, ...) {
 
     while (( name = va_arg(ap,gchar*) )) {
         el = va_arg(ap,tvbparse_wanted_t*);
-        g_hash_table_insert(w->control.hash.table,name,el);
+        wmem_map_insert(w->control.hash.table,name,el);
     }
 
     va_end(ap);

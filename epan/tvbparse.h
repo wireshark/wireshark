@@ -121,7 +121,7 @@ struct _tvbparse_wanted_t {
             const tvbparse_wanted_t* subelem;
         } until;
         struct {
-            GHashTable* table;
+            wmem_map_t* table;
             struct _tvbparse_wanted_t* key;
             struct _tvbparse_wanted_t* other;
         } hash;
