@@ -673,6 +673,27 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
               return FALSE;
             }
 
+          if (strlen(destmac) != 12)
+            {
+              *err = WTAP_ERR_BAD_FILE;
+              *err_info = g_strdup ("iseries: packet header has a destination MAC address shorter than 6 bytes");
+              return FALSE;
+            }
+
+          if (strlen(srcmac) != 12)
+            {
+              *err = WTAP_ERR_BAD_FILE;
+              *err_info = g_strdup ("iseries: packet header has a source MAC address shorter than 6 bytes");
+              return FALSE;
+            }
+
+          if (strlen(type) != 4)
+            {
+              *err = WTAP_ERR_BAD_FILE;
+              *err_info = g_strdup ("iseries: packet header has an Ethernet type/length field than 2 bytes");
+              return FALSE;
+            }
+
           /* OK! We found the packet header line */
           isValid = TRUE;
           /*
@@ -772,9 +793,32 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
   phdr->pkt_encap                 = WTAP_ENCAP_ETHERNET;
   phdr->pseudo_header.eth.fcs_len = -1;
 
-  ascii_buf = (char *)g_malloc ((pkt_len*2)+1);
-  g_snprintf(ascii_buf, (pkt_len*2)+1, "%s%s%s", destmac, srcmac, type);
-  ascii_offset = 14*2; /* 14-byte Ethernet header, 2 characters per byte */
+  /* 
+   * Allocate a buffer big enough to hold the claimed packet length
+   * worth of byte values; each byte will be two hex digits, so the
+   * buffer's size should be twice the packet length.
+   *
+   * (There is no need to null-terminate the buffer.)
+   */
+  ascii_buf = (char *)g_malloc (pkt_len*2);
+  ascii_offset = 0;
+
+  /*
+   * Copy in the Ethernet header.
+   *
+   * The three fields have already been checked to have the right length
+   * (6 bytes, hence 12 characters, of hex-dump destination and source
+   * addresses, and 2 bytes, hence 4 characters, of hex-dump type/length).
+   *
+   * pkt_len is guaranteed to be >= 14, so 2*pkt_len is guaranteed to be
+   * >= 28, so we don't need to do any bounds checking.
+   */
+  memcpy(&ascii_buf[0], destmac, 12);
+  ascii_offset += 12;
+  memcpy(&ascii_buf[12], srcmac, 12);
+  ascii_offset += 12;
+  memcpy(&ascii_buf[24], type, 4);
+  ascii_offset += 4;
 
   /*
    * Start reading packet contents
@@ -918,7 +962,6 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
             }
         }
     }
-  ascii_buf[ascii_offset] = '\0';
 
   /*
    * Make the captured length be the amount of bytes we've read (which
@@ -927,12 +970,12 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
    * XXX - this can happen for IPv6 packets if the next header isn't the
    * last header.
    */
-  phdr->caplen = ((guint32) strlen (ascii_buf))/2;
+  phdr->caplen = ((guint32) ascii_offset)/2;
 
   /* Make sure we have enough room for the packet. */
   ws_buffer_assure_space (buf, phdr->caplen);
   /* Convert ascii data to binary and return in the frame buffer */
-  iseries_parse_hex_string (ascii_buf, ws_buffer_start_ptr (buf), strlen (ascii_buf));
+  iseries_parse_hex_string (ascii_buf, ws_buffer_start_ptr (buf), ascii_offset);
 
   /* free buffer allocs and return */
   *err = 0;
