@@ -793,7 +793,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
   phdr->pkt_encap                 = WTAP_ENCAP_ETHERNET;
   phdr->pseudo_header.eth.fcs_len = -1;
 
-  /* 
+  /*
    * Allocate a buffer big enough to hold the claimed packet length
    * worth of byte values; each byte will be two hex digits, so the
    * buffer's size should be twice the packet length.
