@@ -164,7 +164,7 @@ tvbparse_wanted_t* tvbparse_char(const int id,
                                  const void* data,
                                  tvbparse_action_t before_cb,
                                  tvbparse_action_t after_cb) {
-    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = wmem_new0(wmem_epan_scope(), tvbparse_wanted_t);
 
     w->condition = cond_char;
     w->id = id;
@@ -220,11 +220,11 @@ tvbparse_wanted_t* tvbparse_chars(const int id,
                                   tvbparse_action_t before_cb,
                                   tvbparse_action_t after_cb)
 {
-    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)wmem_alloc0(wmem_epan_scope(), sizeof(tvbparse_wanted_t));
     char *accept_str;
     gsize i;
 
-    accept_str = (char *)g_malloc(256);
+    accept_str = (char *)wmem_alloc(wmem_epan_scope(), 256);
     memset(accept_str, 0x00, 256);
     for (i = 0; chr[i]; i++)
         accept_str[(unsigned)chr[i]] = (char)0xFF;
@@ -279,7 +279,7 @@ tvbparse_wanted_t* tvbparse_not_char(const int id,
                                      const void* data,
                                      tvbparse_action_t before_cb,
                                      tvbparse_action_t after_cb) {
-    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)wmem_alloc0(wmem_epan_scope(), sizeof(tvbparse_wanted_t));
 
     w->condition = cond_not_char;
     w->id = id;
@@ -299,12 +299,12 @@ tvbparse_wanted_t* tvbparse_not_chars(const int id,
                                       tvbparse_action_t before_cb,
                                       tvbparse_action_t after_cb)
 {
-    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)wmem_alloc0(wmem_epan_scope(), sizeof(tvbparse_wanted_t));
     char *accept_str;
     gsize i;
 
     /* cond_chars_common() use accept string, so mark all elements with, and later unset from reject */
-    accept_str = (char *)g_malloc(256);
+    accept_str = (char *)wmem_alloc(wmem_epan_scope(), 256);
     memset(accept_str, 0xFF, 256);
     for (i = 0; chr[i]; i++)
         accept_str[(unsigned) chr[i]] = '\0';
@@ -348,7 +348,7 @@ tvbparse_wanted_t* tvbparse_string(const int id,
                                    const void* data,
                                    tvbparse_action_t before_cb,
                                    tvbparse_action_t after_cb) {
-    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)wmem_alloc0(wmem_epan_scope(), sizeof(tvbparse_wanted_t));
 
     w->condition = cond_string;
     w->id = id;
@@ -387,7 +387,7 @@ tvbparse_wanted_t* tvbparse_casestring(const int id,
                                        const void* data,
                                        tvbparse_action_t before_cb,
                                        tvbparse_action_t after_cb) {
-    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)wmem_alloc0(wmem_epan_scope(), sizeof(tvbparse_wanted_t));
 
     w->condition = cond_casestring;
     w->id = id;
@@ -437,7 +437,7 @@ tvbparse_wanted_t* tvbparse_set_oneof(const int id,
                                       tvbparse_action_t before_cb,
                                       tvbparse_action_t after_cb,
                                       ...) {
-    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)wmem_alloc0(wmem_epan_scope(), sizeof(tvbparse_wanted_t));
     tvbparse_t* el;
     va_list ap;
 
@@ -517,7 +517,7 @@ tvbparse_wanted_t* tvbparse_hashed(const int id,
                                    tvbparse_wanted_t* key,
                                    tvbparse_wanted_t* other,
                                    ...) {
-    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)wmem_alloc0(wmem_epan_scope(), sizeof(tvbparse_wanted_t));
     gchar* name;
     tvbparse_wanted_t* el;
     va_list ap;
@@ -614,7 +614,7 @@ tvbparse_wanted_t* tvbparse_set_seq(const int id,
                                     tvbparse_action_t before_cb,
                                     tvbparse_action_t after_cb,
                                     ...) {
-    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)wmem_alloc0(wmem_epan_scope(), sizeof(tvbparse_wanted_t));
     tvbparse_wanted_t*  el = NULL;
     va_list ap;
 
@@ -705,7 +705,7 @@ tvbparse_wanted_t* tvbparse_some(const int id,
                                  tvbparse_action_t after_cb,
                                  const tvbparse_wanted_t* el) {
 
-    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)wmem_alloc0(wmem_epan_scope(), sizeof(tvbparse_wanted_t));
 
     g_assert(from <= to);
 
@@ -782,7 +782,7 @@ tvbparse_wanted_t* tvbparse_until(const int id,
                                   tvbparse_action_t after_cb,
                                   const tvbparse_wanted_t* el,
                                   until_mode_t until_mode) {
-    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)wmem_alloc0(wmem_epan_scope(), sizeof(tvbparse_wanted_t));
 
     w->condition = cond_until;
     w->control.until.mode = until_mode;
