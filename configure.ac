@@ -169,11 +169,14 @@ fi
 #
 #
 AC_PROG_YACC
-AC_PATH_PROG(YACCDUMMY, $YACC)
-if test "x$YACCDUMMY" = x
-then
-	AC_MSG_ERROR(I couldn't find yacc (or bison or ...); make sure it's installed and in your path)
-fi
+dnl Tarballs include the build products and do not require yacc.
+AC_MSG_CHECKING(whether $YACC -V works)
+AS_IF([$YACC -V >/dev/null 2>&1],
+	[AC_MSG_RESULT(yes)],
+	[AC_MSG_RESULT(no)
+	 AS_IF([test ! -f wiretap/ascend.c],
+		AC_MSG_ERROR([I couldn't find yacc (or bison or ...); make sure it's installed and in your path]))])
+
 AM_PROG_LEX
 AC_PATH_PROG(LEX, flex)
 if test "x$LEX" = x
