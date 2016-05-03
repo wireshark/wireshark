@@ -1227,6 +1227,10 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DIAMETER");
 
+	if (have_tap_listener(exported_pdu_tap)){
+		export_diameter_pdu(pinfo,tvb);
+	}
+
 	pi = proto_tree_add_item(tree,proto_diameter,tvb,0,-1,ENC_NA);
 	diam_tree = proto_item_add_subtree(pi,ett_diameter);
 
@@ -1421,10 +1425,6 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	 *   return;
 	 */
 	tap_queue_packet(diameter_tap, pinfo, diameter_pair);
-
-	if (have_tap_listener(exported_pdu_tap)){
-		export_diameter_pdu(pinfo,tvb);
-	}
 
 	return tvb_reported_length(tvb);
 }

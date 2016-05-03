@@ -2718,6 +2718,10 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIP");
 
+    if (!pinfo->flags.in_error_pkt && have_tap_listener(exported_pdu_tap)) {
+        export_sip_pdu(pinfo,tvb);
+    }
+
     DPRINT2(("------------------------------ dissect_sip_common ------------------------------"));
 
     switch (line_type) {
@@ -3834,9 +3838,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     if (!pinfo->flags.in_error_pkt)
     {
         tap_queue_packet(sip_tap, pinfo, stat_info);
-        if(have_tap_listener(exported_pdu_tap)){
-            export_sip_pdu(pinfo,tvb);
-        }
     }
 
     if (datalen > 0) {

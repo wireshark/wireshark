@@ -685,6 +685,13 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     /* Display MEGACO in protocol column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MEGACO");
 
+    /* Report this packet to the tap */
+    if (!pinfo->flags.in_error_pkt) {
+        if (have_tap_listener(exported_pdu_tap)) {
+            export_megaco_pdu(pinfo, tvb);
+        }
+    }
+
     /* Build the info tree if we've been given a root */
     /* Create megaco subtree */
     ti = proto_tree_add_item(tree,proto_megaco,tvb, 0, -1, ENC_NA);
@@ -1585,13 +1592,6 @@ nextcontext:
 
     if(global_megaco_raw_text){
         tvb_raw_text_add(tvb, megaco_tree);
-    }
-
-    /* Report this packet to the tap */
-    if (!pinfo->flags.in_error_pkt) {
-        if (have_tap_listener(exported_pdu_tap)) {
-            export_megaco_pdu(pinfo, tvb);
-        }
     }
 
     return tvb_captured_length(tvb);
