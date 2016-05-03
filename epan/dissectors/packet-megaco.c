@@ -48,6 +48,7 @@
 #include <epan/tap.h>
 #include <epan/rtd_table.h>
 #include <epan/prefs-int.h>
+#include <epan/exported_pdu.h>
 #include "packet-tpkt.h"
 #include "packet-h245.h"
 #include "packet-ip.h"
@@ -161,6 +162,8 @@ static expert_field ei_megaco_signal_descriptor = EI_INIT;
 static dissector_handle_t megaco_text_handle;
 
 static int megaco_tap = -1;
+static gint exported_pdu_tap = -1;
+
 
 /* patterns used for tvb_ws_mempbrk_pattern_guint8 */
 static ws_mempbrk_pattern pbrk_whitespace;
@@ -411,6 +414,26 @@ megacostat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const 
     return ret;
 }
 
+/* Call the export PDU tap with relevant data */
+static void
+export_megaco_pdu(packet_info *pinfo, tvbuff_t *tvb)
+{
+
+    exp_pdu_data_t *exp_pdu_data;
+    guint8 tags_bit_field;
+
+    tags_bit_field = EXP_PDU_TAG_IP_SRC_BIT + EXP_PDU_TAG_IP_DST_BIT + EXP_PDU_TAG_SRC_PORT_BIT +
+        EXP_PDU_TAG_DST_PORT_BIT + EXP_PDU_TAG_ORIG_FNO_BIT;
+
+    exp_pdu_data = load_export_pdu_tags(pinfo, EXP_PDU_TAG_PROTO_NAME, "megaco", &tags_bit_field, 1);
+
+    exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+    exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
+    exp_pdu_data->pdu_tvb = tvb;
+
+    tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+
+}
 
 /*
 * The various functions that either dissect some
@@ -1563,6 +1586,14 @@ nextcontext:
     if(global_megaco_raw_text){
         tvb_raw_text_add(tvb, megaco_tree);
     }
+
+    /* Report this packet to the tap */
+    if (!pinfo->flags.in_error_pkt) {
+        if (have_tap_listener(exported_pdu_tap)) {
+            export_megaco_pdu(pinfo, tvb);
+        }
+    }
+
     return tvb_captured_length(tvb);
 }
 
@@ -3861,6 +3892,8 @@ proto_reg_handoff_megaco(void)
     dissector_add_uint("sctp.port", global_megaco_txt_sctp_port, megaco_text_handle);
     dissector_add_uint("tcp.port", global_megaco_txt_tcp_port, megaco_text_tcp_handle);
     dissector_add_uint("udp.port", global_megaco_txt_udp_port, megaco_text_handle);
+
+    exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 
 }
 
