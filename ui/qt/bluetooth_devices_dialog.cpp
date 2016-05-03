@@ -93,6 +93,8 @@ BluetoothDevicesDialog::BluetoothDevicesDialog(QWidget &parent, CaptureFile &cf,
 
     ui->tableTreeWidget->sortByColumn(column_number_bd_addr, Qt::AscendingOrder);
 
+    ui->tableTreeWidget->setStyleSheet("QTreeView::item:hover{background-color:lightyellow; color:black;}");
+
     context_menu_.addActions(QList<QAction *>() << ui->actionCopy_Cell);
     context_menu_.addActions(QList<QAction *>() << ui->actionCopy_Rows);
     context_menu_.addActions(QList<QAction *>() << ui->actionCopy_All);

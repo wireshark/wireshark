@@ -133,6 +133,8 @@ BluetoothDeviceDialog::BluetoothDeviceDialog(QWidget &parent, CaptureFile &cf, Q
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
 #endif
 
+    ui->tableWidget->setStyleSheet("QTableView::item:hover{background-color:lightyellow; color:black;}");
+
     context_menu_.addActions(QList<QAction *>() << ui->actionCopy_Cell);
     context_menu_.addActions(QList<QAction *>() << ui->actionCopy_Rows);
     context_menu_.addActions(QList<QAction *>() << ui->actionCopy_All);
