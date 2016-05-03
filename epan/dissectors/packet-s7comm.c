@@ -45,53 +45,6 @@ void proto_reg_handoff_s7comm(void);
 void proto_register_s7comm (void);
 
 /**************************************************************************
- * Function call tree of the dissect process
-
-dissect_s7comm()
-    +
-    +-------s7comm_decode_req_resp()
-    +        +        +
-    +     response  request
-    +        +        +
-    +        +        +------ s7comm_decode_param_item()
-    +        +        +       s7comm_decode_response_read_data()
-    +        +        +
-    +        +        +------ s7comm_decode_pdu_setup_communication()
-    +        +        +------ s7comm_decode_plc_controls_param_hex1x()
-    +        +        +------ s7comm_decode_plc_controls_param_hex28()
-    +        +        +------ s7comm_decode_plc_controls_param_hex29()
-    +        +
-    +        +------ s7comm_decode_response_read_data()
-    +        +------ s7comm_decode_response_write_data()
-    +        +------ s7comm_decode_pdu_setup_communication()
-    +
-    +
-    +-------s7comm_decode_ud()
-             +
-             +------ s7comm_decode_ud_prog_subfunc()
-             +                  +
-             +                  +------- s7comm_decode_ud_prog_vartab_req_item()
-             +                  +------- s7comm_decode_ud_prog_vartab_res_item()
-             +                  +------- s7comm_decode_ud_prog_reqdiagdata()
-             +
-             +------ s7comm_decode_ud_cyclic_subfunc()
-             +                  +
-             +                  +------- s7comm_decode_param_item()
-             +                  +------- s7comm_decode_response_read_data()
-             +
-             +------ s7comm_decode_ud_block_subfunc()
-             +------ s7comm_decode_ud_szl_subfunc()
-             +                  +
-             +                  +------- s7comm_decode_szl_id_XXXX_idx_XXXX()
-             +
-             +------ s7comm_decode_ud_security_subfunc()
-             +------ s7comm_decode_ud_time_subfunc()
-
- **************************************************************************/
-
-
-
-/**************************************************************************
  * PDU types
  */
 #define S7COMM_ROSCTR_JOB                   0x01
@@ -112,7 +65,7 @@ static const value_string rosctr_names[] = {
 #define S7COMM_ERRCLS_NONE                  0x00
 #define S7COMM_ERRCLS_APPREL                0x81
 #define S7COMM_ERRCLS_OBJDEF                0x82
-#define S7COMM_ERRCLS_RESSOURCE             0x83
+#define S7COMM_ERRCLS_RESOURCE              0x83
 #define S7COMM_ERRCLS_SERVICE               0x84
 #define S7COMM_ERRCLS_SUPPLIES              0x85
 #define S7COMM_ERRCLS_ACCESS                0x87
@@ -121,7 +74,7 @@ static const value_string errcls_names[] = {
     { S7COMM_ERRCLS_NONE,                   "No error" },
     { S7COMM_ERRCLS_APPREL,                 "Application relationship" },
     { S7COMM_ERRCLS_OBJDEF,                 "Object definition" },
-    { S7COMM_ERRCLS_RESSOURCE,              "No ressources available" },
+    { S7COMM_ERRCLS_RESOURCE,               "No resources available" },
     { S7COMM_ERRCLS_SERVICE,                "Error on service processing" },
     { S7COMM_ERRCLS_SUPPLIES,               "Error on supplies" },
     { S7COMM_ERRCLS_ACCESS,                 "Access error" },
@@ -131,54 +84,217 @@ static const value_string errcls_names[] = {
 /**************************************************************************
  * Error code in parameter part
  */
-#define S7COMM_PERRCOD_NO_ERROR                     0x0000
-#define S7COMM_PERRCOD_INVALID_BLOCK_TYPE_NUM       0x0110
-#define S7COMM_PERRCOD_INVALID_PARAM                0x0112
-#define S7COMM_PERRCOD_PG_RESOURCE_ERROR            0x011A
-#define S7COMM_PERRCOD_PLC_RESOURCE_ERROR           0x011B
-#define S7COMM_PERRCOD_PROTOCOL_ERROR               0x011C
-#define S7COMM_PERRCOD_USER_BUFFER_TOO_SHORT        0x011F
-#define S7COMM_PERRCOD_REQ_INI_ERR                  0x0141
-#define S7COMM_PERRCOD_VERSION_MISMATCH             0x01C0
-#define S7COMM_PERRCOD_NOT_IMPLEMENTED              0x01F0
-#define S7COMM_PERRCOD_L7_INVALID_CPU_STATE         0x8001
-#define S7COMM_PERRCOD_L7_PDU_SIZE_ERR              0x8500
-#define S7COMM_PERRCOD_L7_INVALID_SZL_ID            0xD401
-#define S7COMM_PERRCOD_L7_INVALID_INDEX             0xD402
-#define S7COMM_PERRCOD_L7_DGS_CONN_ALREADY_ANNOU    0xD403
-#define S7COMM_PERRCOD_L7_MAX_USER_NB               0xD404
-#define S7COMM_PERRCOD_L7_DGS_FKT_PAR_SYNTAX_ERR    0xD405
-#define S7COMM_PERRCOD_L7_NO_INFO                   0xD406
-#define S7COMM_PERRCOD_L7_PRT_FKT_PAR_SYNTAX_ERR    0xD601
-#define S7COMM_PERRCOD_L7_INVALID_VAR_ADDR          0xD801
-#define S7COMM_PERRCOD_L7_UNKNOWN_REQ               0xD802
-#define S7COMM_PERRCOD_L7_INVALID_REQ_STATUS        0xD803
 
 static const value_string param_errcode_names[] = {
-    { S7COMM_PERRCOD_NO_ERROR,                      "No error" },
-    { S7COMM_PERRCOD_INVALID_BLOCK_TYPE_NUM,        "Invalid block type number" },
-    { S7COMM_PERRCOD_INVALID_PARAM,                 "Invalid parameter" },
-    { S7COMM_PERRCOD_PG_RESOURCE_ERROR,             "PG ressource error" },
-    { S7COMM_PERRCOD_PLC_RESOURCE_ERROR,            "PLC ressource error" },
-    { S7COMM_PERRCOD_PROTOCOL_ERROR,                "Protocol error" },
-    { S7COMM_PERRCOD_USER_BUFFER_TOO_SHORT,         "User buffer too short" },
-    { S7COMM_PERRCOD_REQ_INI_ERR,                   "Request error" },
-    { S7COMM_PERRCOD_VERSION_MISMATCH,              "Version mismatch" },
-    { S7COMM_PERRCOD_NOT_IMPLEMENTED,               "Not implemented" },
-    { S7COMM_PERRCOD_L7_INVALID_CPU_STATE,          "L7 invalid CPU state" },
-    { S7COMM_PERRCOD_L7_PDU_SIZE_ERR,               "L7 PDU size error" },
-    { S7COMM_PERRCOD_L7_INVALID_SZL_ID,             "L7 invalid SZL ID" },
-    { S7COMM_PERRCOD_L7_INVALID_INDEX,              "L7 invalid index" },
-    { S7COMM_PERRCOD_L7_DGS_CONN_ALREADY_ANNOU,     "L7 DGS Connection already announced" },
-    { S7COMM_PERRCOD_L7_MAX_USER_NB,                "L7 Max user NB" },
-    { S7COMM_PERRCOD_L7_DGS_FKT_PAR_SYNTAX_ERR,     "L7 DGS function parameter syntax error" },
-    { S7COMM_PERRCOD_L7_NO_INFO,                    "L7 no info" },
-    { S7COMM_PERRCOD_L7_PRT_FKT_PAR_SYNTAX_ERR,     "L7 PRT function parameter syntax error" },
-    { S7COMM_PERRCOD_L7_INVALID_VAR_ADDR,           "L7 invalid variable address" },
-    { S7COMM_PERRCOD_L7_UNKNOWN_REQ,                "L7 unknown request" },
-    { S7COMM_PERRCOD_L7_INVALID_REQ_STATUS,         "L7 invalid request status" },
+    { 0x0000,                               "No error" },
+    { 0x0110,                               "Invalid block number" },
+    { 0x0111,                               "Invalid request length" },
+    { 0x0112,                               "Invalid parameter" },
+    { 0x0113,                               "Invalid block type" },
+    { 0x0114,                               "Block not found" },
+    { 0x0115,                               "Block already exists" },
+    { 0x0116,                               "Block is write-protected" },
+    { 0x0117,                               "The block/operating system update is too large" },
+    { 0x0118,                               "Invalid block number" },
+    { 0x0119,                               "Incorrect password entered" },
+    { 0x011A,                               "PG resource error" },
+    { 0x011B,                               "PLC resource error" },
+    { 0x011C,                               "Protocol error" },
+    { 0x011D,                               "Too many blocks (module-related restriction)" },
+    { 0x011E,                               "There is no longer a connection to the database, or S7DOS handle is invalid" },
+    { 0x011F,                               "Result buffer too small" },
+    { 0x0120,                               "End of block list" },
+    { 0x0140,                               "Insufficient memory available" },
+    { 0x0141,                               "Job cannot be processed because of a lack of resources" },
+    { 0x8001,                               "The requested service cannot be performed while the block is in the current status" },
+    { 0x8003,                               "S7 protocol error: Error occurred while transferring the block" },
+    { 0x8100,                               "Application, general error: Service unknown to remote module" },
+    { 0x8104,                               "This service is not implemented on the module or a frame error was reported" },
+    { 0x8204,                               "The type specification for the object is inconsistent" },
+    { 0x8205,                               "A copied block already exists and is not linked" },
+    { 0x8301,                               "Insufficient memory space or work memory on the module, or specified storage medium not accessible" },
+    { 0x8302,                               "Too few resources available or the processor resources are not available" },
+    { 0x8304,                               "No further parallel upload possible. There is a resource bottleneck" },
+    { 0x8305,                               "Function not available" },
+    { 0x8306,                               "Insufficient work memory (for copying, linking, loading AWP)" },
+    { 0x8307,                               "Not enough retentive work memory (for copying, linking, loading AWP)" },
+    { 0x8401,                               "S7 protocol error: Invalid service sequence (for example, loading or uploading a block)" },
+    { 0x8402,                               "Service cannot execute owing to status of the addressed object" },
+    { 0x8404,                               "S7 protocol: The function cannot be performed" },
+    { 0x8405,                               "Remote block is in DISABLE state (CFB). The function cannot be performed" },
+    { 0x8500,                               "S7 protocol error: Wrong frames" },
+    { 0x8503,                               "Alarm from the module: Service canceled prematurely" },
+    { 0x8701,                               "Error addressing the object on the communications partner (for example, area length error)" },
+    { 0x8702,                               "The requested service is not supported by the module" },
+    { 0x8703,                               "Access to object refused" },
+    { 0x8704,                               "Access error: Object damaged" },
+    { 0xD001,                               "Protocol error: Illegal job number" },
+    { 0xD002,                               "Parameter error: Illegal job variant" },
+    { 0xD003,                               "Parameter error: Debugging function not supported by module" },
+    { 0xD004,                               "Parameter error: Illegal job status" },
+    { 0xD005,                               "Parameter error: Illegal job termination" },
+    { 0xD006,                               "Parameter error: Illegal link disconnection ID" },
+    { 0xD007,                               "Parameter error: Illegal number of buffer elements" },
+    { 0xD008,                               "Parameter error: Illegal scan rate" },
+    { 0xD009,                               "Parameter error: Illegal number of executions" },
+    { 0xD00A,                               "Parameter error: Illegal trigger event" },
+    { 0xD00B,                               "Parameter error: Illegal trigger condition" },
+    { 0xD011,                               "Parameter error in path of the call environment: Block does not exist" },
+    { 0xD012,                               "Parameter error: Wrong address in block" },
+    { 0xD014,                               "Parameter error: Block being deleted/overwritten" },
+    { 0xD015,                               "Parameter error: Illegal tag address" },
+    { 0xD016,                               "Parameter error: Test jobs not possible, because of errors in user program" },
+    { 0xD017,                               "Parameter error: Illegal trigger number" },
+    { 0xD025,                               "Parameter error: Invalid path" },
+    { 0xD026,                               "Parameter error: Illegal access type" },
+    { 0xD027,                               "Parameter error: This number of data blocks is not permitted" },
+    { 0xD031,                               "Internal protocol error" },
+    { 0xD032,                               "Parameter error: Wrong result buffer length" },
+    { 0xD033,                               "Protocol error: Wrong job length" },
+    { 0xD03F,                               "Coding error: Error in parameter section (for example, reserve bytes not equal to 0)" },
+    { 0xD041,                               "Data error: Illegal status list ID" },
+    { 0xD042,                               "Data error: Illegal tag address" },
+    { 0xD043,                               "Data error: Referenced job not found, check job data" },
+    { 0xD044,                               "Data error: Illegal tag value, check job data" },
+    { 0xD045,                               "Data error: Exiting the ODIS control is not allowed in HOLD" },
+    { 0xD046,                               "Data error: Illegal measuring stage during run-time measurement" },
+    { 0xD047,                               "Data error: Illegal hierarchy in 'Read job list'" },
+    { 0xD048,                               "Data error: Illegal deletion ID in 'Delete job'" },
+    { 0xD049,                               "Invalid substitute ID in 'Replace job'" },
+    { 0xD04A,                               "Error executing 'program status'" },
+    { 0xD05F,                               "Coding error: Error in data section (for example, reserve bytes not equal to 0, ...)" },
+    { 0xD061,                               "Resource error: No memory space for job" },
+    { 0xD062,                               "Resource error: Job list full" },
+    { 0xD063,                               "Resource error: Trigger event occupied" },
+    { 0xD064,                               "Resource error: Not enough memory space for one result buffer element" },
+    { 0xD065,                               "Resource error: Not enough memory space for several  result buffer elements" },
+    { 0xD066,                               "Resource error: The timer available for run-time measurement is occupied by another job" },
+    { 0xD067,                               "Resource error: Too many 'modify tag' jobs active (in particular multi-processor operation)" },
+    { 0xD081,                               "Function not permitted in current mode" },
+    { 0xD082,                               "Mode error: Cannot exit HOLD mode" },
+    { 0xD0A1,                               "Function not permitted in current protection level" },
+    { 0xD0A2,                               "Function not possible at present, because a function is running that modifies memory" },
+    { 0xD0A3,                               "Too many 'modify tag' jobs active on the I/O (in particular multi-processor operation)" },
+    { 0xD0A4,                               "'Forcing' has already been established" },
+    { 0xD0A5,                               "Referenced job not found" },
+    { 0xD0A6,                               "Job cannot be disabled/enabled" },
+    { 0xD0A7,                               "Job cannot be deleted, for example because it is currently being read" },
+    { 0xD0A8,                               "Job cannot be replaced, for example because it is currently being read or deleted" },
+    { 0xD0A9,                               "Job cannot be read, for example because it is currently being deleted" },
+    { 0xD0AA,                               "Time limit exceeded in processing operation" },
+    { 0xD0AB,                               "Invalid job parameters in process operation" },
+    { 0xD0AC,                               "Invalid job data in process operation" },
+    { 0xD0AD,                               "Operating mode already set" },
+    { 0xD0AE,                               "The job was set up over a different connection and can only be handled over this connection" },
+    { 0xD0C1,                               "At least one error has been detected while accessing the tag(s)" },
+    { 0xD0C2,                               "Change to STOP/HOLD mode" },
+    { 0xD0C3,                               "At least one error was detected while accessing the tag(s). Mode change to STOP/HOLD" },
+    { 0xD0C4,                               "Timeout during run-time measurement" },
+    { 0xD0C5,                               "Display of block stack inconsistent, because blocks were deleted/reloaded" },
+    { 0xD0C6,                               "Job was automatically deleted as the jobs it referenced have been deleted" },
+    { 0xD0C7,                               "The job was automatically deleted because STOP mode was exited" },
+    { 0xD0C8,                               "'Block status' aborted because of inconsistencies between test job and running program" },
+    { 0xD0C9,                               "Exit the status area by resetting OB90" },
+    { 0xD0CA,                               "Exiting the status range by resetting OB90 and access error reading tags before exiting" },
+    { 0xD0CB,                               "The output disable for the peripheral outputs has been activated again" },
+    { 0xD0CC,                               "The amount of data for the debugging functions is restricted by the time limit" },
+    { 0xD201,                               "Syntax error in block name" },
+    { 0xD202,                               "Syntax error in function parameters" },
+    { 0xD205,                               "Linked block already exists in RAM: Conditional copying is not possible" },
+    { 0xD206,                               "Linked block already exists in EPROM: Conditional copying is not possible" },
+    { 0xD208,                               "Maximum number of copied (not linked) blocks on module exceeded" },
+    { 0xD209,                               "(At least) one of the given blocks not found on the module" },
+    { 0xD20A,                               "The maximum number of blocks that can be linked with one job was exceeded" },
+    { 0xD20B,                               "The maximum number of blocks that can be deleted with one job was exceeded" },
+    { 0xD20C,                               "OB cannot be copied because the associated priority class does not exist" },
+    { 0xD20D,                               "SDB cannot be interpreted (for example, unknown number)" },
+    { 0xD20E,                               "No (further) block available" },
+    { 0xD20F,                               "Module-specific maximum block size exceeded" },
+    { 0xD210,                               "Invalid block number" },
+    { 0xD212,                               "Incorrect header attribute (run-time relevant)" },
+    { 0xD213,                               "Too many SDBs. Note the restrictions on the module being used" },
+    { 0xD216,                               "Invalid user program - reset module" },
+    { 0xD217,                               "Protection level specified in module properties not permitted" },
+    { 0xD218,                               "Incorrect attribute (active/passive)" },
+    { 0xD219,                               "Incorrect block lengths (for example, incorrect length of first section or of the whole block)" },
+    { 0xD21A,                               "Incorrect local data length or write-protection code faulty" },
+    { 0xD21B,                               "Module cannot compress or compression was interrupted early" },
+    { 0xD21D,                               "The volume of dynamic project data transferred is illegal" },
+    { 0xD21E,                               "Unable to assign parameters to a module (such as FM, CP). The system data could not be linked" },
+    { 0xD220,                               "Invalid programming language. Note the restrictions on the module being used" },
+    { 0xD221,                               "The system data for connections or routing are not valid" },
+    { 0xD222,                               "The system data of the global data definition contain invalid parameters" },
+    { 0xD223,                               "Error in instance data block for communication function block or maximum number of instance DBs exceeded" },
+    { 0xD224,                               "The SCAN system data block contains invalid parameters" },
+    { 0xD225,                               "The DP system data block contains invalid parameters" },
+    { 0xD226,                               "A structural error occurred in a block" },
+    { 0xD230,                               "A structural error occurred in a block" },
+    { 0xD231,                               "At least one loaded OB cannot be copied because the associated priority class does not exist" },
+    { 0xD232,                               "At least one block number of a loaded block is illegal" },
+    { 0xD234,                               "Block exists twice in the specified memory medium or in the job" },
+    { 0xD235,                               "The block contains an incorrect checksum" },
+    { 0xD236,                               "The block does not contain a checksum" },
+    { 0xD237,                               "You are about to load the block twice, i.e. a block with the same time stamp already exists on the CPU" },
+    { 0xD238,                               "At least one of the blocks specified is not a DB" },
+    { 0xD239,                               "At least one of the DBs specified is not available as a linked variant in the load memory" },
+    { 0xD23A,                               "At least one of the specified DBs is considerably different from the copied and linked variant" },
+    { 0xD240,                               "Coordination rules violated" },
+    { 0xD241,                               "The function is not permitted in the current protection level" },
+    { 0xD242,                               "Protection violation while processing F blocks" },
+    { 0xD250,                               "Update and module ID or version do not match" },
+    { 0xD251,                               "Incorrect sequence of operating system components" },
+    { 0xD252,                               "Checksum error" },
+    { 0xD253,                               "No executable loader available; update only possible using a memory card" },
+    { 0xD254,                               "Storage error in operating system" },
+    { 0xD280,                               "Error compiling block in S7-300 CPU" },
+    { 0xD2A1,                               "Another block function or a trigger on a block is active" },
+    { 0xD2A2,                               "A trigger is active on a block. Complete the debugging function first" },
+    { 0xD2A3,                               "The block is not active (linked), the block is occupied or the block is currently marked for deletion" },
+    { 0xD2A4,                               "The block is already being processed by another block function" },
+    { 0xD2A6,                               "It is not possible to save and change the user program simultaneously" },
+    { 0xD2A7,                               "The block has the attribute 'unlinked' or is not processed" },
+    { 0xD2A8,                               "An active debugging function is preventing parameters from being assigned to the CPU" },
+    { 0xD2A9,                               "New parameters are being assigned to the CPU" },
+    { 0xD2AA,                               "New parameters are currently being assigned to the modules" },
+    { 0xD2AB,                               "The dynamic configuration limits are currently being changed" },
+    { 0xD2AC,                               "A running active or deactivate assignment (SFC 12) is temporarily preventing R-KiR process" },
+    { 0xD2B0,                               "An error occurred while configuring in RUN (CiR)" },
+    { 0xD2C0,                               "The maximum number of technological objects has been exceeded" },
+    { 0xD2C1,                               "The same technology data block already exists on the module" },
+    { 0xD2C2,                               "Downloading the user program or downloading the hardware configuration is not possible" },
+    { 0xD401,                               "Information function unavailable" },
+    { 0xD402,                               "Information function unavailable" },
+    { 0xD403,                               "Service has already been logged on/off (Diagnostics/PMC)" },
+    { 0xD404,                               "Maximum number of nodes reached. No more logons possible for diagnostics/PMC" },
+    { 0xD405,                               "Service not supported or syntax error in function parameters" },
+    { 0xD406,                               "Required information currently unavailable" },
+    { 0xD407,                               "Diagnostics error occurred" },
+    { 0xD408,                               "Update aborted" },
+    { 0xD409,                               "Error on DP bus" },
+    { 0xD601,                               "Syntax error in function parameter" },
+    { 0xD602,                               "Incorrect password entered" },
+    { 0xD603,                               "The connection has already been legitimized" },
+    { 0xD604,                               "The connection has already been enabled" },
+    { 0xD605,                               "Legitimization not possible because password does not exist" },
+    { 0xD801,                               "At least one tag address is invalid" },
+    { 0xD802,                               "Specified job does not exist" },
+    { 0xD803,                               "Illegal job status" },
+    { 0xD804,                               "Illegal cycle time (illegal time base or multiple)" },
+    { 0xD805,                               "No more cyclic read jobs can be set up" },
+    { 0xD806,                               "The referenced job is in a state in which the requested function cannot be performed" },
+    { 0xD807,                               "Function aborted due to overload, meaning executing the read cycle takes longer than the set scan cycle time" },
+    { 0xDC01,                               "Date and/or time invalid" },
+    { 0xE201,                               "CPU is already the master" },
+    { 0xE202,                               "Connect and update not possible due to different user program in flash module" },
+    { 0xE203,                               "Connect and update not possible due to different firmware" },
+    { 0xE204,                               "Connect and update not possible due to different memory configuration" },
+    { 0xE205,                               "Connect/update aborted due to synchronization error" },
+    { 0xE206,                               "Connect/update denied due to coordination violation" },
+    { 0xEF01,                               "S7 protocol error: Error at ID2; only 00H permitted in job" },
+    { 0xEF02,                               "S7 protocol error: Error at ID2; set of resources does not exist" },
     { 0,                                    NULL }
 };
+static value_string_ext param_errcode_names_ext = VALUE_STRING_EXT_INIT(param_errcode_names);
 
 /**************************************************************************
  * Function codes in parameter part
@@ -1779,6 +1895,12 @@ static const value_string modetrans_param_subfunc_names[] = {
     { 0,                                    "STOP" },
     { 1,                                    "Warm Restart" },
     { 2,                                    "RUN" },
+    { 3,                                    "Hot Restart" },
+    { 4,                                    "HOLD" },
+    { 6,                                    "Cold Restart" },
+    { 9,                                    "RUN_R (H-System redundant)" },
+    { 11,                                   "LINK-UP" },
+    { 12,                                   "UPDATE" },
     { 0,                                    NULL }
 };
 
@@ -1963,9 +2085,9 @@ make_registerflag_string(gchar *str, guint8 flags, gint max)
  *******************************************************************************************************/
 static guint32
 s7comm_decode_param_item(tvbuff_t *tvb,
-                          guint32 offset,
-                          proto_tree *sub_tree,
-                          guint8 item_no)
+                         guint32 offset,
+                         proto_tree *sub_tree,
+                         guint8 item_no)
 {
     guint32 a_address = 0;
     guint32 bytepos = 0;
@@ -2202,8 +2324,8 @@ s7comm_decode_param_item(tvbuff_t *tvb,
  *******************************************************************************************************/
 static guint32
 s7comm_decode_pdu_setup_communication(tvbuff_t *tvb,
-                                     proto_tree *tree,
-                                     guint32 offset)
+                                      proto_tree *tree,
+                                      guint32 offset)
 {
     proto_tree_add_item(tree, hf_s7comm_param_setup_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -2223,9 +2345,9 @@ s7comm_decode_pdu_setup_communication(tvbuff_t *tvb,
  *******************************************************************************************************/
 static guint32
 s7comm_decode_response_write_data(tvbuff_t *tvb,
-                                 proto_tree *tree,
-                                 guint8 item_count,
-                                 guint32 offset)
+                                  proto_tree *tree,
+                                  guint8 item_count,
+                                  guint32 offset)
 {
     guint8 ret_val = 0;
     guint8 i = 0;
@@ -2321,9 +2443,9 @@ s7comm_decode_response_read_data(tvbuff_t *tvb,
  *******************************************************************************************************/
 static guint32
 s7comm_decode_plc_controls_param_hex28(tvbuff_t *tvb,
-                      packet_info *pinfo,
-                      proto_tree *tree,
-                      guint32 offset)
+                                       packet_info *pinfo,
+                                       proto_tree *tree,
+                                       guint32 offset)
 {
     guint16 len;
     guint8 count;
@@ -2396,8 +2518,8 @@ s7comm_decode_plc_controls_param_hex28(tvbuff_t *tvb,
  *******************************************************************************************************/
 static guint32
 s7comm_decode_plc_controls_param_hex29(tvbuff_t *tvb,
-                      proto_tree *tree,
-                      guint32 offset)
+                                       proto_tree *tree,
+                                       guint32 offset)
 {
     guint8 len;
 
@@ -2424,10 +2546,10 @@ s7comm_decode_plc_controls_param_hex29(tvbuff_t *tvb,
  *******************************************************************************************************/
 static guint32
 s7comm_decode_plc_controls_param_hex1x(tvbuff_t *tvb,
-                      packet_info *pinfo,
-                      proto_tree *tree,
-                      guint16 plength,
-                      guint32 offset)
+                                       packet_info *pinfo,
+                                       proto_tree *tree,
+                                       guint16 plength,
+                                       guint32 offset)
 {
     guint8 len;
     guint8 function;
@@ -2499,9 +2621,9 @@ s7comm_decode_plc_controls_param_hex1x(tvbuff_t *tvb,
  *******************************************************************************************************/
 static guint32
 s7comm_decode_ud_prog_reqdiagdata(tvbuff_t *tvb,
-                                    proto_tree *data_tree,
-                                    guint8 subfunc,             /* Subfunction */
-                                    guint32 offset)             /* Offset on data part +4 */
+                                  proto_tree *data_tree,
+                                  guint8 subfunc,             /* Subfunction */
+                                  guint32 offset)             /* Offset on data part +4 */
 {
     proto_item *item = NULL;
     proto_tree *item_tree = NULL;
@@ -2580,9 +2702,9 @@ s7comm_decode_ud_prog_reqdiagdata(tvbuff_t *tvb,
  *******************************************************************************************************/
 static guint32
 s7comm_decode_ud_prog_vartab_req_item(tvbuff_t *tvb,
-                          guint32 offset,
-                          proto_tree *sub_tree,
-                          guint16 item_no)
+                                      guint32 offset,
+                                      proto_tree *sub_tree,
+                                      guint16 item_no)
 {
     guint32 bytepos = 0;
     guint16 len = 0;
@@ -2689,9 +2811,9 @@ s7comm_decode_ud_prog_vartab_req_item(tvbuff_t *tvb,
  *******************************************************************************************************/
 static guint32
 s7comm_decode_ud_prog_vartab_res_item(tvbuff_t *tvb,
-                          guint32 offset,
-                          proto_tree *sub_tree,
-                          guint16 item_no)
+                                      guint32 offset,
+                                      proto_tree *sub_tree,
+                                      guint16 item_no)
 {
     guint16 len = 0, len2 = 0;
     guint8 ret_val = 0;
@@ -2747,9 +2869,9 @@ s7comm_decode_ud_prog_vartab_res_item(tvbuff_t *tvb,
  *******************************************************************************************************/
 static guint32
 s7comm_decode_ud_security_subfunc(tvbuff_t *tvb,
-                                    proto_tree *data_tree,
-                                    guint16 dlength,            /* length of data part given in header */
-                                    guint32 offset)             /* Offset on data part +4 */
+                                  proto_tree *data_tree,
+                                  guint16 dlength,            /* length of data part given in header */
+                                  guint32 offset)             /* Offset on data part +4 */
 {
     /* Display dataset as raw bytes. Maybe this part can be extended with further knowledge. */
     proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength - 4, ENC_NA);
@@ -3256,12 +3378,12 @@ s7comm_decode_ud_cpu_diagnostic_message(tvbuff_t *tvb,
  *******************************************************************************************************/
 static guint32
 s7comm_decode_ud_time_subfunc(tvbuff_t *tvb,
-                                    proto_tree *data_tree,
-                                    guint8 type,                /* Type of data (request/response) */
-                                    guint8 subfunc,             /* Subfunction */
-                                    guint8 ret_val,             /* Return value in data part */
-                                    guint16 dlength,            /* length of data part given in header */
-                                    guint32 offset)             /* Offset on data part +4 */
+                              proto_tree *data_tree,
+                              guint8 type,                /* Type of data (request/response) */
+                              guint8 subfunc,             /* Subfunction */
+                              guint8 ret_val,             /* Return value in data part */
+                              guint16 dlength,            /* length of data part given in header */
+                              guint32 offset)             /* Offset on data part +4 */
 {
     gboolean know_data = FALSE;
 
@@ -3304,15 +3426,15 @@ s7comm_decode_ud_time_subfunc(tvbuff_t *tvb,
  *******************************************************************************************************/
 static guint32
 s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
-                                    packet_info *pinfo,
-                                    proto_tree *data_tree,
-                                    guint8 type,                /* Type of data (request/response) */
-                                    guint8 subfunc,             /* Subfunction */
-                                    guint8 ret_val,             /* Return value in data part */
-                                    guint8 tsize,               /* transport size in data part */
-                                    guint16 len,                /* length given in data part */
-                                    guint16 dlength,            /* length of data part given in header */
-                                    guint32 offset)             /* Offset on data part +4 */
+                               packet_info *pinfo,
+                               proto_tree *data_tree,
+                               guint8 type,                /* Type of data (request/response) */
+                               guint8 subfunc,             /* Subfunction */
+                               guint8 ret_val,             /* Return value in data part */
+                               guint8 tsize,               /* transport size in data part */
+                               guint16 len,                /* length given in data part */
+                               guint16 dlength,            /* length of data part given in header */
+                               guint32 offset)             /* Offset on data part +4 */
 {
     guint16 count;
     guint16 i;
@@ -3515,11 +3637,11 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
  *******************************************************************************************************/
 static guint32
 s7comm_decode_ud_cyclic_subfunc(tvbuff_t *tvb,
-                                    proto_tree *data_tree,
-                                    guint8 type,                /* Type of data (request/response) */
-                                    guint8 subfunc,             /* Subfunction */
-                                    guint16 dlength,            /* length of data part given in header */
-                                    guint32 offset)             /* Offset on data part +4 */
+                                proto_tree *data_tree,
+                                guint8 type,                /* Type of data (request/response) */
+                                guint8 subfunc,             /* Subfunction */
+                                guint16 dlength,            /* length of data part given in header */
+                                guint32 offset)             /* Offset on data part +4 */
 {
     gboolean know_data = FALSE;
     guint32 offset_old;
@@ -3571,11 +3693,11 @@ s7comm_decode_ud_cyclic_subfunc(tvbuff_t *tvb,
  *******************************************************************************************************/
 static guint32
 s7comm_decode_ud_prog_subfunc(tvbuff_t *tvb,
-                                    proto_tree *data_tree,
-                                    guint8 type,                /* Type of data (request/response) */
-                                    guint8 subfunc,             /* Subfunction */
-                                    guint16 dlength,            /* length of data part given in header */
-                                    guint32 offset)             /* Offset on data part +4 */
+                              proto_tree *data_tree,
+                              guint8 type,                /* Type of data (request/response) */
+                              guint8 subfunc,             /* Subfunction */
+                              guint16 dlength,            /* length of data part given in header */
+                              guint32 offset)             /* Offset on data part +4 */
 {
     gboolean know_data = FALSE;
 
@@ -3664,11 +3786,11 @@ s7comm_decode_ud_prog_subfunc(tvbuff_t *tvb,
  *******************************************************************************************************/
 static guint32
 s7comm_decode_ud(tvbuff_t *tvb,
-                       packet_info *pinfo,
-                       proto_tree *tree,
-                       guint16 plength,
-                       guint16 dlength,
-                       guint32 offset)
+                 packet_info *pinfo,
+                 proto_tree *tree,
+                 guint16 plength,
+                 guint16 dlength,
+                 guint32 offset)
 {
     proto_item *item = NULL;
     proto_tree *param_tree = NULL;
@@ -3677,6 +3799,7 @@ s7comm_decode_ud(tvbuff_t *tvb,
     guint8 ret_val;
     guint8 tsize;
     guint16 len;
+    guint32 errorcode;
     guint32 offset_temp;
 
     guint8 type;
@@ -3780,7 +3903,10 @@ s7comm_decode_ud(tvbuff_t *tvb,
         last_data_unit = tvb_get_guint8(tvb, offset_temp);
         proto_tree_add_item(param_tree, hf_s7comm_userdata_param_dataunit, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
         offset_temp += 1;
-        proto_tree_add_item(param_tree, hf_s7comm_param_errcod, tvb, offset_temp, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(param_tree, hf_s7comm_param_errcod, tvb, offset_temp, 2, ENC_BIG_ENDIAN, &errorcode);
+        if (errorcode > 0) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, " -> Errorcode:[0x%04x]", errorcode);
+        }
     }
 
     /**********************************
@@ -3867,12 +3993,12 @@ s7comm_decode_ud(tvbuff_t *tvb,
  *******************************************************************************************************/
 static guint32
 s7comm_decode_req_resp(tvbuff_t *tvb,
-                      packet_info *pinfo,
-                      proto_tree *tree,
-                      guint16 plength,
-                      guint16 dlength,
-                      guint32 offset,
-                      guint8 rosctr)
+                       packet_info *pinfo,
+                       proto_tree *tree,
+                       guint16 plength,
+                       guint16 dlength,
+                       guint32 offset,
+                       guint8 rosctr)
 {
     proto_item *item = NULL;
     proto_tree *param_tree = NULL;
@@ -4011,9 +4137,9 @@ s7comm_decode_req_resp(tvbuff_t *tvb,
  *******************************************************************************************************/
 static gboolean
 dissect_s7comm(tvbuff_t *tvb,
-                packet_info *pinfo,
-                proto_tree *tree,
-                void *data _U_)
+               packet_info *pinfo,
+               proto_tree *tree,
+               void *data _U_)
 {
     proto_item *s7comm_item = NULL;
     proto_item *s7comm_sub_item = NULL;
@@ -4026,6 +4152,7 @@ dissect_s7comm(tvbuff_t *tvb,
     guint8 hlength = 10;                /* Header 10 Bytes, when type 2 or 3 (Response) -> 12 Bytes */
     guint16 plength = 0;
     guint16 dlength = 0;
+    guint16 errorcode = 0;
 
     /*----------------- Heuristic Checks - Begin */
     /* 1) check for minimum length */
@@ -4083,10 +4210,16 @@ dissect_s7comm(tvbuff_t *tvb,
     offset += 2;
     /* when type is 2 or 3 there are 2 bytes with errorclass and errorcode */
     if (hlength == 12) {
+        errorcode = tvb_get_ntohs(tvb, offset);     /* this uses the same errorcodes (combined) from parameter part */
         proto_tree_add_item(s7comm_header_tree, hf_s7comm_header_errcls, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         proto_tree_add_item(s7comm_header_tree, hf_s7comm_header_errcod, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
+        /* when there is an error, use the errorcode from parameterpart*/
+        if (errorcode > 0) {
+            s7comm_item = proto_tree_add_item(s7comm_header_tree, hf_s7comm_param_errcod, tvb, offset-2, 2, ENC_BIG_ENDIAN);
+            PROTO_ITEM_SET_GENERATED (s7comm_item);
+        }
     }
 
     switch (rosctr) {
@@ -4098,8 +4231,10 @@ dissect_s7comm(tvbuff_t *tvb,
             s7comm_decode_ud(tvb, pinfo, s7comm_tree, plength, dlength, offset);
             break;
     }
-    /*else {  Unknown pdu, maybe passed to another dissector? }
-    */
+    /* Add the errorcode from header as last entry in info column */
+    if (errorcode > 0) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " -> Errorcode:[0x%04x]", errorcode);
+    }
     return TRUE;
 }
 
@@ -4144,7 +4279,7 @@ proto_register_s7comm (void)
         { "Parameter", "s7comm.param", FT_NONE, BASE_NONE, NULL, 0x0,
           "This is the parameter part of S7 communication", HFILL }},
         { &hf_s7comm_param_errcod,
-        { "Error code", "s7comm.param.errcod", FT_UINT16, BASE_HEX, VALS(param_errcode_names), 0x0,
+        { "Error code", "s7comm.param.errcod", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &param_errcode_names_ext, 0x0,
           NULL, HFILL }},
         { &hf_s7comm_param_service,
         { "Function", "s7comm.param.func", FT_UINT8, BASE_HEX, VALS(param_functionnames), 0x0,
