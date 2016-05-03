@@ -32,7 +32,7 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
-[ftype-tvbuff.[ch]]
+[ftype-protocol.[ch]]
 indent_style = tab
 indent_size = tab
 

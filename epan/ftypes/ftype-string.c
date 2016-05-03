@@ -245,7 +245,7 @@ ftype_register_string(void)
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
 		string_fvalue_set_string,       /* set_value_string */
-		NULL,				/* set_value_tvbuff */
+		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
@@ -289,7 +289,7 @@ ftype_register_string(void)
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
 		string_fvalue_set_string,       /* set_value_string */
-		NULL,				/* set_value_tvbuff */
+		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
@@ -333,7 +333,7 @@ ftype_register_string(void)
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
 		string_fvalue_set_string,       /* set_value_string */
-		NULL,				/* set_value_tvbuff */
+		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
@@ -377,7 +377,7 @@ ftype_register_string(void)
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
 		string_fvalue_set_string,       /* set_value_string */
-		NULL,				/* set_value_tvbuff */
+		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */

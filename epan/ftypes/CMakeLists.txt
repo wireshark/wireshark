@@ -35,9 +35,9 @@ set(FTYPE_FILES
 	ftype-guid.c
 	ftype-none.c
 	ftype-pcre.c
+	ftype-protocol.c
 	ftype-string.c
 	ftype-time.c
-	ftype-tvbuff.c
 )
 source_group(ftype FILES ${FTYPE_FILES})
 

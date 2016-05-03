@@ -197,6 +197,12 @@ ftype_can_matches(enum ftenum ftype);
 #include <wsutil/nstime.h>
 #include <epan/dfilter/drange.h>
 
+typedef struct _protocol_value_t
+{
+	tvbuff_t	*tvb;
+	gchar		*proto_string;
+} protocol_value_t;
+
 typedef struct _fvalue_t {
 	ftype_t	*ftype;
 	union {
@@ -214,7 +220,7 @@ typedef struct _fvalue_t {
 		ipv6_addr_and_prefix	ipv6;
 		e_guid_t		guid;
 		nstime_t		time;
-		tvbuff_t		*tvb;
+        protocol_value_t protocol;
 		GRegex			*re;
 		guint16			sfloat_ieee_11073;
 		guint32			float_ieee_11073;
@@ -287,7 +293,7 @@ void
 fvalue_set_string(fvalue_t *fv, const gchar *value);
 
 void
-fvalue_set_tvbuff(fvalue_t *fv, tvbuff_t *value);
+fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const gchar *name);
 
 void
 fvalue_set_uinteger(fvalue_t *fv, guint32 value);
