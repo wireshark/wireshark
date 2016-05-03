@@ -2735,7 +2735,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 		}
 		break;
 
-	case 124: {	/* V-I Vendor Class */
+	case 124: {	/* V-I Vendor Class (RFC 3925) */
 		int data_len;
 
 		if (optlen == 1) {
@@ -2769,7 +2769,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 		break;
 	}
 
-	case 125: {	/* V-I Vendor-specific Information */
+	case 125: {	/* V-I Vendor-specific Information (RFC 3925) */
 		int enterprise = 0;
 		int s_end = 0;
 		int s_option_len = 0;
@@ -2793,51 +2793,29 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 			optoff += 5;
 			optleft -= 5;
 
-			/* Handle DSL Forum TR-111 Option 125 */
-			switch (enterprise) {
-
-			case 3561: /* ADSL Forum */
-				s_end = optoff + s_option_len;
-				if ( s_end > optend ) {
-					expert_add_info_format(pinfo, vti, &ei_bootp_option125_enterprise_malformed, "no room left in option for enterprise %u data", enterprise);
-					break;
-				}
-
-				e_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				while (optoff < s_end) {
-
-				optoff = dissect_vendor_tr111_suboption(pinfo, vti, e_tree, tvb, optoff, s_end);
+			s_end = optoff + s_option_len;
+			if ( s_end > optend ) {
+				expert_add_info_format(pinfo, vti, &ei_bootp_option125_enterprise_malformed, "no room left in option for enterprise %u data", enterprise);
+				break;
 			}
-			break;
 
-			case 4491: /* CableLab */
-				s_end = optoff + s_option_len;
-				if ( s_end > optend ) {
-					expert_add_info_format(pinfo, vti, &ei_bootp_option125_enterprise_malformed, "no room left in option for enterprise %u data", enterprise);
-					break;
-				}
+			e_tree = proto_item_add_subtree(vti, ett_bootp_option);
+			while (optoff < s_end) {
+				switch (enterprise) {
 
-				e_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				while (optoff < s_end) {
+				case 3561: /* ADSL Forum */
+					optoff = dissect_vendor_tr111_suboption(pinfo, vti, e_tree, tvb, optoff, s_end);
+				break;
+
+				case 4491: /* CableLab */
 					optoff = dissect_vendor_cl_suboption(pinfo, vti, e_tree, tvb, optoff, s_end);
-			}
-			break;
+				break;
 
-			default:
-				s_end = optoff + s_option_len;
-				if ( s_end > optend ) {
-					expert_add_info_format(pinfo, vti, &ei_bootp_option125_enterprise_malformed, "no room left in option for enterprise %u data", enterprise);
-					break;
+				default:
+					optoff = dissect_vendor_generic_suboption(pinfo, vti, e_tree, tvb, optoff, s_end);
+				break;
 				}
-
-				e_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				while (optoff < s_end) {
-
-				optoff = dissect_vendor_generic_suboption(pinfo, vti, e_tree, tvb, optoff, s_end);
 			}
-			break;
-			}
-
 			optleft -= s_option_len;
 		}
 		break;
