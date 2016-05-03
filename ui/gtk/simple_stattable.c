@@ -196,7 +196,7 @@ static void
 init_simple_stat_tables(stat_tap_table_ui *new_stat_tap, const char *filter)
 {
 	simple_stat_t *ss;
-	GString *error_string;
+	gchar *error_string;
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
 
@@ -221,8 +221,8 @@ init_simple_stat_tables(stat_tap_table_ui *new_stat_tap, const char *filter)
 
 	error_string = register_tap_listener(new_stat_tap->tap_name, &ss->data, filter, 0, simple_stat_reset, new_stat_tap->packet_func, simple_stat_draw);
 	if(error_string){
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
-		g_string_free(error_string, TRUE);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
+		wmem_free(NULL, error_string);
 		free_stat_tables(ss->new_stat_tap, NULL, NULL);
 		g_free(ss);
 		return;

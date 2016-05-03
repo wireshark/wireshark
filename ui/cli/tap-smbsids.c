@@ -66,7 +66,7 @@ smbsids_draw(void *pss _U_)
 static void
 smbsids_init(const char *opt_arg _U_, void *userdata _U_)
 {
-	GString *error_string;
+	gchar *error_string;
 
 	if (!sid_name_snooping) {
 		fprintf(stderr, "The -z smb,sids function needs SMB/SID-Snooping to be enabled.\n");
@@ -81,8 +81,8 @@ smbsids_init(const char *opt_arg _U_, void *userdata _U_)
 	error_string = register_tap_listener("smb", NULL, NULL, 0, NULL, smbsids_packet, smbsids_draw);
 	if (error_string) {
 		fprintf(stderr, "tshark: Couldn't register smb,sids tap:%s\n",
-			error_string->str);
-		g_string_free(error_string, TRUE);
+			error_string);
+		wmem_free(NULL, error_string);
 		exit(1);
 	}
 }

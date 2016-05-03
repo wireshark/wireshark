@@ -270,7 +270,7 @@ icmpstat_init(const char *opt_arg, void *userdata _U_)
 {
     icmpstat_t *icmpstat;
     const char *filter = NULL;
-    GString *error_string;
+    gchar *error_string;
 
     if (strstr(opt_arg, "icmp,srt,"))
         filter = opt_arg + strlen("icmp,srt,");
@@ -305,8 +305,8 @@ icmpstat_init(const char *opt_arg, void *userdata _U_)
         g_free(icmpstat);
 
         fprintf(stderr, "tshark: Couldn't register icmp,srt tap: %s\n",
-            error_string->str);
-        g_string_free(error_string, TRUE);
+            error_string);
+        wmem_free(NULL, error_string);
         exit(1);
     }
 }

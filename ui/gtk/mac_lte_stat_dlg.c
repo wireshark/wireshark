@@ -1003,7 +1003,7 @@ static void gtk_mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
 {
     mac_lte_stat_t *hs;
     const char *filter = NULL;
-    GString    *error_string;
+    gchar    *error_string;
     GtkWidget  *ues_scrolled_window;
     GtkWidget  *bbox;
     GtkWidget  *top_level_vbox;
@@ -1366,8 +1366,8 @@ static void gtk_mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
                                          mac_lte_stat_packet,
                                          mac_lte_stat_draw);
     if (error_string) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
+        wmem_free(NULL, error_string);
         g_free(hs);
         return;
     }

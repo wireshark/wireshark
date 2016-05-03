@@ -146,7 +146,7 @@ gtk_dcerpcstat_init(const char *opt_arg, void* userdata _U_)
 	int pos = 0;
 	const char *filter = NULL;
 	dcerpcstat_tap_data_t* tap_data;
-	GString *error_string;
+	gchar *error_string;
 
 	/*
 	 * XXX - DCE RPC statistics are maintained only by major version,
@@ -260,8 +260,8 @@ gtk_dcerpcstat_init(const char *opt_arg, void* userdata _U_)
 	error_string = register_tap_listener("dcerpc", &rs->data, filter, 0, dcerpcstat_reset, get_srt_packet_func(rs->srt), dcerpcstat_draw);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
-		g_string_free(error_string, TRUE);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
+		wmem_free(NULL, error_string);
 		free_srt_table(rs->srt, rs->data.srt_array, NULL, NULL);
 		g_free(rs);
 		return;

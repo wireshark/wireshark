@@ -140,8 +140,8 @@ WS_DLL_PUBLIC void draw_tap_listeners(gboolean draw_all);
 /** this function attaches the tap_listener to the named tap.
  * function returns :
  *     NULL: ok.
- * non-NULL: error, return value points to GString containing error
- *           message.
+ * non-NULL: error, return value points to gchar* containing error
+ *           message. This value must be freed with wmem_free().
  * @param tapname    The name of the tap we want to listen to.
  * @param tapdata    is the instance identifier. The tap system uses the value of this
  *                   pointer to distinguish between different instances of a tap.
@@ -211,12 +211,12 @@ WS_DLL_PUBLIC void draw_tap_listeners(gboolean draw_all);
  *                   or the file has been [re]read completely.
  */
 
-WS_DLL_PUBLIC GString *register_tap_listener(const char *tapname, void *tapdata,
+WS_DLL_PUBLIC gchar *register_tap_listener(const char *tapname, void *tapdata,
     const char *fstring, guint flags, tap_reset_cb tap_reset,
     tap_packet_cb tap_packet, tap_draw_cb tap_draw);
 
 /** This function sets a new dfilter to a tap listener */
-WS_DLL_PUBLIC GString *set_tap_dfilter(void *tapdata, const char *fstring);
+WS_DLL_PUBLIC gchar *set_tap_dfilter(void *tapdata, const char *fstring);
 
 /** This function recompiles dfilter for all registered tap listeners */
 WS_DLL_PUBLIC void tap_listeners_dfilter_recompile(void);

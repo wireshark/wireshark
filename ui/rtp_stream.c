@@ -193,7 +193,7 @@ remove_tap_listener_rtp_stream(rtpstream_tapinfo_t *tapinfo)
 void
 register_tap_listener_rtp_stream(rtpstream_tapinfo_t *tapinfo, const char *fstring)
 {
-    GString *error_string;
+    gchar *error_string;
 
     if (!tapinfo) {
         return;
@@ -206,8 +206,8 @@ register_tap_listener_rtp_stream(rtpstream_tapinfo_t *tapinfo, const char *fstri
 
         if (error_string != NULL) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "%s", error_string->str);
-            g_string_free(error_string, TRUE);
+                          "%s", error_string);
+            wmem_free(NULL, error_string);
             exit(1);
         }
 

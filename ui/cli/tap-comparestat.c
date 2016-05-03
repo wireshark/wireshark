@@ -530,7 +530,7 @@ comparestat_init(const char *opt_arg, void *userdata _U_)
 {
 	comparestat_t *cs;
 	const char *filter = NULL;
-	GString *error_string;
+	gchar *error_string;
 	gint start, stop, ttl, order, pos = 0;
 	gdouble variance;
 
@@ -581,8 +581,8 @@ comparestat_init(const char *opt_arg, void *userdata _U_)
 		g_hash_table_destroy(cs->packet_set);
 		g_free(cs);
 
-		fprintf(stderr, "tshark: Couldn't register compare tap: %s\n", error_string->str);
-		g_string_free(error_string, TRUE);
+		fprintf(stderr, "tshark: Couldn't register compare tap: %s\n", error_string);
+		wmem_free(NULL, error_string);
 		exit(1);
 	}
 }

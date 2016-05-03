@@ -2536,13 +2536,8 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_PLUGINS
     /* Register all the plugin types we have. */
-    epan_register_plugin_types(); /* Types known to libwireshark */
     wtap_register_plugin_types(); /* Types known to libwiretap */
     codec_register_plugin_types(); /* Types known to libwscodecs */
-
-    /* Scan for plugins.  This does *not* call their registration routines;
-       that's done later. */
-    scan_plugins();
 
     /* Register all libwiretap plugin modules. */
     register_all_wiretap_modules();

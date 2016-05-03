@@ -517,7 +517,7 @@ static void mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
 {
     mac_lte_stat_t    *hs;
     const char    *filter = NULL;
-    GString       *error_string;
+    gchar         *error_string;
 
     /* Check for a filter string */
     if (strncmp(opt_arg, "mac-lte,stat,", 13) == 0) {
@@ -539,7 +539,7 @@ static void mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
                                          mac_lte_stat_packet,
                                          mac_lte_stat_draw);
     if (error_string) {
-        g_string_free(error_string, TRUE);
+        wmem_free(NULL, error_string);
         g_free(hs);
         exit(1);
     }

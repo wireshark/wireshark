@@ -215,7 +215,7 @@ iousers_draw(void *arg)
 void init_iousers(struct register_ct *ct, const char *filter)
 {
 	io_users_t *iu;
-	GString *error_string;
+	gchar *error_string;
 
 	iu = g_new0(io_users_t, 1);
 	iu->type = proto_get_protocol_short_name(find_protocol_by_id(get_conversation_proto_id(ct)));
@@ -226,8 +226,8 @@ void init_iousers(struct register_ct *ct, const char *filter)
 	if (error_string) {
 		g_free(iu);
 		fprintf(stderr, "tshark: Couldn't register conversations tap: %s\n",
-		    error_string->str);
-		g_string_free(error_string, TRUE);
+		    error_string);
+		wmem_free(NULL, error_string);
 		exit(1);
 	}
 

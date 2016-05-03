@@ -64,7 +64,7 @@ static void
 init_stats_tree(const char *opt_arg, void *userdata _U_)
 {
 	char *abbr = stats_tree_get_abbr(opt_arg);
-	GString	*error_string;
+	gchar *error_string;
 	stats_tree_cfg *cfg = NULL;
 	stats_tree *st = NULL;
 
@@ -99,7 +99,8 @@ init_stats_tree(const char *opt_arg, void *userdata _U_)
 					     draw_stats_tree);
 
 	if (error_string) {
-		report_failure("stats_tree for: %s failed to attach to the tap: %s", cfg->name, error_string->str);
+		report_failure("stats_tree for: %s failed to attach to the tap: %s", cfg->name, error_string);
+		wmem_free(NULL, error_string);
 		return;
 	}
 

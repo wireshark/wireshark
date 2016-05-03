@@ -118,7 +118,7 @@ static void
 init_srt_tables(register_srt_t* srt, const char *filter)
 {
 	srt_t *ui;
-	GString *error_string;
+	gchar *error_string;
 
 	ui = g_new0(srt_t, 1);
 	ui->type = proto_get_protocol_short_name(find_protocol_by_id(get_srt_proto_id(srt)));
@@ -130,8 +130,8 @@ init_srt_tables(register_srt_t* srt, const char *filter)
 	if (error_string) {
 		free_srt_table(srt, global_srt_array, NULL, NULL);
 		g_free(ui);
-		fprintf(stderr, "tshark: Couldn't register srt tap: %s\n", error_string->str);
-		g_string_free(error_string, TRUE);
+		fprintf(stderr, "tshark: Couldn't register srt tap: %s\n", error_string);
+		wmem_free(NULL, error_string);
 		exit(1);
 	}
 }

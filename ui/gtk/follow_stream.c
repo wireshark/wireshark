@@ -170,7 +170,7 @@ static void follow_stream_cb(register_follow_t* follower, follow_read_stream_fun
     gchar       *both_directions_string = NULL;
     follow_info_t  *follow_info;
     gtk_follow_info_t *gtk_follow_info;
-    GString *msg;
+    gchar *msg;
     gboolean is_follow = FALSE;
     guint32 ignore_stream;
     char  stream_window_title[256];
@@ -232,11 +232,12 @@ static void follow_stream_cb(register_follow_t* follower, follow_read_stream_fun
     if (msg) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "Can't register %s tap: %s\n",
-                      get_follow_tap_string(follower), msg->str);
+                      get_follow_tap_string(follower), msg);
         g_free(gtk_follow_info);
         g_free(follow_info->filter_out_filter);
         g_free(follow_info);
         g_free(follow_filter);
+        wmem_free(NULL, msg);
         return;
     }
 

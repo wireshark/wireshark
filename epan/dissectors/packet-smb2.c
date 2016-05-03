@@ -2772,7 +2772,7 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	int        idx;
 
 	if (!ntlmssp_tap_id) {
-		GString *error_string;
+		gchar *error_string;
 		/* We don't specify any callbacks at all.
 		 * Instead we manually fetch the tapped data after the
 		 * security blob has been fully dissected and before
@@ -2783,7 +2783,7 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		if (!error_string) {
 			ntlmssp_tap_id = find_tap_id("ntlmssp");
 		} else {
-			g_string_free(error_string, TRUE);
+			wmem_free(NULL, error_string);
 		}
 	}
 

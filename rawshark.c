@@ -1332,7 +1332,7 @@ protocolinfo_init(char *field)
 {
     pci_t *rs;
     header_field_info *hfi;
-    GString *error_string;
+    gchar *error_string;
     char hfibuf[100];
 
     hfi=proto_registrar_get_byname(field);
@@ -1356,8 +1356,8 @@ protocolinfo_init(char *field)
     if(error_string){
         /* error, we failed to attach to the tap. complain and clean up */
         fprintf(stderr, "rawshark: Couldn't register field extraction tap: %s\n",
-                error_string->str);
-        g_string_free(error_string, TRUE);
+                error_string);
+        wmem_free(NULL, error_string);
         if(rs->filter){
             g_free(rs->filter);
         }

@@ -394,7 +394,7 @@ sipstat_init(const char *opt_arg, void *userdata _U_)
 {
 	sipstat_t  *sp;
 	const char *filter = NULL;
-	GString	   *error_string;
+	gchar	   *error_string;
 
 	if (strncmp (opt_arg, "sip,stat,", 9) == 0) {
 		filter = opt_arg+9;
@@ -424,8 +424,8 @@ sipstat_init(const char *opt_arg, void *userdata _U_)
 		g_free(sp->filter);
 		g_free(sp);
 		fprintf (stderr, "tshark: Couldn't register sip,stat tap: %s\n",
-			 error_string->str);
-		g_string_free(error_string, TRUE);
+			 error_string);
+		wmem_free(NULL, error_string);
 		exit(1);
 	}
 

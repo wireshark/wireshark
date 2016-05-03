@@ -1864,7 +1864,7 @@ static void
 on_refresh_bt_clicked(GtkWidget *bt _U_, gpointer data)
 {
 	user_data_t *user_data = (user_data_t *)data;
-	GString	    *error_string;
+	gchar	    *error_string;
 
 	/* remove tap listener */
 	remove_tap_listener(user_data);
@@ -1873,8 +1873,8 @@ on_refresh_bt_clicked(GtkWidget *bt _U_, gpointer data)
 	error_string = register_tap_listener("IAX2", user_data, NULL, 0,
 		iax2_reset, iax2_packet, iax2_draw);
 	if (error_string != NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
-			g_string_free(error_string, TRUE);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
+			wmem_free(NULL, error_string);
 		return;
 	}
 

@@ -114,7 +114,7 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
     epan_dissect_t  edt;
     dfilter_t      *sfcode;
 
-    GString        *error_string;
+    gchar          *error_string;
     nstime_t        rel_ts;
     /* Initialised to no known channels */
     th_t            th = {0, {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}};
@@ -139,8 +139,8 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
     error_string = register_tap_listener("rlc-lte", &th, NULL, 0, NULL, tap_lte_rlc_packet, NULL);
     if (error_string){
         fprintf(stderr, "wireshark: Couldn't register rlc_lte_graph tap: %s\n",
-                error_string->str);
-        g_string_free(error_string, TRUE);
+                error_string);
+        wmem_free(NULL, error_string);
         exit(1);   /* XXX: fix this */
     }
 
@@ -250,7 +250,7 @@ gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, gbool
                                     char **err_string)
 {
     struct rlc_segment current;
-    GString    *error_string;
+    gchar    *error_string;
 
     g_log(NULL, G_LOG_LEVEL_DEBUG, "graph_segment_list_get()");
 
@@ -283,8 +283,8 @@ gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, gbool
     error_string = register_tap_listener("rlc-lte", g, "rlc-lte", 0, NULL, rlc_lte_tap_for_graph_data, NULL);
     if (error_string) {
         fprintf(stderr, "wireshark: Couldn't register rlc_graph tap: %s\n",
-                error_string->str);
-        g_string_free(error_string, TRUE);
+                error_string);
+        wmem_free(NULL, error_string);
         exit(1);   /* XXX: fix this */
     }
     cf_retap_packets(cf);

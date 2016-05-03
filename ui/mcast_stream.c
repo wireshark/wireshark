@@ -259,7 +259,7 @@ mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 
     /* increment the packets counter for this stream and calculate average pps */
     ++(strinfo->npackets);
-    
+
     if (deltatime > 0) {
         strinfo->apackets = strinfo->npackets / deltatime;
         strinfo->average_bw = ((double)(strinfo->total_bytes*8) / deltatime);
@@ -332,7 +332,7 @@ remove_tap_listener_mcast_stream(mcaststream_tapinfo_t *tapinfo)
 void
 register_tap_listener_mcast_stream(mcaststream_tapinfo_t *tapinfo)
 {
-    GString *error_string;
+    gchar *error_string;
 
     if (!tapinfo) {
         return;
@@ -345,8 +345,8 @@ register_tap_listener_mcast_stream(mcaststream_tapinfo_t *tapinfo)
 
         if (error_string != NULL) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "%s", error_string->str);
-            g_string_free(error_string, TRUE);
+                          "%s", error_string);
+            wmem_free(NULL, error_string);
             exit(1);
         }
 

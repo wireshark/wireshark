@@ -699,7 +699,7 @@ gtk_comparestat_init(const char *opt_arg, void* userdata _U_)
 	gdouble variance;
 	gint start, stop,ttl, order, pos=0;
 	const char *filter=NULL;
-	GString *error_string;
+	gchar *error_string;
 
 	if(sscanf(opt_arg,"compare,%d,%d,%d,%d,%lf%n",&start, &stop, &ttl, &order, &variance, &pos)==5){
 		if(*(opt_arg+pos)==',')
@@ -791,8 +791,8 @@ gtk_comparestat_init(const char *opt_arg, void* userdata _U_)
 
 	error_string=register_tap_listener("ip", cs, filter, 0, comparestat_reset, comparestat_packet, comparestat_draw);
 	if(error_string){
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
-		g_string_free(error_string, TRUE);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
+		wmem_free(NULL, error_string);
 		gtk_tree_store_clear(cs->simple_list);
 		g_hash_table_destroy(cs->packet_set);
 		g_hash_table_destroy(cs->ip_id_set);

@@ -56,7 +56,7 @@ sv_packet(void *prs _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 static void
 svstat_init(const char *opt_arg _U_, void *userdata _U_)
 {
-	GString	*error_string;
+	gchar	*error_string;
 
 	error_string = register_tap_listener(
 		"sv",
@@ -69,8 +69,8 @@ svstat_init(const char *opt_arg _U_, void *userdata _U_)
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
 		fprintf(stderr, "tshark: Couldn't register sv,stat tap: %s\n",
-				error_string->str);
-		g_string_free(error_string, TRUE);
+				error_string);
+		wmem_free(NULL, error_string);
 		exit(1);
 	}
 }

@@ -532,7 +532,7 @@ rtp_event_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _
 void
 rtp_event_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-    GString *error_string;
+    gchar *error_string;
 
     error_string = register_tap_listener("rtpevent", tap_base_to_id(tap_id_base, tap_id_offset_rtp_event_),
             NULL,
@@ -544,8 +544,8 @@ rtp_event_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 }
 
@@ -840,7 +840,7 @@ rtp_packet_draw(void *tap_offset_ptr)
 void
 rtp_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-    GString *error_string;
+    gchar *error_string;
 
     error_string = register_tap_listener("rtp", tap_base_to_id(tap_id_base, tap_id_offset_rtp_), NULL,
             0,
@@ -850,8 +850,8 @@ rtp_init_tap(voip_calls_tapinfo_t *tap_id_base)
             );
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 }
 
@@ -1036,7 +1036,7 @@ t38_draw(void *tap_offset_ptr)
 void
 t38_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-    GString *error_string;
+    gchar *error_string;
 
     error_string = register_tap_listener("t38", tap_base_to_id(tap_id_base, tap_id_offset_t38_), NULL,
             0,
@@ -1046,8 +1046,8 @@ t38_init_tap(voip_calls_tapinfo_t *tap_id_base)
             );
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 }
 
@@ -1267,7 +1267,7 @@ sip_calls_draw(void *tap_offset_ptr)
 void
 sip_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-    GString *error_string;
+    gchar *error_string;
 
     error_string = register_tap_listener("sip", tap_base_to_id(tap_id_base, tap_id_offset_sip_), NULL,
             0,
@@ -1277,8 +1277,8 @@ sip_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             );
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 }
 
@@ -1470,7 +1470,7 @@ isup_calls_draw(void *tap_offset_ptr)
 void
 isup_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-    GString *error_string;
+    gchar *error_string;
 
     error_string = register_tap_listener("isup", tap_base_to_id(tap_id_base, tap_id_offset_isup_),
             NULL,
@@ -1482,8 +1482,8 @@ isup_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 }
 
@@ -1523,7 +1523,7 @@ mtp3_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt 
 void
 mtp3_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-    GString *error_string;
+    gchar *error_string;
 
     error_string = register_tap_listener("mtp3", tap_base_to_id(tap_id_base, tap_id_offset_mtp3_),
             NULL,
@@ -1535,8 +1535,8 @@ mtp3_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 
     error_string = register_tap_listener("m3ua", tap_base_to_id(tap_id_base, tap_id_offset_m3ua_),
@@ -1549,8 +1549,8 @@ mtp3_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 
 }
@@ -1851,7 +1851,7 @@ q931_calls_draw(void *tap_offset_ptr)
 void
 q931_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-    GString *error_string;
+    gchar *error_string;
 
     error_string = register_tap_listener("q931", tap_base_to_id(tap_id_base, tap_id_offset_q931_),
             NULL,
@@ -1863,8 +1863,8 @@ q931_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 }
 
@@ -2144,7 +2144,7 @@ h225_calls_draw(void *tap_offset_ptr)
 void
 h225_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-    GString *error_string;
+    gchar *error_string;
 
     error_string = register_tap_listener("h225", tap_base_to_id(tap_id_base, tap_id_offset_h225_), NULL,
             0,
@@ -2155,8 +2155,8 @@ h225_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 }
 
@@ -2304,7 +2304,7 @@ h245dg_calls_draw(void *tap_offset_ptr)
 void
 h245dg_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-    GString *error_string;
+    gchar *error_string;
 
     if (!tap_id_base->h245_labels) {
         tap_id_base->h245_labels = g_new0(h245_labels_t, 1);
@@ -2319,8 +2319,8 @@ h245dg_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 }
 
@@ -2378,7 +2378,7 @@ sdp_calls_draw(void *tap_offset_ptr)
 void
 sdp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-    GString *error_string;
+    gchar *error_string;
 
     error_string = register_tap_listener("sdp", tap_base_to_id(tap_id_base, tap_id_offset_sdp_), NULL,
             0,
@@ -2389,8 +2389,8 @@ sdp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 }
 
@@ -2752,7 +2752,7 @@ mgcp_calls_draw(void *tap_offset_ptr)
 void
 mgcp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-    GString *error_string;
+    gchar *error_string;
 
     /*
      * We set TL_REQUIRES_PROTO_TREE to force a non-null "tree"
@@ -2770,8 +2770,8 @@ mgcp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             );
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 }
 
@@ -2885,7 +2885,7 @@ actrace_calls_draw(void *tap_offset_ptr)
 void
 actrace_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-    GString *error_string;
+    gchar *error_string;
 
     error_string = register_tap_listener("actrace", tap_base_to_id(tap_id_base, tap_id_offset_actrace_), NULL,
             0,
@@ -2896,8 +2896,8 @@ actrace_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 }
 
@@ -3056,7 +3056,7 @@ megaco_calls_draw(void *tap_offset_ptr)
 void
 h248_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-    GString *error_string;
+    gchar *error_string;
 
     error_string = register_tap_listener("megaco", tap_base_to_id(tap_id_base, tap_id_offset_megaco_),
             NULL,
@@ -3067,8 +3067,8 @@ h248_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 
     error_string = register_tap_listener("h248", tap_base_to_id(tap_id_base, tap_id_offset_h248_),
@@ -3080,8 +3080,8 @@ h248_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 }
 
@@ -3249,7 +3249,7 @@ sua_calls_draw(void *tap_offset_ptr)
 
 void sccp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-    GString *error_string;
+    gchar *error_string;
 
     error_string = register_tap_listener("sccp", tap_base_to_id(tap_id_base, tap_id_offset_sccp_),
             NULL,
@@ -3260,8 +3260,8 @@ void sccp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 
     error_string = register_tap_listener("sua", tap_base_to_id(tap_id_base, tap_id_offset_sua_),
@@ -3273,8 +3273,8 @@ void sccp_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 }
 
@@ -3772,7 +3772,7 @@ unistim_calls_draw(void *tap_offset_ptr)
 void
 unistim_calls_init_tap(voip_calls_tapinfo_t *tap_id_base) {
 
-    GString *error_string;
+    gchar *error_string;
 
     error_string = register_tap_listener("unistim", tap_base_to_id(tap_id_base, tap_id_offset_unistim_),
             NULL,
@@ -3784,8 +3784,8 @@ unistim_calls_init_tap(voip_calls_tapinfo_t *tap_id_base) {
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 }
 
@@ -3933,7 +3933,7 @@ skinny_calls_draw(void *tap_offset_ptr)
 void
 skinny_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-    GString *error_string;
+    gchar *error_string;
 
     /*
      * We set TL_REQUIRES_PROTO_TREE to force a non-null "tree"
@@ -3951,8 +3951,8 @@ skinny_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             );
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 }
 
@@ -4072,7 +4072,7 @@ iax2_calls_draw(void *tap_offset_ptr)
 void
 iax2_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-    GString *error_string;
+    gchar *error_string;
 
     /*
      * We set TL_REQUIRES_PROTO_TREE to force a non-null "tree"
@@ -4093,8 +4093,8 @@ iax2_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
             );
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
-                error_string->str);
-        g_string_free(error_string, TRUE);
+                error_string);
+        wmem_free(NULL, error_string);
     }
 }
 
@@ -4195,7 +4195,7 @@ voip_calls_draw(void *tap_offset_ptr)
 void
 voip_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
-    GString *error_string;
+    gchar *error_string;
 
     error_string = register_tap_listener("voip", tap_base_to_id(tap_id_base, tap_id_offset_voip_),
             NULL,
@@ -4207,8 +4207,8 @@ voip_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 
     if (error_string != NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+                "%s", error_string);
+        wmem_free(NULL, error_string);
     }
 }
 

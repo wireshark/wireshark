@@ -241,7 +241,7 @@ static void lbmc_uim_flow_graph_on_ok_cb(GtkButton * button _U_, gpointer user_d
     /* Scan for displayed packets (retap all packets) */
     if (dialog_data.have_tap_listener == FALSE)
     {
-        GString * err_msg;
+        gchar * err_msg;
 
         err_msg = register_tap_listener("lbm_uim",
             &(dialog_data.tap_identifier),
@@ -252,8 +252,8 @@ static void lbmc_uim_flow_graph_on_ok_cb(GtkButton * button _U_, gpointer user_d
             lbmc_uim_flow_tap_draw);
         if (err_msg != NULL)
         {
-            fprintf(stderr, "register_tap_listener: %s\n", err_msg->str);
-            g_string_free(err_msg, TRUE);
+            fprintf(stderr, "register_tap_listener: %s\n", err_msg);
+            wmem_free(NULL, err_msg);
         }
         dialog_data.have_tap_listener = TRUE;
     }

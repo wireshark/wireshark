@@ -327,7 +327,7 @@ extern
 void
 proto_reg_handoff_mate(void)
 {
-	GString* tap_error = NULL;
+	gchar* tap_error = NULL;
 
 	if ( *pref_mate_config_filename != '\0' ) {
 
@@ -354,8 +354,8 @@ proto_reg_handoff_mate(void)
 				    (tap_draw_cb) NULL);
 
 				if ( tap_error ) {
-					g_warning("mate: couldn't (re)register tap: %s",tap_error->str);
-					g_string_free(tap_error, TRUE);
+					g_warning("mate: couldn't (re)register tap: %s", tap_error);
+					wmem_free(NULL, tap_error);
 					mate_tap_data = 0;
 					return;
 				}

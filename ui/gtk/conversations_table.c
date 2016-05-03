@@ -70,7 +70,7 @@ reset_ct_table_data(conversations_table *ct)
 {
     char *display_name;
     char title[256];
-    GString *error_string;
+    gchar *error_string;
     const char *filter;
     GtkListStore *store;
 
@@ -82,8 +82,8 @@ reset_ct_table_data(conversations_table *ct)
 
     error_string = set_tap_dfilter (&ct->hash, filter);
     if (error_string) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
+        wmem_free(NULL, error_string);
         return;
     }
 
@@ -1925,7 +1925,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     tap_packet_cb packet_func)
 {
     int i;
-    GString *error_string;
+    gchar *error_string;
     char title[256];
 
     GtkListStore *store;
@@ -2059,8 +2059,8 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     error_string=register_tap_listener(tap_name, &conversations->hash, filter, 0, reset_ct_table_data_cb, packet_func,
         draw_ct_table_data_cb);
     if(error_string){
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
-        g_string_free(error_string, TRUE);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
+        wmem_free(NULL, error_string);
         return FALSE;
     }
 

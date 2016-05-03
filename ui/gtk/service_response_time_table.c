@@ -699,7 +699,7 @@ init_srt_tables(register_srt_t* srt, const char *filter)
 	gchar *str;
 	GtkWidget *label;
 	char *filter_string, *tmp_filter_string;
-	GString *error_string;
+	gchar *error_string;
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
 
@@ -762,8 +762,8 @@ init_srt_tables(register_srt_t* srt, const char *filter)
 
 	error_string = register_tap_listener(get_srt_tap_listener_name(srt), &ss->data, filter, 0, srt_reset, get_srt_packet_func(srt), srt_draw);
 	if(error_string){
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
-		g_string_free(error_string, TRUE);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string);
+		wmem_free(NULL, error_string);
 		free_srt_table(ss->srt, ss->data.srt_array, NULL, NULL);
 		g_free(ss);
 		return;

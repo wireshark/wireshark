@@ -1295,7 +1295,7 @@ void LBMLBTRMTransportDialog::resetReceiversDetail(void)
 
 void LBMLBTRMTransportDialog::fillTree(void)
 {
-    GString * error_string;
+    gchar * error_string;
 
     if (m_capture_file == NULL)
     {
@@ -1313,8 +1313,8 @@ void LBMLBTRMTransportDialog::fillTree(void)
     if (error_string)
     {
         QMessageBox::critical(this, tr("LBT-RM Statistics failed to attach to tap"),
-            error_string->str);
-        g_string_free(error_string, TRUE);
+            error_string);
+        wmem_free(NULL, error_string);
         reject();
     }
 

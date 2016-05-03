@@ -216,7 +216,7 @@ wspstat_init(const char *opt_arg, void *userdata _U_)
 	wspstat_t          *sp;
 	const char         *filter = NULL;
 	guint32             i;
-	GString	           *error_string;
+	gchar	           *error_string;
 	wsp_status_code_t  *sc;
 	const value_string *wsp_vals_status_p;
 
@@ -272,8 +272,8 @@ wspstat_init(const char *opt_arg, void *userdata _U_)
 		g_hash_table_foreach( sp->hash, (GHFunc) wsp_free_hash_table, NULL ) ;
 		g_hash_table_destroy( sp->hash );
 		fprintf(stderr, "tshark: Couldn't register wsp,stat tap: %s\n",
-				error_string->str);
-		g_string_free(error_string, TRUE);
+				error_string);
+		wmem_free(NULL, error_string);
 		exit(1);
 	}
 }

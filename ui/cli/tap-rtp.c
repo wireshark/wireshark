@@ -139,7 +139,7 @@ rtp_streams_stat_draw(void *arg _U_)
 static void
 rtp_streams_stat_init(const char *opt_arg _U_, void *userdata _U_)
 {
-    GString             *err_p;
+    gchar             *err_p;
 
     err_p =
         register_tap_listener("rtp", &the_tapinfo_struct, NULL, 0,
@@ -149,7 +149,7 @@ rtp_streams_stat_init(const char *opt_arg _U_, void *userdata _U_)
 
     if (err_p != NULL)
     {
-        g_string_free(err_p, TRUE);
+        wmem_free(NULL, err_p);
 
         exit(1);
     }

@@ -263,7 +263,7 @@ ctx_handle_hash(gconstpointer k)
 static void
 sid_snooping_init(void)
 {
-	GString *error_string;
+	gchar *error_string;
 
 	if(lsa_policy_information_tap_installed){
 		remove_tap_listener(&lsa_policy_information_tap_installed);
@@ -310,8 +310,8 @@ sid_name_snooping=FALSE;
 		/* error, we failed to attach to the tap. clean up */
 
 		report_failure( "Couldn't register proto_reg_handoff_smb_sidsnooping()/lsa_policy_information tap: %s\n",
-		    error_string->str);
-		g_string_free(error_string, TRUE);
+		    error_string);
+		wmem_free(NULL, error_string);
 		return;
 	}
 	lsa_policy_information_tap_installed=TRUE;
@@ -324,8 +324,8 @@ sid_name_snooping=FALSE;
 		/* error, we failed to attach to the tap. clean up */
 
 		report_failure( "Couldn't register proto_reg_handoff_smb_sidsnooping()/samr_query_dispinfo tap: %s\n",
-		    error_string->str);
-		g_string_free(error_string, TRUE);
+		    error_string);
+		wmem_free(NULL, error_string);
 		return;
 	}
 	samr_query_dispinfo_tap_installed=TRUE;

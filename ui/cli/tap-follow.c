@@ -445,7 +445,7 @@ static void follow_stream(const char *opt_argp, void *userdata)
 {
   follow_info_t *follow_info;
   cli_follow_info_t* cli_follow_info;
-  GString  *errp;
+  gchar *errp;
   register_follow_t* follower = (register_follow_t*)userdata;
   follow_index_filter_func index_filter;
   follow_address_filter_func address_filter;
@@ -488,7 +488,7 @@ static void follow_stream(const char *opt_argp, void *userdata)
   if (errp != NULL)
   {
     follow_free(follow_info);
-    g_string_free(errp, TRUE);
+    wmem_free(NULL, errp);
     follow_exit("Error registering tap listener.");
   }
 }
