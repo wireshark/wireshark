@@ -58,7 +58,7 @@ typedef void (*FvalueSetBytesFunc)(fvalue_t*, const guint8 *);
 typedef void (*FvalueSetGuidFunc)(fvalue_t*, const e_guid_t *);
 typedef void (*FvalueSetTimeFunc)(fvalue_t*, const nstime_t *);
 typedef void (*FvalueSetStringFunc)(fvalue_t*, const gchar *value);
-typedef void (*FvalueSetTvbuffFunc)(fvalue_t*, tvbuff_t *value);
+typedef void (*FvalueSetProtocolFunc)(fvalue_t*, tvbuff_t *value, const gchar *name);
 typedef void (*FvalueSetUnsignedIntegerFunc)(fvalue_t*, guint32);
 typedef void (*FvalueSetSignedIntegerFunc)(fvalue_t*, gint32);
 typedef void (*FvalueSetUnsignedInteger64Func)(fvalue_t*, guint64);
@@ -95,7 +95,7 @@ struct _ftype_t {
 	FvalueSetGuidFunc	set_value_guid;
 	FvalueSetTimeFunc	set_value_time;
 	FvalueSetStringFunc	set_value_string;
-	FvalueSetTvbuffFunc	set_value_tvbuff;
+	FvalueSetProtocolFunc	set_value_protocol;
 	FvalueSetUnsignedIntegerFunc	set_value_uinteger;
 	FvalueSetSignedIntegerFunc		set_value_sinteger;
 	FvalueSetUnsignedInteger64Func	set_value_uinteger64;

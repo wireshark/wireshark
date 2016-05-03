@@ -530,10 +530,10 @@ fvalue_set_string(fvalue_t *fv, const gchar *value)
 }
 
 void
-fvalue_set_tvbuff(fvalue_t *fv, tvbuff_t *value)
+fvalue_set_protocol(fvalue_t *fv, tvbuff_t *value, const gchar *name)
 {
-	g_assert(fv->ftype->set_value_tvbuff);
-	fv->ftype->set_value_tvbuff(fv, value);
+	g_assert(fv->ftype->set_value_protocol);
+	fv->ftype->set_value_protocol(fv, value, name);
 }
 
 void

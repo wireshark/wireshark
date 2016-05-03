@@ -198,7 +198,7 @@ static void
 proto_tree_set_representation(proto_item *pi, const char *format, va_list ap);
 
 static void
-proto_tree_set_protocol_tvb(field_info *fi, tvbuff_t *tvb);
+proto_tree_set_protocol_tvb(field_info *fi, tvbuff_t *tvb, const char* field_data);
 static void
 proto_tree_set_bytes(field_info *fi, const guint8* start_ptr, gint length);
 static void
@@ -1668,7 +1668,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_PROTOCOL:
-			proto_tree_set_protocol_tvb(new_fi, tvb);
+			proto_tree_set_protocol_tvb(new_fi, tvb, new_fi->hfinfo->name);
 			break;
 
 		case FT_BYTES:
@@ -2557,9 +2557,9 @@ ptvcursor_advance(ptvcursor_t* ptvc, gint length)
 
 
 static void
-proto_tree_set_protocol_tvb(field_info *fi, tvbuff_t *tvb)
+proto_tree_set_protocol_tvb(field_info *fi, tvbuff_t *tvb, const char* field_data)
 {
-	fvalue_set_tvbuff(&fi->value, tvb);
+	fvalue_set_protocol(&fi->value, tvb, field_data);
 }
 
 /* Add a FT_PROTOCOL to a proto_tree */
@@ -2570,6 +2570,7 @@ proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	proto_item	  *pi;
 	va_list		   ap;
 	header_field_info *hfinfo;
+	gchar* protocol_rep;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -2577,7 +2578,11 @@ proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length);
 
-	proto_tree_set_protocol_tvb(PNODE_FINFO(pi), (start == 0 ? tvb : tvb_new_subset_length(tvb, start, length)));
+	va_start(ap, format);
+	protocol_rep = g_strdup_vprintf(format, ap);
+	proto_tree_set_protocol_tvb(PNODE_FINFO(pi), (start == 0 ? tvb : tvb_new_subset_length(tvb, start, length)), protocol_rep);
+	g_free(protocol_rep);
+	va_end(ap);
 
 	TRY_TO_FAKE_THIS_REPR(pi);
 

@@ -1527,9 +1527,9 @@ set(FTYPE_FILES
 	ftypes/ftype-guid.c
 	ftypes/ftype-none.c
 	ftypes/ftype-pcre.c
+	ftypes/ftype-protocol.c
 	ftypes/ftype-string.c
 	ftypes/ftype-time.c
-	ftypes/ftype-tvbuff.c
 )
 source_group(ftype FILES ${FTYPE_FILES})
 

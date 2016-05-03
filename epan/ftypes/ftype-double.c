@@ -175,7 +175,7 @@ ftype_register_double(void)
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
 		NULL,				/* set_value_string */
-		NULL,				/* set_value_tvbuff */
+		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
@@ -220,7 +220,7 @@ ftype_register_double(void)
 		NULL,				/* set_value_guid */
 		NULL,				/* set_value_time */
 		NULL,				/* set_value_string */
-		NULL,				/* set_value_tvbuff */
+		NULL,				/* set_value_protocol */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_uinteger64 */
