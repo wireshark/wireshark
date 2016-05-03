@@ -36,6 +36,7 @@
 #include <packet.h>
 #include <epan/exceptions.h>
 #include <epan/tap.h>
+#include <epan/exported_pdu.h>
 #include "packet-tpkt.h"
 #include "packet-mtp3.h"
 #include "packet-h248.h"
@@ -397,7 +398,7 @@ static int hf_h248_NotifyCompletion_otherReason = -1;
 static int hf_h248_NotifyCompletion_onIteration = -1;
 
 /*--- End of included file: packet-h248-hf.c ---*/
-#line 74 "./asn1/h248/packet-h248-template.c"
+#line 75 "./asn1/h248/packet-h248-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h248 = -1;
@@ -413,6 +414,9 @@ static gint ett_h248_no_evt = -1;
 static int h248_tap = -1;
 
 static gcp_hf_ett_t h248_arrel = {{-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1}};
+
+static gint exported_pdu_tap = -1;
+
 
 
 /*--- Included file: packet-h248-ett.c ---*/
@@ -562,7 +566,7 @@ static gint ett_h248_EventParameterV1 = -1;
 static gint ett_h248_SigParameterV1 = -1;
 
 /*--- End of included file: packet-h248-ett.c ---*/
-#line 91 "./asn1/h248/packet-h248-template.c"
+#line 95 "./asn1/h248/packet-h248-template.c"
 
 static expert_field ei_h248_errored_command = EI_INIT;
 static expert_field ei_h248_transactionId64 = EI_INIT;
@@ -1172,6 +1176,27 @@ static guint32 error_code;
 static guint32 h248_version = 0; /* h248v1 support */
 static gcp_wildcard_t wild_term;
 static guint8 wild_card = 0xFF; /* place to store wildcardField */
+
+                                /* Call the export PDU tap with relevant data */
+static void
+export_h248_pdu(packet_info *pinfo, tvbuff_t *tvb)
+{
+
+    exp_pdu_data_t *exp_pdu_data;
+    guint8 tags_bit_field;
+
+    tags_bit_field = EXP_PDU_TAG_IP_SRC_BIT + EXP_PDU_TAG_IP_DST_BIT + EXP_PDU_TAG_SRC_PORT_BIT +
+        EXP_PDU_TAG_DST_PORT_BIT + EXP_PDU_TAG_ORIG_FNO_BIT;
+
+    exp_pdu_data = load_export_pdu_tags(pinfo, EXP_PDU_TAG_PROTO_NAME, "h248", &tags_bit_field, 1);
+
+    exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+    exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
+    exp_pdu_data->pdu_tvb = tvb;
+
+    tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+
+}
 
 extern void h248_param_ber_integer(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* u _U_, void* implicit) {
     asn1_ctx_t asn1_ctx;
@@ -5340,7 +5365,7 @@ dissect_h248_SigParameterV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1418 "./asn1/h248/packet-h248-template.c"
+#line 1443 "./asn1/h248/packet-h248-template.c"
 
 static int dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -5394,6 +5419,8 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             }
         }
     }
+
+    export_h248_pdu(pinfo, tvb);
 
     /* Make entry in the Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.248");
@@ -6764,7 +6791,7 @@ void proto_register_h248(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1585 "./asn1/h248/packet-h248-template.c"
+#line 1612 "./asn1/h248/packet-h248-template.c"
 
         GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -6930,7 +6957,7 @@ void proto_register_h248(void) {
     &ett_h248_SigParameterV1,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1603 "./asn1/h248/packet-h248-template.c"
+#line 1630 "./asn1/h248/packet-h248-template.c"
     };
 
     static ei_register_info ei[] = {
@@ -7017,5 +7044,7 @@ void proto_reg_handoff_h248(void) {
     if (tcp_port != 0) {
         dissector_add_uint("tcp.port", tcp_port, h248_tpkt_handle);
     }
+
+    exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 }
 

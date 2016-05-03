@@ -28,6 +28,7 @@
 #include <packet.h>
 #include <epan/exceptions.h>
 #include <epan/tap.h>
+#include <epan/exported_pdu.h>
 #include "packet-tpkt.h"
 #include "packet-mtp3.h"
 #include "packet-h248.h"
@@ -86,6 +87,9 @@ static gint ett_h248_no_evt = -1;
 static int h248_tap = -1;
 
 static gcp_hf_ett_t h248_arrel = {{-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1}};
+
+static gint exported_pdu_tap = -1;
+
 
 #include "packet-h248-ett.c"
 
@@ -697,6 +701,27 @@ static guint32 error_code;
 static guint32 h248_version = 0; /* h248v1 support */
 static gcp_wildcard_t wild_term;
 static guint8 wild_card = 0xFF; /* place to store wildcardField */
+
+                                /* Call the export PDU tap with relevant data */
+static void
+export_h248_pdu(packet_info *pinfo, tvbuff_t *tvb)
+{
+
+    exp_pdu_data_t *exp_pdu_data;
+    guint8 tags_bit_field;
+
+    tags_bit_field = EXP_PDU_TAG_IP_SRC_BIT + EXP_PDU_TAG_IP_DST_BIT + EXP_PDU_TAG_SRC_PORT_BIT +
+        EXP_PDU_TAG_DST_PORT_BIT + EXP_PDU_TAG_ORIG_FNO_BIT;
+
+    exp_pdu_data = load_export_pdu_tags(pinfo, EXP_PDU_TAG_PROTO_NAME, "h248", &tags_bit_field, 1);
+
+    exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+    exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
+    exp_pdu_data->pdu_tvb = tvb;
+
+    tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+
+}
 
 extern void h248_param_ber_integer(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* u _U_, void* implicit) {
     asn1_ctx_t asn1_ctx;
@@ -1469,6 +1494,8 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         }
     }
 
+    export_h248_pdu(pinfo, tvb);
+
     /* Make entry in the Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.248");
 
@@ -1686,5 +1713,7 @@ void proto_reg_handoff_h248(void) {
     if (tcp_port != 0) {
         dissector_add_uint("tcp.port", tcp_port, h248_tpkt_handle);
     }
+
+    exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 }
 
