@@ -45,6 +45,7 @@ static int hf_quic_puflags = -1;
 static int hf_quic_puflags_vrsn = -1;
 static int hf_quic_puflags_rst = -1;
 static int hf_quic_puflags_cid = -1;
+static int hf_quic_puflags_cid_old = -1;
 static int hf_quic_puflags_seq = -1;
 static int hf_quic_puflags_rsv = -1;
 static int hf_quic_cid = -1;
@@ -173,12 +174,21 @@ typedef struct quic_info_data {
 #define PUFLAGS_VRSN    0x01
 #define PUFLAGS_RST     0x02
 #define PUFLAGS_CID     0x08
+#define PUFLAGS_CID_OLD 0x0C
 #define PUFLAGS_SEQ     0x30
 #define PUFLAGS_RSV     0xC4
 
 static const true_false_string puflags_cid_tfs = {
     "8 Bytes",
     "0 Byte"
+};
+
+static const value_string puflags_cid_old_vals[] = {
+    { 0, "0 Byte" },
+    { 1, "1 Bytes" },
+    { 2, "4 Bytes" },
+    { 3, "8 Bytes" },
+    { 0, NULL }
 };
 
 static const value_string puflags_seq_vals[] = {
@@ -1543,7 +1553,11 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     puflags_tree = proto_item_add_subtree(ti_puflags, ett_quic_puflags);
     proto_tree_add_item(puflags_tree, hf_quic_puflags_vrsn, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(puflags_tree, hf_quic_puflags_rst, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(puflags_tree, hf_quic_puflags_cid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    if(quic_info->version < 33){
+        proto_tree_add_item(puflags_tree, hf_quic_puflags_cid_old, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    } else {
+        proto_tree_add_item(puflags_tree, hf_quic_puflags_cid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    }
     proto_tree_add_item(puflags_tree, hf_quic_puflags_seq, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(puflags_tree, hf_quic_puflags_rsv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1639,6 +1653,11 @@ proto_register_quic(void)
         { &hf_quic_puflags_cid,
             { "CID Length", "quic.puflags.cid",
                FT_BOOLEAN, 8, TFS(&puflags_cid_tfs), PUFLAGS_CID,
+              "Signifies the Length of CID", HFILL }
+        },
+        { &hf_quic_puflags_cid_old,
+            { "CID Length", "quic.puflags.cid",
+               FT_UINT8, BASE_HEX, VALS(puflags_cid_old_vals), PUFLAGS_CID_OLD,
               "Signifies the Length of CID", HFILL }
         },
         { &hf_quic_puflags_seq,
