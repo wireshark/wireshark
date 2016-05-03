@@ -414,7 +414,7 @@
        <string/>
       </property>
       <property name="text">
-       <string/>
+       <string>0</string>
       </property>
      </item>
      <item>
@@ -501,7 +501,7 @@
        <string/>
       </property>
       <property name="text">
-       <string/>
+       <string>0</string>
       </property>
      </item>
      <item>
