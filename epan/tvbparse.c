@@ -1144,8 +1144,8 @@ tvbparse_wanted_t* tvbparse_quoted(const int id,
                                    const char quote,
                                    const char esc) {
 
-    gchar* esc_quot = g_strdup_printf("%c%c",esc,quote);
-    gchar* quot = g_strdup_printf("%c",quote);
+    gchar* esc_quot = wmem_strdup_printf(wmem_epan_scope(), "%c%c",esc,quote);
+    gchar* quot = wmem_strdup_printf(wmem_epan_scope(), "%c",quote);
     tvbparse_wanted_t* want_quot = tvbparse_char(-1,quot,NULL,NULL,NULL);
 
     return tvbparse_set_oneof(id, data, before_cb, after_cb,
