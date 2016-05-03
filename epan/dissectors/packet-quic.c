@@ -34,6 +34,8 @@ QUIC source code in Chromium : https://code.google.com/p/chromium/codesearch#chr
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/conversation.h>
+#include <stdlib.h> /* for atoi() */
 
 void proto_register_quic(void);
 void proto_reg_handoff_quic(void);
@@ -158,6 +160,10 @@ static gint ett_quic_tag_value = -1;
 static expert_field ei_quic_tag_undecoded = EI_INIT;
 static expert_field ei_quic_tag_length = EI_INIT;
 static expert_field ei_quic_tag_unknown = EI_INIT;
+
+typedef struct quic_info_data {
+    guint8 version;
+} quic_info_data_t;
 
 #define QUIC_MIN_LENGTH 3
 
@@ -1497,9 +1503,24 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint offset = 0;
     guint8 puflags, len_cid = 0, len_seq;
     guint64 cid = 0, seq;
+    conversation_t  *conv;
+    quic_info_data_t  *quic_info;
 
     if (tvb_captured_length(tvb) < QUIC_MIN_LENGTH)
         return 0;
+
+
+    /* get conversation, create if necessary*/
+    conv = find_or_create_conversation(pinfo);
+
+    /* get associated state information, create if necessary */
+    quic_info = (quic_info_data_t *)conversation_get_proto_data(conv, proto_quic);
+
+    if (!quic_info) {
+        quic_info = wmem_new(wmem_file_scope(), quic_info_data_t);
+        quic_info->version = 0;
+        conversation_add_proto_data(conv, proto_quic, quic_info);
+    }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUIC");
 
@@ -1507,6 +1528,17 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     quic_tree = proto_item_add_subtree(ti, ett_quic);
 
     /* Public Flags */
+    puflags = tvb_get_guint8(tvb, offset);
+
+    /* Get len of CID */
+    if(puflags & PUFLAGS_CID){
+        len_cid = 8;
+    }
+    /* check and get (and store) version */
+    if(puflags & PUFLAGS_VRSN){
+        quic_info->version = atoi(tvb_get_string_enc(wmem_packet_scope(), tvb,offset + 1 + len_cid + 1, 3, ENC_ASCII));
+    }
+
     ti_puflags = proto_tree_add_item(quic_tree, hf_quic_puflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     puflags_tree = proto_item_add_subtree(ti_puflags, ett_quic_puflags);
     proto_tree_add_item(puflags_tree, hf_quic_puflags_vrsn, tvb, offset, 1, ENC_NA);
@@ -1514,20 +1546,11 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(puflags_tree, hf_quic_puflags_cid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(puflags_tree, hf_quic_puflags_seq, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(puflags_tree, hf_quic_puflags_rsv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-
-    puflags = tvb_get_guint8(tvb, offset);
-
     offset += 1;
 
     /* CID */
-
-    /* Get len of CID (and CID), */
-    if(puflags & PUFLAGS_CID){
-        len_cid = 8;
-        cid = tvb_get_letoh64(tvb, offset);
-    }
-
     if (len_cid) {
+        cid = tvb_get_letoh64(tvb, offset);
         proto_tree_add_item(quic_tree, hf_quic_cid, tvb, offset, len_cid, ENC_LITTLE_ENDIAN);
         offset += len_cid;
     }
