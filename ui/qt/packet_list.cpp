@@ -1528,6 +1528,7 @@ void PacketList::drawFarOverlay()
     int o_height = groove_size.height();
     int pl_rows = packet_list_model_->rowCount();
     QImage overlay(o_width, o_height, QImage::Format_ARGB32_Premultiplied);
+    bool have_marked_image = false;
 
     // If only there were references from popular culture about getting into
     // some sort of groove.
@@ -1543,7 +1544,6 @@ void PacketList::drawFarOverlay()
         tick_color.setAlphaF(0.3);
         painter.setPen(tick_color);
 
-        bool have_far = false;
         for (int row = 0; row < pl_rows; row++) {
 
             frame_data *fdata = packet_list_model_->getRowFdata(row);
@@ -1556,15 +1556,17 @@ void PacketList::drawFarOverlay()
                 int x2 = fdata->flags.ref_time ? o_width - 1 : tick_width;
 
                 painter.drawLine(x1, new_line, x2, new_line);
-                have_far = true;
+                have_marked_image = true;
             }
         }
 
-        if (have_far) {
+        if (have_marked_image) {
             overlay_sb_->setMarkedPacketImage(overlay);
             return;
         }
-    } else {
+    }
+
+    if (!have_marked_image) {
         QImage null_overlay;
         overlay_sb_->setMarkedPacketImage(null_overlay);
     }
