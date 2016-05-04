@@ -254,8 +254,14 @@ static guint32 wtap_optionblock_get_option_write_size(wtap_optionblock_t block)
             length = value->info->write_size(&value->option);
             options_total_length += length;
             /* Add bytes for option header if option should be written */
-            if (length > 0)
+            if (length > 0) {
+                /* Add optional padding to 32 bits */
+                if ((options_total_length & 0x03) != 0)
+                {
+                    options_total_length += 4 - (options_total_length & 0x03);
+                }
                 options_total_length += 4;
+            }
         }
     }
 
@@ -529,8 +535,7 @@ guint32 wtap_opttype_write_uint8_not0(wtap_option_type* data)
     if (data->uint8val == 0)
         return 0;
 
-    /* padding to 32 bits */
-    return 4;
+    return 1;
 }
 
 gboolean wtap_opttype_write_data_uint8(struct wtap_dumper* wdh, wtap_option_type* data, int *err)
