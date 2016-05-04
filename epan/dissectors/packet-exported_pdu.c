@@ -33,6 +33,13 @@
 void proto_register_exported_pdu(void);
 void proto_reg_handoff_exported_pdu(void);
 
+static int hf_ip_addr = -1;
+static int hf_ip_dst = -1;
+static int hf_ip_src = -1;
+static int hf_ipv6_addr = -1;
+static int hf_ipv6_dst = -1;
+static int hf_ipv6_src = -1;
+
 static int proto_exported_pdu = -1;
 static int hf_exported_pdu_tag = -1;
 static int hf_exported_pdu_tag_len = -1;
@@ -99,7 +106,7 @@ static const value_string exported_pdu_tag_vals[] = {
 static int
 dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_item *ti;
+    proto_item *ti, *item;
     proto_tree *exported_pdu_tree, *tag_tree;
     tvbuff_t * payload_tvb = NULL;
     int offset = 0;
@@ -148,21 +155,42 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 break;
             case EXP_PDU_TAG_IPV4_SRC:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ipv4_src, tvb, offset, 4, ENC_BIG_ENDIAN);
+                /* You can filter on IP by right clicking the Source/Destination columns make that work by filling the IP hf:s*/
+                item = proto_tree_add_item(tag_tree, hf_ip_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+                PROTO_ITEM_SET_HIDDEN(item);
+                item = proto_tree_add_item(tag_tree, hf_ip_src, tvb, offset, 4, ENC_BIG_ENDIAN);
+                PROTO_ITEM_SET_HIDDEN(item);
+
                 set_address_tvb(&pinfo->net_src, AT_IPv4, 4, tvb, offset);
                 copy_address_shallow(&pinfo->src, &pinfo->net_src);
                 break;
             case EXP_PDU_TAG_IPV4_DST:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ipv4_dst, tvb, offset, 4, ENC_BIG_ENDIAN);
+                /* You can filter on IP by right clicking the Source/Destination columns make that work by filling the IP hf:s*/
+                item = proto_tree_add_item(tag_tree, hf_ip_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+                PROTO_ITEM_SET_HIDDEN(item);
+                item = proto_tree_add_item(tag_tree, hf_ip_dst, tvb, offset, 4, ENC_BIG_ENDIAN);
+                PROTO_ITEM_SET_HIDDEN(item);
                 set_address_tvb(&pinfo->net_dst, AT_IPv4, 4, tvb, offset);
                 copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
                 break;
             case EXP_PDU_TAG_IPV6_SRC:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ipv6_src, tvb, offset, 16, ENC_NA);
+                /* You can filter on IP by right clicking the Source/Destination columns make that work by filling the IP hf:s*/
+                item = proto_tree_add_item(tag_tree, hf_ipv6_addr, tvb, offset, 16, ENC_BIG_ENDIAN);
+                PROTO_ITEM_SET_HIDDEN(item);
+                item = proto_tree_add_item(tag_tree, hf_ipv6_src, tvb, offset, 16, ENC_BIG_ENDIAN);
+                PROTO_ITEM_SET_HIDDEN(item);
                 set_address_tvb(&pinfo->net_src, AT_IPv6, 16, tvb, offset);
                 copy_address_shallow(&pinfo->src, &pinfo->net_src);
                 break;
             case EXP_PDU_TAG_IPV6_DST:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ipv6_dst, tvb, offset, 16, ENC_NA);
+                /* You can filter on IP by right clicking the Source/Destination columns make that work by filling the IP hf:s*/
+                item = proto_tree_add_item(tag_tree, hf_ipv6_addr, tvb, offset, 16, ENC_BIG_ENDIAN);
+                PROTO_ITEM_SET_HIDDEN(item);
+                item = proto_tree_add_item(tag_tree, hf_ipv6_dst, tvb, offset, 16, ENC_BIG_ENDIAN);
+                PROTO_ITEM_SET_HIDDEN(item);
                 set_address_tvb(&pinfo->net_dst, AT_IPv6, 16, tvb, offset);
                 copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
                 break;
@@ -429,6 +457,14 @@ proto_reg_handoff_exported_pdu(void)
         dissector_add_uint("wtap_encap", WTAP_ENCAP_WIRESHARK_UPPER_PDU, exported_pdu_handle);
         initialized = TRUE;
     }
+
+    /* Get the hf id of some fields from the IP dissectors to be able to use them here*/
+    hf_ip_addr    = proto_registrar_get_id_byname("ip.addr");
+    hf_ip_dst     = proto_registrar_get_id_byname("ip.dst");
+    hf_ip_src     = proto_registrar_get_id_byname("ip.src");
+    hf_ipv6_addr  = proto_registrar_get_id_byname("ipv6.src");
+    hf_ipv6_dst   = proto_registrar_get_id_byname("ipv6.dst");
+    hf_ipv6_src   = proto_registrar_get_id_byname("ipv6.src");
 }
 
 
