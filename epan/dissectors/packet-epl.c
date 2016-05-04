@@ -75,14 +75,14 @@ typedef struct _epl_info_t {
 #endif
 
 /*EPL Addressing*/
-#define EPL_INVALID_NODEID                        0
+#define EPL_DYNAMIC_NODEID                        0
 #define EPL_MN_NODEID                           240
 #define EPL_DIAGNOSTIC_DEVICE_NODEID            253
 #define EPL_TO_LEGACY_ETHERNET_ROUTER_NODEID    254
 #define EPL_BROADCAST_NODEID                    255
 
 static const value_string addr_str_vals[] = {
-	{EPL_INVALID_NODEID,                    " (invalid)"                        },
+	{EPL_DYNAMIC_NODEID,                    " (Dynamically assigned)"           },
 	{EPL_MN_NODEID,                         " (Managing Node)"                  },
 	{EPL_DIAGNOSTIC_DEVICE_NODEID,          " (Diagnostic Device)"              },
 	{EPL_TO_LEGACY_ETHERNET_ROUTER_NODEID,  " (POWERLINK to legacy Ethernet Router)"  },
@@ -91,7 +91,7 @@ static const value_string addr_str_vals[] = {
 };
 
 static const value_string addr_str_abbr_vals[] _U_ = {
-	{EPL_INVALID_NODEID,                    " (inv.)"   },
+	{EPL_DYNAMIC_NODEID,                    " (dyn.)"   },
 	{EPL_MN_NODEID,                         " (MN)"     },
 	{EPL_DIAGNOSTIC_DEVICE_NODEID,          " (diag.)"  },
 	{EPL_TO_LEGACY_ETHERNET_ROUTER_NODEID,  " (router)" },
@@ -124,7 +124,8 @@ static const gchar* addr_str_abbr_res = " (res.)";
 
 #define EPL_ASND_SVID_OFFSET        3
 #define EPL_ASND_DATA_OFFSET        4
-
+/* NMT Command DNA size */
+#define EPL_SIZEOF_NMTCOMMAND_DNA   27
 
 /* EPL message types */
 #define EPL_SOC     0x01
@@ -245,6 +246,7 @@ static const range_string asnd_svid_id_vals[] = {
 #define EPL_ASND_NMTCOMMAND_NMTRESETCOMMUNICATION       0x29
 #define EPL_ASND_NMTCOMMAND_NMTRESETCONFIGURATION       0x2A
 #define EPL_ASND_NMTCOMMAND_NMTSWRESET                  0x2B
+#define EPL_ASND_NMTCOMMAND_NMTDNA                      0x2D
 
 #define EPL_ASND_NMTCOMMAND_NMTSTARTNODEEX              0x41
 #define EPL_ASND_NMTCOMMAND_NMTSTOPNODEEX               0x42
@@ -281,6 +283,7 @@ static const value_string asnd_cid_vals[] = {
 	{EPL_ASND_NMTCOMMAND_NMTRESETCOMMUNICATION,       "NMTResetCommunication"     },
 	{EPL_ASND_NMTCOMMAND_NMTRESETCONFIGURATION,       "NMTResetConfiguration"     },
 	{EPL_ASND_NMTCOMMAND_NMTSWRESET,                  "NMTSwReset"                },
+	{EPL_ASND_NMTCOMMAND_NMTDNA,                      "NMTDNA"                    },
 	{EPL_ASND_NMTCOMMAND_NMTSTARTNODEEX,              "NMTStartNodeEx"            },
 	{EPL_ASND_NMTCOMMAND_NMTSTOPNODEEX,               "NMTStopNodeEx"             },
 	{EPL_ASND_NMTCOMMAND_NMTENTERPREOPERATIONAL2EX,   "NMTEnterPreOperational2Ex" },
@@ -316,7 +319,6 @@ static value_string_ext asnd_cid_vals_ext = VALUE_STRING_EXT_INIT(asnd_cid_vals)
 #define EPL_RETRANSMISSION    0x03
 /* MAX Frame offset */
 #define EPL_MAX_FRAME_OFFSET  0x64
-
 
 /* error codes */
 #define E_NO_ERROR                          0x0000
@@ -1222,6 +1224,7 @@ static gint dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_in
 static gint dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset);
 static gint dissect_epl_asnd_nmtcmd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
 static gint dissect_epl_asnd_nmtreq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
+static gint dissect_epl_asnd_nmtdna(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
 static gint dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset);
 static gint dissect_epl_ainv(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset);
 
@@ -1291,6 +1294,8 @@ static gint hf_epl_soa_pre_sec_end   = -1;
 static gint hf_epl_soa_mnd_fst_end   = -1;
 static gint hf_epl_soa_mnd_sec_end   = -1;
 static gint hf_epl_soa_pre_tm_end    = -1;
+static gint hf_epl_soa_dna_an_glb    = -1;
+static gint hf_epl_soa_dna_an_lcl    = -1;
 
 /*SyncResponse*/
 static gint hf_epl_asnd_syncResponse_sync           = -1;
@@ -1402,6 +1407,19 @@ static gint hf_epl_asnd_nmtcommand_resetnode_reason           = -1;
 static gint hf_epl_asnd_nmtcommand_nmtnethostnameset_hn      = -1;
 static gint hf_epl_asnd_nmtcommand_nmtflusharpentry_nid      = -1;
 static gint hf_epl_asnd_nmtcommand_nmtpublishtime_dt         = -1;
+static gint hf_epl_asnd_nmtcommand_nmtdna                    = -1;
+static gint hf_epl_asnd_nmtcommand_nmtdna_flags              = -1;
+static gint hf_epl_asnd_nmtcommand_nmtdna_ltv                = -1;
+static gint hf_epl_asnd_nmtcommand_nmtdna_hpm                = -1;
+static gint hf_epl_asnd_nmtcommand_nmtdna_nnn                = -1;
+static gint hf_epl_asnd_nmtcommand_nmtdna_mac                = -1;
+static gint hf_epl_asnd_nmtcommand_nmtdna_cnn                = -1;
+static gint hf_epl_asnd_nmtcommand_nmtdna_currmac            = -1;
+static gint hf_epl_asnd_nmtcommand_nmtdna_hubenmsk           = -1;
+static gint hf_epl_asnd_nmtcommand_nmtdna_currnn             = -1;
+static gint hf_epl_asnd_nmtcommand_nmtdna_newnn              = -1;
+static gint hf_epl_asnd_nmtcommand_nmtdna_leasetime          = -1;
+
 
 /*Asynchronuous SDO Sequence Layer*/
 static gint hf_epl_asnd_sdo_seq                              = -1;
@@ -1491,6 +1509,7 @@ static gint ett_epl_el              = -1;
 static gint ett_epl_el_entry        = -1;
 static gint ett_epl_el_entry_type   = -1;
 static gint ett_epl_sdo_entry_type  = -1;
+static gint ett_epl_asnd_nmt_dna    = -1;
 
 static gint ett_epl_sdo                       = -1;
 static gint ett_epl_sdo_sequence_layer        = -1;
@@ -1898,7 +1917,7 @@ decode_epl_address (guchar adr)
 	}
 	else
 	{
-		if (( adr < EPL_MN_NODEID) && (adr > EPL_INVALID_NODEID))
+		if (( adr < EPL_MN_NODEID) && (adr > EPL_DYNAMIC_NODEID))
 		{
 			return addr_str_cn;
 		}
@@ -2100,11 +2119,16 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 
 
 	offset += 1;
 
+	svid = tvb_get_guint8(tvb, offset + 2);
+	if (svid == EPL_SOA_IDENTREQUEST)
+	{
+		proto_tree_add_item(epl_tree, hf_epl_soa_dna_an_lcl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	}
+	proto_tree_add_item(epl_tree, hf_epl_soa_dna_an_glb, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_tree, hf_epl_soa_ea, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(epl_tree, hf_epl_soa_er, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
-	svid = tvb_get_guint8(tvb, offset);
 	proto_tree_add_uint(epl_tree, hf_epl_soa_svid, tvb, offset, 1, svid);
 	offset += 1;
 
@@ -2335,6 +2359,55 @@ dissect_epl_asnd_nmtreq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 	return offset;
 }
 
+gint
+dissect_epl_asnd_nmtdna(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
+{
+	proto_item  *ti_dna;
+	proto_tree  *epl_dna_tree;
+	guint32     curr_node_num;
+	guint32     new_node_num;
+	guint32     lease_time;
+	guint32     lease_time_s;
+	nstime_t    us;
+	static const int * dna_flags[] = {
+		&hf_epl_asnd_nmtcommand_nmtdna_ltv,
+		&hf_epl_asnd_nmtcommand_nmtdna_hpm,
+		&hf_epl_asnd_nmtcommand_nmtdna_nnn,
+		&hf_epl_asnd_nmtcommand_nmtdna_mac,
+		&hf_epl_asnd_nmtcommand_nmtdna_cnn,
+		NULL
+	};
+
+	ti_dna = proto_tree_add_item(epl_tree, hf_epl_asnd_nmtcommand_nmtdna, tvb, offset, EPL_SIZEOF_NMTCOMMAND_DNA, ENC_NA);
+	epl_dna_tree = proto_item_add_subtree(ti_dna, ett_epl_feat);
+
+	proto_tree_add_bitmask(epl_dna_tree, tvb, offset, hf_epl_asnd_nmtcommand_nmtdna_flags, ett_epl_asnd_nmt_dna, dna_flags, ENC_NA);
+	offset += 1;
+
+	proto_tree_add_item(epl_dna_tree, hf_epl_asnd_nmtcommand_nmtdna_currmac, tvb, offset, 6, ENC_NA);
+	offset += 6;
+
+	/* 64-bit mask specifying which hub ports are active (1) or inactive (0) */
+	proto_tree_add_item(epl_dna_tree, hf_epl_asnd_nmtcommand_nmtdna_hubenmsk, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	proto_tree_add_item_ret_uint(epl_dna_tree, hf_epl_asnd_nmtcommand_nmtdna_currnn, tvb, offset, 4, ENC_LITTLE_ENDIAN, &curr_node_num);
+	offset += 4;
+
+	proto_tree_add_item_ret_uint (epl_dna_tree, hf_epl_asnd_nmtcommand_nmtdna_newnn, tvb, offset, 4, ENC_LITTLE_ENDIAN, &new_node_num);
+	offset += 4;
+
+	lease_time = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+	lease_time_s = lease_time / 1000000; /* us->s */
+	us.nsecs = (lease_time - lease_time_s * 1000000) * 1000; /* us->ns */
+	us.secs = lease_time_s;
+	proto_tree_add_time(epl_dna_tree, hf_epl_asnd_nmtcommand_nmtdna_leasetime, tvb, offset, 4, &us);
+	offset += 4;
+
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %4d -> %4d", curr_node_num, new_node_num);
+
+	return offset;
+}
 
 
 gint
@@ -2364,6 +2437,12 @@ dissect_epl_asnd_nmtcmd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 		case EPL_ASND_NMTCOMMAND_NMTPUBLISHTIME:
 			proto_tree_add_item(epl_tree, hf_epl_asnd_nmtcommand_nmtpublishtime_dt, tvb, offset, 6, ENC_NA);
 			offset += 6;
+			break;
+
+		case EPL_ASND_NMTCOMMAND_NMTDNA:
+			/* This byte is reserved for the other NMT commands but some flags are placed in it for DNA */
+			offset -= 1;
+			offset += dissect_epl_asnd_nmtdna(epl_tree, tvb, pinfo, offset);
 			break;
 
 		case EPL_ASND_NMTCOMMAND_NMTRESETNODE:
@@ -3775,6 +3854,14 @@ proto_register_epl(void)
 			{ "PResTimeFirstValid", "epl.soa.prft.end",
 				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
+		{ &hf_epl_soa_dna_an_glb,
+			{ "AN (Global)", "epl.soa.an.global",
+				FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }
+		},
+		{ &hf_epl_soa_dna_an_lcl,
+			{ "AN (Local)", "epl.soa.an.local",
+				FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }
+		},
 		/* ASnd header */
 		{ &hf_epl_asnd_svid,
 			{ "Requested Service ID", "epl.asnd.svid",
@@ -4180,6 +4267,54 @@ proto_register_epl(void)
 			{ "DateTime", "epl.asnd.nmtcommand.nmtpublishtime.dt",
 				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
+		{ &hf_epl_asnd_nmtcommand_nmtdna,
+			{ "DNA", "epl.asnd.nmtcommand.dna",
+				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_nmtcommand_nmtdna_flags,
+			{ "Valid flags", "epl.asnd.nmtcommand.dna.flags",
+				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_nmtcommand_nmtdna_ltv,
+			{ "Lease time valid", "epl.asnd.nmtcommand.dna.ltv",
+				FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_nmtcommand_nmtdna_hpm,
+			{ "Hub port enable mask valid", "epl.asnd.nmtcommand.dna.hpm",
+				FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_nmtcommand_nmtdna_nnn,
+			{ "Set new node number", "epl.asnd.nmtcommand.dna.nnn",
+				FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_nmtcommand_nmtdna_mac,
+			{ "Compare current MAC ID", "epl.asnd.nmtcommand.dna.mac",
+				FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_nmtcommand_nmtdna_cnn,
+			{ "Compare current node number", "epl.asnd.nmtcommand.dna.cnn",
+				FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_nmtcommand_nmtdna_currmac,
+			{ "Current MAC ID", "epl.asnd.nmtcommand.dna.currmac",
+				FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_nmtcommand_nmtdna_hubenmsk,
+			{ "Hub port enable mask", "epl.asnd.nmtcommand.dna.hubenmsk",
+				FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_nmtcommand_nmtdna_currnn,
+			{ "Current node number", "epl.asnd.nmtcommand.dna.currnn",
+				FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_nmtcommand_nmtdna_newnn,
+			{ "New node number", "epl.asnd.nmtcommand.dna.newnn",
+				FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_nmtcommand_nmtdna_leasetime,
+			{ "Lease Time", "epl.asnd.nmtcommand.dna.leasetime",
+				FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00, NULL, HFILL }
+		},
 
 		/* ASnd-->SDO */
 		{ &hf_epl_asnd_sdo_seq,
@@ -4355,6 +4490,7 @@ proto_register_epl(void)
 		&ett_epl_fragment,
 		&ett_epl_fragments,
 		&ett_epl_asnd_sdo_data_reassembled,
+		&ett_epl_asnd_nmt_dna,
 	};
 
 	static ei_register_info ei[] = {
