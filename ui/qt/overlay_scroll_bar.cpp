@@ -149,7 +149,7 @@ void OverlayScrollBar::paintEvent(QPaintEvent *event)
 
     QPainter painter(this);
 
-    painter.fillRect(event->rect(), palette().window());
+    painter.fillRect(event->rect(), palette().base());
 
     if (!packet_map_img_.isNull()) {
         QImage packet_map(pm_size, QImage::Format_ARGB32_Premultiplied);
