@@ -51,6 +51,19 @@ static int hf_ac_if_input_terminaltype = -1;
 static int hf_ac_if_input_assocterminal = -1;
 static int hf_ac_if_input_nrchannels = -1;
 static int hf_ac_if_input_channelconfig = -1;
+static int hf_ac_if_input_channelconfig_d0 = -1;
+static int hf_ac_if_input_channelconfig_d1 = -1;
+static int hf_ac_if_input_channelconfig_d2 = -1;
+static int hf_ac_if_input_channelconfig_d3 = -1;
+static int hf_ac_if_input_channelconfig_d4 = -1;
+static int hf_ac_if_input_channelconfig_d5 = -1;
+static int hf_ac_if_input_channelconfig_d6 = -1;
+static int hf_ac_if_input_channelconfig_d7 = -1;
+static int hf_ac_if_input_channelconfig_d8 = -1;
+static int hf_ac_if_input_channelconfig_d9 = -1;
+static int hf_ac_if_input_channelconfig_d10 = -1;
+static int hf_ac_if_input_channelconfig_d11 = -1;
+static int hf_ac_if_input_channelconfig_rsv = -1;
 static int hf_ac_if_input_channelnames = -1;
 static int hf_ac_if_input_terminal = -1;
 static int hf_ac_if_output_terminalid = -1;
@@ -80,6 +93,19 @@ static int hf_ac_if_mu_nrinpins = -1;
 static int hf_ac_if_mu_sourceid = -1;
 static int hf_ac_if_mu_nrchannels = -1;
 static int hf_ac_if_mu_channelconfig = -1;
+static int hf_ac_if_mu_channelconfig_d0 = -1;
+static int hf_ac_if_mu_channelconfig_d1 = -1;
+static int hf_ac_if_mu_channelconfig_d2 = -1;
+static int hf_ac_if_mu_channelconfig_d3 = -1;
+static int hf_ac_if_mu_channelconfig_d4 = -1;
+static int hf_ac_if_mu_channelconfig_d5 = -1;
+static int hf_ac_if_mu_channelconfig_d6 = -1;
+static int hf_ac_if_mu_channelconfig_d7 = -1;
+static int hf_ac_if_mu_channelconfig_d8 = -1;
+static int hf_ac_if_mu_channelconfig_d9 = -1;
+static int hf_ac_if_mu_channelconfig_d10 = -1;
+static int hf_ac_if_mu_channelconfig_d11 = -1;
+static int hf_ac_if_mu_channelconfig_rsv = -1;
 static int hf_ac_if_mu_channelnames = -1;
 static int hf_ac_if_mu_controls = -1;
 static int hf_ac_if_mu_imixer = -1;
@@ -107,6 +133,8 @@ static gint ett_usb_audio_desc = -1;
 static gint ett_ac_if_fu_controls = -1;
 static gint ett_ac_if_fu_controls0 = -1;
 static gint ett_ac_if_fu_controls1 = -1;
+static gint ett_ac_if_input_channelconfig = -1;
+static gint ett_ac_if_mu_channelconfig = -1;
 
 static dissector_handle_t sysex_handle;
 
@@ -479,7 +507,27 @@ dissect_ac_if_input_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
 {
     gint     offset_start;
+
+    static const int *input_channelconfig[] = {
+        &hf_ac_if_input_channelconfig_d0,
+        &hf_ac_if_input_channelconfig_d1,
+        &hf_ac_if_input_channelconfig_d2,
+        &hf_ac_if_input_channelconfig_d3,
+        &hf_ac_if_input_channelconfig_d4,
+        &hf_ac_if_input_channelconfig_d5,
+        &hf_ac_if_input_channelconfig_d6,
+        &hf_ac_if_input_channelconfig_d7,
+        &hf_ac_if_input_channelconfig_d8,
+        &hf_ac_if_input_channelconfig_d9,
+        &hf_ac_if_input_channelconfig_d10,
+        &hf_ac_if_input_channelconfig_d11,
+        &hf_ac_if_input_channelconfig_rsv,
+        NULL
+    };
+
     offset_start = offset;
+
+
 
     proto_tree_add_item(tree, hf_ac_if_input_terminalid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -493,7 +541,7 @@ dissect_ac_if_input_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_ac_if_input_nrchannels, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_ac_if_input_channelconfig, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ac_if_input_channelconfig, ett_ac_if_input_channelconfig, input_channelconfig, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(tree, hf_ac_if_input_channelnames, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -591,6 +639,24 @@ dissect_ac_if_mixed_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 {
     gint     offset_start;
     guint8 nrinpins;
+
+    static const int *mu_channelconfig[] = {
+        &hf_ac_if_mu_channelconfig_d0,
+        &hf_ac_if_mu_channelconfig_d1,
+        &hf_ac_if_mu_channelconfig_d2,
+        &hf_ac_if_mu_channelconfig_d3,
+        &hf_ac_if_mu_channelconfig_d4,
+        &hf_ac_if_mu_channelconfig_d5,
+        &hf_ac_if_mu_channelconfig_d6,
+        &hf_ac_if_mu_channelconfig_d7,
+        &hf_ac_if_mu_channelconfig_d8,
+        &hf_ac_if_mu_channelconfig_d9,
+        &hf_ac_if_mu_channelconfig_d10,
+        &hf_ac_if_mu_channelconfig_d11,
+        &hf_ac_if_mu_channelconfig_rsv,
+        NULL
+    };
+
     offset_start = offset;
 
     proto_tree_add_item(tree, hf_ac_if_mu_unitid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -609,7 +675,7 @@ dissect_ac_if_mixed_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_ac_if_mu_nrchannels, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_ac_if_mu_channelconfig, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ac_if_mu_channelconfig, ett_ac_if_mu_channelconfig, mu_channelconfig, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(tree, hf_ac_if_mu_channelnames, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -951,6 +1017,45 @@ proto_register_usb_audio(void)
         { &hf_ac_if_input_channelconfig,
             { "Channel Config", "usbaudio.ac_if_input.wChannelConfig",
               FT_UINT16, BASE_HEX, NULL, 0x00, "wChannelConfig", HFILL }},
+        { &hf_ac_if_input_channelconfig_d0,
+            { "Left Front", "usbaudio.ac_if_input.wChannelConfig.d0",
+              FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL }},
+        { &hf_ac_if_input_channelconfig_d1,
+            { "Right Front", "usbaudio.ac_if_input.wChannelConfig.d1",
+              FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL }},
+        { &hf_ac_if_input_channelconfig_d2,
+            { "Center Front", "usbaudio.ac_if_input.wChannelConfig.d2",
+              FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL }},
+        { &hf_ac_if_input_channelconfig_d3,
+            { "Low Frequency Enhancement", "usbaudio.ac_if_input.wChannelConfig.d3",
+              FT_BOOLEAN, 16, NULL, 0x0008, NULL, HFILL }},
+        { &hf_ac_if_input_channelconfig_d4,
+            { "Left Surround", "usbaudio.ac_if_input.wChannelConfig.d4",
+              FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL }},
+        { &hf_ac_if_input_channelconfig_d5,
+            { "Right Surround", "usbaudio.ac_if_input.wChannelConfig.d5",
+              FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL }},
+        { &hf_ac_if_input_channelconfig_d6,
+            { "Left of Center", "usbaudio.ac_if_input.wChannelConfig.d6",
+              FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL }},
+        { &hf_ac_if_input_channelconfig_d7,
+            { "Right of Center", "usbaudio.ac_if_input.wChannelConfig.d7",
+              FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL }},
+        { &hf_ac_if_input_channelconfig_d8,
+            { "Surround", "usbaudio.ac_if_input.wChannelConfig.d8",
+              FT_BOOLEAN, 16, NULL, 0x0100, NULL, HFILL }},
+        { &hf_ac_if_input_channelconfig_d9,
+            { "Side Left", "usbaudio.ac_if_input.wChannelConfig.d9",
+              FT_BOOLEAN, 16, NULL, 0x0200, NULL, HFILL }},
+        { &hf_ac_if_input_channelconfig_d10,
+            { "Side Right", "usbaudio.ac_if_input.wChannelConfig.d10",
+              FT_BOOLEAN, 16, NULL, 0x0400, NULL, HFILL }},
+        { &hf_ac_if_input_channelconfig_d11,
+            { "Top", "usbaudio.ac_if_input.wChannelConfig.d11",
+              FT_BOOLEAN, 16, NULL, 0x0800, NULL, HFILL }},
+        { &hf_ac_if_input_channelconfig_rsv,
+            { "Reserved", "usbaudio.ac_if_input.wChannelConfig.rsv",
+              FT_UINT16, BASE_HEX, NULL, 0xF000, NULL, HFILL }},
         { &hf_ac_if_input_channelnames,
             { "Channel Names", "usbaudio.ac_if_input.iChannelNames",
               FT_UINT8, BASE_DEC, NULL, 0x00, "iChannelNames", HFILL }},
@@ -1037,7 +1142,46 @@ proto_register_usb_audio(void)
               FT_UINT8, BASE_DEC, NULL, 0x00, "bNrChannels", HFILL }},
         { &hf_ac_if_mu_channelconfig,
             { "Channel Config", "usbaudio.ac_if_mu.wChannelConfig",
-              FT_UINT8, BASE_HEX, NULL, 0x00, "wChannelConfig", HFILL }},
+              FT_UINT16, BASE_HEX, NULL, 0x00, "wChannelConfig", HFILL }},
+        { &hf_ac_if_mu_channelconfig_d0,
+            { "Left Front", "usbaudio.ac_if_mu.wChannelConfig.d0",
+              FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL }},
+        { &hf_ac_if_mu_channelconfig_d1,
+            { "Right Front", "usbaudio.ac_if_mu.wChannelConfig.d1",
+              FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL }},
+        { &hf_ac_if_mu_channelconfig_d2,
+            { "Center Front", "usbaudio.ac_if_mu.wChannelConfig.d2",
+              FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL }},
+        { &hf_ac_if_mu_channelconfig_d3,
+            { "Low Frequency Enhancement", "usbaudio.ac_if_mu.wChannelConfig.d3",
+              FT_BOOLEAN, 16, NULL, 0x0008, NULL, HFILL }},
+        { &hf_ac_if_mu_channelconfig_d4,
+            { "Left Surround", "usbaudio.ac_if_mu.wChannelConfig.d4",
+              FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL }},
+        { &hf_ac_if_mu_channelconfig_d5,
+            { "Right Surround", "usbaudio.ac_if_mu.wChannelConfig.d5",
+              FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL }},
+        { &hf_ac_if_mu_channelconfig_d6,
+            { "Left of Center", "usbaudio.ac_if_mu.wChannelConfig.d6",
+              FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL }},
+        { &hf_ac_if_mu_channelconfig_d7,
+            { "Right of Center", "usbaudio.ac_if_mu.wChannelConfig.d7",
+              FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL }},
+        { &hf_ac_if_mu_channelconfig_d8,
+            { "Surround", "usbaudio.ac_if_mu.wChannelConfig.d8",
+              FT_BOOLEAN, 16, NULL, 0x0100, NULL, HFILL }},
+        { &hf_ac_if_mu_channelconfig_d9,
+            { "Side Left", "usbaudio.ac_if_mu.wChannelConfig.d9",
+              FT_BOOLEAN, 16, NULL, 0x0200, NULL, HFILL }},
+        { &hf_ac_if_mu_channelconfig_d10,
+            { "Side Right", "usbaudio.ac_if_mu.wChannelConfig.d10",
+              FT_BOOLEAN, 16, NULL, 0x0400, NULL, HFILL }},
+        { &hf_ac_if_mu_channelconfig_d11,
+            { "Top", "usbaudio.ac_if_mu.wChannelConfig.d11",
+              FT_BOOLEAN, 16, NULL, 0x0800, NULL, HFILL }},
+        { &hf_ac_if_mu_channelconfig_rsv,
+            { "Reserved", "usbaudio.ac_if_mu.wChannelConfig.rsv",
+              FT_UINT16, BASE_HEX, NULL, 0xF000, NULL, HFILL }},
         { &hf_ac_if_mu_channelnames,
             { "Channel Names", "usbaudio.ac_if_mu.iChannelNames",
               FT_UINT8, BASE_DEC, NULL, 0x00, "iChannelNames", HFILL }},
@@ -1137,7 +1281,9 @@ proto_register_usb_audio(void)
         &ett_sysex_msg_fragments,
         &ett_ac_if_fu_controls,
         &ett_ac_if_fu_controls0,
-        &ett_ac_if_fu_controls1
+        &ett_ac_if_fu_controls1,
+        &ett_ac_if_input_channelconfig,
+        &ett_ac_if_mu_channelconfig
     };
 
     static ei_register_info ei[] = {
