@@ -250,6 +250,7 @@ static expert_field ei_erf_extension_headers_not_shown = EI_INIT;
 static expert_field ei_erf_packet_loss = EI_INIT;
 static expert_field ei_erf_checksum_error = EI_INIT;
 static expert_field ei_erf_meta_section_len_error = EI_INIT;
+static expert_field ei_erf_meta_truncated = EI_INIT;
 static expert_field ei_erf_meta_reset = EI_INIT;
 
 typedef enum {
@@ -1903,12 +1904,21 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   int     sectionoffset = 0;
   guint16 sectionid     = 0;
   guint16 sectionlen    = 0;
+  int     remaining_len = 0;
 
   /* Set column heading title*/
   col_set_str(pinfo->cinfo, COL_INFO, "MetaERF Record");
 
   /* Go through the sectionss and their tags */
-  while (tvb_captured_length_remaining(tvb, offset) > 4) {
+  while ((remaining_len = tvb_captured_length_remaining(tvb, offset)) > 0) {
+
+    if (remaining_len < 4) {
+      expert_add_info(pinfo, section_pi, &ei_erf_meta_truncated);
+      /* Malformed final tag, skip to setting sectionlen error */
+      offset += 4;
+      break;
+    }
+
     tagtype = tvb_get_ntohs(tvb, offset);
     taglength = tvb_get_ntohs(tvb, offset + 2);
     tag_tree = NULL;
@@ -1924,6 +1934,27 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     /* Fall back to unknown tag */
     if (tag_info == NULL)
       tag_info = &tag_info_local;
+
+    if (remaining_len < (gint32)taglength + 4) {
+      /*
+       * Malformed final tag, manually dissect type and length (since they are
+       * normally added last and we likely get an exception in the middle). Top
+       * level tag dissection means can't add the subtree and type/length first.
+       */
+      tag_tree = proto_tree_add_subtree_format(section_tree, tvb, offset, taglength + 4, tag_info->ett, &tag_pi, "%s: [truncated]", tag_info->tag_template->hfinfo.name);
+      /*
+       * XXX: Formatting value manually because don't have erf_meta_vs_list
+       * populated at registration time.
+       */
+      proto_tree_add_uint_format_value(tag_tree, hf_erf_meta_tag_type, tvb, offset, 2, tagtype, "%s (%u)", val_to_str(tagtype, VALS(wmem_array_get_raw(erf_meta_index.vs_abbrev_list)), "Unknown"), tagtype);
+      proto_tree_add_uint(tag_tree, hf_erf_meta_tag_len, tvb, offset + 2, 2, taglength);
+
+      expert_add_info(pinfo, tag_pi, &ei_erf_meta_truncated);
+
+      /* Skip to setting sectionlen error, Trying to dissect value could cause duplicate items */
+      offset += (((guint32)taglength + 4) + 0x3U) & ~0x3U;
+      break;
+    }
 
     /* Dissect value, length and type */
     if (ERF_META_IS_SECTION(tagtype)) { /* Section header tag */
@@ -2062,6 +2093,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
           tunneling_mode_flags[array_length(erf_tunneling_modes)] = NULL;
 
           tag_pi = proto_tree_add_bitmask(section_tree, tvb, offset + 4, tag_info->hf_value, tag_info->ett, tunneling_mode_flags, ENC_BIG_ENDIAN);
+          tag_tree = proto_item_get_subtree(tag_pi);
         }
         break;
 
@@ -2150,7 +2182,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree_add_uint_format_value(tag_tree, hf_erf_meta_tag_type, tvb, offset, 2, tagtype, "%s (%u)", val_to_str(tagtype, VALS(wmem_array_get_raw(erf_meta_index.vs_abbrev_list)), "Unknown"), tagtype);
     proto_tree_add_uint(tag_tree, hf_erf_meta_tag_len, tvb, offset + 2, 2, taglength);
 
-    offset += ((taglength + 4) + 0x3) & ~0x3;
+    offset += (((guint32)taglength + 4) + 0x3U) & ~0x3U;
   }
 
   /* Check final section length */
@@ -2933,6 +2965,7 @@ proto_register_erf(void)
       { &ei_erf_packet_loss, { "erf.packet_loss", PI_SEQUENCE, PI_WARN, "Packet loss occurred between previous and current packet", EXPFILL }},
       { &ei_erf_extension_headers_not_shown, { "erf.ehdr.more_not_shown", PI_SEQUENCE, PI_WARN, "More extension headers were present, not shown", EXPFILL }},
       { &ei_erf_meta_section_len_error, { "erf.meta.section_len.error", PI_PROTOCOL, PI_ERROR, "MetaERF Section Length incorrect", EXPFILL }},
+      { &ei_erf_meta_truncated, { "erf.meta.truncated", PI_MALFORMED, PI_ERROR, "MetaERF truncated tag", EXPFILL }},
       { &ei_erf_meta_reset, { "erf.meta.metadata_reset", PI_PROTOCOL, PI_WARN, "MetaERF metadata reset", EXPFILL }}
   };
 

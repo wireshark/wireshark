@@ -88,7 +88,7 @@ static const struct {
 #define NUM_ERF_ENCAPS (sizeof erf_to_wtap_map / sizeof erf_to_wtap_map[0])
 
 #define ERF_META_TAG_HEADERLEN 4
-#define ERF_META_TAG_ALIGNED_LENGTH(taglength)  (((taglength + 0x3) &~0x3) + ERF_META_TAG_HEADERLEN)
+#define ERF_META_TAG_ALIGNED_LENGTH(taglength)  ((((guint32)taglength + 0x3U) & ~0x3U) + ERF_META_TAG_HEADERLEN)
 
 struct erf_if_info {
   int if_index;
@@ -1236,6 +1236,7 @@ static guint32 erf_meta_read_tag(struct erf_meta_tag* tag, guint8 *tag_ptr, guin
 {
   guint16 tagtype;
   guint16 taglength;
+  guint32 tagtotallength;
 
   if (!tag_ptr || !tag || remaining_len < ERF_META_TAG_HEADERLEN)
     return 0;
@@ -1246,7 +1247,9 @@ static guint32 erf_meta_read_tag(struct erf_meta_tag* tag, guint8 *tag_ptr, guin
   /* length (2 bytes) */
   taglength = pntoh16(&tag_ptr[2]);
 
-  if (remaining_len < (guint16) ERF_META_TAG_ALIGNED_LENGTH(taglength)) {
+  tagtotallength = ERF_META_TAG_ALIGNED_LENGTH(taglength);
+
+  if (remaining_len < tagtotallength) {
     return 0;
   }
 
@@ -1254,7 +1257,7 @@ static guint32 erf_meta_read_tag(struct erf_meta_tag* tag, guint8 *tag_ptr, guin
   tag->length = taglength;
   tag->value = &tag_ptr[4];
 
-  return ERF_META_TAG_ALIGNED_LENGTH(tag->length);
+  return tagtotallength;
 }
 
 static int populate_capture_host_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header _U_, struct erf_meta_read_state *state)
