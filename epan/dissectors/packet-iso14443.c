@@ -174,6 +174,7 @@ static int ett_iso14443_prot_inf = -1;
 static int ett_iso14443_prot_type = -1;
 static int ett_iso14443_ats_t0 = -1;
 static int ett_iso14443_ats_tb1 = -1;
+static int ett_iso14443_ats_tc1 = -1;
 static int ett_iso14443_attr_p1 = -1;
 static int ett_iso14443_attr_p2 = -1;
 static int ett_iso14443_pcb = -1;
@@ -352,6 +353,7 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
     proto_item *app_data_it, *prot_inf_it, *prot_type_it;
     proto_tree *app_data_tree, *prot_inf_tree, *prot_type_tree;
     gint app_data_offset, rem_len;
+    gboolean nad_supported, cid_supported;
     guint8 max_frame_size_code, fwi;
     proto_item *pi;
     gboolean iso14443_adc;
@@ -429,11 +431,21 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
         proto_tree_add_item(app_data_tree, hf_iso14443_total_num_apps,
                 tvb, app_data_offset, 1, ENC_BIG_ENDIAN);
     }
-    proto_tree_add_item(prot_inf_tree, hf_iso14443_nad_supported,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(prot_inf_tree, hf_iso14443_cid_supported,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    nad_supported = tvb_get_guint8(tvb, offset) & 0x02;
+    proto_tree_add_boolean_bits_format_value(prot_inf_tree,
+            hf_iso14443_nad_supported, tvb, 8*offset+6, 1, nad_supported,
+            "%s", nad_supported ?
+            tfs_supported_not_supported.true_string :
+            tfs_supported_not_supported.false_string);
+    cid_supported = tvb_get_guint8(tvb, offset) & 0x01;
+    proto_tree_add_boolean_bits_format_value(prot_inf_tree,
+            hf_iso14443_cid_supported, tvb, 8*offset+7, 1, cid_supported,
+            "%s", cid_supported ?
+            tfs_supported_not_supported.true_string :
+            tfs_supported_not_supported.false_string);
     offset++;
+
     /* XXX - extended ATQB */
     if (prot_inf_len>3)
         offset++;
@@ -585,9 +597,10 @@ static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
     proto_item *ti = proto_tree_get_parent(tree);
     circuit_t *circuit;
     guint8 tl, t0 = 0, fsci, fwi, sfgi;
-    proto_item *t0_it, *tb1_it, *pi;
-    proto_tree *t0_tree, *tb1_tree;
+    proto_item *t0_it, *tb1_it, *tc1_it, *pi;
+    proto_tree *t0_tree, *tb1_tree, *tc1_tree;
     gint offset_tl, hist_len;
+    gboolean nad_supported, cid_supported;
 
     col_set_str(pinfo->cinfo, COL_INFO, "ATS");
     proto_item_append_text(ti, ": ATS");
@@ -635,8 +648,22 @@ static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
         offset++;
     }
     if (t0 & HAVE_TC1) {
-        proto_tree_add_item(tree, hf_iso14443_tc1,
+        tc1_it = proto_tree_add_item(tree, hf_iso14443_tc1,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
+        tc1_tree = proto_item_add_subtree(tc1_it, ett_iso14443_ats_tc1);
+
+        cid_supported = tvb_get_guint8(tvb, offset) & 0x02;
+        proto_tree_add_boolean_bits_format_value(tc1_tree,
+                hf_iso14443_cid_supported, tvb, 8*offset+6, 1, cid_supported,
+                "%s", cid_supported ?
+                tfs_supported_not_supported.true_string :
+                tfs_supported_not_supported.false_string);
+        nad_supported = tvb_get_guint8(tvb, offset) & 0x01;
+        proto_tree_add_boolean_bits_format_value(tc1_tree,
+                hf_iso14443_nad_supported, tvb, 8*offset+7, 1, nad_supported,
+                "%s", nad_supported ?
+                tfs_supported_not_supported.true_string :
+                tfs_supported_not_supported.false_string);
         offset++;
     }
     hist_len = tl - (offset - offset_tl);
@@ -1327,11 +1354,11 @@ proto_register_iso14443(void)
         },
         { &hf_iso14443_nad_supported,
             { "NAD", "iso14443.nad_supported", FT_BOOLEAN, 8,
-                TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }
+                TFS(&tfs_supported_not_supported), 0, NULL, HFILL }
         },
         { &hf_iso14443_cid_supported,
             { "CID", "iso14443.cid_supported", FT_BOOLEAN, 8,
-                TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL }
+                TFS(&tfs_supported_not_supported), 0, NULL, HFILL }
         },
         { &hf_iso14443_hlta,
             { "HLTA", "iso14443.hlta",
@@ -1516,6 +1543,7 @@ proto_register_iso14443(void)
         &ett_iso14443_prot_type,
         &ett_iso14443_ats_t0,
         &ett_iso14443_ats_tb1,
+        &ett_iso14443_ats_tc1,
         &ett_iso14443_attr_p1,
         &ett_iso14443_attr_p2,
         &ett_iso14443_pcb,
