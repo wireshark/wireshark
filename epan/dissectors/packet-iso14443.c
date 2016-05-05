@@ -209,6 +209,7 @@ static int hf_iso14443_prot_type = -1;
 static int hf_iso14443_min_tr2 = -1;
 static int hf_iso14443_4_compl_atqb = -1;
 static int hf_iso14443_fwi = -1;
+static int hf_iso14443_sfgi = -1;
 static int hf_iso14443_adc = -1;
 static int hf_iso14443_nad_supported = -1;
 static int hf_iso14443_cid_supported = -1;
@@ -583,7 +584,7 @@ static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
 {
     proto_item *ti = proto_tree_get_parent(tree);
     circuit_t *circuit;
-    guint8 tl, t0 = 0, fsci, fwi;
+    guint8 tl, t0 = 0, fsci, fwi, sfgi;
     proto_item *t0_it, *tb1_it, *pi;
     proto_tree *t0_tree, *tb1_tree;
     gint offset_tl, hist_len;
@@ -628,6 +629,9 @@ static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
         fwi = (tvb_get_guint8(tvb, offset) & 0xF0) >> 4;
         proto_tree_add_uint_bits_format_value(tb1_tree, hf_iso14443_fwi,
                 tvb, offset*8, 4, fwi, "%d", fwi);
+        sfgi = tvb_get_guint8(tvb, offset) & 0x0F;
+        proto_tree_add_uint_bits_format_value(tb1_tree, hf_iso14443_sfgi,
+                tvb, offset*8+4, 4, sfgi, "%d", sfgi);
         offset++;
     }
     if (t0 & HAVE_TC1) {
@@ -1311,6 +1315,10 @@ proto_register_iso14443(void)
         },
         { &hf_iso14443_fwi,
             { "FWI", "iso14443.fwi", FT_UINT8, BASE_DEC,
+                NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_sfgi,
+            { "SFGI", "iso14443.sfgi", FT_UINT8, BASE_DEC,
                 NULL, 0, NULL, HFILL }
         },
         { &hf_iso14443_adc,
