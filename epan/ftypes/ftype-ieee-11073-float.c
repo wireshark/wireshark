@@ -1,4 +1,4 @@
-/* IEEE 11073 FLOATs
+/* FLOATs as specified by ISO/IEEE Std. 11073-20601-2014
  *
  * Personal Health Devices Transcoding White Paper v1.5
  * https://www.bluetooth.org/DocMan/handlers/DownloadDoc.ashx?doc_id=272346
