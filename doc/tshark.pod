@@ -1741,6 +1741,20 @@ personal preferences file.
 
 =back
 
+=head1 OUTPUT
+
+B<TShark> uses UTF-8 to represent strings internally. In some cases the
+output might not be valid. For example, a dissector might generate
+invalid UTF-8 character sequences. Programs reading B<TShark> output
+should expect UTF-8 and be prepared for invalid output.
+
+If B<TShark> detects that it is writing to a TTY on UNIX or Linux and
+the locale does not support UTF-8, output will be re-encoded to match the
+current locale.
+
+If B<TShark> detects that it is writing to a TTY on Windows, output will be
+encoded as UTF-16LE.
+
 =head1 ENVIRONMENT VARIABLES
 
 =over 4

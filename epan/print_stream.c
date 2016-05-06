@@ -26,6 +26,12 @@
 
 #include <stdio.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <string.h>
+#endif
+
 #include <glib.h>
 
 #include <epan/print_stream.h>
@@ -104,6 +110,13 @@ typedef struct {
 
 #define MAX_INDENT    160
 
+#ifdef _WIN32
+static char *to_codeset = "UTF-16LE";
+#else
+static char *tty_codeset = NULL;
+static char *to_codeset = NULL;
+#endif
+
 static gboolean
 print_line_text(print_stream_t *self, int indent, const char *line)
 {
@@ -128,7 +141,41 @@ print_line_text(print_stream_t *self, int indent, const char *line)
 
     ret = fwrite(spaces, 1, num_spaces, output->fh);
     if (ret == num_spaces) {
-        fputs(line, output->fh);
+        gchar *tty_out = NULL;
+
+#ifndef _WIN32
+        /* Is there a more reliable way to do this? */
+        if (!tty_codeset) {
+            gchar *upper_codeset;
+
+            tty_codeset = g_get_codeset();
+            upper_codeset = g_ascii_strup(tty_codeset, -1);
+            if (!strstr(upper_codeset, "UTF-8") && !strstr(upper_codeset, "UTF8")) {
+                to_codeset = tty_codeset;
+            }
+            g_free(upper_codeset);
+        }
+#endif
+
+        if (ws_isatty(ws_fileno(output->fh)) && to_codeset) {
+            /* XXX Allocating a fresh buffer every line probably isn't the
+             * most efficient way to do this. However, this has the side
+             * effect of scrubbing invalid output.
+             */
+            tty_out = g_convert_with_fallback(line, -1, to_codeset, "UTF-8", "?", NULL, NULL, NULL);
+        }
+
+        if (tty_out) {
+#ifdef _WIN32
+            DWORD out_len = (DWORD) wcslen((wchar_t *) tty_out);
+            WriteConsoleW((HANDLE)_get_osfhandle(_fileno(output->fh)), tty_out, out_len, &out_len, NULL);
+#else
+            fputs(tty_out, output->fh);
+#endif
+            g_free(tty_out);
+        } else {
+            fputs(line, output->fh);
+        }
         putc('\n', output->fh);
     }
     return !ferror(output->fh);

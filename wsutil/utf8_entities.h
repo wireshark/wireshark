@@ -29,6 +29,12 @@
  * http://www.fileformat.info/info/unicode/
  * http://www.utf8-chartable.de/
  * and other places
+ *
+ * While many modern systems default to UTF-8 and handle it well, some do
+ * not. The Windows console is a notable example. When adding a glyph below
+ * you probably shouldn't stray too far from code page 437 or WGL4:
+ * https://en.wikipedia.org/wiki/Code_page_437
+ * https://en.wikipedia.org/wiki/Windows_Glyph_List_4
  */
 
 #define UTF8_DEGREE_SIGN                    "\xc2\xb0"      /*   176 /   0xb0 */
@@ -43,6 +49,7 @@
 #define UTF8_RIGHTWARDS_ARROW           "\xe2\x86\x92"      /*  8594 / 0x2192 */
 #define UTF8_LEFT_RIGHT_ARROW           "\xe2\x86\x94"      /*  8596 / 0x2194 */
 
+/* OS X command key */
 #define UTF8_PLACE_OF_INTEREST_SIGN     "\xe2\x8c\x98"      /*  8984 / 0x2318 */
 
 #define UTF8_SYMBOL_FOR_NULL            "\xe2\x90\x80"      /*  9216 / 0x2400 */
