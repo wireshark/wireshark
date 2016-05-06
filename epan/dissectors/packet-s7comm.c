@@ -25,6 +25,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <stdlib.h>
 
 #include "packet-s7comm.h"
 #include "packet-s7comm_szl_ids.h"
@@ -310,7 +311,7 @@ static value_string_ext param_errcode_names_ext = VALUE_STRING_EXT_INIT(param_er
 #define S7COMM_FUNCSTARTUPLOAD              0x1D
 #define S7COMM_FUNCUPLOAD                   0x1E
 #define S7COMM_FUNCENDUPLOAD                0x1F
-#define S7COMM_FUNC_PLC_CONTROL             0x28
+#define S7COMM_FUNCPISERVICE                0x28
 #define S7COMM_FUNC_PLC_STOP                0x29
 
 static const value_string param_functionnames[] = {
@@ -325,7 +326,7 @@ static const value_string param_functionnames[] = {
     { S7COMM_FUNCSTARTUPLOAD,               "Start upload" },
     { S7COMM_FUNCUPLOAD,                    "Upload" },
     { S7COMM_FUNCENDUPLOAD,                 "End upload" },
-    { S7COMM_FUNC_PLC_CONTROL,              "PLC Control" },
+    { S7COMM_FUNCPISERVICE,                 "PI-Service" },
     { S7COMM_FUNC_PLC_STOP,                 "PLC Stop" },
     { 0,                                    NULL }
 };
@@ -482,24 +483,40 @@ const value_string s7comm_item_return_valuenames[] = {
     { 0,                                        NULL }
 };
 /**************************************************************************
- * Block Types
+ * Block Types, used when blocktype is transfered as string
  */
-#define S7COMM_BLOCKTYPE_OB                 '8'
-#define S7COMM_BLOCKTYPE_DB                 'A'
-#define S7COMM_BLOCKTYPE_SDB                'B'
-#define S7COMM_BLOCKTYPE_FC                 'C'
-#define S7COMM_BLOCKTYPE_SFC                'D'
-#define S7COMM_BLOCKTYPE_FB                 'E'
-#define S7COMM_BLOCKTYPE_SFB                'F'
+#define S7COMM_BLOCKTYPE_OB                 0x3038      /* '08' */
+#define S7COMM_BLOCKTYPE_CMOD               0x3039      /* '09' */
+#define S7COMM_BLOCKTYPE_DB                 0x3041      /* '0A' */
+#define S7COMM_BLOCKTYPE_SDB                0x3042      /* '0B' */
+#define S7COMM_BLOCKTYPE_FC                 0x3043      /* '0C' */
+#define S7COMM_BLOCKTYPE_SFC                0x3044      /* '0D' */
+#define S7COMM_BLOCKTYPE_FB                 0x3045      /* '0E' */
+#define S7COMM_BLOCKTYPE_SFB                0x3046      /* '0F' */
 
 static const value_string blocktype_names[] = {
     { S7COMM_BLOCKTYPE_OB,                  "OB" },
+    { S7COMM_BLOCKTYPE_CMOD,                "CMod" },
     { S7COMM_BLOCKTYPE_DB,                  "DB" },
     { S7COMM_BLOCKTYPE_SDB,                 "SDB" },
     { S7COMM_BLOCKTYPE_FC,                  "FC" },
     { S7COMM_BLOCKTYPE_SFC,                 "SFC" },
     { S7COMM_BLOCKTYPE_FB,                  "FB" },
     { S7COMM_BLOCKTYPE_SFB,                 "SFB" },
+    { 0,                                    NULL }
+};
+
+
+static const value_string blocktype_attribute1_names[] = {
+    { '_',                                  "Complete Module" },
+    { '$',                                  "Module header for up-loading" },
+    { 0,                                    NULL }
+};
+
+static const value_string blocktype_attribute2_names[] = {
+    { 'P',                                  "Passive (copied, but not chained) module" },
+    { 'A',                                  "Active embedded module" },
+    { 'B',                                  "Active as well as passive module" },
     { 0,                                    NULL }
 };
 
@@ -1057,7 +1074,7 @@ static gint hf_s7comm_userdata_param_dataunitref = -1;
 static gint hf_s7comm_userdata_param_dataunit = -1;
 
 /* block functions, list blocks of type */
-static gint hf_s7comm_ud_blockinfo_block_type = -1;         /* Block type, 1 byte, stringlist blocktype_names */
+static gint hf_s7comm_ud_blockinfo_block_type = -1;         /* Block type, 2 bytes */
 static gint hf_s7comm_ud_blockinfo_block_num = -1;          /* Block number, 2 bytes as int */
 static gint hf_s7comm_ud_blockinfo_block_cnt = -1;          /* Count, 2 bytes as int */
 static gint hf_s7comm_ud_blockinfo_block_flags = -1;        /* Block flags (unknown), 1 byte */
@@ -1065,7 +1082,6 @@ static gint hf_s7comm_ud_blockinfo_block_lang = -1;         /* Block language, 1
 /* block functions, get block infos */
 static gint hf_s7comm_ud_blockinfo_block_num_ascii = -1;    /* Block number, 5 bytes, ASCII*/
 static gint hf_s7comm_ud_blockinfo_filesys = -1;            /* Filesystem, 1 byte, ASCII*/
-static gint hf_s7comm_ud_blockinfo_res_const1 = -1;         /* Constant 1, 1 byte, HEX*/
 static gint hf_s7comm_ud_blockinfo_res_infolength = -1;     /* Length of Info, 2 bytes as int */
 static gint hf_s7comm_ud_blockinfo_res_unknown2 = -1;       /* Unknown blockinfo 2, 2 bytes, HEX*/
 static gint hf_s7comm_ud_blockinfo_res_const3 = -1;         /* Constant 3, 2 bytes, ASCII */
@@ -1132,32 +1148,259 @@ static const int *s7comm_diagdata_registerflag_fields[] = {
     NULL
 };
 
-/* Function 0x28 (PLC control functions) */
-static gint hf_s7comm_data_plccontrol_part1_unknown = -1;   /* Unknown bytes */
-static gint hf_s7comm_data_plccontrol_part1_len = -1;       /* Length part 1 in bytes, 2 Bytes Int */
+/* PI service name IDs. Index represents the index in pi_service_names */
+typedef enum
+{
+    S7COMM_PI_UNKNOWN = 0,
+    S7COMM_PI_INSE,
+    S7COMM_PI_DELE,
+    S7COMM_PIP_PROGRAM,
+    S7COMM_PI_MODU,
+    S7COMM_PI_GARB,
+    S7COMM_PI_N_LOGIN_,
+    S7COMM_PI_N_LOGOUT,
+    S7COMM_PI_N_CANCEL,
+    S7COMM_PI_N_DASAVE,
+    S7COMM_PI_N_DIGIOF,
+    S7COMM_PI_N_DIGION,
+    S7COMM_PI_N_DZERO_,
+    S7COMM_PI_N_ENDEXT,
+    S7COMM_PI_N_F_OPER,
+    S7COMM_PI_N_OST_OF,
+    S7COMM_PI_N_OST_ON,
+    S7COMM_PI_N_SCALE_,
+    S7COMM_PI_N_SETUFR,
+    S7COMM_PI_N_STRTLK,
+    S7COMM_PI_N_STRTUL,
+    S7COMM_PI_N_TMRASS,
+    S7COMM_PI_N_F_DELE,
+    S7COMM_PI_N_EXTERN,
+    S7COMM_PI_N_EXTMOD,
+    S7COMM_PI_N_F_DELR,
+    S7COMM_PI_N_F_XFER,
+    S7COMM_PI_N_LOCKE_,
+    S7COMM_PI_N_SELECT,
+    S7COMM_PI_N_SRTEXT,
+    S7COMM_PI_N_F_CLOS,
+    S7COMM_PI_N_F_OPEN,
+    S7COMM_PI_N_F_SEEK,
+    S7COMM_PI_N_ASUP__,
+    S7COMM_PI_N_CHEKDM,
+    S7COMM_PI_N_CHKDNO,
+    S7COMM_PI_N_CONFIG,
+    S7COMM_PI_N_CRCEDN,
+    S7COMM_PI_N_DELECE,
+    S7COMM_PI_N_CREACE,
+    S7COMM_PI_N_CREATO,
+    S7COMM_PI_N_DELETO,
+    S7COMM_PI_N_CRTOCE,
+    S7COMM_PI_N_DELVAR,
+    S7COMM_PI_N_F_COPY,
+    S7COMM_PI_N_F_DMDA,
+    S7COMM_PI_N_F_PROT,
+    S7COMM_PI_N_F_RENA,
+    S7COMM_PI_N_FINDBL,
+    S7COMM_PI_N_IBN_SS,
+    S7COMM_PI_N_MMCSEM,
+    S7COMM_PI_N_NCKMOD,
+    S7COMM_PI_N_NEWPWD,
+    S7COMM_PI_N_SEL_BL,
+    S7COMM_PI_N_SETTST,
+    S7COMM_PI_N_TMAWCO,
+    S7COMM_PI_N_TMCRTC,
+    S7COMM_PI_N_TMCRTO,
+    S7COMM_PI_N_TMFDPL,
+    S7COMM_PI_N_TMFPBP,
+    S7COMM_PI_N_TMGETT,
+    S7COMM_PI_N_TMMVTL,
+    S7COMM_PI_N_TMPCIT,
+    S7COMM_PI_N_TMPOSM,
+    S7COMM_PI_N_TRESMO,
+    S7COMM_PI_N_TSEARC
+} pi_service_e;
+
+/* Description for PI service names */
+static const string_string pi_service_names[] = {
+    { "UNKNOWN",                            "PI-Service is currently unknown" },
+    { "_INSE",                              "PI-Service _INSE (Activates a PLC module)" },
+    { "_DELE",                              "PI-Service _DELE (Removes module from the PLC's passive file system)" },
+    { "P_PROGRAM",                          "PI-Service P_PROGRAM (PLC Start / Stop)" },
+    { "_MODU",                              "PI-Service _MODU (PLC Copy Ram to Rom)" },
+    { "_GARB",                              "PI-Service _GARB (Compress PLC memory)" },
+    { "_N_LOGIN_",                          "PI-Service _N_LOGIN_ (Login)" },
+    { "_N_LOGOUT",                          "PI-Service _N_LOGOUT (Logout)" },
+    { "_N_CANCEL",                          "PI-Service _N_CANCEL (Cancels NC alarm)" },
+    { "_N_DASAVE",                          "PI-Service _N_DASAVE (PI-Service for copying data from SRAM to FLASH)" },
+    { "_N_DIGIOF",                          "PI-Service _N_DIGIOF (Turns off digitizing)" },
+    { "_N_DIGION",                          "PI-Service _N_DIGION (Turns on digitizing)" },
+    { "_N_DZERO_",                          "PI-Service _N_DZERO_ (Set all D nos. invalid for function \"unique D no.\")" },
+    { "_N_ENDEXT",                          "PI-Service _N_ENDEXT ()" },
+    { "_N_F_OPER",                          "PI-Service _N_F_OPER (Opens a file read-only)" },
+    { "_N_OST_OF",                          "PI-Service _N_OST_OF (Overstore OFF)" },
+    { "_N_OST_ON",                          "PI-Service _N_OST_ON (Overstore ON)" },
+    { "_N_SCALE_",                          "PI-Service _N_SCALE_ (Unit of measurement setting (metric<->INCH))" },
+    { "_N_SETUFR",                          "PI-Service _N_SETUFR (Activates user frame)" },
+    { "_N_STRTLK",                          "PI-Service _N_STRTLK (The global start disable is set)" },
+    { "_N_STRTUL",                          "PI-Service _N_STRTUL (The global start disable is reset)" },
+    { "_N_TMRASS",                          "PI-Service _N_TMRASS (Resets the Active status)" },
+    { "_N_F_DELE",                          "PI-Service _N_F_DELE (Deletes file)" },
+    { "_N_EXTERN",                          "PI-Service _N_EXTERN (Selects external program for execution)" },
+    { "_N_EXTMOD",                          "PI-Service _N_EXTMOD (Selects external program for execution)" },
+    { "_N_F_DELR",                          "PI-Service _N_F_DELR (Delete file even without access rights)" },
+    { "_N_F_XFER",                          "PI-Service _N_F_XFER (Selects file for uploading)" },
+    { "_N_LOCKE_",                          "PI-Service _N_LOCKE_ (Locks the active file for editing)" },
+    { "_N_SELECT",                          "PI-Service _N_SELECT (Selects program for execution)" },
+    { "_N_SRTEXT",                          "PI-Service _N_SRTEXT (A file is being marked in /_N_EXT_DIR)" },
+    { "_N_F_CLOS",                          "PI-Service _N_F_CLOS (Closes file)" },
+    { "_N_F_OPEN",                          "PI-Service _N_F_OPEN (Opens file)" },
+    { "_N_F_SEEK",                          "PI-Service _N_F_SEEK (Position the file search pointer)" },
+    { "_N_ASUP__",                          "PI-Service _N_ASUP__ (Assigns interrupt)" },
+    { "_N_CHEKDM",                          "PI-Service _N_CHEKDM (Start uniqueness check on D numbers)" },
+    { "_N_CHKDNO",                          "PI-Service _N_CHKDNO (Check whether the tools have unique D numbers)" },
+    { "_N_CONFIG",                          "PI-Service _N_CONFIG (Reconfigures machine data)" },
+    { "_N_CRCEDN",                          "PI-Service _N_CRCEDN (Creates a cutting edge by specifying an edge no.)" },
+    { "_N_DELECE",                          "PI-Service _N_DELECE (Deletes a cutting egde)" },
+    { "_N_CREACE",                          "PI-Service _N_CREACE (Creates a cutting edge)" },
+    { "_N_CREATO",                          "PI-Service _N_CREATO (Creates a tool)" },
+    { "_N_DELETO",                          "PI-Service _N_DELETO (Deletes tool)" },
+    { "_N_CRTOCE",                          "PI-Service _N_CRTOCE (Generate tool with specified edge number)" },
+    { "_N_DELVAR",                          "PI-Service _N_DELVAR (Delete data block)" },
+    { "_N_F_COPY",                          "PI-Service _N_F_COPY (Copies file within the NCK)" },
+    { "_N_F_DMDA",                          "PI-Service _N_F_DMDA (Deletes MDA memory)" },
+    { "_N_F_PROT",                          "PI-Service _N_F_PROT (Assigns a protection level to a file)" },
+    { "_N_F_RENA",                          "PI-Service _N_F_RENA (Renames file)" },
+    { "_N_FINDBL",                          "PI-Service _N_FINDBL (Activates search)" },
+    { "_N_IBN_SS",                          "PI-Service _N_IBN_SS (Sets the set-up switch)" },
+    { "_N_MMCSEM",                          "PI-Service _N_MMCSEM (MMC-Semaphore)" },
+    { "_N_NCKMOD",                          "PI-Service _N_NCKMOD (The mode in which the NCK will work is being set)" },
+    { "_N_NEWPWD",                          "PI-Service _N_NEWPWD (New password)" },
+    { "_N_SEL_BL",                          "PI-Service _N_SEL_BL (Selects a new block)" },
+    { "_N_SETTST",                          "PI-Service _N_SETTST (Activate tools for replacement tool group)" },
+    { "_N_TMAWCO",                          "PI-Service _N_TMAWCO (Set the active wear group in one magazine)" },
+    { "_N_TMCRTC",                          "PI-Service _N_TMCRTC (Create tool with specified edge number)" },
+    { "_N_TMCRTO",                          "PI-Service _N_TMCRTO (Creates tool in the tool management)" },
+    { "_N_TMFDPL",                          "PI-Service _N_TMFDPL (Searches an empty place for loading)" },
+    { "_N_TMFPBP",                          "PI-Service _N_TMFPBP (Searches for empty location)" },
+    { "_N_TMGETT",                          "PI-Service _N_TMGETT (Determines T-number for specific toolID with Duplono)" },
+    { "_N_TMMVTL",                          "PI-Service _N_TMMVTL (Loads or unloads a tool)" },
+    { "_N_TMPCIT",                          "PI-Service _N_TMPCIT (Sets increment value of the piece counter)" },
+    { "_N_TMPOSM",                          "PI-Service _N_TMPOSM (Positions a magazine or tool)" },
+    { "_N_TRESMO",                          "PI-Service _N_TRESMO (Reset monitoring values)" },
+    { "_N_TSEARC",                          "PI-Service _N_TSEARC (Complex search via search screenforms)" },
+    { NULL,                                 NULL }
+};
+
+/* Function 0x28 (PI Start) */
+static gint hf_s7comm_piservice_unknown1 = -1;   /* Unknown bytes */
+static gint hf_s7comm_piservice_parameterblock = -1;
+static gint hf_s7comm_piservice_parameterblock_len = -1;
+static gint hf_s7comm_piservice_servicename = -1;
+
+static gint ett_s7comm_piservice_parameterblock = -1;
+
+static gint hf_s7comm_piservice_string_len = -1;
+static gint hf_s7comm_pi_n_x_addressident = -1;
+static gint hf_s7comm_pi_n_x_password = -1;
+static gint hf_s7comm_pi_n_x_filename = -1;
+static gint hf_s7comm_pi_n_x_editwindowname = -1;
+static gint hf_s7comm_pi_n_x_seekpointer = -1;
+static gint hf_s7comm_pi_n_x_windowsize = -1;
+static gint hf_s7comm_pi_n_x_comparestring = -1;
+static gint hf_s7comm_pi_n_x_skipcount = -1;
+static gint hf_s7comm_pi_n_x_interruptnr = -1;
+static gint hf_s7comm_pi_n_x_priority = -1;
+static gint hf_s7comm_pi_n_x_liftfast = -1;
+static gint hf_s7comm_pi_n_x_blsync = -1;
+static gint hf_s7comm_pi_n_x_magnr = -1;
+static gint hf_s7comm_pi_n_x_dnr = -1;
+static gint hf_s7comm_pi_n_x_spindlenumber = -1;
+static gint hf_s7comm_pi_n_x_wznr = -1;
+static gint hf_s7comm_pi_n_x_class = -1;
+static gint hf_s7comm_pi_n_x_tnr = -1;
+static gint hf_s7comm_pi_n_x_toolnumber = -1;
+static gint hf_s7comm_pi_n_x_cenumber = -1;
+static gint hf_s7comm_pi_n_x_datablocknumber = -1;
+static gint hf_s7comm_pi_n_x_firstcolumnnumber = -1;
+static gint hf_s7comm_pi_n_x_lastcolumnnumber = -1;
+static gint hf_s7comm_pi_n_x_firstrownumber = -1;
+static gint hf_s7comm_pi_n_x_lastrownumber = -1;
+static gint hf_s7comm_pi_n_x_direction = -1;
+static gint hf_s7comm_pi_n_x_sourcefilename = -1;
+static gint hf_s7comm_pi_n_x_destinationfilename = -1;
+static gint hf_s7comm_pi_n_x_channelnumber = -1;
+static gint hf_s7comm_pi_n_x_protection = -1;
+static gint hf_s7comm_pi_n_x_oldfilename = -1;
+static gint hf_s7comm_pi_n_x_newfilename = -1;
+static gint hf_s7comm_pi_n_x_findmode = -1;
+static gint hf_s7comm_pi_n_x_switch = -1;
+static gint hf_s7comm_pi_n_x_functionnumber = -1;
+static gint hf_s7comm_pi_n_x_semaphorvalue = -1;
+static gint hf_s7comm_pi_n_x_onoff = -1;
+static gint hf_s7comm_pi_n_x_mode = -1;
+static gint hf_s7comm_pi_n_x_factor = -1;
+static gint hf_s7comm_pi_n_x_passwordlevel = -1;
+static gint hf_s7comm_pi_n_x_linenumber = -1;
+static gint hf_s7comm_pi_n_x_weargroup = -1;
+static gint hf_s7comm_pi_n_x_toolstatus = -1;
+static gint hf_s7comm_pi_n_x_wearsearchstrat = -1;
+static gint hf_s7comm_pi_n_x_toolid = -1;
+static gint hf_s7comm_pi_n_x_duplonumber = -1;
+static gint hf_s7comm_pi_n_x_edgenumber = -1;
+static gint hf_s7comm_pi_n_x_placenr = -1;
+static gint hf_s7comm_pi_n_x_placerefnr = -1;
+static gint hf_s7comm_pi_n_x_magrefnr = -1;
+static gint hf_s7comm_pi_n_x_magnrfrom = -1;
+static gint hf_s7comm_pi_n_x_placenrfrom = -1;
+static gint hf_s7comm_pi_n_x_magnrto = -1;
+static gint hf_s7comm_pi_n_x_placenrto = -1;
+static gint hf_s7comm_pi_n_x_halfplacesleft = -1;
+static gint hf_s7comm_pi_n_x_halfplacesright = -1;
+static gint hf_s7comm_pi_n_x_halfplacesup = -1;
+static gint hf_s7comm_pi_n_x_halfplacesdown = -1;
+static gint hf_s7comm_pi_n_x_placetype = -1;
+static gint hf_s7comm_pi_n_x_searchdirection = -1;
+static gint hf_s7comm_pi_n_x_toolname = -1;
+static gint hf_s7comm_pi_n_x_placenrsource = -1;
+static gint hf_s7comm_pi_n_x_magnrsource = -1;
+static gint hf_s7comm_pi_n_x_placenrdestination = -1;
+static gint hf_s7comm_pi_n_x_magnrdestination = -1;
+static gint hf_s7comm_pi_n_x_incrementnumber = -1;
+static gint hf_s7comm_pi_n_x_monitoringmode = -1;
+static gint hf_s7comm_pi_n_x_kindofsearch = -1;
+
 static gint hf_s7comm_data_plccontrol_argument = -1;        /* Argument, 2 Bytes as char */
 static gint hf_s7comm_data_plccontrol_block_cnt = -1;       /* Number of blocks, 1 Byte as int */
-static gint hf_s7comm_data_plccontrol_part1_unknown2 = -1;  /* Unknown 1 byte */
-static gint hf_s7comm_data_plccontrol_block_unknown = -1;   /* Unknown 1 byte, as ASCII */
-static gint hf_s7comm_data_plccontrol_block_type = -1;      /* Block type, 1 Byte, stringlist blocktype_names */
-static gint hf_s7comm_data_plccontrol_block_num = -1;       /* Block number, 5 Bytes as ASCII */
-static gint hf_s7comm_data_plccontrol_dest_filesys = -1;    /* Destination filesystem, 1 Byte as ASCII */
+static gint hf_s7comm_data_pi_inse_unknown = -1;
 static gint hf_s7comm_data_plccontrol_part2_len = -1;       /* Length part 2 in bytes, 1 Byte as Int */
-static gint hf_s7comm_data_plccontrol_pi_service = -1;      /* PI (program invocation) Service, String as ASCII */
 
 /* block control functions */
 static gint hf_s7comm_data_blockcontrol_unknown1 = -1;      /* for all unknown bytes in blockcontrol */
 static gint hf_s7comm_data_blockcontrol_errorcode = -1;     /* Error code 2 bytes as int, 0 is no error */
-static gint hf_s7comm_data_blockcontrol_part1_len = -1;     /* Length of part 1, 1 byte as int */
+static gint hf_s7comm_data_blockcontrol_uploadid = -1;
 static gint hf_s7comm_data_blockcontrol_file_ident = -1;    /* File identifier, as ASCII */
-static gint hf_s7comm_data_blockcontrol_block_unknown = -1; /* unknown prefix before block type, ASCII */
-static gint hf_s7comm_data_blockcontrol_block_type = -1;    /* Block type, 1 Byte, stringlist blocktype_names */
-static gint hf_s7comm_data_blockcontrol_block_num = -1;     /* Block number, 5 Bytes, als ASCII */
+static gint hf_s7comm_data_blockcontrol_block_type = -1;    /* Block type, 2 Byte */
+static gint hf_s7comm_data_blockcontrol_block_num = -1;     /* Block number, 5 Bytes, ASCII */
 static gint hf_s7comm_data_blockcontrol_dest_filesys = -1;  /* Destination filesystem, 1 Byte, ASCII */
 static gint hf_s7comm_data_blockcontrol_part2_len = -1;     /* Length part 2 in bytes, 1 Byte Int */
 static gint hf_s7comm_data_blockcontrol_part2_unknown = -1; /* Unknown char, ASCII */
 static gint hf_s7comm_data_blockcontrol_loadmem_len = -1;   /* Length load memory in bytes, ASCII */
 static gint hf_s7comm_data_blockcontrol_mc7code_len = -1;   /* Length of MC7 code in bytes, ASCII */
+static gint hf_s7comm_data_blockcontrol_filename_len = -1;
+static gint hf_s7comm_data_blockcontrol_filename = -1;
+static gint hf_s7comm_data_blockcontrol_upl_lenstring_len = -1;
+static gint hf_s7comm_data_blockcontrol_upl_lenstring = -1;
+
+static gint hf_s7comm_data_blockcontrol_functionstatus = -1;
+static gint hf_s7comm_data_blockcontrol_functionstatus_more = -1;
+static gint hf_s7comm_data_blockcontrol_functionstatus_error = -1;
+static gint ett_s7comm_data_blockcontrol_status = -1;
+static const int *s7comm_data_blockcontrol_status_fields[] = {
+    &hf_s7comm_data_blockcontrol_functionstatus_more,
+    &hf_s7comm_data_blockcontrol_functionstatus_error,
+    NULL
+};
+
+static gint ett_s7comm_plcfilename = -1;
 
 /* Variable table */
 static gint hf_s7comm_vartab_data_type = -1;                /* Type of data, 1 byte, stringlist userdata_prog_vartab_type_names */
@@ -2438,81 +2681,6 @@ s7comm_decode_response_read_data(tvbuff_t *tvb,
 
 /*******************************************************************************************************
  *
- * PDU Type: Request or Response -> Function 0x28 (PLC control functions)
- *
- *******************************************************************************************************/
-static guint32
-s7comm_decode_plc_controls_param_hex28(tvbuff_t *tvb,
-                                       packet_info *pinfo,
-                                       proto_tree *tree,
-                                       guint32 offset)
-{
-    guint16 len;
-    guint8 count;
-    guint8 i;
-    guint8 *str;
-
-    /* The first byte 0x28 is checked and inserted to tree outside, so skip it here */
-    offset += 1;
-
-    /* First part is unknown, 7 bytes */
-    proto_tree_add_item(tree, hf_s7comm_data_plccontrol_part1_unknown, tvb, offset, 7, ENC_NA);
-    offset += 7;
-    /* Part 1 */
-    len = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_uint(tree, hf_s7comm_data_plccontrol_part1_len, tvb, offset, 2, len);
-    offset += 2;
-    /* no block function, cold start e.g. */
-    if (len == 2) {
-        /* C = cold start */
-        proto_tree_add_item(tree, hf_s7comm_data_plccontrol_argument, tvb, offset, 2, ENC_ASCII|ENC_NA);
-        offset +=2;
-    } else if (len > 2) {
-        count = tvb_get_guint8(tvb, offset);            /* number of blocks following */
-        proto_tree_add_uint(tree, hf_s7comm_data_plccontrol_block_cnt, tvb, offset, 1, count);
-        offset += 1;
-        /* Next byte reserved? is 0x00 */
-        proto_tree_add_item(tree, hf_s7comm_data_plccontrol_part1_unknown2, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-        for (i = 0; i < count; i++) {
-            /* First byte of block type seems to be every time '0' as single char*/
-            proto_tree_add_item(tree, hf_s7comm_data_plccontrol_block_unknown, tvb, offset, 1, ENC_ASCII|ENC_NA);
-            offset +=1;
-            proto_tree_add_item(tree, hf_s7comm_data_plccontrol_block_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-            col_append_fstr(pinfo->cinfo, COL_INFO, " Type:[%s]", val_to_str(tvb_get_guint8(tvb, offset), blocktype_names, "Unknown Block type: 0x%02x"));
-            offset += 1;
-            proto_tree_add_item(tree, hf_s7comm_data_plccontrol_block_num, tvb, offset, 5, ENC_ASCII|ENC_NA);
-            str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 5, ENC_ASCII);
-            col_append_fstr(pinfo->cinfo, COL_INFO, " No.:[%s]", str);
-            offset += 5;
-            /* 'P', 'B' or 'A' is following
-             Destination filesystem?
-                P = passive filesystem
-                A = active filesystem?
-             */
-            proto_tree_add_item(tree, hf_s7comm_data_plccontrol_dest_filesys, tvb, offset, 1, ENC_ASCII|ENC_NA);
-            offset += 1;
-        }
-    }
-    /* Part 2 */
-    len = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint(tree, hf_s7comm_data_plccontrol_part2_len, tvb, offset, 1, len);
-    offset += 1;
-    /* Function (PI_SERVICE) as string  (program invocation)
-     *    Known functions:
-     *   _INSE = Activate a module
-     *   _DELE = Delete a passive module
-     *   _PROGRAM = Start/Stop the PLC
-     *   _PLC_MEMORYRESET = Reset the PLC memory
-     */
-    proto_tree_add_item(tree, hf_s7comm_data_plccontrol_pi_service, tvb, offset, len, ENC_ASCII|ENC_NA);
-    offset += len;
-
-    return offset;
-}
-
-/*******************************************************************************************************
- *
  * PDU Type: Request or Response -> Function 0x29 (PLC control functions -> STOP)
  *
  *******************************************************************************************************/
@@ -2526,90 +2694,671 @@ s7comm_decode_plc_controls_param_hex29(tvbuff_t *tvb,
     /* The first byte 0x29 is checked and inserted to tree outside, so skip it here */
     offset += 1;
     /* Meaning of first 5 bytes (Part 1) is unknown */
-    proto_tree_add_item(tree, hf_s7comm_data_plccontrol_part1_unknown, tvb, offset, 5, ENC_NA);
+    proto_tree_add_item(tree, hf_s7comm_piservice_unknown1, tvb, offset, 5, ENC_NA);
     offset += 5;
     /* Part 2 */
     len = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(tree, hf_s7comm_data_plccontrol_part2_len, tvb, offset, 1, len);
     offset += 1;
     /* Function as string */
-    proto_tree_add_item(tree, hf_s7comm_data_plccontrol_pi_service, tvb, offset, len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_s7comm_piservice_servicename, tvb, offset, len, ENC_ASCII|ENC_NA);
     offset += len;
 
     return offset;
 }
 
 /*******************************************************************************************************
+ * PI_START Parameters: Decodes a parameter array with string values.
+ *******************************************************************************************************/
+static guint32
+s7comm_decode_pistart_parameters(tvbuff_t *tvb,
+                                 packet_info *pinfo,
+                                 proto_tree *tree,
+                                 proto_tree *param_tree,
+                                 gchar *servicename,
+                                 guint8 nfields,      /* number of fields used */
+                                 guint hf[12],        /* array with header fields */
+                                 guint32 offset)
+{
+    guint8 i;
+    guint8 len;
+    wmem_strbuf_t *args_buf;
+    args_buf = wmem_strbuf_new_label(wmem_packet_scope());
+
+    for (i = 0; i < nfields; i++) {
+        len = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint(param_tree, hf_s7comm_piservice_string_len, tvb, offset, 1, len);
+        offset += 1;
+        proto_tree_add_item(param_tree, hf[i], tvb, offset, len, ENC_ASCII|ENC_NA);
+        wmem_strbuf_append(args_buf, "\"");
+        wmem_strbuf_append(args_buf, tvb_format_text(tvb, offset, len));
+        if (i < nfields-1) {
+            wmem_strbuf_append(args_buf, "\", ");
+        } else {
+            wmem_strbuf_append(args_buf, "\"");
+        }
+        offset += len + (len % 2 == 0);
+    }
+    proto_item_append_text(param_tree, ": (%s)", wmem_strbuf_get_str(args_buf));
+    proto_item_append_text(tree, " -> %s(%s)", servicename, wmem_strbuf_get_str(args_buf));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s(%s)", servicename, wmem_strbuf_get_str(args_buf));
+
+    return offset;
+}
+
+/*******************************************************************************************************
+ * PI-Service
+ *******************************************************************************************************/
+static guint32
+s7comm_decode_pi_service(tvbuff_t *tvb,
+                         packet_info *pinfo,
+                         proto_tree *tree,
+                         guint16 plength,
+                         guint32 offset)
+{
+    guint16 len, paramlen;
+    guint32 startoffset;
+    guint32 paramoffset;
+    guint8 count;
+    guint8 i;
+    gchar *servicename;
+    gchar *str;
+    gchar *str1;
+    guint16 blocktype;
+    guint hf[13];
+    int pi_servicename_idx;
+    const gchar *pi_servicename_descr;
+
+    proto_item *item = NULL;
+    proto_item *itemadd = NULL;
+    proto_tree *param_tree = NULL;
+    proto_tree *file_tree = NULL;
+
+    startoffset = offset;
+
+    /* The first byte is checked and inserted to tree outside, so skip it here */
+    offset += 1;
+
+    /* First part is unknown, 7 bytes */
+    proto_tree_add_item(tree, hf_s7comm_piservice_unknown1, tvb, offset, 7, ENC_NA);
+    offset += 7;
+
+    if (offset - startoffset >= plength) {
+        return offset;
+    }
+    /* Parameter block */
+    paramlen = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint(tree, hf_s7comm_piservice_parameterblock_len, tvb, offset, 2, paramlen);
+    offset += 2;
+
+    paramoffset = offset;
+    item = proto_tree_add_item(tree, hf_s7comm_piservice_parameterblock, tvb, offset, paramlen, ENC_NA);
+    param_tree = proto_item_add_subtree(item, ett_s7comm_piservice_parameterblock);
+    offset += paramlen;
+
+    /* PI servicename */
+    len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(tree, hf_s7comm_piservice_string_len, tvb, offset, 1, len);
+    offset += 1;
+    servicename = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
+    item = proto_tree_add_item(tree, hf_s7comm_piservice_servicename, tvb, offset, len, ENC_ASCII|ENC_NA);
+    offset += len;
+
+    /* get the index position in pi_service_names, and add infotext with description to the item */
+    pi_servicename_descr = try_str_to_str_idx(servicename, pi_service_names, &pi_servicename_idx);
+    if (pi_servicename_idx < 0) {
+        pi_servicename_idx = S7COMM_PI_UNKNOWN;
+        pi_servicename_descr = "Unknown PI Service";
+    }
+    proto_item_append_text(item, " [%s]", pi_servicename_descr);
+
+    /* Work parameter data, depending on servicename */
+    switch (pi_servicename_idx) {
+        case S7COMM_PI_INSE:
+        case S7COMM_PI_DELE:
+            count = tvb_get_guint8(tvb, paramoffset);                   /* number of blocks following */
+            proto_tree_add_uint(param_tree, hf_s7comm_data_plccontrol_block_cnt, tvb, paramoffset, 1, count);
+            paramoffset += 1;
+            /* Unknown, is always 0x00 */
+            proto_tree_add_item(param_tree, hf_s7comm_data_pi_inse_unknown, tvb, paramoffset, 1, ENC_BIG_ENDIAN);
+            paramoffset += 1;
+            col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s(", servicename);
+            for (i = 0; i < count; i++) {
+                item = proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_filename, tvb, paramoffset, 8, ENC_ASCII|ENC_NA);
+                file_tree = proto_item_add_subtree(item, ett_s7comm_plcfilename);
+                blocktype = tvb_get_ntohs(tvb, paramoffset);
+                itemadd = proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_block_type, tvb, paramoffset, 2, ENC_ASCII|ENC_NA);
+                proto_item_append_text(itemadd, " (%s)", val_to_str(blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
+                paramoffset += 2;
+                str = tvb_get_string_enc(wmem_packet_scope(), tvb, paramoffset, 5, ENC_ASCII);
+                proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_block_num, tvb, paramoffset, 5, ENC_ASCII|ENC_NA);
+                paramoffset += 5;
+                proto_item_append_text(file_tree, " [%s %d]",
+                    val_to_str(blocktype, blocktype_names, "Unknown Block type: 0x%04x"),
+                    atoi(str));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s%d",
+                    val_to_str(blocktype, blocktype_names, "Unknown Block type: 0x%04x"),
+                    atoi(str));
+                if (i+1 < count) {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
+                }
+                itemadd = proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_dest_filesys, tvb, paramoffset, 1, ENC_ASCII|ENC_NA);
+                proto_item_append_text(itemadd, " (%s)", val_to_str(tvb_get_guint8(tvb, paramoffset), blocktype_attribute2_names, "Unknown filesys: %c"));
+                paramoffset += 1;
+            }
+            col_append_fstr(pinfo->cinfo, COL_INFO, ")");
+            break;
+        case S7COMM_PIP_PROGRAM:
+        case S7COMM_PI_MODU:
+        case S7COMM_PI_GARB:
+            if (paramlen == 0) {
+                proto_item_append_text(param_tree, ": ()");
+                proto_item_append_text(tree, " -> %s()", servicename);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s()", servicename);
+            } else {
+                str1 = tvb_get_string_enc(wmem_packet_scope(), tvb, paramoffset, paramlen, ENC_ASCII);
+                proto_tree_add_item(param_tree, hf_s7comm_data_plccontrol_argument, tvb, paramoffset, paramlen, ENC_ASCII|ENC_NA);
+                paramoffset += paramlen;
+                proto_item_append_text(param_tree, ": (\"%s\")", str1);
+                proto_item_append_text(tree, " -> %s(\"%s\")", servicename, str1);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s(\"%s\")", servicename, str1);
+            }
+            break;
+        case S7COMM_PI_N_LOGIN_:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_password;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_LOGOUT:
+        case S7COMM_PI_N_CANCEL:
+        case S7COMM_PI_N_DASAVE:
+        case S7COMM_PI_N_DIGIOF:
+        case S7COMM_PI_N_DIGION:
+        case S7COMM_PI_N_DZERO_:
+        case S7COMM_PI_N_ENDEXT:
+        case S7COMM_PI_N_F_OPER:
+        case S7COMM_PI_N_OST_OF:
+        case S7COMM_PI_N_OST_ON:
+        case S7COMM_PI_N_SCALE_:
+        case S7COMM_PI_N_SETUFR:
+        case S7COMM_PI_N_STRTLK:
+        case S7COMM_PI_N_STRTUL:
+        case S7COMM_PI_N_TMRASS:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 1, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_F_DELE:
+        case S7COMM_PI_N_EXTERN:
+        case S7COMM_PI_N_EXTMOD:
+        case S7COMM_PI_N_F_DELR:
+        case S7COMM_PI_N_F_XFER:
+        case S7COMM_PI_N_LOCKE_:
+        case S7COMM_PI_N_SELECT:
+        case S7COMM_PI_N_SRTEXT:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_filename;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_F_CLOS:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_editwindowname;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_F_OPEN:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_filename;
+            hf[2] = hf_s7comm_pi_n_x_editwindowname;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_F_SEEK:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_editwindowname;
+            hf[2] = hf_s7comm_pi_n_x_seekpointer;
+            hf[3] = hf_s7comm_pi_n_x_windowsize;
+            hf[4] = hf_s7comm_pi_n_x_comparestring;
+            hf[5] = hf_s7comm_pi_n_x_skipcount;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 6, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_ASUP__:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_interruptnr;
+            hf[2] = hf_s7comm_pi_n_x_priority;
+            hf[3] = hf_s7comm_pi_n_x_liftfast;
+            hf[4] = hf_s7comm_pi_n_x_blsync;
+            hf[5] = hf_s7comm_pi_n_x_filename;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 6, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_CHEKDM:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_magnr;
+            hf[2] = hf_s7comm_pi_n_x_dnr;
+            hf[3] = hf_s7comm_pi_n_x_spindlenumber;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_CHKDNO:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_wznr;
+            hf[2] = hf_s7comm_pi_n_x_wznr;
+            hf[3] = hf_s7comm_pi_n_x_dnr;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_CONFIG:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_class;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_CRCEDN:
+        case S7COMM_PI_N_DELECE:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_tnr;
+            hf[2] = hf_s7comm_pi_n_x_dnr;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_CREACE:
+        case S7COMM_PI_N_CREATO:
+        case S7COMM_PI_N_DELETO:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_toolnumber;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_CRTOCE:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_toolnumber;
+            hf[2] = hf_s7comm_pi_n_x_cenumber;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_DELVAR:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_datablocknumber;
+            hf[2] = hf_s7comm_pi_n_x_firstcolumnnumber;
+            hf[3] = hf_s7comm_pi_n_x_lastcolumnnumber;
+            hf[4] = hf_s7comm_pi_n_x_firstrownumber;
+            hf[5] = hf_s7comm_pi_n_x_lastrownumber;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 6, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_F_COPY:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_direction;
+            hf[2] = hf_s7comm_pi_n_x_sourcefilename;
+            hf[3] = hf_s7comm_pi_n_x_destinationfilename;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_F_DMDA:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_channelnumber;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_F_PROT:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_filename;
+            hf[2] = hf_s7comm_pi_n_x_protection;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_F_RENA:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_oldfilename;
+            hf[2] = hf_s7comm_pi_n_x_newfilename;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_FINDBL:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_findmode;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_IBN_SS:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_switch;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_MMCSEM:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_functionnumber;
+            hf[2] = hf_s7comm_pi_n_x_semaphorvalue;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_NCKMOD:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_onoff;
+            hf[2] = hf_s7comm_pi_n_x_mode;
+            hf[3] = hf_s7comm_pi_n_x_factor;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_NEWPWD:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_password;
+            hf[2] = hf_s7comm_pi_n_x_passwordlevel;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_SEL_BL:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_linenumber;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_SETTST:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_magnr;
+            hf[2] = hf_s7comm_pi_n_x_weargroup;
+            hf[3] = hf_s7comm_pi_n_x_toolstatus;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_TMAWCO:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_magnr;
+            hf[2] = hf_s7comm_pi_n_x_weargroup;
+            hf[3] = hf_s7comm_pi_n_x_wearsearchstrat;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_TMCRTC:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_toolid;
+            hf[2] = hf_s7comm_pi_n_x_toolnumber;
+            hf[3] = hf_s7comm_pi_n_x_duplonumber;
+            hf[4] = hf_s7comm_pi_n_x_edgenumber;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 5, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_TMCRTO:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_toolid;
+            hf[2] = hf_s7comm_pi_n_x_toolnumber;
+            hf[3] = hf_s7comm_pi_n_x_duplonumber;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_TMFDPL:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_toolnumber;
+            hf[2] = hf_s7comm_pi_n_x_placenr;
+            hf[3] = hf_s7comm_pi_n_x_magnr;
+            hf[4] = hf_s7comm_pi_n_x_placerefnr;
+            hf[5] = hf_s7comm_pi_n_x_magrefnr;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 6, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_TMFPBP:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_magnrfrom;
+            hf[2] = hf_s7comm_pi_n_x_placenrfrom;
+            hf[3] = hf_s7comm_pi_n_x_magnrto;
+            hf[4] = hf_s7comm_pi_n_x_placenrto;
+            hf[5] = hf_s7comm_pi_n_x_magrefnr;
+            hf[6] = hf_s7comm_pi_n_x_placerefnr;
+            hf[7] = hf_s7comm_pi_n_x_halfplacesleft;
+            hf[8] = hf_s7comm_pi_n_x_halfplacesright;
+            hf[9] = hf_s7comm_pi_n_x_halfplacesup;
+            hf[10] = hf_s7comm_pi_n_x_halfplacesdown;
+            hf[11] = hf_s7comm_pi_n_x_placetype;
+            hf[12] = hf_s7comm_pi_n_x_searchdirection;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 13, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_TMGETT:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_toolname;
+            hf[2] = hf_s7comm_pi_n_x_duplonumber;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_TMMVTL:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_toolnumber;
+            hf[2] = hf_s7comm_pi_n_x_placenrsource;
+            hf[3] = hf_s7comm_pi_n_x_magnrsource;
+            hf[4] = hf_s7comm_pi_n_x_placenrdestination;
+            hf[5] = hf_s7comm_pi_n_x_magnrdestination;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 6, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_TMPCIT:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_spindlenumber;
+            hf[2] = hf_s7comm_pi_n_x_incrementnumber;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_TMPOSM:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_toolnumber;
+            hf[2] = hf_s7comm_pi_n_x_toolid;
+            hf[3] = hf_s7comm_pi_n_x_duplonumber;
+            hf[4] = hf_s7comm_pi_n_x_placenrsource;
+            hf[5] = hf_s7comm_pi_n_x_magnrsource;
+            hf[6] = hf_s7comm_pi_n_x_placenrdestination;
+            hf[7] = hf_s7comm_pi_n_x_magnrdestination;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 8, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_TRESMO:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_toolnumber;
+            hf[2] = hf_s7comm_pi_n_x_dnr;
+            hf[3] = hf_s7comm_pi_n_x_monitoringmode;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
+            break;
+        case S7COMM_PI_N_TSEARC:
+            hf[0] = hf_s7comm_pi_n_x_addressident;
+            hf[1] = hf_s7comm_pi_n_x_magnrfrom;
+            hf[2] = hf_s7comm_pi_n_x_placenrfrom;
+            hf[3] = hf_s7comm_pi_n_x_magnrto;
+            hf[4] = hf_s7comm_pi_n_x_placenrto;
+            hf[5] = hf_s7comm_pi_n_x_magrefnr;
+            hf[6] = hf_s7comm_pi_n_x_placerefnr;
+            hf[7] = hf_s7comm_pi_n_x_searchdirection;
+            hf[8] = hf_s7comm_pi_n_x_kindofsearch;
+            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 9, hf, paramoffset);
+            break;
+        default:
+            /* Don't know how to interpret the parameters, show only the PI servicename */
+            col_append_fstr(pinfo->cinfo, COL_INFO, " -> [%s]", servicename);
+    }
+    return offset;
+}
+
+/*******************************************************************************************************
  *
- * PDU Type: Request or Response -> Function 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f (block control functions)
+ * Decode a blockname/filename used in block/file upload/download
  *
  *******************************************************************************************************/
 static guint32
-s7comm_decode_plc_controls_param_hex1x(tvbuff_t *tvb,
-                                       packet_info *pinfo,
-                                       proto_tree *tree,
-                                       guint16 plength,
-                                       guint32 offset)
+s7comm_decode_plc_controls_filename(tvbuff_t *tvb,
+                                    packet_info *pinfo,
+                                    proto_tree *param_tree,
+                                    guint32 offset)
+{
+    guint8 len;
+    guint8 *str;
+    guint16 blocktype;
+    gboolean is_plcfilename;
+    proto_item *item = NULL;
+    proto_item *itemadd = NULL;
+    proto_tree *file_tree = NULL;
+
+    len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(param_tree, hf_s7comm_data_blockcontrol_filename_len, tvb, offset, 1, len);
+    offset += 1;
+    item = proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_filename, tvb, offset, len, ENC_ASCII|ENC_NA);
+    /* The filename when uploading from PLC has a well known structure, which can be further dissected.
+     * An upload from a NC is a simple filename string with no deeper structure.
+     * Check for PLC filename, by checking some fixed fields.
+     */
+    is_plcfilename = FALSE;
+    if (len == 9) {
+        blocktype = tvb_get_ntohs(tvb, offset + 1);
+        if ((tvb_get_guint8(tvb, offset) == '_') && (blocktype >= S7COMM_BLOCKTYPE_OB) && (blocktype <= S7COMM_BLOCKTYPE_SFB)) {
+            is_plcfilename = TRUE;
+            file_tree = proto_item_add_subtree(item, ett_s7comm_plcfilename);
+            itemadd = proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_file_ident, tvb, offset, 1, ENC_ASCII|ENC_NA);
+            proto_item_append_text(itemadd, " (%s)", val_to_str(tvb_get_guint8(tvb, offset), blocktype_attribute1_names, "Unknown identifier: %c"));
+            offset += 1;
+            itemadd = proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_block_type, tvb, offset, 2, ENC_ASCII|ENC_NA);
+            proto_item_append_text(itemadd, " (%s)", val_to_str(blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
+            offset += 2;
+            str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 5, ENC_ASCII);
+            proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_block_num, tvb, offset, 5, ENC_ASCII|ENC_NA);
+            offset += 5;
+            proto_item_append_text(file_tree, " [%s %d]",
+                val_to_str(blocktype, blocktype_names, "Unknown Block type: 0x%04x"),
+                atoi(str));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " -> Block:[%s %d]",
+                val_to_str(blocktype, blocktype_names, "Unknown Block type: 0x%04x"),
+                atoi(str));
+            itemadd = proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_dest_filesys, tvb, offset, 1, ENC_ASCII|ENC_NA);
+            proto_item_append_text(itemadd, " (%s)", val_to_str(tvb_get_guint8(tvb, offset), blocktype_attribute2_names, "Unknown filesys: %c"));
+            offset += 1;
+        }
+    }
+    if (is_plcfilename == FALSE) {
+        str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " File:[%s]", str);
+        offset += len;
+    }
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
+ * PDU Type: Request or Response -> Function 0x1d, 0x1e, 0x1f (block control functions) for upload
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_decode_plc_controls_updownload(tvbuff_t *tvb,
+                                      packet_info *pinfo,
+                                      proto_tree *tree,
+                                      proto_tree *param_tree,
+                                      guint16 plength,
+                                      guint16 dlength,
+                                      guint32 offset,
+                                      guint8 rosctr)
 {
     guint8 len;
     guint8 function;
-    guint8 *str;
+    guint32 errorcode;
+    const gchar *errorcode_text;
+    proto_item *item = NULL;
+    proto_tree *data_tree = NULL;
 
     function = tvb_get_guint8(tvb, offset);
     offset += 1;
+    errorcode = 0;
 
-    /* Meaning of first byte is unknown */
-    proto_tree_add_item(tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 1, ENC_NA);
-    offset += 1;
-    /* These 2 bytes seems to be an error code. If an upload fails, this value is also shown in Manager as errorcode. Zero on success. */
-    proto_tree_add_item(tree, hf_s7comm_data_blockcontrol_errorcode, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-    /* unknown 4 bytes */
-    proto_tree_add_item(tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 4, ENC_NA);
-    offset += 4;
-    if (plength <= 8) {
-        /* Upload or End upload functions have no other data */
-        return offset;
+    switch (function) {
+        /*---------------------------------------------------------------------*/
+        case S7COMM_FUNCREQUESTDOWNLOAD:
+            if (rosctr == S7COMM_ROSCTR_JOB) {
+                proto_tree_add_bitmask(param_tree, tvb, offset, hf_s7comm_data_blockcontrol_functionstatus,
+                    ett_s7comm_data_blockcontrol_status, s7comm_data_blockcontrol_status_fields, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 2, ENC_NA);
+                offset += 2;
+                /* on upload this is the upload-id, here it is anything else (or not used ) */
+                proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 4, ENC_NA);
+                offset += 4;
+                offset = s7comm_decode_plc_controls_filename(tvb, pinfo, param_tree, offset);
+                if (plength > 18) {
+                    len = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_uint(param_tree, hf_s7comm_data_blockcontrol_part2_len, tvb, offset, 1, len);
+                    offset += 1;
+                    /* first byte unknown '1' */
+                    proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_part2_unknown, tvb, offset, 1, ENC_ASCII|ENC_NA);
+                    offset += 1;
+                    proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_loadmem_len, tvb, offset, 6, ENC_ASCII|ENC_NA);
+                    offset += 6;
+                    proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_mc7code_len, tvb, offset, 6, ENC_ASCII|ENC_NA);
+                    offset += 6;
+                }
+            } else if (rosctr == S7COMM_ROSCTR_ACK_DATA) {
+                if (plength >= 2) {
+                    proto_tree_add_bitmask(param_tree, tvb, offset, hf_s7comm_data_blockcontrol_functionstatus,
+                        ett_s7comm_data_blockcontrol_status, s7comm_data_blockcontrol_status_fields, ENC_BIG_ENDIAN);
+                    offset += 1;
+                }
+            }
+            break;
+        /*---------------------------------------------------------------------*/
+        case S7COMM_FUNCSTARTUPLOAD:
+            proto_tree_add_bitmask(param_tree, tvb, offset, hf_s7comm_data_blockcontrol_functionstatus,
+                ett_s7comm_data_blockcontrol_status, s7comm_data_blockcontrol_status_fields, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 2, ENC_NA);
+            offset += 2;
+            proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_uploadid, tvb, offset, 4, ENC_NA);
+            offset += 4;
+            if (rosctr == S7COMM_ROSCTR_JOB) {
+                offset = s7comm_decode_plc_controls_filename(tvb, pinfo, param_tree, offset);
+            } else if (rosctr == S7COMM_ROSCTR_ACK_DATA) {
+                if (plength > 8) {
+                    /* If uploading from a PLC, the response has a string with the length
+                     * of the complete module in bytes, which maybe transferred/splitted into many PDUs.
+                     * On a NC file upload, there are no such fields.
+                     */
+                    len = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_uint(param_tree, hf_s7comm_data_blockcontrol_upl_lenstring_len, tvb, offset, 1, len);
+                    offset += 1;
+                    proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_upl_lenstring, tvb, offset, len, ENC_ASCII|ENC_NA);
+                    offset += len;
+                }
+            }
+            break;
+        /*---------------------------------------------------------------------*/
+        case S7COMM_FUNCUPLOAD:
+        case S7COMM_FUNCDOWNLOADBLOCK:
+            if (rosctr == S7COMM_ROSCTR_JOB) {
+                proto_tree_add_bitmask(param_tree, tvb, offset, hf_s7comm_data_blockcontrol_functionstatus,
+                    ett_s7comm_data_blockcontrol_status, s7comm_data_blockcontrol_status_fields, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 2, ENC_NA);
+                offset += 2;
+                if (function == S7COMM_FUNCUPLOAD) {
+                    proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_uploadid, tvb, offset, 4, ENC_NA);
+                    offset += 4;
+                } else {
+                    proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 4, ENC_NA);
+                    offset += 4;
+                    offset = s7comm_decode_plc_controls_filename(tvb, pinfo, param_tree, offset);
+                }
+            } else if (rosctr == S7COMM_ROSCTR_ACK_DATA) {
+                if (plength >= 2) {
+                    proto_tree_add_bitmask(param_tree, tvb, offset, hf_s7comm_data_blockcontrol_functionstatus,
+                        ett_s7comm_data_blockcontrol_status, s7comm_data_blockcontrol_status_fields, ENC_BIG_ENDIAN);
+                    offset += 1;
+                }
+                if (dlength > 0) {
+                    item = proto_tree_add_item(tree, hf_s7comm_data, tvb, offset, dlength, ENC_NA);
+                    data_tree = proto_item_add_subtree(item, ett_s7comm_data);
+                    proto_tree_add_item(data_tree, hf_s7comm_data_length, tvb, offset, 2, ENC_NA);
+                    offset += 2;
+                    proto_tree_add_item(data_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 2, ENC_NA);
+                    offset += 2;
+                    proto_tree_add_item(data_tree, hf_s7comm_readresponse_data, tvb, offset, dlength - 4, ENC_NA);
+                    offset += dlength - 4;
+                }
+            }
+            break;
+        /*---------------------------------------------------------------------*/
+        case S7COMM_FUNCENDUPLOAD:
+        case S7COMM_FUNCDOWNLOADENDED:
+            if (rosctr == S7COMM_ROSCTR_JOB) {
+                proto_tree_add_bitmask(param_tree, tvb, offset, hf_s7comm_data_blockcontrol_functionstatus,
+                    ett_s7comm_data_blockcontrol_status, s7comm_data_blockcontrol_status_fields, ENC_BIG_ENDIAN);
+                offset += 1;
+                item = proto_tree_add_item_ret_uint(param_tree, hf_s7comm_data_blockcontrol_errorcode, tvb, offset, 2, ENC_BIG_ENDIAN, &errorcode);
+                /* here it uses the same errorcode from parameter part */
+                if ((errorcode_text = try_val_to_str_ext(errorcode, &param_errcode_names_ext))) {
+                    proto_item_append_text(item, " (%s)", errorcode_text);
+                }
+                offset += 2;
+                if (function == S7COMM_FUNCENDUPLOAD) {
+                    proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_uploadid, tvb, offset, 4, ENC_NA);
+                    offset += 4;
+                } else {
+                    proto_tree_add_item(param_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 4, ENC_NA);
+                    offset += 4;
+                    offset = s7comm_decode_plc_controls_filename(tvb, pinfo, param_tree, offset);
+                }
+            } else if (rosctr == S7COMM_ROSCTR_ACK_DATA) {
+                if (plength >= 2) {
+                    proto_tree_add_bitmask(param_tree, tvb, offset, hf_s7comm_data_blockcontrol_functionstatus,
+                        ett_s7comm_data_blockcontrol_status, s7comm_data_blockcontrol_status_fields, ENC_BIG_ENDIAN);
+                    offset += 1;
+                }
+            }
+            break;
     }
-
-    /* Part 1: Block information*/
-    len = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint(tree, hf_s7comm_data_blockcontrol_part1_len, tvb, offset, 1, len);
-    offset += 1;
-    /* Prefix
-     *   File identifier:
-     *   _ means: "complete module"
-     *   $ means: "Module header for up-loading"
-     */
-    proto_tree_add_item(tree, hf_s7comm_data_blockcontrol_file_ident, tvb, offset, 1, ENC_ASCII|ENC_NA);
-    offset += 1;
-    /* First byte of block type is every time '0' */
-    proto_tree_add_item(tree, hf_s7comm_data_blockcontrol_block_unknown, tvb, offset, 1, ENC_ASCII|ENC_NA);
-    offset += 1;
-    proto_tree_add_item(tree, hf_s7comm_data_blockcontrol_block_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    col_append_fstr(pinfo->cinfo, COL_INFO, " Type:[%s]", val_to_str(tvb_get_guint8(tvb, offset), blocktype_names, "Unknown Block type: 0x%02x"));
-    offset += 1;
-
-    str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 5, ENC_ASCII);
-    proto_tree_add_item(tree, hf_s7comm_data_blockcontrol_block_num, tvb, offset, 5, ENC_ASCII|ENC_NA);
-    col_append_fstr(pinfo->cinfo, COL_INFO, " No.:[%s]", str);
-    offset += 5;
-    /* 'P', 'B' or 'A' is following */
-    proto_tree_add_item(tree, hf_s7comm_data_blockcontrol_dest_filesys, tvb, offset, 1, ENC_ASCII|ENC_NA);
-    offset += 1;
-
-    /* Part 2, only available in "request download" */
-    if (function == S7COMM_FUNCREQUESTDOWNLOAD && plength > 18) {
-        len = tvb_get_guint8(tvb, offset);
-        proto_tree_add_uint(tree, hf_s7comm_data_blockcontrol_part2_len, tvb, offset, 1, len);
-        offset += 1;
-        /* first byte unknown '1' */
-        proto_tree_add_item(tree, hf_s7comm_data_blockcontrol_part2_unknown, tvb, offset, 1, ENC_ASCII|ENC_NA);
-        offset += 1;
-        proto_tree_add_item(tree, hf_s7comm_data_blockcontrol_loadmem_len, tvb, offset, 6, ENC_ASCII|ENC_NA);
-        offset += 6;
-        proto_tree_add_item(tree, hf_s7comm_data_blockcontrol_mc7code_len, tvb, offset, 6, ENC_ASCII|ENC_NA);
-        offset += 6;
+    /* if an error occured show in info column */
+    if (errorcode > 0) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " -> Errorcode:[0x%04x]", errorcode);
     }
     return offset;
 }
@@ -3441,11 +4190,12 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
     guint8 *pBlocknumber;
     guint16 blocknumber;
     guint8 blocktype;
+    guint16 blocktype16;
     gboolean know_data = FALSE;
     proto_item *item = NULL;
     proto_tree *item_tree = NULL;
+    proto_item *itemadd = NULL;
     char str_timestamp[30];
-    char str_number[10];
     char str_version[10];
 
     switch (subfunc) {
@@ -3462,10 +4212,11 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                     /* Insert a new tree of 4 byte length for every item */
                     item = proto_tree_add_item(data_tree, hf_s7comm_data_item, tvb, offset, 4, ENC_NA);
                     item_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
-                    offset += 1; /* skip first byte */
-                    proto_item_append_text(item, " [%d]: (Block type %s)", i+1, val_to_str(tvb_get_guint8(tvb, offset), blocktype_names, "Unknown Block type: 0x%02x"));
-                    proto_tree_add_item(item_tree, hf_s7comm_ud_blockinfo_block_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset += 1;
+                    blocktype16 = tvb_get_ntohs(tvb, offset);
+                    proto_item_append_text(item, " [%d]: (Block type %s)", i+1, val_to_str(blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
+                    itemadd = proto_tree_add_uint(item_tree, hf_s7comm_ud_blockinfo_block_type, tvb, offset, 2, blocktype16);
+                    proto_item_append_text(itemadd, " (%s)", val_to_str(blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
+                    offset += 2;
                     proto_tree_add_item(item_tree, hf_s7comm_ud_blockinfo_block_cnt, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
                 }
@@ -3478,13 +4229,14 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
         case S7COMM_UD_SUBF_BLOCK_LISTTYPE:
             if (type == S7COMM_UD_TYPE_REQ) {                       /*** Request ***/
                 if (tsize != S7COMM_DATA_TRANSPORT_SIZE_NULL) {
-                    offset += 1; /* skip first byte */
-                    proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_block_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    blocktype16 = tvb_get_ntohs(tvb, offset);
+                    itemadd = proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_block_type, tvb, offset, 2, ENC_ASCII|ENC_NA);
+                    proto_item_append_text(itemadd, " (%s)", val_to_str(blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
                     col_append_fstr(pinfo->cinfo, COL_INFO, " Type:[%s]",
-                        val_to_str(tvb_get_guint8(tvb, offset), blocktype_names, "Unknown Block type: 0x%02x"));
+                        val_to_str(blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
                     proto_item_append_text(data_tree, ": (%s)",
-                        val_to_str(tvb_get_guint8(tvb, offset), blocktype_names, "Unknown Block type: 0x%02x"));
-                    offset += 1;
+                        val_to_str(blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
+                    offset += 2;
                 }
                 know_data = TRUE;
 
@@ -3517,20 +4269,21 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
             if (type == S7COMM_UD_TYPE_REQ) {                       /*** Request ***/
                 if (tsize != S7COMM_DATA_TRANSPORT_SIZE_NULL) {
                     /* 8 Bytes of Data follow, 1./ 2. type, 3-7 blocknumber as ascii number */
-                    offset += 1; /* skip first byte */
-                    proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_block_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_item_append_text(data_tree, ": (Block type: %s",
-                        val_to_str(tvb_get_guint8(tvb, offset), blocktype_names, "Unknown Block type: 0x%02x"));
-                    /* Add block type and number to info column */
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " Type:[%s]",
-                        val_to_str(tvb_get_guint8(tvb, offset), blocktype_names, "Unknown Block type: 0x%02x"));
-                    offset += 1;
+                    blocktype16 = tvb_get_ntohs(tvb, offset);
+                    itemadd = proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_block_type, tvb, offset, 2, ENC_ASCII|ENC_NA);
+                    proto_item_append_text(itemadd, " (%s)", val_to_str(blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
+                    offset += 2;
                     proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_block_num_ascii, tvb, offset, 5, ENC_ASCII|ENC_NA);
                     pBlocknumber = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 5, ENC_ASCII);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " No.:[%s]", pBlocknumber);
-                    proto_item_append_text(data_tree, ", Number: %s)", pBlocknumber);
+                    proto_item_append_text(data_tree, " [%s %d]",
+                        val_to_str(blocktype16, blocktype_names, "Unknown Block type: 0x%04x"),
+                        atoi(pBlocknumber));
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " -> Block:[%s %d]",
+                        val_to_str(blocktype16, blocktype_names, "Unknown Block type: 0x%04x"),
+                        atoi(pBlocknumber));
                     offset += 5;
-                    proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_filesys, tvb, offset, 1, ENC_ASCII|ENC_NA);
+                    itemadd = proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_filesys, tvb, offset, 1, ENC_ASCII|ENC_NA);
+                    proto_item_append_text(itemadd, " (%s)", val_to_str(tvb_get_guint8(tvb, offset), blocktype_attribute2_names, "Unknown filesys: %c"));
                     offset += 1;
                 }
                 know_data = TRUE;
@@ -3538,10 +4291,9 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
             }else if (type == S7COMM_UD_TYPE_RES) {             /*** Response ***/
                 /* 78 Bytes */
                 if (ret_val == S7COMM_ITEM_RETVAL_DATA_OK) {
-                    proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_res_const1, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset += 1;
-                    proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_block_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset += 1;
+                    itemadd = proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_block_type, tvb, offset, 2, ENC_ASCII|ENC_NA);
+                    proto_item_append_text(itemadd, " (%s)", val_to_str(tvb_get_ntohs(tvb, offset), blocktype_names, "Unknown Block type: 0x%04x"));
+                    offset += 2;
                     proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_res_infolength, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
                     proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_res_unknown2, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3550,17 +4302,6 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                     offset += 2;
                     proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_res_unknown, tvb, offset, 1, ENC_NA);
                     offset += 1;
-
-                    /* Configuration flags or Bits?
-                     * Bits: 0 0 0 0   0 0 0 0   0 0 0 0   0 0 0 0
-                     * Pos : 31 ..                             ..0
-                     *
-                     * Bit : 0 -> DB Linked = true
-                     * Bit : 5 -> DB Non Retain = true
-                     * Standard FC/FC/DB -> 0x0101        0x0100 -> is this bit (8) in FBs for multiinstance?
-                     * SFC:  0x0009  SFB: 0x0109 or 0x010d (e.g. SFB8, 414)
-                     */
-
                     proto_tree_add_bitmask(data_tree, tvb, offset, hf_s7comm_userdata_blockinfo_flags,
                         ett_s7comm_userdata_blockinfo_flags, s7comm_userdata_blockinfo_flags_fields, ENC_BIG_ENDIAN);
                     offset += 1;
@@ -3568,17 +4309,16 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                     offset += 1;
                     blocktype = tvb_get_guint8(tvb, offset);
                     proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_subblk_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    /* Add block type and number to info column */
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " Type:[%s]",
-                        val_to_str(blocktype, subblktype_names, "Unknown Subblk type: 0x%02x"));
-                    proto_item_append_text(data_tree, ": (Subblk type: %s",
-                        val_to_str(blocktype, subblktype_names, "Unknown Subblk type: 0x%02x"));
                     offset += 1;
                     blocknumber = tvb_get_ntohs(tvb, offset);
                     proto_tree_add_uint(data_tree, hf_s7comm_ud_blockinfo_block_num, tvb, offset, 2, blocknumber);
-                    g_snprintf(str_number, sizeof(str_number), "%05d", blocknumber);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " No.:[%s]", str_number);
-                    proto_item_append_text(data_tree, ", Number: %05d)", blocknumber);
+                    /* Add block type and number to info column */
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " -> Block:[%s %d]",
+                        val_to_str(blocktype, subblktype_names, "Unknown Subblk type: 0x%02x"),
+                        blocknumber);
+                    proto_item_append_text(data_tree, ": (Block:[%s %d])",
+                        val_to_str(blocktype, subblktype_names, "Unknown Subblk type: 0x%02x"),
+                        blocknumber);
                     offset += 2;
                     /* "Length Load mem" -> the length in Step7 Manager seems to be this length +6 bytes */
                     proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_load_mem_len, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -4057,10 +4797,10 @@ s7comm_decode_req_resp(tvbuff_t *tvb,
                 case S7COMM_FUNCSTARTUPLOAD:
                 case S7COMM_FUNCUPLOAD:
                 case S7COMM_FUNCENDUPLOAD:
-                    offset = s7comm_decode_plc_controls_param_hex1x(tvb, pinfo, param_tree, plength, offset -1);
+                    offset = s7comm_decode_plc_controls_updownload(tvb, pinfo, tree, param_tree, plength, dlength, offset -1, rosctr);
                     break;
-                case S7COMM_FUNC_PLC_CONTROL:
-                    offset = s7comm_decode_plc_controls_param_hex28(tvb, pinfo, param_tree, offset -1);
+                case S7COMM_FUNCPISERVICE:
+                    offset = s7comm_decode_pi_service(tvb, pinfo, param_tree, plength, offset -1);
                     break;
                 case S7COMM_FUNC_PLC_STOP:
                     offset = s7comm_decode_plc_controls_param_hex29(tvb, param_tree, offset -1);
@@ -4104,6 +4844,21 @@ s7comm_decode_req_resp(tvbuff_t *tvb,
                     break;
                 case S7COMM_SERV_SETUPCOMM:
                     offset = s7comm_decode_pdu_setup_communication(tvb, param_tree, offset);
+                    break;
+                case S7COMM_FUNCREQUESTDOWNLOAD:
+                case S7COMM_FUNCDOWNLOADBLOCK:
+                case S7COMM_FUNCDOWNLOADENDED:
+                case S7COMM_FUNCSTARTUPLOAD:
+                case S7COMM_FUNCUPLOAD:
+                case S7COMM_FUNCENDUPLOAD:
+                    offset = s7comm_decode_plc_controls_updownload(tvb, pinfo, tree, param_tree, plength, dlength, offset -1, rosctr);
+                    break;
+                case S7COMM_FUNCPISERVICE:
+                    if (plength >= 2) {
+                        proto_tree_add_bitmask(param_tree, tvb, offset, hf_s7comm_data_blockcontrol_functionstatus,
+                            ett_s7comm_data_blockcontrol_status, s7comm_data_blockcontrol_status_fields, ENC_BIG_ENDIAN);
+                        offset += 1;
+                    }
                     break;
                 default:
                     /* Print unknown part as raw bytes */
@@ -4460,7 +5215,7 @@ proto_register_s7comm (void)
 
         /* block functions / info */
         { &hf_s7comm_ud_blockinfo_block_type,
-        { "Block type", "s7comm.blockinfo.blocktype", FT_UINT8, BASE_DEC, VALS(blocktype_names), 0x0,
+        { "Block type", "s7comm.blockinfo.blocktype", FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL }},
         { &hf_s7comm_ud_blockinfo_block_cnt,
         { "Block count", "s7comm.blockinfo.block_count", FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -4480,9 +5235,6 @@ proto_register_s7comm (void)
         { &hf_s7comm_ud_blockinfo_filesys,
         { "Filesystem", "s7comm.data.blockinfo.filesys", FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL }},
-        { &hf_s7comm_ud_blockinfo_res_const1,
-        { "Constant 1", "s7comm.blockinfo.res_const1", FT_UINT8, BASE_HEX, NULL, 0x0,
-          "Possible constant 1", HFILL }},
         { &hf_s7comm_ud_blockinfo_res_infolength,
         { "Length of Info", "s7comm.blockinfo.res_infolength", FT_UINT16, BASE_DEC, NULL, 0x0,
           "Length of Info in bytes", HFILL }},
@@ -4654,40 +5406,242 @@ proto_register_s7comm (void)
         { "S7 Timestamp - Weekday", "s7comm.data.ts_weekday", FT_UINT16, BASE_DEC, VALS(weekdaynames), 0x000f,
           "S7 Timestamp: Weekday number (right nibble, 1=Su,2=Mo,..)", HFILL }},
 
-        /* Function 0x28 (PLC control functions) ans 0x29 */
-        { &hf_s7comm_data_plccontrol_part1_unknown,
-        { "Part 1 unknown bytes", "s7comm.data.plccontrol.part1_unknown", FT_BYTES, BASE_NONE, NULL, 0x0,
+        /* Function 0x28 (PI service) and 0x29 */
+        { &hf_s7comm_piservice_unknown1,
+        { "Unknown bytes", "s7comm.param.pistart.unknown1", FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL }},
-        { &hf_s7comm_data_plccontrol_part1_len,
-        { "Length part 1", "s7comm.data.plccontrol.part1_len", FT_UINT16, BASE_DEC, NULL, 0x0,
-          "Length of part 1 in bytes", HFILL }},
+        { &hf_s7comm_piservice_parameterblock_len,
+        { "Parameter block length", "s7comm.param.pistart.parameterblock_len", FT_UINT16, BASE_DEC, NULL, 0x0,
+          "Length of Parameter block in bytes", HFILL }},
+        { &hf_s7comm_piservice_parameterblock,
+        { "Parameter block", "s7comm.param.pistart.parameterblock", FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_piservice_servicename,
+        { "PI (program invocation) Service", "s7comm.param.pistart.servicename", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+
+        /* PI Service parameters for NC services */
+        { &hf_s7comm_piservice_string_len,
+        { "String length", "s7comm.param.pi.n_x.string_len", FT_UINT8, BASE_DEC, NULL, 0x0,
+          "Length of the following string. If LengthByte + Stringlen is uneven, a fillbyte is added", HFILL }},
+        { &hf_s7comm_pi_n_x_addressident,
+        { "Addressidentification", "s7comm.param.pi.n_x.addressident", FT_STRING, BASE_NONE, NULL, 0x0,
+          "Addressidentification (RangeID / Index)", HFILL }},
+        { &hf_s7comm_pi_n_x_filename,
+        { "Filename", "s7comm.param.pi.n_x.filename", FT_STRING, BASE_NONE, NULL, 0x0,
+          "Name of the file or directory", HFILL }},
+        { &hf_s7comm_pi_n_x_editwindowname,
+        { "Editor Window Name", "s7comm.param.pi.n_x.editwindowname", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_pi_n_x_password,
+        { "Password", "s7comm.param.pi.n_x.password", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_pi_n_x_seekpointer,
+        { "Seek pointer", "s7comm.param.pi.n_x.seekpointer", FT_STRING, BASE_NONE, NULL, 0x0,
+          "SeekPointer string with exact 9 digit/character(s)", HFILL }},
+        { &hf_s7comm_pi_n_x_windowsize,
+        { "Window size", "s7comm.param.pi.n_x.windowsize", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_pi_n_x_comparestring,
+        { "Compare String", "s7comm.param.pi.n_x.comparestring", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_pi_n_x_skipcount,
+        { "Skip Count", "s7comm.param.pi.n_x.skipcount", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_pi_n_x_interruptnr,
+        { "Interrupt Number", "s7comm.param.pi.n_x.interruptnr", FT_STRING, BASE_NONE, NULL, 0x0,
+          "Interrupt Number: Interrupt number corresponds to the input number which caused the interrupt" , HFILL }},
+        { &hf_s7comm_pi_n_x_priority,
+        { "Priority", "s7comm.param.pi.n_x.priority", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_liftfast,
+        { "Liftfast", "s7comm.param.pi.n_x.liftfast", FT_STRING, BASE_NONE, NULL, 0x0,
+          "Liftfast: Indicates whether an interrupt routine should simultaneously cause a fast lift-off motion" , HFILL }},
+        { &hf_s7comm_pi_n_x_blsync,
+        { "Blsync", "s7comm.param.pi.n_x.blsync", FT_STRING, BASE_NONE, NULL, 0x0,
+          "Blsync: Indicates whether the interrupt has to be synchronized to the next block end" , HFILL }},
+        { &hf_s7comm_pi_n_x_magnr,
+        { "Magnr", "s7comm.param.pi.n_x.magnr", FT_STRING, BASE_NONE, NULL, 0x0,
+          "Magnr: Magazine number" , HFILL }},
+        { &hf_s7comm_pi_n_x_dnr,
+        { "DNr", "s7comm.param.pi.n_x.dnr", FT_STRING, BASE_NONE, NULL, 0x0,
+          "DNr: D number" , HFILL }},
+        { &hf_s7comm_pi_n_x_spindlenumber,
+        { "Spindle Number", "s7comm.param.pi.n_x.spindlenumber", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_pi_n_x_wznr,
+        { "WZ-Nr", "s7comm.param.pi.n_x.wznr", FT_STRING, BASE_NONE, NULL, 0x0,
+          "WZ-Nr: Tool number" , HFILL }},
+        { &hf_s7comm_pi_n_x_class,
+        { "Class", "s7comm.param.pi.n_x.class", FT_STRING, BASE_NONE, NULL, 0x0,
+          "Class: Classify machine data" , HFILL }},
+        { &hf_s7comm_pi_n_x_tnr,
+        { "TNr", "s7comm.param.pi.n_x.tnr", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_toolnumber,
+        { "Tool Number", "s7comm.param.pi.n_x.toolnumber", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_cenumber,
+        { "CE-Number", "s7comm.param.pi.n_x.cenumber", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_datablocknumber,
+        { "Datablock Number", "s7comm.param.pi.n_x.datablocknumber", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_firstcolumnnumber,
+        { "First Column Number", "s7comm.param.pi.n_x.firstcolumnnumber", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_lastcolumnnumber,
+        { "Last Column Number", "s7comm.param.pi.n_x.lastcolumnnumber", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_firstrownumber,
+        { "First Row Number", "s7comm.param.pi.n_x.firstrownnumber", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_lastrownumber,
+        { "Last Row Number", "s7comm.param.pi.n_x.lastrownnumber", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_direction,
+        { "Direction", "s7comm.param.pi.n_x.direction", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_sourcefilename,
+        { "Source-Filename", "s7comm.param.pi.n_x.sourcefilename", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_destinationfilename,
+        { "Destination-Filename", "s7comm.param.pi.n_x.destinationfilename", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_channelnumber,
+        { "Channel Number", "s7comm.param.pi.n_x.channelnumber", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_protection,
+        { "Protection", "s7comm.param.pi.n_x.protection", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_oldfilename,
+        { "Old Filename", "s7comm.param.pi.n_x.oldfilename", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_newfilename,
+        { "New Filename", "s7comm.param.pi.n_x.newfilename", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_findmode,
+        { "Findmode", "s7comm.param.pi.n_x.findmode", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_switch,
+        { "Switch", "s7comm.param.pi.n_x.switch", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_functionnumber,
+        { "Function Number", "s7comm.param.pi.n_x.functionnumber", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_semaphorvalue,
+        { "Semaphor Value", "s7comm.param.pi.n_x.semaphorvalue", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_onoff,
+        { "OnOff", "s7comm.param.pi.n_x.onoff", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_mode,
+        { "Mode", "s7comm.param.pi.n_x.mode", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_factor,
+        { "Factor", "s7comm.param.pi.n_x.factor", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_passwordlevel,
+        { "Password Level", "s7comm.param.pi.n_x.passwordlevel", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_linenumber,
+        { "Line Number", "s7comm.param.pi.n_x.linenumber", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_weargroup,
+        { "Wear Group", "s7comm.param.pi.n_x.weargroup", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_toolstatus,
+        { "Tool Status", "s7comm.param.pi.n_x.toolstatus", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_wearsearchstrat,
+        { "Search Strategie", "s7comm.param.pi.n_x.wearsearchstrat", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_toolid,
+        { "Tool ID", "s7comm.param.pi.n_x.toolid", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_duplonumber,
+        { "Duplo Number", "s7comm.param.pi.n_x.duplonumber", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_edgenumber,
+        { "Edge Number", "s7comm.param.pi.n_x.edgenumber", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_placenr,
+        { "Place Number", "s7comm.param.pi.n_x.placenr", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_placerefnr,
+        { "Place Reference Number", "s7comm.param.pi.n_x.placerefnr", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_magrefnr,
+        { "Magazine Reference Number", "s7comm.param.pi.n_x.magrefnr", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_placenrfrom,
+        { "Place Number from", "s7comm.param.pi.n_x.placenrfrom", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_magnrfrom,
+        { "Magazine Number from", "s7comm.param.pi.n_x.magnrfrom", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_placenrto,
+        { "Place Number to", "s7comm.param.pi.n_x.placenrto", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_magnrto,
+        { "Magazine Number to", "s7comm.param.pi.n_x.magnrto", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_halfplacesleft,
+        { "Half places left", "s7comm.param.pi.n_x.halfplacesleft", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_halfplacesright,
+        { "Half places right", "s7comm.param.pi.n_x.halfplacesright", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_halfplacesup,
+        { "Half places up", "s7comm.param.pi.n_x.halfplacesup", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_halfplacesdown,
+        { "Half places down", "s7comm.param.pi.n_x.halfplacesdown", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_placetype,
+        { "Place type index", "s7comm.param.pi.n_x.placetype", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_searchdirection,
+        { "Search direction", "s7comm.param.pi.n_x.searchdirection", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_toolname,
+        { "Tool Name", "s7comm.param.pi.n_x.toolname", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_placenrsource,
+        { "Place Number Source", "s7comm.param.pi.n_x.placenrsource", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_magnrsource,
+        { "Magazine Number Source", "s7comm.param.pi.n_x.magnrsource", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_placenrdestination,
+        { "Place Number Destination", "s7comm.param.pi.n_x.placenrdestination", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_magnrdestination,
+        { "Magazine Number Destination", "s7comm.param.pi.n_x.magnrdestination", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_incrementnumber,
+        { "Increment Number", "s7comm.param.pi.n_x.incrementnumber", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_monitoringmode,
+        { "Monitoring mode", "s7comm.param.pi.n_x.monitoringmode", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+        { &hf_s7comm_pi_n_x_kindofsearch,
+        { "Kind of search", "s7comm.param.pi.n_x.kindofsearch", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL , HFILL }},
+
+        { &hf_s7comm_data_pi_inse_unknown,
+        { "Unknown byte", "s7comm.param.pi.inse.unknown", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+
         { &hf_s7comm_data_plccontrol_argument,
-        { "Argument", "s7comm.data.plccontrol.argument", FT_STRING, BASE_NONE, NULL, 0x0,
+        { "Argument", "s7comm.param.pistart.argument", FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL }},
         { &hf_s7comm_data_plccontrol_block_cnt,
         { "Number of blocks", "s7comm.data.plccontrol.block_cnt", FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }},
-        { &hf_s7comm_data_plccontrol_part1_unknown2,
-        { "Unknown byte", "s7comm.data.plccontrol.part1_unknown2", FT_UINT8, BASE_HEX, NULL, 0x0,
-          NULL, HFILL }},
-        { &hf_s7comm_data_plccontrol_block_unknown,
-        { "Unknown char before Block type", "s7comm.data.plccontrol.block_unknown", FT_STRING, BASE_NONE, NULL, 0x0,
-          NULL, HFILL }},
-        { &hf_s7comm_data_plccontrol_block_type,
-        { "Block type", "s7comm.data.plccontrol.block_type", FT_UINT8, BASE_DEC, VALS(blocktype_names), 0x0,
-          NULL, HFILL }},
-        { &hf_s7comm_data_plccontrol_block_num,
-        { "Block number", "s7comm.data.plccontrol.block_number", FT_STRING, BASE_NONE, NULL, 0x0,
-          NULL, HFILL }},
-        { &hf_s7comm_data_plccontrol_dest_filesys,
-        { "Destination filesystem", "s7comm.data.plccontrol.dest_filesys", FT_STRING, BASE_NONE, NULL, 0x0,
-          NULL, HFILL }},
         { &hf_s7comm_data_plccontrol_part2_len,
         { "Length part 2", "s7comm.data.plccontrol.part2_len", FT_UINT8, BASE_DEC, NULL, 0x0,
           "Length of part 2 in bytes", HFILL }},
-        { &hf_s7comm_data_plccontrol_pi_service,
-        { "PI (program invocation) Service", "s7comm.data.plccontrol.pi_service", FT_STRING, BASE_NONE, NULL, 0x0,
-          "Known: _INSE = Activate a module, _DELE = Delete a passive module, _PROGRAM = Start/Stop the PLC, _PLC_MEMORYRESET = Reset the PLC memory" , HFILL }},
 
         /* block control functions */
         { &hf_s7comm_data_blockcontrol_unknown1,
@@ -4696,17 +5650,14 @@ proto_register_s7comm (void)
         { &hf_s7comm_data_blockcontrol_errorcode,
         { "Errorcode", "s7comm.data.blockcontrol.errorcode", FT_UINT16, BASE_HEX, NULL, 0x0,
           "Errorcode, 0 on success", HFILL }},
-        { &hf_s7comm_data_blockcontrol_part1_len,
-        { "Length part 1", "s7comm.data.blockcontrol.part1_len", FT_UINT8, BASE_DEC, NULL, 0x0,
-          "Length of part 1 in bytes", HFILL }},
+        { &hf_s7comm_data_blockcontrol_uploadid,
+        { "UploadID", "s7comm.data.blockcontrol.uploadid", FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
         { &hf_s7comm_data_blockcontrol_file_ident,
         { "File identifier", "s7comm.data.blockcontrol.file_identifier", FT_STRING, BASE_NONE, NULL, 0x0,
           "File identifier: '_'=complete module; '$'=Module header for up-loading", HFILL }},
-        { &hf_s7comm_data_blockcontrol_block_unknown,
-        { "Unknown char before Block type", "s7comm.data.blockcontrol.block_unknown", FT_STRING, BASE_NONE, NULL, 0x0,
-          NULL, HFILL }},
         { &hf_s7comm_data_blockcontrol_block_type,
-        { "Block type", "s7comm.data.blockcontrol.block_type", FT_UINT8, BASE_DEC, VALS(blocktype_names), 0x0,
+        { "Block type", "s7comm.data.blockcontrol.block_type", FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL }},
         { &hf_s7comm_data_blockcontrol_block_num,
         { "Block number", "s7comm.data.blockcontrol.block_number", FT_STRING, BASE_NONE, NULL, 0x0,
@@ -4727,6 +5678,27 @@ proto_register_s7comm (void)
         { "Length of MC7 code", "s7comm.data.blockcontrol.mc7code_len", FT_STRING, BASE_NONE, NULL, 0x0,
           "Length of MC7 code in bytes", HFILL }},
 
+        { &hf_s7comm_data_blockcontrol_filename_len,
+        { "Filename Length", "s7comm.param.blockcontrol.filename_len", FT_UINT8, BASE_DEC, NULL, 0x0,
+          "Length following filename in bytes", HFILL }},
+        { &hf_s7comm_data_blockcontrol_filename,
+        { "Filename", "s7comm.param.blockcontrol.filename", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_data_blockcontrol_upl_lenstring_len,
+        { "Blocklengthstring Length", "s7comm.param.blockcontrol.upl_lenstring_len", FT_UINT8, BASE_DEC, NULL, 0x0,
+          "Length following blocklength string in bytes", HFILL }},
+        { &hf_s7comm_data_blockcontrol_upl_lenstring,
+        { "Blocklength", "s7comm.param.blockcontrol.upl_lenstring", FT_STRING, BASE_NONE, NULL, 0x0,
+          "Length of the complete uploadblock in bytes, maybe splitted into many PDUs", HFILL }},
+        { &hf_s7comm_data_blockcontrol_functionstatus,
+        { "Function Status", "s7comm.param.blockcontrol.functionstatus", FT_UINT8, BASE_HEX, NULL, 0x0,
+          "0=no error, 1=more data, 2=error", HFILL }},
+        { &hf_s7comm_data_blockcontrol_functionstatus_more,
+        { "More data following", "s7comm.param.blockcontrol.functionstatus.more", FT_BOOLEAN, 8, NULL, 0x01,
+          "More data of the block/file can be retrieved with another request", HFILL }},
+        { &hf_s7comm_data_blockcontrol_functionstatus_error,
+        { "Error", "s7comm.param.blockcontrol.functionstatus.error", FT_BOOLEAN, 8, NULL, 0x02,
+          "An error occured", HFILL }},
         /* Variable table */
         { &hf_s7comm_vartab_data_type,
         { "Type of data", "s7comm.vartab.data_type", FT_UINT8, BASE_DEC, VALS(userdata_prog_vartab_type_names), 0x0,
@@ -4999,7 +5971,10 @@ proto_register_s7comm (void)
         &ett_s7comm_cpu_alarm_message_associated_value,
         &ett_s7comm_cpu_diag_msg,
         &ett_s7comm_cpu_diag_msg_eventid,
-        &ett_s7comm_cpu_msgservice_subscribe_events
+        &ett_s7comm_cpu_msgservice_subscribe_events,
+        &ett_s7comm_piservice_parameterblock,
+        &ett_s7comm_data_blockcontrol_status,
+        &ett_s7comm_plcfilename
     };
 
     proto_s7comm = proto_register_protocol (
