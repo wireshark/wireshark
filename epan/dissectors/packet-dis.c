@@ -5859,14 +5859,20 @@ static gint alignOffset(gint offset, guint fieldLength)
 static gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, int hf_relative)
 {
    /* some consts */
-   static guint MSEC_PER_HOUR = 60 * 60 * 1000;
-   static guint FSV = 0x7fffffff;
+   static guint USEC_PER_HOUR = (guint)3600 * (guint)1000000;
+   static guint FSV = 0x7fffffff; /* 2^31-1 */
    /* variables */
    guint isAbsolute = 0;
    guint32 uintVal;
-   guint64 ms;
+   guint64 usec;
    nstime_t tv;
    proto_item* ti;
+
+   /* used in timestamp formatting for display */
+   guint minutes;
+   guint seconds;
+   guint micros;
+
 
    offset = alignOffset(offset, 4);
 
@@ -5875,13 +5881,22 @@ static gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, i
    /* determine absolute vis sim time */
    isAbsolute = uintVal & 1;
 
-   /* convert TS to MS */
-   ms = (uintVal >> 1) * MSEC_PER_HOUR / FSV;
+   /* convert TS to uSec */
+   usec = (guint64)((uintVal >> 1) * (double)(USEC_PER_HOUR) / FSV);
 
-   tv.secs = (time_t)ms/1000;
-   tv.nsecs = (int)(ms%1000)*1000000;
+   tv.secs = (time_t)usec / 1000000;
+   tv.nsecs = (int)(usec % 1000000) * 1000;
 
-   ti = proto_tree_add_time(tree, hf_relative, tvb, offset, 4, &tv);
+   /* in addition to the time value calculation, obtain values
+    *  to use in display formatting.  The time value is still
+    *  needed to pass along -- these below values are strictly
+    *  for display.
+    */
+   minutes = (guint)((usec / 1000000) / 60);
+   seconds = (guint)((usec - (minutes * 60 * 1000000)) / 1000000);
+   micros  = (guint)(usec - (minutes * 60 * 1000000) - (seconds * 1000000));
+
+   ti = proto_tree_add_time_format_value(tree, hf_relative, tvb, offset, 4, &tv, "%02u:%02u.%06u", minutes, seconds, micros);
 
    if (isAbsolute)
    {
