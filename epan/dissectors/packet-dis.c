@@ -6771,6 +6771,12 @@ static gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, i
    nstime_t tv;
    proto_item* ti;
 
+   /* used in timestamp formatting for display */
+   guint minutes;
+   guint seconds;
+   guint micros;
+
+
    offset = alignOffset(offset, 4);
 
    /* convert to host value */
@@ -6784,7 +6790,16 @@ static gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, i
    tv.secs = (time_t)usec / 1000000;
    tv.nsecs = (int)(usec % 1000000) * 1000;
 
-   ti = proto_tree_add_time(tree, hf_relative, tvb, offset, 4, &tv);
+   /* in addition to the time value calculation, obtain values
+    *  to use in display formatting.  The time value is still
+    *  needed to pass along -- these below values are strictly
+    *  for display.
+    */
+   minutes = (guint)((usec / 1000000) / 60);
+   seconds = (guint)((usec - (minutes * 60 * 1000000)) / 1000000);
+   micros  = (guint)(usec - (minutes * 60 * 1000000) - (seconds * 1000000));
+
+   ti = proto_tree_add_time_format_value(tree, hf_relative, tvb, offset, 4, &tv, "%02u:%02u.%06u", minutes, seconds, micros);
 
    if (isAbsolute)
    {
