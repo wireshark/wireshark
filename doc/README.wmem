@@ -18,22 +18,40 @@ https://www.wireshark.org/lists/wireshark-dev/201210/msg00178.html
 2. Usage for Consumers
 
 If you're writing a dissector, or other "userspace" code, then using wmem
-should be very similar to using emem. All you need to do is include the header
-(epan/wmem/wmem.h) and get a handle to a memory pool (if you want to *create*
-a memory pool, see the section "3. Usage for Producers" below).
+should be very similar to using malloc or g_malloc or whatever else you're used
+to. All you need to do is include the header (epan/wmem/wmem.h) and optionally
+get a handle to a memory pool (if you want to *create* a memory pool, see the
+section "3. Usage for Producers" below).
 
 A memory pool is an opaque pointer to an object of type wmem_allocator_t, and
 it is the very first parameter passed to almost every call you make to wmem.
-Other than that parameter (and the fact that functions are prefixed wmem_
-instead of ep_ or se_) usage is exactly like that of emem. For example:
+Other than that parameter (and the fact that functions are prefixed wmem_)
+usage is very similar to glib and other utility libraries. For example:
 
     wmem_alloc(myPool, 20);
 
 allocates 20 bytes in the pool pointed to by myPool.
 
-2.1 Available Pools
+2.1 Memory Pool Lifetimes
 
-2.1.1 (Sort Of) Global Pools
+Every memory pool should have a defined lifetime, or scope, after which all the
+memory in that pool is unconditionally freed. When you choose to allocate memory
+in a pool, you *must* be aware of its lifetime: if the lifetime is shorter than
+you need, your code will contain use-after-free bugs; if the lifetime is longer
+than you need, your code may contain undetectable memory leaks. In either case,
+the risks outweight the benefits.
+
+If no pool exists whose lifetime matches the lifetime of your memory, you have
+two options: create a new pool (see section 3 of this document) or use the NULL
+pool. Any function that takes a pointer to a wmem_allocator_t can also be passed
+NULL instead, in which case the memory is managed manually (just like malloc or
+g_malloc). Memory allocated like this *must* be manually passed to wmem_free()
+in order to prevent memory leaks (however these memory leaks will at least show
+up in valgrind). Note that passing wmem_allocated memory directly to free()
+or g_free() is not safe; the backing type of manually managed memory may be
+changed without warning.
+
+2.2 Wireshark Global Pools
 
 Dissectors that include the wmem header file will have three pools available
 to them automatically: wmem_packet_scope(), wmem_file_scope() and
@@ -45,15 +63,15 @@ packet. The file pool is similarly scoped to the dissection of each file,
 meaning that any memory allocated in it will be automatically freed when the
 current capture file is closed.
 
-NB: Using these pools outside of the appropriate scope (eg using the packet
+NB: Using these pools outside of the appropriate scope (e.g. using the packet
     pool when there isn't a packet being dissected) will throw an assertion.
     See the comment in epan/wmem/wmem_scopes.c for details.
 
 The epan pool is scoped to the library's lifetime - memory allocated in it is
-not freed until epan_cleanup() is called, which is typically at the very end of
-the program.
+not freed until epan_cleanup() is called, which is typically but not necessarily
+at the very end of the program.
 
-2.1.2 Pinfo Pool
+2.3 The Pinfo Pool
 
 Certain allocations (such as AT_STRINGZ address allocations and anything that
 might end up being passed to add_new_data_source) need their memory to stick
@@ -62,27 +80,18 @@ next packet is dissected. This is, in fact, the scope of Wireshark's pinfo
 structure, so the pinfo struct has a 'pool' member which is a wmem pool scoped
 to the lifetime of the pinfo struct.
 
-2.1.3 NULL Pool
-
-Any function that takes a pointer to a wmem_allocator_t can also be passed NULL
-instead. In this case the memory is not allocated in a pool at all - it is
-manually managed, and *must* eventually be passed to wmem_free() in order to
-prevent memory leaks. Note that passing wmem_allocated memory directly to free()
-or g_free() is not safe; the backing type of manually managed memory may be
-changed without warning.
-
-2.2 API
+2.4 API
 
 Full documentation for each function (parameters, return values, behaviours)
 lives (or will live) in Doxygen-format in the header files for those functions.
 This is just an overview of which header files you should be looking at.
 
-2.2.1 Core API
+2.4.1 Core API
 
 wmem_core.h
  - Basic memory management functions (wmem_alloc, wmem_realloc, wmem_free).
 
-2.2.2 Strings
+2.4.2 Strings
 
 wmem_strutl.h
  - Utility functions for manipulating null-terminated C-style strings.
@@ -92,7 +101,7 @@ wmem_strbuf.h
  - A managed string object implementation, similar to std::string in C++ or
    GString from Glib.
 
-2.2.3 Container Data Structures
+2.4.3 Container Data Structures
 
 wmem_array.h
  - A growable array (AKA vector) implementation.
@@ -112,12 +121,12 @@ wmem_stack.h
 wmem_tree.h
  - A balanced binary tree (red-black tree) implementation.
 
-2.2.4 Miscellaneous Utilities
+2.4.4 Miscellaneous Utilities
 
 wmem_miscutl.h
  - Misc. utility functions like memdup.
 
-2.3 Callbacks
+2.5 Callbacks
 
 WARNING: You probably don't actually need these; use them only when you're
          sure you understand the dangers.
@@ -342,6 +351,37 @@ functions, etc.) MUST also have tests added to this suite.
 
 The test suite could potentially use a clean-up by someone more
 intimately familiar with Glib's testing framework, but it does the job.
+
+5. A Note on Performance
+
+Because of my own bad judgement, there is the persistent idea floating around
+that wmem is somehow magically faster than other allocators in the general case.
+This is false.
+
+First, wmem supports multiple different allocator backends (see sections 3 and 4
+of this document), so it is confusing and misleading to try and compare the
+performance of "wmem" in general with another system anyways.
+
+Second, any modern system-provided malloc already has a very clever and
+efficient allocator algorithm that makes use of blocks, arenas and all sorts of
+other fancy tricks. Trying to be faster than libc's allocator is generally a
+waste of time unless you have a specific allocation pattern to optimize for.
+
+Third, while there were historically arguments to be made for putting something
+in front of the kernel to reduce the number of context-switches, modern libc
+implementations should already do that. Making a dynamic library call is still
+marginally more expensive than calling a locally-defined linker-optimized
+function, but it's a difference too small to care about.
+
+With all that said, it is true that *some* of wmem's allocators can be
+substantially faster than your standard libc malloc, in *some* use cases:
+ - The BLOCK and BLOCK_FAST allocators both provide very efficient free_all
+   operations, which can be many orders of magnitude faster than calling free()
+   on each individual allocation.
+ - The BLOCK_FAST allocator in particular is optimized for Wireshark's packet
+   scope pool. It has an extremely short, well-defined lifetime, and a very
+   regular pattern of allocations; I was able to use that knowledge to beat libc
+   rather handily, *in that specific use case*.
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
