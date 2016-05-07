@@ -228,6 +228,9 @@ static int hf_iso14443_fsd = -1;
 static int hf_iso14443_cid = -1;
 static int hf_iso14443_tl = -1;
 static int hf_iso14443_t0 = -1;
+static int hf_iso14443_tc1_transmitted = -1;
+static int hf_iso14443_tb1_transmitted = -1;
+static int hf_iso14443_ta1_transmitted = -1;
 static int hf_iso14443_fsci = -1;
 static int hf_iso14443_fsc = -1;
 static int hf_iso14443_tc1 = -1;
@@ -620,6 +623,12 @@ static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
         t0_it = proto_tree_add_item(tree, hf_iso14443_t0,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
         t0_tree = proto_item_add_subtree(t0_it, ett_iso14443_ats_t0);
+        proto_tree_add_item(t0_tree, hf_iso14443_tc1_transmitted,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(t0_tree, hf_iso14443_tb1_transmitted,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(t0_tree, hf_iso14443_ta1_transmitted,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
         fsci = t0 & 0x0F;
         proto_tree_add_item(t0_tree, hf_iso14443_fsci,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1415,6 +1424,18 @@ proto_register_iso14443(void)
         { &hf_iso14443_t0,
             { "Format byte T0", "iso14443.t0",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_tc1_transmitted,
+            { "TC(1) transmitted", "iso14443.tc1_transmitted",
+                FT_BOOLEAN, 8, NULL, HAVE_TC1, NULL, HFILL }
+        },
+        { &hf_iso14443_tb1_transmitted,
+            { "TB(1) transmitted", "iso14443.tb1_transmitted",
+                FT_BOOLEAN, 8, NULL, HAVE_TB1, NULL, HFILL }
+        },
+        { &hf_iso14443_ta1_transmitted,
+            { "TA(1) transmitted", "iso14443.ta1_transmitted",
+                FT_BOOLEAN, 8, NULL, HAVE_TA1, NULL, HFILL }
         },
         { &hf_iso14443_fsci,
             { "FSCI", "iso14443.fsci",
