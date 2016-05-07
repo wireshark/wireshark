@@ -106,6 +106,8 @@ static gint ett_lapdm_fragments = -1;
 
 static reassembly_table lapdm_reassembly_table;
 
+static wmem_map_t *lapdm_last_n_s_map;
+
 static dissector_table_t lapdm_sapi_dissector_table;
 
 static dissector_handle_t data_handle;
@@ -207,6 +209,7 @@ lapdm_defragment_init (void)
 {
     reassembly_table_init (&lapdm_reassembly_table,
                            &addresses_reassembly_table_functions);
+    lapdm_last_n_s_map = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
 
@@ -215,7 +218,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *lapdm_tree, *addr_tree, *length_tree;
     proto_item *lapdm_ti, *addr_ti, *length_ti;
-    guint8 addr, length, cr, sapi, len/*, n_s*/;
+    guint8 addr, length, cr, sapi, len, n_s;
     int control;
     gboolean m;
     tvbuff_t *payload;
@@ -272,7 +275,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     sapi = (addr & LAPDM_SAPI) >> LAPDM_SAPI_SHIFT;
     len = (length & LAPDM_LEN) >> LAPDM_LEN_SHIFT;
-    /*n_s = (control & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT;*/
+    n_s = (control & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT;
     m = (length & LAPDM_M) >> LAPDM_M_SHIFT;
     available_length = tvb_length(tvb) - LAPDM_HEADER_LEN;
 
@@ -285,18 +288,33 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Potentially segmented I frame
      */
-    if( (control & XDLC_I_MASK) == XDLC_I && reassemble_lapdm )
+    if( (control & XDLC_I_MASK) == XDLC_I && reassemble_lapdm && !pinfo->flags.in_error_pkt )
     {
-            fragment_head *fd_m = NULL;
-            tvbuff_t *reassembled = NULL;
-            guint32 fragment_id;
-            gboolean save_fragmented = pinfo->fragmented;
+        fragment_head *fd_m = NULL;
+        tvbuff_t *reassembled = NULL;
+        guint32 fragment_id;
+        gboolean save_fragmented = pinfo->fragmented, add_frag;
 
-            pinfo->fragmented = m;
+        pinfo->fragmented = m;
 
-            /* Rely on caller to provide a way to group fragments */
-            fragment_id = (pinfo->circuit_id << 4) | (sapi << 1) | pinfo->p2p_dir;
+        /* Rely on caller to provide a way to group fragments */
+        fragment_id = (pinfo->circuit_id << 4) | (sapi << 1) | pinfo->p2p_dir;
 
+        if (!PINFO_FD_VISITED(pinfo)) {
+            /* Check if new N(S) is equal to previous N(S) (to avoid adding retransmissions in reassembly table)
+               As GUINT_TO_POINTER macro does not allow to differentiate NULL from 0, use 1-8 range instead of 0-7 */
+            guint *p_last_n_s = (guint*)wmem_map_lookup(lapdm_last_n_s_map, GUINT_TO_POINTER(fragment_id));
+            if (GPOINTER_TO_UINT(p_last_n_s) == (guint)(n_s+1)) {
+                add_frag = FALSE;
+            } else {
+                add_frag = TRUE;
+                wmem_map_insert(lapdm_last_n_s_map, GUINT_TO_POINTER(fragment_id), GUINT_TO_POINTER(n_s+1));
+            }
+        } else {
+            add_frag = TRUE;
+        }
+
+        if (add_frag) {
             /* This doesn't seem the best way of doing it as doesn't
                take N(S) into account, but N(S) isn't always 0 for
                the first fragment!
@@ -326,13 +344,20 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_text(lapdm_tree, payload, 0, -1, "Fragment Data");
                 }
             }
+        }
 
-            /* Now reset fragmentation information in pinfo
-             */
-            pinfo->fragmented = save_fragmented;
+        /* Now reset fragmentation information in pinfo
+         */
+        pinfo->fragmented = save_fragmented;
     }
     else
     {
+        if (!PINFO_FD_VISITED(pinfo) && ((control & XDLC_S_U_MASK) == XDLC_U) && ((control & XDLC_U_MODIFIER_MASK) == XDLC_SABM)) {
+            /* SABM frame; reset the last N(S) to an invalid value */
+            guint32 fragment_id = (pinfo->circuit_id << 4) | (sapi << 1) | pinfo->p2p_dir;
+            wmem_map_insert(lapdm_last_n_s_map, GUINT_TO_POINTER(fragment_id), GUINT_TO_POINTER(0));
+        }
+
         /* Whole packet
            If we have some data, try and dissect it (only happens for UI, SABM, UA or I frames)
          */
