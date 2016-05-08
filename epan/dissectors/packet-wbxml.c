@@ -40,8 +40,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* Edit this file with 4-space tabulation */
-
 #include "config.h"
 
 
