@@ -4658,10 +4658,6 @@ for filter files: %2.</source>
         <translation>复制树为 CSV</translation>
     </message>
     <message>
-        <source>Ctrl+C</source>
-        <translation type="vanished">Ctrl+C</translation>
-    </message>
-    <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="452"/>
         <source>Copy as YAML</source>
         <translation>复制为YAML</translation>
@@ -4670,10 +4666,6 @@ for filter files: %2.</source>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="455"/>
         <source>Copy the tree as YAML</source>
         <translation>复制树为YAML</translation>
-    </message>
-    <message>
-        <source>Ctrl+Y</source>
-        <translation type="vanished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="469"/>
@@ -5177,10 +5169,6 @@ for filter files: %2.</source>
         <translation>复制树为 CSV</translation>
     </message>
     <message>
-        <source>Ctrl+C</source>
-        <translation type="vanished">Ctrl+C</translation>
-    </message>
-    <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="656"/>
         <source>Copy as YAML</source>
         <translation>复制为YAML</translation>
@@ -5189,10 +5177,6 @@ for filter files: %2.</source>
         <location filename="lbm_lbtru_transport_dialog.ui" line="659"/>
         <source>Copy the tree as YAML</source>
         <translation>复制树为YAML</translation>
-    </message>
-    <message>
-        <source>Ctrl+Y</source>
-        <translation type="vanished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="673"/>
@@ -5480,10 +5464,6 @@ for filter files: %2.</source>
         <translation>复制树为 CSV</translation>
     </message>
     <message>
-        <source>Ctrl+C</source>
-        <translation type="vanished">Ctrl+C</translation>
-    </message>
-    <message>
         <location filename="lbm_stream_dialog.ui" line="107"/>
         <source>Copy as YAML</source>
         <translation>复制为YAML</translation>
@@ -5492,10 +5472,6 @@ for filter files: %2.</source>
         <location filename="lbm_stream_dialog.ui" line="110"/>
         <source>Copy the tree as YAML</source>
         <translation>复制树为YAML</translation>
-    </message>
-    <message>
-        <source>Ctrl+Y</source>
-        <translation type="vanished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.cpp" line="392"/>
@@ -6708,10 +6684,6 @@ text-decoration: underline;
         <translation>打开已保存的捕获文件</translation>
     </message>
     <message>
-        <source>Ctrl+O</source>
-        <translation type="vanished">Ctrl+O</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="773"/>
         <source>Quit</source>
         <translation>退出</translation>
@@ -6722,10 +6694,6 @@ text-decoration: underline;
         <translation>退出 Wireshark</translation>
     </message>
     <message>
-        <source>Ctrl+Q</source>
-        <translation type="vanished">Ctrl+Q</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="790"/>
         <source>&amp;Start</source>
         <translation>开始(&amp;S)</translation>
@@ -6734,10 +6702,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="793"/>
         <source>Start capturing packets</source>
         <translation>开始捕获分组</translation>
-    </message>
-    <message>
-        <source>Ctrl+E</source>
-        <translation type="vanished">Ctrl+E</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="801"/>
@@ -6755,10 +6719,6 @@ text-decoration: underline;
         <translation>关闭</translation>
     </message>
     <message>
-        <source>Ctrl+W</source>
-        <translation type="vanished">Ctrl+W</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="829"/>
         <source>No files found</source>
         <translation>未找到文件</translation>
@@ -6767,10 +6727,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="834"/>
         <source>&amp;Contents</source>
         <translation>内容(&amp;C)</translation>
-    </message>
-    <message>
-        <source>F1</source>
-        <translation type="vanished">F1</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="853"/>
@@ -6853,10 +6809,6 @@ text-decoration: underline;
         <translation>转到下一分组</translation>
     </message>
     <message>
-        <source>Ctrl+Down</source>
-        <translation type="vanished">Ctrl+Down</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="955"/>
         <source>Previous Packet</source>
         <translation>前一分组</translation>
@@ -6865,10 +6817,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="958"/>
         <source>Go to the previous packet</source>
         <translation>转到前一分组</translation>
-    </message>
-    <message>
-        <source>Ctrl+Up</source>
-        <translation type="vanished">Ctrl+Up</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="988"/>
@@ -6881,10 +6829,6 @@ text-decoration: underline;
         <translation>转到首个分组</translation>
     </message>
     <message>
-        <source>Ctrl+Home</source>
-        <translation type="vanished">Ctrl+Home</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="999"/>
         <source>Last Packet</source>
         <translation>最新分组</translation>
@@ -6893,10 +6837,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1002"/>
         <source>Go to the last packet</source>
         <translation>转到最新分组</translation>
-    </message>
-    <message>
-        <source>Ctrl+End</source>
-        <translation type="vanished">Ctrl+End</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1013"/>
@@ -6909,10 +6849,6 @@ text-decoration: underline;
         <translation>展开当前分组详情</translation>
     </message>
     <message>
-        <source>Shift+Right</source>
-        <translation type="vanished">Shift+Right</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1024"/>
         <source>&amp;Expand All</source>
         <translation>展开全部(&amp;E)</translation>
@@ -6921,10 +6857,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1027"/>
         <source>Expand packet details</source>
         <translation>展开分组详情</translation>
-    </message>
-    <message>
-        <source>Ctrl+Right</source>
-        <translation type="vanished">Ctrl+Right</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1035"/>
@@ -6937,17 +6869,9 @@ text-decoration: underline;
         <translation>收起所有分组详情</translation>
     </message>
     <message>
-        <source>Ctrl+Left</source>
-        <translation type="vanished">Ctrl+Left</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1052"/>
         <source>Go to specified packet</source>
         <translation>转到特定分组</translation>
-    </message>
-    <message>
-        <source>Ctrl+G</source>
-        <translation type="vanished">Ctrl+G</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1063"/>
@@ -6965,30 +6889,14 @@ text-decoration: underline;
         <translation>保存(&amp;S)</translation>
     </message>
     <message>
-        <source>Ctrl+S</source>
-        <translation type="vanished">Ctrl+S</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1093"/>
         <source>Save as a different file</source>
         <translation>另存为不同的文件</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+S</source>
-        <translation type="vanished">Ctrl+Shift+S</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1104"/>
         <source>Export specified packets</source>
         <translation>导出指定分组</translation>
-    </message>
-    <message>
-        <source>Ctrl+H</source>
-        <translation type="vanished">Ctrl+H</translation>
-    </message>
-    <message>
-        <source>Ctrl+P</source>
-        <translation type="vanished">Ctrl+P</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1130"/>
@@ -7011,10 +6919,6 @@ text-decoration: underline;
         <translation>重新加载(&amp;R)</translation>
     </message>
     <message>
-        <source>Ctrl+R</source>
-        <translation type="vanished">Ctrl+R</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1162"/>
         <source>Options</source>
         <translation>选项</translation>
@@ -7023,10 +6927,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1165"/>
         <source>Capture options</source>
         <translation>捕获选项</translation>
-    </message>
-    <message>
-        <source>Ctrl+K</source>
-        <translation type="vanished">Ctrl+K</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1179"/>
@@ -7059,17 +6959,9 @@ text-decoration: underline;
         <translation>描述</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+D</source>
-        <translation type="vanished">Ctrl+Shift+D</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1267"/>
         <source>Field Name</source>
         <translation>字段名称</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+F</source>
-        <translation type="vanished">Ctrl+Shift+F</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1278"/>
@@ -7077,17 +6969,9 @@ text-decoration: underline;
         <translation>值</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+V</source>
-        <translation type="vanished">Ctrl+Shift+V</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1289"/>
         <source>As Filter</source>
         <translation>作为过滤器</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+C</source>
-        <translation type="vanished">Ctrl+Shift+C</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1300"/>
@@ -7184,10 +7068,6 @@ text-decoration: underline;
         <translation>转至此对话中的下一个分组</translation>
     </message>
     <message>
-        <source>Ctrl+.</source>
-        <translation type="vanished">Ctrl+.</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="977"/>
         <source>Previous Packet in Conversation</source>
         <translation>对话中的上一个分组</translation>
@@ -7196,10 +7076,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="980"/>
         <source>Go to the previous packet in this conversation</source>
         <translation>转至此对话中的上一个分组</translation>
-    </message>
-    <message>
-        <source>Ctrl+,</source>
-        <translation type="vanished">Ctrl+,</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1049"/>
@@ -7252,10 +7128,6 @@ text-decoration: underline;
         <translation>重新加载文件</translation>
     </message>
     <message>
-        <source>F5</source>
-        <translation type="vanished">F5</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1249"/>
         <source>Copy this item&apos;s description</source>
         <translation>复制此项的描述</translation>
@@ -7291,26 +7163,14 @@ text-decoration: underline;
         <translation>查找一个分组</translation>
     </message>
     <message>
-        <source>Ctrl+F</source>
-        <translation type="vanished">Ctrl+F</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1425"/>
         <source>Find the next packet</source>
         <translation>查找下一分组</translation>
     </message>
     <message>
-        <source>Ctrl+N</source>
-        <translation type="vanished">Ctrl+N</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1436"/>
         <source>Find the previous packet</source>
         <translation>查找上一分组</translation>
-    </message>
-    <message>
-        <source>Ctrl+B</source>
-        <translation type="vanished">Ctrl+B</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1444"/>
@@ -7323,10 +7183,6 @@ text-decoration: underline;
         <translation>标记或取消标记该分组</translation>
     </message>
     <message>
-        <source>Ctrl+M</source>
-        <translation type="vanished">Ctrl+M</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1455"/>
         <source>Mark All Displayed</source>
         <translation>标记所有显示的分组</translation>
@@ -7335,10 +7191,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1458"/>
         <source>Mark all displayed packets</source>
         <translation>标记所有已经显示的分组</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+M</source>
-        <translation type="vanished">Ctrl+Shift+M</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1466"/>
@@ -7351,11 +7203,6 @@ text-decoration: underline;
         <translation>取消标记所有已经显示的分组</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+M</source>
-        <oldsource>Meta+Alt+M</oldsource>
-        <translation type="vanished">Ctrl+Alt+M</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1477"/>
         <source>Next Mark</source>
         <translation>下一标记</translation>
@@ -7364,11 +7211,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1480"/>
         <source>Go to the next marked packet</source>
         <translation>转到下一个已标记的分组</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+N</source>
-        <oldsource>Meta+Shift+N</oldsource>
-        <translation type="vanished">Ctrl+Shift+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1488"/>
@@ -7381,11 +7223,6 @@ text-decoration: underline;
         <translation>转到前一个已标记的分组</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+B</source>
-        <oldsource>Meta+Shift+B</oldsource>
-        <translation type="vanished">Ctrl+Shift+B</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1499"/>
         <source>&amp;Ignore/Unignore Packet</source>
         <translation>忽略/取消忽略 分组(&amp;I)</translation>
@@ -7394,10 +7231,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1502"/>
         <source>Ignore or unignore this packet</source>
         <translation>忽略或取消忽略该分组</translation>
-    </message>
-    <message>
-        <source>Ctrl+D</source>
-        <translation type="vanished">Ctrl+D</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1510"/>
@@ -7420,10 +7253,6 @@ text-decoration: underline;
         <translation>取消忽略所有已经显示的分组</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+D</source>
-        <translation type="vanished">Ctrl+Alt+D</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1532"/>
         <source>Set/Unset Time Reference</source>
         <translation>设置/取消设置 时间参考</translation>
@@ -7432,10 +7261,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1535"/>
         <source>Set or unset a time reference for this packet</source>
         <translation>设置或取消设置该分组的时间参考</translation>
-    </message>
-    <message>
-        <source>Ctrl+T</source>
-        <translation type="vanished">Ctrl+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1543"/>
@@ -7448,10 +7273,6 @@ text-decoration: underline;
         <translation>移除所有时间参考</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+T</source>
-        <translation type="vanished">Ctrl+Alt+T</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1554"/>
         <source>Next Time Reference</source>
         <translation>下一时间参考</translation>
@@ -7460,10 +7281,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1557"/>
         <source>Go to the next time reference</source>
         <translation>转到下一个时间参考</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+N</source>
-        <translation type="vanished">Ctrl+Alt+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1565"/>
@@ -7476,17 +7293,9 @@ text-decoration: underline;
         <translation>转到前一时间参考</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+B</source>
-        <translation type="vanished">Ctrl+Alt+B</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1579"/>
         <source>Shift or change packet timestamps</source>
         <translation>平移或更改分组时间戳</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+T</source>
-        <translation type="vanished">Ctrl+Shift+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1590"/>
@@ -7504,17 +7313,9 @@ text-decoration: underline;
         <translation>管理配置文件</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+A</source>
-        <translation type="vanished">Ctrl+Shift+A</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1618"/>
         <source>Manage Wireshark&apos;s preferences</source>
         <translation>管理 Wireshark 的首选项设置</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+P</source>
-        <translation type="vanished">Ctrl+Shift+P</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1632"/>
@@ -7818,10 +7619,6 @@ text-decoration: underline;
         <translation>重新载入 Lua 插件</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+L</source>
-        <translation type="vanished">Ctrl+Shift+L</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1919"/>
         <source>Advertisements by Topic</source>
         <translation>根据主题的通告</translation>
@@ -7998,42 +7795,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2672"/>
         <source>No MTP3 statistics registered</source>
         <translation>没有已注册的 MTP3 统计</translation>
-    </message>
-    <message>
-        <source>Ctrl+1</source>
-        <translation type="vanished">Ctrl+1</translation>
-    </message>
-    <message>
-        <source>Ctrl+2</source>
-        <translation type="vanished">Ctrl+2</translation>
-    </message>
-    <message>
-        <source>Ctrl+3</source>
-        <translation type="vanished">Ctrl+3</translation>
-    </message>
-    <message>
-        <source>Ctrl+4</source>
-        <translation type="vanished">Ctrl+4</translation>
-    </message>
-    <message>
-        <source>Ctrl+5</source>
-        <translation type="vanished">Ctrl+5</translation>
-    </message>
-    <message>
-        <source>Ctrl+6</source>
-        <translation type="vanished">Ctrl+6</translation>
-    </message>
-    <message>
-        <source>Ctrl+7</source>
-        <translation type="vanished">Ctrl+7</translation>
-    </message>
-    <message>
-        <source>Ctrl+8</source>
-        <translation type="vanished">Ctrl+8</translation>
-    </message>
-    <message>
-        <source>Ctrl+9</source>
-        <translation type="vanished">Ctrl+9</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2811"/>
@@ -8335,26 +8096,14 @@ text-decoration: underline;
         <translation>放大主窗口文本</translation>
     </message>
     <message>
-        <source>Ctrl++</source>
-        <translation type="vanished">Ctrl++</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2086"/>
         <source>Zoom Out</source>
         <translation>缩小</translation>
     </message>
     <message>
-        <source>Ctrl+-</source>
-        <translation type="vanished">Ctrl+-</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2097"/>
         <source>Normal Size</source>
         <translation>普通大小</translation>
-    </message>
-    <message>
-        <source>Ctrl+0</source>
-        <translation type="vanished">Ctrl+0</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2108"/>
@@ -8367,10 +8116,6 @@ text-decoration: underline;
         <translation>调整分组列表列以适应内容</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+R</source>
-        <translation type="vanished">Ctrl+Shift+R</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2122"/>
         <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
         <translation>日期和时间 (1970-01-01 01:02:03.123456)</translation>
@@ -8381,11 +8126,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2178"/>
         <source>Show packet times as the date and time of day.</source>
         <translation>使用日期和时间来显示分组时间。</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+1</source>
-        <oldsource>Meta+Alt+1</oldsource>
-        <translation type="vanished">Ctrl+Alt+1</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2136"/>
@@ -8403,11 +8143,6 @@ text-decoration: underline;
         <translation>时间 (01:02:03.123456)</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+2</source>
-        <oldsource>Meta+Alt+2</oldsource>
-        <translation type="vanished">Ctrl+Alt+2</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2161"/>
         <source>Seconds Since 1970-01-01</source>
         <translation>自1970-01-01经过的秒数</translation>
@@ -8418,19 +8153,9 @@ text-decoration: underline;
         <translation>使用自 UNIX / POSIX 时间戳 (1970-01-01) 以来的秒数来显示分组时间。</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+3</source>
-        <oldsource>Meta+Alt+3</oldsource>
-        <translation type="vanished">Ctrl+Alt+3</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2175"/>
         <source>Seconds Since Beginning of Capture</source>
         <translation>自捕获开始经过的秒数</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+4</source>
-        <oldsource>Meta+Alt+4</oldsource>
-        <translation type="vanished">Ctrl+Alt+4</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2189"/>
@@ -8443,11 +8168,6 @@ text-decoration: underline;
         <translation>使用自上一个被捕获分组的秒数来显示分组时间。</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+5</source>
-        <oldsource>Meta+Alt+5</oldsource>
-        <translation type="vanished">Ctrl+Alt+5</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2203"/>
         <source>Seconds Since Previous Displayed Packet</source>
         <translation>自上一个显示分组经过的秒数</translation>
@@ -8458,11 +8178,6 @@ text-decoration: underline;
         <translation>使用自上一个被显示分组的秒数来显示分组时间。</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+6</source>
-        <oldsource>Meta+Alt+6</oldsource>
-        <translation type="vanished">Ctrl+Alt+6</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2217"/>
         <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
         <translation>UTC 日期和时间 (1970-01-01 01:02:03.123456)</translation>
@@ -8471,11 +8186,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2220"/>
         <source>Show packet times as the UTC date and time of day.</source>
         <translation>使用 UTC 日期和时间来显示分组时间。</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+7</source>
-        <oldsource>Meta+Alt+7</oldsource>
-        <translation type="vanished">Ctrl+Alt+7</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2231"/>
@@ -8496,11 +8206,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2245"/>
         <source>Show packet times as the UTC time of day.</source>
         <translation>使用 UTC 时间来显示分组时间。</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+8</source>
-        <oldsource>Meta+Alt+8</oldsource>
-        <translation type="vanished">Ctrl+Alt+8</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2256"/>
@@ -8948,10 +8653,6 @@ text-decoration: underline;
         <translation>重置着色的对话。</translation>
     </message>
     <message>
-        <source>Ctrl+Space</source>
-        <translation type="vanished">Ctrl+空格</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2814"/>
         <source>RTP Stream Analysis</source>
         <translation>RTP 流分析</translation>
@@ -8970,10 +8671,6 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2838"/>
         <source>Enable and disable specific protocols</source>
         <translation>启用和禁用特定的协议</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+E</source>
-        <translation type="vanished">Ctrl+Shift+E</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="365"/>
@@ -14571,10 +14268,6 @@ text-decoration: underline;
         <translation>复制表示树的文本到剪贴板</translation>
     </message>
     <message>
-        <source>Ctrl+C</source>
-        <translation type="vanished">Ctrl+C</translation>
-    </message>
-    <message>
         <location filename="tap_parameter_dialog.ui" line="87"/>
         <source>Save as…</source>
         <oldsource>Save as...</oldsource>
@@ -14584,10 +14277,6 @@ text-decoration: underline;
         <location filename="tap_parameter_dialog.ui" line="90"/>
         <source>Save the displayed data in various formats</source>
         <translation>使用不同的格式保存显示的数据</translation>
-    </message>
-    <message>
-        <source>Ctrl+S</source>
-        <translation type="vanished">Ctrl+S</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.cpp" line="96"/>
@@ -14844,10 +14533,6 @@ text-decoration: underline;
         <location filename="voip_calls_dialog.ui" line="101"/>
         <source>Select all calls</source>
         <translation>选择所有呼叫</translation>
-    </message>
-    <message>
-        <source>Ctrl+A</source>
-        <translation type="vanished">Ctrl+A</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="182"/>

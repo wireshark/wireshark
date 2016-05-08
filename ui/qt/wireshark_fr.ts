@@ -4671,10 +4671,6 @@ pour fichiers de filtre : %2.</translation>
         <translation>Copier l&apos;arbre en tant que CSV</translation>
     </message>
     <message>
-        <source>Ctrl+C</source>
-        <translation type="vanished">Ctrl+C</translation>
-    </message>
-    <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="452"/>
         <source>Copy as YAML</source>
         <translation>Copier en tant que YAML</translation>
@@ -4683,10 +4679,6 @@ pour fichiers de filtre : %2.</translation>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="455"/>
         <source>Copy the tree as YAML</source>
         <translation>Copier l&apos;arbre en tant que YAML</translation>
-    </message>
-    <message>
-        <source>Ctrl+Y</source>
-        <translation type="vanished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="469"/>
@@ -5190,10 +5182,6 @@ pour fichiers de filtre : %2.</translation>
         <translation>Copier l&apos;arbre en tant que CSV</translation>
     </message>
     <message>
-        <source>Ctrl+C</source>
-        <translation type="vanished">Ctrl+C</translation>
-    </message>
-    <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="656"/>
         <source>Copy as YAML</source>
         <translation>Copier en tant que YAML</translation>
@@ -5202,10 +5190,6 @@ pour fichiers de filtre : %2.</translation>
         <location filename="lbm_lbtru_transport_dialog.ui" line="659"/>
         <source>Copy the tree as YAML</source>
         <translation>Copier l&apos;arbre en tant que YAML</translation>
-    </message>
-    <message>
-        <source>Ctrl+Y</source>
-        <translation type="vanished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="673"/>
@@ -5493,10 +5477,6 @@ pour fichiers de filtre : %2.</translation>
         <translation>Copier l&apos;arbre en tant que CSV</translation>
     </message>
     <message>
-        <source>Ctrl+C</source>
-        <translation type="vanished">Ctrl+C</translation>
-    </message>
-    <message>
         <location filename="lbm_stream_dialog.ui" line="107"/>
         <source>Copy as YAML</source>
         <translation>Copier en tant que YAML</translation>
@@ -5505,10 +5485,6 @@ pour fichiers de filtre : %2.</translation>
         <location filename="lbm_stream_dialog.ui" line="110"/>
         <source>Copy the tree as YAML</source>
         <translation>Copier l&apos;arbre en tant que YAML</translation>
-    </message>
-    <message>
-        <source>Ctrl+Y</source>
-        <translation type="vanished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.cpp" line="392"/>
@@ -6692,10 +6668,6 @@ a:hover {
         <translation>Ouvrir un fichier de capture</translation>
     </message>
     <message>
-        <source>Ctrl+O</source>
-        <translation type="vanished">Ctrl+O</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="773"/>
         <source>Quit</source>
         <translation>Quitter</translation>
@@ -6706,10 +6678,6 @@ a:hover {
         <translation>Quitter Wireshark</translation>
     </message>
     <message>
-        <source>Ctrl+Q</source>
-        <translation type="vanished">Ctrl+Q</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="790"/>
         <source>&amp;Start</source>
         <translation>&amp;Démarrer</translation>
@@ -6718,10 +6686,6 @@ a:hover {
         <location filename="main_window.ui" line="793"/>
         <source>Start capturing packets</source>
         <translation>Démarrer la capture de paquet</translation>
-    </message>
-    <message>
-        <source>Ctrl+E</source>
-        <translation type="vanished">Ctrl+E</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="801"/>
@@ -6739,10 +6703,6 @@ a:hover {
         <translation>Fermer</translation>
     </message>
     <message>
-        <source>Ctrl+W</source>
-        <translation type="vanished">Ctrl+W</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="829"/>
         <source>No files found</source>
         <translation>Pas de fichier trouvé</translation>
@@ -6751,10 +6711,6 @@ a:hover {
         <location filename="main_window.ui" line="834"/>
         <source>&amp;Contents</source>
         <translation>&amp;Aide</translation>
-    </message>
-    <message>
-        <source>F1</source>
-        <translation type="vanished">F1</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="853"/>
@@ -6837,10 +6793,6 @@ a:hover {
         <translation>ALler au paquet suviant</translation>
     </message>
     <message>
-        <source>Ctrl+Down</source>
-        <translation type="vanished">Ctrl+Bas</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="955"/>
         <source>Previous Packet</source>
         <translation>Paquet précédent</translation>
@@ -6849,10 +6801,6 @@ a:hover {
         <location filename="main_window.ui" line="958"/>
         <source>Go to the previous packet</source>
         <translation>Aller au paquet précédent</translation>
-    </message>
-    <message>
-        <source>Ctrl+Up</source>
-        <translation type="vanished">Ctrl+Haut</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="988"/>
@@ -6865,10 +6813,6 @@ a:hover {
         <translation>Aller au premier paquet</translation>
     </message>
     <message>
-        <source>Ctrl+Home</source>
-        <translation type="vanished">Ctrl+Home</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="999"/>
         <source>Last Packet</source>
         <translation>Dernier paquet</translation>
@@ -6877,10 +6821,6 @@ a:hover {
         <location filename="main_window.ui" line="1002"/>
         <source>Go to the last packet</source>
         <translation>Aller au dernier paquet</translation>
-    </message>
-    <message>
-        <source>Ctrl+End</source>
-        <translation type="vanished">Ctrl+Fin</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1013"/>
@@ -6893,10 +6833,6 @@ a:hover {
         <translation>Etendre les détails du paquet en cours</translation>
     </message>
     <message>
-        <source>Shift+Right</source>
-        <translation type="vanished">Maj+Droite</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1024"/>
         <source>&amp;Expand All</source>
         <translation>&amp;Etendre tout</translation>
@@ -6905,10 +6841,6 @@ a:hover {
         <location filename="main_window.ui" line="1027"/>
         <source>Expand packet details</source>
         <translation>Etendre les détails du paquet</translation>
-    </message>
-    <message>
-        <source>Ctrl+Right</source>
-        <translation type="vanished">Ctrl+Droite</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1035"/>
@@ -6921,17 +6853,9 @@ a:hover {
         <translation>Reduire les détails de tous les paquets</translation>
     </message>
     <message>
-        <source>Ctrl+Left</source>
-        <translation type="vanished">Ctrl+Gauche</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1052"/>
         <source>Go to specified packet</source>
         <translation>Aller au paquet</translation>
-    </message>
-    <message>
-        <source>Ctrl+G</source>
-        <translation type="vanished">Ctrl+G</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1063"/>
@@ -6949,30 +6873,14 @@ a:hover {
         <translation>&amp;Sauvegarder</translation>
     </message>
     <message>
-        <source>Ctrl+S</source>
-        <translation type="vanished">Ctrl+S</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1093"/>
         <source>Save as a different file</source>
         <translation>Sauvegarder dans un fichier différent</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+S</source>
-        <translation type="vanished">Ctrl+Shift+S</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1104"/>
         <source>Export specified packets</source>
         <translation>Exporter les paquets specifiés</translation>
-    </message>
-    <message>
-        <source>Ctrl+H</source>
-        <translation type="vanished">Ctrl+H</translation>
-    </message>
-    <message>
-        <source>Ctrl+P</source>
-        <translation type="vanished">Ctrl+P</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1130"/>
@@ -6995,10 +6903,6 @@ a:hover {
         <translation>&amp;Recharger</translation>
     </message>
     <message>
-        <source>Ctrl+R</source>
-        <translation type="vanished">Ctrl+R</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1162"/>
         <source>Options</source>
         <translation>Options</translation>
@@ -7007,10 +6911,6 @@ a:hover {
         <location filename="main_window.ui" line="1165"/>
         <source>Capture options</source>
         <translation>Options de capture</translation>
-    </message>
-    <message>
-        <source>Ctrl+K</source>
-        <translation type="vanished">Ctrl+K</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1179"/>
@@ -7043,17 +6943,9 @@ a:hover {
         <translation>Description</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+D</source>
-        <translation type="vanished">Ctrl+Shift+D</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1267"/>
         <source>Field Name</source>
         <translation>Nom du champs</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+F</source>
-        <translation type="vanished">Ctrl+Shift+F</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1278"/>
@@ -7061,17 +6953,9 @@ a:hover {
         <translation>Valeur</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+V</source>
-        <translation type="vanished">Ctrl+Shift+V</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1289"/>
         <source>As Filter</source>
         <translation>Comme un Filtre</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+C</source>
-        <translation type="vanished">Ctrl+Shift+C</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1300"/>
@@ -7168,10 +7052,6 @@ a:hover {
         <translation>Aller au paquet suivant de cette conversation</translation>
     </message>
     <message>
-        <source>Ctrl+.</source>
-        <translation type="vanished">Ctrl+.</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="977"/>
         <source>Previous Packet in Conversation</source>
         <translation>Paquet précédent dans la Conversation</translation>
@@ -7180,10 +7060,6 @@ a:hover {
         <location filename="main_window.ui" line="980"/>
         <source>Go to the previous packet in this conversation</source>
         <translation>Aller au paquet précédent de cette conversation</translation>
-    </message>
-    <message>
-        <source>Ctrl+,</source>
-        <translation type="vanished">Ctrl+,</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1049"/>
@@ -7236,10 +7112,6 @@ a:hover {
         <translation>Recharger ce fichier</translation>
     </message>
     <message>
-        <source>F5</source>
-        <translation type="vanished">F5</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1249"/>
         <source>Copy this item&apos;s description</source>
         <translation>Copier la description de cet élément</translation>
@@ -7275,26 +7147,14 @@ a:hover {
         <translation>Trouver un paquet</translation>
     </message>
     <message>
-        <source>Ctrl+F</source>
-        <translation type="vanished">Ctrl+F</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1425"/>
         <source>Find the next packet</source>
         <translation>Trouver le paquet suivant</translation>
     </message>
     <message>
-        <source>Ctrl+N</source>
-        <translation type="vanished">Ctrl+N</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1436"/>
         <source>Find the previous packet</source>
         <translation>Trouver le paquet précédent</translation>
-    </message>
-    <message>
-        <source>Ctrl+B</source>
-        <translation type="vanished">Ctrl+B</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1444"/>
@@ -7307,10 +7167,6 @@ a:hover {
         <translation>Marquer ou Démarquer ce paquet</translation>
     </message>
     <message>
-        <source>Ctrl+M</source>
-        <translation type="vanished">Ctrl+M</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1455"/>
         <source>Mark All Displayed</source>
         <translation>Marquer tout comme Affichées</translation>
@@ -7319,10 +7175,6 @@ a:hover {
         <location filename="main_window.ui" line="1458"/>
         <source>Mark all displayed packets</source>
         <translation>Marquer tous les paquets affichés</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+M</source>
-        <translation type="vanished">Ctrl+Shift+M</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1466"/>
@@ -7335,11 +7187,6 @@ a:hover {
         <translation>Démarquer tous paquets affichés</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+M</source>
-        <oldsource>Meta+Alt+M</oldsource>
-        <translation type="vanished">Ctrl+Alt+M</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1477"/>
         <source>Next Mark</source>
         <translation>Marque suivante</translation>
@@ -7348,11 +7195,6 @@ a:hover {
         <location filename="main_window.ui" line="1480"/>
         <source>Go to the next marked packet</source>
         <translation>Aller au prochain paquet marqués</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+N</source>
-        <oldsource>Meta+Shift+N</oldsource>
-        <translation type="vanished">Ctrl+Maj+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1488"/>
@@ -7365,11 +7207,6 @@ a:hover {
         <translation>Aller au paquet précédent marqué</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+B</source>
-        <oldsource>Meta+Shift+B</oldsource>
-        <translation type="vanished">Ctrl+Maj+B</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1499"/>
         <source>&amp;Ignore/Unignore Packet</source>
         <translation>&amp;Ignorer/Ne plus ignorer un paquet</translation>
@@ -7378,10 +7215,6 @@ a:hover {
         <location filename="main_window.ui" line="1502"/>
         <source>Ignore or unignore this packet</source>
         <translation>Ignorer ou ne plus ignorer ce paquet</translation>
-    </message>
-    <message>
-        <source>Ctrl+D</source>
-        <translation type="vanished">Ctrl+D</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1510"/>
@@ -7404,10 +7237,6 @@ a:hover {
         <translation>Ne plus ignorer tous les paquets affichés</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+D</source>
-        <translation type="vanished">Ctrl+Alt+D</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1532"/>
         <source>Set/Unset Time Reference</source>
         <translation>Fixer/Defixer le Temps de Réference</translation>
@@ -7416,10 +7245,6 @@ a:hover {
         <location filename="main_window.ui" line="1535"/>
         <source>Set or unset a time reference for this packet</source>
         <translation>Fixer ou défixer le temps de réference de ce paquet</translation>
-    </message>
-    <message>
-        <source>Ctrl+T</source>
-        <translation type="vanished">Ctrl+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1543"/>
@@ -7432,10 +7257,6 @@ a:hover {
         <translation>Supprimer tous les temps de réferences</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+T</source>
-        <translation type="vanished">Ctrl+Alt+T</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1554"/>
         <source>Next Time Reference</source>
         <translation>Prochain Temps de Réference</translation>
@@ -7444,10 +7265,6 @@ a:hover {
         <location filename="main_window.ui" line="1557"/>
         <source>Go to the next time reference</source>
         <translation>Aller au prochain temps de réference</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+N</source>
-        <translation type="vanished">Ctrl+Alt+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1565"/>
@@ -7460,17 +7277,9 @@ a:hover {
         <translation>Aller au précédent temps de réference</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+B</source>
-        <translation type="vanished">Ctrl+Alt+B</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1579"/>
         <source>Shift or change packet timestamps</source>
         <translation>Décalager ou changer le temps des paquets</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+T</source>
-        <translation type="vanished">Ctrl+Shift+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1590"/>
@@ -7488,17 +7297,9 @@ a:hover {
         <translation>Gerer mes profils de configuration</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+A</source>
-        <translation type="vanished">Ctrl+Shift+A</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1618"/>
         <source>Manage Wireshark&apos;s preferences</source>
         <translation>Gerer les préferences de Wireshark</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+P</source>
-        <translation type="vanished">Ctrl+Shift+P</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1632"/>
@@ -7802,10 +7603,6 @@ a:hover {
         <translation>Recharger plugins Lua</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+L</source>
-        <translation type="vanished">Ctrl+Shift+L</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="1919"/>
         <source>Advertisements by Topic</source>
         <translation>Annonces par Sujet</translation>
@@ -7982,42 +7779,6 @@ a:hover {
         <location filename="main_window.ui" line="2672"/>
         <source>No MTP3 statistics registered</source>
         <translation>Aucune statistique MTP3 enregistrée</translation>
-    </message>
-    <message>
-        <source>Ctrl+1</source>
-        <translation type="vanished">Ctrl+1</translation>
-    </message>
-    <message>
-        <source>Ctrl+2</source>
-        <translation type="vanished">Ctrl+2</translation>
-    </message>
-    <message>
-        <source>Ctrl+3</source>
-        <translation type="vanished">Ctrl+3</translation>
-    </message>
-    <message>
-        <source>Ctrl+4</source>
-        <translation type="vanished">Ctrl+4</translation>
-    </message>
-    <message>
-        <source>Ctrl+5</source>
-        <translation type="vanished">Ctrl+5</translation>
-    </message>
-    <message>
-        <source>Ctrl+6</source>
-        <translation type="vanished">Ctrl+6</translation>
-    </message>
-    <message>
-        <source>Ctrl+7</source>
-        <translation type="vanished">Ctrl+7</translation>
-    </message>
-    <message>
-        <source>Ctrl+8</source>
-        <translation type="vanished">Ctrl+8</translation>
-    </message>
-    <message>
-        <source>Ctrl+9</source>
-        <translation type="vanished">Ctrl+9</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2811"/>
@@ -8319,26 +8080,14 @@ a:hover {
         <translation>Agrandir le texte de la fenêtre principale</translation>
     </message>
     <message>
-        <source>Ctrl++</source>
-        <translation type="vanished">Ctrl++</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2086"/>
         <source>Zoom Out</source>
         <translation>Zoom arrière</translation>
     </message>
     <message>
-        <source>Ctrl+-</source>
-        <translation type="vanished">Ctrl+-</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2097"/>
         <source>Normal Size</source>
         <translation>Taille Normale</translation>
-    </message>
-    <message>
-        <source>Ctrl+0</source>
-        <translation type="vanished">Ctrl+0</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2108"/>
@@ -8351,10 +8100,6 @@ a:hover {
         <translation>Ajuster les colonnes de la liste des paquets au contenu</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+R</source>
-        <translation type="vanished">Ctrl+Shift+R</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2122"/>
         <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
         <translation>Date et Heure du Jour (1970-01-01 01:02:03.123456)</translation>
@@ -8365,11 +8110,6 @@ a:hover {
         <location filename="main_window.ui" line="2178"/>
         <source>Show packet times as the date and time of day.</source>
         <translation>Voir les temps paquets comme la date et l&apos;heure du jour.</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+1</source>
-        <oldsource>Meta+Alt+1</oldsource>
-        <translation type="vanished">Ctrl+Alt+1</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2136"/>
@@ -8387,11 +8127,6 @@ a:hover {
         <translation>Heure du Jour (01:02:03.123456)</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+2</source>
-        <oldsource>Meta+Alt+2</oldsource>
-        <translation type="vanished">Ctrl+Alt+2</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2161"/>
         <source>Seconds Since 1970-01-01</source>
         <translation>Secondes depuis 01-01-1970</translation>
@@ -8402,19 +8137,9 @@ a:hover {
         <translation>Afficher les temps paquets en secondes depuis UNIX / POSIX epoch (1970-01-01).</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+3</source>
-        <oldsource>Meta+Alt+3</oldsource>
-        <translation type="vanished">Ctrl+Alt+3</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2175"/>
         <source>Seconds Since Beginning of Capture</source>
         <translation>Secondes Depuis le Début de la Capture</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+4</source>
-        <oldsource>Meta+Alt+4</oldsource>
-        <translation type="vanished">Ctrl+Alt+4</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2189"/>
@@ -8427,11 +8152,6 @@ a:hover {
         <translation>Afficher les temps paquets en secondes depuis le précédent paquet capturé.</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+5</source>
-        <oldsource>Meta+Alt+5</oldsource>
-        <translation type="vanished">Ctrl+Alt+5</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2203"/>
         <source>Seconds Since Previous Displayed Packet</source>
         <translation>Secondes Depuis le Paquet Affiché Précédent</translation>
@@ -8442,11 +8162,6 @@ a:hover {
         <translation>Afficher les temps paquets en secondes depuis le précédent paquet affiché.</translation>
     </message>
     <message>
-        <source>Ctrl+Alt+6</source>
-        <oldsource>Meta+Alt+6</oldsource>
-        <translation type="vanished">Ctrl+Alt+6</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2217"/>
         <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
         <translation>Date et Heure du jour UTC (1970-01-01 01:02:03.123456)</translation>
@@ -8455,11 +8170,6 @@ a:hover {
         <location filename="main_window.ui" line="2220"/>
         <source>Show packet times as the UTC date and time of day.</source>
         <translation>Voir les paquets avec la date et l&apos;heure du jour UTC.</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+7</source>
-        <oldsource>Meta+Alt+7</oldsource>
-        <translation type="vanished">Ctrl+Alt+7</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2231"/>
@@ -8480,11 +8190,6 @@ a:hover {
         <location filename="main_window.ui" line="2245"/>
         <source>Show packet times as the UTC time of day.</source>
         <translation>Afficher les paquets avec l&apos;heure du jour UTC.</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+8</source>
-        <oldsource>Meta+Alt+8</oldsource>
-        <translation type="vanished">Ctrl+Alt+8</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2256"/>
@@ -8932,10 +8637,6 @@ a:hover {
         <translation>Rétablit conversations coloriées.</translation>
     </message>
     <message>
-        <source>Ctrl+Space</source>
-        <translation type="vanished">Ctrl+Espace</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="2814"/>
         <source>RTP Stream Analysis</source>
         <translation>Analyse flux RTP</translation>
@@ -8954,10 +8655,6 @@ a:hover {
         <location filename="main_window.ui" line="2838"/>
         <source>Enable and disable specific protocols</source>
         <translation>Active et désactive des protocoles spécifiques</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+E</source>
-        <translation type="vanished">Ctrl+Shift+E</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="365"/>
@@ -14557,10 +14254,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Copie une représentation texte de l&apos;arborescence dans le presse-papiers</translation>
     </message>
     <message>
-        <source>Ctrl+C</source>
-        <translation type="vanished">Ctrl+C</translation>
-    </message>
-    <message>
         <location filename="tap_parameter_dialog.ui" line="87"/>
         <source>Save as…</source>
         <oldsource>Save as...</oldsource>
@@ -14570,10 +14263,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <location filename="tap_parameter_dialog.ui" line="90"/>
         <source>Save the displayed data in various formats</source>
         <translation>Sauvegarde l&apos;information affichée sous divers formats</translation>
-    </message>
-    <message>
-        <source>Ctrl+S</source>
-        <translation type="vanished">Ctrl+S</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.cpp" line="96"/>
@@ -14830,10 +14519,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <location filename="voip_calls_dialog.ui" line="101"/>
         <source>Select all calls</source>
         <translation>Sélectionner tous les appels</translation>
-    </message>
-    <message>
-        <source>Ctrl+A</source>
-        <translation type="vanished">Ctrl+A</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="182"/>
