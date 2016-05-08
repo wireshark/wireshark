@@ -2855,6 +2855,15 @@ de_rr_gprs_resumption(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 /*
  * [3] 10.5.2.14d GPRS broadcast information
  */
+#define GPRS_CELL_OPTIONS_CHECK_REMAINING_EXT_LEN(x) \
+    {                                                \
+        curr_bit_offset += x;                        \
+        value -= x;                                  \
+        if (value <= 0)                              \
+        {                                            \
+            goto end;                                \
+        }                                            \
+    }
 
 static gint
 de_rr_rest_oct_gprs_cell_options(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
@@ -2862,7 +2871,7 @@ de_rr_rest_oct_gprs_cell_options(tvbuff_t *tvb, proto_tree *tree, gint bit_offse
     proto_tree *subtree, *subtree2;
     proto_item *item, *item2;
     gint        curr_bit_offset, curr_bit_offset_sav;
-    guint8      value;
+    gint16      value;
 
     curr_bit_offset = bit_offset;
 
@@ -2897,65 +2906,63 @@ de_rr_rest_oct_gprs_cell_options(tvbuff_t *tvb, proto_tree *tree, gint bit_offse
         curr_bit_offset_sav = curr_bit_offset;
         subtree2 = proto_tree_add_subtree(subtree, tvb, curr_bit_offset>>3, -1, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_CELL_OPTIONS_EXT_INFO], &item2,
                                     gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_CELL_OPTIONS_EXT_INFO].strptr);
-        value = tvb_get_bits8(tvb,curr_bit_offset,6);
+        value = (gint16)tvb_get_bits8(tvb,curr_bit_offset,6);
         proto_tree_add_uint(subtree2, hf_gsm_a_rr_extension_length, tvb, curr_bit_offset>>3, 1, value);
         curr_bit_offset += 6;
         value += 1;
         proto_item_set_len(item2,((curr_bit_offset+value)>>3) - (curr_bit_offset_sav>>3)+1);
-        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, hf_gsm_a_rr_egprs_supported))
+        if (gsm_rr_csn_flag(tvb, subtree2, curr_bit_offset, hf_gsm_a_rr_egprs_supported))
         {
+            GPRS_CELL_OPTIONS_CHECK_REMAINING_EXT_LEN(1);
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_egprs_packet_channel_request, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-            curr_bit_offset += 1;
+            GPRS_CELL_OPTIONS_CHECK_REMAINING_EXT_LEN(1);
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_bep_period, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
-            curr_bit_offset += 4;
-            value -= 5;
+            GPRS_CELL_OPTIONS_CHECK_REMAINING_EXT_LEN(4);
         }
-        value -= 1;
+        else
+        {
+            GPRS_CELL_OPTIONS_CHECK_REMAINING_EXT_LEN(1);
+        }
         proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_pfc_feature_mode, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-        curr_bit_offset += 1;
+        GPRS_CELL_OPTIONS_CHECK_REMAINING_EXT_LEN(1);
         proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_dtm_support, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-        curr_bit_offset += 1;
+        GPRS_CELL_OPTIONS_CHECK_REMAINING_EXT_LEN(1);
         proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_bss_paging_coordination, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-        curr_bit_offset += 1;
-        value -= 3;
-        if (value > 0)
-        { /* Rel 4 extension */
-            proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_ccn_active, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-            curr_bit_offset += 1;
-            proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_nw_ext_utbf, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-            curr_bit_offset += 1;
-            value -= 2;
-            if (value > 0)
-            { /* Rel 6 extension */
-                proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_multiple_tbf_capability, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-                curr_bit_offset += 1;
-                proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_ext_utbf_no_data, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-                curr_bit_offset += 1;
-                proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_dtm_enhancements_capability, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-                curr_bit_offset += 1;
-                value -= 3;
-                if (gsm_rr_csn_flag(tvb, subtree2, curr_bit_offset++, hf_gsm_a_rr_msms_procedures))
-                {
-                    proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_dedicated_mode_mbms_notification_support, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-                    curr_bit_offset += 1;
-                    proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_mnci_support, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-                    curr_bit_offset += 1;
-                    value -= 2;
-                }
-                value -= 1;
-                if (value > 0)
-                { /* Rel 7 extension */
-                    proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_reduced_latency_access, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-                    curr_bit_offset += 1;
-                    value -= 1;
-                }
-            }
+        GPRS_CELL_OPTIONS_CHECK_REMAINING_EXT_LEN(1);
+        /* Rel 4 extension */
+        proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_ccn_active, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+        GPRS_CELL_OPTIONS_CHECK_REMAINING_EXT_LEN(1);
+        proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_nw_ext_utbf, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+        GPRS_CELL_OPTIONS_CHECK_REMAINING_EXT_LEN(1);
+        /* Rel 6 extension */
+        proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_multiple_tbf_capability, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+        GPRS_CELL_OPTIONS_CHECK_REMAINING_EXT_LEN(1);
+        proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_ext_utbf_no_data, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+        GPRS_CELL_OPTIONS_CHECK_REMAINING_EXT_LEN(1);
+        proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_dtm_enhancements_capability, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+        GPRS_CELL_OPTIONS_CHECK_REMAINING_EXT_LEN(1);
+        if (gsm_rr_csn_flag(tvb, subtree2, curr_bit_offset, hf_gsm_a_rr_msms_procedures))
+        {
+            GPRS_CELL_OPTIONS_CHECK_REMAINING_EXT_LEN(1);
+            proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_dedicated_mode_mbms_notification_support, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+            GPRS_CELL_OPTIONS_CHECK_REMAINING_EXT_LEN(1);
+            proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_mnci_support, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+            GPRS_CELL_OPTIONS_CHECK_REMAINING_EXT_LEN(1);
         }
+        else
+        {
+            GPRS_CELL_OPTIONS_CHECK_REMAINING_EXT_LEN(1);
+        }
+        /* Rel 7 extension */
+        proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_reduced_latency_access, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+        GPRS_CELL_OPTIONS_CHECK_REMAINING_EXT_LEN(1);
+        /* Remaining (undecoded?) extensions */
         curr_bit_offset += value;
     }
-    proto_item_set_len(item,((curr_bit_offset>>3) - (bit_offset>>3) + 1));
+    end:
+        proto_item_set_len(item,((curr_bit_offset>>3) - (bit_offset>>3) + 1));
 
-    return (curr_bit_offset - bit_offset);
+        return (curr_bit_offset - bit_offset);
 }
 
 static gint
