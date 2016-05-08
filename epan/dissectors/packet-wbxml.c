@@ -47,7 +47,8 @@
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-/* We need the function tvb_get_guintvar() */
+#include <epan/strutil.h>
+/* We need the functions tvb_get_guintvar() and wap_charset_to_encoding() */
 #include "packet-wap.h"
 
 void proto_register_wbxml(void);
@@ -6946,32 +6947,33 @@ map_token (const value_valuestring *token_map, guint8 codepage, guint8 token) {
 /* Parse and display the WBXML string table. */
 static void
 show_wbxml_string_table (proto_tree *tree, tvbuff_t *tvb, guint32 str_tbl,
-			 guint32 str_tbl_len)
+			 guint32 str_tbl_len, guint charset)
 {
+	guint encoding = wap_charset_to_encoding(charset);
 	guint32 off = str_tbl;
-	guint32 len = 0;
 	guint32 end = str_tbl + str_tbl_len;
 	proto_tree *item_tree;
-	gchar* str;
+	proto_item *ti;
+	const guint8 *str;
+	gint len;
 
 	while (off < end) {
-		len = tvb_strsize (tvb, off);
 		/*
 		 * XXX - use the string encoding.
 		 */
-		str = tvb_format_text (tvb, off, len-1);
-		item_tree = proto_tree_add_subtree_format (tree, tvb, off, len,
+		item_tree = proto_tree_add_subtree_format (tree, tvb, off, 0,
 							   ett_wbxml_string_table_item,
-							   NULL,
-							   "%u: '%s'",
-							   off - str_tbl,
-							   str);
+							   &ti,
+							   "%u:",
+							   off - str_tbl);
 		proto_tree_add_uint (item_tree,
-				     hf_wbxml_string_table_item_offset,
-				     tvb, 0, 0, off - str_tbl);
-		proto_tree_add_string (item_tree,
-				       hf_wbxml_string_table_item_string,
-				       tvb, off, len, str);
+		    hf_wbxml_string_table_item_offset,
+		    tvb, 0, 0, off - str_tbl);
+		proto_tree_add_item_ret_string_and_length (item_tree,
+		    hf_wbxml_string_table_item_string,
+		    tvb, off, -1, encoding, wmem_packet_scope(), &str, &len);
+		proto_item_append_text(ti, " '%s'", format_text(str, strlen(str)));
+		proto_item_set_len(ti, len);
 		off += len;
 	}
 }
@@ -7804,7 +7806,8 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (str_tbl_len) { /* Display string table as subtree */
 		show_wbxml_string_table (wbxml_str_tbl_tree, tvb,
-						str_tbl, str_tbl_len);
+						str_tbl, str_tbl_len,
+						charset);
 	}
 
 	/* Data starts HERE */
@@ -7921,7 +7924,7 @@ proto_register_wbxml(void)
 		{ &hf_wbxml_string_table_item_string,
 		  { "String",
 		    "wbxml.string_table_item_string",
-		    FT_STRING, BASE_NONE,
+		    FT_STRINGZ, STR_UNICODE,
 		    NULL, 0x00,
 		    NULL, HFILL }
 		},

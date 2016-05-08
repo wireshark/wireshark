@@ -71,6 +71,9 @@
 /* Utility function for reading Uintvar encoded values */
 guint tvb_get_guintvar (tvbuff_t *, guint , guint *);
 
+/* Map a charset to a Wireshark string encoding. */
+guint wap_charset_to_encoding (guint charset);
+
 /* Character set encoding */
 extern value_string_ext wap_mib_enum_vals_character_sets_ext;
 

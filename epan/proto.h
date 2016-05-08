@@ -1014,16 +1014,16 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @param start start of data in tvb
  @param length length of data in tvb
  @param encoding data encoding
- @param retval pointer to variable to set to the item length
- @return the newly created item */
+ @param[out] lenretval points to a gint that will be set to the item length
+ @return the newly created item, and *lenretval is set to the item length */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_new_ret_length(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
-    const gint start, gint length, const guint encoding, gint *retval);
+    const gint start, gint length, const guint encoding, gint *lenretval);
 
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_length(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			      const gint start, gint length,
-			      const guint encoding, gint *retval);
+			      const guint encoding, gint *lenretval);
 
 /** Add an integer data item to a proto_tree, using the text label registered to that item.
 The item is extracted from the tvbuff handed to it, and the retrieved
@@ -1050,7 +1050,7 @@ Integers of 8, 16, 24 and 32 bits can be retrieved with these functions.
 @param start start of data in tvb (cannot be negative)
 @param length length of data in tvb (for strings can be -1 for remaining)
 @param encoding data encoding (e.g, ENC_LITTLE_ENDIAN, ENC_BIG_ENDIAN, ENC_ASCII|ENC_STRING, etc.)
-@param[out] retval points to a gint32 or guint32 which will be set
+@param[out] retval points to a gint32 or guint32 which will be set to the value
 @return the newly created item, and *retval is set to the decoded value
 */
 WS_DLL_PUBLIC proto_item *
@@ -1065,8 +1065,42 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 that item.
 
 The item is extracted from the tvbuff handed to it, and the retrieved
-value is also set to *retval so the caller gets it back for other uses.
-The value is allocated using the wmem scope passed in.
+value and its length are returned through pointers so the caller can use
+them.  The value is allocated using the wmem scope passed in.
+
+This function retrieves the value and length even if the passed-in tree
+param is NULL, so that then can be used by dissectors at all times to
+both get the value and set the tree item to it.
+
+Like other proto_tree_add functions, if there is a tree and the value cannot
+be decoded from the tvbuff, then an expert info error is reported.
+
+This function accepts string encodings.
+
+@param scope the wmem scope to use to allocate the string
+@param tree the tree to append this item to
+@param hfindex field
+@param tvb the tv buffer of the current data
+@param start start of data in tvb (cannot be negative)
+@param length length of data in tvb (for strings can be -1 for remaining)
+@param encoding data encoding (e.g, ENC_ASCII, ENC_UTF_8, etc.)
+@param[out] retval points to a guint8 * that will be set to point to the
+string value
+@param[out] lenretval points to a gint that will be set to the item length
+@return the newly created item, *retval is set to the decoded value,
+and *lenretval is set to the item length
+*/
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_string_and_length(proto_tree *tree, int hfindex,
+    tvbuff_t *tvb, const gint start, gint length, const guint encoding,
+    wmem_allocator_t *scope, const guint8 **retval, gint *lenretval);
+
+/** Add an string item to a proto_tree, using the text label registered to
+that item.
+
+The item is extracted from the tvbuff handed to it, and the retrieved
+value is returned through a pointer so the caller can use it.  The value
+is allocated using the wmem scope passed in.
 
 This function retrieves the value even if the passed-in tree param is NULL,
 so that it can be used by dissectors at all times to both get the value
@@ -1084,7 +1118,8 @@ This function accepts string encodings.
 @param start start of data in tvb (cannot be negative)
 @param length length of data in tvb (for strings can be -1 for remaining)
 @param encoding data encoding (e.g, ENC_ASCII, ENC_UTF_8, etc.)
-@param[out] retval points to a guint8 * which will be set
+@param[out] retval points to a guint8 * that will be set to point to the
+string value
 @return the newly created item, and *retval is set to the decoded value
 */
 WS_DLL_PUBLIC proto_item *

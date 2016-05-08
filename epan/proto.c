@@ -2358,10 +2358,13 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 }
 
 proto_item *
-proto_tree_add_item_ret_string(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-                               const gint start, gint length,
-                               const guint encoding, wmem_allocator_t *scope,
-                               const guint8 **retval)
+proto_tree_add_item_ret_string_and_length(proto_tree *tree, int hfindex,
+                                          tvbuff_t *tvb,
+                                          const gint start, gint length,
+                                          const guint encoding,
+                                          wmem_allocator_t *scope,
+                                          const guint8 **retval,
+                                          gint *lenretval)
 {
 	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
 	field_info	  *new_fi;
@@ -2371,16 +2374,16 @@ proto_tree_add_item_ret_string(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	switch (hfinfo->type){
 	case FT_STRING:
-		value = get_string_value(scope, tvb, start, length, &length, encoding);
+		value = get_string_value(scope, tvb, start, length, lenretval, encoding);
 		break;
 	case FT_STRINGZ:
-		value = get_stringz_value(scope, tree, tvb, start, length, &length, encoding);
+		value = get_stringz_value(scope, tree, tvb, start, length, lenretval, encoding);
 		break;
 	case FT_UINT_STRING:
-		value = get_uint_string_value(scope, tree, tvb, start, length, &length, encoding);
+		value = get_uint_string_value(scope, tree, tvb, start, length, lenretval, encoding);
 		break;
 	case FT_STRINGZPAD:
-		value = get_stringzpad_value(scope, tvb, start, length, &length, encoding);
+		value = get_stringzpad_value(scope, tvb, start, length, lenretval, encoding);
 		break;
 	default:
 		DISSECTOR_ASSERT_NOT_REACHED();
@@ -2402,6 +2405,15 @@ proto_tree_add_item_ret_string(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	return proto_tree_add_node(tree, new_fi);
 }
 
+proto_item *
+proto_tree_add_item_ret_string(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+                               const gint start, gint length,
+                               const guint encoding, wmem_allocator_t *scope,
+                               const guint8 **retval)
+{
+	return proto_tree_add_item_ret_string_and_length(tree, hfindex,
+	    tvb, start, length, encoding, scope, retval, &length);
+}
 
 /*
  * Validates that field length bytes are available starting from
@@ -2498,7 +2510,7 @@ proto_item *
 proto_tree_add_item_new_ret_length(proto_tree *tree, header_field_info *hfinfo,
 				   tvbuff_t *tvb, const gint start,
 				   gint length, const guint encoding,
-				   gint *retval)
+				   gint *lenretval)
 {
 	field_info        *new_fi;
 	gint		  item_length;
@@ -2515,7 +2527,7 @@ proto_tree_add_item_new_ret_length(proto_tree *tree, header_field_info *hfinfo,
 		 * That's normally done by proto_tree_new_item(),
 		 * but we won't be calling it.
 		 */
-		*retval = get_full_length(hfinfo, tvb, start, length,
+		*lenretval = get_full_length(hfinfo, tvb, start, length,
 		    item_length, encoding);
 		return NULL;
 	}
@@ -2525,19 +2537,19 @@ proto_tree_add_item_new_ret_length(proto_tree *tree, header_field_info *hfinfo,
 	new_fi = new_field_info(tree, hfinfo, tvb, start, item_length);
 
 	item = proto_tree_new_item(new_fi, tree, tvb, start, length, encoding);
-	*retval = new_fi->length;
+	*lenretval = new_fi->length;
 	return item;
 }
 
 proto_item *
 proto_tree_add_item_ret_length(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			       const gint start, gint length,
-			       const guint encoding, gint *retval)
+			       const guint encoding, gint *lenretval)
 {
 	register header_field_info *hfinfo;
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
-	return proto_tree_add_item_new_ret_length(tree, hfinfo, tvb, start, length, encoding, retval);
+	return proto_tree_add_item_new_ret_length(tree, hfinfo, tvb, start, length, encoding, lenretval);
 }
 
 /* which FT_ types can use proto_tree_add_bytes_item() */
