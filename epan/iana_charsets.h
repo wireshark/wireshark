@@ -37,4 +37,3 @@ WS_DLL_PUBLIC guint mibenum_charset_to_encoding (guint charset);
 WS_DLL_PUBLIC value_string_ext mibenum_vals_character_sets_ext;
 
 #endif /* iana_charsets.h */
-
