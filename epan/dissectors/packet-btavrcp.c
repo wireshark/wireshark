@@ -2443,7 +2443,7 @@ proto_register_btavrcp(void)
         },
         { &hf_btavrcp_character_set,
             { "Character Set",                   "btavrcp.character_set",
-            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &wap_mib_enum_vals_character_sets_ext, 0x00,
+            FT_UINT16, BASE_DEC|BASE_EXT_STRING, &wap_mib_enum_vals_character_sets_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_btavrcp_number_of_items,

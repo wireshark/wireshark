@@ -6070,7 +6070,7 @@ proto_register_btsdp(void)
         },
         { &hf_sdp_lang_encoding,
             { "Language Encoding",               "btsdp.lang.encoding",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &wap_mib_enum_vals_character_sets_ext, 0,
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &wap_mib_enum_vals_character_sets_ext, 0,
             NULL, HFILL }
         },
         { &hf_sdp_lang_attribute_base,

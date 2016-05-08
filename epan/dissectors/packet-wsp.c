@@ -3526,7 +3526,7 @@ parameter (proto_tree *tree, packet_info *pinfo, proto_item *ti, tvbuff_t *tvb, 
             get_integer_value(val, tvb, offset, val_len, ok);
             if (ok) {
                 val_str = val_to_str_ext(val, &wap_mib_enum_vals_character_sets_ext,
-                        "<Unknown character set Identifier 0x%X>");
+                        "<Unknown character set Identifier %u>");
                 proto_tree_add_string(tree, hf_parameter_charset,
                         tvb, offset, val_len, val_str);
                 proto_item_append_text(ti, "; charset=%s", val_str);

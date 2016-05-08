@@ -7910,7 +7910,7 @@ proto_register_wbxml(void)
 		{ &hf_wbxml_charset,
 		  { "Character Set",
 		    "wbxml.charset",
-		    FT_UINT32, BASE_HEX|BASE_EXT_STRING,
+		    FT_UINT32, BASE_DEC|BASE_EXT_STRING,
 		    &wap_mib_enum_vals_character_sets_ext, 0x00,
 		    "WBXML Character Set", HFILL }
 		},
