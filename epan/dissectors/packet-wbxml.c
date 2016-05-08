@@ -141,7 +141,8 @@ static int hf_wbxml_version = -1;
 static int hf_wbxml_public_id_known = -1;
 static int hf_wbxml_public_id_literal = -1;
 static int hf_wbxml_charset = -1;
-static int hf_wbxml_string_table_item = -1;
+static int hf_wbxml_string_table_item_offset = -1;
+static int hf_wbxml_string_table_item_string = -1;
 static int hf_wbxml_switch_page = -1;
 static int hf_wbxml_known_tag = -1;
 static int hf_wbxml_end_known_tag = -1;
@@ -171,6 +172,7 @@ static gint ett_wbxml = -1;
 static gint ett_wbxml_str_tbl = -1;
 static gint ett_wbxml_content = -1;
 static gint ett_wbxml_tags = -1;
+static gint ett_wbxml_string_table_item = -1;
 
 static expert_field ei_wbxml_data_not_shown = EI_INIT;
 static expert_field ei_wbxml_content_type_not_supported = EI_INIT;
@@ -272,7 +274,7 @@ default_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 			  guint8 token _U_, guint8 codepage _U_, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
-	char *str = wmem_strdup_printf(wmem_packet_scope(), "(%d bytes of opaque data)", data_len);
+	char *str = wmem_strdup_printf(wmem_packet_scope(), "(%u bytes of opaque data)", data_len);
 	*length += data_len;
 	return str;
 }
@@ -282,7 +284,7 @@ default_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 			   const char *token _U_, guint8 codepage _U_, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
-	char *str = wmem_strdup_printf(wmem_packet_scope(), "(%d bytes of opaque data)", data_len);
+	char *str = wmem_strdup_printf(wmem_packet_scope(), "(%u bytes of opaque data)", data_len);
 	*length += data_len;
 	return str;
 }
@@ -292,7 +294,7 @@ default_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
 			   guint8 token _U_, guint8 codepage _U_, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
-	char *str = wmem_strdup_printf(wmem_packet_scope(), "(%d bytes of opaque data)", data_len);
+	char *str = wmem_strdup_printf(wmem_packet_scope(), "(%u bytes of opaque data)", data_len);
 	*length += data_len;
 	return str;
 }
@@ -302,7 +304,7 @@ default_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
 			    const char *token _U_, guint8 codepage _U_, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
-	char *str = wmem_strdup_printf(wmem_packet_scope(), "(%d bytes of opaque data)", data_len);
+	char *str = wmem_strdup_printf(wmem_packet_scope(), "(%u bytes of opaque data)", data_len);
 	*length += data_len;
 	return str;
 }
@@ -355,7 +357,7 @@ date_time_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 		break;
 	default:
 		str = wmem_strdup_printf(wmem_packet_scope(), "<Error: invalid binary %%DateTime "
-				      "(%d bytes of opaque data)>", data_len);
+				      "(%u bytes of opaque data)>", data_len);
 		break;
 	}
 
@@ -402,7 +404,7 @@ wv_datetime_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 				      year, month, day, hour, minute, second, time_zone);
 	} else { /* Invalid length for a WV-CSP DateTime tag value */
 		str = wmem_strdup_printf(wmem_packet_scope(), "<Error: invalid binary WV-CSP DateTime value "
-				      "(%d bytes of opaque data)>", data_len);
+				      "(%u bytes of opaque data)>", data_len);
 	}
 	return str;
 }
@@ -433,7 +435,7 @@ wv_integer_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 		break;
 	default:
 		str = wmem_strdup_printf(wmem_packet_scope(), "<Error: invalid binary WV-CSP Integer value "
-				      "(%d bytes of opaque data)>", data_len);
+				      "(%u bytes of opaque data)>", data_len);
 		break;
 	}
 
@@ -496,7 +498,7 @@ wv_csp10_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		break;
 	}
 	if (str == NULL) { /* Error, or not parsed */
-		str = wmem_strdup_printf(wmem_packet_scope(), "(%d bytes of unparsed opaque data)", data_len);
+		str = wmem_strdup_printf(wmem_packet_scope(), "(%u bytes of unparsed opaque data)", data_len);
 	}
 	*length += data_len;
 
@@ -6943,12 +6945,7 @@ map_token (const value_valuestring *token_map, guint8 codepage, guint8 token) {
 
 
 
-/* Parse and display the WBXML string table (in a 3-column table format).
- * This function displays:
- *  - the offset in the string table,
- *  - the length of the string
- *  - the string.
- */
+/* Parse and display the WBXML string table. */
 static void
 show_wbxml_string_table (proto_tree *tree, tvbuff_t *tvb, guint32 str_tbl,
 			 guint32 str_tbl_len)
@@ -6956,12 +6953,27 @@ show_wbxml_string_table (proto_tree *tree, tvbuff_t *tvb, guint32 str_tbl,
 	guint32 off = str_tbl;
 	guint32 len = 0;
 	guint32 end = str_tbl + str_tbl_len;
+	proto_tree *item_tree;
 	gchar* str;
 
 	while (off < end) {
 		len = tvb_strsize (tvb, off);
+		/*
+		 * XXX - use the string encoding.
+		 */
 		str = tvb_format_text (tvb, off, len-1);
-		proto_tree_add_string_format(tree, hf_wbxml_string_table_item, tvb, off, len, str, "%s", str);
+		item_tree = proto_tree_add_subtree_format (tree, tvb, off, len,
+							   ett_wbxml_string_table_item,
+							   NULL,
+							   "%u: '%s'",
+							   off - str_tbl,
+							   str);
+		proto_tree_add_uint (item_tree,
+				     hf_wbxml_string_table_item_offset,
+				     tvb, 0, 0, off - str_tbl);
+		proto_tree_add_string (item_tree,
+				       hf_wbxml_string_table_item_string,
+				       tvb, off, len, str);
 		off += len;
 	}
 }
@@ -7192,7 +7204,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 				} else {
 					idx = tvb_get_guintvar (tvb, off+1, &len);
 					proto_tree_add_bytes_format(tree, hf_wbxml_opaque_data, tvb, off, 1 + len + idx, NULL,
-							     "  %3d |  Attr | A %3d    | OPAQUE (Opaque data)            |       %s(%d bytes of opaque data)",
+							     "  %3d |  Attr | A %3d    | OPAQUE (Opaque data)            |       %s(%u bytes of opaque data)",
 							     level, *codepage_attr, Indent (level), idx);
 					off += 1+len+idx;
 				}
@@ -7447,7 +7459,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				} else {
 					idx = tvb_get_guintvar (tvb, off+1, &len);
 					proto_tree_add_bytes_format(tree, hf_wbxml_opaque_data, tvb, off, 1 + len + idx, NULL,
-						     "  %3d | Tag   | T %3d    | OPAQUE (Opaque data)            | %s(%d bytes of opaque data)",
+						     "  %3d | Tag   | T %3d    | OPAQUE (Opaque data)            | %s(%u bytes of opaque data)",
 						     *level, *codepage_stag, Indent (*level), idx);
 					off += 1+len+idx;
 				}
@@ -7901,9 +7913,16 @@ proto_register_wbxml(void)
 		    &wap_mib_enum_vals_character_sets_ext, 0x00,
 		    "WBXML Character Set", HFILL }
 		},
-		{ &hf_wbxml_string_table_item,
-		  { "String table item",
-		    "wbxml.string_table_item",
+		{ &hf_wbxml_string_table_item_offset,
+		  { "Offset",
+		    "wbxml.string_table_item_offset",
+		    FT_UINT32, BASE_DEC,
+		    NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_wbxml_string_table_item_string,
+		  { "String",
+		    "wbxml.string_table_item_string",
 		    FT_STRING, BASE_NONE,
 		    NULL, 0x00,
 		    NULL, HFILL }
@@ -8077,6 +8096,7 @@ proto_register_wbxml(void)
 		&ett_wbxml_str_tbl,
 		&ett_wbxml_content,
 		&ett_wbxml_tags,
+		&ett_wbxml_string_table_item,
 	};
 
 	static ei_register_info ei[] = {
