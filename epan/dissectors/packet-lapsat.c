@@ -511,7 +511,7 @@ dissect_lapsat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tvb_set_free_cb(payload, g_free);
 	} else {
 		/* Last nibble doesn't need merging */
-		payload = tvb_new_subset(tvb, hlen, plen, -1);
+		payload = tvb_new_subset(tvb, hlen, plen, plen);
 	}
 
 	add_new_data_source(pinfo, payload, "LAPSat Payload");
