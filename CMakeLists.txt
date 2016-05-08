@@ -1502,25 +1502,25 @@ if(WIN32)
 			COMMAND ${CMAKE_COMMAND} -E make_directory
 				"${_dll_output_dir}/snmp/mibs"
 			COMMAND ${CMAKE_COMMAND} -E copy_directory
-				"${SMI_SHARE_DIR}/${SMI_DLL}/mibs/iana"
+				"${SMI_SHARE_DIR}/mibs/iana"
 				"${_dll_output_dir}/snmp/mibs"
 			COMMAND ${CMAKE_COMMAND} -E copy_directory
-				"${SMI_SHARE_DIR}/${SMI_DLL}/mibs/ietf"
+				"${SMI_SHARE_DIR}/mibs/ietf"
 				"${_dll_output_dir}/snmp/mibs"
 			COMMAND ${CMAKE_COMMAND} -E copy_directory
-				"${SMI_SHARE_DIR}/${SMI_DLL}/mibs/irtf"
+				"${SMI_SHARE_DIR}/mibs/irtf"
 				"${_dll_output_dir}/snmp/mibs"
 			COMMAND ${CMAKE_COMMAND} -E copy_directory
-				"${SMI_SHARE_DIR}/${SMI_DLL}/mibs/site"
+				"${SMI_SHARE_DIR}/mibs/site"
 				"${_dll_output_dir}/snmp/mibs"
 			COMMAND ${CMAKE_COMMAND} -E copy_directory
-				"${SMI_SHARE_DIR}/${SMI_DLL}/mibs/tubs"
+				"${SMI_SHARE_DIR}/mibs/tubs"
 				"${_dll_output_dir}/snmp/mibs"
 			COMMAND ${CMAKE_COMMAND} -E copy_directory
-				"${SMI_SHARE_DIR}/${SMI_DLL}/pibs"
+				"${SMI_SHARE_DIR}/pibs"
 				"${_dll_output_dir}/snmp/mibs"
 			COMMAND ${CMAKE_COMMAND} -E copy_directory
-				"${SMI_SHARE_DIR}/${SMI_DLL}/yang"
+				"${SMI_SHARE_DIR}/yang"
 				"${_dll_output_dir}/snmp/mibs"
 		)
 	endif(SMI_FOUND)
