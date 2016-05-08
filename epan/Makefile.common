@@ -63,6 +63,7 @@ LIBWIRESHARK_SRC =		\
 	geoip_db.c		\
 	golay.c			\
 	guid-utils.c		\
+	iana_charsets.c		\
 	in_cksum.c		\
 	ipproto.c		\
 	ipv4.c			\
@@ -207,6 +208,7 @@ LIBWIRESHARK_INCLUDES =		\
 	geoip_db.h		\
 	golay.h			\
 	guid-utils.h		\
+	iana_charsets.h		\
 	iax2_codec_type.h	\
 	in_cksum.h		\
 	ip_opts.h		\

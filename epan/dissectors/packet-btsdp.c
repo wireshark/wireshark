@@ -35,6 +35,7 @@
 #include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <epan/to_str.h>
+#include <epan/iana_charsets.h>
 
 #include "packet-btsdp.h"
 #include "packet-btl2cap.h"
@@ -1090,7 +1091,6 @@ static const value_string vs_data_element_type[] = {
 };
 
 extern value_string_ext ext_psm_vals;
-extern value_string_ext wap_mib_enum_vals_character_sets_ext;
 extern value_string_ext usb_langid_vals_ext;
 
 void proto_register_btsdp(void);
@@ -3366,8 +3366,8 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 dissect_data_element(entry_tree, &sub_tree, pinfo, tvb, list_offset);
                 list_offset = get_type_length(tvb, list_offset, &entry_length);
                 value = tvb_get_ntohs(tvb, list_offset);
-                wmem_strbuf_append_printf(info_buf, ", Encoding: %s", val_to_str_ext_const(value, &wap_mib_enum_vals_character_sets_ext, "Unknown"));
-                proto_item_append_text(entry_item, ", Encoding: %s", val_to_str_ext_const(value, &wap_mib_enum_vals_character_sets_ext, "Unknown"));
+                wmem_strbuf_append_printf(info_buf, ", Encoding: %s", val_to_str_ext_const(value, &mibenum_vals_character_sets_ext, "Unknown"));
+                proto_item_append_text(entry_item, ", Encoding: %s", val_to_str_ext_const(value, &mibenum_vals_character_sets_ext, "Unknown"));
                 proto_tree_add_item(sub_tree, hf_sdp_lang_encoding, tvb, list_offset, 2, ENC_BIG_ENDIAN);
                 list_offset += entry_length;
 
@@ -6070,7 +6070,7 @@ proto_register_btsdp(void)
         },
         { &hf_sdp_lang_encoding,
             { "Language Encoding",               "btsdp.lang.encoding",
-            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &wap_mib_enum_vals_character_sets_ext, 0,
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &mibenum_vals_character_sets_ext, 0,
             NULL, HFILL }
         },
         { &hf_sdp_lang_attribute_base,

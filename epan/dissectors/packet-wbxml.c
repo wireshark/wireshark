@@ -48,7 +48,8 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
-/* We need the functions tvb_get_guintvar() and wap_charset_to_encoding() */
+#include <epan/iana_charsets.h>
+/* We need the function tvb_get_guintvar() */
 #include "packet-wap.h"
 
 void proto_register_wbxml(void);
@@ -6949,7 +6950,7 @@ static void
 show_wbxml_string_table (proto_tree *tree, tvbuff_t *tvb, guint32 str_tbl,
 			 guint32 str_tbl_len, guint charset)
 {
-	guint encoding = wap_charset_to_encoding(charset);
+	guint encoding = mibenum_charset_to_encoding(charset);
 	guint32 off = str_tbl;
 	guint32 end = str_tbl + str_tbl_len;
 	proto_tree *item_tree;
@@ -7911,7 +7912,7 @@ proto_register_wbxml(void)
 		  { "Character Set",
 		    "wbxml.charset",
 		    FT_UINT32, BASE_DEC|BASE_EXT_STRING,
-		    &wap_mib_enum_vals_character_sets_ext, 0x00,
+		    &mibenum_vals_character_sets_ext, 0x00,
 		    "WBXML Character Set", HFILL }
 		},
 		{ &hf_wbxml_string_table_item_offset,

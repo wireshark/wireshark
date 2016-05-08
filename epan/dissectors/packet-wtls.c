@@ -32,6 +32,7 @@
 #endif
 
 #include <epan/packet.h>
+#include <epan/iana_charsets.h>
 #include "packet-wap.h"
 #include "packet-wtls.h"
 
@@ -1229,7 +1230,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_cli_hello_key_identifier_charset,
 			{ 	"Identifier CharSet",
 				"wtls.handshake.client_hello.ident_charset",
-				 FT_UINT16, BASE_DEC|BASE_EXT_STRING, &wap_mib_enum_vals_character_sets_ext, 0x00,
+				 FT_UINT16, BASE_DEC|BASE_EXT_STRING, &mibenum_vals_character_sets_ext, 0x00,
 				NULL, HFILL
 			}
 		},
@@ -1439,7 +1440,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_certificate_wtls_issuer_charset,
 			{ 	"Charset",
 				"wtls.handshake.certificate.issuer.charset",
-				 FT_UINT16, BASE_DEC|BASE_EXT_STRING, &wap_mib_enum_vals_character_sets_ext, 0x00,
+				 FT_UINT16, BASE_DEC|BASE_EXT_STRING, &mibenum_vals_character_sets_ext, 0x00,
 				NULL, HFILL
 			}
 		},
@@ -1481,7 +1482,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_certificate_wtls_subject_charset,
 			{ 	"Charset",
 				"wtls.handshake.certificate.subject.charset",
-				 FT_UINT16, BASE_DEC|BASE_EXT_STRING, &wap_mib_enum_vals_character_sets_ext, 0x00,
+				 FT_UINT16, BASE_DEC|BASE_EXT_STRING, &mibenum_vals_character_sets_ext, 0x00,
 				NULL, HFILL
 			}
 		},

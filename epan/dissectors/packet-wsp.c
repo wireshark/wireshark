@@ -46,6 +46,7 @@
 #include <epan/to_str.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
+#include <epan/iana_charsets.h>
 
 #include <wsutil/str_util.h>
 
@@ -1752,7 +1753,7 @@ wkh_accept_x_q_header_func(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, p
  *  | ( Value-length ( Token-text | Integer-value ) [ Q-value ] )
  */
 wkh_accept_x_q_header(accept_charset, "Accept-Charset",
-        &wap_mib_enum_vals_character_sets_ext, "character set")
+        &mibenum_vals_character_sets_ext, "character set")
 /*
  * Accept-language-value =
  *    Short-integer
@@ -3342,7 +3343,7 @@ wkh_tod_value_header(openwave_x_up_proxy_tod,
 /* Openwave accept_x_q header */
 wkh_accept_x_q_header(openwave_x_up_proxy_trans_charset,
         "x-up-proxy-trans-charset",
-        &wap_mib_enum_vals_character_sets_ext, "character set")
+        &mibenum_vals_character_sets_ext, "character set")
 
 /* Openwave content type header */
 static guint32
@@ -3525,7 +3526,7 @@ parameter (proto_tree *tree, packet_info *pinfo, proto_item *ti, tvbuff_t *tvb, 
         case 0x01:  /* WSP 1.1 encoding - Charset: Well-known-charset */
             get_integer_value(val, tvb, offset, val_len, ok);
             if (ok) {
-                val_str = val_to_str_ext(val, &wap_mib_enum_vals_character_sets_ext,
+                val_str = val_to_str_ext(val, &mibenum_vals_character_sets_ext,
                         "<Unknown character set Identifier %u>");
                 proto_tree_add_string(tree, hf_parameter_charset,
                         tvb, offset, val_len, val_str);

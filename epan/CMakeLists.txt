@@ -125,6 +125,7 @@ set(LIBWIRESHARK_FILES
 	geoip_db.c
 	golay.c
 	guid-utils.c
+	iana_charsets.c
 	in_cksum.c
 	ipproto.c
 	ipv4.c
