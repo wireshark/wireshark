@@ -120,6 +120,7 @@
 #include <epan/funnel.h>
 
 #include <wsutil/str_util.h>
+#include <wsutil/utf8_entities.h>
 
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
@@ -4030,15 +4031,15 @@ print_columns(capture_file *cf)
        *
        * If we printed a network source and are printing a
        * network destination of the same type next, separate
-       * them with " -> "; if we printed a network destination
-       * and are printing a network source of the same type
-       * next, separate them with " <- "; otherwise separate them
-       * with a space.
+       * them with a UTF-8 right arrow; if we printed a network
+       * destination and are printing a network source of the same
+       * type next, separate them with a UTF-8 left arrow;
+       * otherwise separate them with a space.
        *
-       * We add enough space to the buffer for " <- " or " -> ",
-       * even if we're only adding " ".
+       * We add enough space to the buffer for " \xe2\x86\x90 "
+       * or " \xe2\x86\x92 ", even if we're only adding " ".
        */
-      line_bufp = get_line_buf(buf_offset + 4);
+      line_bufp = get_line_buf(buf_offset + 5);
       switch (col_item->col_fmt) {
 
       case COL_DEF_SRC:
@@ -4049,8 +4050,8 @@ print_columns(capture_file *cf)
         case COL_DEF_DST:
         case COL_RES_DST:
         case COL_UNRES_DST:
-          put_string(line_bufp + buf_offset, " -> ", 4);
-          buf_offset += 4;
+          put_string(line_bufp + buf_offset, " " UTF8_RIGHTWARDS_ARROW " ", 5);
+          buf_offset += 5;
           break;
 
         default:
@@ -4068,8 +4069,8 @@ print_columns(capture_file *cf)
         case COL_DEF_DL_DST:
         case COL_RES_DL_DST:
         case COL_UNRES_DL_DST:
-          put_string(line_bufp + buf_offset, " -> ", 4);
-          buf_offset += 4;
+          put_string(line_bufp + buf_offset, " " UTF8_RIGHTWARDS_ARROW " ", 5);
+          buf_offset += 5;
           break;
 
         default:
@@ -4087,8 +4088,8 @@ print_columns(capture_file *cf)
         case COL_DEF_NET_DST:
         case COL_RES_NET_DST:
         case COL_UNRES_NET_DST:
-          put_string(line_bufp + buf_offset, " -> ", 4);
-          buf_offset += 4;
+          put_string(line_bufp + buf_offset, " " UTF8_RIGHTWARDS_ARROW " ", 5);
+          buf_offset += 5;
           break;
 
         default:
@@ -4106,8 +4107,8 @@ print_columns(capture_file *cf)
         case COL_DEF_SRC:
         case COL_RES_SRC:
         case COL_UNRES_SRC:
-          put_string(line_bufp + buf_offset, " <- ", 4);
-          buf_offset += 4;
+          put_string(line_bufp + buf_offset, " " UTF8_LEFTWARDS_ARROW " ", 5);
+          buf_offset += 5;
           break;
 
         default:
@@ -4125,8 +4126,8 @@ print_columns(capture_file *cf)
         case COL_DEF_DL_SRC:
         case COL_RES_DL_SRC:
         case COL_UNRES_DL_SRC:
-          put_string(line_bufp + buf_offset, " <- ", 4);
-          buf_offset += 4;
+          put_string(line_bufp + buf_offset, " " UTF8_LEFTWARDS_ARROW " ", 5);
+          buf_offset += 5;
           break;
 
         default:
@@ -4144,8 +4145,8 @@ print_columns(capture_file *cf)
         case COL_DEF_NET_SRC:
         case COL_RES_NET_SRC:
         case COL_UNRES_NET_SRC:
-          put_string(line_bufp + buf_offset, " <- ", 4);
-          buf_offset += 4;
+          put_string(line_bufp + buf_offset, " " UTF8_LEFTWARDS_ARROW " ", 5);
+          buf_offset += 5;
           break;
 
         default:
