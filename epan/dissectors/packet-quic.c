@@ -805,7 +805,7 @@ static gboolean is_quic_handshake(tvbuff_t *tvb, guint offset, guint16 len_seq){
                     if (tvb_captured_length_remaining(tvb, offset) <= 2){
                         return FALSE;
                     }
-                    len_reason = tvb_get_ntohs(tvb, offset);
+                    len_reason = tvb_get_letohs(tvb, offset);
                     offset += 2;
                     /* Reason Phrase */
                     offset += len_reason;
@@ -822,7 +822,7 @@ static gboolean is_quic_handshake(tvbuff_t *tvb, guint offset, guint16 len_seq){
                     if (tvb_captured_length_remaining(tvb, offset) <= 2){
                         return FALSE;
                     }
-                    len_reason = tvb_get_ntohs(tvb, offset);
+                    len_reason = tvb_get_letohs(tvb, offset);
                     offset += 2;
                     /* Reason Phrase */
                     offset += len_reason;
@@ -1271,7 +1271,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_cc_error_code, tvb, offset, 4, ENC_LITTLE_ENDIAN, &error_code);
                 offset += 4;
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_cc_reason_phrase_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                len_reason = tvb_get_ntohs(tvb, offset);
+                len_reason = tvb_get_letohs(tvb, offset);
                 offset += 2;
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_cc_reason_phrase, tvb, offset, len_reason, ENC_ASCII|ENC_NA);
                 offset += len_reason;
@@ -1287,7 +1287,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_goaway_last_good_stream_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &last_good_stream_id);
                 offset += 4;
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_goaway_reason_phrase_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                len_reason = tvb_get_ntohs(tvb, offset);
+                len_reason = tvb_get_letohs(tvb, offset);
                 offset += 2;
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_goaway_reason_phrase, tvb, offset, len_reason, ENC_ASCII|ENC_NA);
                 offset += len_reason;
@@ -1404,25 +1404,27 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             num_timestamp = tvb_get_guint8(tvb, offset);
             offset += 1;
 
-            /* Delta Largest Observed */
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_delta_largest_observed, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset += 1;
+            if(num_timestamp){
 
-            /* Time Since Previous Timestamp */
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_time_since_largest_observed, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            offset += 4;
-
-            num_timestamp -= 1;
-
-            /* Num Timestamp (-1) x (Delta Largest Observed + Time Since Largest Observed) */
-            while(num_timestamp){
+                /* Delta Largest Observed */
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_delta_largest_observed, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_time_since_previous_timestamp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
+                /* Time Since Previous Timestamp */
+                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_time_since_largest_observed, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
 
-                num_timestamp--;
+                num_timestamp -= 1;
+                /* Num Timestamp (-1) x (Delta Largest Observed + Time Since Largest Observed) */
+                while(num_timestamp){
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_delta_largest_observed, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    offset += 1;
+
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_time_since_previous_timestamp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    offset += 2;
+
+                    num_timestamp--;
+                }
             }
 
             if(frame_type & FTFLAGS_ACK_N){
