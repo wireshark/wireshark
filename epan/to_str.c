@@ -714,7 +714,6 @@ display_signed_time(gchar *buf, int buflen, const gint32 sec, gint32 frac,
 	*buf = '\0';
 }
 
-
 #define	PLURALIZE(n)	(((n) > 1) ? "s" : "")
 #define	COMMA(do_it)	((do_it) ? ", " : "")
 
@@ -797,51 +796,32 @@ static void
 time_secs_to_str_buf(gint32 time_val, const guint32 frac, const gboolean is_nsecs,
 		wmem_strbuf_t *buf)
 {
-	int hours, mins, secs;
-	const gchar *msign = "";
-	gboolean do_comma = FALSE;
-
-	if(time_val == G_MININT32) {	/* That Which Shall Not Be Negated */
-		wmem_strbuf_append_printf(buf, "Unable to cope with time value %d", time_val);
-		return;
-	}
-
 	if(time_val < 0){
-		time_val = -time_val;
-		msign = "-";
-	}
-
-	secs = time_val % 60;
-	time_val /= 60;
-	mins = time_val % 60;
-	time_val /= 60;
-	hours = time_val % 24;
-	time_val /= 24;
-
-	if (time_val != 0) {
-		wmem_strbuf_append_printf(buf, "%s%u day%s", msign, time_val, PLURALIZE(time_val));
-		do_comma = TRUE;
-		msign="";
-	}
-	if (hours != 0) {
-		wmem_strbuf_append_printf(buf, "%s%s%u hour%s", COMMA(do_comma), msign, hours, PLURALIZE(hours));
-		do_comma = TRUE;
-		msign="";
-	}
-	if (mins != 0) {
-		wmem_strbuf_append_printf(buf, "%s%s%u minute%s", COMMA(do_comma), msign, mins, PLURALIZE(mins));
-		do_comma = TRUE;
-		msign="";
-	}
-	if (secs != 0 || frac != 0) {
-		if (frac != 0) {
-			if (is_nsecs)
-				wmem_strbuf_append_printf(buf, "%s%s%u.%09u seconds", COMMA(do_comma), msign, secs, frac);
-			else
-				wmem_strbuf_append_printf(buf, "%s%s%u.%03u seconds", COMMA(do_comma), msign, secs, frac);
-		} else
-			wmem_strbuf_append_printf(buf, "%s%s%u second%s", COMMA(do_comma), msign, secs, PLURALIZE(secs));
-	}
+		wmem_strbuf_append_printf(buf, "-");
+		if(time_val == G_MININT32) {
+			/*
+			 * You can't fit time_val's absolute value into
+			 * a 32-bit signed integer.  Just directly
+			 * pass G_MAXUINT32, which is its absolute
+			 * value, directly to time_secs_to_str_buf_unsigned().
+			 *
+			 * (XXX - does ISO C guarantee that -(-2^n),
+			 * when calculated and cast to an n-bit unsigned
+			 * integer type, will have the value 2^n?)
+			 */
+			time_secs_to_str_buf_unsigned(G_MAXUINT32, frac,
+			    is_nsecs, buf);
+		} else {
+			/*
+			 * We now know -secs will fit into a guint32;
+			 * negate it and pass that to
+			 * time_secs_to_str_buf_unsigned().
+			 */
+			time_secs_to_str_buf_unsigned(-time_val, frac,
+			    is_nsecs, buf);
+		}
+	} else
+		time_secs_to_str_buf_unsigned(time_val, frac, is_nsecs, buf);
 }
 
 gchar *
@@ -859,7 +839,6 @@ time_secs_to_str(wmem_allocator_t *scope, const gint32 time_val)
 
 	return wmem_strbuf_finalize(buf);
 }
-
 
 /*
  * Convert a signed value in milliseconds to a string, giving time in days,
