@@ -68,6 +68,7 @@ typedef struct {
 } write_field_data_t;
 
 struct _output_fields {
+    gboolean     print_bom;
     gboolean     print_header;
     gchar        separator;
     gchar        occurrence;
@@ -1199,6 +1200,19 @@ gboolean output_fields_set_option(output_fields_t *info, gchar *option)
         }
         return TRUE;
     }
+    else if (0 == strcmp(option_name, "bom")) {
+        switch (*option_value) {
+        case 'n':
+            info->print_bom = FALSE;
+            break;
+        case 'y':
+            info->print_bom = TRUE;
+            break;
+        default:
+            return FALSE;
+        }
+        return TRUE;
+    }
 
     return FALSE;
 }
@@ -1206,6 +1220,7 @@ gboolean output_fields_set_option(output_fields_t *info, gchar *option)
 void output_fields_list_options(FILE *fh)
 {
     fprintf(fh, "TShark: The available options for field output \"E\" are:\n");
+    fputs("bom=y|n    Prepend output with the UTF-8 BOM (def: N: no)\n", fh);
     fputs("header=y|n    Print field abbreviations as first line of output (def: N: no)\n", fh);
     fputs("separator=/t|/s|<character>   Set the separator to use;\n     \"/t\" = tab, \"/s\" = space (def: /t: tab)\n", fh);
     fputs("occurrence=f|l|a  Select the occurrence of a field to use;\n     \"f\" = first, \"l\" = last, \"a\" = all (def: a: all)\n", fh);
@@ -1226,6 +1241,11 @@ void write_fields_preamble(output_fields_t* fields, FILE *fh)
     g_assert(fields);
     g_assert(fh);
     g_assert(fields->fields);
+
+    if (fields->print_bom) {
+        fputs(UTF8_BOM, fh);
+    }
+
 
     if (!fields->print_header) {
         return;
@@ -1491,6 +1511,7 @@ get_field_hex_value(GSList *src_list, field_info *fi)
 output_fields_t* output_fields_new(void)
 {
     output_fields_t* fields     = g_new(output_fields_t, 1);
+    fields->print_bom           = FALSE;
     fields->print_header        = FALSE;
     fields->separator           = '\t';
     fields->occurrence          = 'a';

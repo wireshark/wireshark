@@ -309,6 +309,9 @@ selected.
 
 Options are:
 
+B<bom=y|n> If B<y>, prepend output with the UTF-8 byte order mark
+(hexadecimal ef, bb, bf). Defaults to B<n>.
+
 B<header=y|n> If B<y>, print a list of the field names given using B<-e>
 as the first line of the output; the field name will be separated using
 the same character as the field values.  Defaults to B<n>.

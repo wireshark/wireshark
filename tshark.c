@@ -377,6 +377,7 @@ print_usage(FILE *output)
   fprintf(output, "                           _ws.col.Info)\n");
   fprintf(output, "                           this option can be repeated to print multiple fields\n");
   fprintf(output, "  -E<fieldsoption>=<value> set options for output when -Tfields selected:\n");
+  fprintf(output, "     bom=y|n               print a UTF-8 BOM\n");
   fprintf(output, "     header=y|n            switch headers on and off\n");
   fprintf(output, "     separator=/t|/s|<char> select tab, space, printable character as separator\n");
   fprintf(output, "     occurrence=f|l|a      print first, last or all occurrences of each field\n");

@@ -58,6 +58,9 @@
 #define UTF8_BALLOT_X                   "\xe2\x9c\x97"      /* 10007 / 0x2717 */
 #define UTF8_LONG_RIGHTWARDS_ARROW      "\xe2\x9f\xb6"      /* 10230 / 0x27f6 */
 
+#define UTF8_ZERO_WIDTH_NO_BREAK_SPACE  "\xef\xbb\xbf"      /* 65279 / 0xffef */
+#define UTF8_BOM UTF8_ZERO_WIDTH_NO_BREAK_SPACE
+
 #endif /* __UTF8_ENTITIES_H__ */
 
 /*
