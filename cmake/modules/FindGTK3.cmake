@@ -39,7 +39,7 @@ endif()
 # use pkg-config to get the directories and then use these values
 # in the FIND_PATH() and FIND_LIBRARY() calls
 find_package( PkgConfig )
-pkg_check_modules( PC_GTK3 gtk+-3.0 QUIET )
+pkg_check_modules( PC_GTK3 QUIET gtk+-3.0 )
 
 # Hack around broken .pc files in Windows GTK bundle
 if( DEFINED GTK3_HINTS )
