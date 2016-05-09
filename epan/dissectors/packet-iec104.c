@@ -33,6 +33,7 @@
 #include <math.h> /* floor */
 
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
 
@@ -75,7 +76,7 @@ typedef struct {
 	gboolean SE;      /* Select (1) / Execute (0) */
 } td_CmdInfo;
 
-#define IEC104_PORT     2404
+static guint iec104_port = 2404;
 
 /* Define the iec104 proto */
 static int proto_iec104apci = -1;
@@ -1429,7 +1430,7 @@ static int dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 			if (len <= APDU_MAX_LEN) {
 				wmem_strbuf_append_printf(res, "%s %s ",
-					(pinfo->srcport == IEC104_PORT ? "->" : "<-"),
+					(pinfo->srcport == iec104_port ? "->" : "<-"),
 					val_to_str_const(type, apci_types, "<ERR>"));
 			}
 			else {
@@ -1522,6 +1523,8 @@ proto_register_iec104apci(void)
 		&ett_apci,
 	};
 
+	module_t *iec104_module;
+
 	proto_iec104apci = proto_register_protocol(
 		"IEC 60870-5-104-Apci",
 		"104apci",
@@ -1529,6 +1532,13 @@ proto_register_iec104apci(void)
 		);
 	proto_register_field_array(proto_iec104apci, hf_ap, array_length(hf_ap));
 	proto_register_subtree_array(ett_ap, array_length(ett_ap));
+
+	iec104_module = prefs_register_protocol(proto_iec104apci, proto_reg_handoff_iec104);
+
+	prefs_register_uint_preference(iec104_module, "tcp.port",
+									"IEC104 TCP port used by source",
+									"TCP port used by source of IEC104, usually 2404",
+									10, &iec104_port);
 }
 
 
@@ -1854,12 +1864,22 @@ proto_register_iec104asdu(void)
 void
 proto_reg_handoff_iec104(void)
 {
-	dissector_handle_t iec104apci_handle;
+	static dissector_handle_t iec104apci_handle;
+	static gboolean iec104_prefs_initialized = FALSE;
+	static guint saved_iec104_port;
 
-	iec104apci_handle = create_dissector_handle(dissect_iec104reas, proto_iec104apci);
-	iec104asdu_handle = create_dissector_handle(dissect_iec104asdu, proto_iec104asdu);
+	if (!iec104_prefs_initialized) {
+		iec104apci_handle = create_dissector_handle(dissect_iec104reas, proto_iec104apci);
+		iec104asdu_handle = create_dissector_handle(dissect_iec104asdu, proto_iec104asdu);
+		dissector_add_uint("tcp.port", iec104_port, iec104apci_handle);
+	} else {
+		dissector_delete_uint("tcp.port", saved_iec104_port, iec104apci_handle);
+	}
 
-	dissector_add_uint("tcp.port", IEC104_PORT, iec104apci_handle);
+	saved_iec104_port = iec104_port;
+	if (iec104_port != 0) {
+		dissector_add_uint("tcp.port", iec104_port, iec104apci_handle);
+	}
 }
 
 /*
