@@ -7304,7 +7304,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			 const wbxml_decoding *map)
 {
 	guint32     tvb_len  = tvb_reported_length (tvb);
-	guint32     off      = offset;
+	guint32     off      = offset, last_off;
 	guint32     len;
 	guint       str_len;
 	guint32     ent;
@@ -7323,6 +7323,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	tag_save_literal = NULL;                 /* Prevents compiler warning */
 
 	DebugLog(("parse_wbxml_tag_defined (level = %u, offset = %u)\n", *level, offset));
+	last_off = off;
 	while (off < tvb_len) {
 		peek = tvb_get_guint8 (tvb, off);
 		DebugLog(("STAG: (top of while) level = %3u, peek = 0x%02X, off = %u, tvb_len = %u\n", *level, peek, off, tvb_len));
@@ -7694,6 +7695,10 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				/* TODO: Do I have to reset code page here? */
 			}
 		} /* if (tag & 0x3F) >= 5 */
+		if (off < last_off) {
+			THROW(ReportedBoundsError);
+		}
+		last_off = off;
 	} /* while */
 	DebugLog(("STAG: level = %u, Return: len = %u (end of function body)\n", *level, off - offset));
 	return (off - offset);
@@ -7711,7 +7716,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		 guint8 *codepage_stag, guint8 *codepage_attr)
 {
 	guint32     tvb_len             = tvb_reported_length (tvb);
-	guint32     off                 = offset;
+	guint32     off                 = offset, last_off;
 	guint32     len;
 	guint       str_len;
 	guint32     ent;
@@ -7732,6 +7737,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	tag_save_literal = NULL;                 /* Prevents compiler warning */
 
 	DebugLog(("parse_wbxml_tag (level = %u, offset = %u)\n", *level, offset));
+	last_off = off;
 	while (off < tvb_len) {
 		peek = tvb_get_guint8 (tvb, off);
 		DebugLog(("STAG: (top of while) level = %3u, peek = 0x%02X, off = %u, tvb_len = %u\n", *level, peek, off, tvb_len));
@@ -8091,6 +8097,10 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				/* TODO: Do I have to reset code page here? */
 			}
 		} /* if (tag & 0x3F) >= 5 */
+		if (off < last_off) {
+			THROW(ReportedBoundsError);
+		}
+		last_off = off;
 	} /* while */
 	DebugLog(("STAG: level = %u, Return: len = %u (end of function body)\n",
 		  *level, off - offset));
@@ -8126,7 +8136,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 				    const wbxml_decoding *map)
 {
 	guint32     tvb_len = tvb_reported_length (tvb);
-	guint32     off     = offset;
+	guint32     off     = offset, last_off;
 	guint32     len;
 	guint       str_len;
 	guint32     ent;
@@ -8138,6 +8148,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 	DebugLog(("parse_wbxml_attr_defined (level = %u, offset = %u)\n",
 		  level, offset));
 	/* Parse attributes */
+	last_off = off;
 	while (off < tvb_len) {
 		peek = tvb_get_guint8 (tvb, off);
 		DebugLog(("ATTR: (top of while) level = %3u, peek = 0x%02X, "
@@ -8330,6 +8341,10 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 				off++;
 			}
 		}
+		if (off < last_off) {
+			THROW(ReportedBoundsError);
+		}
+		last_off = off;
 	} /* End WHILE */
 	DebugLog(("ATTR: level = %u, Return: len = %u (end of function body)\n",
 		  level, off - offset));
@@ -8350,7 +8365,7 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 			    guint32 offset, guint32 str_tbl, guint8 level, guint8 *codepage_attr)
 {
 	guint32 tvb_len = tvb_reported_length (tvb);
-	guint32 off     = offset;
+	guint32 off     = offset, last_off;
 	guint32 len;
 	guint   str_len;
 	guint32 ent;
@@ -8359,6 +8374,7 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 
 	DebugLog(("parse_wbxml_attr (level = %u, offset = %u)\n", level, offset));
 	/* Parse attributes */
+	last_off = off;
 	while (off < tvb_len) {
 		peek = tvb_get_guint8 (tvb, off);
 		DebugLog(("ATTR: (top of while) level = %3u, peek = 0x%02X, "
@@ -8516,6 +8532,10 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 				off++;
 			}
 		}
+		if (off < last_off) {
+			THROW(ReportedBoundsError);
+		}
+		last_off = off;
 	} /* End WHILE */
 	DebugLog(("ATTR: level = %u, Return: len = %u (end of function body)\n",
 		  level, off - offset));
