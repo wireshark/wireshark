@@ -47,6 +47,13 @@ class Iax2AnalysisDialog;
 class QCPGraph;
 class QTemporaryFile;
 
+typedef enum {
+    TAP_IAX2_NO_ERROR,
+    TAP_IAX2_WRONG_LENGTH,
+    TAP_IAX2_FILE_IO_ERROR
+} iax2_error_type_t;
+
+
 class Iax2AnalysisDialog : public WiresharkDialog
 {
     Q_OBJECT
@@ -109,6 +116,7 @@ private:
     QVector<double> rev_diff_vals_;
 
     QString err_str_;
+    iax2_error_type_t save_payload_error_;
 
     QMenu stream_ctx_menu_;
     QMenu graph_ctx_menu_;

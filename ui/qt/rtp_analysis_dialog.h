@@ -43,6 +43,13 @@ class RtpAnalysisDialog;
 class QCPGraph;
 class QTemporaryFile;
 
+typedef enum {
+    TAP_RTP_NO_ERROR,
+    TAP_RTP_WRONG_LENGTH,
+    TAP_RTP_PADDING_ERROR,
+    TAP_RTP_FILE_IO_ERROR
+} rtp_error_type_t;
+
 class RtpAnalysisDialog : public WiresharkDialog
 {
     Q_OBJECT
@@ -126,6 +133,7 @@ private:
 
     rtpstream_tapinfo_t tapinfo_;
     QString err_str_;
+    rtp_error_type_t save_payload_error_;
 
     QMenu stream_ctx_menu_;
     QMenu graph_ctx_menu_;

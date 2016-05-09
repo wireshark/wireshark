@@ -209,7 +209,8 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     port_src_fwd_(0),
     port_dst_fwd_(0),
     port_src_rev_(0),
-    port_dst_rev_(0)
+    port_dst_rev_(0),
+    save_payload_error_(TAP_IAX2_NO_ERROR)
 {
     ui->setupUi(this);
     setWindowSubtitle(tr("IAX2 Stream Analysis"));
@@ -425,7 +426,9 @@ void Iax2AnalysisDialog::updateWidgets()
     bool enable_tab = false;
     QString hint = err_str_;
 
-    if (hint.isEmpty()) {
+    if (hint.isEmpty() || save_payload_error_ != TAP_IAX2_NO_ERROR) {
+        /* We cannot save the payload but can still display the widget
+           or save CSV data */
         enable_tab = true;
     }
 
@@ -444,8 +447,8 @@ void Iax2AnalysisDialog::updateWidgets()
         hint.append(tr(" G: Go to packet, N: Next problem packet"));
     }
 
-    bool enable_save_fwd_audio = fwd_tempfile_->isOpen();
-    bool enable_save_rev_audio = rev_tempfile_->isOpen();
+    bool enable_save_fwd_audio = fwd_tempfile_->isOpen() && (save_payload_error_ == TAP_IAX2_NO_ERROR);
+    bool enable_save_rev_audio = rev_tempfile_->isOpen() && (save_payload_error_ == TAP_IAX2_NO_ERROR);
     ui->actionSaveAudio->setEnabled(enable_save_fwd_audio && enable_save_rev_audio);
     ui->actionSaveForwardAudio->setEnabled(enable_save_fwd_audio);
     ui->actionSaveReverseAudio->setEnabled(enable_save_rev_audio);
@@ -737,6 +740,7 @@ void Iax2AnalysisDialog::savePayload(QTemporaryFile *tmpfile, packet_info *pinfo
     if (pinfo->fd->pkt_len != pinfo->fd->cap_len) {
         tmpfile->close();
         err_str_ = tr("Can't save in a file: Wrong length of captured packets.");
+        save_payload_error_ = TAP_IAX2_WRONG_LENGTH;
         return;
     }
 
@@ -748,6 +752,7 @@ void Iax2AnalysisDialog::savePayload(QTemporaryFile *tmpfile, packet_info *pinfo
         if (nchars != (iax2info->payload_len)) {
             /* Write error or short write */
             err_str_ = tr("Can't save in a file: File I/O problem.");
+            save_payload_error_ = TAP_IAX2_FILE_IO_ERROR;
             tmpfile->close();
             return;
         }
