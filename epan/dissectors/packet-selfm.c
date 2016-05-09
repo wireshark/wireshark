@@ -2036,7 +2036,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_unsresp_doy, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_unsresp_year, tvb, offset+2, 2, ENC_BIG_ENDIAN);
             proto_tree_add_uint_format_value(fastmsg_tree, hf_selfm_fastmsg_unsresp_todms, tvb, offset+4, 4,
-                                        tod_ms, "%s", time_msecs_to_str(wmem_packet_scope(), tod_ms));
+                                        tod_ms, "%s", signed_time_msecs_to_str(wmem_packet_scope(), tod_ms));
             offset += 8;
 
             /* Build element tree */
@@ -2077,7 +2077,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
                 proto_tree_add_item(fastmsg_element_tree, hf_selfm_fastmsg_unsresp_elmt_idx, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(fastmsg_element_tree, hf_selfm_fastmsg_unsresp_elmt_ts_ofs, tvb, offset+1, 3, ENC_BIG_ENDIAN);
                 proto_tree_add_uint_format_value(fastmsg_element_tree, hf_selfm_fastmsg_unsresp_elmt_ts_ofs_decoded, tvb, offset+1, 3,
-                                     tod_ms + (elmt_ts_offset/1000), "%s", time_msecs_to_str(wmem_packet_scope(), tod_ms + (elmt_ts_offset/1000)));
+                                     tod_ms + (elmt_ts_offset/1000), "%s", signed_time_msecs_to_str(wmem_packet_scope(), tod_ms + (elmt_ts_offset/1000)));
                 proto_tree_add_uint(fastmsg_element_tree, hf_selfm_fastmsg_unsresp_elmt_status, tvb, elmt_status32_ofs, 4, elmt_status);
 
                 offset += 4;

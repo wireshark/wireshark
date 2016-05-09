@@ -1065,7 +1065,7 @@ ipmi_add_timestamp(proto_tree *tree, gint hf, tvbuff_t *tvb, guint offset)
 	} else if (ts <= 0x20000000) {
 		proto_tree_add_uint_format_value(tree, hf, tvb, offset, 4,
 				ts, "%s since SEL device's initialization",
-				time_secs_to_str_unsigned(wmem_packet_scope(), ts));
+				unsigned_time_secs_to_str(wmem_packet_scope(), ts));
 	} else {
 		proto_tree_add_uint_format_value(tree, hf, tvb, offset, 4,
 				ts, "%s", abs_time_secs_to_str(wmem_packet_scope(), ts, ABSOLUTE_TIME_UTC, TRUE));

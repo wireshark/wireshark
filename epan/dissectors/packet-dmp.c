@@ -2992,7 +2992,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
     if (secs == DMP_TIME_RESERVED) {
       proto_item_append_text (tf, "Reserved (0x%2.2x)", time_diff);
     } else {
-      proto_item_append_text (tf, "%s", time_secs_to_str(wmem_packet_scope(), secs));
+      proto_item_append_text (tf, "%s", signed_time_secs_to_str(wmem_packet_scope(), secs));
     }
     offset += 1;
   }
@@ -3313,9 +3313,9 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
       proto_item_append_text (tf, "Reserved (0x%2.2x)", report);
       proto_item_append_text (ei, " (Reserved)");
     } else {
-      proto_item_append_text (tf, "%s (%s)", time_secs_to_str(wmem_packet_scope(), secs),
+      proto_item_append_text (tf, "%s (%s)", signed_time_secs_to_str(wmem_packet_scope(), secs),
                               abs_time_secs_to_str (wmem_packet_scope(), dmp.subm_time - secs, ABSOLUTE_TIME_LOCAL, TRUE));
-      proto_item_append_text (ei, " (%s from submission time)", time_secs_to_str(wmem_packet_scope(), secs));
+      proto_item_append_text (ei, " (%s from submission time)", signed_time_secs_to_str(wmem_packet_scope(), secs));
     }
   } else {
     dmp.ndr = TRUE;
@@ -3427,9 +3427,9 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
       proto_item_append_text (tf, "Reserved (0x%2.2x)", rec_time);
       proto_item_append_text (ei, " (Reserved)");
     } else {
-      proto_item_append_text (tf, "%s (%s)", time_secs_to_str(wmem_packet_scope(), secs),
+      proto_item_append_text (tf, "%s (%s)", signed_time_secs_to_str(wmem_packet_scope(), secs),
                               abs_time_secs_to_str (wmem_packet_scope(), dmp.subm_time - secs, ABSOLUTE_TIME_LOCAL, TRUE));
-      proto_item_append_text (ei, " (%s from submission time)", time_secs_to_str(wmem_packet_scope(), secs));
+      proto_item_append_text (ei, " (%s from submission time)", signed_time_secs_to_str(wmem_packet_scope(), secs));
     }
     offset += 1;
 
@@ -3837,9 +3837,9 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
       proto_item_append_text (tf, "Reserved (0x%2.2x)", exp_time);
       proto_item_append_text (ei, " (Reserved)");
     } else {
-      proto_item_append_text (tf, "%s (%s)", time_secs_to_str(wmem_packet_scope(), secs),
+      proto_item_append_text (tf, "%s (%s)", signed_time_secs_to_str(wmem_packet_scope(), secs),
                               abs_time_secs_to_str (wmem_packet_scope(), dmp.subm_time + secs, ABSOLUTE_TIME_LOCAL, TRUE));
-      proto_item_append_text (ei, " (%s from submission time)", time_secs_to_str(wmem_packet_scope(), secs));
+      proto_item_append_text (ei, " (%s from submission time)", signed_time_secs_to_str(wmem_packet_scope(), secs));
     }
     offset += 1;
   }
@@ -3861,7 +3861,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
                               dtg_sign.false_string,
                               abs_time_secs_to_str (wmem_packet_scope(), dmp.subm_time, ABSOLUTE_TIME_LOCAL, TRUE));
     } else {
-      proto_item_append_text (tf, "%s in the %s (%s)", time_secs_to_str(wmem_packet_scope(), secs),
+      proto_item_append_text (tf, "%s in the %s (%s)", signed_time_secs_to_str(wmem_packet_scope(), secs),
                               (dtg & 0x80) ? dtg_sign.true_string :
                               dtg_sign.false_string, (dtg & 0x80) ?
                               abs_time_secs_to_str (wmem_packet_scope(), dmp.subm_time + secs, ABSOLUTE_TIME_LOCAL, TRUE) :

@@ -104,9 +104,9 @@ WS_DLL_PUBLIC void	display_epoch_time(gchar *, int, const time_t,  gint32, const
 
 WS_DLL_PUBLIC void	display_signed_time(gchar *, int, const gint32, gint32, const to_str_time_res_t);
 
-WS_DLL_PUBLIC gchar*	time_secs_to_str(wmem_allocator_t *scope, const gint32 time_val);
-gchar*	time_secs_to_str_unsigned(wmem_allocator_t *scope, const guint32);
-WS_DLL_PUBLIC gchar*	time_msecs_to_str(wmem_allocator_t *scope, gint32 time_val);
+WS_DLL_PUBLIC gchar*	signed_time_secs_to_str(wmem_allocator_t *scope, const gint32 time_val);
+WS_DLL_PUBLIC gchar*	unsigned_time_secs_to_str(wmem_allocator_t *scope, const guint32);
+WS_DLL_PUBLIC gchar*	signed_time_msecs_to_str(wmem_allocator_t *scope, gint32 time_val);
 
 extern void	guint32_to_str_buf(guint32 u, gchar *buf, int buf_len);
 extern void	guint64_to_str_buf(guint64 u, gchar *buf, int buf_len);

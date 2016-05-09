@@ -57,7 +57,7 @@ UtcTime	TYPE = FT_STRING DISPLAY = BASE_NONE
 	if(len == 4)
 	{
 		milliseconds = tvb_get_ntohl(tvb, offset);
-		ptime = time_msecs_to_str(wmem_packet_scope(), milliseconds);
+		ptime = signed_time_msecs_to_str(wmem_packet_scope(), milliseconds);
 
 		if(hf_index >= 0)
 		{

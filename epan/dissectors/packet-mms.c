@@ -1845,7 +1845,7 @@ dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 	if(len == 4)
 	{
 		milliseconds = tvb_get_ntohl(tvb, offset);
-		ptime = time_msecs_to_str(wmem_packet_scope(), milliseconds);
+		ptime = signed_time_msecs_to_str(wmem_packet_scope(), milliseconds);
 
 		if(hf_index >= 0)
 		{

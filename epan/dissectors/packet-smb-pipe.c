@@ -509,7 +509,7 @@ add_reltime(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
 	nstime.nsecs = 0;
 	proto_tree_add_time_format_value(tree, hf_index, tvb, offset, 4,
 	    &nstime, "%s",
-	    time_secs_to_str(wmem_packet_scope(),  (gint32) nstime.secs));
+	    signed_time_secs_to_str(wmem_packet_scope(),  (gint32) nstime.secs));
 	offset += 4;
 	return offset;
 }
@@ -651,11 +651,11 @@ add_tzoffset(tvbuff_t *tvb, int offset, int count _U_, packet_info *pinfo _U_,
 	if (tzoffset < 0) {
 		proto_tree_add_int_format_value(tree, hf_tzoffset, tvb, offset, 2,
 		    tzoffset, "%s east of UTC",
-		    time_secs_to_str(wmem_packet_scope(), -tzoffset*60));
+		    signed_time_secs_to_str(wmem_packet_scope(), -tzoffset*60));
 	} else if (tzoffset > 0) {
 		proto_tree_add_int_format_value(tree, hf_tzoffset, tvb, offset, 2,
 		    tzoffset, "%s west of UTC",
-		    time_secs_to_str(wmem_packet_scope(), tzoffset*60));
+		    signed_time_secs_to_str(wmem_packet_scope(), tzoffset*60));
 	} else {
 		proto_tree_add_int_format_value(tree, hf_tzoffset, tvb, offset, 2,
 		    tzoffset, "at UTC");

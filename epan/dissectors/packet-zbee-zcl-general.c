@@ -9308,7 +9308,7 @@ decode_zcl_ota_req_time(gchar *s, guint32 value)
     }
     else {
         /* offset from now */
-        gchar *tmp = time_secs_to_str(NULL, value);
+        gchar *tmp = signed_time_secs_to_str(NULL, value);
         g_snprintf(s, ITEM_LABEL_LENGTH, "%s from now", tmp);
         wmem_free(NULL, tmp);
     }
@@ -9334,7 +9334,7 @@ decode_zcl_ota_upgr_time(gchar *s, guint32 value)
     }
     else {
         /* offset from now */
-        gchar *tmp = time_secs_to_str(NULL, value);
+        gchar *tmp = signed_time_secs_to_str(NULL, value);
         g_snprintf(s, ITEM_LABEL_LENGTH, "%s from now", tmp);
         wmem_free(NULL, tmp);
     }

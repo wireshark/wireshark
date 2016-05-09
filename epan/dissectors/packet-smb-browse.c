@@ -566,7 +566,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		proto_tree_add_uint_format_value(tree, hf_periodicity, tvb, offset, 4,
 		    periodicity,
 		    "%s",
-		    time_msecs_to_str(wmem_packet_scope(), periodicity));
+		    signed_time_msecs_to_str(wmem_packet_scope(), periodicity));
 		offset += 4;
 
 		/* server name */
@@ -663,7 +663,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		proto_tree_add_uint_format_value(tree, hf_server_uptime,
 		    tvb, offset, 4, uptime,
 		    "%s",
-		    time_msecs_to_str(wmem_packet_scope(), uptime));
+		    signed_time_msecs_to_str(wmem_packet_scope(), uptime));
 		offset += 4;
 
 		/* next 4 bytes must be zero */
@@ -810,7 +810,7 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		proto_tree_add_uint_format_value(tree, hf_periodicity, tvb, offset, 2,
 		    periodicity,
 		    "%s",
-		    time_msecs_to_str(wmem_packet_scope(), periodicity));
+		    signed_time_msecs_to_str(wmem_packet_scope(), periodicity));
 		offset += 2;
 
 		/* server name */

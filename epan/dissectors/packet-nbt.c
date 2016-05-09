@@ -326,7 +326,7 @@ add_rr_to_tree(proto_tree *rr_tree, tvbuff_t *tvb, int offset,
     proto_tree_add_uint(rr_tree, hf_nbns_class, tvb, offset, 2, class_val);
     offset += 2;
     proto_tree_add_uint_format_value(rr_tree, hf_nbns_ttl, tvb, offset, 4, ttl, "%s",
-                        time_secs_to_str(wmem_packet_scope(), ttl));
+                        signed_time_secs_to_str(wmem_packet_scope(), ttl));
     offset += 4;
     proto_tree_add_uint(rr_tree, hf_nbns_data_length, tvb, offset, 2, data_len);
 }

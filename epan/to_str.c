@@ -733,7 +733,7 @@ display_signed_time(gchar *buf, int buflen, const gint32 sec, gint32 frac,
  * if false.
  */
 static void
-time_secs_to_str_buf_unsigned(guint32 time_val, const guint32 frac,
+unsigned_time_secs_to_str_buf(guint32 time_val, const guint32 frac,
     const gboolean is_nsecs, wmem_strbuf_t *buf)
 {
 	int hours, mins, secs;
@@ -770,7 +770,7 @@ time_secs_to_str_buf_unsigned(guint32 time_val, const guint32 frac,
 }
 
 gchar *
-time_secs_to_str_unsigned(wmem_allocator_t *scope, const guint32 time_val)
+unsigned_time_secs_to_str(wmem_allocator_t *scope, const guint32 time_val)
 {
 	wmem_strbuf_t *buf;
 
@@ -780,7 +780,7 @@ time_secs_to_str_unsigned(wmem_allocator_t *scope, const guint32 time_val)
 
 	buf = wmem_strbuf_sized_new(scope, TIME_SECS_LEN+1, TIME_SECS_LEN+1);
 
-	time_secs_to_str_buf_unsigned(time_val, 0, FALSE, buf);
+	unsigned_time_secs_to_str_buf(time_val, 0, FALSE, buf);
 
 	return wmem_strbuf_finalize(buf);
 }
@@ -793,8 +793,8 @@ time_secs_to_str_unsigned(wmem_allocator_t *scope, const guint32 time_val)
  * if false.
  */
 static void
-time_secs_to_str_buf(gint32 time_val, const guint32 frac, const gboolean is_nsecs,
-		wmem_strbuf_t *buf)
+signed_time_secs_to_str_buf(gint32 time_val, const guint32 frac,
+    const gboolean is_nsecs, wmem_strbuf_t *buf)
 {
 	if(time_val < 0){
 		wmem_strbuf_append_printf(buf, "-");
@@ -803,29 +803,29 @@ time_secs_to_str_buf(gint32 time_val, const guint32 frac, const gboolean is_nsec
 			 * You can't fit time_val's absolute value into
 			 * a 32-bit signed integer.  Just directly
 			 * pass G_MAXUINT32, which is its absolute
-			 * value, directly to time_secs_to_str_buf_unsigned().
+			 * value, directly to unsigned_time_secs_to_str_buf().
 			 *
 			 * (XXX - does ISO C guarantee that -(-2^n),
 			 * when calculated and cast to an n-bit unsigned
 			 * integer type, will have the value 2^n?)
 			 */
-			time_secs_to_str_buf_unsigned(G_MAXUINT32, frac,
+			unsigned_time_secs_to_str_buf(G_MAXUINT32, frac,
 			    is_nsecs, buf);
 		} else {
 			/*
 			 * We now know -secs will fit into a guint32;
 			 * negate it and pass that to
-			 * time_secs_to_str_buf_unsigned().
+			 * unsigned_time_secs_to_str_buf().
 			 */
-			time_secs_to_str_buf_unsigned(-time_val, frac,
+			unsigned_time_secs_to_str_buf(-time_val, frac,
 			    is_nsecs, buf);
 		}
 	} else
-		time_secs_to_str_buf_unsigned(time_val, frac, is_nsecs, buf);
+		unsigned_time_secs_to_str_buf(time_val, frac, is_nsecs, buf);
 }
 
 gchar *
-time_secs_to_str(wmem_allocator_t *scope, const gint32 time_val)
+signed_time_secs_to_str(wmem_allocator_t *scope, const gint32 time_val)
 {
 	wmem_strbuf_t *buf;
 
@@ -835,7 +835,7 @@ time_secs_to_str(wmem_allocator_t *scope, const gint32 time_val)
 
 	buf = wmem_strbuf_sized_new(scope, TIME_SECS_LEN+1, TIME_SECS_LEN+1);
 
-	time_secs_to_str_buf(time_val, 0, FALSE, buf);
+	signed_time_secs_to_str_buf(time_val, 0, FALSE, buf);
 
 	return wmem_strbuf_finalize(buf);
 }
@@ -845,7 +845,7 @@ time_secs_to_str(wmem_allocator_t *scope, const gint32 time_val)
  * hours, minutes, and seconds, and put the result into a buffer.
  */
 gchar *
-time_msecs_to_str(wmem_allocator_t *scope, gint32 time_val)
+signed_time_msecs_to_str(wmem_allocator_t *scope, gint32 time_val)
 {
 	wmem_strbuf_t *buf;
 	int msecs;
@@ -867,7 +867,7 @@ time_msecs_to_str(wmem_allocator_t *scope, gint32 time_val)
 		time_val /= 1000;
 	}
 
-	time_secs_to_str_buf(time_val, msecs, FALSE, buf);
+	signed_time_secs_to_str_buf(time_val, msecs, FALSE, buf);
 
 	return wmem_strbuf_finalize(buf);
 }
@@ -906,7 +906,7 @@ rel_time_to_str(wmem_allocator_t *scope, const nstime_t *rel_time)
 		time_val = (gint) -rel_time->secs;
 	}
 
-	time_secs_to_str_buf(time_val, nsec, TRUE, buf);
+	signed_time_secs_to_str_buf(time_val, nsec, TRUE, buf);
 
 	return wmem_strbuf_finalize(buf);
 }
