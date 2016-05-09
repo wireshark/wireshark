@@ -2366,9 +2366,6 @@ void
 capture_if_details_open(char *iface)
 {
     char     *version;
-    gboolean  version_ok = FALSE;
-    gpointer  dialog;
-
 
     /* check packet.dll version */
     version = wpcap_packet_get_version();
@@ -2384,40 +2381,7 @@ capture_if_details_open(char *iface)
         return;
     }
 
-    /* XXX - add more known DLL versions here */
-    /* (all versions since the 2.3 release seems to be working (although the 2.3 beta did not) */
-    if (
-        /*
-         * 4.0 version strings:
-         * 4.0.0.703:  4.0 beta 3
-         * 4.0.0.655:  4.0 beta 2
-         * 4.0.0.592:  4.0 beta 1
-         */
-        (strcmp(version, "3"          ) >  0) ||       /* 4.0 and above (including betas) */
-        (strcmp(version, "3, 2, 0, 29") == 0) ||       /* 3.2 beta 1 */
-        (strcmp(version, "3, 1, 0, 27") == 0) ||       /* 3.1 release */
-        (strcmp(version, "3, 1, 0, 24") == 0) ||       /* 3.1 beta 4 */
-        (strcmp(version, "3, 1, 0, 23") == 0) ||       /* 3.1 beta 3 */
-        (strcmp(version, "3, 1, 0, 22") == 0) ||       /* 3.1 beta 2 */
-        (strcmp(version, "3, 1, 0, 20") == 0) ||       /* 3.1 beta */
-        (strcmp(version, "3.0 alpha3" ) == 0) ||       /* 3.0 release or 3.0 beta (yes, both versions report alpha3!) */
-        (strcmp(version, "2.3"        ) == 0)          /* 2.3 release */
-        ) {
-        version_ok = TRUE;
-    }
-
-    if (!version_ok) {
-        /* packet.dll version not known to us, warn user but try to continue */
-        dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK | ESD_BTN_CANCEL,
-            "%sUnknown WinPcap version.%s"
-            "\n\nThe WinPcap packet.dll version \"%s\" is unknown. It may not"
-            "\nprovide functions that we need and might even crash."
-            "\n\nContinue anyway?",
-            simple_dialog_primary_start(), simple_dialog_primary_end(), version);
-        simple_dialog_set_cb(dialog, capture_if_details_open_answered_cb, iface);
-    } else {
-        capture_if_details_open_win(iface);
-    }
+    capture_if_details_open_win(iface);
 }
 
 gboolean
