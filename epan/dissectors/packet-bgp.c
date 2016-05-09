@@ -669,6 +669,17 @@ static dissector_handle_t bgp_handle;
 #define BGP_LS_SR_ADJACENCY_SID_FLAG_SO 0x10
 #define BGP_LS_SR_ADJACENCY_SID_FLAG_SI 0x08
 
+/* SR-Capabilities TLV flags, draft-gredler-idr-bgp-ls-segment-routing-ext-01:
+
+                             0  1  2  3  4  5  6  7
+                            +--+--+--+--+--+--+--+--+
+   if Protocol-ID is IS-IS  |I |V |H |  |  |  |  |  |
+                            +--+--+--+--+--+--+--+--+
+*/
+#define BGP_LS_SR_CAPABILITY_FLAG_I 0x80
+#define BGP_LS_SR_CAPABILITY_FLAG_V 0x40
+#define BGP_LS_SR_CAPABILITY_FLAG_H 0x20
+
 static const value_string bgptypevals[] = {
     { BGP_OPEN,                "OPEN Message" },
     { BGP_UPDATE,              "UPDATE Message" },
@@ -1552,6 +1563,17 @@ static int hf_bgp_ls_ipv4_topology_prefix_nlri_type = -1;
 static int hf_bgp_ls_ipv6_topology_prefix_nlri_type = -1;
 
 /* BGP-LS + SR */
+static int hf_bgp_ls_sr_tlv_capabilities = -1;
+static int hf_bgp_ls_sr_tlv_capabilities_range_size = -1;
+static int hf_bgp_ls_sr_tlv_capabilities_flags = -1;
+static int hf_bgp_ls_sr_tlv_capabilities_flags_i = -1;
+static int hf_bgp_ls_sr_tlv_capabilities_flags_v = -1;
+static int hf_bgp_ls_sr_tlv_capabilities_flags_h = -1;
+static int hf_bgp_ls_sr_tlv_capabilities_flags_reserved = -1;
+static int hf_bgp_ls_sr_tlv_capabilities_sid_label = -1;
+static int hf_bgp_ls_sr_tlv_capabilities_sid_index = -1;
+static int hf_bgp_ls_sr_tlv_algorithm = -1;
+static int hf_bgp_ls_sr_tlv_algorithm_value = -1;
 static int hf_bgp_ls_sr_tlv_prefix_sid = -1;
 static int hf_bgp_ls_sr_tlv_prefix_sid_flags = -1;
 static int hf_bgp_ls_sr_tlv_prefix_sid_flags_r = -1;
@@ -3583,9 +3605,74 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
             break;
 
         case BGP_LS_SR_TLV_SR_CAPABILITY:
+            {
+                /*
+                  0  1  2  3  4  5  6  7
+                  +--+--+--+--+--+--+--+--+
+                  |I |V |H |  |  |  |  |  |
+                  +--+--+--+--+--+--+--+--+
+                */
+                static const int *sr_capabilities_flags[] = {
+                    &hf_bgp_ls_sr_tlv_capabilities_flags_i,
+                    &hf_bgp_ls_sr_tlv_capabilities_flags_v,
+                    &hf_bgp_ls_sr_tlv_capabilities_flags_h,
+                    &hf_bgp_ls_sr_tlv_capabilities_flags_reserved,
+                    NULL
+                };
+                gint offset2;
+                gint remaining_data;
+                tlv_item = proto_tree_add_item(tree, hf_bgp_ls_sr_tlv_capabilities, tvb, offset, length + 4, ENC_NA);
+                tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_bitmask(tlv_tree, tvb, offset + 4, hf_bgp_ls_sr_tlv_capabilities_flags,
+                                       ett_bgp_link_state, sr_capabilities_flags, ENC_BIG_ENDIAN);
+                /* past flags and reserved byte, we got one or more range + SID/Label Sub-TLV entries */
+                offset2 = offset + 4 + 2;
+                remaining_data = length - 2;
+                while (remaining_data > 0) {
+                    guint16 sid_len = 0;
+                    /* parse and consume the range field */
+                    proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_capabilities_range_size, tvb, offset2, 3, ENC_BIG_ENDIAN);
+                    offset2 += 3;
+                    /* parse and consume type/len fields */
+                    proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset2, 2, ENC_BIG_ENDIAN);
+                    offset2 += 2;
+                    proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset2, 2, ENC_BIG_ENDIAN);
+                    sid_len = tvb_get_ntohs(tvb, offset2);
+                    offset2 += 2;
+                    if (sid_len == 3) {
+                        /* parse and consume the SID/Label field */
+                        proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_capabilities_sid_label, tvb, offset2, 3, ENC_BIG_ENDIAN);
+                        offset2 += 3;
+                        remaining_data -= 10;
+                    } else {
+                        /* parse and consume the SID/Index field */
+                        proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_capabilities_sid_index, tvb, offset2, 4, ENC_BIG_ENDIAN);
+                        offset2 += 4;
+                        remaining_data -= 11;
+                    }
+                }
+            }
             break;
 
         case BGP_LS_SR_TLV_SR_ALGORITHM:
+            {
+                gint offset2;
+                gint remaining_data;
+                tlv_item = proto_tree_add_item(tree, hf_bgp_ls_sr_tlv_algorithm, tvb, offset, length+4, ENC_NA);
+                tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+                /* past type-length fields, we got one or more 'Algorithm N' value */
+                offset2 = offset + 4;
+                remaining_data = length;
+                while (remaining_data > 0) {
+                    proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_algorithm_value, tvb, offset2, 1, ENC_NA);
+                    offset2 += 1;
+                    remaining_data -= 1;
+                }
+            }
             break;
 
         /* NODE & LINK ATTRIBUTE TLVs */
@@ -8619,7 +8706,41 @@ proto_register_bgp(void)
         { "IPv6 Gateway address", "bgp.evpn.nlri.ipv6.gtw_addr", FT_IPv6,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
      /* segment routing extentions to link state */
-     /* Prefix-SID TLV */
+     /* Node Attributes TLVs */
+     { &hf_bgp_ls_sr_tlv_capabilities,
+        { "SR Capabilities", "bgp.ls.sr.tlv.capabilities", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_capabilities_flags,
+        { "Flags", "bgp.ls.sr.tlv.capabilities.flags", FT_UINT8,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_capabilities_flags_i,
+        { "MPLS IPv4 flag (I)", "bgp.ls.sr.tlv.capabilities.flags.i", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_CAPABILITY_FLAG_I, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_capabilities_flags_v,
+        { "MPLS IPv6 flag (V)", "bgp.ls.sr.tlv.capabilities.flags.v", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_CAPABILITY_FLAG_V, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_capabilities_flags_h,
+        { "SR-IPv6 flag (H)", "bgp.ls.sr.tlv.capabilities.flags.h", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), BGP_LS_SR_CAPABILITY_FLAG_H, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_capabilities_flags_reserved,
+        { "Reserved", "bgp.ls.sr.tlv.capabilities.flags.reserved", FT_UINT8,
+          BASE_HEX, NULL, 0x1F, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_capabilities_range_size,
+        { "Range Size", "bgp.ls.sr.tlv.capabilities.range_size", FT_UINT24,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_capabilities_sid_label,
+        { "From Label", "bgp.ls.sr.tlv.capabilities.sid.label", FT_UINT24,
+          BASE_DEC, NULL, 0x0FFFFF, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_capabilities_sid_index,
+        { "From Index", "bgp.ls.sr.tlv.capabilities.sid.index", FT_UINT32,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_algorithm,
+        { "SR Algorithm", "bgp.ls.sr.tlv.algorithm", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+     { &hf_bgp_ls_sr_tlv_algorithm_value,
+        { "SR Algorithm", "bgp.ls.sr.tlv.algorithm.value", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+     /* Prefix Attribute TLVs */
      { &hf_bgp_ls_sr_tlv_prefix_sid,
         { "Prefix SID TLV", "bgp.ls.sr.tlv.prefix.sid", FT_NONE,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
@@ -8655,11 +8776,11 @@ proto_register_bgp(void)
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
      { &hf_bgp_ls_sr_tlv_prefix_sid_label,
         { "SID/Label", "bgp.ls.sr.tlv.prefix.sid.label", FT_UINT24,
-          BASE_DEC, NULL, 0xFFFFF0, NULL, HFILL}},
+          BASE_DEC, NULL, 0x0FFFFF, NULL, HFILL}},
      { &hf_bgp_ls_sr_tlv_prefix_sid_index,
         { "SID/Index", "bgp.ls.sr.tlv.prefix.sid.index", FT_UINT32,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
-     /* Adjacency-SID TLV */
+     /* Adjacency Attribute TLVs */
      { &hf_bgp_ls_sr_tlv_adjacency_sid,
         { "Adjacency SID TLV", "bgp.ls.sr.tlv.adjacency.sid", FT_NONE,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
