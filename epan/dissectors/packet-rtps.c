@@ -294,6 +294,23 @@ static int hf_rtps_heartbeat_count                              = -1;
 static int hf_rtps_encapsulation_options                        = -1;
 static int hf_rtps_serialized_key                               = -1;
 static int hf_rtps_serialized_data                              = -1;
+static int hf_rtps_type_object_type_id_disc                     = -1;
+static int hf_rtps_type_object_type_id                          = -1;
+static int hf_rtps_type_object_primitive_type_id                = -1;
+static int hf_rtps_type_object_base_type                        = -1;
+static int hf_rtps_type_object_base_primitive_type_id           = -1;
+static int hf_rtps_type_object_element_raw                      = -1;
+static int hf_rtps_type_object_type_property_name               = -1;
+static int hf_rtps_type_object_flags                            = -1;
+static int hf_rtps_type_object_member_id                        = -1;
+static int hf_rtps_type_object_annotation_value_d               = -1;
+static int hf_rtps_type_object_annotation_value_16              = -1;
+static int hf_rtps_type_object_bound                            = -1;
+static int hf_rtps_type_object_enum_constant_name               = -1;
+static int hf_rtps_type_object_enum_constant_value              = -1;
+static int hf_rtps_type_object_element_shared                   = -1;
+static int hf_rtps_type_object_name                             = -1;
+static int hf_rtps_type_object_element_module_name              = -1;
 
 /* Flag bits */
 static int hf_rtps_flag_reserved80                              = -1;
@@ -354,7 +371,13 @@ static int hf_rtps_flag_participant_state_announcer             = -1;
 static int hf_rtps_flag_participant_state_detector              = -1;
 static int hf_rtps_flag_participant_message_datawriter          = -1;
 static int hf_rtps_flag_participant_message_datareader          = -1;
-
+static int hf_rtps_flag_typeflag_final                          = -1;
+static int hf_rtps_flag_typeflag_mutable                        = -1;
+static int hf_rtps_flag_typeflag_nested                         = -1;
+static int hf_rtps_flag_memberflag_key                          = -1;
+static int hf_rtps_flag_memberflag_optional                     = -1;
+static int hf_rtps_flag_memberflag_shareable                    = -1;
+static int hf_rtps_flag_memberflag_union_default                = -1;
 static int hf_rtps_sm_rti_crc_number                            = -1;
 static int hf_rtps_sm_rti_crc_result                            = -1;
 
@@ -403,6 +426,12 @@ static gint ett_rtps_product_version                            = -1;
 static gint ett_rtps_property_list                              = -1;
 static gint ett_rtps_property                                   = -1;
 static gint ett_rtps_topic_info                                 = -1;
+static gint ett_rtps_type_object                                = -1;
+static gint ett_rtps_type_library                               = -1;
+static gint ett_rtps_type_element                               = -1;
+static gint ett_rtps_type_annotation_usage_list                 = -1;
+static gint ett_rtps_type_enum_constant                         = -1;
+static gint ett_rtps_type_bound_list                            = -1;
 
 static expert_field ei_rtps_sm_octets_to_next_header_error = EI_INIT;
 static expert_field ei_rtps_port_invalid = EI_INIT;
@@ -898,6 +927,48 @@ static const value_string acknowledgement_kind_vals[] = {
   { 0, NULL }
 };
 
+static const value_string type_object_kind [] = {
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_NO_TYPE,          "NO_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_BOOLEAN_TYPE,     "BOOLEAN_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_BYTE_TYPE,        "BYTE_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_16_TYPE,      "INT_16_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_16_TYPE,     "UINT_16_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_32_TYPE,      "INT_32_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_32_TYPE,     "UINT_32_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_INT_64_TYPE,      "INT_64_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_UINT_64_TYPE,     "UINT_64_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_32_TYPE,    "FLOAT_32_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_64_TYPE,    "FLOAT_64_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_FLOAT_128_TYPE,   "FLOAT_128_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_CHAR_8_TYPE,      "CHAR_8_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_CHAR_32_TYPE,     "CHAR_32_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_ENUMERATION_TYPE, "ENUMERATION_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_BITSET_TYPE,      "BITSET_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_ALIAS_TYPE,       "ALIAS_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_ARRAY_TYPE,       "ARRAY_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_SEQUENCE_TYPE,    "SEQUENCE_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRING_TYPE,      "STRING_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_MAP_TYPE,         "MAP_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_UNION_TYPE,       "UNION_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE,   "STRUCTURE_TYPE" },
+  { RTI_CDR_TYPE_OBJECT_TYPE_KIND_ANNOTATION_TYPE,  "ANNOTATION_TYPE" },
+  { 0, NULL }
+};
+
+static const int* TYPE_FLAG_FLAGS[] = {
+  &hf_rtps_flag_typeflag_nested,                /* Bit 2 */
+  &hf_rtps_flag_typeflag_mutable,               /* Bit 1 */
+  &hf_rtps_flag_typeflag_final,                 /* Bit 0 */
+  NULL
+};
+
+static const int* MEMBER_FLAGS[] = {
+  &hf_rtps_flag_memberflag_union_default,       /* Bit 3 */
+  &hf_rtps_flag_memberflag_shareable,           /* Bit 2 */
+  &hf_rtps_flag_memberflag_optional,            /* Bit 1 */
+  &hf_rtps_flag_memberflag_key,                 /* Bit 0 */
+  NULL
+};
 /* Vendor specific: RTI */
 static const value_string ndds_transport_class_id_vals[] = {
   { NDDS_TRANSPORT_CLASSID_ANY,           "ANY" },
@@ -2133,6 +2204,10 @@ gint rtps_util_add_seq_ulong(proto_tree *tree, tvbuff_t *tvb, gint offset, int h
 #define LONG_ALIGN(x)   (x = (x+3)&0xfffffffc)
 #define SHORT_ALIGN(x)  (x = (x+1)&0xfffffffe)
 #define MAX_ARRAY_DIMENSION 10
+#define ALIGN_ME(offset, alignment)   \
+        offset = (((offset) + ((alignment) - 1)) & ~((alignment) - 1))
+#define ALIGN_ZERO(offset, alignment, zero) (offset -= zero, ALIGN_ME(offset, alignment), offset += zero)
+
 #define KEY_COMMENT     ("  //@key")
 
 
@@ -2747,7 +2822,451 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
                   is_key ? KEY_COMMENT : "");
   return retVal;
 }
+static void rtps_util_dissect_parameter_header(tvbuff_t * tvb, gint * offset,
+        gboolean little_endian, guint32 * member_id, guint32 * member_length) {
+  *member_id = NEXT_guint16(tvb, *offset, little_endian);
+  *offset += 2;
+  *member_length = NEXT_guint16(tvb, *offset, little_endian);
+  *offset += 2;
 
+  if ((*member_id & PID_EXTENDED) == PID_EXTENDED) {
+    /* get extended member id and length */
+    *member_id = tvb_get_guint32(tvb, *offset, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+    *offset += 4;
+    *member_length = tvb_get_guint32(tvb, *offset, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+    *offset += 4;
+  }
+}
+
+static gint rtps_util_add_type_id(proto_tree *tree,
+        tvbuff_t * tvb, gint offset, gboolean little_endian,
+        gint zero, int hf_base, proto_item * append_info_item) {
+  proto_item * ti;
+  guint16 short_number;
+  guint64 longlong_number;
+  int hf_type;
+  short_number = NEXT_guint16(tvb, offset, little_endian);
+  ti = proto_tree_add_item(tree, hf_rtps_type_object_type_id_disc, tvb, offset,
+            2, little_endian ? ENC_LITTLE_ENDIAN: ENC_BIG_ENDIAN);
+  PROTO_ITEM_SET_HIDDEN(ti);
+
+  /* Here we choose the proper hf item to use */
+  if (hf_base != -1) {
+    if (short_number <= 13)
+      hf_type = hf_rtps_type_object_base_primitive_type_id;
+    else
+      hf_type = hf_rtps_type_object_base_type;
+  } else {
+    if (short_number <= 13)
+      hf_type = hf_rtps_type_object_primitive_type_id;
+    else
+      hf_type = hf_rtps_type_object_type_id;
+  }
+
+  offset += 2;
+  if (short_number <= 13) {
+    proto_tree_add_item(tree, hf_type, tvb, offset,
+                2, little_endian ? ENC_LITTLE_ENDIAN: ENC_BIG_ENDIAN);
+    if (append_info_item) {
+      proto_item_append_text(append_info_item, "(%s)",
+                val_to_str(short_number, type_object_kind, "(0x%016x)"));
+    }
+    offset += 2;
+  } else {
+    ALIGN_ZERO(offset, 8, zero);
+    longlong_number = tvb_get_guint64(tvb, offset,
+            little_endian ? ENC_LITTLE_ENDIAN: ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_type, tvb, offset,
+                8, little_endian ? ENC_LITTLE_ENDIAN: ENC_BIG_ENDIAN);
+    if (append_info_item) {
+      proto_item_append_text(append_info_item, "(0x%016" G_GINT64_MODIFIER "x)", longlong_number);
+    }
+    offset += 8;
+  }
+
+  return offset;
+}
+
+static gint rtps_util_add_type_annotation_usage(proto_tree *tree,
+        tvbuff_t * tvb, gint offset, gboolean little_endian, gint zero) {
+  guint32 long_number, i;
+  guint16 short_number;
+  offset = rtps_util_add_type_id(tree, tvb, offset, little_endian, zero, -1, NULL);
+  long_number = NEXT_guint32(tvb, offset, little_endian);
+  offset += 4;
+  for (i = 0; i < long_number; i++) {
+    proto_tree_add_item(tree, hf_rtps_type_object_member_id, tvb, offset,
+        4, little_endian ? ENC_LITTLE_ENDIAN: ENC_BIG_ENDIAN);
+    offset += 4;
+    short_number = NEXT_guint16(tvb, offset, little_endian);
+    proto_tree_add_item(tree, hf_rtps_type_object_annotation_value_d, tvb, offset,
+        2, little_endian ? ENC_LITTLE_ENDIAN: ENC_BIG_ENDIAN);
+    offset += 2;
+    /* There may be more additions in the future */
+    switch (short_number) {
+      case 4: /* UINT_16 */
+        proto_tree_add_item(tree, hf_rtps_type_object_annotation_value_16, tvb, offset,
+            2, little_endian ? ENC_LITTLE_ENDIAN: ENC_BIG_ENDIAN);
+        offset += 2;
+        break;
+    default:
+        break;
+    }
+
+  }
+  return offset;
+}
+static gint rtps_util_add_type_library_type(proto_tree *tree,
+        tvbuff_t * tvb, gint offset, gboolean little_endian) {
+  proto_tree * annotation_tree;
+  guint32 member_id = 0, member_length = 0, long_number, i;
+  gint offset_tmp;
+  guint16 short_number;
+  gchar * name = NULL;
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  offset_tmp = offset;
+
+  /* dissect property */
+  short_number = NEXT_guint16(tvb, offset_tmp, little_endian);
+  proto_tree_add_bitmask_value(tree, tvb, offset_tmp, hf_rtps_type_object_flags,
+          ett_rtps_flags, TYPE_FLAG_FLAGS, short_number);
+  offset_tmp += 2;
+  offset_tmp = rtps_util_add_type_id(tree, tvb, offset_tmp, little_endian, offset, -1, tree);
+  rtps_util_add_string(tree, tvb, offset_tmp, hf_rtps_type_object_type_property_name,
+          little_endian);
+  long_number = NEXT_guint32(tvb, offset_tmp, little_endian);
+  name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset_tmp+4, long_number, ENC_ASCII);
+  proto_item_append_text(tree, " %s", name);
+  offset += member_length;
+
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  offset_tmp = offset;
+
+  /* dissect annotation_seq */
+  long_number = NEXT_guint32(tvb, offset_tmp, little_endian);
+  annotation_tree = proto_tree_add_subtree_format(tree, tvb, offset_tmp, member_length,
+            ett_rtps_type_annotation_usage_list, NULL, "Annotation Usage Member List (%d elements)",
+            long_number);
+  offset_tmp += 4;
+  for (i = 0; i < long_number ; i++) {
+      offset_tmp = rtps_util_add_type_annotation_usage(annotation_tree, tvb, offset_tmp,
+              little_endian, offset);
+  }
+  offset += member_length;
+
+  return offset;
+}
+static void rtps_util_add_type_element_enumeration(proto_tree *tree,
+        tvbuff_t * tvb, gint offset , gboolean little_endian) {
+  proto_tree * enumerated_constant;
+  guint32 member_id = 0, member_length = 0;
+  guint32 long_number, i;
+  gint enum_size, offset_tmp = offset;
+  offset = rtps_util_add_type_library_type(tree, tvb, offset, little_endian);
+
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  /* dissect Bound */
+  proto_tree_add_item(tree, hf_rtps_type_object_bound, tvb, offset,
+                      4, little_endian ? ENC_LITTLE_ENDIAN: ENC_BIG_ENDIAN);
+  offset += member_length;
+
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  /* dissect constant seq */
+  offset_tmp = offset;
+  long_number = NEXT_guint32(tvb, offset_tmp, little_endian);
+  offset_tmp += 4;
+  for (i = 0; i < long_number; i++) {
+    gchar * name = NULL;
+    guint32 size, value;
+    enum_size = offset_tmp;
+    size = NEXT_guint32(tvb, offset_tmp + 4, little_endian);
+    name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset_tmp + 8, size, ENC_ASCII);
+    value = NEXT_guint32(tvb, offset_tmp, little_endian);
+    enumerated_constant = proto_tree_add_subtree_format(tree, tvb, offset_tmp, 0,
+          ett_rtps_type_enum_constant, NULL, "%s (%u)", name, value);
+    proto_tree_add_item(enumerated_constant, hf_rtps_type_object_enum_constant_value, tvb, offset_tmp,
+          4, little_endian ? ENC_LITTLE_ENDIAN: ENC_BIG_ENDIAN);
+    offset_tmp += 4;
+    offset_tmp = rtps_util_add_string(enumerated_constant, tvb, offset_tmp, hf_rtps_type_object_enum_constant_name,
+          little_endian ? ENC_LITTLE_ENDIAN: ENC_BIG_ENDIAN);
+    proto_item_set_len(enumerated_constant, offset_tmp - enum_size);
+  }
+  offset += member_length;
+}
+
+static void rtps_util_add_type_element_sequence(proto_tree *tree,
+        tvbuff_t * tvb, gint offset , gboolean little_endian) {
+  guint32 member_id = 0, member_length = 0;
+  gint zero_alignment;
+  offset = rtps_util_add_type_library_type(tree, tvb, offset, little_endian);
+
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  zero_alignment = offset;
+  rtps_util_add_type_id(tree, tvb, offset, little_endian, zero_alignment,
+          -1 , NULL);
+  offset += member_length;
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  proto_tree_add_item(tree, hf_rtps_type_object_element_shared, tvb, offset,
+                          1, little_endian ? ENC_LITTLE_ENDIAN: ENC_BIG_ENDIAN);
+  offset += member_length;
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  /* dissect Bound */
+  proto_tree_add_item(tree, hf_rtps_type_object_bound, tvb, offset,
+                        4, little_endian ? ENC_LITTLE_ENDIAN: ENC_BIG_ENDIAN);
+  offset += member_length;
+}
+
+static void rtps_util_add_type_element_string(proto_tree *tree,
+        tvbuff_t * tvb, gint offset , gboolean little_endian) {
+  guint32 member_id = 0, member_length = 0;
+  gint zero_alignment;
+  offset = rtps_util_add_type_library_type(tree, tvb, offset, little_endian);
+
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  zero_alignment = offset;
+  rtps_util_add_type_id(tree, tvb, offset, little_endian, zero_alignment,
+          -1 , NULL);
+  offset += member_length;
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  proto_tree_add_item(tree, hf_rtps_type_object_element_shared, tvb, offset,
+                          1, little_endian ? ENC_LITTLE_ENDIAN: ENC_BIG_ENDIAN);
+  offset += member_length;
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  /* dissect Bound */
+  proto_tree_add_item(tree, hf_rtps_type_object_bound, tvb, offset,
+                        4, little_endian ? ENC_LITTLE_ENDIAN: ENC_BIG_ENDIAN);
+  offset += member_length;
+}
+
+static void rtps_util_add_type_element_array(proto_tree *tree,
+        tvbuff_t * tvb, gint offset , gboolean little_endian) {
+  proto_tree * bound_tree;
+  guint32 member_id = 0, member_length = 0;
+  guint32 long_number, i;
+  gint zero_alignment, offset_tmp;
+  offset = rtps_util_add_type_library_type(tree, tvb, offset, little_endian);
+
+  /* Dissect Collection Type */
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  zero_alignment = offset;
+  rtps_util_add_type_id(tree, tvb, offset, little_endian, zero_alignment,
+          -1 , NULL);
+  offset += member_length;
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  proto_tree_add_item(tree, hf_rtps_type_object_element_shared, tvb, offset,
+                          1, little_endian ? ENC_LITTLE_ENDIAN: ENC_BIG_ENDIAN);
+  offset += member_length;
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+
+  /* dissect Bound sequence */
+
+  offset_tmp = offset;
+  long_number = NEXT_guint32(tvb, offset_tmp, little_endian);
+  bound_tree = proto_tree_add_subtree_format(tree, tvb, offset_tmp, member_length,
+              ett_rtps_type_bound_list, NULL, "Bounds (%d elements)",
+              long_number);
+  offset_tmp += 4;
+  for (i = 0; i < long_number ; i++) {
+    proto_tree_add_item(bound_tree, hf_rtps_type_object_bound, tvb, offset_tmp,
+          4, little_endian ? ENC_LITTLE_ENDIAN: ENC_BIG_ENDIAN);
+    offset_tmp += 4;
+  }
+}
+
+static void rtps_util_add_type_element_alias(proto_tree *tree,
+        tvbuff_t * tvb, gint offset , gboolean little_endian) {
+  guint32 member_id = 0, member_length = 0;
+  offset = rtps_util_add_type_library_type(tree, tvb, offset, little_endian);
+
+  /* dissect base_type */
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  offset = rtps_util_add_type_id(tree, tvb, offset, little_endian, offset, hf_rtps_type_object_base_type, NULL);
+}
+static gint rtps_util_add_type_member(proto_tree *tree,
+        tvbuff_t * tvb, gint offset, gboolean little_endian) {
+  proto_tree * member_property, *annotation_tree;
+  guint32 member_id = 0, member_length = 0;
+  guint32 long_number, i;
+  guint16 short_number;
+  gint offset_tmp;
+  gchar * name = NULL;
+  member_property = proto_tree_add_subtree(tree, tvb, offset, 0,
+                ett_rtps_type_element, NULL, "Member Property");
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  offset_tmp = offset;
+  short_number = NEXT_guint16(tvb, offset_tmp, little_endian);
+  proto_tree_add_bitmask_value(tree, tvb, offset_tmp, hf_rtps_type_object_flags,
+          ett_rtps_flags, MEMBER_FLAGS, short_number);
+  offset_tmp += 2;
+  ALIGN_ZERO(offset_tmp, 4, offset);
+  proto_tree_add_item(member_property, hf_rtps_type_object_member_id, tvb, offset_tmp,
+                      4, little_endian ? ENC_LITTLE_ENDIAN: ENC_BIG_ENDIAN);
+  member_id = NEXT_guint32(tvb, offset_tmp, little_endian);
+  offset_tmp += 4;
+  offset_tmp = rtps_util_add_type_id(member_property, tvb, offset_tmp, little_endian,
+          offset, -1, tree);
+  rtps_util_add_string(member_property, tvb, offset_tmp, hf_rtps_type_object_name,
+                        little_endian ? ENC_LITTLE_ENDIAN: ENC_BIG_ENDIAN);
+  long_number = NEXT_guint32(tvb, offset_tmp, little_endian);
+  name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset_tmp+4, long_number, ENC_ASCII);
+  proto_item_append_text(tree, " %s (ID: %d)", name, member_id);
+  offset += member_length;
+
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  offset_tmp = offset;
+  long_number = NEXT_guint32(tvb, offset_tmp, little_endian);
+  annotation_tree = proto_tree_add_subtree_format(tree, tvb, offset_tmp, member_length,
+              ett_rtps_type_annotation_usage_list, NULL, "Annotation Usage Member List (%d elements)",
+              long_number);
+  offset_tmp += 4;
+  for (i = 0; i < long_number ; i++) {
+        offset_tmp = rtps_util_add_type_annotation_usage(annotation_tree, tvb, offset_tmp,
+                little_endian, offset);
+  }
+  offset += member_length;
+
+  offset += 4; /* PID_LIST_END */
+
+  return offset;
+}
+static void rtps_util_add_type_element_struct(proto_tree *tree,
+        tvbuff_t * tvb, gint offset , gboolean little_endian) {
+  proto_tree * member;
+  guint32 member_id = 0, member_length = 0;
+  guint32 long_number, i;
+  gint offset_tmp, member_size;
+  offset = rtps_util_add_type_library_type(tree, tvb, offset, little_endian);
+
+  /* dissect base_type */
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  offset = rtps_util_add_type_id(tree, tvb, offset, little_endian, offset, hf_rtps_type_object_base_type, NULL);
+
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  /* dissect seq_member*/
+  offset_tmp = offset;
+  long_number = NEXT_guint32(tvb, offset_tmp, little_endian);
+  offset_tmp += 4;
+  for (i = 0; i < long_number; i++) {
+      member_size = offset_tmp;
+      member = proto_tree_add_subtree(tree, tvb, offset_tmp, 0,
+          ett_rtps_type_enum_constant, NULL, "");
+      offset_tmp = rtps_util_add_type_member(member, tvb, offset_tmp, little_endian);
+      proto_item_set_len(member, offset_tmp - member_size);
+  }
+  offset += member_length;
+}
+static void rtps_util_add_type_library(proto_tree *tree, packet_info * pinfo,
+        tvbuff_t * tvb, gint offset, gboolean little_endian, guint32 size);
+
+static void rtps_util_add_type_element_module(proto_tree *tree, packet_info * pinfo,
+        tvbuff_t * tvb, gint offset , gboolean little_endian) {
+  guint32 long_number;
+  gchar * name = NULL;
+  long_number = tvb_get_guint32(tvb, offset, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+  name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, long_number, ENC_ASCII);
+  proto_item_set_text(tree, "module %s", name);
+  offset = rtps_util_add_string(tree, tvb, offset, hf_rtps_type_object_element_module_name, little_endian);
+  rtps_util_add_type_library(tree, pinfo, tvb, offset, little_endian, -1);
+}
+static gint rtps_util_add_type_library_element(proto_tree *tree, packet_info * pinfo,
+        tvbuff_t * tvb, gint offset , gboolean little_endian) {
+  proto_tree * element_tree;
+  guint32 long_number;
+  guint32 member_id = 0, member_length = 0;
+  gint initial_offset = offset;
+  long_number = NEXT_guint32(tvb, offset, little_endian);
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  long_number = NEXT_guint32(tvb, offset, little_endian);
+  element_tree = proto_tree_add_subtree(tree, tvb, offset, 0,
+                    ett_rtps_type_element, NULL, "");
+  offset += member_length;
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  proto_item_set_len(element_tree, member_length + offset - initial_offset);
+  switch (long_number) {
+    case 14: /*ENUMERATION */
+      rtps_util_add_type_element_enumeration(element_tree, tvb, offset, little_endian);
+      break;
+    case 16: /* ALIAS */
+      rtps_util_add_type_element_alias(element_tree, tvb, offset, little_endian);
+      break;
+    case 17: /* ARRAY */
+      rtps_util_add_type_element_array(element_tree, tvb, offset, little_endian);
+      break;
+    case 18: /* SEQUENCE */
+      rtps_util_add_type_element_sequence(element_tree, tvb, offset, little_endian);
+      break;
+    case 19: /* STRING : COLLECTION */
+      rtps_util_add_type_element_string(element_tree, tvb, offset, little_endian);
+      break;
+    case 22: /* STRUCT */
+      rtps_util_add_type_element_struct(element_tree, tvb, offset, little_endian);
+      break;
+    case 24:
+      rtps_util_add_type_element_module(element_tree, pinfo, tvb, offset, little_endian);
+      break;
+    default:
+      proto_tree_add_item(element_tree, hf_rtps_type_object_element_raw, tvb, offset,
+                          member_length, little_endian ? ENC_LITTLE_ENDIAN: ENC_BIG_ENDIAN);
+      break;
+  }
+  offset += member_length;
+  LONG_ALIGN(offset);
+  long_number = NEXT_guint32(tvb, offset, little_endian);
+  if ((long_number & PID_LIST_END) != PID_LIST_END) {
+      expert_add_info_format(pinfo, element_tree, &ei_rtps_parameter_value_invalid,
+              "Now it should be PID_LIST_END and it is not"); \
+  }
+  offset += 4;
+  proto_item_set_len(element_tree, offset - initial_offset);
+  return offset;
+}
+static void rtps_util_add_type_library(proto_tree *tree, packet_info * pinfo,
+        tvbuff_t * tvb, gint offset, gboolean little_endian, guint32 size) {
+  proto_tree * library_tree;
+  guint32 long_number, i;
+  long_number = NEXT_guint32(tvb, offset, little_endian);
+  library_tree = proto_tree_add_subtree_format(tree, tvb, offset, size,
+                    ett_rtps_type_library, NULL, "Type Library (%d elements)", long_number);
+  offset += 4;
+  for (i = 0; i < long_number; i++) {
+      offset = rtps_util_add_type_library_element(library_tree, pinfo, tvb,
+              offset, little_endian);
+  }
+
+}
+static void rtps_util_add_typeobject(proto_tree *tree, packet_info * pinfo,
+        tvbuff_t * tvb, gint offset, gboolean little_endian, guint32 size) {
+  proto_tree * typeobject_tree;
+  gint offset_tmp = 0;
+  guint32 member_id = 0, member_length = 0;
+  guint32 long_number;
+  typeobject_tree = proto_tree_add_subtree(tree, tvb, offset, size,
+          ett_rtps_type_object, NULL, "Type Object");
+  /* --- This is the standard parameterized serialization --- */
+  /*                       TypeLibrary                        */
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  offset_tmp = offset;
+  /* Dissect the member */
+  rtps_util_add_type_library(typeobject_tree, pinfo, tvb, offset_tmp, little_endian, member_length);
+  offset += member_length;
+  /*                    End TypeLibrary                       */
+
+  /*                         _TypeId                          */
+  rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
+  offset_tmp = offset;
+  /* Dissect the member. In this case, the typeid is an union with a short
+   * as a discriminator*/
+  rtps_util_add_type_id(typeobject_tree, tvb, offset_tmp, little_endian, offset, -1, NULL);
+  offset = offset + member_length;
+  /*                      End _TypeId                          */
+
+  long_number = NEXT_guint32(tvb, offset, little_endian);
+  if ((long_number & PID_LIST_END) != PID_LIST_END) {
+      expert_add_info_format(pinfo, typeobject_tree, &ei_rtps_parameter_value_invalid,
+              "This should be PID_LIST_END and it is not"); \
+  }
+
+}
 /* ------------------------------------------------------------------------- */
 /* Insert in the protocol tree the next bytes interpreted as Sequence of
  * Octects.
@@ -3329,7 +3848,8 @@ static gboolean dissect_parameter_sequence_rti(proto_tree *rtps_parameter_tree, 
     }
 
     case PID_TYPE_OBJECT: {
-      /* Typeobject dissection may be added in the future */
+      rtps_util_add_typeobject(rtps_parameter_tree, pinfo, tvb,
+              offset, little_endian, param_length);
       break;
     }
 
@@ -9927,6 +10447,117 @@ void proto_register_rtps(void) {
         "Participant Message DataReader", "rtps.flag.participant_message_datareader",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000800, NULL, HFILL }
     },
+    { &hf_rtps_type_object_type_id_disc,
+          { "TypeId (_d)", "rtps.type_object.type_id.discr",
+            FT_INT16, BASE_DEC, 0x0, 0,
+            NULL, HFILL }
+    },
+    { &hf_rtps_type_object_primitive_type_id,
+      { "TypeId", "rtps.type_object.type_id",
+        FT_UINT16, BASE_HEX, VALS(type_object_kind), 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_type_object_base_primitive_type_id,
+      { "Base Id", "rtps.type_object.type_id",
+        FT_UINT16, BASE_HEX, VALS(type_object_kind), 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_type_object_type_id,
+      { "TypeId", "rtps.type_object.type_id",
+        FT_UINT64, BASE_HEX, 0x0, 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_type_object_base_type,
+      { "Base Type", "rtps.type_object.type_id",
+        FT_UINT64, BASE_HEX, 0x0, 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_type_object_element_raw, {
+        "Type Element Content", "rtps.type_object.element",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_type_object_type_property_name,
+      { "Name", "rtps.type_object.property.name",
+        FT_STRING, BASE_NONE, 0x0, 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_type_object_member_id,
+      { "Member Id", "rtps.type_object.annotation.member_id",
+        FT_UINT32, BASE_DEC, 0x0, 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_type_object_name,
+      { "Name", "rtps.type_object.member.name",
+        FT_STRING, BASE_NONE, 0x0, 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_type_object_annotation_value_d,
+      { "Annotation Member (_d)", "rtps.type_object.annotation.value_d",
+        FT_UINT16, BASE_DEC, 0x0, 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_type_object_annotation_value_16,
+      { "16 bits type", "rtps.type_object.annotation.value",
+        FT_UINT16, BASE_DEC, 0x0, 0,
+        NULL, HFILL }
+    },
+    { &hf_rtps_type_object_bound,
+    { "Bound", "rtps.type_object.bound",
+          FT_UINT32, BASE_DEC, 0x0, 0,
+          NULL, HFILL }
+    },
+    { &hf_rtps_type_object_enum_constant_name,
+      { "Enum name", "rtps.type_object.enum.name",
+          FT_STRING, BASE_NONE, 0x0, 0,
+          NULL, HFILL }
+    },
+    { &hf_rtps_type_object_enum_constant_value,
+      { "Enum value", "rtps.type_object.enum.value",
+          FT_INT32, BASE_DEC, 0x0, 0,
+          NULL, HFILL }
+    },
+    { &hf_rtps_type_object_element_shared,
+      { "Element shared", "rtps.type_object.shared",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0,
+          NULL, HFILL }
+    },
+    { &hf_rtps_flag_typeflag_final, {
+        "FINAL", "rtps.flag.typeflags.final",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0001, NULL, HFILL }
+    },
+    { &hf_rtps_flag_typeflag_mutable, {
+        "MUTABLE", "rtps.flag.typeflags.mutable",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0002, NULL, HFILL }
+    },
+    { &hf_rtps_flag_typeflag_nested, {
+        "NESTED", "rtps.flag.typeflags.nested",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0004, NULL, HFILL }
+    },
+    { &hf_rtps_type_object_flags, {
+        "Flags", "rtps.flag.typeflags",
+        FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_flag_memberflag_key, {
+        "Key", "rtps.flag.typeflags.key",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0001, NULL, HFILL }
+    },
+    { &hf_rtps_flag_memberflag_optional, {
+        "Optional", "rtps.flag.typeflags.key",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0002, NULL, HFILL }
+    },
+    { &hf_rtps_flag_memberflag_shareable, {
+        "Shareable", "rtps.flag.typeflags.key",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0004, NULL, HFILL }
+    },
+    { &hf_rtps_flag_memberflag_union_default, {
+        "Union default", "rtps.flag.typeflags.key",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0008, NULL, HFILL }
+    },
+    { &hf_rtps_type_object_element_module_name,
+      { "Module name", "rtps.type_object.module_name",
+        FT_STRINGZ, BASE_NONE, NULL, 0,  NULL, HFILL }
+    },
   };
 
   static gint *ett[] = {
@@ -9974,6 +10605,12 @@ void proto_register_rtps(void) {
     &ett_rtps_property_list,
     &ett_rtps_property,
     &ett_rtps_topic_info,
+    &ett_rtps_type_object,
+    &ett_rtps_type_library,
+    &ett_rtps_type_element,
+    &ett_rtps_type_annotation_usage_list,
+    &ett_rtps_type_enum_constant,
+    &ett_rtps_type_bound_list,
   };
 
   static ei_register_info ei[] = {
