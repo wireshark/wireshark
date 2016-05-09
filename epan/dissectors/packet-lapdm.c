@@ -353,7 +353,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     }
     else
     {
-        if (((control & XDLC_S_U_MASK) == XDLC_U) && ((control & XDLC_U_MODIFIER_MASK) == XDLC_SABM)) {
+        if (!PINFO_FD_VISITED(pinfo) && ((control & XDLC_S_U_MASK) == XDLC_U) && ((control & XDLC_U_MODIFIER_MASK) == XDLC_SABM)) {
             /* SABM frame; reset the last N(S) to an invalid value */
             guint32 fragment_id = (pinfo->circuit_id << 4) | (sapi << 1) | pinfo->p2p_dir;
             wmem_map_insert(lapdm_last_n_s_map, GUINT_TO_POINTER(fragment_id), GUINT_TO_POINTER(0));
