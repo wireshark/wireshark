@@ -96,7 +96,7 @@ void nstime_delta(nstime_t *delta, const nstime_t *b, const nstime_t *a )
            can never result. */
         delta->secs = 0;
         delta->nsecs = b->nsecs - a->nsecs;
-    } else if (b->secs <= a->secs) {
+    } else if (b->secs < a->secs) {
         /* The seconds part of b is less than the seconds part of a, so b is
            before a.
 
