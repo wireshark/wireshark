@@ -255,7 +255,8 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, struct _r
     ssrc_rev_(0),
     packet_count_rev_(0),
     setup_frame_number_rev_(0),
-    num_streams_(0)
+    num_streams_(0),
+    save_payload_error_(TAP_RTP_NO_ERROR)
 {
     ui->setupUi(this);
     loadGeometry(parent.width() * 4 / 5, parent.height() * 4 / 5);
@@ -408,6 +409,10 @@ void RtpAnalysisDialog::updateWidgets()
     if (hint.isEmpty()) {
         enable_tab = true;
         hint = tr("%1 streams found.").arg(num_streams_);
+    } else if (save_payload_error_ != TAP_RTP_NO_ERROR) {
+        /* We cannot save the payload but can still display the widget
+           or save CSV data */
+        enable_tab = true;
     }
 
     bool enable_nav = false;
@@ -425,8 +430,8 @@ void RtpAnalysisDialog::updateWidgets()
         hint.append(tr(" G: Go to packet, N: Next problem packet"));
     }
 
-    bool enable_save_fwd_audio = fwd_tempfile_->isOpen();
-    bool enable_save_rev_audio = rev_tempfile_->isOpen();
+    bool enable_save_fwd_audio = fwd_tempfile_->isOpen() && (save_payload_error_ == TAP_RTP_NO_ERROR);
+    bool enable_save_rev_audio = rev_tempfile_->isOpen() && (save_payload_error_ == TAP_RTP_NO_ERROR);
     ui->actionSaveAudio->setEnabled(enable_save_fwd_audio && enable_save_rev_audio);
     ui->actionSaveForwardAudio->setEnabled(enable_save_fwd_audio);
     ui->actionSaveReverseAudio->setEnabled(enable_save_rev_audio);
@@ -753,6 +758,7 @@ void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *sta
     {
         tmpfile->close();
         err_str_ = tr("Can't save in a file: Wrong length of captured packets.");
+        save_payload_error_ = TAP_RTP_WRONG_LENGTH;
         return;
     }
 
@@ -764,6 +770,7 @@ void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *sta
     {
         tmpfile->close();
         err_str_ = tr("Can't save in a file: RTP data with padding.");
+        save_payload_error_ = TAP_RTP_PADDING_ERROR;
         return;
     }
 
@@ -800,6 +807,7 @@ void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *sta
                 /* Write error or short write */
                 tmpfile->close();
                 err_str_ = tr("Can't save in a file: File I/O problem.");
+                save_payload_error_ = TAP_RTP_FILE_IO_ERROR;
                 return;
             }
         }
@@ -816,6 +824,7 @@ void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *sta
             /* Not all the data was captured. */
             tmpfile->close();
             err_str_ = tr("Can't save in a file: Not all data in all packets was captured.");
+            save_payload_error_ = TAP_RTP_WRONG_LENGTH;
             return;
         }
 
@@ -828,6 +837,7 @@ void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *sta
         if (nchars != (rtpinfo->info_payload_len - rtpinfo->info_padding_count)) {
             /* Write error or short write */
             err_str_ = tr("Can't save in a file: File I/O problem.");
+            save_payload_error_ = TAP_RTP_FILE_IO_ERROR;
             tmpfile->close();
             return;
         }
