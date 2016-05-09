@@ -24,6 +24,12 @@
 
 %global package_version @VERSION@
 
+# Set this variable to 1 if you have modified this file to patch Wireshark in
+# such a way that automake needs to be re-run (e.g., you modified a Makefile.am
+# or Makefile.common, for example to add a dissector).
+# Setting this causes ./autogen.sh to be re-run (which runs automake, etc.).
+%global run_automake 0
+
 
 Summary:	Wireshark is the world's foremost protocol analyzer
 Name:		wireshark
@@ -41,14 +47,17 @@ Obsoletes:	wireshark-devel
 
 BuildRoot:	/tmp/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:	autoconf >= @AC_MIN_VERSION@
-BuildRequires:	automake
 BuildRequires:	libtool
 BuildRequires:	gcc
-BuildRequires:	flex
-BuildRequires:	bison
 BuildRequires:	python
 BuildRequires:	perl
+
+%if %{run_automake}
+BuildRequires:	autoconf >= @AC_MIN_VERSION@
+BuildRequires:	automake
+BuildRequires:	flex
+BuildRequires:	bison
+%endif
 
 BuildRequires:	glib2-devel >= @GLIB_MIN_VERSION@
 Requires:	glib2 >= @GLIB_MIN_VERSION@
@@ -217,6 +226,10 @@ This package contains the GTK+ Wireshark GUI and desktop integration files.
 
 %prep
 %setup -q -n %{name}-%{package_version}
+
+%if %{run_automake}
+./autogen.sh
+%endif
 
 # Don't specify the prefix here: configure is a macro which expands to set
 # the prefix and everything else too.  If you need to change the prefix
@@ -426,6 +439,10 @@ fi
 %endif
 
 %changelog
+* Mon May  9 2016 Jeff Morriss
+- Make autoconf, automake, flex, and bison optional: most users (who aren't
+  patching Wireshark) don't need them to build an RPM.
+
 * Tue Nov 10 2015 Jeff Morriss
 - Rename the gnome package to gtk: Wireshark uses Gtk+ but isn't part of GNOME.
 
