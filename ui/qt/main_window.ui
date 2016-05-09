@@ -1599,6 +1599,9 @@
    <property name="toolTip">
     <string>Add or change a packet comment</string>
    </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+C</string>
+   </property>
   </action>
   <action name="actionEditConfigurationProfiles">
    <property name="checkable">
@@ -1643,6 +1646,9 @@
    </property>
    <property name="toolTip">
     <string>Capture file properties</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+Shift+C</string>
    </property>
   </action>
   <action name="actionStatisticsProtocolHierarchy">

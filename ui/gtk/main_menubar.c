@@ -1371,8 +1371,8 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 #ifdef WANT_PACKET_EDITOR
    { "/Edit/EditPacket",                NULL,               "_Edit Packet",                          NULL,                      NULL,           G_CALLBACK(edit_window_cb) },
 #endif
-   { "/Edit/AddEditPktComment",         WIRESHARK_STOCK_EDIT,   "Packet Comment...",                 NULL,                      NULL,           G_CALLBACK(edit_packet_comment_dlg) },
-   { "/Edit/AddEditCaptureComment",     NULL,                   "Capture Comment...",                NULL,                      NULL,           G_CALLBACK(edit_capture_comment_dlg_launch) },
+   { "/Edit/AddEditPktComment",         WIRESHARK_STOCK_EDIT,   "Packet Comment...",                "<alt><control>C",          NULL,           G_CALLBACK(edit_packet_comment_dlg) },
+   { "/Edit/AddEditCaptureComment",     NULL,                   "Capture Comment...",               "<shift><alt><control>C",   NULL,           G_CALLBACK(edit_capture_comment_dlg_launch) },
 
    { "/View/TimeDisplayFormat",     NULL,                   "_Time Display Format",                  NULL,                      NULL,           NULL },
 
