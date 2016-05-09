@@ -253,6 +253,10 @@ typedef struct _rtps_dissector_data {
 #define PID_STATUS_INFO                         (0x0071)
 #define PID_TYPE_OBJECT                         (0x0072)
 #define PID_TYPE_CONSISTENCY                    (0x0074)
+#define PID_EQUIVALENT_TYPE_NAME                (0x0075)
+#define PID_BASE_TYPE_NAME                      (0x0076)
+#define PID_ENABLE_ENCRYPTION                   (0x0077)
+#define PID_ENABLE_AUTHENTICATION               (0x0078)
 
 /* Vendor-specific: RTI */
 #define PID_PRODUCT_VERSION                     (0x8000)
@@ -267,10 +271,22 @@ typedef struct _rtps_dissector_data {
 #define PID_ACK_KIND                            (0x800b)
 #define PID_PEER_HOST_EPOCH                     (0x800e)
 #define PID_DOMAIN_ID                           (0x800f)
+#define PID_RELATED_READER_GUID                 (0x8010)/* inline QoS */
 #define PID_TRANSPORT_INFO_LIST                 (0x8010)
+#define PID_SOURCE_GUID                         (0x8011)/* inline QoS */
 #define PID_DIRECT_COMMUNICATION                (0x8011)
+#define PID_RELATED_SOURCE_GUID                 (0x8012)/* inline QoS */
+#define PID_TOPIC_QUERY_GUID                    (0x8013)/* inline QoS */
+#define PID_TOPIC_QUERY_PUBLICATION             (0x8014)
+#define PID_ENDPOINT_PROPERTY_CHANGE_EPOCH      (0x8015)
+#define PID_REACHABILITY_LEASE_DURATION         (0x8016)
+#define PID_VENDOR_BUILTIN_ENDPOINT_SET         (0x8017)
 #define PID_EXTENDED                            (0x3f01)
 #define PID_LIST_END                            (0x3f02)
+
+#define PID_IDENTITY_TOKEN                      (0x1001)
+#define PID_PERMISSIONS_TOKEN                   (0x1002)
+#define PID_DATA_TAGS                           (0x1003)
 
 /* Vendor-specific: PT */
 #define PID_PRISMTECH_WRITER_INFO               (0x8001)
@@ -303,6 +319,9 @@ typedef struct _rtps_dissector_data {
 #define APPKIND_MANAGED_APPLICATION             (0x01)
 #define APPKIND_MANAGER                         (0x02)
 
+#define RTI_SERVICE_REQUEST_ID_UNKNOWN                          0
+#define RTI_SERVICE_REQUEST_ID_TOPIC_QUERY                      1
+#define RTI_SERVICE_REQUEST_ID_LOCATOR_REACHABILITY             2
 
 /* Predefined EntityId */
 #define ENTITYID_UNKNOWN                        (0x00000000)
@@ -317,6 +336,24 @@ typedef struct _rtps_dissector_data {
 #define ENTITYID_BUILTIN_SDP_PARTICIPANT_READER (0x000100c7)
 #define ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER (0x000200c2)
 #define ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_READER (0x000200c7)
+
+/* Secure DDS */
+#define ENTITYID_SEDP_BUILTIN_PUBLICATIONS_SECURE_WRITER        (0xff0003c2)
+#define ENTITYID_SEDP_BUILTIN_PUBLICATIONS_SECURE_READER        (0xff0003c7)
+#define ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_SECURE_WRITER       (0xff0004c2)
+#define ENTITYID_SEDP_BUILTIN_SUBSCRIPTIONS_SECURE_READER       (0xff0004c7)
+#define ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_SECURE_WRITER  (0xff0200c2)
+#define ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_SECURE_READER  (0xff0200c7)
+#define ENTITYID_P2P_BUILTIN_PARTICIPANT_STATELESS_WRITER       (0x000201c3)
+#define ENTITYID_P2P_BUILTIN_PARTICIPANT_STATELESS_READER       (0x000201c4)
+#define ENTITYID_P2P_BUILTIN_PARTICIPANT_VOLATILE_SECURE_WRITER (0xff0202c2)
+#define ENTITYID_P2P_BUILTIN_PARTICIPANT_VOLATILE_SECURE_READER (0xff0202c7)
+
+/* Vendor-specific: RTI */
+#define ENTITYID_RTI_BUILTIN_SERVICE_REQUEST_WRITER             (0x00020082)
+#define ENTITYID_RTI_BUILTIN_SERVICE_REQUEST_READER             (0x00020087)
+#define ENTITYID_RTI_BUILTIN_LOCATOR_PING_WRITER                (0x00020182)
+#define ENTITYID_RTI_BUILTIN_LOCATOR_PING_READER                (0x00020187)
 
 /* Deprecated EntityId */
 #define ENTITYID_APPLICATIONS_WRITER            (0x000001c2)
@@ -344,6 +381,11 @@ typedef struct _rtps_dissector_data {
 #define ENTITYKIND_BUILTIN_READER_NO_KEY        (0xc4)
 #define ENTITYKIND_BUILTIN_READER_WITH_KEY      (0xc7)
 
+/* vendor specific RTI */
+#define ENTITYKIND_RTI_BUILTIN_WRITER_WITH_KEY      (0x82)
+#define ENTITYKIND_RTI_BUILTIN_WRITER_NO_KEY        (0x83)
+#define ENTITYKIND_RTI_BUILTIN_READER_NO_KEY        (0x84)
+#define ENTITYKIND_RTI_BUILTIN_READER_WITH_KEY      (0x87)
 
 /* Submessage Type */
 #define SUBMESSAGE_PAD                                  (0x01)
@@ -374,6 +416,7 @@ typedef struct _rtps_dissector_data {
 #define SUBMESSAGE_APP_ACK                              (0x1c)
 #define SUBMESSAGE_APP_ACK_CONF                         (0x1d)
 #define SUBMESSAGE_HEARTBEAT_VIRTUAL                    (0x1e)
+#define SUBMESSAGE_SECURE                               (0x30)
 
 #define SUBMESSAGE_RTI_CRC                              (0x80)
 
@@ -538,7 +581,7 @@ extern void rtps_util_add_liveliness_qos(proto_tree *tree, tvbuff_t * tvb, gint 
 extern gint rtps_util_add_seq_string(proto_tree *tree, tvbuff_t* tvb, gint offset,
                               gboolean little_endian, int param_length, int hf_numstring,
                               int hf_string, const char *label);
-extern void rtps_util_add_seq_octets(proto_tree *tree, packet_info *pinfo, tvbuff_t* tvb,
+extern gint rtps_util_add_seq_octets(proto_tree *tree, packet_info *pinfo, tvbuff_t* tvb,
                               gint offset, gboolean little_endian, int param_length, int hf_id);
 extern gint rtps_util_add_seq_ulong(proto_tree *tree, tvbuff_t * tvb, gint offset, int hf_item,
                         gboolean little_endian, int param_length, const char *label);
