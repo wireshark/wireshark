@@ -339,7 +339,7 @@ absolute_val_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 }
 
 static void
-absolute_val_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf)
+absolute_val_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf, unsigned int size)
 {
 	gchar *rep = abs_time_to_str(NULL, &fv->value.time, ABSOLUTE_TIME_LOCAL,
 		rtype == FTREPR_DISPLAY);
@@ -347,7 +347,7 @@ absolute_val_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *
 		*buf++ = '\"';
 	}
 
-	strcpy(buf, rep);
+	g_strlcpy(buf, rep, size);
 
 	if (rtype == FTREPR_DFILTER) {
 		buf += strlen(rep);
@@ -371,11 +371,11 @@ relative_val_repr_len(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 }
 
 static void
-relative_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
+relative_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
 	gchar *rep;
 	rep = rel_time_to_secs_str(NULL, &fv->value.time);
-	strcpy(buf, rep);
+	g_strlcpy(buf, rep, size);
 	wmem_free(NULL, rep);
 }
 

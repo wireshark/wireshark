@@ -230,7 +230,7 @@ integer_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 }
 
 static void
-integer_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
+integer_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
 	guint32 val;
 
@@ -240,7 +240,7 @@ integer_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *b
 	} else
 		val = fv->value.sinteger;
 
-	guint32_to_str_buf(val, buf, 11);
+	guint32_to_str_buf(val, buf, size);
 }
 
 static int
@@ -250,7 +250,7 @@ uinteger_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 }
 
 static void
-uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf)
+uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf, unsigned int size)
 {
 	if ((field_display == BASE_HEX) || (field_display == BASE_HEX_DEC))
 	{
@@ -263,7 +263,7 @@ uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf)
 	}
 	else
 	{
-		guint32_to_str_buf(fv->value.uinteger, buf, 11);
+		guint32_to_str_buf(fv->value.uinteger, buf, size);
 	}
 }
 
@@ -300,9 +300,9 @@ ipxnet_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 }
 
 static void
-ipxnet_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf)
+ipxnet_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf, unsigned int size)
 {
-	uinteger_to_repr(fv, rtype, BASE_HEX, buf);
+	uinteger_to_repr(fv, rtype, BASE_HEX, buf, size);
 }
 
 static gboolean
@@ -567,7 +567,7 @@ integer64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 }
 
 static void
-integer64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
+integer64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
 	guint64 val;
 
@@ -577,7 +577,7 @@ integer64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char 
 	} else
 		val = fv->value.sinteger64;
 
-	guint64_to_str_buf(val, buf, 20);
+	guint64_to_str_buf(val, buf, size);
 }
 
 static int
@@ -587,7 +587,7 @@ uinteger64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 }
 
 static void
-uinteger64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf)
+uinteger64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf, unsigned int size)
 {
 	if ((field_display == BASE_HEX) || (field_display == BASE_HEX_DEC))
 	{
@@ -600,7 +600,7 @@ uinteger64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *bu
 	}
 	else
 	{
-		guint64_to_str_buf(fv->value.uinteger64, buf, 21);
+		guint64_to_str_buf(fv->value.uinteger64, buf, size);
 	}
 }
 
@@ -685,7 +685,7 @@ boolean_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 }
 
 static void
-boolean_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
+boolean_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
 {
 	*buf++ = (fv->value.uinteger64) ? '1' : '0';
 	*buf   = '\0';
@@ -758,11 +758,11 @@ eui64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U
 static int
 eui64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
-	return 8*3-1;	/* XX:XX:XX:XX:XX:XX:XX:XX */
+	return EUI64_STR_LEN;	/* XX:XX:XX:XX:XX:XX:XX:XX */
 }
 
 static void
-eui64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
+eui64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
 	union {
 		guint64 value;
@@ -772,7 +772,7 @@ eui64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf
 	/* Copy and convert the address from host to network byte order. */
 	eui64.value = GUINT64_TO_BE(fv->value.integer64);
 
-	g_snprintf(buf, EUI64_STR_LEN, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
+	g_snprintf(buf, size, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
 	    eui64.bytes[0], eui64.bytes[1], eui64.bytes[2], eui64.bytes[3],
 	    eui64.bytes[4], eui64.bytes[5], eui64.bytes[6], eui64.bytes[7]);
 }

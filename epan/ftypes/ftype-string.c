@@ -66,11 +66,11 @@ string_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 }
 
 static void
-string_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf)
+string_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf, unsigned int size)
 {
 	switch (rtype) {
 		case FTREPR_DISPLAY:
-			strcpy(buf, fv->value.string);
+			g_strlcpy(buf, fv->value.string, size);
 			return;
 
 		case FTREPR_DFILTER:

@@ -95,7 +95,7 @@ oid_repr_len(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 }
 
 static void
-oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
+oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
 {
 	char* oid_str = oid_encoded2string(NULL, fv->value.bytes->data,fv->value.bytes->len);
 	/*
@@ -116,7 +116,7 @@ rel_oid_repr_len(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 }
 
 static void
-rel_oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
+rel_oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
 {
 	char* oid_str = rel_oid_encoded2string(NULL, fv->value.bytes->data,fv->value.bytes->len);
 	/*
@@ -132,13 +132,13 @@ rel_oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *b
 }
 
 static void
-system_id_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf)
+system_id_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
-	print_system_id_buf(fv->value.bytes->data,fv->value.bytes->len, buf, bytes_repr_len(fv, rtype, field_display));
+	print_system_id_buf(fv->value.bytes->data,fv->value.bytes->len, buf, size);
 }
 
 static void
-bytes_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf)
+bytes_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf, unsigned int size _U_)
 {
 	char separator;
 

@@ -392,7 +392,7 @@ fvalue_to_string_repr(wmem_allocator_t *scope, fvalue_t *fv, ftrepr_t rtype, int
 		return NULL;
 	}
 
-	fv->ftype->val_to_string_repr(fv, rtype, field_display, buf);
+	fv->ftype->val_to_string_repr(fv, rtype, field_display, buf, (unsigned int)len+1);
 	return buf;
 }
 

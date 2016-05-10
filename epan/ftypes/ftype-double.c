@@ -95,9 +95,9 @@ float_val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 }
 
 static void
-float_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
+float_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
-	g_snprintf(buf, DOUBLE_REPR_LENGTH, "%." G_STRINGIFY(FLT_DIG) "g", fv->value.floating);
+	g_snprintf(buf, size, "%." G_STRINGIFY(FLT_DIG) "g", fv->value.floating);
 }
 
 static int
@@ -113,9 +113,9 @@ double_val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 }
 
 static void
-double_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
+double_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
-	g_snprintf(buf, DOUBLE_REPR_LENGTH, "%." G_STRINGIFY(DBL_DIG) "g", fv->value.floating);
+	g_snprintf(buf, size, "%." G_STRINGIFY(DBL_DIG) "g", fv->value.floating);
 }
 
 static gboolean

@@ -213,7 +213,7 @@ sfloat_ieee_11073_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_
 }
 
 static void
-sfloat_ieee_11073_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
+sfloat_ieee_11073_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
     gint8    exponent;
     guint16  mantissa;
@@ -225,19 +225,19 @@ sfloat_ieee_11073_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_displa
     if (fv->value.sfloat_ieee_11073 >= 0x07FE && fv->value.sfloat_ieee_11073 <= 0x0802) {
         switch (fv->value.sfloat_ieee_11073) {
         case SFLOAT_VALUE_INFINITY_PLUS:
-            g_snprintf(buf, 10, "+INFINITY");
+            g_strlcpy(buf, "+INFINITY", size);
             break;
         case SFLOAT_VALUE_NAN:
-            g_snprintf(buf, 4, "NaN");
+            g_strlcpy(buf, "NaN", size);
             break;
         case SFLOAT_VALUE_NRES:
-            g_snprintf(buf, 5, "NRes");
+            g_strlcpy(buf, "NRes", size);
             break;
         case SFLOAT_VALUE_RFU:
-            g_snprintf(buf, 4, "RFU");
+            g_strlcpy(buf, "RFU", size);
             break;
         case SFLOAT_VALUE_INFINITY_MINUS:
-            g_snprintf(buf, 10, "-INFINITY");
+            g_strlcpy(buf, "-INFINITY", size);
             break;
         }
     }
@@ -262,7 +262,7 @@ sfloat_ieee_11073_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_displa
         offset += 1;
     }
 
-    mantissa_digits = g_snprintf(mantissa_str, 5, "%u", mantissa);
+    mantissa_digits = g_snprintf(mantissa_str, size, "%u", mantissa);
 
     if (exponent == 0) {
         memcpy(buf + offset, mantissa_str, mantissa_digits);
@@ -908,7 +908,7 @@ float_ieee_11073_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_p
 }
 
 static void
-float_ieee_11073_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
+float_ieee_11073_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
     gint8    exponent;
     guint32  mantissa;
@@ -920,19 +920,19 @@ float_ieee_11073_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display
     if (fv->value.float_ieee_11073 >= 0x007FFFFE && fv->value.float_ieee_11073 <= 0x00800002) {
         switch (fv->value.float_ieee_11073) {
         case FLOAT_VALUE_INFINITY_PLUS:
-            g_snprintf(buf, 10, "+INFINITY");
+            g_strlcpy(buf, "+INFINITY", size);
             break;
         case FLOAT_VALUE_NAN:
-            g_snprintf(buf, 4, "NaN");
+            g_strlcpy(buf, "NaN", size);
             break;
         case FLOAT_VALUE_NRES:
-            g_snprintf(buf, 5, "NRes");
+            g_strlcpy(buf, "NRes", size);
             break;
         case FLOAT_VALUE_RFU:
-            g_snprintf(buf, 4, "RFU");
+            g_strlcpy(buf, "RFU", size);
             break;
         case FLOAT_VALUE_INFINITY_MINUS:
-            g_snprintf(buf, 10, "-INFINITY");
+            g_strlcpy(buf, "-INFINITY", size);
             break;
         }
     }
@@ -956,7 +956,7 @@ float_ieee_11073_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display
         offset += 1;
     }
 
-    mantissa_digits = g_snprintf(mantissa_str, 9, "%u", mantissa);
+    mantissa_digits = g_snprintf(mantissa_str, size, "%u", mantissa);
 
     if (exponent == 0) {
         memcpy(buf + offset, mantissa_str, mantissa_digits);

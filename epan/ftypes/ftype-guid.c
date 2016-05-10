@@ -61,15 +61,15 @@ get_guid(const char *s, e_guid_t *guid)
     }
 
     p = s;
-    strncpy(digits, p, 8);
+    g_strlcpy(digits, p, 8);
     digits[8] = '\0';
     guid->data1 = (guint32)strtoul(digits, NULL, 16);
     p += 9;
-    strncpy(digits, p, 4);
+    g_strlcpy(digits, p, 4);
     digits[4] = '\0';
     guid->data2 = (guint16)strtoul(digits, NULL, 16);
     p += 5;
-    strncpy(digits, p, 4);
+    g_strlcpy(digits, p, 4);
     digits[4] = '\0';
     guid->data3 = (guint16)strtoul(digits, NULL, 16);
     p += 5;
@@ -105,9 +105,9 @@ guid_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 }
 
 static void
-guid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
+guid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
-    guid_to_str_buf(&fv->value.guid, buf, GUID_STR_LEN);
+    guid_to_str_buf(&fv->value.guid, buf, size);
 }
 
 static gboolean

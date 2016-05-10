@@ -125,10 +125,10 @@ gregex_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 }
 
 static void
-gregex_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf)
+gregex_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf, unsigned int size)
 {
     g_assert(rtype == FTREPR_DFILTER);
-    strcpy(buf, g_regex_get_pattern(fv->value.re));
+    g_strlcpy(buf, g_regex_get_pattern(fv->value.re), size);
 }
 
 /* BEHOLD - value contains the string representation of the regular expression,
