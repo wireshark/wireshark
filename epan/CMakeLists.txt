@@ -218,6 +218,13 @@ if (WERROR_COMMON_FLAGS)
 	)
 endif()
 
+# Cannot use $<$<BOOL:${HAVE_LIBLUA}>:$<TARGET_OBJECTS:wslua>> as that breaks
+# get_target_property(_libwireshark_location epan LOCATION).
+if(HAVE_LIBLUA)
+	set(wslua_sources $<TARGET_OBJECTS:wslua>)
+else()
+	set(wslua_sources)
+endif()
 add_library(epan ${LINK_MODE_LIB}
 	${LIBWIRESHARK_FILES}
 	${GENERATED_FILES}
@@ -229,7 +236,7 @@ add_library(epan ${LINK_MODE_LIB}
 	$<TARGET_OBJECTS:ftypes>
 	$<TARGET_OBJECTS:nghttp2>
 	$<TARGET_OBJECTS:wmem>
-	$<TARGET_OBJECTS:wslua>
+	${wslua_sources}
 	${CMAKE_BINARY_DIR}/image/libwireshark.rc
 )
 
