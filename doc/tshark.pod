@@ -41,6 +41,7 @@ S<[ B<-S> E<lt>separatorE<gt> ]>
 S<[ B<-t> a|ad|adoy|d|dd|e|r|u|ud|udoy ]>
 S<[ B<-T> fields|pdml|ps|psml|text ]>
 S<[ B<-u> E<lt>seconds typeE<gt>]>
+S<[ B<-U> E<lt>tap_nameE<gt>]>
 S<[ B<-v> ]>
 S<[ B<-V> ]>
 S<[ B<-w> E<lt>outfileE<gt>|- ]>
@@ -756,6 +757,12 @@ Specifies the seconds type.  Valid choices are:
 B<s> for seconds
 
 B<hms> for hours, minutes and seconds
+
+=item -U E<lt>tap nameE<gt>
+
+PDUs export, exports PDUs from infile to outfile according to the tap name given. Use -Y to filter.
+
+Enter an empty tap name "" to get a list of available names.
 
 =item -v
 

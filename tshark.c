@@ -94,6 +94,7 @@
 #include <epan/srt_table.h>
 #include <epan/rtd_table.h>
 #include <epan/ex-opt.h>
+#include <epan/exported_pdu.h>
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 #include <epan/asn1.h>
@@ -391,7 +392,7 @@ print_usage(FILE *output)
   fprintf(output, "  -W n                     Save extra information in the file, if supported.\n");
   fprintf(output, "                           n = write network address resolution information\n");
   fprintf(output, "  -X <key>:<value>         eXtension options, see the man page for details\n");
-  fprintf(output, "  -U tap_name[,filter]     PDUs export mode, see the man page for details\n");
+  fprintf(output, "  -U tap_name              PDUs export mode, see the man page for details\n");
   fprintf(output, "  -z <statistics>          various statistics, see the man page for details\n");
   fprintf(output, "  --capture-comment <comment>\n");
   fprintf(output, "                           add a capture comment to the newly created\n");
@@ -995,7 +996,7 @@ main(int argc, char *argv[])
   GSList              *disable_protocol_slist = NULL;
   GSList              *enable_heur_slist = NULL;
   GSList              *disable_heur_slist = NULL;
-  gchar              **volatile pdu_export_args = NULL;
+  gchar               *volatile pdu_export_arg = NULL;
   exp_pdu_t            exp_pdu_tap_data;
 
 /*
@@ -1670,12 +1671,19 @@ main(int argc, char *argv[])
       }
       break;
     case 'U':        /* Export PDUs to file */
+    {
+        GSList *export_pdu_tap_name_list = NULL;
+
         if (!*optarg) {
-            cmdarg_err("Tap name is required!");
+            cmdarg_err("Tap name is required! Valid names are:");
+            for (export_pdu_tap_name_list = get_export_pdu_tap_list(); export_pdu_tap_name_list; export_pdu_tap_name_list = g_slist_next(export_pdu_tap_name_list)) {
+                cmdarg_err("%s\n", (const char*)(export_pdu_tap_name_list->data));
+            }
             return 1;
         }
-        pdu_export_args = g_strsplit(optarg, ",", 2);
+        pdu_export_arg = g_strdup(optarg);
         break;
+    }
     case 'v':         /* Show version and exit */
       comp_info_str = get_compiled_version_info(get_tshark_compiled_version_info,
                                                 epan_get_compiled_version_info);
@@ -2176,10 +2184,10 @@ main(int argc, char *argv[])
 
   /* PDU export requested. Take the ownership of the '-w' file, apply tap
   * filters and start tapping. */
-  if (pdu_export_args) {
+  if (pdu_export_arg) {
       const char *exp_pdu_filename;
-      const char *exp_pdu_tap_name = pdu_export_args[0];
-      const char *exp_pdu_filter = pdu_export_args[1]; /* may be NULL to disable filter */
+      const char *exp_pdu_tap_name = pdu_export_arg;
+      const char *exp_pdu_filter = dfilter; /* may be NULL to disable filter */
       char       *exp_pdu_error;
       int         exp_fd;
 
@@ -2234,7 +2242,7 @@ main(int argc, char *argv[])
         we're exporting PDUs;
 
         we're using any taps that need dissection. */
-  do_dissection = print_packet_info || rfcode || dfcode || pdu_export_args ||
+  do_dissection = print_packet_info || rfcode || dfcode || pdu_export_arg ||
       tap_listeners_require_dissection();
   tshark_debug("tshark: do_dissection = %s", do_dissection ? "TRUE" : "FALSE");
 
@@ -2276,13 +2284,13 @@ main(int argc, char *argv[])
       exit_status = 2;
     }
 
-    if (pdu_export_args) {
+    if (pdu_export_arg) {
         err = exp_pdu_close(&exp_pdu_tap_data);
         if (err) {
             cmdarg_err("%s", wtap_strerror(err));
             exit_status = 2;
         }
-        g_strfreev(pdu_export_args);
+        g_free(pdu_export_arg);
     }
   } else {
     tshark_debug("tshark: no capture file specified");
