@@ -332,7 +332,7 @@ dissect_enttec_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 {
 	gint offset = 0;
 	guint32 head = 0;
-	proto_tree *ti,*enttec_tree=NULL;
+	proto_tree *ti, *enttec_tree;
 
 	/*
 	 * If not enough bytes for the header word, not an ENTTEC packet.
@@ -367,39 +367,35 @@ dissect_enttec_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
 				val_to_str(head, enttec_head_vals, "Unknown (0x%08x)"));
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_enttec, tvb, offset, -1, ENC_NA);
-		enttec_tree = proto_item_add_subtree(ti, ett_enttec);
+	ti = proto_tree_add_item(tree, proto_enttec, tvb, offset, -1, ENC_NA);
+	enttec_tree = proto_item_add_subtree(ti, ett_enttec);
+
+	proto_tree_add_item(enttec_tree, hf_enttec_head, tvb,
+			offset, 4, ENC_BIG_ENDIAN );
+	offset += 4;
+
+	switch (head) {
+		case ENTTEC_HEAD_ESPR:
+			offset = dissect_enttec_poll_reply( tvb, offset, enttec_tree);
+			break;
+
+		case ENTTEC_HEAD_ESPP:
+			offset = dissect_enttec_poll( tvb, offset, enttec_tree);
+			break;
+
+		case ENTTEC_HEAD_ESAP:
+			offset = dissect_enttec_ack( tvb, offset, enttec_tree);
+			break;
+
+		case ENTTEC_HEAD_ESDD:
+			offset = dissect_enttec_dmx_data( tvb, offset, enttec_tree);
+			break;
+
+		case ENTTEC_HEAD_ESZZ:
+			offset = dissect_enttec_reset( tvb, offset, enttec_tree);
+			break;
 	}
 
-	if (enttec_tree) {
-		proto_tree_add_item(enttec_tree, hf_enttec_head, tvb,
-					offset, 4, ENC_BIG_ENDIAN );
-		offset += 4;
-
-		switch (head) {
-			case ENTTEC_HEAD_ESPR:
-				offset = dissect_enttec_poll_reply( tvb, offset, enttec_tree);
-				break;
-
-			case ENTTEC_HEAD_ESPP:
-				offset = dissect_enttec_poll( tvb, offset, enttec_tree);
-				break;
-
-			case ENTTEC_HEAD_ESAP:
-				offset = dissect_enttec_ack( tvb, offset, enttec_tree);
-				break;
-
-			case ENTTEC_HEAD_ESDD:
-				offset = dissect_enttec_dmx_data( tvb, offset, enttec_tree);
-				break;
-
-			case ENTTEC_HEAD_ESZZ:
-				offset = dissect_enttec_reset( tvb, offset, enttec_tree);
-				break;
-		}
-
-	}
 	return offset;
 }
 
