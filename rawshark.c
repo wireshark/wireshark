@@ -1164,10 +1164,10 @@ static void field_display_to_string(header_field_info *hfi, char* buf, int size)
 static gboolean print_field_value(field_info *finfo, int cmd_line_index)
 {
     header_field_info   *hfinfo;
-    static char         *fs_buf = NULL;
-    char                *fs_ptr = fs_buf;
+    char                *fs_buf = NULL;
+    char                *fs_ptr = NULL;
     static GString     *label_s = NULL;
-    int                 fs_buf_len = FIELD_STR_INIT_LEN, fs_len;
+    int                 fs_len;
     guint              i;
     string_fmt_t       *sf;
     guint32            uvalue;
@@ -1177,11 +1177,6 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
     const true_false_string *tfstring = &tfs_true_false;
 
     hfinfo = finfo->hfinfo;
-
-    if (!fs_buf) {
-        fs_buf = (char *)g_malloc(fs_buf_len + 1);
-        fs_ptr = fs_buf;
-    }
 
     if (!label_s) {
         label_s = g_string_new("");
@@ -1194,14 +1189,10 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
          * e.g: ip.hdr_len
          */
         fs_len = fvalue_string_repr_len(&finfo->value, FTREPR_DFILTER, finfo->hfinfo->display);
-        while (fs_buf_len < fs_len) {
-            fs_buf_len *= 2;
-            fs_buf = (char *)g_realloc(fs_buf, fs_buf_len + 1);
-            fs_ptr = fs_buf;
-        }
-        fvalue_to_string_repr(&finfo->value,
+        fs_buf = fvalue_to_string_repr(&finfo->value,
                               FTREPR_DFILTER, finfo->hfinfo->display,
-                              fs_buf);
+                              NULL);
+        fs_ptr = fs_buf;
 
         /* String types are quoted. Remove them. */
         if (IS_FT_STRING(finfo->value.ftype->ftype) && fs_len > 2) {
@@ -1289,12 +1280,14 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
             }
         }
         printf(" %d=\"%s\"", cmd_line_index, label_s->str);
+        g_free(fs_buf);
         return TRUE;
     }
 
     if(finfo->value.ftype->val_to_string_repr)
     {
         printf(" %d=\"%s\"", cmd_line_index, fs_ptr);
+        g_free(fs_buf);
         return TRUE;
     }
 
