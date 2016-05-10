@@ -86,9 +86,7 @@
 #include <wsutil/str_util.h>
 #include <wsutil/file_util.h>
 
-#ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>
-#endif
 
 #ifndef HAVE_GETOPT_LONG
 #include "wsutil/wsgetopt.h"
