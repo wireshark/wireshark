@@ -25,6 +25,7 @@
 #define __FTYPES_H__
 
 #include <glib.h>
+#include "../wmem/wmem.h"
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus
@@ -256,20 +257,15 @@ int
 fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display);
 
 /* Creates the string representation of the field value.
- * If given non-NULL 'buf', the string is written at the memory
- * location pointed to by 'buf'. If 'buf' is NULL, new memory
- * is malloc'ed and the string representation is written there.
- * The pointer to the beginning of the string representation is
- * returned. If 'buf' was NULL, this points to the newly-allocated
- * memory. if 'buf' was non-NULL, then the return value will be
- * 'buf'.
+ * Memory for the buffer is allocated based on wmem allocator
+ * provided.
  *
  * field_display parameter should be a BASE_ value (enum field_display_e)
  * BASE_NONE should be used if field information isn't available.
  *
  * Returns NULL if the string cannot be represented in the given rtype.*/
 WS_DLL_PUBLIC char *
-fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf);
+fvalue_to_string_repr(wmem_allocator_t *scope, fvalue_t *fv, ftrepr_t rtype, int field_display);
 
 WS_DLL_PUBLIC ftenum_t
 fvalue_type_ftenum(fvalue_t *fv);

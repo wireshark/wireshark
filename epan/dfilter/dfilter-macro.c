@@ -55,7 +55,7 @@ void dump_dfilter_macro_t(const dfilter_macro_t *m, const char *function, const 
 
 static gboolean free_value(gpointer k _U_, gpointer v, gpointer u _U_) {
 	fvt_cache_entry_t* e = (fvt_cache_entry_t*)v;
-	g_free(e->repr);
+	wmem_free(NULL, e->repr);
 	g_free(e);
 	return TRUE;
 }
@@ -78,7 +78,7 @@ static gboolean fvt_cache_cb(proto_node * node, gpointer data _U_) {
 		}
 		e = g_new(fvt_cache_entry_t,1);
 		e->name = finfo->hfinfo->abbrev,
-		e->repr = fvalue_to_string_repr(&(finfo->value), FTREPR_DFILTER, finfo->hfinfo->display, NULL);
+		e->repr = fvalue_to_string_repr(NULL, &(finfo->value), FTREPR_DFILTER, finfo->hfinfo->display);
 		e->usable = TRUE;
 		g_hash_table_insert(fvt_cache,(void*)finfo->hfinfo->abbrev,e);
 	}

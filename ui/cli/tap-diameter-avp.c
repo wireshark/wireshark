@@ -106,11 +106,11 @@ diam_tree_to_csv(proto_node *node, gpointer data)
 	ftype = fvalue_type_ftenum(&fi->value);
 	if (ftype != FT_NONE && ftype != FT_PROTOCOL) {
 		/* convert value to string */
-		val_tmp = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, hfi->display, NULL);
+		val_tmp = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, hfi->display);
 		if (val_tmp)
 		{
 			val_str = g_strdup(val_tmp);
-			g_free(val_tmp);
+			wmem_free(NULL, val_tmp);
 		} else
 			val_str = g_strdup_printf("unsupported type: %s", ftype_name(ftype));
 

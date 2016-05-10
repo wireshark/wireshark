@@ -5232,21 +5232,21 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 						break;
 
 					case FT_IEEE_11073_SFLOAT:
-						str = fvalue_to_string_repr(&finfo->value, FTREPR_DISPLAY, hfinfo->display, NULL);
+						str = fvalue_to_string_repr(NULL, &finfo->value, FTREPR_DISPLAY, hfinfo->display);
 						g_snprintf(result+offset_r, size-offset_r,
 										"%s: %s",
 										hfinfo->name, str);
-						g_free(str);
+						wmem_free(NULL, str);
 						offset_r = (int)strlen(result);
 						break;
 
 					case FT_IEEE_11073_FLOAT:
-						str = fvalue_to_string_repr(&finfo->value, FTREPR_DISPLAY, hfinfo->display, NULL);
+						str = fvalue_to_string_repr(NULL, &finfo->value, FTREPR_DISPLAY, hfinfo->display);
 						g_snprintf(result+offset_r, size-offset_r,
 										"%s: %s",
 										hfinfo->name, str);
 						offset_r = (int)strlen(result);
-						g_free(str);
+						wmem_free(NULL, str);
 						break;
 
 					case FT_IPXNET: /*XXX really No column custom ?*/
@@ -7322,18 +7322,18 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_IEEE_11073_SFLOAT:
-			tmp = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, hfinfo->display, NULL);
+			tmp = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, hfinfo->display);
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 						"%s: %s",
 						hfinfo->name, tmp);
-			g_free(tmp);
+			wmem_free(NULL, tmp);
 			break;
 		case FT_IEEE_11073_FLOAT:
-			tmp = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, hfinfo->display, NULL);
+			tmp = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, hfinfo->display);
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 						"%s: %s",
 						hfinfo->name, tmp);
-			g_free(tmp);
+			wmem_free(NULL, tmp);
 			break;
 
 		default:
@@ -8832,16 +8832,16 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 			 *	1 byte for trailing NUL.
 			 */
 			if (filter != NULL) {
-                char* str;
+				char* str;
 				dfilter_len = fvalue_string_repr_len(&finfo->value,
 						FTREPR_DFILTER, finfo->hfinfo->display);
 				dfilter_len += abbrev_len + 4 + 1;
 				*filter = (char *)wmem_alloc0(NULL, dfilter_len);
 
 				/* Create the string */
-				str = fvalue_to_string_repr(&finfo->value, FTREPR_DFILTER, finfo->hfinfo->display, NULL);
+				str = fvalue_to_string_repr(NULL, &finfo->value, FTREPR_DFILTER, finfo->hfinfo->display);
 				g_snprintf(*filter, dfilter_len, "%s == %s", hfinfo->abbrev, str);
-				g_free(str);
+				wmem_free(NULL, str);
 			}
 			break;
 	}

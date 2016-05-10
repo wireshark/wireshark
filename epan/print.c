@@ -404,13 +404,13 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
             fputs("\" show=\"\" value=\"",  pdata->fh);
             break;
         default:
-            dfilter_string = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, fi->hfinfo->display, NULL);
+            dfilter_string = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
             if (dfilter_string != NULL) {
 
                 fputs("\" show=\"", pdata->fh);
                 print_escaped_xml(pdata->fh, dfilter_string);
             }
-            g_free(dfilter_string);
+            wmem_free(NULL, dfilter_string);
 
             /*
              * XXX - should we omit "value" for any fields?
@@ -1439,9 +1439,11 @@ gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
              * FT_NONE can be checked when using -T fields */
             return g_strdup("1");
         default:
-            dfilter_string = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, fi->hfinfo->display, NULL);
+            dfilter_string = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
             if (dfilter_string != NULL) {
-                return dfilter_string;
+                gchar* ret = g_strdup(dfilter_string);
+                wmem_free(NULL, dfilter_string);
+                return ret;
             } else {
                 return get_field_hex_value(edt->pi.data_src, fi);
             }

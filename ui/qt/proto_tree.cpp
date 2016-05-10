@@ -582,11 +582,11 @@ void ProtoTree::itemDoubleClick(QTreeWidgetItem *item, int) {
 
     if(FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type)) {
         gchar *url;
-        url = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, fi->hfinfo->display, NULL);
+        url = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
         if(url){
 //            browser_open_url(url);
             QDesktopServices::openUrl(QUrl(url));
-            g_free(url);
+            wmem_free(NULL, url);
         }
     }
 }

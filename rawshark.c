@@ -1189,9 +1189,8 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
          * e.g: ip.hdr_len
          */
         fs_len = fvalue_string_repr_len(&finfo->value, FTREPR_DFILTER, finfo->hfinfo->display);
-        fs_buf = fvalue_to_string_repr(&finfo->value,
-                              FTREPR_DFILTER, finfo->hfinfo->display,
-                              NULL);
+        fs_buf = fvalue_to_string_repr(NULL, &finfo->value,
+                              FTREPR_DFILTER, finfo->hfinfo->display);
         fs_ptr = fs_buf;
 
         /* String types are quoted. Remove them. */
@@ -1280,14 +1279,14 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
             }
         }
         printf(" %d=\"%s\"", cmd_line_index, label_s->str);
-        g_free(fs_buf);
+        wmem_free(NULL, fs_buf);
         return TRUE;
     }
 
     if(finfo->value.ftype->val_to_string_repr)
     {
         printf(" %d=\"%s\"", cmd_line_index, fs_ptr);
-        g_free(fs_buf);
+        wmem_free(NULL, fs_buf);
         return TRUE;
     }
 

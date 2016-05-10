@@ -109,13 +109,13 @@ dfvm_dump(FILE *f, dfilter_t *df)
 
 		switch (insn->op) {
 			case PUT_FVALUE:
-				value_str = fvalue_to_string_repr(arg1->value.fvalue,
-					FTREPR_DFILTER, BASE_NONE, NULL);
+				value_str = fvalue_to_string_repr(NULL, arg1->value.fvalue,
+					FTREPR_DFILTER, BASE_NONE);
 				fprintf(f, "%05d PUT_FVALUE\t%s <%s> -> reg#%u\n",
 					id, value_str,
 					fvalue_type_name(arg1->value.fvalue),
 					arg2->value.numeric);
-				g_free(value_str);
+				wmem_free(NULL, value_str);
 				break;
 			case CHECK_EXISTS:
 			case READ_TREE:

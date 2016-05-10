@@ -161,12 +161,16 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
             }
         case FT_STRING:
         case FT_STRINGZ: {
-                gchar* repr = fvalue_to_string_repr(&fi->ws_fi->value,FTREPR_DISPLAY,BASE_NONE,NULL);
+                gchar* repr = fvalue_to_string_repr(NULL, &fi->ws_fi->value,FTREPR_DISPLAY,BASE_NONE);
                 if (repr)
-                    lua_pushstring(L,repr);
+                {
+                    lua_pushstring(L, repr);
+                    wmem_free(NULL, repr);
+                }
                 else
+                {
                     luaL_error(L,"field cannot be represented as string because it may contain invalid characters");
-
+                }
                 return 1;
             }
         case FT_NONE:
@@ -215,16 +219,16 @@ WSLUA_METAMETHOD FieldInfo__tostring(lua_State* L) {
         gchar* repr = NULL;
 
         if (fi->ws_fi->hfinfo->type == FT_PROTOCOL || fi->ws_fi->hfinfo->type == FT_PCRE) {
-            repr = fvalue_to_string_repr(&fi->ws_fi->value,FTREPR_DFILTER,BASE_NONE,NULL);
+            repr = fvalue_to_string_repr(NULL, &fi->ws_fi->value,FTREPR_DFILTER,BASE_NONE);
         }
         else {
-            repr = fvalue_to_string_repr(&fi->ws_fi->value,FTREPR_DISPLAY,fi->ws_fi->hfinfo->display,NULL);
+            repr = fvalue_to_string_repr(NULL, &fi->ws_fi->value,FTREPR_DISPLAY,fi->ws_fi->hfinfo->display);
         }
 
         if (repr) {
             lua_pushstring(L,repr);
-            /* fvalue_to_string_repr() g_malloc's the string's buffer */
-            g_free(repr);
+            /* fvalue_to_string_repr() wmem_alloc's the string's buffer */
+            wmem_free(NULL, repr);
         }
         else {
             lua_pushstring(L,"(unknown)");

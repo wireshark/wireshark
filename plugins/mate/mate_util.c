@@ -313,11 +313,11 @@ extern AVP* new_avp_from_finfo(const gchar* name, field_info* finfo) {
 
 	new_avp_val->n = scs_subscribe(avp_strings, name);
 
-	repr = fvalue_to_string_repr(&finfo->value,FTREPR_DISPLAY,finfo->hfinfo->display,NULL);
+	repr = fvalue_to_string_repr(NULL, &finfo->value,FTREPR_DISPLAY,finfo->hfinfo->display);
 
 	if (repr) {
 		value = scs_subscribe(avp_strings, repr);
-		g_free(repr);
+		wmem_free(NULL, repr);
 #ifdef _AVP_DEBUGGING
 		dbg_print (dbg_avp,2,dbg_fp,"new_avp_from_finfo: from string: %s",value);
 #endif
