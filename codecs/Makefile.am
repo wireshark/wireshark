@@ -35,6 +35,10 @@ endif
 libwscodecs_la_SOURCES = \
 	$(LIBWSCODECS_SRC)
 
+if !HAVE_SPEEXDSP
+libwscodecs_la_SOURCES += speex/resample.c
+endif
+
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 libwscodecs_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
 

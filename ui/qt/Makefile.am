@@ -24,6 +24,10 @@ include $(top_srcdir)/Makefile.am.inc
 
 AM_CPPFLAGS = $(INCLUDEDIRS) $(WS_CPPFLAGS) $(GLIB_CFLAGS) $(Qt_CFLAGS)
 
+if HAVE_SPEEXDSP
+AM_CPPFLAGS += $(SPEEXDSP_CFLAGS)
+endif
+
 noinst_LIBRARIES = libqtui.a
 
 CLEANFILES = \

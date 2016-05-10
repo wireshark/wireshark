@@ -411,7 +411,11 @@ wireshark_LDADD = \
 	$(wireshark_common_ldadd)	\
 	$(GLIB_LIBS)			\
 	$(Qt_LIBS)
+
+if HAVE_SPEEXDSP
+wireshark_LDADD += $(SPEEXDSP_LIBS)
 endif
+endif	# HAVE_Qt
 
 if HAVE_GTK
 wireshark_gtk_SOURCES = $(WIRESHARK_COMMON_SRC)

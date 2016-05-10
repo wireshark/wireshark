@@ -2403,6 +2403,15 @@ AC_CHECK_FUNCS(sysconf)
 AC_CHECK_FUNCS(getifaddrs)
 AC_CHECK_FUNC(getexecname)
 
+#
+# Check for SpeexDSP (http://www.speex.org)
+#
+AS_IF([test "x$have_qt_multimedia_lib" = xyes],
+	[PKG_CHECK_MODULES(SPEEXDSP, speexdsp, [have_speexdsp=yes], [have_speexdsp=no])])
+AS_IF([test "x$have_speexdsp" = xyes],
+	[AC_DEFINE(HAVE_SPEEXDSP, 1, [Define to 1 if you have SpeexDSP])])
+AM_CONDITIONAL(HAVE_SPEEXDSP, [test "x$have_speexdsp" = "xyes"])
+
 # Check Bluetooth SBC codec for RTP Player
 # git://git.kernel.org/pub/scm/bluetooth/sbc.git
 AC_ARG_WITH([sbc],
