@@ -390,12 +390,14 @@ QWidget * ExtArgNumber::createEditor(QWidget * parent)
                 val = extcap_complex_get_int(_argument->range_start);
             else if ( _argument->arg_type == EXTCAP_ARG_UNSIGNED )
             {
-                val = extcap_complex_get_uint(_argument->range_start);
-                if ( val > G_MAXINT )
+                guint tmp = extcap_complex_get_uint(_argument->range_start);
+                if ( tmp > G_MAXINT )
                 {
                     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Defined value for range_start of %s exceeds valid integer range", _argument->call );
                     val = G_MAXINT;
                 }
+                else
+                    val = (gint)tmp;
             }
 
             textValidator->setBottom(val);
@@ -413,12 +415,14 @@ QWidget * ExtArgNumber::createEditor(QWidget * parent)
                 val = extcap_complex_get_int(_argument->range_end);
             else if ( _argument->arg_type == EXTCAP_ARG_UNSIGNED )
             {
-                val = extcap_complex_get_uint(_argument->range_end);
-                if ( val > G_MAXINT )
+                guint tmp = extcap_complex_get_uint(_argument->range_end);
+                if ( tmp > G_MAXINT )
                 {
                     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Defined value for range_end of %s exceeds valid integer range", _argument->call );
                     val = G_MAXINT;
                 }
+                else
+                    val = (gint)tmp;
             }
 
             textValidator->setTop(val);
