@@ -822,6 +822,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  memory_usage_component_register@Base 1.12.0~rc1
  memory_usage_gc@Base 1.12.0~rc1
  memory_usage_get@Base 1.12.0~rc1
+ mibenum_charset_to_encoding@Base 2.1.0
+ mibenum_vals_character_sets_ext@Base 2.1.0
  mtp3_addr_to_str_buf@Base 1.9.1
  mtp3_network_indicator_vals@Base 1.9.1
  mtp3_service_indicator_code_short_vals@Base 1.9.1
@@ -1077,6 +1079,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_tree_add_item_ret_int@Base 1.99.6
  proto_tree_add_item_ret_length@Base 2.1.0
  proto_tree_add_item_ret_string@Base 2.1.0
+ proto_tree_add_item_ret_string_and_length@Base 2.1.0
  proto_tree_add_item_ret_uint@Base 1.99.6
  proto_tree_add_none_format@Base 1.9.1
  proto_tree_add_protocol_format@Base 1.9.1
@@ -1260,6 +1263,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  show_fragment_tree@Base 1.9.1
  sid_name_snooping@Base 1.9.1
  sid_name_table@Base 1.9.1
+ signed_time_msecs_to_str@Base 2.1.0
+ signed_time_secs_to_str@Base 2.1.0
  smb2_cmd_vals_ext@Base 1.9.1
  smb_cmd_vals_ext@Base 1.9.1
  sminmpec_values_ext@Base 1.9.1
@@ -1400,8 +1405,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_valid_invalid@Base 1.9.1
  tfs_valid_not_valid@Base 1.12.0~rc1
  tfs_yes_no@Base 1.9.1
- time_msecs_to_str@Base 1.99.0
- time_secs_to_str@Base 1.99.0
  time_stat_init@Base 1.12.0~rc1
  time_stat_update@Base 1.12.0~rc1
  timestamp_get_precision@Base 1.9.1
@@ -1590,6 +1593,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  udp_port_to_display@Base 1.99.2
  uint_to_str_back@Base 2.1.0
  union_of_tap_listener_flags@Base 1.9.1
+ unsigned_time_secs_to_str@Base 2.1.0
  update_crc10_by_bytes_tvb@Base 1.99.0
  uri_str_to_bytes@Base 1.9.1
  val64_to_str@Base 1.12.0~rc1
@@ -1634,6 +1638,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_list_append@Base 1.12.0~rc1
  wmem_list_count@Base 1.12.0~rc1
  wmem_list_find@Base 2.1.0
+ wmem_list_foreach@Base 2.1.0
  wmem_list_frame_data@Base 1.12.0~rc1
  wmem_list_frame_next@Base 1.12.0~rc1
  wmem_list_frame_prev@Base 1.12.0~rc1
@@ -1643,10 +1648,12 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_list_remove@Base 1.12.0~rc1
  wmem_list_remove_frame@Base 1.12.0~rc1
  wmem_list_tail@Base 1.12.0~rc1
+ wmem_map_foreach@Base 2.1.0
  wmem_map_insert@Base 1.12.0~rc1
  wmem_map_lookup@Base 1.12.0~rc1
  wmem_map_new@Base 1.12.0~rc1
  wmem_map_remove@Base 1.12.0~rc1
+ wmem_map_size@Base 2.1.0
  wmem_memdup@Base 1.12.0~rc1
  wmem_packet_scope@Base 1.9.1
  wmem_realloc@Base 1.9.1
