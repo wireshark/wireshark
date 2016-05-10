@@ -253,7 +253,7 @@ PCAP_NG_DEFAULT=^#define PCAP_NG_DEFAULT 1
 WANT_PACKET_EDITOR=^#define WANT_PACKET_EDITOR 1
 
 !if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
-DOWNLOAD_TAG=2016-04-07
+DOWNLOAD_TAG=2016-05-10
 ##### Win32 Libraries #####
 #
 # Mandatory: GLib settings
@@ -416,7 +416,7 @@ ZLIB_DIR=$(WIRESHARK_LIB_DIR)\zlib-1.2.8-ws
 # If you don't have c-ares, comment this line out, so that C_ARES_DIR
 # isn't defined.
 #
-C_ARES_PKG=1.9.1-1
+C_ARES_PKG=1.11.0
 
 #
 # Optional: the GnuTLS library enables ssl decryption.
@@ -515,7 +515,7 @@ GEOIP_PKG=1.6.6
 WINSPARKLE_PKG=0.3-44-g2c8d9d3-win32ws
 
 !else
-DOWNLOAD_TAG=2016-04-07
+DOWNLOAD_TAG=2016-05-10
 ##### Win64 Libraries #####
 #
 # Mandatory: GLib settings
@@ -669,7 +669,7 @@ ZLIB_DIR=$(WIRESHARK_LIB_DIR)\zlib-1.2.8-ws
 # If you don't have c-ares, comment this line out, so that C_ARES_DIR
 # isn't defined.
 #
-C_ARES_PKG=1.9.1-1
+C_ARES_PKG=1.11.0
 
 #
 # Optional: the GnuTLS library enables ssl decryption.
