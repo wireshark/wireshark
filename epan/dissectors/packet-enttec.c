@@ -305,11 +305,8 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		PROTO_ITEM_SET_HIDDEN(item);
 
 		offset += length;
-	} else if (type == ENTTEC_DATA_TYPE_CHAN_VAL) {
-		proto_tree_add_item(tree, hf_enttec_dmx_data_data_filter, tvb,
-					offset, length, ENC_NA);
-		offset += length;
-	} else {
+	}
+	else {
 		proto_tree_add_item(tree, hf_enttec_dmx_data_data_filter, tvb,
 					offset, length, ENC_NA);
 		offset += length;
