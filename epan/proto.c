@@ -6376,6 +6376,11 @@ static const value_string hf_display[] = {
 	{ BASE_PT_SCTP,			  "BASE_PT_SCTP"		   },
 	{ 0,				  NULL } };
 
+const char* proto_field_display_to_string(int field_display)
+{
+    return val_to_str_const(field_display, hf_display, "Unknown");
+}
+
 static inline port_type
 display_to_port_type(field_display_e e)
 {

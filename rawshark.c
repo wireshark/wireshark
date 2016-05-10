@@ -1127,6 +1127,7 @@ typedef struct _pci_t {
 
 static const char* ftenum_to_string(header_field_info *hfi)
 {
+    const char* str;
     if (!hfi) {
         return "n.a.";
     }
@@ -1135,109 +1136,23 @@ static const char* ftenum_to_string(header_field_info *hfi)
         return "FT_STRING";
     }
 
-    switch(hfi->type) {
-        case FT_NONE:
-            return "FT_NONE";
-        case FT_PROTOCOL:
-            return "FT_PROTOCOL";
-        case FT_BOOLEAN:
-            return "FT_BOOLEAN";
-        case FT_UINT8:
-            return "FT_UINT8";
-        case FT_UINT16:
-            return "FT_UINT16";
-        case FT_UINT24:
-            return "FT_UINT24";
-        case FT_UINT32:
-            return "FT_UINT32";
-        case FT_UINT64:
-            return "FT_UINT64";
-        case FT_INT8:
-            return "FT_INT8";
-        case FT_INT16:
-            return "FT_INT16";
-        case FT_INT24:
-            return "FT_INT24";
-        case FT_INT32:
-            return "FT_INT32";
-        case FT_INT64:
-            return "FT_INT64";
-        case FT_FLOAT:
-            return "FT_FLOAT";
-        case FT_DOUBLE:
-            return "FT_DOUBLE";
-        case FT_ABSOLUTE_TIME:
-            return "FT_ABSOLUTE_TIME";
-        case FT_RELATIVE_TIME:
-            return "FT_RELATIVE_TIME";
-        case FT_STRING:
-            return "FT_STRING";
-        case FT_STRINGZ:
-            return "FT_STRINGZ";
-        case FT_UINT_STRING:
-            return "FT_UINT_STRING";
-        case FT_ETHER:
-            return "FT_ETHER";
-        case FT_BYTES:
-            return "FT_BYTES";
-        case FT_UINT_BYTES:
-            return "FT_UINT_BYTES";
-        case FT_IPv4:
-            return "FT_IPv4";
-        case FT_IPv6:
-            return "FT_IPv6";
-        case FT_IPXNET:
-            return "FT_IPXNET";
-        case FT_FRAMENUM:
-            return "FT_FRAMENUM";
-        case FT_PCRE:
-            return "FT_PCRE";
-        case FT_GUID:
-            return "FT_GUID";
-        case FT_OID:
-            return "FT_OID";
-        case FT_REL_OID:
-            return "FT_REL_OID";
-        case FT_SYSTEM_ID:
-            return "FT_SYSTEM_ID";
-        case FT_STRINGZPAD:
-            return "FT_STRIGZPAD";
-        case FT_NUM_TYPES:
-            return "FT_NUM_TYPES";
-        default:
-            return "n.a.";
-    };
-}
-
-static const char* absolute_time_display_e_to_string(absolute_time_display_e atd)
-{
-    switch(atd) {
-        case ABSOLUTE_TIME_LOCAL:
-            return "ABSOLUTE_TIME_LOCAL";
-        case ABSOLUTE_TIME_UTC:
-            return "ABSOLUTE_TIME_UTC";
-        default:
-            return "n.a.";
+    str = ftype_name(hfi->type);
+    if (str == NULL) {
+        str = "n.a.";
     }
+
+    return str;
 }
 
-static const char* field_display_e_to_string(field_display_e bd)
+static void field_display_to_string(header_field_info *hfi, char* buf, int size)
 {
-    switch(bd) {
-        case BASE_NONE:
-            return "BASE_NONE";
-        case BASE_DEC:
-            return "BASE_DEC";
-        case BASE_HEX:
-            return "BASE_HEX";
-        case BASE_OCT:
-            return "BASE_OCT";
-        case BASE_DEC_HEX:
-            return "BASE_DEC_HEX";
-        case BASE_HEX_DEC:
-            return "BASE_HEX_DEC";
-        default:
-            return "n.a.";
+    if (hfi->type != FT_BOOLEAN)
+    {
+        g_strlcpy(buf, proto_field_display_to_string(hfi->display), size);
+    }
+    else
+    {
+        g_snprintf(buf, size, "(Bit count: %d)", hfi->display);
     }
 }
 
@@ -1426,6 +1341,7 @@ protocolinfo_init(char *field)
     pci_t *rs;
     header_field_info *hfi;
     GString *error_string;
+    char hfibuf[100];
 
     hfi=proto_registrar_get_byname(field);
     if(!hfi){
@@ -1433,22 +1349,11 @@ protocolinfo_init(char *field)
         exit(1);
     }
 
-    switch (hfi->type) {
-
-        case FT_ABSOLUTE_TIME:
-            printf("%d %s %s - ",
-                   g_cmd_line_index,
-                   ftenum_to_string(hfi),
-                   absolute_time_display_e_to_string((absolute_time_display_e)hfi->display));
-            break;
-
-        default:
-            printf("%d %s %s - ",
-                   g_cmd_line_index,
-                   ftenum_to_string(hfi),
-                   field_display_e_to_string((field_display_e)hfi->display));
-            break;
-    }
+    field_display_to_string(hfi, hfibuf, sizeof(hfibuf));
+    printf("%d %s %s - ",
+            g_cmd_line_index,
+            ftenum_to_string(hfi),
+            hfibuf);
 
     rs=(pci_t *)g_malloc(sizeof(pci_t));
     rs->hf_index=hfi->id;

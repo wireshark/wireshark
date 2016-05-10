@@ -2366,6 +2366,10 @@ WS_DLL_PUBLIC void proto_registrar_dump_fields(void);
 /** Dumps a glossary field types and descriptive names to STDOUT */
 WS_DLL_PUBLIC void proto_registrar_dump_ftypes(void);
 
+/** Get string representation of display field value
+ @param field_display field display value (one of BASE_ values)
+ @return string representation of display field value or "Unknown" if doesn't exist */
+WS_DLL_PUBLIC const char* proto_field_display_to_string(int field_display);
 
 /** Number of elements in the tree_is_expanded array. With MSVC and a
  * libwireshark.dll, we need a special declaration. */

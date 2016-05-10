@@ -962,6 +962,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_enable_heuristic_by_name@Base 1.99.8
  proto_expert@Base 1.9.1
  proto_field_is_referenced@Base 1.9.1
+ proto_field_display_to_string@Base 2.1.0
  proto_find_field_from_offset@Base 1.9.1
  proto_find_finfo@Base 1.9.1
  proto_find_undecoded_data@Base 1.99.3
