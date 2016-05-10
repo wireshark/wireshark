@@ -404,7 +404,7 @@ dissect_enttec_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 {
 	gint offset = 0;
 	guint32 head = 0;
-	proto_tree *ti,*enttec_tree=NULL;
+	proto_tree *ti,*enttec_tree;
 
 	/*
 	 * If not enough bytes for the header word, don't try to
@@ -431,17 +431,13 @@ dissect_enttec_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
 				val_to_str(head, enttec_head_vals, "Unknown (0x%08x)"));
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_enttec, tvb, offset, -1, ENC_NA);
-		enttec_tree = proto_item_add_subtree(ti, ett_enttec);
-	}
+	ti = proto_tree_add_item(tree, proto_enttec, tvb, offset, -1, ENC_NA);
+	enttec_tree = proto_item_add_subtree(ti, ett_enttec);
 
-	if (enttec_tree) {
-		proto_tree_add_item(enttec_tree, hf_enttec_head, tvb,
-					offset, 4, ENC_BIG_ENDIAN );
+	proto_tree_add_item(enttec_tree, hf_enttec_head, tvb,
+			offset, 4, ENC_BIG_ENDIAN );
+	/* XXX - dissect the rest of the packet */
 
-		/* XXX - dissect the rest of the packet */
-	}
 	return tvb_captured_length(tvb);
 }
 
