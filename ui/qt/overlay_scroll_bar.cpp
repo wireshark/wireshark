@@ -47,8 +47,20 @@
 class OsbProxyStyle : public QProxyStyle
 {
   public:
-    // Hack to keep the scrollbar from disappearing on OS X. We should
-    // handle this more gracefully.
+    // Disable transient behavior. Mainly for OS X but possibly applies to
+    // other platforms. If we want to enable transience we'll have to
+    // handle the following at a minimum:
+    //
+    // setProperty("visible") from QScrollbarStyleAnimation.
+    // Other visibility changes.
+    // HoverEnter & HoverLeave events from QAbstractScrollArea.
+    // Size (and possibly opacity) changes while painting.
+    //
+    // Another approach would be to flip the child-parent relationship
+    // and make the parent a normal scroll bar with a manually-placed
+    // packet map child. This might make the packet list geometry a bit
+    // wonky, however.
+
     virtual int styleHint(StyleHint hint, const QStyleOption *option = NULL, const QWidget *widget = NULL, QStyleHintReturn *returnData = NULL) const {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 3, 0)
         if (hint == SH_ScrollBar_Transient) return false;
@@ -72,6 +84,7 @@ OverlayScrollBar::OverlayScrollBar(Qt::Orientation orientation, QWidget *parent)
 
     child_sb_.raise();
     child_sb_.installEventFilter(this);
+    child_sb_.setStyle(new OsbProxyStyle);
 
     // XXX Do we need to connect anything else?
     connect(this, SIGNAL(rangeChanged(int,int)), this, SLOT(setChildRange(int,int)));
