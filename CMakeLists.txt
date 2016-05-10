@@ -382,6 +382,8 @@ else()
 		# The Qt headers generate a ton of shortening errors on 64-bit systems
 		# so only enable this for C for now.
 		-Wshorten-64-to-32
+		# Clang only
+		-Wc99-extensions
 	)
 
 	set(WIRESHARK_CXX_ONLY_FLAGS
