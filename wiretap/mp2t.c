@@ -276,7 +276,10 @@ mp2t_bits_per_second(wtap *wth, guint32 first, guint8 trailer_len,
         return WTAP_OPEN_NOT_MINE;
     }
     pcr_delta = pcr2 - pcr1;
-    bits_passed = MP2T_SIZE * (pn2 - pn1) * 8;
+    /* cast one of the factors to guint64
+       otherwise, the multiplication would use guint32 and could
+       overflow before the result is assigned to the guint64 bits_passed */
+    bits_passed = (guint64)MP2T_SIZE * (pn2 - pn1) * 8;
 
     *bitrate = ((MP2T_PCR_CLOCK * bits_passed) / pcr_delta);
     if (*bitrate == 0) {
