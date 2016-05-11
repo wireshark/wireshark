@@ -25,16 +25,20 @@ _Non-empty section placeholder._
 
 The following features are new (or have been significantly updated)
 since version 2.0.0:
-** You can now switch between between Capture and File Format dissection of
+* You can now switch between between Capture and File Format dissection of
 the current capture file via the View menu in the Qt GUI.
-** You can now show selected packet bytes as ASCII, HTML, Image, ISO 8859-1, Raw or UTF-8.
-** You can now use regular expressions in Find Packet.
-** Name resolution for packet capture now supports asynchronous DNS lookups only. Therefore the
+* You can now show selected packet bytes as ASCII, HTML, Image, ISO 8859-1, Raw, UTF-8,
+a C array, or YAML.
+* You can now use regular expressions in Find Packet and in the advanced preferences.
+* Name resolution for packet capture now supports asynchronous DNS lookups only. Therefore the
 "concurrent DNS resolution" preference has been deprecated and is a no-op. To enable DNS name
 resolution some build dependencies must be present (currently c-ares). If that is not the case DNS
 name resolution will be disabled (but other name resolution mechanisms, such as host files,
 are still available).
-** Highlight hovered byte in Packet Bytes Pane
+* The byte under the mouse in the Packet Bytes pane is now highlighted.
+* TShark supports exporting PDUs via the `-U` flag.
+* The Windows installer now comes with the "sshdump" and "ciscodump" extcap interfaces.
+* Most dialogs in the Qt UI now save their size and positions.
 
 //=== Removed Dissectors
 
