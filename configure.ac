@@ -62,6 +62,7 @@ AC_DEFINE_UNQUOTED(VERSION_FLAVOR,
 
 LT_PREREQ([2.2.2])
 LT_INIT([disable-static dlopen])
+AC_SUBST([LIBTOOL_DEPS])
 
 AC_CONFIG_LIBOBJ_DIR([wsutil])
 
@@ -2871,18 +2872,6 @@ else
 fi
 AC_SUBST(randpktdump_bin)
 AC_SUBST(randpktdump_man)
-
-dnl libtool defs
-#
-# Yes, AM_PROG_LIBTOOL is redundant with newer version(s) of some tool(s)
-# (autoconf?  automake?  libtool?) - with the newer version(s), it's
-# just an alias for AC_PROG_LIBTOOL, which is called earlier.
-#
-# With older version(s) of those tool(s), however, it's not just an
-# alias, and the configure scripts don't work without it.
-#
-AM_PROG_LIBTOOL
-AC_SUBST(LIBTOOL_DEPS)
 
 AM_CONDITIONAL(ENABLE_STATIC, test x$enable_static = xyes)
 if test x$enable_static = xyes -a x$have_plugins = xyes
