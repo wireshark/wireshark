@@ -422,7 +422,7 @@ int main(int argc, char *argv[])
 {
     MainWindow *main_w;
 
-    int                  opt;
+    int                  opt, ret_val;
     gboolean             arg_error = FALSE;
     char               **ws_argv = argv;
 
@@ -1414,7 +1414,23 @@ int main(int argc, char *argv[])
 
     profile_store_persconffiles(FALSE);
 
-    return wsApp->exec();
+    ret_val = wsApp->exec();
+
+    epan_cleanup();
+
+    AirPDcapDestroyContext(&airpdcap_ctx);
+
+#ifdef _WIN32
+    /* Shutdown windows sockets */
+    WSACleanup();
+
+    /* For some unknown reason, the "atexit()" call in "create_console()"
+       doesn't arrange that "destroy_console()" be called when we exit,
+       so we call it here if a console was created. */
+    destroy_console();
+#endif /* _WIN32 */
+
+    return ret_val;
 }
 
 /*
