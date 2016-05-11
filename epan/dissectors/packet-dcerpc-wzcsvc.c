@@ -408,7 +408,7 @@ void proto_register_dcerpc_wzcsvc(void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_wzcsvc_opnum,
-		{ "Operation", "wzcsvc.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	  { "Operation", "wzcsvc.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	};
 
 
