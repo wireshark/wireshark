@@ -1516,7 +1516,7 @@ checkapi: checkapi_local
 	cd ../dfilter
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../ftypes
-##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../wslua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../dissectors
