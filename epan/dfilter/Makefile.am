@@ -82,6 +82,4 @@ grammar.c : $(LEMON) $(lemon_srcdir)/lempar.c $(srcdir)/grammar.lemon
 
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \
-	-sourcedir=$(srcdir)	\
-	$(GENERATOR_FILES)	\
-	$(NONGENERATED_C_FILES)
+	-sourcedir=$(srcdir) $(NONGENERATED_C_FILES)

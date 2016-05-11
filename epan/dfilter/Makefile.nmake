@@ -77,5 +77,4 @@ $(LEMON)\lemon.exe:
 
 checkapi:
 	$(PERL) ../../tools/checkAPIs.pl -g termoutput -build \
-		$(GENERATOR_FILES)	\
 		$(NONGENERATED_C_FILES)

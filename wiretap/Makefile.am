@@ -113,5 +113,4 @@ checkapi:
 ## 'abort' checking disabled for now pending resolution of existing use of g_assert & g_error
 ##	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput \
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \
-	-sourcedir=$(srcdir) \
-	$(NONGENERATED_C_FILES) $(GENERATOR_FILES)
+	-sourcedir=$(srcdir) $(NONGENERATED_C_FILES)
