@@ -57,6 +57,7 @@ static guint global_udp_port = 0;
 
 static int proto_cwids = -1;
 static int hf_cwids_version = -1;
+static int hf_cwids_timestamp = -1;
 static int hf_cwids_unknown1 = -1;
 static int hf_cwids_channel = -1;
 static int hf_cwids_unknown2 = -1;
@@ -97,8 +98,10 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		phdr.phy = PHDR_802_11_PHY_UNKNOWN;
 		proto_tree_add_item(cwids_tree, hf_cwids_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		proto_tree_add_item(cwids_tree, hf_cwids_unknown1, tvb, offset, 7, ENC_NA);
-		offset += 7;
+		proto_tree_add_item(cwids_tree, hf_cwids_timestamp, tvb, offset, 6, ENC_NA);
+		offset += 6;
+		proto_tree_add_item(cwids_tree, hf_cwids_unknown1, tvb, offset, 1, ENC_NA);
+		offset += 1;
 		phdr.has_channel = TRUE;
 		phdr.channel = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(cwids_tree, hf_cwids_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -139,9 +142,13 @@ proto_register_cwids(void)
 		{ "Capture Version", "cwids.version", FT_UINT16, BASE_DEC, NULL,
 			0x0, "Version or format of record", HFILL }},
 
+		{ &hf_cwids_timestamp,
+		{ "Timestamp [us]", "cwids.timestamp", FT_BYTES, BASE_NONE, NULL,
+			0x0, NULL, HFILL }},
+
 		{ &hf_cwids_unknown1,
 		{ "Unknown1", "cwids.unknown1", FT_BYTES, BASE_NONE, NULL,
-			0x0, "1st Unknown block - timestamp?", HFILL }},
+			0x0, "1st Unknown block", HFILL }},
 
 		{ &hf_cwids_channel,
 		{ "Channel", "cwids.channel", FT_UINT8, BASE_DEC, NULL,
