@@ -2682,6 +2682,8 @@ BACnetReliability [] = {
     /* enumeration value 11 is reserved for a future addendum */
     { 12, "communication-failure"},
     { 13, "member-fault"},
+    { 14, "monitored-object-fault" },
+    { 15, "tripped" },
     { 0,  NULL}
 };
 
@@ -3715,6 +3717,8 @@ BACnetEventType [] = {
     { 16, "unsigned-out-of-range"},
     { 17, "change-of-characterstring"},
     { 18, "change-of-status-flags"},
+    { 19, "change-of-reliability" },
+    { 20, "none" },
     { 0,  NULL }
 /* Enumerated values 0-63 are reserved for definition by ASHRAE.
    Enumerated values 64-65535 may be used by others subject to
@@ -7686,6 +7690,7 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     guint8      tag_no, tag_info;
     guint32     lvt;
     proto_tree *subtree = tree;
+    proto_tree *pvtree;
 
     fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
     subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0,
@@ -8094,6 +8099,37 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             if (offset == lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
+    case 19: /* change-of-reliability */
+        while (tvb_reported_length_remaining(tvb, offset) > 0) {
+            /* exit loop if nothing happens inside */
+            lastoffset = offset;
+
+            switch (fTagNo(tvb, offset)) {
+            case 0:
+               offset = fEnumeratedTag(tvb, pinfo, subtree, offset, "reliability:", BACnetReliability);
+               break;
+            case 1:
+               offset = fBitStringTagVS(tvb, pinfo, subtree, offset, "status-flags: ", BACnetStatusFlags);
+               break;
+            case 2: /* property-values */
+               fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+               if (tag_is_closing(tag_info)) {
+                  offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+               return offset;
+               }
+               pvtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "property-values");
+               offset += fTagHeaderTree(tvb, pinfo, pvtree, offset, &tag_no, &tag_info, &lvt);
+               offset = fBACnetPropertyValue(tvb, pinfo, pvtree, offset);
+               offset += fTagHeaderTree(tvb, pinfo, pvtree, offset, &tag_no, &tag_info, &lvt);
+               break;
+            default:
+               break;
+           }
+           if (offset == lastoffset)
+               break;     /* nothing happened, exit loop */
+        }
+        break;
+
         /* todo: add new parameters here ... */
     default:
         offset = fAbstractSyntaxNType(tvb, pinfo, subtree, offset);
