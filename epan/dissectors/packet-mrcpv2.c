@@ -448,165 +448,165 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MRCPv2");
 
     offset = 0;
-    if (tree) {
-        tvb_len = tvb_reported_length(tvb);
+    tvb_len = tvb_reported_length(tvb);
 
-        ti = proto_tree_add_item(tree, proto_mrcpv2, tvb, 0, -1, ENC_UTF_8);
-        mrcpv2_tree = proto_item_add_subtree(ti, ett_mrcpv2);
+    ti = proto_tree_add_item(tree, proto_mrcpv2, tvb, 0, -1, ENC_UTF_8);
+    mrcpv2_tree = proto_item_add_subtree(ti, ett_mrcpv2);
 
-        /* get first line */
-        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+    /* get first line */
+    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
-        /*  find out MRCP message type:
+    /*  find out MRCP message type:
 
-            request-line    = mrcp-version SP message-length SP method-name SP request-id CRLF
-            response-line    = mrcp-version SP message-length SP request-id  SP status-code SP request-state CRLF
-            event-line    = mrcp-version SP message-length SP event-name  SP request-id  SP request-state CRLF
-        */
-        /* version */
-        sp_end = tvb_find_guint8(tvb, 0, linelen, ' ');
-        if ((sp_end == -1) || (sp_end > tvb_len) || (sp_end > linelen))
+        request-line    = mrcp-version SP message-length SP method-name SP request-id CRLF
+        response-line    = mrcp-version SP message-length SP request-id  SP status-code SP request-state CRLF
+        event-line    = mrcp-version SP message-length SP event-name  SP request-id  SP request-state CRLF
+    */
+    /* version */
+    sp_end = tvb_find_guint8(tvb, 0, linelen, ' ');
+    if ((sp_end == -1) || (sp_end > tvb_len) || (sp_end > linelen))
+        return -1;
+    field1 = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, sp_end, ENC_ASCII);
+    sp_start = sp_end + 1;
+
+    /* length */
+    sp_end = tvb_find_guint8(tvb, sp_start, linelen - sp_start, ' ');
+    if ((sp_end == -1) || (sp_end > tvb_len) || (sp_end > linelen))
+        return -1;
+    field2 = tvb_get_string_enc(wmem_packet_scope(), tvb, sp_start, sp_end - sp_start, ENC_ASCII);
+    sp_start = sp_end + 1;
+
+    /* method, request ID or event */
+    sp_end = tvb_find_guint8(tvb, sp_start, linelen - sp_start, ' ');
+    if ((sp_end == -1) || (sp_end > tvb_len) || (sp_end > linelen))
+        return -1;
+    field3 = tvb_get_string_enc(wmem_packet_scope(), tvb, sp_start, sp_end - sp_start, ENC_ASCII);
+    sp_start = sp_end + 1;
+
+    /* request ID or status code */
+    sp_end = tvb_find_guint8(tvb, sp_start, linelen - sp_start, ' ');
+    if (sp_end == -1)
+    {
+        field4 = tvb_get_string_enc(wmem_packet_scope(), tvb, sp_start, linelen - sp_start, ENC_ASCII);
+        line_type = REQUEST_LINE; /* only request line has 4 parameters */
+    }
+    else
+    {
+        if ((sp_end > tvb_len) || (sp_end > linelen))
             return -1;
-        field1 = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, sp_end, ENC_ASCII);
-        sp_start = sp_end + 1;
+        field4 = tvb_get_string_enc(wmem_packet_scope(), tvb, sp_start, sp_end - sp_start, ENC_ASCII);
 
-        /* length */
-        sp_end = tvb_find_guint8(tvb, sp_start, linelen - sp_start, ' ');
-        if ((sp_end == -1) || (sp_end > tvb_len) || (sp_end > linelen))
-            return -1;
-        field2 = tvb_get_string_enc(wmem_packet_scope(), tvb, sp_start, sp_end - sp_start, ENC_ASCII);
-        sp_start = sp_end + 1;
-
-        /* method, request ID or event */
-        sp_end = tvb_find_guint8(tvb, sp_start, linelen - sp_start, ' ');
-        if ((sp_end == -1) || (sp_end > tvb_len) || (sp_end > linelen))
-            return -1;
-        field3 = tvb_get_string_enc(wmem_packet_scope(), tvb, sp_start, sp_end - sp_start, ENC_ASCII);
-        sp_start = sp_end + 1;
-
-        /* request ID or status code */
-        sp_end = tvb_find_guint8(tvb, sp_start, linelen - sp_start, ' ');
-        if (sp_end == -1)
-        {
-            field4 = tvb_get_string_enc(wmem_packet_scope(), tvb, sp_start, linelen - sp_start, ENC_ASCII);
-            line_type = REQUEST_LINE; /* only request line has 4 parameters */
-        }
+        if (g_ascii_isdigit(field3[0])) /* request ID is number, so it has to be response */
+            line_type = RESPONSE_LINE;
         else
-        {
-            if ((sp_end > tvb_len) || (sp_end > linelen))
-                return -1;
-            field4 = tvb_get_string_enc(wmem_packet_scope(), tvb, sp_start, sp_end - sp_start, ENC_ASCII);
+            line_type = EVENT_LINE;
 
-            if (g_ascii_isdigit(field3[0])) /* request ID is number, so it has to be response */
-                line_type = RESPONSE_LINE;
-            else
-                line_type = EVENT_LINE;
-
-            sp_start = sp_end + 1;
-            sp_end = linelen;
-            if ((sp_end > tvb_len) || (sp_end > linelen))
-                return -1;
-            field5 = tvb_get_string_enc(wmem_packet_scope(), tvb, sp_start, sp_end - sp_start, ENC_ASCII);
-        }
-
-        /* check pdu size */
-        pdu_size = atoi(field2);
-        if (pdu_size > tvb_len)
+        sp_start = sp_end + 1;
+        sp_end = linelen;
+        if ((sp_end > tvb_len) || (sp_end > linelen))
             return -1;
+        field5 = tvb_get_string_enc(wmem_packet_scope(), tvb, sp_start, sp_end - sp_start, ENC_ASCII);
+    }
 
-        /* process MRCP header line */
-        switch(line_type){
-        case REQUEST_LINE:
-        {
-            col_set_str(pinfo->cinfo, COL_INFO, "Request: ");
-            line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Request_Line, tvb, offset, linelen, ENC_UTF_8|ENC_NA);
-            request_line_item = proto_item_add_subtree(line_item, ett_Request_Line);
-            /* version */
-            str_len = (gint)strlen(field1);
-            proto_tree_add_item(request_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
-            offset += str_len + 1; /* add SP */
-            /* message length */
-            str_len = (gint)strlen(field2);
-            proto_tree_add_item(request_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
-            offset += str_len + 1; /* add SP */
-            /* method name */
-            col_append_str(pinfo->cinfo, COL_INFO, field3);
-            str_len = (gint)strlen(field3);
-            proto_tree_add_item(request_line_item, hf_mrcpv2_Method, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
-            offset += str_len + 1; /* add SP */
-            /* request ID */
-            str_len = (gint)strlen(field4);
-            proto_tree_add_item(request_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
-            /*offset += str_len + 2;*/ /* add CRLF */
-        }
-        break;
-        case RESPONSE_LINE:
-        {
-            col_set_str(pinfo->cinfo, COL_INFO, "Response: ");
-            line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Response_Line, tvb, offset, linelen, ENC_UTF_8|ENC_NA);
-            response_line_item = proto_item_add_subtree(line_item, ett_Response_Line);
-            /* version */
-            str_len = (gint)strlen(field1);
-            proto_tree_add_item(response_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
-            offset += str_len + 1; /* add SP */
-            /* message length */
-            str_len = (gint)strlen(field2);
-            proto_tree_add_item(response_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
-            offset += str_len + 1; /* add SP */
-            /* request ID */
-            str_len = (gint)strlen(field3);
-            proto_tree_add_item(response_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
-            offset += str_len + 1; /* add SP */
-            /* status code */
-            str_len = (gint)strlen(field4);
-            status_code_item = proto_tree_add_item(response_line_item, hf_mrcpv2_status_code, tvb, offset,
-                str_len, ENC_UTF_8|ENC_NA);
-            proto_item_append_text(status_code_item, " %s", str_to_str(field4, status_code_vals, "Unknown Status Code"));
-            offset += str_len + 1; /* add SP */
-            /* request state */
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) %s", field4, field5);
-            str_len = (gint)strlen(field5);
-            proto_tree_add_item(response_line_item, hf_mrcpv2_request_state, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
-            /*offset += str_len + 2;*/ /* add CRLF */
-        }
-        break;
-        case EVENT_LINE:
-        {
-            col_set_str(pinfo->cinfo, COL_INFO, "Event: ");
-            line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Event_Line, tvb, offset, linelen, ENC_UTF_8|ENC_NA);
-            event_line_item = proto_item_add_subtree(line_item, ett_Event_Line);
-            /* version */
-            str_len = (gint)strlen(field1);
-            proto_tree_add_item(event_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
-            offset += str_len + 1; /* add SP */
-            /* message length */
-            str_len = (gint)strlen(field2);
-            proto_tree_add_item(event_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
-            offset += str_len + 1; /* add SP */
-            /* event name */
-            col_append_str(pinfo->cinfo, COL_INFO, field3);
-            str_len = (gint)strlen(field3);
-            proto_tree_add_item(event_line_item, hf_mrcpv2_Event, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
-            offset += str_len + 1; /* add SP */
-            /* request ID */
-            str_len = (gint)strlen(field4);
-            proto_tree_add_item(event_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
-            offset += str_len + 1; /* add SP */
-            /* request state */
-            str_len = (gint)strlen(field5);
-            proto_tree_add_item(event_line_item, hf_mrcpv2_request_state, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
-            /*offset += str_len + 2;*/ /* add CRLF */
-        }
-        break;
-        default:
-        {
-            /* mark whole packet as unknown and return */
-            col_set_str(pinfo->cinfo, COL_INFO, "UNKNOWN message");
-            proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Unknown_Message, tvb, offset, tvb_len, ENC_UTF_8|ENC_NA);
-            return tvb_len;
-        }
-        }
+    /* check pdu size */
+    pdu_size = atoi(field2);
+    if (pdu_size > tvb_len)
+        return -1;
 
+    /* process MRCP header line */
+    switch(line_type){
+    case REQUEST_LINE:
+    {
+        col_set_str(pinfo->cinfo, COL_INFO, "Request: ");
+        line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Request_Line, tvb, offset, linelen, ENC_UTF_8|ENC_NA);
+        request_line_item = proto_item_add_subtree(line_item, ett_Request_Line);
+        /* version */
+        str_len = (gint)strlen(field1);
+        proto_tree_add_item(request_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
+        offset += str_len + 1; /* add SP */
+        /* message length */
+        str_len = (gint)strlen(field2);
+        proto_tree_add_item(request_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
+        offset += str_len + 1; /* add SP */
+        /* method name */
+        col_append_str(pinfo->cinfo, COL_INFO, field3);
+        str_len = (gint)strlen(field3);
+        proto_tree_add_item(request_line_item, hf_mrcpv2_Method, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
+        offset += str_len + 1; /* add SP */
+        /* request ID */
+        str_len = (gint)strlen(field4);
+        proto_tree_add_item(request_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
+        /*offset += str_len + 2;*/ /* add CRLF */
+    }
+    break;
+    case RESPONSE_LINE:
+    {
+        col_set_str(pinfo->cinfo, COL_INFO, "Response: ");
+        line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Response_Line, tvb, offset, linelen, ENC_UTF_8|ENC_NA);
+        response_line_item = proto_item_add_subtree(line_item, ett_Response_Line);
+        /* version */
+        str_len = (gint)strlen(field1);
+        proto_tree_add_item(response_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
+        offset += str_len + 1; /* add SP */
+        /* message length */
+        str_len = (gint)strlen(field2);
+        proto_tree_add_item(response_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
+        offset += str_len + 1; /* add SP */
+        /* request ID */
+        str_len = (gint)strlen(field3);
+        proto_tree_add_item(response_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
+        offset += str_len + 1; /* add SP */
+        /* status code */
+        str_len = (gint)strlen(field4);
+        status_code_item = proto_tree_add_item(response_line_item, hf_mrcpv2_status_code, tvb, offset,
+            str_len, ENC_UTF_8|ENC_NA);
+        proto_item_append_text(status_code_item, " %s", str_to_str(field4, status_code_vals, "Unknown Status Code"));
+        offset += str_len + 1; /* add SP */
+        /* request state */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) %s", field4, field5);
+        str_len = (gint)strlen(field5);
+        proto_tree_add_item(response_line_item, hf_mrcpv2_request_state, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
+        /*offset += str_len + 2;*/ /* add CRLF */
+    }
+    break;
+    case EVENT_LINE:
+    {
+        col_set_str(pinfo->cinfo, COL_INFO, "Event: ");
+        line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Event_Line, tvb, offset, linelen, ENC_UTF_8|ENC_NA);
+        event_line_item = proto_item_add_subtree(line_item, ett_Event_Line);
+        /* version */
+        str_len = (gint)strlen(field1);
+        proto_tree_add_item(event_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
+        offset += str_len + 1; /* add SP */
+        /* message length */
+        str_len = (gint)strlen(field2);
+        proto_tree_add_item(event_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
+        offset += str_len + 1; /* add SP */
+        /* event name */
+        col_append_str(pinfo->cinfo, COL_INFO, field3);
+        str_len = (gint)strlen(field3);
+        proto_tree_add_item(event_line_item, hf_mrcpv2_Event, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
+        offset += str_len + 1; /* add SP */
+        /* request ID */
+        str_len = (gint)strlen(field4);
+        proto_tree_add_item(event_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
+        offset += str_len + 1; /* add SP */
+        /* request state */
+        str_len = (gint)strlen(field5);
+        proto_tree_add_item(event_line_item, hf_mrcpv2_request_state, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
+        /*offset += str_len + 2;*/ /* add CRLF */
+    }
+    break;
+    default:
+    {
+        /* mark whole packet as unknown and return */
+        col_set_str(pinfo->cinfo, COL_INFO, "UNKNOWN message");
+        proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Unknown_Message, tvb, offset, tvb_len, ENC_UTF_8|ENC_NA);
+        return tvb_len;
+    }
+    }
+
+    if (tree) {
         /* process the rest of the header lines here */
         content_length = 0;
         while (tvb_offset_exists(tvb, next_offset))
