@@ -1391,15 +1391,6 @@ AC_SUBST(COREFOUNDATION_FRAMEWORKS)
 AM_CONDITIONAL(HAVE_OS_X_FRAMEWORKS, [test "x$have_os_x_frameworks" = "xyes"])
 
 #
-# On Solaris, check whether we have getexecname().
-#
-case "$host_os" in
-solaris*)
-	AC_CHECK_FUNC(getexecname)
-	;;
-esac
-
-#
 # If we're running Solaris, and LD_LIBRARY_PATH is defined, add it as a
 # link directory.
 #
@@ -2666,6 +2657,7 @@ AC_CHECK_FUNCS(getprotobynumber)
 AC_CHECK_FUNCS(issetugid)
 AC_CHECK_FUNCS(sysconf)
 AC_CHECK_FUNCS(getifaddrs)
+AC_CHECK_FUNC(getexecname)
 
 # Check Bluetooth SBC codec for RTP Player
 # git://git.kernel.org/pub/scm/bluetooth/sbc.git
