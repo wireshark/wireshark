@@ -21,11 +21,10 @@ Known issues:
 1. It does not include installing WinPcap or USBPcap (the NSIS installer does).  These
 currently come as NSIS installers and it seems it would make more sense to "bundle" them
 with WiX rather than include them as part of the Wireshark.msi.
-2. Installer needs to be customized to include Wireshark graphics.
-3. Needs more flexible handling of VC CRT Merge module (need build script to provide
+2. Needs more flexible handling of VC CRT Merge module (need build script to provide
 appropriate macros).  Something like (or modifying existing) FindMSVC_REDIST.cmake.
 Currently only VS2013 CRT120 is supported.
-4. Uninstalling previous versions.  NSIS installer did things more "manually" than Wix does
+3. Uninstalling previous versions.  NSIS installer did things more "manually" than Wix does
 by default.  Need to merge as best as possible to handle backwards compatibility. The .msi
 architecture uses an "UpgradeCode" help facilitate install/uninstall/upgrade and NSIS
 installer doesn't have that.  The NSIS installer also removed whole directories instead of

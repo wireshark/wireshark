@@ -3,7 +3,8 @@
   <!-- Define the appearance, sequence, and available options in the user interface -->
   <Fragment>
     <WixVariable Id="WixUILicenseRtf" Value="$(var.EulaPath)" />
-
+    <WixVariable Id="WixUIBannerBmp" Value="$(var.BannerImagePath)" />
+    <WixVariable Id="WixUIDialogBmp" Value="$(var.DialogImagePath)" />
     <Property Id="ARPPRODUCTICON" Value="ProductIcon" />
 
     <!-- This UI identifier will be used in the product definition-->

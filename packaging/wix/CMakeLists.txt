@@ -301,7 +301,7 @@ set(WIX_CANDLE_DEFINES
 	-dWiresharkName=${CMAKE_PROJECT_NAME}
 	-dWiresharkVersion=${PRODUCT_VERSION}
 	-dWiretapVersion=${WTAP_VERSION}
-	-dEulaDir=${CMAKE_SOURCE_DIR}/packaging/wix
+	-dAssetDir=${CMAKE_SOURCE_DIR}/packaging/wix
 	-dBuildOutputDir=${EXECUTABLE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}
 	-dVCRedistVersion=${MSVC_CRT_VERSION}
 	-dVCRedistDir=${MSVC_REDIST_DIR}
