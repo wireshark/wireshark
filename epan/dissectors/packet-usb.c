@@ -2905,6 +2905,7 @@ dissect_usb_standard_setup_response(packet_info *pinfo, proto_tree *tree,
 {
     const usb_setup_dissector_table_t *tmp;
     usb_setup_dissector dissector;
+    gint length_remaining;
 
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response",
@@ -2919,15 +2920,17 @@ dissect_usb_standard_setup_response(packet_info *pinfo, proto_tree *tree,
         }
     }
 
+    length_remaining = tvb_reported_length_remaining(tvb, offset);
+
+    if (length_remaining <= 0)
+        return offset;
+
     if (dissector) {
         offset = dissector(pinfo, tree, tvb, offset, usb_conv_info);
     } else {
-        gint length_remaining = tvb_reported_length_remaining(tvb, offset);
-        if (length_remaining > 0) {
-            proto_tree_add_item(tree, hf_usb_control_response_generic,
-                                tvb, offset, length_remaining, ENC_NA);
-            offset += length_remaining;
-        }
+        proto_tree_add_item(tree, hf_usb_control_response_generic,
+                            tvb, offset, length_remaining, ENC_NA);
+        offset += length_remaining;
     }
 
     return offset;
