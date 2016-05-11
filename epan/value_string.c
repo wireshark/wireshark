@@ -38,7 +38,15 @@
 const gchar *
 val_to_str(const guint32 val, const value_string *vs, const char *fmt)
 {
-    return val_to_str_wmem(wmem_packet_scope(), val, vs, fmt);
+    const gchar *ret;
+
+    DISSECTOR_ASSERT(fmt != NULL);
+
+    ret = try_val_to_str(val, vs);
+    if (ret != NULL)
+        return ret;
+
+    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
 }
 
 gchar *
@@ -309,7 +317,15 @@ try_val_to_str_idx_ext(const guint32 val, value_string_ext *vse, gint *idx)
 const gchar *
 val_to_str_ext(const guint32 val, value_string_ext *vse, const char *fmt)
 {
-    return val_to_str_ext_wmem(wmem_packet_scope(), val, vse, fmt);
+    const gchar *ret;
+
+    DISSECTOR_ASSERT(fmt != NULL);
+
+    ret = try_val_to_str_ext(val, vse);
+    if (ret != NULL)
+        return ret;
+
+    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
 }
 
 gchar *
