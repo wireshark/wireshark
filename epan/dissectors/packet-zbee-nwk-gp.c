@@ -417,11 +417,11 @@ static const value_string zbee_nwk_gp_app_id_names[] = {
 VALUE_STRING_ENUM(zbee_nwk_gp_cmd_names);
 
 VALUE_STRING_ARRAY(zbee_nwk_gp_cmd_names);
-static value_string_ext zbee_nwk_gp_cmd_names_ext = VALUE_STRING_EXT_INIT(zbee_nwk_gp_cmd_names);
+value_string_ext zbee_nwk_gp_cmd_names_ext = VALUE_STRING_EXT_INIT(zbee_nwk_gp_cmd_names);
 
 
 /* Green Power devices. */
-static const value_string zbee_nwk_gp_device_ids_names[] = {
+const value_string zbee_nwk_gp_device_ids_names[] = {
 
     /* GP GENERIC */
     { GPD_DEVICE_ID_GENERIC_GP_SIMPLE_GENERIC_1STATE_SWITCH,   "Generic: GP Simple Generic 1-state Switch" },
@@ -959,7 +959,7 @@ dissect_zbee_nwk_gp_cmd_step_up_down(tvbuff_t *tvb, packet_info *pinfo _U_, prot
  *@param data raw packet private data.
  *@return payload processed offset
 */
-static guint
+static int
 dissect_zbee_nwk_gp_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     guint offset = 0;
@@ -1686,6 +1686,7 @@ proto_register_zbee_nwk_gp(void)
 
     /* Register the dissectors. */
     register_dissector(ZBEE_PROTOABBREV_NWK_GP, dissect_zbee_nwk_gp, proto_zbee_nwk_gp);
+    register_dissector(ZBEE_PROTOABBREV_NWK_GP_CMD, dissect_zbee_nwk_gp_cmd, proto_zbee_nwk_gp);
 } /* proto_register_zbee_nwk_gp */
 
 /**

@@ -355,6 +355,7 @@ const range_string zbee_aps_apid_names[] = {
     { ZBEE_PROFILE_STD_MIN, ZBEE_PROFILE_STD_MAX,           "Unknown ZigBee Standard" },
 
     { ZBEE_PROFILE_T2,      ZBEE_PROFILE_T2,                "Test Profile #2" },
+    { ZBEE_PROFILE_GP,      ZBEE_PROFILE_GP,                "Green Power" },
     { ZBEE_PROFILE_RSVD0_MIN,   ZBEE_PROFILE_RSVD0_MAX,     "Unknown ZigBee Reserved" },
     { ZBEE_PROFILE_RSVD1_MIN,   ZBEE_PROFILE_RSVD1_MAX,     "Unknown ZigBee Reserved" },
 
@@ -536,6 +537,7 @@ const range_string zbee_aps_apid_abbrs[] = {
     { ZBEE_PROFILE_SE,      ZBEE_PROFILE_SE,        "SE" },
     { ZBEE_PROFILE_RS,      ZBEE_PROFILE_RS,        "RS" },
     { ZBEE_PROFILE_T2,      ZBEE_PROFILE_T2,        "T2" },
+    { ZBEE_PROFILE_GP,      ZBEE_PROFILE_GP,        "GP" },
     /* Manufacturer Allocations */
     { ZBEE_PROFILE_C4_MIN,  ZBEE_PROFILE_C4_MAX,    "C4" },
 
@@ -572,6 +574,7 @@ const value_string zbee_aps_cid_names[] = {
     { ZBEE_ZCL_CID_PARTITION,                       "Partition"},
     { ZBEE_ZCL_CID_OTA_UPGRADE,                     "OTA Upgrade"},
     { ZBEE_ZCL_CID_POLL_CONTROL,                    "Poll Control"},
+    { ZBEE_ZCL_CID_GP,                              "Green Power"},
     /* */
     { ZBEE_ZCL_CID_POWER_PROFILE,                    "Power Profile"},
     { ZBEE_ZCL_CID_APPLIANCE_CONTROL,                "Appliance Control"},

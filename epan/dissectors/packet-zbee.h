@@ -80,6 +80,8 @@
 #define ZBEE_PROFILE_RSVD1_MIN              0x8000
 #define ZBEE_PROFILE_RSVD1_MAX              0xbeff
 
+#define ZBEE_PROFILE_GP                     0xa1e0
+
 /* Organization Profile IDs */
 #define ZBEE_PROFILE_IEEE_1451_5            0xbf00
 
@@ -1117,6 +1119,7 @@
 /* Protocol Abbreviations */
 #define ZBEE_PROTOABBREV_NWK                "zbee_nwk"
 #define ZBEE_PROTOABBREV_NWK_GP             "zbee_nwk_gp"
+#define ZBEE_PROTOABBREV_NWK_GP_CMD         "zbee_nwk_gp_cmd"
 #define ZBEE_PROTOABBREV_APS                "zbee_aps"
 #define ZBEE_PROTOABBREV_ZCL                "zbee_zcl"
 #define ZBEE_PROTOABBREV_ZCL_APPLCTRL       "zbee_zcl_general.applctrl"
@@ -1173,6 +1176,7 @@
 #define ZBEE_PROTOABBREV_ZCL_DOOR_LOCK      "zbee_zcl_closures.door_lock"
 #define ZBEE_PROTOABBREV_ZCL_COLOR_CONTROL  "zbee_zcl_lighting.color_ctrl"
 #define ZBEE_PROTOABBREV_ZCL_BALLAST_CONFIG "zbee_zcl_lighting.ballast_ctrl"
+#define ZBEE_PROTOABBREV_ZCL_GP             "zbee_zcl_general.gp"
 
 /* ZigBee Vendor Sub IE Fields */
 #define ZBEE_ZIGBEE_IE_ID_MASK                      0xFFC0
