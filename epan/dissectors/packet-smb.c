@@ -11666,7 +11666,7 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 		CHECK_BYTE_COUNT_SUBR(2);
 		proto_tree_add_item(
-			subtree, hf_smb_ea_data_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+			subtree, hf_smb_ea_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_SUBR(2);
 
 		/* EA name */
