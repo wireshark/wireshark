@@ -581,6 +581,17 @@ int main(int argc, char *argv[])
     // xxx qtshark
     runtime_info_str = get_runtime_version_info(get_wireshark_runtime_info);
 
+    profile_store_persconffiles(TRUE);
+
+    /* Read the profile independent recent file.  We have to do this here so we can */
+    /* set the profile before it can be set from the command line parameter */
+    if (!recent_read_static(&rf_path, &rf_open_errno)) {
+        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                      "Could not open common recent file\n\"%s\": %s.",
+                      rf_path, strerror(rf_open_errno));
+        g_free(rf_path);
+    }
+
     /*
      * In order to have the -X opts assigned before the wslua machine starts
      * we need to call getopt_long before epan_init() gets called.
@@ -735,17 +746,6 @@ DIAG_ON(cast-qual)
     /* Start windows sockets */
     WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
 #endif  /* _WIN32 */
-
-    profile_store_persconffiles(TRUE);
-
-    /* Read the profile independent recent file.  We have to do this here so we can */
-    /* set the profile before it can be set from the command line parameter */
-    if (!recent_read_static(&rf_path, &rf_open_errno)) {
-        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                      "Could not open common recent file\n\"%s\": %s.",
-                      rf_path, strerror(rf_open_errno));
-        g_free(rf_path);
-    }
 
     /* Read the profile dependent (static part) of the recent file. */
     /* Only the static part of it will be read, as we don't have the gui now to fill the */
@@ -1426,6 +1426,8 @@ DIAG_ON(cast-qual)
         }
     }
 #endif /* HAVE_LIBPCAP */
+
+    profile_store_persconffiles(FALSE);
 
     return wsApp->exec();
 }
