@@ -1043,7 +1043,7 @@ checkapi: checkapi_local
 	cd caputils && $(MAKE) checkapi
 	cd ui && $(MAKE) checkapi
 	cd ui/gtk && $(MAKE) checkapi
-##	cd epan && $(MAKE) checkapi
+	cd epan && $(MAKE) checkapi
 	cd epan/crypt && $(MAKE) checkapi
 	cd epan/dfilter && $(MAKE) checkapi
 	cd epan/ftypes && $(MAKE) checkapi

@@ -350,17 +350,14 @@ set_target_properties(tvbtest PROPERTIES
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 )
 
-# Commented out as per nmake
-#CHECKAPI(
-#	NAME
-#	  epan
-#	SWITCHES
-#	  -g termoutput -build
-#	SOURCES
-#	  ${LIBWIRESHARK_FILES}
-#	  ${LEX_FILES}
-#	  ${LEMON_FILES}
-#)
+CHECKAPI(
+	NAME
+	  epan
+	SWITCHES
+	  -g termoutput -build
+	SOURCES
+	  ${LIBWIRESHARK_FILES}
+)
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
