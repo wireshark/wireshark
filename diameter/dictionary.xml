@@ -2025,7 +2025,7 @@
 			<!-- 5124-5139 -->
 			<enum name="DIAMETER_ERROR_INITIAL_PARAMETERS" code="5140"/>
 			<enum name="DIAMETER_ERROR_TRIGGER_EVENT" code="5141"/>
-			<enum name="DIAMETER_BEARER_EVENT" code="5142"/>
+			<enum name="DIAMETER_PCC_RULE_EVENT" code="5142"/>
 			<enum name="DIAMETER_ERROR_BEARER_NOT_AUTHORIZED" code="5143"/>
 			<enum name="DIAMETER_ERROR_TRAFFIC_MAPPING_INFO_REJECTED" code="5144"/>
 			<enum name="DIAMETER_QOS_RULE_EVENT" code="5145"/>
