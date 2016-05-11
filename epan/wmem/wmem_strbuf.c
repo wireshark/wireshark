@@ -98,7 +98,7 @@ wmem_strbuf_new(wmem_allocator_t *allocator, const gchar *str)
     strbuf = wmem_strbuf_sized_new(allocator, alloc_len, 0);
 
     if (str && len > 0) {
-        strcpy(strbuf->str, str);
+        g_strlcpy(strbuf->str, str, alloc_len);
         strbuf->len = len;
     }
 
