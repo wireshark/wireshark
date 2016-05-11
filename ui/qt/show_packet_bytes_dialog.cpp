@@ -506,14 +506,12 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
         break;
     }
 
-    if (initialization || show_as_ == ShowAsImage) {
-        // Try loading as image
-        if (image_.loadFromData(field_bytes_) && initialization) {
-            show_as_ = ShowAsImage;
-            ui->cbShowAs->blockSignals(true);
-            ui->cbShowAs->setCurrentIndex(ShowAsImage);
-            ui->cbShowAs->blockSignals(false);
-        }
+    // Try loading as image at startup
+    if (initialization && image_.loadFromData(field_bytes_)) {
+        show_as_ = ShowAsImage;
+        ui->cbShowAs->blockSignals(true);
+        ui->cbShowAs->setCurrentIndex(ShowAsImage);
+        ui->cbShowAs->blockSignals(false);
     }
 
     updatePacketBytes();
@@ -654,14 +652,14 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         ui->leFind->setEnabled(false);
         ui->bFind->setEnabled(false);
 
-        if (!image_.isNull()) {
-            ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
+        ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
+        if (image_.loadFromData(field_bytes_)) {
             ui->tePacketBytes->textCursor().insertImage(image_);
-        } else {
-            print_button_->setEnabled(false);
-            copy_button_->setEnabled(false);
-            save_as_button_->setEnabled(false);
         }
+
+        print_button_->setEnabled(!image_.isNull());
+        copy_button_->setEnabled(!image_.isNull());
+        save_as_button_->setEnabled(!image_.isNull());
         break;
     }
 
