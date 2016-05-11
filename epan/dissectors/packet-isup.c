@@ -12364,7 +12364,7 @@ proto_register_isup(void)
     { &ei_isup_message_type_unknown, { "isup.message_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown Message type (possibly reserved/used in former ISUP version)", EXPFILL }},
     { &ei_isup_not_dissected_yet, { "isup.not_dissected_yet", PI_UNDECODED, PI_WARN, "Not dissected yet", EXPFILL }},
     { &ei_isup_status_subfield_not_present, { "isup.status_subfield_not_present", PI_PROTOCOL, PI_NOTE, "Status subfield is not present with this message type", EXPFILL }},
-    { &ei_isup_message_type_no_optional_parameters, { "isup.message_type.no_optional_parameters", PI_PROTOCOL, PI_WARN, "No optional parameters are possible with this message type", EXPFILL }},
+    { &ei_isup_message_type_no_optional_parameters, { "isup.message_type.no_optional_parameters", PI_PROTOCOL, PI_NOTE, "No optional parameters are possible with this message type", EXPFILL }},
     { &ei_isup_empty_number, { "isup.empty_number", PI_PROTOCOL, PI_NOTE, "(empty) number", EXPFILL }},
   };
 
