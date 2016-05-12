@@ -398,6 +398,8 @@ static const value_string erf_type_vals[] = {
   { ERF_TYPE_MC_AAL5            ,"MC_AAL5"},
   { ERF_TYPE_COLOR_HDLC_POS     ,"COLOR_HDLC_POS"},
   { ERF_TYPE_COLOR_ETH          ,"COLOR_ETH"},
+  { ERF_TYPE_COLOR_HASH_POS     ,"COLOR_HASH_POS"},
+  { ERF_TYPE_COLOR_HASH_ETH     ,"COLOR_HASH_ETH"},
   { ERF_TYPE_MC_AAL2            ,"MC_AAL2 "},
   { ERF_TYPE_IP_COUNTER         ,"IP_COUNTER"},
   { ERF_TYPE_TCP_FLOW_COUNTER   ,"TCP_FLOW_COUNTER"},
@@ -2210,6 +2212,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   case ERF_TYPE_ETH:
   case ERF_TYPE_COLOR_ETH:
   case ERF_TYPE_DSM_COLOR_ETH:
+  case ERF_TYPE_COLOR_HASH_ETH:
     dissect_eth_header(tvb, pinfo, erf_tree);
     /* fall through */
   case ERF_TYPE_IPV4:
@@ -2400,6 +2403,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   case ERF_TYPE_COLOR_HDLC_POS:
   case ERF_TYPE_DSM_COLOR_HDLC_POS:
   case ERF_TYPE_COLOR_MC_HDLC_POS:
+  case ERF_TYPE_COLOR_HASH_POS:
     hdlc_type = (erf_hdlc_type_vals)erf_hdlc_type;
 
     if (hdlc_type == ERF_HDLC_GUESS) {
