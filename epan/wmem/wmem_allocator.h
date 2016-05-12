@@ -37,9 +37,9 @@ struct _wmem_user_cb_container_t;
  * on this structure */
 struct _wmem_allocator_t {
     /* Consumer functions */
-    void *(*alloc)(void *private_data, const size_t size);
-    void  (*free)(void *private_data, void *ptr);
-    void *(*realloc)(void *private_data, void *ptr, const size_t size);
+    void *(*walloc)(void *private_data, const size_t size);
+    void  (*wfree)(void *private_data, void *ptr);
+    void *(*wrealloc)(void *private_data, void *ptr, const size_t size);
 
     /* Producer/Manager functions */
     void  (*free_all)(void *private_data);

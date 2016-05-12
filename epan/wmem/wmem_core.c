@@ -53,7 +53,7 @@ wmem_alloc(wmem_allocator_t *allocator, const size_t size)
         return NULL;
     }
 
-    return allocator->alloc(allocator->private_data, size);
+    return allocator->walloc(allocator->private_data, size);
 }
 
 void *
@@ -84,7 +84,7 @@ wmem_free(wmem_allocator_t *allocator, void *ptr)
         return;
     }
 
-    allocator->free(allocator->private_data, ptr);
+    allocator->wfree(allocator->private_data, ptr);
 }
 
 void *
@@ -105,7 +105,7 @@ wmem_realloc(wmem_allocator_t *allocator, void *ptr, const size_t size)
 
     g_assert(allocator->in_scope);
 
-    return allocator->realloc(allocator->private_data, ptr, size);
+    return allocator->wrealloc(allocator->private_data, ptr, size);
 }
 
 static void

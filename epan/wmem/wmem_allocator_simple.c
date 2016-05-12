@@ -133,9 +133,9 @@ wmem_simple_allocator_init(wmem_allocator_t *allocator)
 
     simple_allocator = wmem_new(NULL, wmem_simple_allocator_t);
 
-    allocator->alloc   = &wmem_simple_alloc;
-    allocator->realloc = &wmem_simple_realloc;
-    allocator->free    = &wmem_simple_free;
+    allocator->walloc   = &wmem_simple_alloc;
+    allocator->wrealloc = &wmem_simple_realloc;
+    allocator->wfree    = &wmem_simple_free;
 
     allocator->free_all = &wmem_simple_free_all;
     allocator->gc       = &wmem_simple_gc;

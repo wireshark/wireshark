@@ -255,15 +255,15 @@ read-only by the allocator implementation.
 
 4.1.2 Consumer Functions
 
- - alloc()
- - free()
- - realloc()
+ - walloc()
+ - wfree()
+ - wrealloc()
 
 These function pointers should be set to functions with semantics obviously
 similar to their standard-library namesakes. Each one takes an extra parameter
 that is a copy of the allocator's private_data pointer.
 
-Note that realloc() and free() are not expected to be called directly by user
+Note that wrealloc() and wfree() are not expected to be called directly by user
 code in most cases - they are primarily optimisations for use by data
 structures that wmem might want to implement (it's inefficient, for example, to
 implement a dynamically sized array without some form of realloc).
@@ -271,8 +271,8 @@ implement a dynamically sized array without some form of realloc).
 Also note that allocators do not have to handle NULL pointers or 0-length
 requests in any way - those checks are done in an allocator-agnostic way
 higher up in wmem. Allocator authors can assume that all incoming pointers
-(to realloc and free) are non-NULL, and that all incoming lengths (to malloc
-and realloc) are non-0.
+(to wrealloc and wfree) are non-NULL, and that all incoming lengths (to walloc
+and wrealloc) are non-0.
 
 4.1.3 Producer/Manager Functions
 

@@ -31,6 +31,7 @@
 #endif
 
 #include <glib.h>
+#include <glib/gprintf.h>
 
 #include "wmem_core.h"
 #include "wmem_allocator.h"
@@ -140,7 +141,7 @@ wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap)
 
     dst = (gchar *)wmem_alloc(allocator, needed_len);
 
-    vsprintf(dst, fmt, ap2);
+    vsprintf_s(dst, needed_len, fmt, ap2);
 
     va_end(ap2);
 

@@ -215,9 +215,9 @@ wmem_strict_allocator_init(wmem_allocator_t *allocator)
 
     strict_allocator = wmem_new(NULL, wmem_strict_allocator_t);
 
-    allocator->alloc   = &wmem_strict_alloc;
-    allocator->realloc = &wmem_strict_realloc;
-    allocator->free    = &wmem_strict_free;
+    allocator->walloc   = &wmem_strict_alloc;
+    allocator->wrealloc = &wmem_strict_realloc;
+    allocator->wfree    = &wmem_strict_free;
 
     allocator->free_all = &wmem_strict_free_all;
     allocator->gc       = &wmem_strict_gc;

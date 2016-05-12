@@ -1108,9 +1108,9 @@ wmem_block_allocator_init(wmem_allocator_t *allocator)
 
     block_allocator = wmem_new(NULL, wmem_block_allocator_t);
 
-    allocator->alloc   = &wmem_block_alloc;
-    allocator->realloc = &wmem_block_realloc;
-    allocator->free    = &wmem_block_free;
+    allocator->walloc   = &wmem_block_alloc;
+    allocator->wrealloc = &wmem_block_realloc;
+    allocator->wfree    = &wmem_block_free;
 
     allocator->free_all = &wmem_block_free_all;
     allocator->gc       = &wmem_block_gc;
