@@ -6808,6 +6808,7 @@ dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 					switch (attr_num)
 					{
 					case FATTR4_SUPPORTED_ATTRS:
+					case FATTR4_SUPPATTR_EXCLCREAT:
 						offset = dissect_nfs4_fattrs(tvb, offset, pinfo, attr_tree, FATTR4_BITMAP_ONLY, civ);
 						break;
 
