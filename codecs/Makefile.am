@@ -33,8 +33,7 @@ endif
 
 # All sources that should be put in the source distribution tarball
 libwscodecs_la_SOURCES = \
-	$(LIBWSCODECS_SRC) \
-	$(noinst_HEADERS)
+	$(LIBWSCODECS_SRC)
 
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 libwscodecs_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
@@ -42,6 +41,19 @@ libwscodecs_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
 libwscodecs_la_LIBADD = $(top_builddir)/wsutil/libwsutil.la $(GLIB_LIBS) $(SBC_LIBS)
 
 libwscodecs_la_DEPENDENCIES = $(top_builddir)/wsutil/libwsutil.la
+
+noinst_HEADERS = \
+	codecs.h \
+	G711a/G711adecode.h \
+	G711a/G711atable.h \
+	G711u/G711udecode.h \
+	G711u/G711utable.h \
+	G722/G722decode.h \
+	G726/G726decode.h \
+	sbc/sbc_private.h \
+	speex/arch.h \
+	speex/speex_resampler.h \
+	speex/stack_alloc.h
 
 EXTRA_DIST = \
 	CMakeLists.txt			\
