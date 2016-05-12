@@ -59,12 +59,5 @@ distclean: clean
 maintainer-clean: distclean
 	rm -f $(GENERATED_FILES)
 
-checkapi: checkapi-base checkapi-todo
-
-checkapi-base:
-	$(PERL) ../../tools/checkAPIs.pl -g deprecated-gtk -build \
-	$(TSHARK_TAP_SRC)
-
-checkapi-todo:
-	$(PERL) ../../tools/checkAPIs.pl -M -g deprecated-gtk-todo -build \
-	$(TSHARK_TAP_SRC)
+checkapi:
+	$(PERL) ../../tools/checkAPIs.pl -build $(TSHARK_TAP_SRC)

@@ -1507,6 +1507,8 @@ checkapi: checkapi_local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+	cd ../cli
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../../epan

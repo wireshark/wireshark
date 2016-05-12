@@ -69,17 +69,9 @@ if HAVE_DOXYGEN
 	$(DOXYGEN) doxygen.cfg
 endif		# HAVE_DOXYGEN
 
-checkapi: checkapi-base checkapi-todo
-
-checkapi-base:
-	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g deprecated-gtk -build \
-	-sourcedir=$(srcdir) \
-	$(TSHARK_TAP_SRC)
-
-checkapi-todo:
-	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -M -g deprecated-gtk-todo -build \
-	-sourcedir=$(srcdir) \
-	$(TSHARK_TAP_SRC)
+checkapi:
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -build \
+	-sourcedir=$(srcdir) $(TSHARK_TAP_SRC)
 
 EXTRA_DIST = \
 	.editorconfig		\
