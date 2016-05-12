@@ -860,7 +860,7 @@ dissect_eth_withfcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* ...and this one's for encapsulated packets that might or might not. */
 static void
-dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   dissect_eth_common(tvb, pinfo, tree, eth_assume_fcs ? 4 : -1);
 }
