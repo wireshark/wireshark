@@ -190,6 +190,7 @@ void OverlayScrollBar::paintEvent(QPaintEvent *event)
         pm_painter.setPen(border_color);
         pm_painter.drawLine(near_dest.topLeft(), near_dest.bottomLeft());
         pm_painter.drawLine(near_dest.topRight(), near_dest.bottomRight());
+        pm_painter.drawLine(near_dest.bottomLeft(), near_dest.bottomRight());
         pm_painter.restore();
 
         // Draw the map.
