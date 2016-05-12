@@ -1040,7 +1040,7 @@ proto_register_eth(void)
 void
 proto_reg_handoff_eth(void)
 {
-  dissector_handle_t eth_handle, eth_withoutfcs_handle;
+  dissector_handle_t eth_handle, eth_withoutfcs_handle, eth_maybefcs_handle;
 
   /* Get a handle for the Firewall-1 dissector. */
   fw1_handle = find_dissector("fw1");
@@ -1055,8 +1055,9 @@ proto_reg_handoff_eth(void)
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ETHERNET, eth_handle);
 
   eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
+  eth_maybefcs_handle = find_dissector("eth");
   dissector_add_uint("ethertype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
-  dissector_add_uint("erf.types.type", ERF_TYPE_ETH, eth_withoutfcs_handle);
+  dissector_add_uint("erf.types.type", ERF_TYPE_ETH, eth_maybefcs_handle);
   dissector_add_uint("chdlc.protocol", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
   dissector_add_uint("gre.proto", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_ETHER, eth_withoutfcs_handle);
