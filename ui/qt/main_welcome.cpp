@@ -375,6 +375,7 @@ void MainWelcome::updateRecentFiles() {
         rfFont.setItalic(!ri->accessible);
         rfItem = recent_files_->item(rfRow);
         rfItem->setText(itemLabel);
+        rfItem->setData(Qt::AccessibleTextRole, itemLabel);
         rfItem->setData(Qt::UserRole, ri->filename);
         rfItem->setFlags(ri->accessible ? Qt::ItemIsSelectable | Qt::ItemIsEnabled : Qt::NoItemFlags);
         rfItem->setFont(rfFont);

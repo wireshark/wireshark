@@ -126,6 +126,12 @@
              <verstretch>2</verstretch>
             </sizepolicy>
            </property>
+           <property name="accessibleName">
+            <string>Recent capture files</string>
+           </property>
+           <property name="accessibleDescription">
+            <string>Capture files that have been opened previously</string>
+           </property>
            <property name="horizontalScrollBarPolicy">
             <enum>Qt::ScrollBarAlwaysOff</enum>
            </property>
@@ -186,6 +192,12 @@
           <horstretch>0</horstretch>
           <verstretch>1</verstretch>
          </sizepolicy>
+        </property>
+        <property name="accessibleName">
+         <string>Interface list</string>
+        </property>
+        <property name="accessibleDescription">
+         <string>List of available capture interfaces</string>
         </property>
         <property name="horizontalScrollBarPolicy">
          <enum>Qt::ScrollBarAlwaysOff</enum>

@@ -205,10 +205,13 @@ void InterfaceTree::display()
         }
 
         InterfaceTreeWidgetItem *ti = new InterfaceTreeWidgetItem();
-        ti->setText(IFTREE_COL_NAME, QString().fromUtf8(device.display_name));
+        QString if_name = device.display_name;
+        ti->setText(IFTREE_COL_NAME, if_name);
+        ti->setData(IFTREE_COL_NAME, Qt::AccessibleTextRole, if_name);
 
         ti->setData(IFTREE_COL_NAME, Qt::UserRole, QString(device.name));
         ti->setData(IFTREE_COL_STATS, Qt::UserRole, qVariantFromValue(&ti->points));
+
 #ifdef HAVE_EXTCAP
         if (device.if_info.type == IF_EXTCAP) {
             if (extcap_has_configuration((const char *)(device.name), FALSE)) {
