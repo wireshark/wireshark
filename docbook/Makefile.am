@@ -44,7 +44,7 @@ user-guide.xml: user-guide.asciidoc $(WSUG_FILES)
 # create html single page file
 wsug_html: wsug_html/index.html
 
-wsug_html/index.html: $(WSUG_SOURCE) wsluarm
+wsug_html/index.html: $(WSUG_SOURCE)
 	@ echo --- WSUG - HTML SINGLE PAGE ---
 	mkdir -p wsug_html/wsug_graphics/toolbar
 	cp $(srcdir)/wsug_graphics/*.* wsug_html/wsug_graphics
@@ -58,7 +58,7 @@ wsug_html/index.html: $(WSUG_SOURCE) wsluarm
 # create html chunked page files
 wsug_html_chunked: wsug_html_chunked/index.html
 
-wsug_html_chunked/index.html: $(WSUG_SOURCE) wsluarm
+wsug_html_chunked/index.html: $(WSUG_SOURCE)
 	@ echo --- WSUG - HTML CHUNKED ---
 	mkdir -p wsug_html_chunked/wsug_graphics/toolbar
 	cp $(srcdir)/wsug_graphics/*.* wsug_html_chunked/wsug_graphics
@@ -71,14 +71,14 @@ wsug_html_chunked/index.html: $(WSUG_SOURCE) wsluarm
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper
 # you will get lot's of errors, but that's ok
-user-guide-us.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl wsluarm
+user-guide-us.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl
 	@ echo --- WSUG - PDF US PAPER ---
 	$(XSLTPROC) --stringparam paper.type letter \
 		--nonet $(srcdir)/custom_layer_pdf.xsl $< > $@
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
 # you will get lot's of errors, but that's ok
-user-guide-a4.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl wsluarm
+user-guide-a4.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl
 	@ echo --- WSUG - PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 \
 		--nonet $(srcdir)/custom_layer_pdf.xsl $< > $@
@@ -94,9 +94,10 @@ wsdg: wsdg_html_chunked wsdg_html
 
 wsdg-pdf: wsdg developer-guide-a4.pdf developer-guide-us.pdf
 
-developer-guide.xml: developer-guide.asciidoc $(WSDG_FILES)
+developer-guide.xml: developer-guide.asciidoc $(WSDG_FILES) wsluarm
 	$(A2X) --verbose \
 		--attribute=docinfo \
+		--attribute=build_dir=$(abs_builddir) \
 		--asciidoc-opts="--conf-file=$(srcdir)/asciidoc.conf --conf-file=$(srcdir)/asciidoctor-asciidoc.conf" \
 		--no-xmllint \
 		--format=docbook \
@@ -104,7 +105,7 @@ developer-guide.xml: developer-guide.asciidoc $(WSDG_FILES)
 		$<
 
 # create html single page file
-wsdg_html: wsdg_html/index.html wsluarm
+wsdg_html: wsdg_html/index.html
 
 wsdg_html/index.html: $(WSDG_SOURCE)
 	@ echo --- WSDG - HTML SINGLE PAGE ---
