@@ -67,9 +67,9 @@ RtpAudioStream::RtpAudioStream(QObject *parent, _rtp_stream_info *rtp_stream) :
     ssrc_ = rtp_stream->ssrc;
 
     // We keep visual samples in memory. Make fewer of them.
-    visual_resampler_ = ws_codec_resampler_init(1, default_audio_sample_rate_,
+    visual_resampler_ = speex_resampler_init(1, default_audio_sample_rate_,
                                                 visual_sample_rate_, SPEEX_RESAMPLER_QUALITY_MIN, NULL);
-    ws_codec_resampler_skip_zeros(visual_resampler_);
+    speex_resampler_skip_zeros(visual_resampler_);
 
     QString tempname = QString("%1/wireshark_rtp_stream").arg(QDir::tempPath());
     tempfile_ = new QTemporaryFile(tempname, this);
@@ -87,8 +87,8 @@ RtpAudioStream::~RtpAudioStream()
         g_free(rtp_packet);
     }
     g_hash_table_destroy(decoders_hash_);
-    if (audio_resampler_) ws_codec_resampler_destroy (audio_resampler_);
-    ws_codec_resampler_destroy (visual_resampler_);
+    if (audio_resampler_) speex_resampler_destroy (audio_resampler_);
+    speex_resampler_destroy (visual_resampler_);
 }
 
 bool RtpAudioStream::isMatch(const _rtp_stream_info *rtp_stream) const
@@ -159,10 +159,10 @@ void RtpAudioStream::reset(double start_rel_time)
     jitter_drop_timestamps_.clear();
 
     if (audio_resampler_) {
-        ws_codec_resampler_reset_mem(audio_resampler_);
+        speex_resampler_reset_mem(audio_resampler_);
     }
     if (visual_resampler_) {
-        ws_codec_resampler_reset_mem(visual_resampler_);
+        speex_resampler_reset_mem(visual_resampler_);
     }
     tempfile_->seek(0);
 }
@@ -203,7 +203,7 @@ void RtpAudioStream::decode()
         rtp_packet_t *rtp_packet = rtp_packets_[cur_packet];
 
         stop_rel_time_ = start_rel_time_ + rtp_packet->arrive_offset;
-        ws_codec_resampler_get_rate(visual_resampler_, &cur_in_rate, &visual_out_rate);
+        speex_resampler_get_rate(visual_resampler_, &cur_in_rate, &visual_out_rate);
 
         QString payload_name;
         if (rtp_packet->info->info_payload_type_str) {
@@ -324,17 +324,17 @@ void RtpAudioStream::decode()
         if (audio_out_rate_ != sample_rate) {
             // Resample the audio to match our previous output rate.
             if (!audio_resampler_) {
-                audio_resampler_ = ws_codec_resampler_init(1, sample_rate, audio_out_rate_, 10, NULL);
-                ws_codec_resampler_skip_zeros(audio_resampler_);
+                audio_resampler_ = speex_resampler_init(1, sample_rate, audio_out_rate_, 10, NULL);
+                speex_resampler_skip_zeros(audio_resampler_);
                 RTP_STREAM_DEBUG("Started resampling from %u to (out) %u Hz.", sample_rate, audio_out_rate_);
             } else {
                 spx_uint32_t audio_out_rate;
-                ws_codec_resampler_get_rate(audio_resampler_, &cur_in_rate, &audio_out_rate);
+                speex_resampler_get_rate(audio_resampler_, &cur_in_rate, &audio_out_rate);
 
                 // Adjust rates if needed.
                 if (sample_rate != cur_in_rate) {
-                    ws_codec_resampler_set_rate(audio_resampler_, sample_rate, audio_out_rate);
-                    ws_codec_resampler_set_rate(visual_resampler_, sample_rate, visual_out_rate);
+                    speex_resampler_set_rate(audio_resampler_, sample_rate, audio_out_rate);
+                    speex_resampler_set_rate(visual_resampler_, sample_rate, visual_out_rate);
                     RTP_STREAM_DEBUG("Changed input rate from %u to %u Hz. Out is %u.", cur_in_rate, sample_rate, audio_out_rate_);
                 }
             }
@@ -346,7 +346,7 @@ void RtpAudioStream::decode()
                 resample_buff = (SAMPLE *) g_realloc(resample_buff, resample_buff_len);
             }
 
-            ws_codec_resampler_process_int(audio_resampler_, 0, decode_buff, &in_len, resample_buff, &out_len);
+            speex_resampler_process_int(audio_resampler_, 0, decode_buff, &in_len, resample_buff, &out_len);
             write_buff = (char *) decode_buff;
             write_bytes = out_len * sample_bytes_;
         }
@@ -363,7 +363,7 @@ void RtpAudioStream::decode()
             resample_buff = (SAMPLE *) g_realloc(resample_buff, resample_buff_len);
         }
 
-        ws_codec_resampler_process_int(visual_resampler_, 0, decode_buff, &in_len, resample_buff, &out_len);
+        speex_resampler_process_int(visual_resampler_, 0, decode_buff, &in_len, resample_buff, &out_len);
         for (unsigned i = 0; i < out_len; i++) {
             packet_timestamps_[stop_rel_time_ + (double) i / visual_out_rate] = rtp_packet->frame_num;
             if (qAbs(resample_buff[i]) > max_sample_val_) max_sample_val_ = qAbs(resample_buff[i]);
