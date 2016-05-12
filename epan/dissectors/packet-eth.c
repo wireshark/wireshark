@@ -1052,7 +1052,12 @@ proto_reg_handoff_eth(void)
   eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
   eth_maybefcs_handle = find_dissector("eth_maybefcs");
   dissector_add_uint("ethertype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
+
   dissector_add_uint("erf.types.type", ERF_TYPE_ETH, eth_maybefcs_handle);
+  dissector_add_uint("erf.types.type", ERF_TYPE_COLOR_ETH, eth_maybefcs_handle);
+  dissector_add_uint("erf.types.type", ERF_TYPE_DSM_COLOR_ETH, eth_maybefcs_handle);
+  dissector_add_uint("erf.types.type", ERF_TYPE_COLOR_HASH_ETH, eth_maybefcs_handle);
+
   dissector_add_uint("chdlc.protocol", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
   dissector_add_uint("gre.proto", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
   dissector_add_uint("gre.proto", GRE_MIKROTIK_EOIP, eth_withoutfcs_handle);
