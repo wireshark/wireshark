@@ -70,6 +70,15 @@ set_target_properties(wmem_test PROPERTIES
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 )
 
+CHECKAPI(
+	NAME
+	  wmem
+	SWITCHES
+	  -g termoutput -build
+	SOURCES
+	  ${WMEM_FILES}
+)
+
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
 #

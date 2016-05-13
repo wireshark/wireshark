@@ -1519,6 +1519,8 @@ checkapi: checkapi_local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+	cd ../wmem
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../wslua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../dissectors

@@ -1048,6 +1048,7 @@ checkapi: checkapi_local
 	cd epan/crypt && $(MAKE) checkapi
 	cd epan/dfilter && $(MAKE) checkapi
 	cd epan/ftypes && $(MAKE) checkapi
+	cd epan/wmem && $(MAKE) checkapi
 	cd epan/wslua && $(MAKE) checkapi
 	cd epan/dissectors && $(MAKE) checkapi
 	cd plugins && $(MAKE) checkapi
