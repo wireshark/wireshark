@@ -6914,7 +6914,13 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
             offset = fDeviceObjectReference(tvb, pinfo, tree, offset);
             break;
         case 130: /* event-time-stamp */
-            offset = fEventTimeStamps(tvb, pinfo, tree, offset);
+            if (propertyArrayIndex == 0) {
+                /* BACnetARRAY index 0 refers to the length
+                of the array, not the elements of the array */
+                offset = fApplicationTypes(tvb, pinfo, tree, offset, ar);
+            } else {
+                offset = fEventTimeStamps(tvb, pinfo, tree, offset);
+            }
             break;
         case 197: /* logging-type */
             offset = fApplicationTypesEnumerated(tvb, pinfo, tree, offset, ar, BACnetLoggingType);
