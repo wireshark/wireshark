@@ -1026,7 +1026,7 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
         offset += 4;
 
         /* Fix issue with CRT.. (Fragmentation ?) */
-        if( tag_len >= tvb_reported_length_remaining(tvb, tag_offset_start + tag_offset)){
+        if( tag_len > tvb_reported_length_remaining(tvb, tag_offset_start + tag_offset)){
             tag_len = tvb_reported_length_remaining(tvb, tag_offset_start + tag_offset);
              expert_add_info(pinfo, ti_len, &ei_quic_tag_length);
         }
