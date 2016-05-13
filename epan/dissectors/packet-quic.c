@@ -143,6 +143,16 @@ static int hf_quic_tag_xlct = -1;
 static int hf_quic_tag_nonp = -1;
 static int hf_quic_tag_csct = -1;
 static int hf_quic_tag_ctim = -1;
+
+/* Public Reset Tags */
+static int hf_quic_tag_rnon = -1;
+static int hf_quic_tag_rseq = -1;
+static int hf_quic_tag_cadr_addr_type = -1;
+static int hf_quic_tag_cadr_addr_ipv4 = -1;
+static int hf_quic_tag_cadr_addr_ipv6 = -1;
+static int hf_quic_tag_cadr_addr = -1;
+static int hf_quic_tag_cadr_port = -1;
+
 static int hf_quic_tag_unknown = -1;
 
 static int hf_quic_padding = -1;
@@ -301,12 +311,14 @@ static const value_string len_missing_packet_vals[] = {
 
 #define MTAG_CHLO 0x43484C4F
 #define MTAG_SHLO 0x53484C4F
-#define MTAG_REJ  0X52454A00
+#define MTAG_REJ  0x52454A00
+#define MTAG_PRST 0x50525354
 
 static const value_string message_tag_vals[] = {
     { MTAG_CHLO, "Client Hello" },
     { MTAG_SHLO, "Server Hello" },
     { MTAG_REJ, "Rejection" },
+    { MTAG_PRST, "Public Reset" },
     { 0, NULL }
 };
 
@@ -350,6 +362,11 @@ static const value_string message_tag_vals[] = {
 #define TAG_CSCT 0x43534354
 #define TAG_CTIM 0x4354494D
 
+/* Public Reset Tag */
+#define TAG_RNON 0x524E4F4E
+#define TAG_RSEQ 0x52534551
+#define TAG_CADR 0x43414452
+
 static const value_string tag_vals[] = {
     { TAG_PAD, "Padding" },
     { TAG_SNI, "Server Name Indication" },
@@ -385,6 +402,9 @@ static const value_string tag_vals[] = {
     { TAG_NONP, "Client Proof Nonce" },
     { TAG_CSCT, "Signed cert timestamp (RFC6962) of leaf cert" },
     { TAG_CTIM, "Client Timestamp" },
+    { TAG_RNON, "Public Reset Nonce Proof" },
+    { TAG_RSEQ, "Rejected Packet Number" },
+    { TAG_CADR, "Client Address" },
     { 0, NULL }
 };
 
@@ -414,6 +434,16 @@ static const value_string tag_aead_vals[] = {
 static const value_string tag_kexs_vals[] = {
     { KEXS_C255, "Curve25519" },
     { KEXS_P256, "P-256" },
+    { 0, NULL }
+};
+
+/**************************************************************************/
+/*                      Client Address Type                               */
+/**************************************************************************/
+
+static const value_string cadr_type_vals[] = {
+    { 2, "IPv4" },
+    { 10, "IPv6" },
     { 0, NULL }
 };
 
@@ -1215,6 +1245,44 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
                 tag_offset += 8;
                 tag_len -= 8;
             break;
+            case TAG_RNON: /* Public Reset Tag */
+                proto_tree_add_item(tag_tree, hf_quic_tag_rnon, tvb, tag_offset_start + tag_offset, 8, ENC_NA);
+                tag_offset += 8;
+                tag_len -= 8;
+            break;
+            case TAG_RSEQ: /* Public Reset Tag */
+                proto_tree_add_item(tag_tree, hf_quic_tag_rseq, tvb, tag_offset_start + tag_offset, 8, ENC_NA);
+                tag_offset += 8;
+                tag_len -= 8;
+            break;
+            case TAG_CADR: /* Public Reset Tag */{
+                guint32 addr_type;
+                proto_tree_add_item_ret_uint(tag_tree, hf_quic_tag_cadr_addr_type, tvb, tag_offset_start + tag_offset, 2, ENC_LITTLE_ENDIAN, &addr_type);
+                tag_offset += 2;
+                tag_len -= 2;
+                switch(addr_type){
+                    case 2: /* IPv4 */
+                    proto_tree_add_item(tag_tree, hf_quic_tag_cadr_addr_ipv4, tvb, tag_offset_start + tag_offset, 4, ENC_NA);
+                    tag_offset += 4;
+                    tag_len -= 4;
+                    break;
+                    case 10: /* IPv6 */
+                    proto_tree_add_item(tag_tree, hf_quic_tag_cadr_addr_ipv6, tvb, tag_offset_start + tag_offset, 16, ENC_NA);
+                    tag_offset += 16;
+                    tag_len -= 16;
+                    break;
+                    default: /* Unknown */
+                    proto_tree_add_item(tag_tree, hf_quic_tag_cadr_addr, tvb, tag_offset_start + tag_offset, tag_len - 2 - 2, ENC_NA);
+                    tag_offset += tag_len + 2 + 2 ;
+                    tag_len -= tag_len - 2 - 2;
+                    break;
+                }
+                proto_tree_add_item(tag_tree, hf_quic_tag_cadr_port, tvb, tag_offset_start + tag_offset, 2, ENC_LITTLE_ENDIAN);
+                tag_offset += 2;
+                tag_len -= 2;
+            }
+            break;
+
             default:
                 proto_tree_add_item(tag_tree, hf_quic_tag_unknown, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
                 expert_add_info_format(pinfo, ti_tag, &ei_quic_tag_undecoded,
@@ -1575,6 +1643,28 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 4;
     }
 
+    /* Public Reset Packet */
+    if(puflags & PUFLAGS_RST){
+        guint32 tag_number, message_tag;
+
+        ti = proto_tree_add_item(quic_tree, hf_quic_tag, tvb, offset, 4, ENC_ASCII|ENC_NA);
+        message_tag = tvb_get_ntohl(tvb, offset);
+        proto_item_append_text(ti, " (%s)", val_to_str(message_tag, message_tag_vals, "Unknown Tag"));
+        offset += 4;
+
+        proto_tree_add_item(quic_tree, hf_quic_tag_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        tag_number = tvb_get_letohs(tvb, offset);
+        offset += 2;
+
+        proto_tree_add_item(quic_tree, hf_quic_padding, tvb, offset, 2, ENC_NA);
+        offset += 2;
+
+        offset = dissect_quic_tag(tvb, pinfo, quic_tree, offset, tag_number);
+
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Public Reset, CID: %" G_GINT64_MODIFIER "u", cid);
+
+        return offset;
+    }
     /* Sequence */
 
     /* Get len of sequence (and sequence), may be a more easy function to get the length... */
@@ -2148,6 +2238,42 @@ proto_register_quic(void)
                FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
               NULL, HFILL }
         },
+        { &hf_quic_tag_rnon,
+            { "Public reset nonce proof", "quic.tag.rnon",
+               FT_UINT64, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_quic_tag_rseq,
+            { "Rejected Packet Number", "quic.tag.rseq",
+               FT_UINT64, BASE_DEC, NULL, 0x0,
+              "a 64-bit packet number", HFILL }
+        },
+        { &hf_quic_tag_cadr_addr_type,
+            { "Client IP Address Type", "quic.tag.caddr.addr.type",
+               FT_UINT16, BASE_DEC, VALS(cadr_type_vals), 0x0,
+              NULL, HFILL }
+        },
+        { &hf_quic_tag_cadr_addr_ipv4,
+            { "Client IP Address", "quic.tag.caddr.addr.ipv4",
+               FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_quic_tag_cadr_addr_ipv6,
+            { "Client IP Address", "quic.tag.caddr.addr.ipv6",
+               FT_IPv6, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_quic_tag_cadr_addr,
+            { "Client IP Address", "quic.tag.caddr.addr",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_quic_tag_cadr_port,
+            { "Client Port (Source)", "quic.tag.caddr.port",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+
         { &hf_quic_tag_unknown,
             { "Unknown tag", "quic.tag.unknown",
                FT_BYTES, BASE_NONE, NULL, 0x0,
