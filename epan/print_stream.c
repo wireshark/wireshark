@@ -28,8 +28,6 @@
 
 #ifdef _WIN32
 #include <windows.h>
-#else
-#include <string.h>
 #endif
 
 #include <glib.h>
@@ -146,14 +144,14 @@ print_line_text(print_stream_t *self, int indent, const char *line)
 #ifndef _WIN32
         /* Is there a more reliable way to do this? */
         if (!tty_codeset) {
-            gchar *upper_codeset;
+            const gchar *charset;
+            gboolean is_utf8;
 
-            tty_codeset = g_get_codeset();
-            upper_codeset = g_ascii_strup(tty_codeset, -1);
-            if (!strstr(upper_codeset, "UTF-8") && !strstr(upper_codeset, "UTF8")) {
+            is_utf8 = g_get_charset(&charset);
+            tty_codeset = g_strdup(charset);
+            if (!is_utf8) {
                 to_codeset = tty_codeset;
             }
-            g_free(upper_codeset);
         }
 #endif
 
