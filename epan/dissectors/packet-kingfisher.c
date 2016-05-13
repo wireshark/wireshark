@@ -58,7 +58,7 @@ static dissector_handle_t kingfisher_conv_handle;
 typedef struct _kingfisher_packet_t
 {
     guint8      version;
-    guint8      system;
+    guint8      system_id;
     guint16     from;
     guint16     target;
     guint16     via;
@@ -245,7 +245,7 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
 
     kfp.version = (kfp.function & 0x80)?3:2;
-    kfp.system = tvb_get_guint8( tvb, 0 );
+    kfp.system_id = tvb_get_guint8( tvb, 0 );
     kfp.message = tvb_get_guint8( tvb, 5 );
 
     kfp.target = tvb_get_guint8( tvb, 1 );
@@ -276,7 +276,7 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     proto_tree_add_uint(kingfisher_tree, hf_kingfisher_version, tvb, 6, 1, kfp.version);
 
     /* system id */
-    proto_tree_add_uint(kingfisher_tree, hf_kingfisher_system, tvb, 0, 1, kfp.system);
+    proto_tree_add_uint(kingfisher_tree, hf_kingfisher_system, tvb, 0, 1, kfp.system_id);
 
     /* target rtu */
     proto_tree_add_uint(kingfisher_tree, hf_kingfisher_target, tvb, 1, 1, kfp.target);
