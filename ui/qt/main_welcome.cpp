@@ -384,8 +384,10 @@ void MainWelcome::updateRecentFiles() {
         rfRow++;
     }
 
-    while ((unsigned)recent_files_->count() > prefs.gui_recent_files_count_max) {
-        recent_files_->takeItem(recent_files_->count());
+    int row = recent_files_->count();
+    while (row > 0 && row > (int) prefs.gui_recent_files_count_max) {
+        row--;
+        recent_files_->takeItem(row);
     }
     if (recent_files_->count() > 0) {
         welcome_ui_->openFrame->animatedShow();
