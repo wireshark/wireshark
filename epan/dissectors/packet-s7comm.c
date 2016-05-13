@@ -2858,7 +2858,6 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
             } else {
                 str1 = tvb_get_string_enc(wmem_packet_scope(), tvb, paramoffset, paramlen, ENC_ASCII);
                 proto_tree_add_item(param_tree, hf_s7comm_data_plccontrol_argument, tvb, paramoffset, paramlen, ENC_ASCII|ENC_NA);
-                paramoffset += paramlen;
                 proto_item_append_text(param_tree, ": (\"%s\")", str1);
                 proto_item_append_text(tree, " -> %s(\"%s\")", servicename, str1);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s(\"%s\")", servicename, str1);
@@ -2867,7 +2866,7 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
         case S7COMM_PI_N_LOGIN_:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_password;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
             break;
         case S7COMM_PI_N_LOGOUT:
         case S7COMM_PI_N_CANCEL:
@@ -2885,7 +2884,7 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
         case S7COMM_PI_N_STRTUL:
         case S7COMM_PI_N_TMRASS:
             hf[0] = hf_s7comm_pi_n_x_addressident;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 1, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 1, hf, paramoffset);
             break;
         case S7COMM_PI_N_F_DELE:
         case S7COMM_PI_N_EXTERN:
@@ -2897,18 +2896,18 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
         case S7COMM_PI_N_SRTEXT:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_filename;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
             break;
         case S7COMM_PI_N_F_CLOS:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_editwindowname;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
             break;
         case S7COMM_PI_N_F_OPEN:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_filename;
             hf[2] = hf_s7comm_pi_n_x_editwindowname;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
             break;
         case S7COMM_PI_N_F_SEEK:
             hf[0] = hf_s7comm_pi_n_x_addressident;
@@ -2917,7 +2916,7 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
             hf[3] = hf_s7comm_pi_n_x_windowsize;
             hf[4] = hf_s7comm_pi_n_x_comparestring;
             hf[5] = hf_s7comm_pi_n_x_skipcount;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 6, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 6, hf, paramoffset);
             break;
         case S7COMM_PI_N_ASUP__:
             hf[0] = hf_s7comm_pi_n_x_addressident;
@@ -2926,46 +2925,46 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
             hf[3] = hf_s7comm_pi_n_x_liftfast;
             hf[4] = hf_s7comm_pi_n_x_blsync;
             hf[5] = hf_s7comm_pi_n_x_filename;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 6, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 6, hf, paramoffset);
             break;
         case S7COMM_PI_N_CHEKDM:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_magnr;
             hf[2] = hf_s7comm_pi_n_x_dnr;
             hf[3] = hf_s7comm_pi_n_x_spindlenumber;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
             break;
         case S7COMM_PI_N_CHKDNO:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_wznr;
             hf[2] = hf_s7comm_pi_n_x_wznr;
             hf[3] = hf_s7comm_pi_n_x_dnr;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
             break;
         case S7COMM_PI_N_CONFIG:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_class;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
             break;
         case S7COMM_PI_N_CRCEDN:
         case S7COMM_PI_N_DELECE:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_tnr;
             hf[2] = hf_s7comm_pi_n_x_dnr;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
             break;
         case S7COMM_PI_N_CREACE:
         case S7COMM_PI_N_CREATO:
         case S7COMM_PI_N_DELETO:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_toolnumber;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
             break;
         case S7COMM_PI_N_CRTOCE:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_toolnumber;
             hf[2] = hf_s7comm_pi_n_x_cenumber;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
             break;
         case S7COMM_PI_N_DELVAR:
             hf[0] = hf_s7comm_pi_n_x_addressident;
@@ -2974,79 +2973,79 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
             hf[3] = hf_s7comm_pi_n_x_lastcolumnnumber;
             hf[4] = hf_s7comm_pi_n_x_firstrownumber;
             hf[5] = hf_s7comm_pi_n_x_lastrownumber;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 6, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 6, hf, paramoffset);
             break;
         case S7COMM_PI_N_F_COPY:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_direction;
             hf[2] = hf_s7comm_pi_n_x_sourcefilename;
             hf[3] = hf_s7comm_pi_n_x_destinationfilename;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
             break;
         case S7COMM_PI_N_F_DMDA:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_channelnumber;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
             break;
         case S7COMM_PI_N_F_PROT:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_filename;
             hf[2] = hf_s7comm_pi_n_x_protection;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
             break;
         case S7COMM_PI_N_F_RENA:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_oldfilename;
             hf[2] = hf_s7comm_pi_n_x_newfilename;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
             break;
         case S7COMM_PI_N_FINDBL:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_findmode;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
             break;
         case S7COMM_PI_N_IBN_SS:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_switch;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
             break;
         case S7COMM_PI_N_MMCSEM:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_functionnumber;
             hf[2] = hf_s7comm_pi_n_x_semaphorvalue;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
             break;
         case S7COMM_PI_N_NCKMOD:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_onoff;
             hf[2] = hf_s7comm_pi_n_x_mode;
             hf[3] = hf_s7comm_pi_n_x_factor;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
             break;
         case S7COMM_PI_N_NEWPWD:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_password;
             hf[2] = hf_s7comm_pi_n_x_passwordlevel;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
             break;
         case S7COMM_PI_N_SEL_BL:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_linenumber;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 2, hf, paramoffset);
             break;
         case S7COMM_PI_N_SETTST:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_magnr;
             hf[2] = hf_s7comm_pi_n_x_weargroup;
             hf[3] = hf_s7comm_pi_n_x_toolstatus;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
             break;
         case S7COMM_PI_N_TMAWCO:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_magnr;
             hf[2] = hf_s7comm_pi_n_x_weargroup;
             hf[3] = hf_s7comm_pi_n_x_wearsearchstrat;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
             break;
         case S7COMM_PI_N_TMCRTC:
             hf[0] = hf_s7comm_pi_n_x_addressident;
@@ -3054,14 +3053,14 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
             hf[2] = hf_s7comm_pi_n_x_toolnumber;
             hf[3] = hf_s7comm_pi_n_x_duplonumber;
             hf[4] = hf_s7comm_pi_n_x_edgenumber;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 5, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 5, hf, paramoffset);
             break;
         case S7COMM_PI_N_TMCRTO:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_toolid;
             hf[2] = hf_s7comm_pi_n_x_toolnumber;
             hf[3] = hf_s7comm_pi_n_x_duplonumber;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
             break;
         case S7COMM_PI_N_TMFDPL:
             hf[0] = hf_s7comm_pi_n_x_addressident;
@@ -3070,7 +3069,7 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
             hf[3] = hf_s7comm_pi_n_x_magnr;
             hf[4] = hf_s7comm_pi_n_x_placerefnr;
             hf[5] = hf_s7comm_pi_n_x_magrefnr;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 6, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 6, hf, paramoffset);
             break;
         case S7COMM_PI_N_TMFPBP:
             hf[0] = hf_s7comm_pi_n_x_addressident;
@@ -3086,13 +3085,13 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
             hf[10] = hf_s7comm_pi_n_x_halfplacesdown;
             hf[11] = hf_s7comm_pi_n_x_placetype;
             hf[12] = hf_s7comm_pi_n_x_searchdirection;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 13, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 13, hf, paramoffset);
             break;
         case S7COMM_PI_N_TMGETT:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_toolname;
             hf[2] = hf_s7comm_pi_n_x_duplonumber;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
             break;
         case S7COMM_PI_N_TMMVTL:
             hf[0] = hf_s7comm_pi_n_x_addressident;
@@ -3101,13 +3100,13 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
             hf[3] = hf_s7comm_pi_n_x_magnrsource;
             hf[4] = hf_s7comm_pi_n_x_placenrdestination;
             hf[5] = hf_s7comm_pi_n_x_magnrdestination;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 6, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 6, hf, paramoffset);
             break;
         case S7COMM_PI_N_TMPCIT:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_spindlenumber;
             hf[2] = hf_s7comm_pi_n_x_incrementnumber;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
             break;
         case S7COMM_PI_N_TMPOSM:
             hf[0] = hf_s7comm_pi_n_x_addressident;
@@ -3118,14 +3117,14 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
             hf[5] = hf_s7comm_pi_n_x_magnrsource;
             hf[6] = hf_s7comm_pi_n_x_placenrdestination;
             hf[7] = hf_s7comm_pi_n_x_magnrdestination;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 8, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 8, hf, paramoffset);
             break;
         case S7COMM_PI_N_TRESMO:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_toolnumber;
             hf[2] = hf_s7comm_pi_n_x_dnr;
             hf[3] = hf_s7comm_pi_n_x_monitoringmode;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 4, hf, paramoffset);
             break;
         case S7COMM_PI_N_TSEARC:
             hf[0] = hf_s7comm_pi_n_x_addressident;
@@ -3137,7 +3136,7 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
             hf[6] = hf_s7comm_pi_n_x_placerefnr;
             hf[7] = hf_s7comm_pi_n_x_searchdirection;
             hf[8] = hf_s7comm_pi_n_x_kindofsearch;
-            paramoffset = s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 9, hf, paramoffset);
+            s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 9, hf, paramoffset);
             break;
         default:
             /* Don't know how to interpret the parameters, show only the PI servicename */
@@ -4214,7 +4213,7 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                     item_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
                     blocktype16 = tvb_get_ntohs(tvb, offset);
                     proto_item_append_text(item, " [%d]: (Block type %s)", i+1, val_to_str(blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
-                    itemadd = proto_tree_add_uint(item_tree, hf_s7comm_ud_blockinfo_block_type, tvb, offset, 2, blocktype16);
+                    itemadd = proto_tree_add_item(item_tree, hf_s7comm_ud_blockinfo_block_type, tvb, offset, 2, ENC_ASCII|ENC_NA);
                     proto_item_append_text(itemadd, " (%s)", val_to_str(blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
                     offset += 2;
                     proto_tree_add_item(item_tree, hf_s7comm_ud_blockinfo_block_cnt, tvb, offset, 2, ENC_BIG_ENDIAN);
