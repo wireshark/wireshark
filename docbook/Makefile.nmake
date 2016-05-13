@@ -11,6 +11,7 @@
 TOOLS_DIR=..\tools
 include ..\config.nmake
 top_srcdir=..
+srcdir=.
 include Makefile.common
 
 WSUG_SOURCE          = $(WSUG_SOURCE)          Makefile.nmake
@@ -101,7 +102,9 @@ wsug_html_chunked\index.html: $(WSUG_SOURCE)
 user-guide-us.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl
 !ifdef FOP
 	@ echo --- WSUG - PDF US PAPER ---
-	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl user-guide.xml > $@
+	$(XSLTPROC) --stringparam paper.type letter \
+		$(COMMON_XSLTPROC_ARGS) $(WSUG_PDF_XSLTPROC_ARGS) \
+		--nonet custom_layer_pdf.xsl user-guide.xml > $@
 !endif
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
@@ -109,7 +112,9 @@ user-guide-us.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl
 user-guide-a4.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl
 !ifdef FOP
 	@ echo --- WSUG - PDF A4 PAPER ---
-	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl user-guide.xml > $@
+	$(XSLTPROC) --stringparam paper.type A4 \
+		$(COMMON_XSLTPROC_ARGS) $(WSUG_PDF_XSLTPROC_ARGS) \
+		--nonet custom_layer_pdf.xsl user-guide.xml > $@
 !endif
 
 # create MS html help file (through html chunked pages)
@@ -183,7 +188,9 @@ wsdg_html_chunked\index.html: $(WSDG_SOURCE)
 developer-guide-us.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 !ifdef FOP
 	@ echo --- WSDG - PDF US PAPER ---
-	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl developer-guide.xml > $@
+	$(XSLTPROC) --stringparam paper.type letter \
+		$(COMMON_XSLTPROC_ARGS) $(WSDG_PDF_XSLTPROC_ARGS) \
+		--nonet custom_layer_pdf.xsl developer-guide.xml > $@
 !endif
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
@@ -191,7 +198,9 @@ developer-guide-us.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 developer-guide-a4.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 !ifdef FOP
 	@ echo --- WSDG - PDF A4 PAPER ---
-	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl developer-guide.xml > $@
+	$(XSLTPROC) --stringparam paper.type A4 \
+		$(COMMON_XSLTPROC_ARGS) $(WSDG_PDF_XSLTPROC_ARGS) \
+		--nonet custom_layer_pdf.xsl developer-guide.xml > $@
 !endif
 
 # create MS html help file (through html chunked pages)

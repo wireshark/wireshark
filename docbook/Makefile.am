@@ -74,6 +74,7 @@ wsug_html_chunked/index.html: $(WSUG_SOURCE)
 user-guide-us.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl
 	@ echo --- WSUG - PDF US PAPER ---
 	$(XSLTPROC) --stringparam paper.type letter \
+		$(COMMON_XSLTPROC_ARGS) $(WSUG_PDF_XSLTPROC_ARGS) \
 		--nonet $(srcdir)/custom_layer_pdf.xsl $< > $@
 
 # create pdf file (through XSL-FO), portrait pages on A4 paper
@@ -81,6 +82,7 @@ user-guide-us.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl
 user-guide-a4.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl
 	@ echo --- WSUG - PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 \
+		$(COMMON_XSLTPROC_ARGS) $(WSUG_PDF_XSLTPROC_ARGS) \
 		--nonet $(srcdir)/custom_layer_pdf.xsl $< > $@
 
 wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
@@ -139,6 +141,7 @@ wsdg_html_chunked/index.html: $(WSDG_SOURCE)
 developer-guide-us.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 	@ echo --- WSDG - PDF US PAPER ---
 	$(XSLTPROC) --stringparam paper.type letter \
+		    $(COMMON_XSLTPROC_ARGS) $(WSDG_PDF_XSLTPROC_ARGS) \
 		    --path .:wsluarm_src:$(srcdir) \
 		    --nonet $(srcdir)/custom_layer_pdf.xsl $< > $@
 
@@ -147,6 +150,7 @@ developer-guide-us.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 developer-guide-a4.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 	@ echo --- WSDG - PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 \
+		    $(COMMON_XSLTPROC_ARGS) $(WSDG_PDF_XSLTPROC_ARGS) \
 		    --path .:wsluarm_src:$(srcdir) \
 		    --nonet $(srcdir)/custom_layer_pdf.xsl $< > $@
 

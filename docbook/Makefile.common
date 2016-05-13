@@ -301,8 +301,16 @@ COMMON_XSLTPROC_ARGS = \
 WSUG_XSLTPROC_ARGS = \
 	--stringparam admon.graphics.path wsug_graphics/
 
+WSUG_PDF_XSLTPROC_ARGS = \
+		--stringparam img.src.path $(srcdir)/ \
+		--stringparam admon.graphics.path $(srcdir)/common_graphics/
+
 WSDG_XSLTPROC_ARGS = \
 	--stringparam admon.graphics.path wsdg_graphics/
+
+WSDG_PDF_XSLTPROC_ARGS = \
+		--stringparam img.src.path $(srcdir)/ \
+		--stringparam admon.graphics.path $(srcdir)/common_graphics/
 
 SINGLE_XSLTPROC_ARGS = \
 	--nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl
