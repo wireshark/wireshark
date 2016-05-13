@@ -168,11 +168,6 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
         fi
         echo -n "    $CF: "
 
-        if [ $VALGRIND -eq 1 -a `ls -s $CF | cut -d' ' -f1` -gt 8000 ]; then
-            echo "Too big for valgrind"
-            continue
-        fi
-
         "$CAPINFOS" "$CF" > /dev/null 2> $TMP_DIR/$ERR_FILE
         RETVAL=$?
         if [ $RETVAL -eq 1 ] ; then
@@ -182,6 +177,11 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
         elif [ $RETVAL -ne 0 -a $DONE -ne 1 ] ; then
             # Some other error
             ws_exit_error
+        fi
+
+        if [ $VALGRIND -eq 1 -a `ls -s $CF | cut -d' ' -f1` -gt 8000 ]; then
+            echo "Too big for valgrind"
+            continue
         fi
 
         DISSECTOR_BUG=0
