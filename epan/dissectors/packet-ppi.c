@@ -857,6 +857,9 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint          last_frame  = 0;
     gint len_remain, /*pad_len = 0,*/ ampdu_len = 0;
     struct ieee_802_11_phdr phdr;
+    int            wtap_encap;
+    struct eth_phdr eth;
+    void          *phdrp;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPI");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -1137,8 +1140,20 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, &phdr);
     } else {
         /* Everything else.  This will pass a NULL data argument. */
-        dissector_try_uint(wtap_encap_dissector_table,
-            wtap_pcap_encap_to_wtap_encap(dlt), next_tvb, pinfo, tree);
+        wtap_encap = wtap_pcap_encap_to_wtap_encap(dlt);
+        switch (wtap_encap) {
+
+        case WTAP_ENCAP_ETHERNET:
+            eth.fcs_len = -1;    /* Unknown whether we have an FCS */
+            phdrp = &eth;
+            break;
+
+        default:
+            phdrp = NULL;
+            break;
+        }
+        dissector_try_uint_new(wtap_encap_dissector_table,
+            wtap_encap, next_tvb, pinfo, tree, TRUE, phdrp);
     }
 }
 

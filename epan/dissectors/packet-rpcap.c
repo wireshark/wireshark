@@ -838,6 +838,8 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
   tvbuff_t *new_tvb;
   guint caplen, len, frame_no;
   gint reported_length_remaining;
+  struct eth_phdr eth;
+  void *phdr;
 
   ti = proto_tree_add_item (parent_tree, hf_packet, tvb, offset, 20, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_packet);
@@ -874,7 +876,18 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
 
   new_tvb = tvb_new_subset (tvb, offset, caplen, len);
   if (decode_content && linktype != WTAP_ENCAP_UNKNOWN) {
-    dissector_try_uint(wtap_encap_dissector_table, linktype, new_tvb, pinfo, top_tree);
+    switch (linktype) {
+
+    case WTAP_ENCAP_ETHERNET:
+      eth.fcs_len = -1;    /* Unknown whether we have an FCS */
+      phdr = &eth;
+      break;
+
+    default:
+      phdr = NULL;
+      break;
+    }
+    dissector_try_uint_new(wtap_encap_dissector_table, linktype, new_tvb, pinfo, top_tree, TRUE, phdr);
 
     if (!info_added) {
       /* Only indicate when not added before */

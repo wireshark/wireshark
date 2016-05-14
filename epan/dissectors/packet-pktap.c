@@ -135,6 +135,9 @@ dissect_pktap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbuff_t *next_tvb;
 	int offset = 0;
 	guint32 pkt_len, rectype, dlt;
+	int wtap_encap;
+	struct eth_phdr eth;
+	void *phdr;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTAP");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -202,8 +205,20 @@ dissect_pktap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (rectype == PKT_REC_PACKET) {
 		next_tvb = tvb_new_subset_remaining(tvb, pkt_len);
-		dissector_try_uint(wtap_encap_dissector_table,
-		    wtap_pcap_encap_to_wtap_encap(dlt), next_tvb, pinfo, tree);
+		wtap_encap = wtap_pcap_encap_to_wtap_encap(dlt);
+		switch (wtap_encap) {
+
+		case WTAP_ENCAP_ETHERNET:
+			eth.fcs_len = -1;    /* Unknown whether we have an FCS */
+			phdr = &eth;
+			break;
+
+		default:
+			phdr = NULL;
+			break;
+		}
+		dissector_try_uint_new(wtap_encap_dissector_table,
+		    wtap_encap, next_tvb, pinfo, tree, TRUE, phdr);
 	}
 }
 
