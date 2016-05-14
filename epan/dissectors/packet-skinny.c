@@ -252,6 +252,7 @@ static const value_string  message_id[] = {
   { 0x0156, "CallHistoryInfo" },
   { 0x0156, "LocationInfo" },
   { 0x0158, "MwiResponse" },
+  { 0x0159, "AddOnDeviceCapabilities" },
   { 0x015a, "EnhancedAlarm" },
   { 0x015e, "CallCountReq" },
   { 0x015f, "CallCountResp" },
@@ -2142,7 +2143,10 @@ static int hf_skinny_stimulusInstance = -1;
 static int hf_skinny_stimulusStatus = -1;
 static int hf_skinny_streamPassThroughID = -1;
 static int hf_skinny_subAppID = -1;
+static int hf_skinny_subcriptionFeatureID = -1;
+static int hf_skinny_subscriptionFeatureID = -1;
 static int hf_skinny_subscriptionID = -1;
+static int hf_skinny_subscriptionoFeatureID = -1;
 static int hf_skinny_systemTime = -1;
 static int hf_skinny_temporalSpatialTradeOff = -1;
 static int hf_skinny_temporalSpatialTradeOffCapability = -1;
@@ -2163,6 +2167,10 @@ static int hf_skinny_transmitPort = -1;
 static int hf_skinny_transmitPreference = -1;
 static int hf_skinny_unRegReasonCode = -1;
 static int hf_skinny_unknown = -1;
+static int hf_skinny_unknown1_0159 = -1;
+static int hf_skinny_unknown2_0159 = -1;
+static int hf_skinny_unknown3_0159 = -1;
+static int hf_skinny_unknownString_0159 = -1;
 static int hf_skinny_userName = -1;
 static int hf_skinny_v150sprt = -1;
 static int hf_skinny_vendor = -1;
@@ -2449,12 +2457,16 @@ handle_KeypadButtonMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 static void
 handle_EnblocCallMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
+  guint32 hdr_data_length = tvb_get_letohl(ptvcursor_tvbuff(cursor), 0);
   guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);
   guint32 VariableDirnumSize = (hdr_version >= V18_MSG_TYPE) ? 25 : 24;
+
   si->calledParty = g_strdup(tvb_format_stringzpad(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), VariableDirnumSize));
   ptvcursor_add(cursor, hf_skinny_calledParty, VariableDirnumSize, ENC_ASCII|ENC_NA);
-  si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_skinny_lineInstance, 4, ENC_LITTLE_ENDIAN);
+  if (hdr_data_length > 28) {
+    si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
+    ptvcursor_add(cursor, hf_skinny_lineInstance, 4, ENC_LITTLE_ENDIAN);
+  }
 }
 
 /*
@@ -4226,9 +4238,9 @@ static void
 handle_SubscriptionStatReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   ptvcursor_add(cursor, hf_skinny_transactionID, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_featureID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_subcriptionFeatureID, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_timer, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_subscriptionID, 256, ENC_ASCII|ENC_NA);
+  ptvcursor_add(cursor, hf_skinny_subscriptionID, 64, ENC_ASCII|ENC_NA);
 }
 
 /*
@@ -7379,7 +7391,7 @@ static void
 handle_SubscriptionStatMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   ptvcursor_add(cursor, hf_skinny_transactionID, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_featureID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_subscriptionoFeatureID, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_timer, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_cause, 4, ENC_LITTLE_ENDIAN);
 }
@@ -7395,7 +7407,7 @@ static void
 handle_NotificationMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   ptvcursor_add(cursor, hf_skinny_transactionID, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_featureID, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_subscriptionFeatureID, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_status, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_text, 97, ENC_ASCII|ENC_NA);
 }
@@ -7482,6 +7494,22 @@ handle_MwiResponseMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   ptvcursor_add(cursor, hf_skinny_mwiTargetNumber, 25, ENC_ASCII|ENC_NA);
   ptvcursor_add(cursor, hf_skinny_mwi_notification_result, 4, ENC_LITTLE_ENDIAN);
+}
+
+/*
+ * Message:   AddOnDeviceCapabilitiesMessage
+ * Opcode:    0x0159
+ * Type:      RegistrationAndManagement
+ * Direction: dev2pbx
+ * VarLength: no
+ */
+static void
+handle_AddOnDeviceCapabilitiesMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
+{
+  ptvcursor_add(cursor, hf_skinny_unknown1_0159, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_unknown2_0159, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_unknown3_0159, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_unknownString_0159, 152, ENC_ASCII|ENC_NA);
 }
 
 /*
@@ -7767,6 +7795,7 @@ static const struct opcode2handler {
   {0x0156, handle_CallHistoryInfoMessage                  , "CallHistoryInfoMessage"},
   {0x0156, handle_LocationInfoMessage                     , "LocationInfoMessage"},
   {0x0158, handle_MwiResponseMessage                      , "MwiResponseMessage"},
+  {0x0159, handle_AddOnDeviceCapabilitiesMessage          , "AddOnDeviceCapabilitiesMessage"},
   {0x015a, handle_EnhancedAlarmMessage                    , "EnhancedAlarmMessage"},
   {0x015e, NULL                                           , "CallCountReqMessage"},
   {0x015f, handle_CallCountRespMessage                    , "CallCountRespMessage"},
@@ -9143,6 +9172,18 @@ proto_register_skinny(void)
       {
         "unknown", "skinny.unknown", FT_UINT8, BASE_DEC, NULL, 0x0,
         "unknown (Part of ProtocolVer)", HFILL }},
+    { &hf_skinny_unknown1_0159,
+      {
+        "unknown1_0159", "skinny.unknown1.0159", FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_skinny_unknown2_0159,
+      {
+        "unknown2_0159", "skinny.unknown2.0159", FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_skinny_unknown3_0159,
+      {
+        "unknown3_0159", "skinny.unknown3.0159", FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_skinny_v150sprt,
       {
         "v150sprt", "skinny.v150sprt", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -9373,7 +9414,7 @@ proto_register_skinny(void)
         NULL, HFILL }},
     {&hf_skinny_featureID,
       {
-        "featureID", "skinny.featureID", FT_UINT32, BASE_HEX | BASE_EXT_STRING, &SubscriptionFeatureID_ext, 0x0,
+        "featureID", "skinny.featureID", FT_UINT32, BASE_HEX | BASE_EXT_STRING, &ButtonType_ext, 0x0,
         NULL, HFILL }},
     {&hf_skinny_featureTextLabel,
       {
@@ -9663,9 +9704,21 @@ proto_register_skinny(void)
       {
         "subAppID", "skinny.subAppID", FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+    {&hf_skinny_subcriptionFeatureID,
+      {
+        "subcriptionFeatureID", "skinny.subcriptionFeatureID", FT_UINT32, BASE_HEX | BASE_EXT_STRING, &SubscriptionFeatureID_ext, 0x0,
+        NULL, HFILL }},
+    {&hf_skinny_subscriptionFeatureID,
+      {
+        "subscriptionFeatureID", "skinny.subscriptionFeatureID", FT_UINT32, BASE_HEX | BASE_EXT_STRING, &SubscriptionFeatureID_ext, 0x0,
+        NULL, HFILL }},
     {&hf_skinny_subscriptionID,
       {
         "subscriptionID", "skinny.subscriptionID", FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    {&hf_skinny_subscriptionoFeatureID,
+      {
+        "subscriptionoFeatureID", "skinny.subscriptionoFeatureID", FT_UINT32, BASE_HEX | BASE_EXT_STRING, &SubscriptionFeatureID_ext, 0x0,
         NULL, HFILL }},
     {&hf_skinny_text,
       {
@@ -9686,6 +9739,10 @@ proto_register_skinny(void)
     {&hf_skinny_unRegReasonCode,
       {
         "unRegReasonCode", "skinny.unRegReasonCode", FT_UINT32, BASE_HEX | BASE_EXT_STRING, &UnRegReasonCode_ext, 0x0,
+        NULL, HFILL }},
+    {&hf_skinny_unknownString_0159,
+      {
+        "unknownString_0159", "skinny.unknownString.0159", FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
     {&hf_skinny_userName,
       {

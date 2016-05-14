@@ -526,6 +526,8 @@
   <message comment="" direction="dev2pbx" dynamic="no" name="EnblocCallMessage" opcode="0x0004" status="no" type="CallControl">
     <fields>
       <string comment="CalledPartyNumber" declare="yes" name="calledParty" size="VariableDirnumSize" type="char"/>
+    </fields>
+    <fields size_gt="28">
       <integer comment="LineId" name="lineInstance" type="uint32"/>
     </fields>
   </message>
@@ -1872,9 +1874,9 @@
   <message comment="" direction="dev2pbx" dynamic="no" name="SubscriptionStatReqMessage" opcode="0x0048" status="request" type="CallControl">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="transactionID" type="uint32"/>
-      <enum comment="" name="featureID" subtype="SubscriptionFeatureID" type="uint32"/>
+      <enum comment="" name="subcriptionFeatureID" subtype="SubscriptionFeatureID" type="uint32"/>
       <integer comment="" name="timer" type="uint32"/>
-      <string comment="" name="subscriptionID" size="256" type="char"/>
+      <string comment="" name="subscriptionID" size="64" type="char"/>
     </fields>
   </message>
   <enum name="MediaPathID">
@@ -3088,7 +3090,7 @@
   <message comment="" direction="pbx2dev" dynamic="no" name="FeatureStatMessage" opcode="0x011f" status="result" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="featureIndex" type="uint32"/>
-      <integer comment="" name="featureID" type="uint32"/>
+      <enum comment="" name="featureID" subtype="ButtonType" type="uint32"/>
       <string comment="" name="featureTextLabel" size="40" type="char"/>
       <integer comment="" name="featureStatus" type="uint32"/>
     </fields>
@@ -3788,7 +3790,7 @@
   <message comment="" direction="pbx2dev" dynamic="yes" name="FeatureStatV2Message" opcode="0x0146" status="no" type="RegistrationAndManagement">
     <fields alignment="4" beginversion="0" endversion="22">
       <integer comment="" name="featureIndex" type="uint32"/>
-      <integer comment="" name="featureID" type="uint32"/>
+      <enum comment="" name="featureID" subtype="ButtonType" type="uint32"/>
       <integer comment="" name="featureStatus" type="uint32"/>
       <string comment="" name="featureTextLabel" size="121" type="char"/>
     </fields>
@@ -4015,7 +4017,7 @@
   <message comment="" direction="pbx2dev" dynamic="no" name="SubscriptionStatMessage" opcode="0x0152" status="result" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="transactionID" type="uint32"/>
-      <enum comment="" name="featureID" subtype="SubscriptionFeatureID" type="uint32"/>
+      <enum comment="" name="subscriptionoFeatureID" subtype="SubscriptionFeatureID" type="uint32"/>
       <integer comment="" name="timer" type="uint32"/>
       <enum comment="" name="cause" subtype="SubscribeCause" type="uint32"/>
     </fields>
@@ -4023,7 +4025,7 @@
   <message comment="" direction="pbx2dev" dynamic="no" name="NotificationMessage" opcode="0x0153" status="no" type="RegistrationAndManagement">
     <fields alignment="4" beginversion="0" endversion="22">
       <integer comment="" name="transactionID" type="uint32"/>
-      <enum comment="" name="featureID" subtype="SubscriptionFeatureID" type="uint32"/>
+      <enum comment="" name="subscriptionFeatureID" subtype="SubscriptionFeatureID" type="uint32"/>
       <integer comment="" name="status" type="uint32"/>
       <string comment="" name="text" size="97" type="char"/>
     </fields>
@@ -4084,6 +4086,14 @@
     <fields beginversion="0" endversion="22">
       <string comment="" name="mwiTargetNumber" size="25" type="char"/>
       <enum comment="" name="mwi_notification_result" subtype="MwiNotificationResult" type="uint32"/>
+    </fields>
+  </message>
+  <message comment="" direction="dev2pbx" dynamic="no" name="AddOnDeviceCapabilitiesMessage" opcode="0x0159" status="no" type="RegistrationAndManagement">
+    <fields beginversion="0" endversion="22">
+      <integer comment="" name="unknown1_0159" type="uint32"/>
+      <integer comment="" name="unknown2_0159" type="uint32"/>
+      <integer comment="" name="unknown3_0159" type="uint32"/>
+      <string comment="" name="unknownString_0159" size="152" type="char"/>
     </fields>
   </message>
   <message comment="" direction="pbx2dev" dynamic="no" name="EnhancedAlarmMessage" opcode="0x015a" status="no" type="RegistrationAndManagement">
