@@ -7623,9 +7623,6 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             }
         }
 
-        if (!ccm_data)
-            return 0;
-
         if (secmode_api_data->dof_api->transport_session->is_2_node)
         {
             switch (ccm_data->protocol_id)
