@@ -210,7 +210,7 @@
 #include <wsutil/aes.h>
 #include <wsutil/str_util.h>
 #include <epan/to_str.h>
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
 
 /* DEFINES, STRUCTURES, AND SUPPORT METHOD DECLARATIONS
  * The following sections includes preprocessor definitions, structure definitions,
