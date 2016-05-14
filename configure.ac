@@ -176,13 +176,15 @@ AS_IF([$YACC -V >/dev/null 2>&1],
 	[AC_MSG_RESULT(no)
 	 AS_IF([test ! -f wiretap/ascend.c],
 		AC_MSG_ERROR([I couldn't find yacc (or bison or ...); make sure it's installed and in your path]))])
+dnl AM_MISSING_PROG(YACC, bison)
 
-AM_PROG_LEX
-AC_PATH_PROG(LEX, flex)
-if test "x$LEX" = x
-then
-	AC_MSG_ERROR(I couldn't find flex; make sure it's installed and in your path)
-fi
+AC_PROG_LEX
+AS_IF([test "x$LEX" != xflex],
+	[AS_UNSET(LEX)
+	 AS_IF([test ! -f wiretap/ascend_scanner.c],
+		AC_MSG_ERROR(I couldn't find flex; make sure it's installed and in your path))])
+AM_MISSING_PROG(LEX, flex)
+
 AC_PATH_PROG(POD2MAN, pod2man)
 if test "x$POD2MAN" = x
 then
