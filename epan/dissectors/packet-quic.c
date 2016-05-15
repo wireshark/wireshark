@@ -1639,8 +1639,18 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Version */
     if(puflags & PUFLAGS_VRSN){
-        proto_tree_add_item(quic_tree, hf_quic_version, tvb, offset, 4, ENC_ASCII|ENC_NA);
-        offset += 4;
+        if(pinfo->srcport == 443){ /* Version Negotiation Packet */
+            while(tvb_reported_length_remaining(tvb, offset) > 0){
+                proto_tree_add_item(quic_tree, hf_quic_version, tvb, offset, 4, ENC_ASCII|ENC_NA);
+                offset += 4;
+            }
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Version Negotiation, CID: %" G_GINT64_MODIFIER "u", cid);
+            return offset;
+        }
+        else{
+            proto_tree_add_item(quic_tree, hf_quic_version, tvb, offset, 4, ENC_ASCII|ENC_NA);
+            offset += 4;
+        }
     }
 
     /* Public Reset Packet */
