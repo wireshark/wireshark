@@ -3344,7 +3344,7 @@ dissect_isup_transmission_medium_requirement_parameter(tvbuff_t *parameter_tvb, 
                       val_to_str_ext_const(transmission_medium_requirement, &isup_transmission_medium_requirement_value_ext, "spare"));
 }
 
-char *
+static char *
 dissect_isup_digits_common(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree, proto_item *item,
                            const char *param_name, gint hf_number, gint hf_odd_digit, gint hf_even_digit,
                            gboolean even_indicator, e164_number_type_t number_type, guint nature_of_address)
@@ -5241,9 +5241,9 @@ dissect_isup_original_called_number_parameter(tvbuff_t *parameter_tvb, packet_in
 
   dissect_isup_digits_common(parameter_tvb, offset, pinfo, parameter_tree, parameter_item,
                              "Original Called Number", hf_isup_original_called_number,
-			     hf_isup_calling_party_odd_address_signal_digit,
+                             hf_isup_calling_party_odd_address_signal_digit,
                              hf_isup_calling_party_even_address_signal_digit,
-			     ((indicators1 & 0x80) == 0), NONE, 0);
+                             ((indicators1 & 0x80) == 0), NONE, 0);
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Redirecting number
