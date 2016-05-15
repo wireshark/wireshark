@@ -855,6 +855,10 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, guint offset, guint16 len_seq){
                     offset += 2;
                     /* Reason Phrase */
                     offset += len_reason;
+                    /* There is no other data after Connection Close */
+                    if (tvb_captured_length_remaining(tvb, offset) == 0){
+                        return TRUE;
+                    }
                     }
                 break;
                 case FT_GOAWAY:{
@@ -1360,6 +1364,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_cc_reason_phrase, tvb, offset, len_reason, ENC_ASCII|ENC_NA);
                 offset += len_reason;
                 proto_item_append_text(ti_ft, " Error code: %s", val_to_str_ext(error_code, &error_code_vals_ext, "Unknown (%d)"));
+                col_set_str(pinfo->cinfo, COL_INFO, "Connection Close");
                 }
             break;
             case FT_GOAWAY:{
