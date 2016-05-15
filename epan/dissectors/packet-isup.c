@@ -3349,15 +3349,16 @@ dissect_isup_digits_common(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, p
                            const char *param_name, gint hf_number, gint hf_odd_digit, gint hf_even_digit,
                            gboolean even_indicator, e164_number_type_t number_type, guint nature_of_address)
 {
-  gint         i = 0;
-  gint         length;
-  proto_item  *digits_item;
-  proto_tree  *digits_tree;
-  guint8       digit_pair = 0;
-  char         number[MAXDIGITS + 1] = "";
-  e164_info_t  e164_info;
-  gboolean     old_visible;
-  gboolean     set_visibility = FALSE;
+  gint           i = 0;
+  gint           length;
+  proto_item    *digits_item;
+  proto_tree    *digits_tree;
+  guint8         digit_pair = 0;
+  wmem_strbuf_t *strbuf_number;
+  char          *number;
+  e164_info_t    e164_info;
+  gboolean       old_visible;
+  gboolean       set_visibility = FALSE;
 
   length = tvb_reported_length_remaining(tvb, offset);
   if (length == 0) {
@@ -3365,6 +3366,8 @@ dissect_isup_digits_common(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, p
     proto_item_set_text(item, "%s: (empty)", param_name);
     return NULL;
   }
+
+  strbuf_number = wmem_strbuf_sized_new(wmem_packet_scope(), MAXDIGITS+1, 0);
 
   /* We are going to be using proto_item_append_string() on hf_number so we
    * must disable the TRY_TO_FAKE_THIS_ITEM() optimisation for the tree by
@@ -3381,23 +3384,21 @@ dissect_isup_digits_common(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, p
   }
 
   while (length > 0) {
-    digit_pair = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint(digits_tree, hf_odd_digit, tvb, offset, 1, digit_pair);
-    number[i++] = number_to_char(digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
-
-    if (i > MAXDIGITS) {
+    if (++i > MAXDIGITS) {
       expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
       break;
     }
+    digit_pair = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(digits_tree, hf_odd_digit, tvb, offset, 1, digit_pair);
+    wmem_strbuf_append_c(strbuf_number, number_to_char(digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK));
 
     if ((length - 1) > 0) {
-      proto_tree_add_uint(digits_tree, hf_even_digit, tvb, offset, 1, digit_pair);
-      number[i++] = number_to_char((digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
-
-      if (i > MAXDIGITS) {
+      if (++i > MAXDIGITS) {
         expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
         break;
       }
+      proto_tree_add_uint(digits_tree, hf_even_digit, tvb, offset, 1, digit_pair);
+      wmem_strbuf_append_c(strbuf_number, number_to_char((digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
     }
 
     offset += 1;
@@ -3405,13 +3406,17 @@ dissect_isup_digits_common(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, p
   }
 
   if  (even_indicator && (tvb_reported_length(tvb) > 0)) {
-    /* Even Indicator set -> last (even) digit is valid and has be displayed */
-    proto_tree_add_uint(digits_tree, hf_isup_calling_party_even_address_signal_digit,
-                        tvb, offset - 1, 1, digit_pair);
-    number[i++] = number_to_char((digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+    if (++i < MAXDIGITS) {
+      /* Even Indicator set -> last (even) digit is valid and has be displayed */
+      proto_tree_add_uint(digits_tree, hf_isup_calling_party_even_address_signal_digit,
+                          tvb, offset - 1, 1, digit_pair);
+      wmem_strbuf_append_c(strbuf_number, number_to_char((digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
+    } else {
+      expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
+    }
   }
 
-  number[i++] = '\0';
+  number = wmem_strbuf_finalize(strbuf_number);
 
   /* Now that we have all the digits decoded, add them to the parameter field */
   proto_item_append_string(digits_item, number);
@@ -3426,7 +3431,7 @@ dissect_isup_digits_common(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, p
 
   proto_item_set_text(item, "%s: %s", param_name, number);
 
-  return wmem_strdup(wmem_packet_scope(), number);
+  return number;
 }
 
 /* ------------------------------------------------------------------
@@ -7003,17 +7008,17 @@ dissect_japan_isup_emergency_call_inf_ind(tvbuff_t *parameter_tvb, proto_tree *p
 }
 
 static void
-dissect_japan_isup_network_poi_cad(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_japan_isup_network_poi_cad(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_item *digits_item;
-  proto_tree *digits_tree;
-  int         offset = 0;
-  guint8      octet;
-  guint8      odd_even;
-  guint8      carrier_info_length;
-  gint        num_octets_with_digits = 0;
-  gint        digit_index = 0;
-  char ca_number[MAXDIGITS + 1] = "";
+  proto_item    *digits_item;
+  proto_tree    *digits_tree;
+  int            offset = 0;
+  guint8         octet;
+  guint8         odd_even;
+  guint8         carrier_info_length;
+  gint           num_octets_with_digits = 0;
+  gint           digit_index = 0;
+  wmem_strbuf_t *ca_number = wmem_strbuf_sized_new(wmem_packet_scope(), MAXDIGITS+1, 0);
 
   /* POI Hierarchy information
 
@@ -7071,23 +7076,34 @@ dissect_japan_isup_network_poi_cad(tvbuff_t *parameter_tvb, proto_tree *paramete
   while (num_octets_with_digits > 0) {
     offset += 1;
     octet = tvb_get_guint8(parameter_tvb, offset);
+    if (++digit_index > MAXDIGITS) {
+      expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
+      break;
+    }
     proto_tree_add_uint(digits_tree, hf_isup_carrier_info_ca_odd_no_digits, parameter_tvb, 0, 1, octet);
-    ca_number[digit_index++] = number_to_char(octet & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+    wmem_strbuf_append_c(ca_number, number_to_char(octet & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK));
     if (num_octets_with_digits == 1) {
       if (odd_even == 0) {
+        if (++digit_index > MAXDIGITS) {
+          expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
+          break;
+        }
         proto_tree_add_uint(digits_tree, hf_isup_carrier_info_ca_even_no_digits, parameter_tvb, 0, 1, octet);
-        ca_number[digit_index++] = number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+        wmem_strbuf_append_c(ca_number, number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
       }
     }
     else {
+      if (++digit_index > MAXDIGITS) {
+        expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
+        break;
+      }
       proto_tree_add_uint(digits_tree, hf_isup_carrier_info_ca_even_no_digits, parameter_tvb, 0, 1, octet);
-      ca_number[digit_index++] = number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      wmem_strbuf_append_c(ca_number, number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
     }
 
     num_octets_with_digits--;
   }
-  ca_number[digit_index++] = '\0';
-  proto_item_append_text(digits_item, ": %s", ca_number);
+  proto_item_append_text(digits_item, ": %s", wmem_strbuf_get_str(ca_number));
 
   proto_item_set_text(parameter_item, "Network POI-CA");
 
@@ -7276,9 +7292,9 @@ dissect_japan_isup_carrier_information(tvbuff_t *parameter_tvb, packet_info *pin
 
   gint num_octets_with_digits = 0;
 
-  gint digit_index = 0;
-  char cid_number[MAXDIGITS + 1] = "";
-  char ca_number[MAXDIGITS + 1]  = "";
+  gint digit_index;
+  wmem_strbuf_t *cid_number;
+  wmem_strbuf_t *ca_number;
 
   /*Octet 1 : IEC Indicator*/
   octet = tvb_get_guint8(parameter_tvb, 0);
@@ -7379,27 +7395,40 @@ dissect_japan_isup_carrier_information(tvbuff_t *parameter_tvb, packet_info *pin
         /* Lets now load up the digits.*/
         /* If the odd indicator is set... drop the Filler from the last octet.*/
         /* This loop also loads up ca_number with the digits for display*/
+        ca_number = wmem_strbuf_sized_new(wmem_packet_scope(), MAXDIGITS+1, 0);
         digit_index = 0;
         while (num_octets_with_digits > 0) {
           offset += 1;
+          if (++digit_index > MAXDIGITS) {
+            expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
+            break;
+          }
           octet = tvb_get_guint8(parameter_tvb, offset);
           proto_tree_add_uint(digits_tree, hf_isup_carrier_info_ca_odd_no_digits, parameter_tvb, 0, 1, octet);
-          ca_number[digit_index++] = number_to_char(octet & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+          wmem_strbuf_append_c(ca_number, number_to_char(octet & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK));
           if (num_octets_with_digits == 1) {
             if (odd_even == 0) {
+              if (++digit_index > MAXDIGITS) {
+                expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
+                break;
+              }
               proto_tree_add_uint(digits_tree, hf_isup_carrier_info_ca_even_no_digits, parameter_tvb, 0, 1, octet);
-              ca_number[digit_index++] = number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+              wmem_strbuf_append_c(ca_number, number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
             }
           }
           else {
+            if (++digit_index > MAXDIGITS) {
+              expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
+              break;
+            }
             proto_tree_add_uint(digits_tree, hf_isup_carrier_info_ca_even_no_digits, parameter_tvb, 0, 1, octet);
-            ca_number[digit_index++] = number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+            wmem_strbuf_append_c(ca_number, number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
           }
 
           num_octets_with_digits--;
         }
-        ca_number[digit_index++] = '\0';
-        proto_item_append_text(digits_item, ": %s", ca_number);
+
+        proto_item_append_text(digits_item, ": %s", wmem_strbuf_get_str(ca_number));
 
       }
 
@@ -7436,26 +7465,38 @@ dissect_japan_isup_carrier_information(tvbuff_t *parameter_tvb, packet_info *pin
         /* Lets now load up the digits.*/
         /* If the odd indicator is set... drop the Filler from the last octet.*/
         /* This loop also loads up cid_number with the digits for display*/
+        cid_number = wmem_strbuf_sized_new(wmem_packet_scope(), MAXDIGITS+1, 0);
         digit_index = 0;
         while (num_octets_with_digits > 0) {
           offset += 1;
+          if (++digit_index > MAXDIGITS) {
+            expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
+            break;
+          }
           octet = tvb_get_guint8(parameter_tvb, offset);
           proto_tree_add_uint(digits_tree, hf_isup_carrier_info_odd_no_digits, parameter_tvb, 0, 1, octet);
-          cid_number[digit_index++] = number_to_char(octet & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+          wmem_strbuf_append_c(cid_number, number_to_char(octet & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK));
           if (num_octets_with_digits == 1) {
             if (odd_even == 0) {
+              if (++digit_index > MAXDIGITS) {
+                expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
+                break;
+              }
               proto_tree_add_uint(digits_tree, hf_isup_carrier_info_even_no_digits, parameter_tvb, 0, 1, octet);
-              cid_number[digit_index++] = number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+              wmem_strbuf_append_c(cid_number, number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
             }
           }
           else {
+            if (++digit_index > MAXDIGITS) {
+              expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
+              break;
+            }
             proto_tree_add_uint(digits_tree, hf_isup_carrier_info_even_no_digits, parameter_tvb, 0, 1, octet);
-            cid_number[digit_index++] = number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+            wmem_strbuf_append_c(cid_number, number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
           }
           num_octets_with_digits--;
         }
-        cid_number[digit_index++] = '\0';
-        proto_item_append_text(digits_item, ": %s", cid_number);
+        proto_item_append_text(digits_item, ": %s", wmem_strbuf_get_str(cid_number));
       }
     }
 
@@ -7548,7 +7589,7 @@ dissect_japan_isup_charge_inf_delay(tvbuff_t *parameter_tvb, proto_tree *paramet
 \-----------------------------------------------|
 */
 static void
-dissect_japan_isup_charge_area_info(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_japan_isup_charge_area_info(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_item *digits_item;
   proto_tree *digits_tree;
@@ -7561,7 +7602,7 @@ dissect_japan_isup_charge_area_info(tvbuff_t *parameter_tvb, proto_tree *paramet
   gint odd_even;
   gint digit_index = 0;
 
-  char ca_number[MAXDIGITS + 1] = "";
+  wmem_strbuf_t *ca_number = wmem_strbuf_sized_new(wmem_packet_scope(), MAXDIGITS+1, 0);
 
   /*Octet 1 : Indicator*/
   octet = tvb_get_guint8(parameter_tvb, 0);
@@ -7579,24 +7620,35 @@ dissect_japan_isup_charge_area_info(tvbuff_t *parameter_tvb, proto_tree *paramet
                                 ett_isup_address_digits, &digits_item, "Charge Area");
 
     while (length > 0) {
+      if (++digit_index > MAXDIGITS) {
+        expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
+        break;
+      }
       octet = tvb_get_guint8(parameter_tvb, offset);
       proto_tree_add_uint(digits_tree, hf_isup_carrier_info_ca_odd_no_digits, parameter_tvb, 0, 1, octet);
-      ca_number[digit_index++] = number_to_char(octet & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+      wmem_strbuf_append_c(ca_number, number_to_char(octet & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK));
       if (length == 1) {
         if (odd_even == 0) {
+          if (++digit_index > MAXDIGITS) {
+            expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
+            break;
+          }
           proto_tree_add_uint(digits_tree, hf_isup_carrier_info_ca_even_no_digits, parameter_tvb, 0, 1, octet);
-          ca_number[digit_index++] = number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+          wmem_strbuf_append_c(ca_number, number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
         }
       }
       else {
+        if (++digit_index > MAXDIGITS) {
+          expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
+          break;
+        }
         proto_tree_add_uint(digits_tree, hf_isup_carrier_info_ca_even_no_digits, parameter_tvb, 0, 1, octet);
-        ca_number[digit_index++] = number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+        wmem_strbuf_append_c(ca_number, number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
       }
       offset += 1;
       length -= 1;
     }
-    ca_number[digit_index++] = '\0';
-    proto_item_append_text(digits_item, ": %s", ca_number);
+    proto_item_append_text(digits_item, ": %s", wmem_strbuf_get_str(ca_number));
   }
   /*Only MA code digits.*/
   if (nat_of_info_indic == CHARGE_AREA_NAT_INFO_MA) {
@@ -8182,7 +8234,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
                     dissect_japan_isup_emergency_call_inf_ind(parameter_tvb, parameter_tree, parameter_item);
                     break;
                   case JAPAN_ISUP_PARAM_NETWORK_POI_CA: /* EE */
-                    dissect_japan_isup_network_poi_cad(parameter_tvb, parameter_tree, parameter_item);
+                    dissect_japan_isup_network_poi_cad(parameter_tvb, pinfo, parameter_tree, parameter_item);
                     break;
                   case JAPAN_ISUP_PARAM_TYPE_CARRIER_INFO: /* 241 F1 */
                     dissect_japan_isup_carrier_information(parameter_tvb, pinfo, parameter_tree, parameter_item);
@@ -8206,7 +8258,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
                     dissect_japan_chg_inf_param(parameter_tvb, pinfo, parameter_tree, parameter_item, chg_inf_type);
                     break;
                   case JAPAN_ISUP_PARAM_TYPE_CHARGE_AREA_INFO:
-                    dissect_japan_isup_charge_area_info(parameter_tvb, parameter_tree, parameter_item);
+                    dissect_japan_isup_charge_area_info(parameter_tvb, pinfo, parameter_tree, parameter_item);
                     break;
                   default:
                     dissect_isup_unknown_parameter(parameter_tvb, parameter_item);
