@@ -3922,133 +3922,133 @@ for filter files: %2.</source>
         <translation>N</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="215"/>
+        <location filename="iax2_analysis_dialog.cpp" line="216"/>
         <source>IAX2 Stream Analysis</source>
         <translation>IAX2ストリーム分析</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="282"/>
+        <location filename="iax2_analysis_dialog.cpp" line="283"/>
         <source>Unable to save RTP data.</source>
         <translation>RTPデータを保存できません。</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="305"/>
+        <location filename="iax2_analysis_dialog.cpp" line="306"/>
         <source>No IAX2 packets found</source>
         <translation>IAX2パケットがありませんでした。</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="327"/>
+        <location filename="iax2_analysis_dialog.cpp" line="328"/>
         <source>Please select an IAX2 packet</source>
         <translation>IAX2パケットを選んでください</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="351"/>
+        <location filename="iax2_analysis_dialog.cpp" line="352"/>
         <source>Please select an IAX2 packet.</source>
         <translation>IAX2パケットを選んでください</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="444"/>
+        <location filename="iax2_analysis_dialog.cpp" line="447"/>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation> G: パケットに移動, N: 次の問題パケット</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="565"/>
+        <location filename="iax2_analysis_dialog.cpp" line="568"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="566"/>
+        <location filename="iax2_analysis_dialog.cpp" line="569"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="567"/>
+        <location filename="iax2_analysis_dialog.cpp" line="570"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windowsビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="569"/>
+        <location filename="iax2_analysis_dialog.cpp" line="572"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="580"/>
+        <location filename="iax2_analysis_dialog.cpp" line="583"/>
         <source>Save Graph As</source>
         <translation>としてグラフを保存</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="739"/>
+        <location filename="iax2_analysis_dialog.cpp" line="742"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation>ファイルに保存できません:キャプチャされたパケットの長さが違います</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="750"/>
+        <location filename="iax2_analysis_dialog.cpp" line="754"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
         <translation>ファイルに保存できません:ファイル入出力問題です</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="872"/>
+        <location filename="iax2_analysis_dialog.cpp" line="877"/>
         <source>Save forward stream audio</source>
         <translation>順方向ストリーム音声を保存</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="875"/>
+        <location filename="iax2_analysis_dialog.cpp" line="880"/>
         <source>Save reverse stream audio</source>
         <translation>逆方向のストリーム音声を保存</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="879"/>
+        <location filename="iax2_analysis_dialog.cpp" line="884"/>
         <source>Save audio</source>
         <translation>音声を保存</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="883"/>
+        <location filename="iax2_analysis_dialog.cpp" line="888"/>
         <source>Sun Audio (*.au)</source>
         <translation>Sunオーディオ形式 (*.au)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="885"/>
+        <location filename="iax2_analysis_dialog.cpp" line="890"/>
         <source>;;Raw (*.raw)</source>
         <translation>;;Raw(無加工)形式 (*.raw)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="902"/>
-        <location filename="iax2_analysis_dialog.cpp" line="917"/>
+        <location filename="iax2_analysis_dialog.cpp" line="907"/>
+        <location filename="iax2_analysis_dialog.cpp" line="922"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="902"/>
+        <location filename="iax2_analysis_dialog.cpp" line="907"/>
         <source>Unable to save in that format</source>
         <translation>そのフォーマットで保存できません</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="917"/>
+        <location filename="iax2_analysis_dialog.cpp" line="922"/>
         <source>Unable to save %1</source>
         <translation>%1を保存できません</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="921"/>
+        <location filename="iax2_analysis_dialog.cpp" line="926"/>
         <source>Saving %1</source>
         <translation>%1 を保存中</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1143"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1148"/>
         <source>Save forward stream CSV</source>
         <translation>順方向ストリームCSVを保存</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1146"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1151"/>
         <source>Save reverse stream CSV</source>
         <translation>逆方向ストリームCSVを保存</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1150"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1155"/>
         <source>Save CSV</source>
         <translation>CSVを保存</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1156"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1161"/>
         <source>Comma-separated values (*.csv)</source>
         <translation>カンマ区切りテキスト形式 (*.csv)</translation>
     </message>
@@ -11303,170 +11303,170 @@ a:hover {
         <translation>N</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="261"/>
+        <location filename="rtp_analysis_dialog.cpp" line="262"/>
         <source>RTP Stream Analysis</source>
         <translation>RTPストリーム分析</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="332"/>
+        <location filename="rtp_analysis_dialog.cpp" line="333"/>
         <source>Unable to save RTP data.</source>
         <translation>RTPデータを保存することができません</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1482"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1492"/>
         <source>No RTP packets found</source>
         <translation>RTPパケットが見つかりませんでした</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1504"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1514"/>
         <source>Please select an RTP packet</source>
         <translation>どうか1つのRTPパケットを選んでください</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1528"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1538"/>
         <source>RTP version %1 found. Only version 2 is supported.</source>
         <translation>RTP バージョン %1 が見つかりました。バージョン2だけがサポートされています。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1536"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1546"/>
         <source>SSRC value not found.</source>
         <translation>SSRC値が見つかりませんでした</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="376"/>
+        <location filename="rtp_analysis_dialog.cpp" line="377"/>
         <source>No streams found.</source>
         <translation>ストリームが見つかりませんでした</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="411"/>
+        <location filename="rtp_analysis_dialog.cpp" line="412"/>
         <source>%1 streams found.</source>
         <translation>%1 ストリームが見つかりました</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="426"/>
+        <location filename="rtp_analysis_dialog.cpp" line="431"/>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation> G: パケットに移動, N: 次の問題パケット</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="445"/>
+        <location filename="rtp_analysis_dialog.cpp" line="450"/>
         <source>No Audio</source>
         <translation>音声がありません</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="566"/>
+        <location filename="rtp_analysis_dialog.cpp" line="571"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="567"/>
+        <location filename="rtp_analysis_dialog.cpp" line="572"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="568"/>
+        <location filename="rtp_analysis_dialog.cpp" line="573"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windowsビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="570"/>
+        <location filename="rtp_analysis_dialog.cpp" line="575"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="581"/>
+        <location filename="rtp_analysis_dialog.cpp" line="586"/>
         <source>Save Graph As</source>
         <translation>としてグラフを保存</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="754"/>
+        <location filename="rtp_analysis_dialog.cpp" line="759"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation>ファイルに保存できません: キャプチャしたパケットの長さが違います</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="764"/>
+        <location filename="rtp_analysis_dialog.cpp" line="770"/>
         <source>Can&apos;t save in a file: RTP data with padding.</source>
         <translation>ファイルに保存できません: パディングを含むRTPデータ</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="799"/>
-        <location filename="rtp_analysis_dialog.cpp" line="827"/>
+        <location filename="rtp_analysis_dialog.cpp" line="806"/>
+        <location filename="rtp_analysis_dialog.cpp" line="836"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
         <translation>ファイルに保存できません: ファイル入出力問題</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="815"/>
+        <location filename="rtp_analysis_dialog.cpp" line="823"/>
         <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
         <translation>ファイルに保存できません: 全パケット中すべてでないデータがキャプチャされました</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1031"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1041"/>
         <source>Save forward stream audio</source>
         <translation>順方向ストリーム音声を保存</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1034"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1044"/>
         <source>Save reverse stream audio</source>
         <translation>逆方向ストリーム音声を保存</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1038"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1048"/>
         <source>Save audio</source>
         <translation>音声を保存</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1042"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1052"/>
         <source>Sun Audio (*.au)</source>
         <translation>Sun音声形式 (*.au)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1044"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1054"/>
         <source>;;Raw (*.raw)</source>
         <translation>;;Raw(無加工)形式 (*.raw)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1061"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1070"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1086"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1071"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1080"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1096"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1061"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1071"/>
         <source>Unable to save in that format</source>
         <translation>その形式では保存できません</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1070"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1080"/>
         <source>Can&apos;t save in a file: saving in au format supported only for alaw/ulaw streams</source>
         <translation>ファイルに保存できません: AU形式での保存はalaw/ulawストリームのみサポートされています</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1086"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1096"/>
         <source>Unable to save %1</source>
         <translation>%1を保存できません</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1090"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1100"/>
         <source>Saving %1</source>
         <translation>%1 保存中</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1312"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1322"/>
         <source>Save forward stream CSV</source>
         <translation>順方向ストリームをCSVで保存</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1315"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1325"/>
         <source>Save reverse stream CSV</source>
         <translation>逆方向のストリームをCSVで保存</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1319"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1329"/>
         <source>Save CSV</source>
         <translation>CSVを保存</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1325"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1335"/>
         <source>Comma-separated values (*.csv)</source>
         <translation>カンマ区切りテキスト形式 (*.csv)</translation>
     </message>

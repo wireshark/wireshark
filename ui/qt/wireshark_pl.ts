@@ -3946,133 +3946,133 @@ dla plików filtrów: %2.</translation>
         <translation>N</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="215"/>
+        <location filename="iax2_analysis_dialog.cpp" line="216"/>
         <source>IAX2 Stream Analysis</source>
         <translation>Analiza strumienia IAX2</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="282"/>
+        <location filename="iax2_analysis_dialog.cpp" line="283"/>
         <source>Unable to save RTP data.</source>
         <translation>Nie można zapisać danych RTP.</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="305"/>
+        <location filename="iax2_analysis_dialog.cpp" line="306"/>
         <source>No IAX2 packets found</source>
         <translation>Nie znaleziono pakietów IAX2.</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="327"/>
+        <location filename="iax2_analysis_dialog.cpp" line="328"/>
         <source>Please select an IAX2 packet</source>
         <translation>Proszę wybrać pakiet IAX2</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="351"/>
+        <location filename="iax2_analysis_dialog.cpp" line="352"/>
         <source>Please select an IAX2 packet.</source>
         <translation>Proszę wybrać pakiet IAX2.</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="444"/>
+        <location filename="iax2_analysis_dialog.cpp" line="447"/>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation>G: Idź do pakietu, N: Następny problematyczny pakiet</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="565"/>
+        <location filename="iax2_analysis_dialog.cpp" line="568"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Dokument PDF (*.pdf)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="566"/>
+        <location filename="iax2_analysis_dialog.cpp" line="569"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Obraz PNG (*.png)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="567"/>
+        <location filename="iax2_analysis_dialog.cpp" line="570"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Bitmapa Windows (*.bmp)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="569"/>
+        <location filename="iax2_analysis_dialog.cpp" line="572"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>Obraz JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="580"/>
+        <location filename="iax2_analysis_dialog.cpp" line="583"/>
         <source>Save Graph As</source>
         <translation>Zapisz wykres jako</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="739"/>
+        <location filename="iax2_analysis_dialog.cpp" line="742"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation>Nie można zapisać pliku: Niepoprawna długość przechwyconych pakietów.</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="750"/>
+        <location filename="iax2_analysis_dialog.cpp" line="754"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
         <translation>Nie można zapisać pliku: Problem wejścia/wyjścia.</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="872"/>
+        <location filename="iax2_analysis_dialog.cpp" line="877"/>
         <source>Save forward stream audio</source>
         <translation>Zapisz przewodni strumień audio</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="875"/>
+        <location filename="iax2_analysis_dialog.cpp" line="880"/>
         <source>Save reverse stream audio</source>
         <translation>Zapisz powrotny strumień audio</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="879"/>
+        <location filename="iax2_analysis_dialog.cpp" line="884"/>
         <source>Save audio</source>
         <translation>Zapisz audio</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="883"/>
+        <location filename="iax2_analysis_dialog.cpp" line="888"/>
         <source>Sun Audio (*.au)</source>
         <translation>Sun Audio (*.au)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="885"/>
+        <location filename="iax2_analysis_dialog.cpp" line="890"/>
         <source>;;Raw (*.raw)</source>
         <translation>;;Surowe dane (*.raw)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="902"/>
-        <location filename="iax2_analysis_dialog.cpp" line="917"/>
+        <location filename="iax2_analysis_dialog.cpp" line="907"/>
+        <location filename="iax2_analysis_dialog.cpp" line="922"/>
         <source>Warning</source>
         <translation>Ostrzeżenie</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="902"/>
+        <location filename="iax2_analysis_dialog.cpp" line="907"/>
         <source>Unable to save in that format</source>
         <translation>Nie można zapisać w tym formacie</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="917"/>
+        <location filename="iax2_analysis_dialog.cpp" line="922"/>
         <source>Unable to save %1</source>
         <translation>Nie można zapisać %1</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="921"/>
+        <location filename="iax2_analysis_dialog.cpp" line="926"/>
         <source>Saving %1</source>
         <translation>Zapisywanie %1</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1143"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1148"/>
         <source>Save forward stream CSV</source>
         <translation>Zapisz przewodni strumień jako CSV</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1146"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1151"/>
         <source>Save reverse stream CSV</source>
         <translation>Zapisz powrotny strumień jako CSV</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1150"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1155"/>
         <source>Save CSV</source>
         <translation>Zapisz jako CSV</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1156"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1161"/>
         <source>Comma-separated values (*.csv)</source>
         <translation>Wartości rozdzielane przecinkami (*.csv)</translation>
     </message>
@@ -11356,170 +11356,170 @@ text-decoration: underline;
         <translation>N</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="261"/>
+        <location filename="rtp_analysis_dialog.cpp" line="262"/>
         <source>RTP Stream Analysis</source>
         <translation>Analiza strumienia RTP</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="332"/>
+        <location filename="rtp_analysis_dialog.cpp" line="333"/>
         <source>Unable to save RTP data.</source>
         <translation>Nie można zapisać danych RTP.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1482"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1492"/>
         <source>No RTP packets found</source>
         <translation>Nie znaleziono pakietów RTP.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1504"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1514"/>
         <source>Please select an RTP packet</source>
         <translation>Proszę wybrać pakiet RTP</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1528"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1538"/>
         <source>RTP version %1 found. Only version 2 is supported.</source>
         <translation>Znaleziono RTP w wersji %1. Tylko wersja 2 jest obsługiwana.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1536"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1546"/>
         <source>SSRC value not found.</source>
         <translation>Nie znaleziono wartości SSRC.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="376"/>
+        <location filename="rtp_analysis_dialog.cpp" line="377"/>
         <source>No streams found.</source>
         <translation>Nie znaleziono strumieni.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="411"/>
+        <location filename="rtp_analysis_dialog.cpp" line="412"/>
         <source>%1 streams found.</source>
         <translation>Znaleziono %1 strumieni.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="426"/>
+        <location filename="rtp_analysis_dialog.cpp" line="431"/>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation>G: Idź do pakiety, N: Następny problematyczny pakiet</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="445"/>
+        <location filename="rtp_analysis_dialog.cpp" line="450"/>
         <source>No Audio</source>
         <translation>Brak Audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="566"/>
+        <location filename="rtp_analysis_dialog.cpp" line="571"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Dokument PDF (*.pdf)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="567"/>
+        <location filename="rtp_analysis_dialog.cpp" line="572"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Obraz PNG (*.png)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="568"/>
+        <location filename="rtp_analysis_dialog.cpp" line="573"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Bitmapa Windows (*.bmp)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="570"/>
+        <location filename="rtp_analysis_dialog.cpp" line="575"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>Obraz JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="581"/>
+        <location filename="rtp_analysis_dialog.cpp" line="586"/>
         <source>Save Graph As</source>
         <translation>Zapisz wykres jako</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="754"/>
+        <location filename="rtp_analysis_dialog.cpp" line="759"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation>Nie można zapisać pliku: Niepoprawna długość przechwyconych pakietów.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="764"/>
+        <location filename="rtp_analysis_dialog.cpp" line="770"/>
         <source>Can&apos;t save in a file: RTP data with padding.</source>
         <translation>Nie można zapisać pliku: Dane RTP z dopełnieniem do bloku.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="799"/>
-        <location filename="rtp_analysis_dialog.cpp" line="827"/>
+        <location filename="rtp_analysis_dialog.cpp" line="806"/>
+        <location filename="rtp_analysis_dialog.cpp" line="836"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
         <translation>Nie można zapisać pliku: Problem wejścia/wyjścia.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="815"/>
+        <location filename="rtp_analysis_dialog.cpp" line="823"/>
         <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
         <translation>Nie można zapisać pliku: Niekompletne dane w przechwyconych pakietach.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1031"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1041"/>
         <source>Save forward stream audio</source>
         <translation>Zapisz przewodni strumień audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1034"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1044"/>
         <source>Save reverse stream audio</source>
         <translation>Zapisz powrotny strumień audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1038"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1048"/>
         <source>Save audio</source>
         <translation>Zapisz audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1042"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1052"/>
         <source>Sun Audio (*.au)</source>
         <translation>Sun Audio (*.au)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1044"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1054"/>
         <source>;;Raw (*.raw)</source>
         <translation>;;Surowe dane (*.raw)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1061"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1070"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1086"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1071"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1080"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1096"/>
         <source>Warning</source>
         <translation>Ostrzeżenie</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1061"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1071"/>
         <source>Unable to save in that format</source>
         <translation>Nie można zapisać w tym formacie</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1070"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1080"/>
         <source>Can&apos;t save in a file: saving in au format supported only for alaw/ulaw streams</source>
         <translation>Nie można zapisać pliku: zapis w formacie au jest dostępny tylko dla strumieni alaw/ulaw</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1086"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1096"/>
         <source>Unable to save %1</source>
         <translation>Nie można zapisać %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1090"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1100"/>
         <source>Saving %1</source>
         <translation>Zapisywanie %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1312"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1322"/>
         <source>Save forward stream CSV</source>
         <translation>Zapisz przewodni strumień jako CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1315"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1325"/>
         <source>Save reverse stream CSV</source>
         <translation>Zapisz powrotny strumień jako CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1319"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1329"/>
         <source>Save CSV</source>
         <translation>Zapisz jako CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1325"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1335"/>
         <source>Comma-separated values (*.csv)</source>
         <translation>Wartości rozdzielane przecinkami (*.csv)</translation>
     </message>

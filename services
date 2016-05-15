@@ -4680,10 +4680,6 @@ sybaseanywhere   2638/tcp # Sybase Anywhere [Dave_Neudoerffer] [Dave_Neudoerffer
 sybaseanywhere   2638/udp # Sybase Anywhere [Dave_Neudoerffer] [Dave_Neudoerffer]
 aminet           2639/tcp # AMInet [Alcorn_McBride_Inc] [Alcorn_McBride_Inc]
 aminet           2639/udp # AMInet [Alcorn_McBride_Inc] [Alcorn_McBride_Inc]
-sai-sentlm       2640/tcp # Sabbagh Associates Licence ManagerIANA assigned this well-formed service name as a replacement for "sai_sentlm". [Elias_Sabbagh] [Elias_Sabbagh]
-sai_sentlm       2640/tcp # Sabbagh Associates Licence Manager [Elias_Sabbagh] [Elias_Sabbagh] This entry is an alias to "sai-sentlm".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
-sai-sentlm       2640/udp # Sabbagh Associates Licence ManagerIANA assigned this well-formed service name as a replacement for "sai_sentlm". [Elias_Sabbagh] [Elias_Sabbagh]
-sai_sentlm       2640/udp # Sabbagh Associates Licence Manager [Elias_Sabbagh] [Elias_Sabbagh] This entry is an alias to "sai-sentlm".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
 hdl-srv          2641/tcp # HDL Server [David_Ely] [David_Ely]
 hdl-srv          2641/udp # HDL Server [David_Ely] [David_Ely]
 tragic           2642/tcp # Tragic [Stu_Mark] [Stu_Mark]
@@ -9580,6 +9576,7 @@ font-service     7100/udp # X Font Service [Stephen_Gildea] [Stephen_Gildea]
 elcn             7101/tcp # Embedded Light Control Network [Michael_Scarito] [Michael_Scarito] 2007-02
 elcn             7101/udp # Embedded Light Control Network [Michael_Scarito] [Michael_Scarito] 2007-02
 aes-x170         7107/udp # AES-X170 [Richard_Foss] [Richard_Foss] 2011-02-10
+rothaga          7117/tcp # Encrypted chat and file transfer service [Arcadian_Computers] [Jonathan_Pollock] 2016-05-10
 virprot-lm       7121/tcp # Virtual Prototypes License Manager [Victor_Galis] [Victor_Galis]
 virprot-lm       7121/udp # Virtual Prototypes License Manager [Victor_Galis] [Victor_Galis]
 scenidm          7128/tcp # intelligent data manager [Paul_Ignatius] [Paul_Ignatius] 2006-03
@@ -9814,7 +9811,7 @@ vstat            7779/tcp # VSTAT [Vinh_Nguyn] [Vinh_Nguyn]
 vstat            7779/udp # VSTAT [Vinh_Nguyn] [Vinh_Nguyn]
 accu-lmgr        7781/tcp # accu-lmgr [Moises_E_Hernandez] [Moises_E_Hernandez]
 accu-lmgr        7781/udp # accu-lmgr [Moises_E_Hernandez] [Moises_E_Hernandez]
-s-bfd            7784/udp # Seamless Bidirectional Forwarding Detection (S-BFD) [IESG] [BFD_Chairs] 2014-12-24 [draft-ietf-bfd-seamless-ip]
+s-bfd            7784/udp # Seamless Bidirectional Forwarding Detection (S-BFD) [IESG] [IETF_Chair] 2014-12-24 2016-05-13 [RFC-ietf-bfd-seamless-ip-06]
 minivend         7786/tcp # MINIVEND [Mike_Heins] [Mike_Heins] Known Unauthorized Use on port 7786
 minivend         7786/udp # MINIVEND [Mike_Heins] [Mike_Heins] Known Unauthorized Use on port 7786
 popup-reminders  7787/tcp # Popup Reminders Receive [Robert_Harvey] [Robert_Harvey] 2006-01 Known Unauthorized Use on port 7787
