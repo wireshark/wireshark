@@ -46,11 +46,11 @@ static int hf_quic_puflags_vrsn = -1;
 static int hf_quic_puflags_rst = -1;
 static int hf_quic_puflags_cid = -1;
 static int hf_quic_puflags_cid_old = -1;
-static int hf_quic_puflags_seq = -1;
+static int hf_quic_puflags_pkn = -1;
 static int hf_quic_puflags_rsv = -1;
 static int hf_quic_cid = -1;
 static int hf_quic_version = -1;
-static int hf_quic_sequence = -1;
+static int hf_quic_packet_number = -1;
 static int hf_quic_prflags = -1;
 static int hf_quic_prflags_entropy = -1;
 static int hf_quic_prflags_fecg = -1;
@@ -185,7 +185,7 @@ typedef struct quic_info_data {
 #define PUFLAGS_RST     0x02
 #define PUFLAGS_CID     0x08
 #define PUFLAGS_CID_OLD 0x0C
-#define PUFLAGS_SEQ     0x30
+#define PUFLAGS_PKN     0x30
 #define PUFLAGS_RSV     0xC4
 
 static const true_false_string puflags_cid_tfs = {
@@ -201,7 +201,7 @@ static const value_string puflags_cid_old_vals[] = {
     { 0, NULL }
 };
 
-static const value_string puflags_seq_vals[] = {
+static const value_string puflags_pkn_vals[] = {
     { 0, "1 Byte" },
     { 1, "2 Bytes" },
     { 2, "4 Bytes" },
@@ -804,7 +804,7 @@ static guint32 get_len_missing_packet(guint8 frame_type){
 }
 
 
-static gboolean is_quic_unencrypt(tvbuff_t *tvb, guint offset, guint16 len_seq){
+static gboolean is_quic_unencrypt(tvbuff_t *tvb, guint offset, guint16 len_pkn){
     guint8 frame_type;
     guint8 num_ranges, num_revived, num_timestamp;
     guint32 len_stream = 0, len_offset = 0, len_data = 0, len_largest_observed = 1, len_missing_packet = 1;
@@ -892,7 +892,7 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, guint offset, guint16 len_seq){
                     /* Send Entropy */
                     offset += 1;
                     /* Least Unacked Delta */
-                    offset += len_seq;
+                    offset += len_pkn;
                 break;
                 case FT_PING: /* No Payload */
                 default: /* No default */
@@ -1311,7 +1311,7 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
 }
 
 static int
-dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, guint8 len_seq){
+dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, guint8 len_pkn){
     proto_item *ti, *ti_ft, *ti_ftflags /*, *expert_ti*/;
     proto_tree *ft_tree, *ftflags_tree;
     guint8 frame_type;
@@ -1407,8 +1407,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_sw_send_entropy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 send_entropy = tvb_get_guint8(tvb, offset);
                 offset += 1;
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_sw_least_unacked_delta, tvb, offset, len_seq, ENC_LITTLE_ENDIAN);
-                offset += len_seq;
+                proto_tree_add_item(ft_tree, hf_quic_frame_type_sw_least_unacked_delta, tvb, offset, len_pkn, ENC_LITTLE_ENDIAN);
+                offset += len_pkn;
                 proto_item_append_text(ti_ft, " Send Entropy: %u", send_entropy);
                 }
             break;
@@ -1552,7 +1552,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
 
 static int
-dissect_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, guint8 len_seq){
+dissect_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, guint8 len_pkn){
     proto_item *ti_prflags;
     proto_tree *prflags_tree;
 
@@ -1570,7 +1570,7 @@ dissect_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
     offset +=1;
 
     while(tvb_reported_length_remaining(tvb, offset) > 0){
-        offset = dissect_quic_frame_type(tvb, pinfo, quic_tree, offset, len_seq);
+        offset = dissect_quic_frame_type(tvb, pinfo, quic_tree, offset, len_pkn);
     }
 
     return offset;
@@ -1584,8 +1584,8 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti, *ti_puflags; /*, *expert_ti*/
     proto_tree *quic_tree, *puflags_tree;
     guint offset = 0;
-    guint8 puflags, len_cid = 0, len_seq;
-    guint64 cid = 0, seq;
+    guint8 puflags, len_cid = 0, len_pkn;
+    guint64 cid = 0, pkn;
     conversation_t  *conv;
     quic_info_data_t  *quic_info;
 
@@ -1631,7 +1631,7 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     } else {
         proto_tree_add_item(puflags_tree, hf_quic_puflags_cid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
-    proto_tree_add_item(puflags_tree, hf_quic_puflags_seq, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(puflags_tree, hf_quic_puflags_pkn, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(puflags_tree, hf_quic_puflags_rsv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
@@ -1680,44 +1680,44 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         return offset;
     }
-    /* Sequence */
+    /* Packet Number */
 
-    /* Get len of sequence (and sequence), may be a more easy function to get the length... */
-    switch((puflags & PUFLAGS_SEQ) >> 4){
+    /* Get len of packet number (and packet number), may be a more easy function to get the length... */
+    switch((puflags & PUFLAGS_PKN) >> 4){
         case 0:
-            len_seq = 1;
-            seq = tvb_get_guint8(tvb, offset);
+            len_pkn = 1;
+            pkn = tvb_get_guint8(tvb, offset);
         break;
         case 1:
-            len_seq = 2;
-            seq = tvb_get_letohs(tvb, offset);
+            len_pkn = 2;
+            pkn = tvb_get_letohs(tvb, offset);
         break;
         case 2:
-            len_seq = 4;
-            seq = tvb_get_letohl(tvb, offset);
+            len_pkn = 4;
+            pkn = tvb_get_letohl(tvb, offset);
         break;
         case 3:
-            len_seq = 6;
-            seq = tvb_get_letoh48(tvb, offset);
+            len_pkn = 6;
+            pkn = tvb_get_letoh48(tvb, offset);
         break;
         default: /* It is only between 0..3 but Clang(Analyser) i don't like this... ;-) */
-            len_seq = 6;
-            seq = tvb_get_letoh48(tvb, offset);
+            len_pkn = 6;
+            pkn = tvb_get_letoh48(tvb, offset);
         break;
     }
-    proto_tree_add_item(quic_tree, hf_quic_sequence, tvb, offset, len_seq, ENC_LITTLE_ENDIAN);
-    offset += len_seq;
+    proto_tree_add_item(quic_tree, hf_quic_packet_number, tvb, offset, len_pkn, ENC_LITTLE_ENDIAN);
+    offset += len_pkn;
 
     /* Unencrypt Message (Handshake or Connection Close...) */
-    if (is_quic_unencrypt(tvb, offset, len_seq)){
-        offset = dissect_quic_unencrypt(tvb, pinfo, quic_tree, offset, len_seq);
+    if (is_quic_unencrypt(tvb, offset, len_pkn)){
+        offset = dissect_quic_unencrypt(tvb, pinfo, quic_tree, offset, len_pkn);
     }else {     /* Payload... (encrypted... TODO FIX !) */
         col_add_str(pinfo->cinfo, COL_INFO, "Payload (Encrypted)");
         proto_tree_add_item(quic_tree, hf_quic_payload, tvb, offset, -1, ENC_NA);
 
     }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", Seq: %" G_GINT64_MODIFIER "u", seq);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" G_GINT64_MODIFIER "u", pkn);
 
     if(cid){
         col_append_fstr(pinfo->cinfo, COL_INFO, ", CID: %" G_GINT64_MODIFIER "u", cid);
@@ -1765,10 +1765,10 @@ proto_register_quic(void)
                FT_UINT8, BASE_HEX, VALS(puflags_cid_old_vals), PUFLAGS_CID_OLD,
               "Signifies the Length of CID", HFILL }
         },
-        { &hf_quic_puflags_seq,
-            { "Sequence Length", "quic.puflags.seq",
-               FT_UINT8, BASE_HEX, VALS(puflags_seq_vals), PUFLAGS_SEQ,
-              "Signifies the Length of Sequence", HFILL }
+        { &hf_quic_puflags_pkn,
+            { "Packet Number Length", "quic.puflags.pkn",
+               FT_UINT8, BASE_HEX, VALS(puflags_pkn_vals), PUFLAGS_PKN,
+              "Signifies the Length of packet number", HFILL }
         },
         { &hf_quic_puflags_rsv,
             { "Reserved", "quic.puflags.rsv",
@@ -1785,10 +1785,10 @@ proto_register_quic(void)
                FT_STRING, BASE_NONE, NULL, 0x0,
               "32 bit opaque tag that represents the version of the QUIC", HFILL }
         },
-        { &hf_quic_sequence,
-            { "Sequence", "quic.sequence",
+        { &hf_quic_packet_number,
+            { "Packet Number", "quic.packet_number",
                FT_UINT64, BASE_DEC, NULL, 0x0,
-              "The lower 8, 16, 32, or 48 bits of the sequence number", HFILL }
+              "The lower 8, 16, 32, or 48 bits of the packet number", HFILL }
         },
 
         { &hf_quic_prflags,
@@ -1911,12 +1911,12 @@ proto_register_quic(void)
         { &hf_quic_frame_type_sw_send_entropy,
             { "Send Entropy", "quic.frame_type.sw.send_entropy",
                FT_UINT8, BASE_DEC, NULL, 0x0,
-              "Specifying the cumulative hash of entropy in all sent packets up to the packet with sequence number one less than the least unacked packet", HFILL }
+              "Specifying the cumulative hash of entropy in all sent packets up to the packet with packet number one less than the least unacked packet", HFILL }
         },
         { &hf_quic_frame_type_sw_least_unacked_delta,
             { "Least unacked delta", "quic.frame_type.sw.least_unacked_delta",
                FT_UINT64, BASE_DEC, NULL, 0x0,
-              "A variable length sequence number delta withthe same length as the packet header's sequence number", HFILL }
+              "A variable length packet number delta with the same length as the packet header's packet number", HFILL }
         },
         { &hf_quic_frame_type_stream,
             { "Stream", "quic.frame_type.stream",
@@ -1966,7 +1966,7 @@ proto_register_quic(void)
         { &hf_quic_frame_type_ack_mm,
             { "Missing Packet Length", "quic.frame_type.ack.mm",
                FT_UINT8, BASE_DEC, VALS(len_missing_packet_vals), FTFLAGS_ACK_MM,
-              "Length of the Missing Packet Sequence Number Delta field as 1, 2, 4, or 6 bytes long", HFILL }
+              "Length of the Missing Packet Number Delta field as 1, 2, 4, or 6 bytes long", HFILL }
         },
         { &hf_quic_frame_type_ack_received_entropy,
             { "Received Entropy", "quic.frame_type.ack.received_entropy",
@@ -1976,7 +1976,7 @@ proto_register_quic(void)
         { &hf_quic_frame_type_ack_largest_observed,
             { "Largest Observed", "quic.frame_type.ack.largest_observed",
                FT_UINT64, BASE_DEC, NULL, 0x0,
-              "Representing the largest sequence number the peer has observed", HFILL }
+              "Representing the largest packet number the peer has observed", HFILL }
         },
         { &hf_quic_frame_type_ack_largest_observed_delta_time,
             { "Largest Observed Delta time", "quic.frame_type.ack.largest_observed_delta_time",
@@ -1991,7 +1991,7 @@ proto_register_quic(void)
         { &hf_quic_frame_type_ack_delta_largest_observed,
             { "Delta Largest Observed", "quic.frame_type.ack.delta_largest_observed",
                FT_UINT16, BASE_DEC, NULL, 0x0,
-              "Specifying the sequence number delta from the first timestamp to the largest observed", HFILL }
+              "Specifying the packet number delta from the first timestamp to the largest observed", HFILL }
         },
         { &hf_quic_frame_type_ack_time_since_largest_observed,
             { "Time since Largest Observed", "quic.frame_type.ack.time_since_largest_observed",
@@ -2009,7 +2009,7 @@ proto_register_quic(void)
               "Specifying the number of missing packet ranges between largest observed and least unacked", HFILL }
         },
         { &hf_quic_frame_type_ack_missing_packet,
-            { "Missing Packet Sequence Number Delta", "quic.frame_type.ack.missing_packet",
+            { "Missing Packet Packet Number Delta", "quic.frame_type.ack.missing_packet",
                FT_UINT64, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
@@ -2024,7 +2024,7 @@ proto_register_quic(void)
               "Specifying the number of revived packets, recovered via FEC", HFILL }
         },
         { &hf_quic_frame_type_ack_revived_packet,
-            { "Revived Packet Sequence Number", "quic.frame_type.ack.revived_packet",
+            { "Revived Packet Packet Number", "quic.frame_type.ack.revived_packet",
                FT_UINT64, BASE_DEC, NULL, 0x0,
               "Representing a packet the peer has revived via FEC", HFILL }
         },
