@@ -804,7 +804,7 @@ static guint32 get_len_missing_packet(guint8 frame_type){
 }
 
 
-static gboolean is_quic_handshake(tvbuff_t *tvb, guint offset, guint16 len_seq){
+static gboolean is_quic_unencrypt(tvbuff_t *tvb, guint offset, guint16 len_seq){
     guint8 frame_type;
     guint8 num_ranges, num_revived, num_timestamp;
     guint32 len_stream = 0, len_offset = 0, len_data = 0, len_largest_observed = 1, len_missing_packet = 1;
@@ -1547,7 +1547,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
 
 static int
-dissect_quic_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, guint8 len_seq){
+dissect_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, guint8 len_seq){
     proto_item *ti_prflags;
     proto_tree *prflags_tree;
 
@@ -1693,9 +1693,9 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(quic_tree, hf_quic_sequence, tvb, offset, len_seq, ENC_LITTLE_ENDIAN);
     offset += len_seq;
 
-    /* Handshake Message */
-    if (is_quic_handshake(tvb, offset, len_seq)){
-        offset = dissect_quic_handshake(tvb, pinfo, quic_tree, offset, len_seq);
+    /* Unencrypt Message (Handshake or Connection Close...) */
+    if (is_quic_unencrypt(tvb, offset, len_seq)){
+        offset = dissect_quic_unencrypt(tvb, pinfo, quic_tree, offset, len_seq);
     }else {     /* Payload... (encrypted... TODO FIX !) */
         col_add_str(pinfo->cinfo, COL_INFO, "Payload (Encrypted)");
         proto_tree_add_item(quic_tree, hf_quic_payload, tvb, offset, -1, ENC_NA);
