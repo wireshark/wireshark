@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2016-05-08)
+(last updated 2016-05-15)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -13602,9 +13602,9 @@ Decimal
     David Glanzer
       dglanzer&fieldbus.org
 3399
-  Olencom Electronics Ltd Olentuch
-    Evgeny
-      olencom&netvision.net.il
+  Olencom Electronics Ltd.
+    Evgeny Olentuch
+      admin&olencom.com
 3400
   Alacrity Communications Inc.
     Frank Guan
@@ -17750,9 +17750,9 @@ Decimal
     Jack Dickie
       Jack.Dickie&CIBC.com
 4438
-  Goteborg Energi AB
-    Carl Trefil
-      carl.trefil&teleteknik.goteborg.se
+  Göteborg Energi AB
+    Peter Karlsson
+      peter.karlsson&goteborgenergi.se
 4439
   EnZane Enterprise
     Terry Doherty
@@ -25554,9 +25554,9 @@ Decimal
     Olaf Lindner
       lindner&lpconsult.de
 6399
-  Edrich Integration
+  Intelligent Maintenance Systems Ltd (formerly 'Edrich Integration')
     Paul Edrich
-      pauledrich&dial.pipex.com
+      paul.edrich&ims-evolve.com
 6400
   Millenux GmbH
     Thomas Uhl
@@ -26222,9 +26222,9 @@ Decimal
     Etan Weintraub
       eweintra&jhmi.edu
 6566
-  Metropolitan Life Insurance Peter
-    Kalamaras
-      pkalamaras&metlife.com
+  Metropolitan Life Insurance
+    Eric Herasymchuck
+      eric.j.herasymchuck&metlife.com
 6567
   Klimke Industry Consulting
     Horst Dieter Klimke
@@ -28174,9 +28174,9 @@ Decimal
     Robert Nazzal
       rob&mazunetworks.com
 7055
-  Cox Internet Services
-    Matthew F. Williams
-      matt.williams&cox.com
+  Cox Communications, Inc.
+    Martin M. Cade
+      martin.cade&cox.com
 7056
   Senterprise Inc.
     Ilan Shamir
@@ -80430,7 +80430,7 @@ d'Abomey-Calavi
     Kari J. Leino
       kjl&ajeco.fi
 20219
-  BSH Bosch und Siemens Hausgeraete GmbH
+  BSH Hausgeraete GmbH
     Stefan Jakob
       stefan.jakob&bshg.com
 20220
@@ -93761,8 +93761,8 @@ Electrónica y Computación
       v.lago&elber.it
 23549
   Toyo Networks & System Integration Co., Ltd.
-    Shoichi Maki
-      info-em&t-ns.co.jp
+    Toshiaki Saitoh
+      macrenraku&dmy.magnus.nec.co.jp
 23550
   e-World Developments Ltd
     Stephen Phillips
@@ -109832,9 +109832,9 @@ Technischen Universität Dresden
     cs&qstar.com
       cs&qstar.com
 27564
-  UNIFAL - Universidade Federal de Alfenas
-    Anderson Francisco da Silva
-      anderson&unifal-mg.edu.br
+  UNIFAL-MG - Universidade Federal de Alfenas
+    Vitor Renato Alves de Brito
+      vitorrenato.brito&unifal-mg.edu.br
 27565
   Ministerio de Industria Turismo y Comercio
     Carlos Maza
@@ -136768,8 +136768,8 @@ Decentralization / Helenic Public Administra
       renda&newmail.dlmu.edu.cn
 34297
   Mobistar sa/nv
-    Laurent DENIS
-      laurent.denis&mail.mobistar.be
+    Philippe RASSEL
+      philippe.rassel&mail.mobistar.be
 34298
   ConteXtream
     Harold Lowenthal
@@ -172269,8 +172269,8 @@ Decentralization / Helenic Public Administra
       global.ict&datwyler.com
 43172
   Atrium - Region PACA
-    Kevin Musarella
-      kevin.musarella&atos.net
+    Frederic Lorrain
+      frederic.lorrain&atos.net
 43173
   Elesta Ltd.
     Bykov Dmitry
@@ -175150,7 +175150,7 @@ Decentralization / Helenic Public Administra
 43892
   NerySEC
     Kyra Zimmer
-      me&nonchip.de
+      nonchip&nerysec.de
 43893
   Hope Bay Technologies, Inc.
     Pa Hsuan
@@ -176201,8 +176201,8 @@ Decentralization / Helenic Public Administra
       noc&infostreet.com
 44155
   Sacred Heart Hospital of Allentown
-    Rebecca DiFrancesco
-      rdifranc&shh.org
+    Julie Grumbein
+      jgrumbei&SHH.ORG
 44156
   Computer Applications & Technical Services
     Ibrm Haymour
@@ -184356,9 +184356,9 @@ Decentralization / Helenic Public Administra
     Mark Finn
       treasurer&dhmn.net
 46194
-  repica Inc.
+  arara inc. (formerly 'repica Inc.')
     Shigeki Torii
-      mib&repica.co.jp
+      mib&arara.com
 46195
   sdc world group co.
     Zhe Chen
@@ -184525,8 +184525,8 @@ Decentralization / Helenic Public Administra
       ser&rcntec.com
 46236
   Multisoft S.A.
-    Pawel Rybak
-      pawel.rybak&multisoftsa.com
+    Artur Kot
+      artur.kot&multisoftsa.com
 46237
   Ayuntamiento de Alcobendas
     Javier Peña
@@ -190647,6 +190647,230 @@ Decentralization / Helenic Public Administra
   MACNICA FUJI ELECTRONICS HOLDINGS, INC.
     Jiaqi Chen
       chen-j&macnica.co.jp
+47767
+  ASH Szoftverhaz Kft
+    Bederna, Zsolt
+      zsolt.bederna&ashszoftverhaz.hu
+47768
+  Aristech GmbH
+    Mirko Hering
+      mirko.hering&aristech.de
+47769
+  Armour Communications Limited
+    Andy Lilly
+      it&armourcomms.com
+47770
+  ESG BIRO DE SERVICOS S/S LIMITADA - ME 
+    Eugênio Neves da Rocha
+      eugenio&esg.eng.br
+47771
+  Colorado School of Mines
+    Matthew B. Brookover
+      mbrookov&mines.edu
+47772
+  Clear Axess SAGL
+    Giovanni Tirino
+      giovanni.tirino&clearaxess.com
+47773
+  Radeus Labs
+    Robert Gomez
+      robert.gomez&radeuslabs.com
+47774
+  Microsoft Small Basic
+    Ed Price
+      smallbasic&microsoft.com
+47775
+  Ernst Basler + Partner AG
+    Hjalmar Heinrich
+      support&ebp.ch
+47776
+  TS Gateway Ltd
+    Stuart Berry
+      slberry&tsgateway.com
+47777
+  Fachschaftsvertretung der Fakultät für Informatik und Mathematik, Universität Passau
+    FSinfo administrators
+      admins&fsinfo.fim.uni-passau.de
+47778
+  Cox Communications Inc. - Atlanta Technology
+    Gemarl Perry
+      gemarl.perry&cox.com
+47779
+  TaiHao Medical
+    You-Wei Wang
+      wei.tomato1112&gmail.com
+47780
+  Prosoft Kroměříž s.r.o.
+    Josef Zvoníček
+      prosoft&prosoft.cz
+47781
+  National Western Life Insurance
+    Trevor Westerdahl
+      twesterdahl&nationalwesternlife.com
+47782
+  Nautile Software
+    laurent CONIN
+      conin&nautile-software.com
+47783
+  codia Software GmbH
+    Thomas Menke
+      t.menke&codia.de
+47784
+  Suncoast Cancer Institute
+    Don Heinrich
+      admin&suncoastci.com
+47785
+  mBank S.A.
+    Roger Walczak
+      roger.walczak&mbank.pl
+47786
+  5BARz India Private Limited
+    J RAJENDRA PRASAD DEEPAK
+      djrprasad&5barzindia.com
+47787
+  MuseumsIT
+    Thomas Johansen
+      post&museumsit.no
+47788
+  Prismaflex International
+    Alexis Greppo
+      itsupport&prismaflex.com
+47789
+  OAO MNIIPI OKOSZ "MOSPROEKT-4"
+    system administrator
+      admin&mosproekt-4.ru
+47790
+  ASYS Automatic Systems GmbH & Co. KG
+    Fredy Walth
+      f.walth&asys-micro.de
+47791
+  Rayed Alrashed
+    Rayed Alrashed
+      rayed&rayed.com
+47792
+  Pew Research Center
+    Brian Broderick
+      bbroderick&pewresearch.org
+47793
+  Scripps Networks Interactive
+    Chuck Edwards
+      Chuck.Edwards&scrippsnetworks.com
+47794
+  Arizona Center for Hematology and Oncology, LLC
+    Kimberly Fanciullo
+      kfanciullo&arizonaccc.com
+47795
+  Tegsoft
+    Eray Gürsoy
+      info&tegsoft.com
+47796
+  Architecting.nl
+    Jan Schoonderbeek
+      j.schoonderbeek&architecting.nl
+47797
+  Yellowbrick Data, Inc
+    Mark Brinicombe
+      iana&yellowbrick.io
+47798
+  CNI
+    nadia chebbi
+      nadia.chebbi&hotmail.fr
+47799
+  Verody, LLC
+    Kobi Eshun
+      info&verody.com
+47800
+  Waiariki Bay of Plenty Polytechnic
+    James Chamberlain
+      james.chamberlain&boppoly.ac.nz
+47801
+  CloudSeeds GmbH
+    Kevin Fibich
+      info&cloudseeds.de
+47802
+  CTSI Limited
+    David Reid
+      david.reid&ctsilimited.com
+47803
+  Urban Renaissance Agency
+    Amimoto Reiji
+      amimoto&ur-net.go.jp
+47804
+  Bravowhale Information Technology Ltd
+    Jason Deng
+      denghuimin&bravowhale.com
+47805
+  Shenzhen Grentech RF Communication Limited
+    qiyang
+      yangqi&powercn.com
+47806
+  Trussan Co., Ltd
+    Jarod Yu
+      jarodyu&trussan.com
+47807
+  DSRI "Volna", OJSC
+    Mirza Nabiev
+      volna.nabiev&yandex.ru
+47808
+  Delaware County Community College
+    Donald Sloat
+      dsloat&dccc.edu
+47809
+  Centerline Biomedical, Inc.
+    Vikash Goel
+      v&centerlinebiomedical.com
+47810
+  LINAGORA TUNISIE
+    hamila sami
+      sbouhlel&linagora.com
+47811
+  Pavilion Data Systems Inc
+    Sundar Kanthadai
+      sundar&paviliondata.com
+47812
+  AZ Elektro AG
+    Thomas Müller
+      Thomas.Mueller&az-elektro.ch
+47813
+  Luetze Transportation GmbH
+    Dimitrios Koutrouvis
+      dimitrios.koutrouvis&luetze.de
+47814
+  ChinaUnicom
+     zhanglunyong
+      zhanglunyong&chinaunicom.cn
+47815
+  Stora Enso Skog AB
+    Erik Buki
+      erik.buki&storaenso.com
+47816
+  Joseph Workstation
+    Joseph Chris
+      279212363&qq.com
+47817
+  HAWE Hydraulik SE
+    Daniel Pradel
+      d.pradel&hawe.de
+47818
+  Salzburg AG
+    Adnan Reh
+      adnan.reh&salzburg-ag.at
+47819
+  NTT DATA Italia
+    Stefano Crespi
+      stefano.crespi&nttdata.com
+47820
+  Böco Böddecker & Co. GmbH & Co. KG
+    Benedikt Diederichs
+      b.diederichs&boeco.de
+47821
+  Sjova-Almennar tryggingar hf
+    Jon Elias Thrainsson
+      skilriki&sjova.is
+47822
+  NdT Web Services
+    Nicholis du Toit
+      ndtwebservices&icloud.com
 
 
 End of Document
