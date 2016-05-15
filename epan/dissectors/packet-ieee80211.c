@@ -278,7 +278,7 @@ typedef struct mimo_control
  * Fetch the frame control field and swap it if needed.  "fcf" and "tvb"
  * must be valid variables.
  */
-#define FETCH_FCF(off) (wlan_broken_fc ? \
+#define FETCH_FCF(off) ((option_flags & IEEE80211_COMMON_OPT_BROKEN_FC) ? \
   GUINT16_SWAP_LE_BE(tvb_get_letohs(tvb, off)) : \
   tvb_get_letohs(tvb, off))
 
@@ -13055,8 +13055,11 @@ dissect_ht_control(proto_tree *tree, tvbuff_t *tvb, int offset)
   /* offset += 2; */
 }
 
+#define IEEE80211_COMMON_OPT_BROKEN_FC         0x00000001
+#define IEEE80211_COMMON_OPT_IS_CENTRINO       0x00000002
+
 static void
-dissect_frame_control(proto_tree *tree, tvbuff_t *tvb, gboolean wlan_broken_fc,
+dissect_frame_control(proto_tree *tree, tvbuff_t *tvb, guint32 option_flags,
                       guint32 offset, packet_info *pinfo)
 {
   guint16 fcf, flags, frame_type_subtype;
@@ -13069,7 +13072,7 @@ dissect_frame_control(proto_tree *tree, tvbuff_t *tvb, gboolean wlan_broken_fc,
   frame_type_subtype = COMPOSE_FRAME_TYPE(fcf);
 
   /* Swap offset... */
-  if(wlan_broken_fc)
+  if(option_flags & IEEE80211_COMMON_OPT_BROKEN_FC)
   {
     offset += 1;
   }
@@ -13090,7 +13093,7 @@ dissect_frame_control(proto_tree *tree, tvbuff_t *tvb, gboolean wlan_broken_fc,
   offset += 1;
 
   /* Reswap offset...*/
-  if(wlan_broken_fc)
+  if(option_flags & IEEE80211_COMMON_OPT_BROKEN_FC)
   {
     offset -= 1;
     proto_item_append_text(fc_item, "(Swapped)");
@@ -16609,7 +16612,6 @@ typedef enum {
 /* ************************************************************************* */
 /*                          Dissect 802.11 frame                             */
 /* ************************************************************************* */
-
 /*
  * The 802.11n specification makes some fairly significant changes to the
  * layout of the MAC header.  The first two bits of the MAC header are the
@@ -16617,11 +16619,9 @@ typedef enum {
  * bumped the version to indicate a different MAC layout, but NOOOO -- we
  * have to go digging for bits in various locations instead.
  */
-
 static int
 dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
-                          proto_tree *tree, gboolean wlan_broken_fc,
-                          gboolean is_centrino,
+                          proto_tree *tree, guint32 option_flags,
                           struct ieee_802_11_phdr *phdr)
 {
   guint16          fcf, flags, frame_type_subtype, ctrl_fcf, ctrl_type_subtype;
@@ -16850,7 +16850,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
                                            "IEEE 802.11 %s", fts_str);
   hdr_tree = proto_item_add_subtree (ti, ett_80211);
 
-  dissect_frame_control(hdr_tree, tvb, wlan_broken_fc, 0, pinfo);
+  dissect_frame_control(hdr_tree, tvb, option_flags, 0, pinfo);
   dissect_durid(hdr_tree, tvb, frame_type_subtype, 2);
 
   switch (phdr->fcs_len)
@@ -17052,7 +17052,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         {
           cw_tree = proto_tree_add_subtree(hdr_tree, tvb, offset, 2,
                       ett_cntrl_wrapper_fc, NULL, "Contained Frame Control");
-          dissect_frame_control(cw_tree, tvb, FALSE, offset, pinfo);
+          dissect_frame_control(cw_tree, tvb, 0, offset, pinfo);
           dissect_ht_control(hdr_tree, tvb, offset + 2);
           offset += 6;
           hdr_tree = proto_tree_add_subtree(hdr_tree, tvb, offset, 2,
@@ -18241,7 +18241,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       }
       /* Davide Schiera (2006-11-21) ----------------------------------  */
 
-      if ((!is_centrino) && (wlan_ignore_wep == WLAN_IGNORE_WEP_NO)) {
+      if ((!(option_flags & IEEE80211_COMMON_OPT_IS_CENTRINO)) && (wlan_ignore_wep == WLAN_IGNORE_WEP_NO)) {
         /* Some wireless drivers (such as Centrino) WEP payload already decrypted */
         call_data_dissector(next_tvb, pinfo, tree);
         goto end_of_wlan;
@@ -18530,7 +18530,7 @@ dissect_ieee80211 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     ourphdr.phy = PHDR_802_11_PHY_UNKNOWN;
     phdr = &ourphdr;
   }
-  return dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, phdr);
+  return dissect_ieee80211_common (tvb, pinfo, tree, 0, phdr);
 }
 
 /*
@@ -18548,7 +18548,7 @@ dissect_ieee80211_withfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, &phdr);
+  dissect_ieee80211_common (tvb, pinfo, tree, 0, &phdr);
   return tvb_captured_length(tvb);
 }
 
@@ -18566,7 +18566,7 @@ dissect_ieee80211_withoutfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, &phdr);
+  dissect_ieee80211_common (tvb, pinfo, tree, 0, &phdr);
   return tvb_captured_length(tvb);
 }
 
@@ -18611,7 +18611,7 @@ dissect_ieee80211_centrino(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, TRUE, &phdr);
+  dissect_ieee80211_common (tvb, pinfo, tree, IEEE80211_COMMON_OPT_IS_CENTRINO, &phdr);
   return tvb_captured_length(tvb);
 }
 
@@ -18630,7 +18630,7 @@ dissect_ieee80211_bsfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-  dissect_ieee80211_common (tvb, pinfo, tree, TRUE, FALSE, &phdr);
+  dissect_ieee80211_common (tvb, pinfo, tree, IEEE80211_COMMON_OPT_BROKEN_FC, &phdr);
   return tvb_captured_length(tvb);
 }
 
