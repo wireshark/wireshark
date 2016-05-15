@@ -124,7 +124,6 @@ rtp_streams_stat_draw(void *arg _U_)
 
         list = g_list_next(list);
 
-        g_free(payload_type);
         wmem_free(NULL, src_addr);
         wmem_free(NULL, dst_addr);
         wmem_free(NULL, payload_type);
