@@ -101,13 +101,14 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 		guint8      dtype;             /* data-type */
 		guint8      length;            /* length */
 		int         start;             /* field starting location */
-		char        field_name_str[3]; /* printable name */
+		guint8     *field_name_str;
 		const char *longname;          /* human-friendly field name */
 
 		start = offset;
 
 		/* 2-byte field name */
 		field_name = tvb_get_ntohs(tvb, offset);
+		field_name_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 2, ENC_ASCII);
 		offset += 2;
 
 		/* Identify the packet based on existing fields */
@@ -158,12 +159,6 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 		offset++;
 		length = tvb_get_guint8(tvb, offset);
 		offset++;
-
-		/* convert the 16-bit integer field name to a string */
-		/* XXX: changed this to use g_htons */
-		field_name_str[0] = g_htons(field_name) & 0x00ff;
-		field_name_str[1] = (g_htons(field_name) & 0xff00) >> 8;
-		field_name_str[2] = 0;
 
 		if (dtype == MANOLITO_STRING)
 		{
