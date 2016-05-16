@@ -100,7 +100,6 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 			guint16     field_name;        /* 16-bit field name */
 			guint8      dtype;             /* data-type */
 			guint8      length;            /* length */
-			guint8     *data;              /* payload */
 			int         start;             /* field starting location */
 			char        field_name_str[3]; /* printable name */
 			const char *longname;          /* human-friendly field name */
@@ -159,19 +158,9 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 #define MANOLITO_STRING		1
 #define MANOLITO_INTEGER	0
 			dtype = tvb_get_guint8(tvb, offset);
-			length = tvb_get_guint8(tvb, ++offset);
-
-			/*
-			 * Get the payload.
-			 *
-			 * XXX - is the cast necessary?  I think the
-			 * "usual arithmetic conversions" should
-			 * widen it past 8 bits, so there shouldn't
-			 * be an overflow.
-			 */
-			data = (guint8 *)wmem_alloc(wmem_packet_scope(), (guint)length + 1);
-			tvb_memcpy(tvb, data, ++offset, length);
-			offset += length;
+			offset++;
+			length = tvb_get_guint8(tvb, offset);
+			offset++;
 
 			/* convert the 16-bit integer field name to a string */
 			/* XXX: changed this to use g_htons */
@@ -181,10 +170,12 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 
 			if (dtype == MANOLITO_STRING)
 			{
-				data[length] = 0;
+				guint8 *str;
+
+				str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
 				proto_tree_add_string_format(manolito_tree, hf_manolito_string, tvb, start,
-					offset - start, data, "%s (%s): %s",
-					(char*)field_name_str, longname, data);
+					4+length, str, "%s (%s): %s", (char*)field_name_str, longname, str);
+				offset += length;
 			} else if (dtype == MANOLITO_INTEGER) {
 				guint64 n = 0;
 
@@ -192,25 +183,26 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 				switch(length)
 				{
 				case 5:
-					n = tvb_get_ntoh40(tvb, offset-length);
+					n = tvb_get_ntoh40(tvb, offset);
 					break;
 				case 4:
-					n = tvb_get_ntohl(tvb, offset-length);
+					n = tvb_get_ntohl(tvb, offset);
 					break;
 				case 3:
-					n = tvb_get_ntoh24(tvb, offset-length);
+					n = tvb_get_ntoh24(tvb, offset);
 					break;
 				case 2:
-					n = tvb_get_ntohs(tvb, offset-length);
+					n = tvb_get_ntohs(tvb, offset);
 					break;
 				case 1:
-					n = tvb_get_guint8(tvb, offset-length);
+					n = tvb_get_guint8(tvb, offset);
 					break;
 				}
+
 				ti = proto_tree_add_uint64_format(manolito_tree, hf_manolito_integer, tvb, start,
-					1, n, "%s (%s): %" G_GINT64_MODIFIER "u",
-					(char*)field_name_str, longname, n);
-				proto_item_set_len(ti, offset - start);
+						4+length, n, "%s (%s): %" G_GINT64_MODIFIER "u",
+						(char*)field_name_str, longname, n);
+				offset += length;
 			} else {
 				proto_tree_add_expert_format(manolito_tree, pinfo, &ei_manolito_type,
 						tvb, start, offset - start, "Unknown type %d", dtype);
