@@ -115,7 +115,7 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_GIGAMON
-#define ETHERTYPE_GIGAMON		0x22E5 /* Gigamon Header */
+#define ETHERTYPE_GIGAMON		0x22E5	/* Gigamon Header */
 #endif
 
 #ifndef ETHERTYPE_MSRP
@@ -126,18 +126,18 @@ extern "C" {
 #define ETHERTYPE_AVBTP			0x22F0
 #endif
 
-#ifndef ETHERTYPE_ROHC					/* ROHC (Robust Header Compression) is an IP header compression protocol specified in */
-#define ETHERTYPE_ROHC			0x22F1  /* IETF RFC 3095 "RObust Header Compression (ROHC): Framework and four profiles: RTP, */
-#endif									/* UDP, ESP, and uncompressed". The specification is available at
-										 * http://www.ietf.org/rfc/rfc3095.txt.
-										 */
+#ifndef ETHERTYPE_ROHC				/* ROHC (Robust Header Compression) is an IP header compression protocol specified in */
+#define ETHERTYPE_ROHC			0x22F1	/* IETF RFC 3095 "RObust Header Compression (ROHC): Framework and four profiles: RTP, */
+#endif						/* UDP, ESP, and uncompressed". The specification is available at
+						 * http://www.ietf.org/rfc/rfc3095.txt.
+						 */
 
-#ifndef ETHERTYPE_TRILL					/* Internet Engineering Task Force */
-#define ETHERTYPE_TRILL			0x22F3
+#ifndef ETHERTYPE_TRILL
+#define ETHERTYPE_TRILL			0x22F3	/* Internet Engineering Task Force */
 #endif
 
-#ifndef ETHERTYPE_L2ISIS				/* Internet Engineering Task Force */
-#define ETHERTYPE_L2ISIS		0x22F4
+#ifndef ETHERTYPE_L2ISIS
+#define ETHERTYPE_L2ISIS		0x22F4	/* Internet Engineering Task Force */
 #endif
 
 #ifndef ETHERTYPE_CENTRINO_PROMISC
@@ -217,7 +217,7 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_DLR
-#define ETHERTYPE_DLR			0x80E1  /* Allen-Bradley Company, Inc., EtherNet/IP Device Level Ring */
+#define ETHERTYPE_DLR			0x80E1	/* Allen-Bradley Company, Inc., EtherNet/IP Device Level Ring */
 #endif
 
 #ifndef ETHERTYPE_AARP
@@ -333,7 +333,7 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_EAPOL
-#define ETHERTYPE_EAPOL			0x888E  /* 802.1x Authentication */
+#define ETHERTYPE_EAPOL			0x888E	/* 802.1x Authentication */
 #endif
 
 #ifndef ETHERTYPE_PROFINET
@@ -377,13 +377,13 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_WAI
-#define ETHERTYPE_WAI                   0x88B4  /*  Instant Wireless Network Communications, Co. Ltd. */
-#endif                                          /*  WAI is a new authentication protocol that
-                                                    will be used to access authentication in
-                                                    IP based networks. This protocol establishes
-                                                    a logic channel between a station and access
-                                                    equipment by using an EtherType Field to
-                                                    accomplish authentication. */
+#define ETHERTYPE_WAI			0x88B4	/*  Instant Wireless Network Communications, Co. Ltd. */
+#endif						/*  WAI is a new authentication protocol that
+						    will be used to access authentication in
+						    IP based networks. This protocol establishes
+						    a logic channel between a station and access
+						    equipment by using an EtherType Field to
+						    accomplish authentication. */
 
 
 #ifndef ETHERTYPE_IEEE802_OUI_EXTENDED
@@ -391,7 +391,7 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_IEC61850_GOOSE
-#define ETHERTYPE_IEC61850_GOOSE	0x88B8  /* IEC 61850 is a global standard for the use in utility communication,*/
+#define ETHERTYPE_IEC61850_GOOSE	0x88B8	/* IEC 61850 is a global standard for the use in utility communication,*/
 #endif						/* in particular for the information exchange between IED's in a power */
 						/* transmission or distribution substation. */
 						/*  There are three types of application services
@@ -404,7 +404,7 @@ extern "C" {
 						    and IEC 61850-9-2. */
 
 #ifndef ETHERTYPE_IEC61850_GSE
-#define ETHERTYPE_IEC61850_GSE		0x88B9  /* IEC 61850 is a global standard for the use in utility communication,*/
+#define ETHERTYPE_IEC61850_GSE		0x88B9	/* IEC 61850 is a global standard for the use in utility communication,*/
 #endif						/* in particular for the information exchange between IED's in a power */
 
 #ifndef ETHERTYPE_IEC61850_SV
@@ -412,32 +412,32 @@ extern "C" {
 #endif						/* in particular for the information exchange between IED's in a power */
 
 #ifndef ETHERTYPE_TIPC
-#define ETHERTYPE_TIPC			0x88CA  /* TIPC  (Transparent Inter Process Communication, */
+#define ETHERTYPE_TIPC			0x88CA	/* TIPC  (Transparent Inter Process Communication, */
 #endif						/* http://tipc.sourceforge.net/) Ericsson Research Canada Inc */
 
 #ifndef ETHERTYPE_RSN_PREAUTH
-#define ETHERTYPE_RSN_PREAUTH		0x88C7  /* 802.11i Pre-Authentication */
+#define ETHERTYPE_RSN_PREAUTH		0x88C7	/* 802.11i Pre-Authentication */
 #endif
 
 #ifndef ETHERTYPE_LLDP
-#define ETHERTYPE_LLDP			0x88CC  /* IEEE 802.1AB Link Layer Discovery Protocol (LLDP) */
+#define ETHERTYPE_LLDP			0x88CC	/* IEEE 802.1AB Link Layer Discovery Protocol (LLDP) */
 #endif
 
 #ifndef ETHERTYPE_SERCOS
-#define ETHERTYPE_SERCOS		0x88CD  /* SERCOS interface real-time protocol for motion control */
+#define ETHERTYPE_SERCOS		0x88CD	/* SERCOS interface real-time protocol for motion control */
 #endif
 
 #ifndef ETHERTYPE_3GPP2
-#define ETHERTYPE_3GPP2			0x88D2  /* This will be used in a revision of the Interoperabi */
+#define ETHERTYPE_3GPP2			0x88D2	/* This will be used in a revision of the Interoperabi */
 #endif						/* Specification (IOS) for cdma2000 Access Network Interfaces (document numbers A.S0011-B */
 						/* through A.S0017-B v1.0). This document already uses the Ether type 8881 */
 
 #ifndef ETHERTYPE_CESOETH
-#define ETHERTYPE_CESOETH		0x88D8  /* Circuit Emulation Services over Ethernet (MEF 8) */
+#define ETHERTYPE_CESOETH		0x88D8	/* Circuit Emulation Services over Ethernet (MEF 8) */
 #endif
 
 #ifndef ETHERTYPE_LLTD
-#define ETHERTYPE_LLTD			0x88D9  /* Link Layer Topology Discovery (LLTD) */
+#define ETHERTYPE_LLTD			0x88D9	/* Link Layer Topology Discovery (LLTD) */
 #endif
 
 #ifndef ETHERTYPE_WSMP				/* Wireless Access in a Vehicle Environment */
@@ -445,7 +445,7 @@ extern "C" {
 #endif						/* in IEEE P1609.3. */
 
 #ifndef ETHERTYPE_VMLAB
-#define ETHERTYPE_VMLAB			0x88DE  /* VMware LabManager (used to be Akimbi Systems) */
+#define ETHERTYPE_VMLAB			0x88DE	/* VMware LabManager (used to be Akimbi Systems) */
 #endif
 
 #ifndef ETHERTYPE_HOMEPLUG_AV
@@ -453,27 +453,27 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_MRP
-#define ETHERTYPE_MRP			0x88E3  /* IEC 61158-6-10 Media Redundancy Protocol (MRP) */
+#define ETHERTYPE_MRP			0x88E3	/* IEC 61158-6-10 Media Redundancy Protocol (MRP) */
 #endif
 
 #ifndef ETHERTYPE_MACSEC
-#define ETHERTYPE_MACSEC			0x88E5  /* IEEE 802.1ae Media access control security (MACSEC) */
+#define ETHERTYPE_MACSEC		0x88E5	/* IEEE 802.1ae Media access control security (MACSEC) */
 #endif
 
 #ifndef ETHERTYPE_IEEE_802_1AH
-#define ETHERTYPE_IEEE_802_1AH		0x88E7  /* IEEE 802.1ah Provider Backbone Bridge Mac-in-Mac */
+#define ETHERTYPE_IEEE_802_1AH		0x88E7	/* IEEE 802.1ah Provider Backbone Bridge Mac-in-Mac */
 #endif
 
 #ifndef ETHERTYPE_ELMI
-#define ETHERTYPE_ELMI			0x88EE  /* Ethernet Local Management Interface (E-LMI) (MEF16) */
+#define ETHERTYPE_ELMI			0x88EE	/* Ethernet Local Management Interface (E-LMI) (MEF16) */
 #endif
 
 #ifndef ETHERTYPE_MVRP
-#define ETHERTYPE_MVRP			0x88F5  /* IEEE 802.1ak Multiple VLAN Registration Protocol */
+#define ETHERTYPE_MVRP			0x88F5	/* IEEE 802.1ak Multiple VLAN Registration Protocol */
 #endif
 
 #ifndef ETHERTYPE_MMRP
-#define ETHERTYPE_MMRP			0x88F6  /* IEEE 802.1ak Multiple MAC Registration Protocol */
+#define ETHERTYPE_MMRP			0x88F6	/* IEEE 802.1ak Multiple MAC Registration Protocol */
 #endif
 
 #ifndef ETHERTYPE_PTP
@@ -487,7 +487,7 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_PRP
-#define ETHERTYPE_PRP			0x88FB  /* Parallel Redundancy Protocol (IEC62439 Part 3) */
+#define ETHERTYPE_PRP			0x88FB	/* Parallel Redundancy Protocol (IEC62439 Part 3) */
 #endif
 
 #ifndef ETHERTYPE_FLIP
@@ -515,7 +515,7 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_LINX
-#define ETHERTYPE_LINX			0x8911  /* ENEA LINX IPC protocol over Ethernet */
+#define ETHERTYPE_LINX			0x8911	/* ENEA LINX IPC protocol over Ethernet */
 #endif
 
 #ifndef ETHERTYPE_FIP
@@ -527,23 +527,23 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_TTE_PCF
-#define ETHERTYPE_TTE_PCF		0x891D  /* TTEthernet Protocol Control Frame */
+#define ETHERTYPE_TTE_PCF		0x891D	/* TTEthernet Protocol Control Frame */
 #endif
 
 #ifndef ETHERTYPE_VNTAG
-#define ETHERTYPE_VNTAG			0x8926  /* VN-Tag */
+#define ETHERTYPE_VNTAG			0x8926	/* VN-Tag */
 #endif
 
 #ifndef ETHERTYPE_HSR
-#define ETHERTYPE_HSR			0x892F  /* High-availability Seamless Redundancy (IEC62439 Part 3) */
+#define ETHERTYPE_HSR			0x892F	/* High-availability Seamless Redundancy (IEC62439 Part 3) */
 #endif
 
 #ifndef ETHERTYPE_ECP
-#define ETHERTYPE_ECP			0x8940  /* Edge Control Protocol */
+#define ETHERTYPE_ECP			0x8940	/* Edge Control Protocol */
 #endif
 
 #ifndef ETHERTYPE_NSH
-#define ETHERTYPE_NSH			0x894F  /* Network Service Header (draft-ietf-sfc-nsh-01.txt) */
+#define ETHERTYPE_NSH			0x894F	/* Network Service Header (draft-ietf-sfc-nsh-01.txt) */
 #endif
 
 #ifndef ETHERTYPE_LOOP
@@ -579,11 +579,11 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_ROCE
-#define ETHERTYPE_ROCE			0x8915 /* Infiniband RDMA over Converged Ethernet */
+#define ETHERTYPE_ROCE			0x8915	/* Infiniband RDMA over Converged Ethernet */
 #endif
 
 #ifndef ETHERTYPE_BLUECOM
-#define ETHERTYPE_BLUECOM		0x892D /* Bachmann bluecom protocol */
+#define ETHERTYPE_BLUECOM		0x892D	/* Bachmann bluecom protocol */
 #endif
 
 
@@ -594,3 +594,16 @@ WS_DLL_PUBLIC const value_string etype_vals[];
 #endif /* __cplusplus */
 
 #endif /* __ETYPES_H__ */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

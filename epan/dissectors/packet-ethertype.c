@@ -114,11 +114,11 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_RTCFG,                "Real-Time Configuration Protocol" },
 	{ ETHERTYPE_CDMA2000_A10_UBS,     "CDMA2000 A10 Unstructured byte stream" },
 	{ ETHERTYPE_ATMOE,                "ATM over Ethernet" },
-	{ ETHERTYPE_PROFINET,             "PROFINET"},
+	{ ETHERTYPE_PROFINET,             "PROFINET" },
 	{ ETHERTYPE_AOE,                  "ATA over Ethernet" },
 	{ ETHERTYPE_ECATF,                "EtherCAT frame" },
 	{ ETHERTYPE_TELKONET,             "Telkonet powerline" },
-	{ ETHERTYPE_EPL_V2,               "ETHERNET Powerlink v2"	},
+	{ ETHERTYPE_EPL_V2,               "ETHERNET Powerlink v2" },
 	{ ETHERTYPE_XIMETA,               "XiMeta Technology" },
 	{ ETHERTYPE_CSM_ENCAPS,           "CSM_ENCAPS Protocol" },
 	{ ETHERTYPE_IEEE802_OUI_EXTENDED, "IEEE 802a OUI Extended Ethertype" },
@@ -172,12 +172,11 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_WAI,                  "WAI Authentication Protocol" },
 	{ ETHERTYPE_VNTAG,                "VN-Tag" },
 	{ ETHERTYPE_HSR,                  "High-availability Seamless Redundancy (IEC62439 Part 3)" },
-	{ ETHERTYPE_BPQ,                  "AX.25"},
-	{ ETHERTYPE_CMD,                  "CiscoMetaData"},
-	{ ETHERTYPE_XIP,                  "eXpressive Internet Protocol"},
-	{ ETHERTYPE_NWP,                  "Neighborhood Watch Protocol"},
-	{ ETHERTYPE_BLUECOM,              "bluecom Protocol"},
-
+	{ ETHERTYPE_BPQ,                  "AX.25" },
+	{ ETHERTYPE_CMD,                  "CiscoMetaData" },
+	{ ETHERTYPE_XIP,                  "eXpressive Internet Protocol" },
+	{ ETHERTYPE_NWP,                  "Neighborhood Watch Protocol" },
+	{ ETHERTYPE_BLUECOM,              "bluecom Protocol" },
 	{ 0, NULL }
 };
 
