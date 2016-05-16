@@ -177,6 +177,7 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 					4+length, str, "%s (%s): %s", (char*)field_name_str, longname, str);
 				offset += length;
 			} else if (dtype == MANOLITO_INTEGER) {
+				gboolean len_ok = TRUE;
 				guint64 n = 0;
 
 				/* integers can be up to 5 bytes */
@@ -197,11 +198,19 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 				case 1:
 					n = tvb_get_guint8(tvb, offset);
 					break;
+
+				default:
+					len_ok = FALSE;
 				}
 
-				ti = proto_tree_add_uint64_format(manolito_tree, hf_manolito_integer, tvb, start,
-						4+length, n, "%s (%s): %" G_GINT64_MODIFIER "u",
-						(char*)field_name_str, longname, n);
+				if (len_ok) {
+					ti = proto_tree_add_uint64_format(manolito_tree, hf_manolito_integer, tvb, start,
+							4+length, n, "%s (%s): %" G_GINT64_MODIFIER "u",
+							(char*)field_name_str, longname, n);
+				}
+				else {
+					/* XXX - expert info */
+				}
 				offset += length;
 			} else {
 				proto_tree_add_expert_format(manolito_tree, pinfo, &ei_manolito_type,
