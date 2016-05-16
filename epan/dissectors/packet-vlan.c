@@ -39,7 +39,7 @@
 void proto_register_vlan(void);
 void proto_reg_handoff_vlan(void);
 
-static unsigned int q_in_q_ethertype = 0x9100;
+static unsigned int q_in_q_ethertype = ETHERTYPE_QINQ_OLD;
 
 static gboolean vlan_summary_in_tree = TRUE;
 
