@@ -177,6 +177,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_XIP,                  "eXpressive Internet Protocol" },
 	{ ETHERTYPE_NWP,                  "Neighborhood Watch Protocol" },
 	{ ETHERTYPE_BLUECOM,              "bluecom Protocol" },
+	{ ETHERTYPE_QINQ_OLD,             "QinQ: old non-standard 802.1ad" },
 	{ 0, NULL }
 };
 
