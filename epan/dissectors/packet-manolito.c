@@ -46,6 +46,8 @@ static gint ett_manolito = -1;
 
 static expert_field ei_manolito_type = EI_INIT;
 
+#define MANOLITO_STRING  1
+#define MANOLITO_INTEGER 0
 
 static const value_string field_longname[] = {
 	{ 0x4144, "???" },
@@ -77,10 +79,9 @@ static int
 dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissector_data _U_)
 {
 	gint offset = 0;
-
 	proto_item *ti;
 	proto_tree *manolito_tree;
-	const char* packet_type = 0;
+	gchar *packet_type = NULL;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MANOLITO");
 
@@ -135,43 +136,42 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 		/* 2-byte field name */
 		field_name = tvb_get_ntohs(tvb, offset);
 		field_name_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 2, ENC_ASCII);
+		if (!packet_type) {
+			/* Identify the packet based on existing fields */
+			/* Maybe using the options fields is a better idea...*/
+			if (field_name == 0x434b)    /* CK */
+				packet_type = "Search Hit";
+			if (field_name == 0x4e43)    /* NC */
+				packet_type = "User Information";
+			if (field_name == 0x464e)    /* FN - if only field */
+				packet_type = "Search Query";
+			if (field_name == 0x4944)    /* ID ?? search by CK? */
+				packet_type = "Search Query (by hash)";
+			if (field_name == 0x5054)    /* PT */
+				packet_type = "Download Request";
+			if (field_name == 0x4d45)    /* ME */
+				packet_type = "Chat";
+		}
 		offset += 2;
 
-		/* Identify the packet based on existing fields */
-		/* Maybe using the options fields is a better idea...*/
-		if (field_name == 0x434b)    /* CK */
-			packet_type = "Search Hit";
-		if (field_name == 0x4e43)    /* NC */
-			packet_type = "User Information";
-		if (field_name == 0x464e)    /* FN - if only field */
-			packet_type = "Search Query";
-		if (field_name == 0x4944)    /* ID ?? search by CK? */
-			packet_type = "Search Query (by hash)";
-		if (field_name == 0x5054)    /* PT */
-			packet_type = "Download Request";
-		if (field_name == 0x4d45)    /* ME */
-			packet_type = "Chat";
-
 		/* 1-byte data type */
-#define MANOLITO_STRING		1
-#define MANOLITO_INTEGER	0
 		dtype = tvb_get_guint8(tvb, offset);
 		offset++;
 		length = tvb_get_guint8(tvb, offset);
 		offset++;
 
-		if (dtype == MANOLITO_STRING)
-		{
+		if (dtype == MANOLITO_STRING) {
 			guint8 *str;
 
 			str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
 			proto_tree_add_string_format(manolito_tree, hf_manolito_string, tvb, start,
 					4+length, str, "%s (%s): %s",
-					(char*)field_name_str,
+					field_name_str,
 					val_to_str_ext(field_name, &field_longname_ext, "unknown"),
 					str);
 			offset += length;
-		} else if (dtype == MANOLITO_INTEGER) {
+		}
+		else if (dtype == MANOLITO_INTEGER) {
 			gboolean len_ok = TRUE;
 			guint64 n = 0;
 
@@ -201,7 +201,7 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 			if (len_ok) {
 				ti = proto_tree_add_uint64_format(manolito_tree, hf_manolito_integer, tvb, start,
 						4+length, n, "%s (%s): %" G_GINT64_MODIFIER "u",
-						(char*)field_name_str,
+						field_name_str,
 						val_to_str_ext(field_name, &field_longname_ext, "unknown"),
 						n);
 			}
@@ -209,7 +209,8 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 				/* XXX - expert info */
 			}
 			offset += length;
-		} else {
+		}
+		else {
 			proto_tree_add_expert_format(manolito_tree, pinfo, &ei_manolito_type,
 					tvb, start, offset - start, "Unknown type %d", dtype);
 		}
@@ -217,10 +218,9 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 	} while(tvb_reported_length_remaining(tvb, offset));
 
 	if (packet_type)
-	{
 		col_set_str(pinfo->cinfo, COL_INFO, packet_type);
-	}
-	return tvb_captured_length(tvb);
+
+	return offset;
 }
 
 
