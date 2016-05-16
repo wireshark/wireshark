@@ -468,8 +468,14 @@ enum QuicErrorCode {
     QUIC_INVALID_FEC_DATA = 5,
     /* STREAM frame data is malformed. */
     QUIC_INVALID_STREAM_DATA = 46,
+    /* STREAM frame data overlaps with buffered data. */
+    QUIC_OVERLAPPING_STREAM_DATA = 87,
     /* STREAM frame data is not encrypted. */
     QUIC_UNENCRYPTED_STREAM_DATA = 61,
+    /* Attempt to send unencrypted STREAM frame. */
+    QUIC_ATTEMPT_TO_SEND_UNENCRYPTED_STREAM_DATA = 88,
+    /* FEC frame data is not encrypted. */
+    QUIC_UNENCRYPTED_FEC_DATA = 77,
     /* RST_STREAM frame data is malformed. */
     QUIC_INVALID_RST_STREAM_DATA = 6,
     /* CONNECTION_CLOSE frame data is malformed. */
@@ -482,6 +488,8 @@ enum QuicErrorCode {
     QUIC_INVALID_BLOCKED_DATA = 58,
     /* STOP_WAITING frame data is malformed. */
     QUIC_INVALID_STOP_WAITING_DATA = 60,
+    /* PATH_CLOSE frame data is malformed. */
+    QUIC_INVALID_PATH_CLOSE_DATA = 78,
     /* ACK frame data is malformed. */
     QUIC_INVALID_ACK_DATA = 9,
     /* deprecated: */
@@ -506,6 +514,8 @@ enum QuicErrorCode {
     QUIC_INVALID_PRIORITY = 49,
     /* Too many streams already open. */
     QUIC_TOO_MANY_OPEN_STREAMS = 18,
+    /* The peer created too many available streams. */
+    QUIC_TOO_MANY_AVAILABLE_STREAMS = 76,
     /* The peer must send a FIN/RST for each stream, and has not been doing so. */
     QUIC_TOO_MANY_UNFINISHED_STREAMS = 66,
     /* Received public reset for this connection. */
@@ -526,6 +536,8 @@ enum QuicErrorCode {
     QUIC_CONNECTION_OVERALL_TIMED_OUT = 67,
     /* There was an error encountered migrating addresses */
     QUIC_ERROR_MIGRATING_ADDRESS = 26,
+    /* There was an error encountered migrating port only. */
+    QUIC_ERROR_MIGRATING_PORT = 86,
     /* There was an error while writing to the socket. */
     QUIC_PACKET_WRITE_ERROR = 27,
     /* There was an error while reading from the socket. */
@@ -556,6 +568,8 @@ enum QuicErrorCode {
     QUIC_TIMEOUTS_WITH_OPEN_STREAMS = 74,
     /* Closed because we failed to serialize a packet. */
     QUIC_FAILED_TO_SERIALIZE_PACKET = 75,
+    /* QUIC timed out after too many RTOs. */
+    QUIC_TOO_MANY_RTOS = 85,
 
     /* Crypto errors. */
     /* Hanshake failed. */
@@ -612,9 +626,27 @@ enum QuicErrorCode {
     /* This connection involved a version negotiation which appears to have been
        tampered with. */
     QUIC_VERSION_NEGOTIATION_MISMATCH = 55,
-    /* No error.  Used as bound while iterating. */
-    QUIC_LAST_ERROR = 76
+
+    /* Multipath is not enabled, but a packet with multipath flag on is received. */
+    QUIC_BAD_MULTIPATH_FLAG = 79,
+
+    /* IP address changed causing connection close. */
+    QUIC_IP_ADDRESS_CHANGED = 80,
+
+    /* Connection migration errors. */
+    /* Network changed, but connection had no migratable streams. */
+    QUIC_CONNECTION_MIGRATION_NO_MIGRATABLE_STREAMS = 81,
+    /* Connection changed networks too many times. */
+    QUIC_CONNECTION_MIGRATION_TOO_MANY_CHANGES = 82,
+    /* Connection migration was attempted, but there was no new network to migrate to. */
+    QUIC_CONNECTION_MIGRATION_NO_NEW_NETWORK = 83,
+    /* Network changed, but connection had one or more non-migratable streams. */
+    QUIC_CONNECTION_MIGRATION_NON_MIGRATABLE_STREAM = 84,
+
+    /* No error. Used as bound while iterating. */
+    QUIC_LAST_ERROR = 89
 };
+
 
 static const value_string error_code_vals[] = {
     { QUIC_NO_ERROR, "There was no error" },
@@ -695,6 +727,19 @@ static const value_string error_code_vals[] = {
     { QUIC_PUBLIC_RESETS_POST_HANDSHAKE, "Disabled QUIC because of too many PUBLIC_RESETs post handshake" },
     { QUIC_TIMEOUTS_WITH_OPEN_STREAMS, "Disabled QUIC because of too many timeouts with streams open" },
     { QUIC_FAILED_TO_SERIALIZE_PACKET, "Closed because we failed to serialize a packet" },
+    { QUIC_TOO_MANY_AVAILABLE_STREAMS, "The peer created too many available streams" },
+    { QUIC_UNENCRYPTED_FEC_DATA, "FEC frame data is not encrypted" },
+    { QUIC_INVALID_PATH_CLOSE_DATA, "PATH_CLOSE frame data is malformed" },
+    { QUIC_BAD_MULTIPATH_FLAG, "Multipath is not enabled, but a packet with multipath flag on is received" },
+    { QUIC_IP_ADDRESS_CHANGED, "IP address changed causing connection close" },
+    { QUIC_CONNECTION_MIGRATION_NO_MIGRATABLE_STREAMS, "Network changed, but connection had no migratable stream" },
+    { QUIC_CONNECTION_MIGRATION_TOO_MANY_CHANGES, "Connection changed networks too many times" },
+    { QUIC_CONNECTION_MIGRATION_NO_NEW_NETWORK, "Connection migration was attempted, but there was no new network to migrate to" },
+    { QUIC_CONNECTION_MIGRATION_NON_MIGRATABLE_STREAM, "Network changed, but connection had one or more non-migratable streams" },
+    { QUIC_TOO_MANY_RTOS, "QUIC timed out after too many RTOs" },
+    { QUIC_ERROR_MIGRATING_PORT, "There was an error encountered migrating port only" },
+    { QUIC_OVERLAPPING_STREAM_DATA, "STREAM frame data overlaps with buffered data" },
+    { QUIC_ATTEMPT_TO_SEND_UNENCRYPTED_STREAM_DATA, "Attempt to send unencrypted STREAM frame" },
     { QUIC_LAST_ERROR, "No error. Used as bound while iterating" },
     { 0, NULL }
 };
