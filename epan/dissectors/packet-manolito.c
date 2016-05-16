@@ -46,6 +46,33 @@ static gint ett_manolito = -1;
 
 static expert_field ei_manolito_type = EI_INIT;
 
+
+static const value_string field_longname[] = {
+	{ 0x4144, "???" },
+	{ 0x4252, "Bit Rate" },
+	{ 0x434b, "Checksum" },
+	{ 0x434e, "Client Name" },
+	{ 0x4356, "Client Version" },
+	{ 0x4643, "Frequency" },
+	{ 0x464c, "File Length" },
+	{ 0x464e, "Filename" },
+	{ 0x484e, "???" },
+	{ 0x4944, "Identification" },
+	{ 0x4d45, "Message" },
+	{ 0x4e43, "Num. Connections" },
+	{ 0x4e49, "Network ID" },
+	{ 0x4e4e, "Nickname" },
+	{ 0x5054, "Port" },
+	{ 0x5346, "Shared Files" },
+	{ 0x534b, "Shared Kilobytes" },
+	{ 0x534c, "Song Length (s)" },
+	{ 0x5354, "???" },
+	{ 0x564c, "Velocity" },
+	{ 0, NULL }
+};
+static value_string_ext field_longname_ext = VALUE_STRING_EXT_INIT(field_longname);
+
+
 static int
 dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissector_data _U_)
 {
@@ -102,7 +129,6 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 		guint8      length;            /* length */
 		int         start;             /* field starting location */
 		guint8     *field_name_str;
-		const char *longname;          /* human-friendly field name */
 
 		start = offset;
 
@@ -126,32 +152,6 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 		if (field_name == 0x4d45)    /* ME */
 			packet_type = "Chat";
 
-		/* Find the long name of the field */
-		switch(field_name)
-		{
-			case 0x5346: longname = "Shared Files";     break; /* SF */
-			case 0x534b: longname = "Shared Kilobytes"; break; /* SK */
-			case 0x4e49: longname = "Network ID";       break; /* NI */
-			case 0x4e43: longname = "Num. Connections"; break; /* NC */
-			case 0x4356: longname = "Client Version";   break; /* CV */
-			case 0x564c: longname = "Velocity";         break; /* VL */
-			case 0x464e: longname = "Filename";         break; /* FN */
-			case 0x464c: longname = "File Length";      break; /* FL */
-			case 0x4252: longname = "Bit Rate";         break; /* BR */
-			case 0x4643: longname = "Frequency";        break; /* FC */
-			case 0x5354: longname = "???";              break; /* ST */
-			case 0x534c: longname = "Song Length (s)";  break; /* SL */
-			case 0x434b: longname = "Checksum";         break; /* CK */
-			case 0x4e4e: longname = "Nickname";         break; /* NN */
-			case 0x434e: longname = "Client Name";      break; /* CN */
-			case 0x5054: longname = "Port";             break; /* PT */
-			case 0x484e: longname = "???";              break; /* HN */
-			case 0x4d45: longname = "Message";          break; /* ME */
-			case 0x4944: longname = "Identification";   break; /* ID */
-			case 0x4144: longname = "???";              break; /* AD */
-			default:     longname = "unknown";          break;
-		}
-
 		/* 1-byte data type */
 #define MANOLITO_STRING		1
 #define MANOLITO_INTEGER	0
@@ -166,7 +166,10 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 
 			str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
 			proto_tree_add_string_format(manolito_tree, hf_manolito_string, tvb, start,
-					4+length, str, "%s (%s): %s", (char*)field_name_str, longname, str);
+					4+length, str, "%s (%s): %s",
+					(char*)field_name_str,
+					val_to_str_ext(field_name, &field_longname_ext, "unknown"),
+					str);
 			offset += length;
 		} else if (dtype == MANOLITO_INTEGER) {
 			gboolean len_ok = TRUE;
@@ -198,7 +201,9 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 			if (len_ok) {
 				ti = proto_tree_add_uint64_format(manolito_tree, hf_manolito_integer, tvb, start,
 						4+length, n, "%s (%s): %" G_GINT64_MODIFIER "u",
-						(char*)field_name_str, longname, n);
+						(char*)field_name_str,
+						val_to_str_ext(field_name, &field_longname_ext, "unknown"),
+						n);
 			}
 			else {
 				/* XXX - expert info */
