@@ -246,7 +246,9 @@ static gint ett_sip_session_id            = -1;
 static expert_field ei_sip_unrecognized_header = EI_INIT;
 static expert_field ei_sip_header_no_colon = EI_INIT;
 static expert_field ei_sip_header_not_terminated = EI_INIT;
+#if 0
 static expert_field ei_sip_odd_register_response = EI_INIT;
+#endif
 static expert_field ei_sip_sipsec_malformed = EI_INIT;
 
 /* patterns used for tvb_ws_mempbrk_pattern_guint8 */
@@ -1751,13 +1753,18 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
                 (*contacts_expires_0)++;
                 /* it is actually unusual - arguably invalid - for a SIP REGISTER
                  * 200 OK _response_ to contain Contacts with expires=0.
+                 *
+                 * See Bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10364
+                 * Why this warning was removed (3GPP usage, 3GPP TS24.229 )
                  */
+#if 0
                 if (stat_info && stat_info->response_code > 199 && stat_info->response_code < 300) {
                     proto_tree_add_expert_format(tree, pinfo, &ei_sip_odd_register_response,
                         tvb, contact_params_start_offset, current_offset - contact_params_start_offset,
                         "SIP REGISTER %d response contains Contact with expires=0",
                         stat_info->response_code);
                 }
+#endif
             } else {
                 has_expires_param = TRUE;
             }
@@ -6288,7 +6295,9 @@ void proto_register_sip(void)
         { &ei_sip_unrecognized_header, { "sip.unrecognized_header", PI_UNDECODED, PI_NOTE, "Unrecognised SIP header", EXPFILL }},
         { &ei_sip_header_no_colon, { "sip.header_no_colon", PI_MALFORMED, PI_WARN, "Header has no colon after the name", EXPFILL }},
         { &ei_sip_header_not_terminated, { "sip.header_not_terminated", PI_MALFORMED, PI_WARN, "Header not terminated by empty line (CRLF)", EXPFILL }},
+#if 0
         { &ei_sip_odd_register_response, { "sip.response.unusual", PI_RESPONSE_CODE, PI_WARN, "SIP Response is unusual", EXPFILL }},
+#endif
         { &ei_sip_sipsec_malformed, { "sip.sec_mechanism.malformed", PI_MALFORMED, PI_WARN, "SIP Security-mechanism header malformed", EXPFILL }},
     };
 
