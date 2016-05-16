@@ -31,8 +31,8 @@
 void proto_register_manolito(void);
 void proto_reg_handoff_manolito(void);
 
-/* Initialize the protocol and registered fields */
 static int proto_manolito = -1;
+
 static int hf_manolito_checksum = -1;
 static int hf_manolito_seqno = -1;
 static int hf_manolito_src = -1;
@@ -42,23 +42,19 @@ static int hf_manolito_options = -1;
 static int hf_manolito_string = -1;
 static int hf_manolito_integer = -1;
 
-/* Initialize the subtree pointers */
 static gint ett_manolito = -1;
 
 static expert_field ei_manolito_type = EI_INIT;
 
-/* Code to actually dissect the packets */
 static int
 dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissector_data _U_)
 {
 	unsigned int offset;
 
-	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
 	proto_tree *manolito_tree;
 	const char* packet_type = 0;
 
-	/* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MANOLITO");
 
 	ti = proto_tree_add_item(tree, proto_manolito, tvb, 0, -1, ENC_NA);
@@ -229,13 +225,9 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* diss
 }
 
 
-/* Register the protocol with Wireshark */
-
 void
 proto_register_manolito(void)
 {
-
-/* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_manolito_checksum,
 		  { "Checksum",		"manolito.checksum",
@@ -298,10 +290,6 @@ proto_register_manolito(void)
 }
 
 
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_manolito(void)
 {
