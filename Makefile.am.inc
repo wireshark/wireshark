@@ -63,6 +63,10 @@ AM_V_SED = $(am__v_SED_@AM_V@)
 am__v_SED_ = $(am__v_SED_@AM_DEFAULT_V@)
 am__v_SED_0 = @echo "  SED     " $@;
 
+AM_V_LN_S = $(am__v_LN_S_@AM_V@)
+am__v_LN_S_ = $(am__v_LN_S_@AM_DEFAULT_V@)
+am__v_LN_S_0 = @echo "  LN_S    " $@;
+
 # _PYTHON is a reserved automake keyword
 AM_V_python = $(am__v_python_@AM_V@)
 am__v_python_ = $(am__v_python_@AM_DEFAULT_V@)

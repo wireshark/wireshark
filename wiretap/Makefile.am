@@ -87,7 +87,7 @@ ascend.c: $(srcdir)/ascend.y ascend_scanner_lex.h
 	$(AM_V_YACC)$(YACC) -d -p ascend -o ascend.c $(srcdir)/ascend.y
 
 ws_version_info.c: $(top_srcdir)/ws_version_info.c
-	$(LN_S) $<
+	$(AM_V_LN_S)$(LN_S) $<
 
 # ABI compliance checker can be obtained from
 # http://ispras.linux-foundation.org/index.php/ABI_compliance_checker
