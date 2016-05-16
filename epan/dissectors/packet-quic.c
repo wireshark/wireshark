@@ -44,12 +44,15 @@ static int proto_quic = -1;
 static int hf_quic_puflags = -1;
 static int hf_quic_puflags_vrsn = -1;
 static int hf_quic_puflags_rst = -1;
+static int hf_quic_puflags_dnonce = -1;
 static int hf_quic_puflags_cid = -1;
 static int hf_quic_puflags_cid_old = -1;
 static int hf_quic_puflags_pkn = -1;
+static int hf_quic_puflags_mpth = -1;
 static int hf_quic_puflags_rsv = -1;
 static int hf_quic_cid = -1;
 static int hf_quic_version = -1;
+static int hf_quic_diversification_nonce = -1;
 static int hf_quic_packet_number = -1;
 static int hf_quic_prflags = -1;
 static int hf_quic_prflags_entropy = -1;
@@ -183,10 +186,12 @@ typedef struct quic_info_data {
 /**************************************************************************/
 #define PUFLAGS_VRSN    0x01
 #define PUFLAGS_RST     0x02
+#define PUFLAGS_DNONCE  0x04
 #define PUFLAGS_CID     0x08
 #define PUFLAGS_CID_OLD 0x0C
 #define PUFLAGS_PKN     0x30
-#define PUFLAGS_RSV     0xC4
+#define PUFLAGS_MPTH    0x40
+#define PUFLAGS_RSV     0x80
 
 static const true_false_string puflags_cid_tfs = {
     "8 Bytes",
@@ -1674,9 +1679,11 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if(quic_info->version < 33){
         proto_tree_add_item(puflags_tree, hf_quic_puflags_cid_old, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     } else {
+        proto_tree_add_item(puflags_tree, hf_quic_puflags_dnonce, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(puflags_tree, hf_quic_puflags_cid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
     proto_tree_add_item(puflags_tree, hf_quic_puflags_pkn, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(puflags_tree, hf_quic_puflags_mpth, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(puflags_tree, hf_quic_puflags_rsv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
@@ -1725,6 +1732,14 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         return offset;
     }
+
+    /* Diversification Nonce */
+    if(puflags & PUFLAGS_DNONCE && quic_info->version >= 33){
+        proto_tree_add_item(quic_tree, hf_quic_diversification_nonce, tvb, offset, 32, ENC_NA);
+        offset += 32;
+    }
+
+
     /* Packet Number */
 
     /* Get len of packet number (and packet number), may be a more easy function to get the length... */
@@ -1800,10 +1815,15 @@ proto_register_quic(void)
                FT_BOOLEAN, 8, TFS(&tfs_yes_no), PUFLAGS_RST,
               "Signifies that this packet is a public reset packet", HFILL }
         },
+        { &hf_quic_puflags_dnonce,
+            { "Diversification nonce", "quic.puflags.cid",
+               FT_BOOLEAN, 8, TFS(&tfs_yes_no), PUFLAGS_DNONCE,
+              "Indicates the presence of a 32 byte diversification nonce", HFILL }
+        },
         { &hf_quic_puflags_cid,
             { "CID Length", "quic.puflags.cid",
                FT_BOOLEAN, 8, TFS(&puflags_cid_tfs), PUFLAGS_CID,
-              "Signifies the Length of CID", HFILL }
+              "Indicates the full 8 byte Connection ID is present", HFILL }
         },
         { &hf_quic_puflags_cid_old,
             { "CID Length", "quic.puflags.cid",
@@ -1814,6 +1834,11 @@ proto_register_quic(void)
             { "Packet Number Length", "quic.puflags.pkn",
                FT_UINT8, BASE_HEX, VALS(puflags_pkn_vals), PUFLAGS_PKN,
               "Signifies the Length of packet number", HFILL }
+        },
+        { &hf_quic_puflags_mpth,
+            { "Multipath", "quic.puflags.mpth",
+               FT_BOOLEAN, 8, TFS(&tfs_yes_no), PUFLAGS_MPTH,
+              "Reserved for multipath use", HFILL }
         },
         { &hf_quic_puflags_rsv,
             { "Reserved", "quic.puflags.rsv",
@@ -1829,6 +1854,11 @@ proto_register_quic(void)
             { "Version", "quic.version",
                FT_STRING, BASE_NONE, NULL, 0x0,
               "32 bit opaque tag that represents the version of the QUIC", HFILL }
+        },
+        { &hf_quic_diversification_nonce,
+            { "Diversification nonce", "quic.diversification_nonce",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
         },
         { &hf_quic_packet_number,
             { "Packet Number", "quic.packet_number",
