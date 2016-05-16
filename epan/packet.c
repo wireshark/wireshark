@@ -2119,6 +2119,7 @@ register_dissector_table(const char *name, const char *ui_name, const int proto,
 							       &g_free );
 		break;
 	default:
+		g_error("The dissector table %s (%s) is registering an unsupported type - are you using a buggy plugin?", name, ui_name);
 		g_assert_not_reached();
 	}
 	sub_dissectors->dissector_handles = NULL;
