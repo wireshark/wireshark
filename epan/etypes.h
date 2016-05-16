@@ -538,6 +538,10 @@ extern "C" {
 #define ETHERTYPE_RTCFG			0x9022	/* RTnet: Real-Time Configuration Protocol */
 #endif
 
+#ifndef ETHERYPE_QINQ_OLD
+#define ETHERTYPE_QINQ_OLD		0x9100	/* QinQ: old non-standard 802.1ad */
+#endif
+
 #ifndef ETHERTYPE_LLT
 #define ETHERTYPE_LLT			0xCAFE	/* Veritas Low Latency Transport (not officially registered) */
 #endif

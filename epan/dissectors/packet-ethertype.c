@@ -183,6 +183,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_HSR,                  "High-availability Seamless Redundancy (IEC62439 Part 3)" },
 	{ ETHERTYPE_BPQ,                  "AX.25"},
 	{ ETHERTYPE_CMD,                  "CiscoMetaData"},
+	{ ETHERTYPE_QINQ_OLD,             "QinQ: old non-standard 802.1ad" },
 	{ 0, NULL }
 };
 
