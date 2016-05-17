@@ -751,6 +751,100 @@ static const value_string error_code_vals[] = {
 
 static value_string_ext error_code_vals_ext = VALUE_STRING_EXT_INIT(error_code_vals);
 
+/**************************************************************************/
+/*                      Handshake Failure Reason                          */
+/**************************************************************************/
+/* See https://chromium.googlesource.com/chromium/src.git/+/master/net/quic/crypto/crypto_handshake.h */
+
+enum HandshakeFailureReason {
+    HANDSHAKE_OK = 0,
+
+    /* Failure reasons for an invalid client nonce in CHLO. */
+
+    /* The default error value for nonce verification failures from strike register (covers old strike registers and unknown failures). */
+    CLIENT_NONCE_UNKNOWN_FAILURE = 1,
+    /* Client nonce had incorrect length. */
+    CLIENT_NONCE_INVALID_FAILURE = 2,
+    /* Client nonce is not unique. */
+    CLIENT_NONCE_NOT_UNIQUE_FAILURE = 3,
+    /* Client orbit is invalid or incorrect. */
+    CLIENT_NONCE_INVALID_ORBIT_FAILURE = 4,
+    /* Client nonce's timestamp is not in the strike register's valid time range. */
+    CLIENT_NONCE_INVALID_TIME_FAILURE = 5,
+    /* Strike register's RPC call timed out, client nonce couldn't be verified. */
+    CLIENT_NONCE_STRIKE_REGISTER_TIMEOUT = 6,
+    /* Strike register is down, client nonce couldn't be verified. */
+    CLIENT_NONCE_STRIKE_REGISTER_FAILURE = 7,
+
+    /* Failure reasons for an invalid server nonce in CHLO. */
+
+    /* Unbox of server nonce failed. */
+    SERVER_NONCE_DECRYPTION_FAILURE = 8,
+    /* Decrypted server nonce had incorrect length. */
+    SERVER_NONCE_INVALID_FAILURE = 9,
+    /* Server nonce is not unique. */
+    SERVER_NONCE_NOT_UNIQUE_FAILURE = 10,
+    /* Server nonce's timestamp is not in the strike register's valid time range. */
+    SERVER_NONCE_INVALID_TIME_FAILURE = 11,
+    /* The server requires handshake confirmation. */
+    SERVER_NONCE_REQUIRED_FAILURE = 20,
+
+    /* Failure reasons for an invalid server config in CHLO. */
+
+    /* Missing Server config id (kSCID) tag. */
+    SERVER_CONFIG_INCHOATE_HELLO_FAILURE = 12,
+    /* Couldn't find the Server config id (kSCID). */
+    SERVER_CONFIG_UNKNOWN_CONFIG_FAILURE = 13,
+
+    /* Failure reasons for an invalid source-address token. */
+
+    /* Missing Source-address token (kSourceAddressTokenTag) tag. */
+    SOURCE_ADDRESS_TOKEN_INVALID_FAILURE = 14,
+    /* Unbox of Source-address token failed. */
+    SOURCE_ADDRESS_TOKEN_DECRYPTION_FAILURE = 15,
+    /* Couldn't parse the unbox'ed Source-address token. */
+    SOURCE_ADDRESS_TOKEN_PARSE_FAILURE = 16,
+    /* Source-address token is for a different IP address. */
+    SOURCE_ADDRESS_TOKEN_DIFFERENT_IP_ADDRESS_FAILURE = 17,
+    /* The source-address token has a timestamp in the future. */
+    SOURCE_ADDRESS_TOKEN_CLOCK_SKEW_FAILURE = 18,
+    /* The source-address token has expired. */
+    SOURCE_ADDRESS_TOKEN_EXPIRED_FAILURE = 19,
+
+    /* The expected leaf certificate hash could not be validated. */
+    INVALID_EXPECTED_LEAF_CERTIFICATE = 21,
+
+    MAX_FAILURE_REASON = 22
+};
+
+static const value_string handshake_failure_reason_vals[] = {
+    { HANDSHAKE_OK, "Handshake OK" },
+    { CLIENT_NONCE_UNKNOWN_FAILURE, "The default error value for nonce verification failures from strike register (covers old strike registers and unknown failures)" },
+    { CLIENT_NONCE_INVALID_FAILURE, "Client nonce had incorrect length" },
+    { CLIENT_NONCE_NOT_UNIQUE_FAILURE, "Client nonce is not unique" },
+    { CLIENT_NONCE_INVALID_ORBIT_FAILURE, "Client orbit is invalid or incorrect" },
+    { CLIENT_NONCE_INVALID_TIME_FAILURE, "Client nonce's timestamp is not in the strike register's valid time range" },
+    { CLIENT_NONCE_STRIKE_REGISTER_TIMEOUT, "Strike register's RPC call timed out, client nonce couldn't be verified" },
+    { CLIENT_NONCE_STRIKE_REGISTER_FAILURE, "Strike register is down, client nonce couldn't be verified" },
+    { SERVER_NONCE_DECRYPTION_FAILURE, "Unbox of server nonce failed" },
+    { SERVER_NONCE_INVALID_FAILURE, "Decrypted server nonce had incorrect length" },
+    { SERVER_NONCE_NOT_UNIQUE_FAILURE, "Server nonce is not unique" },
+    { SERVER_NONCE_INVALID_TIME_FAILURE, "Server nonce's timestamp is not in the strike register's valid time range" },
+    { SERVER_CONFIG_INCHOATE_HELLO_FAILURE, "Missing Server config id (kSCID) tag" },
+    { SERVER_CONFIG_UNKNOWN_CONFIG_FAILURE, "Couldn't find the Server config id (kSCID)" },
+    { SOURCE_ADDRESS_TOKEN_INVALID_FAILURE, "Missing Source-address token (kSourceAddressTokenTag) tag" },
+    { SOURCE_ADDRESS_TOKEN_DECRYPTION_FAILURE, "Unbox of Source-address token failed" },
+    { SOURCE_ADDRESS_TOKEN_PARSE_FAILURE, "Couldn't parse the unbox'ed Source-address token" },
+    { SOURCE_ADDRESS_TOKEN_DIFFERENT_IP_ADDRESS_FAILURE, "Source-address token is for a different IP address" },
+    { SOURCE_ADDRESS_TOKEN_CLOCK_SKEW_FAILURE, "The source-address token has a timestamp in the future" },
+    { SOURCE_ADDRESS_TOKEN_EXPIRED_FAILURE, "The source-address token has expired" },
+    { SERVER_NONCE_REQUIRED_FAILURE, "The server requires handshake confirmation" },
+    { INVALID_EXPECTED_LEAF_CERTIFICATE, "The expected leaf certificate hash could not be validated" },
+    { 0, NULL }
+};
+static value_string_ext handshake_failure_reason_vals_ext = VALUE_STRING_EXT_INIT(handshake_failure_reason_vals);
+
+
 static guint32 get_len_offset(guint8 frame_type){
     guint32 len;
 
@@ -1156,10 +1250,12 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
                 }
             break;
             case TAG_RREJ:
-                proto_tree_add_item(tag_tree, hf_quic_tag_rrej, tvb, tag_offset_start + tag_offset, 4,  ENC_LITTLE_ENDIAN);
-                proto_item_append_text(ti_tag, ": Code %u", tvb_get_letohl(tvb, tag_offset_start + tag_offset));
-                tag_offset += 4;
-                tag_len -= 4;
+                while(tag_len > 0){
+                    proto_tree_add_item(tag_tree, hf_quic_tag_rrej, tvb, tag_offset_start + tag_offset, 4,  ENC_LITTLE_ENDIAN);
+                    proto_item_append_text(ti_tag, ", Code %s", val_to_str_ext(tvb_get_letohl(tvb, tag_offset_start + tag_offset), &handshake_failure_reason_vals_ext, "Unknown"));
+                    tag_offset += 4;
+                    tag_len -= 4;
+                }
             break;
             case TAG_CRT:
                 proto_tree_add_item(tag_tree, hf_quic_tag_crt, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
@@ -2210,7 +2306,7 @@ proto_register_quic(void)
         },
         { &hf_quic_tag_rrej,
             { "Reasons for server sending", "quic.tag.rrej",
-               FT_UINT32, BASE_DEC, NULL, 0x0,
+               FT_UINT32, BASE_DEC|BASE_EXT_STRING, &handshake_failure_reason_vals_ext, 0x0,
               NULL, HFILL }
         },
         { &hf_quic_tag_crt,
