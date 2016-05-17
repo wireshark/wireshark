@@ -998,9 +998,8 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, guint offset, guint16 len_pkn){
                     len_reason = tvb_get_letohs(tvb, offset);
                     offset += 2;
                     /* Reason Phrase */
-                    offset += len_reason;
-                    /* There is no other data after Connection Close */
-                    if (tvb_captured_length_remaining(tvb, offset) == 0){
+                    /* If length remaining == len_reason, it is Connection Close */
+                    if (tvb_captured_length_remaining(tvb, offset) == len_reason){
                         return TRUE;
                     }
                     }
