@@ -6115,7 +6115,7 @@ static void lbmc_message_build_key(guint32 * key_value, wmem_tree_key_t * key, c
     guint32 val;
 
     key_value[LBMC_MESSAGE_KEY_ELEMENT_CHANNEL_HIGH] = (guint32) ((message->channel >> 32) & 0xffffffff);
-    key_value[LBMC_MESSAGE_KEY_ELEMENT_CHANNEL_LOW] = (guint32) ((message->channel & 0xffffffff) >> 32);
+    key_value[LBMC_MESSAGE_KEY_ELEMENT_CHANNEL_LOW] = (guint32) (message->channel & 0xffffffff);
     memcpy((void *) &val, (const void *) message->addr.data, sizeof(guint32));
     key_value[LBMC_MESSAGE_KEY_ELEMENT_ADDR] = val;
     key_value[LBMC_MESSAGE_KEY_ELEMENT_PORT] = (guint32) message->port;
