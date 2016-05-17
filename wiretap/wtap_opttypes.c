@@ -497,6 +497,21 @@ gboolean wtap_opttype_write_data_uint64(struct wtap_dumper* wdh, wtap_option_typ
     return TRUE;
 }
 
+gboolean wtap_opttype_write_data_uint64_timestamp(struct wtap_dumper* wdh, wtap_option_type* data, int *err)
+{
+    guint32 high, low;
+
+    high = (guint32)(data->uint64val >> 32);
+    low = (guint32)(data->uint64val >> 0);
+    if (!wtap_dump_file_write(wdh, &high, sizeof(guint32), err))
+        return FALSE;
+    wdh->bytes_dumped += 4;
+    if (!wtap_dump_file_write(wdh, &low, sizeof(guint32), err))
+        return FALSE;
+    wdh->bytes_dumped += 4;
+    return TRUE;
+}
+
 int wtap_optionblock_set_option_uint8(wtap_optionblock_t block, guint option_id, guint8 value)
 {
     wtap_optblock_value_t* opt_value = wtap_optionblock_get_option(block, option_id);
@@ -683,8 +698,8 @@ static void nrb_create(wtap_optionblock_t block)
 static void isb_create(wtap_optionblock_t block)
 {
     static wtap_optblock_reg_t comment_option = {"opt_comment", "Optional comment", WTAP_OPTTYPE_STRING, wtap_opttype_write_size_string, wtap_opttype_write_data_string, {0}, {0}};
-    static wtap_optblock_reg_t starttime_option = {"start_time", "Start Time", WTAP_OPTTYPE_UINT64, wtap_opttype_write_uint64_not0, wtap_opttype_write_data_uint64, {0}, {0}};
-    static wtap_optblock_reg_t endtime_option = {"end_time", "End Time", WTAP_OPTTYPE_UINT64, wtap_opttype_write_uint64_not0, wtap_opttype_write_data_uint64, {0}, {0}};
+    static wtap_optblock_reg_t starttime_option = {"start_time", "Start Time", WTAP_OPTTYPE_UINT64, wtap_opttype_write_uint64_not0, wtap_opttype_write_data_uint64_timestamp, {0}, {0}};
+    static wtap_optblock_reg_t endtime_option = {"end_time", "End Time", WTAP_OPTTYPE_UINT64, wtap_opttype_write_uint64_not0, wtap_opttype_write_data_uint64_timestamp, {0}, {0}};
     static wtap_optblock_reg_t rcv_pkt_option = {"recv", "Receive Packets", WTAP_OPTTYPE_UINT64, wtap_opttype_write_uint64_not_minus1, wtap_opttype_write_data_uint64, {0}, {0}};
     static wtap_optblock_reg_t drop_pkt_option = {"drop", "Dropped Packets", WTAP_OPTTYPE_UINT64, wtap_opttype_write_uint64_not_minus1, wtap_opttype_write_data_uint64, {0}, {0}};
     static wtap_optblock_reg_t filteraccept_option = {"filter_accept", "Filter Accept", WTAP_OPTTYPE_UINT64, wtap_opttype_write_uint64_not_minus1, wtap_opttype_write_data_uint64, {0}, {0}};
