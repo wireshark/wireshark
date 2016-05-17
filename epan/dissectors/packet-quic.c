@@ -948,7 +948,7 @@ static guint32 get_len_missing_packet(guint8 frame_type){
 }
 
 
-static gboolean is_quic_unencrypt(tvbuff_t *tvb, guint offset, guint16 len_pkn){
+static gboolean is_quic_unencrypt(tvbuff_t *tvb, guint offset, guint16 len_pkn, quic_info_data_t *quic_info){
     guint8 frame_type;
     guint8 num_ranges, num_revived, num_timestamp;
     guint32 len_stream = 0, len_offset = 0, len_data = 0, len_largest_observed = 1, len_missing_packet = 1;
@@ -961,9 +961,10 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, guint offset, guint16 len_pkn){
     /* Message Authentication Hash */
     offset += 12;
 
-    /* Private Flags */
-    offset += 1;
-
+    if(quic_info->version < 34){ /* No longer Private Flags after Q034 */
+        /* Private Flags */
+        offset += 1;
+    }
 
     while(tvb_reported_length_remaining(tvb, offset) > 0){
 
@@ -1032,8 +1033,10 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, guint offset, guint16 len_pkn){
                     offset += 4;
                 break;
                 case FT_STOP_WAITING:
-                    /* Send Entropy */
-                    offset += 1;
+                    if(quic_info->version < 34){ /* No longer Entropy after Q034 */
+                        /* Send Entropy */
+                        offset += 1;
+                    }
                     /* Least Unacked Delta */
                     offset += len_pkn;
                 break;
@@ -1084,8 +1087,10 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, guint offset, guint16 len_pkn){
                 /* Frame Type */
                 offset += 1;
 
-                /* Received Entropy */
-                offset += 1;
+                if(quic_info->version < 34){ /* No longer Entropy after Q034 */
+                    /* Received Entropy */
+                    offset += 1;
+                }
 
                 /* Largest Observed */
                 offset += len_largest_observed;
@@ -1145,7 +1150,7 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, guint offset, guint16 len_pkn){
 }
 
 static guint32
-dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, guint32 tag_number){
+dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, guint32 tag_number, quic_info_data_t *quic_info){
     guint32 tag_offset_start = offset + tag_number*4*2;
     guint32 tag_offset = 0, total_tag_len = 0;
     gint32 tag_len;
@@ -1243,7 +1248,7 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
                 tag_offset += 4;
                 tag_len -= 4;
 
-                dissect_quic_tag(tvb, pinfo, tag_tree, tag_offset_start + tag_offset, scfg_tag_number);
+                dissect_quic_tag(tvb, pinfo, tag_tree, tag_offset_start + tag_offset, scfg_tag_number, quic_info);
                 tag_offset += tag_len;
                 tag_len -= tag_len;
                 }
@@ -1456,7 +1461,7 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
 }
 
 static int
-dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, guint8 len_pkn){
+dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, guint8 len_pkn, quic_info_data_t *quic_info){
     proto_item *ti, *ti_ft, *ti_ftflags /*, *expert_ti*/;
     proto_tree *ft_tree, *ftflags_tree;
     guint8 frame_type;
@@ -1548,13 +1553,15 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             break;
             case FT_STOP_WAITING:{
                 guint8 send_entropy;
-
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_sw_send_entropy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                send_entropy = tvb_get_guint8(tvb, offset);
-                offset += 1;
+                if(quic_info->version < 34){ /* No longer Entropy after Q034 */
+                    proto_tree_add_item(ft_tree, hf_quic_frame_type_sw_send_entropy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                    send_entropy = tvb_get_guint8(tvb, offset);
+                    proto_item_append_text(ti_ft, " Send Entropy: %u", send_entropy);
+                    offset += 1;
+                }
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_sw_least_unacked_delta, tvb, offset, len_pkn, ENC_LITTLE_ENDIAN);
                 offset += len_pkn;
-                proto_item_append_text(ti_ft, " Send Entropy: %u", send_entropy);
+
                 }
             break;
             case FT_PING: /* No Payload */
@@ -1610,7 +1617,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item(ft_tree, hf_quic_padding, tvb, offset, 2, ENC_NA);
             offset += 2;
 
-            offset = dissect_quic_tag(tvb, pinfo, ft_tree, offset, tag_number);
+            offset = dissect_quic_tag(tvb, pinfo, ft_tree, offset, tag_number, quic_info);
 
         } else if (frame_type & FTFLAGS_ACK) {     /* ACK Flags */
 
@@ -1625,8 +1632,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             len_missing_packet = get_len_missing_packet(frame_type);
             offset += 1;
 
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_received_entropy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            offset += 1;
+            if(quic_info->version < 34){ /* No longer Entropy after Q034 */
+                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_received_entropy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset += 1;
+            }
 
             proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_largest_observed, tvb, offset, len_largest_observed, ENC_LITTLE_ENDIAN);
             offset += len_largest_observed;
@@ -1697,7 +1706,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
 
 static int
-dissect_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, guint8 len_pkn){
+dissect_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint offset, guint8 len_pkn, quic_info_data_t *quic_info){
     proto_item *ti_prflags;
     proto_tree *prflags_tree;
 
@@ -1705,17 +1714,19 @@ dissect_quic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
     proto_tree_add_item(quic_tree, hf_quic_message_authentication_hash, tvb, offset, 12, ENC_NA);
     offset += 12;
 
-    /* Private Flags */
-    ti_prflags = proto_tree_add_item(quic_tree, hf_quic_prflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    prflags_tree = proto_item_add_subtree(ti_prflags, ett_quic_prflags);
-    proto_tree_add_item(prflags_tree, hf_quic_prflags_entropy, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(prflags_tree, hf_quic_prflags_fecg, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(prflags_tree, hf_quic_prflags_fec, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(prflags_tree, hf_quic_prflags_rsv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset +=1;
+    if(quic_info->version < 34){ /* No longer Private Flags after Q034 */
+        /* Private Flags */
+        ti_prflags = proto_tree_add_item(quic_tree, hf_quic_prflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        prflags_tree = proto_item_add_subtree(ti_prflags, ett_quic_prflags);
+        proto_tree_add_item(prflags_tree, hf_quic_prflags_entropy, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(prflags_tree, hf_quic_prflags_fecg, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(prflags_tree, hf_quic_prflags_fec, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(prflags_tree, hf_quic_prflags_rsv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset +=1;
+    }
 
     while(tvb_reported_length_remaining(tvb, offset) > 0){
-        offset = dissect_quic_frame_type(tvb, pinfo, quic_tree, offset, len_pkn);
+        offset = dissect_quic_frame_type(tvb, pinfo, quic_tree, offset, len_pkn, quic_info);
     }
 
     return offset;
@@ -1821,7 +1832,7 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(quic_tree, hf_quic_padding, tvb, offset, 2, ENC_NA);
         offset += 2;
 
-        offset = dissect_quic_tag(tvb, pinfo, quic_tree, offset, tag_number);
+        offset = dissect_quic_tag(tvb, pinfo, quic_tree, offset, tag_number, quic_info);
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Public Reset, CID: %" G_GINT64_MODIFIER "u", cid);
 
@@ -1864,8 +1875,8 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += len_pkn;
 
     /* Unencrypt Message (Handshake or Connection Close...) */
-    if (is_quic_unencrypt(tvb, offset, len_pkn)){
-        offset = dissect_quic_unencrypt(tvb, pinfo, quic_tree, offset, len_pkn);
+    if (is_quic_unencrypt(tvb, offset, len_pkn, quic_info)){
+        offset = dissect_quic_unencrypt(tvb, pinfo, quic_tree, offset, len_pkn, quic_info);
     }else {     /* Payload... (encrypted... TODO FIX !) */
         col_add_str(pinfo->cinfo, COL_INFO, "Payload (Encrypted)");
         proto_tree_add_item(quic_tree, hf_quic_payload, tvb, offset, -1, ENC_NA);
