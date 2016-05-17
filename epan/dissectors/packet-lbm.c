@@ -290,7 +290,7 @@ void lbm_topic_init(void)
 static void lbm_topic_build_key(guint32 * key_value, wmem_tree_key_t * key, guint64 channel, guint32 topic_index)
 {
     key_value[LBM_TOPIC_KEY_ELEMENT_CHANNEL_HIGH] = (guint32) ((channel >> 32) & 0xffffffff);
-    key_value[LBM_TOPIC_KEY_ELEMENT_CHANNEL_LOW] = (guint32) ((channel & 0xffffffff) >> 32);
+    key_value[LBM_TOPIC_KEY_ELEMENT_CHANNEL_LOW] = (guint32) (channel & 0xffffffff);
     key_value[LBM_TOPIC_KEY_ELEMENT_TOPIC_INDEX] = topic_index;
     key[0].length = LBM_TOPIC_KEY_ELEMENT_COUNT;
     key[0].key = key_value;
