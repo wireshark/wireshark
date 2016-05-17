@@ -281,10 +281,12 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, struct _r
     stream_ctx_menu_.addAction(ui->actionSaveGraph);
     ui->forwardTreeWidget->installEventFilter(this);
     ui->forwardTreeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui->forwardTreeWidget->header()->setSortIndicator(0, Qt::AscendingOrder);
     connect(ui->forwardTreeWidget, SIGNAL(customContextMenuRequested(QPoint)),
                 SLOT(showStreamMenu(QPoint)));
     ui->reverseTreeWidget->installEventFilter(this);
     ui->reverseTreeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui->reverseTreeWidget->header()->setSortIndicator(0, Qt::AscendingOrder);
     connect(ui->reverseTreeWidget, SIGNAL(customContextMenuRequested(QPoint)),
                 SLOT(showStreamMenu(QPoint)));
     connect(ui->streamGraph, SIGNAL(mousePress(QMouseEvent*)),
