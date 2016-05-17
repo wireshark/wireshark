@@ -2731,8 +2731,7 @@ static int dissect_2008_16_security_6_1(tvbuff_t *tvb, packet_info *pinfo, proto
         {
             return_data->security_mode = tvb_get_ntohs(start, 1);
             return_data->security_mode_data_length = block_length - 4;
-            return_data->security_mode_data = (guint8 *)wmem_alloc0(wmem_file_scope(), block_length - 4);
-            memcpy(return_data->security_mode_data, tvb_get_ptr(start, 4, block_length - 4), block_length - 4);
+            return_data->security_mode_data = (guint8 *)tvb_memdup(wmem_file_scope(), start, 4, block_length - 4);
         }
     }
 
