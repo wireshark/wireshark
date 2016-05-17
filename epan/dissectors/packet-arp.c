@@ -1494,7 +1494,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
        multicast address nor an all-zero address and if sender IP address
        isn't all zeroes. */
     ip = tvb_get_ipv4(tvb, spa_offset);
-    mac = tvb_get_ptr(tvb, sha_offset, 6);
+    mac = (const guint8*)tvb_memdup(wmem_packet_scope(), tvb, sha_offset, 6);
     if ((mac[0] & 0x01) == 0 && memcmp(mac, mac_allzero, 6) != 0 && ip != 0)
     {
       if (global_arp_register_network_address_binding)
@@ -1518,7 +1518,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 
     ip = tvb_get_ipv4(tvb, tpa_offset);
-    mac = tvb_get_ptr(tvb, tha_offset, 6);
+    mac = (const guint8*)tvb_memdup(wmem_packet_scope(), tvb, tha_offset, 6);
     if ((mac[0] & 0x01) == 0 && memcmp(mac, mac_allzero, 6) != 0 && ip != 0
         && ar_op != ARPOP_REQUEST)
     {
