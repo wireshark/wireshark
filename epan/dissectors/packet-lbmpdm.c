@@ -525,7 +525,7 @@ static int lbmpdm_get_segment_length(tvbuff_t * tvb, int offset, int encoding, i
 static void lbmpdm_definition_build_key(guint32 * key_value, wmem_tree_key_t * key, guint64 channel, guint32 id, guint8 version_major, guint8 version_minor)
 {
     key_value[LBMPDM_DEFINITION_KEY_ELEMENT_CHANNEL_HIGH] = (guint32) ((channel >> 32) & 0xffffffff);
-    key_value[LBMPDM_DEFINITION_KEY_ELEMENT_CHANNEL_LOW] = (guint32) ((channel & 0xffffffff) >> 32);
+    key_value[LBMPDM_DEFINITION_KEY_ELEMENT_CHANNEL_LOW] = (guint32) (channel & 0xffffffff);
     key_value[LBMPDM_DEFINITION_KEY_ELEMENT_ID] = id;
     key_value[LBMPDM_DEFINITION_KEY_ELEMENT_VERS_MAJOR] = version_major;
     key_value[LBMPDM_DEFINITION_KEY_ELEMENT_VERS_MINOR] = version_minor;
