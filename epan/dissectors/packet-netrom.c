@@ -451,23 +451,23 @@ static void
 dissect_netrom_routing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	tvbuff_t *next_tvb;
+	const guint8* mnemonic;
+	gint mnemonic_len;
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "NET/ROM");
 	col_set_str( pinfo->cinfo, COL_INFO, "routing table frame");
 
 	if (tree)
-		{
+	{
 		proto_item *ti;
 		proto_tree *netrom_tree;
-		ti = proto_tree_add_protocol_format( tree, proto_netrom, tvb, 0, -1,
-			"NET/ROM, routing table frame, Node: %.6s",
-			tvb_get_ptr( tvb,  1, 6 )
-			 );
-
+		ti = proto_tree_add_item( tree, proto_netrom, tvb, 0, -1, ENC_NA);
 		netrom_tree = proto_item_add_subtree( ti, ett_netrom );
 
-		proto_tree_add_item( netrom_tree, hf_netrom_mnemonic, tvb, 1, 6, ENC_ASCII|ENC_NA );
-		}
+		proto_tree_add_item_ret_string_and_length(netrom_tree, hf_netrom_mnemonic, tvb, 1, 6, ENC_ASCII|ENC_NA,
+													wmem_packet_scope(), &mnemonic, &mnemonic_len);
+		proto_item_append_text(ti, ", routing table frame, Node: %.6s", mnemonic);
+	}
 
 	next_tvb = tvb_new_subset_remaining(tvb, 7);
 

@@ -2737,7 +2737,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
                 while (num_of_addr--) {
                     memset(addr, 0, sizeof(addr));
-                    memcpy(addr + compr, tvb_get_ptr(tvb, opt_offset, addr_len), addr_len);
+                    tvb_memcpy(tvb, addr + compr, opt_offset, addr_len);
                     proto_tree_add_ipv6(flag_tree, hf_icmpv6_rpl_opt_route_discovery_addr_vec_addr, tvb, opt_offset, addr_len, (struct e_in6_addr *)addr);
                     opt_offset += addr_len;
                 }
