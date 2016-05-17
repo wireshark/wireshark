@@ -91,10 +91,10 @@ static int hf_quic_frame_type_ack_ll = -1;
 static int hf_quic_frame_type_ack_mm = -1;
 static int hf_quic_frame_type_ack_received_entropy = -1;
 static int hf_quic_frame_type_ack_largest_observed = -1;
-static int hf_quic_frame_type_ack_largest_observed_delta_time = -1;
+static int hf_quic_frame_type_ack_ack_delay_time = -1;
 static int hf_quic_frame_type_ack_num_timestamp = -1;
 static int hf_quic_frame_type_ack_delta_largest_observed = -1;
-static int hf_quic_frame_type_ack_time_since_largest_observed = -1;
+static int hf_quic_frame_type_ack_first_timestamp = -1;
 static int hf_quic_frame_type_ack_time_since_previous_timestamp = -1;
 static int hf_quic_frame_type_ack_num_ranges = -1;
 static int hf_quic_frame_type_ack_missing_packet = -1;
@@ -997,7 +997,7 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, guint offset, guint16 len_pkn){
                 /* Largest Observed */
                 offset += len_largest_observed;
 
-                /* Largest Observed Delta Time */
+                /* Ack Delay Time */
                 offset += 2;
 
                 /* Num Timestamp */
@@ -1011,7 +1011,7 @@ static gboolean is_quic_unencrypt(tvbuff_t *tvb, guint offset, guint16 len_pkn){
                     /* Delta Largest Observed */
                     offset += 1;
 
-                    /* Time Since Previous Timestamp */
+                    /* First Timestamp */
                     offset += 4;
 
                     /* Num Timestamp (-1)x (Delta Largest Observed + Time Since Largest Observed) */
@@ -1536,7 +1536,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_largest_observed, tvb, offset, len_largest_observed, ENC_LITTLE_ENDIAN);
             offset += len_largest_observed;
 
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_largest_observed_delta_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_ack_delay_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
             proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_num_timestamp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1549,8 +1549,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_delta_largest_observed, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
-                /* Time Since Previous Timestamp */
-                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_time_since_largest_observed, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                /* First Timestamp */
+                proto_tree_add_item(ft_tree, hf_quic_frame_type_ack_first_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
 
                 num_timestamp -= 1;
@@ -2053,8 +2053,8 @@ proto_register_quic(void)
                FT_UINT64, BASE_DEC, NULL, 0x0,
               "Representing the largest packet number the peer has observed", HFILL }
         },
-        { &hf_quic_frame_type_ack_largest_observed_delta_time,
-            { "Largest Observed Delta time", "quic.frame_type.ack.largest_observed_delta_time",
+        { &hf_quic_frame_type_ack_ack_delay_time,
+            { "Ack Delay time", "quic.frame_type.ack.ack_delay_time",
                FT_UINT16, BASE_DEC, NULL, 0x0,
               "Specifying the time elapsed in microseconds from when largest observed was received until this Ack frame was sent", HFILL }
         },
@@ -2068,10 +2068,10 @@ proto_register_quic(void)
                FT_UINT16, BASE_DEC, NULL, 0x0,
               "Specifying the packet number delta from the first timestamp to the largest observed", HFILL }
         },
-        { &hf_quic_frame_type_ack_time_since_largest_observed,
-            { "Time since Largest Observed", "quic.frame_type.ack.time_since_largest_observed",
+        { &hf_quic_frame_type_ack_first_timestamp,
+            { "First Timestamp", "quic.frame_type.ack.first_timestamp",
                FT_UINT32, BASE_DEC, NULL, 0x0,
-              "This is the time delta in microseconds from the time the receiver's packet framer was created", HFILL }
+              "Specifying the time delta in microseconds, from the beginning of the connection of the arrival of the packet specified by Largest Observed minus Delta Largest Observed", HFILL }
         },
         { &hf_quic_frame_type_ack_time_since_previous_timestamp,
             { "Time since Previous timestamp", "quic.frame_type.ack.time_since_previous_timestamp",
