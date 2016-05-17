@@ -2224,8 +2224,6 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8
     proto_tree *        mesh_tree;
     proto_tree *        flag_tree;
     proto_item *        ti;
-    const guint8 *      src_ifcid;
-    const guint8 *      dst_ifcid;
 
     ieee802154_hints_t  *hints;
 
@@ -2255,9 +2253,11 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8
         proto_tree_add_item(mesh_tree, hf_6lowpan_mesh_orig64,
                 tvb, offset, 8, ENC_BIG_ENDIAN);
 
-        src_ifcid = tvb_get_ptr(tvb, offset, 8);
+        set_address_tvb(&pinfo->src, AT_EUI64, 8, tvb, offset);
+        copy_address_shallow(&pinfo->net_src, &pinfo->src);
+
         /* Update source IID */
-        memcpy(siid, src_ifcid, LOWPAN_IFC_ID_LEN);
+        tvb_memcpy(tvb, siid, offset, LOWPAN_IFC_ID_LEN);
         /* RFC2464: Invert the U/L bit when using an EUI64 address. */
         siid[0] ^= 0x02;
         offset += 8;
@@ -2280,22 +2280,24 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8
             lowpan_addr16_to_ifcid(addr16, ifcid);
         }
 
-        src_ifcid = ifcid;
+        set_address(&pinfo->src,  AT_EUI64, 8, ifcid);
+        copy_address_shallow(&pinfo->net_src, &pinfo->src);
+
         /* Update source IID */
-        memcpy(siid, src_ifcid, LOWPAN_IFC_ID_LEN);
+        memcpy(siid, ifcid, LOWPAN_IFC_ID_LEN);
         offset += 2;
     }
-    set_address(&pinfo->src,  AT_EUI64, 8, src_ifcid);
-    set_address(&pinfo->net_src,  AT_EUI64, 8, src_ifcid);
 
     /* Get and display the destination address. */
     if (!(mesh_header & LOWPAN_MESH_HEADER_F)) {
         proto_tree_add_item(mesh_tree, hf_6lowpan_mesh_dest64,
                 tvb, offset, 8, ENC_BIG_ENDIAN);
 
-        dst_ifcid = tvb_get_ptr(tvb, offset, 8);
+        set_address_tvb(&pinfo->dst, AT_EUI64, 8, tvb, offset);
+        copy_address_shallow(&pinfo->net_dst, &pinfo->dst);
+
         /* Update destination IID */
-        memcpy(diid, dst_ifcid, LOWPAN_IFC_ID_LEN);
+        tvb_memcpy(tvb, diid, offset, LOWPAN_IFC_ID_LEN);
         /* RFC2464: Invert the U/L bit when using an EUI64 address. */
         diid[0] ^= 0x02;
         offset += 8;
@@ -2319,13 +2321,13 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8
             lowpan_addr16_to_ifcid(addr16, ifcid);
         }
 
-        dst_ifcid = ifcid;
+        set_address(&pinfo->dst,  AT_EUI64, 8, ifcid);
+        copy_address_shallow(&pinfo->net_dst, &pinfo->dst);
+
         /* Update destination IID */
-        memcpy(diid, dst_ifcid, LOWPAN_IFC_ID_LEN);
+        memcpy(diid, ifcid, LOWPAN_IFC_ID_LEN);
         offset += 2;
     }
-    set_address(&pinfo->dst,  AT_EUI64, 8, dst_ifcid);
-    set_address(&pinfo->net_dst,  AT_EUI64, 8, dst_ifcid);
 
     /* Adjust the mesh header length. */
     proto_item_set_end(ti, tvb, offset);
