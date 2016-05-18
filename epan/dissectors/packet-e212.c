@@ -1062,6 +1062,7 @@ static const value_string mcc_mnc_codes[] = {
     {  240670, "shared use for test purpose" },
     {  240680, "shared use for test purpose" },
     {  240690, "crisis management after determination by the Swedish Post- and Telecom Authority" },
+    {  240990, "Unassigned(May be used for test purposes)" }, /* Used in lab network */
     {  242010, "Telenor Norge AS" },
     {  242020, "NetCom AS" },
     {  242030, "Teletopia Gruppen AS" },
