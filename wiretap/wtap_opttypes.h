@@ -33,7 +33,7 @@ typedef enum {
     WTAP_OPTION_BLOCK_IF_STATS,
     WTAP_OPTION_BLOCK_NG_SECTION,
     WTAP_OPTION_BLOCK_NG_NRB,
-    WTAP_OPTION_BLOCK_MAX_TYPE
+    WTAP_OPTION_BLOCK_END_OF_LIST
 } wtap_optionblock_type_t;
 
 /* Currently supported option types */
@@ -69,6 +69,11 @@ typedef union {
 
 struct wtap_dumper;
 
+typedef void (*wtap_block_create_func)(wtap_optionblock_t block);
+typedef void (*wtap_mand_free_func)(wtap_optionblock_t block);
+typedef void (*wtap_mand_copy_func)(wtap_optionblock_t dest_block, wtap_optionblock_t src_block);
+typedef gboolean (*wtap_write_func)(struct wtap_dumper *wdh, wtap_optionblock_t block, int *err);
+
 typedef guint32 (*wtap_opttype_option_write_size)(wtap_option_type* data); /**< does the option have data worth writing (Ex string option != NULL */
 typedef gboolean (*wtap_opttype_option_write)(struct wtap_dumper* wdh, wtap_option_type* data, int *err); /**< does the option have data worth writing (Ex string option != NULL */
 
@@ -97,7 +102,7 @@ void wtap_opttypes_initialize(void);
  * @param[in] block_type Option block type to be created
  * @return Newly allocated option block
  */
-WS_DLL_PUBLIC wtap_optionblock_t wtap_optionblock_create(wtap_optionblock_type_t block_type);
+WS_DLL_PUBLIC wtap_optionblock_t wtap_optionblock_create(int block_type);
 
 /** Free an option block
  *
@@ -230,6 +235,10 @@ guint32 wtap_opttype_write_uint64_not0(wtap_option_type* data);
 /* if option value = -1 (0xFFFFFFFFFFFFFFFF), write size = 0, otherwise 8 */
 guint32 wtap_opttype_write_uint64_not_minus1(wtap_option_type* data);
 gboolean wtap_opttype_write_data_uint64(struct wtap_dumper* wdh, wtap_option_type* data, int *err);
+
+WS_DLL_PUBLIC int wtap_opttype_register_custom_block_type(const char* name, const char* description, wtap_block_create_func create,
+                                                wtap_write_func write_func, wtap_mand_free_func free_mand, wtap_mand_copy_func copy_mand);
+
 
 #endif /* WTAP_OPT_TYPES_H */
 

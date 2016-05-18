@@ -35,11 +35,6 @@
 #define wtap_debug(...)
 #endif
 
-typedef void (*wtap_block_create_func)(wtap_optionblock_t block);
-typedef void (*wtap_mand_free_func)(wtap_optionblock_t block);
-typedef void (*wtap_mand_copy_func)(wtap_optionblock_t dest_block, wtap_optionblock_t src_block);
-typedef gboolean (*wtap_write_func)(struct wtap_dumper *wdh, wtap_optionblock_t block, int *err);
-
 typedef struct wtap_opt_register
 {
     const char *name;                /**< name of block */
@@ -73,13 +68,18 @@ struct wtap_optionblock
     GArray* option_values;
 };
 
+#define MAX_WTAP_OPTION_BLOCK_CUSTOM    10
+#define MAX_WTAP_OPTION_BLOCK_TYPE_VALUE (WTAP_OPTION_BLOCK_END_OF_LIST+MAX_WTAP_OPTION_BLOCK_CUSTOM)
+
 /* Keep track of wtap_opt_register_t's via their id number */
-static wtap_opt_register_t* block_list[WTAP_OPTION_BLOCK_MAX_TYPE];
+static wtap_opt_register_t* block_list[MAX_WTAP_OPTION_BLOCK_TYPE_VALUE];
+static guint num_custom_blocks;
+static wtap_opt_register_t custom_block_list[MAX_WTAP_OPTION_BLOCK_CUSTOM];
 
 static void wtap_opttype_block_register(int block_type, wtap_opt_register_t *block)
 {
     /* Check input */
-    g_assert(block_type < WTAP_OPTION_BLOCK_MAX_TYPE);
+    g_assert(block_type < WTAP_OPTION_BLOCK_END_OF_LIST);
 
     /* Don't re-register. */
     g_assert(block_list[block_type] == NULL);
@@ -90,6 +90,33 @@ static void wtap_opttype_block_register(int block_type, wtap_opt_register_t *blo
     g_assert(block->create);
 
     block_list[block_type] = block;
+}
+
+int wtap_opttype_register_custom_block_type(const char* name, const char* description, wtap_block_create_func create,
+                                                wtap_write_func write_func, wtap_mand_free_func free_mand, wtap_mand_copy_func copy_mand)
+{
+    int block_type;
+
+    /* Ensure valid data/functions for required fields */
+    g_assert(name);
+    g_assert(description);
+    g_assert(create);
+
+    /* This shouldn't happen, so flag it for fixing */
+    g_assert(num_custom_blocks < MAX_WTAP_OPTION_BLOCK_CUSTOM);
+
+    block_type = WTAP_OPTION_BLOCK_END_OF_LIST+num_custom_blocks;
+
+    custom_block_list[num_custom_blocks].name = name;
+    custom_block_list[num_custom_blocks].description = description;
+    custom_block_list[num_custom_blocks].create = create;
+    custom_block_list[num_custom_blocks].write = write_func;
+    custom_block_list[num_custom_blocks].free_mand = free_mand;
+    custom_block_list[num_custom_blocks].copy_mand = copy_mand;
+    block_list[block_type] = &custom_block_list[num_custom_blocks];
+
+    num_custom_blocks++;
+    return block_type;
 }
 
 void* wtap_optionblock_get_mandatory_data(wtap_optionblock_t block)
@@ -112,11 +139,11 @@ static wtap_optblock_value_t* wtap_optionblock_get_option(wtap_optionblock_t blo
     return NULL;
 }
 
-wtap_optionblock_t wtap_optionblock_create(wtap_optionblock_type_t block_type)
+wtap_optionblock_t wtap_optionblock_create(int block_type)
 {
     wtap_optionblock_t block;
 
-    if (block_type >= WTAP_OPTION_BLOCK_MAX_TYPE)
+    if (block_type >= (int)(WTAP_OPTION_BLOCK_END_OF_LIST+num_custom_blocks))
         return NULL;
 
     block = g_new(struct wtap_optionblock, 1);
@@ -1026,9 +1053,10 @@ void wtap_opttypes_initialize(void)
         idb_copy_mand,      /* copy_mand */
     };
 
-    /* Initialize the block array.  This is mostly for future proofing
+    /* Initialize the custom block array.  This is for future proofing
        "outside registered" block types (for NULL checking) */
-    memset(block_list, 0, WTAP_OPTION_BLOCK_MAX_TYPE*sizeof(wtap_opt_register_t*));
+    memset(block_list, 0, MAX_WTAP_OPTION_BLOCK_TYPE_VALUE*sizeof(wtap_opt_register_t*));
+    num_custom_blocks = 0;
 
     wtap_opttype_block_register(WTAP_OPTION_BLOCK_NG_SECTION, &shb_block );
     wtap_opttype_block_register(WTAP_OPTION_BLOCK_NG_NRB, &nrb_block );
