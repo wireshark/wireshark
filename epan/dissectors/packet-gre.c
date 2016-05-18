@@ -122,6 +122,7 @@ const value_string gre_typevals[] = {
     { GRE_KEEPALIVE,       "Possible GRE keepalive packet" },
     { ETHERTYPE_PPP,       "PPP" },
     { ETHERTYPE_IP,        "IP" },
+    { ETHERTYPE_ARP,       "ARP" },
     { SAP_OSINL5,          "OSI"},
     { GRE_WCCP,            "WCCP"},
     { GRE_NHRP,            "NHRP"},
