@@ -869,6 +869,22 @@ static const value_string bthci_cmd_ocf_low_energy_vals[] = {
     { 0x01D,  "LE Receiver Test" },
     { 0x01E,  "LE Transmitter Test" },
     { 0x01F,  "LE Test End" },
+    { 0x020,  "LE Remote Connection Parameter Request Reply" },
+    { 0x021,  "LE Remote Connection Parameter Request Negative Reply" },
+    { 0x022,  "LE Set Data Length" },
+    { 0x023,  "LE Read Suggested Default Data Length" },
+    { 0x024,  "LE Write Suggested Default Data Length" },
+    { 0x025,  "LE Read Local P-256 Public Key" },
+    { 0x026,  "LE Generate DHKey" },
+    { 0x027,  "LE Add Device to Resolving List" },
+    { 0x028,  "LE Remove Device From Resolving List" },
+    { 0x029,  "LE Clear Resolving List" },
+    { 0x02A,  "LE Read Resolving List Size" },
+    { 0x02B,  "LE Read Peer Resolvable Address" },
+    { 0x02C,  "LE Read Local Resolvable Address" },
+    { 0x02D,  "LE Set Address Resolution Enable" },
+    { 0x02E,  "LE Set Resolvable Private Address Timeout" },
+    { 0x02F,  "LE Read Maximum Data Length" },
     { 0, NULL }
 };
 value_string_ext bthci_cmd_ocf_low_energy_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_ocf_low_energy_vals);
