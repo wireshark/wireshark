@@ -4531,12 +4531,12 @@ proto_register_pcep(void)
         },
         { &hf_pcep_subobj_pksv4_l,
           { "L", "pcep.subobj.pksv4.l",
-            FT_UINT8, BASE_DEC, VALS(pcep_route_l_obj_vals), 0x0,
+            FT_UINT8, BASE_DEC, VALS(pcep_route_l_obj_vals), Mask_L,
             NULL, HFILL }
         },
         { &hf_pcep_subobj_pksv6_l,
           { "L", "pcep.subobj.pksv6.l",
-            FT_UINT8, BASE_DEC, VALS(pcep_route_l_obj_vals), 0x0,
+            FT_UINT8, BASE_DEC, VALS(pcep_route_l_obj_vals), Mask_L,
             NULL, HFILL }
         },
         { &hf_pcep_no_path_obj_nature_of_issue,
