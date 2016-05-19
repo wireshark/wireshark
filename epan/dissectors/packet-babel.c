@@ -68,7 +68,13 @@ static gint ett_subtree = -1;
 #define MESSAGE_UPDATE      8
 #define MESSAGE_REQUEST     9
 #define MESSAGE_MH_REQUEST 10
+#define MESSAGE_TS_PC      11
+#define MESSAGE_HMAC       12
+#define MESSAGE_SRC_UPDATE 13
+#define MESSAGE_SRC_REQUEST 14
+#define MESSAGE_SRC_SEQNO  15
 
+/** message string values listed in rfc7557 */
 static const value_string messages[] = {
     { MESSAGE_PAD1,       "pad1"},
     { MESSAGE_PADN,       "padn"},
@@ -81,8 +87,14 @@ static const value_string messages[] = {
     { MESSAGE_UPDATE,     "update"},
     { MESSAGE_REQUEST,    "request"},
     { MESSAGE_MH_REQUEST, "mh-request"},
+    { MESSAGE_TS_PC,      "ts/pc"},
+    { MESSAGE_HMAC,       "hmac" },
+    { MESSAGE_SRC_UPDATE, "source-specific-update"},
+    { MESSAGE_SRC_REQUEST,"source-specific-req"},
+    { MESSAGE_SRC_SEQNO,  "source-specific-seqno"},
     { 0, NULL}
 };
+
 
 static const value_string aes[] = {
     { 0, "Wildcard" },
