@@ -94,9 +94,9 @@ If a selected packet field does not show all the bytes (i.e. they are truncated
 when displayed) or if they are shown as bytes rather than string or if they require
 more formatting because they contain an image or HTML then this dialog can be used.
 
-This dialog can also be used to decode field bytes from base64 or zlib compressed
-and show the decoded bytes as configurable output.  It's also possible to select
-a subset of bytes setting the start byte and end byte.
+This dialog can also be used to decode field bytes from base64, zlib compressed
+or quoted-printable and show the decoded bytes as configurable output.
+It's also possible to select a subset of bytes setting the start byte and end byte.
 
 You can choose from the following actions:
 
@@ -121,6 +121,8 @@ You can choose to decode the data from one of the following formats:
 . __Base64__: This will decode from Base64.
 
 . __Compressed__: This will decompress the buffer using zlib.
+
+. __Quoted-Printable__: This will decode from a Quoted-Printable string.
 
 ==== Show as
 
