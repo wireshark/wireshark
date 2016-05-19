@@ -33,7 +33,8 @@ NONGENERATED_REGISTER_C_FILES = \
 	packet-pn-mrp.c \
 	packet-pn-mrrt.c \
 	packet-pn-ptcp.c \
-	packet-pn-rt.c
+	packet-pn-rt.c \
+	packet-pn-rtc-one.c
 
 # Non-generated sources
 NONGENERATED_C_FILES = \

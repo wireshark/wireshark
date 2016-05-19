@@ -21,22 +21,42 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * Cyclic PNIO RTC1 Data Dissection:
+ *
+ * Added new functions to packet-pn-dcp.c. The profinet plug-in will now save
+ * the information (Stationname, -type, -id)  of "Ident OK" frames. Those
+ * informations will later be used for detailled dissection of cyclic PNIO RTC1
+ * dataframes.
+ *
+ * The declaration of the new added structures are within packet-pn.h to
+ * use the information within packet-pn-rtc-one.c
+ *
+ * Overview for cyclic PNIO RTC1 data dissection functions:
+ *   -> dissect_PNDCP_Suboption_Device (Save Stationname, -type, -id)
+ */
+
+
 #include "config.h"
 
 #include <string.h>
 
+#include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/to_str.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
-#include <epan/dissectors/packet-dcerpc.h>
+#include <epan/conversation.h>
 
 #include "packet-pn.h"
+
 
 void proto_register_pn_dcp(void);
 void proto_reg_handoff_pn_dcp(void);
 
-static int proto_pn_dcp = -1;
+int proto_pn_dcp = -1;
 
 static int hf_pn_dcp_service_id = -1;
 static int hf_pn_dcp_service_type = -1;
@@ -94,7 +114,6 @@ static gint ett_pn_dcp_block = -1;
 
 static expert_field ei_pn_dcp_block_error_unknown = EI_INIT;
 static expert_field ei_pn_dcp_ip_conflict = EI_INIT;
-
 
 #define PNDCP_SERVICE_ID_GET        0x03
 #define PNDCP_SERVICE_ID_SET        0x04
@@ -483,7 +502,8 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint8    device_instance_low;
     guint16   oem_vendor_id;
     guint16   oem_device_id;
-
+    conversation_t    *conversation;
+    stationInfo       *station_info;
 
     /* SuboptionDevice... */
     offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_device, &suboption);
@@ -523,8 +543,28 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                    val_to_str(block_info, pn_dcp_block_info, "Unknown"));
         }
         proto_item_append_text(block_item, ", DeviceVendorValue: \"%s\"", typeofstation);
+
+
+        if (pinfo->fd->flags.visited == FALSE) {
+            /* Create a conversation between the MAC addresses */
+            conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
+            if (conversation == NULL) {
+                conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
+            }
+
+            station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
+            if (station_info == NULL) {
+                station_info = wmem_new0(wmem_file_scope(), stationInfo);
+                init_pnio_rtc1_station(station_info);
+                conversation_add_proto_data(conversation, proto_pn_dcp, station_info);
+            }
+
+            station_info->typeofstation = wmem_strdup(wmem_file_scope(), typeofstation);
+        }
+
         offset += block_length;
         break;
+
     case PNDCP_SUBOPTION_DEVICE_NAMEOFSTATION:
         nameofstation = (char *)wmem_alloc(wmem_packet_scope(), block_length+1);
         tvb_memcpy(tvb, (guint8 *) nameofstation, offset, block_length);
@@ -541,11 +581,51 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                    val_to_str(block_info, pn_dcp_block_info, "Unknown"));
         }
         proto_item_append_text(block_item, ", \"%s\"", nameofstation);
+
+
+        if (pinfo->fd->flags.visited == FALSE) {
+            /* Create a conversation between the MAC addresses */
+            conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
+            if (conversation == NULL) {
+                conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
+            }
+
+            station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
+            if (station_info == NULL) {
+                station_info = wmem_new0(wmem_file_scope(), stationInfo);
+                init_pnio_rtc1_station(station_info);
+                conversation_add_proto_data(conversation, proto_pn_dcp, station_info);
+            }
+
+            station_info->nameofstation = wmem_strdup(wmem_file_scope(), nameofstation);
+        }
+
         offset += block_length;
         break;
+
     case PNDCP_SUBOPTION_DEVICE_DEV_ID:
         offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_vendor_id, &vendor_id);
         offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_device_id, &device_id);
+
+        if (pinfo->fd->flags.visited == FALSE) {
+            /* Create a conversation between the MAC addresses */
+            conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
+            if (conversation == NULL) {
+                conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
+            }
+
+            station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
+            if (station_info == NULL) {
+                station_info = wmem_new0(wmem_file_scope(), stationInfo);
+                init_pnio_rtc1_station(station_info);
+                conversation_add_proto_data(conversation, proto_pn_dcp, station_info);
+            }
+
+            station_info->u16Vendor_id = vendor_id;
+            station_info->u16Device_id = device_id;
+        }
+
+
         pn_append_info(pinfo, dcp_item, ", Dev-ID");
         proto_item_append_text(block_item, "Device/Device ID");
         if (have_block_qualifier) {

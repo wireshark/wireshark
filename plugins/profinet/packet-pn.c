@@ -27,6 +27,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/wmem/wmem.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
 #include "packet-pn.h"
@@ -41,6 +42,16 @@ static int hf_pn_frag_bytes = -1;
 static int hf_pn_malformed = -1;
 
 static expert_field ei_pn_undecoded_data = EI_INIT;
+
+/* Initialize PNIO RTC1 stationInfo memory */
+void
+init_pnio_rtc1_station(stationInfo *station_info) {
+    station_info->iocs_data_in = wmem_list_new(wmem_file_scope());
+    station_info->iocs_data_out = wmem_list_new(wmem_file_scope());
+    station_info->ioobject_data_in = wmem_list_new(wmem_file_scope());
+    station_info->ioobject_data_out = wmem_list_new(wmem_file_scope());
+    station_info->diff_module = wmem_list_new(wmem_file_scope());
+}
 
 /* dissect an 8 bit unsigned integer */
 int

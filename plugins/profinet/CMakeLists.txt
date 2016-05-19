@@ -33,6 +33,7 @@ set(DISSECTOR_SRC
 	packet-pn-mrrt.c
 	packet-pn-ptcp.c
 	packet-pn-rt.c
+	packet-pn-rtc-one.c
 )
 
 set(DISSECTOR_SUPPORT_SRC

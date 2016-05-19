@@ -42,22 +42,59 @@
  * Please note: the PROFINET CBA protocol is independent of the PN-IO protocol!
  */
 
+/*
+ * Cyclic PNIO RTC1 Data Dissection:
+ *
+ * To dissect cyclic PNIO RTC1 frames, this plug-in has to collect important module
+ * information out of "Ident OK", "Connect Request" and "Write Response"
+ * frames first. This information will be used within "packet-pn-rtc-one.c" to
+ * dissect PNIO and PROFIsafe RTC1 frames.
+ *
+ * The data of Stationname-, -type and -id will be gained out of
+ * packet-pn-dcp.c. The header packet-pn.h will save those data.
+ *
+ * Overview for cyclic PNIO RTC1 data dissection functions:
+ *   -> dissect_IOCRBlockReq_block     (Save amount of IODataObjects, IOCS)
+ *   -> dissect_DataDescription        (Save important values for cyclic data)
+ *   -> dissect_ExpectedSubmoduleBlockReq_block    (Get GSD information)
+ *   -> dissect_ModuleDiffBlock_block  (Module has different ID)
+ *   -> dissect_ProfiSafeParameterRequest  (Save PROFIsafe parameters)
+ *   -> dissect_RecordDataWrite        (Call ProfiSafeParameterRequest)
+ *   -> pnio_rtc1_cleanup              (Reset routine of saved RTC1 information)
+ */
+
 
 #include "config.h"
 
 #include <string.h>
+#include <glib.h>
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
+#include <epan/wmem/wmem.h>
+#include <epan/dissectors/packet-dcerpc.h>
 #include <epan/expert.h>
 #include <epan/dissector_filters.h>
 #include <epan/proto_data.h>
-#include <epan/dissectors/packet-dcerpc.h>
+
+#include <wsutil/file_util.h>
+#include <epan/prefs.h>
 
 #include "packet-pn.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+
 void proto_register_pn_io(void);
 void proto_reg_handoff_pn_io(void);
+
+
+#define MAX_NAMELENGTH           200    /* max. length of the given paths */
+#define MAX_LINE_LENGTH          1024   /* used for fgets() */
+#define F_MESSAGE_TRAILER_4BYTE  4      /* PROFIsafe: Defines the Amount of Bytes for CRC and Status-/Controlbyte */
+#define PN_INPUT_CR              1      /* PROFINET Input Connect Request value */
+#define PN_INPUT_DATADESCRITPION 1      /* PROFINET Input Data Description value */
+
 
 static int proto_pn_io = -1;
 static int proto_pn_io_controller = -1;
@@ -209,6 +246,7 @@ static int hf_pn_io_api_tree = -1;
 static int hf_pn_io_module_tree = -1;
 static int hf_pn_io_submodule_tree = -1;
 static int hf_pn_io_io_data_object = -1;
+/* General module information */
 static int hf_pn_io_io_cs = -1;
 
 static int hf_pn_io_substitutionmode = -1;
@@ -596,20 +634,23 @@ static int hf_pn_io_check_sync_mode_reserved = -1;
 static int hf_pn_io_check_sync_mode_sync_master = -1;
 static int hf_pn_io_check_sync_mode_cable_delay = -1;
 
-static int hf_pn_io_profisafe_f_prm_flag1 = -1;
-static int hf_pn_io_profisafe_f_prm_flag1_chck_seq = -1;
-static int hf_pn_io_profisafe_f_prm_flag1_chck_ipar = -1;
-static int hf_pn_io_profisafe_f_prm_flag1_sil = -1;
-static int hf_pn_io_profisafe_f_prm_flag1_crc_len = -1;
-static int hf_pn_io_profisafe_f_prm_flag1_reserved = -1;
-static int hf_pn_io_profisafe_f_prm_flag2 = -1;
-static int hf_pn_io_profisafe_f_src_addr = -1;
-static int hf_pn_io_profisafe_f_dst_addr = -1;
-static int hf_pn_io_profisafe_f_wd_time = -1;
-static int hf_pn_io_profisafe_f_par_crc = -1;
-static int hf_pn_io_profisafe_f_prm_flag2_reserved = -1;
-static int hf_pn_io_profisafe_f_prm_flag2_f_block_id = -1;
-static int hf_pn_io_profisafe_f_prm_flag2_f_par_version = -1;
+/* PROFIsafe fParameters */
+static int hf_pn_io_ps_f_prm_flag1 = -1;
+static int hf_pn_io_ps_f_prm_flag1_chck_seq = -1;
+static int hf_pn_io_ps_f_prm_flag1_chck_ipar = -1;
+static int hf_pn_io_ps_f_prm_flag1_sil = -1;
+static int hf_pn_io_ps_f_prm_flag1_crc_len = -1;
+static int hf_pn_io_ps_f_prm_flag1_crc_seed = -1;
+static int hf_pn_io_ps_f_prm_flag1_reserved = -1;
+static int hf_pn_io_ps_f_prm_flag2 = -1;
+static int hf_pn_io_ps_f_wd_time = -1;
+static int hf_pn_io_ps_f_ipar_crc = -1;
+static int hf_pn_io_ps_f_par_crc = -1;
+static int hf_pn_io_ps_f_src_adr = -1;
+static int hf_pn_io_ps_f_dest_adr = -1;
+static int hf_pn_io_ps_f_prm_flag2_reserved = -1;
+static int hf_pn_io_ps_f_prm_flag2_f_block_id = -1;
+static int hf_pn_io_ps_f_prm_flag2_f_par_version = -1;
 
 static int hf_pn_io_profidrive_request_reference = -1;
 static int hf_pn_io_profidrive_request_id = -1;
@@ -706,6 +747,12 @@ static guint16  ver_pn_io_supervisor = 1;
 
 static e_guid_t uuid_pn_io_parameterserver = { 0xDEA00004, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_parameterserver = 1;
+
+
+/* PNIO Preference Variables */
+gboolean           pnio_ps_selection = TRUE;
+static const char *pnio_ps_networkpath = "";
+
 
 /* Allow heuristic dissection */
 static heur_dissector_list_t heur_pn_subdissector_list;
@@ -2561,9 +2608,21 @@ static const value_string pn_io_f_crc_len[] = {
     { 0, NULL }
 };
 
+static const value_string pn_io_f_crc_seed[] = {
+    { 0x00, "CRC-FP as seed value and counter" },
+    { 0x01, "'1' as seed value and CRC-FP+/MNR" },
+    { 0, NULL }
+};
+
+/* F_Block_ID dissection due to ver2.6 specifikation of PI */
 static const value_string pn_io_f_block_id[] = {
-    { 0x00, "Parameter set for F-Host/F-Device relationship" },
-    { 0x01, "Additional F_Address parameter block" },
+    { 0x00, "No F_WD_Time_2, no F_iPar_CRC" },
+    { 0x01, "No F_WD_Time_2, F_iPar_CRC" },
+    { 0x02, "F_WD_Time_2, no F_iPar_CRC" },
+    { 0x03, "F_WD_Time_2, F_iPar_CRC" },
+    /* 0x04..0x07 reserved */
+    /* { 0x00, "Parameter set for F-Host/F-Device relationship" }, */
+    /* { 0x01, "Additional F_Address parameter block" }, */
     /* 0x02..0x07 reserved */
     { 0, NULL }
 };
@@ -5612,6 +5671,7 @@ dissect_MrpInstanceDataReal_block(tvbuff_t *tvb, int offset,
     }
     return offset;
 }
+
 static int
 dissect_MrpInstanceDataCheck_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint16 u16BodyLength _U_)
@@ -6790,6 +6850,7 @@ dissect_APIData_block(tvbuff_t *tvb, int offset,
 
     return offset;
 }
+
 /* dissect the SLRData block */
 static int
 dissect_SRLData_block(tvbuff_t *tvb, int offset,
@@ -7183,6 +7244,14 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
     proto_tree *sub_tree;
     guint32     u32SubStart;
 
+    conversation_t    *conversation;
+    stationInfo       *station_info = NULL;
+    iocsObject        *iocs_object;
+    iocsObject        *cmp_iocs_object;
+    ioDataObject      *io_data_object;
+    ioDataObject      *cmp_io_data_object;
+    wmem_list_frame_t *frame;
+    wmem_list_t       *iocs_list;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -7242,6 +7311,29 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, api_tree, drep,
                             hf_pn_io_number_of_io_data_objects, &u16NumberOfIODataObjects);
 
+        /* Set global Variant for Number of IO Data Objects */
+        /* Notice: Handle Input & Output seperate!!! */
+        if (pinfo->fd->flags.visited == FALSE) {
+            /* Get current conversation endpoints using MAC addresses */
+            conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
+            if (conversation == NULL) {
+                /* Create new conversation, if no "Ident OK" frame as been dissected yet!
+                 * Need to switch dl_src & dl_dst, as Connect Request is sent by controller and not by device.
+                 * All conversations are based on Device MAC as addr1 */
+                conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, PT_NONE, 0, 0, 0);
+            }
+
+            station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
+            if (station_info == NULL) {
+                station_info = wmem_new0(wmem_file_scope(), stationInfo);
+                init_pnio_rtc1_station(station_info);
+                conversation_add_proto_data(conversation, proto_pn_dcp, station_info);
+            }
+            else {
+                station_info->ioDataObjectNr = u16NumberOfIODataObjects;
+            }
+        }
+
         u16Tmp = u16NumberOfIODataObjects;
         while (u16Tmp--) {
             sub_item = proto_tree_add_item(api_tree, hf_pn_io_io_data_object, tvb, offset, 0, ENC_NA);
@@ -7262,10 +7354,54 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
                 u16SlotNr, u16SubslotNr, u16IODataObjectFrameOffset);
 
             proto_item_set_len(sub_item, offset - u32SubStart);
+
+            if (pinfo->fd->flags.visited == FALSE && station_info != NULL) {
+                io_data_object = wmem_new(wmem_file_scope(), ioDataObject);
+                io_data_object->slotNr = u16SlotNr;
+                io_data_object->subSlotNr = u16SubslotNr;
+                io_data_object->frameOffset = u16IODataObjectFrameOffset;
+                /* initial - Will be added later with Write Request */
+                io_data_object->f_dest_adr = 0;
+                io_data_object->f_par_crc1 = 0;
+                io_data_object->f_src_adr = 0;
+                io_data_object->f_crc_seed = FALSE;
+                io_data_object->f_crc_len = 0;
+                /* Reset as a PNIO Connect Request of a known module appears */
+                io_data_object->last_sb_cb = 0;
+                io_data_object->lastToggleBit = 0;
+
+                if (u16IOCRType == PN_INPUT_CR) {
+                    iocs_list = station_info->ioobject_data_in;
+                }
+                else {
+                    iocs_list = station_info->ioobject_data_out;
+                }
+
+                for (frame = wmem_list_head(iocs_list); frame != NULL; frame = wmem_list_frame_next(frame)) {
+                    cmp_io_data_object = (ioDataObject*)wmem_list_frame_data(frame);
+                    if (cmp_io_data_object->slotNr == u16SlotNr && cmp_io_data_object->subSlotNr == u16SubslotNr) {
+                        /* Found identical existing object */
+                        break;
+                    }
+                }
+
+                if (frame == NULL) {
+                    /* new io_object data incoming */
+                    wmem_list_append(iocs_list, io_data_object);
+                }
+            }
         }
+
         /* NumberOfIOCS */
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, api_tree, drep,
                             hf_pn_io_number_of_iocs, &u16NumberOfIOCS);
+
+        /* Set global Vairant for NumberOfIOCS */
+        if (pinfo->fd->flags.visited == FALSE) {
+            if (station_info != NULL) {
+                station_info->iocsNr = u16NumberOfIOCS;
+            }
+        }
 
         u16Tmp = u16NumberOfIOCS;
         while (u16Tmp--) {
@@ -7287,6 +7423,34 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
                 u16SlotNr, u16SubslotNr, u16IOCSFrameOffset);
 
             proto_item_set_len(sub_item, offset - u32SubStart);
+
+            if (pinfo->fd->flags.visited == FALSE) {
+                if (station_info != NULL) {
+                    if (u16IOCRType == PN_INPUT_CR) {
+                        iocs_list = station_info->iocs_data_in;
+                    }
+                    else {
+                        iocs_list = station_info->iocs_data_out;
+                    }
+
+                    for (frame = wmem_list_head(iocs_list); frame != NULL; frame = wmem_list_frame_next(frame)) {
+                        cmp_iocs_object = (iocsObject*)wmem_list_frame_data(frame);
+                        if (cmp_iocs_object->slotNr == u16SlotNr && cmp_iocs_object->subSlotNr == u16SubslotNr) {
+                            /* Found identical existing object */
+                            break;
+                        }
+                    }
+
+                    if (frame == NULL) {
+                        /* new iocs_object data incoming */
+                        iocs_object = wmem_new(wmem_file_scope(), iocsObject);
+                        iocs_object->slotNr = u16SlotNr;
+                        iocs_object->subSlotNr = u16SubslotNr;
+                        iocs_object->frameOffset = u16IOCSFrameOffset;
+                        wmem_list_append(iocs_list, iocs_object);
+                    }
+                }
+            }
         }
 
         proto_item_append_text(api_item, ": 0x%x, NumberOfIODataObjects: %u NumberOfIOCS: %u",
@@ -7432,6 +7596,7 @@ dissect_AlarmCRBlockRes_block(tvbuff_t *tvb, int offset,
 
     return offset;
 }
+
 /* dissect the ARServerBlock */
 static int
 dissect_ARServerBlock(tvbuff_t *tvb, int offset,
@@ -7664,6 +7829,7 @@ dissect_PDSubFrameBlock_block(tvbuff_t *tvb, int offset,
     /*  bit 0..7 SFIOCRProperties.DistributedWatchDogFactor */
     offset = /* it is the last one, so advance! */
         dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_DistributedWatchDogFactor, &u32SFIOCRProperties);
+
     /* SubframeData */
     u16RemainingLength = u16BodyLength - PD_SUB_FRAME_BLOCK_FIOCR_PROPERTIES_LENGTH - PD_SUB_FRAME_BLOCK_FRAME_ID_LENGTH;
     while (u16RemainingLength >= PD_SUB_FRAME_BLOCK_SUB_FRAME_DATA_LENGTH)
@@ -7842,7 +8008,7 @@ dissect_ARVendorBlockReq_block(tvbuff_t *tvb, int offset,
 /* dissect the DataDescription */
 static int
 dissect_DataDescription(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, guint8 *drep, ioDataObject *tmp_io_data_object)
 {
     guint16     u16DataDescription;
     guint16     u16SubmoduleDataLength;
@@ -7852,6 +8018,11 @@ dissect_DataDescription(tvbuff_t *tvb, int offset,
     proto_tree *sub_tree;
     guint32     u32SubStart;
 
+    conversation_t    *conversation;
+    stationInfo       *station_info = NULL;
+    ioDataObject      *io_data_object;
+    wmem_list_frame_t *frame;
+    wmem_list_t       *ioobject_list;
 
     sub_item = proto_tree_add_item(tree, hf_pn_io_data_description_tree, tvb, offset, 0, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_data_description);
@@ -7874,6 +8045,46 @@ dissect_DataDescription(tvbuff_t *tvb, int offset,
         val_to_str(u16DataDescription, pn_io_data_description, "(0x%x)"),
         u16SubmoduleDataLength, u8LengthIOCS, u8LengthIOPS);
     proto_item_set_len(sub_item, offset - u32SubStart);
+
+    /* Save new data for IO Data Objects */
+    if (pinfo->fd->flags.visited == FALSE) {
+        /* Get current conversation endpoints using MAC addresses */
+        conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
+        if (conversation == NULL) {
+            conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
+        }
+
+        station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
+
+        if (station_info != NULL) {
+            if (u16DataDescription == PN_INPUT_DATADESCRITPION) {
+                /* INPUT HANDLING */
+                ioobject_list = station_info->ioobject_data_in;
+            }
+            else {
+                /* OUTPUT HANDLING */
+                ioobject_list = station_info->ioobject_data_out;
+            }
+
+            for (frame = wmem_list_head(ioobject_list); frame != NULL; frame = wmem_list_frame_next(frame)) {
+                io_data_object = (ioDataObject*)wmem_list_frame_data(frame);
+                if (io_data_object->slotNr == tmp_io_data_object->slotNr && io_data_object->subSlotNr == tmp_io_data_object->subSlotNr) {
+                    /* Write additional data from dissect_ExpectedSubmoduleBlockReq_block() to corresponding io_data_object */
+                    io_data_object->moduleIdentNr = tmp_io_data_object->moduleIdentNr;
+                    io_data_object->subModuleIdentNr = tmp_io_data_object->subModuleIdentNr;
+                    io_data_object->length = u16SubmoduleDataLength;
+
+                    io_data_object->moduleNameStr = wmem_strdup(wmem_file_scope(), tmp_io_data_object->moduleNameStr);
+                    io_data_object->profisafeSupported = tmp_io_data_object->profisafeSupported;
+                    io_data_object->discardIOXS = tmp_io_data_object->discardIOXS;
+                    io_data_object->amountInGSDML = tmp_io_data_object->amountInGSDML;
+                    io_data_object->fParameterIndexNr = tmp_io_data_object->fParameterIndexNr;
+
+                    break;
+                }
+            }
+        }
+    }
 
     return offset;
 }
@@ -7902,6 +8113,60 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
     proto_tree *submodule_tree;
     guint32     u32SubStart;
 
+    /* Variable for the search of gsd file */
+    const char vendorIdStr[] = "VendorID=\"";
+    const char deviceIdStr[] = "DeviceID=\"";
+    const char moduleStr[] = "ModuleIdentNumber=\"";
+    const char subModuleStr[] = "SubmoduleIdentNumber=\"";
+    const char profisafeStr[] = "PROFIsafeSupported=\"true\"";
+    const char fParameterStr[] = "<F_ParameterRecordDataItem";
+    const char fParameterIndexStr[] = "Index=";
+    const char moduleNameInfo[] = "<Name";
+    const char moduleValueInfo[] = "Value=\"";
+
+    guint16  searchVendorID = 0;
+    guint16  searchDeviceID = 0;
+    gint32   filePosRecord;
+    gboolean vendorMatch;
+    gboolean deviceMatch;
+    conversation_t *conversation;
+    stationInfo    *station_info = NULL;
+    ioDataObject   *io_data_object = NULL; /* Used to transfer data to fct. "dissect_DataDescription()" */
+
+    /* Variable for the search of GSD-file */
+    guint32  read_vendor_id;
+    guint32  read_device_id;
+    guint32  read_module_id;
+    guint32  read_submodule_id;
+    gboolean gsdmlFoundFlag;
+    gchar   tmp_moduletext[MAX_NAMELENGTH];
+    gchar   *convertStr;      /* GSD-file search */
+    gchar   *pch;             /* helppointer, to save temp. the found Networkpath of GSD-file */
+    gchar   *puffer;          /* used for fgets() during GSD-file search */
+    gchar   *temp;            /* used for fgets() during GSD-file search */
+    gchar   *diropen = NULL;  /* saves the final networkpath to open for GSD-files */
+    GDir    *dir;
+    FILE    *fp = NULL;       /* filepointer */
+    const gchar *filename;    /* saves the found GSD-file name */
+
+    /* Helppointer initial */
+    convertStr = (gchar*)wmem_alloc(wmem_packet_scope(), MAX_NAMELENGTH);
+    convertStr[0] = '\0';
+    pch = (gchar*)wmem_alloc(wmem_packet_scope(), MAX_LINE_LENGTH);
+    pch[0] = '\0';
+    puffer = (gchar*)wmem_alloc(wmem_packet_scope(), MAX_LINE_LENGTH);
+    puffer[0] = '\0';
+    temp = (gchar*)wmem_alloc(wmem_packet_scope(), MAX_LINE_LENGTH);
+    temp[0] = '\0';
+
+    /* Initial */
+    io_data_object = wmem_new0(wmem_file_scope(), ioDataObject);
+    io_data_object->profisafeSupported = FALSE;
+    io_data_object->moduleNameStr = wmem_strdup(wmem_file_scope(), "Unknown");
+    vendorMatch = FALSE;
+    deviceMatch = FALSE;
+    gsdmlFoundFlag = FALSE;
+
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -7913,6 +8178,102 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_number_of_apis, &u16NumberOfAPIs);
 
     proto_item_append_text(item, ": APIs:%u", u16NumberOfAPIs);
+
+
+    /* Get current conversation endpoints using MAC addresses */
+    conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
+    if (conversation == NULL) {
+        conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
+    }
+
+    station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
+    if (station_info != NULL) {
+        station_info->gsdFound = FALSE;
+        station_info->gsdPathLength = FALSE;
+
+        /* Set searchVendorID and searchDeviceID for GSDfile search */
+        searchVendorID = station_info->u16Vendor_id;
+        searchDeviceID = station_info->u16Device_id;
+
+        /* Use the given GSD-file networkpath of the PNIO-Preference */
+        if(pnio_ps_networkpath[0] != '\0') {   /* check the length of the given networkpath (array overflow protection) */
+            station_info->gsdPathLength = TRUE;
+
+            if ((dir = g_dir_open(pnio_ps_networkpath, 0, NULL)) != NULL) {
+                /* Find all GSD-files within directory */
+                while ((filename = g_dir_read_name(dir)) != NULL) {
+
+                    /* ---- complete the path to open a GSD-file ---- */
+                    diropen = wmem_strdup_printf(wmem_packet_scope(), "%s" G_DIR_SEPARATOR_S "%s", pnio_ps_networkpath, filename);
+
+                    /* ---- Open the found GSD-file  ---- */
+                    fp = ws_fopen(diropen, "r");
+
+                    if(fp != NULL) {
+                        /* ---- Get VendorID & DeviceID ---- */
+                        while(fp != NULL && fgets(puffer, MAX_LINE_LENGTH, fp) != NULL) {
+                            /* ----- VendorID ------ */
+                            if((strstr(puffer, vendorIdStr)) != NULL) {
+                                memset (convertStr, 0, sizeof(*convertStr));
+                                pch = strstr(puffer, vendorIdStr);
+                                sscanf(pch, "VendorID=\"%[^\"]", convertStr);
+                                read_vendor_id = (guint32) strtoul (convertStr, NULL, 0);
+
+                                if(read_vendor_id == searchVendorID) {
+                                    vendorMatch = TRUE;        /* found correct VendorID */
+                                }
+                            }
+
+                            /* ----- DeviceID ------ */
+                            if((strstr(puffer, deviceIdStr)) != NULL) {
+                                memset(convertStr, 0, sizeof(*convertStr));
+                                pch = strstr(puffer, deviceIdStr);
+                                sscanf(pch, "DeviceID=\"%[^\"]", convertStr);
+                                read_device_id = (guint32)strtoul(convertStr, NULL, 0);
+
+                                if(read_device_id == searchDeviceID) {
+                                    deviceMatch = TRUE;        /* found correct DeviceID */
+                                }
+                            }
+                        }
+
+                        if(fclose(fp) == 0) {
+                            /* File close sucessfull */
+                            fp = NULL;
+                        }
+
+                        if(vendorMatch == TRUE && deviceMatch == TRUE) {
+                            break;        /* Found correct GSD-file! -> Break the searchloop */
+                        }
+                        else {
+                            /* Couldn't find the correct GSD-file to the corresponding device */
+                            vendorMatch = FALSE;
+                            deviceMatch = FALSE;
+                            gsdmlFoundFlag = FALSE;
+                            diropen = "";           /* reset array for next search */
+                        }
+                    }
+                }
+
+                g_dir_close(dir);
+            }
+
+            /* ---- Found the correct GSD-file -> set Flag and save the completed path ---- */
+            if((vendorMatch == TRUE) && (deviceMatch == TRUE)) {
+                gsdmlFoundFlag = TRUE;
+                station_info->gsdFound = TRUE;
+                station_info->gsdLocation = wmem_strdup(wmem_file_scope(), diropen);
+            }
+            else {
+                /* Copy searchpath to array for a detailed output message in cyclic data dissection */
+                station_info->gsdLocation = wmem_strdup_printf(wmem_file_scope(), "%s" G_DIR_SEPARATOR_S "*.xml", pnio_ps_networkpath);
+            }
+        }
+        else {
+            /* will be used later on in cyclic RTC1 data dissection for detailed output message */
+            station_info->gsdPathLength = FALSE;
+        }
+    }
 
     while (u16NumberOfAPIs--) {
         api_item = proto_tree_add_item(tree, hf_pn_io_api_tree, tvb, offset, 0, ENC_NA);
@@ -7967,19 +8328,129 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, submodule_tree, drep,
                             hf_pn_io_submodule_properties_type, &u16SubmoduleProperties);
 
+            io_data_object->slotNr = u16SlotNr;
+            io_data_object->subSlotNr = u16SubslotNr;
+            io_data_object->moduleIdentNr = u32ModuleIdentNumber;
+            io_data_object->subModuleIdentNr = u32SubmoduleIdentNumber;
+            io_data_object->discardIOXS = u16SubmoduleProperties & 0x0020;
+
+            /* Search the moduleID and subModuleID, find if PROFIsafe and also search for F-Par. Indexnumber
+             * ---------------------------------------------------------------------------------------------
+             * Speical case: Module has several ModuleIdentNr. in one GSD-file
+             * Also with the given parameters of wireshark, some modules were completely equal. For this
+             * special case a compromise for this problem has been made, to set the module name will
+             * be more generally displayed.
+             * Also this searchloop will find the F-Parameter Indexnumber, so that Wireshark is able to
+             * dissect those F-Parameters correctly, as this index can change between the vendors.
+             */
+
+            io_data_object->amountInGSDML = 0;
+            io_data_object->fParameterIndexNr = 0;
+            io_data_object->profisafeSupported = FALSE;
+
+            if (diropen != NULL) {
+                fp = ws_fopen(diropen, "r");
+            }
+            if(gsdmlFoundFlag == TRUE && fp != NULL) {
+                fseek(fp, 0, SEEK_SET);
+
+                /* Find Indexnumber for fParameter */
+                while(fgets(temp, MAX_LINE_LENGTH, fp) != NULL) {
+                    if((strstr(temp, fParameterStr)) != NULL) {
+                        memset (convertStr, 0, sizeof(*convertStr));
+
+                        pch = strstr(temp, fParameterIndexStr);
+                        sscanf(pch, "Index=\"%[^\"]", convertStr);
+                        io_data_object->fParameterIndexNr = (guint32)strtoul(convertStr, NULL, 0);
+
+                        break;    /* found Indexnumber -> break search loop */
+                    }
+                }
+
+                memset (temp, 0, sizeof(*temp));
+                fseek(fp, 0, SEEK_SET);                /* Set filepointer to the beginning */
+
+                while(fgets(temp, MAX_LINE_LENGTH, fp) != NULL) {
+                    if((strstr(temp, moduleStr)) != NULL) {                         /* find the String "ModuleIdentNumber=" */
+                        memset (convertStr, 0, sizeof(*convertStr));
+                        pch = strstr(temp, moduleStr);                              /* search for "ModuleIdentNumber=\"" within GSD-file */
+                        sscanf(pch, "ModuleIdentNumber=\"%[^\"]", convertStr);      /* Change format of Value string-->numeric string */
+                        read_module_id = (guint32)strtoul(convertStr, NULL, 0);     /* Change numeric string --> unsigned long; read_module_id contains the Value of the ModuleIdentNumber */
+
+                        /* If the found ModuleID matches with the wanted ModuleID, search for the Submodule and break */
+                        if (read_module_id == io_data_object->moduleIdentNr) {
+                            ++io_data_object->amountInGSDML;    /* Save the amount of same (!) Module- & SubmoduleIdentNr in one GSD-file */
+
+                            while(fgets(temp, MAX_LINE_LENGTH, fp) != NULL) {
+                                if((strstr(temp, moduleNameInfo)) != NULL) {                    /* find the String "<Name" for the TextID */
+                                    sscanf(temp, "%*s TextId=\"%[^\"]", tmp_moduletext);        /* saves the correct TextId for the next searchloop */
+
+                                    filePosRecord = (gint32)ftell(fp);            /* save the current position of the filepointer (Offset) */
+
+                                    while (fgets(temp, MAX_LINE_LENGTH, fp) != NULL && io_data_object->amountInGSDML == 1) {
+                                        /* Find a String with the saved TextID and with a fitting value for it in the same line. This value is the name of the Module! */
+                                        if(((strstr(temp, tmp_moduletext)) != NULL) && ((strstr(temp, moduleValueInfo)) != NULL)) {
+                                            pch = strstr(temp, moduleValueInfo);
+                                            sscanf(pch, "Value=\"%[^\"]", io_data_object->moduleNameStr);
+                                            break;    /* Found the name of the module */
+                                        }
+                                    }
+
+                                    fseek(fp, filePosRecord, SEEK_SET);    /* set filepointer to the correct TextID */
+                                }
+
+                                /* Search for Submoduleidentnumber in GSD-file */
+                                if((strstr(temp, subModuleStr)) != NULL) {
+                                    memset (convertStr, 0, sizeof(*convertStr));
+                                    pch = strstr(temp, subModuleStr);
+                                    sscanf(pch, "SubmoduleIdentNumber=\"%[^\"]", convertStr);
+                                    read_submodule_id = (guint32) strtoul (convertStr, NULL, 0);    /* read_submodule_id contains the Value of the SubModuleIdentNumber */
+
+                                    /* Find "PROFIsafeSupported" flag of the module in GSD-file */
+                                    if(read_submodule_id == io_data_object->subModuleIdentNr) {
+                                        if((strstr(temp, profisafeStr)) != NULL) {
+                                            io_data_object->profisafeSupported = TRUE;   /* flag is in the same line as SubmoduleIdentNr */
+                                            break;
+                                        }
+                                        else {    /* flag is not in the same line as Submoduleidentnumber -> search for it */
+                                            while(fgets(temp, MAX_LINE_LENGTH, fp) != NULL) {
+                                                if((strstr(temp, profisafeStr)) != NULL) {
+                                                    io_data_object->profisafeSupported = TRUE;
+                                                    break;    /* Found the PROFIsafeSupported flag of the module */
+                                                }
+
+                                                else if((strstr(temp, ">")) != NULL) {
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    break;    /* Found the PROFIsafe Module */
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (fclose(fp) == 0) {
+                    /* File close successful */
+                    fp = NULL;
+                }
+            }
+
             switch (u16SubmoduleProperties & 0x03) {
             case(0x00): /* no input and no output data (one Input DataDescription Block follows) */
-                offset = dissect_DataDescription(tvb, offset, pinfo, sub_tree, drep);
+                offset = dissect_DataDescription(tvb, offset, pinfo, sub_tree, drep, io_data_object);
                 break;
             case(0x01): /* input data (one Input DataDescription Block follows) */
-                offset = dissect_DataDescription(tvb, offset, pinfo, sub_tree, drep);
+                offset = dissect_DataDescription(tvb, offset, pinfo, sub_tree, drep, io_data_object);
                 break;
             case(0x02): /* output data (one Output DataDescription Block follows) */
-                offset = dissect_DataDescription(tvb, offset, pinfo, sub_tree, drep);
+                offset = dissect_DataDescription(tvb, offset, pinfo, sub_tree, drep, io_data_object);
                 break;
             case(0x03): /* input and output data (one Input and one Output DataDescription Block follows) */
-                offset = dissect_DataDescription(tvb, offset, pinfo, sub_tree, drep);
-                offset = dissect_DataDescription(tvb, offset, pinfo, sub_tree, drep);
+                offset = dissect_DataDescription(tvb, offset, pinfo, sub_tree, drep, io_data_object);
+                offset = dissect_DataDescription(tvb, offset, pinfo, sub_tree, drep, io_data_object);
                 break;
             }
 
@@ -8022,6 +8493,11 @@ dissect_ModuleDiffBlock_block(tvbuff_t *tvb, int offset,
     proto_tree *submodule_tree;
     guint32     u32SubStart;
 
+    conversation_t    *conversation;
+    stationInfo       *station_info;
+    wmem_list_frame_t *frame;
+    moduleDiffInfo    *module_diff_info;
+    moduleDiffInfo    *cmp_module_diff_info;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -8074,6 +8550,34 @@ dissect_ModuleDiffBlock_block(tvbuff_t *tvb, int offset,
                 u16SlotNr, u32ModuleIdentNumber,
                 val_to_str(u16ModuleState, pn_io_module_state, "(0x%x)"),
                 u16NumberOfSubmodules);
+
+
+            if (pinfo->fd->flags.visited == FALSE) {
+                /* Get current conversation endpoints using MAC addresses */
+                conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
+                if (conversation == NULL) {
+                    conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
+                }
+
+                station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
+                if (station_info != NULL) {
+                    for (frame = wmem_list_head(station_info->diff_module); frame != NULL; frame = wmem_list_frame_next(frame)) {
+                        cmp_module_diff_info = (moduleDiffInfo*)wmem_list_frame_data(frame);
+                        if (cmp_module_diff_info->slotNr == u16SlotNr) {
+                            /* Found identical existing object */
+                            break;
+                        }
+                    }
+
+                    if (frame == NULL) {
+                        /* new diffModuleInfo data incoming */
+                        module_diff_info = wmem_new(wmem_file_scope(), moduleDiffInfo);
+                        module_diff_info->slotNr = u16SlotNr;
+                        module_diff_info->modulID = u32ModuleIdentNumber;
+                        wmem_list_append(station_info->diff_module, module_diff_info);
+                    }
+                }
+            }
 
             proto_item_append_text(item, ", Submodules:%u", u16NumberOfSubmodules);
 
@@ -9224,7 +9728,7 @@ dissect_IPNIO_Read_resp(tvbuff_t *tvb, int offset,
 /* F-Parameter record data object */
 static int
 dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+    packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 u16Index, wmem_list_frame_t *frame)
 {
     proto_item *f_item;
     proto_tree *f_tree;
@@ -9236,79 +9740,204 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
     guint16     dst_addr;
     guint16     wd_time;
     guint16     par_crc;
+    guint32     ipar_crc;
     guint8      prm_flag1;
     guint8      prm_flag1_chck_seq;
     guint8      prm_flag1_chck_ipar;
     guint8      prm_flag1_sil;
     guint8      prm_flag1_crc_len;
+    guint8      prm_flag1_crc_seed;
     guint8      prm_flag1_reserved;
     guint8      prm_flag2;
     guint8      prm_flag2_reserved;
     guint8      prm_flag2_f_block_id;
     guint8      prm_flag2_f_par_version;
 
+    conversation_t    *conversation;
+    stationInfo       *station_info;
+    ioDataObject      *io_data_object;
+    wmem_list_frame_t *frame_out;
+
     f_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, ENC_NA);
     f_tree = proto_item_add_subtree(f_item, ett_pn_io_profisafe_f_parameter);
     proto_item_set_text(f_item, "F-Parameter: ");
 
-
-    flags1_item = proto_tree_add_item(f_tree, hf_pn_io_profisafe_f_prm_flag1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    flags1_item = proto_tree_add_item(f_tree, hf_pn_io_ps_f_prm_flag1, tvb, offset, 1, ENC_BIG_ENDIAN);
     flags1_tree = proto_item_add_subtree(flags1_item, ett_pn_io_profisafe_f_parameter_prm_flag1);
 
+    /* dissection of F_Prm_Flag1 */
     dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_tree, drep,
-        hf_pn_io_profisafe_f_prm_flag1_chck_seq, &prm_flag1_chck_seq);
+        hf_pn_io_ps_f_prm_flag1_chck_seq, &prm_flag1_chck_seq);
     dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_tree, drep,
-        hf_pn_io_profisafe_f_prm_flag1_chck_ipar, &prm_flag1_chck_ipar);
+        hf_pn_io_ps_f_prm_flag1_chck_ipar, &prm_flag1_chck_ipar);
     dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_tree, drep,
-        hf_pn_io_profisafe_f_prm_flag1_sil, &prm_flag1_sil);
+        hf_pn_io_ps_f_prm_flag1_sil, &prm_flag1_sil);
     dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_tree, drep,
-        hf_pn_io_profisafe_f_prm_flag1_crc_len, &prm_flag1_crc_len);
+        hf_pn_io_ps_f_prm_flag1_crc_len, &prm_flag1_crc_len);
     dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_tree, drep,
-        hf_pn_io_profisafe_f_prm_flag1_reserved, &prm_flag1_reserved);
-    prm_flag1 = prm_flag1_chck_seq|prm_flag1_chck_ipar|prm_flag1_sil|prm_flag1_reserved;
+        hf_pn_io_ps_f_prm_flag1_crc_seed, &prm_flag1_crc_seed);
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_tree, drep,
+        hf_pn_io_ps_f_prm_flag1_reserved, &prm_flag1_reserved);
+    prm_flag1 = prm_flag1_chck_seq|prm_flag1_chck_ipar|prm_flag1_sil|prm_flag1_crc_len|prm_flag1_crc_seed|prm_flag1_reserved;
     offset++;
 
-    flags2_item = proto_tree_add_item(f_tree, hf_pn_io_profisafe_f_prm_flag2, tvb, offset, 1, ENC_BIG_ENDIAN);
+    flags2_item = proto_tree_add_item(f_tree, hf_pn_io_ps_f_prm_flag2, tvb, offset, 1, ENC_BIG_ENDIAN);
     flags2_tree = proto_item_add_subtree(flags2_item, ett_pn_io_profisafe_f_parameter_prm_flag2);
 
+    /* dissection of F_Prm_Flag2 */
     dissect_dcerpc_uint8(tvb, offset, pinfo, flags2_tree, drep,
-        hf_pn_io_profisafe_f_prm_flag2_reserved, &prm_flag2_reserved);
+        hf_pn_io_ps_f_prm_flag2_reserved, &prm_flag2_reserved);
     dissect_dcerpc_uint8(tvb, offset, pinfo, flags2_tree, drep,
-        hf_pn_io_profisafe_f_prm_flag2_f_block_id, &prm_flag2_f_block_id);
+        hf_pn_io_ps_f_prm_flag2_f_block_id, &prm_flag2_f_block_id);
     dissect_dcerpc_uint8(tvb, offset, pinfo, flags2_tree, drep,
-        hf_pn_io_profisafe_f_prm_flag2_f_par_version, &prm_flag2_f_par_version);
+        hf_pn_io_ps_f_prm_flag2_f_par_version, &prm_flag2_f_par_version);
     prm_flag2 = prm_flag2_reserved|prm_flag2_f_block_id|prm_flag2_f_par_version;
     offset++;
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_item, drep,
-                    hf_pn_io_profisafe_f_src_addr, &src_addr);
+                    hf_pn_io_ps_f_src_adr, &src_addr);
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_item, drep,
-                    hf_pn_io_profisafe_f_dst_addr, &dst_addr);
+                    hf_pn_io_ps_f_dest_adr, &dst_addr);
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_item, drep,
-                    hf_pn_io_profisafe_f_wd_time, &wd_time);
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_item, drep,
-                    hf_pn_io_profisafe_f_par_crc, &par_crc);
+                    hf_pn_io_ps_f_wd_time, &wd_time);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO,
-                    ", F-Parameter record, prm_flag1:0x%02x, prm_flag2:0x%02x, src:0x%04x,"
-                     " dst:0x%04x, wd_time:%d, crc:0x%04x",
-                    prm_flag1, prm_flag2, src_addr, dst_addr, wd_time, par_crc);
+    /* Dissection for F_iPar_CRC: see F_Prm_Flag2 -> F_Block_ID */
+    if( ((prm_flag2_f_block_id & 0x08)>>3) == TRUE && ((prm_flag2_f_block_id & 0x20)>>5) == FALSE ) {
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, f_item, drep,
+                        hf_pn_io_ps_f_ipar_crc, &ipar_crc);
+    }
 
-    proto_item_append_text(f_item, "prm_flag1:0x%02x, prm_flag2:0x%02x, src:0x%04x, dst:0x%04x, wd_time:%d, crc:0x%04x",
-            prm_flag1, prm_flag2, src_addr, dst_addr, wd_time, par_crc);
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_item, drep,
+                    hf_pn_io_ps_f_par_crc, &par_crc);
+
+
+    /* Differniate between ipar_crc and no_ipar_crc */
+    if( ((prm_flag2_f_block_id & 0x08)>>3) == TRUE && ((prm_flag2_f_block_id & 0x20)>>5) == FALSE ) {    /* include ipar_crc display */
+        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        ", F-Parameter record, prm_flag1:0x%02x, prm_flag2:0x%02x, src:0x%04x,"
+                         " dst:0x%04x, wd_time:%d, ipar_crc:0x%04x, crc:0x%04x",
+                        prm_flag1, prm_flag2, src_addr, dst_addr, wd_time, ipar_crc, par_crc);
+
+        proto_item_append_text(f_item, "prm_flag1:0x%02x, prm_flag2:0x%02x, src:0x%04x, dst:0x%04x, wd_time:%d, ipar_crc:0x%04x, par_crc:0x%04x",
+                prm_flag1, prm_flag2, src_addr, dst_addr, wd_time, ipar_crc, par_crc);
+    }
+    else {    /* exclude ipar_crc display */
+        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        ", F-Parameter record, prm_flag1:0x%02x, prm_flag2:0x%02x, src:0x%04x,"
+                         " dst:0x%04x, wd_time:%d, crc:0x%04x",
+                        prm_flag1, prm_flag2, src_addr, dst_addr, wd_time, par_crc);
+
+        proto_item_append_text(f_item, "prm_flag1:0x%02x, prm_flag2:0x%02x, src:0x%04x, dst:0x%04x, wd_time:%d, par_crc:0x%04x",
+                prm_flag1, prm_flag2, src_addr, dst_addr, wd_time, par_crc);
+    }
+
+    if (pinfo->fd->flags.visited == FALSE) {
+        /* Get current conversation endpoints using MAC addresses */
+        conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
+        if (conversation == NULL) {
+            conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
+        }
+
+        station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
+        if (station_info != NULL) {
+            if (frame != NULL) {
+                io_data_object = (ioDataObject*)wmem_list_frame_data(frame);
+
+                io_data_object->f_par_crc1 = par_crc;
+                io_data_object->f_src_adr = src_addr;
+                io_data_object->f_dest_adr = dst_addr;
+                io_data_object->f_crc_seed = prm_flag1 & 0x40;
+                if ((prm_flag1 & 0x10) == FALSE && (prm_flag1 & 0x20) == FALSE) {
+                    io_data_object->f_crc_len = 3;
+                }
+                if ((prm_flag1 & 0x10) == FALSE && (prm_flag1 & 0x20) == TRUE) {
+                    io_data_object->f_crc_len = 4;
+                }
+            }
+
+            /* Find same module within output data to saved data */
+            for (frame_out = wmem_list_head(station_info->ioobject_data_out); frame_out != NULL; frame_out = wmem_list_frame_next(frame_out)) {
+                io_data_object = (ioDataObject*)wmem_list_frame_data(frame_out);
+                if (u16Index == io_data_object->fParameterIndexNr &&    /* Check F-Parameter Indexnumber */
+                    io_data_object->profisafeSupported == TRUE &&       /* Arrayelement has to be PS-Module */
+                    io_data_object->f_par_crc1 == 0) {                  /* Find following object with no f_par_crc1 */
+
+                    io_data_object->f_par_crc1 = par_crc;
+                    io_data_object->f_src_adr = src_addr;
+                    io_data_object->f_dest_adr = dst_addr;
+                    io_data_object->f_crc_seed = prm_flag1 & 0x40;
+                    if ((prm_flag1 & 0x10) == FALSE && (prm_flag1 & 0x20) == FALSE) {
+                        io_data_object->f_crc_len = 3;
+                    }
+                    if ((prm_flag1 & 0x10) == FALSE && (prm_flag1 & 0x20) == TRUE) {
+                        io_data_object->f_crc_len = 4;
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
 
     return offset;
 }
+
 static int
 dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 u16Index, guint32 u32RecDataLen)
 {
+    conversation_t    *conversation;
+    stationInfo       *station_info;
+    wmem_list_frame_t *frame;
+    ioDataObject      *io_data_object;
+
     const gchar *userProfile;
     pnio_ar_t   *ar = NULL;
 
     /* PROFISafe */
-    if (u16Index == 0x0100) {
-        return dissect_ProfiSafeParameterRequest(tvb, offset, pinfo, tree, drep);
+    /* Get current conversation endpoints using MAC addresses */
+    conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
+    if (conversation == NULL) {
+        conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
+    }
+
+    station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
+    if (station_info != NULL) {
+        if (pinfo->fd->flags.visited == FALSE) {
+            /* Search within the entire existing list for current input object data */
+            for (frame = wmem_list_head(station_info->ioobject_data_in); frame != NULL; frame = wmem_list_frame_next(frame)) {
+                io_data_object = (ioDataObject*)wmem_list_frame_data(frame);
+                if (u16Index == io_data_object->fParameterIndexNr &&    /* Check F-Parameter Indexnumber */
+                    io_data_object->profisafeSupported == TRUE &&       /* Arrayelement has to be PS-Module */
+                    io_data_object->f_par_crc1 == 0) {                  /* Find following object with no f_par_crc1 */
+
+                    return dissect_ProfiSafeParameterRequest(tvb, offset, pinfo, tree, drep, u16Index, frame);
+                }
+            }
+        }
+        else {
+            /* User clicked another time the frame to see the data -> PROFIsafe data has already been saved
+             * Check whether the device contains an PROFIsafe supported submodule.
+             */
+
+            for (frame = wmem_list_head(station_info->ioobject_data_in); frame != NULL; frame = wmem_list_frame_next(frame)) {
+                io_data_object = (ioDataObject*)wmem_list_frame_data(frame);
+                if (u16Index == io_data_object->fParameterIndexNr &&    /* Check F-Parameter Indexnumber */
+                    io_data_object->profisafeSupported == TRUE) {       /* Arrayelement has to be PS-Module */
+
+                    return dissect_ProfiSafeParameterRequest(tvb, offset, pinfo, tree, drep, u16Index, frame);
+                }
+            }
+
+            for (frame = wmem_list_head(station_info->ioobject_data_out); frame != NULL; frame = wmem_list_frame_next(frame)) {
+                io_data_object = (ioDataObject*)wmem_list_frame_data(frame);
+                if (u16Index == io_data_object->fParameterIndexNr &&    /* Check F-Parameter Indexnumber */
+                    io_data_object->profisafeSupported == TRUE) {       /* Arrayelement has to be PS-Module */
+
+                    return dissect_ProfiSafeParameterRequest(tvb, offset, pinfo, tree, drep, u16Index, frame);
+                }
+            }
+        }
     }
 
     /* user specified format? */
@@ -9494,17 +10123,16 @@ static int
 dissect_PNIO_C_SDU(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, guint8 *drep _U_)
 {
-    proto_tree *data_tree = NULL;
-    /*gint iTotalLen    = 0;*/
-    /*gint iSubFrameLen = 0;*/
-
+    proto_tree  *data_tree = NULL;
+    /* gint iTotalLen    = 0; */
+    /* gint iSubFrameLen = 0; */
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO");
 
     if (tree) {
         proto_item *data_item;
         data_item = proto_tree_add_protocol_format(tree, proto_pn_io, tvb, offset, tvb_captured_length(tvb),
-                    "PROFINET IO Cyclic Service Data Unit: %u bytes", tvb_captured_length(tvb));
+            "PROFINET IO Cyclic Service Data Unit: %u bytes", tvb_captured_length(tvb));
         data_tree = proto_item_add_subtree(data_item, ett_pn_io_rtc);
     }
 
@@ -9519,8 +10147,7 @@ dissect_PNIO_C_SDU(tvbuff_t *tvb, int offset,
     /* actual: there may be an IOxS but most case there isn't so better display a data-stream */
     /* offset = dissect_PNIO_IOxS(tvb, offset, pinfo, data_tree, drep, hf_pn_io_ioxs);        */
     offset = dissect_pn_user_data(tvb, offset, pinfo, tree, tvb_captured_length_remaining(tvb, offset),
-                                  "User Data (including GAP and RTCPadding)");
-
+        "User Data (including GAP and RTCPadding)");
 
     return offset;
 }
@@ -9650,21 +10277,16 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* is this a (none DFP) PNIO class 3 data packet? */
     /* frame id must be in valid range (cyclic Real-Time, class=3) */
-    if ((u16FrameID >= 0x0100 && u16FrameID <= 0x6FF /*0x04ff*/) || /* non redundant */
-        (u16FrameID >= 0x700/*0x0800*/ && u16FrameID <= 0x0fff)) { /* redundant */
+    if ((u16FrameID >= 0x0100 && u16FrameID <= 0x06FF) ||   /* RTC3 non redundant */
+        (u16FrameID >= 0x700 && u16FrameID <= 0x0fff)) {    /* RTC3 redundant */
         dissect_PNIO_C_SDU(tvb, 0, pinfo, tree, drep);
         return TRUE;
     }
 
-    /* is this a (none DFP) PNIO class 2 data packet? */
-    /* frame id must be in valid range (cyclic Real-Time, class=2) and
+    /* The following range is reserved for following developments */
+    /* frame id must be in valid range (Reserved) and
      * first byte (CBA version field) has to be != 0x11 */
-    if ((
-        (u16FrameID >= 0x5000 && u16FrameID <= 0x57ff) || /* redundant */
-        (u16FrameID >= 0x6000 && u16FrameID <= 0x67ff) || /* non redundant */
-        (u16FrameID >= 0x7000 && u16FrameID <= 0x77ff) || /* redundant */
-        (u16FrameID >= 0x8000 && u16FrameID <= 0xbfff))   /* non redundant */
-        && u8CBAVersion != 0x11) {
+    if (u16FrameID >= 0x1000 && u16FrameID <= 0x7fff && u8CBAVersion != 0x11) {
         dissect_PNIO_C_SDU(tvb, 0, pinfo, tree, drep);
         return TRUE;
     }
@@ -9672,8 +10294,16 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* is this a PNIO class 1 data packet? */
     /* frame id must be in valid range (cyclic Real-Time, class=1) and
      * first byte (CBA version field) has to be != 0x11 */
+    if (u16FrameID >= 0x8000 && u16FrameID < 0xbfff && u8CBAVersion != 0x11) {
+        dissect_PNIO_C_SDU_RTC1(tvb, 0, pinfo, tree, drep);
+        return TRUE;
+    }
+
+    /* is this a PNIO class 1 (legacy) data packet? */
+    /* frame id must be in valid range (cyclic Real-Time, class=1, legacy) and
+     * first byte (CBA version field) has to be != 0x11 */
     if (u16FrameID >= 0xc000 && u16FrameID < 0xfbff && u8CBAVersion != 0x11) {
-        dissect_PNIO_C_SDU(tvb, 0, pinfo, tree, drep);
+        dissect_PNIO_C_SDU_RTC1(tvb, 0, pinfo, tree, drep);
         return TRUE;
     }
 
@@ -10260,11 +10890,6 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_io_data_object_frame_offset,
-      { "IODataObjectFrameOffset", "pn_io.io_data_object_frame_offset",
-        FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-        NULL, HFILL }
-    },
     { &hf_pn_io_number_of_iocs,
       { "NumberOfIOCS", "pn_io.number_of_iocs",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -10353,6 +10978,11 @@ proto_register_pn_io (void)
     { &hf_pn_io_io_data_object,
       { "IODataObject", "pn_io.io_data_object",
         FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_io_data_object_frame_offset,
+        { "IODataObjectFrameOffset", "pn_io.io_data_object.frame_offset",
+        FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_io_cs,
@@ -12070,76 +12700,85 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_HEX, NULL, 0x0001,
         NULL, HFILL }
     },
-
-    /* profisafe parameter */
-    { &hf_pn_io_profisafe_f_prm_flag1,
-      { "F_Prm_Flag1", "pn_io.profisafe.f_prm_flag1",
+    /* PROFIsafe F-Parameter */
+    { &hf_pn_io_ps_f_prm_flag1,
+      { "F_Prm_Flag1", "pn_io.ps.f_prm_flag1",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_profisafe_f_prm_flag1_chck_seq,
-      { "F_Check_SeqNr", "pn_io.profisafe.f_prm_flag1.f_check_seqnr",
+    { &hf_pn_io_ps_f_prm_flag1_chck_seq,
+      { "F_Check_SeqNr", "pn_io.ps.f_prm_flag1.f_check_seqnr",
         FT_UINT8, BASE_HEX, VALS(pn_io_f_check_seqnr), 0x01,
         NULL, HFILL }
     },
-    { &hf_pn_io_profisafe_f_prm_flag1_chck_ipar,
-      { "F_Check_iPar", "pn_io.profisafe.f_prm_flag1.f_check_ipar",
+    { &hf_pn_io_ps_f_prm_flag1_chck_ipar,
+      { "F_Check_iPar", "pn_io.ps.f_prm_flag1.f_check_ipar",
         FT_UINT8, BASE_HEX, VALS(pn_io_f_check_ipar), 0x02,
         NULL, HFILL }
     },
-    { &hf_pn_io_profisafe_f_prm_flag1_sil,
-      { "F_SIL", "pn_io.profisafe.f_prm_flag1.f_sil",
+    { &hf_pn_io_ps_f_prm_flag1_sil,
+      { "F_SIL", "pn_io.ps.f_prm_flag1.f_sil",
         FT_UINT8, BASE_HEX, VALS(pn_io_f_sil), 0xc,
         NULL, HFILL }
     },
-    { &hf_pn_io_profisafe_f_prm_flag1_crc_len,
-      { "F_CRC_Length", "pn_io.profisafe.f_prm_flag1.f_crc_len",
+    { &hf_pn_io_ps_f_prm_flag1_crc_len,
+      { "F_CRC_Length", "pn_io.ps.f_prm_flag1.f_crc_len",
         FT_UINT8, BASE_HEX, VALS(pn_io_f_crc_len), 0x30,
         NULL, HFILL }
     },
-    { &hf_pn_io_profisafe_f_prm_flag1_reserved,
-      { "Reserved", "pn_io.profisafe.f_prm_flag1.reserved",
-        FT_UINT8, BASE_HEX, NULL, 0xC0,
+    { &hf_pn_io_ps_f_prm_flag1_crc_seed,
+        { "F_CRC_Seed", "pn_io.ps.f_prm_flag1.f_crc_seed",
+        FT_UINT8, BASE_HEX, VALS(pn_io_f_crc_seed), 0x40,
         NULL, HFILL }
     },
-    { &hf_pn_io_profisafe_f_prm_flag2,
-      { "F_Prm_Flag2", "pn_io.profisafe.f_prm_flag2",
+    { &hf_pn_io_ps_f_prm_flag1_reserved,
+      { "Reserved", "pn_io.ps.f_prm_flag1.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x80,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ps_f_prm_flag2,
+      { "F_Prm_Flag2", "pn_io.ps.f_prm_flag2",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_profisafe_f_prm_flag2_reserved,
-      { "Reserved", "pn_io.profisafe.f_prm_flag2.reserved",
+    { &hf_pn_io_ps_f_prm_flag2_reserved,
+      { "Reserved", "pn_io.ps.f_prm_flag2.reserved",
         FT_UINT8, BASE_HEX, NULL, 0x07,
         NULL, HFILL }
     },
-    { &hf_pn_io_profisafe_f_prm_flag2_f_block_id,
-      { "F_BlockId", "pn_io.profisafe.f_prm_flag2.f_block_id",
+    { &hf_pn_io_ps_f_prm_flag2_f_block_id,
+      { "F_Block_ID", "pn_io.ps.f_prm_flag2.f_block_id",
         FT_UINT8, BASE_HEX, VALS(pn_io_f_block_id), 0x38,
         NULL, HFILL }
     },
-    { &hf_pn_io_profisafe_f_prm_flag2_f_par_version,
-      { "F_ParVersion", "pn_io.profisafe.f_prm_flag2.f_par_version",
+    { &hf_pn_io_ps_f_prm_flag2_f_par_version,
+      { "F_Par_Version", "pn_io.ps.f_prm_flag2.f_par_version",
         FT_UINT8, BASE_HEX, VALS(pn_io_f_par_version), 0xC0,
         NULL, HFILL }
     },
-      { &hf_pn_io_profisafe_f_src_addr,
-        { "F_Source_Address", "pn_io.profisafe.f_src_addr",
-          FT_UINT16, BASE_HEX, NULL, 0x0,
-          NULL, HFILL }
-      },
-    { &hf_pn_io_profisafe_f_dst_addr,
-      { "F_Destination_Address", "pn_io.profisafe.f_dst_addr",
-        FT_UINT16, BASE_HEX, NULL, 0x0,
-        NULL, HFILL }
-    },
-    { &hf_pn_io_profisafe_f_wd_time,
-      { "F_WD_Time", "pn_io.profisafe.f_wd_time",
+    { &hf_pn_io_ps_f_wd_time,
+      { "F_WD_Time", "pn_io.ps.f_wd_time",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_profisafe_f_par_crc,
-      { "F_Par_CRC", "pn_io.profisafe.f_par_crc",
-        FT_UINT16, BASE_HEX, NULL, 0x0,
+    { &hf_pn_io_ps_f_ipar_crc,
+        { "F_iPar_CRC", "pn_io.ps.f_ipar_crc",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ps_f_par_crc,
+        { "F_Par_CRC", "pn_io.ps.f_par_crc",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ps_f_dest_adr,
+        { "F_Dest_Add", "pn_io.ps.f_dest_add",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ps_f_src_adr,
+        { "F_Source_Add", "pn_io.ps.f_source_add",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     /* profidrive parameter access */
@@ -12290,9 +12929,13 @@ proto_register_pn_io (void)
         { &ei_pn_io_nr_of_tx_port_groups, { "pn_io.nr_of_tx_port_groups.not_allowed", PI_PROTOCOL, PI_WARN, "Not allowed value of NumberOfTxPortGroups", EXPFILL }},
     };
 
+    module_t *pnio_module;
     expert_module_t* expert_pn_io;
 
     proto_pn_io = proto_register_protocol ("PROFINET IO", "PNIO", "pn_io");
+
+    /* Register by name */
+    register_dissector("pnio", dissect_PNIO_heur, proto_pn_io);
 
     /* Created to remove Decode As confusion */
     proto_pn_io_controller = proto_register_protocol ("PROFINET IO (Controller)", "PNIO (Controller)", "pn_io_controller");
@@ -12304,15 +12947,31 @@ proto_register_pn_io (void)
     expert_pn_io = expert_register_protocol(proto_pn_io);
     expert_register_field_array(expert_pn_io, ei, array_length(ei));
 
+    /* Register preferences */
+    pnio_module = prefs_register_protocol(proto_pn_io, NULL);
+    prefs_register_bool_preference(pnio_module, "pnio_ps_selection",
+        "Enable detailed PROFIsafe dissection",
+        "Whether the PNIO dissector is allowed to use detailed PROFIsafe dissection of cyclic data frames",
+        &pnio_ps_selection);
+    prefs_register_directory_preference(pnio_module, "pnio_ps_networkpath",
+        "Configuration GSD-File Networkpath",                 /* Title */
+        "Select your Networkpath to your GSD-Files.",         /* Descreption */
+        &pnio_ps_networkpath);                                /* Variable to save the GSD-File networkpath */
+
     /* subdissector code */
     register_dissector("pn_io", dissect_PNIO_heur, proto_pn_io);
     heur_pn_subdissector_list = register_heur_dissector_list("pn_io", proto_pn_io);
 
+    /* Initialise RTC1 dissection */
+    init_pn_io_rtc1(proto_pn_io);
+
+    /* Cleanup functions of PNIO protocol */
     register_cleanup_routine(pnio_cleanup);
 
     register_conversation_filter("pn_io", "PN-IO AR", pn_io_ar_conv_valid, pn_io_ar_conv_filter);
     register_conversation_filter("pn_io", "PN-IO AR (with data)", pn_io_ar_conv_valid, pn_io_ar_conv_data_filter);
 }
+
 
 void
 proto_reg_handoff_pn_io (void)
