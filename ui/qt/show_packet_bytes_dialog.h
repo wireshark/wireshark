@@ -79,6 +79,7 @@ private:
         DecodeAsNone,
         DecodeAsBASE64,
         DecodeAsCompressed,
+        DecodeAsQuotedPrintable,
         DecodeAsROT13
     };
     enum ShowAsType {
@@ -101,6 +102,7 @@ private:
     void updateHintLabel();
     void sanitizeBuffer(QByteArray &ba, bool handle_CR);
     void symbolizeBuffer(QByteArray &ba);
+    QByteArray decodeQuotedPrintable(const guint8 *bytes, int length);
     void rot13(QByteArray &ba);
     void updateFieldBytes(bool initialization = false);
     void updatePacketBytes();

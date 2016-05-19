@@ -69,6 +69,7 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     ui->cbDecodeAs->addItem(tr("None"), DecodeAsNone);
     ui->cbDecodeAs->addItem(tr("Base64"), DecodeAsBASE64);
     ui->cbDecodeAs->addItem(tr("Compressed"), DecodeAsCompressed);
+    ui->cbDecodeAs->addItem(tr("Quoted-Printable"), DecodeAsQuotedPrintable);
     ui->cbDecodeAs->addItem(tr("ROT13"), DecodeAsROT13);
     ui->cbDecodeAs->blockSignals(false);
 
@@ -455,6 +456,31 @@ void ShowPacketBytesDialog::symbolizeBuffer(QByteArray &ba)
     ba.replace((char)0x7f, symbol); // DEL
 }
 
+QByteArray ShowPacketBytesDialog::decodeQuotedPrintable(const guint8 *bytes, int length)
+{
+    QByteArray ba;
+
+    for (int i = 0; i < length; i++) {
+        if (bytes[i] == '=' && i + 1 < length) {
+            if (bytes[i+1] == '\n') {
+                i++;     // Soft line break LF
+            } else if (bytes[i+1] == '\r' && i + 2 < length && bytes[i+2] == '\n') {
+                i += 2;  // Soft line break CRLF
+            } else if (g_ascii_isxdigit(bytes[i+1]) && i + 2 < length && g_ascii_isxdigit(bytes[i+2])) {
+                ba.append(QByteArray::fromHex(QByteArray((const char *)&bytes[i+1], 2)));
+                i += 2;  // Valid Quoted-Printable sequence
+            } else {
+                // Illegal Quoted-Printable, just add byte
+                ba.append(bytes[i]);
+            }
+        } else {
+            ba.append(bytes[i]);
+        }
+    }
+
+    return ba;
+}
+
 void ShowPacketBytesDialog::rot13(QByteArray &ba)
 {
     for (int i = 0; i < ba.length(); i++) {
@@ -498,6 +524,11 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
         }
         break;
     }
+
+    case DecodeAsQuotedPrintable:
+        bytes = tvb_get_ptr(finfo_->ds_tvb, start, -1);
+        field_bytes_ = decodeQuotedPrintable(bytes, length);
+        break;
 
     case DecodeAsROT13:
         bytes = tvb_get_ptr(finfo_->ds_tvb, start, -1);
