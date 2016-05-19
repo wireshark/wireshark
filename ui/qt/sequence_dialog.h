@@ -108,8 +108,10 @@ private:
     int num_items_;
     guint32 packet_num_;
     double one_em_;
-    int node_label_w_;
+    int sequence_w_;
     QMenu ctx_menu_;
+    QCPItemText *key_text_;
+    QCPItemText *comment_text_;
 
     void panAxes(int x_pixels, int y_pixels);
     void resetAxes(bool keep_lower = false);

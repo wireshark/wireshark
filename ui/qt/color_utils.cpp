@@ -31,24 +31,6 @@ const QColor ColorUtils::expert_color_error      = QColor ( 0xff, 0x5c, 0x5c ); 
 const QColor ColorUtils::expert_color_foreground = QColor ( 0x00, 0x00, 0x00 );        /* Black */
 const QColor ColorUtils::hidden_proto_item       = QColor ( 0x44, 0x44, 0x44 );        /* Gray */
 
-// Available colors
-// XXX - Add custom
-const QList<QRgb> ColorUtils::graph_colors_ = QList<QRgb>()
-        << tango_aluminium_6 // Bar outline (use black instead)?
-        << tango_sky_blue_5
-        << tango_butter_6
-        << tango_chameleon_5
-        << tango_scarlet_red_5
-        << tango_plum_5
-        << tango_orange_6
-        << tango_aluminium_3
-        << tango_sky_blue_3
-        << tango_butter_3
-        << tango_chameleon_3
-        << tango_scarlet_red_3
-        << tango_plum_3
-        << tango_orange_3;
-
 ColorUtils::ColorUtils(QObject *parent) :
     QObject(parent)
 {
@@ -107,6 +89,58 @@ QRgb ColorUtils::alphaBlend(const QColor &color1, const QColor &color2, qreal al
 QRgb ColorUtils::alphaBlend(const QBrush &brush1, const QBrush &brush2, qreal alpha)
 {
     return alphaBlend(brush1.color(), brush2.color(), alpha);
+}
+
+QList<QRgb> ColorUtils::graph_colors_;
+const QList<QRgb> ColorUtils::graphColors()
+{
+    if (graph_colors_.isEmpty()) {
+        // Available graph colors
+        // XXX - Add custom
+        graph_colors_ = QList<QRgb>()
+                << tango_aluminium_6 // Bar outline (use black instead)?
+                << tango_sky_blue_5
+                << tango_butter_6
+                << tango_chameleon_5
+                << tango_scarlet_red_5
+                << tango_plum_5
+                << tango_orange_6
+                << tango_aluminium_3
+                << tango_sky_blue_3
+                << tango_butter_3
+                << tango_chameleon_3
+                << tango_scarlet_red_3
+                << tango_plum_3
+                << tango_orange_3;
+    }
+    return graph_colors_;
+}
+
+QRgb ColorUtils::graphColor(int item)
+{
+    if (graph_colors_.isEmpty()) graphColors(); // Init list.
+    return graph_colors_[item % graph_colors_.size()];
+}
+
+QList<QRgb> ColorUtils::sequence_colors_;
+QRgb ColorUtils::sequenceColor(int item)
+{
+    if (sequence_colors_.isEmpty()) {
+        // Available sequence colors. Copied from gtk/graph_analysis.c.
+        // XXX - Add custom?
+        sequence_colors_ = QList<QRgb>()
+                << qRgb(144, 238, 144)
+                << qRgb(255, 160, 123)
+                << qRgb(255, 182, 193)
+                << qRgb(250, 250, 210)
+                << qRgb(255, 255, 52)
+                << qRgb(103, 205, 170)
+                << qRgb(224, 255, 255)
+                << qRgb(176, 196, 222)
+                << qRgb(135, 206, 254)
+                << qRgb(211, 211, 211);
+    }
+    return sequence_colors_[item % sequence_colors_.size()];
 }
 
 /*

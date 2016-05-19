@@ -27,6 +27,7 @@
 #include "wsutil/nstime.h"
 #include "wsutil/utf8_entities.h"
 
+#include "color_utils.h"
 #include "progress_frame.h"
 #include "sequence_diagram.h"
 #include "wireshark_application.h"
@@ -37,6 +38,9 @@
 #include <QPoint>
 
 // To do:
+// - Add zoom controls.
+// - Limit dragging to valid ranges.
+// - Handle trackpad and mouse wheel scrolling.
 // - Add UTF8 to text dump
 // - Save to XMI? http://www.umlgraph.org/
 // - Time: abs vs delta
@@ -46,8 +50,6 @@
 // - Change line_style to seq_type (i.e. draw ACKs dashed)
 // - Create WSGraph subclasses with common behavior.
 // - Help button and text
-// - Diagram shrinks when you click on it on retina displays.
-// - Add zoom controls.
 
 SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *info) :
     WiresharkDialog(parent, cf),
@@ -55,7 +57,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     info_(info),
     num_items_(0),
     packet_num_(0),
-    node_label_w_(20)
+    sequence_w_(1)
 {
     ui->setupUi(this);
     loadGeometry(parent.width(), parent.height() * 4 / 5);
@@ -80,8 +82,31 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     sp->xAxis->setPadding(0);
     sp->xAxis->setLabelPadding(0);
     sp->xAxis->setTickLabelPadding(0);
+
+    QPen base_pen(ColorUtils::alphaBlend(palette().text(), palette().base(), 0.25));
+    base_pen.setWidthF(0.5);
+    sp->xAxis2->setBasePen(base_pen);
+    sp->yAxis->setBasePen(base_pen);
+    sp->yAxis2->setBasePen(base_pen);
+
     sp->xAxis2->setVisible(true);
     sp->yAxis2->setVisible(true);
+
+    key_text_ = new QCPItemText(sp);
+    key_text_->setText(tr("Time"));
+    sp->addItem(key_text_);
+
+    key_text_->setPositionAlignment(Qt::AlignRight | Qt::AlignBottom);
+    key_text_->position->setType(QCPItemPosition::ptAbsolute);
+    key_text_->setClipToAxisRect(false);
+
+    comment_text_ = new QCPItemText(sp);
+    comment_text_->setText(tr("Comment"));
+    sp->addItem(comment_text_);
+
+    comment_text_->setPositionAlignment(Qt::AlignLeft | Qt::AlignBottom);
+    comment_text_->position->setType(QCPItemPosition::ptAbsolute);
+    comment_text_->setClipToAxisRect(false);
 
     one_em_ = QFontMetrics(sp->yAxis->labelFont()).height();
     ui->horizontalScrollBar->setSingleStep(100 / one_em_);
@@ -134,8 +159,6 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     connect(this, SIGNAL(goToPacket(int)), seq_diagram_, SLOT(setSelectedPacket(int)));
 
     disconnect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-
-    QTimer::singleShot(0, this, SLOT(fillDiagram()));
 }
 
 SequenceDialog::~SequenceDialog()
@@ -151,7 +174,7 @@ void SequenceDialog::updateWidgets()
 
 void SequenceDialog::showEvent(QShowEvent *)
 {
-    resetAxes();
+    QTimer::singleShot(0, this, SLOT(fillDiagram()));
 }
 
 void SequenceDialog::resizeEvent(QResizeEvent *)
@@ -350,18 +373,8 @@ void SequenceDialog::fillDiagram()
         seq_diagram_->setData(info_->sainfo());
     }
 
-    QFontMetrics vfm = QFontMetrics(sp->xAxis2->labelFont());
-    char* addr_str;
-    node_label_w_ = 0;
-    for (guint i = 0; i < info_->sainfo()->num_nodes; i++) {
-        addr_str = address_to_display(NULL, &(info_->sainfo()->nodes[i]));
-        int label_w = vfm.width(addr_str);
-        if (node_label_w_ < label_w) {
-            node_label_w_ = label_w;
-        }
-        wmem_free(NULL, addr_str);
-    }
-    node_label_w_ = (node_label_w_ * 3 / 4) + one_em_;
+    QFontMetrics fm = QFontMetrics(sp->xAxis2->labelFont());
+    sequence_w_ = fm.height() * 15 ; // Arbitrary
 
     mouseMoved(NULL);
     resetAxes();
@@ -394,6 +407,7 @@ void SequenceDialog::resetAxes(bool keep_lower)
     if (!info_->sainfo()) return;
 
     QCustomPlot *sp = ui->sequencePlot;
+
     // Allow space for labels on the top and port numbers on the left.
     double top_pos = -1.0, left_pos = -0.5;
     if (keep_lower) {
@@ -401,21 +415,42 @@ void SequenceDialog::resetAxes(bool keep_lower)
         left_pos = sp->xAxis2->range().lower;
     }
 
-    double range_ratio = sp->xAxis2->axisRect()->width() / node_label_w_;
-    sp->xAxis2->setRange(left_pos, range_ratio + left_pos);
+    double range_span = sp->viewport().width() / sequence_w_;
+    sp->xAxis2->setRange(left_pos, range_span + left_pos);
 
-    range_ratio = sp->yAxis->axisRect()->height() / (one_em_ * 1.5);
-    sp->yAxis->setRange(top_pos, range_ratio + top_pos);
+    range_span = sp->axisRect()->height() / (one_em_ * 1.5);
+    sp->yAxis->setRange(top_pos, range_span + top_pos);
 
     double rmin = sp->xAxis2->range().size() / 2;
     ui->horizontalScrollBar->setRange((rmin - 0.5) * 100, (info_->sainfo()->num_nodes - 0.5 - rmin) * 100);
     xAxisChanged(sp->xAxis2->range());
+    ui->horizontalScrollBar->setValue(ui->horizontalScrollBar->minimum()); // Shouldn't be needed.
 
     rmin = (sp->yAxis->range().size() / 2);
     ui->verticalScrollBar->setRange((rmin - 1.0) * 100, (num_items_ - 0.5 - rmin) * 100);
     yAxisChanged(sp->yAxis->range());
 
-    sp->replot();
+    // It would be exceedingly handy if we could do one or both of the
+    // following:
+    // - Position an axis label above its axis inline with the tick labels.
+    // - Anchor a QCPItemText to one of the corners of a QCPAxis.
+    // Neither of those appear to be possible, so we first call replot in
+    // order to lay out our X axes, place our labels, the call replot again.
+    sp->replot(QCustomPlot::rpQueued);
+
+    QRect axis_rect = sp->axisRect()->rect();
+    key_text_->position->setCoords(axis_rect.left()
+                                   - sp->yAxis->padding()
+                                   - sp->yAxis->tickLabelPadding()
+                                   - sp->yAxis->offset(),
+                                   axis_rect.top());
+    comment_text_->position->setCoords(axis_rect.right()
+                                       + sp->yAxis2->padding()
+                                       + sp->yAxis2->tickLabelPadding()
+                                       + sp->yAxis2->offset(),
+                                       axis_rect.top());
+
+    sp->replot(QCustomPlot::rpHint);
 }
 
 void SequenceDialog::on_resetButton_clicked()

@@ -53,15 +53,17 @@ public:
     static const QColor expert_color_foreground; /* black */
     static const QColor hidden_proto_item;       /* gray */
 
-    static const QList<QRgb> graphColors() { return graph_colors_; }
-    static QRgb graphColor(int item) { return graph_colors_[item % graph_colors_.size()]; }
+    static const QList<QRgb> graphColors();
+    static QRgb graphColor(int item);
+    static QRgb sequenceColor(int item);
 
 signals:
 
 public slots:
 
 private:
-    static const QList<QRgb> graph_colors_;
+    static QList<QRgb> graph_colors_;
+    static QList<QRgb> sequence_colors_;
 };
 
 void color_filter_qt_add_cb(color_filter_t *colorf, gpointer user_data);
