@@ -187,6 +187,9 @@ static gint hf_krb_pac_upn_dns_name = -1;
 static gint hf_krb_pac_server_checksum = -1;
 static gint hf_krb_pac_privsvr_checksum = -1;
 static gint hf_krb_pac_client_info_type = -1;
+static gint hf_krb_pac_client_claims_info = -1;
+static gint hf_krb_pac_device_info = -1;
+static gint hf_krb_pac_device_claims_info = -1;
 static gint hf_krb_pa_supported_enctypes = -1;
 static gint hf_krb_pa_supported_enctypes_des_cbc_crc = -1;
 static gint hf_krb_pa_supported_enctypes_des_cbc_md5 = -1;
@@ -415,7 +418,7 @@ static int hf_kerberos_PAC_OPTIONS_FLAGS_forward_to_full_dc = -1;
 static int hf_kerberos_PAC_OPTIONS_FLAGS_resource_based_constrained_delegation = -1;
 
 /*--- End of included file: packet-kerberos-hf.c ---*/
-#line 196 "./asn1/kerberos/packet-kerberos-template.c"
+#line 199 "./asn1/kerberos/packet-kerberos-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_kerberos = -1;
@@ -509,7 +512,7 @@ static gint ett_kerberos_PA_FX_FAST_REPLY = -1;
 static gint ett_kerberos_KrbFastArmoredRep = -1;
 
 /*--- End of included file: packet-kerberos-ett.c ---*/
-#line 213 "./asn1/kerberos/packet-kerberos-template.c"
+#line 216 "./asn1/kerberos/packet-kerberos-template.c"
 
 static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
 static expert_field ei_kerberos_address = EI_INIT;
@@ -629,7 +632,7 @@ typedef enum _KERBEROS_PADATA_TYPE_enum {
 } KERBEROS_PADATA_TYPE_enum;
 
 /*--- End of included file: packet-kerberos-val.h ---*/
-#line 225 "./asn1/kerberos/packet-kerberos-template.c"
+#line 228 "./asn1/kerberos/packet-kerberos-template.c"
 
 static void
 call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag, kerberos_callbacks *cb)
@@ -1877,15 +1880,21 @@ static const value_string krb5_error_codes[] = {
 #define PAC_PRIVSVR_CHECKSUM	7
 #define PAC_CLIENT_INFO_TYPE	10
 #define PAC_S4U_DELEGATION_INFO	11
-#define PAC_UPN_DNS_INFO		12
+#define PAC_UPN_DNS_INFO	12
+#define PAC_CLIENT_CLAIMS_INFO	13
+#define PAC_DEVICE_INFO		14
+#define PAC_DEVICE_CLAIMS_INFO	15
 static const value_string w2k_pac_types[] = {
 	{ PAC_LOGON_INFO		, "Logon Info" },
-	{ PAC_CREDENTIAL_TYPE	, "Credential Type" },
-	{ PAC_SERVER_CHECKSUM	, "Server Checksum" },
-	{ PAC_PRIVSVR_CHECKSUM	, "Privsvr Checksum" },
-	{ PAC_CLIENT_INFO_TYPE	, "Client Info Type" },
-	{ PAC_S4U_DELEGATION_INFO, "S4U Delegation Info" },
+	{ PAC_CREDENTIAL_TYPE		, "Credential Type" },
+	{ PAC_SERVER_CHECKSUM		, "Server Checksum" },
+	{ PAC_PRIVSVR_CHECKSUM		, "Privsvr Checksum" },
+	{ PAC_CLIENT_INFO_TYPE		, "Client Info Type" },
+	{ PAC_S4U_DELEGATION_INFO	, "S4U Delegation Info" },
 	{ PAC_UPN_DNS_INFO		, "UPN DNS Info" },
+	{ PAC_CLIENT_CLAIMS_INFO	, "Client Claims Info" },
+	{ PAC_DEVICE_INFO		, "Device Info" },
+	{ PAC_DEVICE_CLAIMS_INFO	, "Device Claims Info" },
 	{ 0, NULL },
 };
 
@@ -2630,6 +2639,30 @@ dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 }
 
 static int
+dissect_krb5_PAC_CLIENT_CLAIMS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+{
+	proto_tree_add_item(parent_tree, hf_krb_pac_client_claims_info, tvb, offset, -1, ENC_NA);
+
+	return offset;
+}
+
+static int
+dissect_krb5_PAC_DEVICE_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+{
+	proto_tree_add_item(parent_tree, hf_krb_pac_device_info, tvb, offset, -1, ENC_NA);
+
+	return offset;
+}
+
+static int
+dissect_krb5_PAC_DEVICE_CLAIMS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+{
+	proto_tree_add_item(parent_tree, hf_krb_pac_device_claims_info, tvb, offset, -1, ENC_NA);
+
+	return offset;
+}
+
+static int
 dissect_krb5_PAC_SERVER_CHECKSUM(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 	proto_item *item;
@@ -2741,6 +2774,15 @@ dissect_krb5_AD_WIN2K_PAC_struct(proto_tree *tree, tvbuff_t *tvb, int offset, as
 		break;
 	case PAC_UPN_DNS_INFO:
 		dissect_krb5_PAC_UPN_DNS_INFO(tr, next_tvb, 0, actx);
+		break;
+	case PAC_CLIENT_CLAIMS_INFO:
+		dissect_krb5_PAC_CLIENT_CLAIMS_INFO(tr, next_tvb, 0, actx);
+		break;
+	case PAC_DEVICE_INFO:
+		dissect_krb5_PAC_DEVICE_INFO(tr, next_tvb, 0, actx);
+		break;
+	case PAC_DEVICE_CLAIMS_INFO:
+		dissect_krb5_PAC_DEVICE_CLAIMS_INFO(tr, next_tvb, 0, actx);
 		break;
 
 	default:
@@ -5327,7 +5369,7 @@ dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 2373 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2415 "./asn1/kerberos/packet-kerberos-template.c"
 
 /* Make wrappers around exported functions for now */
 int
@@ -5725,6 +5767,15 @@ void proto_register_kerberos(void) {
 	{ &hf_krb_pac_upn_dns_name, {
 		"DNS Name", "kerberos.pac.upn.dns_name", FT_STRING, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
+	{ &hf_krb_pac_client_claims_info, {
+		"PAC_CLIENT_CLAIMS_INFO", "kerberos.pac_client_claims_info", FT_BYTES, BASE_NONE,
+		NULL, 0, "PAC_CLIENT_CLAIMS_INFO structure", HFILL }},
+	{ &hf_krb_pac_device_info, {
+		"PAC_DEVICE_INFO", "kerberos.pac_device_info", FT_BYTES, BASE_NONE,
+		NULL, 0, "PAC_DEVICE_INFO structure", HFILL }},
+	{ &hf_krb_pac_device_claims_info, {
+		"PAC_DEVICE_CLAIMS_INFO", "kerberos.pac_device_claims_info", FT_BYTES, BASE_NONE,
+		NULL, 0, "PAC_DEVICE_CLAIMS_INFO structure", HFILL }},
 	{ &hf_krb_pa_supported_enctypes,
 	  { "SupportedEnctypes", "kerberos.supported_entypes",
 	    FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -6606,7 +6657,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 2811 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2862 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -6702,7 +6753,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_KrbFastArmoredRep,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 2830 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2881 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {
