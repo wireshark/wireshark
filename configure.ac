@@ -149,40 +149,19 @@ else
 	AC_MSG_ERROR(I couldn't find python; make sure it's installed and in your path)
 fi
 
-#
-# XXX - should autogen.sh check for YACC/Bison and Flex?  A user building
-# from a distribution tarball shouldn't have to have YACC/Bison or Flex,
-# as the tarball should contain the results of running YACC/Bison on .y
-# files and running Flex on .l files, but a user building from SVN
-# will have to run YACC/Bison and Flex to process those files.
-#
-# On the other hand, what about users who use a distribution tarball to
-# do development?  They *shouldn't* - that's what the SVN repository is
-# for - but they might.  They'd get errors if they modify a .y or .l
-# file and try to do a build - but the error should tell them that they
-# need to get YACC/Bison and/or Flex.
-#
-# Then again, getting them shouldn't be too big of a burden.
-#
-# XXX - is the same true of pod2man and pod2html, or are they needed
-# even when building from a distribution tarball?
-#
-#
+dnl
+dnl Check for yacc/lex. Distribution tarballs include generated source,
+dnl in which case these tools are not a mandatory requirement to build.
+dnl
 AC_PROG_YACC
-dnl Tarballs include the build products and do not require yacc.
-AC_MSG_CHECKING(whether $YACC -V works)
-AS_IF([$YACC -V >/dev/null 2>&1],
-	[AC_MSG_RESULT(yes)],
-	[AC_MSG_RESULT(no)
-	 AS_IF([test ! -f wiretap/ascend.c],
-		AC_MSG_ERROR([I couldn't find yacc (or bison or ...); make sure it's installed and in your path]))])
-dnl AM_MISSING_PROG(YACC, bison)
-
+AS_IF([test "x$YACC" = xyacc], [AS_UNSET(YACC)])
+AS_IF([test -z "$YACC" -a ! -f $srcdir/wiretap/ascend.c],
+	[AC_MSG_ERROR([I couldn't find bison or byacc; make sure it's installed and in your path])])
+AM_MISSING_PROG(YACC, bison)
 AC_PROG_LEX
-AS_IF([test "x$LEX" != xflex],
-	[AS_UNSET(LEX)
-	 AS_IF([test ! -f wiretap/ascend_scanner.c],
-		AC_MSG_ERROR(I couldn't find flex; make sure it's installed and in your path))])
+AS_IF([test "x$LEX" != xflex], [AS_UNSET(LEX)])
+AS_IF([test -z "$LEX" -a ! -f $srcdir/wiretap/ascend_scanner.c],
+	[AC_MSG_ERROR([I couldn't find flex; make sure it's installed and in your path])])
 AM_MISSING_PROG(LEX, flex)
 
 AC_PATH_PROG(POD2MAN, pod2man)
