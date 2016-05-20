@@ -206,7 +206,7 @@ proto_reg_handoff_cwids(void)
 	if (!initialized) {
 		cwids_handle = create_dissector_handle(dissect_cwids, proto_cwids);
 		dissector_add_for_decode_as("udp.port", cwids_handle);
-		ieee80211_radio_handle = find_dissector_add_dependency("wlan_radio", proto_cwids);
+		ieee80211_radio_handle = find_dissector_add_dependency("wlan_noqos_radio", proto_cwids);
 		initialized = TRUE;
 	} else {
 		if (saved_udp_port != 0) {

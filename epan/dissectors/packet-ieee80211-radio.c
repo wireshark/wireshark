@@ -35,7 +35,9 @@ void proto_register_ieee80211_radio(void);
 void proto_reg_handoff_ieee80211_radio(void);
 
 static dissector_handle_t wlan_radio_handle;
+static dissector_handle_t wlan_noqos_radio_handle;
 static dissector_handle_t ieee80211_handle;
+static dissector_handle_t ieee80211_noqos_handle;
 
 static int proto_wlan_radio = -1;
 
@@ -278,11 +280,10 @@ static gint ett_wlan_radio_11ac_user = -1;
 static gint ett_wlan_radio_duration = -1;
 
 /*
- * Dissect 802.11 with a variable-length link-layer header and a pseudo-
- * header containing radio information.
+ * Dissect 802.11 pseudo-header containing radio information.
  */
-static int
-dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data)
+static void
+dissect_wlan_radio_phdr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data)
 {
   struct ieee_802_11_phdr *phdr = (struct ieee_802_11_phdr *)data;
   proto_item *ti = NULL;
@@ -854,9 +855,32 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
       }
     }
   } /* if (tree) */
+}
+
+/*
+ * Dissect 802.11 with a variable-length link-layer header and a pseudo-
+ * header containing radio information.
+ */
+static int
+dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data)
+{
+  dissect_wlan_radio_phdr (tvb, pinfo, tree, data);
 
   /* dissect the 802.11 packet next */
   return call_dissector_with_data(ieee80211_handle, tvb, pinfo, tree, data);
+}
+
+/*
+ * Dissect 802.11 with a variable-length link-layer header without qos elements and
+ * a pseudo-header containing radio information.
+ */
+static int
+dissect_wlan_noqos_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data)
+{
+  dissect_wlan_radio_phdr (tvb, pinfo, tree, data);
+
+  /* dissect the 802.11 packet next */
+  return call_dissector_with_data(ieee80211_noqos_handle, tvb, pinfo, tree, data);
 }
 
 static hf_register_info hf_wlan_radio[] = {
@@ -1072,6 +1096,7 @@ void proto_register_ieee80211_radio(void)
   expert_register_field_array(expert_wlan_radio, ei, array_length(ei));
 
   wlan_radio_handle = register_dissector("wlan_radio", dissect_wlan_radio, proto_wlan_radio);
+  wlan_noqos_radio_handle = register_dissector("wlan_noqos_radio", dissect_wlan_noqos_radio, proto_wlan_radio);
 }
 
 void proto_reg_handoff_ieee80211_radio(void)
@@ -1080,6 +1105,7 @@ void proto_reg_handoff_ieee80211_radio(void)
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
                      wlan_radio_handle);
   ieee80211_handle = find_dissector_add_dependency("wlan", proto_wlan_radio);
+  ieee80211_noqos_handle = find_dissector_add_dependency("wlan_noqos", proto_wlan_radio);
 }
 
 /*

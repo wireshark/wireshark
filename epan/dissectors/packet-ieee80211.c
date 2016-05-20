@@ -13057,6 +13057,7 @@ dissect_ht_control(proto_tree *tree, tvbuff_t *tvb, int offset)
 
 #define IEEE80211_COMMON_OPT_BROKEN_FC         0x00000001
 #define IEEE80211_COMMON_OPT_IS_CENTRINO       0x00000002
+#define IEEE80211_COMMON_OPT_NORMAL_QOS        0x00000004
 
 static void
 dissect_frame_control(proto_tree *tree, tvbuff_t *tvb, guint32 option_flags,
@@ -16784,7 +16785,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
   case DATA_FRAME:
     hdr_len = (FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T4) ? DATA_LONG_HDR_LEN : DATA_SHORT_HDR_LEN;
 
-    if (DATA_FRAME_IS_QOS(frame_type_subtype)) {
+    if ((option_flags & IEEE80211_COMMON_OPT_NORMAL_QOS) && DATA_FRAME_IS_QOS(frame_type_subtype)) {
       /* QoS frame */
       qosoff = hdr_len;
       hdr_len += 2; /* Include the QoS field in the header length */
@@ -17799,7 +17800,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       break;
 
     case DATA_FRAME:
-      if (tree && DATA_FRAME_IS_QOS(frame_type_subtype))
+      if ((option_flags & IEEE80211_COMMON_OPT_NORMAL_QOS) && tree && DATA_FRAME_IS_QOS(frame_type_subtype))
       {
         proto_item *qos_fields, *qos_ti;
         proto_tree *qos_tree;
@@ -18530,7 +18531,7 @@ dissect_ieee80211 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     ourphdr.phy = PHDR_802_11_PHY_UNKNOWN;
     phdr = &ourphdr;
   }
-  return dissect_ieee80211_common (tvb, pinfo, tree, 0, phdr);
+  return dissect_ieee80211_common (tvb, pinfo, tree, IEEE80211_COMMON_OPT_NORMAL_QOS, phdr);
 }
 
 /*
@@ -18548,7 +18549,7 @@ dissect_ieee80211_withfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-  dissect_ieee80211_common (tvb, pinfo, tree, 0, &phdr);
+  dissect_ieee80211_common (tvb, pinfo, tree, IEEE80211_COMMON_OPT_NORMAL_QOS, &phdr);
   return tvb_captured_length(tvb);
 }
 
@@ -18566,7 +18567,7 @@ dissect_ieee80211_withoutfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-  dissect_ieee80211_common (tvb, pinfo, tree, 0, &phdr);
+  dissect_ieee80211_common (tvb, pinfo, tree, IEEE80211_COMMON_OPT_NORMAL_QOS, &phdr);
   return tvb_captured_length(tvb);
 }
 
@@ -18611,7 +18612,7 @@ dissect_ieee80211_centrino(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-  dissect_ieee80211_common (tvb, pinfo, tree, IEEE80211_COMMON_OPT_IS_CENTRINO, &phdr);
+  dissect_ieee80211_common (tvb, pinfo, tree, IEEE80211_COMMON_OPT_IS_CENTRINO|IEEE80211_COMMON_OPT_NORMAL_QOS, &phdr);
   return tvb_captured_length(tvb);
 }
 
@@ -18630,9 +18631,29 @@ dissect_ieee80211_bsfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-  dissect_ieee80211_common (tvb, pinfo, tree, IEEE80211_COMMON_OPT_BROKEN_FC, &phdr);
+  dissect_ieee80211_common (tvb, pinfo, tree, IEEE80211_COMMON_OPT_BROKEN_FC|IEEE80211_COMMON_OPT_NORMAL_QOS, &phdr);
   return tvb_captured_length(tvb);
 }
+
+/*
+ * Dissect 802.11 with a variable-length link-layer header without qos elements
+ * in data+qos frames and with no FCS (sent as WIDS frames by Cisco standalone
+ * APs).
+ */
+static int
+dissect_ieee80211_noqos (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  struct ieee_802_11_phdr phdr;
+
+  /* Construct a pseudo-header to hand to the common code. */
+  memset(&phdr, 0, sizeof(phdr));
+  phdr.decrypted = FALSE;
+  phdr.datapad = FALSE;
+  phdr.phy = PHDR_802_11_PHY_UNKNOWN;
+  dissect_ieee80211_common (tvb, pinfo, tree, 0, &phdr);
+  return tvb_captured_length(tvb);
+}
+
 
 static void
 wlan_defragment_init(void)
@@ -27265,10 +27286,11 @@ proto_register_ieee80211 (void)
   expert_ieee80211 = expert_register_protocol(proto_wlan);
   expert_register_field_array(expert_ieee80211, ei, array_length(ei));
 
-  register_dissector("wlan",                dissect_ieee80211,                    proto_wlan);
+  register_dissector("wlan",                    dissect_ieee80211,                    proto_wlan);
   register_dissector("wlan_withfcs",            dissect_ieee80211_withfcs,            proto_wlan);
   register_dissector("wlan_withoutfcs",         dissect_ieee80211_withoutfcs,         proto_wlan);
   register_dissector("wlan_bsfc",               dissect_ieee80211_bsfc,               proto_wlan);
+  register_dissector("wlan_noqos",              dissect_ieee80211_noqos,              proto_wlan);
 
   register_init_routine(wlan_defragment_init);
   register_cleanup_routine(wlan_defragment_cleanup);
