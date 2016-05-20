@@ -74,6 +74,7 @@ include diameter/Custom.make
 dist_diameter_DATA = $(_CUSTOM_diameter_xml_files_) \
 	diameter/chargecontrol.xml \
 	diameter/Cisco.xml \
+	diameter/CiscoSystems.xml \
 	diameter/Custom.xml \
 	diameter/dictionary.dtd \
 	diameter/dictionary.xml \

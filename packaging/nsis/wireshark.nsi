@@ -437,6 +437,7 @@ SetOutPath $INSTDIR\diameter
 File "${STAGING_DIR}\diameter\AlcatelLucent.xml"
 File "${STAGING_DIR}\diameter\chargecontrol.xml"
 File "${STAGING_DIR}\diameter\Cisco.xml"
+File "${STAGING_DIR}\diameter\CiscoSystems.xml"
 File "${STAGING_DIR}\diameter\Custom.xml"
 File "${STAGING_DIR}\diameter\dictionary.dtd"
 File "${STAGING_DIR}\diameter\dictionary.xml"

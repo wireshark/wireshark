@@ -25,6 +25,7 @@
 	<!ENTITY Nokia			SYSTEM "Nokia.xml">
 	<!ENTITY NokiaSolutionsAndNetworks	SYSTEM "NokiaSolutionsAndNetworks.xml">
 	<!ENTITY HP			SYSTEM "HP.xml">
+	<!ENTITY CiscoSystems			SYSTEM "CiscoSystems.xml">
 	<!ENTITY Oracle			SYSTEM "Oracle.xml">
 	<!ENTITY Custom			SYSTEM "Custom.xml">
 ]>
@@ -6988,5 +6989,6 @@
 	&NokiaSolutionsAndNetworks;
 	&HP;
 	&Oracle;
+	&CiscoSystems;
 	&Custom;
 </dictionary>
