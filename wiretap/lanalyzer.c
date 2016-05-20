@@ -323,12 +323,15 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
             comment = (char *)g_malloc(record_length + 1);
             if (!wtap_read_bytes(wth->fh, comment, record_length,
                                  err, err_info)) {
-                  if (*err != WTAP_ERR_SHORT_READ)
-                        return WTAP_OPEN_ERROR;
+                  if (*err != WTAP_ERR_SHORT_READ) {
+                      g_free(comment);
+                      return WTAP_OPEN_ERROR;
+                  }
+                  g_free(comment);
                   return WTAP_OPEN_NOT_MINE;
             }
-            comment[record_length] = '\0';
-            wtap_optionblock_set_option_string(wth->shb_hdr, OPT_COMMENT, comment);
+            wtap_optionblock_set_option_string(wth->shb_hdr, OPT_COMMENT, comment, record_length);
+            g_free(comment);
       }
 
       /* If we made it this far, then the file is a LANAlyzer file.

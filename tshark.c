@@ -3272,9 +3272,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     wtap_optionblock_get_option_string(shb_hdr, OPT_SHB_USERAPPL, &shb_user_appl);
     if (shb_user_appl == NULL) {
         /* this is free'd by wtap_optionblock_free() later */
-        shb_user_appl = g_strdup_printf("TShark (Wireshark) %s", get_ws_vcs_version_info());
-        wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_USERAPPL, shb_user_appl);
-        g_free(shb_user_appl);
+        wtap_optionblock_set_option_string_format(shb_hdr, OPT_SHB_USERAPPL, "TShark (Wireshark) %s", get_ws_vcs_version_info());
     }
 
     if (linktype != WTAP_ENCAP_PER_PACKET &&

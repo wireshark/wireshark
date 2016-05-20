@@ -620,7 +620,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
             case(OPT_COMMENT):
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                     tmp_content = g_strndup((char *)option_content, oh.option_length);
-                    wtap_optionblock_set_option_string(wblock->block, OPT_COMMENT, tmp_content);
+                    wtap_optionblock_set_option_string(wblock->block, OPT_COMMENT, option_content, oh.option_length);
                     pcapng_debug("pcapng_read_section_header_block: opt_comment %s", tmp_content);
                     g_free(tmp_content);
                 } else {
@@ -630,7 +630,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
             case(OPT_SHB_HARDWARE):
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                     tmp_content = g_strndup((char *)option_content, oh.option_length);
-                    wtap_optionblock_set_option_string(wblock->block, OPT_SHB_HARDWARE, tmp_content);
+                    wtap_optionblock_set_option_string(wblock->block, OPT_SHB_HARDWARE, option_content, oh.option_length);
                     pcapng_debug("pcapng_read_section_header_block: shb_hardware %s", tmp_content);
                     g_free(tmp_content);
                 } else {
@@ -640,7 +640,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
             case(OPT_SHB_OS):
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                     tmp_content = g_strndup((char *)option_content, oh.option_length);
-                    wtap_optionblock_set_option_string(wblock->block, OPT_SHB_OS, tmp_content);
+                    wtap_optionblock_set_option_string(wblock->block, OPT_SHB_OS, option_content, oh.option_length);
                     pcapng_debug("pcapng_read_section_header_block: shb_os %s", tmp_content);
                     g_free(tmp_content);
                 } else {
@@ -650,7 +650,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
             case(OPT_SHB_USERAPPL):
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                     tmp_content = g_strndup((char *)option_content, oh.option_length);
-                    wtap_optionblock_set_option_string(wblock->block, OPT_SHB_USERAPPL, tmp_content);
+                    wtap_optionblock_set_option_string(wblock->block, OPT_SHB_USERAPPL, option_content, oh.option_length);
                     pcapng_debug("pcapng_read_section_header_block: shb_user_appl %s", tmp_content);
                     g_free(tmp_content);
                 } else {
@@ -781,7 +781,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
             case(OPT_COMMENT): /* opt_comment */
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                     tmp_content = g_strndup((char *)option_content, oh.option_length);
-                    wtap_optionblock_set_option_string(wblock->block, OPT_COMMENT, tmp_content);
+                    wtap_optionblock_set_option_string(wblock->block, OPT_COMMENT, option_content, oh.option_length);
                     pcapng_debug("pcapng_read_if_descr_block: opt_comment %s", tmp_content);
                     g_free(tmp_content);
                 } else {
@@ -791,7 +791,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
             case(OPT_IDB_NAME): /* if_name */
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                     tmp_content = g_strndup((char *)option_content, oh.option_length);
-                    wtap_optionblock_set_option_string(wblock->block, OPT_IDB_NAME, tmp_content);
+                    wtap_optionblock_set_option_string(wblock->block, OPT_IDB_NAME, option_content, oh.option_length);
                     pcapng_debug("pcapng_read_if_descr_block: if_name %s", tmp_content);
                     g_free(tmp_content);
                 } else {
@@ -801,7 +801,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
             case(OPT_IDB_DESCR): /* if_description */
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                     tmp_content = g_strndup((char *)option_content, oh.option_length);
-                    wtap_optionblock_set_option_string(wblock->block, OPT_IDB_DESCR, tmp_content);
+                    wtap_optionblock_set_option_string(wblock->block, OPT_IDB_DESCR, option_content, oh.option_length);
                     pcapng_debug("pcapng_read_if_descr_block: if_description %s", tmp_content);
                     g_free(tmp_content);
                 } else {
@@ -900,7 +900,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                  */
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                     tmp_content = g_strndup((char *)option_content, oh.option_length);
-                    wtap_optionblock_set_option_string(wblock->block, OPT_IDB_OS, tmp_content);
+                    wtap_optionblock_set_option_string(wblock->block, OPT_IDB_OS, option_content, oh.option_length);
                     pcapng_debug("pcapng_read_if_descr_block: if_os %s", tmp_content);
                     g_free(tmp_content);
                 } else {
@@ -1847,7 +1847,7 @@ read_options:
             case(OPT_COMMENT):
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                     tmp_content = g_strndup((char *)option_content, oh.option_length);
-                    wtap_optionblock_set_option_string(wblock->block, OPT_COMMENT, tmp_content);
+                    wtap_optionblock_set_option_string(wblock->block, OPT_COMMENT, option_content, oh.option_length);
                     pcapng_debug("pcapng_read_name_resolution_block: length %u opt_comment '%s'", oh.option_length, tmp_content);
                     g_free(tmp_content);
                 } else {
@@ -1975,9 +1975,9 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
             case(OPT_COMMENT): /* opt_comment */
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                     tmp_content = g_strndup((char *)option_content, oh.option_length);
-                    wtap_optionblock_set_option_string(wblock->block, OPT_COMMENT, tmp_content);
-                    g_free(tmp_content);
+                    wtap_optionblock_set_option_string(wblock->block, OPT_COMMENT, option_content, oh.option_length);
                     pcapng_debug("pcapng_read_interface_statistics_block: opt_comment %s", tmp_content);
+                    g_free(tmp_content);
                 } else {
                     pcapng_debug("pcapng_read_interface_statistics_block: opt_comment length %u seems strange", oh.option_length);
                 }

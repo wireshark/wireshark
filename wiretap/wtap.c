@@ -191,7 +191,7 @@ wtap_file_get_shb_for_new_file(wtap *wth)
 
 	/* options */
 	wtap_optionblock_get_option_string(wth->shb_hdr, OPT_COMMENT, &opt_comment);
-	wtap_optionblock_set_option_string(shb_hdr, OPT_COMMENT, opt_comment);
+	wtap_optionblock_set_option_string(shb_hdr, OPT_COMMENT, opt_comment, (gsize)(opt_comment ? strlen(opt_comment) : 0));
 
 	return shb_hdr;
 }
@@ -221,13 +221,13 @@ wtap_write_nrb_comment(wtap *wth, gchar *comment)
 		wth->nrb_hdr = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_NRB);
 	}
 
-	wtap_optionblock_set_option_string(wth->nrb_hdr, OPT_COMMENT, comment);
+	wtap_optionblock_set_option_string(wth->nrb_hdr, OPT_COMMENT, comment, (gsize)(comment ? strlen(comment) : 0));
 }
 
 void
 wtap_write_shb_comment(wtap *wth, gchar *comment)
 {
-	wtap_optionblock_set_option_string(wth->shb_hdr, OPT_COMMENT, comment);
+	wtap_optionblock_set_option_string(wth->shb_hdr, OPT_COMMENT, comment, (gsize)(comment ? strlen(comment) : 0));
 }
 
 wtapng_iface_descriptions_t *

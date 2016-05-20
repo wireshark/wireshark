@@ -2204,7 +2204,8 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 		descr_mand->time_units_per_second = 1000000; /* default microsecond resolution */
 		descr_mand->link_type = wtap_wtap_encap_to_pcap_encap(encap);
 		descr_mand->snap_len = snaplen;
-		wtap_optionblock_set_option_string(descr, OPT_IDB_NAME, "Unknown/not available in original file format(libpcap)");
+		wtap_optionblock_set_option_string(descr, OPT_IDB_NAME, "Unknown/not available in original file format(libpcap)",
+														strlen("Unknown/not available in original file format(libpcap)"));
 
 		descr_mand->num_stat_entries = 0;          /* Number of ISB:s */
 		descr_mand->interface_statistics = NULL;

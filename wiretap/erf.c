@@ -951,7 +951,6 @@ int erf_populate_interfaces(wtap *wth)
   wtap_optionblock_t int_data;
   wtapng_if_descr_mandatory_t* int_data_mand;
   int i;
-  char* tmp;
 
   if (!wth)
     return -1;
@@ -983,12 +982,8 @@ int erf_populate_interfaces(wtap *wth)
     int_data_mand->num_stat_entries = 0;
     int_data_mand->interface_statistics = NULL;
 
-    tmp = g_strdup_printf("Port %c", 'A'+i);
-    wtap_optionblock_set_option_string(int_data, OPT_IDB_NAME, tmp);
-    g_free(tmp);
-    tmp = g_strdup_printf("ERF Interface Id %d (Port %c)", i, 'A'+i);
-    wtap_optionblock_set_option_string(int_data, OPT_IDB_DESCR, tmp);
-    g_free(tmp);
+    wtap_optionblock_set_option_string_format(int_data, OPT_IDB_NAME, "Port %c", 'A'+i);
+    wtap_optionblock_set_option_string_format(int_data, OPT_IDB_DESCR, "ERF Interface Id %d (Port %c)", i, 'A'+i);
 
     g_array_append_val(wth->interface_data, int_data);
   }
@@ -1072,7 +1067,7 @@ static struct erf_if_mapping* erf_find_interface_mapping(erf_t *erf_priv, guint6
   return (struct erf_if_mapping*) g_hash_table_lookup(erf_priv->if_map, &if_map_lookup);
 }
 
-static gchar* erf_interface_descr_strdup(guint64 host_id, guint8 source_id, guint8 if_num, const gchar *descr)
+static void erf_set_interface_descr(wtap_optionblock_t block, guint option_id, guint64 host_id, guint8 source_id, guint8 if_num, const gchar *descr)
 {
   /* Source XXX,*/
   char sourceid_buf[16];
@@ -1091,9 +1086,9 @@ static gchar* erf_interface_descr_strdup(guint64 host_id, guint8 source_id, guin
   }
 
   if (descr) {
-    return g_strdup_printf("%s (ERF%s%s Interface %d)", descr, hostid_buf, sourceid_buf, if_num);
+    wtap_optionblock_set_option_string_format(block, option_id, "%s (ERF%s%s Interface %d)", descr, hostid_buf, sourceid_buf, if_num);
   } else {
-    return g_strdup_printf("Port %c (ERF%s%s Interface %d)", 'A'+if_num, hostid_buf, sourceid_buf, if_num);
+    wtap_optionblock_set_option_string_format(block, option_id, "Port %c (ERF%s%s Interface %d)", 'A'+if_num, hostid_buf, sourceid_buf, if_num);
   }
 }
 
@@ -1105,7 +1100,6 @@ static int erf_update_implicit_host_id(erf_t *erf_priv, wtap *wth, guint64 impli
   GList* item = NULL;
   wtap_optionblock_t int_data;
   struct erf_if_mapping* if_map = NULL;
-  char* tmp;
   int i;
 
   if (!erf_priv)
@@ -1137,12 +1131,8 @@ static int erf_update_implicit_host_id(erf_t *erf_priv, wtap *wth, guint64 impli
         if (if_map->interfaces[i].if_index >= 0) {
           /* XXX: this is a pointer! */
           int_data = g_array_index(wth->interface_data, wtap_optionblock_t, if_map->interfaces[i].if_index);
-          tmp = erf_interface_descr_strdup(implicit_host_id, if_map->source_id, (guint8) i, if_map->interfaces[i].name);
-          wtap_optionblock_set_option_string(int_data, OPT_IDB_NAME, tmp);
-          g_free(tmp);
-          tmp = erf_interface_descr_strdup(implicit_host_id, if_map->source_id, (guint8) i, if_map->interfaces[i].descr);
-          wtap_optionblock_set_option_string(int_data, OPT_IDB_DESCR, tmp);
-          g_free(tmp);
+          erf_set_interface_descr(int_data, OPT_IDB_NAME, implicit_host_id, if_map->source_id, (guint8) i, if_map->interfaces[i].name);
+          erf_set_interface_descr(int_data, OPT_IDB_DESCR, implicit_host_id, if_map->source_id, (guint8) i, if_map->interfaces[i].descr);
         }
       }
       /* Re-add the item under the implicit Host ID */
@@ -1162,7 +1152,6 @@ int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header 
   wtap_optionblock_t int_data;
   wtapng_if_descr_mandatory_t* int_data_mand;
   struct erf_if_mapping* if_map = NULL;
-  char* tmp;
 
   if (!wth || !pseudo_header || !erf_priv || if_num > 3)
     return -1;
@@ -1219,12 +1208,8 @@ int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header 
   int_data_mand->num_stat_entries = 0;
   int_data_mand->interface_statistics = NULL;
 
-  tmp = erf_interface_descr_strdup(host_id, source_id, if_num, NULL);
-  wtap_optionblock_set_option_string(int_data, OPT_IDB_NAME, tmp);
-  g_free(tmp);
-  tmp = erf_interface_descr_strdup(host_id, source_id, if_num, NULL);
-  wtap_optionblock_set_option_string(int_data, OPT_IDB_DESCR, tmp);
-  g_free(tmp);
+  erf_set_interface_descr(int_data, OPT_IDB_NAME, host_id, source_id, if_num, NULL);
+  erf_set_interface_descr(int_data, OPT_IDB_DESCR, host_id, source_id, if_num, NULL);
 
   if_map->interfaces[if_num].if_index = (int) wth->interface_data->len;
   g_array_append_val(wth->interface_data, int_data);
@@ -1290,14 +1275,7 @@ static int populate_capture_host_info(erf_t *erf_priv, wtap *wth, union wtap_pse
 
         switch (tag.type) {
           case ERF_META_TAG_comment:
-            /*
-             * XXX: Would be really nice if wtap_optionblock_set_option_string()
-             * supported supplying a length (or didn't strdup), this is all
-             * through PCAP-NG too.
-             */
-            tmp = g_strndup((gchar*) tag.value, tag.length);
-            wtap_optionblock_set_option_string(shb_hdr, OPT_COMMENT, tmp);
-            g_free(tmp);
+            wtap_optionblock_set_option_string(shb_hdr, OPT_COMMENT, tag.value, tag.length);
             break;
         }
         /* Fall through */
@@ -1322,9 +1300,7 @@ static int populate_capture_host_info(erf_t *erf_priv, wtap *wth, union wtap_pse
             descr = g_strndup((gchar*) tag.value, tag.length);
             break;
           case ERF_META_TAG_os:
-            tmp = g_strndup((gchar*) tag.value, tag.length);
-            wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_OS, tmp);
-            g_free(tmp);
+            wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_OS, tag.value, tag.length);
             break;
           case ERF_META_TAG_app_name:
             g_free(app_name);
@@ -1353,7 +1329,7 @@ static int populate_capture_host_info(erf_t *erf_priv, wtap *wth, union wtap_pse
     /* If no app_version will just use app_name */
 
     tmp = g_strjoin(" ", app_name, app_version, NULL);
-    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_USERAPPL, tmp);
+    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_USERAPPL, tmp, strlen(tmp));
     g_free(tmp);
 
     g_free(app_name);
@@ -1382,15 +1358,13 @@ static int populate_capture_host_info(erf_t *erf_priv, wtap *wth, union wtap_pse
   /* Combine into "Description (Model; CPU)" */
   if (state->sectiontype == ERF_META_SECTION_HOST && descr) {
     if (modelcpu) {
-      tmp = g_strdup_printf("%s (%s)", descr, modelcpu);
-      wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_HARDWARE, tmp);
-      g_free(tmp);
+      wtap_optionblock_set_option_string_format(shb_hdr, OPT_SHB_HARDWARE, "%s (%s)", descr, modelcpu);
     } else {
-      wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_HARDWARE, descr);
+      wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_HARDWARE, descr, strlen(descr));
       /*descr = NULL;*/
     }
-  } else {
-    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_HARDWARE, modelcpu);
+  } else if (modelcpu) {
+    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_HARDWARE, modelcpu, strlen(modelcpu));
     /*modelcpu = NULL;*/
   }
 
@@ -1458,7 +1432,6 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
   wtap_optionblock_t int_data = NULL;
   wtapng_if_descr_mandatory_t* int_data_mand = NULL;
   wtapng_if_descr_filter_t if_filter;
-  char* tmp;
   guint32 if_num = 0;
   struct erf_if_info* if_info = NULL;
 
@@ -1539,30 +1512,22 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
         /* TODO: fall back to module "dev_name Port N"? */
         if (!if_info->name) {
           if_info->name = g_strndup((gchar*) tag.value, tag.length);
-          tmp = erf_interface_descr_strdup(state->if_map->host_id, state->if_map->source_id, (guint8) if_num, if_info->name);
-          wtap_optionblock_set_option_string(int_data, OPT_IDB_NAME, tmp);
-          g_free(tmp);
+          erf_set_interface_descr(int_data, OPT_IDB_NAME, state->if_map->host_id, state->if_map->source_id, (guint8) if_num, if_info->name);
 
           /* If we have no description, also copy to wtap if_description */
           if (!if_info->descr) {
-            tmp = erf_interface_descr_strdup(state->if_map->host_id, state->if_map->source_id, (guint8) if_num, if_info->name);
-            wtap_optionblock_set_option_string(int_data, OPT_IDB_DESCR, tmp);
-            g_free(tmp);
+            erf_set_interface_descr(int_data, OPT_IDB_DESCR, state->if_map->host_id, state->if_map->source_id, (guint8) if_num, if_info->name);
           }
         }
         break;
       case ERF_META_TAG_descr:
         if (!if_info->descr) {
           if_info->descr = g_strndup((gchar*) tag.value, tag.length);
-          tmp = erf_interface_descr_strdup(state->if_map->host_id, state->if_map->source_id, (guint8) if_num, if_info->descr);
-          wtap_optionblock_set_option_string(int_data, OPT_IDB_DESCR, tmp);
-          g_free(tmp);
+          erf_set_interface_descr(int_data, OPT_IDB_DESCR, state->if_map->host_id, state->if_map->source_id, (guint8) if_num, if_info->descr);
 
           /* If we have no name, also copy to wtap if_name */
           if (!if_info->name) {
-            tmp = erf_interface_descr_strdup(state->if_map->host_id, state->if_map->source_id, (guint8) if_num, if_info->descr);
-            wtap_optionblock_set_option_string(int_data, OPT_IDB_NAME, tmp);
-            g_free(tmp);
+            erf_set_interface_descr(int_data, OPT_IDB_NAME, state->if_map->host_id, state->if_map->source_id, (guint8) if_num, if_info->descr);
           }
         }
         break;
@@ -1592,9 +1557,7 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
         }
         break;
       case ERF_META_TAG_comment:
-        tmp = g_strndup((gchar*) tag.value, tag.length);
-        wtap_optionblock_set_option_string(int_data, OPT_COMMENT, tmp);
-        g_free(tmp);
+        wtap_optionblock_set_option_string(int_data, OPT_COMMENT, tag.value, tag.length);
         break;
       case ERF_META_TAG_filter:
         if_filter.if_filter_str = g_strndup((gchar*) tag.value, tag.length);

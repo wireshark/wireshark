@@ -370,6 +370,7 @@ create_shb_header(const merge_in_file_t *in_files, const guint in_file_count,
     guint i;
     char* shb_comment = NULL;
     wtapng_mandatory_section_t* shb_data;
+    gsize opt_len;
 
     shb_hdr = wtap_file_get_shb_for_new_file(in_files[0].wth);
 
@@ -396,13 +397,15 @@ create_shb_header(const merge_in_file_t *in_files, const guint in_file_count,
     shb_data = (wtapng_mandatory_section_t*)wtap_optionblock_get_mandatory_data(shb_hdr);
     shb_data->section_length = -1;
     /* TODO: handle comments from each file being merged */
-    wtap_optionblock_set_option_string(shb_hdr, OPT_COMMENT, g_string_free(comment_gstr, TRUE)); /* section comment */
-    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_HARDWARE, NULL ); /* NULL if not available, UTF-8 string containing the        */
+    opt_len = comment_gstr->len;
+    wtap_optionblock_set_option_string(shb_hdr, OPT_COMMENT, g_string_free(comment_gstr, TRUE), opt_len); /* section comment */
+    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_HARDWARE, NULL, 0 ); /* NULL if not available, UTF-8 string containing the        */
                                                                                       /*  description of the hardware used to create this section. */
 
-    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_OS, g_string_free(os_info_str, TRUE)); /* UTF-8 string containing the name   */
+    opt_len = os_info_str->len;
+    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_OS, g_string_free(os_info_str, TRUE), opt_len); /* UTF-8 string containing the name   */
                                                                                                             /*  of the operating system used to create this section.     */
-    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_USERAPPL, (char*)app_name ); /* NULL if not available, UTF-8 string containing the name */
+    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_USERAPPL, (char*)app_name, app_name ? strlen(app_name): 0 ); /* NULL if not available, UTF-8 string containing the name */
                                                                                       /*  of the application used to create this section.          */
 
     return shb_hdr;

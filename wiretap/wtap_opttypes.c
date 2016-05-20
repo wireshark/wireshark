@@ -389,7 +389,7 @@ int wtap_optionblock_add_option(wtap_optionblock_t block, guint option_id, wtap_
     return WTAP_OPTTYPE_SUCCESS;
 }
 
-int wtap_optionblock_set_option_string(wtap_optionblock_t block, guint option_id, char* value)
+int wtap_optionblock_set_option_string(wtap_optionblock_t block, guint option_id, char* value, gsize value_length)
 {
     wtap_optblock_value_t* opt_value = wtap_optionblock_get_option(block, option_id);
 
@@ -401,7 +401,26 @@ int wtap_optionblock_set_option_string(wtap_optionblock_t block, guint option_id
         return WTAP_OPTTYPE_TYPE_MISMATCH;
 
     g_free(opt_value->option.stringval);
-    opt_value->option.stringval = g_strdup(value);
+    opt_value->option.stringval = g_strndup(value, value_length);
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+int wtap_optionblock_set_option_string_format(wtap_optionblock_t block, guint option_id, const char *format, ...)
+{
+    va_list va;
+    wtap_optblock_value_t* opt_value = wtap_optionblock_get_option(block, option_id);
+
+    /* Didn't find the option */
+    if (opt_value == NULL)
+        return WTAP_OPTTYPE_NOT_FOUND;
+
+    if (opt_value->info->type != WTAP_OPTTYPE_STRING)
+        return WTAP_OPTTYPE_TYPE_MISMATCH;
+
+    g_free(opt_value->option.stringval);
+    va_start(va, format);
+    opt_value->option.stringval = g_strdup_vprintf(format, va);
+    va_end(va);
     return WTAP_OPTTYPE_SUCCESS;
 }
 

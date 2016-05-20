@@ -1240,25 +1240,25 @@ process_cap_file(wtap *wth, const char *filename)
     wtap_optionblock_get_option_string(shb_inf, OPT_COMMENT, &shb_str);
     shb_str_no_newlines = g_strdup(shb_str);
     string_replace_newlines(shb_str_no_newlines);
-    wtap_optionblock_set_option_string(cf_info.shb, OPT_COMMENT, shb_str_no_newlines);
+    wtap_optionblock_set_option_string(cf_info.shb, OPT_COMMENT, shb_str_no_newlines, (gsize)(shb_str_no_newlines ? strlen(shb_str_no_newlines) : 0));
     g_free(shb_str_no_newlines);
 
     wtap_optionblock_get_option_string(shb_inf, OPT_SHB_HARDWARE, &shb_str);
     shb_str_no_newlines = g_strdup(shb_str);
     string_replace_newlines(shb_str_no_newlines);
-    wtap_optionblock_set_option_string(cf_info.shb, OPT_SHB_HARDWARE, shb_str_no_newlines);
+    wtap_optionblock_set_option_string(cf_info.shb, OPT_SHB_HARDWARE, shb_str_no_newlines, (gsize)(shb_str_no_newlines ? strlen(shb_str_no_newlines) : 0));
     g_free(shb_str_no_newlines);
 
     wtap_optionblock_get_option_string(shb_inf, OPT_SHB_OS, &shb_str);
     shb_str_no_newlines = g_strdup(shb_str);
     string_replace_newlines(shb_str_no_newlines);
-    wtap_optionblock_set_option_string(cf_info.shb, OPT_SHB_OS, shb_str_no_newlines);
+    wtap_optionblock_set_option_string(cf_info.shb, OPT_SHB_OS, shb_str_no_newlines, (gsize)(shb_str_no_newlines ? strlen(shb_str_no_newlines) : 0));
     g_free(shb_str_no_newlines);
 
     wtap_optionblock_get_option_string(shb_inf, OPT_SHB_USERAPPL, &shb_str);
     shb_str_no_newlines = g_strdup(shb_str);
     string_replace_newlines(shb_str_no_newlines);
-    wtap_optionblock_set_option_string(cf_info.shb, OPT_SHB_USERAPPL, shb_str_no_newlines);
+    wtap_optionblock_set_option_string(cf_info.shb, OPT_SHB_USERAPPL, shb_str_no_newlines, (gsize)(shb_str_no_newlines ? strlen(shb_str_no_newlines) : 0));
     g_free(shb_str_no_newlines);
   }
 

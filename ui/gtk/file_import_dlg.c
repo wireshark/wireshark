@@ -463,7 +463,7 @@ file_import_open(text_import_info_t *info)
     wtap_optionblock_t           int_data;
     wtapng_if_descr_mandatory_t *int_data_mand;
     GString                     *os_info_str;
-    gchar                       *opt_comment, *wireshark_ver;
+    gsize                        opt_len;
 
     /* Create data for SHB  */
     os_info_str = g_string_new("");
@@ -472,22 +472,19 @@ file_import_open(text_import_info_t *info)
     shb_hdr = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_SECTION);
 
     /* options */
-    opt_comment = g_strdup_printf("File created by File->Import of file %s", info->import_text_filename);
-    wtap_optionblock_set_option_string(shb_hdr, OPT_COMMENT, opt_comment);
-    g_free(opt_comment);
+    wtap_optionblock_set_option_string_format(shb_hdr, OPT_COMMENT, "File created by File->Import of file %s", info->import_text_filename);
 
     /*
      * UTF-8 string containing the name of the operating system used to create
      * this section.
      */
-    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_OS, g_string_free(os_info_str, TRUE));
+    opt_len = os_info_str->len;
+    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_OS, g_string_free(os_info_str, TRUE), opt_len);
     /*
      * UTF-8 string containing the name of the application used to create
      * this section.
      */
-    wireshark_ver = g_strdup_printf("Wireshark %s", get_ws_vcs_version_info());
-    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_USERAPPL, wireshark_ver);
-    g_free(wireshark_ver);
+    wtap_optionblock_set_option_string_format(shb_hdr, OPT_SHB_USERAPPL, "Wireshark %s", get_ws_vcs_version_info());
 
     /* Create fake IDB info */
     idb_inf = g_new(wtapng_iface_descriptions_t,1);
@@ -500,7 +497,7 @@ file_import_open(text_import_info_t *info)
     int_data_mand->time_units_per_second = 1000000; /* default microsecond resolution */
     int_data_mand->link_type             = wtap_wtap_encap_to_pcap_encap(info->encapsulation);
     int_data_mand->snap_len              = WTAP_MAX_PACKET_SIZE;
-    wtap_optionblock_set_option_string(int_data, OPT_IDB_NAME, "Fake IF File->Import");
+    wtap_optionblock_set_option_string(int_data, OPT_IDB_NAME, "Fake IF File->Import", strlen("Fake IF File->Import"));
 
     g_array_append_val(idb_inf->interface_data, int_data);
 

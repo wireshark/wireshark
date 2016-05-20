@@ -618,7 +618,8 @@ extern int wslua_set__index(lua_State *L);
         } else { \
             return luaL_error(L, "%s's attribute `%s' must be a string or nil", #C , #field ); \
         } \
-        wtap_optionblock_set_option_string(obj->member, option, s); \
+        wtap_optionblock_set_option_string(obj->member, option, s, strlen(s)); \
+        g_free(s); \
         return 0; \
     } \
     /* silly little trick so we can add a semicolon after this macro */ \

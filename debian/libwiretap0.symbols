@@ -86,6 +86,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_optionblock_get_option_uint64@Base 2.1.0
  wtap_optionblock_set_option_custom@Base 2.1.0
  wtap_optionblock_set_option_string@Base 2.1.0
+ wtap_optionblock_set_option_string_format@Base 2.1.0
  wtap_optionblock_set_option_uint8@Base 2.1.0
  wtap_optionblock_set_option_uint64@Base 2.1.0
  wtap_pcap_encap_to_wtap_encap@Base 1.9.1

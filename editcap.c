@@ -1382,9 +1382,7 @@ main(int argc, char *argv[])
                 /* If we don't have an application name add Editcap */
                 wtap_optionblock_get_option_string(shb_hdr, OPT_SHB_USERAPPL, &shb_user_appl);
                 if (shb_user_appl == NULL) {
-                    shb_user_appl = g_strdup("Editcap " VERSION);
-                    wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_USERAPPL, shb_user_appl);
-                    g_free(shb_user_appl);
+                    wtap_optionblock_set_option_string_format(shb_hdr, OPT_SHB_USERAPPL, "Editcap " VERSION);
                 }
 
                 pdh = editcap_dump_open(filename,

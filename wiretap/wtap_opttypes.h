@@ -133,9 +133,20 @@ int wtap_optionblock_add_option(wtap_optionblock_t block, guint option_id, wtap_
  * @param[in] block Block to add option
  * @param[in] option_id Identifier value for option
  * @param[in] value New value of option
+ * @param[in] value_length Maximum length of string to copy.
  * @return 0 if successful
  */
-WS_DLL_PUBLIC int wtap_optionblock_set_option_string(wtap_optionblock_t block, guint option_id, char* value);
+WS_DLL_PUBLIC int wtap_optionblock_set_option_string(wtap_optionblock_t block, guint option_id, char* value, gsize value_length);
+
+/** Set printf-styled string option value to an option block
+ *
+ * @param[in] block Block to add option
+ * @param[in] option_id Identifier value for option
+ * @param[in] format printf like format string
+ * @return 0 if successful
+ */
+WS_DLL_PUBLIC int wtap_optionblock_set_option_string_format(wtap_optionblock_t block, guint option_id, const char *format, ...)
+                                                            G_GNUC_PRINTF(3,4);
 
 /** Get string option value from an option block
  *
