@@ -524,7 +524,7 @@ gboolean wtap_opttype_write_data_uint64(struct wtap_dumper* wdh, wtap_option_typ
     return TRUE;
 }
 
-gboolean wtap_opttype_write_data_uint64_timestamp(struct wtap_dumper* wdh, wtap_option_type* data, int *err)
+static gboolean wtap_opttype_write_data_uint64_timestamp(struct wtap_dumper* wdh, wtap_option_type* data, int *err)
 {
     guint32 high, low;
 
