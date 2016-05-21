@@ -47,7 +47,7 @@ public:
     void setNearOverlayImage(QImage &overlay_image, int start_pos = -1, int end_pos = -1, int selected_pos = -1);
 
     /** Set the "far" overlay image.
-     * @param overlay_image An image showing the position of marked, ignored,
+     * @param mp_image An image showing the position of marked, ignored,
      *        and reference time packets over the entire packet list. It
      *        should be sized in device pixels.
      */
