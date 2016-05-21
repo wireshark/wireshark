@@ -156,7 +156,7 @@ is single-threaded and won't benefit much from multi-core systems.
 * The current version of Wireshark should support any version of Windows that is
   still within its http://windows.microsoft.com/en-us/windows/lifecycle[extended
   support lifetime]. At the time of writing this includes Windows 10, 8, 7, Vista,
-  Server 2016, Server 2012, Server 2008 R2, and Server 2008.
+  Server 2016, Server 2012 R2, Server 2012, Server 2008 R2, and Server 2008.
 
 * Any modern 64-bit AMD64/x86-64 or 32-bit x86 processor.
 
