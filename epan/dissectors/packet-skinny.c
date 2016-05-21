@@ -4557,7 +4557,7 @@ handle_StartMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U
   if (hdr_version >= V15_MSG_TYPE) {
     ptvcursor_add(cursor, hf_skinny_partyDirection, 4, ENC_LITTLE_ENDIAN);
   }
-  if (hdr_version >= V20_MSG_TYPE) {
+  if (hdr_version >= V21_MSG_TYPE) {
     {
       /* start struct : latentCapsInfo / size: 36 */
       ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "latentCapsInfo");
@@ -5123,8 +5123,9 @@ handle_StopMulticastMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * 
 static void
 handle_OpenReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
-  guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);
+  guint32 hdr_data_length = tvb_get_letohl(ptvcursor_tvbuff(cursor), 0);
   guint32 compressionType = 0;
+  guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);
   guint16 keylen = 0;
   guint16 saltlen = 0;
 
@@ -5218,55 +5219,59 @@ handle_OpenReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
     ptvcursor_add(cursor, hf_skinny_requestedIpAddrType, 4, ENC_LITTLE_ENDIAN);
   }
   if (hdr_version >= V17_MSG_TYPE) {
-    ptvcursor_add(cursor, hf_skinny_audioLevelAdjustment, 4, ENC_LITTLE_ENDIAN);
+    if (hdr_data_length > 132) {
+      ptvcursor_add(cursor, hf_skinny_audioLevelAdjustment, 4, ENC_LITTLE_ENDIAN);
+    }
   }
-  if (hdr_version >= V20_MSG_TYPE) {
-    {
-      /* start struct : latentCapsInfo / size: 36 */
-      ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "latentCapsInfo");
-      ptvcursor_add(cursor, hf_skinny_active, 4, ENC_LITTLE_ENDIAN);
+  if (hdr_version >= V21_MSG_TYPE) {
+    if (hdr_data_length > 132) {
       {
-        /* start struct : modemRelay / size: 8 */
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "modemRelay");
-        ptvcursor_add(cursor, hf_skinny_capAndVer, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_modAnd2833, 4, ENC_LITTLE_ENDIAN);
+        /* start struct : latentCapsInfo / size: 36 */
+        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "latentCapsInfo");
+        ptvcursor_add(cursor, hf_skinny_active, 4, ENC_LITTLE_ENDIAN);
+        {
+          /* start struct : modemRelay / size: 8 */
+          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "modemRelay");
+          ptvcursor_add(cursor, hf_skinny_capAndVer, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_modAnd2833, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_pop_subtree(cursor);
+          /* end struct: modemRelay */
+        }
+        {
+          /* start struct : sprtPayload / size: 8 */
+          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sprtPayload");
+          ptvcursor_add(cursor, hf_skinny_chan0MaxPayload, 2, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_chan2MaxPayload, 2, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_chan3MaxPayload, 2, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_chan2MaxWindow, 2, ENC_LITTLE_ENDIAN);
+          ptvcursor_pop_subtree(cursor);
+          /* end struct: sprtPayload */
+        }
+        {
+          /* start struct : sse / size: 8 */
+          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sse");
+          ptvcursor_add(cursor, hf_skinny_standard, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_vendor, 4, ENC_LITTLE_ENDIAN);
+          ptvcursor_pop_subtree(cursor);
+          /* end struct: sse */
+        }
+        {
+          /* start struct : payloadParam / size: 8 */
+          ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadParam");
+          ptvcursor_add(cursor, hf_skinny_nse, 1, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_rfc2833, 1, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_sse, 1, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_v150sprt, 1, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_noaudio, 1, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_FutureUse1, 1, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_FutureUse2, 1, ENC_LITTLE_ENDIAN);
+          ptvcursor_add(cursor, hf_skinny_FutureUse3, 1, ENC_LITTLE_ENDIAN);
+          ptvcursor_pop_subtree(cursor);
+          /* end struct: payloadParam */
+        }
         ptvcursor_pop_subtree(cursor);
-        /* end struct: modemRelay */
+        /* end struct: latentCapsInfo */
       }
-      {
-        /* start struct : sprtPayload / size: 8 */
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sprtPayload");
-        ptvcursor_add(cursor, hf_skinny_chan0MaxPayload, 2, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_chan2MaxPayload, 2, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_chan3MaxPayload, 2, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_chan2MaxWindow, 2, ENC_LITTLE_ENDIAN);
-        ptvcursor_pop_subtree(cursor);
-        /* end struct: sprtPayload */
-      }
-      {
-        /* start struct : sse / size: 8 */
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "sse");
-        ptvcursor_add(cursor, hf_skinny_standard, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_vendor, 4, ENC_LITTLE_ENDIAN);
-        ptvcursor_pop_subtree(cursor);
-        /* end struct: sse */
-      }
-      {
-        /* start struct : payloadParam / size: 8 */
-        ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "payloadParam");
-        ptvcursor_add(cursor, hf_skinny_nse, 1, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_rfc2833, 1, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_sse, 1, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_v150sprt, 1, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_noaudio, 1, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_FutureUse1, 1, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_FutureUse2, 1, ENC_LITTLE_ENDIAN);
-        ptvcursor_add(cursor, hf_skinny_FutureUse3, 1, ENC_LITTLE_ENDIAN);
-        ptvcursor_pop_subtree(cursor);
-        /* end struct: payloadParam */
-      }
-      ptvcursor_pop_subtree(cursor);
-      /* end struct: latentCapsInfo */
     }
   }
 }

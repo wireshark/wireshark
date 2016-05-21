@@ -2241,7 +2241,7 @@
     <fields beginversion="15">
       <integer comment="" name="partyDirection" type="uint32"/>
     </fields>
-    <fields beginversion="20" endversion="22">
+    <fields beginversion="21" endversion="22">
       <struct comment="" name="latentCapsInfo" type="struct">
         <fields>
           <integer comment="" name="active" type="uint32"/>
@@ -2726,10 +2726,10 @@
     <fields beginversion="16">
       <enum comment="" name="requestedIpAddrType" subtype="IpAddrType" type="uint32"/>
     </fields>
-    <fields beginversion="17">
+    <fields beginversion="17" size_gt="132">
       <integer comment="" name="audioLevelAdjustment" type="int32"/>
     </fields>
-    <fields beginversion="20" endversion="22">
+    <fields beginversion="21" endversion="22" size_gt="132">
       <struct comment="" name="latentCapsInfo" type="struct">
         <fields>
           <integer comment="" name="active" type="uint32"/>
