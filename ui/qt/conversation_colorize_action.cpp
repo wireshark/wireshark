@@ -54,7 +54,7 @@ void ConversationAction::setPacketInfo(struct _packet_info *pinfo)
 
     // If we're the "New Coloring Rule" item, enable or disable our parent menu.
     QMenu *parent_submenu = qobject_cast<QMenu *>(parentWidget());
-    if (color_number_ > 0 || !parent_submenu) return;
+    if (color_number_ < 0 || !parent_submenu) return;
     parent_submenu->setEnabled(enable);
 }
 
