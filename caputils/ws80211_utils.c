@@ -681,7 +681,7 @@ out_err:
 }
 
 /* Needed for NLA_PUT_STRING, which passes strlen as an int */
-DIAG_OFF(shorten-64-to-32)
+DIAG_OFF_CLANG(shorten-64-to-32)
 static int ws80211_create_on_demand_interface(const char *name)
 {
 	int devidx, phyidx, err;
@@ -718,7 +718,7 @@ nla_put_failure:
 	fprintf(stderr, "building message failed\n");
 	return 2;
 }
-DIAG_ON(shorten-64-to-32)
+DIAG_ON_CLANG(shorten-64-to-32)
 
 int ws80211_set_freq(const char *name, int freq, int chan_type)
 {
