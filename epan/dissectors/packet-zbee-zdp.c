@@ -458,9 +458,8 @@ zbee_append_info(proto_item *item, packet_info *pinfo, const gchar *format, ...)
     g_vsnprintf(buffer, 512, format, ap);
     va_end(ap);
 
-    if (item) {
-        proto_item_append_text(item, "%s", buffer);
-    }
+    proto_item_append_text(item, "%s", buffer);
+
     col_append_str(pinfo->cinfo, COL_INFO, buffer);
 } /* zbee_add_info */
 
@@ -501,9 +500,7 @@ zbee_parse_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb, guint *offset, gui
     }
 
     /* Display it. */
-    if (tree) {
-        item = proto_tree_add_uint(tree, hfindex, tvb, *offset, length, value);
-    }
+    item = proto_tree_add_uint(tree, hfindex, tvb, *offset, length, value);
 
     /* Increment the offset. */
     *offset += length;
@@ -536,9 +533,7 @@ zbee_parse_eui64(proto_tree *tree, int hfindex, tvbuff_t *tvb, guint *offset, gu
     value = tvb_get_letoh64(tvb, *offset);
 
     /* Display it. */
-    if (tree) {
-        item = proto_tree_add_eui64(tree, hfindex, tvb, *offset, length, value);
-    }
+    item = proto_tree_add_eui64(tree, hfindex, tvb, *offset, length, value);
 
     /* Increment the offset. */
     *offset += (int)sizeof(guint64);
@@ -564,9 +559,8 @@ zdp_parse_status(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 
     /* Get and display the flags. */
     status = tvb_get_guint8(tvb, *offset);
-    if (tree) {
-        proto_tree_add_uint(tree, hf_zbee_zdp_status, tvb, *offset, (int)sizeof(guint8), status);
-    }
+    proto_tree_add_uint(tree, hf_zbee_zdp_status, tvb, *offset, (int)sizeof(guint8), status);
+
     *offset += (int)sizeof(guint8);
 
     return status;
@@ -588,42 +582,42 @@ zdp_parse_chanmask(proto_tree *tree, tvbuff_t *tvb, guint *offset, int hf_channe
 
     /* Get and display the channel mask. */
     mask = tvb_get_letohl(tvb, *offset);
-    if (tree) {
-        ti = proto_tree_add_uint_format(tree, hf_channel, tvb, *offset, 4, mask, "Channels: ");
 
-        /* Check if there are any channels to display. */
-        if (mask==0) {
-            proto_item_append_text(ti, "None");
-        }
-        /* Display the first channel #. */
-        for (i=0; i<(8*(int)(int)sizeof(guint32)); i++) {
-            if ((1<<i) & mask) {
-                proto_item_append_text(ti, "%d", i++);
-                break;
-            }
-        } /* for */
-        /* Display the rest of the channels. */
-        for (;i<(8*(int)(int)sizeof(guint32)); i++) {
-            if (!((1<<i) & mask)) {
-                /* This channel isn't selected. */
-                continue;
-            }
-            /* If the previous channel wasn't selected, then display the
-             * channel number.
-             */
-            if ( ! ((1<<(i-1)) & mask) ) {
-                proto_item_append_text(ti, ", %d", i);
-            }
-            /*
-             * If the next channel is selected too, skip past it and display
-             * a range of values instead.
-             */
-            if ((2<<i) & mask) {
-                while ((2<<i) & mask) i++;
-                proto_item_append_text(ti, "-%d", i);
-            }
-        } /* for */
+    ti = proto_tree_add_uint_format(tree, hf_channel, tvb, *offset, 4, mask, "Channels: ");
+
+    /* Check if there are any channels to display. */
+    if (mask==0) {
+        proto_item_append_text(ti, "None");
     }
+    /* Display the first channel #. */
+    for (i=0; i<(8*(int)(int)sizeof(guint32)); i++) {
+        if ((1<<i) & mask) {
+            proto_item_append_text(ti, "%d", i++);
+            break;
+        }
+    } /* for */
+    /* Display the rest of the channels. */
+    for (;i<(8*(int)(int)sizeof(guint32)); i++) {
+        if (!((1<<i) & mask)) {
+            /* This channel isn't selected. */
+            continue;
+        }
+        /* If the previous channel wasn't selected, then display the
+         * channel number.
+         */
+        if ( ! ((1<<(i-1)) & mask) ) {
+            proto_item_append_text(ti, ", %d", i);
+        }
+        /*
+         * If the next channel is selected too, skip past it and display
+         * a range of values instead.
+         */
+        if ((2<<i) & mask) {
+            while ((2<<i) & mask) i++;
+            proto_item_append_text(ti, "-%d", i);
+        }
+    } /* for */
+
     *offset += (int)sizeof(guint32);
 
     return mask;
