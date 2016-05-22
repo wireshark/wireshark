@@ -140,12 +140,12 @@
         <translation>Enregistrer en tant qu&apos;image</translation>
     </message>
     <message>
-        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="306"/>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="313"/>
         <source>Save Table Image</source>
         <translation>Sauvegarder Image Tableau</translation>
     </message>
     <message>
-        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="308"/>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="315"/>
         <source>PNG Image (*.png)</source>
         <translation>Image PNG (*.png)</translation>
     </message>
@@ -233,18 +233,18 @@
         <translation>Enregistrer en tant qu&apos;image</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="267"/>
-        <location filename="bluetooth_devices_dialog.cpp" line="286"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="274"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="293"/>
         <source>true</source>
         <translation>vrai</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="371"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="378"/>
         <source>Save Table Image</source>
         <translation>Sauvegarder Image Tableau</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="373"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="380"/>
         <source>PNG Image (*.png)</source>
         <translation>Image PNG (*.png)</translation>
     </message>
@@ -455,37 +455,37 @@
         <translation>Enregistrer en tant qu&apos;image</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="305"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="312"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="323"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="330"/>
         <source>Adapter %1</source>
         <translation>Adaptateur %1</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="411"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="461"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="498"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="532"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="569"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="603"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="418"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="468"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="505"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="539"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="576"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="610"/>
         <source>Frame %1</source>
         <translation>Trame %1</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="521"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="528"/>
         <source>Pending</source>
         <translation>En attente</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="715"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="722"/>
         <source>Save Table Image</source>
         <translation>Sauvegarder Image Tableau</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="717"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="724"/>
         <source>PNG Image (*.png)</source>
         <translation>Image PNG (*.png)</translation>
     </message>
@@ -2028,17 +2028,17 @@ si vous voulez utiliser des fichiers multiples.</translation>
         <translation>&lt;small&gt;&lt;i&gt;Un indice.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="72"/>
+        <location filename="display_filter_expression_dialog.cpp" line="74"/>
         <source>Display Filter Expression</source>
         <translation>Affiche Expression de Filtre</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="211"/>
+        <location filename="display_filter_expression_dialog.cpp" line="213"/>
         <source>Select a field name to get started</source>
         <translation>Sélectionner un nom de champ pour commencer</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="215"/>
+        <location filename="display_filter_expression_dialog.cpp" line="217"/>
         <source>Click OK to insert this filter</source>
         <translation>Cliquer OK pour insérer ce filtre</translation>
     </message>
@@ -4333,32 +4333,32 @@ pour fichiers de filtre : %2.</translation>
         <translation>Attend démarrage%1</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="260"/>
+        <location filename="interface_tree.cpp" line="263"/>
         <source>Interface information not available</source>
         <translation>Information concernant l&apos;interface n&apos;est pas disponible</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="436"/>
+        <location filename="interface_tree.cpp" line="439"/>
         <source>Addresses</source>
         <translation>Adresses</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="436"/>
+        <location filename="interface_tree.cpp" line="439"/>
         <source>Address</source>
         <translation>Adresse</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="439"/>
+        <location filename="interface_tree.cpp" line="442"/>
         <source>No addresses</source>
         <translation>Pas d&apos;adresse</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="444"/>
+        <location filename="interface_tree.cpp" line="447"/>
         <source>No capture filter</source>
         <translation>Pas de filtre de capture</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="447"/>
+        <location filename="interface_tree.cpp" line="450"/>
         <source>Capture filter</source>
         <translation>Filtre de capture</translation>
     </message>
@@ -6439,27 +6439,47 @@ pour fichiers de filtre : %2.</translation>
         <translation>&lt;h2&gt;Ouvrir&lt;/h2&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="140"/>
+        <location filename="main_welcome.ui" line="130"/>
+        <source>Recent capture files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_welcome.ui" line="133"/>
+        <source>Capture files that have been opened previously</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_welcome.ui" line="146"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capturer des paquets live de votre réseau.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="143"/>
+        <location filename="main_welcome.ui" line="149"/>
         <source>&lt;h2&gt;Capture&lt;/h2&gt;</source>
         <translation>&lt;h2&gt;Capture&lt;/h2&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="162"/>
+        <location filename="main_welcome.ui" line="168"/>
         <source>…using this filter:</source>
         <translation>...en utilisant ce filtre</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="214"/>
+        <location filename="main_welcome.ui" line="197"/>
+        <source>Interface list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_welcome.ui" line="200"/>
+        <source>List of available capture interfaces</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_welcome.ui" line="226"/>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
         <translation>&lt;h2&gt;Découvrir&lt;/h2&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="221"/>
+        <location filename="main_welcome.ui" line="233"/>
         <source>&lt;html&gt;&lt;head&gt;
 &lt;style&gt;
 a:link {
@@ -6550,7 +6570,7 @@ a:hover {
         <translation>Non trouvé</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="453"/>
+        <location filename="main_welcome.cpp" line="454"/>
         <source>Copy file path</source>
         <translation>Copier le chemin du fichier</translation>
     </message>
@@ -10783,12 +10803,12 @@ a:hover {
         <translation>Priorité</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="436"/>
+        <location filename="main_welcome.cpp" line="437"/>
         <source>Show in Finder</source>
         <translation>Voir dans Finder</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="438"/>
+        <location filename="main_welcome.cpp" line="439"/>
         <source>Show in Folder</source>
         <translation>Voir dans le Dossier</translation>
     </message>
@@ -11241,223 +11261,223 @@ a:hover {
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Aller&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Retour&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="65"/>
+        <location filename="rtp_analysis_dialog.ui" line="68"/>
         <source>Forward</source>
         <translation>Aller</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="69"/>
+        <location filename="rtp_analysis_dialog.ui" line="72"/>
         <source>Packet</source>
         <translation>Paquet</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="74"/>
+        <location filename="rtp_analysis_dialog.ui" line="77"/>
         <source>Sequence</source>
         <translation>Séquence</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="79"/>
+        <location filename="rtp_analysis_dialog.ui" line="82"/>
         <source>Delta (ms)</source>
         <translation>Delta(ms)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="84"/>
+        <location filename="rtp_analysis_dialog.ui" line="87"/>
         <source>Jitter (ms)</source>
         <oldsource>Jitter</oldsource>
         <translation>Gigue(ms)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="89"/>
+        <location filename="rtp_analysis_dialog.ui" line="92"/>
         <source>Skew</source>
         <translation>Déviation</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="94"/>
+        <location filename="rtp_analysis_dialog.ui" line="97"/>
         <source>Bandwidth</source>
         <translation>Bande passante</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="99"/>
+        <location filename="rtp_analysis_dialog.ui" line="102"/>
         <source>Marker</source>
         <translation>Marqueur</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="104"/>
+        <location filename="rtp_analysis_dialog.ui" line="107"/>
         <source>Status</source>
         <translation>Etat</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="116"/>
+        <location filename="rtp_analysis_dialog.ui" line="122"/>
         <source>Reverse</source>
         <translation>Retour</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="126"/>
+        <location filename="rtp_analysis_dialog.ui" line="132"/>
         <source>Graph</source>
         <translation>Graphique</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="137"/>
+        <location filename="rtp_analysis_dialog.ui" line="143"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche ou masque les valeurs de gigue aller.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="140"/>
+        <location filename="rtp_analysis_dialog.ui" line="146"/>
         <source>Forward Jitter</source>
         <translation>Gigue aller</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="160"/>
+        <location filename="rtp_analysis_dialog.ui" line="166"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche ou masque les valeurs de différence aller.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="163"/>
+        <location filename="rtp_analysis_dialog.ui" line="169"/>
         <source>Forward Difference</source>
         <translation>Différence Aller</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="183"/>
+        <location filename="rtp_analysis_dialog.ui" line="189"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche ou masque les valeurs de delta aller.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="186"/>
+        <location filename="rtp_analysis_dialog.ui" line="192"/>
         <source>Forward Delta</source>
         <translation>Delta Aller</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="210"/>
+        <location filename="rtp_analysis_dialog.ui" line="216"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche ou masque les valeurs de gigueretour.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="213"/>
+        <location filename="rtp_analysis_dialog.ui" line="219"/>
         <source>Reverse Jitter</source>
         <translation>Gigue Retour</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="233"/>
+        <location filename="rtp_analysis_dialog.ui" line="239"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche ou masqe les valeurs de différences retour.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="236"/>
+        <location filename="rtp_analysis_dialog.ui" line="242"/>
         <source>Reverse Difference</source>
         <translation>Différence Retour</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="256"/>
+        <location filename="rtp_analysis_dialog.ui" line="262"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="259"/>
+        <location filename="rtp_analysis_dialog.ui" line="265"/>
         <source>Reverse Delta</source>
         <translation>Delta Retour</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="289"/>
+        <location filename="rtp_analysis_dialog.ui" line="295"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Un indice.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="321"/>
+        <location filename="rtp_analysis_dialog.ui" line="327"/>
         <source>Audio</source>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="324"/>
+        <location filename="rtp_analysis_dialog.ui" line="330"/>
         <source>Save the audio data for both channels.</source>
         <translation>Sauvegarder les données audio pour les deux canaux.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="329"/>
+        <location filename="rtp_analysis_dialog.ui" line="335"/>
         <source>Forward Stream Audio</source>
         <translation>Flux Audio Aller</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="332"/>
+        <location filename="rtp_analysis_dialog.ui" line="338"/>
         <source>Save the forward stream audio data.</source>
         <translation>Sauvegarder les données audio du flux aller.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="337"/>
+        <location filename="rtp_analysis_dialog.ui" line="343"/>
         <source>Reverse Stream Audio</source>
         <translation>Flux Audio Retour</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="340"/>
+        <location filename="rtp_analysis_dialog.ui" line="346"/>
         <source>Save the reverse stream audio data.</source>
         <translation>Sauvegarder les données de flux audio retour.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="345"/>
+        <location filename="rtp_analysis_dialog.ui" line="351"/>
         <source>CSV</source>
         <translation>CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="348"/>
+        <location filename="rtp_analysis_dialog.ui" line="354"/>
         <source>Save both tables as CSV.</source>
         <translation>Sauvegarder les deux tables en CSV.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="353"/>
+        <location filename="rtp_analysis_dialog.ui" line="359"/>
         <source>Forward Stream CSV</source>
         <translation>Transférer le flux CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="356"/>
+        <location filename="rtp_analysis_dialog.ui" line="362"/>
         <source>Save the forward table as CSV.</source>
         <translation>Sauvegarder la table aller en CSV.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="361"/>
+        <location filename="rtp_analysis_dialog.ui" line="367"/>
         <source>Reverse Stream CSV</source>
         <translation>CSV Flux Retour</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="364"/>
+        <location filename="rtp_analysis_dialog.ui" line="370"/>
         <source>Save the reverse table as CSV.</source>
         <translation>Sauvegarder la table inverse en CSV.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="369"/>
+        <location filename="rtp_analysis_dialog.ui" line="375"/>
         <source>Save Graph</source>
         <translation>Sauvegarder Graphique</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="372"/>
+        <location filename="rtp_analysis_dialog.ui" line="378"/>
         <source>Save the graph image.</source>
         <translation>Sauvegarder le graphique.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="377"/>
+        <location filename="rtp_analysis_dialog.ui" line="383"/>
         <source>Go to Packet</source>
         <translation>Aller au Paquet</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="380"/>
+        <location filename="rtp_analysis_dialog.ui" line="386"/>
         <source>Select the corresponding packet in the packet list.</source>
         <translation>Sélectionner le paquet correspondant dans la liste des paquets.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="383"/>
+        <location filename="rtp_analysis_dialog.ui" line="389"/>
         <source>G</source>
         <translation>G</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="388"/>
+        <location filename="rtp_analysis_dialog.ui" line="394"/>
         <source>Next Problem Packet</source>
         <translation>Paquet problématique suivant</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="391"/>
+        <location filename="rtp_analysis_dialog.ui" line="397"/>
         <source>Go to the next problem packet</source>
         <translation>Aller au prochain paquet problématique</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="394"/>
+        <location filename="rtp_analysis_dialog.ui" line="400"/>
         <source>N</source>
         <translation>N</translation>
     </message>
@@ -11467,160 +11487,160 @@ a:hover {
         <translation>Analyse flux RTP</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="332"/>
+        <location filename="rtp_analysis_dialog.cpp" line="334"/>
         <source>Unable to save RTP data.</source>
         <translation>Impossible de sauvegarder les données RTP.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1486"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1488"/>
         <source>SSRC value not found.</source>
         <translation>Valeur SSRC non trouvée.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="376"/>
+        <location filename="rtp_analysis_dialog.cpp" line="378"/>
         <source>No streams found.</source>
         <translation>Aucun flux trouvé.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="411"/>
+        <location filename="rtp_analysis_dialog.cpp" line="413"/>
         <source>%1 streams found.</source>
         <translation>%1 flux trouvés.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="430"/>
+        <location filename="rtp_analysis_dialog.cpp" line="432"/>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation>G: Aller au paquet, N: Paquet à problème suivant</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="449"/>
+        <location filename="rtp_analysis_dialog.cpp" line="451"/>
         <source>No Audio</source>
         <translation>Pas d&apos;Audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="570"/>
+        <location filename="rtp_analysis_dialog.cpp" line="572"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="571"/>
+        <location filename="rtp_analysis_dialog.cpp" line="573"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="572"/>
+        <location filename="rtp_analysis_dialog.cpp" line="574"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="574"/>
+        <location filename="rtp_analysis_dialog.cpp" line="576"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>Format d&apos;2change de Fichier JPEG </translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="585"/>
+        <location filename="rtp_analysis_dialog.cpp" line="587"/>
         <source>Save Graph As</source>
         <translation>Sauvegarder le Graphique Sous</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="760"/>
+        <location filename="rtp_analysis_dialog.cpp" line="762"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation>Ne peut sauvegarder dans un fichier: Longueur incorrecte des paquets capturés.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="772"/>
+        <location filename="rtp_analysis_dialog.cpp" line="774"/>
         <source>Can&apos;t save in a file: RTP data with padding.</source>
         <translation>Ne peut sauvegarder dans un fichier: données RTP avec remplissage.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="809"/>
-        <location filename="rtp_analysis_dialog.cpp" line="839"/>
+        <location filename="rtp_analysis_dialog.cpp" line="811"/>
+        <location filename="rtp_analysis_dialog.cpp" line="841"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
         <translation>Ne peut sauvegarder dans un fichier: Problème d&apos;E/S fichier.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="826"/>
+        <location filename="rtp_analysis_dialog.cpp" line="828"/>
         <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
         <translation>Ne peut sauvegarder dans un fichier: Les données n&apos;ont pas toutes été capturées dans tous les paquets.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1044"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1046"/>
         <source>Save forward stream audio</source>
         <translation>Sauvegarder flux audio aller</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1047"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1049"/>
         <source>Save reverse stream audio</source>
         <translation>Sauvegarder flux audio retour</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1051"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1053"/>
         <source>Save audio</source>
         <translation>Sauvegarder l&apos;audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1055"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1057"/>
         <source>Sun Audio (*.au)</source>
         <translation>Sun Audio (*.au)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1057"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1059"/>
         <source>;;Raw (*.raw)</source>
         <translation>;;Raw (*.raw)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1074"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1083"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1099"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1076"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1085"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1101"/>
         <source>Warning</source>
         <translation>Avertissement</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1074"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1076"/>
         <source>Unable to save in that format</source>
         <translation>Impossible de sauvegarder dans ce format</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1083"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1085"/>
         <source>Can&apos;t save in a file: saving in au format supported only for alaw/ulaw streams</source>
         <translation>Ne peut sauvegarder dans un fichier: sauvegarder au format &quot;au&quot; n&apos;est supporté que pour les flux alaw/ulaw</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1099"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1101"/>
         <source>Unable to save %1</source>
         <translation>Impossible de sauvegarder %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1103"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1105"/>
         <source>Saving %1</source>
         <translation>Sauvegarde en cours %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1325"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1327"/>
         <source>Save forward stream CSV</source>
         <translation>Sauvegarder CSV flux aller</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1328"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1330"/>
         <source>Save reverse stream CSV</source>
         <translation>Sauvegarder CSV flux retour</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1332"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1334"/>
         <source>Save CSV</source>
         <translation>Sauvegarder le CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1338"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1340"/>
         <source>Comma-separated values (*.csv)</source>
         <translation>Comma-separated values (*.csv)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1428"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1430"/>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1462"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1464"/>
         <source>Please select an RTPv2 packet with an SSRC value</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12164,38 +12184,38 @@ a:hover {
         <translation>Flux RTP</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="248"/>
+        <location filename="rtp_stream_dialog.cpp" line="249"/>
         <source>Export</source>
         <oldsource>Export...</oldsource>
         <translation>Exporter</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="250"/>
+        <location filename="rtp_stream_dialog.cpp" line="251"/>
         <source>Copy</source>
         <translation>Copier</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="256"/>
+        <location filename="rtp_stream_dialog.cpp" line="257"/>
         <source>as CSV</source>
         <translation>en CSV</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="259"/>
+        <location filename="rtp_stream_dialog.cpp" line="260"/>
         <source>as YAML</source>
         <translation>en YAML</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="383"/>
+        <location filename="rtp_stream_dialog.cpp" line="384"/>
         <source>%1 streams</source>
         <translation>%1 flux</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="393"/>
+        <location filename="rtp_stream_dialog.cpp" line="394"/>
         <source>, %1 selected, %2 total packets</source>
         <translation>,%1 sélectionné, %2 paquets au total</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="521"/>
+        <location filename="rtp_stream_dialog.cpp" line="522"/>
         <source>Save RTPDump As</source>
         <translation>Savegarder RTPDump Comme</translation>
     </message>
@@ -13612,81 +13632,86 @@ a:hover {
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="72"/>
+        <source>Quoted-Printable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="73"/>
         <source>ROT13</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="76"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="77"/>
         <source>ASCII</source>
         <translation type="unfinished">ASCII</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="77"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="78"/>
         <source>ASCII &amp; Control</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="78"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="79"/>
         <source>C Array</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="79"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="80"/>
         <source>EBCDIC</source>
         <translation type="unfinished">EBCDIC</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="80"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="81"/>
         <source>Hex Dump</source>
         <translation type="unfinished">Hexdump</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="81"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="82"/>
         <source>HTML</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="82"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="83"/>
         <source>Image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="83"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="84"/>
         <source>ISO 8859-1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="84"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="85"/>
         <source>Raw</source>
         <translation type="unfinished">Brut</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="85"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="86"/>
         <source>UTF-8</source>
         <translation type="unfinished">UTF-8</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="86"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="87"/>
         <source>YAML</source>
         <translation type="unfinished">YAML</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="93"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="94"/>
         <source>Print</source>
         <translation type="unfinished">Imprimer</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="96"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="97"/>
         <source>Copy</source>
         <translation type="unfinished">Copier</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="99"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="100"/>
         <source>Save as</source>
         <translation type="unfinished">Enregistrer sous</translation>
     </message>
     <message numerus="yes">
-        <location filename="show_packet_bytes_dialog.cpp" line="172"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="173"/>
         <source>Displaying %Ln byte(s).</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -13694,7 +13719,7 @@ a:hover {
         </translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="304"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="305"/>
         <source>Save Selected Packet Bytes As</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13702,12 +13727,12 @@ a:hover {
 <context>
     <name>ShowPacketBytesTextEdit</name>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="734"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="765"/>
         <source>Show Selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="738"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="769"/>
         <source>Show All</source>
         <translation type="unfinished">Afficher tout</translation>
     </message>

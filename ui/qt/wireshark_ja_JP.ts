@@ -140,12 +140,12 @@
         <translation>画像として保存</translation>
     </message>
     <message>
-        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="306"/>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="313"/>
         <source>Save Table Image</source>
         <translation>表の画像として保存</translation>
     </message>
     <message>
-        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="308"/>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="315"/>
         <source>PNG Image (*.png)</source>
         <translation>PNG画像 (*.png)</translation>
     </message>
@@ -233,18 +233,18 @@
         <translation>画像として保存</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="267"/>
-        <location filename="bluetooth_devices_dialog.cpp" line="286"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="274"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="293"/>
         <source>true</source>
         <translation>true</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="371"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="378"/>
         <source>Save Table Image</source>
         <translation>表の画像を保存</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="373"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="380"/>
         <source>PNG Image (*.png)</source>
         <translation>PNG画像 (*.png)</translation>
     </message>
@@ -455,37 +455,37 @@
         <translation>画像として保存</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="305"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="312"/>
         <source>Unknown</source>
         <translation>不明</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="323"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="330"/>
         <source>Adapter %1</source>
         <translation>アダプタ %1</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="411"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="461"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="498"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="532"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="569"/>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="603"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="418"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="468"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="505"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="539"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="576"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="610"/>
         <source>Frame %1</source>
         <translation>フレーム %1</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="521"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="528"/>
         <source>Pending</source>
         <translation>保留</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="715"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="722"/>
         <source>Save Table Image</source>
         <translation>表の画像を保存</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="717"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="724"/>
         <source>PNG Image (*.png)</source>
         <translation>PNG画像 (*.png)</translation>
     </message>
@@ -2023,17 +2023,17 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>&lt;small&gt;&lt;i&gt;ヒント&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="72"/>
+        <location filename="display_filter_expression_dialog.cpp" line="74"/>
         <source>Display Filter Expression</source>
         <translation>表示フィルタ式</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="211"/>
+        <location filename="display_filter_expression_dialog.cpp" line="213"/>
         <source>Select a field name to get started</source>
         <translation>開始するフィールド名を選択</translation>
     </message>
     <message>
-        <location filename="display_filter_expression_dialog.cpp" line="215"/>
+        <location filename="display_filter_expression_dialog.cpp" line="217"/>
         <source>Click OK to insert this filter</source>
         <translation>OKをクリックしてこのフィルタを挿入</translation>
     </message>
@@ -4313,32 +4313,32 @@ for filter files: %2.</source>
         <translation>開始までお待ちください%1</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="260"/>
+        <location filename="interface_tree.cpp" line="263"/>
         <source>Interface information not available</source>
         <translation>インターフェース情報が利用できません</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="436"/>
+        <location filename="interface_tree.cpp" line="439"/>
         <source>Addresses</source>
         <translation>アドレス</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="436"/>
+        <location filename="interface_tree.cpp" line="439"/>
         <source>Address</source>
         <translation>アドレス</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="439"/>
+        <location filename="interface_tree.cpp" line="442"/>
         <source>No addresses</source>
         <translation>アドレスなし</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="444"/>
+        <location filename="interface_tree.cpp" line="447"/>
         <source>No capture filter</source>
         <translation>キャプチャフィルタなし</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="447"/>
+        <location filename="interface_tree.cpp" line="450"/>
         <source>Capture filter</source>
         <translation>キャプチャフィルタ</translation>
     </message>
@@ -6422,27 +6422,47 @@ for filter files: %2.</source>
         <translation>&lt;h2&gt;開く&lt;/h2&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="140"/>
+        <location filename="main_welcome.ui" line="130"/>
+        <source>Recent capture files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_welcome.ui" line="133"/>
+        <source>Capture files that have been opened previously</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_welcome.ui" line="146"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ネットワークから現在通信中のパケットをキャプチャします。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="143"/>
+        <location filename="main_welcome.ui" line="149"/>
         <source>&lt;h2&gt;Capture&lt;/h2&gt;</source>
         <translation>&lt;h2&gt;キャプチャ&lt;/h2&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="162"/>
+        <location filename="main_welcome.ui" line="168"/>
         <source>…using this filter:</source>
         <translation>…このフィルタを利用:</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="214"/>
+        <location filename="main_welcome.ui" line="197"/>
+        <source>Interface list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_welcome.ui" line="200"/>
+        <source>List of available capture interfaces</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_welcome.ui" line="226"/>
         <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
         <translation>&lt;h2&gt;学習&lt;/h2&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="221"/>
+        <location filename="main_welcome.ui" line="233"/>
         <source>&lt;html&gt;&lt;head&gt;
 &lt;style&gt;
 a:link {
@@ -6533,7 +6553,7 @@ a:hover {
         <translation>見つかりません</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="453"/>
+        <location filename="main_welcome.cpp" line="454"/>
         <source>Copy file path</source>
         <translation>ファイルパスをコピー</translation>
     </message>
@@ -10763,12 +10783,12 @@ a:hover {
         <translation>優先度</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="436"/>
+        <location filename="main_welcome.cpp" line="437"/>
         <source>Show in Finder</source>
         <translation>ファインダーで表示</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="438"/>
+        <location filename="main_welcome.cpp" line="439"/>
         <source>Show in Folder</source>
         <translation>フォルダで表示</translation>
     </message>
@@ -11223,223 +11243,223 @@ a:hover {
         <translation>dium; font-weight:600;&quot;&gt;進む&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;戻る&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="65"/>
+        <location filename="rtp_analysis_dialog.ui" line="68"/>
         <source>Forward</source>
         <translation>進む</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="69"/>
+        <location filename="rtp_analysis_dialog.ui" line="72"/>
         <source>Packet</source>
         <translation>パケット</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="74"/>
+        <location filename="rtp_analysis_dialog.ui" line="77"/>
         <source>Sequence</source>
         <translation>シーケンス</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="79"/>
+        <location filename="rtp_analysis_dialog.ui" line="82"/>
         <source>Delta (ms)</source>
         <translation>間隔 (ms)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="84"/>
+        <location filename="rtp_analysis_dialog.ui" line="87"/>
         <source>Jitter (ms)</source>
         <oldsource>Jitter</oldsource>
         <translation>ジッタ (ms)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="89"/>
+        <location filename="rtp_analysis_dialog.ui" line="92"/>
         <source>Skew</source>
         <translation>Skew</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="94"/>
+        <location filename="rtp_analysis_dialog.ui" line="97"/>
         <source>Bandwidth</source>
         <translation>帯域</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="99"/>
+        <location filename="rtp_analysis_dialog.ui" line="102"/>
         <source>Marker</source>
         <translation>マーカー</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="104"/>
+        <location filename="rtp_analysis_dialog.ui" line="107"/>
         <source>Status</source>
         <translation>状態</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="116"/>
+        <location filename="rtp_analysis_dialog.ui" line="122"/>
         <source>Reverse</source>
         <translation>反転</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="126"/>
+        <location filename="rtp_analysis_dialog.ui" line="132"/>
         <source>Graph</source>
         <translation>グラフ</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="137"/>
+        <location filename="rtp_analysis_dialog.ui" line="143"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;順方向ジッタ値を表示もしくは非表示にします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="140"/>
+        <location filename="rtp_analysis_dialog.ui" line="146"/>
         <source>Forward Jitter</source>
         <translation>順方向ジッタ</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="160"/>
+        <location filename="rtp_analysis_dialog.ui" line="166"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;順方向差異の値を表示もしくは非表示にします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="163"/>
+        <location filename="rtp_analysis_dialog.ui" line="169"/>
         <source>Forward Difference</source>
         <translation>順方向の差異</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="183"/>
+        <location filename="rtp_analysis_dialog.ui" line="189"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;順方向間隔の値を表示もしくは非表示にします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="186"/>
+        <location filename="rtp_analysis_dialog.ui" line="192"/>
         <source>Forward Delta</source>
         <translation>順方向の間隔</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="210"/>
+        <location filename="rtp_analysis_dialog.ui" line="216"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;逆方向ジッタ値を表示もしくは非表示にします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="213"/>
+        <location filename="rtp_analysis_dialog.ui" line="219"/>
         <source>Reverse Jitter</source>
         <translation>逆方向ジッタ</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="233"/>
+        <location filename="rtp_analysis_dialog.ui" line="239"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;逆方向の差異の値を表示もしくは非表示にします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="236"/>
+        <location filename="rtp_analysis_dialog.ui" line="242"/>
         <source>Reverse Difference</source>
         <translation>逆方向の差異</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="256"/>
+        <location filename="rtp_analysis_dialog.ui" line="262"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;逆方向の間隔値を表示もしくは非表示にします&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="259"/>
+        <location filename="rtp_analysis_dialog.ui" line="265"/>
         <source>Reverse Delta</source>
         <translation>逆方向の間隔</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="289"/>
+        <location filename="rtp_analysis_dialog.ui" line="295"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>lt;small&gt;&lt;i&gt;ヒント&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="321"/>
+        <location filename="rtp_analysis_dialog.ui" line="327"/>
         <source>Audio</source>
         <translation>音声</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="324"/>
+        <location filename="rtp_analysis_dialog.ui" line="330"/>
         <source>Save the audio data for both channels.</source>
         <translation>両チャンネルの音声データを保存します</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="329"/>
+        <location filename="rtp_analysis_dialog.ui" line="335"/>
         <source>Forward Stream Audio</source>
         <translation>順方向のストリーム音声</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="332"/>
+        <location filename="rtp_analysis_dialog.ui" line="338"/>
         <source>Save the forward stream audio data.</source>
         <translation>順方向のストリーム音声データを保存します</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="337"/>
+        <location filename="rtp_analysis_dialog.ui" line="343"/>
         <source>Reverse Stream Audio</source>
         <translation>逆方向のストリーム音声</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="340"/>
+        <location filename="rtp_analysis_dialog.ui" line="346"/>
         <source>Save the reverse stream audio data.</source>
         <translation>逆方向のストリーム音声データを保存します</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="345"/>
+        <location filename="rtp_analysis_dialog.ui" line="351"/>
         <source>CSV</source>
         <translation>CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="348"/>
+        <location filename="rtp_analysis_dialog.ui" line="354"/>
         <source>Save both tables as CSV.</source>
         <translation>両方の表をCSVとして保存します</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="353"/>
+        <location filename="rtp_analysis_dialog.ui" line="359"/>
         <source>Forward Stream CSV</source>
         <translation>順方向のストリームCSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="356"/>
+        <location filename="rtp_analysis_dialog.ui" line="362"/>
         <source>Save the forward table as CSV.</source>
         <translation>順方向の表をCSVとして保存します</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="361"/>
+        <location filename="rtp_analysis_dialog.ui" line="367"/>
         <source>Reverse Stream CSV</source>
         <translation>逆方向のストリームCSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="364"/>
+        <location filename="rtp_analysis_dialog.ui" line="370"/>
         <source>Save the reverse table as CSV.</source>
         <translation>逆方向のテーブルをCSVとして保存します</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="369"/>
+        <location filename="rtp_analysis_dialog.ui" line="375"/>
         <source>Save Graph</source>
         <translation>グラフを保存</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="372"/>
+        <location filename="rtp_analysis_dialog.ui" line="378"/>
         <source>Save the graph image.</source>
         <translation>グラフの画像を保存します</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="377"/>
+        <location filename="rtp_analysis_dialog.ui" line="383"/>
         <source>Go to Packet</source>
         <translation>パケットに移動</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="380"/>
+        <location filename="rtp_analysis_dialog.ui" line="386"/>
         <source>Select the corresponding packet in the packet list.</source>
         <translation>パケット一覧から関係するパケットを選択します</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="383"/>
+        <location filename="rtp_analysis_dialog.ui" line="389"/>
         <source>G</source>
         <translation>G</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="388"/>
+        <location filename="rtp_analysis_dialog.ui" line="394"/>
         <source>Next Problem Packet</source>
         <translation>次の問題パケット</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="391"/>
+        <location filename="rtp_analysis_dialog.ui" line="397"/>
         <source>Go to the next problem packet</source>
         <translation>次の問題パケットに移動します</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="394"/>
+        <location filename="rtp_analysis_dialog.ui" line="400"/>
         <source>N</source>
         <translation>N</translation>
     </message>
@@ -11449,160 +11469,160 @@ a:hover {
         <translation>RTPストリーム分析</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="332"/>
+        <location filename="rtp_analysis_dialog.cpp" line="334"/>
         <source>Unable to save RTP data.</source>
         <translation>RTPデータを保存することができません</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1486"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1488"/>
         <source>SSRC value not found.</source>
         <translation>SSRC値が見つかりませんでした</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="376"/>
+        <location filename="rtp_analysis_dialog.cpp" line="378"/>
         <source>No streams found.</source>
         <translation>ストリームが見つかりませんでした</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="411"/>
+        <location filename="rtp_analysis_dialog.cpp" line="413"/>
         <source>%1 streams found.</source>
         <translation>%1 ストリームが見つかりました</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="430"/>
+        <location filename="rtp_analysis_dialog.cpp" line="432"/>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation> G: パケットに移動, N: 次の問題パケット</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="449"/>
+        <location filename="rtp_analysis_dialog.cpp" line="451"/>
         <source>No Audio</source>
         <translation>音声がありません</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="570"/>
+        <location filename="rtp_analysis_dialog.cpp" line="572"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="571"/>
+        <location filename="rtp_analysis_dialog.cpp" line="573"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="572"/>
+        <location filename="rtp_analysis_dialog.cpp" line="574"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windowsビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="574"/>
+        <location filename="rtp_analysis_dialog.cpp" line="576"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="585"/>
+        <location filename="rtp_analysis_dialog.cpp" line="587"/>
         <source>Save Graph As</source>
         <translation>としてグラフを保存</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="760"/>
+        <location filename="rtp_analysis_dialog.cpp" line="762"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation>ファイルに保存できません: キャプチャしたパケットの長さが違います</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="772"/>
+        <location filename="rtp_analysis_dialog.cpp" line="774"/>
         <source>Can&apos;t save in a file: RTP data with padding.</source>
         <translation>ファイルに保存できません: パディングを含むRTPデータ</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="809"/>
-        <location filename="rtp_analysis_dialog.cpp" line="839"/>
+        <location filename="rtp_analysis_dialog.cpp" line="811"/>
+        <location filename="rtp_analysis_dialog.cpp" line="841"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
         <translation>ファイルに保存できません: ファイル入出力問題</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="826"/>
+        <location filename="rtp_analysis_dialog.cpp" line="828"/>
         <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
         <translation>ファイルに保存できません: 全パケット中すべてでないデータがキャプチャされました</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1044"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1046"/>
         <source>Save forward stream audio</source>
         <translation>順方向ストリーム音声を保存</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1047"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1049"/>
         <source>Save reverse stream audio</source>
         <translation>逆方向ストリーム音声を保存</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1051"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1053"/>
         <source>Save audio</source>
         <translation>音声を保存</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1055"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1057"/>
         <source>Sun Audio (*.au)</source>
         <translation>Sun音声形式 (*.au)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1057"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1059"/>
         <source>;;Raw (*.raw)</source>
         <translation>;;Raw(無加工)形式 (*.raw)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1074"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1083"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1099"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1076"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1085"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1101"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1074"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1076"/>
         <source>Unable to save in that format</source>
         <translation>その形式では保存できません</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1083"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1085"/>
         <source>Can&apos;t save in a file: saving in au format supported only for alaw/ulaw streams</source>
         <translation>ファイルに保存できません: AU形式での保存はalaw/ulawストリームのみサポートされています</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1099"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1101"/>
         <source>Unable to save %1</source>
         <translation>%1を保存できません</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1103"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1105"/>
         <source>Saving %1</source>
         <translation>%1 保存中</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1325"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1327"/>
         <source>Save forward stream CSV</source>
         <translation>順方向ストリームをCSVで保存</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1328"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1330"/>
         <source>Save reverse stream CSV</source>
         <translation>逆方向のストリームをCSVで保存</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1332"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1334"/>
         <source>Save CSV</source>
         <translation>CSVを保存</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1338"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1340"/>
         <source>Comma-separated values (*.csv)</source>
         <translation>カンマ区切りテキスト形式 (*.csv)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1428"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1430"/>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1462"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1464"/>
         <source>Please select an RTPv2 packet with an SSRC value</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12150,38 +12170,38 @@ a:hover {
         <translation>RTPストリーム</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="248"/>
+        <location filename="rtp_stream_dialog.cpp" line="249"/>
         <source>Export</source>
         <oldsource>Export...</oldsource>
         <translation>エクスポート</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="250"/>
+        <location filename="rtp_stream_dialog.cpp" line="251"/>
         <source>Copy</source>
         <translation>コピー</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="256"/>
+        <location filename="rtp_stream_dialog.cpp" line="257"/>
         <source>as CSV</source>
         <translation>CSVとして</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="259"/>
+        <location filename="rtp_stream_dialog.cpp" line="260"/>
         <source>as YAML</source>
         <translation>YAMLとして</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="383"/>
+        <location filename="rtp_stream_dialog.cpp" line="384"/>
         <source>%1 streams</source>
         <translation>%1 ストリーム</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="393"/>
+        <location filename="rtp_stream_dialog.cpp" line="394"/>
         <source>, %1 selected, %2 total packets</source>
         <translation>, %1 選択, %2 全パケット</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="521"/>
+        <location filename="rtp_stream_dialog.cpp" line="522"/>
         <source>Save RTPDump As</source>
         <translation>RRPDumpとして保存</translation>
     </message>
@@ -13595,88 +13615,93 @@ a:hover {
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="72"/>
+        <source>Quoted-Printable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="show_packet_bytes_dialog.cpp" line="73"/>
         <source>ROT13</source>
         <translation>ROT13形式</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="76"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="77"/>
         <source>ASCII</source>
         <translation>アスキー文字形式</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="77"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="78"/>
         <source>ASCII &amp; Control</source>
         <translation>アスキー文字と制御文字形式</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="78"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="79"/>
         <source>C Array</source>
         <translation>C言語配列形式</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="79"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="80"/>
         <source>EBCDIC</source>
         <translation>EBCDIC形式</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="80"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="81"/>
         <source>Hex Dump</source>
         <translation>16進数ダンプ形式</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="81"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="82"/>
         <source>HTML</source>
         <translation>HTML形式</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="82"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="83"/>
         <source>Image</source>
         <translation>画像形式</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="83"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="84"/>
         <source>ISO 8859-1</source>
         <translation>ISO 8859-1形式</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="84"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="85"/>
         <source>Raw</source>
         <translation>Raw(無加工)形式</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="85"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="86"/>
         <source>UTF-8</source>
         <translation>UTF-8形式</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="86"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="87"/>
         <source>YAML</source>
         <translation>YAML形式</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="93"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="94"/>
         <source>Print</source>
         <translation>印刷</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="96"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="97"/>
         <source>Copy</source>
         <translation>コピー</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="99"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="100"/>
         <source>Save as</source>
         <translation>として保存</translation>
     </message>
     <message numerus="yes">
-        <location filename="show_packet_bytes_dialog.cpp" line="172"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="173"/>
         <source>Displaying %Ln byte(s).</source>
         <translation>
             <numerusform>%Ln バイトを表示中</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="304"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="305"/>
         <source>Save Selected Packet Bytes As</source>
         <translation>として選択したパケットバイト列を保存</translation>
     </message>
@@ -13684,12 +13709,12 @@ a:hover {
 <context>
     <name>ShowPacketBytesTextEdit</name>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="734"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="765"/>
         <source>Show Selected</source>
         <translation>選択されたものを表示</translation>
     </message>
     <message>
-        <location filename="show_packet_bytes_dialog.cpp" line="738"/>
+        <location filename="show_packet_bytes_dialog.cpp" line="769"/>
         <source>Show All</source>
         <translation>すべてを表示</translation>
     </message>
