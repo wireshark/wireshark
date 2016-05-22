@@ -444,6 +444,7 @@ set(DISSECTOR_SRC
 	packet-cp2179.c
 	packet-cpfi.c
 	packet-cpha.c
+	packet-cql.c
 	packet-csm-encaps.c
 	packet-csn1.c
 	packet-ctdb.c

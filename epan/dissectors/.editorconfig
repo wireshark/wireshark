@@ -388,6 +388,10 @@ indent_size = 2
 [packet-cpha.[ch]]
 indent_size = 2
 
+[packet-cql.[ch]]
+indent_style = tab
+indent_size = tab
+
 [packet-csn1.[ch]]
 indent_size = 2
 
