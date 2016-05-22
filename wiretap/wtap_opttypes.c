@@ -40,7 +40,6 @@ typedef struct wtap_opt_register
     const char *name;                /**< name of block */
     const char *description;         /**< human-readable description of block */
     wtap_block_create_func create;
-    wtap_write_func write;
     wtap_mand_free_func free_mand;
     wtap_mand_copy_func copy_mand;
 } wtap_opt_register_t;
@@ -50,8 +49,6 @@ typedef struct wtap_optblock_internal {
     const char *description;         /**< human-readable description of option */
     guint number;                    /**< Option index */
     wtap_opttype_e type;             /**< type of that option */
-    wtap_opttype_option_write_size write_size; /**< Number of bytes to write to file (0 for don't write) */
-    wtap_opttype_option_write write_data; /**< write option data to dumper */
 } wtap_optblock_internal_t;
 
 typedef struct wtap_optblock_value {
@@ -93,7 +90,7 @@ static void wtap_opttype_block_register(int block_type, wtap_opt_register_t *blo
 }
 
 int wtap_opttype_register_custom_block_type(const char* name, const char* description, wtap_block_create_func create,
-                                                wtap_write_func write_func, wtap_mand_free_func free_mand, wtap_mand_copy_func copy_mand)
+                                                wtap_mand_free_func free_mand, wtap_mand_copy_func copy_mand)
 {
     int block_type;
 
@@ -110,7 +107,6 @@ int wtap_opttype_register_custom_block_type(const char* name, const char* descri
     custom_block_list[num_custom_blocks].name = name;
     custom_block_list[num_custom_blocks].description = description;
     custom_block_list[num_custom_blocks].create = create;
-    custom_block_list[num_custom_blocks].write = write_func;
     custom_block_list[num_custom_blocks].free_mand = free_mand;
     custom_block_list[num_custom_blocks].copy_mand = copy_mand;
     block_list[block_type] = &custom_block_list[num_custom_blocks];
@@ -224,8 +220,6 @@ void wtap_optionblock_copy_options(wtap_optionblock_t dest_block, wtap_optionblo
             reg_optblock.name = src_internal->name;
             reg_optblock.description = src_internal->description;
             reg_optblock.type = src_internal->type;
-            reg_optblock.write_size_func = src_internal->write_size;
-            reg_optblock.write_func = src_internal->write_data;
             reg_optblock.option = src_value->option;
             reg_optblock.default_val = src_value->default_val;
 
@@ -256,87 +250,18 @@ void wtap_optionblock_copy_options(wtap_optionblock_t dest_block, wtap_optionblo
     }
 }
 
-gboolean wtap_optionblock_write(struct wtap_dumper *wdh, wtap_optionblock_t block, int *err)
-{
-    if ((block == NULL) || (block->info->write == NULL))
-    {
-        *err = WTAP_ERR_INTERNAL;
-        return FALSE;
-    }
-
-    return block->info->write(wdh, block, err);
-}
-
-static guint32 wtap_optionblock_get_option_write_size(wtap_optionblock_t block)
+void wtap_optionblock_foreach_option(wtap_optionblock_t block, wtap_optionblock_foreach_func func, void* user_data)
 {
     guint i;
-    guint32 options_total_length = 0, length;
+    wtap_optblock_internal_t *internal_data;
     wtap_optblock_value_t *value;
 
     for (i = 0; i < block->option_values->len; i++)
     {
+        internal_data = g_array_index(block->option_infos, wtap_optblock_internal_t*, i);
         value = g_array_index(block->option_values, wtap_optblock_value_t*, i);
-        if ((value->info->write_size != NULL) && (value->info->write_data != NULL))
-        {
-            length = value->info->write_size(&value->option);
-            options_total_length += length;
-            /* Add bytes for option header if option should be written */
-            if (length > 0) {
-                /* Add optional padding to 32 bits */
-                if ((options_total_length & 0x03) != 0)
-                {
-                    options_total_length += 4 - (options_total_length & 0x03);
-                }
-                options_total_length += 4;
-            }
-        }
+        func(block, internal_data->number, value->info->type, &value->option, user_data);
     }
-
-    return options_total_length;
-}
-
-static gboolean wtap_optionblock_write_options(struct wtap_dumper *wdh, wtap_optionblock_t block, guint32 options_total_length, int *err)
-{
-    guint i;
-    wtap_optblock_value_t *value;
-    struct pcapng_option_header option_hdr;
-    guint32 length;
-
-    /* Check if we have at least 1 option to write */
-    if (options_total_length == 0)
-        return TRUE;
-
-    for (i = 0; i < block->option_values->len; i++)
-    {
-        value = g_array_index(block->option_values, wtap_optblock_value_t*, i);
-        if ((value->info->write_size != NULL) && (value->info->write_data != NULL) &&
-            ((length = value->info->write_size(&value->option)) > 0))
-        {
-            /* Write the option */
-            wtap_debug("wtap_optionblock_write %s, field:'%s' length: %u", block->description, value->info->description, length);
-
-            /* String options don't consider pad bytes part of the length, so readjust here */
-            if (value->info->type == WTAP_OPTTYPE_STRING)
-                length = (guint32)strlen(value->option.stringval) & 0xffff;
-
-            option_hdr.type         = value->info->number;
-            option_hdr.value_length = length;
-            if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
-                return FALSE;
-            wdh->bytes_dumped += 4;
-
-            if (!value->info->write_data(wdh, &value->option, err))
-                return FALSE;
-        }
-    }
-
-    /* Write end of options */
-    option_hdr.type = OPT_EOFOPT;
-    option_hdr.value_length = 0;
-    if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
-        return FALSE;
-    wdh->bytes_dumped += 4;
-    return TRUE;
 }
 
 int wtap_optionblock_add_option(wtap_optionblock_t block, guint option_id, wtap_optblock_reg_t* option)
@@ -355,8 +280,6 @@ int wtap_optionblock_add_option(wtap_optionblock_t block, guint option_id, wtap_
     opt_internal->description = option->description;
     opt_internal->number = option_id;
     opt_internal->type = option->type;
-    opt_internal->write_size = option->write_size_func;
-    opt_internal->write_data = option->write_func;
 
     opt_value->info = opt_internal;
 
@@ -439,48 +362,6 @@ int wtap_optionblock_get_option_string(wtap_optionblock_t block, guint option_id
     return WTAP_OPTTYPE_SUCCESS;
 }
 
-guint32 wtap_opttype_write_size_string(wtap_option_type* data)
-{
-    guint32 size, pad;
-    if ((data == NULL) ||(data->stringval == NULL))
-        return 0;
-
-    size = (guint32)strlen(data->stringval) & 0xffff;
-    if ((size % 4)) {
-        pad = 4 - (size % 4);
-    } else {
-        pad = 0;
-    }
-
-    return size+pad;
-}
-
-gboolean wtap_opttype_write_data_string(struct wtap_dumper* wdh, wtap_option_type* data, int *err)
-{
-    guint32 size = (guint32)strlen(data->stringval) & 0xffff;
-    guint32 pad;
-    const guint32 zero_pad = 0;
-
-    if (!wtap_dump_file_write(wdh, data->stringval, size, err))
-        return FALSE;
-    wdh->bytes_dumped += size;
-
-    if ((size % 4)) {
-        pad = 4 - (size % 4);
-    } else {
-        pad = 0;
-    }
-
-    /* write padding (if any) */
-    if (pad != 0) {
-        if (!wtap_dump_file_write(wdh, &zero_pad, pad, err))
-            return FALSE;
-        wdh->bytes_dumped += pad;
-    }
-
-    return TRUE;
-}
-
 int wtap_optionblock_set_option_uint64(wtap_optionblock_t block, guint option_id, guint64 value)
 {
     wtap_optblock_value_t* opt_value = wtap_optionblock_get_option(block, option_id);
@@ -511,52 +392,6 @@ int wtap_optionblock_get_option_uint64(wtap_optionblock_t block, guint option_id
     return WTAP_OPTTYPE_SUCCESS;
 }
 
-guint32 wtap_opttype_write_uint64_not0(wtap_option_type* data)
-{
-    if (data == NULL)
-        return 0;
-
-    if (data->uint64val == 0)
-        return 0;
-
-    /* value */
-    return 8;
-}
-
-guint32 wtap_opttype_write_uint64_not_minus1(wtap_option_type* data)
-{
-    if (data == NULL)
-        return 0;
-
-    if (data->uint64val == G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF))
-        return 0;
-
-    /* value */
-    return 8;
-}
-
-gboolean wtap_opttype_write_data_uint64(struct wtap_dumper* wdh, wtap_option_type* data, int *err)
-{
-    if (!wtap_dump_file_write(wdh, &data->uint64val, sizeof(guint64), err))
-        return FALSE;
-    wdh->bytes_dumped += 8;
-    return TRUE;
-}
-
-static gboolean wtap_opttype_write_data_uint64_timestamp(struct wtap_dumper* wdh, wtap_option_type* data, int *err)
-{
-    guint32 high, low;
-
-    high = (guint32)(data->uint64val >> 32);
-    low = (guint32)(data->uint64val >> 0);
-    if (!wtap_dump_file_write(wdh, &high, sizeof(guint32), err))
-        return FALSE;
-    wdh->bytes_dumped += 4;
-    if (!wtap_dump_file_write(wdh, &low, sizeof(guint32), err))
-        return FALSE;
-    wdh->bytes_dumped += 4;
-    return TRUE;
-}
 
 int wtap_optionblock_set_option_uint8(wtap_optionblock_t block, guint option_id, guint8 value)
 {
@@ -586,32 +421,6 @@ int wtap_optionblock_get_option_uint8(wtap_optionblock_t block, guint option_id,
 
     *value = opt_value->option.uint8val;
     return WTAP_OPTTYPE_SUCCESS;
-}
-
-guint32 wtap_opttype_write_uint8_not0(wtap_option_type* data)
-{
-    if (data == NULL)
-        return 0;
-
-    if (data->uint8val == 0)
-        return 0;
-
-    return 1;
-}
-
-gboolean wtap_opttype_write_data_uint8(struct wtap_dumper* wdh, wtap_option_type* data, int *err)
-{
-    const guint32 zero_pad = 0;
-
-    if (!wtap_dump_file_write(wdh, &data->uint8val, 1, err))
-        return FALSE;
-    wdh->bytes_dumped += 1;
-
-    if (!wtap_dump_file_write(wdh, &zero_pad, 3, err))
-        return FALSE;
-    wdh->bytes_dumped += 3;
-
-    return TRUE;
 }
 
 int wtap_optionblock_set_option_custom(wtap_optionblock_t block, guint option_id, void* value)
@@ -650,10 +459,10 @@ int wtap_optionblock_get_option_custom(wtap_optionblock_t block, guint option_id
 
 static void shb_create(wtap_optionblock_t block)
 {
-    static wtap_optblock_reg_t comment_option = {"opt_comment", "Optional comment", WTAP_OPTTYPE_STRING, wtap_opttype_write_size_string, wtap_opttype_write_data_string, {0}, {0}};
-    static wtap_optblock_reg_t hardware_option = {"hardware", "SBH Hardware", WTAP_OPTTYPE_STRING, wtap_opttype_write_size_string, wtap_opttype_write_data_string, {0}, {0}};
-    static wtap_optblock_reg_t os_option = {"os", "SBH Operating System", WTAP_OPTTYPE_STRING, wtap_opttype_write_size_string, wtap_opttype_write_data_string, {0}, {0}};
-    static wtap_optblock_reg_t user_appl_option = {"user_appl", "SBH User Application", WTAP_OPTTYPE_STRING, wtap_opttype_write_size_string, wtap_opttype_write_data_string, {0}, {0}};
+    static wtap_optblock_reg_t comment_option = {"opt_comment", "Optional comment", WTAP_OPTTYPE_STRING, {0}, {0}};
+    static wtap_optblock_reg_t hardware_option = {"hardware", "SBH Hardware", WTAP_OPTTYPE_STRING, {0}, {0}};
+    static wtap_optblock_reg_t os_option = {"os", "SBH Operating System", WTAP_OPTTYPE_STRING, {0}, {0}};
+    static wtap_optblock_reg_t user_appl_option = {"user_appl", "SBH User Application", WTAP_OPTTYPE_STRING, {0}, {0}};
 
     wtapng_mandatory_section_t* section_mand = g_new(wtapng_mandatory_section_t, 1);
 
@@ -677,52 +486,6 @@ static void shb_create(wtap_optionblock_t block)
     wtap_optionblock_add_option(block, OPT_SHB_USERAPPL, &user_appl_option);
 }
 
-static gboolean shb_write(struct wtap_dumper *wdh, wtap_optionblock_t block, int *err)
-{
-    pcapng_block_header_t bh;
-    pcapng_section_header_block_t shb;
-    wtapng_mandatory_section_t* mand_data = (wtapng_mandatory_section_t*)block->mandatory_data;
-    guint32 options_total_length;
-
-    wtap_debug("write_section_header_block: Have shb_hdr");
-
-    options_total_length = wtap_optionblock_get_option_write_size(block);
-    if (options_total_length > 0)
-    {
-        /* End-of-options tag */
-        options_total_length += 4;
-    }
-
-    /* write block header */
-    bh.block_type = BLOCK_TYPE_SHB;
-    bh.block_total_length = (guint32)(sizeof(bh) + sizeof(shb) + options_total_length + 4);
-
-    if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
-        return FALSE;
-    wdh->bytes_dumped += sizeof bh;
-
-    /* write block fixed content */
-    shb.magic = 0x1A2B3C4D;
-    shb.version_major = 1;
-    shb.version_minor = 0;
-    shb.section_length = mand_data->section_length;
-
-    if (!wtap_dump_file_write(wdh, &shb, sizeof shb, err))
-        return FALSE;
-    wdh->bytes_dumped += sizeof shb;
-
-    if (!wtap_optionblock_write_options(wdh, block, options_total_length, err))
-        return FALSE;
-
-    /* write block footer */
-    if (!wtap_dump_file_write(wdh, &bh.block_total_length,
-                              sizeof bh.block_total_length, err))
-        return FALSE;
-    wdh->bytes_dumped += sizeof bh.block_total_length;
-
-    return TRUE;
-}
-
 static void shb_copy_mand(wtap_optionblock_t dest_block, wtap_optionblock_t src_block)
 {
     memcpy(dest_block->mandatory_data, src_block->mandatory_data, sizeof(wtapng_mandatory_section_t));
@@ -730,7 +493,7 @@ static void shb_copy_mand(wtap_optionblock_t dest_block, wtap_optionblock_t src_
 
 static void nrb_create(wtap_optionblock_t block)
 {
-    static wtap_optblock_reg_t comment_option = {"opt_comment", "Optional comment", WTAP_OPTTYPE_STRING, wtap_opttype_write_size_string, wtap_opttype_write_data_string, {0}, {0}};
+    static wtap_optblock_reg_t comment_option = {"opt_comment", "Optional comment", WTAP_OPTTYPE_STRING, {0}, {0}};
 
     /* Set proper values for the union */
     comment_option.option.stringval = NULL;
@@ -743,14 +506,14 @@ static void nrb_create(wtap_optionblock_t block)
 
 static void isb_create(wtap_optionblock_t block)
 {
-    static wtap_optblock_reg_t comment_option = {"opt_comment", "Optional comment", WTAP_OPTTYPE_STRING, wtap_opttype_write_size_string, wtap_opttype_write_data_string, {0}, {0}};
-    static wtap_optblock_reg_t starttime_option = {"start_time", "Start Time", WTAP_OPTTYPE_UINT64, wtap_opttype_write_uint64_not0, wtap_opttype_write_data_uint64_timestamp, {0}, {0}};
-    static wtap_optblock_reg_t endtime_option = {"end_time", "End Time", WTAP_OPTTYPE_UINT64, wtap_opttype_write_uint64_not0, wtap_opttype_write_data_uint64_timestamp, {0}, {0}};
-    static wtap_optblock_reg_t rcv_pkt_option = {"recv", "Receive Packets", WTAP_OPTTYPE_UINT64, wtap_opttype_write_uint64_not_minus1, wtap_opttype_write_data_uint64, {0}, {0}};
-    static wtap_optblock_reg_t drop_pkt_option = {"drop", "Dropped Packets", WTAP_OPTTYPE_UINT64, wtap_opttype_write_uint64_not_minus1, wtap_opttype_write_data_uint64, {0}, {0}};
-    static wtap_optblock_reg_t filteraccept_option = {"filter_accept", "Filter Accept", WTAP_OPTTYPE_UINT64, wtap_opttype_write_uint64_not_minus1, wtap_opttype_write_data_uint64, {0}, {0}};
-    static wtap_optblock_reg_t os_drop_option = {"os_drop", "OS Dropped Packets", WTAP_OPTTYPE_UINT64, wtap_opttype_write_uint64_not_minus1, wtap_opttype_write_data_uint64, {0}, {0}};
-    static wtap_optblock_reg_t user_deliv_option = {"user_deliv", "User Delivery", WTAP_OPTTYPE_UINT64, wtap_opttype_write_uint64_not_minus1, wtap_opttype_write_data_uint64, {0}, {0}};
+    static wtap_optblock_reg_t comment_option = {"opt_comment", "Optional comment", WTAP_OPTTYPE_STRING, {0}, {0}};
+    static wtap_optblock_reg_t starttime_option = {"start_time", "Start Time", WTAP_OPTTYPE_UINT64, {0}, {0}};
+    static wtap_optblock_reg_t endtime_option = {"end_time", "End Time", WTAP_OPTTYPE_UINT64, {0}, {0}};
+    static wtap_optblock_reg_t rcv_pkt_option = {"recv", "Receive Packets", WTAP_OPTTYPE_UINT64, {0}, {0}};
+    static wtap_optblock_reg_t drop_pkt_option = {"drop", "Dropped Packets", WTAP_OPTTYPE_UINT64, {0}, {0}};
+    static wtap_optblock_reg_t filteraccept_option = {"filter_accept", "Filter Accept", WTAP_OPTTYPE_UINT64, {0}, {0}};
+    static wtap_optblock_reg_t os_drop_option = {"os_drop", "OS Dropped Packets", WTAP_OPTTYPE_UINT64, {0}, {0}};
+    static wtap_optblock_reg_t user_deliv_option = {"user_deliv", "User Delivery", WTAP_OPTTYPE_UINT64, {0}, {0}};
 
     block->mandatory_data = g_new0(wtapng_if_stats_mandatory_t, 1);
 
@@ -782,51 +545,6 @@ static void isb_create(wtap_optionblock_t block)
     wtap_optionblock_add_option(block, OPT_ISB_USRDELIV, &user_deliv_option);
 }
 
-static gboolean isb_write(struct wtap_dumper *wdh, wtap_optionblock_t block, int *err)
-{
-    pcapng_block_header_t bh;
-    pcapng_interface_statistics_block_t isb;
-    guint32 options_total_length;
-    wtapng_if_stats_mandatory_t* mand_data = (wtapng_if_stats_mandatory_t*)block->mandatory_data;
-
-    wtap_debug("write_interface_statistics_block");
-
-    options_total_length = wtap_optionblock_get_option_write_size(block);
-    if (options_total_length > 0)
-    {
-        /* End-of-options tag */
-        options_total_length += 4;
-    }
-
-    /* write block header */
-    bh.block_type = BLOCK_TYPE_ISB;
-    bh.block_total_length = (guint32)(sizeof(bh) + sizeof(isb) + options_total_length + 4);
-
-    if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
-        return FALSE;
-    wdh->bytes_dumped += sizeof bh;
-
-    /* write block fixed content */
-    isb.interface_id                = mand_data->interface_id;
-    isb.timestamp_high              = mand_data->ts_high;
-    isb.timestamp_low               = mand_data->ts_low;
-
-    if (!wtap_dump_file_write(wdh, &isb, sizeof isb, err))
-        return FALSE;
-    wdh->bytes_dumped += sizeof isb;
-
-    if (!wtap_optionblock_write_options(wdh, block, options_total_length, err))
-        return FALSE;
-
-    /* write block footer */
-    if (!wtap_dump_file_write(wdh, &bh.block_total_length,
-                              sizeof bh.block_total_length, err))
-        return FALSE;
-    wdh->bytes_dumped += sizeof bh.block_total_length;
-
-    return TRUE;
-}
-
 static void isb_copy_mand(wtap_optionblock_t dest_block, wtap_optionblock_t src_block)
 {
     memcpy(dest_block->mandatory_data, src_block->mandatory_data, sizeof(wtapng_if_stats_mandatory_t));
@@ -839,71 +557,16 @@ static void idb_filter_free(void* data)
     g_free(filter->if_filter_bpf_bytes);
 }
 
-static guint32 idb_filter_write_size(wtap_option_type* data)
-{
-    wtapng_if_descr_filter_t* filter;
-    guint32 size, pad;
-
-    if (data == NULL)
-        return 0;
-
-    filter = (wtapng_if_descr_filter_t*)data->customval.data;
-    if ((filter == NULL) || (filter->if_filter_str == NULL))
-        return 0;
-
-    size = (guint32)(strlen(filter->if_filter_str) + 1) & 0xffff;
-    if ((size % 4)) {
-        pad = 4 - (size % 4);
-    } else {
-        pad = 0;
-    }
-
-    return pad + size;
-}
-
-static gboolean idb_filter_write(struct wtap_dumper* wdh, wtap_option_type* data, int *err)
-{
-    wtapng_if_descr_filter_t* filter = (wtapng_if_descr_filter_t*)data->customval.data;
-    guint32 size, pad;
-    const guint32 zero_pad = 0;
-
-    size = (guint32)(strlen(filter->if_filter_str) + 1) & 0xffff;
-    if ((size % 4)) {
-        pad = 4 - (size % 4);
-    } else {
-        pad = 0;
-    }
-
-    /* Write the zero indicating libpcap filter variant */
-    if (!wtap_dump_file_write(wdh, &zero_pad, 1, err))
-        return FALSE;
-    wdh->bytes_dumped += 1;
-
-    /* if_filter_str_len includes the leading byte indicating filter type (libpcap str or BPF code) */
-    if (!wtap_dump_file_write(wdh, filter->if_filter_str, size-1, err))
-        return FALSE;
-    wdh->bytes_dumped += size - 1;
-
-    /* write padding (if any) */
-    if (pad != 0) {
-        if (!wtap_dump_file_write(wdh, &zero_pad, pad, err))
-            return FALSE;
-        wdh->bytes_dumped += pad;
-    }
-
-    return TRUE;
-}
-
 static void idb_create(wtap_optionblock_t block)
 {
-    static wtap_optblock_reg_t comment_option = {"opt_comment", "Optional comment", WTAP_OPTTYPE_STRING, wtap_opttype_write_size_string, wtap_opttype_write_data_string, {0}, {0}};
-    static wtap_optblock_reg_t name_option = {"name", "Device name", WTAP_OPTTYPE_STRING, wtap_opttype_write_size_string, wtap_opttype_write_data_string, {0}, {0}};
-    static wtap_optblock_reg_t description_option = {"description", "Device description", WTAP_OPTTYPE_STRING, wtap_opttype_write_size_string, wtap_opttype_write_data_string, {0}, {0}};
-    static wtap_optblock_reg_t speed_option = {"speed", "Interface speed (in bps)", WTAP_OPTTYPE_UINT64, wtap_opttype_write_uint64_not0, wtap_opttype_write_data_uint64, {0}, {0}};
-    static wtap_optblock_reg_t tsresol_option = {"ts_resolution", "Resolution of timestamps", WTAP_OPTTYPE_UINT8, wtap_opttype_write_uint8_not0, wtap_opttype_write_data_uint8, {0}, {0}};
-    static wtap_optblock_reg_t filter_option = {"filter", "Filter string", WTAP_OPTTYPE_CUSTOM, idb_filter_write_size, idb_filter_write, {0}, {0}};
-    static wtap_optblock_reg_t os_option = {"os", "Operating System", WTAP_OPTTYPE_STRING, wtap_opttype_write_size_string, wtap_opttype_write_data_string, {0}, {0}};
-    static wtap_optblock_reg_t fcslen_option = {"fcslen", "FCS Length", WTAP_OPTTYPE_UINT8, NULL, NULL, {0}, {0}};
+    static wtap_optblock_reg_t comment_option = {"opt_comment", "Optional comment", WTAP_OPTTYPE_STRING, {0}, {0}};
+    static wtap_optblock_reg_t name_option = {"name", "Device name", WTAP_OPTTYPE_STRING, {0}, {0}};
+    static wtap_optblock_reg_t description_option = {"description", "Device description", WTAP_OPTTYPE_STRING, {0}, {0}};
+    static wtap_optblock_reg_t speed_option = {"speed", "Interface speed (in bps)", WTAP_OPTTYPE_UINT64, {0}, {0}};
+    static wtap_optblock_reg_t tsresol_option = {"ts_resolution", "Resolution of timestamps", WTAP_OPTTYPE_UINT8, {0}, {0}};
+    static wtap_optblock_reg_t filter_option = {"filter", "Filter string", WTAP_OPTTYPE_CUSTOM, {0}, {0}};
+    static wtap_optblock_reg_t os_option = {"os", "Operating System", WTAP_OPTTYPE_STRING, {0}, {0}};
+    static wtap_optblock_reg_t fcslen_option = {"fcslen", "FCS Length", WTAP_OPTTYPE_UINT8, {0}, {0}};
 
     wtapng_if_descr_filter_t default_filter;
     memset(&default_filter, 0, sizeof(default_filter));
@@ -940,58 +603,6 @@ static void idb_create(wtap_optionblock_t block)
     wtap_optionblock_add_option(block, OPT_IDB_FILTER, &filter_option);
     wtap_optionblock_add_option(block, OPT_IDB_OS, &os_option);
     wtap_optionblock_add_option(block, OPT_IDB_FCSLEN, &fcslen_option);
-}
-
-static gboolean idb_write(struct wtap_dumper *wdh, wtap_optionblock_t block, int *err)
-{
-    pcapng_block_header_t bh;
-    pcapng_interface_description_block_t idb;
-    wtapng_if_descr_mandatory_t* mand_data = (wtapng_if_descr_mandatory_t*)block->mandatory_data;
-    guint32 options_total_length;
-
-    wtap_debug("write_interface_description_block: encap = %d (%s), snaplen = %d",
-                  mand_data->link_type,
-                  wtap_encap_string(wtap_pcap_encap_to_wtap_encap(mand_data->link_type)),
-                  mand_data->snap_len);
-
-    if (mand_data->link_type == (guint16)-1) {
-        *err = WTAP_ERR_UNWRITABLE_ENCAP;
-        return FALSE;
-    }
-
-    options_total_length = wtap_optionblock_get_option_write_size(block);
-    if (options_total_length > 0)
-    {
-        /* End-of-options tag */
-        options_total_length += 4;
-    }
-
-    /* write block header */
-    bh.block_type = BLOCK_TYPE_IDB;
-    bh.block_total_length = (guint32)(sizeof(bh) + sizeof(idb) + options_total_length + 4);
-
-    if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
-        return FALSE;
-    wdh->bytes_dumped += sizeof bh;
-
-    /* write block fixed content */
-    idb.linktype    = mand_data->link_type;
-    idb.reserved    = 0;
-    idb.snaplen     = mand_data->snap_len;
-
-    if (!wtap_dump_file_write(wdh, &idb, sizeof idb, err))
-        return FALSE;
-    wdh->bytes_dumped += sizeof idb;
-
-    if (!wtap_optionblock_write_options(wdh, block, options_total_length, err))
-        return FALSE;
-
-    /* write block footer */
-    if (!wtap_dump_file_write(wdh, &bh.block_total_length,
-                              sizeof bh.block_total_length, err))
-        return FALSE;
-    wdh->bytes_dumped += sizeof bh.block_total_length;
-    return TRUE;
 }
 
 static void idb_free_mand(wtap_optionblock_t block)
@@ -1040,7 +651,6 @@ void wtap_opttypes_initialize(void)
         "SHB",              /* name */
         "Section Header Block",  /* description */
         shb_create,         /* create */
-        shb_write,          /* write */
         NULL,               /* free_mand */
         shb_copy_mand,      /* copy_mand */
     };
@@ -1049,7 +659,6 @@ void wtap_opttypes_initialize(void)
         "NRB",              /* name */
         "Name Resolution Block",  /* description */
         nrb_create,         /* create */
-        NULL,               /* write */
         NULL,               /* free_mand */
         NULL,               /* copy_mand */
     };
@@ -1058,7 +667,6 @@ void wtap_opttypes_initialize(void)
         "ISB",              /* name */
         "Interface Statistics Block",  /* description */
         isb_create,         /* create */
-        isb_write,          /* write */
         NULL,               /* free_mand */
         isb_copy_mand,      /* copy_mand */
     };
@@ -1067,7 +675,6 @@ void wtap_opttypes_initialize(void)
         "IDB",              /* name */
         "Interface Description Block",  /* description */
         idb_create,         /* create */
-        idb_write,          /* write */
         idb_free_mand,      /* free_mand */
         idb_copy_mand,      /* copy_mand */
     };

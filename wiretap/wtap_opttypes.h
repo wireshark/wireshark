@@ -72,17 +72,11 @@ struct wtap_dumper;
 typedef void (*wtap_block_create_func)(wtap_optionblock_t block);
 typedef void (*wtap_mand_free_func)(wtap_optionblock_t block);
 typedef void (*wtap_mand_copy_func)(wtap_optionblock_t dest_block, wtap_optionblock_t src_block);
-typedef gboolean (*wtap_write_func)(struct wtap_dumper *wdh, wtap_optionblock_t block, int *err);
-
-typedef guint32 (*wtap_opttype_option_write_size)(wtap_option_type* data); /**< does the option have data worth writing (Ex string option != NULL */
-typedef gboolean (*wtap_opttype_option_write)(struct wtap_dumper* wdh, wtap_option_type* data, int *err); /**< does the option have data worth writing (Ex string option != NULL */
 
 typedef struct wtap_optblock_reg {
     const char *name;                /**< name of option */
     const char *description;         /**< human-readable description of option */
     wtap_opttype_e type;             /**< type of that option */
-    wtap_opttype_option_write_size write_size_func; /**< Size of option in file (0 to not write option) */
-    wtap_opttype_option_write write_func; /**< write option data to dumper */
     wtap_option_type option;         /**< pointer to variable storing the value */
     wtap_option_type default_val;    /**< the default value of the option */
 } wtap_optblock_reg_t;
@@ -221,34 +215,12 @@ WS_DLL_PUBLIC int wtap_optionblock_get_option_custom(wtap_optionblock_t block, g
  */
 void wtap_optionblock_copy_options(wtap_optionblock_t dest_block, wtap_optionblock_t src_block);
 
-/** Write an option block
- *
- * Will write all mandatory data as well as "valid" options
- *
- * @param[in] wdh writing assistant
- * @param[in] block Block to be written
- * @param[in] err Any errors that occurred
- * @return TRUE if successful, FALSE will populate err
- */
-gboolean wtap_optionblock_write(struct wtap_dumper *wdh, wtap_optionblock_t block, int *err);
 
-/* Some utility functions for option types */
-
-guint32 wtap_opttype_write_size_string(wtap_option_type* data);
-gboolean wtap_opttype_write_data_string(struct wtap_dumper* wdh, wtap_option_type* data, int *err);
-
-/* if option value = 0, write size = 0, otherwise 4 */
-guint32 wtap_opttype_write_uint8_not0(wtap_option_type* data);
-gboolean wtap_opttype_write_data_uint8(struct wtap_dumper* wdh, wtap_option_type* data, int *err);
-
-/* if option value = 0, write size = 0, otherwise 8 */
-guint32 wtap_opttype_write_uint64_not0(wtap_option_type* data);
-/* if option value = -1 (0xFFFFFFFFFFFFFFFF), write size = 0, otherwise 8 */
-guint32 wtap_opttype_write_uint64_not_minus1(wtap_option_type* data);
-gboolean wtap_opttype_write_data_uint64(struct wtap_dumper* wdh, wtap_option_type* data, int *err);
+typedef void (*wtap_optionblock_foreach_func)(wtap_optionblock_t block, guint option_id, wtap_opttype_e option_type, wtap_option_type* option, void* user_data);
+void wtap_optionblock_foreach_option(wtap_optionblock_t block, wtap_optionblock_foreach_func func, void* user_data);
 
 WS_DLL_PUBLIC int wtap_opttype_register_custom_block_type(const char* name, const char* description, wtap_block_create_func create,
-                                                wtap_write_func write_func, wtap_mand_free_func free_mand, wtap_mand_copy_func copy_mand);
+                                                wtap_mand_free_func free_mand, wtap_mand_copy_func copy_mand);
 
 
 #endif /* WTAP_OPT_TYPES_H */
