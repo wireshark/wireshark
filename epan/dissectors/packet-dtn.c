@@ -1796,7 +1796,8 @@ get_tcpcl_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data 
         return len;
     }
 
-    return 0;
+    /* This probably isn't a TCPCL/Bundle packet, so just stop dissection */
+    return -1;
 }
 
 static int
