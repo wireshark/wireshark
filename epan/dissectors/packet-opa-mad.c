@@ -2847,6 +2847,9 @@ static gboolean parse_RMPP(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
         proto_item_set_text(RMPP_header_item, "%s%s", val_to_str(RMPP->Type, RMPP_Packet_Types, "RMPP (Reserved 0x%02x)"), " - Reliable Multi-Packet Transaction Protocol");
         proto_item_append_text(RMPP_type_item, " %s", val_to_str(RMPP->Type, RMPP_Packet_Types, "RMPP (Reserved 0x%02x)"));
     }
+
+    RMPP->PayloadLength = 0;
+
     switch (RMPP->Type) {
     case RMPP_ILLEGAL:
         proto_tree_add_item(RMPP_header_tree, hf_opa_rmpp_data1, tvb, local_offset, 4, ENC_BIG_ENDIAN);
