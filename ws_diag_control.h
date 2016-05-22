@@ -67,6 +67,15 @@ extern "C" {
 #  endif
 #endif
 
+/* Use for clang specific pragmas, so we can keep -Wpragmas enabled */
+#ifdef __clang__
+#  define DIAG_OFF_CLANG(x) DIAG_OFF(x)
+#  define DIAG_ON_CLANG(x)  DIAG_ON(x)
+#else
+#  define DIAG_OFF_CLANG(x)
+#  define DIAG_ON_CLANG(x)
+#endif
+
 #ifndef DIAG_OFF
    /* no gcc or clang, or gcc version < 4.2.0, or clang version < 2.8:
       we can't do anything */
