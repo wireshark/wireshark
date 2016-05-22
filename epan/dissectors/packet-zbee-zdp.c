@@ -590,14 +590,14 @@ zdp_parse_chanmask(proto_tree *tree, tvbuff_t *tvb, guint *offset, int hf_channe
         proto_item_append_text(ti, "None");
     }
     /* Display the first channel #. */
-    for (i=0; i<(8*(int)(int)sizeof(guint32)); i++) {
+    for (i=0; i<32; i++) {
         if ((1<<i) & mask) {
             proto_item_append_text(ti, "%d", i++);
             break;
         }
     } /* for */
     /* Display the rest of the channels. */
-    for (;i<(8*(int)(int)sizeof(guint32)); i++) {
+    for (;i<32; i++) {
         if (!((1<<i) & mask)) {
             /* This channel isn't selected. */
             continue;
