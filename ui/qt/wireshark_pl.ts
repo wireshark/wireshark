@@ -6487,7 +6487,7 @@ text-decoration: underline;
         <translation>nie znaleziono</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="438"/>
+        <location filename="main_welcome.cpp" line="440"/>
         <source>Copy file path</source>
         <translation>Kopiuj ścieżkę</translation>
     </message>
@@ -10675,12 +10675,12 @@ text-decoration: underline;
         <translation>Priorytet</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="421"/>
+        <location filename="main_welcome.cpp" line="423"/>
         <source>Show in Finder</source>
         <translation>Otwórz w wyszukiwajce</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="423"/>
+        <location filename="main_welcome.cpp" line="425"/>
         <source>Show in Folder</source>
         <translation>Otwórz w folderze</translation>
     </message>
@@ -11135,223 +11135,223 @@ text-decoration: underline;
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Przewodni&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Powrotny&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="65"/>
+        <location filename="rtp_analysis_dialog.ui" line="68"/>
         <source>Forward</source>
         <translation>Przewodni</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="69"/>
+        <location filename="rtp_analysis_dialog.ui" line="72"/>
         <source>Packet</source>
         <translation>Pakiet</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="74"/>
+        <location filename="rtp_analysis_dialog.ui" line="77"/>
         <source>Sequence</source>
         <translation>Numer sekwencyjny</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="79"/>
+        <location filename="rtp_analysis_dialog.ui" line="82"/>
         <source>Delta (ms)</source>
         <translation>Delta (ms)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="84"/>
+        <location filename="rtp_analysis_dialog.ui" line="87"/>
         <source>Jitter (ms)</source>
         <oldsource>Jitter</oldsource>
         <translation>Jitter (ms)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="89"/>
+        <location filename="rtp_analysis_dialog.ui" line="92"/>
         <source>Skew</source>
         <translation>Odchylenie</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="94"/>
+        <location filename="rtp_analysis_dialog.ui" line="97"/>
         <source>Bandwidth</source>
         <translation>Pasmo</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="99"/>
+        <location filename="rtp_analysis_dialog.ui" line="102"/>
         <source>Marker</source>
         <translation>Znacznik</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="104"/>
+        <location filename="rtp_analysis_dialog.ui" line="107"/>
         <source>Status</source>
         <translation>Status</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="116"/>
+        <location filename="rtp_analysis_dialog.ui" line="122"/>
         <source>Reverse</source>
         <translation>Powrotny</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="126"/>
+        <location filename="rtp_analysis_dialog.ui" line="132"/>
         <source>Graph</source>
         <translation>Wykres</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="137"/>
+        <location filename="rtp_analysis_dialog.ui" line="143"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości jitter strumienia przewodniego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="140"/>
+        <location filename="rtp_analysis_dialog.ui" line="146"/>
         <source>Forward Jitter</source>
         <translation>Jitter przewodniego</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="160"/>
+        <location filename="rtp_analysis_dialog.ui" line="166"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości różnic strumienia przewodniego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="163"/>
+        <location filename="rtp_analysis_dialog.ui" line="169"/>
         <source>Forward Difference</source>
         <translation>Różnica przewodniego</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="183"/>
+        <location filename="rtp_analysis_dialog.ui" line="189"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości delt strumienia przewodniego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="186"/>
+        <location filename="rtp_analysis_dialog.ui" line="192"/>
         <source>Forward Delta</source>
         <translation>Delta przewodniego</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="210"/>
+        <location filename="rtp_analysis_dialog.ui" line="216"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości jitter strumienia powrotnego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="213"/>
+        <location filename="rtp_analysis_dialog.ui" line="219"/>
         <source>Reverse Jitter</source>
         <translation>Jitter powrotnego</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="233"/>
+        <location filename="rtp_analysis_dialog.ui" line="239"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości różnic strumienia powrotnego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="236"/>
+        <location filename="rtp_analysis_dialog.ui" line="242"/>
         <source>Reverse Difference</source>
         <translation>Różnica powrotnego</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="256"/>
+        <location filename="rtp_analysis_dialog.ui" line="262"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokaż lub ukryj wartości delt strumienia powrotnego.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="259"/>
+        <location filename="rtp_analysis_dialog.ui" line="265"/>
         <source>Reverse Delta</source>
         <translation>Delta powrotnego</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="289"/>
+        <location filename="rtp_analysis_dialog.ui" line="295"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Podpowiedź.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="321"/>
+        <location filename="rtp_analysis_dialog.ui" line="327"/>
         <source>Audio</source>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="324"/>
+        <location filename="rtp_analysis_dialog.ui" line="330"/>
         <source>Save the audio data for both channels.</source>
         <translation>Zapisz dane audio dla obu kanałów.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="329"/>
+        <location filename="rtp_analysis_dialog.ui" line="335"/>
         <source>Forward Stream Audio</source>
         <translation>Przewodni strumień audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="332"/>
+        <location filename="rtp_analysis_dialog.ui" line="338"/>
         <source>Save the forward stream audio data.</source>
         <translation>Zapisz dane przewodniego strumienia audio.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="337"/>
+        <location filename="rtp_analysis_dialog.ui" line="343"/>
         <source>Reverse Stream Audio</source>
         <translation>Powrotny strumień audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="340"/>
+        <location filename="rtp_analysis_dialog.ui" line="346"/>
         <source>Save the reverse stream audio data.</source>
         <translation>Zapisz dane powrotnego strumienia audio.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="345"/>
+        <location filename="rtp_analysis_dialog.ui" line="351"/>
         <source>CSV</source>
         <translation>CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="348"/>
+        <location filename="rtp_analysis_dialog.ui" line="354"/>
         <source>Save both tables as CSV.</source>
         <translation>Zapisz obie tabele jako CSV.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="353"/>
+        <location filename="rtp_analysis_dialog.ui" line="359"/>
         <source>Forward Stream CSV</source>
         <translation>Strumień przewodni CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="356"/>
+        <location filename="rtp_analysis_dialog.ui" line="362"/>
         <source>Save the forward table as CSV.</source>
         <translation>Zapisz tabelę strumienia przewodniego jako CSV.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="361"/>
+        <location filename="rtp_analysis_dialog.ui" line="367"/>
         <source>Reverse Stream CSV</source>
         <translation>Strumień powrotny CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="364"/>
+        <location filename="rtp_analysis_dialog.ui" line="370"/>
         <source>Save the reverse table as CSV.</source>
         <translation>Zapisz tabelę strumienia powrotnego jako CSV.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="369"/>
+        <location filename="rtp_analysis_dialog.ui" line="375"/>
         <source>Save Graph</source>
         <translation>Zapisz wykres</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="372"/>
+        <location filename="rtp_analysis_dialog.ui" line="378"/>
         <source>Save the graph image.</source>
         <translation>Zapisz obraz wykresu.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="377"/>
+        <location filename="rtp_analysis_dialog.ui" line="383"/>
         <source>Go to Packet</source>
         <translation>Idź do pakietu</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="380"/>
+        <location filename="rtp_analysis_dialog.ui" line="386"/>
         <source>Select the corresponding packet in the packet list.</source>
         <translation>Zaznacz odpowiedni pakiet na liście pakietów.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="383"/>
+        <location filename="rtp_analysis_dialog.ui" line="389"/>
         <source>G</source>
         <translation>G</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="388"/>
+        <location filename="rtp_analysis_dialog.ui" line="394"/>
         <source>Next Problem Packet</source>
         <translation>Następny problematyczny pakiet</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="391"/>
+        <location filename="rtp_analysis_dialog.ui" line="397"/>
         <source>Go to the next problem packet</source>
         <translation>Idź do następnego pakietu z problemem.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="394"/>
+        <location filename="rtp_analysis_dialog.ui" line="400"/>
         <source>N</source>
         <translation>N</translation>
     </message>
@@ -11361,165 +11361,165 @@ text-decoration: underline;
         <translation>Analiza strumienia RTP</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="333"/>
+        <location filename="rtp_analysis_dialog.cpp" line="335"/>
         <source>Unable to save RTP data.</source>
         <translation>Nie można zapisać danych RTP.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1492"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1494"/>
         <source>No RTP packets found</source>
         <translation>Nie znaleziono pakietów RTP.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1514"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1516"/>
         <source>Please select an RTP packet</source>
         <translation>Proszę wybrać pakiet RTP</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1538"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1540"/>
         <source>RTP version %1 found. Only version 2 is supported.</source>
         <translation>Znaleziono RTP w wersji %1. Tylko wersja 2 jest obsługiwana.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1546"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1548"/>
         <source>SSRC value not found.</source>
         <translation>Nie znaleziono wartości SSRC.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="377"/>
+        <location filename="rtp_analysis_dialog.cpp" line="379"/>
         <source>No streams found.</source>
         <translation>Nie znaleziono strumieni.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="412"/>
+        <location filename="rtp_analysis_dialog.cpp" line="414"/>
         <source>%1 streams found.</source>
         <translation>Znaleziono %1 strumieni.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="431"/>
+        <location filename="rtp_analysis_dialog.cpp" line="433"/>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation>G: Idź do pakiety, N: Następny problematyczny pakiet</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="450"/>
+        <location filename="rtp_analysis_dialog.cpp" line="452"/>
         <source>No Audio</source>
         <translation>Brak Audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="571"/>
+        <location filename="rtp_analysis_dialog.cpp" line="573"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Dokument PDF (*.pdf)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="572"/>
+        <location filename="rtp_analysis_dialog.cpp" line="574"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Obraz PNG (*.png)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="573"/>
+        <location filename="rtp_analysis_dialog.cpp" line="575"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Bitmapa Windows (*.bmp)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="575"/>
+        <location filename="rtp_analysis_dialog.cpp" line="577"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>Obraz JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="586"/>
+        <location filename="rtp_analysis_dialog.cpp" line="588"/>
         <source>Save Graph As</source>
         <translation>Zapisz wykres jako</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="759"/>
+        <location filename="rtp_analysis_dialog.cpp" line="761"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation>Nie można zapisać pliku: Niepoprawna długość przechwyconych pakietów.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="770"/>
+        <location filename="rtp_analysis_dialog.cpp" line="772"/>
         <source>Can&apos;t save in a file: RTP data with padding.</source>
         <translation>Nie można zapisać pliku: Dane RTP z dopełnieniem do bloku.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="806"/>
-        <location filename="rtp_analysis_dialog.cpp" line="836"/>
+        <location filename="rtp_analysis_dialog.cpp" line="808"/>
+        <location filename="rtp_analysis_dialog.cpp" line="838"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
         <translation>Nie można zapisać pliku: Problem wejścia/wyjścia.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="823"/>
+        <location filename="rtp_analysis_dialog.cpp" line="825"/>
         <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
         <translation>Nie można zapisać pliku: Niekompletne dane w przechwyconych pakietach.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1041"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1043"/>
         <source>Save forward stream audio</source>
         <translation>Zapisz przewodni strumień audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1044"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1046"/>
         <source>Save reverse stream audio</source>
         <translation>Zapisz powrotny strumień audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1048"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1050"/>
         <source>Save audio</source>
         <translation>Zapisz audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1052"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1054"/>
         <source>Sun Audio (*.au)</source>
         <translation>Sun Audio (*.au)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1054"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1056"/>
         <source>;;Raw (*.raw)</source>
         <translation>;;Surowe dane (*.raw)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1071"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1080"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1096"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1073"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1082"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1098"/>
         <source>Warning</source>
         <translation>Ostrzeżenie</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1071"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1073"/>
         <source>Unable to save in that format</source>
         <translation>Nie można zapisać w tym formacie</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1080"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1082"/>
         <source>Can&apos;t save in a file: saving in au format supported only for alaw/ulaw streams</source>
         <translation>Nie można zapisać pliku: zapis w formacie au jest dostępny tylko dla strumieni alaw/ulaw</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1096"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1098"/>
         <source>Unable to save %1</source>
         <translation>Nie można zapisać %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1100"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1102"/>
         <source>Saving %1</source>
         <translation>Zapisywanie %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1322"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1324"/>
         <source>Save forward stream CSV</source>
         <translation>Zapisz przewodni strumień jako CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1325"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1327"/>
         <source>Save reverse stream CSV</source>
         <translation>Zapisz powrotny strumień jako CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1329"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1331"/>
         <source>Save CSV</source>
         <translation>Zapisz jako CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1335"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1337"/>
         <source>Comma-separated values (*.csv)</source>
         <translation>Wartości rozdzielane przecinkami (*.csv)</translation>
     </message>
@@ -12067,38 +12067,38 @@ text-decoration: underline;
         <translation>Strumienie RTP</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="250"/>
+        <location filename="rtp_stream_dialog.cpp" line="251"/>
         <source>Export</source>
         <oldsource>Export...</oldsource>
         <translation>Eksportuj</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="252"/>
+        <location filename="rtp_stream_dialog.cpp" line="253"/>
         <source>Copy</source>
         <translation>Kopiuj</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="258"/>
+        <location filename="rtp_stream_dialog.cpp" line="259"/>
         <source>as CSV</source>
         <translation>jako CSV</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="261"/>
+        <location filename="rtp_stream_dialog.cpp" line="262"/>
         <source>as YAML</source>
         <translation>jako YAML</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="385"/>
+        <location filename="rtp_stream_dialog.cpp" line="386"/>
         <source>%1 streams</source>
         <translation>%1 strumieni</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="395"/>
+        <location filename="rtp_stream_dialog.cpp" line="396"/>
         <source>, %1 selected, %2 total packets</source>
         <translation>, %1 zaznaczonych, %2 wszystkich pakietów</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="523"/>
+        <location filename="rtp_stream_dialog.cpp" line="524"/>
         <source>Save RTPDump As</source>
         <translation>Zapisz RTPDump jako</translation>
     </message>

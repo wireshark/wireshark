@@ -6478,7 +6478,7 @@ text-decoration: underline;
         <translation>未找到</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="438"/>
+        <location filename="main_welcome.cpp" line="440"/>
         <source>Copy file path</source>
         <translation>复制文件路径</translation>
     </message>
@@ -10666,12 +10666,12 @@ text-decoration: underline;
         <translation>优先级</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="421"/>
+        <location filename="main_welcome.cpp" line="423"/>
         <source>Show in Finder</source>
         <translation>在 Finder 中显示</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="423"/>
+        <location filename="main_welcome.cpp" line="425"/>
         <source>Show in Folder</source>
         <translation>在 Finder 中显示</translation>
     </message>
@@ -11126,223 +11126,223 @@ text-decoration: underline;
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;正向&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;反向&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="65"/>
+        <location filename="rtp_analysis_dialog.ui" line="68"/>
         <source>Forward</source>
         <translation>正向</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="69"/>
+        <location filename="rtp_analysis_dialog.ui" line="72"/>
         <source>Packet</source>
         <translation>分组</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="74"/>
+        <location filename="rtp_analysis_dialog.ui" line="77"/>
         <source>Sequence</source>
         <translation>序列</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="79"/>
+        <location filename="rtp_analysis_dialog.ui" line="82"/>
         <source>Delta (ms)</source>
         <translation>Delta (ms)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="84"/>
+        <location filename="rtp_analysis_dialog.ui" line="87"/>
         <source>Jitter (ms)</source>
         <oldsource>Jitter</oldsource>
         <translation>抖动 (ms)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="89"/>
+        <location filename="rtp_analysis_dialog.ui" line="92"/>
         <source>Skew</source>
         <translation>扭曲</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="94"/>
+        <location filename="rtp_analysis_dialog.ui" line="97"/>
         <source>Bandwidth</source>
         <translation>带宽</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="99"/>
+        <location filename="rtp_analysis_dialog.ui" line="102"/>
         <source>Marker</source>
         <translation>标记</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="104"/>
+        <location filename="rtp_analysis_dialog.ui" line="107"/>
         <source>Status</source>
         <translation>状态</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="116"/>
+        <location filename="rtp_analysis_dialog.ui" line="122"/>
         <source>Reverse</source>
         <translation>反向</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="126"/>
+        <location filename="rtp_analysis_dialog.ui" line="132"/>
         <source>Graph</source>
         <translation>图形</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="137"/>
+        <location filename="rtp_analysis_dialog.ui" line="143"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏正向抖动值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="140"/>
+        <location filename="rtp_analysis_dialog.ui" line="146"/>
         <source>Forward Jitter</source>
         <translation>正向抖动</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="160"/>
+        <location filename="rtp_analysis_dialog.ui" line="166"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏正向差异值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="163"/>
+        <location filename="rtp_analysis_dialog.ui" line="169"/>
         <source>Forward Difference</source>
         <translation>正向差异</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="183"/>
+        <location filename="rtp_analysis_dialog.ui" line="189"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏正向 delta 值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="186"/>
+        <location filename="rtp_analysis_dialog.ui" line="192"/>
         <source>Forward Delta</source>
         <translation>正向 Delta</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="210"/>
+        <location filename="rtp_analysis_dialog.ui" line="216"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏反向抖动值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="213"/>
+        <location filename="rtp_analysis_dialog.ui" line="219"/>
         <source>Reverse Jitter</source>
         <translation>反向抖动</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="233"/>
+        <location filename="rtp_analysis_dialog.ui" line="239"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏反向差异值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="236"/>
+        <location filename="rtp_analysis_dialog.ui" line="242"/>
         <source>Reverse Difference</source>
         <translation>反向差异</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="256"/>
+        <location filename="rtp_analysis_dialog.ui" line="262"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏反向 delta 值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="259"/>
+        <location filename="rtp_analysis_dialog.ui" line="265"/>
         <source>Reverse Delta</source>
         <translation>反向 Delta</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="289"/>
+        <location filename="rtp_analysis_dialog.ui" line="295"/>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;提示&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="321"/>
+        <location filename="rtp_analysis_dialog.ui" line="327"/>
         <source>Audio</source>
         <translation>音频</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="324"/>
+        <location filename="rtp_analysis_dialog.ui" line="330"/>
         <source>Save the audio data for both channels.</source>
         <translation>保存两个频道的音频数据。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="329"/>
+        <location filename="rtp_analysis_dialog.ui" line="335"/>
         <source>Forward Stream Audio</source>
         <translation>正向音频流</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="332"/>
+        <location filename="rtp_analysis_dialog.ui" line="338"/>
         <source>Save the forward stream audio data.</source>
         <translation>保存正向音频流数据。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="337"/>
+        <location filename="rtp_analysis_dialog.ui" line="343"/>
         <source>Reverse Stream Audio</source>
         <translation>反向音频流</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="340"/>
+        <location filename="rtp_analysis_dialog.ui" line="346"/>
         <source>Save the reverse stream audio data.</source>
         <translation>保存反向音频流数据。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="345"/>
+        <location filename="rtp_analysis_dialog.ui" line="351"/>
         <source>CSV</source>
         <translation>CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="348"/>
+        <location filename="rtp_analysis_dialog.ui" line="354"/>
         <source>Save both tables as CSV.</source>
         <translation>两个表另存为 CSV。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="353"/>
+        <location filename="rtp_analysis_dialog.ui" line="359"/>
         <source>Forward Stream CSV</source>
         <translation>正向流 CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="356"/>
+        <location filename="rtp_analysis_dialog.ui" line="362"/>
         <source>Save the forward table as CSV.</source>
         <translation>正向表另存为 CSV。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="361"/>
+        <location filename="rtp_analysis_dialog.ui" line="367"/>
         <source>Reverse Stream CSV</source>
         <translation>反向流 CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="364"/>
+        <location filename="rtp_analysis_dialog.ui" line="370"/>
         <source>Save the reverse table as CSV.</source>
         <translation>反向表另存为 CSV。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="369"/>
+        <location filename="rtp_analysis_dialog.ui" line="375"/>
         <source>Save Graph</source>
         <translation>保存图表</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="372"/>
+        <location filename="rtp_analysis_dialog.ui" line="378"/>
         <source>Save the graph image.</source>
         <translation>保存图表图像。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="377"/>
+        <location filename="rtp_analysis_dialog.ui" line="383"/>
         <source>Go to Packet</source>
         <translation>转至分组</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="380"/>
+        <location filename="rtp_analysis_dialog.ui" line="386"/>
         <source>Select the corresponding packet in the packet list.</source>
         <translation>选择分组列表中对应的分组。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="383"/>
+        <location filename="rtp_analysis_dialog.ui" line="389"/>
         <source>G</source>
         <translation>G</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="388"/>
+        <location filename="rtp_analysis_dialog.ui" line="394"/>
         <source>Next Problem Packet</source>
         <translation>下一个问题分组</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="391"/>
+        <location filename="rtp_analysis_dialog.ui" line="397"/>
         <source>Go to the next problem packet</source>
         <translation>转至下一个问题分组</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.ui" line="394"/>
+        <location filename="rtp_analysis_dialog.ui" line="400"/>
         <source>N</source>
         <translation>N</translation>
     </message>
@@ -11352,165 +11352,165 @@ text-decoration: underline;
         <translation>RTP 流分析</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="333"/>
+        <location filename="rtp_analysis_dialog.cpp" line="335"/>
         <source>Unable to save RTP data.</source>
         <translation>无法保存 RTP 数据。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1492"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1494"/>
         <source>No RTP packets found</source>
         <translation>没有找到 RTP 分组</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1514"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1516"/>
         <source>Please select an RTP packet</source>
         <translation>请选择一个 RTP 分组</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1538"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1540"/>
         <source>RTP version %1 found. Only version 2 is supported.</source>
         <translation>发现 RTP 版本 %1。只有版本 2 受到支持。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1546"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1548"/>
         <source>SSRC value not found.</source>
         <translation>未找到 SSRC 值。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="377"/>
+        <location filename="rtp_analysis_dialog.cpp" line="379"/>
         <source>No streams found.</source>
         <translation>没有找到流。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="412"/>
+        <location filename="rtp_analysis_dialog.cpp" line="414"/>
         <source>%1 streams found.</source>
         <translation>找到 %1 个流。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="431"/>
+        <location filename="rtp_analysis_dialog.cpp" line="433"/>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation>G: 转到分组，N: 转到问题分组</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="450"/>
+        <location filename="rtp_analysis_dialog.cpp" line="452"/>
         <source>No Audio</source>
         <translation>无音频</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="571"/>
+        <location filename="rtp_analysis_dialog.cpp" line="573"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>便携式文档格式 (*.pdf)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="572"/>
+        <location filename="rtp_analysis_dialog.cpp" line="574"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>便携式网络图形格式 (*.png)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="573"/>
+        <location filename="rtp_analysis_dialog.cpp" line="575"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows 位图 (*.bmp)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="575"/>
+        <location filename="rtp_analysis_dialog.cpp" line="577"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG 文件交换格式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="586"/>
+        <location filename="rtp_analysis_dialog.cpp" line="588"/>
         <source>Save Graph As</source>
         <translation>图形保存为</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="759"/>
+        <location filename="rtp_analysis_dialog.cpp" line="761"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation>无法保存到一个文件：捕获到的分组长度错误。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="770"/>
+        <location filename="rtp_analysis_dialog.cpp" line="772"/>
         <source>Can&apos;t save in a file: RTP data with padding.</source>
         <translation>无法保存在一个文件中：带有填充字节的 RTP 数据。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="806"/>
-        <location filename="rtp_analysis_dialog.cpp" line="836"/>
+        <location filename="rtp_analysis_dialog.cpp" line="808"/>
+        <location filename="rtp_analysis_dialog.cpp" line="838"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
         <translation>无法保存到一个文件：文件 I/O 问题。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="823"/>
+        <location filename="rtp_analysis_dialog.cpp" line="825"/>
         <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
         <translation>无法保存到一个文件：并非所有分组的所有数据被捕获。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1041"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1043"/>
         <source>Save forward stream audio</source>
         <translation>保存正向音频流</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1044"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1046"/>
         <source>Save reverse stream audio</source>
         <translation>保存反向音频流</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1048"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1050"/>
         <source>Save audio</source>
         <translation>保存音频</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1052"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1054"/>
         <source>Sun Audio (*.au)</source>
         <translation>Sun 音频 (*.au)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1054"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1056"/>
         <source>;;Raw (*.raw)</source>
         <translation>;;原始数据 (*.raw)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1071"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1080"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1096"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1073"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1082"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1098"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1071"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1073"/>
         <source>Unable to save in that format</source>
         <translation>无法保存到该格式</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1080"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1082"/>
         <source>Can&apos;t save in a file: saving in au format supported only for alaw/ulaw streams</source>
         <translation>无法保存到文件：alaw/ulaw 流只支持保存到 au 格式。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1096"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1098"/>
         <source>Unable to save %1</source>
         <translation>无法保存 %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1100"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1102"/>
         <source>Saving %1</source>
         <translation>正在保存 %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1322"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1324"/>
         <source>Save forward stream CSV</source>
         <translation>保存正向流 CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1325"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1327"/>
         <source>Save reverse stream CSV</source>
         <translation>保存反向流 CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1329"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1331"/>
         <source>Save CSV</source>
         <translation>保存 CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1335"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1337"/>
         <source>Comma-separated values (*.csv)</source>
         <translation>逗号分隔值 (*.csv)</translation>
     </message>
@@ -12058,38 +12058,38 @@ text-decoration: underline;
         <translation>RTP 流</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="250"/>
+        <location filename="rtp_stream_dialog.cpp" line="251"/>
         <source>Export</source>
         <oldsource>Export...</oldsource>
         <translation>导出</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="252"/>
+        <location filename="rtp_stream_dialog.cpp" line="253"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="258"/>
+        <location filename="rtp_stream_dialog.cpp" line="259"/>
         <source>as CSV</source>
         <translation>作为 CSV</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="261"/>
+        <location filename="rtp_stream_dialog.cpp" line="262"/>
         <source>as YAML</source>
         <translation>作为YAML</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="385"/>
+        <location filename="rtp_stream_dialog.cpp" line="386"/>
         <source>%1 streams</source>
         <translation>%1 流</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="395"/>
+        <location filename="rtp_stream_dialog.cpp" line="396"/>
         <source>, %1 selected, %2 total packets</source>
         <translation>, %1 项已选中, 总计 %2 项分组</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="523"/>
+        <location filename="rtp_stream_dialog.cpp" line="524"/>
         <source>Save RTPDump As</source>
         <translation>保存RTPDump为</translation>
     </message>

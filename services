@@ -426,8 +426,8 @@ cdc               223/tcp # Certificate Distribution Center [Kannan_Alagappan] [
 cdc               223/udp # Certificate Distribution Center [Kannan_Alagappan] [Kannan_Alagappan]
 masqdialer        224/tcp # masqdialer [Charles_Wright] [Charles_Wright] Possible Conflict of Port 222 with "Masqdialer"
 masqdialer        224/udp # masqdialer [Charles_Wright] [Charles_Wright] Possible Conflict of Port 222 with "Masqdialer"
-direct            242/tcp # Direct [Herb_Sutter] [Herb_Sutter]
-direct            242/udp # Direct [Herb_Sutter] [Herb_Sutter]
+direct            242/tcp # Direct [Herb_Sutter] [Paul_Horton]
+direct            242/udp # Direct [Herb_Sutter] [Paul_Horton]
 sur-meas          243/tcp # Survey Measurement [Dave_Clark] [Dave_Clark]
 sur-meas          243/udp # Survey Measurement [Dave_Clark] [Dave_Clark]
 inbusiness        244/tcp # inbusiness [Derrick_Hisatake] [Derrick_Hisatake]
@@ -1368,8 +1368,8 @@ dhcp-failover2    847/tcp # dhcp-failover 2 [Bernard_Volz] [Bernard_Volz]
 dhcp-failover2    847/udp # dhcp-failover 2 [Bernard_Volz] [Bernard_Volz]
 gdoi              848/tcp # GDOI [RFC3547]
 gdoi              848/udp # GDOI [RFC3547]
-domain-s          853/tcp # DNS query-response protocol run over TLS/DTLS [IESG] [IETF_Chair] 2015-10-08 2016-03-29 [RFC-ietf-dprive-dns-over-tls-09]
-domain-s          853/udp # DNS query-response protocol run over TLS/DTLS [IESG] [IETF_Chair] 2015-10-08 2016-03-29 [RFC-ietf-dprive-dns-over-tls-09]
+domain-s          853/tcp # DNS query-response protocol run over TLS/DTLS [IESG] [IETF_Chair] 2015-10-08 2016-05-18 [RFC7858]
+domain-s          853/udp # DNS query-response protocol run over TLS/DTLS [IESG] [IETF_Chair] 2015-10-08 2016-05-18 [RFC7858]
 iscsi             860/tcp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
 iscsi             860/udp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
 owamp-control     861/tcp # OWAMP-Control [RFC4656]
@@ -4680,6 +4680,8 @@ sybaseanywhere   2638/tcp # Sybase Anywhere [Dave_Neudoerffer] [Dave_Neudoerffer
 sybaseanywhere   2638/udp # Sybase Anywhere [Dave_Neudoerffer] [Dave_Neudoerffer]
 aminet           2639/tcp # AMInet [Alcorn_McBride_Inc] [Alcorn_McBride_Inc]
 aminet           2639/udp # AMInet [Alcorn_McBride_Inc] [Alcorn_McBride_Inc]
+ami-control      2640/tcp # Alcorn McBride Inc protocol used for device control [Alcorn_McBride_Inc] [Joy_Burke]
+ami-control      2640/udp # Alcorn McBride Inc protocol used for device control [Alcorn_McBride_Inc] [Joy_Burke]
 hdl-srv          2641/tcp # HDL Server [David_Ely] [David_Ely]
 hdl-srv          2641/udp # HDL Server [David_Ely] [David_Ely]
 tragic           2642/tcp # Tragic [Stu_Mark] [Stu_Mark]
@@ -8048,6 +8050,7 @@ bmc-reporting    4568/udp # BMC Reporting [Portnoy_Boxman] [Portnoy_Boxman]
 iax              4569/tcp # Inter-Asterisk eXchange [Benjamin_Kowarsch] [Benjamin_Kowarsch] [RFC5456] Defined TXT keys:  auth          plaintext | md5 | rsakeys  userid        alphanumeric, additionally '_', '+', '-'  secret        any printable ASCII characters  domain        any DNS domain name or IP address  extension     alphanumeric, additionally '*', '#', '_', '+', '-'  context       alphanumeric, additionally '_', '+', '-'  trunk         yes | no | 0 | 1  welcome       alphanumeric, additionally '*', '#', '_', '+', '-'  voicemail     alphanumeric, additionally '*', '#', '_', '+', '-'  reception     alphanumeric, additionally '*', '#', '_', '+', '-'  echotest      alphanumeric, additionally '*', '#', '_', '+', '-'  ivrtest       alphanumeric, additionally '*', '#', '_', '+', '-'All of these TXT record keys are optional, they may be omitted.Further keys may be added in the future.
 iax              4569/udp # Inter-Asterisk eXchange [Benjamin_Kowarsch] [Benjamin_Kowarsch] [RFC5456] Defined TXT keys:  auth          plaintext | md5 | rsakeys  userid        alphanumeric, additionally '_', '+', '-'  secret        any printable ASCII characters  domain        any DNS domain name or IP address  extension     alphanumeric, additionally '*', '#', '_', '+', '-'  context       alphanumeric, additionally '_', '+', '-'  trunk         yes | no | 0 | 1  welcome       alphanumeric, additionally '*', '#', '_', '+', '-'  voicemail     alphanumeric, additionally '*', '#', '_', '+', '-'  reception     alphanumeric, additionally '*', '#', '_', '+', '-'  echotest      alphanumeric, additionally '*', '#', '_', '+', '-'  ivrtest       alphanumeric, additionally '*', '#', '_', '+', '-'All of these TXT record keys are optional, they may be omitted.Further keys may be added in the future.
 deploymentmap    4570/tcp # Service to distribute and update within a site deployment information for Oracle Communications Suite [Oracle_3] [Dan_Newman] 2013-09-20
+cardifftec-back  4573/tcp # A port for communication between a server and client for a custom backup system [CardiffTec] [Benjamin_Misell] 2016-05-19
 rid              4590/tcp # RID over HTTP/TLS [IESG] [IETF_Chair] [RFC6546]
 l3t-at-an        4591/tcp # HRPD L3T (AT-AN) [Avi_Lior] [Avi_Lior] 2009-02-27
 l3t-at-an        4591/udp # HRPD L3T (AT-AN) [Avi_Lior] [Avi_Lior] 2009-02-27
