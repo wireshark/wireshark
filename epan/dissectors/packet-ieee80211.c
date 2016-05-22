@@ -4462,6 +4462,12 @@ static int hf_ieee80211_vs_aruba_subtype = -1;
 static int hf_ieee80211_vs_aruba_apname = -1;
 static int hf_ieee80211_vs_aruba_data = -1;
 
+static int hf_ieee80211_vs_mikrotik_unknown = -1;
+static int hf_ieee80211_vs_mikrotik_subitem = -1;
+static int hf_ieee80211_vs_mikrotik_subtype = -1;
+static int hf_ieee80211_vs_mikrotik_sublength = -1;
+static int hf_ieee80211_vs_mikrotik_subdata = -1;
+
 static int hf_ieee80211_rsn_ie_pmkid = -1;
 static int hf_ieee80211_rsn_ie_unknown = -1;
 
@@ -5092,6 +5098,8 @@ static gint ett_hs20_cc_proto_port_tuple = -1;
 static gint ett_ssid_list = -1;
 
 static gint ett_nintendo = -1;
+
+static gint ett_mikrotik = -1;
 
 static gint ett_qos_map_set_exception = -1;
 static gint ett_qos_map_set_range = -1;
@@ -10625,6 +10633,50 @@ dissect_vendor_ie_aruba(proto_item *item, proto_tree *ietree,
   }
 }
 
+static void
+dissect_vendor_ie_mikrotik(proto_item *item _U_, proto_tree *ietree,
+                          tvbuff_t *tvb, int offset, guint32 tag_len)
+{
+  guint8 type, length;
+  proto_item *subitem;
+  proto_tree *subtree;
+
+  offset += 1; /* VS OUI Type */
+  tag_len -= 1;
+  /* FIXME: Make sure we have at least 2 bytes left */
+  proto_tree_add_item(ietree, hf_ieee80211_vs_mikrotik_unknown, tvb, offset, 2, ENC_NA);
+
+  offset += 2;
+  tag_len -= 2;
+
+  while (tag_len >= 2) {
+    type = tvb_get_guint8(tvb, offset);
+    length = tvb_get_guint8(tvb, offset+1);
+    subitem = proto_tree_add_item(ietree, hf_ieee80211_vs_mikrotik_subitem, tvb, offset, length+2, ENC_NA);
+    subtree = proto_item_add_subtree(subitem, ett_mikrotik);
+    proto_item_set_text(subitem, "Sub IE (T/L: %d/%d)", type, length);
+
+    proto_tree_add_item(subtree, hf_ieee80211_vs_mikrotik_subtype, tvb, offset, 1, ENC_NA);
+    offset += 1;
+    tag_len -= 1;
+
+    proto_tree_add_item (subtree, hf_ieee80211_vs_mikrotik_sublength, tvb, offset, 1, ENC_NA);
+    offset += 1;
+    tag_len -= 1;
+
+    if (tag_len < length)
+      /* FIXME: warn about this */
+      length = tag_len;
+    if (length == 0) {
+      break;
+    }
+
+    proto_tree_add_item(subtree, hf_ieee80211_vs_mikrotik_subdata, tvb, offset, length, ENC_NA);
+    offset += length;
+    tag_len -= length;
+  }
+}
+
 enum vs_nintendo_type {
   NINTENDO_SERVICES = 0x11,
   NINTENDO_CONSOLEID = 0xF0
@@ -15271,6 +15323,9 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
           break;
         case OUI_NINTENDO:
           dissect_vendor_ie_nintendo(ti, tree, tvb, offset, tag_vs_len);
+          break;
+        case OUI_MIKROTIK:
+          dissect_vendor_ie_mikrotik(ti, tree, tvb, offset, tag_vs_len);
           break;
         default:
           proto_tree_add_item(tree, hf_ieee80211_tag_vendor_data, tvb, offset, tag_vs_len, ENC_NA);
@@ -26003,6 +26058,31 @@ proto_register_ieee80211 (void)
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_vs_mikrotik_unknown,
+     {"Unknown", "wlan_mgt.vs.mikrotik.unknown",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_mikrotik_subitem,
+     {"Sub IE", "wlan_mgt.vs.mikrotik.unknown",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_mikrotik_subtype,
+     {"Subtype", "wlan_mgt.vs.mikrotik.subtype",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_mikrotik_sublength,
+     {"Sublength", "wlan_mgt.vs.mikrotik.sublength",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_mikrotik_subdata,
+     {"Subdata", "wlan_mgt.vs.mikrotik.subdata",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_tsinfo,
      {"Traffic Stream (TS) Info", "wlan_mgt.ts_info",
       FT_UINT24, BASE_HEX, NULL, 0,
@@ -27192,6 +27272,8 @@ proto_register_ieee80211 (void)
     &ett_ssid_list,
 
     &ett_nintendo,
+
+    &ett_mikrotik,
 
     &ett_qos_map_set_exception,
     &ett_qos_map_set_range,

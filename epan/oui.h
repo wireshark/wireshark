@@ -48,6 +48,7 @@
 #define OUI_ORACLE          0x0003BA    /* Oracle */
 #define OUI_SONY_ERICSSON   0x000AD9    /* Sony Ericsson Mobile Communications AB */
 #define OUI_ARUBA           0x000B86    /* Aruba Networks */
+#define OUI_MIKROTIK        0x000C42
 #define OUI_SONY_ERICSSON_2 0x000E07    /* Sony Ericsson Mobile Communications AB */
 #define OUI_PROFINET        0x000ECF    /* PROFIBUS Nutzerorganisation e.V. */
 #define OUI_RSN             0x000FAC    /* Wi-Fi : RSN */
