@@ -366,7 +366,6 @@ else()
 		-Wno-overlength-strings
 		-Wno-long-long
 		-Wheader-guard
-		-Wunused-const-variable
 	)
 
 	set(WIRESHARK_C_ONLY_FLAGS
@@ -379,6 +378,7 @@ else()
 		-Wstrict-prototypes
 		-Wlogical-op
 		-Wjump-misses-init
+		-Wunused-const-variable
 		# The Qt headers generate a ton of shortening errors on 64-bit systems
 		# so only enable this for C for now.
 		-Wshorten-64-to-32

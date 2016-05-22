@@ -580,12 +580,13 @@ AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wpragmas)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-overlength-strings)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wno-long-long)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wheader-guard)
-AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wunused-const-variable)
+
 #
 # The following are C only, not C++
 #
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wc++-compat, C)
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wdeclaration-after-statement, C)
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wunused-const-variable, C)
 
 #
 # XXX - OK for C++?
