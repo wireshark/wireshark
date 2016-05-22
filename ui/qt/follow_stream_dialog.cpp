@@ -266,9 +266,13 @@ void FollowStreamDialog::saveAs()
 {
     QString file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Stream Content As" UTF8_HORIZONTAL_ELLIPSIS)));
     if (!file_name.isEmpty()) {
-        file_.setFileName(file_name);
-        file_.open(QIODevice::WriteOnly);
         QTextStream out(&file_);
+
+        if (!file_.open(QIODevice::WriteOnly)) {
+            open_failure_alert_box(file_name.toUtf8().constData(), errno, TRUE);
+            return;
+        }
+        file_.setFileName(file_name);
 
         save_as_ = true;
 
