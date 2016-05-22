@@ -267,7 +267,7 @@ int main(int argc, char **argv)
 }
 #endif
 
-DIAG_OFF(self-assign) /* SATURATE32PSHR */
+DIAG_OFF_CLANG(self-assign) /* SATURATE32PSHR */
 
 #ifdef FIXED_POINT
 /* The slow way of computing a sinc for the table. Should improve that some day */
@@ -1203,5 +1203,3 @@ EXPORT const char *speex_resampler_strerror(int err)
          return "Unknown error. Bad error code or strange version mismatch.";
    }
 }
-
-DIAG_ON(self-assign)
