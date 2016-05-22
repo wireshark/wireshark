@@ -536,7 +536,7 @@ zbee_parse_eui64(proto_tree *tree, int hfindex, tvbuff_t *tvb, guint *offset, gu
     item = proto_tree_add_eui64(tree, hfindex, tvb, *offset, length, value);
 
     /* Increment the offset. */
-    *offset += sizeof(guint64);
+    *offset += (int)sizeof(guint64);
 
     /* return the item if requested. */
     if (ti) *ti = item;
@@ -559,9 +559,9 @@ zdp_parse_status(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 
     /* Get and display the flags. */
     status = tvb_get_guint8(tvb, *offset);
-    proto_tree_add_uint(tree, hf_zbee_zdp_status, tvb, *offset, sizeof(guint8), status);
+    proto_tree_add_uint(tree, hf_zbee_zdp_status, tvb, *offset, (int)sizeof(guint8), status);
 
-    *offset += sizeof(guint8);
+    *offset += (int)sizeof(guint8);
 
     return status;
 } /* zdp_parse_status */
@@ -618,7 +618,7 @@ zdp_parse_chanmask(proto_tree *tree, tvbuff_t *tvb, guint *offset, int hf_channe
         }
     } /* for */
 
-    *offset += sizeof(guint32);
+    *offset += (int)sizeof(guint32);
 
     return mask;
 } /* zdp_parse_chanmask */
@@ -737,8 +737,8 @@ zdp_parse_node_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offse
 
     /* Get and display the capability flags. */
     /*capability      =*/ zdp_parse_cinfo(field_tree, ett_zbee_zdp_cinfo, tvb, offset);
-    /*mfr_code        =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_node_manufacturer, tvb, offset, sizeof(guint16), NULL);
-    /*max_buff        =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_node_max_buffer, tvb, offset, sizeof(guint8), NULL);
+    /*mfr_code        =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_node_manufacturer, tvb, offset, (int)sizeof(guint16), NULL);
+    /*max_buff        =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_node_max_buffer, tvb, offset, (int)sizeof(guint8), NULL);
     /*max_incoming_transfer    =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_node_max_incoming_transfer, tvb, offset, 2, NULL);
 
     /* Get and display the server flags. */
@@ -833,14 +833,14 @@ zdp_parse_simple_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *off
     }
     else field_tree = tree;
 
-    /*endpoint    =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_endpoint, tvb, offset, sizeof(guint8), NULL);
-    /*profile     =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_profile, tvb, offset, sizeof(guint16), NULL);
-    /*app_device  =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_simple_app_device, tvb, offset, sizeof(guint16), NULL);
-    /*app_version =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_simple_app_version, tvb, offset, sizeof(guint8), NULL);
+    /*endpoint    =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_endpoint, tvb, offset, (int)sizeof(guint8), NULL);
+    /*profile     =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_profile, tvb, offset, (int)sizeof(guint16), NULL);
+    /*app_device  =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_simple_app_device, tvb, offset, (int)sizeof(guint16), NULL);
+    /*app_version =*/ zbee_parse_uint(field_tree, hf_zbee_zdp_simple_app_version, tvb, offset, (int)sizeof(guint8), NULL);
 
-    sizeof_cluster = (version >= ZBEE_VERSION_2007)?sizeof(guint16):sizeof(guint8);
+    sizeof_cluster = (version >= ZBEE_VERSION_2007)?(int)sizeof(guint16):(int)sizeof(guint8);
 
-    in_count    = zbee_parse_uint(field_tree, hf_zbee_zdp_in_count, tvb, offset, sizeof(guint8), NULL);
+    in_count    = zbee_parse_uint(field_tree, hf_zbee_zdp_in_count, tvb, offset, (int)sizeof(guint8), NULL);
     if ((tree) && (in_count)) {
         cluster_tree = proto_tree_add_subtree(field_tree, tvb, *offset, in_count*sizeof_cluster,
                                                 ett_zbee_zdp_node_in, NULL, "Input Cluster List");
@@ -849,7 +849,7 @@ zdp_parse_simple_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *off
         zbee_parse_uint(cluster_tree, hf_zbee_zdp_in_cluster, tvb, offset, sizeof_cluster, NULL);
     }
 
-    out_count = zbee_parse_uint(field_tree, hf_zbee_zdp_out_count, tvb, offset, sizeof(guint8), NULL);
+    out_count = zbee_parse_uint(field_tree, hf_zbee_zdp_out_count, tvb, offset, (int)sizeof(guint8), NULL);
     if ((tree) && (out_count)) {
         cluster_tree = proto_tree_add_subtree(field_tree, tvb, *offset, out_count*sizeof_cluster,
                                                 ett_zbee_zdp_node_out, NULL, "Output Cluster List");
@@ -980,9 +980,9 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 #endif
     /* Get and display the sequence number. */
     seqno = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint(zdp_tree, hf_zbee_zdp_seqno, tvb, offset, sizeof(guint8), seqno);
+    proto_tree_add_uint(zdp_tree, hf_zbee_zdp_seqno, tvb, offset, (int)sizeof(guint8), seqno);
 
-    offset += sizeof(guint8);
+    offset += (int)sizeof(guint8);
 
     if (nwk->version <= ZBEE_VERSION_2004) {
         /* ZigBee 2004 and earlier had different cluster identifiers, need to convert
