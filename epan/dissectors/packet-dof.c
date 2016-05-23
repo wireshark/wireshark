@@ -9402,15 +9402,9 @@ static int dissect_tep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         if (!rekey_data)
         {
             packet->opid_data = rekey_data = (tep_rekey_data *)wmem_alloc0(wmem_file_scope(), sizeof(tep_rekey_data));
-            rekey_data->key_data = (dof_session_key_exchange_data *)wmem_alloc0(wmem_file_scope(), sizeof(dof_session_key_exchange_data));
         }
 
-        if (!rekey_data)
-        {
-            /* TODO: Log error. */
-            return 0;
-        }
-
+        rekey_data->key_data = (dof_session_key_exchange_data *)wmem_alloc0(wmem_file_scope(), sizeof(dof_session_key_exchange_data));
         rekey_data->is_rekey = TRUE;
 
         /* The K bit must be set, so there is a domain ONLY IF NOT SECURED. */
@@ -9458,12 +9452,6 @@ static int dissect_tep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             packet->opid_data = rekey_data = (tep_rekey_data *)wmem_alloc0(wmem_file_scope(), sizeof(tep_rekey_data));
             rekey_data->domain_length = api_data->secure_session->domain_length;
             rekey_data->domain = api_data->secure_session->domain;
-        }
-
-        if (!rekey_data)
-        {
-            /* TODO: Log error. */
-            return 0;
         }
 
         /* The C bit must be clear, so there is an Initiator Block. */
