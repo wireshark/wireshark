@@ -678,7 +678,6 @@ void BluetoothHciSummaryDialog::on_actionCopy_All_triggered()
 {
     QClipboard             *clipboard = QApplication::clipboard();
     QString                 copy;
-    QTreeWidgetItemIterator i_item(ui->tableTreeWidget);
     QTreeWidgetItem        *item;
 
     item = ui->tableTreeWidget->headerItem();
@@ -694,7 +693,7 @@ void BluetoothHciSummaryDialog::on_actionCopy_All_triggered()
             .arg(item->text(column_number_hardware_error), -15)
             .arg(item->text(column_number_occurrence), -10);
 
-    for (int i_item = 0; i_item < ui->tableTreeWidget->topLevelItemCount(); i_item += 1) {
+    for (int i_item = 0; i_item < ui->tableTreeWidget->topLevelItemCount(); ++i_item) {
         item = ui->tableTreeWidget->topLevelItem(i_item);
 
         copy += QString("%1  %2  %3  %4  %5  %6  %7  %8  %9\n")

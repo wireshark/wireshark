@@ -434,25 +434,25 @@ LBMLBTRMSourceTransportEntry::LBMLBTRMSourceTransportEntry(const QString & trans
 
 LBMLBTRMSourceTransportEntry::~LBMLBTRMSourceTransportEntry(void)
 {
-    for (LBMLBTRMSQNMapIterator it = m_data_sqns.begin(); it != m_data_sqns.end(); it++)
+    for (LBMLBTRMSQNMapIterator it = m_data_sqns.begin(); it != m_data_sqns.end(); ++it)
     {
         delete *it;
     }
     m_data_sqns.clear();
 
-    for (LBMLBTRMSQNMapIterator it = m_rx_data_sqns.begin(); it != m_rx_data_sqns.end(); it++)
+    for (LBMLBTRMSQNMapIterator it = m_rx_data_sqns.begin(); it != m_rx_data_sqns.end(); ++it)
     {
         delete *it;
     }
     m_rx_data_sqns.clear();
 
-    for (LBMLBTRMNCFSQNMapIterator it = m_ncf_sqns.begin(); it != m_ncf_sqns.end(); it++)
+    for (LBMLBTRMNCFSQNMapIterator it = m_ncf_sqns.begin(); it != m_ncf_sqns.end(); ++it)
     {
         delete *it;
     }
     m_ncf_sqns.clear();
 
-    for (LBMLBTRMSQNMapIterator it = m_sm_sqns.begin(); it != m_sm_sqns.end(); it++)
+    for (LBMLBTRMSQNMapIterator it = m_sm_sqns.begin(); it != m_sm_sqns.end(); ++it)
     {
         delete *it;
     }
@@ -666,7 +666,7 @@ LBMLBTRMSourceEntry::LBMLBTRMSourceEntry(const QString & source_address) :
 
 LBMLBTRMSourceEntry::~LBMLBTRMSourceEntry(void)
 {
-    for (LBMLBTRMSourceTransportMapIterator it = m_transports.begin(); it != m_transports.end(); it++)
+    for (LBMLBTRMSourceTransportMapIterator it = m_transports.begin(); it != m_transports.end(); ++it)
     {
         delete *it;
     }
@@ -828,7 +828,7 @@ LBMLBTRMReceiverTransportEntry::LBMLBTRMReceiverTransportEntry(const QString & t
 
 LBMLBTRMReceiverTransportEntry::~LBMLBTRMReceiverTransportEntry(void)
 {
-    for (LBMLBTRMSQNMapIterator it = m_nak_sqns.begin(); it != m_nak_sqns.end(); it++)
+    for (LBMLBTRMSQNMapIterator it = m_nak_sqns.begin(); it != m_nak_sqns.end(); ++it)
     {
         delete *it;
     }
@@ -942,7 +942,7 @@ LBMLBTRMReceiverEntry::LBMLBTRMReceiverEntry(const QString & receiver_address) :
 
 LBMLBTRMReceiverEntry::~LBMLBTRMReceiverEntry(void)
 {
-    for (LBMLBTRMReceiverTransportMapIterator it = m_transports.begin(); it != m_transports.end(); it++)
+    for (LBMLBTRMReceiverTransportMapIterator it = m_transports.begin(); it != m_transports.end(); ++it)
     {
         delete *it;
     }
@@ -1116,13 +1116,13 @@ void LBMLBTRMTransportDialogInfo::processPacket(const packet_info * pinfo, const
 
 void LBMLBTRMTransportDialogInfo::clearMaps(void)
 {
-    for (LBMLBTRMSourceMapIterator it = m_sources.begin(); it != m_sources.end(); it++)
+    for (LBMLBTRMSourceMapIterator it = m_sources.begin(); it != m_sources.end(); ++it)
     {
         delete *it;
     }
     m_sources.clear();
 
-    for (LBMLBTRMReceiverMapIterator it = m_receivers.begin(); it != m_receivers.end(); it++)
+    for (LBMLBTRMReceiverMapIterator it = m_receivers.begin(); it != m_receivers.end(); ++it)
     {
         delete *it;
     }
@@ -1420,7 +1420,7 @@ void LBMLBTRMTransportDialog::sourcesItemClicked(QTreeWidgetItem * item, int)
 
 void LBMLBTRMTransportDialog::loadSourceDataDetails(LBMLBTRMSourceTransportEntry * transport)
 {
-    for (LBMLBTRMSQNMapIterator it = transport->m_data_sqns.begin(); it != transport->m_data_sqns.end(); it++)
+    for (LBMLBTRMSQNMapIterator it = transport->m_data_sqns.begin(); it != transport->m_data_sqns.end(); ++it)
     {
         LBMLBTRMSQNEntry * sqn = it.value();
         m_ui->sources_detail_sqn_TreeWidget->addTopLevelItem(sqn);
@@ -1429,7 +1429,7 @@ void LBMLBTRMTransportDialog::loadSourceDataDetails(LBMLBTRMSourceTransportEntry
 
 void LBMLBTRMTransportDialog::loadSourceRXDataDetails(LBMLBTRMSourceTransportEntry * transport)
 {
-    for (LBMLBTRMSQNMapIterator it = transport->m_rx_data_sqns.begin(); it != transport->m_rx_data_sqns.end(); it++)
+    for (LBMLBTRMSQNMapIterator it = transport->m_rx_data_sqns.begin(); it != transport->m_rx_data_sqns.end(); ++it)
     {
         LBMLBTRMSQNEntry * sqn = it.value();
         m_ui->sources_detail_sqn_TreeWidget->addTopLevelItem(sqn);
@@ -1438,7 +1438,7 @@ void LBMLBTRMTransportDialog::loadSourceRXDataDetails(LBMLBTRMSourceTransportEnt
 
 void LBMLBTRMTransportDialog::loadSourceNCFDetails(LBMLBTRMSourceTransportEntry * transport)
 {
-    for (LBMLBTRMNCFSQNMapIterator it = transport->m_ncf_sqns.begin(); it != transport->m_ncf_sqns.end(); it++)
+    for (LBMLBTRMNCFSQNMapIterator it = transport->m_ncf_sqns.begin(); it != transport->m_ncf_sqns.end(); ++it)
     {
         LBMLBTRMNCFSQNEntry * sqn = it.value();
         m_ui->sources_detail_ncf_sqn_TreeWidget->addTopLevelItem(sqn);
@@ -1447,7 +1447,7 @@ void LBMLBTRMTransportDialog::loadSourceNCFDetails(LBMLBTRMSourceTransportEntry 
 
 void LBMLBTRMTransportDialog::loadSourceSMDetails(LBMLBTRMSourceTransportEntry * transport)
 {
-    for (LBMLBTRMSQNMapIterator it = transport->m_sm_sqns.begin(); it != transport->m_sm_sqns.end(); it++)
+    for (LBMLBTRMSQNMapIterator it = transport->m_sm_sqns.begin(); it != transport->m_sm_sqns.end(); ++it)
     {
         LBMLBTRMSQNEntry * sqn = it.value();
         m_ui->sources_detail_sqn_TreeWidget->addTopLevelItem(sqn);
@@ -1471,7 +1471,7 @@ void LBMLBTRMTransportDialog::receiversItemClicked(QTreeWidgetItem * item, int)
 
 void LBMLBTRMTransportDialog::loadReceiverNAKDetails(LBMLBTRMReceiverTransportEntry * transport)
 {
-    for (LBMLBTRMSQNMapIterator it = transport->m_nak_sqns.begin(); it != transport->m_nak_sqns.end(); it++)
+    for (LBMLBTRMSQNMapIterator it = transport->m_nak_sqns.begin(); it != transport->m_nak_sqns.end(); ++it)
     {
         LBMLBTRMSQNEntry * sqn = it.value();
         m_ui->receivers_detail_TreeWidget->addTopLevelItem(sqn);

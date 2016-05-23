@@ -345,7 +345,7 @@ void ProtocolHierarchyDialog::on_actionCopyAsCsv_triggered()
         }
         stream << separated_value.join(",") << endl;
 
-        if (!first) iter++;
+        if (!first) ++iter;
         first = false;
     }
     wsApp->clipboard()->setText(stream.readAll());
@@ -366,7 +366,7 @@ void ProtocolHierarchyDialog::on_actionCopyAsYaml_triggered()
         foreach (QVariant v, protoHierRowData(item)) {
             stream << " - " << v.toString() << endl;
         }
-        if (!first) iter++;
+        if (!first) ++iter;
         first = false;
     }
     wsApp->clipboard()->setText(stream.readAll());

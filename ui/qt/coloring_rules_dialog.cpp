@@ -193,7 +193,7 @@ void ColoringRulesDialog::updateWidgets()
             error_text.prepend(QString("%1: ").arg(item->text(name_col_)));
             break;
         }
-        iter++;
+        ++iter;
     }
 
     if (error_text.isEmpty()) {

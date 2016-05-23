@@ -403,7 +403,7 @@ void ProtoTree::goToField(int hf_id)
                 break;
             }
         }
-        iter++;
+        ++iter;
     }
 }
 
@@ -537,7 +537,7 @@ void ProtoTree::expandSubtrees()
             break;
         }
         (*iter)->setExpanded(true);
-        iter++;
+        ++iter;
     }
     updateContentWidth();
 }
@@ -600,7 +600,7 @@ void ProtoTree::selectField(field_info *fi)
             scrollToItem(*iter);
             break;
         }
-        iter++;
+        ++iter;
     }
 }
 
@@ -638,7 +638,7 @@ void ProtoTree::restoreSelectedField()
             scrollToItem(*iter);
             break;
         }
-        iter++;
+        ++iter;
     }
 }
 

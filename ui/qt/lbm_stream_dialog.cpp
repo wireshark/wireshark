@@ -182,7 +182,7 @@ LBMStreamEntry::~LBMStreamEntry(void)
 {
     LBMSubstreamMapIterator it;
 
-    for (it = m_substreams.begin(); it != m_substreams.end(); it++)
+    for (it = m_substreams.begin(); it != m_substreams.end(); ++it)
     {
         delete *it;
     }
@@ -333,7 +333,7 @@ void LBMStreamDialogInfo::resetStreams(void)
     while (it != m_streams.end())
     {
         delete *it;
-        it++;
+        ++it;
     }
     m_streams.clear();
 }

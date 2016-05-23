@@ -303,7 +303,7 @@ void InterfaceTree::getPoints(int row, PointList *pts)
             //qDebug("done");
             return;
         }
-        iter++;
+        ++iter;
     }
 }
 
@@ -347,7 +347,7 @@ void InterfaceTree::updateStatistics(void) {
             global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, if_idx);
             g_array_insert_val(global_capture_opts.all_ifaces, if_idx, device);
         }
-        iter++;
+        ++iter;
     }
 #endif // HAVE_LIBPCAP
 }
@@ -413,7 +413,7 @@ void InterfaceTree::updateSelectedInterfaces()
                 break;
             }
         }
-        iter++;
+        ++iter;
     }
     blockSignals(blocking);
 #endif // HAVE_LIBPCAP

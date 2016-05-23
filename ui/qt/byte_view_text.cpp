@@ -235,7 +235,7 @@ void ByteViewText::mousePressEvent (QMouseEvent *event) {
                 tree_widget_->scrollToItem((*iter));
             }
 
-            iter++;
+            ++iter;
         }
     }
 }

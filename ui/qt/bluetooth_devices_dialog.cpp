@@ -262,7 +262,7 @@ gboolean BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo
                 item = current_item;
                 break;
             }
-            i_item += 1;
+            ++i_item;
         }
     }
 
@@ -365,7 +365,7 @@ void BluetoothDevicesDialog::on_actionCopy_All_triggered()
                 .arg(item->text(column_number_hci_version), -20)
                 .arg(item->text(column_number_hci_revision), -20)
                 .arg(item->text(column_number_is_local_adapter), -20);
-        i_item += 1;
+        ++i_item;
     }
 
     clipboard->setText(copy);

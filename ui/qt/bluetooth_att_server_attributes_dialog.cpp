@@ -236,7 +236,7 @@ gboolean BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_ptr, packet
                     item->text(column_number_uuid) == uuid &&
                     item->text(column_number_uuid_name) == uuid_name)
                 return TRUE;
-            i_item += 1;
+            ++i_item;
         }
     }
 
@@ -300,7 +300,7 @@ void BluetoothAttServerAttributesDialog::on_actionCopy_All_triggered()
                 .arg(item->text(column_number_handle), -6)
                 .arg(item->text(column_number_uuid), -32)
                 .arg(item->text(column_number_uuid_name));
-        i_item += 1;
+        ++i_item;
     }
 
     clipboard->setText(copy);
