@@ -268,11 +268,11 @@ void FollowStreamDialog::saveAs()
     if (!file_name.isEmpty()) {
         QTextStream out(&file_);
 
+        file_.setFileName(file_name);
         if (!file_.open(QIODevice::WriteOnly)) {
             open_failure_alert_box(file_name.toUtf8().constData(), errno, TRUE);
             return;
         }
-        file_.setFileName(file_name);
 
         save_as_ = true;
 
