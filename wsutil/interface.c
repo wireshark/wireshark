@@ -37,6 +37,10 @@
     #include <ifaddrs.h>
 #endif
 
+#ifdef HAVE_NETINET_IN_H
+    #include <netinet/in.h>
+#endif
+
 GSList *local_interfaces_to_list(void)
 {
     GSList *interfaces = NULL;
