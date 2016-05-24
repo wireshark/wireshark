@@ -373,6 +373,22 @@ static int hf_smb2_posix_v1_posix_will_convert_nt_acls = -1;
 static int hf_smb2_posix_v1_posix_fileinfo = -1;
 static int hf_smb2_posix_v1_posix_acls = -1;
 static int hf_smb2_posix_v1_rich_acls = -1;
+static int hf_smb2_aapl_command_code = -1;
+static int hf_smb2_aapl_server_query_bitmask = -1;
+static int hf_smb2_aapl_server_query_bitmask_server_caps = -1;
+static int hf_smb2_aapl_server_query_bitmask_volume_caps = -1;
+static int hf_smb2_aapl_server_query_bitmask_model_info = -1;
+static int hf_smb2_aapl_server_query_caps = -1;
+static int hf_smb2_aapl_server_query_caps_supports_read_dir_attr = -1;
+static int hf_smb2_aapl_server_query_caps_supports_osx_copyfile = -1;
+static int hf_smb2_aapl_server_query_caps_unix_based = -1;
+static int hf_smb2_aapl_server_query_caps_supports_nfs_ace = -1;
+static int hf_smb2_aapl_server_query_volume_caps = -1;
+static int hf_smb2_aapl_server_query_volume_caps_support_resolve_id = -1;
+static int hf_smb2_aapl_server_query_volume_caps_case_sensitive = -1;
+static int hf_smb2_aapl_server_query_volume_caps_supports_full_sync = -1;
+static int hf_smb2_aapl_server_query_model_string = -1;
+static int hf_smb2_aapl_server_query_server_path = -1;
 static int hf_smb2_error_byte_count = -1;
 static int hf_smb2_error_data = -1;
 static int hf_smb2_error_reserved = -1;
@@ -470,6 +486,11 @@ static gint ett_smb2_svhdx_open_device_context = -1;
 static gint ett_smb2_posix_v1_request = -1;
 static gint ett_smb2_posix_v1_response = -1;
 static gint ett_smb2_posix_v1_supported_features = -1;
+static gint ett_smb2_aapl_create_context_request = -1;
+static gint ett_smb2_aapl_server_query_bitmask = -1;
+static gint ett_smb2_aapl_server_query_caps = -1;
+static gint ett_smb2_aapl_create_context_response = -1;
+static gint ett_smb2_aapl_server_query_volume_caps = -1;
 static gint ett_smb2_integrity_flags = -1;
 static gint ett_smb2_find_flags = -1;
 static gint ett_smb2_file_directory_info = -1;
@@ -6499,6 +6520,180 @@ dissect_smb2_posix_v1_caps_response(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 }
 
+#define SMB2_AAPL_SERVER_QUERY	1
+#define SMB2_AAPL_RESOLVE_ID	2
+
+static const value_string aapl_command_code_vals[] = {
+	{ SMB2_AAPL_SERVER_QUERY,	"Server query"},
+	{ SMB2_AAPL_RESOLVE_ID,	"Resolve ID"},
+	{ 0, NULL }
+};
+
+#define SMB2_AAPL_SERVER_CAPS		0x00000001
+#define SMB2_AAPL_VOLUME_CAPS		0x00000002
+#define SMB2_AAPL_MODEL_INFO		0x00000004
+
+static const int *aapl_server_query_bitmap_fields[] = {
+	&hf_smb2_aapl_server_query_bitmask_server_caps,
+	&hf_smb2_aapl_server_query_bitmask_volume_caps,
+	&hf_smb2_aapl_server_query_bitmask_model_info,
+	NULL
+};
+
+#define SMB2_AAPL_SUPPORTS_READ_DIR_ATTR	0x00000001
+#define SMB2_AAPL_SUPPORTS_OSX_COPYFILE	0x00000002
+#define SMB2_AAPL_UNIX_BASED		0x00000004
+#define SMB2_AAPL_SUPPORTS_NFS_ACE		0x00000008
+
+static const int *aapl_server_query_caps_fields[] = {
+	&hf_smb2_aapl_server_query_caps_supports_read_dir_attr,
+	&hf_smb2_aapl_server_query_caps_supports_osx_copyfile,
+	&hf_smb2_aapl_server_query_caps_unix_based,
+	&hf_smb2_aapl_server_query_caps_supports_nfs_ace,
+	NULL
+};
+
+static void
+dissect_smb2_AAPL_buffer_request(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, smb2_info_t *si _U_)
+{
+	int         offset   = 0;
+	proto_item *item;
+	proto_item *sub_tree;
+	guint32     command_code;
+
+	item = proto_tree_get_parent(tree);
+
+	proto_item_append_text(item, ": AAPL Create Context request");
+	sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_smb2_aapl_create_context_request, NULL, "AAPL Create Context request");
+
+	/* Command code */
+	proto_tree_add_item_ret_uint(sub_tree, hf_smb2_aapl_command_code,
+	    tvb, offset, 4, ENC_LITTLE_ENDIAN, &command_code);
+	offset += 4;
+
+	/* Reserved */
+	offset += 4;
+
+	switch (command_code) {
+
+	case SMB2_AAPL_SERVER_QUERY:
+		/* Request bitmap */
+		proto_tree_add_bitmask(sub_tree, tvb, offset,
+				       hf_smb2_aapl_server_query_bitmask,
+				       ett_smb2_aapl_server_query_bitmask,
+				       aapl_server_query_bitmap_fields,
+				       ENC_LITTLE_ENDIAN);
+		offset += 8;
+
+		/* Client capabilities */
+		proto_tree_add_bitmask(sub_tree, tvb, offset,
+				       hf_smb2_aapl_server_query_caps,
+				       ett_smb2_aapl_server_query_caps,
+				       aapl_server_query_caps_fields,
+				       ENC_LITTLE_ENDIAN);
+		break;
+
+	case SMB2_AAPL_RESOLVE_ID:
+		/* file ID */
+		proto_tree_add_item(sub_tree, hf_smb2_file_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		break;
+
+	default:
+		break;
+	}
+}
+
+#define SMB2_AAPL_SUPPORTS_RESOLVE_ID	0x00000001
+#define SMB2_AAPL_CASE_SENSITIVE		0x00000002
+#define SMB2_AAPL_SUPPORTS_FULL_SYNC	0x00000004
+
+static const int *aapl_server_query_volume_caps_fields[] = {
+	&hf_smb2_aapl_server_query_volume_caps_support_resolve_id,
+	&hf_smb2_aapl_server_query_volume_caps_case_sensitive,
+	&hf_smb2_aapl_server_query_volume_caps_supports_full_sync,
+	NULL
+};
+
+static void
+dissect_smb2_AAPL_buffer_response(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, smb2_info_t *si _U_)
+{
+	int         offset   = 0;
+	proto_item *item;
+	proto_item *sub_tree;
+	guint32     command_code;
+	guint64     server_query_bitmask;
+
+	item = proto_tree_get_parent(tree);
+
+	proto_item_append_text(item, ": AAPL Create Context response");
+	sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_smb2_aapl_create_context_response, NULL, "AAPL Create Context response");
+
+	/* Command code */
+	proto_tree_add_item_ret_uint(sub_tree, hf_smb2_aapl_command_code,
+	    tvb, offset, 4, ENC_LITTLE_ENDIAN, &command_code);
+	offset += 4;
+
+	/* Reserved */
+	offset += 4;
+
+	switch (command_code) {
+
+	case SMB2_AAPL_SERVER_QUERY:
+		/* Reply bitmap */
+		proto_tree_add_bitmask_ret_uint64(sub_tree, tvb, offset,
+						  hf_smb2_aapl_server_query_bitmask,
+						  ett_smb2_aapl_server_query_bitmask,
+						  aapl_server_query_bitmap_fields,
+						  ENC_LITTLE_ENDIAN,
+						  &server_query_bitmask);
+		offset += 8;
+
+		if (server_query_bitmask & SMB2_AAPL_SERVER_CAPS) {
+			/* Server capabilities */
+			proto_tree_add_bitmask(sub_tree, tvb, offset,
+					       hf_smb2_aapl_server_query_caps,
+					       ett_smb2_aapl_server_query_caps,
+					       aapl_server_query_caps_fields,
+					       ENC_LITTLE_ENDIAN);
+			offset += 8;
+		}
+		if (server_query_bitmask & SMB2_AAPL_VOLUME_CAPS) {
+			/* Volume capabilities */
+			proto_tree_add_bitmask(sub_tree, tvb, offset,
+					       hf_smb2_aapl_server_query_volume_caps,
+					       ett_smb2_aapl_server_query_volume_caps,
+					       aapl_server_query_volume_caps_fields,
+					       ENC_LITTLE_ENDIAN);
+			offset += 8;
+		}
+		if (server_query_bitmask & SMB2_AAPL_MODEL_INFO) {
+			/* Padding */
+			offset += 4;
+
+			/* Model string */
+			proto_tree_add_item(sub_tree, hf_smb2_aapl_server_query_model_string,
+					    tvb, offset, 4,
+					    ENC_UTF_16|ENC_LITTLE_ENDIAN);
+		}
+		break;
+
+	case SMB2_AAPL_RESOLVE_ID:
+		/* NT status */
+		proto_tree_add_item(sub_tree, hf_smb2_nt_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		break;
+
+		/* Server path */
+		proto_tree_add_item(sub_tree, hf_smb2_aapl_server_query_server_path,
+				    tvb, offset, 4,
+				    ENC_UTF_16|ENC_LITTLE_ENDIAN);
+		break;
+
+	default:
+		break;
+	}
+}
+
 typedef void (*create_context_data_dissector_t)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si);
 
 typedef struct create_context_data_dissectors {
@@ -6546,7 +6741,10 @@ struct create_context_data_tag_dissectors create_context_dissectors_array[] = {
 		  dissect_smb2_svhdx_open_device_context_response} },
 	{ "34263501-2921-4912-2586-447794114531", "SMB2_POSIX_V1_CAPS",
 		{ dissect_smb2_posix_v1_caps_request,
-		  dissect_smb2_posix_v1_caps_response } }
+		  dissect_smb2_posix_v1_caps_response } },
+	{ "AAPL", "SMB2_AAPL_CREATE_CONTEXT",
+	  { dissect_smb2_AAPL_buffer_request,
+	    dissect_smb2_AAPL_buffer_response } },
 };
 
 static struct create_context_data_tag_dissectors*
@@ -9482,6 +9680,70 @@ proto_register_smb2(void)
 		  { "Supported Features", "smb2.posix_supported_features", FT_UINT32, BASE_HEX,
 		    NULL, 0, NULL, HFILL }},
 
+		{ &hf_smb2_aapl_command_code,
+		  { "Command code", "smb2.aapl.command_code", FT_UINT32, BASE_DEC,
+		    VALS(aapl_command_code_vals), 0, NULL, HFILL }},
+
+		{ &hf_smb2_aapl_server_query_bitmask,
+		  { "Query bitmask", "smb2.aapl.query_bitmask", FT_UINT64, BASE_HEX,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_aapl_server_query_bitmask_server_caps,
+		  { "Server capabilities", "smb2.aapl.bitmask.server_caps", FT_BOOLEAN, 64,
+		    NULL, SMB2_AAPL_SERVER_CAPS, NULL, HFILL }},
+
+		{ &hf_smb2_aapl_server_query_bitmask_volume_caps,
+		  { "Volume capabilities", "smb2.aapl.bitmask.volume_caps", FT_BOOLEAN, 64,
+		    NULL, SMB2_AAPL_VOLUME_CAPS, NULL, HFILL }},
+
+		{ &hf_smb2_aapl_server_query_bitmask_model_info,
+		  { "Model information", "smb2.aapl.bitmask.model_info", FT_BOOLEAN, 64,
+		    NULL, SMB2_AAPL_MODEL_INFO, NULL, HFILL }},
+
+		{ &hf_smb2_aapl_server_query_caps,
+		  { "Client/Server capabilities", "smb2.aapl.caps", FT_UINT64, BASE_HEX,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_aapl_server_query_caps_supports_read_dir_attr,
+		  { "Supports READDIRATTR", "smb2.aapl.caps.supports_read_dir_addr", FT_BOOLEAN, 64,
+		    NULL, SMB2_AAPL_SUPPORTS_READ_DIR_ATTR, NULL, HFILL }},
+
+		{ &hf_smb2_aapl_server_query_caps_supports_osx_copyfile,
+		  { "Supports OS X copyfile", "smb2.aapl.caps.supports_osx_copyfile", FT_BOOLEAN, 64,
+		    NULL, SMB2_AAPL_SUPPORTS_OSX_COPYFILE, NULL, HFILL }},
+
+		{ &hf_smb2_aapl_server_query_caps_unix_based,
+		  { "UNIX-based", "smb2.aapl.caps.unix_based", FT_BOOLEAN, 64,
+		    NULL, SMB2_AAPL_UNIX_BASED, NULL, HFILL }},
+
+		{ &hf_smb2_aapl_server_query_caps_supports_nfs_ace,
+		  { "Supports NFS ACE", "smb2.aapl.supports_nfs_ace", FT_BOOLEAN, 64,
+		    NULL, SMB2_AAPL_SUPPORTS_NFS_ACE, NULL, HFILL }},
+
+		{ &hf_smb2_aapl_server_query_volume_caps,
+		  { "Volume capabilities", "smb2.aapl.volume_caps", FT_UINT64, BASE_HEX,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_aapl_server_query_volume_caps_support_resolve_id,
+		  { "Supports Resolve ID", "smb2.aapl.volume_caps.supports_resolve_id", FT_BOOLEAN, 64,
+		    NULL, SMB2_AAPL_SUPPORTS_RESOLVE_ID, NULL, HFILL }},
+
+		{ &hf_smb2_aapl_server_query_volume_caps_case_sensitive,
+		  { "Case sensitive", "smb2.aapl.volume_caps.case_sensitive", FT_BOOLEAN, 64,
+		    NULL, SMB2_AAPL_CASE_SENSITIVE, NULL, HFILL }},
+
+		{ &hf_smb2_aapl_server_query_volume_caps_supports_full_sync,
+		  { "Supports full sync", "smb2.aapl.volume_caps.supports_full_sync", FT_BOOLEAN, 64,
+		    NULL, SMB2_AAPL_SUPPORTS_FULL_SYNC, NULL, HFILL }},
+
+		{ &hf_smb2_aapl_server_query_model_string,
+		  { "Model string", "smb2.aapl.model_string", FT_UINT_STRING, STR_UNICODE,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_aapl_server_query_server_path,
+		  { "Server path", "smb2.aapl.server_path", FT_UINT_STRING, STR_UNICODE,
+		    NULL, 0, NULL, HFILL }},
+
 		{ &hf_smb2_transform_signature,
 		  { "Signature", "smb2.header.transform.signature", FT_BYTES, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
@@ -9636,6 +9898,11 @@ proto_register_smb2(void)
 		&ett_smb2_posix_v1_request,
 		&ett_smb2_posix_v1_response,
 		&ett_smb2_posix_v1_supported_features,
+		&ett_smb2_aapl_create_context_request,
+		&ett_smb2_aapl_server_query_bitmask,
+		&ett_smb2_aapl_server_query_caps,
+		&ett_smb2_aapl_create_context_response,
+		&ett_smb2_aapl_server_query_volume_caps,
 		&ett_smb2_integrity_flags,
 		&ett_smb2_transform_enc_alg,
 		&ett_smb2_buffercode,
