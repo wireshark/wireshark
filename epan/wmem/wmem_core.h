@@ -40,6 +40,10 @@ extern "C" {
  * many other functions are available (see the "Modules" list at the top of
  * the generated doxygen HTML).
  *
+ * Any wmem functions which allocate memory are guaranteed to either succeed or
+ * abort the program. However, they *can* still legally return NULL when the
+ * amount of requested memory is zero.
+ *
  * @{
  */
 
