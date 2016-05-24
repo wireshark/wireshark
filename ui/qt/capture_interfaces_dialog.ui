@@ -106,7 +106,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="manage">
+          <widget class="QPushButton" name="manageButton">
            <property name="enabled">
             <bool>true</bool>
            </property>

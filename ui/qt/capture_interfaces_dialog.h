@@ -59,13 +59,13 @@ signals:
     void filterChanged(const QString filter);
 
 private slots:
-    void pmode_changed(QString index);
+    void promiscuousModeChanged(QString index);
 #if defined (HAVE_PCAP_CREATE)
-    void monitor_changed(QString index);
+    void monitorModeChanged(QString new_mode);
 #endif
-    void link_changed(QString index);
-    void snaplen_changed(int value);
-    void buffer_changed(int value);
+    void linkTypeChanged(QString selected_link_type);
+    void snapshotLengthChanged(int value);
+    void bufferSizeChanged(int value);
 };
 
 class CaptureInterfacesDialog : public GeometryStateDialog
@@ -76,7 +76,7 @@ public:
     explicit CaptureInterfacesDialog(QWidget *parent = 0);
     ~CaptureInterfacesDialog();
 
-    void SetTab(int index);
+    void setTab(int index);
     void updateInterfaces();
 
 protected:
@@ -91,10 +91,10 @@ private slots:
     void on_cbExtraCaptureInfo_toggled(bool checked);
     void on_cbResolveMacAddresses_toggled(bool checked);
     void on_compileBPF_clicked();
-    void on_manage_clicked();
+    void on_manageButton_clicked();
     void on_cbResolveNetworkNames_toggled(bool checked);
     void on_cbResolveTransportNames_toggled(bool checked);
-    void start_button_clicked();
+    void startButtonClicked();
     void on_buttonBox_rejected();
     void on_buttonBox_helpRequested();
     void interfaceSelected();

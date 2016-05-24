@@ -3602,7 +3602,7 @@ void MainWindow::on_actionCaptureOptions_triggered()
         connect(capture_interfaces_dialog_, SIGNAL(setFilterValid(bool, const QString)),
                 this, SLOT(startInterfaceCapture(bool, const QString)));
     }
-    capture_interfaces_dialog_->SetTab(0);
+    capture_interfaces_dialog_->setTab(0);
     capture_interfaces_dialog_->updateInterfaces();
 
     if (capture_interfaces_dialog_->isMinimized()) {

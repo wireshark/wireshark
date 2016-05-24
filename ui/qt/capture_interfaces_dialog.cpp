@@ -60,7 +60,7 @@
 
 // To do:
 // - Set a size hint for item delegates.
-// - Make promiscuous a checkbox.
+// - Make promiscuous and monitor mode checkboxes.
 // - Fix InterfaceTreeDelegate method names.
 // - You can edit filters via the main CaptureFilterCombo and via each
 //   individual interface row. We should probably do one or the other.
@@ -110,6 +110,57 @@ public:
     InterfaceTreeWidgetItem(QTreeWidget *tree) : QTreeWidgetItem(tree)  {}
     bool operator< (const QTreeWidgetItem &other) const;
     QList<int> points;
+
+    void updateInterfaceColumns(interface_t *device)
+    {
+        if (!device) return;
+        QString na_str = QObject::tr("n/a");
+        QString enabled_str = QObject::tr("enabled");
+        QString disabled_str = QObject::tr("disabled");
+        QString default_str = QObject::tr("default");
+
+        QString linkname = QObject::tr("Unknown: %1").arg(device->active_dlt);
+        for (GList *list = device->links; list != NULL; list = g_list_next(list)) {
+            link_row *linkr = (link_row*)(list->data);
+            // XXX ...and if they're both -1?
+            if (linkr->dlt == device->active_dlt) {
+                linkname = linkr->name;
+                break;
+            }
+        }
+        setText(col_link_, linkname);
+
+#ifdef HAVE_EXTCAP
+        if (device->if_info.type == IF_EXTCAP) {
+            /* extcap interfaces does not have this settings */
+            setText(col_pmode_, na_str);
+            setText(col_snaplen_, na_str);
+#ifdef SHOW_BUFFER_COLUMN
+            setText(col_buffer_, na_str);
+#endif
+        } else {
+#endif
+            QString snaplen_string = device->has_snaplen ? QString::number(device->snaplen) : default_str;
+            setText(col_pmode_, device->pmode ? enabled_str : disabled_str);
+            setText(col_snaplen_, snaplen_string);
+#ifdef SHOW_BUFFER_COLUMN
+            setText(col_buffer_, QString::number(device->buffer));
+#endif
+#ifdef HAVE_EXTCAP
+        }
+#endif
+        setText(col_filter_, device->cfilter);
+
+
+#ifdef SHOW_MONITOR_COLUMN
+        setText(col_monitor_, QString(device->monitor_mode_supported
+                                      ? (device->monitor_mode_enabled
+                                         ? enabled_str : disabled_str)
+                                      : na_str));
+#endif
+
+    }
+
 };
 
 CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
@@ -127,7 +178,7 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
     start_bt_ = ui->buttonBox->addButton(tr("Start"), QDialogButtonBox::AcceptRole);
 
     start_bt_->setEnabled((global_capture_opts.num_selected > 0)? true: false);
-    connect(start_bt_, SIGNAL(clicked(bool)), this, SLOT(start_button_clicked()));
+    connect(start_bt_, SIGNAL(clicked(bool)), this, SLOT(startButtonClicked()));
 
     // Start out with the list *not* sorted, so they show up in the order
     // in which they were provided
@@ -222,7 +273,7 @@ CaptureInterfacesDialog::~CaptureInterfacesDialog()
     delete ui;
 }
 
-void CaptureInterfacesDialog::SetTab(int index)
+void CaptureInterfacesDialog::setTab(int index)
 {
     ui->tabWidget->setCurrentIndex(index);
 }
@@ -232,13 +283,15 @@ void CaptureInterfacesDialog::on_capturePromModeCheckBox_toggled(bool checked)
     interface_t *device;
     prefs.capture_prom_mode = checked;
     for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
-        QTreeWidgetItem *ti = ui->interfaceTree->topLevelItem(row);
+        InterfaceTreeWidgetItem *ti = dynamic_cast<InterfaceTreeWidgetItem *>(ui->interfaceTree->topLevelItem(row));
+        if (!ti) continue;
+
         QString device_name = ti->data(col_interface_, Qt::UserRole).toString();
         device = getDeviceByName(device_name);
         if (!device) continue;
 //        QString device_name = ui->interfaceTree->topLevelItem(row)->text(col_interface_);
         device->pmode = checked;
-        ti->setText(col_pmode_, checked? tr("enabled"):tr("disabled"));
+        ti->updateInterfaceColumns(device);
     }
 }
 
@@ -304,7 +357,7 @@ void CaptureInterfacesDialog::on_cbResolveTransportNames_toggled(bool checked)
     gbl_resolv_flags.transport_name = checked;
 }
 
-void CaptureInterfacesDialog::start_button_clicked()
+void CaptureInterfacesDialog::startButtonClicked()
 {
     if (saveOptionsToPreferences()) {
         emit setFilterValid(true, ui->captureFilterComboBox->lineEdit()->text());
@@ -429,8 +482,6 @@ void CaptureInterfacesDialog::updateInterfaces()
     disconnect(ui->interfaceTree, SIGNAL(itemSelectionChanged()), this, SLOT(interfaceSelected()));
     ui->interfaceTree->clear();
 
-    GList        *list;
-    link_row     *linkr = NULL;
 #ifdef SHOW_BUFFER_COLUMN
     gint          buffer;
 #endif
@@ -470,17 +521,6 @@ void CaptureInterfacesDialog::updateInterfaces()
                 ti->setToolTip(col_interface_, tr("no addresses"));
             }
 
-            set_active_dlt(device, global_capture_opts.default_options.linktype);
-
-            QString linkname = "unknown";
-            for (list = device->links; list != NULL; list = g_list_next(list)) {
-                linkr = (link_row*)(list->data);
-                if (linkr->dlt == device->active_dlt) {
-                    linkname = linkr->name;
-                    break;
-                }
-            }
-
             if (capture_dev_user_pmode_find(device->name, &pmode)) {
                 device->pmode = pmode;
             }
@@ -502,35 +542,7 @@ void CaptureInterfacesDialog::updateInterfaces()
                 device->buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
             }
 #endif
-
-            ti->setText(col_link_, linkname);
-
-#ifdef HAVE_EXTCAP
-            if (device->if_info.type == IF_EXTCAP) {
-                /* extcap interfaces does not have this settings */
-                ti->setText(col_pmode_, tr("n/a"));
-                ti->setText(col_snaplen_, tr("n/a"));
-#ifdef SHOW_BUFFER_COLUMN
-                ti->setText(col_buffer_, tr("n/a"));
-#endif
-#ifdef SHOW_MONITOR_COLUMN
-                ti->setText(col_monitor_, tr("n/a"));
-#endif
-            } else {
-#endif
-                QString snaplen_string = device->has_snaplen ? QString::number(device->snaplen) : tr("default");
-                ti->setText(col_pmode_, device->pmode ? tr("enabled") : tr("disabled"));
-                ti->setText(col_snaplen_, snaplen_string);
-#ifdef SHOW_BUFFER_COLUMN
-                ti->setText(col_buffer_, QString::number(device->buffer));
-#endif
-#ifdef SHOW_MONITOR_COLUMN
-                ti->setText(col_monitor_, QString(device->monitor_mode_supported? (device->monitor_mode_enabled ? tr("enabled") : tr("disabled")) : tr("n/a")));
-#endif
-#ifdef HAVE_EXTCAP
-            }
-#endif
-            ti->setText(col_filter_, device->cfilter);
+            ti->updateInterfaceColumns(device);
 
             if (device->selected) {
                 selected_interfaces << ti;
@@ -902,7 +914,7 @@ void CaptureInterfacesDialog::updateSelectedFilter()
     }
 }
 
-void CaptureInterfacesDialog::on_manage_clicked()
+void CaptureInterfacesDialog::on_manageButton_clicked()
 {
     if (saveOptionsToPreferences()) {
         ManageInterfacesDialog *dlg = new ManageInterfacesDialog(this);
@@ -1002,17 +1014,28 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
         case col_link_:
         {
             GList *list;
-            link_row *temp;
+            link_row *linkr;
+            QStringList valid_link_types;
 
-            if (g_list_length(links) < 2) {
+            // XXX The GTK+ UI fills in all link types, valid or not. We add
+            // only the valid ones. If we *do* wish to include invalid link
+            // types we'll have to jump through the hoops necessary to disable
+            // QComboBox items.
+
+            for (list = links; list != NULL; list = g_list_next(list)) {
+                linkr = (link_row*)(list->data);
+                if (linkr->dlt >= 0) {
+                    valid_link_types << linkr->name;
+                }
+            }
+
+            if (valid_link_types.size() < 2) {
                 break;
             }
             QComboBox *cb = new QComboBox(parent);
-            for (list=links; list!=NULL; list=g_list_next(list)) {
-                temp = (link_row*)(list->data);
-                cb->addItem(QString("%1").arg(temp->name));
-            }
-            connect(cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(link_changed(QString)));
+            cb->addItems(valid_link_types);
+
+            connect(cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(linkTypeChanged(QString)));
             w = (QWidget*) cb;
             break;
         }
@@ -1022,7 +1045,7 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
             QComboBox *cb = new QComboBox(parent);
             cb->addItem(QString(tr("enabled")));
             cb->addItem(QString(tr("disabled")));
-            connect(cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(pmode_changed(QString)));
+            connect(cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(promiscuousModeChanged(QString)));
             w = (QWidget*) cb;
             break;
         }
@@ -1032,7 +1055,7 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
             sb->setRange(1, 65535);
             sb->setValue(snap);
             sb->setWrapping(true);
-            connect(sb, SIGNAL(valueChanged(int)), this, SLOT(snaplen_changed(int)));
+            connect(sb, SIGNAL(valueChanged(int)), this, SLOT(snapshotLengthChanged(int)));
             w = (QWidget*) sb;
             break;
         }
@@ -1043,7 +1066,7 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
             sb->setRange(1, 65535);
             sb->setValue(buffer);
             sb->setWrapping(true);
-            connect(sb, SIGNAL(valueChanged(int)), this, SLOT(buffer_changed(int)));
+            connect(sb, SIGNAL(valueChanged(int)), this, SLOT(bufferSizeChanged(int)));
             w = (QWidget*) sb;
             break;
         }
@@ -1054,7 +1077,7 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
             QComboBox *cb = new QComboBox(parent);
             cb->addItem(QString(tr("enabled")));
             cb->addItem(QString(tr("disabled")));
-            connect(cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(monitor_changed(QString)));
+            connect(cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(monitorModeChanged(QString)));
             w = (QWidget*) cb;
             break;
         }
@@ -1089,7 +1112,7 @@ bool InterfaceTreeDelegate::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
-void InterfaceTreeDelegate::pmode_changed(QString index)
+void InterfaceTreeDelegate::promiscuousModeChanged(QString index)
 {
     interface_t *device;
     QTreeWidgetItem *ti = tree_->currentItem();
@@ -1101,7 +1124,7 @@ void InterfaceTreeDelegate::pmode_changed(QString index)
     if (!device) {
         return;
     }
-    if (!index.compare(QString(tr("enabled")))) {
+    if (!index.compare(tr("enabled"))) {
         device->pmode = true;
     } else {
         device->pmode = false;
@@ -1109,27 +1132,88 @@ void InterfaceTreeDelegate::pmode_changed(QString index)
 }
 
 #ifdef SHOW_MONITOR_COLUMN
-void InterfaceTreeDelegate::monitor_changed(QString index)
+void InterfaceTreeDelegate::monitorModeChanged(QString new_mode)
 {
+    InterfaceTreeWidgetItem *ti = dynamic_cast<InterfaceTreeWidgetItem *>(tree_->currentItem());
+    if (!ti) return;
+
     interface_t *device;
-    QTreeWidgetItem *ti = tree_->currentItem();
-    if (!ti) {
-        return;
-    }
     QString interface_name = ti->text(col_interface_);
+    gboolean monitor_mode = TRUE;
+
     device = find_device_by_if_name(interface_name);
-    if (!device) {
-        return;
+
+    if (!device) return;
+
+    if (new_mode.compare(tr("enabled"))) {
+        monitor_mode = FALSE;
     }
-    if (!index.compare(QString(tr("enabled")))) {
-        device->monitor_mode_enabled = true;
+
+    if_capabilities_t *caps;
+    char *auth_str = NULL;
+    QString active_dlt_name;
+
+    set_active_dlt(device, global_capture_opts.default_options.linktype);
+
+#ifdef HAVE_PCAP_REMOTE
+    if (device->remote_opts.remote_host_opts.auth_type == CAPTURE_AUTH_PWD) {
+        auth_str = g_strdup_printf("%s:%s", device->remote_opts.remote_host_opts.auth_username,
+                                   device->remote_opts.remote_host_opts.auth_password);
+    }
+#endif
+    caps = capture_get_if_capabilities(device->name, monitor_mode, auth_str, NULL, main_window_update);
+    g_free(auth_str);
+
+    if (caps != NULL) {
+
+        for (int i = (gint)g_list_length(device->links)-1; i >= 0; i--) {
+            GList* rem = g_list_nth(device->links, i);
+            device->links = g_list_remove_link(device->links, rem);
+            g_list_free_1(rem);
+        }
+        device->active_dlt = -1;
+        device->monitor_mode_supported = caps->can_set_rfmon;
+        device->monitor_mode_enabled = monitor_mode;
+
+        for (GList *lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
+            link_row *linkr = (link_row *)g_malloc(sizeof(link_row));
+            data_link_info_t *data_link_info = (data_link_info_t *)lt_entry->data;
+            /*
+             * For link-layer types libpcap/WinPcap doesn't know about, the
+             * name will be "DLT n", and the description will be null.
+             * We mark those as unsupported, and don't allow them to be
+             * used - capture filters won't work on them, for example.
+             */
+            if (data_link_info->description != NULL) {
+                linkr->dlt = data_link_info->dlt;
+                if (active_dlt_name.isEmpty()) {
+                    device->active_dlt = data_link_info->dlt;
+                    active_dlt_name = data_link_info->description;
+                }
+                linkr->name = g_strdup(data_link_info->description);
+            } else {
+                gchar *str;
+                /* XXX - should we just omit them? */
+                str = g_strdup_printf("%s (not supported)", data_link_info->name);
+                linkr->dlt = -1;
+                linkr->name = g_strdup(str);
+                g_free(str);
+            }
+            device->links = g_list_append(device->links, linkr);
+        }
+        free_if_capabilities(caps);
     } else {
-        device->monitor_mode_enabled = false;
+        /* We don't know whether this supports monitor mode or not;
+           don't ask for monitor mode. */
+        device->monitor_mode_enabled = FALSE;
+        device->monitor_mode_supported = FALSE;
     }
+
+    ti->updateInterfaceColumns(device);
 }
 #endif
 
-void InterfaceTreeDelegate::link_changed(QString index)
+void InterfaceTreeDelegate::linkTypeChanged(QString selected_link_type)
 {
     GList *list;
     link_row *temp;
@@ -1146,13 +1230,14 @@ void InterfaceTreeDelegate::link_changed(QString index)
     }
     for (list = device->links; list != NULL; list = g_list_next(list)) {
         temp = (link_row*) (list->data);
-        if (!index.compare(temp->name)) {
+        if (!selected_link_type.compare(temp->name)) {
             device->active_dlt = temp->dlt;
         }
     }
+    // XXX We might want to verify that active_dlt is valid at this point.
 }
 
-void InterfaceTreeDelegate::snaplen_changed(int value)
+void InterfaceTreeDelegate::snapshotLengthChanged(int value)
 {
     interface_t *device;
     QTreeWidgetItem *ti = tree_->currentItem();
@@ -1173,7 +1258,7 @@ void InterfaceTreeDelegate::snaplen_changed(int value)
     }
 }
 
-void InterfaceTreeDelegate::buffer_changed(int value)
+void InterfaceTreeDelegate::bufferSizeChanged(int value)
 {
 #ifdef SHOW_BUFFER_COLUMN
     interface_t *device;
