@@ -229,22 +229,22 @@ proto_register_manolito(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_manolito_checksum,
-		  { "Checksum",		"manolito.checksum",
+		  { "Checksum", "manolito.checksum",
 		    FT_UINT32, BASE_HEX, NULL, 0,
 		    "Checksum used for verifying integrity", HFILL }
 		},
 		{ &hf_manolito_seqno,
-		  { "Sequence Number",	  "manolito.seqno",
+		  { "Sequence Number", "manolito.seqno",
 		    FT_UINT32, BASE_HEX, NULL, 0,
 		    "Incremental sequence number", HFILL }
 		},
 		{ &hf_manolito_src,
-		  { "Forwarded IP Address",    "manolito.src",
+		  { "Forwarded IP Address", "manolito.src",
 		    FT_IPv4, BASE_NONE, NULL, 0,
 		    "Host packet was forwarded from (or 0)", HFILL }
 		},
 		{ &hf_manolito_dest,
-		  { "Destination IP Address","manolito.dest",
+		  { "Destination IP Address", "manolito.dest",
 		    FT_IPv4, BASE_NONE, NULL, 0,
 		    "Destination IPv4 address", HFILL }
 		},
