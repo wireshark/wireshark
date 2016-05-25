@@ -211,6 +211,9 @@ static gint hf_sip_session_id_local_uuid  = -1;
 static gint hf_sip_session_id_remote_uuid = -1;
 static gint hf_sip_continuation           = -1;
 
+static gint hf_sip_p_acc_net_i_acc_type   = -1;
+static gint hf_sip_p_acc_net_i_ucid_3gpp  = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_sip                       = -1;
 static gint ett_sip_reqresp               = -1;
@@ -242,6 +245,7 @@ static gint ett_sip_pmiss_uri             = -1;
 static gint ett_sip_ppi_uri               = -1;
 static gint ett_sip_tc_uri                = -1;
 static gint ett_sip_session_id            = -1;
+static gint ett_sip_p_access_net_info     = -1;
 
 static expert_field ei_sip_unrecognized_header = EI_INIT;
 static expert_field ei_sip_header_no_colon = EI_INIT;
@@ -2501,6 +2505,98 @@ static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, gint 
     g_byte_array_free(bytes, TRUE);
 }
 
+/* Dissect the headers for P-Access-Network-Info Headers
+ *
+ *  Spec found in 3GPP 24.229 7.2A.4
+ *  P-Access-Network-Info  = "P-Access-Network-Info" HCOLON
+ *  access-net-spec *(COMMA access-net-spec)
+ *  access-net-spec        = (access-type / access-class) *(SEMI access-info)
+ *  access-type            = "IEEE-802.11" / "IEEE-802.11a" / "IEEE-802.11b" / "IEEE-802.11g" / "IEEE-802.11n" / "3GPP-GERAN" /
+ *                           "3GPP-UTRAN-FDD" / "3GPP-UTRAN-TDD" / "3GPP-E-UTRAN-FDD" / "3GPP-E-UTRAN-TDD" / "ADSL" / "ADSL2" /
+ *                           "ADSL2+" / "RADSL" / "SDSL" / "HDSL" / "HDSL2" / "G.SHDSL" / "VDSL" / "IDSL" / "3GPP2-1X" /
+ *                           "3GPP2-1X-Femto" / "3GPP2-1X-HRPD" / "3GPP2-UMB" / "DOCSIS" / "IEEE-802.3" / "IEEE-802.3a" /
+ *                           "IEEE-802.3e" / "IEEE-802.3i" / "IEEE-802.3j" / "IEEE-802.3u" / "IEEE-802.3ab"/ "IEEE-802.3ae" /
+ *                           "IEEE-802.3ak" / "IEEE-802.3aq" / "IEEE-802.3an" / "IEEE-802.3y" / "IEEE-802.3z" / "GPON" /
+                             "XGPON1" / "GSTN"/ token
+ *  access-class           = "3GPP-GERAN" / "3GPP-UTRAN" / "3GPP-E-UTRAN" / "3GPP-WLAN" / "3GPP-GAN" / "3GPP-HSPA" / token
+ *  np                     = "network-provided"
+ *  access-info            = cgi-3gpp / utran-cell-id-3gpp / dsl-location / i-wlan-node-id / ci-3gpp2 / ci-3gpp2-femto /
+                             eth-location / fiber-location / np / gstn-location / extension-access-info
+ *  extension-access-info  = gen-value
+ *  cgi-3gpp               = "cgi-3gpp" EQUAL (token / quoted-string)
+ *  utran-cell-id-3gpp     = "utran-cell-id-3gpp" EQUAL (token / quoted-string)
+ *  i-wlan-node-id         = "i-wlan-node-id" EQUAL (token / quoted-string)
+ *  dsl-location           = "dsl-location" EQUAL (token / quoted-string)
+ *  eth-location           = "eth-location" EQUAL (token / quoted-string)
+ *  fiber-location         = "fiber-location" EQUAL (token / quoted-string)
+ *  ci-3gpp2               = "ci-3gpp2" EQUAL (token / quoted-string)
+ *  ci-3gpp2-femto         = "ci-3gpp2-femto" EQUAL (token / quoted-string)
+ *  gstn-location          = "gstn-location" EQUAL (token / quoted-string)
+ *
+ */
+static void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset)
+{
+
+    gint  current_offset, semi_colon_offset, length, par_name_end_offset, equals_offset;
+
+    /* skip Spaces and Tabs */
+    start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
+
+    if (start_offset >= line_end_offset)
+    {
+        /* Nothing to parse */
+        return;
+    }
+
+    /* Get the Access Type / Access Class*/
+    current_offset = start_offset;
+    semi_colon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ';');
+
+    if (semi_colon_offset == -1)
+        return;
+
+    length = semi_colon_offset - current_offset;
+    proto_tree_add_item(tree, hf_sip_p_acc_net_i_acc_type, tvb, start_offset, length, ENC_UTF_8 | ENC_NA);
+
+    current_offset = current_offset + length + 1;
+
+
+    while (current_offset < line_end_offset){
+        gchar *param_name = NULL;
+
+        /* skip Spaces and Tabs */
+        current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
+
+        semi_colon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ';');
+
+        if (semi_colon_offset == -1){
+            semi_colon_offset = line_end_offset;
+        }
+
+        length = semi_colon_offset - current_offset;
+
+        /* Parse parameter and value */
+        equals_offset = tvb_find_guint8(tvb, current_offset + 1, length, '=');
+        if (equals_offset != -1){
+            /* Has value part */
+            par_name_end_offset = equals_offset;
+            /* Extract the parameter name */
+            param_name = tvb_get_string_enc(wmem_packet_scope(), tvb, current_offset, par_name_end_offset - current_offset, ENC_UTF_8 | ENC_NA);
+        }
+
+        /* Access-Info fields  */
+        if (g_ascii_strcasecmp(param_name, "utran-cell-id-3gpp") == 0) {
+            proto_tree_add_item(tree, hf_sip_p_acc_net_i_ucid_3gpp, tvb,
+                equals_offset + 1, semi_colon_offset - equals_offset - 1, ENC_UTF_8 | ENC_NA);
+        }
+        else{
+            proto_tree_add_format_text(tree, tvb, current_offset, length);
+        }
+        current_offset = semi_colon_offset + 1;
+    }
+}
+
+
 /* Code to actually dissect the packets */
 static int
 dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -2635,7 +2731,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     proto_tree *sip_tree  = NULL, *reqresp_tree      = NULL, *hdr_tree  = NULL,
         *message_body_tree = NULL, *cseq_tree = NULL,
         *via_tree         = NULL, *reason_tree       = NULL, *rack_tree = NULL,
-        *route_tree       = NULL, *security_client_tree = NULL, *session_id_tree = NULL;
+        *route_tree       = NULL, *security_client_tree = NULL, *session_id_tree = NULL,
+        *p_access_net_info_tree = NULL;
     guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0, contacts_expires_0 = 0, contacts_expires_unknown = 0;
     guint32 cseq_number = 0;
     guchar  cseq_number_set = 0;
@@ -3713,6 +3810,18 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                             sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
                             session_id_tree = proto_item_add_subtree(sip_element_item, ett_sip_session_id);
                             dissect_sip_session_id_header(tvb, session_id_tree, value_offset, line_end_offset);
+                        }
+                        break;
+                    case POS_P_ACCESS_NETWORK_INFO:
+                        /* Add P-Access-Network-Info subtree */
+                        if (hdr_tree) {
+                            sip_element_item = sip_proto_tree_add_string(hdr_tree,
+                                hf_header_array[hf_index], tvb,
+                                offset, next_offset - offset,
+                                value_offset, value_len);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+                            p_access_net_info_tree = proto_item_add_subtree(sip_element_item, ett_sip_p_access_net_info);
+                            dissect_sip_p_access_network_info_header(tvb, p_access_net_info_tree, value_offset, line_end_offset);
                         }
                         break;
                     default :
@@ -6139,6 +6248,16 @@ void proto_register_sip(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             "SIP Via sigcomp identifier", HFILL}
         },
+        { &hf_sip_p_acc_net_i_acc_type,
+           { "access-type", "sip.P-Access-Network-Info.access-type",
+             FT_STRING, BASE_NONE, NULL, 0x0,
+             "SIP P-Access-Network-Info access-type", HFILL}
+        },
+        { &hf_sip_p_acc_net_i_ucid_3gpp,
+           { "utran-cell-id-3gpp", "sip.P-Access-Network-Info.utran-cell-id-3gpp",
+             FT_STRING, BASE_NONE, NULL, 0x0,
+             "SIP P-Access-Network-Info utran-cell-id-3gpp", HFILL}
+        },
         { &hf_sip_rack_rseq_no,
           { "RSeq Sequence Number",  "sip.RAck.RSeq.seq",
             FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -6285,7 +6404,8 @@ void proto_register_sip(void)
         &ett_sip_to_uri,
         &ett_sip_from_uri,
         &ett_sip_curi,
-        &ett_sip_session_id
+        &ett_sip_session_id,
+        &ett_sip_p_access_net_info
     };
     static gint *ett_raw[] = {
         &ett_raw_text,
