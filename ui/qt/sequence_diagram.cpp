@@ -58,7 +58,8 @@ SequenceDiagram::SequenceDiagram(QCPAxis *keyAxis, QCPAxis *valueAxis, QCPAxis *
     comment_axis_(commentAxis),
     data_(NULL),
     sainfo_(NULL),
-    selected_packet_(0)
+    selected_packet_(0),
+    selected_key_(-1.0)
 {
     data_ = new WSCPSeqDataMap();
     // xaxis (value): Address
@@ -101,6 +102,46 @@ SequenceDiagram::SequenceDiagram(QCPAxis *keyAxis, QCPAxis *valueAxis, QCPAxis *
 SequenceDiagram::~SequenceDiagram()
 {
     delete data_;
+}
+
+int SequenceDiagram::adjacentPacket(bool next)
+{
+    int adjacent_packet = -1;
+    WSCPSeqDataMap::const_iterator it;
+
+    if (data_->size() < 1) return adjacent_packet;
+
+    if (selected_packet_ < 1) {
+        WSCPSeqData &data = next ? data_->first() : data_->last();
+        return data.value->frame_number;
+    }
+
+    if (next) {
+        for (it = data_->constBegin(); it != data_->constEnd(); ++it) {
+            if (it.value().value->frame_number == selected_packet_) {
+                ++it;
+                if (it != data_->constEnd()) {
+                    adjacent_packet = it.value().value->frame_number;
+                    selected_key_ = it.value().key;
+                }
+                break;
+            }
+        }
+    } else {
+        it = data_->constEnd();
+        --it;
+        while (it != data_->constBegin()) {
+            guint32 prev_frame = it.value().value->frame_number;
+            --it;
+            if (prev_frame == selected_packet_) {
+                adjacent_packet = it.value().value->frame_number;
+                selected_key_ = it.value().key;
+                break;
+            }
+        }
+    }
+
+    return adjacent_packet;
 }
 
 void SequenceDiagram::setData(_seq_analysis_info *sainfo)
@@ -154,6 +195,7 @@ void SequenceDiagram::setData(_seq_analysis_info *sainfo)
 
 void SequenceDiagram::setSelectedPacket(int selected_packet)
 {
+    selected_key_ = -1;
     if (selected_packet > 0) {
         selected_packet_ = selected_packet;
     } else {
@@ -215,6 +257,7 @@ void SequenceDiagram::draw(QCPPainter *painter)
             QPalette sel_pal;
             fg_pen.setColor(sel_pal.color(QPalette::HighlightedText));
             bg_color = sel_pal.color(QPalette::Highlight);
+            selected_key_ = cur_key;
         } else {
             fg_pen.setColor(Qt::black);
             bg_color = ColorUtils::sequenceColor(sai->conv_num);
@@ -339,7 +382,7 @@ QCPRange SequenceDiagram::getValueRange(bool &validRange, QCPAbstractPlottable::
 
     if (sainfo_) {
         range.lower = 0;
-        range.upper = sainfo_->num_nodes;
+        range.upper = data_->size();
         valid = true;
     }
     validRange = valid;

@@ -62,6 +62,8 @@
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Move down 1 pixel&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Go to packet under cursor&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;n&lt;/th&gt;&lt;td&gt;Go to the next packet&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;p&lt;/th&gt;&lt;td&gt;Go to the previous packet&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</string>
@@ -345,6 +347,28 @@
    </property>
    <property name="shortcut">
     <string>1</string>
+   </property>
+  </action>
+  <action name="actionGoToNextPacket">
+   <property name="text">
+    <string>Go To Next Packet</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to the next packet</string>
+   </property>
+   <property name="shortcut">
+    <string>N</string>
+   </property>
+  </action>
+  <action name="actionGoToPreviousPacket">
+   <property name="text">
+    <string>Go To Previous Packet</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to the previous packet</string>
+   </property>
+   <property name="shortcut">
+    <string>P</string>
    </property>
   </action>
  </widget>

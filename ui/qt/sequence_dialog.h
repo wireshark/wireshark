@@ -71,7 +71,6 @@ protected:
     void showEvent(QShowEvent *event);
     void resizeEvent(QResizeEvent *event);
     void keyPressEvent(QKeyEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
 
 private slots:
     void updateWidgets();
@@ -81,13 +80,15 @@ private slots:
     void yAxisChanged(QCPRange range);
     void diagramClicked(QMouseEvent *event);
     void mouseMoved(QMouseEvent *event);
-    void mouseReleased(QMouseEvent *event);
+    void mouseWheeled(QWheelEvent *event);
 
     void fillDiagram();
 
     void on_buttonBox_accepted();
     void on_resetButton_clicked();
     void on_actionGoToPacket_triggered();
+    void on_actionGoToNextPacket_triggered() { goToAdjacentPacket(true); }
+    void on_actionGoToPreviousPacket_triggered() { goToAdjacentPacket(false); }
     void on_showComboBox_activated(int index);
     void on_flowComboBox_activated(int index);
     void on_addressComboBox_activated(int index);
@@ -115,7 +116,7 @@ private:
 
     void panAxes(int x_pixels, int y_pixels);
     void resetAxes(bool keep_lower = false);
-
+    void goToAdjacentPacket(bool next);
 };
 
 #endif // SEQUENCE_DIALOG_H

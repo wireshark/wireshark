@@ -35,7 +35,7 @@
 struct _seq_analysis_info;
 struct _seq_analysis_item;
 
-// Most of this is probably unnecessary
+// Some of this is probably unnecessary
 class WSCPSeqData
 {
 public:
@@ -44,11 +44,8 @@ public:
   double key;
   struct _seq_analysis_item *value;
 };
-Q_DECLARE_TYPEINFO(WSCPSeqData, Q_MOVABLE_TYPE);
 
 typedef QMap<double, WSCPSeqData> WSCPSeqDataMap;
-typedef QMapIterator<double, WSCPSeqData> WSCPSeqDataMapIterator;
-typedef QMutableMapIterator<double, WSCPSeqData> WSCPSeqDataMutableMapIterator;
 
 class SequenceDiagram : public QCPAbstractPlottable
 {
@@ -58,6 +55,10 @@ public:
     virtual ~SequenceDiagram();
 
     // getters:
+    // Next / previous packet.
+    int adjacentPacket(bool next);
+
+    double selectedKey() { return selected_key_; }
 
     // setters:
     void setData(struct _seq_analysis_info *sainfo);
@@ -85,6 +86,7 @@ private:
     WSCPSeqDataMap *data_;
     struct _seq_analysis_info *sainfo_;
     guint32 selected_packet_;
+    double selected_key_;
 };
 
 #endif // SEQUENCE_DIAGRAM_H

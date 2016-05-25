@@ -39,8 +39,7 @@
 
 // To do:
 // - Add zoom controls.
-// - Limit dragging to valid ranges.
-// - Handle trackpad and mouse wheel scrolling.
+// - Show + hide the Time and Comment axes.
 // - Add UTF8 to text dump
 // - Save to XMI? http://www.umlgraph.org/
 // - Time: abs vs delta
@@ -50,6 +49,9 @@
 // - Change line_style to seq_type (i.e. draw ACKs dashed)
 // - Create WSGraph subclasses with common behavior.
 // - Help button and text
+
+static const double min_top_ = -1.0;
+static const double min_left_ = -0.5;
 
 SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *info) :
     WiresharkDialog(parent, cf),
@@ -76,7 +78,11 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
 
     seq_diagram_ = new SequenceDiagram(sp->yAxis, sp->xAxis2, sp->yAxis2);
     sp->addPlottable(seq_diagram_);
-    sp->axisRect()->setRangeDragAxes(sp->xAxis2, sp->yAxis);
+
+    // When dragging is enabled it's easy to drag past the lower and upper
+    // bounds of each axis. Disable it for now.
+    //sp->axisRect()->setRangeDragAxes(sp->xAxis2, sp->yAxis);
+    //sp->setInteractions(QCP::iRangeDrag);
 
     sp->xAxis->setVisible(false);
     sp->xAxis->setPadding(0);
@@ -96,7 +102,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     key_text_->setText(tr("Time"));
     sp->addItem(key_text_);
 
-    key_text_->setPositionAlignment(Qt::AlignRight | Qt::AlignBottom);
+    key_text_->setPositionAlignment(Qt::AlignRight | Qt::AlignVCenter);
     key_text_->position->setType(QCPItemPosition::ptAbsolute);
     key_text_->setClipToAxisRect(false);
 
@@ -104,15 +110,13 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     comment_text_->setText(tr("Comment"));
     sp->addItem(comment_text_);
 
-    comment_text_->setPositionAlignment(Qt::AlignLeft | Qt::AlignBottom);
+    comment_text_->setPositionAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     comment_text_->position->setType(QCPItemPosition::ptAbsolute);
     comment_text_->setClipToAxisRect(false);
 
     one_em_ = QFontMetrics(sp->yAxis->labelFont()).height();
     ui->horizontalScrollBar->setSingleStep(100 / one_em_);
     ui->verticalScrollBar->setSingleStep(100 / one_em_);
-
-    sp->setInteractions(QCP::iRangeDrag);
 
     ui->gridLayout->setSpacing(0);
     connect(sp->yAxis, SIGNAL(rangeChanged(QCPRange)), sp->yAxis2, SLOT(setRange(QCPRange)));
@@ -129,6 +133,8 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     ctx_menu_.addAction(ui->actionMoveDown1);
     ctx_menu_.addSeparator();
     ctx_menu_.addAction(ui->actionGoToPacket);
+    ctx_menu_.addAction(ui->actionGoToNextPacket);
+    ctx_menu_.addAction(ui->actionGoToPreviousPacket);
 
     ui->showComboBox->setCurrentIndex(0);
     ui->addressComboBox->setCurrentIndex(0);
@@ -155,7 +161,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     connect(sp->yAxis, SIGNAL(rangeChanged(QCPRange)), this, SLOT(yAxisChanged(QCPRange)));
     connect(sp, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(diagramClicked(QMouseEvent*)));
     connect(sp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
-    connect(sp, SIGNAL(mouseRelease(QMouseEvent*)), this, SLOT(mouseReleased(QMouseEvent*)));
+    connect(sp, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheeled(QWheelEvent*)));
     connect(this, SIGNAL(goToPacket(int)), seq_diagram_, SLOT(setSelectedPacket(int)));
 
     disconnect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
@@ -215,14 +221,15 @@ void SequenceDialog::keyPressEvent(QKeyEvent *event)
     case Qt::Key_G:
         on_actionGoToPacket_triggered();
         break;
+    case Qt::Key_N:
+        on_actionGoToNextPacket_triggered();
+        break;
+    case Qt::Key_P:
+        on_actionGoToPreviousPacket_triggered();
+        break;
     }
 
     QDialog::keyPressEvent(event);
-}
-
-void SequenceDialog::mouseReleaseEvent(QMouseEvent *event)
-{
-    mouseReleased(event);
 }
 
 void SequenceDialog::hScrollBarChanged(int value)
@@ -255,33 +262,22 @@ void SequenceDialog::yAxisChanged(QCPRange range)
 
 void SequenceDialog::diagramClicked(QMouseEvent *event)
 {
-    QCustomPlot *sp = ui->sequencePlot;
-
-    if (event->button() == Qt::RightButton) {
+    switch (event->button()) {
+    case Qt::LeftButton:
+        on_actionGoToPacket_triggered();
+        break;
+    case Qt::RightButton:
         // XXX We should find some way to get sequenceDiagram to handle a
         // contextMenuEvent instead.
         ctx_menu_.exec(event->globalPos());
-    } else if (sp->axisRect()->rect().contains(event->pos())) {
-        sp->setCursor(QCursor(Qt::ClosedHandCursor));
+        break;
+    default:
+        break;
     }
-    on_actionGoToPacket_triggered();
 }
 
 void SequenceDialog::mouseMoved(QMouseEvent *event)
 {
-    QCustomPlot *sp = ui->sequencePlot;
-    Qt::CursorShape shape = Qt::ArrowCursor;
-    if (event) {
-        if (event->buttons().testFlag(Qt::LeftButton)) {
-            shape = Qt::ClosedHandCursor;
-        } else {
-            if (sp->axisRect()->rect().contains(event->pos())) {
-                shape = Qt::OpenHandCursor;
-            }
-        }
-    }
-    sp->setCursor(QCursor(shape));
-
     packet_num_ = 0;
     QString hint;
     if (event) {
@@ -307,11 +303,17 @@ void SequenceDialog::mouseMoved(QMouseEvent *event)
     ui->hintLabel->setText(hint);
 }
 
-void SequenceDialog::mouseReleased(QMouseEvent *)
+void SequenceDialog::mouseWheeled(QWheelEvent *event)
 {
-    if (ui->sequencePlot->cursor().shape() == Qt::ClosedHandCursor) {
-        ui->sequencePlot->setCursor(QCursor(Qt::OpenHandCursor));
+    int scroll_delta = event->delta() * -1 / 15;
+    if (event->orientation() == Qt::Vertical) {
+        scroll_delta *= ui->verticalScrollBar->singleStep();
+        ui->verticalScrollBar->setValue(ui->verticalScrollBar->value() + scroll_delta);
+    } else {
+        scroll_delta *= ui->horizontalScrollBar->singleStep();
+        ui->horizontalScrollBar->setValue(ui->horizontalScrollBar->value() + scroll_delta);
     }
+    event->accept();
 }
 
 void SequenceDialog::on_buttonBox_accepted()
@@ -374,8 +376,7 @@ void SequenceDialog::fillDiagram()
         seq_diagram_->setData(info_->sainfo());
     }
 
-    QFontMetrics fm = QFontMetrics(sp->xAxis2->labelFont());
-    sequence_w_ = fm.height() * 15 ; // Arbitrary
+    sequence_w_ = one_em_ * 15 ; // Arbitrary
 
     mouseMoved(NULL);
     resetAxes();
@@ -386,18 +387,32 @@ void SequenceDialog::fillDiagram()
 
 void SequenceDialog::panAxes(int x_pixels, int y_pixels)
 {
+    // We could simplify this quite a bit if we set the scroll bar values instead.
+    if (!info_->sainfo()) return;
+
     QCustomPlot *sp = ui->sequencePlot;
     double h_pan = 0.0;
     double v_pan = 0.0;
 
     h_pan = sp->xAxis2->range().size() * x_pixels / sp->xAxis2->axisRect()->width();
+    if (h_pan < 0) {
+        h_pan = qMax(h_pan, min_left_ - sp->xAxis2->range().lower);
+    } else {
+        h_pan = qMin(h_pan, info_->sainfo()->num_nodes - sp->xAxis2->range().upper);
+    }
+
     v_pan = sp->yAxis->range().size() * y_pixels / sp->yAxis->axisRect()->height();
-    // The GTK+ version won't pan unless we're zoomed. Should we do the same here?
-    if (h_pan) {
+    if (v_pan < 0) {
+        v_pan = qMax(v_pan, min_top_ - sp->yAxis->range().lower);
+    } else {
+        v_pan = qMin(v_pan, num_items_ - sp->yAxis->range().upper);
+    }
+
+    if (h_pan && !(sp->xAxis2->range().contains(min_left_) && sp->xAxis2->range().contains(info_->sainfo()->num_nodes))) {
         sp->xAxis2->moveRange(h_pan);
         sp->replot();
     }
-    if (v_pan) {
+    if (v_pan && !(sp->yAxis->range().contains(min_top_) && sp->yAxis->range().contains(num_items_))) {
         sp->yAxis->moveRange(v_pan);
         sp->replot();
     }
@@ -410,7 +425,7 @@ void SequenceDialog::resetAxes(bool keep_lower)
     QCustomPlot *sp = ui->sequencePlot;
 
     // Allow space for labels on the top and port numbers on the left.
-    double top_pos = -1.0, left_pos = -0.5;
+    double top_pos = min_top_, left_pos = min_left_;
     if (keep_lower) {
         top_pos = sp->yAxis->range().lower;
         left_pos = sp->xAxis2->range().lower;
@@ -440,16 +455,17 @@ void SequenceDialog::resetAxes(bool keep_lower)
     sp->replot(QCustomPlot::rpQueued);
 
     QRect axis_rect = sp->axisRect()->rect();
+
     key_text_->position->setCoords(axis_rect.left()
                                    - sp->yAxis->padding()
                                    - sp->yAxis->tickLabelPadding()
                                    - sp->yAxis->offset(),
-                                   axis_rect.top());
+                                   axis_rect.top() / 2);
     comment_text_->position->setCoords(axis_rect.right()
                                        + sp->yAxis2->padding()
                                        + sp->yAxis2->tickLabelPadding()
                                        + sp->yAxis2->offset(),
-                                       axis_rect.top());
+                                       axis_rect.top()  / 2);
 
     sp->replot(QCustomPlot::rpHint);
 }
@@ -463,6 +479,44 @@ void SequenceDialog::on_actionGoToPacket_triggered()
 {
     if (!file_closed_ && packet_num_ > 0) {
         emit goToPacket(packet_num_);
+    }
+}
+
+void SequenceDialog::goToAdjacentPacket(bool next)
+{
+    if (file_closed_) return;
+    int old_key = seq_diagram_->selectedKey();
+    int adjacent_packet = seq_diagram_->adjacentPacket(next);
+    int new_key = seq_diagram_->selectedKey();
+
+    if (adjacent_packet > 0) {
+        if (old_key >= 0 && new_key >= 0) {
+            // Scroll if we're at our scroll margin and we haven't reached
+            // the end of our range.
+            // XXX We should probably ensure the selected packet is visible as well.
+            QCustomPlot *sp = ui->sequencePlot;
+            double range_offset = new_key - old_key;
+            double scroll_margin = 3.0; // Lines
+            if (next) {
+                if (new_key + scroll_margin < sp->yAxis->range().upper) {
+                    range_offset = 0.0;
+                }
+                while (range_offset > 0 && range_offset + sp->yAxis->range().upper > num_items_) {
+                    range_offset--;
+                }
+            } else {
+                if (new_key - scroll_margin > sp->yAxis->range().lower) {
+                    range_offset = 0.0;
+                }
+
+                double slop_top = min_top_ * 1.1;
+                while (range_offset < 0 && range_offset + sp->yAxis->range().lower < slop_top) {
+                    range_offset++;
+                }
+            }
+            sp->yAxis->moveRange(range_offset);
+        }
+        emit goToPacket(adjacent_packet);
     }
 }
 
