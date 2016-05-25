@@ -36,14 +36,18 @@ void proto_reg_handoff_papi(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_papi = -1;
-static int hf_papi_hdr_id = -1;
+static int hf_papi_hdr_magic = -1;
 static int hf_papi_hdr_version = -1;
-static int hf_papi_hdr_ip_destination = -1;
-static int hf_papi_hdr_ip_source = -1;
-static int hf_papi_hdr_port_destination = -1;
-static int hf_papi_hdr_port_source = -1;
-static int hf_papi_hdr_unknown = -1;
-static int hf_papi_hdr_sequence = -1;
+static int hf_papi_hdr_dest_ip = -1;
+static int hf_papi_hdr_src_ip = -1;
+static int hf_papi_hdr_nat_port_number = -1;
+static int hf_papi_hdr_garbage = -1;
+static int hf_papi_hdr_dest_port = -1;
+static int hf_papi_hdr_src_port = -1;
+static int hf_papi_hdr_packet_type = -1;
+static int hf_papi_hdr_packet_size = -1;
+static int hf_papi_hdr_seq_number = -1;
+static int hf_papi_hdr_message_code = -1;
 static int hf_papi_hdr_checksum = -1;
 
 static int hf_papi_debug = -1;
@@ -147,40 +151,40 @@ dissect_papi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     ti = proto_tree_add_item(tree, proto_papi, tvb, 0, -1, ENC_NA);
     papi_tree = proto_item_add_subtree(ti, ett_papi);
 
-    proto_tree_add_item(papi_tree, hf_papi_hdr_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(papi_tree, hf_papi_hdr_magic, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(papi_tree, hf_papi_hdr_version, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(papi_tree, hf_papi_hdr_ip_destination, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(papi_tree, hf_papi_hdr_dest_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(papi_tree, hf_papi_hdr_ip_source, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(papi_tree, hf_papi_hdr_src_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(papi_tree, hf_papi_hdr_nat_port_number, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(papi_tree, hf_papi_hdr_garbage, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(papi_tree, hf_papi_hdr_port_source, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(papi_tree, hf_papi_hdr_dest_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(papi_tree, hf_papi_hdr_port_destination, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(papi_tree, hf_papi_hdr_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(papi_tree, hf_papi_hdr_packet_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(papi_tree, hf_papi_hdr_packet_size, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(papi_tree, hf_papi_hdr_sequence, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(papi_tree, hf_papi_hdr_seq_number, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(papi_tree, hf_papi_hdr_message_code, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(papi_tree, hf_papi_hdr_checksum, tvb, offset, 16, ENC_NA);
@@ -203,43 +207,63 @@ proto_register_papi(void)
     module_t *papi_module;
 
     static hf_register_info hf[] = {
-        { &hf_papi_hdr_id,
-            { "ID", "papi.hdr.id",
+        { &hf_papi_hdr_magic,
+            { "Magic", "papi.hdr.magic",
             FT_UINT16, BASE_HEX, NULL, 0x0,
-            "PAPI Header ID (Magic Number ?)", HFILL }
+            "PAPI Header Magic Number", HFILL }
         },
         { &hf_papi_hdr_version,
             { "Version",  "papi.hdr.version",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             "PAPI Protocol Version", HFILL }
         },
-        { &hf_papi_hdr_ip_destination,
-            { "IP Destination", "papi.hdr.ip.dst",
+        { &hf_papi_hdr_dest_ip,
+            { "Destination IP", "papi.hdr.dest.ip",
             FT_IPv4, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_papi_hdr_ip_source,
-            { "IP Source", "papi.hdr.ip.src",
+        { &hf_papi_hdr_src_ip,
+            { "Source IP", "papi.hdr.src.ip",
             FT_IPv4, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_papi_hdr_port_source,
-            { "Port Source", "papi.hdr.port.src",
+        { &hf_papi_hdr_nat_port_number,
+            { "NAT Port Number", "papi.hdr.nat_port_number",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_papi_hdr_port_destination,
-            { "Port Destination", "papi.hdr.port.destination",
+        { &hf_papi_hdr_garbage,
+            { "Garbage", "papi.hdr.garbage",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_papi_hdr_unknown,
-            { "Unknown", "papi.hdr.unknown",
+        { &hf_papi_hdr_dest_port,
+            { "Destination Port", "papi.hdr.dest.port",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_hdr_src_port,
+            { "Source Port", "papi.hdr.src.port",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_hdr_packet_type,
+            { "Packet Type", "papi.hdr.packet.type",
             FT_UINT16, BASE_DEC|BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_papi_hdr_sequence,
-            { "Sequence", "papi.hdr.sequence",
+        { &hf_papi_hdr_packet_size,
+            { "Packet Size", "papi.hdr.packet.size",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_hdr_seq_number,
+            { "Sequence Number", "papi.hdr.seq_number",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_hdr_message_code,
+            { "Message Code", "papi.hdr.message_code",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
