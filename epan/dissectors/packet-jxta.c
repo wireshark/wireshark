@@ -530,7 +530,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
     {
         guint tree_offset = 0;
         proto_item *jxta_tree_item =
-            proto_tree_add_protocol_format(tree, proto_jxta, tvb, offset, -1, "JXTA" );
+            proto_tree_add_protocol_format(tree, proto_jxta, tvb, tree_offset, -1, "JXTA" );
         proto_tree *jxta_tree = proto_item_add_subtree(jxta_tree_item, ett_jxta);
         proto_item *jxta_udp_tree_item =
             proto_tree_add_none_format(jxta_tree, hf_jxta_udp, tvb, tree_offset, -1, "JXTA UDP Message");
@@ -1336,7 +1336,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     }
 
     if ((needed > 0) && gDESEGMENT && pinfo->can_desegment) {
-        /* g_message( "Message requesting %d more bytes", needed ); */
+        /* g_message("Frame %d: Message requesting %d more bytes", pinfo->num, needed); */
         pinfo->desegment_offset = 0;
         pinfo->desegment_len = needed;
         return -needed;
