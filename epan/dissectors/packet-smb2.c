@@ -6681,7 +6681,6 @@ dissect_smb2_AAPL_buffer_response(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 		/* NT status */
 		proto_tree_add_item(sub_tree, hf_smb2_nt_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
-		break;
 
 		/* Server path */
 		proto_tree_add_item(sub_tree, hf_smb2_aapl_server_query_server_path,
