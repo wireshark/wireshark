@@ -6525,7 +6525,7 @@ dissect_smb2_posix_v1_caps_response(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 static const value_string aapl_command_code_vals[] = {
 	{ SMB2_AAPL_SERVER_QUERY,	"Server query"},
-	{ SMB2_AAPL_RESOLVE_ID,	"Resolve ID"},
+	{ SMB2_AAPL_RESOLVE_ID,		"Resolve ID"},
 	{ 0, NULL }
 };
 
@@ -6541,8 +6541,8 @@ static const int *aapl_server_query_bitmap_fields[] = {
 };
 
 #define SMB2_AAPL_SUPPORTS_READ_DIR_ATTR	0x00000001
-#define SMB2_AAPL_SUPPORTS_OSX_COPYFILE	0x00000002
-#define SMB2_AAPL_UNIX_BASED		0x00000004
+#define SMB2_AAPL_SUPPORTS_OSX_COPYFILE		0x00000002
+#define SMB2_AAPL_UNIX_BASED			0x00000004
 #define SMB2_AAPL_SUPPORTS_NFS_ACE		0x00000008
 
 static const int *aapl_server_query_caps_fields[] = {
