@@ -6258,6 +6258,19 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
+	/* [MS-SMB] 2.2.4.1.2 Server Response Extensions */
+	if (wc == 19) {
+		proto_tree *tr = NULL;
+
+		tr = proto_tree_add_subtree(tree, tvb, offset, 4,
+			ett_smb_nt_access_mask, NULL, "Maximal Access Rights");
+		offset = dissect_smb_access_mask(tvb, tr, offset);
+
+		tr = proto_tree_add_subtree(tree, tvb, offset, 4,
+			ett_smb_nt_access_mask, NULL, "Guest Maximal Access Rights");
+		offset = dissect_smb_access_mask(tvb, tr, offset);
+	}
+
 	BYTE_COUNT;
 
 	END_OF_SMB
