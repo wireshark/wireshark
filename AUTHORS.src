@@ -3674,6 +3674,9 @@ Barbu Paul - Gheorghe	<barbu.paul.gheorghe[AT]gmail.com> {
 Martin Kacer	<kacer.martin[AT]gmail.com> {
 	JSON and Elasticsearch tshark output
 }
+Ben Stewart		<bst[AT]google.com> {
+	SCTE-35 dissector
+}
 
 Sumit Kumar Jha		<sjha3[AT]ncsu.edu> {
 	Generic Protocol Extension Support for VXLAN

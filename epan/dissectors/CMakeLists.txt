@@ -1161,6 +1161,7 @@ set(DISSECTOR_SRC
 	packet-scsi-smc.c
 	packet-scsi-ssc.c
 	packet-scsi.c
+	packet-scte35.c
 	packet-sctp.c
 	packet-sdh.c
 	packet-sdlc.c
