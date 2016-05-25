@@ -70,6 +70,305 @@ static gboolean g_papi_debug = FALSE;
 /* Initialize the subtree pointers */
 static gint ett_papi = -1;
 
+#define SAMBA_WRAPPER               8442
+#define RESOLVER_PORT               8392
+#define PB_INT_TASK                 8448
+#define STATION_MANAGEMENT_LOPRI    8419
+#define MOBILE_IP                   8383
+#define SIBYTE_FASTPATH_PORT        8355
+#define WLAN_MANAGEMENT_SERVER      8224
+#define SIBYTE_CONSOLE_CLIENT2      8357
+#define AUTH_SERVER_LOPRI           8420
+#define MOB_FASTPATH_PORT           8354
+#define SAP_RRAD_PORT               8382
+#define REPGEN                      8418
+#define RAPPER_PORT2                8424
+#define IKE_DAEMON_RAW              8232
+#define STATION_MANAGEMENT          8345
+#define PPPD_START                  8241
+#define SETUP_DIALOG                8434
+#define WEB_GRAPHGEN1               8346
+#define SNMP_TRAP_RAW               8402
+#define ARUBA_NTPD                  8377
+#define STATION_MANAGEMENT_LOPRI_AP 8452
+#define CLI_LOG_RAW                 8364
+#define AUTH_SERVER_RAW             8227
+#define RAPPER_PORT5                8427
+#define MESH_DAEMON                 8433
+#define PHONE_HOME                  8437
+#define FPCLI_SIBYTE_CONSOLE2       8368
+#define FASTPATH_WEB_CLIENT         8218
+#define SERVER_LOAD_BALANCING       8384
+#define IKE_DAEMON                  8231
+#define CPSEC                       8453
+#define MOBILITY_CLIENT             8217
+#define SNMP_TRAPMGR                8363
+#define PIM_TOSIBYTE                8416
+#define RAPPER_PORT9                8431
+#define CERT_MANAGER_MASTER         8353
+#define MISC_PROC                   8445
+#define PPPD_END                    8340
+#define SYSMGR                      8450
+#define RAPPER_PORT6                8428
+#define RRA_SERVER                  8238
+#define NANNY_PORT_MEM_MON          8371
+#define SYS_MAPPER_LOPRI            8435
+#define RAPPER_PORT4                8426
+#define SAPM_HYBRID_AP              8436
+#define FASTPATH_CLI_CLIENT         8213
+#define CFGM_RAW                    8362
+#define SPOTMGR                     8398
+#define SYSLOGDWRAP                 8407
+#define WEBS_AM_PORT                8352
+#define QPDQ_STANDALONE             8401
+#define FPCLI_RAW                   8361
+#define VRRP_DAEMON                 8391
+#define AMAP_MGMT_PORT              8395
+#define CAP_MGMT_PORT               8351
+#define SAPM_SERVER                 8222
+#define PPPD_DAEMON                 8234
+#define LAST_SERVICE                8999
+#define DHCP_SERVER                 8390
+#define ADMINSERVER                 8403
+#define SYS_MAPPER                  8396
+#define PUBSUB_SERVER               8378
+#define AMAPI_SNMP_TRAP_CLIENT      8440
+#define PPTPD                       8341
+#define SIBYTE_CONSOLE_PORT         8348
+#define SNMP_DAEMON                 8219
+#define SIBYTE_DNLD_FILE            8374
+#define UTILITY_PROCESS             8449
+#define SAPM_RAPCP                  8438
+#define SIBYTE_MACH_INFO            8386
+#define SIBYTE_CONSOLE_CLIENT1      8356
+#define SWKEY                       8373
+#define RF_CLIENT                   8410
+#define HAMGR                       8408
+#define FASTPATH_CLI_SERVER         8239
+#define FASTPATH_AUTH_CLIENT        8360
+#define CRYPTO_POST_PORT            8400
+#define HTTPD_WRAP                  8404
+#define MMSCONFIGMGR                8412
+#define FPAPPS_AUTH_PORT            8381
+#define FPWEB_RAW                   8415
+#define L2TPD                       8342
+#define CERT_CLIENT                 8349
+#define SIBYTE_RAW                  8228
+#define FPAPPS_VRRP_PORT            8379
+#define AIR_MONITOR                 8225
+#define ANOMALY_DETECTION           8387
+#define ARUBA_FILTER                8388
+#define MSGH_HELPER                 8446
+#define FASTPATH_SERVER             8212
+#define MOBILITY_AGENT              8229
+#define OSPF_DAEMON                 8441
+#define PIM                         8385
+#define MOBILITY_SERVER             8216
+#define SIBYTE_CONSOLE_CLIENT3      8358
+#define FPCLI_SIBYTE_CONSOLE1       8367
+#define AUTH_CLIENT                 8215
+#define FPCLI_SIBYTE_CONSOLE3       8369
+#define AMAPI_SAMPLE_CLIENT         8221
+#define PPPOE_DAEMON                8411
+#define UDB_SERVER                  8344
+#define RAPPER_PORT1                8423
+#define PAPI_EPHEMERAL              65535
+#define MVC_SERVER                  8422
+#define RAPPER_PORT3                8425
+#define DHCP_DAEMON                 8359
+#define EMWEB_RAW                   8365
+#define STATSMGR                    8397
+#define FASTPATH_ADD_SERVER         8240
+#define AMAPI_CLI_CLIENT            8220
+#define AUTH_SERVER                 8214
+#define MESSAGE_HANDLER             8999
+#define AMAP_PROC                   8394
+#define CTS                         8413
+#define CFGMANAGER                  8226
+#define RAPPER_PORT8                8430
+#define L2TPD_DAEMON_RAW            8233
+#define WLAN_MANAGEMENT_SERVER_LOPRI 8421
+#define NANNY_PORT                  8370
+#define RAPPER_PORT10               8432
+#define RAPPER_PORT7                8429
+#define AMAPI_WEB_CLIENT            8235
+#define WEB_CLI_RAW                 8375
+#define CERT_MANAGER                8343
+#define NCFGTEST_APP                8406
+#define REM_DSLMGR                  8439
+#define PROFILE_MANAGER             8405
+#define LICENSE_MANAGER             8389
+#define MMSWEBSVC                   8414
+#define SSH_AUTH_PORT               8393
+#define STATION_MANAGEMENT_AP       8451
+#define AMP_SERVER                  8444
+#define HTTPD_WRAP_AUTH_PORT        8417
+#define FAULTMGR                    8399
+#define SIBYTE_HEARTBEAT            8237
+#define USBHELPER_CLIENT            8447
+#define SAPM_CLIENT                 8223
+#define RF_MANAGER                  8409
+#define WEB_GRAPHGEN2               8347
+#define HARDWARE_MONITOR_PORT       8366
+#define P8MGR                       8454
+#define WIRED_MAC_LOOKUP            8376
+#define CDP_PROC                    8350
+#define AAA_MGMT_PORT               8372
+#define DBSYNC_PORT                 8380
+#define AMAPI_SNMP_CLIENT           8236
+
+static const value_string papi_port_vals[] = {
+    { FASTPATH_SERVER, "FASTPATH_SERVER" },
+    { FASTPATH_CLI_CLIENT, "FASTPATH_CLI_CLIENT" },
+    { AUTH_SERVER, "AUTH_SERVER" },
+    { AUTH_CLIENT, "AUTH_CLIENT" },
+    { MOBILITY_SERVER, "MOBILITY_SERVER" },
+    { MOBILITY_CLIENT, "MOBILITY_CLIENT" },
+    { FASTPATH_WEB_CLIENT, "FASTPATH_WEB_CLIENT" },
+    { SNMP_DAEMON, "SNMP_DAEMON" },
+    { AMAPI_CLI_CLIENT, "AMAPI_CLI_CLIENT" },
+    { AMAPI_SAMPLE_CLIENT, "AMAPI_SAMPLE_CLIENT" },
+    { SAPM_SERVER, "SAPM_SERVER" },
+    { SAPM_CLIENT, "SAPM_CLIENT" },
+    { WLAN_MANAGEMENT_SERVER, "WLAN_MANAGEMENT_SERVER" },
+    { AIR_MONITOR, "AIR_MONITOR" },
+    { CFGMANAGER, "CFGMANAGER" },
+    { AUTH_SERVER_RAW, "AUTH_SERVER_RAW" },
+    { SIBYTE_RAW, "SIBYTE_RAW" },
+    { MOBILITY_AGENT, "MOBILITY_AGENT" },
+    { IKE_DAEMON, "IKE_DAEMON" },
+    { IKE_DAEMON_RAW, "IKE_DAEMON_RAW" },
+    { L2TPD_DAEMON_RAW, "L2TPD_DAEMON_RAW" },
+    { PPPD_DAEMON, "PPPD_DAEMON" },
+    { AMAPI_WEB_CLIENT, "AMAPI_WEB_CLIENT" },
+    { AMAPI_SNMP_CLIENT, "AMAPI_SNMP_CLIENT" },
+    { SIBYTE_HEARTBEAT, "SIBYTE_HEARTBEAT" },
+    { RRA_SERVER, "RRA_SERVER" },
+    { FASTPATH_CLI_SERVER, "FASTPATH_CLI_SERVER" },
+    { FASTPATH_ADD_SERVER, "FASTPATH_ADD_SERVER" },
+    { PPPD_START, "PPPD_START" },
+    { PPPD_END, "PPPD_END" },
+    { PPTPD, "PPTPD" },
+    { L2TPD, "L2TPD" },
+    { CERT_MANAGER, "CERT_MANAGER" },
+    { UDB_SERVER, "UDB_SERVER" },
+    { STATION_MANAGEMENT, "STATION_MANAGEMENT" },
+    { WEB_GRAPHGEN1, "WEB_GRAPHGEN1" },
+    { WEB_GRAPHGEN2, "WEB_GRAPHGEN2" },
+    { SIBYTE_CONSOLE_PORT, "SIBYTE_CONSOLE_PORT" },
+    { CERT_CLIENT, "CERT_CLIENT" },
+    { CDP_PROC, "CDP_PROC" },
+    { CAP_MGMT_PORT, "CAP_MGMT_PORT" },
+    { WEBS_AM_PORT, "WEBS_AM_PORT" },
+    { CERT_MANAGER_MASTER, "CERT_MANAGER_MASTER" },
+    { MOB_FASTPATH_PORT, "MOB_FASTPATH_PORT" },
+    { SIBYTE_FASTPATH_PORT, "SIBYTE_FASTPATH_PORT" },
+    { SIBYTE_CONSOLE_CLIENT1, "SIBYTE_CONSOLE_CLIENT1" },
+    { SIBYTE_CONSOLE_CLIENT2, "SIBYTE_CONSOLE_CLIENT2" },
+    { SIBYTE_CONSOLE_CLIENT3, "SIBYTE_CONSOLE_CLIENT3" },
+    { DHCP_DAEMON, "DHCP_DAEMON" },
+    { FASTPATH_AUTH_CLIENT, "FASTPATH_AUTH_CLIENT" },
+    { FPCLI_RAW, "FPCLI_RAW" },
+    { CFGM_RAW, "CFGM_RAW" },
+    { SNMP_TRAPMGR, "SNMP_TRAPMGR" },
+    { CLI_LOG_RAW, "CLI_LOG_RAW" },
+    { EMWEB_RAW, "EMWEB_RAW" },
+    { HARDWARE_MONITOR_PORT, "HARDWARE_MONITOR_PORT" },
+    { FPCLI_SIBYTE_CONSOLE1, "FPCLI_SIBYTE_CONSOLE1" },
+    { FPCLI_SIBYTE_CONSOLE2, "FPCLI_SIBYTE_CONSOLE2" },
+    { FPCLI_SIBYTE_CONSOLE3, "FPCLI_SIBYTE_CONSOLE3" },
+    { NANNY_PORT, "NANNY_PORT" },
+    { NANNY_PORT_MEM_MON, "NANNY_PORT_MEM_MON" },
+    { AAA_MGMT_PORT, "AAA_MGMT_PORT" },
+    { SWKEY, "SWKEY" },
+    { SIBYTE_DNLD_FILE, "SIBYTE_DNLD_FILE" },
+    { WEB_CLI_RAW, "WEB_CLI_RAW" },
+    { WIRED_MAC_LOOKUP, "WIRED_MAC_LOOKUP" },
+    { ARUBA_NTPD, "ARUBA_NTPD" },
+    { PUBSUB_SERVER, "PUBSUB_SERVER" },
+    { FPAPPS_VRRP_PORT, "FPAPPS_VRRP_PORT" },
+    { DBSYNC_PORT, "DBSYNC_PORT" },
+    { FPAPPS_AUTH_PORT, "FPAPPS_AUTH_PORT" },
+    { SAP_RRAD_PORT, "SAP_RRAD_PORT" },
+    { MOBILE_IP, "MOBILE_IP" },
+    { SERVER_LOAD_BALANCING, "SERVER_LOAD_BALANCING" },
+    { PIM, "PIM" },
+    { SIBYTE_MACH_INFO, "SIBYTE_MACH_INFO" },
+    { ANOMALY_DETECTION, "ANOMALY_DETECTION" },
+    { ARUBA_FILTER, "ARUBA_FILTER" },
+    { LICENSE_MANAGER, "LICENSE_MANAGER" },
+    { DHCP_SERVER, "DHCP_SERVER" },
+    { VRRP_DAEMON, "VRRP_DAEMON" },
+    { RESOLVER_PORT, "RESOLVER_PORT" },
+    { SSH_AUTH_PORT, "SSH_AUTH_PORT" },
+    { AMAP_PROC, "AMAP_PROC" },
+    { AMAP_MGMT_PORT, "AMAP_MGMT_PORT" },
+    { SYS_MAPPER, "SYS_MAPPER" },
+    { STATSMGR, "STATSMGR" },
+    { SPOTMGR, "SPOTMGR" },
+    { FAULTMGR, "FAULTMGR" },
+    { CRYPTO_POST_PORT, "CRYPTO_POST_PORT" },
+    { QPDQ_STANDALONE, "QPDQ_STANDALONE" },
+    { SNMP_TRAP_RAW, "SNMP_TRAP_RAW" },
+    { ADMINSERVER, "ADMINSERVER" },
+    { HTTPD_WRAP, "HTTPD_WRAP" },
+    { PROFILE_MANAGER, "PROFILE_MANAGER" },
+    { NCFGTEST_APP, "NCFGTEST_APP" },
+    { SYSLOGDWRAP, "SYSLOGDWRAP" },
+    { HAMGR, "HAMGR" },
+    { RF_MANAGER, "RF_MANAGER" },
+    { RF_CLIENT, "RF_CLIENT" },
+    { PPPOE_DAEMON, "PPPOE_DAEMON" },
+    { MMSCONFIGMGR, "MMSCONFIGMGR" },
+    { CTS, "CTS" },
+    { MMSWEBSVC, "MMSWEBSVC" },
+    { FPWEB_RAW, "FPWEB_RAW" },
+    { PIM_TOSIBYTE, "PIM_TOSIBYTE" },
+    { HTTPD_WRAP_AUTH_PORT, "HTTPD_WRAP_AUTH_PORT" },
+    { REPGEN, "REPGEN" },
+    { STATION_MANAGEMENT_LOPRI, "STATION_MANAGEMENT_LOPRI" },
+    { AUTH_SERVER_LOPRI, "AUTH_SERVER_LOPRI" },
+    { WLAN_MANAGEMENT_SERVER_LOPRI, "WLAN_MANAGEMENT_SERVER_LOPRI" },
+    { MVC_SERVER, "MVC_SERVER" },
+    { RAPPER_PORT1, "RAPPER_PORT1" },
+    { RAPPER_PORT2, "RAPPER_PORT2" },
+    { RAPPER_PORT3, "RAPPER_PORT3" },
+    { RAPPER_PORT4, "RAPPER_PORT4" },
+    { RAPPER_PORT5, "RAPPER_PORT5" },
+    { RAPPER_PORT6, "RAPPER_PORT6" },
+    { RAPPER_PORT7, "RAPPER_PORT7" },
+    { RAPPER_PORT8, "RAPPER_PORT8" },
+    { RAPPER_PORT9, "RAPPER_PORT9" },
+    { RAPPER_PORT10, "RAPPER_PORT10" },
+    { MESH_DAEMON, "MESH_DAEMON" },
+    { SETUP_DIALOG, "SETUP_DIALOG" },
+    { SYS_MAPPER_LOPRI, "SYS_MAPPER_LOPRI" },
+    { SAPM_HYBRID_AP, "SAPM_HYBRID_AP" },
+    { PHONE_HOME, "PHONE_HOME" },
+    { SAPM_RAPCP, "SAPM_RAPCP" },
+    { REM_DSLMGR, "REM_DSLMGR" },
+    { AMAPI_SNMP_TRAP_CLIENT, "AMAPI_SNMP_TRAP_CLIENT" },
+    { OSPF_DAEMON, "OSPF_DAEMON" },
+    { SAMBA_WRAPPER, "SAMBA_WRAPPER" },
+    { AMP_SERVER, "AMP_SERVER" },
+    { MISC_PROC, "MISC_PROC" },
+    { MSGH_HELPER, "MSGH_HELPER" },
+    { USBHELPER_CLIENT, "USBHELPER_CLIENT" },
+    { PB_INT_TASK, "PB_INT_TASK" },
+    { UTILITY_PROCESS, "UTILITY_PROCESS" },
+    { SYSMGR, "SYSMGR" },
+    { STATION_MANAGEMENT_AP, "STATION_MANAGEMENT_AP" },
+    { STATION_MANAGEMENT_LOPRI_AP, "STATION_MANAGEMENT_LOPRI_AP" },
+    { CPSEC, "CPSEC" },
+    { P8MGR, "P8MGR" },
+    { LAST_SERVICE, "LAST_SERVICE" },
+    { MESSAGE_HANDLER, "MESSAGE_HANDLER" },
+    { PAPI_EPHEMERAL, "PAPI_EPHEMERAL" },
+    { 0,     NULL     }
+};
+
+static value_string_ext papi_port_vals_ext = VALUE_STRING_EXT_INIT(papi_port_vals);
+
 /* PAPI Debug loop ! */
 static int
 dissect_papi_debug(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
@@ -239,12 +538,12 @@ proto_register_papi(void)
         },
         { &hf_papi_hdr_dest_port,
             { "Destination Port", "papi.hdr.dest.port",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC|BASE_EXT_STRING, &papi_port_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_papi_hdr_src_port,
             { "Source Port", "papi.hdr.src.port",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC|BASE_EXT_STRING, &papi_port_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_papi_hdr_packet_type,
