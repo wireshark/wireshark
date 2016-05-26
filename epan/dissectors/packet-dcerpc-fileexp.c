@@ -754,7 +754,7 @@ dissect_afsAcl (tvbuff_t *tvb, int offset,
 */
 
   proto_item *item       = NULL;
-  proto_tree *tree       = NULL;
+  proto_tree *tree;
   int         old_offset = offset;
   guint32     acl_len;
   e_guid_t    uuid1, defaultcell;
@@ -764,10 +764,7 @@ dissect_afsAcl (tvbuff_t *tvb, int offset,
       return offset;
     }
 
-  if (parent_tree)
-    {
-      tree = proto_tree_add_subtree (parent_tree, tvb, offset, -1, ett_fileexp_afsAcl, &item, "afsAcl");
-    }
+  tree = proto_tree_add_subtree (parent_tree, tvb, offset, -1, ett_fileexp_afsAcl, &item, "afsAcl");
 
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_fileexp_acl_len,
@@ -794,10 +791,13 @@ dissect_afsAcl (tvbuff_t *tvb, int offset,
                      defaultcell.data4[4], defaultcell.data4[5],
                      defaultcell.data4[6], defaultcell.data4[7]);
 
-  offset += (acl_len - 38);
+  if (acl_len < 38)
+    {
+      /* XXX - exception */
+      return offset;
+    }
 
-  if (offset <= old_offset)
-    THROW (ReportedBoundsError);
+  offset += (acl_len - 38);
 
   proto_item_set_len (item, offset-old_offset);
   return offset;
