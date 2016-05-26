@@ -112,8 +112,13 @@ int SequenceDiagram::adjacentPacket(bool next)
     if (data_->size() < 1) return adjacent_packet;
 
     if (selected_packet_ < 1) {
-        WSCPSeqData &data = next ? data_->first() : data_->last();
-        return data.value->frame_number;
+        if (next) {
+            it = data_->constBegin();
+        } else {
+            it = data_->constEnd();
+            --it;
+        }
+        return it.value().value->frame_number;
     }
 
     if (next) {
