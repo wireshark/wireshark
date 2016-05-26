@@ -6447,14 +6447,15 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* [MS-SMB] 2.2.4.1.2 Server Response Extensions */
 	if (wc == 19) {
-		proto_tree *tr = NULL;
+		proto_item *ti;
+		proto_tree *tr;
 
-		tr = proto_tree_add_subtree(tree, tvb, offset, 4,
-			ett_smb_nt_access_mask, NULL, "Maximal Access Rights");
+		ti = proto_tree_add_text(tree, tvb, offset, 4, "Maximal Access Rights");
+		tr = proto_item_add_subtree(ti, ett_smb_nt_access_mask);
 		offset = dissect_smb_access_mask(tvb, tr, offset);
 
-		tr = proto_tree_add_subtree(tree, tvb, offset, 4,
-			ett_smb_nt_access_mask, NULL, "Guest Maximal Access Rights");
+		ti = proto_tree_add_text(tree, tvb, offset, 4, "Guest Maximal Access Rights");
+		tr = proto_item_add_subtree(ti, ett_smb_nt_access_mask);
 		offset = dissect_smb_access_mask(tvb, tr, offset);
 	}
 
