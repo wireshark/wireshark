@@ -27,6 +27,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/addr_resolv.h>
 
 /* This is not IANA assigned nor registered */
 #define UDP_PORT_PAPI 8211
@@ -62,6 +63,29 @@ static int hf_papi_debug_64bits = -1;
 static int hf_papi_debug_bytes = -1;
 static int hf_papi_debug_bytes_length = -1;
 
+static int hf_papi_licmgr = -1;
+static int hf_papi_licmgr_unknown = -1;
+static int hf_papi_licmgr_payload_len = -1;
+static int hf_papi_licmgr_tlv = -1;
+static int hf_papi_licmgr_type = -1;
+static int hf_papi_licmgr_length = -1;
+static int hf_papi_licmgr_value = -1;
+static int hf_papi_licmgr_ip = -1;
+static int hf_papi_licmgr_serial_number = -1;
+static int hf_papi_licmgr_hostname = -1;
+static int hf_papi_licmgr_mac_address = -1;
+static int hf_papi_licmgr_license_ap_remaining = -1;
+static int hf_papi_licmgr_license_pef_remaining = -1;
+static int hf_papi_licmgr_license_rfp_remaining = -1;
+static int hf_papi_licmgr_license_xsec_remaining = -1;
+static int hf_papi_licmgr_license_acr_remaining = -1;
+static int hf_papi_licmgr_license_ap_used = -1;
+static int hf_papi_licmgr_license_pef_used = -1;
+static int hf_papi_licmgr_license_rfp_used = -1;
+static int hf_papi_licmgr_license_xsec_used = -1;
+static int hf_papi_licmgr_license_acr_used = -1;
+static int hf_papi_licmgr_padding = -1;
+
 static expert_field ei_papi_debug_unknown = EI_INIT;
 
 /* Global PAPI Debug Preference */
@@ -69,6 +93,8 @@ static gboolean g_papi_debug = FALSE;
 
 /* Initialize the subtree pointers */
 static gint ett_papi = -1;
+static gint ett_papi_licmgr = -1;
+static gint ett_papi_licmgr_tlv = -1;
 
 #define SAMBA_WRAPPER               8442
 #define RESOLVER_PORT               8392
@@ -369,6 +395,130 @@ static const value_string papi_port_vals[] = {
 
 static value_string_ext papi_port_vals_ext = VALUE_STRING_EXT_INIT(papi_port_vals);
 
+/* PAPI License Manager ! */
+static const value_string licmgr_type_vals[] = {
+    { 1, "IP Address" },
+    { 2, "Serial Number" },
+    { 3, "Hostname" },
+    { 5, "Mac Address" },
+    { 7, "License AP Remaining" },
+    { 8, "License PEF Remaining" },
+    { 9, "License RFP Remaining" },
+    { 10, "License xSec Remaining " },
+    { 11, "License ACR Remaining " },
+    { 12, "License AP Used" },
+    { 13, "License PEF Used" },
+    { 14, "License AP Used" },
+    { 15, "License xSec Used" },
+    { 16, "License ACR Used" },
+    { 0,     NULL     }
+};
+static int
+dissect_papi_license_manager(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
+{
+    proto_item *ti;
+    proto_tree *licmgr_tree, *licmgr_subtree;
+    guint offset_end, payload_len;
+
+    ti = proto_tree_add_item(tree, hf_papi_licmgr, tvb, offset, -1, ENC_NA);
+    licmgr_tree = proto_item_add_subtree(ti, ett_papi_licmgr);
+
+    proto_tree_add_item(licmgr_tree, hf_papi_licmgr_unknown, tvb, offset, 32, ENC_NA);
+    offset += 32;
+
+    proto_tree_add_item_ret_uint(licmgr_tree, hf_papi_licmgr_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN, &payload_len);
+    offset += 2;
+    col_set_str(pinfo->cinfo, COL_INFO, "PAPI - Licence Manager");
+
+    offset_end = offset + payload_len;
+
+    while (offset< offset_end) {
+        guint optlen, type;
+        proto_item *tlv_item;
+
+        type = tvb_get_ntohs(tvb, offset);
+        optlen = tvb_get_ntohs(tvb, offset+2);
+        tlv_item = proto_tree_add_item(licmgr_tree, hf_papi_licmgr_tlv, tvb, offset, 2+2+optlen, ENC_NA );
+
+        proto_item_append_text(tlv_item, ": (t=%d,l=%d) %s", type, optlen, val_to_str(type, licmgr_type_vals, "Unknown Type (%02d)") );
+
+        licmgr_subtree = proto_item_add_subtree(tlv_item, ett_papi_licmgr_tlv);
+
+        proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_value, tvb, offset, optlen, ENC_NA);
+
+        switch (type) {
+            case 1: /* IP Address */
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_ip, tvb, offset, 4, ENC_NA);
+                proto_item_append_text(tlv_item, ": %s", tvb_ip_to_str(tvb, offset));
+            break;
+            case 2: /* Serial Number */
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_serial_number, tvb, offset, 32, ENC_ASCII|ENC_NA);
+                proto_item_append_text(tlv_item, ": %s", tvb_get_string_enc(wmem_packet_scope(),tvb, offset, optlen, ENC_ASCII));
+            break;
+            case 3: /* Hostname */
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_hostname, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+                proto_item_append_text(tlv_item, ": %s", tvb_get_string_enc(wmem_packet_scope(),tvb, offset, optlen, ENC_ASCII));
+            break;
+            case 5: /* MAC Address */
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_mac_address, tvb, offset, optlen, ENC_NA);
+                proto_item_append_text(tlv_item, ": %s", tvb_get_ether_name(tvb, offset));
+                break;
+            case 7: /* License AP remaining  */
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_ap_remaining, tvb, offset, 4, ENC_NA);
+                proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
+            break;
+            case 8: /* License PEF remaining  */
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_pef_remaining, tvb, offset, 4, ENC_NA);
+                proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
+            break;
+            case 9: /* License RFP remaining  */
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_rfp_remaining, tvb, offset, 4, ENC_NA);
+                proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
+            break;
+            case 10: /* License xSec remaining  */
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_xsec_remaining, tvb, offset, 4, ENC_NA);
+                proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
+            break;
+            case 11: /* License ACR remaining  */
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_acr_remaining, tvb, offset, 4, ENC_NA);
+                proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
+            break;
+            case 12: /* License AP used  */
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_ap_used, tvb, offset, 4, ENC_NA);
+                proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
+            break;
+            case 13: /* License PEF used  */
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_pef_used, tvb, offset, 4, ENC_NA);
+                proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
+            break;
+            case 14: /* License RFP used  */
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_rfp_used, tvb, offset, 4, ENC_NA);
+                proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
+            break;
+            case 15: /* License xSec used  */
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_xsec_used, tvb, offset, 4, ENC_NA);
+                proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
+            break;
+            case 16: /* License ACR used  */
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_license_acr_used, tvb, offset, 4, ENC_NA);
+                proto_item_append_text(tlv_item, ": %u", tvb_get_ntohl(tvb, offset));
+            break;
+        }
+        offset += optlen;
+    }
+
+    proto_tree_add_item(licmgr_tree, hf_papi_licmgr_padding, tvb, offset, -1, ENC_NA);
+    offset += tvb_reported_length_remaining(tvb, offset);
+
+    return offset;
+}
+
 /* PAPI Debug loop ! */
 static int
 dissect_papi_debug(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
@@ -437,6 +587,7 @@ dissect_papi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_item *ti;
     proto_tree *papi_tree;
     guint     offset = 0;
+    guint32 dest_port, src_port;
     tvbuff_t *next_tvb;
 
 
@@ -468,10 +619,10 @@ dissect_papi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_tree_add_item(papi_tree, hf_papi_hdr_garbage, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(papi_tree, hf_papi_hdr_dest_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(papi_tree, hf_papi_hdr_dest_port, tvb, offset, 2, ENC_BIG_ENDIAN, &dest_port);
     offset += 2;
 
-    proto_tree_add_item(papi_tree, hf_papi_hdr_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(papi_tree, hf_papi_hdr_src_port, tvb, offset, 2, ENC_BIG_ENDIAN, &src_port);
     offset += 2;
 
     proto_tree_add_item(papi_tree, hf_papi_hdr_packet_type, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -488,6 +639,10 @@ dissect_papi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     proto_tree_add_item(papi_tree, hf_papi_hdr_checksum, tvb, offset, 16, ENC_NA);
     offset += 16;
+
+    if(dest_port == LICENSE_MANAGER && src_port == LICENSE_MANAGER){
+        offset = dissect_papi_license_manager(tvb, pinfo, offset, papi_tree);
+    }
 
     if(g_papi_debug)
     {
@@ -627,11 +782,124 @@ proto_register_papi(void)
             FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+
+        { &hf_papi_licmgr,
+            { "License Manager", "papi.licmgr",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_unknown,
+            { "Unknown", "papi.licmgr.unknown",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_payload_len,
+            { "Payload Length", "papi.licmgr.payload_len",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_tlv,
+            { "TLV", "papi.licmgr.tlv",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_type,
+            { "Type", "papi.licmgr.type",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_length,
+            { "Length", "papi.licmgr.length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_value,
+            { "Value", "papi.licmgr.value",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_ip,
+            { "License Manager IP Address", "papi.licmgr.ip",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_serial_number,
+            { "Serial Number", "papi.licmgr.serial_number",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_hostname,
+            { "Hostname", "papi.licmgr.hostname",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_mac_address,
+            { "MAC Address", "papi.licmgr.mac_address",
+            FT_ETHER, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_license_ap_remaining,
+            { "License AP remaining", "papi.licmgr.license.ap.remaining",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_license_pef_remaining,
+            { "License PEF remaining", "papi.licmgr.license.pef.remaining",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_license_rfp_remaining,
+            { "License RFP remaining", "papi.licmgr.license.rfp.remaining",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_license_xsec_remaining,
+            { "License xSEC remaining", "papi.licmgr.license.xsec.remaining",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_license_acr_remaining,
+            { "License ACR remaining", "papi.licmgr.license.acr.remaining",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_license_ap_used,
+            { "License AP used", "papi.licmgr.license.ap.used",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_license_pef_used,
+            { "License PEF used", "papi.licmgr.license.pef.used",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_license_rfp_used,
+            { "License RFP used", "papi.licmgr.license.rfp.used",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_license_xsec_used,
+            { "License xSec used", "papi.licmgr.license.xsec.used",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_license_acr_used,
+            { "License ACR used", "papi.licmgr.license.acr.used",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_papi_licmgr_padding,
+            { "Padding", "papi.licmgr.padding",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
-        &ett_papi
+        &ett_papi,
+        &ett_papi_licmgr,
+        &ett_papi_licmgr_tlv
     };
 
     static ei_register_info ei[] = {
