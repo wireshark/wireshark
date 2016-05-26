@@ -432,6 +432,55 @@ typedef enum {
 } nghttp2_error;
 
 /**
+ * @struct
+ *
+ * The object representing single contiguous buffer.
+ */
+typedef struct {
+  /**
+   * The pointer to the buffer.
+   */
+  uint8_t *base;
+  /**
+   * The length of the buffer.
+   */
+  size_t len;
+} nghttp2_vec;
+
+struct nghttp2_rcbuf;
+
+/**
+ * @typedef
+ *
+ * The object representing reference counted buffer.  The details of
+ * this structure are intentionally hidden from the public API.
+ */
+typedef struct nghttp2_rcbuf nghttp2_rcbuf;
+
+/**
+ * @function
+ *
+ * Increments the reference count of |rcbuf| by 1.
+ */
+NGHTTP2_EXTERN void nghttp2_rcbuf_incref(nghttp2_rcbuf *rcbuf);
+
+/**
+ * @function
+ *
+ * Decrements the reference count of |rcbuf| by 1.  If the reference
+ * count becomes zero, the object pointed by |rcbuf| will be freed.
+ * In this case, application must not use |rcbuf| again.
+ */
+NGHTTP2_EXTERN void nghttp2_rcbuf_decref(nghttp2_rcbuf *rcbuf);
+
+/**
+ * @function
+ *
+ * Returns the underlying buffer managed by |rcbuf|.
+ */
+NGHTTP2_EXTERN nghttp2_vec nghttp2_rcbuf_get_buf(nghttp2_rcbuf *rcbuf);
+
+/**
  * @enum
  *
  * The flags for header field name/value pair.
@@ -554,7 +603,12 @@ typedef enum {
    * callbacks because the library processes this frame type and its
    * preceding HEADERS/PUSH_PROMISE as a single frame.
    */
-  NGHTTP2_CONTINUATION = 0x09
+  NGHTTP2_CONTINUATION = 0x09,
+  /**
+   * The ALTSVC frame, which is defined in `RFC 7383
+   * <https://tools.ietf.org/html/rfc7838#section-4>`_.
+   */
+  NGHTTP2_ALTSVC = 0x0a
 } nghttp2_frame_type;
 
 /**
@@ -1642,6 +1696,32 @@ typedef int (*nghttp2_on_header_callback)(nghttp2_session *session,
 /**
  * @functypedef
  *
+ * Callback function invoked when a header name/value pair is received
+ * for the |frame|.  The |name| is header name.  The |value| is header
+ * value.  The |flags| is bitwise OR of one or more of
+ * :type:`nghttp2_nv_flag`.
+ *
+ * This callback behaves like :type:`nghttp2_on_header_callback`,
+ * except that |name| and |value| are stored in reference counted
+ * buffer.  If application wishes to keep these references without
+ * copying them, use `nghttp2_rcbuf_incref()` to increment their
+ * reference count.  It is the application's responsibility to call
+ * `nghttp2_rcbuf_decref()` if they called `nghttp2_rcbuf_incref()` so
+ * as not to leak memory.  If the |session| is created by
+ * `nghttp2_session_server_new3()` or `nghttp2_session_client_new3()`,
+ * the function to free memory is the one belongs to the mem
+ * parameter.  As long as this free function alives, |name| and
+ * |value| can live after |session| was destroyed.
+ */
+typedef int (*nghttp2_on_header_callback2)(nghttp2_session *session,
+                                           const nghttp2_frame *frame,
+                                           nghttp2_rcbuf *name,
+                                           nghttp2_rcbuf *value, uint8_t flags,
+                                           void *user_data);
+
+/**
+ * @functypedef
+ *
  * Callback function invoked when the library asks application how
  * many padding bytes are required for the transmission of the
  * |frame|.  The application must choose the total length of payload
@@ -1809,6 +1889,31 @@ typedef ssize_t (*nghttp2_pack_extension_callback)(nghttp2_session *session,
                                                    const nghttp2_frame *frame,
                                                    void *user_data);
 
+/**
+ * @functypedef
+ *
+ * Callback function invoked when library provides the error message
+ * intended for human consumption.  This callback is solely for
+ * debugging purpose.  The |msg| is typically NULL-terminated string
+ * of length |len|.  |len| does not include the sentinel NULL
+ * character.
+ *
+ * The format of error message may change between nghttp2 library
+ * versions.  The application should not depend on the particular
+ * format.
+ *
+ * Normally, application should return 0 from this callback.  If fatal
+ * error occurred while doing something in this callback, application
+ * should return :enum:`NGHTTP2_ERR_CALLBACK_FAILURE`.  In this case,
+ * library will return immediately with return value
+ * :enum:`NGHTTP2_ERR_CALLBACK_FAILURE`.  Currently, if nonzero value
+ * is returned from this callback, they are treated as
+ * :enum:`NGHTTP2_ERR_CALLBACK_FAILURE`, but application should not
+ * rely on this details.
+ */
+typedef int (*nghttp2_error_callback)(nghttp2_session *session, const char *msg,
+                                      size_t len, void *user_data);
+
 struct nghttp2_session_callbacks;
 
 /**
@@ -1953,11 +2058,24 @@ NGHTTP2_EXTERN void nghttp2_session_callbacks_set_on_begin_headers_callback(
  * @function
  *
  * Sets callback function invoked when a header name/value pair is
- * received.
+ * received.  If both
+ * `nghttp2_session_callbacks_set_on_header_callback()` and
+ * `nghttp2_session_callbacks_set_on_header_callback2()` are used to
+ * set callbacks, the latter has the precedence.
  */
 NGHTTP2_EXTERN void nghttp2_session_callbacks_set_on_header_callback(
     nghttp2_session_callbacks *cbs,
     nghttp2_on_header_callback on_header_callback);
+
+/**
+ * @function
+ *
+ * Sets callback function invoked when a header name/value pair is
+ * received.
+ */
+NGHTTP2_EXTERN void nghttp2_session_callbacks_set_on_header_callback2(
+    nghttp2_session_callbacks *cbs,
+    nghttp2_on_header_callback2 on_header_callback2);
 
 /**
  * @function
@@ -2031,6 +2149,15 @@ NGHTTP2_EXTERN void
 nghttp2_session_callbacks_set_on_extension_chunk_recv_callback(
     nghttp2_session_callbacks *cbs,
     nghttp2_on_extension_chunk_recv_callback on_extension_chunk_recv_callback);
+
+/**
+ * @function
+ *
+ * Sets callback function invoked when library tells error message to
+ * the application.
+ */
+NGHTTP2_EXTERN void nghttp2_session_callbacks_set_error_callback(
+    nghttp2_session_callbacks *cbs, nghttp2_error_callback error_callback);
 
 /**
  * @functypedef
@@ -2262,6 +2389,40 @@ nghttp2_option_set_max_reserved_remote_streams(nghttp2_option *option,
 NGHTTP2_EXTERN void
 nghttp2_option_set_user_recv_extension_type(nghttp2_option *option,
                                             uint8_t type);
+
+/**
+ * @function
+ *
+ * Sets extension frame type the application is willing to receive
+ * using builtin handler.  The |type| is the extension frame type to
+ * receive, and must be strictly greater than 0x9.  Otherwise, this
+ * function does nothing.  The application can call this function
+ * multiple times to set more than one frame type to receive.  The
+ * application does not have to call this function if it just sends
+ * extension frames.
+ *
+ * If same frame type is passed to both
+ * `nghttp2_option_set_builtin_recv_extension_type()` and
+ * `nghttp2_option_set_user_recv_extension_type()`, the latter takes
+ * precedence.
+ */
+NGHTTP2_EXTERN void
+nghttp2_option_set_builtin_recv_extension_type(nghttp2_option *option,
+                                               uint8_t type);
+
+/**
+ * @function
+ *
+ * This option prevents the library from sending PING frame with ACK
+ * flag set automatically when PING frame without ACK flag set is
+ * received.  If this option is set to nonzero, the library won't send
+ * PING frame with ACK flag set in the response for incoming PING
+ * frame.  The application can send PING frame with ACK flag set using
+ * `nghttp2_submit_ping()` with :enum:`NGHTTP2_FLAG_ACK` as flags
+ * parameter.
+ */
+NGHTTP2_EXTERN void nghttp2_option_set_no_auto_ping_ack(nghttp2_option *option,
+                                                        int val);
 
 /**
  * @function
@@ -3239,6 +3400,16 @@ NGHTTP2_EXTERN const char *nghttp2_strerror(int lib_error_code);
 /**
  * @function
  *
+ * Returns string representation of HTTP/2 error code |error_code|
+ * (e.g., ``PROTOCOL_ERROR`` is returned if ``error_code ==
+ * NGHTTP2_PROTOCOL_ERROR``).  If string representation is unknown for
+ * given |error_code|, this function returns string ``unknown``.
+ */
+NGHTTP2_EXTERN const char *nghttp2_http2_strerror(uint32_t error_code);
+
+/**
+ * @function
+ *
  * Initializes |pri_spec| with the |stream_id| of the stream to depend
  * on with |weight| and its exclusive flag.  If |exclusive| is
  * nonzero, exclusive flag is set.
@@ -3785,8 +3956,12 @@ nghttp2_submit_push_promise(nghttp2_session *session, uint8_t flags,
  * received PING frame.  The library automatically submits PING frame
  * in this case.
  *
- * The |flags| is currently ignored and should be
- * :enum:`NGHTTP2_FLAG_NONE`.
+ * The |flags| is bitwise OR of 0 or more of the following value.
+ *
+ * * :enum:`NGHTTP2_FLAG_ACK`
+ *
+ * Unless `nghttp2_option_set_no_auto_ping_ack()` is used, the |flags|
+ * should be :enum:`NGHTTP2_FLAG_NONE`.
  *
  * If the |opaque_data| is non ``NULL``, then it should point to the 8
  * bytes array of memory to specify opaque data to send with PING
@@ -3974,6 +4149,80 @@ NGHTTP2_EXTERN int nghttp2_submit_window_update(nghttp2_session *session,
 NGHTTP2_EXTERN int nghttp2_submit_extension(nghttp2_session *session,
                                             uint8_t type, uint8_t flags,
                                             int32_t stream_id, void *payload);
+
+/**
+ * @struct
+ *
+ * The payload of ALTSVC frame.  ALTSVC frame is a non-critical
+ * extension to HTTP/2.  If this frame is received, and
+ * `nghttp2_option_set_user_recv_extension_type()` is not set, and
+ * `nghttp2_option_set_builtin_recv_extension_type()` is set for
+ * :enum:`NGHTTP2_ALTSVC`, ``nghttp2_extension.payload`` will point to
+ * this struct.
+ *
+ * It has the following members:
+ */
+typedef struct {
+  /**
+   * The pointer to origin which this alternative service is
+   * associated with.  This is not necessarily NULL-terminated.
+   */
+  uint8_t *origin;
+  /**
+   * The length of the |origin|.
+   */
+  size_t origin_len;
+  /**
+   * The pointer to Alt-Svc field value contained in ALTSVC frame.
+   * This is not necessarily NULL-terminated.
+   */
+  uint8_t *field_value;
+  /**
+   * The length of the |field_value|.
+   */
+  size_t field_value_len;
+} nghttp2_ext_altsvc;
+
+/**
+ * @function
+ *
+ * Submits ALTSVC frame.
+ *
+ * ALTSVC frame is a non-critical extension to HTTP/2, and defined in
+ * is defined in `RFC 7383
+ * <https://tools.ietf.org/html/rfc7838#section-4>`_.
+ *
+ * The |flags| is currently ignored and should be
+ * :enum:`NGHTTP2_FLAG_NONE`.
+ *
+ * The |origin| points to the origin this alternative service is
+ * associated with.  The |origin_len| is the length of the origin.  If
+ * |stream_id| is 0, the origin must be specified.  If |stream_id| is
+ * not zero, the origin must be empty (in other words, |origin_len|
+ * must be 0).
+ *
+ * The ALTSVC frame is only usable from server side.  If this function
+ * is invoked with client side session, this function returns
+ * :enum:`NGHTTP2_ERR_INVALID_STATE`.
+ *
+ * This function returns 0 if it succeeds, or one of the following
+ * negative error codes:
+ *
+ * :enum:`NGHTTP2_ERR_NOMEM`
+ *     Out of memory
+ * :enum:`NGHTTP2_ERR_INVALID_STATE`
+ *     The function is called from client side session
+ * :enum:`NGHTTP2_ERR_INVALID_ARGUMENT`
+ *     The sum of |origin_len| and |field_value_len| is larger than
+ *     16382; or |origin_len| is 0 while |stream_id| is 0; or
+ *     |origin_len| is not 0 while |stream_id| is not 0.
+ */
+NGHTTP2_EXTERN int nghttp2_submit_altsvc(nghttp2_session *session,
+                                         uint8_t flags, int32_t stream_id,
+                                         const uint8_t *origin,
+                                         size_t origin_len,
+                                         const uint8_t *field_value,
+                                         size_t field_value_len);
 
 /**
  * @function
@@ -4316,7 +4565,7 @@ NGHTTP2_EXTERN void nghttp2_hd_inflate_del(nghttp2_hd_inflater *inflater);
  * This function must not be called while header block is being
  * inflated.  In other words, this function must be called after
  * initialization of |inflater|, but before calling
- * `nghttp2_hd_inflate_hd()`, or after
+ * `nghttp2_hd_inflate_hd2()`, or after
  * `nghttp2_hd_inflate_end_headers()`.  Otherwise,
  * `NGHTTP2_ERR_INVALID_STATE` was returned.
  *
@@ -4356,6 +4605,10 @@ typedef enum {
 
 /**
  * @function
+ *
+ * .. warning::
+ *
+ *   Deprecated.  Use `nghttp2_hd_inflate_hd2()` instead.
  *
  * Inflates name/value block stored in |in| with length |inlen|.  This
  * function performs decompression.  For each successful emission of
@@ -4435,6 +4688,88 @@ NGHTTP2_EXTERN ssize_t nghttp2_hd_inflate_hd(nghttp2_hd_inflater *inflater,
                                              nghttp2_nv *nv_out,
                                              int *inflate_flags, uint8_t *in,
                                              size_t inlen, int in_final);
+
+/**
+ * @function
+ *
+ * Inflates name/value block stored in |in| with length |inlen|.  This
+ * function performs decompression.  For each successful emission of
+ * header name/value pair, :enum:`NGHTTP2_HD_INFLATE_EMIT` is set in
+ * |*inflate_flags| and name/value pair is assigned to the |nv_out|
+ * and the function returns.  The caller must not free the members of
+ * |nv_out|.
+ *
+ * The |nv_out| may include pointers to the memory region in the |in|.
+ * The caller must retain the |in| while the |nv_out| is used.
+ *
+ * The application should call this function repeatedly until the
+ * ``(*inflate_flags) & NGHTTP2_HD_INFLATE_FINAL`` is nonzero and
+ * return value is non-negative.  This means the all input values are
+ * processed successfully.  Then the application must call
+ * `nghttp2_hd_inflate_end_headers()` to prepare for the next header
+ * block input.
+ *
+ * The caller can feed complete compressed header block.  It also can
+ * feed it in several chunks.  The caller must set |in_final| to
+ * nonzero if the given input is the last block of the compressed
+ * header.
+ *
+ * This function returns the number of bytes processed if it succeeds,
+ * or one of the following negative error codes:
+ *
+ * :enum:`NGHTTP2_ERR_NOMEM`
+ *     Out of memory.
+ * :enum:`NGHTTP2_ERR_HEADER_COMP`
+ *     Inflation process has failed.
+ * :enum:`NGHTTP2_ERR_BUFFER_ERROR`
+ *     The header field name or value is too large.
+ *
+ * Example follows::
+ *
+ *     int inflate_header_block(nghttp2_hd_inflater *hd_inflater,
+ *                              uint8_t *in, size_t inlen, int final)
+ *     {
+ *         ssize_t rv;
+ *
+ *         for(;;) {
+ *             nghttp2_nv nv;
+ *             int inflate_flags = 0;
+ *
+ *             rv = nghttp2_hd_inflate_hd2(hd_inflater, &nv, &inflate_flags,
+ *                                         in, inlen, final);
+ *
+ *             if(rv < 0) {
+ *                 fprintf(stderr, "inflate failed with error code %zd", rv);
+ *                 return -1;
+ *             }
+ *
+ *             in += rv;
+ *             inlen -= rv;
+ *
+ *             if(inflate_flags & NGHTTP2_HD_INFLATE_EMIT) {
+ *                 fwrite(nv.name, nv.namelen, 1, stderr);
+ *                 fprintf(stderr, ": ");
+ *                 fwrite(nv.value, nv.valuelen, 1, stderr);
+ *                 fprintf(stderr, "\n");
+ *             }
+ *             if(inflate_flags & NGHTTP2_HD_INFLATE_FINAL) {
+ *                 nghttp2_hd_inflate_end_headers(hd_inflater);
+ *                 break;
+ *             }
+ *             if((inflate_flags & NGHTTP2_HD_INFLATE_EMIT) == 0 &&
+ *                inlen == 0) {
+ *                break;
+ *             }
+ *         }
+ *
+ *         return 0;
+ *     }
+ *
+ */
+NGHTTP2_EXTERN ssize_t
+nghttp2_hd_inflate_hd2(nghttp2_hd_inflater *inflater, nghttp2_nv *nv_out,
+                       int *inflate_flags, const uint8_t *in, size_t inlen,
+                       int in_final);
 
 /**
  * @function

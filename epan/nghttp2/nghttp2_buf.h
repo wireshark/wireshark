@@ -73,7 +73,7 @@ typedef struct {
 
 /*
  * Initializes the |buf|. No memory is allocated in this function. Use
- * nghttp2_buf_reserve() or nghttp2_buf_reserve2() to allocate memory.
+ * nghttp2_buf_reserve() to allocate memory.
  */
 void nghttp2_buf_init(nghttp2_buf *buf);
 
@@ -312,8 +312,8 @@ int nghttp2_bufs_orb_hold(nghttp2_bufs *bufs, uint8_t b);
   } while (0)
 
 /*
- * Copies all data stored in |bufs| to the contagious buffer.  This
- * function allocates the contagious memory to store all data in
+ * Copies all data stored in |bufs| to the contiguous buffer.  This
+ * function allocates the contiguous memory to store all data in
  * |bufs| and assigns it to |*out|.
  *
  * The contents of |bufs| is left unchanged.

@@ -451,3 +451,38 @@ uint8_t *nghttp2_cpymem(uint8_t *dest, const void *src, size_t len) {
 
   return dest + len;
 }
+
+const char *nghttp2_http2_strerror(uint32_t error_code) {
+  switch (error_code) {
+  case NGHTTP2_NO_ERROR:
+    return "NO_ERROR";
+  case NGHTTP2_PROTOCOL_ERROR:
+    return "PROTOCOL_ERROR";
+  case NGHTTP2_INTERNAL_ERROR:
+    return "INTERNAL_ERROR";
+  case NGHTTP2_FLOW_CONTROL_ERROR:
+    return "FLOW_CONTROL_ERROR";
+  case NGHTTP2_SETTINGS_TIMEOUT:
+    return "SETTINGS_TIMEOUT";
+  case NGHTTP2_STREAM_CLOSED:
+    return "STREAM_CLOSED";
+  case NGHTTP2_FRAME_SIZE_ERROR:
+    return "FRAME_SIZE_ERROR";
+  case NGHTTP2_REFUSED_STREAM:
+    return "REFUSED_STREAM";
+  case NGHTTP2_CANCEL:
+    return "CANCEL";
+  case NGHTTP2_COMPRESSION_ERROR:
+    return "COMPRESSION_ERROR";
+  case NGHTTP2_CONNECT_ERROR:
+    return "CONNECT_ERROR";
+  case NGHTTP2_ENHANCE_YOUR_CALM:
+    return "ENHANCE_YOUR_CALM";
+  case NGHTTP2_INADEQUATE_SECURITY:
+    return "INADEQUATE_SECURITY";
+  case NGHTTP2_HTTP_1_1_REQUIRED:
+    return "HTTP_1_1_REQUIRED";
+  default:
+    return "unknown";
+  }
+}

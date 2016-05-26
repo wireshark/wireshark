@@ -11,6 +11,7 @@ cp ../../../nghttp2/lib/nghttp2_hd*.[ch] .
 cp ../../../nghttp2/lib/nghttp2_helper.[ch] .
 cp ../../../nghttp2/lib/nghttp2_int.h .
 cp ../../../nghttp2/lib/nghttp2_mem.[ch] .
+cp ../../../nghttp2/lib/nghttp2_rcbuf.[ch] .
 cp ../../../nghttp2/lib/includes/nghttp2/nghttp2.h .
 cp ../../../nghttp2/lib/includes/nghttp2/nghttp2ver.h .
 

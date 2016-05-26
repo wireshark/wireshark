@@ -31,6 +31,7 @@ set(NGHTTP2_FILES
 	nghttp2_hd_huffman_data.c
 	nghttp2_helper.c
 	nghttp2_mem.c
+	nghttp2_rcbuf.c
 )
 source_group(nghttp2 FILES ${NGHTTP2_FILES})
 

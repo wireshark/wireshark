@@ -52,6 +52,10 @@ void nghttp2_mem_free(nghttp2_mem *mem, void *ptr) {
   mem->free(ptr, mem->mem_user_data);
 }
 
+void nghttp2_mem_free2(nghttp2_free free, void *ptr, void *mem_user_data) {
+  free(ptr, mem_user_data);
+}
+
 void *nghttp2_mem_calloc(nghttp2_mem *mem, size_t nmemb, size_t size) {
   return mem->calloc(nmemb, size, mem->mem_user_data);
 }
