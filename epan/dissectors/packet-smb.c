@@ -7585,19 +7585,15 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static int
 dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree, smb_info_t *si)
 {
-	guint8      wc, wleft, cmd = 0xff;
+	guint8      wc, cmd = 0xff;
 	guint16     andxoffset     = 0;
 	guint16     bc;
 	int         an_len;
-	int         count          = 0;
-	proto_tree *tr             = NULL;
 	const char *an;
 
 	DISSECTOR_ASSERT(si);
 
 	WORD_COUNT;
-
-	wleft = wc;	/* this is at least 1 */
 
 	/* next smb command */
 	cmd = tvb_get_guint8(tvb, offset);
@@ -7612,29 +7608,26 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
-	wleft--;
-	if (wleft == 0)
-		goto bytecount;
-
 	/* andxoffset */
 	andxoffset = tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_andxoffset, tvb, offset, 2, andxoffset);
 	offset += 2;
-	wleft--;
-	if (wleft == 0)
-		goto bytecount;
 
-	/* flags */
-	offset = dissect_connect_support_bits(tvb, tree, offset);
-	wleft--;
+	/* There are three valid formats of tree connect response.
+	   All have the first two words: andx_cmd, andx_off,
+	   and then have additional words as follows:
+		wc=2: (ancient LanMan -- no more words)
+		wc=3: (NT, non-ext) opt_support
+		wc=7: (NT, extended) opt_support,
+			tree_access(2w), guest_access(2w)
+	   byte_count follows those words as usual */
 
-	/* XXX - I've seen captures where this is 7, but I have no
-	   idea how to dissect it.  I'm guessing the third word
-	   contains connect support bits, which looks plausible
-	   from the values I've seen. */
+	if (wc >= 3) {
+		/* flags */
+		offset = dissect_connect_support_bits(tvb, tree, offset);
+	}
 
-	/* MaximalShareAccessRights and GuestMaximalShareAccessRights */
-	while (wleft != 0) {
+	if (wc == 7) {
 		/*
 		 * Refer to [MS-SMB] - v20100711
 		 * When a server returns extended information, the response
@@ -7642,17 +7635,14 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		 * MaximalShareAccessRights, and GuestMaximalShareAccessRights fields
 		 * has added.
 		 */
-		if (count == 0) {
-			tr = proto_tree_add_subtree(tree, tvb, offset, 4,
-				ett_smb_nt_access_mask, NULL, "Maximal Share Access Rights");
-		} else {
-			tr = proto_tree_add_subtree(tree, tvb, offset, 4,
-				ett_smb_nt_access_mask, NULL, "Guest Maximal Share Access Rights");
-		}
-
+		proto_tree *tr;
+		tr = proto_tree_add_subtree(tree, tvb, offset, 4,
+			ett_smb_nt_access_mask, NULL, "Maximal Share Access Rights");
 		offset = dissect_smb_access_mask(tvb, tr, offset);
-		wleft -= 2;
-		count++;
+
+		tr = proto_tree_add_subtree(tree, tvb, offset, 4,
+			ett_smb_nt_access_mask, NULL, "Guest Maximal Share Access Rights");
+		offset = dissect_smb_access_mask(tvb, tr, offset);
 	}
 
 	BYTE_COUNT;
@@ -7700,23 +7690,20 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		}
 	}
 
+	if (bc != 0) {
+		/*
+		 * Sometimes this isn't present.
+		 */
 
-	if (wc == 3) {
-		if (bc != 0) {
-			/*
-			 * Sometimes this isn't present.
-			 */
-
-			/* Native FS */
-			an = get_unicode_or_ascii_string(tvb, &offset,
-				si->unicode, &an_len, /*TRUE*/FALSE, FALSE,
-				&bc);
-			if (an == NULL)
-				goto endofcommand;
-			proto_tree_add_string(tree, hf_smb_fs, tvb,
-				offset, an_len, an);
-			COUNT_BYTES(an_len);
-		}
+		/* Native FS */
+		an = get_unicode_or_ascii_string(tvb, &offset,
+			si->unicode, &an_len, /*TRUE*/FALSE, FALSE,
+			&bc);
+		if (an == NULL)
+			goto endofcommand;
+		proto_tree_add_string(tree, hf_smb_fs, tvb,
+			offset, an_len, an);
+		COUNT_BYTES(an_len);
 	}
 
 	END_OF_SMB
