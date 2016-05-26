@@ -404,11 +404,11 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 	/* NAME_LEN */
 	name_len = tvb_get_ntohl(winsrepl_tvb, winsrepl_offset);
 	ti = proto_tree_add_uint(name_tree, hf_winsrepl_name_len, winsrepl_tvb, winsrepl_offset, 4, name_len);
-	if ((gint) name_len < 1) {
-		expert_add_info(pinfo, ti, &ei_winsrepl_name_len);
-		THROW(ReportedBoundsError);
-	}
 	winsrepl_offset += 4;
+	if (name_len == 0) {
+		expert_add_info(pinfo, ti, &ei_winsrepl_name_len);
+		return winsrepl_offset;
+	}
 
 	/* NAME: TODO! */
 	/*
