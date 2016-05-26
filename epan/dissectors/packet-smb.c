@@ -10068,16 +10068,17 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
-	/* Do we know whether or not EXTENDED_RESPONSES are required? */
-	/* MS-SMB 2.2.4.9.2 says that there is a Volume GUID, File ID,
-	   Maximal Access Rights and Guest Maximal Access Rights here
-	   if ExtendedResponses requested. */
-	if ((si->sip != NULL) && (si->sip->extra_info_type == SMB_EI_FILEDATA) &&
-	    (((smb_fid_saved_info_t *)(si->sip->extra_info))->create_flags & 0x10)) {
+	/* Always use the word count to decide if this is an "extended" response.
+	   When the server doesn't support the 0x10 flag, it will send a normal
+	   34 word response, so the word count is the only way to tell which of
+	   the response formats we have.  MS-SMB 2.2.4.9.2
+	   Also note that the extended format is actually 50 words, but in a
+	   "windows behavior note" they say Windows sets word count to 42.
+	   Handle anything 42 or larger as "extended" format. */
+	if (wc >= 42) {
 		proto_tree *tr = NULL;
 
 		/* The first field is a Volume GUID ... */
-
 		proto_tree_add_item(tree, hf_smb_volume_guid,
 				    tvb, offset, 16, ENC_NA);
 		offset += 16;
