@@ -8474,6 +8474,13 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		offset = dissect_nt_security_flags(tvb, tree, offset);
 		bc -= 1;
 
+		/* May need to skip alignment padding. */
+		if (offset&1) {
+			/* pad byte */
+			proto_tree_add_item(tree, hf_smb_padding, tvb, offset, 1, ENC_NA);
+			offset += 1;
+		}
+
 		/* file name */
 		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, TRUE, TRUE, &bc);
 		if (fn != NULL) {
@@ -8781,12 +8788,13 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	}
 	offset += 2;
 
-	/* this is a padding byte */
+#if 0	/* XXX this is a padding byte?  I don't think so. -gwr */
 	if (offset&1) {
 		/* pad byte */
 	        proto_tree_add_item(tree, hf_smb_padding, tvb, offset, 1, ENC_NA);
 		offset += 1;
 	}
+#endif
 
 	/* if there were any setup bytes, decode them */
 	if (sc) {
@@ -8794,6 +8802,13 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		offset += sc*2;
 	}
 
+	/*
+	 * Do we really need to even look at the byte count here?
+	 * Servers normally use byte_count only when assembling the
+	 * setup, parameters, and data segments.  Once we know
+	 * how long each of those are, we should dissect them
+	 * using the lengths determined during assembly.
+	 */
 	BYTE_COUNT;
 
 	/* reassembly of SMB NT Transaction data payload.
@@ -8975,6 +8990,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 	smb_fid_info_t         *fid_info = NULL;
 	guint16                 ftype;
 	guint8                  isdir;
+	guint8                  ext_resp = 0;
 
 	DISSECTOR_ASSERT(si);
 
@@ -9009,6 +9025,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 		offset += 1;
 
 		/* reserved byte */
+		ext_resp = tvb_get_guint8(tvb, offset);
 	        proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 		offset += 1;
 
@@ -9064,6 +9081,31 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 		isdir = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
+
+		/* decode extended response per [MS-SMB] 2.2.7.1.2
+		   (volume_guid, file_id, max_acc, guest_acc)
+		   Just like dissect_nt_create_andx_response */
+		if (ext_resp != 0) {
+			proto_tree *tr = NULL;
+
+			/* The first field is a Volume GUID ... */
+			proto_tree_add_item(tree, hf_smb_volume_guid,
+					    tvb, offset, 16, ENC_NA);
+			offset += 16;
+
+			/* The file ID comes next */
+			proto_tree_add_item(tree, hf_smb_file_id_64bit,
+					    tvb, offset, 8, ENC_LITTLE_ENDIAN);
+			offset += 8;
+
+			tr = proto_tree_add_subtree(tree, tvb, offset, 4,
+				ett_smb_nt_access_mask, NULL, "Maximal Access Rights");
+			offset = dissect_smb_access_mask(tvb, tr, offset);
+
+			tr = proto_tree_add_subtree(tree, tvb, offset, 4,
+				ett_smb_nt_access_mask, NULL, "Guest Maximal Access Rights");
+			offset = dissect_smb_access_mask(tvb, tr, offset);
+		}
 
 		/* Try to remember the type of this fid so that we can dissect
 		 * any future security descriptor (access mask) properly
