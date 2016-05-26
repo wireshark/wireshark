@@ -207,7 +207,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             {
                 PCMD_str = " (ROLL RIGHT)";
             }
-            proto_item_append_string(ti, PCMD_str);
+            proto_item_append_text(ti, "%s", PCMD_str);
             offset += (length + 1);
 
             /* Add PCMD Pitch */
@@ -239,7 +239,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             {
                 PCMD_str = " (PITCH BACKWARD)";
             }
-            proto_item_append_string(ti, PCMD_str);
+            proto_item_append_text(ti, "%s", PCMD_str);
             offset += (length + 1);
 
             /* Add PCMD Gaz */
@@ -271,7 +271,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             {
                 PCMD_str = " (INCREASE VERT SPEED)";
             }
-            proto_item_append_string(ti, PCMD_str);
+            proto_item_append_text(ti, "%s", PCMD_str);
             offset += (length + 1);
 
             /* Add PCMD Yaw */
@@ -303,7 +303,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             {
                 PCMD_str = " (ROTATE RIGHT)";
             }
-            proto_item_append_string(ti, PCMD_str);
+            proto_item_append_text(ti, "%s", PCMD_str);
             offset += (length + 1);
         }
         else if (!strncmp(command, "AT*REF", 6))

@@ -1773,27 +1773,30 @@ wkh_push_flag(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *p
     wkh_0a_Declarations;
     proto_item *ti = NULL;
     proto_tree *subtree = NULL;
+    wmem_strbuf_t *push_flag_str = wmem_strbuf_new(wmem_packet_scope(), "");
 
     wkh_1_WellKnownValue(hf_hdr_name_value, ett_push_flag, "Push Flag");
-        ti = proto_tree_add_string(tree, hf_hdr_push_flag,
-                tvb, hdr_start, offset - hdr_start, "");
-        subtree = proto_item_add_subtree(ti, ett_header);
-        proto_tree_add_uint(subtree, hf_hdr_push_flag_auth,
-                tvb, val_start, 1, val_id);
-        proto_tree_add_uint(subtree, hf_hdr_push_flag_trust,
-                tvb, val_start, 1, val_id);
-        proto_tree_add_uint(subtree, hf_hdr_push_flag_last,
-                tvb, val_start, 1, val_id);
-        if (val_id & 0x01)
-            proto_item_append_string(ti, " (Initiator URI authenticated)");
-        if (val_id & 0x02)
-            proto_item_append_string(ti, " (Content trusted)");
-        if (val_id & 0x04)
-            proto_item_append_string(ti, " (Last push message)");
-        if (val_id & 0x78)
-            proto_item_append_text(ti, " <Warning: Reserved flags set>");
-        else
-            ok = TRUE;
+    if (val_id & 0x01)
+        wmem_strbuf_append(push_flag_str, " (Initiator URI authenticated)");
+    if (val_id & 0x02)
+        wmem_strbuf_append(push_flag_str, " (Content trusted)");
+    if (val_id & 0x04)
+        wmem_strbuf_append(push_flag_str, " (Last push message)");
+    if (val_id & 0x78)
+        wmem_strbuf_append(push_flag_str, " <Warning: Reserved flags set>");
+    else
+        ok = TRUE;
+
+    ti = proto_tree_add_string(tree, hf_hdr_push_flag,
+            tvb, hdr_start, offset - hdr_start, wmem_strbuf_get_str(push_flag_str));
+    subtree = proto_item_add_subtree(ti, ett_header);
+    proto_tree_add_uint(subtree, hf_hdr_push_flag_auth,
+            tvb, val_start, 1, val_id);
+    proto_tree_add_uint(subtree, hf_hdr_push_flag_trust,
+            tvb, val_start, 1, val_id);
+    proto_tree_add_uint(subtree, hf_hdr_push_flag_last,
+            tvb, val_start, 1, val_id);
+
     wkh_2_TextualValueInv;
         /* Invalid */
     wkh_3_ValueWithLength;
@@ -2841,6 +2844,7 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
     guint32 off, len, val = 0;
     guint8 peek, cache_control_directive;
     proto_item *ti = NULL;
+    wmem_strbuf_t *cache_str;
 
     wkh_1_WellKnownValue(hf_hdr_name_value, ett_cache_control, "Cache-control");
         val = val_id & 0x7F;
@@ -2868,27 +2872,28 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
             switch (cache_control_directive & 0x7F) {
                 case CACHE_CONTROL_NO_CACHE:
                 case CACHE_CONTROL_PRIVATE:
-                    ti = proto_tree_add_string(tree, hf_hdr_cache_control,
-                            tvb, hdr_start, offset - hdr_start,
-                            val_to_str_ext (cache_control_directive & 0x7F, &vals_cache_control_ext,
+                    cache_str = wmem_strbuf_new(wmem_packet_scope(), val_to_str_ext (cache_control_directive & 0x7F, &vals_cache_control_ext,
                                 "<Unknown cache control directive 0x%02X>"));
                     /* TODO: split multiple entries */
                     ok = TRUE;
                     while (ok && (off < offset)) { /* 1*( Field-name ) */
                         peek = tvb_get_guint8(tvb, off);
                         if (peek & 0x80) { /* Well-known-field-name */
-                            proto_item_append_string(ti,
+                            wmem_strbuf_append(cache_str,
                                     val_to_str (peek, vals_field_names,
                                         "<Unknown WSP header field 0x%02X>"));
                             off++;
                         } else { /* Token-text */
                             get_token_text(val_str, tvb, off, len, ok);
                             if (ok) {
-                                proto_item_append_string(ti, val_str);
+                                wmem_strbuf_append(cache_str, val_str);
                                 off += len;
                             }
                         }
                     }
+                    proto_tree_add_string(tree, hf_hdr_cache_control,
+                            tvb, hdr_start, offset - hdr_start,
+                            wmem_strbuf_get_str(cache_str));
                     break;
 
                 case CACHE_CONTROL_MAX_AGE:
@@ -2929,7 +2934,7 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
                             }
                         } else { /* Token-text | 0x00 */
                             /* TODO - check that we have Token-text or 0x00 */
-                            proto_item_append_string(ti, val_str);
+                            proto_item_append_text(ti, "%s", val_str);
                         }
                     }
                 }
@@ -3130,7 +3135,7 @@ wkh_content_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
             /* Now check next value */
             val = tvb_get_guint8(tvb, off);
             if (val == 0x80) { /* Unknown length */
-                proto_item_append_string(ti, "; entity-length=unknown");
+                proto_item_append_text(ti, "%s", "; entity-length=unknown");
             } else { /* Uintvar entity length */
                 get_uintvar_integer (val, tvb, off, len, ok);
                 if (ok) {

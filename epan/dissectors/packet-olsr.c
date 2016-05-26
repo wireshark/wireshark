@@ -327,7 +327,7 @@ static int dissect_olsr_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ols
     offset += 2;
 
     if (message_size < 4) {
-      proto_item_append_string(ti, "(too short, must be >= 4)");
+      expert_add_info_format(pinfo, ti, &ei_olsr_not_enough_bytes, "(too short, must be >= 4)");
       return message_end;
     }
     offset = handleNeighbors(tvb, pinfo, link_type_tree, offset, offset + message_size - 4);
@@ -600,13 +600,13 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       offset += 2;
 
       if (message_len < 8 + pinfo->src.len) {
-        proto_item_append_text(ti, "(too short, must be >= %d)", 8 + pinfo->src.len);
+        expert_add_info_format(pinfo, ti, &ei_olsr_not_enough_bytes, "(too short, must be >= %d)", 8 + pinfo->src.len);
         break;
       }
 
       message_end = offset + message_len - 4;
       if (message_end > packet_len) {
-        proto_item_append_string(ti, "(not enough data for message)");
+        expert_add_info_format(pinfo, ti, &ei_olsr_not_enough_bytes, "(not enough data for message)");
         break;
       }
 
