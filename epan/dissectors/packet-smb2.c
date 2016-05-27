@@ -3230,8 +3230,10 @@ dissect_smb2_notify_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	gboolean continue_dissection;
 
 	switch (si->status) {
-	/* buffer code */
-	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
+	/* MS-SMB2 3.3.4.4 says STATUS_NOTIFY_ENUM_DIR is not treated as an error */
+	case 0x0000010c: /* STATUS_NOTIFY_ENUM_DIR */
+	case 0x00000000: /* buffer code */
+	 offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
 	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
 		if (!continue_dissection) return offset;
 	}
