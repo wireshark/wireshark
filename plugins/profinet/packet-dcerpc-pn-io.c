@@ -7313,7 +7313,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
 
         /* Set global Variant for Number of IO Data Objects */
         /* Notice: Handle Input & Output seperate!!! */
-        if (pinfo->fd->flags.visited == FALSE) {
+        if (!pinfo->fd->flags.visited) {
             /* Get current conversation endpoints using MAC addresses */
             conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
             if (conversation == NULL) {
@@ -7355,7 +7355,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
 
             proto_item_set_len(sub_item, offset - u32SubStart);
 
-            if (pinfo->fd->flags.visited == FALSE && station_info != NULL) {
+            if (!pinfo->fd->flags.visited && station_info != NULL) {
                 io_data_object = wmem_new(wmem_file_scope(), ioDataObject);
                 io_data_object->slotNr = u16SlotNr;
                 io_data_object->subSlotNr = u16SubslotNr;
@@ -7397,7 +7397,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
                             hf_pn_io_number_of_iocs, &u16NumberOfIOCS);
 
         /* Set global Vairant for NumberOfIOCS */
-        if (pinfo->fd->flags.visited == FALSE) {
+        if (!pinfo->fd->flags.visited) {
             if (station_info != NULL) {
                 station_info->iocsNr = u16NumberOfIOCS;
             }
@@ -7424,7 +7424,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
 
             proto_item_set_len(sub_item, offset - u32SubStart);
 
-            if (pinfo->fd->flags.visited == FALSE) {
+            if (!pinfo->fd->flags.visited) {
                 if (station_info != NULL) {
                     if (u16IOCRType == PN_INPUT_CR) {
                         iocs_list = station_info->iocs_data_in;
@@ -8047,7 +8047,7 @@ dissect_DataDescription(tvbuff_t *tvb, int offset,
     proto_item_set_len(sub_item, offset - u32SubStart);
 
     /* Save new data for IO Data Objects */
-    if (pinfo->fd->flags.visited == FALSE) {
+    if (!pinfo->fd->flags.visited) {
         /* Get current conversation endpoints using MAC addresses */
         conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
         if (conversation == NULL) {
@@ -8242,7 +8242,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
                             fp = NULL;
                         }
 
-                        if(vendorMatch == TRUE && deviceMatch == TRUE) {
+                        if(vendorMatch && deviceMatch) {
                             break;        /* Found correct GSD-file! -> Break the searchloop */
                         }
                         else {
@@ -8259,7 +8259,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
             }
 
             /* ---- Found the correct GSD-file -> set Flag and save the completed path ---- */
-            if((vendorMatch == TRUE) && (deviceMatch == TRUE)) {
+            if(vendorMatch && deviceMatch) {
                 gsdmlFoundFlag = TRUE;
                 station_info->gsdFound = TRUE;
                 station_info->gsdLocation = wmem_strdup(wmem_file_scope(), diropen);
@@ -8351,7 +8351,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
             if (diropen != NULL) {
                 fp = ws_fopen(diropen, "r");
             }
-            if(gsdmlFoundFlag == TRUE && fp != NULL) {
+            if(gsdmlFoundFlag && fp != NULL) {
                 fseek(fp, 0, SEEK_SET);
 
                 /* Find Indexnumber for fParameter */
@@ -8552,7 +8552,7 @@ dissect_ModuleDiffBlock_block(tvbuff_t *tvb, int offset,
                 u16NumberOfSubmodules);
 
 
-            if (pinfo->fd->flags.visited == FALSE) {
+            if (!pinfo->fd->flags.visited) {
                 /* Get current conversation endpoints using MAC addresses */
                 conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
                 if (conversation == NULL) {
@@ -9802,7 +9802,7 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
                     hf_pn_io_ps_f_wd_time, &wd_time);
 
     /* Dissection for F_iPar_CRC: see F_Prm_Flag2 -> F_Block_ID */
-    if( ((prm_flag2_f_block_id & 0x08)>>3) == TRUE && ((prm_flag2_f_block_id & 0x20)>>5) == FALSE ) {
+    if( (prm_flag2_f_block_id & 0x08) && !(prm_flag2_f_block_id & 0x20) ) {
         offset = dissect_dcerpc_uint32(tvb, offset, pinfo, f_item, drep,
                         hf_pn_io_ps_f_ipar_crc, &ipar_crc);
     }
@@ -9812,7 +9812,7 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
 
 
     /* Differniate between ipar_crc and no_ipar_crc */
-    if( ((prm_flag2_f_block_id & 0x08)>>3) == TRUE && ((prm_flag2_f_block_id & 0x20)>>5) == FALSE ) {    /* include ipar_crc display */
+    if( (prm_flag2_f_block_id & 0x08) && !(prm_flag2_f_block_id & 0x20) ) {    /* include ipar_crc display */
         col_append_fstr(pinfo->cinfo, COL_INFO,
                         ", F-Parameter record, prm_flag1:0x%02x, prm_flag2:0x%02x, src:0x%04x,"
                          " dst:0x%04x, wd_time:%d, ipar_crc:0x%04x, crc:0x%04x",
@@ -9831,7 +9831,7 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
                 prm_flag1, prm_flag2, src_addr, dst_addr, wd_time, par_crc);
     }
 
-    if (pinfo->fd->flags.visited == FALSE) {
+    if (!pinfo->fd->flags.visited) {
         /* Get current conversation endpoints using MAC addresses */
         conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, PT_NONE, 0, 0, 0);
         if (conversation == NULL) {
@@ -9847,11 +9847,12 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
                 io_data_object->f_src_adr = src_addr;
                 io_data_object->f_dest_adr = dst_addr;
                 io_data_object->f_crc_seed = prm_flag1 & 0x40;
-                if ((prm_flag1 & 0x10) == FALSE && (prm_flag1 & 0x20) == FALSE) {
-                    io_data_object->f_crc_len = 3;
-                }
-                if ((prm_flag1 & 0x10) == FALSE && (prm_flag1 & 0x20) == TRUE) {
-                    io_data_object->f_crc_len = 4;
+                if (!(prm_flag1 & 0x10)) {
+                    if (prm_flag1 & 0x20) {
+                        io_data_object->f_crc_len = 4;
+                    } else {
+                        io_data_object->f_crc_len = 3;
+                    }
                 }
             }
 
@@ -9859,18 +9860,19 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
             for (frame_out = wmem_list_head(station_info->ioobject_data_out); frame_out != NULL; frame_out = wmem_list_frame_next(frame_out)) {
                 io_data_object = (ioDataObject*)wmem_list_frame_data(frame_out);
                 if (u16Index == io_data_object->fParameterIndexNr &&    /* Check F-Parameter Indexnumber */
-                    io_data_object->profisafeSupported == TRUE &&       /* Arrayelement has to be PS-Module */
+                    io_data_object->profisafeSupported &&               /* Arrayelement has to be PS-Module */
                     io_data_object->f_par_crc1 == 0) {                  /* Find following object with no f_par_crc1 */
 
                     io_data_object->f_par_crc1 = par_crc;
                     io_data_object->f_src_adr = src_addr;
                     io_data_object->f_dest_adr = dst_addr;
                     io_data_object->f_crc_seed = prm_flag1 & 0x40;
-                    if ((prm_flag1 & 0x10) == FALSE && (prm_flag1 & 0x20) == FALSE) {
-                        io_data_object->f_crc_len = 3;
-                    }
-                    if ((prm_flag1 & 0x10) == FALSE && (prm_flag1 & 0x20) == TRUE) {
-                        io_data_object->f_crc_len = 4;
+                    if (!(prm_flag1 & 0x10)) {
+                        if (prm_flag1 & 0x20) {
+                            io_data_object->f_crc_len = 4;
+                        } else {
+                            io_data_object->f_crc_len = 3;
+                        }
                     }
 
                     break;
@@ -9903,12 +9905,12 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
 
     station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
     if (station_info != NULL) {
-        if (pinfo->fd->flags.visited == FALSE) {
+        if (!pinfo->fd->flags.visited) {
             /* Search within the entire existing list for current input object data */
             for (frame = wmem_list_head(station_info->ioobject_data_in); frame != NULL; frame = wmem_list_frame_next(frame)) {
                 io_data_object = (ioDataObject*)wmem_list_frame_data(frame);
                 if (u16Index == io_data_object->fParameterIndexNr &&    /* Check F-Parameter Indexnumber */
-                    io_data_object->profisafeSupported == TRUE &&       /* Arrayelement has to be PS-Module */
+                    io_data_object->profisafeSupported &&               /* Arrayelement has to be PS-Module */
                     io_data_object->f_par_crc1 == 0) {                  /* Find following object with no f_par_crc1 */
 
                     return dissect_ProfiSafeParameterRequest(tvb, offset, pinfo, tree, drep, u16Index, frame);
@@ -9923,7 +9925,7 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
             for (frame = wmem_list_head(station_info->ioobject_data_in); frame != NULL; frame = wmem_list_frame_next(frame)) {
                 io_data_object = (ioDataObject*)wmem_list_frame_data(frame);
                 if (u16Index == io_data_object->fParameterIndexNr &&    /* Check F-Parameter Indexnumber */
-                    io_data_object->profisafeSupported == TRUE) {       /* Arrayelement has to be PS-Module */
+                    io_data_object->profisafeSupported) {               /* Arrayelement has to be PS-Module */
 
                     return dissect_ProfiSafeParameterRequest(tvb, offset, pinfo, tree, drep, u16Index, frame);
                 }
@@ -9932,7 +9934,7 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
             for (frame = wmem_list_head(station_info->ioobject_data_out); frame != NULL; frame = wmem_list_frame_next(frame)) {
                 io_data_object = (ioDataObject*)wmem_list_frame_data(frame);
                 if (u16Index == io_data_object->fParameterIndexNr &&    /* Check F-Parameter Indexnumber */
-                    io_data_object->profisafeSupported == TRUE) {       /* Arrayelement has to be PS-Module */
+                    io_data_object->profisafeSupported) {               /* Arrayelement has to be PS-Module */
 
                     return dissect_ProfiSafeParameterRequest(tvb, offset, pinfo, tree, drep, u16Index, frame);
                 }
@@ -10137,7 +10139,7 @@ dissect_PNIO_C_SDU(tvbuff_t *tvb, int offset,
     }
 
     /*dissect_dcerpc_uint16(tvb, offset, pinfo, data_tree, drep, hf_pn_io_packedframe_SFCRC, &u16SFCRC);*/
-    if (!(dissect_CSF_SDU_heur(tvb, pinfo, data_tree, NULL) == FALSE))
+    if (dissect_CSF_SDU_heur(tvb, pinfo, data_tree, NULL))
         return(tvb_captured_length(tvb));
 
     /* XXX - dissect the remaining data */
