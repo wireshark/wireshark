@@ -223,8 +223,6 @@ capture_step_stdin() {
 		CONSOLE_LOG_ARGS="-o console.log.level:127"
 	fi
 
-        set -xv
-	date
 	(cat "${CAPTURE_DIR}dhcp.pcap"; sleep 1; tail -c +25 "${CAPTURE_DIR}dhcp.pcap") | \
 	$DUT -i - $TRAFFIC_CAPTURE_PROMISC \
 		-w ./testout.pcap \
@@ -232,8 +230,6 @@ capture_step_stdin() {
 		$CONSOLE_LOG_ARGS \
 		> ./testout.txt 2> ./testerr.txt
 	RETURNVALUE=$?
-	date
-        set +xv
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		capture_test_output_print ./testout.txt ./testerr.txt ./dumpcap_debug_log.tmp
 		capture_test_output_capinfos ./testout.pcap
