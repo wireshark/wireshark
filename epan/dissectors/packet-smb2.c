@@ -1537,7 +1537,7 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x001401FC, "FSCTL_QUERY_NETWORK_INTERFACE_INFO"},	      /* dissector implemented */
 	{0x00140200, "FSCTL_VALIDATE_NEGOTIATE_INFO_224"},	      /* dissector implemented */
 	{0x00140204, "FSCTL_VALIDATE_NEGOTIATE_INFO"},		      /* dissector implemented */
-	{0x00144064, "FSCTL_GET_SHADOW_COPY_DATA"}, /*=FSCTL_SRV_ENUMERATE_SNAPSHOTS*/  /* dissector implemented */
+	{0x00144064, "FSCTL_SRV_ENUMERATE_SNAPSHOTS"},		      /* dissector implemented */
 	{0x001440F2, "FSCTL_SRV_COPYCHUNK"},
 	{0x001441bb, "FSCTL_SRV_READ_HASH"},
 	{0x001480F2, "FSCTL_SRV_COPYCHUNK_WRITE"},
@@ -5452,7 +5452,7 @@ dissect_smb2_FSCTL_VALIDATE_NEGOTIATE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_
 }
 
 static void
-dissect_smb2_FSCTL_GET_SHADOW_COPY_DATA(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
+dissect_smb2_FSCTL_SRV_ENUMERATE_SNAPSHOTS(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
 {
 	guint32 num_volumes;
 
@@ -5673,8 +5673,8 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 	case 0x00140204: /* FSCTL_VALIDATE_NEGOTIATE_INFO */
 		dissect_smb2_FSCTL_VALIDATE_NEGOTIATE_INFO(tvb, pinfo, tree, 0, data_in);
 		break;
-	case 0x00144064: /* FSCTL_GET_SHADOW_COPY_DATA */
-		dissect_smb2_FSCTL_GET_SHADOW_COPY_DATA(tvb, pinfo, tree, 0, data_in);
+	case 0x00144064: /* FSCTL_SRV_ENUMERATE_SNAPSHOTS */
+		dissect_smb2_FSCTL_SRV_ENUMERATE_SNAPSHOTS(tvb, pinfo, tree, 0, data_in);
 		break;
 	case 0x0009009C: /* FSCTL_GET_OBJECT_ID */
 	case 0x000900c0: /* FSCTL_CREATE_OR_GET_OBJECT_ID */
