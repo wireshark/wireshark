@@ -59,10 +59,6 @@ signals:
     void filterChanged(const QString filter);
 
 private slots:
-    void promiscuousModeChanged(QString index);
-#if defined (HAVE_PCAP_CREATE)
-    void monitorModeChanged(QString new_mode);
-#endif
     void linkTypeChanged(QString selected_link_type);
     void snapshotLengthChanged(int value);
     void bufferSizeChanged(int value);
@@ -104,6 +100,7 @@ private slots:
     void refreshInterfaceList();
     void updateLocalInterfaces();
     void browseButtonClicked();
+    void interfaceItemChanged(QTreeWidgetItem *item, int column);
     void changeEvent(QEvent* event);
 
 signals:

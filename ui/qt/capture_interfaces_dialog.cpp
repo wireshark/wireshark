@@ -107,19 +107,17 @@ static interface_t *find_device_by_if_name(const QString &interface_name)
 class InterfaceTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-    InterfaceTreeWidgetItem(QTreeWidget *tree) : QTreeWidgetItem(tree)  {}
+    InterfaceTreeWidgetItem(QTreeWidget *tree) : QTreeWidgetItem(tree) {}
     bool operator< (const QTreeWidgetItem &other) const;
     QList<int> points;
 
     void updateInterfaceColumns(interface_t *device)
     {
         if (!device) return;
-        QString na_str = QObject::tr("n/a");
-        QString enabled_str = QObject::tr("enabled");
-        QString disabled_str = QObject::tr("disabled");
+
         QString default_str = QObject::tr("default");
 
-        QString linkname = QObject::tr("Unknown: %1").arg(device->active_dlt);
+        QString linkname = QObject::tr("DLT %1").arg(device->active_dlt);
         for (GList *list = device->links; list != NULL; list = g_list_next(list)) {
             link_row *linkr = (link_row*)(list->data);
             // XXX ...and if they're both -1?
@@ -133,15 +131,19 @@ public:
 #ifdef HAVE_EXTCAP
         if (device->if_info.type == IF_EXTCAP) {
             /* extcap interfaces does not have this settings */
-            setText(col_pmode_, na_str);
-            setText(col_snaplen_, na_str);
+            setData(col_pmode_, Qt::CheckStateRole, QVariant());
+            setApplicable(col_pmode_, false);
+
+            setApplicable(col_snaplen_, false);
 #ifdef SHOW_BUFFER_COLUMN
-            setText(col_buffer_, na_str);
+            setApplicable(col_buffer_, false);
 #endif
         } else {
 #endif
+            setApplicable(col_pmode_, true);
+            setCheckState(col_pmode_, device->pmode ? Qt::Checked : Qt::Unchecked);
+
             QString snaplen_string = device->has_snaplen ? QString::number(device->snaplen) : default_str;
-            setText(col_pmode_, device->pmode ? enabled_str : disabled_str);
             setText(col_snaplen_, snaplen_string);
 #ifdef SHOW_BUFFER_COLUMN
             setText(col_buffer_, QString::number(device->buffer));
@@ -151,14 +153,26 @@ public:
 #endif
         setText(col_filter_, device->cfilter);
 
-
 #ifdef SHOW_MONITOR_COLUMN
-        setText(col_monitor_, QString(device->monitor_mode_supported
-                                      ? (device->monitor_mode_enabled
-                                         ? enabled_str : disabled_str)
-                                      : na_str));
+        if (device->monitor_mode_supported) {
+            setApplicable(col_monitor_, true);
+            setCheckState(col_monitor_, device->monitor_mode_enabled ? Qt::Checked : Qt::Unchecked);
+        } else {
+            setApplicable(col_monitor_, false);
+        }
 #endif
+    }
 
+    void setApplicable(int column, bool applicable = false) {
+        QPalette palette = wsApp->palette();
+
+        if (applicable) {
+            setText(column, QString());
+        } else {
+            palette.setCurrentColorGroup(QPalette::Disabled);
+            setText(column, UTF8_EM_DASH);
+        }
+        setTextColor(column, palette.text().color());
     }
 
 };
@@ -185,16 +199,14 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
     ui->interfaceTree->setItemDelegateForColumn(col_interface_, &interface_item_delegate_);
     ui->interfaceTree->setItemDelegateForColumn(col_traffic_, new SparkLineDelegate());
     ui->interfaceTree->setItemDelegateForColumn(col_link_, &interface_item_delegate_);
-    ui->interfaceTree->setItemDelegateForColumn(col_pmode_, &interface_item_delegate_);
+
     ui->interfaceTree->setItemDelegateForColumn(col_snaplen_, &interface_item_delegate_);
 #ifdef SHOW_BUFFER_COLUMN
     ui->interfaceTree->setItemDelegateForColumn(col_buffer_, &interface_item_delegate_);
 #else
     ui->interfaceTree->setColumnHidden(col_buffer_, true);
 #endif
-#ifdef SHOW_MONITOR_COLUMN
-    ui->interfaceTree->setItemDelegateForColumn(col_monitor_, &interface_item_delegate_);
-#else
+#ifndef SHOW_MONITOR_COLUMN
     ui->interfaceTree->setColumnHidden(col_monitor_, true);
 #endif
     ui->interfaceTree->setItemDelegateForColumn(col_filter_, &interface_item_delegate_);
@@ -311,6 +323,104 @@ void CaptureInterfacesDialog::browseButtonClicked()
     }
     QString file_name = QFileDialog::getSaveFileName(this, tr("Specify a Capture File"), open_dir);
     ui->filenameLineEdit->setText(file_name);
+}
+
+void CaptureInterfacesDialog::interfaceItemChanged(QTreeWidgetItem *item, int column)
+{
+    QWidget* editor = ui->interfaceTree->indexWidget(ui->interfaceTree->currentIndex());
+    if (editor) {
+        ui->interfaceTree->closePersistentEditor(item, ui->interfaceTree->currentColumn());
+    }
+
+    InterfaceTreeWidgetItem *ti = dynamic_cast<InterfaceTreeWidgetItem *>(item);
+    if (!ti) return;
+
+    interface_t *device;
+    QString interface_name = ti->text(col_interface_);
+    device = find_device_by_if_name(interface_name);
+    if (!device) return;
+
+    switch(column) {
+
+    case col_pmode_:
+        device->pmode = item->checkState(col_pmode_) == Qt::Checked ? TRUE : FALSE;
+        ti->updateInterfaceColumns(device);
+        break;
+
+#ifdef SHOW_MONITOR_COLUMN
+    case col_monitor_:
+    {
+        gboolean monitor_mode = FALSE;
+        if (ti->checkState(col_monitor_) == Qt::Checked) monitor_mode = TRUE;
+
+        if_capabilities_t *caps;
+        char *auth_str = NULL;
+        QString active_dlt_name;
+
+        set_active_dlt(device, global_capture_opts.default_options.linktype);
+
+    #ifdef HAVE_PCAP_REMOTE
+        if (device->remote_opts.remote_host_opts.auth_type == CAPTURE_AUTH_PWD) {
+            auth_str = g_strdup_printf("%s:%s", device->remote_opts.remote_host_opts.auth_username,
+                                       device->remote_opts.remote_host_opts.auth_password);
+        }
+    #endif
+        caps = capture_get_if_capabilities(device->name, monitor_mode, auth_str, NULL, main_window_update);
+        g_free(auth_str);
+
+        if (caps != NULL) {
+
+            for (int i = (gint)g_list_length(device->links)-1; i >= 0; i--) {
+                GList* rem = g_list_nth(device->links, i);
+                device->links = g_list_remove_link(device->links, rem);
+                g_list_free_1(rem);
+            }
+            device->active_dlt = -1;
+            device->monitor_mode_supported = caps->can_set_rfmon;
+            device->monitor_mode_enabled = monitor_mode;
+
+            for (GList *lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
+                link_row *linkr = (link_row *)g_malloc(sizeof(link_row));
+                data_link_info_t *data_link_info = (data_link_info_t *)lt_entry->data;
+                /*
+                 * For link-layer types libpcap/WinPcap doesn't know about, the
+                 * name will be "DLT n", and the description will be null.
+                 * We mark those as unsupported, and don't allow them to be
+                 * used - capture filters won't work on them, for example.
+                 */
+                if (data_link_info->description != NULL) {
+                    linkr->dlt = data_link_info->dlt;
+                    if (active_dlt_name.isEmpty()) {
+                        device->active_dlt = data_link_info->dlt;
+                        active_dlt_name = data_link_info->description;
+                    }
+                    linkr->name = g_strdup(data_link_info->description);
+                } else {
+                    gchar *str;
+                    /* XXX - should we just omit them? */
+                    str = g_strdup_printf("%s (not supported)", data_link_info->name);
+                    linkr->dlt = -1;
+                    linkr->name = g_strdup(str);
+                    g_free(str);
+                }
+                device->links = g_list_append(device->links, linkr);
+            }
+            free_if_capabilities(caps);
+        } else {
+            /* We don't know whether this supports monitor mode or not;
+               don't ask for monitor mode. */
+            device->monitor_mode_enabled = FALSE;
+            device->monitor_mode_supported = FALSE;
+        }
+
+        ti->updateInterfaceColumns(device);
+
+        break;
+    }
+#endif // SHOW_MONITOR_COLUMN
+    default:
+        break;
+    }
 }
 
 void CaptureInterfacesDialog::on_gbStopCaptureAuto_toggled(bool checked)
@@ -488,6 +598,8 @@ void CaptureInterfacesDialog::updateInterfaces()
     gboolean      hassnap, pmode;
     QList<QTreeWidgetItem *> selected_interfaces;
 
+    disconnect(ui->interfaceTree, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(interfaceItemChanged(QTreeWidgetItem*,int)));
+
     if (global_capture_opts.all_ifaces->len > 0) {
         interface_t *device;
 
@@ -549,6 +661,8 @@ void CaptureInterfacesDialog::updateInterfaces()
         }
     }
 
+    connect(ui->interfaceTree, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(interfaceItemChanged(QTreeWidgetItem*,int)));
+
     foreach (QTreeWidgetItem *ti, selected_interfaces) {
         ti->setSelected(true);
     }
@@ -560,7 +674,7 @@ void CaptureInterfacesDialog::updateInterfaces()
     for (int col = 0; col < ui->interfaceTree->topLevelItemCount(); col++) {
         switch (col) {
         case col_pmode_:
-            ui->interfaceTree->setColumnWidth(col, one_em * 6);
+            ui->interfaceTree->setColumnWidth(col, one_em * 3.25);
             break;
         case col_snaplen_:
             ui->interfaceTree->setColumnWidth(col, one_em * 4.25);
@@ -569,7 +683,7 @@ void CaptureInterfacesDialog::updateInterfaces()
             ui->interfaceTree->setColumnWidth(col, one_em * 4.25);
             break;
         case col_monitor_:
-            ui->interfaceTree->setColumnWidth(col, one_em * 5.25);
+            ui->interfaceTree->setColumnWidth(col, one_em * 3.25);
             break;
         default:
             ui->interfaceTree->resizeColumnToContents(col);
@@ -850,6 +964,7 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
             prefs.capture_devices_pmode = qstring_strdup(pmode_list.join(","));
             break;
         }
+
 #ifdef SHOW_MONITOR_COLUMN
         case col_monitor_:
         {
@@ -994,7 +1109,7 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
     guint snap = WTAP_MAX_PACKET_SIZE;
     GList *links = NULL;
 
-    if (index.column() > 1 && index.data().toString().compare(QString("n/a"))) {
+    if (index.column() > 1 && index.data().toString().compare(UTF8_EM_DASH)) {
         QTreeWidgetItem *ti = tree_->topLevelItem(index.row());
         QString interface_name = ti->text(col_interface_);
         interface_t *device = find_device_by_if_name(interface_name);
@@ -1038,16 +1153,6 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
             w = (QWidget*) cb;
             break;
         }
-        case col_pmode_:
-        {
-        // Create the combobox and populate it
-            QComboBox *cb = new QComboBox(parent);
-            cb->addItem(QString(tr("enabled")));
-            cb->addItem(QString(tr("disabled")));
-            connect(cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(promiscuousModeChanged(QString)));
-            w = (QWidget*) cb;
-            break;
-        }
         case col_snaplen_:
         {
             QSpinBox *sb = new QSpinBox(parent);
@@ -1067,17 +1172,6 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
             sb->setWrapping(true);
             connect(sb, SIGNAL(valueChanged(int)), this, SLOT(bufferSizeChanged(int)));
             w = (QWidget*) sb;
-            break;
-        }
-#endif
-#ifdef SHOW_MONITOR_COLUMN
-        case col_monitor_:
-        {
-            QComboBox *cb = new QComboBox(parent);
-            cb->addItem(QString(tr("enabled")));
-            cb->addItem(QString(tr("disabled")));
-            connect(cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(monitorModeChanged(QString)));
-            w = (QWidget*) cb;
             break;
         }
 #endif
@@ -1110,107 +1204,6 @@ bool InterfaceTreeDelegate::eventFilter(QObject *object, QEvent *event)
     }
     return false;
 }
-
-void InterfaceTreeDelegate::promiscuousModeChanged(QString index)
-{
-    interface_t *device;
-    QTreeWidgetItem *ti = tree_->currentItem();
-    if (!ti) {
-        return;
-    }
-    QString interface_name = ti->text(col_interface_);
-    device = find_device_by_if_name(interface_name);
-    if (!device) {
-        return;
-    }
-    if (!index.compare(tr("enabled"))) {
-        device->pmode = true;
-    } else {
-        device->pmode = false;
-    }
-}
-
-#ifdef SHOW_MONITOR_COLUMN
-void InterfaceTreeDelegate::monitorModeChanged(QString new_mode)
-{
-    InterfaceTreeWidgetItem *ti = dynamic_cast<InterfaceTreeWidgetItem *>(tree_->currentItem());
-    if (!ti) return;
-
-    interface_t *device;
-    QString interface_name = ti->text(col_interface_);
-    gboolean monitor_mode = TRUE;
-
-    device = find_device_by_if_name(interface_name);
-
-    if (!device) return;
-
-    if (new_mode.compare(tr("enabled"))) {
-        monitor_mode = FALSE;
-    }
-
-    if_capabilities_t *caps;
-    char *auth_str = NULL;
-    QString active_dlt_name;
-
-    set_active_dlt(device, global_capture_opts.default_options.linktype);
-
-#ifdef HAVE_PCAP_REMOTE
-    if (device->remote_opts.remote_host_opts.auth_type == CAPTURE_AUTH_PWD) {
-        auth_str = g_strdup_printf("%s:%s", device->remote_opts.remote_host_opts.auth_username,
-                                   device->remote_opts.remote_host_opts.auth_password);
-    }
-#endif
-    caps = capture_get_if_capabilities(device->name, monitor_mode, auth_str, NULL, main_window_update);
-    g_free(auth_str);
-
-    if (caps != NULL) {
-
-        for (int i = (gint)g_list_length(device->links)-1; i >= 0; i--) {
-            GList* rem = g_list_nth(device->links, i);
-            device->links = g_list_remove_link(device->links, rem);
-            g_list_free_1(rem);
-        }
-        device->active_dlt = -1;
-        device->monitor_mode_supported = caps->can_set_rfmon;
-        device->monitor_mode_enabled = monitor_mode;
-
-        for (GList *lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
-            link_row *linkr = (link_row *)g_malloc(sizeof(link_row));
-            data_link_info_t *data_link_info = (data_link_info_t *)lt_entry->data;
-            /*
-             * For link-layer types libpcap/WinPcap doesn't know about, the
-             * name will be "DLT n", and the description will be null.
-             * We mark those as unsupported, and don't allow them to be
-             * used - capture filters won't work on them, for example.
-             */
-            if (data_link_info->description != NULL) {
-                linkr->dlt = data_link_info->dlt;
-                if (active_dlt_name.isEmpty()) {
-                    device->active_dlt = data_link_info->dlt;
-                    active_dlt_name = data_link_info->description;
-                }
-                linkr->name = g_strdup(data_link_info->description);
-            } else {
-                gchar *str;
-                /* XXX - should we just omit them? */
-                str = g_strdup_printf("%s (not supported)", data_link_info->name);
-                linkr->dlt = -1;
-                linkr->name = g_strdup(str);
-                g_free(str);
-            }
-            device->links = g_list_append(device->links, linkr);
-        }
-        free_if_capabilities(caps);
-    } else {
-        /* We don't know whether this supports monitor mode or not;
-           don't ask for monitor mode. */
-        device->monitor_mode_enabled = FALSE;
-        device->monitor_mode_supported = FALSE;
-    }
-
-    ti->updateInterfaceColumns(device);
-}
-#endif
 
 void InterfaceTreeDelegate::linkTypeChanged(QString selected_link_type)
 {
