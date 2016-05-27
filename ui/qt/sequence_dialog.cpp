@@ -485,34 +485,46 @@ void SequenceDialog::on_actionGoToPacket_triggered()
 void SequenceDialog::goToAdjacentPacket(bool next)
 {
     if (file_closed_) return;
+
     int old_key = seq_diagram_->selectedKey();
     int adjacent_packet = seq_diagram_->adjacentPacket(next);
     int new_key = seq_diagram_->selectedKey();
 
     if (adjacent_packet > 0) {
-        if (old_key >= 0 && new_key >= 0) {
+        if (new_key >= 0) {
+            QCustomPlot *sp = ui->sequencePlot;
+            double range_offset = 0.0;
             // Scroll if we're at our scroll margin and we haven't reached
             // the end of our range.
-            // XXX We should probably ensure the selected packet is visible as well.
-            QCustomPlot *sp = ui->sequencePlot;
-            double range_offset = new_key - old_key;
             double scroll_margin = 3.0; // Lines
-            if (next) {
+
+            if (old_key >= 0) {
+                range_offset = new_key - old_key;
+            }
+
+            if (new_key < sp->yAxis->range().lower) {
+                // Out of range, top
+                range_offset = qRound(new_key - sp->yAxis->range().lower - scroll_margin - 0.5);
+            } else if (new_key > sp->yAxis->range().upper) {
+                // Out of range, bottom
+                range_offset = qRound(new_key - sp->yAxis->range().upper + scroll_margin + 0.5);
+            } else if (next) {
+                // In range, next
                 if (new_key + scroll_margin < sp->yAxis->range().upper) {
                     range_offset = 0.0;
                 }
-                while (range_offset > 0 && range_offset + sp->yAxis->range().upper > num_items_) {
-                    range_offset--;
-                }
             } else {
+                // In range, previous
                 if (new_key - scroll_margin > sp->yAxis->range().lower) {
                     range_offset = 0.0;
                 }
+            }
 
-                double slop_top = min_top_ * 1.1;
-                while (range_offset < 0 && range_offset + sp->yAxis->range().lower < slop_top) {
-                    range_offset++;
-                }
+            // Clamp to our upper & lower bounds.
+            if (range_offset > 0) {
+                range_offset = qMin(range_offset, num_items_ - sp->yAxis->range().upper);
+            } else if (range_offset < 0) {
+                range_offset = qMax(range_offset, min_top_ - sp->yAxis->range().lower);
             }
             sp->yAxis->moveRange(range_offset);
         }

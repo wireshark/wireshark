@@ -118,6 +118,7 @@ int SequenceDiagram::adjacentPacket(bool next)
             it = data_->constEnd();
             --it;
         }
+        selected_key_ = it.value().key;
         return it.value().value->frame_number;
     }
 
