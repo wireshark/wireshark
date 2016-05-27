@@ -214,6 +214,9 @@ static int hf_smb2_fsctl_offload_read_file_offset = -1;
 static int hf_smb2_fsctl_offload_read_copy_length = -1;
 static int hf_smb2_fsctl_offload_read_transfer_length = -1;
 static int hf_smb2_fsctl_offload_token = -1;
+static int hf_smb2_fsctl_sparse_flag = -1;
+static int hf_smb2_fsctl_range_offset = -1;
+static int hf_smb2_fsctl_range_length = -1;
 static int hf_smb2_ioctl_function_method = -1;
 static int hf_smb2_ioctl_resiliency_timeout = -1;
 static int hf_smb2_ioctl_resiliency_reserved = -1;
@@ -473,6 +476,7 @@ static gint ett_smb2_create_rep_flags = -1;
 static gint ett_smb2_share_caps = -1;
 static gint ett_smb2_ioctl_flags = -1;
 static gint ett_smb2_ioctl_network_interface = -1;
+static gint ett_smb2_fsctl_range_data = -1;
 static gint ett_windows_sockaddr = -1;
 static gint ett_smb2_close_flags = -1;
 static gint ett_smb2_notify_info = -1;
@@ -1496,6 +1500,7 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x000900A4, "FSCTL_SET_REPARSE_POINT"},
 	{0x000900A8, "FSCTL_GET_REPARSE_POINT"},
 	{0x000900C0, "FSCTL_CREATE_OR_GET_OBJECT_ID"},		      /* dissector implemented */
+	{0x000900C4, "FSCTL_SET_SPARSE"},			      /* dissector implemented */
 	{0x000900D4, "FSCTL_SET_ENCRYPTION"},
 	{0x000900DB, "FSCTL_ENCRYPTION_FSCTL_IO"},
 	{0x000900DF, "FSCTL_WRITE_RAW_ENCRYPTED"},
@@ -1514,7 +1519,7 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x000940B3, "FSCTL_ENUM_USN_DATA"},
 	{0x000940B7, "FSCTL_SECURITY_ID_CHECK"},
 	{0x000940BB, "FSCTL_READ_USN_JOURNAL"},
-	{0x000940CF, "FSCTL_QUERY_ALLOCATED_RANGES"},
+	{0x000940CF, "FSCTL_QUERY_ALLOCATED_RANGES"},		      /* dissector implemented */
 	{0x000940E7, "FSCTL_CREATE_USN_JOURNAL"},
 	{0x000940EB, "FSCTL_READ_FILE_USN_DATA"},
 	{0x000940EF, "FSCTL_WRITE_USN_CLOSE_RECORD"},
@@ -1524,8 +1529,7 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x000980A4, "FSCTL_SET_REPARSE_POINT"},
 	{0x000980AC, "FSCTL_DELETE_REPARSE_POINT"},
 	{0x000980BC, "FSCTL_SET_OBJECT_ID_EXTENDED"},		      /* dissector implemented */
-	{0x000980C4, "FSCTL_SET_SPARSE"},
-	{0x000980C8, "FSCTL_SET_ZERO_DATA"},
+	{0x000980C8, "FSCTL_SET_ZERO_DATA"},			      /* dissector implemented */
 	{0x000980D0, "FSCTL_ENABLE_UPGRADE"},
 	{0x00098208, "FSCTL_FILE_LEVEL_TRIM"},
 	{0x0009C040, "FSCTL_SET_COMPRESSION"},			      /* dissector implemented */
@@ -5091,6 +5095,76 @@ dissect_smb2_FSCTL_PIPE_WAIT(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	}
 }
 
+static int
+dissect_smb2_FSCTL_SET_SPARSE(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
+{
+
+	/* There is no out data */
+	if (!data_in) {
+		return offset;
+	}
+
+	/* sparse flag (optional) */
+	if (tvb_reported_length_remaining(tvb, offset) >= 1) {
+		proto_tree_add_item(tree, hf_smb2_fsctl_sparse_flag, tvb, offset, 1, ENC_NA);
+		offset += 1;
+	}
+
+	return offset;
+}
+
+static int
+dissect_smb2_FSCTL_SET_ZERO_DATA(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
+{
+	proto_tree *sub_tree;
+	proto_item *sub_item;
+
+	/* There is no out data */
+	if (!data_in) {
+		return offset;
+	}
+
+	sub_tree = proto_tree_add_subtree(tree, tvb, offset, 16, ett_smb2_fsctl_range_data, &sub_item, "Range");
+
+	proto_tree_add_item(sub_tree, hf_smb2_fsctl_range_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	proto_tree_add_item(sub_tree, hf_smb2_fsctl_range_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	return offset;
+}
+
+static void
+dissect_smb2_FSCTL_QUERY_ALLOCATED_RANGES(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int offset _U_, gboolean data_in)
+{
+	proto_tree *sub_tree;
+	proto_item *sub_item;
+
+	if (data_in) {
+		sub_tree = proto_tree_add_subtree(tree, tvb, offset, 16, ett_smb2_fsctl_range_data, &sub_item, "Range");
+
+		proto_tree_add_item(sub_tree, hf_smb2_fsctl_range_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		offset += 8;
+
+		proto_tree_add_item(sub_tree, hf_smb2_fsctl_range_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		offset += 8;
+	} else {
+		/* Zero or more allocated ranges may be reported. */
+		while (tvb_reported_length_remaining(tvb, offset) >= 16) {
+
+			sub_tree = proto_tree_add_subtree(tree, tvb, offset, 16, ett_smb2_fsctl_range_data, &sub_item, "Range");
+
+			proto_tree_add_item(sub_tree, hf_smb2_fsctl_range_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+			offset += 8;
+
+			proto_tree_add_item(sub_tree, hf_smb2_fsctl_range_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+			offset += 8;
+		}
+	}
+}
+
+
 static void
 dissect_smb2_FSCTL_QUERY_FILE_REGIONS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int offset _U_, gboolean data_in)
 {
@@ -5653,6 +5727,9 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 			dissect_get_dfs_referral_data(tvb, pinfo, tree, 0, &dc, TRUE);
 		}
 		break;
+	case 0x000940CF: /* FSCTL_QUERY_ALLOCATED_RANGES */
+		dissect_smb2_FSCTL_QUERY_ALLOCATED_RANGES(tvb, pinfo, tree, 0, data_in);
+		break;
 	case 0x00094264: /* FSCTL_OFFLOAD_READ */
 		dissect_smb2_FSCTL_OFFLOAD_READ(tvb, pinfo, tree, 0, top_tree, data_in);
 		break;
@@ -5681,11 +5758,17 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 	case 0x000900c0: /* FSCTL_CREATE_OR_GET_OBJECT_ID */
 		dissect_smb2_FSCTL_CREATE_OR_GET_OBJECT_ID(tvb, pinfo, tree, 0, data_in);
 		break;
+	case 0x000900c4: /* FSCTL_SET_SPARSE */
+		dissect_smb2_FSCTL_SET_SPARSE(tvb, pinfo, tree, 0, data_in);
+		break;
 	case 0x00098098: /* FSCTL_SET_OBJECT_ID */
 		dissect_smb2_FSCTL_SET_OBJECT_ID(tvb, pinfo, tree, 0, data_in);
 		break;
 	case 0x000980BC: /* FSCTL_SET_OBJECT_ID_EXTENDED */
 		dissect_smb2_FSCTL_SET_OBJECT_ID_EXTENDED(tvb, pinfo, tree, 0, data_in);
+		break;
+	case 0x000980C8: /* FSCTL_SET_ZERO_DATA */
+		dissect_smb2_FSCTL_SET_ZERO_DATA(tvb, pinfo, tree, 0, data_in);
 		break;
 	case 0x0009003C: /* FSCTL_GET_COMPRESSION */
 		dissect_smb2_FSCTL_GET_COMPRESSION(tvb, pinfo, tree, 0, data_in);
@@ -8594,6 +8677,14 @@ proto_register_smb2(void)
 		  { "File Offset", "smb2.file_offset", FT_UINT64, BASE_DEC,
 		    NULL, 0, NULL, HFILL }},
 
+		{ &hf_smb2_fsctl_range_offset,
+		  { "File Offset", "smb2.fsctl.range_offset", FT_UINT64, BASE_DEC,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_fsctl_range_length,
+		  { "Length", "smb2.fsctl.range_length", FT_UINT64, BASE_DEC,
+		    NULL, 0, NULL, HFILL }},
+
 		{ &hf_smb2_qfr_length,
 		  { "Length", "smb2.qfr_length", FT_UINT64, BASE_DEC,
 		    NULL, 0, NULL, HFILL }},
@@ -9064,6 +9155,10 @@ proto_register_smb2(void)
 		  { "Token", "smb2.fsctl.offload.token",
 		    FT_BYTES, BASE_NONE, NULL, 0,
 		    NULL, HFILL }},
+
+		{ &hf_smb2_fsctl_sparse_flag,
+		  { "SetSparse", "smb2.fsctl.set_sparse", FT_BOOLEAN, 8,
+		    NULL, 0xFF, NULL, HFILL }},
 
 		{ &hf_smb2_ioctl_resiliency_timeout,
 		  { "Timeout", "smb2.ioctl.resiliency.timeout", FT_UINT32, BASE_DEC,
@@ -9881,6 +9976,7 @@ proto_register_smb2(void)
 		&ett_smb2_share_caps,
 		&ett_smb2_ioctl_flags,
 		&ett_smb2_ioctl_network_interface,
+		&ett_smb2_fsctl_range_data,
 		&ett_windows_sockaddr,
 		&ett_smb2_close_flags,
 		&ett_smb2_notify_info,
