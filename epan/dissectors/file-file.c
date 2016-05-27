@@ -107,8 +107,6 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	if(!proto_field_is_referenced(tree, proto_file)) {
 		tree=NULL;
 	} else {
-		gboolean old_visible;
-
 		/* Put in frame header information. */
 		cap_len = tvb_captured_length(tvb);
 		frame_len = tvb_reported_length(tvb);
@@ -137,20 +135,6 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 		ti = proto_tree_add_boolean(fh_tree, hf_file_ignored, tvb, 0, 0,pinfo->fd->flags.ignored);
 		PROTO_ITEM_SET_GENERATED(ti);
-
-		if(proto_field_is_referenced(tree, hf_file_protocols)) {
-			/* we are going to be using proto_item_append_string() on
-			 * hf_frame_protocols, and we must therefore disable the
-			 * TRY_TO_FAKE_THIS_ITEM() optimisation for the tree by
-			 * setting it as visible.
-			 *
-			 * See proto.h for details.
-			 */
-			old_visible = proto_tree_set_visible(fh_tree, TRUE);
-			ti = proto_tree_add_string(fh_tree, hf_file_protocols, tvb, 0, 0, "");
-			PROTO_ITEM_SET_GENERATED(ti);
-			proto_tree_set_visible(fh_tree, old_visible);
-		}
 
 		if(pinfo->fd->pfd != 0){
 			proto_item *ppd_item;
@@ -246,7 +230,8 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			wmem_strbuf_append(val, proto_get_protocol_filter_name(GPOINTER_TO_UINT(wmem_list_frame_data(frame))));
 			frame = wmem_list_frame_next(frame);
 		}
-		proto_item_append_string(ti, wmem_strbuf_get_str(val));
+		ti = proto_tree_add_string(fh_tree, hf_file_protocols, tvb, 0, 0, wmem_strbuf_get_str(val));
+		PROTO_ITEM_SET_GENERATED(ti);
 	}
 
 	/*  Call postdissectors if we have any (while trying to avoid another

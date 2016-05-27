@@ -276,8 +276,6 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				expert_add_info(pinfo, NULL, &ei_arrive_time_out_of_range);
 		}
 	} else {
-		gboolean old_visible;
-
 		/* Put in frame header information. */
 		cap_len = tvb_captured_length(tvb);
 		frame_len = tvb_reported_length(tvb);
@@ -427,20 +425,6 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		ti = proto_tree_add_boolean(fh_tree, hf_frame_ignored, tvb, 0, 0,pinfo->fd->flags.ignored);
 		PROTO_ITEM_SET_GENERATED(ti);
 
-		if (proto_field_is_referenced(tree, hf_frame_protocols)) {
-			/* we are going to be using proto_item_append_string() on
-			 * hf_frame_protocols, and we must therefore disable the
-			 * TRY_TO_FAKE_THIS_ITEM() optimisation for the tree by
-			 * setting it as visible.
-			 *
-			 * See proto.h for details.
-			 */
-			old_visible = proto_tree_set_visible(fh_tree, TRUE);
-			ti = proto_tree_add_string(fh_tree, hf_frame_protocols, tvb, 0, 0, "");
-			PROTO_ITEM_SET_GENERATED(ti);
-			proto_tree_set_visible(fh_tree, old_visible);
-		}
-
 		/* Check for existences of P2P pseudo header */
 		if (pinfo->p2p_dir != P2P_DIR_UNKNOWN) {
 			proto_tree_add_int(fh_tree, hf_frame_p2p_dir, tvb,
@@ -562,7 +546,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			wmem_strbuf_append(val, proto_get_protocol_filter_name(GPOINTER_TO_UINT(wmem_list_frame_data(frame))));
 			frame = wmem_list_frame_next(frame);
 		}
-		proto_item_append_string(ti, wmem_strbuf_get_str(val));
+		ti = proto_tree_add_string(fh_tree, hf_frame_protocols, tvb, 0, 0, wmem_strbuf_get_str(val));
+		PROTO_ITEM_SET_GENERATED(ti);
 	}
 
 	/*  Call postdissectors if we have any (while trying to avoid another
