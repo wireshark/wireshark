@@ -74,6 +74,8 @@
  *     http://www.cablelabs.com/projects/cablehome/downloads/specs/CH-SP-CH1.1-I11-060407.pdf
  * Broadband Forum TR-111
  *     http://www.broadband-forum.org/technical/download/TR-111.pdf
+ * Boot Server Discovery Protocol (BSDP)
+ *     http://opensource.apple.com/source/bootp/bootp-198.1/Documentation/BSDP.doc
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -280,6 +282,28 @@ static int hf_bootp_option43_cl_cablecard_capability = -1;		/* 43:52 CL  */
 static int hf_bootp_option43_cl_device_id_ca = -1;			/* 43:53 CL  */
 static int hf_bootp_option43_cl_device_id_x509 = -1;			/* 43:54 CL  */
 static int hf_bootp_option43_cl_end = -1;				/* 43:255 CL */
+
+static int hf_bootp_option43_bsdp_suboption = -1;			/* 43 suboption */
+static int hf_bootp_option43_bsdp_message_type = -1;			/* 43:1 BSDP  */
+static int hf_bootp_option43_bsdp_version = -1;				/* 43:2 BSDP  */
+static int hf_bootp_option43_bsdp_server_identifier = -1;		/* 43:3 BSDP  */
+static int hf_bootp_option43_bsdp_server_priority = -1;			/* 43:4 BSDP  */
+static int hf_bootp_option43_bsdp_reply_port = -1;			/* 43:5 BSDP  */
+static int hf_bootp_option43_bsdp_boot_image_list_path = -1;		/* 43:6 BSDP  */
+static int hf_bootp_option43_bsdp_default_boot_image_id = -1;		/* 43:7 BSDP  */
+static int hf_bootp_option43_bsdp_selected_boot_image_id = -1;		/* 43:8 BSDP  */
+static int hf_bootp_option43_bsdp_boot_image_list = -1;			/* 43:9 BSDP  */
+static int hf_bootp_option43_bsdp_netboot_firmware = -1;		/* 43:10 BSDP  */
+static int hf_bootp_option43_bsdp_attributes_filter_list = -1;		/* 43:11 BSDP  */
+static int hf_bootp_option43_bsdp_message_size = -1;			/* 43:12 BSDP  */
+static int hf_bootp_option43_bsdp_boot_image_index = -1;		/* 43 BSDP  */
+static int hf_bootp_option43_bsdp_boot_image_attribute = -1;		/* 43 BSDP  */
+static int hf_bootp_option43_bsdp_boot_image_attribute_install = -1;	/* 43 BSDP  */
+static int hf_bootp_option43_bsdp_boot_image_attribute_kind = -1;	/* 43 BSDP  */
+static int hf_bootp_option43_bsdp_boot_image_attribute_reserved = -1;	/* 43 BSDP  */
+static int hf_bootp_option43_bsdp_image_desc = -1;			/* 43 BSDP  */
+static int hf_bootp_option43_bsdp_boot_image_name = -1;			/* 43 BSDP  */
+static int hf_bootp_option43_bsdp_boot_image_name_len = -1;		/* 43 BSDP  */
 
 static int hf_bootp_option43_alcatel_suboption = -1;			/* 43 suboption */
 static int hf_bootp_option43_alcatel_padding = -1;			/* 43:0 Alcatel	 */
@@ -561,6 +585,11 @@ static gint ett_bootp_isns_discovery_domain_access = -1;
 static gint ett_bootp_isns_administrative_flags = -1;
 static gint ett_bootp_isns_server_security_bitmap = -1;
 static gint ett_bootp_isns_secondary_server_addr = -1;
+static gint ett_bootp_o43_bsdp_boot_image = -1;
+static gint ett_bootp_o43_bsdp_attributes = -1;
+static gint ett_bootp_o43_bsdp_image_desc_list = -1;
+static gint ett_bootp_o43_bsdp_image_desc = -1;
+static gint ett_bootp_o43_bsdp_attributes_flags = -1;
 
 static expert_field ei_bootp_bad_length = EI_INIT;
 static expert_field ei_bootp_bad_bitfield = EI_INIT;
@@ -935,6 +964,9 @@ static const enum_val_t pkt_ccc_protocol_versions[] = {
 	{ NULL, NULL, 0 }
 };
 
+#define PACKETCABLE_BSDP  "AAPLBSDPC"
+#define PACKETCABLE_BSDPD "AAPLBSDPC/"
+
 static gint pkt_ccc_protocol_version = PACKETCABLE_CCC_RFC_3495;
 static guint pkt_ccc_option = 122;
 
@@ -942,6 +974,8 @@ static guint pkt_ccc_option = 122;
 static int dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
 					      tvbuff_t *tvb, int optoff, int optend);
 static int dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
+					      tvbuff_t *tvb, int optoff, int optend);
+static int dissect_vendor_bsdp_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
 					      tvbuff_t *tvb, int optoff, int optend);
 static gboolean test_encapsulated_vendor_options(tvbuff_t *tvb, int optoff, int optend);
 static int dissect_vendor_alcatel_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
@@ -966,6 +1000,7 @@ static int dissect_vendor_generic_suboption(packet_info *pinfo, proto_item *v_ti
 					    tvbuff_t *tvb, int optoff, int optend);
 static int dissect_isns(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
 			tvbuff_t *tvb, int optoff, int optlen);
+static void dissect_vendor_bsdp_boot_image(proto_tree *v_tree, tvbuff_t *tvb, int optoff);
 
 #define OPT53_DISCOVER "Discover"
 /* http://www.iana.org/assignments/bootp-dhcp-parameters */
@@ -1077,6 +1112,27 @@ static const value_string sip_server_enc_vals[] = {
 	{0, "Fully Qualified Domain Name" },
 	{1, "IPv4 Address" },
 	{0, NULL }
+};
+
+static const value_string o43_bsdp_boot_image_install_vals[] = {
+	{ 0, "non-install" },
+	{ 1, "install" },
+	{ 0, NULL }
+};
+
+static const value_string o43_bsdp_boot_image_kind_vals[] = {
+	{ 0, "Mac OS 9" },
+	{ 1, "Mac OS X" },
+	{ 2, "Mac OS X Server" },
+	{ 3, "Hardware Diagnostics" },
+	{ 0, NULL }
+};
+
+static const value_string o43_bsdp_message_type_vals[] = {
+	{ 1, "LIST" },
+	{ 2, "SELECT" },
+	{ 3, "FAILED" },
+	{ 0, NULL }
 };
 
 static const string_string option242_avaya_phystat_vals[] = {
@@ -1916,6 +1972,16 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 			ampiplen = tvb_find_guint8(tvb, optoff+nameorglen+1, optlen-nameorglen-1, ',') - (optoff+nameorglen+1);
 			proto_tree_add_item(v_tree, hf_bootp_option43_arubaiap_ampip, tvb, optoff+nameorglen+1, ampiplen, ENC_ASCII|ENC_NA);
 			proto_tree_add_item(v_tree, hf_bootp_option43_arubaiap_password, tvb, optoff+nameorglen+1+ampiplen+1, optlen-(nameorglen+1+ampiplen+1), ENC_ASCII|ENC_NA);
+		} else if (*vendor_class_id_p != NULL &&
+			   ((strncmp((const gchar*)*vendor_class_id_p, PACKETCABLE_BSDP, strlen(PACKETCABLE_BSDP)) == 0) )) {
+			/* Apple BSDP */
+			proto_item_append_text(vti, " (Boot Server Discovery Protocol (BSDP))");
+
+			optend = optoff + optlen;
+			while (optoff < optend) {
+				optoff = dissect_vendor_bsdp_suboption(pinfo, vti, v_tree,
+					tvb, optoff, optend);
+			}
 		} else if ((s_option==58 || s_option==64 || s_option==65
 			|| s_option==66 || s_option==67)
 			&& test_encapsulated_vendor_options(tvb, optoff, optoff+optlen)) {
@@ -2041,6 +2107,11 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 				(int)strlen(PACKETCABLE_CM_CAP30)) == 0 )
 		{
 			proto_tree_add_item(v_tree, hf_bootp_option_vendor_class_data, tvb, optoff, optlen, ENC_ASCII|ENC_NA);
+		} else
+			if (tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_BSDPD,
+				(int)strlen(PACKETCABLE_BSDPD)) == 0 )
+		{
+			proto_tree_add_item(v_tree, hf_bootp_option_vendor_class_data, tvb, optoff+(int)strlen(PACKETCABLE_BSDPD), optlen-(int)strlen(PACKETCABLE_BSDPD), ENC_ASCII|ENC_NA);
 		}
 		break;
 
@@ -3752,6 +3823,143 @@ dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	return optoff;
 }
 
+static const value_string option43_bsdp_suboption_vals[] = {
+	{  1, "Message Type" },
+	{  2, "Version" },
+	{  3, "Server Identifier" },
+	{  4, "Server Priority" },
+	{  5, "Reply Port" },
+	{  6, "Boot Image List Path" },
+	{  7, "Default Boot Image" },
+	{  8, "Selected Boot Image" },
+	{  9, "Boot Image List" },
+	{ 10, "NetBoot 1.0 Firmware" },
+	{ 11, "Boot Image Attributes Filter List" },
+	{ 12, "Maximum Message Size" },
+	{ 0, NULL}
+};
+
+static void
+dissect_vendor_bsdp_boot_image(proto_tree *v_tree, tvbuff_t *tvb, int optoff)
+{
+	static const int * bootp_o43_bsdp_attributes_flags[] = {
+		&hf_bootp_option43_bsdp_boot_image_attribute_install,
+		&hf_bootp_option43_bsdp_boot_image_attribute_kind,
+		&hf_bootp_option43_bsdp_boot_image_attribute_reserved,
+		NULL
+	};
+
+	proto_tree_add_bitmask(v_tree, tvb, optoff, hf_bootp_option43_bsdp_boot_image_attribute, ett_bootp_o43_bsdp_attributes_flags, bootp_o43_bsdp_attributes_flags, ENC_NA);
+}
+
+static int
+dissect_vendor_bsdp_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
+				   tvbuff_t *tvb, int optoff, int optend)
+{
+	int         suboptoff = optoff;
+	int	    attributes_off;
+	guint8      subopt, string_len;
+	guint8      subopt_len, attributes_len;
+	proto_tree *o43bsdp_v_tree, *o43bsdp_va_tree, *o43bsdp_vb_tree, *o43bsdp_vc_tree, *o43bsdp_vd_tree;
+	proto_item *vti, *ti, *tj;
+
+	subopt = tvb_get_guint8(tvb, optoff);
+	suboptoff++;
+
+	if (suboptoff >= optend) {
+		expert_add_info_format(pinfo, v_ti, &ei_bootp_missing_subopt_length,
+									"Suboption %d: no room left in option for suboption length", subopt);
+		return (optend);
+	}
+
+	subopt_len = tvb_get_guint8(tvb, suboptoff);
+	vti = proto_tree_add_uint_format_value(v_tree, hf_bootp_option43_bsdp_suboption,
+				tvb, optoff, subopt_len+2, subopt, "(%d) %s",
+				subopt, val_to_str_const(subopt, option43_bsdp_suboption_vals, "Unknown"));
+
+	o43bsdp_v_tree = proto_item_add_subtree(vti, ett_bootp_option43_suboption);
+	proto_tree_add_item(o43bsdp_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
+	suboptoff++;
+
+	if (suboptoff+subopt_len > optend) {
+		expert_add_info_format(pinfo, vti, &ei_bootp_missing_subopt_value,
+						"Suboption %d: no room left in option for suboption value", subopt);
+		return (optend);
+	}
+
+	switch(subopt)
+	{
+		case 1:
+			proto_tree_add_item(o43bsdp_v_tree, hf_bootp_option43_bsdp_message_type, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
+			break;
+		case 2:
+			proto_tree_add_item(o43bsdp_v_tree, hf_bootp_option43_bsdp_version, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+			break;
+		case 3:
+			proto_tree_add_item(o43bsdp_v_tree, hf_bootp_option43_bsdp_server_identifier, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+			break;
+		case 4:
+			proto_tree_add_item(o43bsdp_v_tree, hf_bootp_option43_bsdp_server_priority, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+			break;
+		case 5:
+			proto_tree_add_item(o43bsdp_v_tree, hf_bootp_option43_bsdp_reply_port, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+			break;
+		case 6:
+			proto_tree_add_item(o43bsdp_v_tree, hf_bootp_option43_bsdp_boot_image_list_path, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
+			break;
+		case 7:
+			ti = proto_tree_add_item(o43bsdp_v_tree, hf_bootp_option43_bsdp_default_boot_image_id, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN|ENC_NA);
+			o43bsdp_va_tree = proto_item_add_subtree(ti, ett_bootp_o43_bsdp_boot_image);
+			dissect_vendor_bsdp_boot_image(o43bsdp_va_tree, tvb, suboptoff);
+			proto_tree_add_item(o43bsdp_va_tree, hf_bootp_option43_bsdp_boot_image_index, tvb, suboptoff+2, subopt_len-2, ENC_BIG_ENDIAN|ENC_NA);
+			break;
+		case 8:
+			ti = proto_tree_add_item(o43bsdp_v_tree, hf_bootp_option43_bsdp_selected_boot_image_id, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN|ENC_NA);
+			o43bsdp_vc_tree = proto_item_add_subtree(ti, ett_bootp_o43_bsdp_boot_image);
+			dissect_vendor_bsdp_boot_image(o43bsdp_vc_tree, tvb, suboptoff);
+			proto_tree_add_item(o43bsdp_vc_tree, hf_bootp_option43_bsdp_boot_image_index, tvb, suboptoff+2, subopt_len-2, ENC_BIG_ENDIAN|ENC_NA);
+			break;
+		case 9:
+			ti = proto_tree_add_item(o43bsdp_v_tree, hf_bootp_option43_bsdp_boot_image_list, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN|ENC_NA);
+			attributes_len = subopt_len;
+			attributes_off = suboptoff;
+			o43bsdp_vd_tree = proto_item_add_subtree(ti, ett_bootp_o43_bsdp_image_desc_list);
+			while (attributes_len >= 5) {
+				string_len = tvb_get_guint8(tvb, attributes_off+4);
+				if (string_len > 0) {
+					tj = proto_tree_add_item(o43bsdp_vd_tree, hf_bootp_option43_bsdp_image_desc, tvb, attributes_off, string_len+5, ENC_BIG_ENDIAN|ENC_NA);
+					o43bsdp_vb_tree = proto_item_add_subtree(tj, ett_bootp_o43_bsdp_image_desc);
+					dissect_vendor_bsdp_boot_image(o43bsdp_vb_tree, tvb, attributes_off);
+					proto_tree_add_item(o43bsdp_vb_tree, hf_bootp_option43_bsdp_boot_image_index, tvb, attributes_off+2, 2, ENC_BIG_ENDIAN|ENC_NA);
+					proto_tree_add_item(o43bsdp_vb_tree, hf_bootp_option43_bsdp_boot_image_name_len, tvb, attributes_off+4, 1, ENC_BIG_ENDIAN|ENC_NA);
+					proto_tree_add_item(o43bsdp_vb_tree, hf_bootp_option43_bsdp_boot_image_name, tvb, attributes_off+5, string_len, ENC_UTF_8|ENC_NA);
+				}
+				attributes_off += 5 + string_len;
+				attributes_len -= 5 + string_len;
+			}
+			break;
+		case 10:
+			proto_tree_add_item(o43bsdp_v_tree, hf_bootp_option43_bsdp_netboot_firmware, tvb, suboptoff, subopt_len, ENC_NA);
+			break;
+		case 11:
+			ti = proto_tree_add_item(o43bsdp_v_tree, hf_bootp_option43_bsdp_attributes_filter_list, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN|ENC_NA);
+			attributes_len = subopt_len;
+			attributes_off = suboptoff;
+			o43bsdp_va_tree = proto_item_add_subtree(ti, ett_bootp_o43_bsdp_attributes);
+			while (attributes_len >= 2) {
+				dissect_vendor_bsdp_boot_image(o43bsdp_va_tree, tvb, attributes_off);
+				attributes_off+=2;
+				attributes_len-=2;
+			}
+			break;
+		case 12:
+			proto_tree_add_item(o43bsdp_v_tree, hf_bootp_option43_bsdp_message_size, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN|ENC_NA);
+			break;
+	}
+
+	optoff += (subopt_len + 2);
+	return optoff;
+}
 
 static int
 dissect_vendor_generic_suboption(packet_info *pinfo _U_, proto_item *v_ti _U_, proto_tree *v_tree,
@@ -6976,6 +7184,113 @@ proto_register_bootp(void)
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "Password for Instant AP Airwave server (AMP)", HFILL }},
 
+
+		{ &hf_bootp_option43_bsdp_suboption,
+		  { "Option 43 Suboption", "bootp.option.vendor.bsdp.suboption",
+		    FT_UINT8, BASE_DEC, VALS(option43_cl_suboption_vals), 0x0,
+		    "Option 43:BSDP Suboption", HFILL }},
+
+		{ &hf_bootp_option43_bsdp_message_type,
+		  { "Message Type", "bootp.option.vendor.bsdp.message_type",
+		    FT_UINT8, BASE_DEC, VALS(o43_bsdp_message_type_vals), 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_option43_bsdp_version,
+		  { "Version", "bootp.option.vendor.bsdp.version",
+		    FT_UINT16, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_option43_bsdp_server_identifier,
+		  { "Server Identifier", "bootp.option.vendor.bsdp.server_identifier",
+		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_option43_bsdp_server_priority,
+		  { "Server Priority", "bootp.option.vendor.bsdp.server_priority",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_option43_bsdp_reply_port,
+		  { "Reply Port", "bootp.option.vendor.bsdp.reply_port",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_option43_bsdp_boot_image_list_path,
+		  { "Boot Image List Path", "bootp.option.vendor.bsdp.boot_image_list_path",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_option43_bsdp_boot_image_index,
+		  { "Boot Image Index", "bootp.option.vendor.bsdp.boot_image.index",
+		    FT_UINT16, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_option43_bsdp_default_boot_image_id,
+		  { "Default Boot Image ID", "bootp.option.vendor.bsdp.default_boot_image_id",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_option43_bsdp_selected_boot_image_id,
+		  { "Selected Boot Image ID", "bootp.option.vendor.bsdp.selected_boot_image_id",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_option43_bsdp_boot_image_list,
+		  { "Boot Image List", "bootp.option.vendor.bsdp.boot_image_list",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_option43_bsdp_image_desc,
+		  { "Boot Image Description", "bootp.option.vendor.bsdp.boot_image.desc",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_option43_bsdp_boot_image_name_len,
+		  { "Boot Image Name Length", "bootp.option.vendor.bsdp.boot_image.name_len",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_option43_bsdp_boot_image_name,
+		  { "Boot Image Name", "bootp.option.vendor.bsdp.boot_image.name",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_option43_bsdp_netboot_firmware,
+		  { "NetBoot 1.0 Firmware", "bootp.option.vendor.bsdp.netboot_firmware",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_option43_bsdp_attributes_filter_list,
+		  { "Boot Image Attributes Filter List", "bootp.option.vendor.bsdp.attributes_filter_list",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_option43_bsdp_boot_image_attribute,
+		  { "Boot Image Attribute", "bootp.option.vendor.bsdp.boot_image.attribute",
+		    FT_UINT16, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_option43_bsdp_boot_image_attribute_install,
+		  { "Install", "bootp.option.vendor.bsdp.boot_image.attribute.install",
+		    FT_UINT16, BASE_HEX, VALS(o43_bsdp_boot_image_install_vals), 0x8000,
+		    "Boot Image Attribute Install", HFILL }},
+
+		{ &hf_bootp_option43_bsdp_boot_image_attribute_kind,
+		  { "Kind", "bootp.option.vendor.bsdp.boot_image.attribute.kind",
+		    FT_UINT16, BASE_HEX, VALS(o43_bsdp_boot_image_kind_vals), 0x7f00,
+		    "Boot Image Attribute Kind", HFILL }},
+
+		{ &hf_bootp_option43_bsdp_boot_image_attribute_reserved,
+		  { "Reserved", "bootp.option.vendor.bsdp.boot_image.attribute.reserved",
+		    FT_UINT16, BASE_HEX, NULL, 0x00ff,
+		    "Boot Image Attribute Reserved", HFILL }},
+
+		{ &hf_bootp_option43_bsdp_message_size,
+		  { "Message Size", "bootp.option.vendor.bsdp.message_size",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+
 		{ &hf_bootp_option_netbios_over_tcpip_name_server,
 		  { "NetBIOS over TCP/IP Name Server", "bootp.option.netbios_over_tcpip_name_server",
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
@@ -8150,6 +8465,11 @@ proto_register_bootp(void)
 		&ett_bootp_isns_administrative_flags,
 		&ett_bootp_isns_server_security_bitmap,
 		&ett_bootp_isns_secondary_server_addr,
+		&ett_bootp_o43_bsdp_boot_image,
+		&ett_bootp_o43_bsdp_attributes,
+		&ett_bootp_o43_bsdp_image_desc_list,
+		&ett_bootp_o43_bsdp_image_desc,
+		&ett_bootp_o43_bsdp_attributes_flags,
 	};
 
 	static ei_register_info ei[] = {
