@@ -54,6 +54,7 @@ static int proto_nfs_ontap_gx_v3 = -1;
 static int proto_nfs_celerra_vnx = -1;
 static int proto_nfs_gluster = -1;
 static int proto_nfs_dcache = -1;
+static int proto_nfs_cb = -1;
 static int hf_nfs_access_check  = -1;
 static int hf_nfs_access_supported  = -1;
 static int hf_nfs_access_rights = -1;
@@ -13662,6 +13663,9 @@ proto_register_nfs(void)
 	proto_nfs_gluster = proto_register_protocol("GLUSTER", "gluster", "nfs.gluster");
 	proto_nfs_dcache = proto_register_protocol("dCache", "dcache", "nfs.dcache");
 
+	/* "protocols" registered just for ONC-RPC Service Response Time */
+	proto_nfs_cb = proto_register_protocol("Network File System CB", "NFS CB", "nfs.cb");
+
 	proto_register_field_array(proto_nfs, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_nfs = expert_register_protocol(proto_nfs);
@@ -13721,7 +13725,7 @@ proto_reg_handoff_nfs(void)
 	    G_N_ELEMENTS(nfs_vers_info), nfs_vers_info);
 
 	/* Register the CB protocol as RPC */
-	rpc_init_prog(proto_nfs, NFS_CB_PROGRAM, ett_nfs,
+	rpc_init_prog(proto_nfs_cb, NFS_CB_PROGRAM, ett_nfs,
 	    G_N_ELEMENTS(nfs_cb_vers_info), nfs_cb_vers_info);
 
 	fhandle_handle = create_dissector_handle(dissect_fhandle_data_SVR4, proto_nfs_svr4);
