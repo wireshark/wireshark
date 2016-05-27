@@ -374,6 +374,7 @@ static int hf_smb2_posix_v1_posix_fileinfo = -1;
 static int hf_smb2_posix_v1_posix_acls = -1;
 static int hf_smb2_posix_v1_rich_acls = -1;
 static int hf_smb2_aapl_command_code = -1;
+static int hf_smb2_aapl_reserved = -1;
 static int hf_smb2_aapl_server_query_bitmask = -1;
 static int hf_smb2_aapl_server_query_bitmask_server_caps = -1;
 static int hf_smb2_aapl_server_query_bitmask_volume_caps = -1;
@@ -6574,6 +6575,8 @@ dissect_smb2_AAPL_buffer_request(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 	offset += 4;
 
 	/* Reserved */
+	proto_tree_add_item(sub_tree, hf_smb2_aapl_reserved,
+	    tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	switch (command_code) {
@@ -6636,6 +6639,8 @@ dissect_smb2_AAPL_buffer_response(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 	offset += 4;
 
 	/* Reserved */
+	proto_tree_add_item(sub_tree, hf_smb2_aapl_reserved,
+	    tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	switch (command_code) {
@@ -9679,6 +9684,10 @@ proto_register_smb2(void)
 		{ &hf_smb2_aapl_command_code,
 		  { "Command code", "smb2.aapl.command_code", FT_UINT32, BASE_DEC,
 		    VALS(aapl_command_code_vals), 0, NULL, HFILL }},
+
+		{ &hf_smb2_aapl_reserved,
+		  { "Reserved", "smb2.aapl.reserved", FT_UINT32, BASE_HEX,
+		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_smb2_aapl_server_query_bitmask,
 		  { "Query bitmask", "smb2.aapl.query_bitmask", FT_UINT64, BASE_HEX,
