@@ -27,7 +27,7 @@
 
 #include "filter_expressions_preferences_frame.h"
 #include <ui_filter_expressions_preferences_frame.h>
-#include "syntax_line_edit.h"
+#include "display_filter_edit.h"
 #include "wireshark_application.h"
 
 #include "qt_ui_utils.h"
@@ -208,12 +208,12 @@ void FilterExpressionsPreferencesFrame::on_expressionTreeWidget_itemActivated(QT
     }
     case expression_col_:
     {
-        SyntaxLineEdit *syntax_edit = new SyntaxLineEdit();
+        DisplayFilterEdit *display_edit = new DisplayFilterEdit();
         saved_col_string_ = item->text(expression_col_);
-        connect(syntax_edit, SIGNAL(textChanged(QString)),
-                syntax_edit, SLOT(checkDisplayFilter(QString)));
-        connect(syntax_edit, SIGNAL(editingFinished()), this, SLOT(expressionEditingFinished()));
-        editor = cur_line_edit_ = syntax_edit;
+        connect(display_edit, SIGNAL(textChanged(QString)),
+                display_edit, SLOT(checkDisplayFilter(QString)));
+        connect(display_edit, SIGNAL(editingFinished()), this, SLOT(expressionEditingFinished()));
+        editor = cur_line_edit_ = display_edit;
         break;
     }
     default:
