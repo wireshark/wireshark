@@ -765,7 +765,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
   }
 #endif /* HAVE_LIBGCRYPT */
   if (cap_order)          printf     ("Strict time order:   %s\n", order_string(cf_info->order));
-  
+
   if (cap_comment) {
     wtap_optionblock_foreach_option(cf_info->shb, show_comment, NULL);
   }
@@ -851,10 +851,85 @@ print_stats_table_header(void)
 }
 
 static void
+put_comment(wtap_optionblock_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_option_type* option, void* user_data _U_)
+{
+  switch(option_id)
+  {
+  case OPT_COMMENT:
+    if (option != NULL && option->stringval != NULL) {
+      putsep();
+      putquote();
+      printf("%s", option->stringval);
+      putquote();
+    }
+    break;
+  default:
+    /* Don't show other options */
+    break;
+  }
+}
+
+static void
+put_capture_hardware(wtap_optionblock_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_option_type* option, void* user_data _U_)
+{
+  switch(option_id)
+  {
+  case OPT_SHB_HARDWARE:
+    if (option != NULL && option->stringval != NULL) {
+      putsep();
+      putquote();
+      printf("%s", option->stringval);
+      putquote();
+    }
+    break;
+  default:
+    /* Don't show other options */
+    break;
+  }
+}
+
+static void
+put_capture_os(wtap_optionblock_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_option_type* option, void* user_data _U_)
+{
+  switch(option_id)
+  {
+  case OPT_SHB_OS:
+    if (option != NULL && option->stringval != NULL) {
+      putsep();
+      putquote();
+      printf("%s", option->stringval);
+      putquote();
+    }
+    break;
+  default:
+    /* Don't show other options */
+    break;
+  }
+}
+
+static void
+put_capture_userappl(wtap_optionblock_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_option_type* option, void* user_data _U_)
+{
+  switch(option_id)
+  {
+  case OPT_SHB_USERAPPL:
+    if (option != NULL && option->stringval != NULL) {
+      putsep();
+      putquote();
+      printf("%s", option->stringval);
+      putquote();
+    }
+    break;
+  default:
+    /* Don't show other options */
+    break;
+  }
+}
+
+static void
 print_stats_table(const gchar *filename, capture_info *cf_info)
 {
   const gchar           *file_type_string, *file_encap_string;
-  gchar                 *str;
 
   /* Build printable strings for various stats */
   file_type_string = wtap_file_type_subtype_string(cf_info->file_type);
@@ -1027,33 +1102,21 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
     putquote();
   }
 
-  /* this is silly to put into a table format, but oh well */
+  /*
+   * this is silly to put into a table format, but oh well
+   * note that there may be *more than one* of each of these types
+   * of options
+   */
   if (cap_comment) {
-    putsep();
-    putquote();
-    wtap_optionblock_get_option_string(cf_info->shb, OPT_COMMENT, &str);
-    printf("%s", str);
-    putquote();
+    wtap_optionblock_foreach_option(cf_info->shb, put_comment, NULL);
   }
 
   if (cap_file_more_info) {
-    putsep();
-    putquote();
-    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_HARDWARE, &str);
-    printf("%s", str);
-    putquote();
+    wtap_optionblock_foreach_option(cf_info->shb, put_capture_hardware, NULL);
 
-    putsep();
-    putquote();
-    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_OS, &str);
-    printf("%s", str);
-    putquote();
+    wtap_optionblock_foreach_option(cf_info->shb, put_capture_os, NULL);
 
-    putsep();
-    putquote();
-    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_USERAPPL, &str);
-    printf("%s", str);
-    putquote();
+    wtap_optionblock_foreach_option(cf_info->shb, put_capture_userappl, NULL);
   }
 
   printf("\n");
