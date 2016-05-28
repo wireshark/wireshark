@@ -217,7 +217,7 @@ void wtap_optionblock_copy_options(wtap_optionblock_t dest_block, wtap_optionblo
 
 
 typedef void (*wtap_optionblock_foreach_func)(wtap_optionblock_t block, guint option_id, wtap_opttype_e option_type, wtap_option_type* option, void* user_data);
-void wtap_optionblock_foreach_option(wtap_optionblock_t block, wtap_optionblock_foreach_func func, void* user_data);
+WS_DLL_PUBLIC void wtap_optionblock_foreach_option(wtap_optionblock_t block, wtap_optionblock_foreach_func func, void* user_data);
 
 WS_DLL_PUBLIC int wtap_opttype_register_custom_block_type(const char* name, const char* description, wtap_block_create_func create,
                                                 wtap_mand_free_func free_mand, wtap_mand_copy_func copy_mand);
