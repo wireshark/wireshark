@@ -36,6 +36,7 @@
 #include "column_preferences_frame.h"
 #include <ui_column_preferences_frame.h>
 #include "syntax_line_edit.h"
+#include "field_filter_edit.h"
 #include "wireshark_application.h"
 
 #include <QComboBox>
@@ -285,12 +286,12 @@ void ColumnPreferencesFrame::on_columnTreeWidget_itemActivated(QTreeWidgetItem *
     }
     case custom_field_col_:
     {
-        SyntaxLineEdit *syntax_edit = new SyntaxLineEdit();
+        FieldFilterEdit *field_filter_edit = new FieldFilterEdit();
         saved_col_string_ = item->text(custom_field_col_);
-        connect(syntax_edit, SIGNAL(textChanged(QString)),
-                syntax_edit, SLOT(checkCustomColumn(QString)));
-        connect(syntax_edit, SIGNAL(editingFinished()), this, SLOT(customFieldEditingFinished()));
-        editor = cur_line_edit_ = syntax_edit;
+        connect(field_filter_edit, SIGNAL(textChanged(QString)),
+                field_filter_edit, SLOT(checkCustomColumn(QString)));
+        connect(field_filter_edit, SIGNAL(editingFinished()), this, SLOT(customFieldsEditingFinished()));
+        editor = cur_line_edit_ = field_filter_edit;
 
         //Save off the current column type in case it needs to be restored
         if ((item->text(custom_field_col_) == "") && (item->text(custom_occurrence_col_) == "")) {
