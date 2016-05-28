@@ -1208,7 +1208,7 @@ void MainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
                 /* The write failed.
                    XXX - OK, what do we do now?  Let them try a
                    "Save As", in case they want to try to save to a
-                   different directory r file system? */
+                   different directory or file system? */
                 break;
 
             case CF_WRITE_ABORTED:
@@ -1620,6 +1620,7 @@ bool MainWindow::testCaptureFileClose(QString before_what, FileCloseContext cont
 #endif
                 /* Save the file and close it */
                 saveCaptureFile(capture_file_.capFile(), true);
+                do_close_file = true;
             } else if(msg_dialog.clickedButton() == discard_button) {
                 /* Just close the file, discarding changes */
                 do_close_file = true;
