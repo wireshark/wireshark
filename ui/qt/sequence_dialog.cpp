@@ -211,6 +211,14 @@ void SequenceDialog::keyPressEvent(QKeyEvent *event)
         panAxes(0, -1 * pan_pixels);
         break;
 
+    case Qt::Key_PageDown:
+    case Qt::Key_Space:
+        ui->verticalScrollBar->setValue(ui->verticalScrollBar->value() + ui->verticalScrollBar->pageStep());
+        break;
+    case Qt::Key_PageUp:
+        ui->verticalScrollBar->setValue(ui->verticalScrollBar->value() - ui->verticalScrollBar->pageStep());
+        break;
+
     case Qt::Key_0:
     case Qt::Key_ParenRight:    // Shifted 0 on U.S. keyboards
     case Qt::Key_R:
