@@ -540,12 +540,114 @@ static void print_value(const gchar *text_p1, gint width, const gchar *text_p2, 
     printf("%sn/a\n", text_p1);
 }
 
+/* multi-line comments would conflict with the formatting that capinfos uses
+   we replace linefeeds with spaces */
+static void
+string_replace_newlines(gchar *str)
+{
+  gchar *p;
+
+  if (str) {
+    p = str;
+    while (*p != '\0') {
+      if (*p == '\n')
+        *p = ' ';
+      if (*p == '\r')
+        *p = ' ';
+      p++;
+    }
+  }
+}
+
+static void
+show_comment(wtap_optionblock_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_option_type* option, void* user_data _U_)
+{
+  char *opt_str;
+
+  switch(option_id)
+  {
+  case OPT_COMMENT:
+    if (option != NULL && option->stringval != NULL) {
+      opt_str = g_strdup(option->stringval);
+      string_replace_newlines(opt_str);
+      printf("Capture comment:     %s\n", opt_str);
+      g_free(opt_str);
+    }
+    break;
+  default:
+    /* Don't show other options */
+    break;
+  }
+}
+
+static void
+show_capture_hardware(wtap_optionblock_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_option_type* option, void* user_data _U_)
+{
+  char *opt_str;
+
+  switch(option_id)
+  {
+  case OPT_SHB_HARDWARE:
+    if (option != NULL && option->stringval != NULL) {
+      opt_str = g_strdup(option->stringval);
+      string_replace_newlines(opt_str);
+      printf("Capture hardware:    %s\n", opt_str);
+      g_free(opt_str);
+    }
+    break;
+  default:
+    /* Don't show other options */
+    break;
+  }
+}
+
+static void
+show_capture_os(wtap_optionblock_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_option_type* option, void* user_data _U_)
+{
+  char *opt_str;
+
+  switch(option_id)
+  {
+  case OPT_SHB_OS:
+    if (option != NULL && option->stringval != NULL) {
+      opt_str = g_strdup(option->stringval);
+      string_replace_newlines(opt_str);
+      printf("Capture oper-sys:    %s\n", opt_str);
+      g_free(opt_str);
+    }
+    break;
+  default:
+    /* Don't show other options */
+    break;
+  }
+}
+
+static void
+show_capture_userappl(wtap_optionblock_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_option_type* option, void* user_data _U_)
+{
+  char *opt_str;
+
+  switch(option_id)
+  {
+  case OPT_SHB_USERAPPL:
+    if (option != NULL && option->stringval != NULL) {
+      opt_str = g_strdup(option->stringval);
+      string_replace_newlines(opt_str);
+      printf("Capture application: %s\n", opt_str);
+      g_free(opt_str);
+    }
+    break;
+  default:
+    /* Don't show other options */
+    break;
+  }
+}
+
 static void
 print_stats(const gchar *filename, capture_info *cf_info)
 {
   const gchar           *file_type_string, *file_encap_string;
   gchar                 *size_string;
-  gchar                 *opt_str;
 
   /* Build printable strings for various stats */
   file_type_string = wtap_file_type_subtype_string(cf_info->file_type);
@@ -663,21 +765,14 @@ print_stats(const gchar *filename, capture_info *cf_info)
   }
 #endif /* HAVE_LIBGCRYPT */
   if (cap_order)          printf     ("Strict time order:   %s\n", order_string(cf_info->order));
+  
   if (cap_comment) {
-    wtap_optionblock_get_option_string(cf_info->shb, OPT_COMMENT, &opt_str);
-    if (opt_str)
-      printf     ("Capture comment:     %s\n", opt_str);
+    wtap_optionblock_foreach_option(cf_info->shb, show_comment, NULL);
   }
   if (cap_file_more_info) {
-    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_HARDWARE, &opt_str);
-    if (opt_str)
-      printf   ("Capture hardware:    %s\n", opt_str);
-    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_OS, &opt_str);
-    if (opt_str)
-      printf   ("Capture oper-sys:    %s\n", opt_str);
-    wtap_optionblock_get_option_string(cf_info->shb, OPT_SHB_USERAPPL, &opt_str);
-    if (opt_str)
-      printf   ("Capture application: %s\n", opt_str);
+    wtap_optionblock_foreach_option(cf_info->shb, show_capture_hardware, NULL);
+    wtap_optionblock_foreach_option(cf_info->shb, show_capture_os, NULL);
+    wtap_optionblock_foreach_option(cf_info->shb, show_capture_userappl, NULL);
   }
 
   if (cap_file_idb && cf_info->num_interfaces != 0) {
@@ -970,8 +1065,6 @@ cleanup_capture_info(capture_info *cf_info)
   guint i;
   g_assert(cf_info != NULL);
 
-  wtap_optionblock_free(cf_info->shb);
-
   g_free(cf_info->encap_counts);
   cf_info->encap_counts = NULL;
 
@@ -987,26 +1080,6 @@ cleanup_capture_info(capture_info *cf_info)
   }
   cf_info->idb_info_strings = NULL;
 }
-
-/* multi-line comments would conflict with the formatting that capinfos uses
-   we replace linefeeds with spaces */
-static void
-string_replace_newlines(gchar *str)
-{
-  gchar *p;
-
-  if (str) {
-    p = str;
-    while (*p != '\0') {
-      if (*p == '\n')
-        *p = ' ';
-      if (*p == '\r')
-        *p = ' ';
-      p++;
-    }
-  }
-}
-
 
 static int
 process_cap_file(wtap *wth, const char *filename)
@@ -1032,10 +1105,8 @@ process_cap_file(wtap *wth, const char *filename)
   nstime_t              prev_time;
   gboolean              know_order = FALSE;
   order_t               order = IN_ORDER;
-  wtap_optionblock_t    shb_inf;
   guint                 i;
   wtapng_iface_descriptions_t *idb_info;
-  char                  *shb_str, *shb_str_no_newlines;
 
   g_assert(wth != NULL);
   g_assert(filename != NULL);
@@ -1047,7 +1118,7 @@ process_cap_file(wtap *wth, const char *filename)
   nstime_set_zero(&cur_time);
   nstime_set_zero(&prev_time);
 
-  cf_info.shb = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_SECTION);
+  cf_info.shb = wtap_file_get_shb(wth);
 
   cf_info.encap_counts = g_new0(int,WTAP_NUM_ENCAP_TYPES);
 
@@ -1232,34 +1303,6 @@ process_cap_file(wtap *wth, const char *filename)
       cf_info.packet_rate = (double)packet / delta_time; /* packet rate per second */
     }
     cf_info.packet_size = (double)bytes / packet;                  /* Avg packet size      */
-  }
-
-  shb_inf = wtap_file_get_shb(wth);
-  if (shb_inf) {
-    /* opt_comment is always 0-terminated by pcapng_read_section_header_block */
-    wtap_optionblock_get_option_string(shb_inf, OPT_COMMENT, &shb_str);
-    shb_str_no_newlines = g_strdup(shb_str);
-    string_replace_newlines(shb_str_no_newlines);
-    wtap_optionblock_set_option_string(cf_info.shb, OPT_COMMENT, shb_str_no_newlines, (gsize)(shb_str_no_newlines ? strlen(shb_str_no_newlines) : 0));
-    g_free(shb_str_no_newlines);
-
-    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_HARDWARE, &shb_str);
-    shb_str_no_newlines = g_strdup(shb_str);
-    string_replace_newlines(shb_str_no_newlines);
-    wtap_optionblock_set_option_string(cf_info.shb, OPT_SHB_HARDWARE, shb_str_no_newlines, (gsize)(shb_str_no_newlines ? strlen(shb_str_no_newlines) : 0));
-    g_free(shb_str_no_newlines);
-
-    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_OS, &shb_str);
-    shb_str_no_newlines = g_strdup(shb_str);
-    string_replace_newlines(shb_str_no_newlines);
-    wtap_optionblock_set_option_string(cf_info.shb, OPT_SHB_OS, shb_str_no_newlines, (gsize)(shb_str_no_newlines ? strlen(shb_str_no_newlines) : 0));
-    g_free(shb_str_no_newlines);
-
-    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_USERAPPL, &shb_str);
-    shb_str_no_newlines = g_strdup(shb_str);
-    string_replace_newlines(shb_str_no_newlines);
-    wtap_optionblock_set_option_string(cf_info.shb, OPT_SHB_USERAPPL, shb_str_no_newlines, (gsize)(shb_str_no_newlines ? strlen(shb_str_no_newlines) : 0));
-    g_free(shb_str_no_newlines);
   }
 
   if (long_report) {
