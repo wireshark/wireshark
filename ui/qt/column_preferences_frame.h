@@ -53,6 +53,7 @@ private:
     QString saved_col_string_;
     QComboBox *cur_combo_box_;
     int saved_combo_idx_;
+    int saved_custom_combo_idx_;
 
     void addColumn(bool visible, const char *title, int fmt, const char *custom_field, int custom_occurrence);
 
