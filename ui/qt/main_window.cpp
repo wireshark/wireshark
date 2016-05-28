@@ -993,7 +993,7 @@ void MainWindow::mergeCaptureFile()
 
             case QMessageBox::Save:
                 /* Save the file but don't close it */
-                saveCaptureFile(capture_file_.capFile(), FALSE);
+                saveCaptureFile(capture_file_.capFile(), false);
                 break;
 
             case QMessageBox::Cancel:

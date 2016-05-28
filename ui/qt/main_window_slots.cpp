@@ -1627,7 +1627,7 @@ void MainWindow::on_actionFileClose_triggered() {
 
 void MainWindow::on_actionFileSave_triggered()
 {
-    saveCaptureFile(capture_file_.capFile(), FALSE);
+    saveCaptureFile(capture_file_.capFile(), false);
 }
 
 void MainWindow::on_actionFileSaveAs_triggered()
