@@ -60,6 +60,7 @@ set(WIRESHARK_QT_HEADERS
 	export_dissection_dialog.h
 	export_object_dialog.h
 	export_pdu_dialog.h
+	field_filter_edit.h
 	file_set_dialog.h
 	filter_action.h
 	filter_dialog.h
@@ -214,6 +215,7 @@ set(WIRESHARK_QT_SRC
 	export_dissection_dialog.cpp
 	export_object_dialog.cpp
 	export_pdu_dialog.cpp
+	field_filter_edit.cpp
 	file_set_dialog.cpp
 	filter_action.cpp
 	filter_dialog.cpp

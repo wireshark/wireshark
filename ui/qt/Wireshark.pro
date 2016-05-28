@@ -636,6 +636,7 @@ HEADERS += \
     color_utils.h \
     display_filter_combo.h \
     display_filter_edit.h \
+    field_filter_edit.h \
     file_set_dialog.h \
     filter_dialog.h \
     geometry_state_dialog.h \
@@ -714,6 +715,7 @@ SOURCES += \
     extcap_argument_file.cpp \
     extcap_argument_multiselect.cpp \
     extcap_options_dialog.cpp \
+    field_filter_edit.cpp \
     file_set_dialog.cpp \
     filter_action.cpp \
     filter_dialog.cpp \
