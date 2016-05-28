@@ -51,7 +51,8 @@ ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::ColumnPreferencesFrame),
     cur_line_edit_(NULL),
-    cur_combo_box_(NULL)
+    cur_combo_box_(NULL),
+    saved_custom_combo_idx_(-1)
 {
     ui->setupUi(this);
 
@@ -219,20 +220,32 @@ void ColumnPreferencesFrame::updateWidgets()
 
 void ColumnPreferencesFrame::on_columnTreeWidget_currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *previous)
 {
-    if (previous && ui->columnTreeWidget->itemWidget(previous, title_col_)) {
-        ui->columnTreeWidget->removeItemWidget(previous, title_col_);
-    }
-    if (previous && ui->columnTreeWidget->itemWidget(previous, type_col_)) {
-        ui->columnTreeWidget->removeItemWidget(previous, type_col_);
-        previous->setText(type_col_, col_format_desc(previous->data(type_col_, Qt::UserRole).toInt()));
-    }
-    if (previous && ui->columnTreeWidget->itemWidget(previous, custom_fields_col_)) {
-        ui->columnTreeWidget->removeItemWidget(previous, custom_fields_col_);
-    }
-    if (previous && ui->columnTreeWidget->itemWidget(previous, custom_occurrence_col_)) {
-        ui->columnTreeWidget->removeItemWidget(previous, custom_occurrence_col_);
-    }
+    if (previous) {
+        if (ui->columnTreeWidget->itemWidget(previous, title_col_)) {
+            ui->columnTreeWidget->removeItemWidget(previous, title_col_);
+        }
+        if (ui->columnTreeWidget->itemWidget(previous, type_col_)) {
+            ui->columnTreeWidget->removeItemWidget(previous, type_col_);
+            previous->setText(type_col_, col_format_desc(previous->data(type_col_, Qt::UserRole).toInt()));
+        }
+        if (ui->columnTreeWidget->itemWidget(previous, custom_fields_col_)) {
+            ui->columnTreeWidget->removeItemWidget(previous, custom_fields_col_);
+        }
+        if (ui->columnTreeWidget->itemWidget(previous, custom_occurrence_col_)) {
+            ui->columnTreeWidget->removeItemWidget(previous, custom_occurrence_col_);
+        }
 
+        // If the custom column auto-changed the Column type, change it back if
+        // there isn't any text in the field columns
+        if ((previous->text(custom_fields_col_) == "") &&
+            (previous->text(custom_occurrence_col_) == "") &&
+            (saved_custom_combo_idx_ >= 0))
+        {
+            previous->setText(type_col_, col_format_desc(saved_custom_combo_idx_));
+            previous->setData(type_col_, Qt::UserRole, QVariant(saved_custom_combo_idx_));
+            saved_custom_combo_idx_ = -1;
+        }
+    }
     updateWidgets();
 }
 
@@ -276,7 +289,10 @@ void ColumnPreferencesFrame::on_columnTreeWidget_itemActivated(QTreeWidgetItem *
         connect(syntax_edit, SIGNAL(editingFinished()), this, SLOT(customFieldsEditingFinished()));
         editor = cur_line_edit_ = syntax_edit;
 
-        saved_combo_idx_ = item->data(type_col_, Qt::UserRole).toInt();
+        //Save off the current column type in case it needs to be restored
+        if ((item->text(custom_fields_col_) == "") && (item->text(custom_occurrence_col_) == "")) {
+            saved_custom_combo_idx_ = item->data(type_col_, Qt::UserRole).toInt();
+        }
         item->setText(type_col_, col_format_desc(COL_CUSTOM));
         item->setData(type_col_, Qt::UserRole, QVariant(COL_CUSTOM));
         break;
@@ -290,7 +306,10 @@ void ColumnPreferencesFrame::on_columnTreeWidget_itemActivated(QTreeWidgetItem *
         connect(syntax_edit, SIGNAL(editingFinished()), this, SLOT(customOccurrenceEditingFinished()));
         editor = cur_line_edit_ = syntax_edit;
 
-        saved_combo_idx_ = item->data(type_col_, Qt::UserRole).toInt();
+        //Save off the current column type in case it needs to be restored
+        if ((item->text(custom_fields_col_) == "") && (item->text(custom_occurrence_col_) == "")) {
+            saved_custom_combo_idx_ = item->data(type_col_, Qt::UserRole).toInt();
+        }
         item->setText(type_col_, col_format_desc(COL_CUSTOM));
         item->setData(type_col_, Qt::UserRole, QVariant(COL_CUSTOM));
         break;
