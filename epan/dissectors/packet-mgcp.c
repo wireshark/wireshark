@@ -430,7 +430,8 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	gint sectionlen;
 	guint32 num_messages;
 	gint tvb_sectionend, tvb_sectionbegin, tvb_len;
-	proto_tree *mgcp_tree, *ti;
+	proto_tree *mgcp_tree = NULL;
+	proto_item *ti = NULL, *tii;
 	const gchar *verb_name = "";
 
 	/* Initialize variables */
@@ -438,86 +439,78 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	tvb_sectionbegin = tvb_sectionend;
 	tvb_len = tvb_reported_length(tvb);
 	num_messages = 0;
-	mgcp_tree = NULL;
-	ti = NULL;
 
 	/*
 	 * Check to see whether we're really dealing with MGCP by looking
 	 * for a valid MGCP verb or response code.  This isn't infallible,
 	 * but it's cheap and it's better than nothing.
 	 */
-	if (is_mgcp_verb(tvb, 0, tvb_len, &verb_name) || is_mgcp_rspcode(tvb, 0, tvb_len))
+	if (!is_mgcp_verb(tvb, 0, tvb_len, &verb_name) && !is_mgcp_rspcode(tvb, 0, tvb_len))
+		return 0;
+
+	/*
+	 * Set the columns now, so that they'll be set correctly if we throw
+	 * an exception.  We can set them later as well....
+	 */
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MGCP");
+	col_clear(pinfo->cinfo, COL_INFO);
+
+	/*
+	 * Loop through however many mgcp messages may be stuck in
+	 * this packet using piggybacking
+	 */
+	do
 	{
-		/*
-		 * Set the columns now, so that they'll be set correctly if we throw
-		 * an exception.  We can set them later as well....
-		 */
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MGCP");
-		col_clear(pinfo->cinfo, COL_INFO);
+		num_messages++;
 
-		/*
-		 * Loop through however many mgcp messages may be stuck in
-		 * this packet using piggybacking
-		 */
-		do
+		/* Create our mgcp subtree */
+		ti = proto_tree_add_item(tree, proto_mgcp, tvb, 0, 0, ENC_NA);
+		mgcp_tree = proto_item_add_subtree(ti, ett_mgcp);
+
+		sectionlen = tvb_find_dot_line(tvb, tvb_sectionbegin, -1, &tvb_sectionend);
+		if (sectionlen != -1)
 		{
-			num_messages++;
-			if (tree)
-			{
-				/* Create our mgcp subtree */
-				ti = proto_tree_add_item(tree, proto_mgcp, tvb, 0, 0, ENC_NA);
-				mgcp_tree = proto_item_add_subtree(ti, ett_mgcp);
-			}
-
-			sectionlen = tvb_find_dot_line(tvb, tvb_sectionbegin, -1, &tvb_sectionend);
-			if (sectionlen != -1)
-			{
-				dissect_mgcp_message(tvb_new_subset(tvb, tvb_sectionbegin,
-				                                    sectionlen, sectionlen),
-				                                    pinfo, tree, mgcp_tree, ti);
-				tvb_sectionbegin = tvb_sectionend;
-			}
-			else
-			{
-				break;
-			}
-		} while (tvb_sectionend < tvb_len);
-
-		if (mgcp_tree)
-		{
-			proto_item *tii = proto_tree_add_uint(mgcp_tree, hf_mgcp_messagecount, tvb,
-			                                     0 , 0 , num_messages);
-			PROTO_ITEM_SET_HIDDEN(tii);
+			dissect_mgcp_message(tvb_new_subset(tvb, tvb_sectionbegin,
+						sectionlen, sectionlen),
+					pinfo, tree, mgcp_tree, ti);
+			tvb_sectionbegin = tvb_sectionend;
 		}
-
-		/*
-		 * Add our column information after dissecting SDP
-		 * in order to prevent the column info changing to reflect the SDP
-		 * (when showing message count)
-		 */
-		tvb_sectionbegin = 0;
-		if (global_mgcp_message_count == TRUE )
+		else
 		{
-			if (num_messages > 1)
-			{
-				col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "MGCP (%i messages)", num_messages);
-			}
-			else
-			{
-				col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "MGCP (%i message)", num_messages);
-			}
+			break;
 		}
+	} while (tvb_sectionend < tvb_len);
 
-		sectionlen = tvb_find_line_end(tvb, tvb_sectionbegin, -1,
-		                               &tvb_sectionend, FALSE);
-		col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s",
-		                 tvb_format_text(tvb, tvb_sectionbegin, sectionlen));
+	tii = proto_tree_add_uint(mgcp_tree, hf_mgcp_messagecount, tvb,
+			0 , 0 , num_messages);
+	PROTO_ITEM_SET_HIDDEN(tii);
 
-		return tvb_len;
+	/*
+	 * Add our column information after dissecting SDP
+	 * in order to prevent the column info changing to reflect the SDP
+	 * (when showing message count)
+	 */
+	tvb_sectionbegin = 0;
+	if (global_mgcp_message_count == TRUE )
+	{
+		if (num_messages > 1)
+		{
+			col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "MGCP (%i messages)", num_messages);
+		}
+		else
+		{
+			col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "MGCP (%i message)", num_messages);
+		}
 	}
 
-	return 0;
+	sectionlen = tvb_find_line_end(tvb, tvb_sectionbegin, -1,
+			&tvb_sectionend, FALSE);
+	col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s",
+			tvb_format_text(tvb, tvb_sectionbegin, sectionlen));
+
+	return tvb_len;
 }
+
 /************************************************************************
  * dissect_tpkt_mgcp - The dissector for the ASCII TPKT Media Gateway Control Protocol
  ************************************************************************/
