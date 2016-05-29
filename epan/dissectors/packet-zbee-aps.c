@@ -1062,7 +1062,6 @@ dissect_zbee_aps_no_endpt:
             if (!payload_tvb) {
                 /* Command packets MUST contain a payload. */
                 expert_add_info(pinfo, proto_root, &ei_zbee_aps_missing_payload);
-                THROW(BoundsError);
                 return tvb_captured_length(tvb);
             }
             dissect_zbee_aps_cmd(payload_tvb, pinfo, aps_tree, nwk->version, data);
