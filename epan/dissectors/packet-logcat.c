@@ -156,7 +156,7 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     check_length = 1;
 
     string_length = tvb_strsize(tvb, offset);
-    proto_tree_add_item(maintree, hf_logcat_tag, tvb, offset, string_length, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(maintree, hf_logcat_tag, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
 
     set_address_tvb(&pinfo->src, AT_STRINGZ, string_length + 1, tvb, offset);
     set_address(&pinfo->dst, AT_STRINGZ, 7, "Logcat");
@@ -165,7 +165,7 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     check_length += string_length;
 
     string_length = length - string_length - 1;
-    log = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, string_length, ENC_ASCII);
+    log = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, string_length, ENC_UTF_8);
 
     /* New line characters convert to spaces to ensure column Info display one line */
     if (pref_one_line_info_column) {
@@ -175,7 +175,7 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         *c = ' ';
     }
 
-    subitem = proto_tree_add_item(maintree, hf_logcat_log, tvb, offset, string_length, ENC_ASCII | ENC_NA);
+    subitem = proto_tree_add_item(maintree, hf_logcat_log, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
     subtree = proto_item_add_subtree(subitem, ett_logcat_log);
 
     next_tvb = tvb_new_subset_length(tvb, offset, string_length - 1);
@@ -264,12 +264,12 @@ proto_register_logcat(void)
         },
         { &hf_logcat_tag,
             { "Tag",                             "logcat.tag",
-            FT_STRINGZ, BASE_NONE, NULL, 0x00,
+            FT_STRINGZ, STR_UNICODE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_logcat_log,
             { "Log",                             "logcat.log",
-            FT_STRINGZ, BASE_NONE, NULL, 0x00,
+            FT_STRINGZ, STR_UNICODE, NULL, 0x00,
             NULL, HFILL }
         }
     };

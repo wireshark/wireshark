@@ -191,7 +191,7 @@ static int dissect_logcat_text(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     gchar **tokens;
     guint i;
     gchar *frame = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, tvb_captured_length(tvb),
-            ENC_ASCII);
+            ENC_UTF_8);
     proto_item *mainitem = proto_tree_add_item(tree, proto_logcat_text, tvb, 0, -1, ENC_NA);
     proto_tree *maintree = proto_item_add_subtree(mainitem, ett_logcat);
     gint offset = 0;
@@ -311,12 +311,12 @@ void proto_register_logcat_text(void) {
             },
             { &hf_logcat_text_tag,
                 { "Tag",       "logcat_text.tag",
-                FT_STRING, STR_ASCII, NULL, 0x00, NULL, HFILL
+                FT_STRING, STR_UNICODE, NULL, 0x00, NULL, HFILL
                 }
             },
             { &hf_logcat_text_log,
                 { "Log",       "logcat_text.log",
-                FT_STRING, STR_ASCII, NULL, 0x00, NULL, HFILL
+                FT_STRING, STR_UNICODE, NULL, 0x00, NULL, HFILL
                 }
             },
             { &hf_logcat_text_priority,
