@@ -270,6 +270,9 @@ static const value_string max_scheduled_codes_vals[] = {
   {0, NULL}
 };
 
+/* Windows does not allow data copy between dlls */
+const true_false_string type35_tfs_on_off = { "On", "Off" };
+
 /* Dissection */
 static int
 dissect_type35ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
@@ -956,7 +959,7 @@ proto_register_docsis_type35ucd (void)
     },
     {&hf_docsis_type35ucd_scdma_mode_enable,
      {"SCDMA Mode Enable", "docsis_type35ucd.scdmaenable",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
+      FT_BOOLEAN, BASE_NONE, TFS(&type35_tfs_on_off), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_type35ucd_scdma_spreading_interval,
