@@ -1087,88 +1087,88 @@
         <translation>出力</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="176"/>
+        <location filename="capture_interfaces_dialog.ui" line="217"/>
         <source>Output format:</source>
         <translation>出力形式:</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="196"/>
+        <location filename="capture_interfaces_dialog.ui" line="224"/>
         <source>pcap-ng</source>
         <translation>pcap-ng形式</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="203"/>
+        <location filename="capture_interfaces_dialog.ui" line="231"/>
         <source>pcap</source>
         <translation>pcap形式</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="259"/>
+        <location filename="capture_interfaces_dialog.ui" line="195"/>
         <source>Browse…</source>
         <oldsource>Browse...</oldsource>
         <translation>参照…</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="266"/>
+        <location filename="capture_interfaces_dialog.ui" line="202"/>
         <source>File:</source>
         <translation>ファイル:</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="295"/>
+        <location filename="capture_interfaces_dialog.ui" line="256"/>
         <source>Create a new file automatically after…</source>
         <oldsource>Create a new file automatically after...</oldsource>
         <translation>…後に自動的に新ファイルを作成</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="339"/>
-        <location filename="capture_interfaces_dialog.ui" line="745"/>
+        <location filename="capture_interfaces_dialog.ui" line="300"/>
+        <location filename="capture_interfaces_dialog.ui" line="694"/>
         <source>megabytes</source>
         <oldsource>Megabytes</oldsource>
         <translation>メガバイト</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="334"/>
-        <location filename="capture_interfaces_dialog.ui" line="740"/>
+        <location filename="capture_interfaces_dialog.ui" line="295"/>
+        <location filename="capture_interfaces_dialog.ui" line="689"/>
         <source>kilobytes</source>
         <oldsource>Kilobytes</oldsource>
         <translation>キロバイト</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="357"/>
-        <location filename="capture_interfaces_dialog.ui" line="708"/>
+        <location filename="capture_interfaces_dialog.ui" line="318"/>
+        <location filename="capture_interfaces_dialog.ui" line="657"/>
         <source>seconds</source>
         <translation>秒</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="362"/>
-        <location filename="capture_interfaces_dialog.ui" line="713"/>
+        <location filename="capture_interfaces_dialog.ui" line="323"/>
+        <location filename="capture_interfaces_dialog.ui" line="662"/>
         <source>minutes</source>
         <translation>分</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="367"/>
-        <location filename="capture_interfaces_dialog.ui" line="718"/>
+        <location filename="capture_interfaces_dialog.ui" line="328"/>
+        <location filename="capture_interfaces_dialog.ui" line="667"/>
         <source>hours</source>
         <translation>時</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="645"/>
-        <location filename="capture_interfaces_dialog.ui" line="793"/>
+        <location filename="capture_interfaces_dialog.ui" line="594"/>
+        <location filename="capture_interfaces_dialog.ui" line="742"/>
         <source>Stop capturing after the specified number of packets have been captured.</source>
         <translation>指定したパケット数がキャプチャされた後にキャプチャを停止します</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="661"/>
-        <location filename="capture_interfaces_dialog.ui" line="736"/>
+        <location filename="capture_interfaces_dialog.ui" line="610"/>
+        <location filename="capture_interfaces_dialog.ui" line="685"/>
         <source>Stop capturing after the specified amount of data has been captured.</source>
         <translation>指定したデータ量がキャプチャされたらキャプチャを停止</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="677"/>
+        <location filename="capture_interfaces_dialog.ui" line="626"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;指定したデータ量がキャプチャされたらキャプチャを停止&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="687"/>
+        <location filename="capture_interfaces_dialog.ui" line="636"/>
         <source>packets</source>
         <translation>パケット</translation>
     </message>
@@ -1226,152 +1226,152 @@
         <translation>BPF形式をコンパイル</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="241"/>
+        <location filename="capture_interfaces_dialog.ui" line="177"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャしたデータを記録するファイル名を入力してください。デフォルトでは一時ファイルが利用されます&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="247"/>
+        <location filename="capture_interfaces_dialog.ui" line="183"/>
         <source>Capture to a permanent file</source>
         <translation>保存ファイルにキャプチャ</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="292"/>
+        <location filename="capture_interfaces_dialog.ui" line="253"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1つのキャプチャファイルを用いる代わりに複数のファイルが作成されます。&lt;/p&gt;&lt;p&gt;生成されたファイル名は連番とキャプチャ開始時間を含みます&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="307"/>
+        <location filename="capture_interfaces_dialog.ui" line="268"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If the selected file size is exceeded, capturing switches to the next file.&lt;/p&gt;&lt;p&gt;PLEASE NOTE: One option MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;もし選択したファイルサイズを超過した場合 キャプチャは次のファイルに切り替わります。&lt;/p&gt;&lt;p&gt;注意:一つのオプションが選択されなければいけません&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="329"/>
-        <location filename="capture_interfaces_dialog.ui" line="352"/>
-        <location filename="capture_interfaces_dialog.ui" line="375"/>
+        <location filename="capture_interfaces_dialog.ui" line="290"/>
+        <location filename="capture_interfaces_dialog.ui" line="313"/>
+        <location filename="capture_interfaces_dialog.ui" line="336"/>
         <source>If the selected file size is exceeded, capturing switches to the next file.
 PLEASE NOTE: One option MUST be selected.</source>
         <translation>もし選択したファイルサイズを超過した場合 キャプチャは次のファイルに切り替わります
 注意:一つのオプションは必ず選択しなければいけません</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="344"/>
-        <location filename="capture_interfaces_dialog.ui" line="750"/>
+        <location filename="capture_interfaces_dialog.ui" line="305"/>
+        <location filename="capture_interfaces_dialog.ui" line="699"/>
         <source>gigabytes</source>
         <oldsource>Gigabytes</oldsource>
         <translation>ギガバイト</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="443"/>
+        <location filename="capture_interfaces_dialog.ui" line="391"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャが次のファイルに切り替えられた後、与えられたファイル数を超過したら、最も古いファイルが消されます&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="446"/>
+        <location filename="capture_interfaces_dialog.ui" line="394"/>
         <source>Use a ring buffer with </source>
         <translation>リングバッファを用いる</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="469"/>
-        <location filename="capture_interfaces_dialog.ui" line="809"/>
+        <location filename="capture_interfaces_dialog.ui" line="417"/>
+        <location filename="capture_interfaces_dialog.ui" line="758"/>
         <source>files</source>
         <translation>ファイル</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="507"/>
+        <location filename="capture_interfaces_dialog.ui" line="456"/>
         <source>Options</source>
         <translation>オプション</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="515"/>
+        <location filename="capture_interfaces_dialog.ui" line="464"/>
         <source>Display Options</source>
         <translation>表示オプション</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="524"/>
+        <location filename="capture_interfaces_dialog.ui" line="473"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;このオプションを用いるとメイン画面ですぐにパケットキャプチャを表示します。注意:この操作はキャプチャを遅くするので、よりパケットをドロップするかもしれません。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="527"/>
+        <location filename="capture_interfaces_dialog.ui" line="476"/>
         <source>Update list of packets in real-time</source>
         <translation>実時間でパケット一覧を更新</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="534"/>
+        <location filename="capture_interfaces_dialog.ui" line="483"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;実際の時間でパケット一覧を更新オプションを用いるとパケット一覧画面はスクロールして最新のパケットを表示します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="537"/>
+        <location filename="capture_interfaces_dialog.ui" line="486"/>
         <source>Automatically scroll during live capture</source>
         <translation>キャプチャ中に自動スクロール</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="544"/>
+        <location filename="capture_interfaces_dialog.ui" line="493"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャ中にキャプチャ情報画面を表示&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="547"/>
+        <location filename="capture_interfaces_dialog.ui" line="496"/>
         <source>Show extra capture information dialog</source>
         <translation>拡張キャプチャ情報画面を表示</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="570"/>
+        <location filename="capture_interfaces_dialog.ui" line="519"/>
         <source>Name Resolution</source>
         <translation>名前解決</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="579"/>
+        <location filename="capture_interfaces_dialog.ui" line="528"/>
         <source>Perform MAC layer name resolution while capturing.</source>
         <translation>キャプチャ中にMAC層の名前解決を行います</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="582"/>
+        <location filename="capture_interfaces_dialog.ui" line="531"/>
         <source>Resolve MAC Addresses</source>
         <translation>MACアドレス解決</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="589"/>
+        <location filename="capture_interfaces_dialog.ui" line="538"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャ中にネットワーク層の名前解決を実施&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="592"/>
+        <location filename="capture_interfaces_dialog.ui" line="541"/>
         <source>Resolve network names</source>
         <translation>ネットワーク名を解決</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="599"/>
+        <location filename="capture_interfaces_dialog.ui" line="548"/>
         <source>Perform transport layer name resolution while capturing.</source>
         <translation>キャプチャ中にトランスポート層の名前解決を行います</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="602"/>
+        <location filename="capture_interfaces_dialog.ui" line="551"/>
         <source>Resolve transport names</source>
         <translation>トランスポート層の名前を解決</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="630"/>
+        <location filename="capture_interfaces_dialog.ui" line="579"/>
         <source>Stop capture automatically after…</source>
         <oldsource>Stop capture automatically after...</oldsource>
         <translation>…後に自動的にキャプチャを停止</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="694"/>
-        <location filename="capture_interfaces_dialog.ui" line="704"/>
-        <location filename="capture_interfaces_dialog.ui" line="758"/>
+        <location filename="capture_interfaces_dialog.ui" line="643"/>
+        <location filename="capture_interfaces_dialog.ui" line="653"/>
+        <location filename="capture_interfaces_dialog.ui" line="707"/>
         <source>Stop capturing after the specified amount of time has passed.</source>
         <translation>指定時間が経過した後キャプチャを停止します</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="726"/>
+        <location filename="capture_interfaces_dialog.ui" line="675"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;指定した数のパケットがキャプチャされた後キャプチャを停止します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="816"/>
+        <location filename="capture_interfaces_dialog.ui" line="765"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;指定した数のファイルを作成した後キャプチャを停止します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -8762,17 +8762,17 @@ a:hover {
         <translation>保存しないで続ける</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1935"/>
+        <location filename="main_window.cpp" line="1936"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>ファイル名をUTF-8形式に割り当てできません</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1948"/>
+        <location filename="main_window.cpp" line="1949"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>ワイヤーシャークネットワークアナライザ</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1967"/>
+        <location filename="main_window.cpp" line="1968"/>
         <source>Capturing from %1</source>
         <translation>%1 からキャプチャ中</translation>
     </message>
@@ -13100,51 +13100,51 @@ a:hover {
         <translation>として保存</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="275"/>
+        <location filename="sequence_dialog.cpp" line="276"/>
         <source>No data</source>
         <translation>データなし</translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="277"/>
+        <location filename="sequence_dialog.cpp" line="278"/>
         <source>%Ln node(s)</source>
         <translation>
             <numerusform>%Ln ノード</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="278"/>
+        <location filename="sequence_dialog.cpp" line="279"/>
         <source>%Ln item(s)</source>
         <translation>
             <numerusform>%Ln 項目</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="298"/>
+        <location filename="sequence_dialog.cpp" line="299"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="299"/>
+        <location filename="sequence_dialog.cpp" line="300"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="300"/>
+        <location filename="sequence_dialog.cpp" line="301"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windowsビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="302"/>
+        <location filename="sequence_dialog.cpp" line="303"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="303"/>
+        <location filename="sequence_dialog.cpp" line="304"/>
         <source>ASCII (*.txt)</source>
         <translation>アスキー形式 (*.txt)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="314"/>
+        <location filename="sequence_dialog.cpp" line="315"/>
         <source>Save Graph As</source>
         <oldsource>Wireshark: Save Graph As...</oldsource>
         <translation>としてグラフを保存</translation>

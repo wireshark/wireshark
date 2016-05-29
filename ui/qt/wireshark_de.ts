@@ -1090,88 +1090,88 @@
         <translation>Ausgabe</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="176"/>
+        <location filename="capture_interfaces_dialog.ui" line="217"/>
         <source>Output format:</source>
         <translation>Augabeformat:</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="196"/>
+        <location filename="capture_interfaces_dialog.ui" line="224"/>
         <source>pcap-ng</source>
         <translation>pcap-ng</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="203"/>
+        <location filename="capture_interfaces_dialog.ui" line="231"/>
         <source>pcap</source>
         <translation>pcap</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="259"/>
+        <location filename="capture_interfaces_dialog.ui" line="195"/>
         <source>Browse…</source>
         <oldsource>Browse...</oldsource>
         <translation>Öffnen...</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="266"/>
+        <location filename="capture_interfaces_dialog.ui" line="202"/>
         <source>File:</source>
         <translation>Datei:</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="295"/>
+        <location filename="capture_interfaces_dialog.ui" line="256"/>
         <source>Create a new file automatically after…</source>
         <oldsource>Create a new file automatically after...</oldsource>
         <translation>Eine neue Datei automatisch erstellen nach...</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="339"/>
-        <location filename="capture_interfaces_dialog.ui" line="745"/>
+        <location filename="capture_interfaces_dialog.ui" line="300"/>
+        <location filename="capture_interfaces_dialog.ui" line="694"/>
         <source>megabytes</source>
         <oldsource>Megabytes</oldsource>
         <translation>Megabytes</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="334"/>
-        <location filename="capture_interfaces_dialog.ui" line="740"/>
+        <location filename="capture_interfaces_dialog.ui" line="295"/>
+        <location filename="capture_interfaces_dialog.ui" line="689"/>
         <source>kilobytes</source>
         <oldsource>Kilobytes</oldsource>
         <translation>Kilobytes</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="357"/>
-        <location filename="capture_interfaces_dialog.ui" line="708"/>
+        <location filename="capture_interfaces_dialog.ui" line="318"/>
+        <location filename="capture_interfaces_dialog.ui" line="657"/>
         <source>seconds</source>
         <translation>Sekunden</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="362"/>
-        <location filename="capture_interfaces_dialog.ui" line="713"/>
+        <location filename="capture_interfaces_dialog.ui" line="323"/>
+        <location filename="capture_interfaces_dialog.ui" line="662"/>
         <source>minutes</source>
         <translation>Minuten</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="367"/>
-        <location filename="capture_interfaces_dialog.ui" line="718"/>
+        <location filename="capture_interfaces_dialog.ui" line="328"/>
+        <location filename="capture_interfaces_dialog.ui" line="667"/>
         <source>hours</source>
         <translation>Stunden</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="645"/>
-        <location filename="capture_interfaces_dialog.ui" line="793"/>
+        <location filename="capture_interfaces_dialog.ui" line="594"/>
+        <location filename="capture_interfaces_dialog.ui" line="742"/>
         <source>Stop capturing after the specified number of packets have been captured.</source>
         <translation>Mitschneiden beenden, nachdem die angegebene Anzahl an Pakete mitgeschnitten wurde.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="661"/>
-        <location filename="capture_interfaces_dialog.ui" line="736"/>
+        <location filename="capture_interfaces_dialog.ui" line="610"/>
+        <location filename="capture_interfaces_dialog.ui" line="685"/>
         <source>Stop capturing after the specified amount of data has been captured.</source>
         <translation>Mitschneiden beenden, nachdem die angegebene Datenmenge mitgeschnitten wurde.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="677"/>
+        <location filename="capture_interfaces_dialog.ui" line="626"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mitschneiden beenden, nachdem die angegebene Datenmenge mitgeschnitten wurde.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="687"/>
+        <location filename="capture_interfaces_dialog.ui" line="636"/>
         <source>packets</source>
         <translation>Pakete</translation>
     </message>
@@ -1229,152 +1229,152 @@
         <translation>BPF kompilieren</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="241"/>
+        <location filename="capture_interfaces_dialog.ui" line="177"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Datei angeben, in die die aufgezeichneten Daten geschrieben werden. Standardmäßig wir eine temporäre Datei benutzt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="247"/>
+        <location filename="capture_interfaces_dialog.ui" line="183"/>
         <source>Capture to a permanent file</source>
         <translation>In eine bleibende Datei aufzeichnen</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="292"/>
+        <location filename="capture_interfaces_dialog.ui" line="253"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Anstatt einer einzelnen Datei werden mehrere Dateien erzeugt.&lt;/p&gt;&lt;p&gt;Der Dateiname enthält eine fortlaufende Nummer und die Startzeit des Mitschnitts.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="307"/>
+        <location filename="capture_interfaces_dialog.ui" line="268"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If the selected file size is exceeded, capturing switches to the next file.&lt;/p&gt;&lt;p&gt;PLEASE NOTE: One option MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Wenn die angegebene Dateigröße überschitten wurde wird in die nächste Datei gewechselt.&lt;/p&gt;&lt;p&gt;Achtung: Eine Option MUSS ausgewählt sein.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="329"/>
-        <location filename="capture_interfaces_dialog.ui" line="352"/>
-        <location filename="capture_interfaces_dialog.ui" line="375"/>
+        <location filename="capture_interfaces_dialog.ui" line="290"/>
+        <location filename="capture_interfaces_dialog.ui" line="313"/>
+        <location filename="capture_interfaces_dialog.ui" line="336"/>
         <source>If the selected file size is exceeded, capturing switches to the next file.
 PLEASE NOTE: One option MUST be selected.</source>
         <translation>Wenn die angegebene Dateigröße überschitten wurde wird in die nächste Datei gewechselt.
 Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="344"/>
-        <location filename="capture_interfaces_dialog.ui" line="750"/>
+        <location filename="capture_interfaces_dialog.ui" line="305"/>
+        <location filename="capture_interfaces_dialog.ui" line="699"/>
         <source>gigabytes</source>
         <oldsource>Gigabytes</oldsource>
         <translation>Gigabytes</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="443"/>
+        <location filename="capture_interfaces_dialog.ui" line="391"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Nachdem die Aufzeichnung in die nächste Datei gewechselt hat und die angegebene Anzahl an Dateien erreicht wurde, wird die älteste Datei entfernt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="446"/>
+        <location filename="capture_interfaces_dialog.ui" line="394"/>
         <source>Use a ring buffer with </source>
         <translation>Verwende einen Ringpuffer mit </translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="469"/>
-        <location filename="capture_interfaces_dialog.ui" line="809"/>
+        <location filename="capture_interfaces_dialog.ui" line="417"/>
+        <location filename="capture_interfaces_dialog.ui" line="758"/>
         <source>files</source>
         <translation>Dateien</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="507"/>
+        <location filename="capture_interfaces_dialog.ui" line="456"/>
         <source>Options</source>
         <translation>Optionen</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="515"/>
+        <location filename="capture_interfaces_dialog.ui" line="464"/>
         <source>Display Options</source>
         <translation>Anzeige Optionen</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="524"/>
+        <location filename="capture_interfaces_dialog.ui" line="473"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mit dieser Option werden alle mitgeschnittenen Pakete sofort angezeigt. Dies kann das aufzeichnen verlangsamen und so zu verworfene Pakete führen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="527"/>
+        <location filename="capture_interfaces_dialog.ui" line="476"/>
         <source>Update list of packets in real-time</source>
         <translation>Paketliste in Echtzeit aktualisieren</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="534"/>
+        <location filename="capture_interfaces_dialog.ui" line="483"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hiermit wird in der &amp;quot;Paket Liste&amp;quot; automatisch zum letzen Paket gescrollt wenn die Option &amp;quot;Paketliste in Echtzeit aktualisieren&amp;quot; aktiv ist.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="537"/>
+        <location filename="capture_interfaces_dialog.ui" line="486"/>
         <source>Automatically scroll during live capture</source>
         <translation>Automatisches Scrollen während dem Mitschnitt</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="544"/>
+        <location filename="capture_interfaces_dialog.ui" line="493"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mitschnittinformationen während der Aufzeichnung anzeigen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="547"/>
+        <location filename="capture_interfaces_dialog.ui" line="496"/>
         <source>Show extra capture information dialog</source>
         <translation>Extra Mitschnittinformationen anzeigen</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="570"/>
+        <location filename="capture_interfaces_dialog.ui" line="519"/>
         <source>Name Resolution</source>
         <translation>Namensauflösung</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="579"/>
+        <location filename="capture_interfaces_dialog.ui" line="528"/>
         <source>Perform MAC layer name resolution while capturing.</source>
         <translation>Während des mitscheiden MAC Namensauflösung durchführen.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="582"/>
+        <location filename="capture_interfaces_dialog.ui" line="531"/>
         <source>Resolve MAC Addresses</source>
         <translation>MAC Adressen auflösen</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="589"/>
+        <location filename="capture_interfaces_dialog.ui" line="538"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Namensauflösung während der Aufzeichnung durchführen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="592"/>
+        <location filename="capture_interfaces_dialog.ui" line="541"/>
         <source>Resolve network names</source>
         <translation>Netzwerknamen auflösen</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="599"/>
+        <location filename="capture_interfaces_dialog.ui" line="548"/>
         <source>Perform transport layer name resolution while capturing.</source>
         <translation>Während des mitscheidenTransport Namensauflösung durchführen.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="602"/>
+        <location filename="capture_interfaces_dialog.ui" line="551"/>
         <source>Resolve transport names</source>
         <translation>Transport Namensauflösung</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="630"/>
+        <location filename="capture_interfaces_dialog.ui" line="579"/>
         <source>Stop capture automatically after…</source>
         <oldsource>Stop capture automatically after...</oldsource>
         <translation>Mitschnitt automatisch stoppen nach...</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="694"/>
-        <location filename="capture_interfaces_dialog.ui" line="704"/>
-        <location filename="capture_interfaces_dialog.ui" line="758"/>
+        <location filename="capture_interfaces_dialog.ui" line="643"/>
+        <location filename="capture_interfaces_dialog.ui" line="653"/>
+        <location filename="capture_interfaces_dialog.ui" line="707"/>
         <source>Stop capturing after the specified amount of time has passed.</source>
         <translation>Mitschneiden beenden, nachdem die angegebene Zeit verstrichen ist.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="726"/>
+        <location filename="capture_interfaces_dialog.ui" line="675"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mitschneiden beenden, nachdem die angegebene Anzahl an Pakete mitgeschnitten wurde.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="816"/>
+        <location filename="capture_interfaces_dialog.ui" line="765"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mitschneiden beenden, nachdem die angegebene Anzahl an Pakete mitgeschnitten wurde.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -8818,17 +8818,17 @@ text-decoration: underline;
         <translation>Fortsetzen &amp;ohne zu speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1935"/>
+        <location filename="main_window.cpp" line="1936"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Dateiname kann nicht auf UTF-8 angewendet werden)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1948"/>
+        <location filename="main_window.cpp" line="1949"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Die Wireshark Netzwerk Analysesoftware</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1967"/>
+        <location filename="main_window.cpp" line="1968"/>
         <source>Capturing from %1</source>
         <translation>Aufzeichnen von %1</translation>
     </message>
@@ -9416,13 +9416,13 @@ text-decoration: underline;
         <location filename="multicast_statistics_dialog.cpp" line="220"/>
         <source>Stream empty speed (Kb/s):</source>
         <oldsource>Stream empty speed (Kb/s:</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Entleerungsrate Stream-Puffer (Kb/s):</translation>
     </message>
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="222"/>
         <source>Total empty speed (Kb/s):</source>
         <oldsource>Total empty speed (Kb/s:</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Entleerungsrate Gesamt-Puffer (Kb/s):</translation>
     </message>
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="328"/>
@@ -9442,12 +9442,12 @@ text-decoration: underline;
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="355"/>
         <source>The stream empty speed should be between 1 and 10000000. </source>
-        <translation type="unfinished"></translation>
+        <translation>Die Entleerungsrate für den Stream-Puffer muss zwischen 1 und 10000000 liegen.</translation>
     </message>
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="364"/>
         <source>The total empty speed should be between 1 and 10000000. </source>
-        <translation type="unfinished"></translation>
+        <translation>Die Entleerungsrate für den Gesamt-Puffer muss zwischen 1 und 10000000 liegen.</translation>
     </message>
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="378"/>
@@ -13156,12 +13156,12 @@ text-decoration: underline;
         <translation>Speichern als</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="275"/>
+        <location filename="sequence_dialog.cpp" line="276"/>
         <source>No data</source>
         <translation>Keine Daten</translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="277"/>
+        <location filename="sequence_dialog.cpp" line="278"/>
         <source>%Ln node(s)</source>
         <translation>
             <numerusform>%Ln Node</numerusform>
@@ -13169,7 +13169,7 @@ text-decoration: underline;
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="278"/>
+        <location filename="sequence_dialog.cpp" line="279"/>
         <source>%Ln item(s)</source>
         <translation>
             <numerusform>%Ln Item</numerusform>
@@ -13177,32 +13177,32 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="298"/>
+        <location filename="sequence_dialog.cpp" line="299"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="299"/>
+        <location filename="sequence_dialog.cpp" line="300"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="300"/>
+        <location filename="sequence_dialog.cpp" line="301"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="302"/>
+        <location filename="sequence_dialog.cpp" line="303"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG File Interchange Format (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="303"/>
+        <location filename="sequence_dialog.cpp" line="304"/>
         <source>ASCII (*.txt)</source>
         <translation>ASCII (*.txt)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="314"/>
+        <location filename="sequence_dialog.cpp" line="315"/>
         <source>Save Graph As</source>
         <oldsource>Wireshark: Save Graph As...</oldsource>
         <translation>Graph speichern als</translation>

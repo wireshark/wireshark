@@ -1088,88 +1088,88 @@
         <translation>输出</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="176"/>
+        <location filename="capture_interfaces_dialog.ui" line="217"/>
         <source>Output format:</source>
         <translation>输出格式：</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="196"/>
+        <location filename="capture_interfaces_dialog.ui" line="224"/>
         <source>pcap-ng</source>
         <translation>pcap-ng</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="203"/>
+        <location filename="capture_interfaces_dialog.ui" line="231"/>
         <source>pcap</source>
         <translation>pcap</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="259"/>
+        <location filename="capture_interfaces_dialog.ui" line="195"/>
         <source>Browse…</source>
         <oldsource>Browse...</oldsource>
         <translation>浏览…</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="266"/>
+        <location filename="capture_interfaces_dialog.ui" line="202"/>
         <source>File:</source>
         <translation>文件:</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="295"/>
+        <location filename="capture_interfaces_dialog.ui" line="256"/>
         <source>Create a new file automatically after…</source>
         <oldsource>Create a new file automatically after...</oldsource>
         <translation>自动创建新文件，经过…</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="339"/>
-        <location filename="capture_interfaces_dialog.ui" line="745"/>
+        <location filename="capture_interfaces_dialog.ui" line="300"/>
+        <location filename="capture_interfaces_dialog.ui" line="694"/>
         <source>megabytes</source>
         <oldsource>Megabytes</oldsource>
         <translation>兆字节</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="334"/>
-        <location filename="capture_interfaces_dialog.ui" line="740"/>
+        <location filename="capture_interfaces_dialog.ui" line="295"/>
+        <location filename="capture_interfaces_dialog.ui" line="689"/>
         <source>kilobytes</source>
         <oldsource>Kilobytes</oldsource>
         <translation>千字节</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="357"/>
-        <location filename="capture_interfaces_dialog.ui" line="708"/>
+        <location filename="capture_interfaces_dialog.ui" line="318"/>
+        <location filename="capture_interfaces_dialog.ui" line="657"/>
         <source>seconds</source>
         <translation>秒</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="362"/>
-        <location filename="capture_interfaces_dialog.ui" line="713"/>
+        <location filename="capture_interfaces_dialog.ui" line="323"/>
+        <location filename="capture_interfaces_dialog.ui" line="662"/>
         <source>minutes</source>
         <translation>分钟</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="367"/>
-        <location filename="capture_interfaces_dialog.ui" line="718"/>
+        <location filename="capture_interfaces_dialog.ui" line="328"/>
+        <location filename="capture_interfaces_dialog.ui" line="667"/>
         <source>hours</source>
         <translation>小时</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="645"/>
-        <location filename="capture_interfaces_dialog.ui" line="793"/>
+        <location filename="capture_interfaces_dialog.ui" line="594"/>
+        <location filename="capture_interfaces_dialog.ui" line="742"/>
         <source>Stop capturing after the specified number of packets have been captured.</source>
         <translation>超过指定数量的分组被捕获后，停止捕获。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="661"/>
-        <location filename="capture_interfaces_dialog.ui" line="736"/>
+        <location filename="capture_interfaces_dialog.ui" line="610"/>
+        <location filename="capture_interfaces_dialog.ui" line="685"/>
         <source>Stop capturing after the specified amount of data has been captured.</source>
         <translation>超过指定数量的分组被捕获后，停止捕获。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="677"/>
+        <location filename="capture_interfaces_dialog.ui" line="626"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;超过指定数量的分组被捕获后，停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="687"/>
+        <location filename="capture_interfaces_dialog.ui" line="636"/>
         <source>packets</source>
         <translation>分组</translation>
     </message>
@@ -1227,153 +1227,153 @@
         <translation>编译BPFs</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="241"/>
+        <location filename="capture_interfaces_dialog.ui" line="177"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;输入用于保存捕获数据的文件名。默认情况下，将会使用临时文件。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="247"/>
+        <location filename="capture_interfaces_dialog.ui" line="183"/>
         <source>Capture to a permanent file</source>
         <translation>捕获到永久文件</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="292"/>
+        <location filename="capture_interfaces_dialog.ui" line="253"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;相对于使用单个捕获文件，多个文件将会被创建。&lt;/p&gt;&lt;p&gt;生成的文件名会包含增加的序号和捕获开始时间。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="307"/>
+        <location filename="capture_interfaces_dialog.ui" line="268"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If the selected file size is exceeded, capturing switches to the next file.&lt;/p&gt;&lt;p&gt;PLEASE NOTE: One option MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;如果超过了指定的文件尺寸，切换到下一个文件进行捕获。&lt;/p&gt;&lt;p&gt;请注意：至少有一个功能必须选择。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
 </translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="329"/>
-        <location filename="capture_interfaces_dialog.ui" line="352"/>
-        <location filename="capture_interfaces_dialog.ui" line="375"/>
+        <location filename="capture_interfaces_dialog.ui" line="290"/>
+        <location filename="capture_interfaces_dialog.ui" line="313"/>
+        <location filename="capture_interfaces_dialog.ui" line="336"/>
         <source>If the selected file size is exceeded, capturing switches to the next file.
 PLEASE NOTE: One option MUST be selected.</source>
         <translation>如果超过了指定的文件尺寸，切换到下一个文件进行捕获。
 请注意：至少有一个功能必须选择。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="344"/>
-        <location filename="capture_interfaces_dialog.ui" line="750"/>
+        <location filename="capture_interfaces_dialog.ui" line="305"/>
+        <location filename="capture_interfaces_dialog.ui" line="699"/>
         <source>gigabytes</source>
         <oldsource>Gigabytes</oldsource>
         <translation>千兆字节</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="443"/>
+        <location filename="capture_interfaces_dialog.ui" line="391"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;当捕获切换到下一个文件并且给定的文件数已经达到，最早的文件将会被删除。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="446"/>
+        <location filename="capture_interfaces_dialog.ui" line="394"/>
         <source>Use a ring buffer with </source>
         <translation>使用一个环形缓冲器，采用</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="469"/>
-        <location filename="capture_interfaces_dialog.ui" line="809"/>
+        <location filename="capture_interfaces_dialog.ui" line="417"/>
+        <location filename="capture_interfaces_dialog.ui" line="758"/>
         <source>files</source>
         <translation>文件</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="507"/>
+        <location filename="capture_interfaces_dialog.ui" line="456"/>
         <source>Options</source>
         <translation>选项</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="515"/>
+        <location filename="capture_interfaces_dialog.ui" line="464"/>
         <source>Display Options</source>
         <translation>显示选项</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="524"/>
+        <location filename="capture_interfaces_dialog.ui" line="473"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;使用此功能将会立即在主屏幕中显示捕获的分组。请注意：这将减慢捕获速度，因此可能会增加分组丢失的情况。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="527"/>
+        <location filename="capture_interfaces_dialog.ui" line="476"/>
         <source>Update list of packets in real-time</source>
         <translation>实时更新分组列表</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="534"/>
+        <location filename="capture_interfaces_dialog.ui" line="483"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;当“实时更新分组列表”选项启用时，自动滚动“分组列表”到最新捕获的分组。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="537"/>
+        <location filename="capture_interfaces_dialog.ui" line="486"/>
         <source>Automatically scroll during live capture</source>
         <translation>实时捕获时自动滚屏</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="544"/>
+        <location filename="capture_interfaces_dialog.ui" line="493"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获时，显示捕获信息对话框。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="547"/>
+        <location filename="capture_interfaces_dialog.ui" line="496"/>
         <source>Show extra capture information dialog</source>
         <translation>显示额外的捕获信息对话框</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="570"/>
+        <location filename="capture_interfaces_dialog.ui" line="519"/>
         <source>Name Resolution</source>
         <translation>解析名称</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="579"/>
+        <location filename="capture_interfaces_dialog.ui" line="528"/>
         <source>Perform MAC layer name resolution while capturing.</source>
         <translation>在捕获期间进行 MAC 层名称解析。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="582"/>
+        <location filename="capture_interfaces_dialog.ui" line="531"/>
         <source>Resolve MAC Addresses</source>
         <translation>MAC地址解析</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="589"/>
+        <location filename="capture_interfaces_dialog.ui" line="538"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获期间进行网络层名称解析。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="592"/>
+        <location filename="capture_interfaces_dialog.ui" line="541"/>
         <source>Resolve network names</source>
         <translation>解析网络名称</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="599"/>
+        <location filename="capture_interfaces_dialog.ui" line="548"/>
         <source>Perform transport layer name resolution while capturing.</source>
         <translation>在捕获期间进行传输层名称解析。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="602"/>
+        <location filename="capture_interfaces_dialog.ui" line="551"/>
         <source>Resolve transport names</source>
         <translation>解析传输层名称</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="630"/>
+        <location filename="capture_interfaces_dialog.ui" line="579"/>
         <source>Stop capture automatically after…</source>
         <oldsource>Stop capture automatically after...</oldsource>
         <translation>自动停止捕获，在经过…</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="694"/>
-        <location filename="capture_interfaces_dialog.ui" line="704"/>
-        <location filename="capture_interfaces_dialog.ui" line="758"/>
+        <location filename="capture_interfaces_dialog.ui" line="643"/>
+        <location filename="capture_interfaces_dialog.ui" line="653"/>
+        <location filename="capture_interfaces_dialog.ui" line="707"/>
         <source>Stop capturing after the specified amount of time has passed.</source>
         <translation>经过指定的时间后，停止捕获。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="726"/>
+        <location filename="capture_interfaces_dialog.ui" line="675"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;超过指定数量的分组被捕获后，停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="816"/>
+        <location filename="capture_interfaces_dialog.ui" line="765"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;创建的文件超过指定数量后停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -8807,17 +8807,17 @@ text-decoration: underline;
         <translation>不保存并继续(&amp;W)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1935"/>
+        <location filename="main_window.cpp" line="1936"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>文件名不能映射到UTF-8</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1948"/>
+        <location filename="main_window.cpp" line="1949"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Wireshark 网络分析器</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1967"/>
+        <location filename="main_window.cpp" line="1968"/>
         <source>Capturing from %1</source>
         <translation>正在捕获 %1</translation>
     </message>
@@ -13144,51 +13144,51 @@ text-decoration: underline;
         <translation>另存为</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="275"/>
+        <location filename="sequence_dialog.cpp" line="276"/>
         <source>No data</source>
         <translation>无数据</translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="277"/>
+        <location filename="sequence_dialog.cpp" line="278"/>
         <source>%Ln node(s)</source>
         <translation>
             <numerusform>%Ln 节点</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="278"/>
+        <location filename="sequence_dialog.cpp" line="279"/>
         <source>%Ln item(s)</source>
         <translation>
             <numerusform>%Ln 项目</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="298"/>
+        <location filename="sequence_dialog.cpp" line="299"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>便携式文档格式 (*.pdf)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="299"/>
+        <location filename="sequence_dialog.cpp" line="300"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>便携式网络图形格式 (*.png)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="300"/>
+        <location filename="sequence_dialog.cpp" line="301"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows 位图 (*.bmp)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="302"/>
+        <location filename="sequence_dialog.cpp" line="303"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG 文件交换格式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="303"/>
+        <location filename="sequence_dialog.cpp" line="304"/>
         <source>ASCII (*.txt)</source>
         <translation>ASCII (*.txt)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="314"/>
+        <location filename="sequence_dialog.cpp" line="315"/>
         <source>Save Graph As</source>
         <oldsource>Wireshark: Save Graph As...</oldsource>
         <translation>保存图形为</translation>
