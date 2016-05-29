@@ -1159,7 +1159,11 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			if (tokennum == 0)
 			{
 				if (tokenlen > 4)
-					THROW(ReportedBoundsError);
+				{
+					/* XXX - exception */
+					return;
+				}
+
 				code = tvb_format_text(tvb, tvb_previous_offset, tokenlen);
 				g_strlcpy(mi->code, code, 5);
 				if (is_mgcp_verb(tvb, tvb_previous_offset, tvb_current_len, &verb_description))
@@ -1553,7 +1557,8 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree)
 			/* Its a infinite loop if we didn't advance (or went backwards) */
 			if (old_lineend >= tvb_lineend)
 			{
-				THROW(ReportedBoundsError);
+				/* XXX - exception */
+				break;
 			}
 		}
 	}
