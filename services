@@ -10815,6 +10815,7 @@ vcs-app         14141/tcp # VCS Application [Ming_Xu] [Ming_Xu]
 vcs-app         14141/udp # VCS Application [Ming_Xu] [Ming_Xu]
 icpp            14142/tcp # IceWall Cert Protocol [Tsutomu_Fujinami] [Tsutomu_Fujinami] 2005-08
 icpp            14142/udp # IceWall Cert Protocol [Tsutomu_Fujinami] [Tsutomu_Fujinami] 2005-08
+icpps           14143/tcp # IceWall Cert Protocol over TLS [Kenta_Kambara] [Kenta_Kambara] 2016-05-24
 gcm-app         14145/tcp # GCM Application [Ming_Xu] [Ming_Xu]
 gcm-app         14145/udp # GCM Application [Ming_Xu] [Ming_Xu]
 vrts-tdd        14149/tcp # Veritas Traffic Director [Sameer_Deokule] [Sameer_Deokule] 2002-03
