@@ -697,6 +697,14 @@ static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, const g
 	gboolean returnvalue = FALSE;
 	gchar word[5];
 
+	/* This function is used for checking if a packet is actually an
+	   mgcp packet. Make sure that we do not throw an exception
+	   during such a check. If we did throw an exeption, we could
+	   not refuse the packet and give other dissectors the chance to
+	   look at it. */
+	if (tvb_captured_length_remaining(tvb, offset) < (gint)sizeof(word))
+		return FALSE;
+
 	/* Read the string into 'word' and see if it looks like the start of a verb */
 	if ((maxlength >= 4) && tvb_get_nstringz0(tvb, offset, sizeof(word), word))
 	{
@@ -748,6 +756,10 @@ static gboolean is_mgcp_rspcode(tvbuff_t *tvb, gint offset, gint maxlength)
 {
 	gboolean returnvalue = FALSE;
 	guint8 word[4];
+
+	/* see the comment in is_mgcp_verb() */
+	if (tvb_captured_length_remaining(tvb, offset) < (gint)sizeof(word))
+		return FALSE;
 
 	/* Do 1st 3 characters look like digits? */
 	if (maxlength >= 3)
