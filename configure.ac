@@ -2381,7 +2381,7 @@ AC_REPLACE_FUNCS(inet_ntop)
 AC_REPLACE_FUNCS(strptime)
 AC_REPLACE_FUNCS(popcount)
 
-AC_CHECK_FUNCS(mkstemp mkdtemp)
+AC_CHECK_FUNCS(mkstemps mkdtemp)
 AC_CHECK_FUNCS(getprotobynumber)
 AC_CHECK_FUNCS(issetugid)
 AC_CHECK_FUNCS(sysconf)

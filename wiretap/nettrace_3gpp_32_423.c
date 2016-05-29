@@ -751,7 +751,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	exported_pdu_info.dst_port = 0;
 	exported_pdu_info.proto_col_str = NULL;
 
-	import_file_fd = create_tempfile(&(file_info->tmpname), "Wireshark_PDU_");
+	import_file_fd = create_tempfile(&(file_info->tmpname), "Wireshark_PDU_", NULL);
 
 	/* Now open a file and dump to it */
 	/* Create data for SHB  */

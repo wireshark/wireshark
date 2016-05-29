@@ -178,8 +178,8 @@
 /* Define to 1 if you have the `mkdtemp' function. */
 #cmakedefine HAVE_MKDTEMP 1
 
-/* Define to 1 if you have the `mkstemp' function. */
-#cmakedefine HAVE_MKSTEMP 1
+/* Define to 1 if you have the `mkstemps' function. */
+#cmakedefine HAVE_MKSTEMPS 1
 
 /* Define to 1 if you have the `mmap' function. */
 #cmakedefine HAVE_MMAP 1

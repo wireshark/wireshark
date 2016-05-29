@@ -974,7 +974,7 @@ gboolean extcap_create_pipe(char ** fifo)
     gchar *temp_name = NULL;
     int fd = 0;
 
-    if ((fd = create_tempfile(&temp_name, EXTCAP_PIPE_PREFIX)) < 0 )
+    if ((fd = create_tempfile(&temp_name, EXTCAP_PIPE_PREFIX, NULL)) < 0 )
         return FALSE;
 
     ws_close(fd);

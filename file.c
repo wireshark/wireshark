@@ -1345,7 +1345,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
     if (out_fd == -1)
       err = errno;
   } else {
-    out_fd = create_tempfile(&tmpname, "wireshark");
+    out_fd = create_tempfile(&tmpname, "wireshark", NULL);
     if (out_fd == -1)
       err = errno;
     out_filename = g_strdup(tmpname);

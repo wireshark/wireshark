@@ -50,9 +50,11 @@ WS_DLL_PUBLIC char *get_tempfile_path(const char *filename);
  * @param namebuf [in,out] If not NULL, receives the full path of the temp file.
  *                Must NOT be freed.
  * @param pfx [in] A prefix for the temporary file.
- * @return The file descriptor of the new tempfile, from mkstemp().
+ * @param sfx [in] A file extension for the temporary file. NULL can be passed
+ *                 if no file extension is needed
+ * @return The file descriptor of the new tempfile, from mkstemps().
  */
-WS_DLL_PUBLIC int create_tempfile(char **namebuf, const char *pfx);
+WS_DLL_PUBLIC int create_tempfile(char **namebuf, const char *pfx, const char *sfx);
 
 /**
  * Create a directory with the given prefix (e.g. "wireshark"). The path

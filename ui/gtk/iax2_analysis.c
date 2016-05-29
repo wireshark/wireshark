@@ -3443,7 +3443,7 @@ iax2_analysis(
 
 
 	/* file names for storing sound data */
-	fd = create_tempfile(&tempname, "wireshark_iax2_f");
+	fd = create_tempfile(&tempname, "wireshark_iax2_f", NULL);
 	if (fd < 0) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "Can't create temporary file for IAX2 analysis:\n%s.",
@@ -3453,7 +3453,7 @@ iax2_analysis(
 	}
 	user_data->f_tempname = g_strdup(tempname);
 	ws_close(fd);
-	fd = create_tempfile(&tempname, "wireshark_iax2_r");
+	fd = create_tempfile(&tempname, "wireshark_iax2_r", NULL);
 	if (fd < 0) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "Can't create temporary file for IAX2 analysis:\n%s.",

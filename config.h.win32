@@ -41,7 +41,7 @@
 #define HAVE_PLUGINS		1
 #define HAVE_EXTCAP		1
 
-/* #undef HAVE_MKSTEMP */
+/* #undef HAVE_MKSTEMPS */
 /* #undef HAVE_MKDTEMP */
 
 @HAVE_LIBPCAP@

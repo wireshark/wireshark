@@ -50,7 +50,7 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
     int   err;
 
     /* Choose a random name for the temporary import buffer */
-    import_file_fd = create_tempfile(&tmpname, "Wireshark_PDU_");
+    import_file_fd = create_tempfile(&tmpname, "Wireshark_PDU_", NULL);
     capfile_name = g_strdup(tmpname);
 
     err = exp_pdu_open(exp_pdu_tap_data, import_file_fd,

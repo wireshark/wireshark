@@ -3769,7 +3769,7 @@ rtp_analysis(address *src_fwd,
 
 
 	/* file names for storing sound data */
-	fd = create_tempfile(&tempname, "wireshark_rtp_f");
+	fd = create_tempfile(&tempname, "wireshark_rtp_f", NULL);
 	if (fd < 0) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "Can't create temporary file for RTP analysis:\n%s.",
@@ -3779,7 +3779,7 @@ rtp_analysis(address *src_fwd,
 	}
 	user_data->f_tempname = g_strdup(tempname);
 	ws_close(fd);
-	fd = create_tempfile(&tempname, "wireshark_rtp_r");
+	fd = create_tempfile(&tempname, "wireshark_rtp_r", NULL);
 	if (fd < 0) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "Can't create temporary file for RTP analysis:\n%s.",

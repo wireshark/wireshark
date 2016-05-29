@@ -2733,7 +2733,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
 {
     char     *tmpname;
     gchar    *capfile_name;
-    gchar    *prefix;
+    gchar    *prefix, *suffix;
     gboolean  is_tempfile;
 
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_output: %s",
@@ -2787,6 +2787,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
         /* Choose a random name for the temporary capture buffer */
         if (global_capture_opts.ifaces->len > 1) {
             prefix = g_strdup_printf("wireshark_%d_interfaces", global_capture_opts.ifaces->len);
+            suffix = NULL;
         } else {
             gchar *basename;
             basename = g_path_get_basename(g_array_index(global_capture_opts.ifaces, interface_options, 0).console_display_name);
@@ -2802,17 +2803,17 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
                 g_string_free(iface, TRUE);
             }
 #endif
-            /* generate the temp file name prefix...
-             * It would be nice if we could specify a pcapng/pcap filename suffix,
-             * create_tempfile() however currently uses mkstemp() which doesn't allow this - one day perhaps*/
+            /* generate the temp file name prefix and suffix */
             if (capture_opts->use_pcapng) {
-                prefix = g_strconcat("wireshark_pcapng_", basename, NULL);
+                prefix = g_strconcat("wireshark_", basename, NULL);
+                suffix = ".pcapng";
             }else{
-                prefix = g_strconcat("wireshark_pcap_", basename, NULL);
+                prefix = g_strconcat("wireshark_", basename, NULL);
+                suffix = ".pcap";
             }
             g_free(basename);
         }
-        *save_file_fd = create_tempfile(&tmpname, prefix);
+        *save_file_fd = create_tempfile(&tmpname, prefix, suffix);
         g_free(prefix);
         capfile_name = g_strdup(tmpname);
         is_tempfile = TRUE;

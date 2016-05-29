@@ -2289,7 +2289,7 @@ wtap_dump_open_tempfile_ng(char **filenamep, const char *pfx,
 		return NULL;
 
 	/* Choose a random name for the file */
-	fd = create_tempfile(&tmpname, pfx);
+	fd = create_tempfile(&tmpname, pfx, ".pcapng");
 	if (fd == -1) {
 		*err = errno;
 		g_free(wdh);

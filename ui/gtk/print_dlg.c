@@ -992,7 +992,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     /* Don't use tmpnam() or such, as this will fail under some ACL           */
     /* circumstances: http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=358  */
     /* Also: tmpnam is "insecure" and should not be used.                     */
-    tmp_fd = create_tempfile(&tmp_namebuf, "wshprint");
+    tmp_fd = create_tempfile(&tmp_namebuf, "wshprint", NULL);
     if(tmp_fd == -1) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     "Couldn't create a temporary file for printing:\n%s", tmp_namebuf);
