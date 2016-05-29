@@ -3531,52 +3531,6 @@ proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	return pi;
 }
 
-/* Appends string data to a FT_STRING, FT_STRINGZ, or FT_STRINGZPAD,
- * allowing progressive field info update instead of only updating the
- * representation as does proto_item_append_text()
- */
-/*
- *  NOTE: this function will break with the TRY_TO_FAKE_THIS_ITEM()
- *  speed optimization.
- *  Currently only a few dissectors use this function so it is not
- *  that bad but try to avoid using this one if possible.
- *  IF you must use this function you MUST also disable the
- *  TRY_TO_FAKE_THIS_ITEM() optimization for the proto_item you'll be
- *  appending to with proto_item_append_string().
- *  Do that by faking that the tree is visible by calling
- *  proto_tree_set_visible(tree, TRUE) (see packet-frame.c)
- *  BEFORE you create the item you are later going to use
- *  proto_item_append_string() on.
- */
-void
-proto_item_append_string(proto_item *pi, const char *str)
-{
-	field_info        *fi;
-	header_field_info *hfinfo;
-	const gchar       *old_str, *new_str;
-
-	if (!pi)
-		return;
-	if (!*str)
-		return;
-
-	fi = PITEM_FINFO(pi);
-	DISSECTOR_ASSERT_HINT(fi, "proto_tree_set_visible(tree, TRUE) should have been called previously");
-
-	hfinfo = fi->hfinfo;
-	if (hfinfo->type == FT_PROTOCOL) {
-		/* TRY_TO_FAKE_THIS_ITEM() speed optimization: silently skip */
-		return;
-	}
-	DISSECTOR_ASSERT_FIELD_TYPE_IS_STRING(hfinfo);
-	old_str = (guint8 *)fvalue_get(&fi->value);
-	if (old_str && old_str[0])
-		new_str = wmem_strconcat(wmem_packet_scope(), old_str, str, NULL);
-	else
-		new_str = str;
-	fvalue_set_string(&fi->value, new_str);
-}
-
 /* Set the FT_STRING value */
 static void
 proto_tree_set_string(field_info *fi, const char* value)

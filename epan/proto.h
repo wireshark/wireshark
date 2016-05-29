@@ -2066,26 +2066,6 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format,
 	...) G_GNUC_PRINTF(2,3);
 
 
-
-/** Append a string to a protocol item.<br>
-    NOTE: this function will break with the TRY_TO_FAKE_THIS_ITEM()
-    speed optimization.
-    Currently only a few dissectors use this function so it is not
-    that bad but try to avoid using this one if possible.
-    IF you must use this function you MUST also disable the
-    TRY_TO_FAKE_THIS_ITEM() optimization for the proto_item you'll be
-    appending to with proto_item_append_string().
-    Do that by faking that the tree is visible by calling
-    proto_tree_set_visible(tree, TRUE) (see packet-frame.c)
-    BEFORE you create the item you are later going to use
-    proto_item_append_string() on.
- @param pi the item to append the string to
- @param str the string to append */
-WS_DLL_PUBLIC void
-proto_item_append_string(proto_item *pi, const char *str);
-
-
-
 /** Fill given label_str with string representation of field
  @param fi the item to get the info from
  @param label_str the string to fill

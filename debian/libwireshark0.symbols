@@ -986,7 +986,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_is_protocol_enabled@Base 1.9.1
  proto_is_frame_protocol@Base 1.99.1
  proto_item_add_subtree@Base 1.9.1
- proto_item_append_string@Base 1.9.1
  proto_item_append_text@Base 1.9.1
  proto_item_fill_label@Base 1.9.1
  proto_item_get_len@Base 1.9.1
