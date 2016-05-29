@@ -3050,10 +3050,10 @@ static ws_mempbrk_pattern pbrk_crlf;
  * Return the length of the line (not counting the line terminator at
  * the end), or, if we don't find a line terminator:
  *
- *	if "deseg" is true, return -1;
+ * if "desegment" is true, return -1;
  *
- *	if "deseg" is false, return the amount of data remaining in
- *	the buffer.
+ * if "desegment" is false, return the amount of data remaining in
+ * the buffer.
  *
  * Set "*next_offset" to the offset of the character past the line
  * terminator, or past the end of the buffer if we don't find a line
@@ -3070,12 +3070,11 @@ tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len, gint *next_offset, 
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	if (len == -1)
+	if (len == -1) {
 		len = _tvb_captured_length_remaining(tvb, offset);
-	/*
-	 * XXX - what if "len" is still -1, meaning "offset is past the
-	 * end of the tvbuff"?
-	 */
+		/* if offset is past the end of the tvbuff, len is now 0 */
+	}
+
 	eob_offset = offset + len;
 
 	if (!compiled) {
