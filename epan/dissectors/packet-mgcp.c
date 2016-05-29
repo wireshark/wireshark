@@ -627,8 +627,7 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		/* Do we want to display the raw text of our MGCP packet? */
 		if (global_mgcp_raw_text)
 		{
-			if (tree)
-				mgcp_raw_text_add(tvb, mgcp_tree);
+			mgcp_raw_text_add(tvb, mgcp_tree);
 		}
 
 		/* Dissect sdp payload */
@@ -1337,23 +1336,22 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 							    (mi->rspcode >= 200) &&
 							    (mi->rspcode == mgcp_call->rspcode))
 							{
+								proto_item* item;
+
 								/* No, so it's a duplicate response. Mark it as such. */
 								mi->is_duplicate = TRUE;
 								col_append_fstr(pinfo->cinfo, COL_INFO,
-								                ", Duplicate Response %u",
-								                mi->transid);
-								if (tree)
-								{
-									proto_item* item;
-									item = proto_tree_add_uint(tree, hf_mgcp_dup, tvb, 0, 0, mi->transid);
-									PROTO_ITEM_SET_HIDDEN(item);
-									item = proto_tree_add_uint(tree, hf_mgcp_rsp_dup,
-									                           tvb, 0, 0, mi->transid);
-									PROTO_ITEM_SET_GENERATED(item);
-									item = proto_tree_add_uint(tree, hf_mgcp_rsp_dup_frame,
-									                           tvb, 0, 0, mgcp_call->rsp_num);
-									PROTO_ITEM_SET_GENERATED(item);
-								}
+										", Duplicate Response %u",
+										mi->transid);
+
+								item = proto_tree_add_uint(tree, hf_mgcp_dup, tvb, 0, 0, mi->transid);
+								PROTO_ITEM_SET_HIDDEN(item);
+								item = proto_tree_add_uint(tree, hf_mgcp_rsp_dup,
+										tvb, 0, 0, mi->transid);
+								PROTO_ITEM_SET_GENERATED(item);
+								item = proto_tree_add_uint(tree, hf_mgcp_rsp_dup_frame,
+										tvb, 0, 0, mgcp_call->rsp_num);
+								PROTO_ITEM_SET_GENERATED(item);
 							}
 						}
 						/* Now store the response code (after comparison above) */
@@ -1515,51 +1513,48 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree)
 	tvb_linebegin = 0;
 	tvb_lineend = tvb_linebegin;
 
-	if (tree)
+	mgcp_param_ti = proto_tree_add_item(tree, hf_mgcp_params, tvb,
+			tvb_linebegin, tvb_len, ENC_NA);
+	proto_item_set_text(mgcp_param_ti, "Parameters");
+	mgcp_param_tree = proto_item_add_subtree(mgcp_param_ti, ett_mgcp_param);
+
+	/* Parse the parameters */
+	while (tvb_offset_exists(tvb, tvb_lineend))
 	{
-		mgcp_param_ti = proto_tree_add_item(tree, hf_mgcp_params, tvb,
-		                                    tvb_linebegin, tvb_len, ENC_NA);
-		proto_item_set_text(mgcp_param_ti, "Parameters");
-		mgcp_param_tree = proto_item_add_subtree(mgcp_param_ti, ett_mgcp_param);
+		old_lineend = tvb_lineend;
+		linelen = tvb_find_line_end(tvb, tvb_linebegin, -1, &tvb_lineend, FALSE);
+		tvb_tokenbegin = tvb_parse_param(tvb, tvb_linebegin, linelen, &my_param);
 
-		/* Parse the parameters */
-		while (tvb_offset_exists(tvb, tvb_lineend))
+		if (my_param)
 		{
-			old_lineend = tvb_lineend;
-			linelen = tvb_find_line_end(tvb, tvb_linebegin, -1, &tvb_lineend, FALSE);
-			tvb_tokenbegin = tvb_parse_param(tvb, tvb_linebegin, linelen, &my_param);
-
-			if (my_param)
+			if (*my_param == hf_mgcp_param_connectionparam)
 			{
-				if (*my_param == hf_mgcp_param_connectionparam)
-				{
-					tokenlen = tvb_find_line_end(tvb, tvb_tokenbegin, -1, &tvb_lineend, FALSE);
-					dissect_mgcp_connectionparams(mgcp_param_tree, tvb, tvb_linebegin,
-					                              tvb_tokenbegin - tvb_linebegin, tokenlen);
-				}
-				else
+				tokenlen = tvb_find_line_end(tvb, tvb_tokenbegin, -1, &tvb_lineend, FALSE);
+				dissect_mgcp_connectionparams(mgcp_param_tree, tvb, tvb_linebegin,
+						tvb_tokenbegin - tvb_linebegin, tokenlen);
+			}
+			else
 				if (*my_param == hf_mgcp_param_localconnoptions)
 				{
 					tokenlen = tvb_find_line_end(tvb, tvb_tokenbegin, -1, &tvb_lineend, FALSE);
 					dissect_mgcp_localconnectionoptions(mgcp_param_tree, tvb, tvb_linebegin,
-					                                    tvb_tokenbegin - tvb_linebegin, tokenlen);
+							tvb_tokenbegin - tvb_linebegin, tokenlen);
 				}
 				else
 				{
 					tokenlen = tvb_find_line_end(tvb, tvb_tokenbegin, -1, &tvb_lineend, FALSE);
 					proto_tree_add_string(mgcp_param_tree, *my_param, tvb,
-					                      tvb_linebegin, linelen,
-					                      tvb_format_text(tvb, tvb_tokenbegin, tokenlen));
+							tvb_linebegin, linelen,
+							tvb_format_text(tvb, tvb_tokenbegin, tokenlen));
 				}
-			}
+		}
 
-			tvb_linebegin = tvb_lineend;
-			/* Its a infinite loop if we didn't advance (or went backwards) */
-			if (old_lineend >= tvb_lineend)
-			{
-				/* XXX - exception */
-				break;
-			}
+		tvb_linebegin = tvb_lineend;
+		/* Its a infinite loop if we didn't advance (or went backwards) */
+		if (old_lineend >= tvb_lineend)
+		{
+			/* XXX - exception */
+			break;
 		}
 	}
 }
@@ -1568,18 +1563,15 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree)
 static void
 dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offset, gint param_type_len, gint param_val_len)
 {
-	proto_tree *tree = parent_tree;
+	proto_tree *tree;
+	proto_item *item;
 
 	gchar *tokenline;
 	gchar **tokens;
 	guint i;
 
-	if (parent_tree)
-	{
-		proto_item *item;
-		item = proto_tree_add_item(parent_tree, hf_mgcp_param_connectionparam, tvb, offset, param_type_len+param_val_len, ENC_ASCII|ENC_NA);
-		tree = proto_item_add_subtree(item, ett_mgcp_param_connectionparam);
-	}
+	item = proto_tree_add_item(parent_tree, hf_mgcp_param_connectionparam, tvb, offset, param_type_len+param_val_len, ENC_ASCII|ENC_NA);
+	tree = proto_item_add_subtree(item, ett_mgcp_param_connectionparam);
 
 	/* The P: line */
 	offset += param_type_len; /* skip the P: */
@@ -1652,23 +1644,20 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offse
 				hf_string = -1;
 			}
 
-			if (tree)
+			if (hf_uint != -1)
 			{
-				if (hf_uint != -1)
-				{
-					proto_tree_add_uint(tree, hf_uint, tvb, offset, tokenlen, (guint32)strtoul(typval[1], NULL, 10));
-				}
-				else if (hf_string != -1)
-				{
-					proto_tree_add_string(tree, hf_string, tvb, offset, tokenlen, g_strstrip(typval[1]));
-				}
-				else
-				{
-					proto_tree_add_string(tree, hf_mgcp_unknown_parameter, tvb, offset, tokenlen, tokens[i]);
-				}
+				proto_tree_add_uint(tree, hf_uint, tvb, offset, tokenlen, (guint32)strtoul(typval[1], NULL, 10));
+			}
+			else if (hf_string != -1)
+			{
+				proto_tree_add_string(tree, hf_string, tvb, offset, tokenlen, g_strstrip(typval[1]));
+			}
+			else
+			{
+				proto_tree_add_string(tree, hf_mgcp_unknown_parameter, tvb, offset, tokenlen, tokens[i]);
 			}
 		}
-		else if (tree)
+		else
 		{
 			proto_tree_add_string(tree, hf_mgcp_malformed_parameter, tvb, offset, tokenlen, tokens[i]);
 		}
@@ -1681,18 +1670,15 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offse
 static void
 dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint offset, gint param_type_len, gint param_val_len)
 {
-	proto_tree *tree = parent_tree;
+	proto_tree *tree;
+	proto_item *item;
 
 	gchar *tokenline;
 	gchar **tokens;
 	guint i;
 
-	if (parent_tree)
-	{
-		proto_item *item;
-		item = proto_tree_add_item(parent_tree, hf_mgcp_param_localconnoptions, tvb, offset, param_type_len+param_val_len, ENC_ASCII|ENC_NA);
-		tree = proto_item_add_subtree(item, ett_mgcp_param_localconnectionoptions);
-	}
+	item = proto_tree_add_item(parent_tree, hf_mgcp_param_localconnoptions, tvb, offset, param_type_len+param_val_len, ENC_ASCII|ENC_NA);
+	tree = proto_item_add_subtree(item, ett_mgcp_param_localconnectionoptions);
 
 	/* The L: line */
 	offset += param_type_len; /* skip the L: */
@@ -1821,23 +1807,20 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 			}
 
 			/* Add item */
-			if (tree)
+			if (hf_uint != -1)
 			{
-				if (hf_uint != -1)
-				{
-					proto_tree_add_uint(tree, hf_uint, tvb, offset, tokenlen, (guint32)strtoul(typval[1], NULL, 10));
-				}
-				else if (hf_string != -1)
-				{
-					proto_tree_add_string(tree, hf_string, tvb, offset, tokenlen, g_strstrip(typval[1]));
-				}
-				else
-				{
-					proto_tree_add_string(tree, hf_mgcp_unknown_parameter, tvb, offset, tokenlen, tokens[i]);
-				}
+				proto_tree_add_uint(tree, hf_uint, tvb, offset, tokenlen, (guint32)strtoul(typval[1], NULL, 10));
+			}
+			else if (hf_string != -1)
+			{
+				proto_tree_add_string(tree, hf_string, tvb, offset, tokenlen, g_strstrip(typval[1]));
+			}
+			else
+			{
+				proto_tree_add_string(tree, hf_mgcp_unknown_parameter, tvb, offset, tokenlen, tokens[i]);
 			}
 		}
-		else if (tree)
+		else
 		{
 			proto_tree_add_string(tree, hf_mgcp_malformed_parameter, tvb, offset, tokenlen, tokens[i]);
 		}
