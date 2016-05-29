@@ -90,7 +90,6 @@ dissect_browser_TYPE_4_data(tvbuff_t *tvb, int offset,
 			dcerpc_info *di, guint8 *drep)
 {
 	guint32 len;
-	int old_offset = offset;
 
 	if(di->conformant_run){
 		/* this call is to make wireshark eat the array header for the conformant run */
@@ -104,8 +103,6 @@ dissect_browser_TYPE_4_data(tvbuff_t *tvb, int offset,
 	proto_tree_add_item(tree, hf_browser_unknown_bytes, tvb, offset, len,
 		ENC_NA);
 	offset += len;
-	if (offset < old_offset)
-		THROW(ReportedBoundsError);
 
 	return len;
 }
@@ -137,7 +134,6 @@ dissect_browser_TYPE_3_data(tvbuff_t *tvb, int offset,
 			dcerpc_info *di, guint8 *drep)
 {
 	guint32 len;
-	int old_offset = offset;
 
 	if(di->conformant_run){
 		/* this call is to make wireshark eat the array header for the conformant run */
@@ -152,8 +148,6 @@ dissect_browser_TYPE_3_data(tvbuff_t *tvb, int offset,
 	proto_tree_add_item(tree, hf_browser_unknown_bytes, tvb, offset, len,
 		ENC_NA);
 	offset += len;
-	if (offset < old_offset)
-		THROW(ReportedBoundsError);
 
 	return len;
 }
@@ -741,7 +735,6 @@ dissect_browser_TYPE_9_data(tvbuff_t *tvb, int offset,
 			dcerpc_info *di, guint8 *drep)
 {
 	guint32 len;
-	int old_offset = offset;
 
 	if(di->conformant_run){
 		/* this call is to make wireshark eat the array header for the conformant run */
@@ -757,8 +750,6 @@ dissect_browser_TYPE_9_data(tvbuff_t *tvb, int offset,
 	proto_tree_add_item(tree, hf_browser_unknown_bytes, tvb, offset, len,
 		ENC_NA);
 	offset += len;
-	if (offset < old_offset)
-		THROW(ReportedBoundsError);
 
 	return len;
 }
@@ -931,7 +922,6 @@ dissect_browser_TYPE_12_data(tvbuff_t *tvb, int offset,
 			dcerpc_info *di, guint8 *drep)
 {
 	guint32 len;
-	int old_offset = offset;
 
 	if(di->conformant_run){
 		/* this call is to make wireshark eat the array header for the conformant run */
@@ -947,8 +937,6 @@ dissect_browser_TYPE_12_data(tvbuff_t *tvb, int offset,
 	proto_tree_add_item(tree, hf_browser_unknown_bytes, tvb, offset, len,
 		ENC_NA);
 	offset += len;
-	if (offset < old_offset)
-		THROW(ReportedBoundsError);
 
 	return offset;
 }
