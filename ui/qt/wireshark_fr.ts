@@ -2817,56 +2817,56 @@ pour fichiers de filtre : %2.</translation>
         <translation>Enregistrer Contenu du Flux Comme</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="540"/>
+        <location filename="follow_stream_dialog.cpp" line="544"/>
         <source>
 [Stream output truncated]</source>
         <translation>
 [Sortie flux tronquée]</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="807"/>
+        <location filename="follow_stream_dialog.cpp" line="811"/>
         <source>No capture file.</source>
         <translation>Pas de fichier de capture.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="807"/>
+        <location filename="follow_stream_dialog.cpp" line="811"/>
         <source>Please make sure you have a capture file opened.</source>
         <translation>S&apos;il vous plaît assurez-vous que vous avez un fichier de capture ouvert.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="813"/>
-        <location filename="follow_stream_dialog.cpp" line="819"/>
+        <location filename="follow_stream_dialog.cpp" line="817"/>
+        <location filename="follow_stream_dialog.cpp" line="823"/>
         <source>Error following stream.</source>
         <translation>Erreur pour suivre le flux.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="813"/>
+        <location filename="follow_stream_dialog.cpp" line="817"/>
         <source>Capture file invalid.</source>
         <translation>Fichier de capture invalide.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="819"/>
+        <location filename="follow_stream_dialog.cpp" line="823"/>
         <source>Please make sure you have a %1 packet selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="935"/>
+        <location filename="follow_stream_dialog.cpp" line="939"/>
         <source>Follow %1 Stream (%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="841"/>
+        <location filename="follow_stream_dialog.cpp" line="845"/>
         <source>Error creating filter for this stream.</source>
         <translation>Erreur pour la création du filtre pour ce flux.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="842"/>
+        <location filename="follow_stream_dialog.cpp" line="846"/>
         <source>A transport or network layer header is needed.</source>
         <translation>Une en-tête de transport ou de la couche de réseau est nécessaire.</translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="872"/>
-        <location filename="follow_stream_dialog.cpp" line="884"/>
+        <location filename="follow_stream_dialog.cpp" line="876"/>
+        <location filename="follow_stream_dialog.cpp" line="888"/>
         <source>%Ln total stream(s).</source>
         <translation>
             <numerusform>%Ln total flux.</numerusform>
@@ -2874,7 +2874,7 @@ pour fichiers de filtre : %2.</translation>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="955"/>
+        <location filename="follow_stream_dialog.cpp" line="959"/>
         <source>File closed.</source>
         <translation>Fichier fermé.</translation>
     </message>
@@ -8916,17 +8916,17 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1923"/>
+        <location filename="main_window.cpp" line="1924"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Nom du fichier ne peut pas être mappé à l&apos;UTF-8)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1944"/>
+        <location filename="main_window.cpp" line="1945"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>L&apos;analyseur de réseau Wireshark</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1969"/>
+        <location filename="main_window.cpp" line="1970"/>
         <source>Capturing from %1</source>
         <translation>Capture en cours de %1</translation>
     </message>
@@ -13265,23 +13265,33 @@ a:hover {
 <context>
     <name>SequenceDialog</name>
     <message>
-        <location filename="sequence_dialog.cpp" line="64"/>
+        <location filename="sequence_dialog.cpp" line="68"/>
         <source>Call Flow</source>
         <translation>Flux d&apos;Appel</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="123"/>
+        <location filename="sequence_dialog.cpp" line="102"/>
+        <source>Time</source>
+        <translation type="unfinished">Temps</translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.cpp" line="110"/>
+        <source>Comment</source>
+        <translation type="unfinished">Commentaire</translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.cpp" line="154"/>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
         <translation>Enregistrer sous</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="274"/>
+        <location filename="sequence_dialog.cpp" line="302"/>
         <source>No data</source>
         <translation>Pas de données</translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="276"/>
+        <location filename="sequence_dialog.cpp" line="304"/>
         <source>%Ln node(s)</source>
         <translation>
             <numerusform>%n noeud</numerusform>
@@ -13289,7 +13299,7 @@ a:hover {
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="277"/>
+        <location filename="sequence_dialog.cpp" line="305"/>
         <source>%Ln item(s)</source>
         <translation>
             <numerusform>%n item</numerusform>
@@ -13297,38 +13307,38 @@ a:hover {
         </translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="297"/>
+        <location filename="sequence_dialog.cpp" line="331"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="298"/>
+        <location filename="sequence_dialog.cpp" line="332"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="299"/>
+        <location filename="sequence_dialog.cpp" line="333"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="301"/>
+        <location filename="sequence_dialog.cpp" line="335"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>Format d&apos;2change de Fichier JPEG </translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="302"/>
+        <location filename="sequence_dialog.cpp" line="336"/>
         <source>ASCII (*.txt)</source>
         <translation>ASCII (*.txt)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="313"/>
+        <location filename="sequence_dialog.cpp" line="347"/>
         <source>Save Graph As</source>
         <oldsource>Wireshark: Save Graph As...</oldsource>
         <translation>Sauvegarder le Graphique Sous</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="64"/>
+        <location filename="sequence_dialog.cpp" line="68"/>
         <source>Flow</source>
         <translation>Flux</translation>
     </message>
@@ -13351,10 +13361,32 @@ a:hover {
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Move down 1 pixel&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Go to packet under cursor&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;n&lt;/th&gt;&lt;td&gt;Go to the next packet&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;p&lt;/th&gt;&lt;td&gt;Go to the previous packet&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+        <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Valuable and amazing time-saving keyboard shortcuts&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Reset graph to its initial state&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Move right 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Move left 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Move up 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Move down 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Move right 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Move left 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Move up 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Move down 1 pixel&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Go to packet under cursor&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</oldsource>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
 &lt;h3&gt;Raccourcis-clavier précieux pour gains de temps surprenants&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
@@ -13376,193 +13408,223 @@ a:hover {
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="70"/>
+        <location filename="sequence_dialog.ui" line="72"/>
         <source>&lt;small&gt;&lt;i&gt;A hint&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Astuce&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="103"/>
+        <location filename="sequence_dialog.ui" line="105"/>
         <source>Show:</source>
         <translation>Afficher:</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="111"/>
+        <location filename="sequence_dialog.ui" line="113"/>
         <source>All packets</source>
         <translation>Tous les paquets</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="116"/>
+        <location filename="sequence_dialog.ui" line="118"/>
         <source>Displayed packets</source>
         <translation>Paquets affichés</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="137"/>
+        <location filename="sequence_dialog.ui" line="139"/>
         <source>Flow type:</source>
         <translation>Type de Flux:</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="160"/>
+        <location filename="sequence_dialog.ui" line="162"/>
         <source>Addresses:</source>
         <translation>Adresses:</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="168"/>
+        <location filename="sequence_dialog.ui" line="170"/>
         <source>Any</source>
         <translation>Tout</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="173"/>
+        <location filename="sequence_dialog.ui" line="175"/>
         <source>Network</source>
         <translation>Réseau</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="198"/>
+        <location filename="sequence_dialog.ui" line="200"/>
         <source>Reset</source>
         <translation>Réinitialiser</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="220"/>
+        <location filename="sequence_dialog.ui" line="222"/>
         <source>Reset Diagram</source>
         <translation>Réinitialiser Diagramme</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="223"/>
+        <location filename="sequence_dialog.ui" line="225"/>
         <source>Reset the diagram to its initial state.</source>
         <translation>Réinitialiser le diagramme à l&apos;état inital.</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="226"/>
+        <location filename="sequence_dialog.ui" line="228"/>
         <source>0</source>
         <translation>0</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="231"/>
-        <location filename="sequence_dialog.ui" line="234"/>
+        <location filename="sequence_dialog.ui" line="233"/>
+        <location filename="sequence_dialog.ui" line="236"/>
         <source>Move Up 10 Pixels</source>
         <translation>Monter de 10 Pixels</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="237"/>
+        <location filename="sequence_dialog.ui" line="239"/>
         <source>Up</source>
         <translation>Monter</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="242"/>
-        <location filename="sequence_dialog.ui" line="245"/>
+        <location filename="sequence_dialog.ui" line="244"/>
+        <location filename="sequence_dialog.ui" line="247"/>
         <source>Move Left 10 Pixels</source>
         <translation>Déplacer à Gauche de 10 Pixels</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="248"/>
+        <location filename="sequence_dialog.ui" line="250"/>
         <source>Left</source>
         <translation>Gauche</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="253"/>
-        <location filename="sequence_dialog.ui" line="256"/>
+        <location filename="sequence_dialog.ui" line="255"/>
+        <location filename="sequence_dialog.ui" line="258"/>
         <source>Move Right 10 Pixels</source>
         <translation>Déplacer à Droite de 10 Pixels</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="259"/>
+        <location filename="sequence_dialog.ui" line="261"/>
         <source>Right</source>
         <translation>Droite</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="264"/>
-        <location filename="sequence_dialog.ui" line="267"/>
+        <location filename="sequence_dialog.ui" line="266"/>
+        <location filename="sequence_dialog.ui" line="269"/>
         <source>Move Down 10 Pixels</source>
         <translation>Descendre de 10 Pixels</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="270"/>
+        <location filename="sequence_dialog.ui" line="272"/>
         <source>Down</source>
         <translation>Bas</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="275"/>
-        <location filename="sequence_dialog.ui" line="278"/>
+        <location filename="sequence_dialog.ui" line="277"/>
+        <location filename="sequence_dialog.ui" line="280"/>
         <source>Move Up 1 Pixel</source>
         <translation>Monter d&apos;1 Pixel</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="281"/>
+        <location filename="sequence_dialog.ui" line="283"/>
         <source>Shift+Up</source>
         <translation>Maj+Haut</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="286"/>
-        <location filename="sequence_dialog.ui" line="289"/>
+        <location filename="sequence_dialog.ui" line="288"/>
+        <location filename="sequence_dialog.ui" line="291"/>
         <source>Move Left 1 Pixel</source>
         <translation>Déplacer à Gauche d&apos;1 Pixel</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="292"/>
+        <location filename="sequence_dialog.ui" line="294"/>
         <source>Shift+Left</source>
         <translation>Maj+Gauche</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="297"/>
-        <location filename="sequence_dialog.ui" line="300"/>
+        <location filename="sequence_dialog.ui" line="299"/>
+        <location filename="sequence_dialog.ui" line="302"/>
         <source>Move Right 1 Pixel</source>
         <translation>Déplacer à Droite d&apos;1 Pixel</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="303"/>
+        <location filename="sequence_dialog.ui" line="305"/>
         <source>Shift+Right</source>
         <translation>Maj+Droite</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="308"/>
-        <location filename="sequence_dialog.ui" line="311"/>
+        <location filename="sequence_dialog.ui" line="310"/>
+        <location filename="sequence_dialog.ui" line="313"/>
         <source>Move Down 1 Pixel</source>
         <translation>Descendre d&apos;1 Pixel</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="314"/>
+        <location filename="sequence_dialog.ui" line="316"/>
         <source>Shift+Down</source>
         <translation>Maj+Bas</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="319"/>
+        <location filename="sequence_dialog.ui" line="321"/>
         <source>Go To Packet Under Cursor</source>
         <translation>Aller au paquet sous le curseur</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="322"/>
+        <location filename="sequence_dialog.ui" line="324"/>
         <source>Go to packet currently under the cursor</source>
         <translation>Aller au paquet actuellement sous le curseur</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="325"/>
+        <location filename="sequence_dialog.ui" line="327"/>
         <source>G</source>
         <translation>G</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="330"/>
+        <location filename="sequence_dialog.ui" line="332"/>
         <source>All Flows</source>
         <translation>Tous les flux</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="333"/>
+        <location filename="sequence_dialog.ui" line="335"/>
         <source>Show flows for all packets</source>
         <translation>Affichers tous les flux de tous les paquets</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="336"/>
-        <location filename="sequence_dialog.ui" line="347"/>
+        <location filename="sequence_dialog.ui" line="338"/>
+        <location filename="sequence_dialog.ui" line="349"/>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="341"/>
+        <location filename="sequence_dialog.ui" line="343"/>
         <source>TCP Flows</source>
         <translation>Flux TCP</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="344"/>
+        <location filename="sequence_dialog.ui" line="346"/>
         <source>Show only TCP flow information</source>
         <translation>Afficher seulement les informations des flux TCP</translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.ui" line="354"/>
+        <source>Go To Next Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.ui" line="357"/>
+        <source>Go to the next packet</source>
+        <translation type="unfinished">ALler au paquet suviant</translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.ui" line="360"/>
+        <source>N</source>
+        <translation type="unfinished">N</translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.ui" line="365"/>
+        <source>Go To Previous Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.ui" line="368"/>
+        <source>Go to the previous packet</source>
+        <translation type="unfinished">Aller au paquet précédent</translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.ui" line="371"/>
+        <source>P</source>
+        <translation type="unfinished">P</translation>
     </message>
 </context>
 <context>

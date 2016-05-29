@@ -107,7 +107,7 @@
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="96"/>
         <source>All Interfaces</source>
-        <translation>Alle Interfaces</translation>
+        <translation>Alle Schnittstellen</translation>
     </message>
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="150"/>
@@ -205,7 +205,7 @@
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="126"/>
         <source>All Interfaces</source>
-        <translation>Alle Interfaces</translation>
+        <translation>Alle Schnittstellen</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="134"/>
@@ -427,7 +427,7 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="565"/>
         <source>All Interfaces</source>
-        <translation>Alle Interfaces</translation>
+        <translation>Alle Schnittstellen</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="580"/>
@@ -861,12 +861,12 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="277"/>
         <source>Interfaces</source>
-        <translation>Interfaces</translation>
+        <translation>Schnittstellen</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="281"/>
         <source>Interface</source>
-        <translation>Interface</translation>
+        <translation>Schnittstelle</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="282"/>
@@ -1027,7 +1027,7 @@
     <message>
         <location filename="capture_filter_edit.cpp" line="299"/>
         <source>&lt;p&gt;The interfaces you have selected have different capture filters. Typing a filter here will override them. Doing nothing will preserve them.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Die ausgewählten Interfaces haben unterschiedliche Mitschnittfilter zugeordnet. Ein hier angegebener Filter überschreibt diese. Um die Filter beizubehalten ist keine Aktion notwendig.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Die ausgewählten Schnittstellen haben unterschiedliche Mitschnittfilter zugeordnet. Ein hier angegebener Filter überschreibt diese. Um die Filter beizubehalten ist keine Aktion notwendig.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="capture_filter_edit.cpp" line="403"/>
@@ -1067,7 +1067,7 @@
     <message>
         <location filename="capture_interfaces_dialog.ui" line="43"/>
         <source>Interface</source>
-        <translation>Interface</translation>
+        <translation>Schnittstelle</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="48"/>
@@ -1204,24 +1204,24 @@
         <location filename="capture_interfaces_dialog.ui" line="91"/>
         <source>Enable promiscuous mode on all interfaces</source>
         <oldsource>Capture in promiscuous mode on all interfaces</oldsource>
-        <translation>Promiscuous Modus für alle Interfaces aktivieren</translation>
+        <translation>Promiskuitiven Modus für alle Schnittstellen aktivieren</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="114"/>
         <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
-        <translation>Interfaces anzeigen und verstecken, Kommentare hinzufügen, Pipes und entfernte Interfaces verwalten.</translation>
+        <translation>Schnittstellen anzeigen und ausblenden, Kommentare hinzufügen, Pipes und entfernte Schnittstellen verwalten.</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="117"/>
         <source>Manage Interfaces…</source>
         <oldsource>Manage Interfaces...</oldsource>
-        <translation>Interfaces verwalten...</translation>
+        <translation>Schnittstellen verwalten...</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="128"/>
         <source>Capture filter for selected interfaces:</source>
         <oldsource>Capture Filter for selected Interfaces:</oldsource>
-        <translation>Mitschnittfilter für das ausgewählte Interface:</translation>
+        <translation>Mitschnittfilter für die ausgewählte Schnittstelle:</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="158"/>
@@ -1381,7 +1381,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="121"/>
         <source>Capture Interfaces</source>
-        <translation>Mitschnittinterfaces</translation>
+        <translation>Mitschnittschnittstellen</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="127"/>
@@ -1486,7 +1486,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="capture_preferences_frame.ui" line="29"/>
         <source>Default interface</source>
-        <translation>Standard Interface</translation>
+        <translation>Standardschnittstelle</translation>
     </message>
     <message>
         <location filename="capture_preferences_frame.ui" line="63"/>
@@ -2467,7 +2467,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <location filename="extcap_options_dialog.cpp" line="74"/>
         <location filename="extcap_options_dialog.cpp" line="108"/>
         <source>Extcap Interface Options</source>
-        <translation>Extcap Interface Optionen</translation>
+        <translation>Extcap-Schnittstellenoptionen</translation>
     </message>
     <message>
         <location filename="extcap_options_dialog.cpp" line="78"/>
@@ -2816,56 +2816,56 @@ für die Filterdateien kann nicht erstellt werden:
         <translation>Stream Inhalt speichern als</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="540"/>
+        <location filename="follow_stream_dialog.cpp" line="544"/>
         <source>
 [Stream output truncated]</source>
         <translation>
 [Streamausgabe gekürzt]</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="807"/>
+        <location filename="follow_stream_dialog.cpp" line="811"/>
         <source>No capture file.</source>
         <translation>Keine Mitschnittdatei.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="807"/>
+        <location filename="follow_stream_dialog.cpp" line="811"/>
         <source>Please make sure you have a capture file opened.</source>
         <translation>Bitte sicherstellen, dass eine Mitschnittdatei geöffnet ist.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="813"/>
-        <location filename="follow_stream_dialog.cpp" line="819"/>
+        <location filename="follow_stream_dialog.cpp" line="817"/>
+        <location filename="follow_stream_dialog.cpp" line="823"/>
         <source>Error following stream.</source>
         <translation>Fehler beim Folgen des Streams.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="813"/>
+        <location filename="follow_stream_dialog.cpp" line="817"/>
         <source>Capture file invalid.</source>
         <translation>Mitschnittdatei ungültig.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="819"/>
+        <location filename="follow_stream_dialog.cpp" line="823"/>
         <source>Please make sure you have a %1 packet selected.</source>
         <translation>Bitte ein %1 Paket auswählen.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="935"/>
+        <location filename="follow_stream_dialog.cpp" line="939"/>
         <source>Follow %1 Stream (%2)</source>
         <translation>Folge %1 Stream (%2)</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="841"/>
+        <location filename="follow_stream_dialog.cpp" line="845"/>
         <source>Error creating filter for this stream.</source>
         <translation>Fehler beim Erstellen eines Filters für diesen Stream.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="842"/>
+        <location filename="follow_stream_dialog.cpp" line="846"/>
         <source>A transport or network layer header is needed.</source>
         <translation>Ein Header der Transport- oder Netzwerkschicht wird benötigt.</translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="872"/>
-        <location filename="follow_stream_dialog.cpp" line="884"/>
+        <location filename="follow_stream_dialog.cpp" line="876"/>
+        <location filename="follow_stream_dialog.cpp" line="888"/>
         <source>%Ln total stream(s).</source>
         <translation>
             <numerusform>%n Stream.</numerusform>
@@ -2873,7 +2873,7 @@ für die Filterdateien kann nicht erstellt werden:
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="955"/>
+        <location filename="follow_stream_dialog.cpp" line="959"/>
         <source>File closed.</source>
         <translation>Datei geschlossen.</translation>
     </message>
@@ -4332,7 +4332,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="interface_tree.cpp" line="263"/>
         <source>Interface information not available</source>
-        <translation>Interfaceinformation nicht verfügbar</translation>
+        <translation>Schnittstelleninformation nicht verfügbar</translation>
     </message>
     <message>
         <location filename="interface_tree.cpp" line="439"/>
@@ -6439,12 +6439,12 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="main_welcome.ui" line="130"/>
         <source>Recent capture files</source>
-        <translation type="unfinished"></translation>
+        <translation>Letzte Mitschnittdateien</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="133"/>
         <source>Capture files that have been opened previously</source>
-        <translation type="unfinished"></translation>
+        <translation>Mitschnittdateien, die zuvor geöffnet wurden</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="146"/>
@@ -6464,12 +6464,12 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="main_welcome.ui" line="197"/>
         <source>Interface list</source>
-        <translation type="unfinished"></translation>
+        <translation>Schnittstellenliste</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="200"/>
         <source>List of available capture interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Liste von verfügbaren Mitschnittschnittstellen</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="226"/>
@@ -7056,12 +7056,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1194"/>
         <source>Refresh Interfaces</source>
-        <translation>Interfaces aktualisieren</translation>
+        <translation>Schnittstellen aktualisieren</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1197"/>
         <source>Refresh interfaces</source>
-        <translation>Interfaces aktualisieren</translation>
+        <translation>Schnittstellen aktualisieren</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1205"/>
@@ -8944,17 +8944,17 @@ text-decoration: underline;
         <translation>Stoppen und Fortsetzen &amp;ohne zu Speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1923"/>
+        <location filename="main_window.cpp" line="1924"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Dateiname kann nicht auf UTF-8 angewendet werden)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1944"/>
+        <location filename="main_window.cpp" line="1945"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Die Wireshark Netzwerk Analysesoftware</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1969"/>
+        <location filename="main_window.cpp" line="1970"/>
         <source>Capturing from %1</source>
         <translation>Aufzeichnen von %1</translation>
     </message>
@@ -8976,7 +8976,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window_slots.cpp" line="817"/>
         <source>No interface selected</source>
-        <translation>Kein Interface ausgewählt</translation>
+        <translation>Keine Schnittstelle ausgewählt</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="827"/>
@@ -9067,7 +9067,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window_slots.cpp" line="3511"/>
         <source>No Interface Selected</source>
-        <translation>Kein Interface ausgewählt</translation>
+        <translation>Keine Schnittstelle ausgewählt</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="3518"/>
@@ -9225,17 +9225,17 @@ text-decoration: underline;
     <message>
         <location filename="manage_interfaces_dialog.ui" line="17"/>
         <source>Manage Interfaces</source>
-        <translation>Interfaces verwalten</translation>
+        <translation>Schnittstellen verwalten</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="30"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click the checkbox to hide or show a hidden interface.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Kontrollbox auswählen um ein Interface zu verstecken oder anzuzeigen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Kontrollbox auswählen, um eine Schnittstelle auszublenden oder anzuzeigen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="33"/>
         <source>Local Interfaces</source>
-        <translation>Lokale Interfaces</translation>
+        <translation>Lokale Schnittstellen</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="55"/>
@@ -9251,7 +9251,7 @@ text-decoration: underline;
     <message>
         <location filename="manage_interfaces_dialog.ui" line="65"/>
         <source>Interface Name</source>
-        <translation>Interfacename</translation>
+        <translation>Schnittstellenname</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="70"/>
@@ -9286,7 +9286,7 @@ text-decoration: underline;
     <message>
         <location filename="manage_interfaces_dialog.ui" line="170"/>
         <source>Remote Interfaces</source>
-        <translation>Entfernte Interfaces</translation>
+        <translation>Entfernte Schnittstellen</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="185"/>
@@ -9296,7 +9296,7 @@ text-decoration: underline;
     <message>
         <location filename="manage_interfaces_dialog.ui" line="195"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a remote host and its interfaces&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ein entferntes System und die dazugehörigen Interfaces hinzufügen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ein entferntes System und die dazugehörigen Schnittstellen hinzufügen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="209"/>
@@ -9326,7 +9326,7 @@ text-decoration: underline;
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="178"/>
         <source>This version of Wireshark does not support remote interfaces.</source>
-        <translation>Diese Version von Wireshark unterstützt keine entfernten Interfaces.</translation>
+        <translation>Diese Version von Wireshark unterstützt keine entfernten Schnittstellen.</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="425"/>
@@ -9336,7 +9336,7 @@ text-decoration: underline;
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="426"/>
         <source>Default interface cannot be hidden.</source>
-        <translation>Standard Interface kann nicht versteckt werden.</translation>
+        <translation>Standardschnittstelle kann nicht ausgeblendet werden.</translation>
     </message>
 </context>
 <context>
@@ -10857,7 +10857,7 @@ text-decoration: underline;
     <message>
         <location filename="remote_capture_dialog.ui" line="14"/>
         <source>Remote Interface</source>
-        <translation>Entferntes Interface</translation>
+        <translation>Entfernte Schnittstelle</translation>
     </message>
     <message>
         <location filename="remote_capture_dialog.ui" line="27"/>
@@ -10909,7 +10909,7 @@ text-decoration: underline;
     <message>
         <location filename="remote_capture_dialog.cpp" line="133"/>
         <source>No remote interfaces found.</source>
-        <translation>Kein entferntes Interface gefunden</translation>
+        <translation>Keine entfernte Schnittstelle gefunden.</translation>
     </message>
     <message>
         <location filename="remote_capture_dialog.cpp" line="133"/>
@@ -13297,23 +13297,33 @@ text-decoration: underline;
 <context>
     <name>SequenceDialog</name>
     <message>
-        <location filename="sequence_dialog.cpp" line="64"/>
+        <location filename="sequence_dialog.cpp" line="68"/>
         <source>Call Flow</source>
         <translation>Anruf Flow</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="123"/>
+        <location filename="sequence_dialog.cpp" line="102"/>
+        <source>Time</source>
+        <translation type="unfinished">Zeit</translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.cpp" line="110"/>
+        <source>Comment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.cpp" line="154"/>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
         <translation>Speichern als</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="274"/>
+        <location filename="sequence_dialog.cpp" line="302"/>
         <source>No data</source>
         <translation>Keine Daten</translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="276"/>
+        <location filename="sequence_dialog.cpp" line="304"/>
         <source>%Ln node(s)</source>
         <translation>
             <numerusform>%Ln Node</numerusform>
@@ -13321,7 +13331,7 @@ text-decoration: underline;
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="277"/>
+        <location filename="sequence_dialog.cpp" line="305"/>
         <source>%Ln item(s)</source>
         <translation>
             <numerusform>%Ln Element</numerusform>
@@ -13329,38 +13339,38 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="297"/>
+        <location filename="sequence_dialog.cpp" line="331"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="298"/>
+        <location filename="sequence_dialog.cpp" line="332"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="299"/>
+        <location filename="sequence_dialog.cpp" line="333"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="301"/>
+        <location filename="sequence_dialog.cpp" line="335"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG File Interchange Format (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="302"/>
+        <location filename="sequence_dialog.cpp" line="336"/>
         <source>ASCII (*.txt)</source>
         <translation>ASCII (*.txt)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="313"/>
+        <location filename="sequence_dialog.cpp" line="347"/>
         <source>Save Graph As</source>
         <oldsource>Wireshark: Save Graph As...</oldsource>
         <translation>Graph speichern als</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="64"/>
+        <location filename="sequence_dialog.cpp" line="68"/>
         <source>Flow</source>
         <translation>Flow</translation>
     </message>
@@ -13383,10 +13393,32 @@ text-decoration: underline;
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Move down 1 pixel&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Go to packet under cursor&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;n&lt;/th&gt;&lt;td&gt;Go to the next packet&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;p&lt;/th&gt;&lt;td&gt;Go to the previous packet&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+        <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Valuable and amazing time-saving keyboard shortcuts&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Reset graph to its initial state&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Move right 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Move left 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Move up 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Move down 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Move right 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Move left 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Move up 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Move down 1 pixel&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Go to packet under cursor&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</oldsource>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
 &lt;h3&gt;Nützliche Tastenkürzel zur Zeitersparnis&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
@@ -13408,193 +13440,223 @@ text-decoration: underline;
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="70"/>
+        <location filename="sequence_dialog.ui" line="72"/>
         <source>&lt;small&gt;&lt;i&gt;A hint&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Hinweis&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="103"/>
+        <location filename="sequence_dialog.ui" line="105"/>
         <source>Show:</source>
         <translation>Anzeigen:</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="111"/>
+        <location filename="sequence_dialog.ui" line="113"/>
         <source>All packets</source>
         <translation>Alle Pakete</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="116"/>
+        <location filename="sequence_dialog.ui" line="118"/>
         <source>Displayed packets</source>
         <translation>Angezeigte Pakete</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="137"/>
+        <location filename="sequence_dialog.ui" line="139"/>
         <source>Flow type:</source>
         <translation>Flow Typ:</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="160"/>
+        <location filename="sequence_dialog.ui" line="162"/>
         <source>Addresses:</source>
         <translation>Adressen:</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="168"/>
+        <location filename="sequence_dialog.ui" line="170"/>
         <source>Any</source>
         <translation>Alle</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="173"/>
+        <location filename="sequence_dialog.ui" line="175"/>
         <source>Network</source>
         <translation>Netzwerk</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="198"/>
+        <location filename="sequence_dialog.ui" line="200"/>
         <source>Reset</source>
         <translation>Zurücksetzen</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="220"/>
+        <location filename="sequence_dialog.ui" line="222"/>
         <source>Reset Diagram</source>
         <translation>Diagramm zurücksetzen</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="223"/>
+        <location filename="sequence_dialog.ui" line="225"/>
         <source>Reset the diagram to its initial state.</source>
         <translation>Diagramm in Ursprungszustand zurücksetzen</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="226"/>
+        <location filename="sequence_dialog.ui" line="228"/>
         <source>0</source>
         <translation>0</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="231"/>
-        <location filename="sequence_dialog.ui" line="234"/>
+        <location filename="sequence_dialog.ui" line="233"/>
+        <location filename="sequence_dialog.ui" line="236"/>
         <source>Move Up 10 Pixels</source>
         <translation>Um 10 Bildpunkte nach oben verschieben</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="237"/>
+        <location filename="sequence_dialog.ui" line="239"/>
         <source>Up</source>
         <translation>Rauf</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="242"/>
-        <location filename="sequence_dialog.ui" line="245"/>
+        <location filename="sequence_dialog.ui" line="244"/>
+        <location filename="sequence_dialog.ui" line="247"/>
         <source>Move Left 10 Pixels</source>
         <translation>Um 10 Bildpunkte nach links verschieben</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="248"/>
+        <location filename="sequence_dialog.ui" line="250"/>
         <source>Left</source>
         <translation>Links</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="253"/>
-        <location filename="sequence_dialog.ui" line="256"/>
+        <location filename="sequence_dialog.ui" line="255"/>
+        <location filename="sequence_dialog.ui" line="258"/>
         <source>Move Right 10 Pixels</source>
         <translation>Um 10 Bildpunkte nach rechts verschieben</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="259"/>
+        <location filename="sequence_dialog.ui" line="261"/>
         <source>Right</source>
         <translation>Rechts</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="264"/>
-        <location filename="sequence_dialog.ui" line="267"/>
+        <location filename="sequence_dialog.ui" line="266"/>
+        <location filename="sequence_dialog.ui" line="269"/>
         <source>Move Down 10 Pixels</source>
         <translation>Um 10 Bildpunkte nach unten verschieben</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="270"/>
+        <location filename="sequence_dialog.ui" line="272"/>
         <source>Down</source>
         <translation>Runter</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="275"/>
-        <location filename="sequence_dialog.ui" line="278"/>
+        <location filename="sequence_dialog.ui" line="277"/>
+        <location filename="sequence_dialog.ui" line="280"/>
         <source>Move Up 1 Pixel</source>
         <translation>Um 1 Bildpunkt nach oben verschieben</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="281"/>
+        <location filename="sequence_dialog.ui" line="283"/>
         <source>Shift+Up</source>
         <translation>Shift+Up</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="286"/>
-        <location filename="sequence_dialog.ui" line="289"/>
+        <location filename="sequence_dialog.ui" line="288"/>
+        <location filename="sequence_dialog.ui" line="291"/>
         <source>Move Left 1 Pixel</source>
         <translation>Um 1 Bildpunkt nach links verschieben</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="292"/>
+        <location filename="sequence_dialog.ui" line="294"/>
         <source>Shift+Left</source>
         <translation>Shift+Left</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="297"/>
-        <location filename="sequence_dialog.ui" line="300"/>
+        <location filename="sequence_dialog.ui" line="299"/>
+        <location filename="sequence_dialog.ui" line="302"/>
         <source>Move Right 1 Pixel</source>
         <translation>Um 1 Bildpunkt nach rechts verschieben</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="303"/>
+        <location filename="sequence_dialog.ui" line="305"/>
         <source>Shift+Right</source>
         <translation>Shift+Right</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="308"/>
-        <location filename="sequence_dialog.ui" line="311"/>
+        <location filename="sequence_dialog.ui" line="310"/>
+        <location filename="sequence_dialog.ui" line="313"/>
         <source>Move Down 1 Pixel</source>
         <translation>Um 1 Bildpunkt nach unten verschieben</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="314"/>
+        <location filename="sequence_dialog.ui" line="316"/>
         <source>Shift+Down</source>
         <translation>Shift+Down</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="319"/>
+        <location filename="sequence_dialog.ui" line="321"/>
         <source>Go To Packet Under Cursor</source>
         <translation>Zum Paket gehen, auf das der Mauszeiger gerade zeigt</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="322"/>
+        <location filename="sequence_dialog.ui" line="324"/>
         <source>Go to packet currently under the cursor</source>
         <translation>Zum Paket gehen, auf das der Mauszeiger gerade zeigt</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="325"/>
+        <location filename="sequence_dialog.ui" line="327"/>
         <source>G</source>
         <translation>G</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="330"/>
+        <location filename="sequence_dialog.ui" line="332"/>
         <source>All Flows</source>
         <translation>Alle Flows</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="333"/>
+        <location filename="sequence_dialog.ui" line="335"/>
         <source>Show flows for all packets</source>
         <translation>Flows für alle Pakete anzeigen</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="336"/>
-        <location filename="sequence_dialog.ui" line="347"/>
+        <location filename="sequence_dialog.ui" line="338"/>
+        <location filename="sequence_dialog.ui" line="349"/>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="341"/>
+        <location filename="sequence_dialog.ui" line="343"/>
         <source>TCP Flows</source>
         <translation>TCP Flows</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.ui" line="344"/>
+        <location filename="sequence_dialog.ui" line="346"/>
         <source>Show only TCP flow information</source>
         <translation>Nur TCP Flow Informationen anzeigen</translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.ui" line="354"/>
+        <source>Go To Next Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.ui" line="357"/>
+        <source>Go to the next packet</source>
+        <translation type="unfinished">Zum nächsten Paket gehen</translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.ui" line="360"/>
+        <source>N</source>
+        <translation type="unfinished">N</translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.ui" line="365"/>
+        <source>Go To Previous Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.ui" line="368"/>
+        <source>Go to the previous packet</source>
+        <translation type="unfinished">Zum vorherigen Paket gehen</translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.ui" line="371"/>
+        <source>P</source>
+        <translation type="unfinished">P</translation>
     </message>
 </context>
 <context>
@@ -13665,7 +13727,7 @@ text-decoration: underline;
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="72"/>
         <source>Quoted-Printable</source>
-        <translation type="unfinished"></translation>
+        <translation>Zitiert-Druckbar</translation>
     </message>
     <message>
         <location filename="show_packet_bytes_dialog.cpp" line="73"/>
@@ -14913,7 +14975,7 @@ text-decoration: underline;
     <message>
         <location filename="wireless_frame.ui" line="42"/>
         <source>Interface</source>
-        <translation>Interface</translation>
+        <translation>Schnittstelle</translation>
     </message>
     <message>
         <location filename="wireless_frame.ui" line="69"/>
