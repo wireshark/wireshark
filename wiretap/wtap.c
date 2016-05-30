@@ -182,7 +182,6 @@ wtap_optionblock_t
 wtap_file_get_shb_for_new_file(wtap *wth)
 {
 	wtap_optionblock_t shb_hdr;
-	char* opt_comment;
 
 	if (wth == NULL)
 		return NULL;
@@ -190,9 +189,7 @@ wtap_file_get_shb_for_new_file(wtap *wth)
 	shb_hdr = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_SECTION);
 
 	/* options */
-	wtap_optionblock_get_option_string(wth->shb_hdr, OPT_COMMENT, &opt_comment);
-	wtap_optionblock_set_option_string(shb_hdr, OPT_COMMENT, opt_comment, (gsize)(opt_comment ? strlen(opt_comment) : 0));
-
+	wtap_optionblock_copy_options(shb_hdr, wth->shb_hdr);
 	return shb_hdr;
 }
 
