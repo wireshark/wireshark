@@ -3350,16 +3350,17 @@ dissect_isup_digits_common(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, p
                            gboolean even_indicator, e164_number_type_t number_type, guint nature_of_address)
 {
   gint           i = 0;
-  gint           length;
+  gint           reported_length, captured_length;
   proto_item    *digits_item;
   proto_tree    *digits_tree;
   guint8         digit_pair = 0;
   wmem_strbuf_t *strbuf_number;
   char          *number;
   e164_info_t    e164_info;
+  gint           start_offset = offset;
 
-  length = tvb_reported_length_remaining(tvb, offset);
-  if (length == 0) {
+  reported_length = tvb_reported_length_remaining(tvb, offset);
+  if (reported_length == 0) {
     expert_add_info(pinfo, item, &ei_isup_empty_number);
     proto_item_set_text(item, "%s: (empty)", param_name);
     return NULL;
@@ -3367,43 +3368,66 @@ dissect_isup_digits_common(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, p
 
   strbuf_number = wmem_strbuf_sized_new(wmem_packet_scope(), MAXDIGITS+1, 0);
 
-  digits_item = proto_tree_add_string(tree, hf_number, tvb, offset, -1, "");
-  digits_tree = proto_item_add_subtree(digits_item, ett_isup_address_digits);
-
-  while (length > 0) {
+  /* Make the digit string, looping on captured length (in case a snaplen was set) */
+  captured_length = tvb_captured_length_remaining(tvb, offset);
+  while (captured_length > 0) {
     if (++i > MAXDIGITS) {
-      expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
       break;
     }
     digit_pair = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint(digits_tree, hf_odd_digit, tvb, offset, 1, digit_pair);
     wmem_strbuf_append_c(strbuf_number, number_to_char(digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK));
 
-    if ((length - 1) > 0) {
+    if ((captured_length - 1) > 0) {
       if (++i > MAXDIGITS) {
-        expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
         break;
       }
-      proto_tree_add_uint(digits_tree, hf_even_digit, tvb, offset, 1, digit_pair);
       wmem_strbuf_append_c(strbuf_number, number_to_char((digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
     }
 
     offset += 1;
-    length = tvb_reported_length_remaining(tvb, offset);
+    captured_length -= 1;
+  }
+
+  if  (even_indicator && (tvb_captured_length(tvb) > 0) && (++i < MAXDIGITS)) {
+    /* Even Indicator set -> last (even) digit is valid and has be displayed */
+    wmem_strbuf_append_c(strbuf_number, number_to_char((digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
+  }
+
+  number = wmem_strbuf_finalize(strbuf_number);
+
+  /* Now make the tree */
+  offset = start_offset;
+  i = 0;
+  digits_item = proto_tree_add_string(tree, hf_number, tvb, offset, -1, number);
+  digits_tree = proto_item_add_subtree(digits_item, ett_isup_address_digits);
+
+  while (reported_length > 0) {
+    if (++i > MAXDIGITS) {
+      expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
+      break;
+    }
+    proto_tree_add_item(digits_tree, hf_odd_digit, tvb, offset, 1, ENC_NA);
+
+    if ((reported_length - 1) > 0) {
+      if (++i > MAXDIGITS) {
+        expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
+        break;
+      }
+      proto_tree_add_item(digits_tree, hf_even_digit, tvb, offset, 1, ENC_NA);
+    }
+
+    offset += 1;
+    reported_length -= 1;
   }
 
   if  (even_indicator && (tvb_reported_length(tvb) > 0)) {
     if (++i < MAXDIGITS) {
       /* Even Indicator set -> last (even) digit is valid and has be displayed */
-      proto_tree_add_uint(digits_tree, hf_isup_calling_party_even_address_signal_digit,
-                          tvb, offset - 1, 1, digit_pair);
-      wmem_strbuf_append_c(strbuf_number, number_to_char((digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
+      proto_tree_add_item(digits_tree, hf_even_digit, tvb, offset - 1, 1, ENC_NA);
     } else {
       expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
     }
   }
-
-  number = wmem_strbuf_finalize(strbuf_number);
 
   /* Now that we have all the digits decoded, add them to the parameter field */
   proto_item_append_text(digits_item, "%s", number);
