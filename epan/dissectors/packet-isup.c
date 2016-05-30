@@ -3349,13 +3349,14 @@ dissect_isup_digits_common(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, p
                            const char *param_name, gint hf_number, gint hf_odd_digit, gint hf_even_digit,
                            gboolean even_indicator, e164_number_type_t number_type, guint nature_of_address)
 {
+  gint           i = 0;
   gint           length;
   proto_item    *digits_item;
   proto_tree    *digits_tree;
   guint8         digit_pair = 0;
   wmem_strbuf_t *strbuf_number;
+  char          *number;
   e164_info_t    e164_info;
-  gint           start_offset = offset;
 
   length = tvb_reported_length_remaining(tvb, offset);
   if (length == 0) {
@@ -3364,14 +3365,26 @@ dissect_isup_digits_common(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, p
     return NULL;
   }
 
-  strbuf_number = wmem_strbuf_new(wmem_packet_scope(), "");
+  strbuf_number = wmem_strbuf_sized_new(wmem_packet_scope(), MAXDIGITS+1, 0);
 
-  /* Make the digit string */
+  digits_item = proto_tree_add_string(tree, hf_number, tvb, offset, -1, "");
+  digits_tree = proto_item_add_subtree(digits_item, ett_isup_address_digits);
+
   while (length > 0) {
+    if (++i > MAXDIGITS) {
+      expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
+      break;
+    }
     digit_pair = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(digits_tree, hf_odd_digit, tvb, offset, 1, digit_pair);
     wmem_strbuf_append_c(strbuf_number, number_to_char(digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK));
 
     if ((length - 1) > 0) {
+      if (++i > MAXDIGITS) {
+        expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
+        break;
+      }
+      proto_tree_add_uint(digits_tree, hf_even_digit, tvb, offset, 1, digit_pair);
       wmem_strbuf_append_c(strbuf_number, number_to_char((digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
     }
 
@@ -3380,45 +3393,32 @@ dissect_isup_digits_common(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, p
   }
 
   if  (even_indicator && (tvb_reported_length(tvb) > 0)) {
-    wmem_strbuf_append_c(strbuf_number, number_to_char((digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
-  }
-
-  /* Now make the tree */
-  offset = start_offset;
-  digits_item = proto_tree_add_string(tree, hf_number, tvb, offset, -1, wmem_strbuf_get_str(strbuf_number));
-  digits_tree = proto_item_add_subtree(digits_item, ett_isup_address_digits);
-
-  while (length > 0) {
-    proto_tree_add_item(digits_tree, hf_odd_digit, tvb, offset, 1, ENC_NA);
-
-    if ((length - 1) > 0) {
-      proto_tree_add_item(digits_tree, hf_even_digit, tvb, offset, 1, ENC_NA);
+    if (++i < MAXDIGITS) {
+      /* Even Indicator set -> last (even) digit is valid and has be displayed */
+      proto_tree_add_uint(digits_tree, hf_isup_calling_party_even_address_signal_digit,
+                          tvb, offset - 1, 1, digit_pair);
+      wmem_strbuf_append_c(strbuf_number, number_to_char((digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
+    } else {
+      expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
     }
-
-    offset += 1;
-    length = tvb_reported_length_remaining(tvb, offset);
   }
 
-  if  (even_indicator && (tvb_reported_length(tvb) > 0)) {
-    /* Even Indicator set -> last (even) digit is valid and has be displayed */
-    proto_tree_add_item(digits_tree, hf_isup_calling_party_even_address_signal_digit,
-                          tvb, offset - 1, 1, ENC_NA);
-  }
+  number = wmem_strbuf_finalize(strbuf_number);
 
-  if (wmem_strbuf_get_len(strbuf_number) > MAXDIGITS)
-    expert_add_info(pinfo, digits_item, &ei_isup_too_many_digits);
+  /* Now that we have all the digits decoded, add them to the parameter field */
+  proto_item_append_text(digits_item, "%s", number);
 
   if (number_type != NONE) {
     e164_info.e164_number_type = number_type;
     e164_info.nature_of_address = nature_of_address;
-    e164_info.E164_number_str = wmem_strbuf_get_str(strbuf_number);
-    e164_info.E164_number_length = (guint) wmem_strbuf_get_len(strbuf_number) - 1;
+    e164_info.E164_number_str = number;
+    e164_info.E164_number_length = i - 1;
     dissect_e164_number(tvb, digits_tree, 2, (offset - 2), e164_info);
   }
 
-  proto_item_set_text(item, "%s: %s", param_name, wmem_strbuf_get_str(strbuf_number));
+  proto_item_set_text(item, "%s: %s", param_name, number);
 
-  return wmem_strbuf_finalize(strbuf_number);
+  return number;
 }
 
 /* ------------------------------------------------------------------
