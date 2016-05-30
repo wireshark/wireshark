@@ -3174,7 +3174,6 @@ static gint rtps_util_add_type_library_element(proto_tree *tree, packet_info * p
   guint32 long_number;
   guint32 member_id = 0, member_length = 0;
   gint initial_offset = offset;
-  long_number = NEXT_guint32(tvb, offset, little_endian);
   rtps_util_dissect_parameter_header(tvb, &offset, little_endian, &member_id, &member_length);
   long_number = NEXT_guint32(tvb, offset, little_endian);
   element_tree = proto_tree_add_subtree(tree, tvb, offset, 0,
