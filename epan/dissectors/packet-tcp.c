@@ -387,8 +387,6 @@ static expert_field ei_mptcp_analysis_missing_algorithm = EI_INIT;
 static expert_field ei_mptcp_analysis_unsupported_algorithm = EI_INIT;
 static expert_field ei_mptcp_infinite_mapping= EI_INIT;
 static expert_field ei_mptcp_mapping_missing = EI_INIT;
-static expert_field ei_mptcp_related_mapping = EI_INIT;
-static expert_field ei_mptcp_related_mapping_on_alternative_subflow = EI_INIT;
 static expert_field ei_mptcp_stream_incomplete = EI_INIT;
 static expert_field ei_mptcp_analysis_dsn_out_of_order = EI_INIT;
 
@@ -6970,8 +6968,6 @@ proto_register_tcp(void)
         { &ei_mptcp_analysis_unsupported_algorithm, { "mptcp.connection.unsupported_algorithm", PI_PROTOCOL, PI_WARN, "Unsupported algorithm", EXPFILL }},
         { &ei_mptcp_infinite_mapping, { "mptcp.dss.infinite_mapping", PI_PROTOCOL, PI_WARN, "Fallback to infinite mapping", EXPFILL }},
         { &ei_mptcp_mapping_missing, { "mptcp.dss.missing_mapping", PI_PROTOCOL, PI_WARN, "No mapping available", EXPFILL }},
-        { &ei_mptcp_related_mapping, { "mptcp.related_mapping", PI_PROTOCOL, PI_NOTE, "Mapping available in frame described bu this field", EXPFILL }},
-        { &ei_mptcp_related_mapping_on_alternative_subflow, { "mptcp.alternative_mapping", PI_PROTOCOL, PI_NOTE, "Mapping available in frame described bu this field", EXPFILL }},
         { &ei_mptcp_stream_incomplete, { "mptcp.incomplete", PI_PROTOCOL, PI_WARN, "Everything was not captured", EXPFILL }},
         { &ei_mptcp_analysis_dsn_out_of_order, { "mptcp.analysis.dsn.out_of_order", PI_PROTOCOL, PI_WARN, "Out of order dsn", EXPFILL }},
     };
