@@ -3412,7 +3412,7 @@ dissect_isup_digits_common(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, p
     e164_info.e164_number_type = number_type;
     e164_info.nature_of_address = nature_of_address;
     e164_info.E164_number_str = wmem_strbuf_get_str(strbuf_number);
-    e164_info.E164_number_length = wmem_strbuf_get_len(strbuf_number) - 1;
+    e164_info.E164_number_length = (guint) wmem_strbuf_get_len(strbuf_number) - 1;
     dissect_e164_number(tvb, digits_tree, 2, (offset - 2), e164_info);
   }
 
