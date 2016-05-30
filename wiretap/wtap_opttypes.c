@@ -264,7 +264,7 @@ void wtap_optionblock_foreach_option(wtap_optionblock_t block, wtap_optionblock_
     }
 }
 
-int wtap_optionblock_add_option(wtap_optionblock_t block, guint option_id, wtap_optblock_reg_t* option)
+wtap_opttype_return_val wtap_optionblock_add_option(wtap_optionblock_t block, guint option_id, wtap_optblock_reg_t* option)
 {
     wtap_optblock_value_t* opt_value = wtap_optionblock_get_option(block, option_id);
     wtap_optblock_internal_t *opt_internal;
@@ -312,7 +312,7 @@ int wtap_optionblock_add_option(wtap_optionblock_t block, guint option_id, wtap_
     return WTAP_OPTTYPE_SUCCESS;
 }
 
-int wtap_optionblock_set_option_string(wtap_optionblock_t block, guint option_id, char* value, gsize value_length)
+wtap_opttype_return_val wtap_optionblock_set_option_string(wtap_optionblock_t block, guint option_id, char* value, gsize value_length)
 {
     wtap_optblock_value_t* opt_value = wtap_optionblock_get_option(block, option_id);
 
@@ -328,7 +328,7 @@ int wtap_optionblock_set_option_string(wtap_optionblock_t block, guint option_id
     return WTAP_OPTTYPE_SUCCESS;
 }
 
-int wtap_optionblock_set_option_string_format(wtap_optionblock_t block, guint option_id, const char *format, ...)
+wtap_opttype_return_val wtap_optionblock_set_option_string_format(wtap_optionblock_t block, guint option_id, const char *format, ...)
 {
     va_list va;
     wtap_optblock_value_t* opt_value = wtap_optionblock_get_option(block, option_id);
@@ -347,7 +347,7 @@ int wtap_optionblock_set_option_string_format(wtap_optionblock_t block, guint op
     return WTAP_OPTTYPE_SUCCESS;
 }
 
-int wtap_optionblock_get_option_string(wtap_optionblock_t block, guint option_id, char** value)
+wtap_opttype_return_val wtap_optionblock_get_option_string(wtap_optionblock_t block, guint option_id, char** value)
 {
     wtap_optblock_value_t* opt_value = wtap_optionblock_get_option(block, option_id);
 
@@ -362,7 +362,7 @@ int wtap_optionblock_get_option_string(wtap_optionblock_t block, guint option_id
     return WTAP_OPTTYPE_SUCCESS;
 }
 
-int wtap_optionblock_set_option_uint64(wtap_optionblock_t block, guint option_id, guint64 value)
+wtap_opttype_return_val wtap_optionblock_set_option_uint64(wtap_optionblock_t block, guint option_id, guint64 value)
 {
     wtap_optblock_value_t* opt_value = wtap_optionblock_get_option(block, option_id);
 
@@ -377,7 +377,7 @@ int wtap_optionblock_set_option_uint64(wtap_optionblock_t block, guint option_id
     return WTAP_OPTTYPE_SUCCESS;
 }
 
-int wtap_optionblock_get_option_uint64(wtap_optionblock_t block, guint option_id, guint64* value)
+wtap_opttype_return_val wtap_optionblock_get_option_uint64(wtap_optionblock_t block, guint option_id, guint64* value)
 {
     wtap_optblock_value_t* opt_value = wtap_optionblock_get_option(block, option_id);
 
@@ -393,7 +393,7 @@ int wtap_optionblock_get_option_uint64(wtap_optionblock_t block, guint option_id
 }
 
 
-int wtap_optionblock_set_option_uint8(wtap_optionblock_t block, guint option_id, guint8 value)
+wtap_opttype_return_val wtap_optionblock_set_option_uint8(wtap_optionblock_t block, guint option_id, guint8 value)
 {
     wtap_optblock_value_t* opt_value = wtap_optionblock_get_option(block, option_id);
 
@@ -408,7 +408,7 @@ int wtap_optionblock_set_option_uint8(wtap_optionblock_t block, guint option_id,
     return WTAP_OPTTYPE_SUCCESS;
 }
 
-int wtap_optionblock_get_option_uint8(wtap_optionblock_t block, guint option_id, guint8* value)
+wtap_opttype_return_val wtap_optionblock_get_option_uint8(wtap_optionblock_t block, guint option_id, guint8* value)
 {
     wtap_optblock_value_t* opt_value = wtap_optionblock_get_option(block, option_id);
 
@@ -423,7 +423,7 @@ int wtap_optionblock_get_option_uint8(wtap_optionblock_t block, guint option_id,
     return WTAP_OPTTYPE_SUCCESS;
 }
 
-int wtap_optionblock_set_option_custom(wtap_optionblock_t block, guint option_id, void* value)
+wtap_opttype_return_val wtap_optionblock_set_option_custom(wtap_optionblock_t block, guint option_id, void* value)
 {
     wtap_optblock_value_t* opt_value = wtap_optionblock_get_option(block, option_id);
     void* prev_value;
@@ -442,7 +442,7 @@ int wtap_optionblock_set_option_custom(wtap_optionblock_t block, guint option_id
     return WTAP_OPTTYPE_SUCCESS;
 }
 
-int wtap_optionblock_get_option_custom(wtap_optionblock_t block, guint option_id, void** value)
+wtap_opttype_return_val wtap_optionblock_get_option_custom(wtap_optionblock_t block, guint option_id, void** value)
 {
     wtap_optblock_value_t* opt_value = wtap_optionblock_get_option(block, option_id);
 

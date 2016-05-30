@@ -108,102 +108,122 @@ WS_DLL_PUBLIC void wtap_optionblock_free(wtap_optionblock_t block);
 
 /** Provide mandatory data of an option block
  *
- * @param[in] block Block to retrieve mandatory data
+ * @param[in] block Block from which to retrieve mandatory data
  * @return Option block mandatory data.  Structure varies based on option block type
  */
 WS_DLL_PUBLIC void* wtap_optionblock_get_mandatory_data(wtap_optionblock_t block);
 
 /** Add an option to the option block
  *
- * @param[in] block Block to add option
+ * @param[in] block Block to which to add option
  * @param[in] option_id Identifier value for option
  * @param[in] option structure explaining it
- * @return 0 if successful
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
  */
-int wtap_optionblock_add_option(wtap_optionblock_t block, guint option_id, wtap_optblock_reg_t* option);
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_optionblock_add_option(wtap_optionblock_t block, guint option_id, wtap_optblock_reg_t* option);
 
-/** Set string option value to an option block
+/** Set string option value in an option block
  *
- * @param[in] block Block to add option
+ * @param[in] block Block in which to set the option value
  * @param[in] option_id Identifier value for option
  * @param[in] value New value of option
  * @param[in] value_length Maximum length of string to copy.
- * @return 0 if successful
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
  */
-WS_DLL_PUBLIC int wtap_optionblock_set_option_string(wtap_optionblock_t block, guint option_id, char* value, gsize value_length);
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_optionblock_set_option_string(wtap_optionblock_t block, guint option_id, char* value, gsize value_length);
 
-/** Set printf-styled string option value to an option block
+/** Set string option value in an option block to a printf-formatted string
  *
- * @param[in] block Block to add option
+ * @param[in] block Block in which to set the option value
  * @param[in] option_id Identifier value for option
- * @param[in] format printf like format string
- * @return 0 if successful
+ * @param[in] format printf-like format string
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
  */
-WS_DLL_PUBLIC int wtap_optionblock_set_option_string_format(wtap_optionblock_t block, guint option_id, const char *format, ...)
-                                                            G_GNUC_PRINTF(3,4);
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_optionblock_set_option_string_format(wtap_optionblock_t block, guint option_id, const char *format, ...)
+                                          G_GNUC_PRINTF(3,4);
 
 /** Get string option value from an option block
  *
- * @param[in] block Block to add option
+ * @param[in] block Block from which to get the option value
  * @param[in] option_id Identifier value for option
  * @param[out] value Returned value of option
- * @return 0 if successful
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
  */
-WS_DLL_PUBLIC int wtap_optionblock_get_option_string(wtap_optionblock_t block, guint option_id, char** value);
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_optionblock_get_option_string(wtap_optionblock_t block, guint option_id, char** value);
 
-/** Set UINT64 option value to an option block
+/** Set UINT64 option value in an option block
  *
- * @param[in] block Block to add option
+ * @param[in] block Block in which to set the option value
  * @param[in] option_id Identifier value for option
  * @param[in] value New value of option
- * @return 0 if successful
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
  */
-WS_DLL_PUBLIC int wtap_optionblock_set_option_uint64(wtap_optionblock_t block, guint option_id, guint64 value);
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_optionblock_set_option_uint64(wtap_optionblock_t block, guint option_id, guint64 value);
 
 /** Get UINT64 option value from an option block
  *
- * @param[in] block Block to add option
+ * @param[in] block Block from which to get the option value
  * @param[in] option_id Identifier value for option
  * @param[out] value Returned value of option
- * @return 0 if successful
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
  */
-WS_DLL_PUBLIC int wtap_optionblock_get_option_uint64(wtap_optionblock_t block, guint option_id, guint64* value);
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_optionblock_get_option_uint64(wtap_optionblock_t block, guint option_id, guint64* value);
 
-/** Set UINT8 option value to an option block
+/** Set UINT8 option value in an option block
  *
- * @param[in] block Block to add option
+ * @param[in] block Block in which to set the option value
  * @param[in] option_id Identifier value for option
  * @param[in] value New value of option
- * @return 0 if successful
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
  */
-WS_DLL_PUBLIC int wtap_optionblock_set_option_uint8(wtap_optionblock_t block, guint option_id, guint8 value);
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_optionblock_set_option_uint8(wtap_optionblock_t block, guint option_id, guint8 value);
 
 /** Get UINT8 option value from an option block
  *
- * @param[in] block Block to add option
+ * @param[in] block Block from which to get the option value
  * @param[in] option_id Identifier value for option
  * @param[out] value Returned value of option
- * @return 0 if successful
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
  */
-WS_DLL_PUBLIC int wtap_optionblock_get_option_uint8(wtap_optionblock_t block, guint option_id, guint8* value);
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_optionblock_get_option_uint8(wtap_optionblock_t block, guint option_id, guint8* value);
 
-/** Set a "custom" option value to an option block
+/** Set a "custom" option value in an option block
  *
- * @param[in] block Block to add option
+ * @param[in] block Block in which to set the option value
  * @param[in] option_id Identifier value for option
  * @param[in] value New value of option
- * @return 0 if successful
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
  */
-WS_DLL_PUBLIC int wtap_optionblock_set_option_custom(wtap_optionblock_t block, guint option_id, void* value);
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_optionblock_set_option_custom(wtap_optionblock_t block, guint option_id, void* value);
 
 /** Get a "custom" option value from an option block
  *
- * @param[in] block Block to add option
+ * @param[in] block Block from which to get the option value
  * @param[in] option_id Identifier value for option
  * @param[out] value Returned value of option
- * @return 0 if successful
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
  */
-WS_DLL_PUBLIC int wtap_optionblock_get_option_custom(wtap_optionblock_t block, guint option_id, void** value);
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_optionblock_get_option_custom(wtap_optionblock_t block, guint option_id, void** value);
 
 /** Copy an option block to another.
  *
