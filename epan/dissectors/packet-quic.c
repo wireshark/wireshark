@@ -1921,7 +1921,7 @@ proto_register_quic(void)
               "Indicates the full 8 byte Connection ID is present", HFILL }
         },
         { &hf_quic_puflags_cid_old,
-            { "CID Length", "quic.puflags.cid",
+            { "CID Length", "quic.puflags.cid.old",
                FT_UINT8, BASE_HEX, VALS(puflags_cid_old_vals), PUFLAGS_CID_OLD,
               "Signifies the Length of CID", HFILL }
         },
