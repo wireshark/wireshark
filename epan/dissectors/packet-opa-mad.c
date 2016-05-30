@@ -8318,7 +8318,7 @@ void proto_register_opa_mad(void)
 
     static hf_register_info hf[] = {
         { &hf_opa_reserved64, {
-                "Reserved (64 bits)", "opa.reserved",
+                "Reserved (64 bits)", "opa.reserved64",
                 FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_reserved32, {
@@ -8445,7 +8445,7 @@ void proto_register_opa_mad(void)
 
         /* MAD Header */
         { &hf_opa_mad, {
-                "MAD Header - Common Management Datagram", "opa.mad",
+                "MAD Header - Common Management Datagram", "opa.mad.header",
                 FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_mad_base_version, {
@@ -8522,23 +8522,23 @@ void proto_register_opa_mad(void)
                 FT_BOOLEAN, 32, NULL, 0x00000100, NULL, HFILL }
         },
         { &hf_opa_attribute_modifier_A2, {
-                "All Ingress Ports", "opa.mad.attributemodifier.a",
+                "All Ingress Ports", "opa.mad.attributemodifier.a2",
                 FT_BOOLEAN, 32, NULL, 0x00020000, NULL, HFILL }
         },
         { &hf_opa_attribute_modifier_A3, {
-                "All", "opa.mad.attributemodifier.a",
+                "All", "opa.mad.attributemodifier.a3",
                 FT_BOOLEAN, 32, NULL, 0x00040000, NULL, HFILL }
         },
         { &hf_opa_attribute_modifier_A4, {
-                "All", "opa.mad.attributemodifier.a",
+                "All", "opa.mad.attributemodifier.a4",
                 FT_BOOLEAN, 32, NULL, 0x00100000, NULL, HFILL }
         },
         { &hf_opa_attribute_modifier_A5, {
-                "Starting Address", "opa.mad.attributemodifier.a",
+                "Starting Address", "opa.mad.attributemodifier.a5",
                 FT_UINT32, BASE_HEX, NULL, 0x7FF80000, NULL, HFILL }
         },
         { &hf_opa_attribute_modifier_A6, {
-                "All", "opa.mad.attributemodifier.a",
+                "All", "opa.mad.attributemodifier.a6",
                 FT_BOOLEAN, 32, NULL, 0x00000020, NULL, HFILL }
         },
         { &hf_opa_attribute_modifier_B, {
@@ -8546,19 +8546,19 @@ void proto_register_opa_mad(void)
                 FT_UINT32, BASE_DEC, NULL, 0x000007FF, NULL, HFILL }
         },
         { &hf_opa_attribute_modifier_B2, {
-                "All Egress Ports", "opa.mad.attributemodifier.b",
+                "All Egress Ports", "opa.mad.attributemodifier.b2",
                 FT_BOOLEAN, 32, NULL, 0x00010000, NULL, HFILL }
         },
         { &hf_opa_attribute_modifier_B3, {
-                "Block Number", "opa.mad.attributemodifier.b",
+                "Block Number", "opa.mad.attributemodifier.b3",
                 FT_UINT32, BASE_DEC, NULL, 0x0003FFFF, NULL, HFILL }
         },
         { &hf_opa_attribute_modifier_B4, {
-                "Block Number", "opa.mad.attributemodifier.b",
+                "Block Number", "opa.mad.attributemodifier.b4",
                 FT_UINT32, BASE_DEC, NULL, 0x000FFFFF, NULL, HFILL }
         },
         { &hf_opa_attribute_modifier_B5, {
-                "Block Number", "opa.mad.attributemodifier.b",
+                "Block Number", "opa.mad.attributemodifier.b5",
                 FT_UINT32, BASE_DEC, NULL, 0x0000001F, NULL, HFILL }
         },
         { &hf_opa_attribute_modifier_E, {
@@ -8962,11 +8962,11 @@ void proto_register_opa_mad(void)
                 FT_BOOLEAN, 16, TFS(&tfs_valid_invalid), 0x0200, NULL, HFILL }
         },
         { &hf_opa_Trap_DataValid_Gid2, {
-                "Gid2", "opa.trap.datavalid",
+                "Gid2", "opa.trap.datavalid.gid2",
                 FT_BOOLEAN, 16, TFS(&tfs_valid_invalid), 0x01000, NULL, HFILL }
         },
         { &hf_opa_Trap_DataValid_Reserved, {
-                "DataValid", "opa.trap.datavalid",
+                "DataValid", "opa.trap.datavalid.reserved",
                 FT_UINT16, BASE_HEX, NULL, 0x00FF, NULL, HFILL }
         },
 
@@ -10441,7 +10441,7 @@ void proto_register_opa_mad(void)
 ***************************/
 
         { &hf_opa_SwitchCongestionSetting, {
-                "Switch Congestion Setting", "opa.switchcongestionsetting.controlmap",
+                "Switch Congestion Setting", "opa.switchcongestionsetting",
                 FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_SwitchCongestionSetting_Control_Map, {
@@ -13548,7 +13548,7 @@ void proto_register_opa_mad(void)
                 "RMPP Records Undecoded", EXPFILL }
         },
         { &ei_opa_aggregate_error, {
-                "opa.aggregate.error", PI_RESPONSE_CODE, PI_WARN,
+                "opa.aggregate.error.exp", PI_RESPONSE_CODE, PI_WARN,
                 "Aggregate Error", EXPFILL }
         }
     };
