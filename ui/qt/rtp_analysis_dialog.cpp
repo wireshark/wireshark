@@ -1211,8 +1211,8 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction)
                 if (stop_flag) {
                     break;
                 }
-                int fwd_pct = fwd_tempfile_->pos() * 100 / fwd_tempfile_->size();
-                int rev_pct = rev_tempfile_->pos() * 100 / rev_tempfile_->size();
+                int fwd_pct = (fwd_tempfile_->size() > 0 ? fwd_tempfile_->pos() * 100 / fwd_tempfile_->size() : 0);
+                int rev_pct = (rev_tempfile_->size() > 0 ? rev_tempfile_->pos() * 100 / rev_tempfile_->size() : 0);
                 ui->progressFrame->setValue(qMin(fwd_pct, rev_pct));
 
                 if (f_write_silence > 0) {
