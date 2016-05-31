@@ -206,14 +206,18 @@ static int hf_smb2_ioctl_function_access = -1;
 static int hf_smb2_ioctl_function_function = -1;
 static int hf_smb2_fsctl_pipe_wait_timeout = -1;
 static int hf_smb2_fsctl_pipe_wait_name = -1;
-static int hf_smb2_fsctl_offload_read_size = -1;
-static int hf_smb2_fsctl_offload_read_flags = -1;
-static int hf_smb2_fsctl_offload_read_token_ttl = -1;
-static int hf_smb2_fsctl_offload_reserved = -1;
-static int hf_smb2_fsctl_offload_read_file_offset = -1;
-static int hf_smb2_fsctl_offload_read_copy_length = -1;
-static int hf_smb2_fsctl_offload_read_transfer_length = -1;
-static int hf_smb2_fsctl_offload_token = -1;
+
+static int hf_smb2_fsctl_odx_token_type = -1;
+static int hf_smb2_fsctl_odx_token_idlen = -1;
+static int hf_smb2_fsctl_odx_token_idraw = -1;
+static int hf_smb2_fsctl_odx_token_ttl = -1;
+static int hf_smb2_fsctl_odx_size = -1;
+static int hf_smb2_fsctl_odx_flags = -1;
+static int hf_smb2_fsctl_odx_file_offset = -1;
+static int hf_smb2_fsctl_odx_copy_length = -1;
+static int hf_smb2_fsctl_odx_xfer_length = -1;
+static int hf_smb2_fsctl_odx_token_offset = -1;
+
 static int hf_smb2_fsctl_sparse_flag = -1;
 static int hf_smb2_fsctl_range_offset = -1;
 static int hf_smb2_fsctl_range_length = -1;
@@ -520,6 +524,7 @@ static gint ett_qfr_entry = -1;
 static gint ett_smb2_pipe_fragment = -1;
 static gint ett_smb2_pipe_fragments = -1;
 static gint ett_smb2_cchunk_entry = -1;
+static gint ett_smb2_fsctl_odx_token = -1;
 
 static expert_field ei_smb2_invalid_length = EI_INIT;
 static expert_field ei_smb2_bad_response = EI_INIT;
@@ -1532,7 +1537,7 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x000940E7, "FSCTL_CREATE_USN_JOURNAL"},
 	{0x000940EB, "FSCTL_READ_FILE_USN_DATA"},
 	{0x000940EF, "FSCTL_WRITE_USN_CLOSE_RECORD"},
-	{0x00094264, "FSCTL_OFFLOAD_READ"},
+	{0x00094264, "FSCTL_OFFLOAD_READ"},			      /* dissector implemented */
 	{0x00098098, "FSCTL_SET_OBJECT_ID"},			      /* dissector implemented */
 	{0x000980A0, "FSCTL_DELETE_OBJECT_ID"}, /* no data in/out */
 	{0x000980A4, "FSCTL_SET_REPARSE_POINT"},
@@ -1541,6 +1546,7 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x000980C8, "FSCTL_SET_ZERO_DATA"},			      /* dissector implemented */
 	{0x000980D0, "FSCTL_ENABLE_UPGRADE"},
 	{0x00098208, "FSCTL_FILE_LEVEL_TRIM"},
+	{0x00098268, "FSCTL_OFFLOAD_WRITE"},			      /* dissector implemented */
 	{0x0009C040, "FSCTL_SET_COMPRESSION"},			      /* dissector implemented */
 	{0x0009C280, "FSCTL_SET_INTEGRITY_INFORMATION"},	      /* dissector implemented */
 	{0x00110018, "FSCTL_PIPE_WAIT"},			      /* dissector implemented */
@@ -5035,38 +5041,104 @@ dissect_smb2_write_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	return offset;
 }
 
+/* The STORAGE_OFFLOAD_TOKEN is used for "Offload Data Transfer" (ODX) operations,
+   including FSCTL_OFFLOAD_READ, FSCTL_OFFLOAD_WRITE.  Ref: MS-FSCC 2.3.79
+   Note: Unlike most of SMB2, the token fields are BIG-endian! */
+static int
+dissect_smb2_STORAGE_OFFLOAD_TOKEN(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_tree *sub_tree;
+	proto_item *sub_item;
+	guint32 idlen = 0;
+	guint32 idtype = 0;
+
+	sub_tree = proto_tree_add_subtree(tree, tvb, offset, 512, ett_smb2_fsctl_odx_token, &sub_item, "Token");
+
+	proto_tree_add_item_ret_uint(sub_tree, hf_smb2_fsctl_odx_token_type, tvb, offset, 4, ENC_BIG_ENDIAN, &idtype);
+	offset += 4;
+
+	proto_item_append_text(sub_item, " (IdType 0x%x)", idtype);
+
+	/* reserved */
+	proto_tree_add_item(sub_tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
+	offset += 2;
+
+	/* TokenIdLength */
+	proto_tree_add_item_ret_uint(sub_tree, hf_smb2_fsctl_odx_token_idlen, tvb, offset, 2, ENC_BIG_ENDIAN, &idlen);
+	offset += 2;
+
+	/* idlen is what the server says is the "meaningful" part of the token.
+		However, token ID is always 504 bytes */
+	proto_tree_add_bytes_format_value(sub_tree, hf_smb2_fsctl_odx_token_idraw, tvb,
+					  offset, idlen, NULL, "Opaque Data");
+	offset += 504;
+
+	return (offset);
+}
+
+/* MS-FSCC 2.3.77, 2.3.78 */
 static void
 dissect_smb2_FSCTL_OFFLOAD_READ(tvbuff_t *tvb,
 				packet_info *pinfo _U_,
 				proto_tree *tree,
 				int offset,
-				proto_tree *top_tree _U_,
 				gboolean in)
 {
-	proto_tree_add_item(tree, hf_smb2_fsctl_offload_read_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_smb2_fsctl_odx_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	proto_tree_add_item(tree, hf_smb2_fsctl_offload_read_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_smb2_fsctl_odx_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	if (in) {
-		proto_tree_add_item(tree, hf_smb2_fsctl_offload_read_token_ttl, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_smb2_fsctl_odx_token_ttl, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		proto_tree_add_item(tree, hf_smb2_fsctl_offload_reserved, tvb, offset, 4, ENC_NA);
+		proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
 		offset += 4;
 
-		proto_tree_add_item(tree, hf_smb2_fsctl_offload_read_file_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_smb2_fsctl_odx_file_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
 
-		proto_tree_add_item(tree, hf_smb2_fsctl_offload_read_copy_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_smb2_fsctl_odx_copy_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		/* offset += 8; */
 	} else {
-		proto_tree_add_item(tree, hf_smb2_fsctl_offload_read_transfer_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_smb2_fsctl_odx_xfer_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
 
-		proto_tree_add_item(tree, hf_smb2_fsctl_offload_token, tvb, offset, 512, ENC_NA);
-		/* offset += 512; */
+		(void) dissect_smb2_STORAGE_OFFLOAD_TOKEN(tvb, pinfo, tree, offset);
+	}
+}
+
+/* MS-FSCC 2.3.80, 2.3.81 */
+static void
+dissect_smb2_FSCTL_OFFLOAD_WRITE(tvbuff_t *tvb,
+				packet_info *pinfo _U_,
+				proto_tree *tree,
+				int offset,
+				gboolean in)
+{
+	proto_tree_add_item(tree, hf_smb2_fsctl_odx_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_smb2_fsctl_odx_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	if (in) {
+		proto_tree_add_item(tree, hf_smb2_fsctl_odx_file_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		offset += 8;
+
+		proto_tree_add_item(tree, hf_smb2_fsctl_odx_copy_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		offset += 8;
+
+		proto_tree_add_item(tree, hf_smb2_fsctl_odx_token_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		offset += 8;
+
+		dissect_smb2_STORAGE_OFFLOAD_TOKEN(tvb, pinfo, tree, offset);
+
+	} else {
+		proto_tree_add_item(tree, hf_smb2_fsctl_odx_xfer_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		/* offset += 8; */
 	}
 }
 
@@ -5809,7 +5881,10 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 		dissect_smb2_FSCTL_QUERY_ALLOCATED_RANGES(tvb, pinfo, tree, 0, data_in);
 		break;
 	case 0x00094264: /* FSCTL_OFFLOAD_READ */
-		dissect_smb2_FSCTL_OFFLOAD_READ(tvb, pinfo, tree, 0, top_tree, data_in);
+		dissect_smb2_FSCTL_OFFLOAD_READ(tvb, pinfo, tree, 0, data_in);
+		break;
+	case 0x00098268: /* FSCTL_OFFLOAD_WRITE */
+		dissect_smb2_FSCTL_OFFLOAD_WRITE(tvb, pinfo, tree, 0, data_in);
 		break;
 	case 0x0011c017: /* FSCTL_PIPE_TRANSCEIVE */
 		dissect_smb2_FSCTL_PIPE_TRANSCEIVE(tvb, pinfo, tree, 0, top_tree, data_in, private_data);
@@ -9203,43 +9278,50 @@ proto_register_smb2(void)
 		  { "Name", "smb2.fsctl.wait.name", FT_STRING, BASE_NONE,
 		    NULL, 0, "Pipe name", HFILL }},
 
-		{ &hf_smb2_fsctl_offload_read_size,
-		  { "Size", "smb2.fsctl.offload.read", FT_UINT32, BASE_DEC,
-		    NULL, 0, "Size of data element", HFILL }},
+		{ &hf_smb2_fsctl_odx_token_type,
+		  { "TokenType", "smb2.fsctl.odx.token.type", FT_UINT32, BASE_HEX,
+		    NULL, 0, "Token Type", HFILL }},
 
-		{ &hf_smb2_fsctl_offload_read_flags,
-		  { "Flags", "smb2.fsctl.offload.flags", FT_UINT32, BASE_HEX,
+		{ &hf_smb2_fsctl_odx_token_idlen,
+		  { "TokenIdLength", "smb2.fsctl.odx.token.idlen", FT_UINT16, BASE_DEC,
+		    NULL, 0, "Token ID Length", HFILL }},
+
+		{ &hf_smb2_fsctl_odx_token_idraw,
+		  { "TokenId", "smb2.fsctl.odx.token.id", FT_BYTES, BASE_NONE,
+		    NULL, 0, "Token ID (opaque)", HFILL }},
+
+		{ &hf_smb2_fsctl_odx_token_ttl,
+		  { "TokenTimeToLive", "smb2.fsctl.odx.token_ttl",
+		    FT_UINT32, BASE_DEC, NULL, 0,
+		    "TTL requested for the token (in milliseconds)", HFILL }},
+
+		{ &hf_smb2_fsctl_odx_size,
+		  { "Size", "smb2.fsctl.odx.size", FT_UINT32, BASE_DEC,
+		    NULL, 0, "Size of this data element", HFILL }},
+
+		{ &hf_smb2_fsctl_odx_flags,
+		  { "Flags", "smb2.fsctl.odx.flags", FT_UINT32, BASE_HEX,
 		    NULL, 0, "Flags for this operation", HFILL }},
 
-		{ &hf_smb2_fsctl_offload_read_token_ttl,
-		  { "TokenTimeToLive", "smb2.fsctl.offload.token_ttl",
-		    FT_UINT32, BASE_DEC, NULL, 0,
-		    "TTL for the generated token (in milliseconds)", HFILL }},
-
-		{ &hf_smb2_fsctl_offload_reserved,
-		  { "Reserved", "smb2.fsctl.offload.reserved",
-		    FT_BYTES, BASE_NONE, NULL, 0,
-		    NULL, HFILL }},
-
-		{ &hf_smb2_fsctl_offload_read_file_offset,
-		  { "FileOffset", "smb2.fsctl.offload.file_offset",
+		{ &hf_smb2_fsctl_odx_file_offset,
+		  { "FileOffset", "smb2.fsctl.odx.file_offset",
 		    FT_UINT64, BASE_DEC, NULL, 0,
 		    "File offset", HFILL }},
 
-		{ &hf_smb2_fsctl_offload_read_copy_length,
-		  { "CopyLength", "smb2.fsctl.offload.copy_length",
+		{ &hf_smb2_fsctl_odx_copy_length,
+		  { "CopyLength", "smb2.fsctl.odx.copy_length",
 		    FT_UINT64, BASE_DEC, NULL, 0,
 		    "Copy length", HFILL }},
 
-		{ &hf_smb2_fsctl_offload_read_transfer_length,
-		  { "TransferLength", "smb2.fsctl.offload.transfer_length",
+		{ &hf_smb2_fsctl_odx_xfer_length,
+		  { "TransferLength", "smb2.fsctl.odx.xfer_length",
 		    FT_UINT64, BASE_DEC, NULL, 0,
-		    "Transfer length", HFILL }},
+		    "Length Transfered", HFILL }},
 
-		{ &hf_smb2_fsctl_offload_token,
-		  { "Token", "smb2.fsctl.offload.token",
-		    FT_BYTES, BASE_NONE, NULL, 0,
-		    NULL, HFILL }},
+		{ &hf_smb2_fsctl_odx_token_offset,
+		  { "TokenOffset", "smb2.fsctl.odx.token_offset",
+		    FT_UINT64, BASE_DEC, NULL, 0,
+		    "Token Offset (relative to start of token)", HFILL }},
 
 		{ &hf_smb2_fsctl_sparse_flag,
 		  { "SetSparse", "smb2.fsctl.set_sparse", FT_BOOLEAN, 8,
@@ -10121,6 +10203,7 @@ proto_register_smb2(void)
 		&ett_smb2_pipe_fragment,
 		&ett_smb2_pipe_fragments,
 		&ett_smb2_cchunk_entry,
+		&ett_smb2_fsctl_odx_token,
 	};
 
 	static ei_register_info ei[] = {
