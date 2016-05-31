@@ -112,8 +112,10 @@ composite_get_ptr(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 		return tvb_get_ptr(member_tvb, member_offset, abs_length);
 	}
 	else {
-		tvb->real_data = (guint8 *)g_malloc(abs_length);
-		tvb_memcpy(tvb, (void *)tvb->real_data, 0, abs_length);
+		/* Use a temporary variable as tvb_memcpy is also checking tvb->real_data pointer */
+		void *real_data = g_malloc(abs_length);
+		tvb_memcpy(tvb, real_data, 0, abs_length);
+		tvb->real_data = (const guint8 *)real_data;
 		return tvb->real_data + abs_offset;
 	}
 
@@ -296,6 +298,7 @@ tvb_composite_finalize(tvbuff_t *tvb)
 
 	tvb_add_to_chain((tvbuff_t *)composite->tvbs->data, tvb); /* chain composite tvb to first member */
 	tvb->initialized = TRUE;
+	tvb->ds_tvb = tvb;
 }
 
 /*
