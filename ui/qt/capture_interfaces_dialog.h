@@ -94,7 +94,7 @@ private slots:
     void on_manageButton_clicked();
     void on_cbResolveNetworkNames_toggled(bool checked);
     void on_cbResolveTransportNames_toggled(bool checked);
-    void startButtonClicked();
+    void on_buttonBox_accepted();
     void on_buttonBox_rejected();
     void on_buttonBox_helpRequested();
     void interfaceSelected();
@@ -121,8 +121,6 @@ private:
     Ui::CaptureInterfacesDialog *ui;
     Qt::CheckState m_pressedItemState;
 
-    QPushButton *start_bt_;
-    QPushButton *stop_bt_;
     if_stat_cache_t *stat_cache_;
     QTimer *stat_timer_;
     InterfaceTreeDelegate interface_item_delegate_;

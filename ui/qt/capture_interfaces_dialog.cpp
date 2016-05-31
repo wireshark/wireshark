@@ -175,10 +175,9 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
     stat_cache_ = NULL;
 
     // XXX - Enable / disable as needed
-    start_bt_ = ui->buttonBox->addButton(tr("Start"), QDialogButtonBox::AcceptRole);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Start"));
 
-    start_bt_->setEnabled((global_capture_opts.num_selected > 0)? true: false);
-    connect(start_bt_, SIGNAL(clicked(bool)), this, SLOT(startButtonClicked()));
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled((global_capture_opts.num_selected > 0)? true: false);
 
     // Start out with the list *not* sorted, so they show up in the order
     // in which they were provided
@@ -228,7 +227,7 @@ void CaptureInterfacesDialog::interfaceSelected()
 {
     InterfaceTree::updateGlobalDeviceSelections(ui->interfaceTree, col_interface_);
 
-    start_bt_->setEnabled((global_capture_opts.num_selected > 0) ? true: false);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled((global_capture_opts.num_selected > 0) ? true: false);
 
     emit interfacesChanged();
 
@@ -265,7 +264,7 @@ void CaptureInterfacesDialog::updateWidgets()
     }
 
     ui->compileBPF->setEnabled(can_capture);
-    start_bt_->setEnabled(can_capture);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(can_capture);
 }
 
 CaptureInterfacesDialog::~CaptureInterfacesDialog()
@@ -357,7 +356,7 @@ void CaptureInterfacesDialog::on_cbResolveTransportNames_toggled(bool checked)
     gbl_resolv_flags.transport_name = checked;
 }
 
-void CaptureInterfacesDialog::startButtonClicked()
+void CaptureInterfacesDialog::on_buttonBox_accepted()
 {
     if (saveOptionsToPreferences()) {
         emit setFilterValid(true, ui->captureFilterComboBox->lineEdit()->text());
@@ -578,7 +577,7 @@ void CaptureInterfacesDialog::updateInterfaces()
 
     }
 
-    start_bt_->setEnabled((global_capture_opts.num_selected > 0)? true: false);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled((global_capture_opts.num_selected > 0)? true: false);
 
     if (!stat_timer_) {
         updateStatistics();
