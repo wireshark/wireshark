@@ -38,8 +38,18 @@
 #include <QPoint>
 
 // To do:
+// - Resize or show + hide the Time and Comment axes, possibly via one of
+//   the following:
+//   - Split the time, diagram, and comment sections into three separate
+//     widgets inside a QSplitter. This would resemble the GTK+ UI, but we'd
+//     have to coordinate between the three and we'd lose time and comment
+//     values in PDF and PNG exports.
+//   - Add separate controls for the width and/or visibility of the Time and
+//     Comment columns.
+//   - Fake a splitter widget by catching mouse events in the plot area.
+//     Drawing a QCPItemLine or QCPItemPixmap over each Y axis might make
+//     this easier.
 // - Add zoom controls.
-// - Show + hide the Time and Comment axes.
 // - Add UTF8 to text dump
 // - Save to XMI? http://www.umlgraph.org/
 // - Time: abs vs delta
