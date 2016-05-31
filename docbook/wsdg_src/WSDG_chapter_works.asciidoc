@@ -23,14 +23,10 @@ The following will give you a simplified overview of Wireshark's function blocks
 .Wireshark function blocks
 image::wsdg_graphics/ws-function-blocks.png[]
 
-****
-This image is out of date. It is missing the utility library in 'wsutil' and
-the Qt UI in 'ui/qt'.
-****
-
 The function blocks in more detail:
-$$GTK+ 2$$:: Handling of all user input/output (all windows, dialogs and such).
-Source code can be found in the 'ui/gtk' directory.
+
+GUI:: Handling of all user input/output (all windows, dialogs and such).
+Source code can be found in the 'ui/qt' and 'ui/gtk' directory.
 
 Core:: Main "glue code" that holds the other blocks together. Source
 code can be found in the root directory.
