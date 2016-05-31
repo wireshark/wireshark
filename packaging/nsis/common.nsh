@@ -105,10 +105,14 @@ Exec '"$SYSDIR\ie4uinit.exe" -ClearIconCache'
     Push ".snoop"
     Push ".rf5"
     Push ".pkt"
+    Push ".pklg"
+    Push ".pfx"
     Push ".pcapng"
     Push ".pcap"
     Push ".out"
     Push ".ntar"
+    Push ".mplog"
+    Push ".ipfix"
     Push ".fdc"
     Push ".erf"
     Push ".enc"
@@ -118,7 +122,6 @@ Exec '"$SYSDIR\ie4uinit.exe" -ClearIconCache'
     Push ".apc"
     Push ".acp"
     Push ".5vw"
-    Push ".mplog"
 !macroend
 
 !macro IsWiresharkRunning

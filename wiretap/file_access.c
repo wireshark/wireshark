@@ -346,7 +346,7 @@ static struct open_info open_info_base[] = {
 	/* Gammu DCT3 trace must come before MIME files as it's XML based*/
 	{ "Gammu DCT3 trace",                       OPEN_INFO_MAGIC,     dct3trace_open,           NULL,       NULL, NULL },
 	{ "MIME Files Format",                      OPEN_INFO_MAGIC,     mime_file_open,           NULL,       NULL, NULL },
-	{ "Micropross mplog",                       OPEN_INFO_MAGIC,     mplog_open,             "mplog",      NULL, NULL },
+	{ "Micropross mplog",                       OPEN_INFO_MAGIC,     mplog_open,               "mplog",    NULL, NULL },
 	{ "Novell LANalyzer",                       OPEN_INFO_HEURISTIC, lanalyzer_open,           "tr1",      NULL, NULL },
 	/*
 	 * PacketLogger must come before MPEG, because its files
@@ -399,7 +399,7 @@ static struct open_info open_info_base[] = {
 
 /* this is only used to build the dynamic array on load, do NOT use this
  * for anything else, because the size of the actual array will change if
- *  Lua scripts register a new file reader.
+ * Lua scripts register a new file reader.
  */
 #define N_OPEN_INFO_ROUTINES  ((sizeof open_info_base / sizeof open_info_base[0]))
 

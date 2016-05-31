@@ -55,10 +55,58 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>Wiresharkdoc.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Micropross mplog capture</string>
+			<string>Micropross mplog Capture</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>pklg</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>OS X PacketLogger Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>erf</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Endace ERF Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>pfx</string>
+				<string>ipfix</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>IPFIX Packet Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>vwr</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Ixia IxVeriWave Packet Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
 		<!-- XXX - This dictionary needs a lot more entries -->
 	</array>
 	<key>CFBundleInfoDictionaryVersion</key>

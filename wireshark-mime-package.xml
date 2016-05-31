@@ -165,12 +165,42 @@
   </mime-type>
 
   <mime-type type="application/x-micropross-mplog">
-    <comment>Packet Capture (mplog)</comment>
+    <comment>Packet Capture (Micropross mplog)</comment>
     <generic-icon name="application-wireshark-doc"/>
     <magic>
       <match type="string" offset="0" value="MPCSII"/>
     </magic>
     <glob pattern="*.mplog"/>
     <glob pattern="*.mplog.gz"/>
+  </mime-type>
+
+  <mime-type type="application/x-apple-packetlogger">
+    <comment>Packet Capture (OS X PacketLogger)</comment>
+    <generic-icon name="application-wireshark-doc"/>
+    <glob pattern="*.pklg"/>
+    <glob pattern="*.pklg.gz"/>
+  </mime-type>
+
+  <mime-type type="application/x-endace-erf">
+    <comment>Packet Capture (Endace ERF)</comment>
+    <generic-icon name="application-wireshark-doc"/>
+    <glob pattern="*.erf"/>
+    <glob pattern="*.erf.gz"/>
+  </mime-type>
+
+  <mime-type type="application/ipfix">
+    <comment>Packet Capture (IPFIX)</comment>
+    <generic-icon name="application-wireshark-doc"/>
+    <glob pattern="*.pfx"/>
+    <glob pattern="*.ipfix"/>
+    <glob pattern="*.pfx.gz"/>
+    <glob pattern="*.ipfix.gz"/>
+  </mime-type>
+
+  <mime-type type="application/x-ixia-vwr">
+    <comment>Packet Capture (Ixia IxVeriWave)</comment>
+    <generic-icon name="application-wireshark-doc"/>
+    <glob pattern="*.vwr"/>
+    <glob pattern="*.vwr.gz"/>
   </mime-type>
 </mime-info>
