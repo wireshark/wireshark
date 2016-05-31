@@ -40331,7 +40331,14 @@ dissect_lte_rrc_T_targetRAT_MessageContainer(tvbuff_t *tvb _U_, int offset _U_, 
         }
       } else {
         if (gsm_rlcmac_dl_handle) {
-          lte_rrc_call_dissector(gsm_rlcmac_dl_handle, target_rat_msg_cont_tvb, actx->pinfo, subtree);
+          tvbuff_t *gsm_rlcmac_dl_tvb = tvb_new_composite();
+          guint8 *pd = (guint8 *) wmem_alloc(actx->pinfo->pool, 1);
+          pd[0] = 0x40;
+          tvb_composite_append(gsm_rlcmac_dl_tvb, tvb_new_real_data(pd, 1, 1));
+          tvb_composite_append(gsm_rlcmac_dl_tvb, target_rat_msg_cont_tvb);
+          tvb_composite_finalize(gsm_rlcmac_dl_tvb);
+          add_new_data_source(actx->pinfo, gsm_rlcmac_dl_tvb, "GPRS DL control block");
+          lte_rrc_call_dissector(gsm_rlcmac_dl_handle, gsm_rlcmac_dl_tvb, actx->pinfo, subtree);
         }
       }
       break;
@@ -40399,6 +40406,13 @@ dissect_lte_rrc_SystemInfoListGERAN_item(tvbuff_t *tvb _U_, int offset _U_, asn1
     case SI_OrPSI_GERAN_psi:
       /* PSI message */
       if (gsm_rlcmac_dl_handle) {
+        tvbuff_t *gsm_rlcmac_dl_tvb = tvb_new_composite();
+        guint8 *pd = (guint8 *) wmem_alloc(actx->pinfo->pool, 1);
+        pd[0] = 0x40;
+        tvb_composite_append(gsm_rlcmac_dl_tvb, tvb_new_real_data(pd, 1, 1));
+        tvb_composite_append(gsm_rlcmac_dl_tvb, sys_info_list_tvb);
+        tvb_composite_finalize(gsm_rlcmac_dl_tvb);
+        add_new_data_source(actx->pinfo, gsm_rlcmac_dl_tvb, "GPRS DL control block");
         lte_rrc_call_dissector(gsm_rlcmac_dl_handle, sys_info_list_tvb, actx->pinfo, subtree);
       }
       break;
