@@ -49,6 +49,7 @@
 #include "packet-ssl.h"
 
 #include "packet-isup.h"
+#include "packet-e164.h"
 #include "packet-sip.h"
 
 #include "packet-sdp.h"  /* SDP needs a transport layer to determine request/response */
@@ -1568,6 +1569,9 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, packet_info *pinfo
     if(uri_offsets->uri_user_end > uri_offsets->uri_user_start) {
         proto_tree_add_item(uri_item_tree, *(uri->hf_sip_user), tvb, uri_offsets->uri_user_start,
                             uri_offsets->uri_user_end - uri_offsets->uri_user_start + 1, ENC_UTF_8|ENC_NA);
+        if (tvb_get_guint8(tvb, uri_offsets->uri_user_start) == '+') {
+            dissect_e164_msisdn(tvb, uri_item_tree, uri_offsets->uri_user_start + 1, uri_offsets->uri_user_end - uri_offsets->uri_user_start, E164_ENC_UTF8);
+        }
 
         /* If we have a SIP diagnostics sub dissector call it */
         if (sip_uri_userinfo_handle) {
