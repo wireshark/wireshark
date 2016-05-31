@@ -313,8 +313,8 @@ wtap_get_all_file_extensions_list(void)
  * know that Wireshark can open the file:
  *	1) wireshark-mime-package.xml (for freedesktop.org environments)
  *	2) packaging/macosx/Info.plist.in (for OS X)
- *	3) packaging/nsis/AdditionalTasksPage.ini and packaging/nsis/common.nsh
- *	   (for Windows)
+ *	3) packaging/nsis/AdditionalTasksPage.ini, packaging/nsis/common.nsh,
+ *	   and packaging/wix/ComponentGroups.wxi (for Windows)
  *
  * If your file format has an expected extension (e.g., ".pcap") then you
  * should probably also add it to file_type_extensions_base[] (in this file).
