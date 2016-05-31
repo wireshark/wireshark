@@ -774,6 +774,7 @@ DISSECTOR_SRC = \
 	packet-ipars.c		\
 	packet-ipdc.c		\
 	packet-ipdr.c		\
+	packet-iperf.c		\
 	packet-ipfc.c		\
 	packet-ipmi.c		\
 	packet-ipmi-app.c	\
