@@ -294,4 +294,5 @@ tvb_composite_finalize(tvbuff_t *tvb)
 	}
 	tvb_add_to_chain((tvbuff_t *)composite->tvbs->data, tvb); /* chain composite tvb to first member */
 	tvb->initialized = TRUE;
+	tvb->ds_tvb = tvb;
 }
