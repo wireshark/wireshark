@@ -419,6 +419,14 @@ static int hf_smb2_pipe_fragment_count = -1;
 static int hf_smb2_pipe_reassembled_in = -1;
 static int hf_smb2_pipe_reassembled_length = -1;
 static int hf_smb2_pipe_reassembled_data = -1;
+static int hf_smb2_cchunk_resume_key = -1;
+static int hf_smb2_cchunk_count = -1;
+static int hf_smb2_cchunk_src_offset = -1;
+static int hf_smb2_cchunk_dst_offset = -1;
+static int hf_smb2_cchunk_xfer_len = -1;
+static int hf_smb2_cchunk_chunks_written = -1;
+static int hf_smb2_cchunk_bytes_written = -1;
+static int hf_smb2_cchunk_total_written = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -511,6 +519,7 @@ static gint ett_smb2_ioctl_network_interface_capabilities = -1;
 static gint ett_qfr_entry = -1;
 static gint ett_smb2_pipe_fragment = -1;
 static gint ett_smb2_pipe_fragments = -1;
+static gint ett_smb2_cchunk_entry = -1;
 
 static expert_field ei_smb2_invalid_length = EI_INIT;
 static expert_field ei_smb2_bad_response = EI_INIT;
@@ -5712,6 +5721,75 @@ dissect_smb2_FSCTL_SET_OBJECT_ID_EXTENDED(tvbuff_t *tvb, packet_info *pinfo _U_,
 	return offset;
 }
 
+static int
+dissect_smb2_cchunk_RESUME_KEY(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+
+	proto_tree_add_bytes_format_value(tree, hf_smb2_cchunk_resume_key, tvb,
+					  offset, 24, NULL, "Opaque Data");
+	offset += 24;
+
+	return (offset);
+}
+
+static void
+dissect_smb2_FSCTL_SRV_REQUEST_RESUME_KEY(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
+{
+
+	/* There is no in data */
+	if (data_in) {
+		return;
+	}
+
+	offset = dissect_smb2_cchunk_RESUME_KEY(tvb, pinfo, tree, offset);
+
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
+	offset += 4;
+}
+
+static void
+dissect_smb2_FSCTL_SRV_COPYCHUNK(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
+{
+	proto_tree *sub_tree;
+	proto_item *sub_item;
+	guint32 chunk_count = 0;
+
+	/* Output is simpler - handle that first. */
+	if (!data_in) {
+		proto_tree_add_item(tree, hf_smb2_cchunk_chunks_written, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_smb2_cchunk_bytes_written, tvb, offset+4, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_smb2_cchunk_total_written, tvb, offset+8, 4, ENC_LITTLE_ENDIAN);
+		return;
+	}
+
+	/* Input data, fixed part */
+	offset = dissect_smb2_cchunk_RESUME_KEY(tvb, pinfo, tree, offset);
+	proto_tree_add_item_ret_uint(tree, hf_smb2_cchunk_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &chunk_count);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
+	offset += 4;
+
+	/* Zero or more allocated ranges may be reported. */
+	while (chunk_count && tvb_reported_length_remaining(tvb, offset) >= 24) {
+		sub_tree = proto_tree_add_subtree(tree, tvb, offset, 24, ett_smb2_cchunk_entry, &sub_item, "Chunk");
+
+		proto_tree_add_item(sub_tree, hf_smb2_cchunk_src_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		offset += 8;
+
+		proto_tree_add_item(sub_tree, hf_smb2_cchunk_dst_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		offset += 8;
+
+		proto_tree_add_item(sub_tree, hf_smb2_cchunk_xfer_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+
+		proto_tree_add_item(sub_tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
+		offset += 4;
+
+		chunk_count--;
+	}
+}
+
 void
 dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *top_tree, guint32 ioctl_function, gboolean data_in, void *private_data _U_)
 {
@@ -5739,6 +5817,9 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 	case 0x00110018: /* FSCTL_PIPE_WAIT */
 		dissect_smb2_FSCTL_PIPE_WAIT(tvb, pinfo, tree, 0, top_tree, data_in);
 		break;
+	case 0x00140078: /* FSCTL_SRV_REQUEST_RESUME_KEY */
+		dissect_smb2_FSCTL_SRV_REQUEST_RESUME_KEY(tvb, pinfo, tree, 0, data_in);
+		break;
 	case 0x001401D4: /* FSCTL_LMR_REQUEST_RESILIENCY */
 		dissect_smb2_FSCTL_LMR_REQUEST_RESILIENCY(tvb, pinfo, tree, 0, data_in);
 		break;
@@ -5753,6 +5834,10 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 		break;
 	case 0x00144064: /* FSCTL_SRV_ENUMERATE_SNAPSHOTS */
 		dissect_smb2_FSCTL_SRV_ENUMERATE_SNAPSHOTS(tvb, pinfo, tree, 0, data_in);
+		break;
+	case 0x001440F2: /* FSCTL_SRV_COPYCHUNK */
+	case 0x001480F2: /* FSCTL_SRV_COPYCHUNK_WRITE */
+		dissect_smb2_FSCTL_SRV_COPYCHUNK(tvb, pinfo, tree, 0, data_in);
 		break;
 	case 0x0009009C: /* FSCTL_GET_OBJECT_ID */
 	case 0x000900c0: /* FSCTL_CREATE_OR_GET_OBJECT_ID */
@@ -9917,6 +10002,30 @@ proto_register_smb2(void)
 		{ &hf_smb2_pipe_reassembled_data,
 			{ "Reassembled SMB2 Named Pipe Data", "smb2.pipe.reassembled.data", FT_BYTES,
 			BASE_NONE, NULL, 0x0, "The reassembled payload", HFILL }},
+		{ &hf_smb2_cchunk_resume_key,
+			{ "ResumeKey", "smb2.fsctl.cchunk.resume_key", FT_BYTES,
+			BASE_NONE, NULL, 0x0, "Opaque data representing source of copy", HFILL }},
+		{ &hf_smb2_cchunk_count,
+			{ "Chunk Count", "smb2.fsctl.cchunk.count", FT_UINT32,
+			BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_smb2_cchunk_src_offset,
+			{ "Source Offset", "smb2.fsctl.cchunk.src_offset", FT_UINT64,
+			BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_smb2_cchunk_dst_offset,
+			{ "Target Offset", "smb2.fsctl.cchunk.dst_offset", FT_UINT64,
+			BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_smb2_cchunk_xfer_len,
+			{ "Transfer Length", "smb2.fsctl.cchunk.xfer_len", FT_UINT32,
+			BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_smb2_cchunk_chunks_written,
+			{ "Chunks Written", "smb2.fsctl.cchunk.chunks_written", FT_UINT32,
+			BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_smb2_cchunk_bytes_written,
+			{ "Chunk Bytes Written", "smb2.fsctl.cchunk.bytes_written", FT_UINT32,
+			BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_smb2_cchunk_total_written,
+			{ "Total Bytes Written", "smb2.fsctl.cchunk.total_written", FT_UINT32,
+			BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -10011,6 +10120,7 @@ proto_register_smb2(void)
 		&ett_qfr_entry,
 		&ett_smb2_pipe_fragment,
 		&ett_smb2_pipe_fragments,
+		&ett_smb2_cchunk_entry,
 	};
 
 	static ei_register_info ei[] = {
