@@ -1276,6 +1276,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  srtp_add_address@Base 1.9.1
  ssl_dissector_add@Base 2.1.0
  ssl_dissector_delete@Base 2.1.0
+ ssl_starttls_ack@Base 2.1.0
+ ssl_starttls_post_ack@Base 2.1.0
  ssl_session_hash@Base 1.9.1
  ssl_crandom_hash@Base 1.99.4
  ssl_set_master_secret@Base 1.9.1

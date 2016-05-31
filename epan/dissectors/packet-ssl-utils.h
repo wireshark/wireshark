@@ -461,7 +461,7 @@ ssl_set_server(SslSession *session, address *addr, port_type ptype, guint32 port
  * @return 0 for the first STARTTLS acknowledgement (success) or if ssl_handle
  * is NULL. >0 if STARTTLS was started before.
  */
-extern guint32
+WS_DLL_PUBLIC guint32
 ssl_starttls_ack(dissector_handle_t ssl_handle, packet_info *pinfo,
                  dissector_handle_t app_handle);
 
@@ -473,7 +473,7 @@ ssl_starttls_ack(dissector_handle_t ssl_handle, packet_info *pinfo,
  * @return 0 for the first STARTTLS acknowledgement (success) or if ssl_handle
  * is NULL. >0 if STARTTLS was started before.
  */
-extern guint32
+WS_DLL_PUBLIC guint32
 ssl_starttls_post_ack(dissector_handle_t ssl_handle, packet_info *pinfo,
                  dissector_handle_t app_handle);
 
