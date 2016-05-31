@@ -10946,7 +10946,7 @@ void proto_register_rtps(void) {
     },
 
     { &hf_rtps_sm_rti_crc_number, {
-        "RTPS Message Length (no header)", "rtps.sm.rti_crc.message_length",
+        "RTPS Message Length", "rtps.sm.rti_crc.message_length",
         FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
     },
 
