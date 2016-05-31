@@ -29,6 +29,7 @@
 #include "tap-sequence-analysis.h"
 
 #include "epan/addr_resolv.h"
+#include "epan/color_filters.h"
 #include "epan/packet.h"
 #include "epan/tap.h"
 #include "epan/proto_data.h"
@@ -107,6 +108,9 @@ seq_analysis_frame_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
         if (!sai) return FALSE;
 
         sai->frame_number = pinfo->num;
+
+        sai->bg_color = color_t_to_rgb(&pinfo->fd->color_filter->bg_color);
+        sai->fg_color = color_t_to_rgb(&pinfo->fd->color_filter->fg_color);
 
         sai->port_src=pinfo->srcport;
         sai->port_dst=pinfo->destport;
@@ -238,7 +242,7 @@ seq_analysis_tcp_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_,
             sai->comment = g_strdup_printf("Seq = %u",tcph->th_seq);
 
         sai->line_style = 1;
-        sai->conv_num = 0;
+        sai->conv_num = (guint16) tcph->th_stream;
         sai->display = TRUE;
 
         g_queue_push_tail(sainfo->items, sai);

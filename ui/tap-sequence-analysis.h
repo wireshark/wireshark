@@ -58,7 +58,9 @@ typedef struct _seq_analysis_item {
     gchar *frame_label;                 /**< the label on top of the arrow */
     gchar *time_str;                    /**< timestamp */
     gchar *comment;                     /**< a comment that appears at the right of the graph */
-    guint16 conv_num;                   /**< the conversation number, each conversation will be colored */
+    guint16 conv_num;                   /**< The conversation number. Used for coloring VoIP calls. */
+    unsigned fg_color;                  /**< Foreground color, 0xRRGGBB. Qt only. */
+    unsigned bg_color;                  /**< Background color, 0xRRGGBB. Qt only. */
     gboolean display;                   /**< indicate if the packet is displayed or not in the graph */
     guint src_node;                     /**< this is used by graph_analysis.c to identify the node */
     guint dst_node;                     /**< a node is an IP address that will be displayed in columns */
