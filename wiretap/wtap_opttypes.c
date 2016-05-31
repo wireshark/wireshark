@@ -196,6 +196,18 @@ void wtap_optionblock_free(wtap_optionblock_t block)
     }
 }
 
+void wtap_optionblock_array_free(GArray* block_array)
+{
+    guint block;
+    if (block_array == NULL)
+        return;
+
+    for (block = 0; block < block_array->len; block++) {
+        wtap_optionblock_free(g_array_index(block_array, wtap_optionblock_t, block));
+    }
+    g_array_free(block_array, TRUE);
+}
+
 void wtap_optionblock_copy_options(wtap_optionblock_t dest_block, wtap_optionblock_t src_block)
 {
     guint i;

@@ -165,32 +165,42 @@ const gchar *
 wtap_file_get_shb_comment(wtap *wth)
 {
 	char* opt_comment;
-	if (wth == NULL)
+	if ((wth == NULL) || (wth->shb_hdrs == NULL) || (wth->shb_hdrs->len == 0))
 		return NULL;
 
-	wtap_optionblock_get_option_string(wth->shb_hdr, OPT_COMMENT, &opt_comment);
+	wtap_optionblock_get_option_string(g_array_index(wth->shb_hdrs, wtap_optionblock_t, 0), OPT_COMMENT, &opt_comment);
 	return opt_comment;
 }
 
 wtap_optionblock_t
 wtap_file_get_shb(wtap *wth)
 {
-	return wth ? wth->shb_hdr : NULL;
-}
-
-wtap_optionblock_t
-wtap_file_get_shb_for_new_file(wtap *wth)
-{
-	wtap_optionblock_t shb_hdr;
-
-	if (wth == NULL)
+	if ((wth == NULL) || (wth->shb_hdrs == NULL) || (wth->shb_hdrs->len == 0))
 		return NULL;
 
-	shb_hdr = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_SECTION);
+	return g_array_index(wth->shb_hdrs, wtap_optionblock_t, 0);
+}
 
-	/* options */
-	wtap_optionblock_copy_options(shb_hdr, wth->shb_hdr);
-	return shb_hdr;
+GArray*
+wtap_file_get_shb_for_new_file(wtap *wth)
+{
+	guint shb_count;
+	wtap_optionblock_t shb_hdr_src, shb_hdr_dest;
+	GArray* shb_hdrs;
+
+	if ((wth == NULL) || (wth->shb_hdrs == NULL) || (wth->shb_hdrs->len == 0))
+		return NULL;
+
+	shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
+
+	for (shb_count = 0; shb_count < wth->shb_hdrs->len; shb_count++) {
+		shb_hdr_src = g_array_index(wth->shb_hdrs, wtap_optionblock_t, shb_count);
+		shb_hdr_dest = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_SECTION);
+		wtap_optionblock_copy_options(shb_hdr_dest, shb_hdr_src);
+		g_array_append_val(shb_hdrs, shb_hdr_dest);
+	}
+
+	return shb_hdrs;
 }
 
 const gchar*
@@ -224,7 +234,9 @@ wtap_write_nrb_comment(wtap *wth, gchar *comment)
 void
 wtap_write_shb_comment(wtap *wth, gchar *comment)
 {
-	wtap_optionblock_set_option_string(wth->shb_hdr, OPT_COMMENT, comment, (gsize)(comment ? strlen(comment) : 0));
+	if ((wth != NULL) && (wth->shb_hdrs != NULL) && (wth->shb_hdrs->len > 0)) {
+		wtap_optionblock_set_option_string(g_array_index(wth->shb_hdrs, wtap_optionblock_t, 0), OPT_COMMENT, comment, (gsize)(comment ? strlen(comment) : 0));
+	}
 }
 
 wtapng_iface_descriptions_t *
@@ -246,15 +258,7 @@ wtap_free_idb_info(wtapng_iface_descriptions_t *idb_info)
 	if (idb_info == NULL)
 		return;
 
-	if (idb_info->interface_data) {
-		guint i;
-		for (i = 0; i < idb_info->interface_data->len; i++) {
-			wtap_optionblock_t idb = g_array_index(idb_info->interface_data, wtap_optionblock_t, i);
-			wtap_optionblock_free(idb);
-		}
-		g_array_free(idb_info->interface_data, TRUE);
-	}
-
+	wtap_optionblock_array_free(idb_info->interface_data);
 	g_free(idb_info);
 }
 
@@ -1176,9 +1180,6 @@ wtap_fdclose(wtap *wth)
 void
 wtap_close(wtap *wth)
 {
-	guint i;
-	wtap_optionblock_t wtapng_if_descr;
-
 	wtap_sequential_close(wth);
 
 	if (wth->subtype_close != NULL)
@@ -1195,13 +1196,9 @@ wtap_close(wtap *wth)
 		g_ptr_array_free(wth->fast_seek, TRUE);
 	}
 
-	wtap_optionblock_free(wth->shb_hdr);
+	wtap_optionblock_array_free(wth->shb_hdrs);
+	wtap_optionblock_array_free(wth->interface_data);
 
-	for(i = 0; i < wth->interface_data->len; i++) {
-		wtapng_if_descr = g_array_index(wth->interface_data, wtap_optionblock_t, i);
-		wtap_optionblock_free(wtapng_if_descr);
-	}
-	g_array_free(wth->interface_data, TRUE);
 	g_free(wth);
 }
 

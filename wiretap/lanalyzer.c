@@ -330,7 +330,7 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
                   g_free(comment);
                   return WTAP_OPEN_NOT_MINE;
             }
-            wtap_optionblock_set_option_string(wth->shb_hdr, OPT_COMMENT, comment, record_length);
+            wtap_optionblock_set_option_string(g_array_index(wth->shb_hdrs, wtap_optionblock_t, 0), OPT_COMMENT, comment, record_length);
             g_free(comment);
       }
 

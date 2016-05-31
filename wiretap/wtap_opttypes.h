@@ -106,6 +106,16 @@ WS_DLL_PUBLIC wtap_optionblock_t wtap_optionblock_create(int block_type);
  */
 WS_DLL_PUBLIC void wtap_optionblock_free(wtap_optionblock_t block);
 
+/** Free an array of option blocks
+ *
+ * Needs to be called to clean up option blocks allocated
+ * through GArray (for multiple blocks of same type)
+ * Includes freeing the GArray
+ *
+ * @param[in] block_array Array of blocks to be freed
+ */
+WS_DLL_PUBLIC void wtap_optionblock_array_free(GArray* block_array);
+
 /** Provide mandatory data of an option block
  *
  * @param[in] block Block from which to retrieve mandatory data

@@ -51,7 +51,7 @@ struct wtap {
     guint                       snapshot_length;
     struct Buffer               *frame_buffer;
     struct wtap_pkthdr          phdr;
-    wtap_optionblock_t          shb_hdr;
+    GArray                      *shb_hdrs;
     GArray                      *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?)*/
     wtap_optionblock_t          nrb_hdr;               /**< holds the Name Res Block's comment/custom_opts, or NULL */
 
@@ -114,7 +114,7 @@ struct wtap_dumper {
                                              * e.g. WTAP_TSPREC_USEC
                                              */
     addrinfo_lists_t        *addrinfo_lists; /**< Struct containing lists of resolved addresses */
-    wtap_optionblock_t       shb_hdr;
+    GArray                  *shb_hdrs;
     wtap_optionblock_t       nrb_hdr;        /**< name resolution comment/custom_opt, or NULL */
     GArray                  *interface_data; /**< An array holding the interface data from pcapng IDB:s or equivalent(?) NULL if not present.*/
 };

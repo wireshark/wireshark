@@ -360,10 +360,11 @@ merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
 
 
 /* creates a section header block for the new output file */
-static wtap_optionblock_t
+static GArray*
 create_shb_header(const merge_in_file_t *in_files, const guint in_file_count,
                   const gchar *app_name)
 {
+    GArray  *shb_hdrs;
     wtap_optionblock_t shb_hdr;
     GString *comment_gstr;
     GString *os_info_str;
@@ -372,7 +373,8 @@ create_shb_header(const merge_in_file_t *in_files, const guint in_file_count,
     wtapng_mandatory_section_t* shb_data;
     gsize opt_len;
 
-    shb_hdr = wtap_file_get_shb_for_new_file(in_files[0].wth);
+    shb_hdrs = wtap_file_get_shb_for_new_file(in_files[0].wth);
+    shb_hdr = g_array_index(shb_hdrs, wtap_optionblock_t, 0);
 
     comment_gstr = g_string_new("");
 
@@ -408,7 +410,7 @@ create_shb_header(const merge_in_file_t *in_files, const guint in_file_count,
     wtap_optionblock_set_option_string(shb_hdr, OPT_SHB_USERAPPL, (char*)app_name, app_name ? strlen(app_name): 0 ); /* NULL if not available, UTF-8 string containing the name */
                                                                                       /*  of the application used to create this section.          */
 
-    return shb_hdr;
+    return shb_hdrs;
 }
 
 static gboolean
@@ -885,7 +887,7 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
     struct wtap_pkthdr *phdr, snap_phdr;
     int                 count = 0;
     gboolean            stop_flag = FALSE;
-    wtap_optionblock_t          shb_hdr = NULL;
+    GArray             *shb_hdrs = NULL;
     wtapng_iface_descriptions_t *idb_inf = NULL;
 
     g_assert(out_fd > 0);
@@ -930,14 +932,14 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
 
     /* prepare the outfile */
     if (file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
-        shb_hdr = create_shb_header(in_files, in_file_count, app_name);
+        shb_hdrs = create_shb_header(in_files, in_file_count, app_name);
         merge_debug("merge_files: SHB created");
 
         idb_inf = generate_merged_idb(in_files, in_file_count, mode);
         merge_debug("merge_files: IDB merge operation complete, got %u IDBs", idb_inf ? idb_inf->interface_data->len : 0);
 
         pdh = wtap_dump_fdopen_ng(out_fd, file_type, frame_type, snaplen,
-                                  FALSE /* compressed */, shb_hdr, idb_inf,
+                                  FALSE /* compressed */, shb_hdrs, idb_inf,
                                   NULL, err);
     }
     else {
@@ -947,7 +949,7 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
     if (pdh == NULL) {
         merge_close_in_files(in_file_count, in_files);
         g_free(in_files);
-        wtap_optionblock_free(shb_hdr);
+        wtap_optionblock_array_free(shb_hdrs);
         wtap_free_idb_info(idb_inf);
         return MERGE_ERR_CANT_OPEN_OUTFILE;
     }
@@ -1069,7 +1071,7 @@ merge_files(int out_fd, const gchar* out_filename, const int file_type,
     }
 
     g_free(in_files);
-    wtap_optionblock_free(shb_hdr);
+    wtap_optionblock_array_free(shb_hdrs);
     wtap_free_idb_info(idb_inf);
 
     return status;

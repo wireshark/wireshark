@@ -103,6 +103,7 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, char *comment)
 
     /* pcapng defs */
     wtap_optionblock_t           shb_hdr;
+    GArray                      *shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
     wtapng_iface_descriptions_t *idb_inf;
     wtap_optionblock_t           int_data;
     wtapng_if_descr_mandatory_t *int_data_mand;
@@ -148,9 +149,11 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, char *comment)
 
     g_array_append_val(idb_inf->interface_data, int_data);
 
+    g_array_append_val(shb_hdrs, shb_hdr);
+
     /* Use a random name for the temporary import buffer */
     exp_pdu_tap_data->wdh = wtap_dump_fdopen_ng(fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG, WTAP_ENCAP_WIRESHARK_UPPER_PDU, WTAP_MAX_PACKET_SIZE, FALSE,
-        shb_hdr, idb_inf, NULL, &err);
+        shb_hdrs, idb_inf, NULL, &err);
     if (exp_pdu_tap_data->wdh == NULL) {
         g_assert(err != 0);
         return err;

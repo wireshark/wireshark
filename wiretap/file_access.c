@@ -714,6 +714,7 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 	unsigned int	i;
 	gboolean use_stdin = FALSE;
 	gchar *extension;
+	wtap_optionblock_t shb;
 
 	*err = 0;
 	*err_info = NULL;
@@ -833,7 +834,10 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 	wth->file_tsprec = WTAP_TSPREC_USEC;
 	wth->priv = NULL;
 	wth->wslua_data = NULL;
-	wth->shb_hdr = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_SECTION);
+	wth->shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
+	shb = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_SECTION);
+	if (shb)
+		g_array_append_val(wth->shb_hdrs, shb);
 
 	/* Initialize the array containing a list of interfaces. pcapng_open and
 	 * erf_open needs this (and libpcap_open for ERF encapsulation types).
@@ -2158,7 +2162,7 @@ static int wtap_dump_file_close(wtap_dumper *wdh);
 
 static wtap_dumper *
 wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean compressed,
-                      wtap_optionblock_t shb_hdr, wtapng_iface_descriptions_t *idb_inf,
+                      GArray* shb_hdrs, wtapng_iface_descriptions_t *idb_inf,
                       wtap_optionblock_t nrb_hdr, int *err)
 {
 	wtap_dumper *wdh;
@@ -2176,7 +2180,7 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 		return NULL;	/* couldn't allocate it */
 
 	/* Set Section Header Block data */
-	wdh->shb_hdr = shb_hdr;
+	wdh->shb_hdrs = shb_hdrs;
 	/* Set Name Resolution Block data */
 	wdh->nrb_hdr = nrb_hdr;
 	/* Set Interface Description Block data */
@@ -2224,7 +2228,7 @@ wtap_dump_open(const char *filename, int file_type_subtype, int encap,
 
 wtap_dumper *
 wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
-		  int snaplen, gboolean compressed, wtap_optionblock_t shb_hdr, wtapng_iface_descriptions_t *idb_inf,
+		  int snaplen, gboolean compressed, GArray* shb_hdrs, wtapng_iface_descriptions_t *idb_inf,
 		  wtap_optionblock_t nrb_hdr, int *err)
 {
 	wtap_dumper *wdh;
@@ -2232,7 +2236,7 @@ wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
 
 	/* Allocate and initialize a data structure for the output stream. */
 	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
-	    shb_hdr, idb_inf, nrb_hdr, err);
+	    shb_hdrs, idb_inf, nrb_hdr, err);
 	if (wdh == NULL)
 		return NULL;
 
@@ -2270,7 +2274,7 @@ wtap_dumper *
 wtap_dump_open_tempfile_ng(char **filenamep, const char *pfx,
 			   int file_type_subtype, int encap,
 			   int snaplen, gboolean compressed,
-			   wtap_optionblock_t shb_hdr,
+			   GArray* shb_hdrs,
 			   wtapng_iface_descriptions_t *idb_inf,
 			   wtap_optionblock_t nrb_hdr, int *err)
 {
@@ -2284,7 +2288,7 @@ wtap_dump_open_tempfile_ng(char **filenamep, const char *pfx,
 
 	/* Allocate and initialize a data structure for the output stream. */
 	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
-	    shb_hdr, idb_inf, nrb_hdr, err);
+	    shb_hdrs, idb_inf, nrb_hdr, err);
 	if (wdh == NULL)
 		return NULL;
 
@@ -2329,7 +2333,7 @@ wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snaplen,
 
 wtap_dumper *
 wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int snaplen,
-		    gboolean compressed, wtap_optionblock_t shb_hdr, wtapng_iface_descriptions_t *idb_inf,
+		    gboolean compressed, GArray* shb_hdrs, wtapng_iface_descriptions_t *idb_inf,
 		    wtap_optionblock_t nrb_hdr, int *err)
 {
 	wtap_dumper *wdh;
@@ -2337,7 +2341,7 @@ wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int snaplen,
 
 	/* Allocate and initialize a data structure for the output stream. */
 	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
-	    shb_hdr, idb_inf, nrb_hdr, err);
+	    shb_hdrs, idb_inf, nrb_hdr, err);
 	if (wdh == NULL)
 		return NULL;
 
@@ -2369,7 +2373,7 @@ wtap_dump_open_stdout(int file_type_subtype, int encap, int snaplen,
 
 wtap_dumper *
 wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
-			 gboolean compressed, wtap_optionblock_t shb_hdr,
+			 gboolean compressed, GArray* shb_hdrs,
 			 wtapng_iface_descriptions_t *idb_inf,
 			 wtap_optionblock_t nrb_hdr, int *err)
 {
@@ -2378,7 +2382,7 @@ wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
 
 	/* Allocate and initialize a data structure for the output stream. */
 	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
-	    shb_hdr, idb_inf, nrb_hdr, err);
+	    shb_hdrs, idb_inf, nrb_hdr, err);
 	if (wdh == NULL)
 		return NULL;
 

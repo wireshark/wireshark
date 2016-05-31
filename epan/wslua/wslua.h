@@ -557,8 +557,10 @@ extern int wslua_set__index(lua_State *L);
 #define WSLUA_ATTRIBUTE_NAMED_OPT_BLOCK_STRING_GETTER(C,name,member,option) \
     WSLUA_ATTRIBUTE_GET(C,name, { \
         char* str;  \
-        wtap_optionblock_get_option_string(obj->member, option, &str); \
-        lua_pushstring(L,str); /* this pushes nil if obj->member is null */ \
+        if ((obj->member) && (obj->member->len > 0)) { \
+            wtap_optionblock_get_option_string(g_array_index(obj->member, wtap_optionblock_t, 0), option, &str); \
+            lua_pushstring(L,str); /* this pushes nil if obj->member is null */ \
+        } \
     })
 
 #define WSLUA_ATTRIBUTE_SET(C,name,block) \
@@ -618,7 +620,9 @@ extern int wslua_set__index(lua_State *L);
         } else { \
             return luaL_error(L, "%s's attribute `%s' must be a string or nil", #C , #field ); \
         } \
-        wtap_optionblock_set_option_string(obj->member, option, s, strlen(s)); \
+        if ((obj->member) && (obj->member->len > 0)) { \
+            wtap_optionblock_set_option_string(g_array_index(obj->member, wtap_optionblock_t, 0), option, s, strlen(s)); \
+        } \
         g_free(s); \
         return 0; \
     } \

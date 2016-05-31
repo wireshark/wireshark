@@ -1608,7 +1608,7 @@ wtap_optionblock_t wtap_file_get_shb(wtap *wth);
  * @return The new section header, which must be wtap_free_shb'd.
  */
 WS_DLL_PUBLIC
-wtap_optionblock_t wtap_file_get_shb_for_new_file(wtap *wth);
+GArray* wtap_file_get_shb_for_new_file(wtap *wth);
 
 /**
  * @brief Gets the section header comment string.
@@ -1776,7 +1776,7 @@ wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype, int enc
  * @param encap The WTAP_ENCAP_XXX encapsulation type (WTAP_ENCAP_PER_PACKET for multi)
  * @param snaplen The maximum packet capture length.
  * @param compressed True if file should be compressed.
- * @param shb_hdr The section header block information, or NULL.
+ * @param shb_hdrs The section header block(s) information, or NULL.
  * @param idb_inf The interface description information, or NULL.
  * @param nrb_hdr The name resolution comment/custom_opts information, or NULL.
  * @param[out] err Will be set to an error code on failure.
@@ -1784,7 +1784,7 @@ wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype, int enc
  */
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
-    int snaplen, gboolean compressed, wtap_optionblock_t shb_hdr, wtapng_iface_descriptions_t *idb_inf,
+    int snaplen, gboolean compressed, GArray* shb_hdrs, wtapng_iface_descriptions_t *idb_inf,
     wtap_optionblock_t nrb_hdr, int *err);
 
 WS_DLL_PUBLIC
@@ -1806,7 +1806,7 @@ wtap_dumper* wtap_dump_open_tempfile(char **filenamep, const char *pfx,
  * @param encap The WTAP_ENCAP_XXX encapsulation type (WTAP_ENCAP_PER_PACKET for multi)
  * @param snaplen The maximum packet capture length.
  * @param compressed True if file should be compressed.
- * @param shb_hdr The section header block information, or NULL.
+ * @param shb_hdrs The section header block(s) information, or NULL.
  * @param idb_inf The interface description information, or NULL.
  * @param nrb_hdr The name resolution comment/custom_opts information, or NULL.
  * @param[out] err Will be set to an error code on failure.
@@ -1815,7 +1815,7 @@ wtap_dumper* wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_tempfile_ng(char **filenamep, const char *pfx,
     int file_type_subtype, int encap, int snaplen, gboolean compressed,
-    wtap_optionblock_t shb_hdr, wtapng_iface_descriptions_t *idb_inf,
+    GArray* shb_hdrs, wtapng_iface_descriptions_t *idb_inf,
     wtap_optionblock_t nrb_hdr, int *err);
 
 WS_DLL_PUBLIC
@@ -1834,7 +1834,7 @@ wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snap
  * @param encap The WTAP_ENCAP_XXX encapsulation type (WTAP_ENCAP_PER_PACKET for multi)
  * @param snaplen The maximum packet capture length.
  * @param compressed True if file should be compressed.
- * @param shb_hdr The section header block information, or NULL.
+ * @param shb_hdrs The section header block(s) information, or NULL.
  * @param idb_inf The interface description information, or NULL.
  * @param nrb_hdr The name resolution comment/custom_opts information, or NULL.
  * @param[out] err Will be set to an error code on failure.
@@ -1842,7 +1842,7 @@ wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snap
  */
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int snaplen,
-                gboolean compressed, wtap_optionblock_t shb_hdr, wtapng_iface_descriptions_t *idb_inf,
+                gboolean compressed, GArray* shb_hdrs, wtapng_iface_descriptions_t *idb_inf,
                 wtap_optionblock_t nrb_hdr, int *err);
 
 WS_DLL_PUBLIC
@@ -1860,7 +1860,7 @@ wtap_dumper* wtap_dump_open_stdout(int file_type_subtype, int encap, int snaplen
  * @param encap The WTAP_ENCAP_XXX encapsulation type (WTAP_ENCAP_PER_PACKET for multi)
  * @param snaplen The maximum packet capture length.
  * @param compressed True if file should be compressed.
- * @param shb_hdr The section header block information, or NULL.
+ * @param shb_hdrs The section header block(s) information, or NULL.
  * @param idb_inf The interface description information, or NULL.
  * @param nrb_hdr The name resolution comment/custom_opts information, or NULL.
  * @param[out] err Will be set to an error code on failure.
@@ -1868,7 +1868,7 @@ wtap_dumper* wtap_dump_open_stdout(int file_type_subtype, int encap, int snaplen
  */
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
-                gboolean compressed, wtap_optionblock_t shb_hdr, wtapng_iface_descriptions_t *idb_inf,
+                gboolean compressed, GArray* shb_hdrs, wtapng_iface_descriptions_t *idb_inf,
                 wtap_optionblock_t nrb_hdr, int *err);
 
 WS_DLL_PUBLIC

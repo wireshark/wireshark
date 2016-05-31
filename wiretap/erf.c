@@ -1259,11 +1259,12 @@ static int populate_capture_host_info(erf_t *erf_priv, wtap *wth, union wtap_pse
   gchar* modelcpu    = NULL;
   guint32 tagtotallength;
 
-  if (!wth || !state || !wth->shb_hdr)
+  if (!wth || !state || !wth->shb_hdrs || (wth->shb_hdrs->len == 0))
     return -1;
 
   /* XXX: wth->shb_hdr is already created by different layer, using directly for now. */
-  shb_hdr = wth->shb_hdr;
+  /* XXX: Only one section header is supported at this time */
+  shb_hdr = g_array_index(wth->shb_hdrs, wtap_optionblock_t, 0);
 
   while ((tagtotallength = erf_meta_read_tag(&tag, state->tag_ptr, state->remaining_len)) && !ERF_META_IS_SECTION(tag.type)) {
     switch (state->sectiontype) {

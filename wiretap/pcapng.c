@@ -2487,7 +2487,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
      * some other type of file, so we can't return WTAP_OPEN_NOT_MINE
      * past this point.
      */
-    wtap_optionblock_copy_options(wth->shb_hdr, wblock.block);
+    wtap_optionblock_copy_options(g_array_index(wth->shb_hdrs, wtap_optionblock_t, 0), wblock.block);
 
     wth->file_encap = WTAP_ENCAP_UNKNOWN;
     wth->snapshot_length = 0;
@@ -2841,14 +2841,19 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
     pcapng_section_header_block_t shb;
     pcapng_optionblock_size_t block_size;
     struct pcapng_option_header option_hdr;
+    wtap_optionblock_t wdh_shb = NULL;
+
+    if (wdh->shb_hdrs && (wdh->shb_hdrs->len > 0)) {
+        wdh_shb = g_array_index(wdh->shb_hdrs, wtap_optionblock_t, 0);
+    }
 
     block_size.size = 0;
     bh.block_total_length = (guint32)(sizeof(bh) + sizeof(shb) + 4);
-    if (wdh->shb_hdr) {
+    if (wdh_shb) {
         pcapng_debug("pcapng_write_section_header_block: Have shb_hdr");
 
         /* Compute block size */
-        wtap_optionblock_foreach_option(wdh->shb_hdr, compute_shb_option_size, &block_size);
+        wtap_optionblock_foreach_option(wdh_shb, compute_shb_option_size, &block_size);
 
         if (block_size.size > 0) {
             /* End-of-options tag */
@@ -2871,8 +2876,8 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
     shb.magic = 0x1A2B3C4D;
     shb.version_major = 1;
     shb.version_minor = 0;
-    if (wdh->shb_hdr) {
-        wtapng_mandatory_section_t* section_data = (wtapng_mandatory_section_t*)wtap_optionblock_get_mandatory_data(wdh->shb_hdr);
+    if (wdh_shb) {
+        wtapng_mandatory_section_t* section_data = (wtapng_mandatory_section_t*)wtap_optionblock_get_mandatory_data(wdh_shb);
         shb.section_length = section_data->section_length;
     } else {
         shb.section_length = -1;
@@ -2882,7 +2887,7 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
         return FALSE;
     wdh->bytes_dumped += sizeof shb;
 
-    if (wdh->shb_hdr) {
+    if (wdh_shb) {
         pcapng_write_block_t block_data;
 
         if (block_size.size > 0) {
@@ -2890,7 +2895,7 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
             block_data.wdh = wdh;
             block_data.err = err;
             block_data.success = TRUE;
-            wtap_optionblock_foreach_option(wdh->shb_hdr, write_wtap_shb_block, &block_data);
+            wtap_optionblock_foreach_option(wdh_shb, write_wtap_shb_block, &block_data);
 
             if (!block_data.success)
                 return FALSE;

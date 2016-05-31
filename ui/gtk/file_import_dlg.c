@@ -459,6 +459,7 @@ file_import_open(text_import_info_t *info)
 
     /* pcapng defs */
     wtap_optionblock_t           shb_hdr;
+    GArray                      *shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
     wtapng_iface_descriptions_t *idb_inf;
     wtap_optionblock_t           int_data;
     wtapng_if_descr_mandatory_t *int_data_mand;
@@ -500,13 +501,14 @@ file_import_open(text_import_info_t *info)
     wtap_optionblock_set_option_string(int_data, OPT_IDB_NAME, "Fake IF File->Import", strlen("Fake IF File->Import"));
 
     g_array_append_val(idb_inf->interface_data, int_data);
+    g_array_append_val(shb_hdrs, shb_hdr);
 
     /* Use a random name for the temporary import buffer */
     info->wdh = wtap_dump_open_tempfile_ng(&tmpname, "import",
                                            WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
                                            info->encapsulation,
                                            info->max_frame_length, FALSE,
-                                           shb_hdr, idb_inf, NULL, &err);
+                                           shb_hdrs, idb_inf, NULL, &err);
     capfile_name = g_strdup(tmpname);
     if (info->wdh == NULL) {
         open_failure_alert_box(tmpname ? tmpname : "temporary file", err, TRUE);
@@ -555,7 +557,7 @@ end:
     g_free(info->date_timestamp_format);
     g_free(info);
     g_free(capfile_name);
-    wtap_optionblock_free(shb_hdr);
+    wtap_optionblock_array_free(shb_hdrs);
     wtap_free_idb_info(idb_inf);
     window_destroy(file_import_dlg_w);
 }
