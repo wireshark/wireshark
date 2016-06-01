@@ -80,30 +80,30 @@
        </item>
        <item>
         <widget class="QPushButton" name="goToGo">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>27</height>
+          </size>
+         </property>
          <property name="text">
           <string>Go to packet</string>
          </property>
          <property name="default">
           <bool>true</bool>
          </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>27</height>
-          </size>
-         </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="goToCancel">
-         <property name="text">
-          <string>Cancel</string>
-         </property>
          <property name="maximumSize">
           <size>
            <width>16777215</width>
            <height>27</height>
           </size>
+         </property>
+         <property name="text">
+          <string>Cancel</string>
          </property>
         </widget>
        </item>
@@ -651,7 +651,7 @@
     <property name="title">
      <string>&amp;Tools</string>
     </property>
-    <addaction name="actionToolsPlaceholder"/>
+    <addaction name="actionToolsFirewallAclRules"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -2650,20 +2650,6 @@
     <enum>QAction::NoRole</enum>
    </property>
   </action>
-  <action name="actionToolsPlaceholder">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>No tools registered</string>
-   </property>
-   <property name="toolTip">
-    <string>No tools have been registered.</string>
-   </property>
-   <property name="menuRole">
-    <enum>QAction::NoRole</enum>
-   </property>
-  </action>
   <action name="actionTelephonyANSIPlaceholder">
    <property name="enabled">
     <bool>false</bool>
@@ -2923,6 +2909,14 @@
    </property>
    <property name="toolTip">
     <string>Add a display filter button.</string>
+   </property>
+  </action>
+  <action name="actionToolsFirewallAclRules">
+   <property name="text">
+    <string>Firewall ACL Rules</string>
+   </property>
+   <property name="toolTip">
+    <string>Create firewall ACL rules</string>
    </property>
   </action>
  </widget>

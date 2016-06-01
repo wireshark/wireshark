@@ -234,6 +234,7 @@ FORMS += \
     filter_dialog.ui \
     filter_expression_frame.ui \
     filter_expressions_preferences_frame.ui \
+    firewall_rules_dialog.ui \
     follow_stream_dialog.ui \
     font_color_preferences_frame.ui \
     funnel_string_dialog.ui \
@@ -324,6 +325,7 @@ HEADERS += $$HEADERS_WS_C \
     filter_expression_frame.h \
     filter_expressions_preferences_frame.h \
     find_line_edit.h \
+    firewall_rules_dialog.h \
     follow_stream_dialog.h \
     follow_stream_text.h \
     font_color_preferences_frame.h \
@@ -722,6 +724,7 @@ SOURCES += \
     filter_expression_frame.cpp \
     filter_expressions_preferences_frame.cpp \
     find_line_edit.cpp \
+    firewall_rules_dialog.cpp \
     follow_stream_dialog.cpp \
     follow_stream_text.cpp \
     font_color_preferences_frame.cpp \

@@ -23,13 +23,6 @@
  * in one huge text window, or some sort of tree view.
  */
 
-/*
- * To add a new product, add syntax functions modify the products[] array.
- *
- * To add a new syntax function, add its prototype above the products[]
- * array, and add the function below with all the others.
- */
-
 /* Copied from ssl-dlg.c */
 
 #include "config.h"
@@ -44,6 +37,7 @@
 #include <wsutil/filesystem.h>
 
 #include <ui/alert_box.h>
+#include <ui/firewall_rules.h>
 #include <ui/last_open_dir.h>
 
 #include <wsutil/file_util.h>
@@ -58,24 +52,9 @@
 
 #define MAX_RULE_LEN 200
 
-/* Rule types */
-typedef enum {
-    RT_NONE,
-    RT_MAC_SRC,
-    RT_MAC_DST,
-    RT_IPv4_SRC,
-    RT_IPv4_DST,
-    RT_PORT_SRC,
-    RT_PORT_DST,
-    RT_IPv4_PORT_SRC,
-    RT_IPv4_PORT_DST,
-    NUM_RULE_TYPES
-} rule_type_t;
-
-
 /* Copied from packet_info struct */
 typedef struct _rule_info_t {
-    gint product;
+    size_t product;
     address dl_src;
     address dl_dst;
     address net_src;
@@ -89,67 +68,10 @@ typedef struct _rule_info_t {
     GtkWidget *inbound_cb;
     gboolean inbound;
     gboolean deny;
-    rule_type_t rule_type;
+    rule_type_e rule_type;
 } rule_info_t;
 
-/* Syntax function prototypes */
-typedef void (*syntax_func)(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-
 static void sf_dummy(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-
-static void sf_ipfw_mac(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-static void sf_netfilter_mac(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-
-static void sf_ios_std_ipv4(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-static void sf_ios_ext_ipv4(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-static void sf_ipfilter_ipv4(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-static void sf_ipfw_ipv4(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-static void sf_netfilter_ipv4(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-static void sf_pf_ipv4(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-/* XXX - Can you addresses-only filters using WFW/netsh? */
-
-static void sf_ios_ext_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-static void sf_ipfilter_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-static void sf_ipfw_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-static void sf_netfilter_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-static void sf_pf_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-static void sf_netsh_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-
-static void sf_ios_ext_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-static void sf_ipfilter_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-static void sf_ipfw_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-static void sf_netfilter_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-static void sf_pf_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-static void sf_netsh_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
-
-typedef struct _fw_product_t {
-    const gchar *name;
-    const gchar *comment_pfx;
-    syntax_func mac_func;
-    syntax_func ipv4_func;
-    syntax_func port_func;
-    syntax_func ipv4_port_func;
-    gboolean does_inbound;
-} fw_product;
-
-static fw_product products[] = {
-    { "Cisco IOS (standard)", "!", NULL, sf_ios_std_ipv4, NULL, NULL, FALSE },
-    { "Cisco IOS (extended)", "!",
-        NULL, sf_ios_ext_ipv4, sf_ios_ext_port, sf_ios_ext_ipv4_port, TRUE },
-    { "IP Filter (ipfilter)", "#",
-        NULL, sf_ipfilter_ipv4, sf_ipfilter_port, sf_ipfilter_ipv4_port, TRUE },
-    { "IPFirewall (ipfw)", "#",
-        sf_ipfw_mac, sf_ipfw_ipv4, sf_ipfw_port, sf_ipfw_ipv4_port, TRUE },
-    { "Netfilter (iptables)", "#",
-        sf_netfilter_mac, sf_netfilter_ipv4, sf_netfilter_port,
-        sf_netfilter_ipv4_port, TRUE },
-    { "Packet Filter (pf)", "#",
-        NULL, sf_pf_ipv4, sf_pf_port, sf_pf_ipv4_port, TRUE },
-    { "Windows Firewall (netsh)", "#",
-        NULL, NULL, sf_netsh_port, sf_netsh_ipv4_port, FALSE }
-};
-#define NUM_PRODS (sizeof(products) / sizeof(fw_product))
-
 
 static void select_product(GtkWidget * win, gpointer data);
 static void select_filter(GtkWidget * win, gpointer data);
@@ -182,7 +104,7 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     GtkWidget       *hbox,   *button_hbox, *button;
     rule_info_t     *rule_info;
     packet_info     *pinfo = &cfile.edt->pi;
-    guint i;
+    size_t i;
 
     rule_info = g_new0(rule_info_t, 1);
     copy_address(&(rule_info->dl_src), &(pinfo->dl_src));
@@ -214,8 +136,8 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
     product_combo_box = gtk_combo_box_text_new();
-    for (i = 0; i < NUM_PRODS; i++) {
-        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(product_combo_box), products[i].name);
+    for (i = 0; i < firewall_product_count(); i++) {
+        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(product_combo_box), firewall_product_name(i));
     }
     g_object_set_data(G_OBJECT(product_combo_box), WS_RULE_INFO_KEY, rule_info);
     g_signal_connect(product_combo_box, "changed", G_CALLBACK(select_product), NULL);
@@ -313,12 +235,12 @@ select_product(GtkWidget *w, gpointer data _U_)
     rule_info_t *rule_info;
     gchar name[MAX_RULE_LEN], addr_str[MAX_RULE_LEN];
     address *addr;
-    rule_type_t rule_type = RT_NONE;
+    rule_type_e rule_type = RT_NONE;
     gboolean sensitive = FALSE;
 
     rule_info =(rule_info_t *)g_object_get_data(G_OBJECT(w), WS_RULE_INFO_KEY);
 
-    if (prod >= NUM_PRODS || !rule_info)
+    if (prod >= firewall_product_count() || !rule_info)
         return;
 
     rule_info->product = prod;
@@ -327,7 +249,7 @@ select_product(GtkWidget *w, gpointer data _U_)
     ws_combo_box_clear_text_and_pointer(GTK_COMBO_BOX(rule_info->filter_combo_box));
 
     /* Fill in valid combo_box list items (in the list store).   */
-    if (products[prod].mac_func && rule_info->dl_src.type == AT_ETHER) {
+    if (firewall_product_mac_func(prod) && rule_info->dl_src.type == AT_ETHER) {
         addr = &(rule_info->dl_src);
         address_to_str_buf(addr, name, MAX_RULE_LEN);
         ADD_TO_FILTER_MENU(RT_MAC_SRC);
@@ -337,7 +259,7 @@ select_product(GtkWidget *w, gpointer data _U_)
         ADD_TO_FILTER_MENU(RT_MAC_DST);
     }
 
-    if (products[prod].ipv4_func && rule_info->net_src.type == AT_IPv4) {
+    if (firewall_product_ipv4_func(prod) && rule_info->net_src.type == AT_IPv4) {
         addr = &(rule_info->net_src);
         address_to_str_buf(addr, name, MAX_RULE_LEN);
         ADD_TO_FILTER_MENU(RT_IPv4_SRC);
@@ -347,7 +269,7 @@ select_product(GtkWidget *w, gpointer data _U_)
         ADD_TO_FILTER_MENU(RT_IPv4_DST);
     }
 
-    if (products[prod].port_func && (rule_info->ptype == PT_TCP || rule_info->ptype == PT_UDP)) {
+    if (firewall_product_port_func(prod) && (rule_info->ptype == PT_TCP || rule_info->ptype == PT_UDP)) {
         g_snprintf(name, MAX_RULE_LEN, "%s port %u", NAME_TCP_UDP,
             rule_info->srcport);
         ADD_TO_FILTER_MENU(RT_PORT_SRC);
@@ -358,7 +280,7 @@ select_product(GtkWidget *w, gpointer data _U_)
         }
     }
 
-    if (products[prod].ipv4_port_func && rule_info->net_src.type == AT_IPv4 &&
+    if (firewall_product_ipv4_port_func(prod) && rule_info->net_src.type == AT_IPv4 &&
             (rule_info->ptype == PT_TCP || rule_info->ptype == PT_UDP)) {
         addr = &(rule_info->net_src);
         address_to_str_buf(addr, addr_str, MAX_RULE_LEN);
@@ -381,7 +303,7 @@ select_product(GtkWidget *w, gpointer data _U_)
     }
 
     gtk_widget_set_sensitive(rule_info->filter_combo_box, sensitive);
-    gtk_widget_set_sensitive(rule_info->inbound_cb, products[prod].does_inbound && sensitive);
+    gtk_widget_set_sensitive(rule_info->inbound_cb, firewall_product_does_inbound(prod) && sensitive);
     gtk_widget_set_sensitive(rule_info->deny_cb, sensitive);
 }
 
@@ -389,7 +311,7 @@ select_product(GtkWidget *w, gpointer data _U_)
 static void
 select_filter(GtkWidget *w, gpointer data _U_)
 {
-    rule_type_t cur_type;
+    rule_type_e cur_type;
     rule_info_t *rule_info;
     gpointer ptr;
 
@@ -399,7 +321,7 @@ select_filter(GtkWidget *w, gpointer data _U_)
 
 
     if (ws_combo_box_get_active_pointer(GTK_COMBO_BOX(w), &ptr))
-        cur_type = (rule_type_t)GPOINTER_TO_UINT(ptr);
+        cur_type = (rule_type_e)GPOINTER_TO_UINT(ptr);
     else
         cur_type = RT_NONE; /* If nothing selected (eg: nothing in filter list) */
 
@@ -441,44 +363,48 @@ static void
 set_rule_text(rule_info_t *rule_info) {
     GString *rtxt = g_string_new("");
     gchar addr_str[MAX_RULE_LEN];
-    rule_type_t rt = rule_info->rule_type;
-    guint prod = rule_info->product;
+    rule_type_e rt = rule_info->rule_type;
+    size_t prod = rule_info->product;
     address *addr = NULL;
     guint32 port = 0;
     syntax_func rt_func = NULL;
 
     GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(rule_info->text));
 
-    if (prod < NUM_PRODS) {
-        g_string_printf(rtxt, "%s %s\n", products[prod].comment_pfx, products[prod].name);
+    if (prod < firewall_product_count()) {
+        const char *hint = firewall_product_rule_hint(prod);
+        g_string_printf(rtxt, "%s %s\n", firewall_product_comment_prefix(prod), firewall_product_name(prod));
+        if (strlen(hint) > 0) {
+            g_string_append_printf(rtxt, " %s", hint);
+        }
         switch(rt) {
             case RT_NONE:
-                g_string_append_printf(rtxt, "%s Not supported", products[prod].comment_pfx);
+                g_string_append_printf(rtxt, "%s Not supported", firewall_product_comment_prefix(prod));
                 rt_func = sf_dummy;
                 break;
             case RT_MAC_SRC:
             case RT_MAC_DST:
                 addr = DL_ADDR;
                 address_to_str_buf(addr, addr_str, MAX_RULE_LEN);
-                rt_func = products[prod].mac_func;
+                rt_func = firewall_product_mac_func(prod);
                 break;
             case RT_IPv4_SRC:
             case RT_IPv4_DST:
                 addr = NET_ADDR;
                 address_to_str_buf(addr, addr_str, MAX_RULE_LEN);
-                rt_func = products[prod].ipv4_func;
+                rt_func = firewall_product_ipv4_func(prod);
                 break;
             case RT_PORT_SRC:
             case RT_PORT_DST:
                 port = NET_PORT;
-                rt_func = products[prod].port_func;
+                rt_func = firewall_product_port_func(prod);
                 break;
             case RT_IPv4_PORT_SRC:
             case RT_IPv4_PORT_DST:
                 addr = NET_ADDR;
                 address_to_str_buf(addr, addr_str, MAX_RULE_LEN);
                 port = NET_PORT;
-                rt_func = products[prod].ipv4_port_func;
+                rt_func = firewall_product_ipv4_port_func(prod);
                 break;
             default:
                 break;
@@ -500,128 +426,6 @@ set_rule_text(rule_info_t *rule_info) {
 /* Rule text functions */
 /* Dummy */
 static void sf_dummy(GString *rtxt _U_, gchar *addr _U_, guint32 port _U_, port_type ptype _U_, gboolean inbound _U_, gboolean deny _U_) {
-}
-
-/* MAC */
-#define IPFW_DENY (deny ? "deny" : "allow")
-#define IPFW_IN (inbound ? "in" : "out")
-static void sf_ipfw_mac(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
-    g_string_append_printf(rtxt, "add %s MAC %s any %s",
-        IPFW_DENY, addr, IPFW_IN);
-}
-
-#define NF_DROP (deny ? "DROP" : "ACCEPT")
-#define NF_INPUT (inbound ? "INPUT" : "OUTPUT")
-static void sf_netfilter_mac(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
-    g_string_append_printf(rtxt, "iptables -A %s --mac-source %s -j %s",
-        NF_INPUT, addr, NF_DROP);
-}
-
-/* IPv4 */
-#define IOS_DENY (deny ? "deny" : "permit")
-static void sf_ios_std_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound _U_, gboolean deny) {
-    g_string_append_printf(rtxt, "access-list NUMBER %s host %s", IOS_DENY, addr);
-}
-
-static void sf_ios_ext_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
-    if (inbound)
-        g_string_append_printf(rtxt, "access-list NUMBER %s ip host %s any", IOS_DENY, addr);
-    else
-        g_string_append_printf(rtxt, "access-list NUMBER %s ip any host %s", IOS_DENY, addr);
-}
-
-#define IPFILTER_DENY (deny ? "block" : "pass")
-#define IPFILTER_IN (inbound ? "in" : "out")
-static void sf_ipfilter_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
-    g_string_append_printf(rtxt, "%s %s on le0 from %s to any",
-        IPFILTER_DENY, IPFILTER_IN, addr);
-}
-
-static void sf_ipfw_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
-    g_string_append_printf(rtxt, "add %s ip from %s to any %s",
-        IPFW_DENY, addr, IPFW_IN);
-}
-
-static void sf_netfilter_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
-    g_string_append_printf(rtxt, "iptables -A %s -i eth0 -d %s/32 -j %s",
-        NF_INPUT, addr, NF_DROP);
-}
-
-#define PF_DENY (deny ? "block" : "pass")
-#define PF_IN (inbound ? "in" : "out")
-static void sf_pf_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
-    g_string_append_printf(rtxt, "%s %s quick on $ext_if from %s to any",
-        PF_DENY, PF_IN, addr);
-}
-
-/* Port */
-#define RT_TCP_UDP (ptype == PT_TCP ? "tcp" : "udp")
-static void sf_ios_ext_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype, gboolean inbound _U_, gboolean deny) {
-    g_string_append_printf(rtxt, "access-list NUMBER %s %s any any eq %u",
-        IOS_DENY, RT_TCP_UDP, port);
-}
-
-static void sf_ipfilter_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype _U_, gboolean inbound, gboolean deny) {
-    g_string_append_printf(rtxt, "%s %s on le0 proto %s from any to any port = %u",
-        IPFILTER_DENY, IPFILTER_IN, RT_TCP_UDP, port);
-}
-
-static void sf_ipfw_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
-    g_string_append_printf(rtxt, "add %s %s from any to any %u %s",
-        IPFW_DENY, RT_TCP_UDP, port, IPFW_IN);
-}
-
-static void sf_netfilter_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
-    g_string_append_printf(rtxt, "iptables -A %s -p %s --destination-port %u -j %s",
-            NF_INPUT, RT_TCP_UDP, port, NF_DROP);
-}
-
-static void sf_pf_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
-    g_string_append_printf(rtxt, "%s %s quick on $ext_if proto %s from any to any port %u",
-        PF_DENY, PF_IN, RT_TCP_UDP, port);
-}
-
-#define NETSH_DENY (deny ? "DISABLE" : "ENABLE")
-static void sf_netsh_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype, gboolean inbound _U_, gboolean deny) {
-    g_string_append_printf(rtxt, "add portopening %s %u Wireshark %s",
-        RT_TCP_UDP, port, NETSH_DENY);
-}
-
-/* IPv4 + port */
-static void sf_ios_ext_ipv4_port(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
-    if (inbound)
-        g_string_append_printf(rtxt, "access-list NUMBER %s %s host %s any eq %u", IOS_DENY, RT_TCP_UDP, addr, port);
-    else
-        g_string_append_printf(rtxt, "access-list NUMBER %s %s any host %s eq %u", IOS_DENY, RT_TCP_UDP, addr, port);
-}
-
-static void sf_ipfilter_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
-    if (inbound)
-        g_string_append_printf(rtxt, "%s %s on le0 proto %s from %s to any port = %u",
-            IPFILTER_DENY, IPFILTER_IN, RT_TCP_UDP, addr, port);
-    else
-        g_string_append_printf(rtxt, "%s %s on le0 proto %s from any to %s port = %u",
-            IPFILTER_DENY, IPFILTER_IN, RT_TCP_UDP, addr, port);
-}
-
-static void sf_ipfw_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
-    g_string_append_printf(rtxt, "add %s %s from %s to any %u %s",
-        IPFW_DENY, RT_TCP_UDP, addr, port, IPFW_IN);
-}
-
-static void sf_pf_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
-    g_string_append_printf(rtxt, "%s %s quick on $ext_if proto %s from %s to any port %u",
-        PF_DENY, PF_IN, RT_TCP_UDP, addr, port);
-}
-
-static void sf_netfilter_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
-    g_string_append_printf(rtxt, "iptables -A %s -p %s -d %s/32 --destination-port %u -j %s",
-        NF_INPUT, RT_TCP_UDP, addr, port, NF_DROP);
-}
-
-static void sf_netsh_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound _U_, gboolean deny) {
-    g_string_append_printf(rtxt, "add portopening %s %u Wireshark %s %s",
-        RT_TCP_UDP, port, NETSH_DENY, addr);
 }
 
 /* The destroy call back has the responsibility of

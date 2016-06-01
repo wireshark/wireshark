@@ -205,6 +205,8 @@ filter_expression_frame.$(OBJEXT): ui_filter_expression_frame.h
 
 filter_expressions_preferences_frame.$(OBJEXT): ui_filter_expressions_preferences_frame.h
 
+firewall_rules_dialog.$(OBJEXT): ui_firewall_rules_dialog.h
+
 follow_stream_dialog.$(OBJEXT): ui_follow_stream_dialog.h
 
 font_color_preferences_frame.$(OBJEXT): ui_font_color_preferences_frame.h

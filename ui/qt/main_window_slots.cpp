@@ -106,6 +106,7 @@
 #include "file_set_dialog.h"
 #include "filter_action.h"
 #include "filter_dialog.h"
+#include "firewall_rules_dialog.h"
 #include "funnel_statistics.h"
 #include "gsm_map_summary_dialog.h"
 #include "iax2_analysis_dialog.h"
@@ -1217,8 +1218,8 @@ void MainWindow::setMenusForSelectedPacket()
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/ResolveName",
 //                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
 //                                            gbl_resolv_flags.transport_name));
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ToolsMenu/FirewallACLRules",
-//                         frame_selected);
+
+    main_ui_->actionToolsFirewallAclRules->setEnabled(frame_selected);
 
     main_ui_->actionStatisticsTcpStreamRoundTripTime->setEnabled(is_tcp);
     main_ui_->actionStatisticsTcpStreamStevens->setEnabled(is_tcp);
@@ -3231,7 +3232,7 @@ void MainWindow::on_actionTelephonySipFlows_triggered()
     openVoipCallsDialog(true);
 }
 
-// Bluetooth Menu
+// Wireless Menu
 
 void MainWindow::on_actionBluetoothATT_Server_Attributes_triggered()
 {
@@ -3262,6 +3263,15 @@ void MainWindow::on_actionBluetoothHCI_Summary_triggered()
             this, SLOT(filterPackets(QString, bool)));
     bluetooth_hci_summary_dialog->show();
 }
+
+// Tools Menu
+
+void MainWindow::on_actionToolsFirewallAclRules_triggered()
+{
+    FirewallRulesDialog *firewall_rules_dialog = new FirewallRulesDialog(*this, capture_file_);
+    firewall_rules_dialog->show();
+}
+
 
 // Help Menu
 void MainWindow::on_actionHelpContents_triggered() {

@@ -601,6 +601,8 @@ private slots:
     void on_actionBluetoothDevices_triggered();
     void on_actionBluetoothHCI_Summary_triggered();
 
+    void on_actionToolsFirewallAclRules_triggered();
+
     void externalMenuItem_triggered();
 
     void on_actionContextCopyBytesHexTextDump_triggered();

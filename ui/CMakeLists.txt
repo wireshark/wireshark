@@ -33,6 +33,7 @@ set(COMMON_UI_SRC
 	export_object_tftp.c
 	export_pdu_ui_utils.c
 	help_url.c
+	firewall_rules.c
 	iface_lists.c
 	io_graph_item.c
 	language.c

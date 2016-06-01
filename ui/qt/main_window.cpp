@@ -2326,11 +2326,8 @@ void MainWindow::addDynamicMenus()
     }
 
     // Empty menus don't show up: https://bugreports.qt.io/browse/QTBUG-33728
-    // We've added a placeholder in order to make sure the "Tools" menu is
-    // visible. Hide it as needed.
-    if (wsApp->dynamicMenuGroupItems(REGISTER_TOOLS_GROUP_UNSORTED).length() > 0) {
-        main_ui_->actionToolsPlaceholder->setVisible(false);
-    }
+    // We've added a placeholder in order to make sure some menus are visible.
+    // Hide them as needed.
     if (wsApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_ANSI).length() > 0) {
         main_ui_->actionTelephonyANSIPlaceholder->setVisible(false);
     }
