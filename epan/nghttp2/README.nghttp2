@@ -25,12 +25,15 @@ Change ntoh[ls], hton[ls] to use g_ntoh[ls], g_hton[ls] from glib
 find . -name "nghttp2*" -type f -exec sed -i 's/ntoh/g_ntoh/g'  {} \;
 find . -name "nghttp2*" -type f -exec sed -i 's/hton/g_hton/g'  {} \;
 
-Use glib.h and no nghttp2_net.h for ntoh/hton
+Use glib.h and not nghttp2_net.h for ntoh/hton
 find . -name "nghttp2*" -type f -exec sed -i 's/"nghttp2_net.h"/<glib.h>/g'  {} \;
 
 Fix c++-compat error and documentation (struct => typedef) error
 
-in nghttp2/nghttp2.h
+Rename free function to free_func in nghttp2_mem.[ch] to avoid shadowing
+standard C free() function from stdlib.h
+
+In nghttp2/nghttp2.h
 
 Add on the top
 #include <config.h>
