@@ -2787,7 +2787,11 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
         /* Choose a random name for the temporary capture buffer */
         if (global_capture_opts.ifaces->len > 1) {
             prefix = g_strdup_printf("wireshark_%d_interfaces", global_capture_opts.ifaces->len);
-            suffix = NULL;
+            if (capture_opts->use_pcapng) {
+                suffix = ".pcapng";
+            }else{
+                suffix = ".pcap";
+            }
         } else {
             gchar *basename;
             basename = g_path_get_basename(g_array_index(global_capture_opts.ifaces, interface_options, 0).console_display_name);

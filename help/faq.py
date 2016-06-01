@@ -1341,11 +1341,11 @@ Windows XP and Server 2003, and
 <code>\\Users\\<var>your login name</var>\\AppData\\Local\\Temp</code> on the main
 system disk on Windows Vista and later, so the capture file will probably be there.  If you
 are capturing on a single interface, it will have a name of the form,
-<code>wireshark_&lt;fmt&gt;_&lt;iface&gt;_YYYYmmddHHMMSS_XXXXXX</code>, where
+<code>wireshark_&lt;iface&gt;_YYYYmmddHHMMSS_XXXXXX.&lt;fmt&gt;</code>, where
 &lt;fmt&gt; is the capture file format (pcap or pcapng), and &lt;iface&gt; is
 the actual name of the interface you are capturing on; otherwise, if you are
 capturing on multiple interfaces, it will have a name of the form,
-<code>wireshark_&lt;N&gt;_interfaces_YYYYmmddHHMMSS_XXXXXX</code>, where &lt;N&gt;
+<code>wireshark_&lt;N&gt;_interfaces_YYYYmmddHHMMSS_XXXXXX.&lt;fmt&gt;</code>, where &lt;N&gt;
 is the number of simultaneous interfaces you are capturing on.  Please don't
 send a trace file greater than 1 MB when compressed; instead, make it available
 via FTP or HTTP, or say it's available but leave it up to a developer to ask
