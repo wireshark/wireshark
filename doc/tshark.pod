@@ -986,8 +986,8 @@ index or IP address plus port pairs.  For example:
 
 I<range> optionally specifies which "chunks" of the stream should be displayed.
 
-Example: B<-z "follow,tcp,hex,1"> will display the contents of the first TCP
-stream in "hex" format.
+Example: B<-z "follow,tcp,hex,1"> will display the contents of the second TCP
+stream (the first is stream 0) in "hex" format.
 
   ===================================================================
   Follow: tcp,hex
@@ -997,8 +997,8 @@ stream in "hex" format.
   00000000  00 00 00 22 00 00 00 07  00 0a 85 02 07 e9 00 02  ...".... ........
   00000010  07 e9 06 0f 00 0d 00 04  00 00 00 01 00 03 00 06  ........ ........
   00000020  1f 00 06 04 00 00                                 ......
-      00000000  00 01 00 00                                       ....
-      00000026  00 02 00 00
+  00000000  00 01 00 00                                       ....
+  00000026  00 02 00 00
 
 Example: B<-z "follow,tcp,ascii,200.57.7.197:32891,200.57.7.198:2906"> will
 display the contents of a TCP stream between 200.57.7.197 port 32891 and
@@ -1012,8 +1012,8 @@ display the contents of a TCP stream between 200.57.7.197 port 32891 and
   38
   ...".....
   ................
-      4
-      ....
+  4
+  ....
 
 =item B<-z> h225,counter[I<,filter>]
 
