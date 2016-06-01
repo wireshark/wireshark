@@ -90,6 +90,7 @@ static int hf_zbee_zdp_server_pri_bind = -1;
 static int hf_zbee_zdp_server_bak_bind = -1;
 static int hf_zbee_zdp_server_pri_disc = -1;
 static int hf_zbee_zdp_server_bak_disc = -1;
+static int hf_zbee_zdp_server_network_manager = -1;
 static int hf_zbee_zdp_server_stk_compl_rev = -1;
 
 /* Node descriptor indicies. */
@@ -672,6 +673,7 @@ zdp_parse_server_flags(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *of
         &hf_zbee_zdp_server_bak_bind,
         &hf_zbee_zdp_server_pri_disc,
         &hf_zbee_zdp_server_bak_disc,
+        &hf_zbee_zdp_server_network_manager,
         &hf_zbee_zdp_server_stk_compl_rev,
         NULL
     };
@@ -1421,6 +1423,10 @@ void proto_register_zbee_zdp(void)
 
         { &hf_zbee_zdp_server_bak_disc,
         { "Backup Discovery Cache",     "zbee_zdp.server.bak_bind", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_SERVER_BACKUP_DISC,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_server_network_manager,
+        { "Network Manager",     "zbee_zdp.server.nwk_mgr", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_SERVER_NETWORK_MANAGER,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_server_stk_compl_rev,
