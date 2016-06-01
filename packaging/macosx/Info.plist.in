@@ -107,6 +107,7 @@
 			<string>Ixia IxVeriWave Packet Capture</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
+		</dict>
 		<!-- XXX - This dictionary needs a lot more entries -->
 	</array>
 	<key>CFBundleInfoDictionaryVersion</key>
