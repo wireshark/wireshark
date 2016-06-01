@@ -36,6 +36,10 @@
 #include <QFileDialog>
 #include <QFontMetrics>
 #include <QPoint>
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+// Qt::escape
+#include <QTextDocument>
+#endif
 
 // To do:
 // - Resize or show + hide the Time and Comment axes, possibly via one of
