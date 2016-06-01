@@ -270,8 +270,12 @@ static const value_string max_scheduled_codes_vals[] = {
   {0, NULL}
 };
 
-/* Windows does not allow data copy between dlls */
-const true_false_string type35_tfs_on_off = { "On", "Off" };
+static const value_string ranging_required[] = {
+  {0, "No ranging required."},
+  {1, "Unicast initial ranging required."},
+  {2, "Broadcast initial ranging required."},
+  {0, NULL}
+};
 
 /* Dissection */
 static int
@@ -959,7 +963,7 @@ proto_register_docsis_type35ucd (void)
     },
     {&hf_docsis_type35ucd_scdma_mode_enable,
      {"SCDMA Mode Enable", "docsis_type35ucd.scdmaenable",
-      FT_BOOLEAN, BASE_NONE, TFS(&type35_tfs_on_off), 0x0,
+      FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_type35ucd_scdma_spreading_interval,
@@ -999,12 +1003,12 @@ proto_register_docsis_type35ucd (void)
     },
     {&hf_docsis_type35ucd_maintain_power_spectral_density,
      {"Maintain power spectral density", "docsis_type35ucd.maintainpowerspectraldensity",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
+      FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_type35ucd_ranging_required,
      {"Ranging Required", "docsis_type35ucd.rangingrequired",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
+      FT_UINT8, BASE_DEC, VALS (ranging_required), 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_type35ucd_rnghoff_cm,
