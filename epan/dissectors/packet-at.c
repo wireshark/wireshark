@@ -62,15 +62,14 @@ static int dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "AT Command: %s",
         tvb_format_text_wsp(tvb, 0, len));
 
-    if (tree) {
-        /* Start with a top-level item to add everything else to */
-        item = proto_tree_add_item(tree, proto_at, tvb, 0, -1, ENC_NA);
-        at_tree = proto_item_add_subtree(item, ett_at);
+    /* Start with a top-level item to add everything else to */
+    item = proto_tree_add_item(tree, proto_at, tvb, 0, -1, ENC_NA);
+    at_tree = proto_item_add_subtree(item, ett_at);
 
-        /* Command */
-        proto_tree_add_item(at_tree, hf_at_command, tvb, 0, len, ENC_ASCII|ENC_NA);
-        proto_item_append_text(item, ": %s", tvb_format_text_wsp(tvb, 0, len));
-    }
+    /* Command */
+    proto_tree_add_item(at_tree, hf_at_command, tvb, 0, len, ENC_ASCII|ENC_NA);
+    proto_item_append_text(item, ": %s", tvb_format_text_wsp(tvb, 0, len));
+
     return tvb_captured_length(tvb);
 }
 
