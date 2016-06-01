@@ -1033,6 +1033,17 @@ ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len)
 	*b=0;
 }
 
+void
+ip6_to_str_buf(const struct e_in6_addr *ad, gchar *buf, int buf_len)
+{
+	if (buf_len < WS_INET6_ADDRSTRLEN) {
+		g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);  /* Let the unexpected value alert user */
+		return;
+	}
+
+	ws_inet_ntop6(ad, buf, buf_len);
+}
+
 gchar *
 guid_to_str(wmem_allocator_t *scope, const e_guid_t *guid)
 {

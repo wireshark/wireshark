@@ -616,7 +616,7 @@ static void wccp_fmt_ipaddress(gchar *buffer, guint32 host_addr, wccp_address_ta
 
         /* ok get the IP */
         if (addr_table->table_ipv6 != NULL) {
-          ip6_to_str_buf(&(addr_table->table_ipv6[addr_index-1]), buffer);
+          ip6_to_str_buf(&(addr_table->table_ipv6[addr_index-1]), buffer, ITEM_LABEL_LENGTH);
           return;
         }
         else {

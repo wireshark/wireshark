@@ -28,6 +28,9 @@
 
 #include "inet_ipv6.h"
 
+#define WS_INET6_ADDRSTRLEN     46
+
+
 WS_DLL_PUBLIC const gchar *
 ws_inet_ntop4(gconstpointer src, gchar *dst, guint dst_size);
 

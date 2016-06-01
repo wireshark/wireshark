@@ -828,7 +828,7 @@ new_ipv6(const struct e_in6_addr *addr)
     memcpy(tp->addr, addr->bytes, sizeof tp->addr);
     tp->flags = 0;
     tp->name[0] = '\0';
-    ip6_to_str_buf(addr, tp->ip6);
+    ip6_to_str_buf(addr, tp->ip6, sizeof(tp->ip6));
     return tp;
 }
 

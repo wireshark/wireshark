@@ -25,6 +25,7 @@
 #include <ftypes-int.h>
 #include <epan/ipv6.h>
 #include <epan/addr_resolv.h>
+#include <epan/to_str.h>
 
 static void
 ipv6_fvalue_set(fvalue_t *fv, const guint8 *value)
@@ -93,16 +94,13 @@ ipv6_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 static int
 ipv6_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
-	/*
-	 * 39 characters for "XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX".
-	 */
-	return 39;
+	return MAX_IP6_STR_LEN;
 }
 
 static void
-ipv6_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
+ipv6_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
-	ip6_to_str_buf(&(fv->value.ipv6.addr), buf);
+	ip6_to_str_buf(&(fv->value.ipv6.addr), buf, size);
 }
 
 static gpointer

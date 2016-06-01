@@ -26,6 +26,7 @@
 #include <glib.h>
 
 #include "wsutil/nstime.h"
+#include <wsutil/inet_addr.h>
 #include "time_fmt.h"
 #include <epan/packet_info.h>
 #include <epan/ipv6.h>
@@ -34,7 +35,7 @@
 
 #define GUID_STR_LEN     37
 #define MAX_IP_STR_LEN   16
-#define MAX_IP6_STR_LEN  40
+#define MAX_IP6_STR_LEN  WS_INET6_ADDRSTRLEN
 #define MAX_ADDR_STR_LEN 256
 #define VINES_ADDR_LEN   6
 #define EUI64_STR_LEN    24
@@ -91,8 +92,8 @@ WS_DLL_PUBLIC void     address_to_str_buf(const address *addr, gchar *buf, int b
 #define tvb_eui64_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_EUI64, offset)
 
 void	ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len);
+void	ip6_to_str_buf(const struct e_in6_addr *, gchar *, int buf_len);
 
-void	ip6_to_str_buf(const struct e_in6_addr *, gchar *);
 extern gchar*	ipxnet_to_str_punct(wmem_allocator_t *scope, const guint32 ad, const char punct);
 WS_DLL_PUBLIC gchar*	eui64_to_str(wmem_allocator_t *scope, const guint64 ad);
 

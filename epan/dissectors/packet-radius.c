@@ -1139,7 +1139,7 @@ radius_ipv6prefix(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U
 	/* cannot use tvb_get_ipv6() here, since the prefix most likely is truncated */
 	memset(&ipv6_buff, 0, sizeof ipv6_buff);
 	tvb_memcpy(tvb, &ipv6_buff, offset + 2,  len - 2);
-	ip6_to_str_buf(&ipv6_buff, txtbuf);
+	ip6_to_str_buf(&ipv6_buff, txtbuf, sizeof(txtbuf));
 	proto_item_append_text(avp_item, "%s/%u", txtbuf, n);
 }
 

@@ -1321,7 +1321,7 @@ typedef struct hashipv4 {
 typedef struct hashipv6 {
     guint8            addr[16];
     guint8            flags;          /* B0 dummy_entry, B1 resolve, B2 If the address is used in the trace */
-    gchar             ip6[40];
+    gchar             ip6[46];
     gchar             name[MAXNAMELEN];
 } hashipv6_t;
 
