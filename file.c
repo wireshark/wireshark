@@ -4491,13 +4491,13 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
 
     GArray                      *shb_hdrs = NULL;
     wtapng_iface_descriptions_t *idb_inf = NULL;
-    wtap_optionblock_t           nrb_hdr = NULL;
+    GArray                      *nrb_hdrs = NULL;
     int encap;
 
     /* XXX: what free's this shb_hdr? */
     shb_hdrs = wtap_file_get_shb_for_new_file(cf->wth);
     idb_inf = wtap_file_get_idb_info(cf->wth);
-    nrb_hdr = wtap_file_get_nrb_for_new_file(cf->wth);
+    nrb_hdrs = wtap_file_get_nrb_for_new_file(cf->wth);
 
     /* Determine what file encapsulation type we should use. */
     encap = wtap_dump_file_encap_type(cf->linktypes);
@@ -4512,10 +4512,10 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
          from which we're reading the packets that we're writing!) */
       fname_new = g_strdup_printf("%s~", fname);
       pdh = wtap_dump_open_ng(fname_new, save_format, encap, cf->snap,
-                              compressed, shb_hdrs, idb_inf, nrb_hdr, &err);
+                              compressed, shb_hdrs, idb_inf, nrb_hdrs, &err);
     } else {
       pdh = wtap_dump_open_ng(fname, save_format, encap, cf->snap,
-                              compressed, shb_hdrs, idb_inf, nrb_hdr, &err);
+                              compressed, shb_hdrs, idb_inf, nrb_hdrs, &err);
     }
     g_free(idb_inf);
     idb_inf = NULL;
@@ -4714,7 +4714,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
   save_callback_args_t         callback_args;
   GArray                      *shb_hdrs = NULL;
   wtapng_iface_descriptions_t *idb_inf = NULL;
-  wtap_optionblock_t           nrb_hdr = NULL;
+  GArray                      *nrb_hdrs = NULL;
   int                          encap;
 
   cf_callback_invoke(cf_cb_file_export_specified_packets_started, (gpointer)fname);
@@ -4729,7 +4729,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
   /* XXX: what free's this shb_hdr? */
   shb_hdrs = wtap_file_get_shb_for_new_file(cf->wth);
   idb_inf = wtap_file_get_idb_info(cf->wth);
-  nrb_hdr = wtap_file_get_nrb_for_new_file(cf->wth);
+  nrb_hdrs = wtap_file_get_nrb_for_new_file(cf->wth);
 
   /* Determine what file encapsulation type we should use. */
   encap = wtap_dump_file_encap_type(cf->linktypes);
@@ -4744,10 +4744,10 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
        from which we're reading the packets that we're writing!) */
     fname_new = g_strdup_printf("%s~", fname);
     pdh = wtap_dump_open_ng(fname_new, save_format, encap, cf->snap,
-                            compressed, shb_hdrs, idb_inf, nrb_hdr, &err);
+                            compressed, shb_hdrs, idb_inf, nrb_hdrs, &err);
   } else {
     pdh = wtap_dump_open_ng(fname, save_format, encap, cf->snap,
-                            compressed, shb_hdrs, idb_inf, nrb_hdr, &err);
+                            compressed, shb_hdrs, idb_inf, nrb_hdrs, &err);
   }
   g_free(idb_inf);
   idb_inf = NULL;

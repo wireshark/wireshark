@@ -3235,7 +3235,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   guint        tap_flags;
   GArray                      *shb_hdrs = NULL;
   wtapng_iface_descriptions_t *idb_inf = NULL;
-  wtap_optionblock_t           nrb_hdr = NULL;
+  GArray                      *nrb_hdrs = NULL;
   struct wtap_pkthdr phdr;
   Buffer       buf;
   epan_dissect_t *edt = NULL;
@@ -3266,7 +3266,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     tshark_debug("tshark: snapshot_length = %d", snapshot_length);
 
     shb_hdrs = wtap_file_get_shb_for_new_file(cf->wth);
-    nrb_hdr = wtap_file_get_nrb_for_new_file(cf->wth);
+    nrb_hdrs = wtap_file_get_nrb_for_new_file(cf->wth);
 
     /* If we don't have an application name add Tshark */
     wtap_optionblock_get_option_string(g_array_index(shb_hdrs, wtap_optionblock_t, 0), OPT_SHB_USERAPPL, &shb_user_appl);
@@ -3292,10 +3292,10 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
         if (strcmp(save_file, "-") == 0) {
           /* Write to the standard output. */
           pdh = wtap_dump_open_stdout_ng(out_file_type, linktype,
-              snapshot_length, FALSE /* compressed */, shb_hdrs, idb_inf, nrb_hdr, &err);
+              snapshot_length, FALSE /* compressed */, shb_hdrs, idb_inf, nrb_hdrs, &err);
         } else {
           pdh = wtap_dump_open_ng(save_file, out_file_type, linktype,
-              snapshot_length, FALSE /* compressed */, shb_hdrs, idb_inf, nrb_hdr, &err);
+              snapshot_length, FALSE /* compressed */, shb_hdrs, idb_inf, nrb_hdrs, &err);
         }
     }
 
@@ -3514,7 +3514,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
               }
               wtap_dump_close(pdh, &err);
               wtap_optionblock_array_free(shb_hdrs);
-              wtap_optionblock_free(nrb_hdr);
+              wtap_optionblock_array_free(nrb_hdrs);
               exit(2);
             }
           }
@@ -3629,7 +3629,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
             }
             wtap_dump_close(pdh, &err);
             wtap_optionblock_array_free(shb_hdrs);
-            wtap_optionblock_free(nrb_hdr);
+            wtap_optionblock_array_free(nrb_hdrs);
             exit(2);
           }
         }
@@ -3746,7 +3746,7 @@ out:
 
   g_free(save_file_string);
   wtap_optionblock_array_free(shb_hdrs);
-  wtap_optionblock_free(nrb_hdr);
+  wtap_optionblock_array_free(nrb_hdrs);
 
   return err;
 }

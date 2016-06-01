@@ -907,7 +907,7 @@ static wtap_dumper *
 editcap_dump_open(const char *filename, guint32 snaplen,
                   GArray* shb_hdrs,
                   wtapng_iface_descriptions_t *idb_inf,
-                  wtap_optionblock_t nrb_hdr, int *write_err)
+                  GArray* nrb_hdrs, int *write_err)
 {
   wtap_dumper *pdh;
 
@@ -915,11 +915,11 @@ editcap_dump_open(const char *filename, guint32 snaplen,
     /* Write to the standard output. */
     pdh = wtap_dump_open_stdout_ng(out_file_type_subtype, out_frame_type,
                                    snaplen, FALSE /* compressed */,
-                                   shb_hdrs, idb_inf, nrb_hdr, write_err);
+                                   shb_hdrs, idb_inf, nrb_hdrs, write_err);
   } else {
     pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
                             snaplen, FALSE /* compressed */,
-                            shb_hdrs, idb_inf, nrb_hdr, write_err);
+                            shb_hdrs, idb_inf, nrb_hdrs, write_err);
   }
   return pdh;
 }
@@ -966,7 +966,7 @@ main(int argc, char *argv[])
     struct wtap_pkthdr           temp_phdr;
     wtapng_iface_descriptions_t *idb_inf = NULL;
     GArray                      *shb_hdrs = NULL;
-    wtap_optionblock_t           nrb_hdr = NULL;
+    GArray                      *nrb_hdrs = NULL;
     char                        *shb_user_appl;
 
 #ifdef HAVE_PLUGINS
@@ -1330,7 +1330,7 @@ main(int argc, char *argv[])
 
     shb_hdrs = wtap_file_get_shb_for_new_file(wth);
     idb_inf = wtap_file_get_idb_info(wth);
-    nrb_hdr = wtap_file_get_nrb_for_new_file(wth);
+    nrb_hdrs = wtap_file_get_nrb_for_new_file(wth);
 
     /*
      * Now, process the rest, if any ... we only write if there is an extra
@@ -1385,7 +1385,7 @@ main(int argc, char *argv[])
 
                 pdh = editcap_dump_open(filename,
                                         snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
-                                        shb_hdrs, idb_inf, nrb_hdr, &write_err);
+                                        shb_hdrs, idb_inf, nrb_hdrs, &write_err);
 
                 if (pdh == NULL) {
                     fprintf(stderr, "editcap: Can't open or create %s: %s\n",
@@ -1426,7 +1426,7 @@ main(int argc, char *argv[])
 
                         pdh = editcap_dump_open(filename,
                                                 snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
-                                                shb_hdrs, idb_inf, nrb_hdr, &write_err);
+                                                shb_hdrs, idb_inf, nrb_hdrs, &write_err);
 
                         if (pdh == NULL) {
                             fprintf(stderr, "editcap: Can't open or create %s: %s\n",
@@ -1455,7 +1455,7 @@ main(int argc, char *argv[])
 
                     pdh = editcap_dump_open(filename,
                                             snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
-                                            shb_hdrs, idb_inf, nrb_hdr, &write_err);
+                                            shb_hdrs, idb_inf, nrb_hdrs, &write_err);
                     if (pdh == NULL) {
                         fprintf(stderr, "editcap: Can't open or create %s: %s\n",
                                 filename, wtap_strerror(write_err));
@@ -1826,7 +1826,7 @@ main(int argc, char *argv[])
 
             pdh = editcap_dump_open(filename,
                                     snaplen ? MIN(snaplen, wtap_snapshot_length(wth)): wtap_snapshot_length(wth),
-                                    shb_hdrs, idb_inf, nrb_hdr, &write_err);
+                                    shb_hdrs, idb_inf, nrb_hdrs, &write_err);
             if (pdh == NULL) {
                 fprintf(stderr, "editcap: Can't open or create %s: %s\n",
                         filename, wtap_strerror(write_err));
@@ -1844,8 +1844,8 @@ main(int argc, char *argv[])
         }
         wtap_optionblock_array_free(shb_hdrs);
         shb_hdrs = NULL;
-        wtap_optionblock_free(nrb_hdr);
-        nrb_hdr = NULL;
+        wtap_optionblock_array_free(nrb_hdrs);
+        nrb_hdrs = NULL;
         g_free(filename);
 
         if (frames_user_comments) {
@@ -1869,7 +1869,7 @@ main(int argc, char *argv[])
 
 error_on_exit:
     wtap_optionblock_array_free(shb_hdrs);
-    wtap_optionblock_free(nrb_hdr);
+    wtap_optionblock_array_free(nrb_hdrs);
     g_free(idb_inf);
     exit(2);
 }

@@ -2163,7 +2163,7 @@ static int wtap_dump_file_close(wtap_dumper *wdh);
 static wtap_dumper *
 wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean compressed,
                       GArray* shb_hdrs, wtapng_iface_descriptions_t *idb_inf,
-                      wtap_optionblock_t nrb_hdr, int *err)
+                      GArray* nrb_hdrs, int *err)
 {
 	wtap_dumper *wdh;
 	wtap_optionblock_t descr, file_int_data;
@@ -2182,7 +2182,7 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 	/* Set Section Header Block data */
 	wdh->shb_hdrs = shb_hdrs;
 	/* Set Name Resolution Block data */
-	wdh->nrb_hdr = nrb_hdr;
+	wdh->nrb_hdrs = nrb_hdrs;
 	/* Set Interface Description Block data */
 	if ((idb_inf != NULL) && (idb_inf->interface_data->len > 0)) {
 		guint itf_count;
@@ -2229,14 +2229,14 @@ wtap_dump_open(const char *filename, int file_type_subtype, int encap,
 wtap_dumper *
 wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
 		  int snaplen, gboolean compressed, GArray* shb_hdrs, wtapng_iface_descriptions_t *idb_inf,
-		  wtap_optionblock_t nrb_hdr, int *err)
+		  GArray* nrb_hdrs, int *err)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;
 
 	/* Allocate and initialize a data structure for the output stream. */
 	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
-	    shb_hdrs, idb_inf, nrb_hdr, err);
+	    shb_hdrs, idb_inf, nrb_hdrs, err);
 	if (wdh == NULL)
 		return NULL;
 
@@ -2276,7 +2276,7 @@ wtap_dump_open_tempfile_ng(char **filenamep, const char *pfx,
 			   int snaplen, gboolean compressed,
 			   GArray* shb_hdrs,
 			   wtapng_iface_descriptions_t *idb_inf,
-			   wtap_optionblock_t nrb_hdr, int *err)
+			   GArray* nrb_hdrs, int *err)
 {
 	int fd;
 	char *tmpname;
@@ -2288,7 +2288,7 @@ wtap_dump_open_tempfile_ng(char **filenamep, const char *pfx,
 
 	/* Allocate and initialize a data structure for the output stream. */
 	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
-	    shb_hdrs, idb_inf, nrb_hdr, err);
+	    shb_hdrs, idb_inf, nrb_hdrs, err);
 	if (wdh == NULL)
 		return NULL;
 
@@ -2334,14 +2334,14 @@ wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snaplen,
 wtap_dumper *
 wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int snaplen,
 		    gboolean compressed, GArray* shb_hdrs, wtapng_iface_descriptions_t *idb_inf,
-		    wtap_optionblock_t nrb_hdr, int *err)
+		    GArray* nrb_hdrs, int *err)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;
 
 	/* Allocate and initialize a data structure for the output stream. */
 	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
-	    shb_hdrs, idb_inf, nrb_hdr, err);
+	    shb_hdrs, idb_inf, nrb_hdrs, err);
 	if (wdh == NULL)
 		return NULL;
 
@@ -2375,14 +2375,14 @@ wtap_dumper *
 wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
 			 gboolean compressed, GArray* shb_hdrs,
 			 wtapng_iface_descriptions_t *idb_inf,
-			 wtap_optionblock_t nrb_hdr, int *err)
+			 GArray* nrb_hdrs, int *err)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;
 
 	/* Allocate and initialize a data structure for the output stream. */
 	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
-	    shb_hdrs, idb_inf, nrb_hdr, err);
+	    shb_hdrs, idb_inf, nrb_hdrs, err);
 	if (wdh == NULL)
 		return NULL;
 

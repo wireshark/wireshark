@@ -53,7 +53,7 @@ struct wtap {
     struct wtap_pkthdr          phdr;
     GArray                      *shb_hdrs;
     GArray                      *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?)*/
-    wtap_optionblock_t          nrb_hdr;               /**< holds the Name Res Block's comment/custom_opts, or NULL */
+    GArray                      *nrb_hdrs;              /**< holds the Name Res Block's comment/custom_opts, or NULL */
 
     void                        *priv;          /* this one holds per-file state and is free'd automatically by wtap_close() */
     void                        *wslua_data;    /* this one holds wslua state info and is not free'd */
@@ -115,7 +115,7 @@ struct wtap_dumper {
                                              */
     addrinfo_lists_t        *addrinfo_lists; /**< Struct containing lists of resolved addresses */
     GArray                  *shb_hdrs;
-    wtap_optionblock_t       nrb_hdr;        /**< name resolution comment/custom_opt, or NULL */
+    GArray                  *nrb_hdrs;        /**< name resolution comment/custom_opt, or NULL */
     GArray                  *interface_data; /**< An array holding the interface data from pcapng IDB:s or equivalent(?) NULL if not present.*/
 };
 

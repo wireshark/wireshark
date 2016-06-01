@@ -1685,10 +1685,10 @@ gchar *wtap_get_debug_if_descr(const wtap_optionblock_t if_descr,
  * @note Use wtap_free_nrb() to free the returned pointer.
  *
  * @param wth The wiretap session.
- * @return The new name resolution info, which must be wtap_optionblock_free'd.
+ * @return The new name resolution info, which must be freed.
  */
 WS_DLL_PUBLIC
-wtap_optionblock_t wtap_file_get_nrb_for_new_file(wtap *wth);
+GArray* wtap_file_get_nrb_for_new_file(wtap *wth);
 
 /**
  * @brief Gets the name resolution comment, if any.
@@ -1778,14 +1778,14 @@ wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype, int enc
  * @param compressed True if file should be compressed.
  * @param shb_hdrs The section header block(s) information, or NULL.
  * @param idb_inf The interface description information, or NULL.
- * @param nrb_hdr The name resolution comment/custom_opts information, or NULL.
+ * @param nrb_hdrs The name resolution blocks(s) comment/custom_opts information, or NULL.
  * @param[out] err Will be set to an error code on failure.
  * @return The newly created dumper object, or NULL on failure.
  */
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
     int snaplen, gboolean compressed, GArray* shb_hdrs, wtapng_iface_descriptions_t *idb_inf,
-    wtap_optionblock_t nrb_hdr, int *err);
+    GArray* nrb_hdrs, int *err);
 
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_tempfile(char **filenamep, const char *pfx,
@@ -1808,7 +1808,7 @@ wtap_dumper* wtap_dump_open_tempfile(char **filenamep, const char *pfx,
  * @param compressed True if file should be compressed.
  * @param shb_hdrs The section header block(s) information, or NULL.
  * @param idb_inf The interface description information, or NULL.
- * @param nrb_hdr The name resolution comment/custom_opts information, or NULL.
+ * @param nrb_hdrs The name resolution blocks(s) comment/custom_opts information, or NULL.
  * @param[out] err Will be set to an error code on failure.
  * @return The newly created dumper object, or NULL on failure.
  */
@@ -1816,7 +1816,7 @@ WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_tempfile_ng(char **filenamep, const char *pfx,
     int file_type_subtype, int encap, int snaplen, gboolean compressed,
     GArray* shb_hdrs, wtapng_iface_descriptions_t *idb_inf,
-    wtap_optionblock_t nrb_hdr, int *err);
+    GArray* nrb_hdrs, int *err);
 
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snaplen,
@@ -1836,14 +1836,14 @@ wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snap
  * @param compressed True if file should be compressed.
  * @param shb_hdrs The section header block(s) information, or NULL.
  * @param idb_inf The interface description information, or NULL.
- * @param nrb_hdr The name resolution comment/custom_opts information, or NULL.
+ * @param nrb_hdrs The name resolution blocks(s) comment/custom_opts information, or NULL.
  * @param[out] err Will be set to an error code on failure.
  * @return The newly created dumper object, or NULL on failure.
  */
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int snaplen,
                 gboolean compressed, GArray* shb_hdrs, wtapng_iface_descriptions_t *idb_inf,
-                wtap_optionblock_t nrb_hdr, int *err);
+                GArray* nrb_hdrs, int *err);
 
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_stdout(int file_type_subtype, int encap, int snaplen,
@@ -1862,14 +1862,14 @@ wtap_dumper* wtap_dump_open_stdout(int file_type_subtype, int encap, int snaplen
  * @param compressed True if file should be compressed.
  * @param shb_hdrs The section header block(s) information, or NULL.
  * @param idb_inf The interface description information, or NULL.
- * @param nrb_hdr The name resolution comment/custom_opts information, or NULL.
+ * @param nrb_hdrs The name resolution blocks(s) comment/custom_opts information, or NULL.
  * @param[out] err Will be set to an error code on failure.
  * @return The newly created dumper object, or NULL on failure.
  */
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
                 gboolean compressed, GArray* shb_hdrs, wtapng_iface_descriptions_t *idb_inf,
-                wtap_optionblock_t nrb_hdr, int *err);
+                GArray* nrb_hdrs, int *err);
 
 WS_DLL_PUBLIC
 gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *, const guint8 *,

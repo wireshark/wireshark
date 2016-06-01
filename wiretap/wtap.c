@@ -209,26 +209,29 @@ wtap_get_nrb_comment(wtap *wth)
 	char* opt_comment;
 	g_assert(wth);
 
-	if ((wth == NULL) || (wth->nrb_hdr == NULL))
+	if ((wth == NULL) || (wth->nrb_hdrs == NULL) || (wth->nrb_hdrs->len == 0))
 		return NULL;
 
-	wtap_optionblock_get_option_string(wth->nrb_hdr, OPT_COMMENT, &opt_comment);
+	wtap_optionblock_get_option_string(g_array_index(wth->nrb_hdrs, wtap_optionblock_t, 0), OPT_COMMENT, &opt_comment);
 	return opt_comment;
 }
 
 void
 wtap_write_nrb_comment(wtap *wth, gchar *comment)
 {
+	wtap_optionblock_t nrb;
 	g_assert(wth);
 
 	if (wth == NULL)
 		return;
 
-	if (wth->nrb_hdr == NULL) {
-		wth->nrb_hdr = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_NRB);
+	if (wth->nrb_hdrs == NULL) {
+		wth->nrb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
+		nrb = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_NRB);
+		g_array_append_val(wth->nrb_hdrs, nrb);
 	}
 
-	wtap_optionblock_set_option_string(wth->nrb_hdr, OPT_COMMENT, comment, (gsize)(comment ? strlen(comment) : 0));
+	wtap_optionblock_set_option_string(g_array_index(wth->nrb_hdrs, wtap_optionblock_t, 0), OPT_COMMENT, comment, (gsize)(comment ? strlen(comment) : 0));
 }
 
 void
@@ -363,18 +366,26 @@ wtap_get_debug_if_descr(const wtap_optionblock_t if_descr,
 	return g_string_free(info, FALSE);
 }
 
-wtap_optionblock_t
+GArray*
 wtap_file_get_nrb_for_new_file(wtap *wth)
 {
-	wtap_optionblock_t nrb_hdr;
+	guint nrb_count;
+	wtap_optionblock_t nrb_hdr_src, nrb_hdr_dest;
+	GArray* nrb_hdrs;
 
-	if (wth == NULL || wth->nrb_hdr == NULL)
+	if ((wth == NULL || wth->nrb_hdrs == NULL) || (wth->nrb_hdrs->len == 0))
 		return NULL;
 
-	nrb_hdr = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_NRB);
+	nrb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
 
-	wtap_optionblock_copy_options(nrb_hdr, wth->nrb_hdr);
-	return nrb_hdr;
+	for (nrb_count = 0; nrb_count < wth->nrb_hdrs->len; nrb_count++) {
+		nrb_hdr_src = g_array_index(wth->nrb_hdrs, wtap_optionblock_t, nrb_count);
+		nrb_hdr_dest = wtap_optionblock_create(WTAP_OPTION_BLOCK_NG_NRB);
+		wtap_optionblock_copy_options(nrb_hdr_dest, nrb_hdr_src);
+		g_array_append_val(nrb_hdrs, nrb_hdr_dest);
+	}
+
+	return nrb_hdrs;
 }
 
 /* Table of the encapsulation types we know about. */
@@ -1197,6 +1208,7 @@ wtap_close(wtap *wth)
 	}
 
 	wtap_optionblock_array_free(wth->shb_hdrs);
+	wtap_optionblock_array_free(wth->nrb_hdrs);
 	wtap_optionblock_array_free(wth->interface_data);
 
 	g_free(wth);

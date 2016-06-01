@@ -180,7 +180,7 @@ main(int argc, char *argv[])
     guint i;
     GArray                      *shb_hdrs = NULL;
     wtapng_iface_descriptions_t *idb_inf = NULL;
-    wtap_optionblock_t           nrb_hdr = NULL;
+    GArray                      *nrb_hdrs = NULL;
 
     GPtrArray *frames;
     FrameRecord_t *prevFrame = NULL;
@@ -291,16 +291,16 @@ main(int argc, char *argv[])
 
     shb_hdrs = wtap_file_get_shb_for_new_file(wth);
     idb_inf = wtap_file_get_idb_info(wth);
-    nrb_hdr = wtap_file_get_nrb_for_new_file(wth);
+    nrb_hdrs = wtap_file_get_nrb_for_new_file(wth);
 
     /* Open outfile (same filetype/encap as input file) */
     if (strcmp(outfile, "-") == 0) {
       pdh = wtap_dump_open_stdout_ng(wtap_file_type_subtype(wth), wtap_file_encap(wth),
-                                     65535, FALSE, shb_hdrs, idb_inf, nrb_hdr, &err);
+                                     65535, FALSE, shb_hdrs, idb_inf, nrb_hdrs, &err);
       outfile = "standard output";
     } else {
       pdh = wtap_dump_open_ng(outfile, wtap_file_type_subtype(wth), wtap_file_encap(wth),
-                              65535, FALSE, shb_hdrs, idb_inf, nrb_hdr, &err);
+                              65535, FALSE, shb_hdrs, idb_inf, nrb_hdrs, &err);
     }
     g_free(idb_inf);
     idb_inf = NULL;
@@ -309,7 +309,7 @@ main(int argc, char *argv[])
         fprintf(stderr, "reordercap: Failed to open output file: (%s) - error %s\n",
                 outfile, wtap_strerror(err));
         wtap_optionblock_array_free(shb_hdrs);
-        wtap_optionblock_free(nrb_hdr);
+        wtap_optionblock_array_free(nrb_hdrs);
         exit(1);
     }
 
@@ -383,11 +383,11 @@ main(int argc, char *argv[])
         fprintf(stderr, "reordercap: Error closing %s: %s\n", outfile,
                 wtap_strerror(err));
         wtap_optionblock_array_free(shb_hdrs);
-        wtap_optionblock_free(nrb_hdr);
+        wtap_optionblock_array_free(nrb_hdrs);
         exit(1);
     }
     wtap_optionblock_array_free(shb_hdrs);
-    wtap_optionblock_free(nrb_hdr);
+    wtap_optionblock_array_free(nrb_hdrs);
 
     /* Finally, close infile */
     wtap_fdclose(wth);

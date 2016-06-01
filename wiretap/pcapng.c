@@ -3260,12 +3260,12 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
     }
 
     /* add options, if any */
-    if (wdh->nrb_hdr) {
+    if (wdh->nrb_hdrs && wdh->nrb_hdrs->len > 0) {
         gboolean have_options = FALSE;
         guint32 options_total_length = 0;
         struct option option_hdr;
         guint32 comment_len = 0, comment_pad_len = 0;
-        wtap_optionblock_t nrb_hdr = wdh->nrb_hdr;
+        wtap_optionblock_t nrb_hdr = g_array_index(wdh->nrb_hdrs, wtap_optionblock_t, 0);
         guint32 prev_rec_off = rec_off;
         char* opt_comment;
 
