@@ -405,7 +405,6 @@ typedef struct
 #define MAX_ALLOCATION_BITMAP_LENGTH   128 /* max length of Fixed Allocation bitmap in BITS (2^7) */
 #define MAX_VAR_LENGTH_BITMAP_LENGTH   176 /* max length ever possible for variable length fixed allocation bitmap */
 #define MAX_RRC_CONTAINER_LENGTH       255
-#define MAX_NAS_CONTAINER_LENGTH       127
 
 
 typedef struct
@@ -4682,8 +4681,14 @@ typedef struct
 typedef struct
 {
   guint8 NAS_ContainerLength;
-  guint8 NAS_Container[MAX_NAS_CONTAINER_LENGTH];
-} NAS_Container_t;
+  guint8 Spare_1a;
+  guint8 Spare_1b;
+  guint8 Spare_1c;
+  guint8 Old_XID;
+  guint8 Spare_1e;
+  guint8 Type_of_Ciphering_Algo;
+  guint32 IOV_UI_value;
+} NAS_Container_For_PS_HO_t;
 
 typedef struct
 {
@@ -4729,7 +4734,7 @@ typedef struct
 {
   PHO_RadioResources_t PHO_RadioResources;
   guint8 Exist_NAS_Container;
-  NAS_Container_t NAS_Container;
+  NAS_Container_For_PS_HO_t NAS_Container;
 } PS_HandoverTo_A_GB_ModePayload_t;
 
 typedef struct

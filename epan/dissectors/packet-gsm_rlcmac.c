@@ -962,8 +962,11 @@ static int hf_globaltimeslotdescription_ms_timeslotallocation = -1;
 static int hf_pho_usf_1_7_usf = -1;
 static int hf_usf_allocationarray_usf_0 = -1;
 static int hf_egprs_description_linkqualitymeasurementmode = -1;
-static int hf_nas_container_nas_containerlength = -1;
-static int hf_nas_container_nas_container = -1;
+static int hf_nas_container_for_ps_ho_containerlength = -1;
+static int hf_nas_container_for_ps_ho_spare = -1;
+static int hf_nas_container_for_ps_ho_old_xid = -1;
+static int hf_nas_container_for_ps_ho_type_of_ciphering = -1;
+static int hf_nas_container_for_ps_ho_iov_ui_value = -1;
 static int hf_ps_handoverto_utran_payload_rrc_containerlength = -1;
 static int hf_ps_handoverto_utran_payload_rrc_container = -1;
 static int hf_pho_radioresources_handoverreference = -1;
@@ -6015,10 +6018,16 @@ CSN_DESCR_BEGIN(PHO_TimingAdvance_t)
 CSN_DESCR_END  (PHO_TimingAdvance_t)
 
 static const
-CSN_DESCR_BEGIN(NAS_Container_t)
-  M_UINT       (NAS_Container_t,  NAS_ContainerLength,  7, &hf_nas_container_nas_containerlength),
-  M_VAR_ARRAY  (NAS_Container_t, NAS_Container, NAS_ContainerLength, 0, &hf_nas_container_nas_container),
-CSN_DESCR_END  (NAS_Container_t)
+CSN_DESCR_BEGIN(NAS_Container_For_PS_HO_t)
+M_UINT         (NAS_Container_For_PS_HO_t,  NAS_ContainerLength,  7, &hf_nas_container_for_ps_ho_containerlength),
+M_UINT         (NAS_Container_For_PS_HO_t,  Spare_1a,  1, &hf_nas_container_for_ps_ho_spare),
+M_UINT         (NAS_Container_For_PS_HO_t,  Spare_1b,  1, &hf_nas_container_for_ps_ho_spare),
+M_UINT         (NAS_Container_For_PS_HO_t,  Spare_1c,  1, &hf_nas_container_for_ps_ho_spare),
+M_UINT         (NAS_Container_For_PS_HO_t,  Old_XID,  1, &hf_nas_container_for_ps_ho_old_xid),
+M_UINT         (NAS_Container_For_PS_HO_t,  Spare_1e,  1, &hf_nas_container_for_ps_ho_spare),
+M_UINT         (NAS_Container_For_PS_HO_t,  Type_of_Ciphering_Algo,  3, &hf_nas_container_for_ps_ho_type_of_ciphering),
+M_UINT         (NAS_Container_For_PS_HO_t,  IOV_UI_value,  32, &hf_nas_container_for_ps_ho_iov_ui_value),
+CSN_DESCR_END  (NAS_Container_For_PS_HO_t)
 
 static const
 CSN_DESCR_BEGIN(PS_HandoverTo_UTRAN_Payload_t)
@@ -6071,7 +6080,7 @@ CSN_DESCR_BEGIN(PS_HandoverTo_A_GB_ModePayload_t)
   M_TYPE       (PS_HandoverTo_A_GB_ModePayload_t, PHO_RadioResources, PHO_RadioResources_t),
 
   M_NEXT_EXIST (PS_HandoverTo_A_GB_ModePayload_t, Exist_NAS_Container, 1, &hf_ps_handoverto_a_gb_modepayload_nas_container_exist),
-  M_TYPE       (PS_HandoverTo_A_GB_ModePayload_t, NAS_Container, NAS_Container_t),
+  M_TYPE       (PS_HandoverTo_A_GB_ModePayload_t, NAS_Container, NAS_Container_For_PS_HO_t),
 CSN_DESCR_END  (PS_HandoverTo_A_GB_ModePayload_t)
 
 static const
@@ -7487,6 +7496,25 @@ static const value_string gsm_rlcmac_t3192_vals[] = {
   { 5, "120 ms"},
   { 6, "160 ms"},
   { 7, "200 ms"},
+  { 0, NULL}
+};
+
+/* NAS container for PS HOinformation element according to Table 10.5.1.14/3GPP TS 24.008 */
+static const value_string nas_container_for_ps_ho_old_xid[] = {
+  { 0, "The MS shall perform a Reset of LLC and SNDCP without old XID indicator as specified in 3GPP TS 44.064 and 3GPP TS 44.065"},
+  { 1, "The MS shall perform a Reset of LLC and SNDCP with old XID indicator as specified in 3GPP TS 44.064 and 3GPP TS 44.065"},
+  { 0, NULL}
+};
+
+static const value_string nas_container_for_ps_ho_type_of_ciphering[] = {
+  { 0, "ciphering not used"},
+  { 1, "GPRS Encryption Algorithm GEA/1"},
+  { 2, "GPRS Encryption Algorithm GEA/2"},
+  { 3, "GPRS Encryption Algorithm GEA/3"},
+  { 4, "GPRS Encryption Algorithm GEA/4"},
+  { 5, "GPRS Encryption Algorithm GEA/5"},
+  { 6, "GPRS Encryption Algorithm GEA/6"},
+  { 7, "GPRS Encryption Algorithm GEA/7"},
   { 0, NULL}
 };
 
@@ -12968,13 +12996,13 @@ proto_register_gsm_rlcmac(void)
     },
     { &hf_pncd_container_with_id_container,
       { "CONTAINER",        "gsm_rlcmac.dl.pncd_with_id_container",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL
       }
     },
     { &hf_pncd_container_without_id_container,
       { "CONTAINER",        "gsm_rlcmac.dl.pncd_without_id_container",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL
       }
     },
@@ -13018,7 +13046,7 @@ proto_register_gsm_rlcmac(void)
     },
     { &hf_packet_serving_cell_data_container,
       { "CONTAINER",        "gsm_rlcmac.dl.pscd_container",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL
       }
     },
@@ -13098,16 +13126,34 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
-    { &hf_nas_container_nas_containerlength,
-      { "NAS_ContainerLength",        "gsm_rlcmac.dl.nas_containerlength",
+    { &hf_nas_container_for_ps_ho_containerlength,
+      { "NAS_ContainerLength",        "gsm_rlcmac.dl.nas_container_for_ps_ho_length",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
-    { &hf_nas_container_nas_container,
-      { "NAS_Container",        "gsm_rlcmac.dl.nas_container",
+    { &hf_nas_container_for_ps_ho_spare,
+      { "Spare",        "gsm_rlcmac.dl.nas_container_for_ps_ho_spare",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
+      }
+    },
+    { &hf_nas_container_for_ps_ho_old_xid,
+      { "Old XID",        "gsm_rlcmac.dl.nas_container_for_ps_ho_old_xid",
+      FT_UINT8, BASE_DEC, VALS(nas_container_for_ps_ho_old_xid), 0x0,
+      NULL, HFILL
+      }
+    },
+    { &hf_nas_container_for_ps_ho_type_of_ciphering,
+      { "Type of Ciphering Algorithm",        "gsm_rlcmac.dl.nas_container_for_ps_ho_type_of_ciphering",
+      FT_UINT8, BASE_DEC, VALS(nas_container_for_ps_ho_type_of_ciphering), 0x0,
+      NULL, HFILL
+      }
+    },
+    { &hf_nas_container_for_ps_ho_iov_ui_value,
+      { "IOV-UI value",        "gsm_rlcmac.dl.nas_container_for_ps_ho_iov_ui_value",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      NULL, HFILL
       }
     },
     { &hf_ps_handoverto_utran_payload_rrc_containerlength,
@@ -13118,7 +13164,7 @@ proto_register_gsm_rlcmac(void)
     },
     { &hf_ps_handoverto_utran_payload_rrc_container,
       { "RRC_Container",        "gsm_rlcmac.dl.ps_handoverto_utran_payload_rrc_container",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL
       }
     },
