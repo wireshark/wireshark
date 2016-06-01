@@ -1150,34 +1150,16 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         no_of_bits += pDescr->i; /* adjusted by offset */
 
-        if (no_of_bits > 0)
+        while (no_of_bits > 0)
         {
           proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+          bit_offset++;
+          no_of_bits--;
+          remaining_bits_len--;
 
           if (remaining_bits_len < 0)
           {
             return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
-          }
-
-          { /* extract bits */
-            guint8* t_pui8 = pui8DATA(data, pDescr->offset);
-            gint16 nB1  = no_of_bits & 0x07;/* no_of_bits Mod 8 */
-
-            if (nB1 > 0)
-            { /* take care of the first byte - it will be right aligned */
-              *t_pui8++ = tvb_get_bits8(tvb, bit_offset, nB1);
-              no_of_bits  -= nB1;
-              bit_offset += nB1; /* (nB1 is no_of_bits Mod 8) */
-              remaining_bits_len -= nB1;
-            }
-
-            /* remaining no_of_bits is a multiple of 8 or 0 */
-            while (no_of_bits > 0)
-            {
-              *t_pui8++ = tvb_get_bits8(tvb, bit_offset, 8);
-              no_of_bits -= 8;
-              remaining_bits_len -= 8;
-            }
           }
         }
         pDescr++;
@@ -1278,11 +1260,6 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         if (count > 0)
         {
-          if (remaining_bits_len < 0)
-          {
-            return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
-          }
-
           pui8 = pui8DATA(data, pDescr->offset);
 
           while (count > 0)
@@ -1290,8 +1267,12 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, 8, ENC_BIG_ENDIAN);
             *pui8++ = tvb_get_bits8(tvb, bit_offset, 8);
             bit_offset += 8;
-            remaining_bits_len -= 8;
             count--;
+            remaining_bits_len -= 8;
+            if (remaining_bits_len < 0)
+            {
+                return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, &ei_csn1_more_bits_to_unpack, pDescr);
+            }
           }
         }
 
