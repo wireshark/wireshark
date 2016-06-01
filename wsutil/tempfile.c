@@ -225,7 +225,7 @@ create_tempfile(char **namebuf, const char *pfx, const char *sfx)
      permissions, attempt to create the file, and then put
      the umask back. */
   old_umask = ws_umask(0077);
-  fd = mkstemps(tf[idx].path, sfx ? strlen(sfx) : 0);
+  fd = mkstemps(tf[idx].path, sfx ? (int) strlen(sfx) : 0);
   ws_umask(old_umask);
   return fd;
 }
