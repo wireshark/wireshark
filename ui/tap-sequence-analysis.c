@@ -109,8 +109,10 @@ seq_analysis_frame_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
 
         sai->frame_number = pinfo->num;
 
-        sai->bg_color = color_t_to_rgb(&pinfo->fd->color_filter->bg_color);
-        sai->fg_color = color_t_to_rgb(&pinfo->fd->color_filter->fg_color);
+        if (pinfo->fd->color_filter) {
+            sai->bg_color = color_t_to_rgb(&pinfo->fd->color_filter->bg_color);
+            sai->fg_color = color_t_to_rgb(&pinfo->fd->color_filter->fg_color);
+        }
 
         sai->port_src=pinfo->srcport;
         sai->port_dst=pinfo->destport;
