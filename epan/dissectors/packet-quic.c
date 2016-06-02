@@ -1395,12 +1395,12 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
                 tag_len -= 8;
             break;
             case TAG_RNON: /* Public Reset Tag */
-                proto_tree_add_item(tag_tree, hf_quic_tag_rnon, tvb, tag_offset_start + tag_offset, 8, ENC_NA);
+                proto_tree_add_item(tag_tree, hf_quic_tag_rnon, tvb, tag_offset_start + tag_offset, 8, ENC_LITTLE_ENDIAN);
                 tag_offset += 8;
                 tag_len -= 8;
             break;
             case TAG_RSEQ: /* Public Reset Tag */
-                proto_tree_add_item(tag_tree, hf_quic_tag_rseq, tvb, tag_offset_start + tag_offset, 8, ENC_NA);
+                proto_tree_add_item(tag_tree, hf_quic_tag_rseq, tvb, tag_offset_start + tag_offset, 8, ENC_LITTLE_ENDIAN);
                 tag_offset += 8;
                 tag_len -= 8;
             break;
