@@ -7356,7 +7356,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
             proto_item_set_len(sub_item, offset - u32SubStart);
 
             if (!pinfo->fd->flags.visited && station_info != NULL) {
-                io_data_object = wmem_new(wmem_file_scope(), ioDataObject);
+                io_data_object = wmem_new0(wmem_file_scope(), ioDataObject);
                 io_data_object->slotNr = u16SlotNr;
                 io_data_object->subSlotNr = u16SubslotNr;
                 io_data_object->frameOffset = u16IODataObjectFrameOffset;
