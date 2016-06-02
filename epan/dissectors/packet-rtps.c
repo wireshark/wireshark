@@ -5812,13 +5812,13 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
 #undef ENSURE_LENGTH
 
 static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
-                        gint offset, gboolean little_endian, int size, const char *label,
+                        gint offset, gboolean little_endian, guint size, const char *label,
                         guint16 version, guint32 *pStatusInfo, guint16 vendor_id,
                         gboolean is_inline_qos) {
 
   proto_item *ti, *param_item, *param_len_item = NULL;
   proto_tree *rtps_parameter_sequence_tree, *rtps_parameter_tree;
-  guint16    parameter, param_length;
+  guint32    parameter, param_length, param_length_length = 2;
   gint       original_offset = offset;
   gboolean   dissect_return_value = FALSE;
   type_mapping * type_mapping_object = NULL;
@@ -5844,6 +5844,14 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
      * be set later...
      */
     parameter = NEXT_guint16(tvb, offset, little_endian);
+    param_length = NEXT_guint16(tvb, offset+2, little_endian);
+    if ((parameter & PID_EXTENDED) == PID_EXTENDED) {
+      offset += 4;
+      /* get extended member id and length */
+      parameter = tvb_get_guint32(tvb, offset, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+      param_length = tvb_get_guint32(tvb, offset+4, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+      param_length_length = 4;
+    }
     if (version < 0x0200) {
       rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
                         ett_rtps_parameter, &param_item, val_to_str(parameter, parameter_id_vals, "Unknown (0x%04x)"));
@@ -5858,7 +5866,8 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
             if (param_name != NULL) {
               rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
                 ett_rtps_parameter, &param_item, val_to_str(parameter, parameter_id_inline_qos_rti, "Unknown (0x%04x)"));
-              proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_inline_rti, tvb, offset, 2, parameter);
+              proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_inline_rti, tvb, offset,
+                      param_length_length, parameter);
               goto_default = FALSE;
             }
           } else {
@@ -5866,7 +5875,8 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
             if (param_name != NULL) {
               rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
                         ett_rtps_parameter, &param_item, val_to_str(parameter, parameter_id_rti_vals, "Unknown (0x%04x)"));
-              proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_rti, tvb, offset, 2, parameter);
+              proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_rti, tvb, offset,
+                      param_length_length, parameter);
               goto_default = FALSE;
             }
           }
@@ -5878,7 +5888,8 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
             rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
                   ett_rtps_parameter, &param_item, val_to_str(parameter, parameter_id_toc_vals, "Unknown (0x%04x)"));
 
-            proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_toc, tvb, offset, 2, parameter);
+            proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_toc, tvb, offset,
+                    param_length_length, parameter);
             goto_default = FALSE;
           }
           break;
@@ -5889,7 +5900,8 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
             rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
                   ett_rtps_parameter, &param_item, val_to_str(parameter, parameter_id_pt_vals, "Unknown (0x%04x)"));
 
-            proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_pt, tvb, offset, 2, parameter);
+            proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_pt, tvb, offset,
+                    param_length_length, parameter);
             goto_default = FALSE;
           }
           break;
@@ -5898,23 +5910,24 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
       if (goto_default) {
         rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
             ett_rtps_parameter, &param_item, val_to_str(parameter, parameter_id_v2_vals, "Unknown (0x%04x)"));
-        proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_v2, tvb, offset, 2, parameter);
+        proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_v2, tvb, offset,
+                param_length_length, parameter);
       }
 
     }
-    offset += 2;
+    /* after param_id */
+    offset += param_length_length;
 
     if (parameter == PID_SENTINEL) {
-        /* PID_SENTINEL closes the parameter list, (length is ignored) */
-        proto_item_set_len(param_item, 4);
-        return offset +2;
+      /* PID_SENTINEL closes the parameter list, (length is ignored) */
+      proto_item_set_len(param_item, 4);
+      return offset +2;
     }
 
     /* parameter length */
-    param_length = NEXT_guint16(tvb, offset, little_endian);
     param_len_item = proto_tree_add_item(rtps_parameter_tree, hf_rtps_parameter_length,
-                        tvb, offset, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
-    offset += 2;
+                        tvb, offset, param_length_length, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+    offset += param_length_length;
 
     /* Make sure we have enough bytes for the param value */
     if ((size-4 < param_length) &&
@@ -5924,7 +5937,7 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
     }
 
     /* Sets the end of this item (now we know it!) */
-    proto_item_set_len(param_item, param_length+4);
+    proto_item_set_len(param_item, param_length+2*param_length_length);
 
     /* This way, we can include vendor specific dissections without modifying the main ones */
     switch (vendor_id) {
