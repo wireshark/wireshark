@@ -81,11 +81,11 @@ static fw_product products[] = {
       NULL, sf_ios_std_ipv4, NULL, NULL, FALSE },
     { "Cisco IOS (extended)", "Change NUMBER to a valid ACL number.", "!",
         NULL, sf_ios_ext_ipv4, sf_ios_ext_port, sf_ios_ext_ipv4_port, TRUE },
-    { "IP Filter (ipfilter)", "Change le0 to a valid interface.", "#",
+    { "IP Filter (ipfilter)", "Change le0 to a valid interface if needed.", "#",
         NULL, sf_ipfilter_ipv4, sf_ipfilter_port, sf_ipfilter_ipv4_port, TRUE },
     { "IPFirewall (ipfw)", "", "#",
         sf_ipfw_mac, sf_ipfw_ipv4, sf_ipfw_port, sf_ipfw_ipv4_port, TRUE },
-    { "Netfilter (iptables)", "Change eth0 to a valid interface.", "#",
+    { "Netfilter (iptables)", "Change eth0 to a valid interface if needed.", "#",
         sf_netfilter_mac, sf_netfilter_ipv4, sf_netfilter_port,
         sf_netfilter_ipv4_port, TRUE },
     { "Packet Filter (pf)", "$ext_if should be set to a valid interface.", "#",
@@ -164,7 +164,7 @@ static void sf_ipfw_mac(GString *rtxt, gchar *addr, guint32 port _U_, port_type 
 #define NF_DROP (deny ? "DROP" : "ACCEPT")
 #define NF_INPUT (inbound ? "INPUT" : "OUTPUT")
 static void sf_netfilter_mac(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
-    g_string_append_printf(rtxt, "iptables -A %s -i eth0 --mac-source %s -j %s",
+    g_string_append_printf(rtxt, "iptables --append %s --in-interface eth0 --mac-source %s --jump %s",
         NF_INPUT, addr, NF_DROP);
 }
 
@@ -193,9 +193,10 @@ static void sf_ipfw_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type
         IPFW_DENY, addr, IPFW_IN);
 }
 
+#define NF_ADDR_DIR (inbound ? "--source" : "--destination")
 static void sf_netfilter_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
-    g_string_append_printf(rtxt, "iptables -A %s -i eth0 -d %s/32 -j %s",
-        NF_INPUT, addr, NF_DROP);
+    g_string_append_printf(rtxt, "iptables --append %s --in-interface eth0 %s %s/32 --jump %s",
+        NF_INPUT, NF_ADDR_DIR, addr, NF_DROP);
 }
 
 #define PF_DENY (deny ? "block" : "pass")
@@ -222,9 +223,10 @@ static void sf_ipfw_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type
         IPFW_DENY, RT_TCP_UDP, port, IPFW_IN);
 }
 
+#define NF_PORT_DIR (inbound ? "--source-port" : "--destination-port")
 static void sf_netfilter_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
-    g_string_append_printf(rtxt, "iptables -A %s -i eth0 -p %s --destination-port %u -j %s",
-            NF_INPUT, RT_TCP_UDP, port, NF_DROP);
+    g_string_append_printf(rtxt, "iptables --append %s --in-interface eth0 --protocol %s %s %u --jump %s",
+            NF_INPUT, RT_TCP_UDP, NF_PORT_DIR, port, NF_DROP);
 }
 
 static void sf_pf_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
@@ -266,8 +268,8 @@ static void sf_pf_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type 
 }
 
 static void sf_netfilter_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
-    g_string_append_printf(rtxt, "iptables -A %s -i eth0 -p %s -d %s/32 --destination-port %u -j %s",
-        NF_INPUT, RT_TCP_UDP, addr, port, NF_DROP);
+    g_string_append_printf(rtxt, "iptables --append %s --in-interface eth0 --protocol %s %s %s/32 %s %u --jump %s",
+        NF_INPUT, RT_TCP_UDP, NF_ADDR_DIR, addr, NF_PORT_DIR, port, NF_DROP);
 }
 
 static void sf_netsh_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound _U_, gboolean deny) {

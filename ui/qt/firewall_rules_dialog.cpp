@@ -42,6 +42,11 @@
 #include <QPushButton>
 #include <QTextCursor>
 
+// XXX As described in bug 2482, some of the generated rules don't
+// make sense. We could generate rules for every conceivable use case,
+// but that would add complexity. We could also add controls to let
+// users fine-tune rule output, but that would also add complexity.
+
 FirewallRulesDialog::FirewallRulesDialog(QWidget &parent, CaptureFile &cf) :
     WiresharkDialog(parent, cf),
     ui(new Ui::FirewallRulesDialog),
