@@ -909,7 +909,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         memcpy((guint8 *)&srcAddr, pinfo->src.data, pinfo->src.len);
 
         /* from RFC6554: Multicast addresses MUST NOT appear in the IPv6 Destination Address field */
-        if(g_ipv6_rpl_srh_strict_rfc_checking && in6_is_addr_multicast(&dstAddr)){
+        if (in6_is_addr_multicast(&dstAddr)) {
             expert_add_info(pinfo, pi, &ei_ipv6_dst_addr_not_multicast);
         }
 
@@ -926,14 +926,14 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         pad >>= 4;
 
         /* from RFC6554: when CmprI and CmprE are both 0, Pad MUST carry a value of 0 */
-        if(g_ipv6_rpl_srh_strict_rfc_checking && (cmprI == 0 && cmprE == 0 && pad != 0)){
+        if (cmprI == 0 && cmprE == 0 && pad != 0) {
             expert_add_info_format(pinfo, ti, &ei_ipv6_routing_rpl_cmpri_cmpre_pad, "When cmprI equals 0 and cmprE equals 0, pad MUST equal 0 but instead was %d", pad);
         }
 
         ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
         reserved = tvb_get_bits32(tvb, ((offset + 1) * 8) + 4, 20, ENC_BIG_ENDIAN);
 
-        if(g_ipv6_rpl_srh_strict_rfc_checking && reserved != 0){
+        if (reserved != 0) {
             expert_add_info_format(pinfo, ti, &ei_ipv6_routing_rpl_reserved, "Reserved field must equal 0 but instead was %d", reserved);
         }
 
@@ -970,7 +970,20 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 offset += (16-cmprI);
                 rpl_addr_count--;
 
-                if(g_ipv6_rpl_srh_strict_rfc_checking){
+                /* IPv6 Source and Destination addresses of the encapsulating datagram (MUST) not appear in the SRH*/
+                if (memcmp(addr->bytes, srcAddr.bytes, 16) == 0) {
+                    expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_src_addr);
+                }
+                if (memcmp(addr->bytes, dstAddr.bytes, 16) == 0) {
+                    expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_dst_addr);
+                }
+
+                /* Multicast addresses MUST NOT appear in the in SRH */
+                if (in6_is_addr_multicast(addr)) {
+                    expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
+                }
+
+                if (g_ipv6_rpl_srh_strict_rfc_checking) {
                     /* from RFC6554: */
                     /* The SRH MUST NOT specify a path that visits a node more than once. */
                     /* To do this, we will just check the current 'addr' against the next addresses */
@@ -1002,19 +1015,6 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                             expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_mult_inst_same_addr);
                         }
                     }
-                    /* IPv6 Source and Destination addresses of the encapsulating datagram (MUST) not appear in the SRH*/
-                    if (memcmp(addr->bytes, srcAddr.bytes, 16) == 0) {
-                        expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_src_addr);
-                    }
-
-                    if (memcmp(addr->bytes, dstAddr.bytes, 16) == 0) {
-                        expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_dst_addr);
-                    }
-
-                    /* Multicast addresses MUST NOT appear in the in SRH */
-                    if(in6_is_addr_multicast(addr)){
-                        expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
-                    }
                 }
             }
 
@@ -1029,20 +1029,17 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 PROTO_ITEM_SET_GENERATED(ti);
                 /* offset += (16-cmprE); */
 
-                if(g_ipv6_rpl_srh_strict_rfc_checking){
-                    /* IPv6 Source and Destination addresses of the encapsulating datagram (MUST) not appear in the SRH*/
-                    if (memcmp(addr->bytes, srcAddr.bytes, 16) == 0) {
-                        expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_src_addr);
-                    }
+                /* IPv6 Source and Destination addresses of the encapsulating datagram (MUST) not appear in the SRH*/
+                if (memcmp(addr->bytes, srcAddr.bytes, 16) == 0) {
+                    expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_src_addr);
+                }
+                if (memcmp(addr->bytes, dstAddr.bytes, 16) == 0) {
+                    expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_dst_addr);
+                }
 
-                    if (memcmp(addr->bytes, dstAddr.bytes, 16) == 0) {
-                        expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_dst_addr);
-                    }
-
-                    /* Multicast addresses MUST NOT appear in the in SRH */
-                    if(in6_is_addr_multicast(addr)){
-                        expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
-                    }
+                /* Multicast addresses MUST NOT appear in the in SRH */
+                if (in6_is_addr_multicast(addr)) {
+                    expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
                 }
                 dst_addr = addr;
             }
@@ -3567,7 +3564,7 @@ proto_register_ipv6(void)
     /* RPL Strict Header Checking */
     prefs_register_bool_preference(ipv6_module, "perform_strict_rpl_srh_rfc_checking",
                                    "Perform strict checking for adherence to the RFC for RPL Source Routing Headers (RFC 6554)",
-                                   "Whether to check that all RPL Source Routing Headers adhere to RFC 6554",
+                                   "Whether to check that all RPL Source Routed packets do not visit a node more than once",
                                    &g_ipv6_rpl_srh_strict_rfc_checking);
 
     prefs_register_bool_preference(ipv6_module, "try_heuristic_first",
