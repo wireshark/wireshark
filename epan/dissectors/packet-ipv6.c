@@ -836,24 +836,23 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
         if (rt.ip6r_len % 2 != 0) {
             expert_add_info_format(pinfo, ti_len, &ei_ipv6_routing_invalid_length,
-                "IPv6 Routing Header extension header length must not be odd");
-        } else {
-            rt0_addr_count = rt.ip6r_len / 2;
-            if (rt.ip6r_segleft > rt0_addr_count) {
-                expert_add_info_format(pinfo, ti_seg, &ei_ipv6_routing_invalid_segleft,
-                    "IPv6 Type 0 Routing Header segments left field must not exceed address count (%u)", rt0_addr_count);
-            }
-            offlim = offset + rt0_addr_count * IPv6_ADDR_SIZE;
-            for (; offset < offlim; offset += IPv6_ADDR_SIZE) {
-                ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_src_addr, tvb,
-                                    offset, IPv6_ADDR_SIZE, ENC_NA);
-                tvb_get_ipv6(tvb, offset, addr);
-                if (in6_is_addr_multicast(addr)) {
-                    expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
-                }
-            }
-            dst_addr = addr;
+                    "IPv6 Routing Header extension header length must not be odd");
         }
+        rt0_addr_count = rt.ip6r_len / 2;
+        if (rt.ip6r_segleft > rt0_addr_count) {
+            expert_add_info_format(pinfo, ti_seg, &ei_ipv6_routing_invalid_segleft,
+                    "IPv6 Type 0 Routing Header segments left field must not exceed address count (%u)", rt0_addr_count);
+        }
+        offlim = offset + rt0_addr_count * IPv6_ADDR_SIZE;
+        for (; offset < offlim; offset += IPv6_ADDR_SIZE) {
+            ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_src_addr, tvb,
+                                offset, IPv6_ADDR_SIZE, ENC_NA);
+            tvb_get_ipv6(tvb, offset, addr);
+            if (in6_is_addr_multicast(addr)) {
+                expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
+            }
+        }
+        dst_addr = addr;
     }
 
     /* Mobile IPv6 Routing Header (Type 2) */
@@ -863,20 +862,19 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
         if (rt.ip6r_len != 2) {
             expert_add_info_format(pinfo, ti_len, &ei_ipv6_routing_invalid_length,
-                "IPv6 Type 2 Routing Header extension header length must equal 2");
-        } else {
-            if (rt.ip6r_segleft != 1) {
-                expert_add_info_format(pinfo, ti_seg, &ei_ipv6_routing_invalid_segleft,
-                    "IPv6 Type 2 Routing Header segments left field must equal 1");
-            }
-            ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_mipv6_home_address, tvb,
-                                    offset, IPv6_ADDR_SIZE, ENC_NA);
-            tvb_get_ipv6(tvb, offset, addr);
-            if (in6_is_addr_multicast(addr)) {
-                expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
-            }
-            dst_addr = addr;
+                    "IPv6 Type 2 Routing Header extension header length must equal 2");
         }
+        if (rt.ip6r_segleft != 1) {
+            expert_add_info_format(pinfo, ti_seg, &ei_ipv6_routing_invalid_segleft,
+                    "IPv6 Type 2 Routing Header segments left field must equal 1");
+        }
+        ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_mipv6_home_address, tvb,
+                                offset, IPv6_ADDR_SIZE, ENC_NA);
+        tvb_get_ipv6(tvb, offset, addr);
+        if (in6_is_addr_multicast(addr)) {
+            expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
+        }
+        dst_addr = addr;
     }
 
     /* RPL Source Routing Header (Type 3) */
