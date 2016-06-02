@@ -56,6 +56,10 @@
 #include "packet-gsm_rlcmac.h"
 
 void proto_register_gsm_rlcmac(void);
+void proto_reg_handoff_gsm_rlcmac(void);
+
+static dissector_handle_t lte_rrc_dl_dcch_handle = NULL;
+static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle = NULL;
 
 /* private typedefs */
 typedef struct
@@ -105,6 +109,7 @@ static int proto_gsm_rlcmac = -1;
 static int ett_gsm_rlcmac  = -1;
 static int ett_gsm_rlcmac_data  = -1;
 static int ett_data_segments  = -1;
+static int ett_gsm_rlcmac_container = -1;
 
 /* common MAC header IEs */
 static int hf_usf = -1;
@@ -969,6 +974,8 @@ static int hf_nas_container_for_ps_ho_type_of_ciphering = -1;
 static int hf_nas_container_for_ps_ho_iov_ui_value = -1;
 static int hf_ps_handoverto_utran_payload_rrc_containerlength = -1;
 static int hf_ps_handoverto_utran_payload_rrc_container = -1;
+static int hf_ps_handoverto_eutran_payload_rrc_containerlength = -1;
+static int hf_ps_handoverto_eutran_payload_rrc_container = -1;
 static int hf_pho_radioresources_handoverreference = -1;
 static int hf_pho_radioresources_si = -1;
 static int hf_pho_radioresources_nci = -1;
@@ -4099,7 +4106,8 @@ CSN_DESCR_BEGIN(Cell_Selection_Params_With_FreqDiff_t)
   M_TYPE       (Cell_Selection_Params_With_FreqDiff_t, Cell_SelectionParams, Cell_Selection_t),
 CSN_DESCR_END  (Cell_Selection_Params_With_FreqDiff_t)
 
-static CSN_CallBackStatus_t callback_init_Cell_Selection_Params_FREQUENCY_DIFF(proto_tree *tree _U_, tvbuff_t *tvb _U_, void* param1, void* param2, int bit_offset _U_, int ett_csn1 _U_)
+static CSN_CallBackStatus_t callback_init_Cell_Selection_Params_FREQUENCY_DIFF(proto_tree *tree _U_, tvbuff_t *tvb _U_, void* param1, void* param2,
+                                                                               int bit_offset _U_, int ett_csn1 _U_, packet_info* pinfo _U_)
 {
   guint  i;
   guint8 freq_diff_len = *(guint8*)param1;
@@ -4220,7 +4228,8 @@ static const CSN_DESCR_BEGIN(CellSelectionParamsWithFreqDiff_t)
 CSN_DESCR_END  (CellSelectionParamsWithFreqDiff_t)
 
 
-static CSN_CallBackStatus_t callback_init_Cell_Sel_Param_2_FREQUENCY_DIFF(proto_tree *tree _U_, tvbuff_t *tvb _U_, void* param1, void* param2, int bit_offset _U_, int ett_csn1 _U_)
+static CSN_CallBackStatus_t callback_init_Cell_Sel_Param_2_FREQUENCY_DIFF(proto_tree *tree _U_, tvbuff_t *tvb _U_, void* param1, void* param2,
+                                                                          int bit_offset _U_, int ett_csn1 _U_, packet_info* pinfo _U_)
 {
   guint  i;
   guint8 freq_diff_len = *(guint8*)param1;
@@ -4423,7 +4432,8 @@ CSN_DESCR_END  (CDMA2000_Description_t)
 static const guint8 NR_OF_FDD_CELLS_map[32] = {0, 10, 19, 28, 36, 44, 52, 60, 67, 74, 81, 88, 95, 102, 109, 116, 122, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 #endif
 #if 0
-static CSN_CallBackStatus_t callback_UTRAN_FDD_map_NrOfFrequencies(proto_tree *tree _U_, tvbuff_t *tvb _U_, void* param1, void* param2, int bit_offset _U_, int ett_csn1 _U_)
+static CSN_CallBackStatus_t callback_UTRAN_FDD_map_NrOfFrequencies(proto_tree *tree _U_, tvbuff_t *tvb _U_, void* param1, void* param2,
+                                                                   int bit_offset _U_, int ett_csn1 _U_, packet_info* pinfo _U_)
 {   /* TS 44.060 Table 11.2.9b.2.a */
   guint8 *pNrOfCells = (guint8*)param1;
   guint8 *pBitsInCellInfo = (guint8*)param2;
@@ -4440,7 +4450,8 @@ static CSN_CallBackStatus_t callback_UTRAN_FDD_map_NrOfFrequencies(proto_tree *t
   return 0;
 }
 
-static CSN_CallBackStatus_t callback_UTRAN_FDD_compute_FDD_CELL_INFORMATION(proto_tree *tree, tvbuff_t *tvb, void* param1, void* param2 _U_, int bit_offset, int ett_csn1)
+static CSN_CallBackStatus_t callback_UTRAN_FDD_compute_FDD_CELL_INFORMATION(proto_tree *tree, tvbuff_t *tvb, void* param1, void* param2 _U_,
+                                                                            int bit_offset, int ett_csn1, packet_info* pinfo _U_)
 {
   proto_tree   *subtree;
   UTRAN_FDD_NeighbourCells_t * pUtranFddNcell = (UTRAN_FDD_NeighbourCells_t*)param1;
@@ -4523,7 +4534,8 @@ CSN_DESCR_END  (UTRAN_FDD_Description_t)
 
 
 static const guint8 NR_OF_TDD_CELLS_map[32] = {0, 9, 17, 25, 32, 39, 46, 53, 59, 65, 71, 77, 83, 89, 95, 101, 106, 111, 116, 121, 126, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-static CSN_CallBackStatus_t callback_UTRAN_TDD_map_NrOfFrequencies(proto_tree *tree _U_, tvbuff_t *tvb _U_, void* param1, void* param2, int bit_offset _U_, int ett_csn1 _U_)
+static CSN_CallBackStatus_t callback_UTRAN_TDD_map_NrOfFrequencies(proto_tree *tree _U_, tvbuff_t *tvb _U_, void* param1, void* param2,
+                                                                   int bit_offset _U_, int ett_csn1 _U_, packet_info* pinfo _U_)
 {  /* TS 44.060 Table 11.2.9b.2.b */
   guint8 * pNrOfCells = (guint8*)param1;
   guint8 * pBitsInCellInfo = (guint8*)param2;
@@ -4540,7 +4552,8 @@ static CSN_CallBackStatus_t callback_UTRAN_TDD_map_NrOfFrequencies(proto_tree *t
   return 0;
 }
 
-static CSN_CallBackStatus_t callback_UTRAN_TDD_compute_TDD_CELL_INFORMATION(proto_tree *tree, tvbuff_t *tvb, void* param1, void* param2 _U_, int bit_offset, int ett_csn1)
+static CSN_CallBackStatus_t callback_UTRAN_TDD_compute_TDD_CELL_INFORMATION(proto_tree *tree, tvbuff_t *tvb, void* param1, void* param2 _U_,
+                                                                            int bit_offset, int ett_csn1, packet_info* pinfo _U_)
 {
   proto_tree   *subtree;
   UTRAN_TDD_NeighbourCells_t *pUtranTddNcell = (UTRAN_TDD_NeighbourCells_t *)param1;
@@ -4760,7 +4773,8 @@ CSN_DESCR_BEGIN(lu_ModeOnlyCellSelectionParamsWithFreqDiff_t)
   M_TYPE       (lu_ModeOnlyCellSelectionParamsWithFreqDiff_t, lu_ModeOnlyCellSelectionParams, lu_ModeOnlyCellSelection_t),
 CSN_DESCR_END  (lu_ModeOnlyCellSelectionParamsWithFreqDiff_t)
 
-static CSN_CallBackStatus_t callback_init_luMode_Cell_Sel_Param_FREQUENCY_DIFF(proto_tree *tree _U_, tvbuff_t *tvb _U_, void* param1, void* param2, int bit_offset _U_, int ett_csn1 _U_)
+static CSN_CallBackStatus_t callback_init_luMode_Cell_Sel_Param_FREQUENCY_DIFF(proto_tree *tree _U_, tvbuff_t *tvb _U_, void* param1, void* param2,
+                                                                               int bit_offset _U_, int ett_csn1 _U_, packet_info* pinfo _U_)
 {
   guint  i;
   guint8 freq_diff_len = *(guint8*)param1;
@@ -6019,22 +6033,65 @@ CSN_DESCR_END  (PHO_TimingAdvance_t)
 
 static const
 CSN_DESCR_BEGIN(NAS_Container_For_PS_HO_t)
-M_UINT         (NAS_Container_For_PS_HO_t,  NAS_ContainerLength,  7, &hf_nas_container_for_ps_ho_containerlength),
-M_UINT         (NAS_Container_For_PS_HO_t,  Spare_1a,  1, &hf_nas_container_for_ps_ho_spare),
-M_UINT         (NAS_Container_For_PS_HO_t,  Spare_1b,  1, &hf_nas_container_for_ps_ho_spare),
-M_UINT         (NAS_Container_For_PS_HO_t,  Spare_1c,  1, &hf_nas_container_for_ps_ho_spare),
-M_UINT         (NAS_Container_For_PS_HO_t,  Old_XID,  1, &hf_nas_container_for_ps_ho_old_xid),
-M_UINT         (NAS_Container_For_PS_HO_t,  Spare_1e,  1, &hf_nas_container_for_ps_ho_spare),
-M_UINT         (NAS_Container_For_PS_HO_t,  Type_of_Ciphering_Algo,  3, &hf_nas_container_for_ps_ho_type_of_ciphering),
-M_UINT         (NAS_Container_For_PS_HO_t,  IOV_UI_value,  32, &hf_nas_container_for_ps_ho_iov_ui_value),
+  M_UINT       (NAS_Container_For_PS_HO_t,  NAS_ContainerLength,  7, &hf_nas_container_for_ps_ho_containerlength),
+  M_UINT       (NAS_Container_For_PS_HO_t,  Spare_1a,  1, &hf_nas_container_for_ps_ho_spare),
+  M_UINT       (NAS_Container_For_PS_HO_t,  Spare_1b,  1, &hf_nas_container_for_ps_ho_spare),
+  M_UINT       (NAS_Container_For_PS_HO_t,  Spare_1c,  1, &hf_nas_container_for_ps_ho_spare),
+  M_UINT       (NAS_Container_For_PS_HO_t,  Old_XID,  1, &hf_nas_container_for_ps_ho_old_xid),
+  M_UINT       (NAS_Container_For_PS_HO_t,  Spare_1e,  1, &hf_nas_container_for_ps_ho_spare),
+  M_UINT       (NAS_Container_For_PS_HO_t,  Type_of_Ciphering_Algo,  3, &hf_nas_container_for_ps_ho_type_of_ciphering),
+  M_UINT       (NAS_Container_For_PS_HO_t,  IOV_UI_value,  32, &hf_nas_container_for_ps_ho_iov_ui_value),
 CSN_DESCR_END  (NAS_Container_For_PS_HO_t)
+
+static CSN_CallBackStatus_t callback_call_handover_to_utran_cmd(proto_tree *tree, tvbuff_t *tvb, void* param1, void* param2 _U_,
+                                                                int bit_offset, int ett_csn1 _U_, packet_info* pinfo)
+{
+  guint8 RRC_ContainerLength = *(guint8*)param1;
+  proto_item *ti;
+
+  tvbuff_t *target_rat_msg_cont_tvb = tvb_new_octet_aligned(tvb, bit_offset, RRC_ContainerLength<<3);
+  add_new_data_source(pinfo, target_rat_msg_cont_tvb, "UTRAN RRC PDU");
+
+  ti = proto_tree_add_item(tree, hf_ps_handoverto_utran_payload_rrc_container, target_rat_msg_cont_tvb, 0, -1, ENC_NA);
+
+  if (rrc_irat_ho_to_utran_cmd_handle) {
+    proto_tree *subtree = proto_item_add_subtree(ti, ett_gsm_rlcmac_container);
+    call_dissector(rrc_irat_ho_to_utran_cmd_handle, target_rat_msg_cont_tvb, pinfo, subtree);
+  }
+
+  return RRC_ContainerLength<<3;
+}
 
 static const
 CSN_DESCR_BEGIN(PS_HandoverTo_UTRAN_Payload_t)
-  M_UINT       (PS_HandoverTo_UTRAN_Payload_t,  RRC_ContainerLength,  8, &hf_ps_handoverto_utran_payload_rrc_containerlength),
-  M_VAR_ARRAY  (PS_HandoverTo_UTRAN_Payload_t, RRC_Container, RRC_ContainerLength, 0, &hf_ps_handoverto_utran_payload_rrc_container),
+  M_UINT       (PS_HandoverTo_UTRAN_Payload_t, RRC_ContainerLength, 8, &hf_ps_handoverto_utran_payload_rrc_containerlength),
+  M_CALLBACK   (PS_HandoverTo_UTRAN_Payload_t, callback_call_handover_to_utran_cmd, RRC_ContainerLength, RRC_ContainerLength),
 CSN_DESCR_END  (PS_HandoverTo_UTRAN_Payload_t)
 
+static CSN_CallBackStatus_t callback_call_eutran_dl_dcch(proto_tree *tree, tvbuff_t *tvb, void* param1, void* param2 _U_,
+                                                         int bit_offset, int ett_csn1 _U_, packet_info* pinfo)
+{
+  guint8 RRC_ContainerLength = *(guint8*)param1;
+  proto_item *ti;
+
+  tvbuff_t *target_rat_msg_cont_tvb = tvb_new_octet_aligned(tvb, bit_offset, RRC_ContainerLength<<3);
+  add_new_data_source(pinfo, target_rat_msg_cont_tvb, "EUTRAN RRC PDU");
+
+  ti = proto_tree_add_item(tree, hf_ps_handoverto_eutran_payload_rrc_container, target_rat_msg_cont_tvb, 0, -1, ENC_NA);
+
+  if (lte_rrc_dl_dcch_handle) {
+    proto_tree *subtree = proto_item_add_subtree(ti, ett_gsm_rlcmac_container);
+    call_dissector(lte_rrc_dl_dcch_handle, target_rat_msg_cont_tvb, pinfo, subtree);
+  }
+
+  return RRC_ContainerLength<<3;
+}
+
+static const
+CSN_DESCR_BEGIN(PS_HandoverTo_E_UTRAN_Payload_t)
+  M_UINT       (PS_HandoverTo_E_UTRAN_Payload_t, RRC_ContainerLength, 8, &hf_ps_handoverto_eutran_payload_rrc_containerlength),
+  M_CALLBACK   (PS_HandoverTo_E_UTRAN_Payload_t, callback_call_eutran_dl_dcch, RRC_ContainerLength, RRC_ContainerLength),
+CSN_DESCR_END  (PS_HandoverTo_E_UTRAN_Payload_t)
 
 static const
 CSN_DESCR_BEGIN(PHO_RadioResources_t)
@@ -6096,7 +6153,7 @@ CSN_DESCR_BEGIN(Packet_Handover_Command_t)
   M_UNION      (Packet_Handover_Command_t, 4, &hf_packet_handover_command),
   M_TYPE       (Packet_Handover_Command_t, u.PS_HandoverTo_A_GB_ModePayload, PS_HandoverTo_A_GB_ModePayload_t),
   M_TYPE       (Packet_Handover_Command_t, u.PS_HandoverTo_UTRAN_Payload, PS_HandoverTo_UTRAN_Payload_t),
-  CSN_ERROR    (Packet_Handover_Command_t, "10 <extension> not implemented", CSN_ERROR_STREAM_NOT_SUPPORTED, &ei_gsm_rlcmac_stream_not_supported),
+  M_TYPE       (Packet_Handover_Command_t, u.PS_HandoverTo_E_UTRAN_Payload, PS_HandoverTo_E_UTRAN_Payload_t),
   CSN_ERROR    (Packet_Handover_Command_t, "11 <extension> not implemented", CSN_ERROR_STREAM_NOT_SUPPORTED, &ei_gsm_rlcmac_stream_not_supported),
 
   M_PADDING_BITS(Packet_Handover_Command_t, &hf_padding),
@@ -6381,7 +6438,8 @@ CSN_DESCR_BEGIN(COMPACT_Neighbour_Cell_Param_Remaining_t)
   M_TYPE       (COMPACT_Neighbour_Cell_Param_Remaining_t,  COMPACT_Cell_Sel_Remain_Cells, COMPACT_Cell_Sel_t),
 CSN_DESCR_END  (COMPACT_Neighbour_Cell_Param_Remaining_t)
 
-static CSN_CallBackStatus_t callback_init_COMP_Ncell_Param_FREQUENCY_DIFF(proto_tree *tree _U_, tvbuff_t *tvb _U_, void* param1, void* param2, int bit_offset _U_, int ett_csn1 _U_)
+static CSN_CallBackStatus_t callback_init_COMP_Ncell_Param_FREQUENCY_DIFF(proto_tree *tree _U_, tvbuff_t *tvb _U_, void* param1, void* param2,
+                                                                          int bit_offset _U_, int ett_csn1 _U_, packet_info* pinfo _U_)
 {
   guint  i;
   guint8 freq_diff_len = *(guint8*)param1;
@@ -8589,7 +8647,8 @@ proto_register_gsm_rlcmac(void)
   static gint *ett[] = {
     &ett_gsm_rlcmac,
     &ett_gsm_rlcmac_data,
-    &ett_data_segments
+    &ett_data_segments,
+    &ett_gsm_rlcmac_container
   };
   static hf_register_info hf[] = {
      { &hf_page_mode,
@@ -13164,8 +13223,20 @@ proto_register_gsm_rlcmac(void)
     },
     { &hf_ps_handoverto_utran_payload_rrc_container,
       { "RRC_Container",        "gsm_rlcmac.dl.ps_handoverto_utran_payload_rrc_container",
-        FT_UINT8, BASE_HEX, NULL, 0x0,
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL
+      }
+    },
+    { &hf_ps_handoverto_eutran_payload_rrc_containerlength,
+      { "RRC_ContainerLength",        "gsm_rlcmac.dl.ps_handoverto_eutran_payload_rrc_containerlength",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL
+    }
+    },
+    { &hf_ps_handoverto_eutran_payload_rrc_container,
+      { "RRC_Container",        "gsm_rlcmac.dl.ps_handoverto_eutran_payload_rrc_container",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL
       }
     },
     { &hf_pho_radioresources_handoverreference,
@@ -16539,6 +16610,11 @@ proto_register_gsm_rlcmac(void)
   register_dissector("gsm_rlcmac_dl", dissect_gsm_rlcmac_downlink, proto_gsm_rlcmac);
 }
 
+void proto_reg_handoff_gsm_rlcmac(void)
+{
+  lte_rrc_dl_dcch_handle = find_dissector("lte_rrc.dl_dcch");
+  rrc_irat_ho_to_utran_cmd_handle = find_dissector("rrc.irat.ho_to_utran_cmd");
+}
 
 /*
  * Editor modelines

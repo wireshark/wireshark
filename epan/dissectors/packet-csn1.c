@@ -1491,8 +1491,9 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         guint16  no_of_bits;
         DissectorCallbackFcn_t callback = (DissectorCallbackFcn_t)pDescr->aux_fn;
 
-        no_of_bits = callback(tree, tvb, pvDATA(data, pDescr->i), pvDATA(data, pDescr->offset), bit_offset, ett_csn1);
+        no_of_bits = callback(tree, tvb, pvDATA(data, pDescr->i), pvDATA(data, pDescr->offset), bit_offset, ett_csn1, ar->pinfo);
         bit_offset += no_of_bits;
+        remaining_bits_len -= no_of_bits;
 
         pDescr++;
         break;
