@@ -1194,6 +1194,7 @@ follow_show(follow_info_t *follow_info,
 
     case SHOW_YAML:
     case SHOW_UTF8:
+    case SHOW_UTF16:
         g_assert_not_reached();
         break;
     }

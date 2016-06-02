@@ -116,6 +116,7 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
     cbcs->addItem(tr("EBCDIC"), SHOW_EBCDIC);
     cbcs->addItem(tr("Hex Dump"), SHOW_HEXDUMP);
     cbcs->addItem(tr("UTF-8"), SHOW_UTF8);
+    cbcs->addItem(tr("UTF-16"), SHOW_UTF16);
     cbcs->addItem(tr("YAML"), SHOW_YAML);
     cbcs->addItem(tr("Raw"), SHOW_RAW);
     cbcs->blockSignals(false);
@@ -638,13 +639,22 @@ FollowStreamDialog::showBuffer(char *buffer, size_t nchars, gboolean is_from_ser
         break;
     }
 
-    case SHOW_UTF8: // UTF-8
+    case SHOW_UTF8:
     {
         // The QString docs say that invalid characters will be replaced with
         // replacement characters or removed. It would be nice if we could
         // explicitly choose one or the other.
         QString utf8 = QString::fromUtf8(buffer, (int)nchars);
         addText(utf8, is_from_server, packet_num);
+        break;
+    }
+
+    case SHOW_UTF16:
+    {
+        // QString::fromUtf16 calls QUtf16::convertToUnicode, casting buffer
+        // back to a const char * and doubling nchars.
+        QString utf16 = QString::fromUtf16((const unsigned short *)buffer, (int)nchars / 2);
+        addText(utf16, is_from_server, packet_num);
         break;
     }
 

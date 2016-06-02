@@ -63,7 +63,8 @@ typedef enum {
     SHOW_CARRAY,
     SHOW_RAW,
     SHOW_YAML,
-    SHOW_UTF8
+    SHOW_UTF8,
+    SHOW_UTF16
 } show_type_t;
 
 
