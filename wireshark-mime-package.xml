@@ -118,11 +118,13 @@
     <magic>
       <match type="string" offset="0" value="\177ver"/>
     </magic>
-    <glob pattern="*.tpc"/>
     <glob pattern="*.apc"/>
+    <glob pattern="*.pkt"/>
+    <glob pattern="*.tpc"/>
     <glob pattern="*.wpz"/>
-    <glob pattern="*.tpc.gz"/>
     <glob pattern="*.apc.gz"/>
+    <glob pattern="*.pkt.gz"/>
+    <glob pattern="*.tpc.gz"/>
     <glob pattern="*.wpz.gz"/>
   </mime-type>
 

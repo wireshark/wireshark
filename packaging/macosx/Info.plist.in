@@ -17,7 +17,94 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
+				<string>5vw</string>
+				<string>5vw.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>InfoVista 5View Packet Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>apc</string>
+				<string>pkt</string>
+				<string>tpc</string>
+				<string>wpz</string>
+				<string>apc.gz</string>
+				<string>pkt.gz</string>
+				<string>tpc.gz</string>
+				<string>wpz.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Savvius Packet Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>bfr</string>
+				<string>bfr.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Network Instruments Observer Packet Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>erf</string>
+				<string>erf.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Endace ERF Packet Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>ipfix</string>
+				<string>pfx</string>
+				<string>ipfix.gz</string>
+				<string>pfx.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>IPFIX Packet Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>mplog</string>
+				<string>mplog.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Micropross mplog Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
 				<string>pcap</string>
+				<string>pcap.gz</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string>Wiresharkdoc.icns</string>
@@ -39,6 +126,8 @@
 			<array>
 				<string>pcapng</string>
 				<string>ntar</string>
+				<string>pcapng.gz</string>
+				<string>ntar.gz</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string>Wiresharkdoc.icns</string>
@@ -50,19 +139,8 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>mplog</string>
-			</array>
-			<key>CFBundleTypeIconFile</key>
-			<string>Wiresharkdoc.icns</string>
-			<key>CFBundleTypeName</key>
-			<string>Micropross mplog Capture</string>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
 				<string>pklg</string>
+				<string>pklg.gz</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string>Wiresharkdoc.icns</string>
@@ -74,25 +152,54 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>erf</string>
+				<string>rf5</string>
+				<string>rf5.gz</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string>Wiresharkdoc.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Endace ERF Capture</string>
+			<string>Tektronix Packet Capture</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>pfx</string>
-				<string>ipfix</string>
+				<string>snoop</string>
+				<string>snoop.gz</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string>Wiresharkdoc.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>IPFIX Packet Capture</string>
+			<string>Solaris snoop Packet Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>tr1</string>
+				<string>tr1.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Novell LANalyzer Packet Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>trc0</string>
+				<string>trc0.gz</string>
+				<string>trc1</string>
+				<string>trc1.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>HP-UX nettl Packet Capture</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 		</dict>
@@ -100,6 +207,7 @@
 			<key>CFBundleTypeExtensions</key>
 			<array>
 				<string>vwr</string>
+				<string>vwr.gz</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string>Wiresharkdoc.icns</string>
