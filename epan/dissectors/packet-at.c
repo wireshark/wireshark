@@ -41,7 +41,7 @@ static gboolean allowed_chars(tvbuff_t *tvb)
     gint offset, len;
     guint8 val;
 
-    len = tvb_reported_length(tvb);
+    len = tvb_captured_length(tvb);
     for (offset = 0; offset < len; offset++) {
         val = tvb_get_guint8(tvb, offset);
         if (!(g_ascii_isprint(val) || (val == 0x0a) || (val == 0x0d)))
@@ -55,20 +55,19 @@ static int dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 {
     proto_item *item;
     proto_tree *at_tree;
-    gint len;
+    gchar *string;
 
-    len = tvb_reported_length(tvb);
+    string = tvb_format_text_wsp(tvb, 0, tvb_captured_length(tvb));
     col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "AT");
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "AT Command: %s",
-        tvb_format_text_wsp(tvb, 0, len));
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "AT Command: %s", string);
 
     /* Start with a top-level item to add everything else to */
     item = proto_tree_add_item(tree, proto_at, tvb, 0, -1, ENC_NA);
+    proto_item_append_text(item, ": %s", string);
     at_tree = proto_item_add_subtree(item, ett_at);
 
     /* Command */
-    proto_tree_add_item(at_tree, hf_at_command, tvb, 0, len, ENC_ASCII|ENC_NA);
-    proto_item_append_text(item, ": %s", tvb_format_text_wsp(tvb, 0, len));
+    proto_tree_add_item(at_tree, hf_at_command, tvb, 0, tvb_reported_length(tvb), ENC_ASCII|ENC_NA);
 
     return tvb_captured_length(tvb);
 }
