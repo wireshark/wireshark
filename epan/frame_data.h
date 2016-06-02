@@ -62,6 +62,7 @@ struct _color_filter; /* Forward */
 DIAG_OFF_PEDANTIC
 typedef struct _frame_data {
   uint32_t     num;          /**< Frame number */
+  uint32_t     dis_num;      /**< Displayed frame number */
   uint32_t     pkt_len;      /**< Packet length */
   uint32_t     cap_len;      /**< Amount actually captured */
   uint32_t     cum_bytes;    /**< Cumulative bytes into the capture */

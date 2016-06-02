@@ -157,6 +157,7 @@ frame_data_init(frame_data *fdata, uint32_t num, const wtap_rec *rec,
 {
   fdata->pfd = NULL;
   fdata->num = num;
+  fdata->dis_num = num;
   fdata->file_off = offset;
   fdata->passed_dfilter = 1;
   fdata->dependent_of_displayed = 0;

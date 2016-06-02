@@ -1263,8 +1263,10 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
         }
     }
 
-    if (fdata->passed_dfilter || fdata->ref_time)
+    if (fdata->passed_dfilter || fdata->ref_time) {
         cf->displayed_count++;
+        fdata->dis_num = cf->displayed_count;
+    }
 
     if (add_to_packet_list) {
         /* We fill the needed columns from new_packet_list */

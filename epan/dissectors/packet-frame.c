@@ -57,6 +57,7 @@ static int hf_frame_time_relative;
 static int hf_frame_time_relative_cap;
 static int hf_frame_time_reference;
 static int hf_frame_number;
+static int hf_frame_number_displayed;
 static int hf_frame_len;
 static int hf_frame_capture_len;
 static int hf_frame_p2p_dir;
@@ -1054,6 +1055,12 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		proto_tree_add_uint(fh_tree, hf_frame_number, tvb,
 				    0, 0, pinfo->num);
 
+		if (proto_field_is_referenced(tree, hf_frame_number_displayed)) {
+			ti = proto_tree_add_uint(fh_tree, hf_frame_number_displayed, tvb,
+						 0, 0, pinfo->fd->dis_num);
+			PROTO_ITEM_SET_GENERATED(ti);
+		}
+
 		item = proto_tree_add_uint_format_value(fh_tree, hf_frame_len, tvb,
 						  0, 0, frame_len, "%u byte%s (%u bits)",
 						  frame_len, frame_plurality, frame_len * 8);
@@ -1576,6 +1583,11 @@ proto_register_frame(void)
 
 		{ &hf_frame_number,
 		  { "Frame Number", "frame.number",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_frame_number_displayed,
+		  { "Displayed Frame Number", "frame.number_displayed",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 
