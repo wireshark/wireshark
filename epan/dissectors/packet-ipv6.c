@@ -915,17 +915,15 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         guint8 pad;
         guint32 reserved;
         gint rpl_addr_count;
+        const struct e_in6_addr *ip6_dst_addr, *ip6_src_addr;
 
         /* IPv6 destination address used for elided bytes */
-        struct e_in6_addr dstAddr;
+        ip6_dst_addr = (const struct e_in6_addr *)pinfo->dst.data;
         /* IPv6 source address used for strict checking */
-        struct e_in6_addr srcAddr;
-
-        memcpy((guint8 *)&dstAddr, pinfo->dst.data, pinfo->dst.len);
-        memcpy((guint8 *)&srcAddr, pinfo->src.data, pinfo->src.len);
+        ip6_src_addr = (const struct e_in6_addr *)pinfo->src.data;
 
         /* from RFC6554: Multicast addresses MUST NOT appear in the IPv6 Destination Address field */
-        if (in6_is_addr_multicast(&dstAddr)) {
+        if (in6_is_addr_multicast(ip6_dst_addr)) {
             expert_add_info(pinfo, pi, &ei_ipv6_dst_addr_not_multicast);
         }
 
@@ -978,7 +976,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             for (idx = 1; rpl_addr_count > 1; idx++) {
                 proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_addr, tvb, offset, (16-cmprI), ENC_NA);
                 /* Display Full Address */
-                memcpy((guint8 *)addr, (guint8 *)&dstAddr, sizeof(dstAddr));
+                memcpy(addr, ip6_dst_addr, IPv6_ADDR_SIZE);
                 tvb_memcpy(tvb, (guint8 *)addr + cmprI, offset, (16-cmprI));
                 ti = _proto_tree_add_ipv6_vector_address(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb,
                                     offset, 16-cmprI, addr, idx);
@@ -987,10 +985,10 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 rpl_addr_count--;
 
                 /* IPv6 Source and Destination addresses of the encapsulating datagram (MUST) not appear in the SRH*/
-                if (memcmp(addr->bytes, srcAddr.bytes, 16) == 0) {
+                if (memcmp(addr, ip6_src_addr, IPv6_ADDR_SIZE) == 0) {
                     expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_src_addr);
                 }
-                if (memcmp(addr->bytes, dstAddr.bytes, 16) == 0) {
+                if (memcmp(addr, ip6_dst_addr, IPv6_ADDR_SIZE) == 0) {
                     expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_dst_addr);
                 }
 
@@ -1009,10 +1007,10 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                     tempOffset = offset; /* Has already been moved */
                     while(tempSegments > 1) {
                         struct e_in6_addr tempAddr;
-                        memcpy((guint8 *)&tempAddr, (guint8 *)&dstAddr, sizeof(dstAddr));
+                        memcpy(&tempAddr, ip6_dst_addr, IPv6_ADDR_SIZE);
                         tvb_memcpy(tvb, (guint8 *)&tempAddr + cmprI, tempOffset, (16-cmprI));
                         /* Compare the addresses */
-                        if (memcmp(addr->bytes, tempAddr.bytes, 16) == 0) {
+                        if (memcmp(addr, &tempAddr, IPv6_ADDR_SIZE) == 0) {
                             /* Found a later address that is the same */
                             expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_mult_inst_same_addr);
                             break;
@@ -1023,10 +1021,10 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                     if (tempSegments == 1) {
                         struct e_in6_addr tempAddr;
 
-                        memcpy((guint8 *)&tempAddr, (guint8 *)&dstAddr, sizeof(dstAddr));
+                        memcpy(&tempAddr, ip6_dst_addr, IPv6_ADDR_SIZE);
                         tvb_memcpy(tvb, (guint8 *)&tempAddr + cmprE, tempOffset, (16-cmprE));
                         /* Compare the addresses */
-                        if (memcmp(addr->bytes, tempAddr.bytes, 16) == 0) {
+                        if (memcmp(addr, &tempAddr, IPv6_ADDR_SIZE) == 0) {
                             /* Found a later address that is the same */
                             expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_mult_inst_same_addr);
                         }
@@ -1038,7 +1036,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             if (rpl_addr_count == 1) {
                 proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_addr, tvb, offset, (16-cmprE), ENC_NA);
                 /* Display Full Address */
-                memcpy((guint8 *)addr, (guint8 *)&dstAddr, sizeof(dstAddr));
+                memcpy(addr, ip6_dst_addr, IPv6_ADDR_SIZE);
                 tvb_memcpy(tvb, (guint8 *)addr + cmprE, offset, (16-cmprE));
                 ti = _proto_tree_add_ipv6_vector_address(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb,
                                     offset, 16-cmprE, addr, idx);
@@ -1046,10 +1044,10 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 /* offset += (16-cmprE); */
 
                 /* IPv6 Source and Destination addresses of the encapsulating datagram (MUST) not appear in the SRH*/
-                if (memcmp(addr->bytes, srcAddr.bytes, 16) == 0) {
+                if (memcmp(addr, ip6_src_addr, IPv6_ADDR_SIZE) == 0) {
                     expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_src_addr);
                 }
-                if (memcmp(addr->bytes, dstAddr.bytes, 16) == 0) {
+                if (memcmp(addr, ip6_dst_addr, IPv6_ADDR_SIZE) == 0) {
                     expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_dst_addr);
                 }
 
