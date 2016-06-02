@@ -498,6 +498,7 @@ static void parse_opa_9B_Header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     /* 16B - L2 Header */
     proto_item *L2_9B_header_item;
     proto_tree *L2_9B_header_tree;
+    void *src_addr, *dst_addr;
 
     gint local_offset = *offset;
 
@@ -520,7 +521,9 @@ static void parse_opa_9B_Header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(L2_9B_header_tree, hf_opa_9B_dlid, tvb, local_offset, 2, ENC_BIG_ENDIAN);
 
     /* Set destination in packet view. */
-    set_address_tvb(&pinfo->dst, AT_IB, 2, tvb, local_offset);
+    dst_addr = wmem_alloc(pinfo->pool, sizeof(guint16));
+    *((guint16 *)dst_addr) = tvb_get_ntohs(tvb, local_offset);
+    set_address(&pinfo->dst, AT_IB, sizeof(guint16), dst_addr);
     local_offset += 2;
 
     proto_tree_add_item(L2_9B_header_tree, hf_opa_9B_reserved3, tvb, local_offset, 1, ENC_BIG_ENDIAN);
@@ -530,7 +533,9 @@ static void parse_opa_9B_Header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(L2_9B_header_tree, hf_opa_9B_slid, tvb, local_offset, 2, ENC_BIG_ENDIAN);
 
     /* Set Source in packet view. */
-    set_address_tvb(&pinfo->src, AT_IB, 2, tvb, local_offset);
+    src_addr = wmem_alloc(pinfo->pool, sizeof(guint16));
+    *((guint16 *)src_addr) = tvb_get_ntohs(tvb, local_offset);
+    set_address(&pinfo->src, AT_IB, sizeof(guint16), src_addr);
     local_offset += 2;
 
     *offset = local_offset;
