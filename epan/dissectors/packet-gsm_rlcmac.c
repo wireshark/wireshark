@@ -6050,7 +6050,7 @@ static CSN_CallBackStatus_t callback_call_handover_to_utran_cmd(proto_tree *tree
   proto_item *ti;
 
   tvbuff_t *target_rat_msg_cont_tvb = tvb_new_octet_aligned(tvb, bit_offset, RRC_ContainerLength<<3);
-  add_new_data_source(pinfo, target_rat_msg_cont_tvb, "UTRAN RRC PDU");
+  add_new_data_source(pinfo, target_rat_msg_cont_tvb, "HANDOVER TO UTRAN COMMAND");
 
   ti = proto_tree_add_item(tree, hf_ps_handoverto_utran_payload_rrc_container, target_rat_msg_cont_tvb, 0, -1, ENC_NA);
 
@@ -6075,7 +6075,7 @@ static CSN_CallBackStatus_t callback_call_eutran_dl_dcch(proto_tree *tree, tvbuf
   proto_item *ti;
 
   tvbuff_t *target_rat_msg_cont_tvb = tvb_new_octet_aligned(tvb, bit_offset, RRC_ContainerLength<<3);
-  add_new_data_source(pinfo, target_rat_msg_cont_tvb, "EUTRAN RRC PDU");
+  add_new_data_source(pinfo, target_rat_msg_cont_tvb, "E-UTRAN DL-DCCH Message");
 
   ti = proto_tree_add_item(tree, hf_ps_handoverto_eutran_payload_rrc_container, target_rat_msg_cont_tvb, 0, -1, ENC_NA);
 
