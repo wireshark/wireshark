@@ -24,6 +24,10 @@
 
 #include "config.h"
 
+#include <windows.h>
+#include <wchar.h>
+#include <tchar.h>
+
 #include <stdio.h>
 #include <glib.h>
 #include <gmodule.h>
@@ -1080,6 +1084,40 @@ get_runtime_caplibs_version(GString *str)
 		}
 	} else
 		g_string_append(str, "without WinPcap");
+}
+
+/*
+ * If npf.sys is running, return TRUE.
+ */
+gboolean
+npf_sys_is_running(void)
+{
+	SC_HANDLE h_scm, h_serv;
+	SERVICE_STATUS ss;
+
+	h_scm = OpenSCManager(NULL, NULL, 0);
+	if (!h_scm)
+		return FALSE;
+
+	h_serv = OpenService(h_scm, _T("npf"), SC_MANAGER_CONNECT|SERVICE_QUERY_STATUS);
+	if (!h_serv) {
+		h_serv = OpenService(h_scm, _T("npcap"), SC_MANAGER_CONNECT|SERVICE_QUERY_STATUS);
+		if (!h_serv) {
+			CloseServiceHandle(h_scm);
+			return FALSE;
+		}
+	}
+
+	if (QueryServiceStatus(h_serv, &ss)) {
+		if (ss.dwCurrentState & SERVICE_RUNNING) {
+			CloseServiceHandle(h_serv);
+			CloseServiceHandle(h_scm);
+			return TRUE;
+		}
+	}
+	CloseServiceHandle(h_serv);
+	CloseServiceHandle(h_scm);
+	return FALSE;
 }
 
 #else /* HAVE_LIBPCAP */
