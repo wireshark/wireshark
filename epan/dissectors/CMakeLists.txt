@@ -1166,6 +1166,7 @@ set(DISSECTOR_SRC
 	packet-rtcdc.c
 	packet-rtcp.c
 	packet-rtitcp.c
+	packet-rtls.c
 	packet-rtmpt.c
 	packet-rtnet.c
 	packet-rtp-events.c

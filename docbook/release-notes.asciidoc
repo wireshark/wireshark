@@ -92,6 +92,8 @@ Bluetooth Pseudoheader for BR/EDR
 Edge Control Protocol (ECP)
 Bachmann bluecom Protocol
 Apache Cassandra - CQL version 3.0
+Real Time Location System (RTLS)
+
 --sort-and-group--
 
 === Updated Protocol Support
