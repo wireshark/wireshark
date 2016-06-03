@@ -223,7 +223,7 @@ typedef struct interface_info_s {
 } interface_info_t;
 
 typedef struct {
-    gboolean shb_read;           /**< Set when first SHB read, second read will fail */
+    gboolean shb_read;           /**< Set when first SHB read */
     gboolean byte_swapped;
     guint16 version_major;
     guint16 version_minor;
@@ -556,13 +556,6 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("pcapng_read_section_header_block: total block length %u is too large (> %u)",
                                     bh->block_total_length, MAX_BLOCK_SIZE);
-        return PCAPNG_BLOCK_ERROR;
-    }
-
-    /* We currently only suport one SHB */
-    if (pn->shb_read == TRUE) {
-        *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup("pcapng_read_section_header_block: multiple section header blocks not supported");
         return PCAPNG_BLOCK_ERROR;
     }
 
@@ -2580,12 +2573,9 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
         switch (wblock.type) {
 
             case(BLOCK_TYPE_SHB):
-                /* We don't currently support multi-section files. */
-                wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
-                wth->phdr.pkt_tsprec = WTAP_TSPREC_UNKNOWN;
-                *err = WTAP_ERR_UNSUPPORTED;
-                *err_info = g_strdup("pcapng: multi-section files not currently supported");
-                return FALSE;
+                pcapng_debug("pcapng_read: another section header block");
+                g_array_append_val(wth->shb_hdrs, wblock.block);
+                break;
 
             case(BLOCK_TYPE_PB):
             case(BLOCK_TYPE_SPB):
@@ -2604,6 +2594,10 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
             case(BLOCK_TYPE_NRB):
                 /* More name resolution entries */
                 pcapng_debug("pcapng_read: block type BLOCK_TYPE_NRB");
+                if (wth->nrb_hdrs == NULL) {
+                    wth->nrb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_optionblock_t));
+                }
+                g_array_append_val(wth->nrb_hdrs, wblock.block);
                 break;
 
             case(BLOCK_TYPE_ISB):
