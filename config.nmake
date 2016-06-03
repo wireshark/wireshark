@@ -515,7 +515,7 @@ GEOIP_PKG=1.6.6
 WINSPARKLE_PKG=0.3-44-g2c8d9d3-win32ws
 
 !else
-DOWNLOAD_TAG=2016-05-10
+DOWNLOAD_TAG=2016-06-03
 ##### Win64 Libraries #####
 #
 # Mandatory: GLib settings
@@ -557,7 +557,7 @@ XML_DLL=libxml2-2.dll
 !IF "$(GTK_NAME)" == "gtk2"
 GDK_DLL=libgdk-win32-2.0-0.dll
 GTK_DLL=libgtk-win32-2.0-0.dll
-GTK_PKG=2.24.23-3.39
+GTK_PKG=2.24.23-3.39-1
 #GTK_PKG=2.24.23-1.1
 PKG_SUFIX=ws
 !ELSE
