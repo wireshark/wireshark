@@ -5816,7 +5816,6 @@ dissect_smb2_FSCTL_SRV_REQUEST_RESUME_KEY(tvbuff_t *tvb, packet_info *pinfo _U_,
 	offset = dissect_smb2_cchunk_RESUME_KEY(tvb, pinfo, tree, offset);
 
 	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
-	offset += 4;
 }
 
 static void
