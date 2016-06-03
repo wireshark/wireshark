@@ -122,6 +122,24 @@ static expert_field ei_1722_incorrect_dbs = EI_INIT;
 
 static dissector_table_t avb_dissector_table;
 
+static const true_false_string tfs_ieee1722_control_data = { "Control", "Data" };
+
+
+static const range_string ieee1722_subtype_range_vals[] = {
+    { 0,0,            "IEC 61883/IIDC over AVTP" },
+    { 1,1,            "MMA payload over AVTP" },
+    { 2,2,            "Simple Audio Format" },
+    { 3,3,            "Simple Video Format" },
+    { 5,5,            "CRF" },
+    { 6,0x7a,         "Reserved for future protocols " },
+    { 0x7a,0x7a,      "AVDECC Discovery Protocol" },
+    { 0x7b,0x7b,      "AVDECC Enumeration and Control Protocol" },
+    { 0x7c,0x7c,      "AVDECC Connection Management Protocol" },
+    { 0x7d,0x7d,      "MAAP" },
+    { 0x7f,0x7f,      "Experimental" },
+    { 0,0,             NULL }
+};
+
 static int
 dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -265,11 +283,11 @@ void proto_register_1722(void)
     static hf_register_info hf[] = {
         { &hf_1722_cdfield,
             { "Control/Data Indicator", "ieee1722.cdfield",
-              FT_BOOLEAN, 8, NULL, IEEE_1722_CD_MASK, NULL, HFILL }
+              FT_BOOLEAN, 8, TFS(&tfs_ieee1722_control_data), IEEE_1722_CD_MASK, NULL, HFILL }
         },
         { &hf_1722_subtype,
             { "AVBTP Subtype", "ieee1722.subtype",
-              FT_UINT8, BASE_HEX, NULL, IEEE_1722_SUBTYPE_MASK, NULL, HFILL }
+              FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(ieee1722_subtype_range_vals), IEEE_1722_SUBTYPE_MASK, NULL, HFILL }
         },
         { &hf_1722_svfield,
             { "AVBTP Stream ID Valid", "ieee1722.svfield",
