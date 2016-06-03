@@ -177,6 +177,7 @@ static int ett_iso14443_ats_tb1 = -1;
 static int ett_iso14443_ats_tc1 = -1;
 static int ett_iso14443_attr_p1 = -1;
 static int ett_iso14443_attr_p2 = -1;
+static int ett_iso14443_attr_p3 = -1;
 static int ett_iso14443_pcb = -1;
 static int ett_iso14443_inf = -1;
 
@@ -732,8 +733,8 @@ static int dissect_iso14443_attrib(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, proto_tree *tree, gboolean crc_dropped)
 {
     proto_item *ti = proto_tree_get_parent(tree);
-    proto_item *p1_it, *p2_it, *pi;
-    proto_tree *p1_tree, *p2_tree;
+    proto_item *p1_it, *p2_it, *p3_it, *pi;
+    proto_tree *p1_tree, *p2_tree, *p3_tree;
     guint8 max_frame_size_code;
     gint hl_inf_len;
 
@@ -775,10 +776,15 @@ static int dissect_iso14443_attrib(tvbuff_t *tvb, gint offset,
     }
     offset++;
 
-    /* XXX - subtree, details for each parameter */
-    proto_tree_add_item(tree, hf_iso14443_param3,
+    p3_it = proto_tree_add_item(tree, hf_iso14443_param3,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    p3_tree = proto_item_add_subtree(p3_it, ett_iso14443_attr_p3);
+    proto_tree_add_item(p3_tree, hf_iso14443_min_tr2,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(p3_tree, hf_iso14443_4_compl_atqb,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
+    /* XXX - subtree, details for each parameter */
     proto_tree_add_item(tree, hf_iso14443_param4,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -1341,10 +1347,14 @@ proto_register_iso14443(void)
             { "Protocol type", "iso14443.protocol_type",
                 FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL }
         },
+        /* we're using min tr2 in two different places (atqb and attrib)
+           the relative position within the byte is identical so we can
+           set the mask here */
         { &hf_iso14443_min_tr2,
             { "Minimum TR2", "iso14443.min_tr2",
                 FT_UINT8, BASE_HEX, NULL, 0x06, NULL, HFILL }
         },
+        /* the same goes for the 14443-4 compliant flag */
         { &hf_iso14443_4_compl_atqb,
             { "Compliant with ISO 14443-4", "iso14443.4_compliant", FT_BOOLEAN, 8,
                 TFS(&tfs_compliant_not_compliant), 0x01, NULL, HFILL }
@@ -1567,6 +1577,7 @@ proto_register_iso14443(void)
         &ett_iso14443_ats_tc1,
         &ett_iso14443_attr_p1,
         &ett_iso14443_attr_p2,
+        &ett_iso14443_attr_p3,
         &ett_iso14443_pcb,
         &ett_iso14443_inf
     };
