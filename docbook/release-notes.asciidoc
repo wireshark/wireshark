@@ -37,8 +37,11 @@ name resolution will be disabled (but other name resolution mechanisms, such as 
 are still available).
 * The byte under the mouse in the Packet Bytes pane is now highlighted.
 * TShark supports exporting PDUs via the `-U` flag.
-* The Windows installer now comes with the "sshdump" and "ciscodump" extcap interfaces.
+* The Windows and OS X installers now come with the "sshdump" and "ciscodump" extcap interfaces.
 * Most dialogs in the Qt UI now save their size and positions.
+* The Follow Stream dialog now supports UTF-16.
+* The Firewall ACL Rules dialog has returned.
+* The Flow (Sequence) Analysis dialog has been improved.
 
 //=== Removed Dissectors
 
@@ -57,6 +60,9 @@ _Non-empty section placeholder._
 --sort-and-group--
 
 === New Protocol Support
+
+// Items in --sort-and-group-- blocks will be sorted and comma-separated.
+--sort-and-group--
 CISCO ERSPAN3 Marker
 Nokia Intelligent Service Interface (ISI)
 ISO14443
@@ -78,9 +84,6 @@ Bluetooth Pseudoheader for BR/EDR
 Edge Control Protocol (ECP)
 Bachmann bluecom Protocol
 Apache Cassandra - CQL version 3.0
-
-// Items in --sort-and-group-- blocks will be sorted and comma-separated.
---sort-and-group--
 --sort-and-group--
 
 === Updated Protocol Support
@@ -94,10 +97,10 @@ information.  It has been disabled by default.
 Too many protocols have been updated to list here.
 
 === New and Updated Capture File Support
-Micropross mplog
 
 //_Non-empty section placeholder._
 --sort-and-group--
+Micropross mplog
 --sort-and-group--
 
 === New and Updated Capture Interfaces support
@@ -155,23 +158,14 @@ Capture filters aren't applied when capturing from named pipes.
 Filtering tshark captures with read filters (-R) no longer works.
 (ws-buglink:2234[])
 
-Resolving (ws-buglink:9044[]) reopens (ws-buglink:3528[]) so that Wireshark
-no longer automatically decodes gzip data when following a TCP stream.
-
 Application crash when changing real-time option.
 (ws-buglink:4035[])
-
-Hex pane display issue after startup.
-(ws-buglink:4056[])
 
 Packet list rows are oversized.
 (ws-buglink:4357[])
 
 Wireshark and TShark will display incorrect delta times in some cases.
 (ws-buglink:4985[])
-
-The 64-bit version of Wireshark will leak memory on Windows when the display
-depth is set to 16 bits (ws-buglink:9914[])
 
 Wireshark should let you work with multiple capture files. (ws-buglink:10488[])
 
