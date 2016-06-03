@@ -140,8 +140,11 @@ npf_sys_is_running() {
 		return FALSE;
 
 	h_serv = OpenService(h_scm, _T("npf"), SC_MANAGER_CONNECT|SERVICE_QUERY_STATUS);
-	if (!h_serv)
-		return FALSE;
+	if (!h_serv) {
+		h_serv = OpenService(h_scm, _T("npcap"), SC_MANAGER_CONNECT|SERVICE_QUERY_STATUS);
+		if (!h_serv)
+			return FALSE;
+	}
 
 	if (QueryServiceStatus(h_serv, &ss)) {
 		if (ss.dwCurrentState & SERVICE_RUNNING)

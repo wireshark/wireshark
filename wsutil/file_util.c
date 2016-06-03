@@ -73,6 +73,7 @@
 
 static gchar *program_path = NULL;
 static gchar *system_path = NULL;
+static gchar *npcap_path = NULL;
 
 /**
  * g_open:
@@ -472,7 +473,7 @@ init_dll_load_paths()
 {
       TCHAR path_w[MAX_PATH];
 
-      if (program_path && system_path)
+      if (program_path && system_path && npcap_path)
             return TRUE;
 
       /* XXX - Duplicate code in filesystem.c:init_progfile_dir */
@@ -496,7 +497,13 @@ init_dll_load_paths()
             system_path = g_utf16_to_utf8(path_w, -1, NULL, NULL, NULL);
       }
 
-      if (program_path && system_path)
+      _tcscat_s(path_w, MAX_PATH, _T("\\Npcap"));
+
+      if (!npcap_path) {
+            npcap_path = g_utf16_to_utf8(path_w, -1, NULL, NULL, NULL);
+      }
+
+      if (program_path && system_path && npcap_path)
             return TRUE;
 
       return FALSE;
@@ -568,6 +575,19 @@ ws_load_library(const gchar *library_name)
             }
       }
 
+      /* At last try the Npcap directory */
+      full_path = g_module_build_path(npcap_path, library_name);
+      full_path_w = g_utf8_to_utf16(full_path, -1, NULL, NULL, NULL);
+
+      if (full_path && full_path_w) {
+            dll_h = LoadLibraryW(full_path_w);
+            if (dll_h) {
+                  g_free(full_path);
+                  g_free(full_path_w);
+                  return dll_h;
+            }
+      }
+
       return NULL;
 }
 
@@ -593,6 +613,17 @@ ws_module_open(gchar *module_name, GModuleFlags flags)
 
       /* Next try the system directory */
       full_path = g_module_build_path(system_path, module_name);
+
+      if (full_path) {
+            mod = g_module_open(full_path, flags);
+            if (mod) {
+                  g_free(full_path);
+                  return mod;
+            }
+      }
+
+      /* At last try the Npcap directory */
+      full_path = g_module_build_path(npcap_path, module_name);
 
       if (full_path) {
             mod = g_module_open(full_path, flags);
