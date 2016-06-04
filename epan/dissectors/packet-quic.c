@@ -1841,10 +1841,11 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Diversification Nonce */
     if(puflags & PUFLAGS_DNONCE && quic_info->version >= 33){
-        proto_tree_add_item(quic_tree, hf_quic_diversification_nonce, tvb, offset, 32, ENC_NA);
-        offset += 32;
+        if(pinfo->srcport == 443){ /* Diversification nonce is only present from server to client */
+            proto_tree_add_item(quic_tree, hf_quic_diversification_nonce, tvb, offset, 32, ENC_NA);
+            offset += 32;
+        }
     }
-
 
     /* Packet Number */
 
