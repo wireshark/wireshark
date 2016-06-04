@@ -2254,9 +2254,9 @@ void MainWindow::zoomText()
     // Scale by 10%, rounding to nearest half point, minimum 1 point.
     // XXX Small sizes repeat. It might just be easier to create a map of multipliers.
     mono_font_ = QFont(wsApp->monospaceFont());
-    qreal zoom_size = wsApp->monospaceFont().pointSize() * 2 * qPow(1.1, recent.gui_zoom_level);
-    zoom_size = qRound(zoom_size) / 2.0;
-    zoom_size = qMax(zoom_size, 1.0);
+    qreal zoom_size = wsApp->monospaceFont().pointSize() * 2 * qPow(qreal(1.1), recent.gui_zoom_level);
+    zoom_size = qRound(zoom_size) / qreal(2.0);
+    zoom_size = qMax(zoom_size, qreal(1.0));
     mono_font_.setPointSizeF(zoom_size);
     emit monospaceFontChanged(mono_font_);
 }

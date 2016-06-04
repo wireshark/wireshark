@@ -364,14 +364,14 @@ void LBMUIMFlowDialog::vScrollBarChanged(int value)
 
 void LBMUIMFlowDialog::xAxisChanged(QCPRange range)
 {
-    m_ui->horizontalScrollBar->setValue(qRound(range.center() * 100.0));
-    m_ui->horizontalScrollBar->setPageStep(qRound(range.size() * 100.0));
+    m_ui->horizontalScrollBar->setValue(qRound(qreal(range.center() * 100.0)));
+    m_ui->horizontalScrollBar->setPageStep(qRound(qreal(range.size() * 100.0)));
 }
 
 void LBMUIMFlowDialog::yAxisChanged(QCPRange range)
 {
-    m_ui->verticalScrollBar->setValue(qRound(range.center() * 100.0));
-    m_ui->verticalScrollBar->setPageStep(qRound(range.size() * 100.0));
+    m_ui->verticalScrollBar->setValue(qRound(qreal(range.center() * 100.0)));
+    m_ui->verticalScrollBar->setPageStep(qRound(qreal(range.size() * 100.0)));
 }
 
 void LBMUIMFlowDialog::diagramClicked(QMouseEvent * event)
