@@ -156,7 +156,7 @@ static gint ett_openflow_port_cnf = -1;
 static gint ett_openflow_port_state = -1;
 static gint ett_openflow_port_cf = -1;
 
-static expert_field ei_openflow_undecoded_data = EI_INIT;
+/* static expert_field ei_openflow_undecoded_data = EI_INIT; */
 static expert_field ei_openflow_action_type = EI_INIT;
 static expert_field ei_openflow_1_0_type = EI_INIT;
 
@@ -1440,7 +1440,9 @@ proto_register_openflow_v1(void)
     };
 
     static ei_register_info ei[] = {
+#if 0
         { &ei_openflow_undecoded_data, { "openflow.undecoded_data", PI_UNDECODED, PI_WARN, "Data not dissected yet", EXPFILL }},
+#endif
         { &ei_openflow_action_type, { "openflow.action_typ.undecoded", PI_UNDECODED, PI_WARN, "Action not dissected yet", EXPFILL }},
         { &ei_openflow_1_0_type, { "openflow_1_0.type.undecoded", PI_UNDECODED, PI_WARN, "Message data not dissected yet", EXPFILL }},
     };

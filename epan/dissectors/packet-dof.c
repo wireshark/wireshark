@@ -2087,7 +2087,7 @@ static int ett_oid_attribute_oid = -1;
  * Expert infos are related to either a PDU type or a specification, and so
  * they are listed separately.
  */
-static expert_field ei_undecoded = EI_INIT;
+/* static expert_field ei_undecoded = EI_INIT; */
 static expert_field ei_malformed = EI_INIT;
 static expert_field ei_implicit_no_op = EI_INIT;
 static expert_field ei_c2_c3_c4_format = EI_INIT;
@@ -10898,7 +10898,9 @@ static void dof_register(void)
 
     static ei_register_info ei[] =
     {
+#if 0
         { &ei_undecoded, { "dof.undecoded", PI_UNDECODED, PI_WARN, "DOF: Some protocol octets were not decoded", EXPFILL } },
+#endif
         { &ei_malformed, { "dof.malformed", PI_MALFORMED, PI_ERROR, "Malformed:", EXPFILL } },
         { &ei_implicit_no_op, { "dof.implicit_no_op", PI_PROTOCOL, PI_COMMENT, "Implicit No-op", EXPFILL } },
         { &ei_c2_c3_c4_format, { "dof.c2_c3_c4_format", PI_MALFORMED, PI_WARN, "DOF: Cx IE format", EXPFILL } },

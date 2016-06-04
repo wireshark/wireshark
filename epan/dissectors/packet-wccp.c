@@ -277,7 +277,7 @@ static expert_field ei_wccp_address_table_family_unknown = EI_INIT;
 static expert_field ei_wccp_capability_element_length = EI_INIT;
 static expert_field ei_wccp_port_fields_not_used = EI_INIT;
 static expert_field ei_wccp_a_zero_not_c = EI_INIT;
-static expert_field ei_wccp_c_zero_not_a = EI_INIT;
+/* static expert_field ei_wccp_c_zero_not_a = EI_INIT; */
 
 /*
  * At
@@ -3548,7 +3548,9 @@ proto_register_wccp(void)
      { &ei_wccp_capability_element_length, { "wccp.capability_element.length.invalid", PI_PROTOCOL, PI_WARN, "Value Length invalid", EXPFILL }},
      { &ei_wccp_port_fields_not_used, { "wccp.port_fields_not_used", PI_PROTOCOL, PI_NOTE, "Ports fields not used", EXPFILL }},
      { &ei_wccp_a_zero_not_c, { "wccp.a_zero_not_c", PI_PROTOCOL, PI_WARN, "Error A is 0, but C is not", EXPFILL }},
+#if 0
      { &ei_wccp_c_zero_not_a, { "wccp.c_zero_not_a", PI_PROTOCOL, PI_WARN, "Error C is 0, but A is not", EXPFILL }},
+#endif
   };
 
   expert_module_t* expert_wccp;

@@ -140,7 +140,7 @@ static gint ett_fc_vft = -1;
 
 static expert_field ei_fccrc = EI_INIT;
 static expert_field ei_short_hdr = EI_INIT;
-static expert_field ei_frag_size = EI_INIT;
+/* static expert_field ei_frag_size = EI_INIT; */
 
 static dissector_handle_t fc_handle, fcsof_handle;
 static dissector_table_t fcftype_dissector_table;
@@ -1531,9 +1531,11 @@ proto_register_fc(void)
         { &ei_short_hdr,
             { "fc.short_hdr", PI_MALFORMED, PI_ERROR,
                 "Packet length is shorter than the required header", EXPFILL }},
+#if 0
         { &ei_frag_size,
             { "fc.frag_size", PI_MALFORMED, PI_ERROR,
                 "Invalid fragment size", EXPFILL }}
+#endif
     };
 
     module_t *fc_module;

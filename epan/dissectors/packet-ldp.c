@@ -4250,11 +4250,11 @@ proto_register_ldp(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_ldp_dtsm_and_target, { "ldp.dtsm_and_target", PI_PROTOCOL, PI_WARN,"ERROR - Both GTSM and Target Flag are enabled.", EXPFILL }},
-        { &ei_ldp_gtsm_supported, { "ldp.gtsm_supported", PI_PROTOCOL, PI_CHAT,"GTSM is supported by the source", EXPFILL }},
-        { &ei_ldp_gtsm_not_supported_basic_discovery, { "ldp.gtsm_not_supported_basic_discovery", PI_PROTOCOL, PI_WARN,"GTSM is not supported by the source, since basic discovery is not enabled", EXPFILL }},
-        { &ei_ldp_gtsm_not_supported, { "ldp.gtsm_not_supported", PI_PROTOCOL, PI_CHAT,"GTSM is not supported by the source", EXPFILL }},
-        { &ei_ldp_inv_length, { "ldp.invalid_length", PI_MALFORMED, PI_ERROR,"Length of the packet is malformed", EXPFILL }},
+        { &ei_ldp_dtsm_and_target, { "ldp.dtsm_and_target", PI_PROTOCOL, PI_WARN, "ERROR - Both GTSM and Target Flag are enabled.", EXPFILL }},
+        { &ei_ldp_gtsm_supported, { "ldp.gtsm_supported", PI_PROTOCOL, PI_CHAT, "GTSM is supported by the source", EXPFILL }},
+        { &ei_ldp_gtsm_not_supported_basic_discovery, { "ldp.gtsm_not_supported_basic_discovery", PI_PROTOCOL, PI_WARN, "GTSM is not supported by the source, since basic discovery is not enabled", EXPFILL }},
+        { &ei_ldp_gtsm_not_supported, { "ldp.gtsm_not_supported", PI_PROTOCOL, PI_CHAT, "GTSM is not supported by the source", EXPFILL }},
+        { &ei_ldp_inv_length, { "ldp.invalid_length", PI_MALFORMED, PI_ERROR, "Length of the packet is malformed", EXPFILL }},
         { &ei_ldp_address_family_not_implemented, { "ldp.address_family_not_implemented", PI_UNDECODED, PI_WARN, "Support for Address Family not implemented", EXPFILL }},
         { &ei_ldp_tlv_fec, { "ldp.msg.tlv.fec.error", PI_PROTOCOL, PI_ERROR, "Error in FEC Element %u", EXPFILL }},
         { &ei_ldp_tlv_fec_len, { "ldp.msg.tlv.fec.len.invalid", PI_PROTOCOL, PI_ERROR, "Invalid prefix %u length for family %s", EXPFILL }},

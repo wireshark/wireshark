@@ -2062,7 +2062,7 @@ static expert_field ei_amqp_unknown_stream_method = EI_INIT;
 static expert_field ei_amqp_unknown_basic_method = EI_INIT;
 static expert_field ei_amqp_unknown_frame_type = EI_INIT;
 static expert_field ei_amqp_field_short = EI_INIT;
-static expert_field ei_amqp_bad_length = EI_INIT;
+/* static expert_field ei_amqp_bad_length = EI_INIT; */
 static expert_field ei_amqp_unknown_command_class = EI_INIT;
 static expert_field ei_amqp_unknown_tunnel_method = EI_INIT;
 static expert_field ei_amqp_unknown_confirm_method = EI_INIT;
@@ -13940,7 +13940,9 @@ proto_register_amqp(void)
         { &ei_amqp_channel_error, { "amqp.channel.error", PI_RESPONSE_CODE, PI_WARN, "Channel error", EXPFILL }},
         { &ei_amqp_message_undeliverable, { "amqp.message.undeliverable", PI_RESPONSE_CODE, PI_WARN, "Message was not delivered", EXPFILL }},
         { &ei_amqp_bad_flag_value, { "amqp.bad_flag_value", PI_PROTOCOL, PI_WARN, "Bad flag value", EXPFILL }},
+#if 0
         { &ei_amqp_bad_length, { "amqp.bad_length", PI_MALFORMED, PI_ERROR, "Bad frame length", EXPFILL }},
+#endif
         { &ei_amqp_field_short, { "amqp.field_short", PI_PROTOCOL, PI_ERROR, "Field is cut off by the end of the field table", EXPFILL }},
         { &ei_amqp_invalid_class_code, { "amqp.unknown.class_code", PI_PROTOCOL, PI_WARN, "Invalid class code", EXPFILL }},
         { &ei_amqp_unknown_command_class, { "amqp.unknown.command_class", PI_PROTOCOL, PI_ERROR, "Unknown command/control class", EXPFILL }},

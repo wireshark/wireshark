@@ -52,7 +52,7 @@ static int hf_ipos_ppe = -1;
 static int hf_ipos_slot = -1;
 static gint ett_ipos = -1;
 
-static expert_field ei_ipos_protocol = EI_INIT;
+/* static expert_field ei_ipos_protocol = EI_INIT; */
 
 #define LINUX_SLL_P_IPOS_NETIPC	 0x0030	/* IPOS IPC frames to/from AF_IPC module */
 #define LINUX_SLL_P_IPOS_RBN     0x0031  /* IPOS IP frames to/from CTX module */
@@ -140,6 +140,7 @@ proto_register_ipos(void)
         &ett_ipos
     };
 
+#if 0
     static ei_register_info ei[] = {
         { &ei_ipos_protocol,
         { "ipos.protocol.unknown", PI_PROTOCOL, PI_WARN,
@@ -147,12 +148,15 @@ proto_register_ipos(void)
     };
 
     expert_module_t* expert_ipos;
+#endif
 
     proto_ipos = proto_register_protocol("IPOS Kernel Packet Protocol", "IPOS", "ipos");
     proto_register_field_array(proto_ipos, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+#if 0
     expert_ipos = expert_register_protocol(proto_ipos);
     expert_register_field_array(expert_ipos, ei, array_length(ei));
+#endif
     register_dissector("ipos", dissect_ipos, proto_ipos);
 }
 

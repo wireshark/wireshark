@@ -381,14 +381,14 @@ static expert_field ei_tcp_checksum_bad = EI_INIT;
 static expert_field ei_tcp_urgent_pointer_non_zero = EI_INIT;
 static expert_field ei_tcp_suboption_malformed = EI_INIT;
 
-static expert_field ei_mptcp_analysis_unexpected_idsn = EI_INIT;
+/* static expert_field ei_mptcp_analysis_unexpected_idsn = EI_INIT; */
 static expert_field ei_mptcp_analysis_echoed_key_mismatch = EI_INIT;
 static expert_field ei_mptcp_analysis_missing_algorithm = EI_INIT;
 static expert_field ei_mptcp_analysis_unsupported_algorithm = EI_INIT;
 static expert_field ei_mptcp_infinite_mapping= EI_INIT;
 static expert_field ei_mptcp_mapping_missing = EI_INIT;
-static expert_field ei_mptcp_stream_incomplete = EI_INIT;
-static expert_field ei_mptcp_analysis_dsn_out_of_order = EI_INIT;
+/* static expert_field ei_mptcp_stream_incomplete = EI_INIT; */
+/* static expert_field ei_mptcp_analysis_dsn_out_of_order = EI_INIT; */
 
 /* Some protocols such as encrypted DCE/RPCoverHTTP have dependencies
  * from one PDU to the next PDU and require that they are called in sequence.
@@ -6962,14 +6962,18 @@ proto_register_tcp(void)
     };
 
     static ei_register_info mptcp_ei[] = {
+#if 0
         { &ei_mptcp_analysis_unexpected_idsn, { "mptcp.connection.unexpected_idsn", PI_PROTOCOL, PI_NOTE, "Unexpected initial sequence number", EXPFILL }},
+#endif
         { &ei_mptcp_analysis_echoed_key_mismatch, { "mptcp.connection.echoed_key_mismatch", PI_PROTOCOL, PI_WARN, "The echoed key in the ACK of the MPTCP handshake does not match the key of the SYN/ACK", EXPFILL }},
         { &ei_mptcp_analysis_missing_algorithm, { "mptcp.connection.missing_algorithm", PI_PROTOCOL, PI_WARN, "No crypto algorithm specified", EXPFILL }},
         { &ei_mptcp_analysis_unsupported_algorithm, { "mptcp.connection.unsupported_algorithm", PI_PROTOCOL, PI_WARN, "Unsupported algorithm", EXPFILL }},
         { &ei_mptcp_infinite_mapping, { "mptcp.dss.infinite_mapping", PI_PROTOCOL, PI_WARN, "Fallback to infinite mapping", EXPFILL }},
         { &ei_mptcp_mapping_missing, { "mptcp.dss.missing_mapping", PI_PROTOCOL, PI_WARN, "No mapping available", EXPFILL }},
+#if 0
         { &ei_mptcp_stream_incomplete, { "mptcp.incomplete", PI_PROTOCOL, PI_WARN, "Everything was not captured", EXPFILL }},
         { &ei_mptcp_analysis_dsn_out_of_order, { "mptcp.analysis.dsn.out_of_order", PI_PROTOCOL, PI_WARN, "Out of order dsn", EXPFILL }},
+#endif
     };
 
     static hf_register_info mptcp_hf[] = {

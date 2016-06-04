@@ -265,7 +265,7 @@ static void
 dissect_vdp_tlv_mgrid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item* length_item, int offset, int tlvlen)
 {
 	if (tlvlen != 16) {
-		expert_add_info_format(pinfo, length_item, &ei_vdp_tlvlen_bad, "VDP TLV Invalid Length");
+		expert_add_info(pinfo, length_item, &ei_vdp_tlvlen_bad);
 	} else {
 		proto_tree_add_item(tree, hf_vdp_manager_id, tvb, offset, 16, ENC_NA);
 	}
@@ -284,7 +284,7 @@ dissect_vdp_tlv_org(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
 	guint8 subtype;
 
 	if (tlvlen < 3) {
-		expert_add_info_format(pinfo, length_item, &ei_vdp_tlvlen_bad, "VDP TLV Invalid Length");
+		expert_add_info(pinfo, length_item, &ei_vdp_tlvlen_bad);
         return;
 	}
 
@@ -538,9 +538,17 @@ proto_register_vdp(void)
 		&ett_vdp_assoc_flags,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_vdp_tlvlen_bad, { "vdp21.tlvlen.bad", PI_MALFORMED, PI_ERROR, "VDP TLV Invalid Length", EXPFILL }},
+	};
+
+	expert_module_t* expert_vdp;
+
 	proto_vdp = proto_register_protocol("VSI protocol", "VDP21", "vdp21");
 	proto_register_field_array(proto_vdp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_vdp = expert_register_protocol(proto_vdp);
+	expert_register_field_array(expert_vdp, ei, array_length(ei));
 
 }
 

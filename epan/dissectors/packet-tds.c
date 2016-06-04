@@ -822,12 +822,12 @@ static gint ett_tds_prelogin_option = -1;
 static gint ett_tds7_featureextack = -1;
 static gint ett_tds7_featureextack_feature = -1;
 
-static expert_field ei_tds_type_info_type_undecoded = EI_INIT;
+/* static expert_field ei_tds_type_info_type_undecoded = EI_INIT; */
 static expert_field ei_tds_invalid_length = EI_INIT;
 static expert_field ei_tds_token_length_invalid = EI_INIT;
 static expert_field ei_tds_type_info_type = EI_INIT;
 static expert_field ei_tds_all_headers_header_type = EI_INIT;
-static expert_field ei_tds_token_stats = EI_INIT;
+/* static expert_field ei_tds_token_stats = EI_INIT; */
 static expert_field ei_tds_invalid_plp_type = EI_INIT;
 
 /* Desegmentation of Netlib buffers crossing TCP segment boundaries. */
@@ -5575,10 +5575,14 @@ proto_register_tds(void)
     static ei_register_info ei[] = {
         { &ei_tds_all_headers_header_type, { "tds.all_headers.header.type.invalid", PI_PROTOCOL, PI_WARN, "Invalid header type", EXPFILL }},
         { &ei_tds_type_info_type, { "tds.type_info.type.invalid", PI_PROTOCOL, PI_WARN, "Invalid data type", EXPFILL }},
+#if 0
         { &ei_tds_type_info_type_undecoded, { "tds.type_info.type.undecoded", PI_UNDECODED, PI_ERROR, "Data type not supported yet", EXPFILL }},
+#endif
         { &ei_tds_invalid_length, { "tds.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
         { &ei_tds_token_length_invalid, { "tds.token.length.invalid", PI_PROTOCOL, PI_WARN, "Bogus token size", EXPFILL }},
+#if 0
         { &ei_tds_token_stats, { "tds.token.stats", PI_PROTOCOL, PI_NOTE, "Token stats", EXPFILL }},
+#endif
         { &ei_tds_invalid_plp_type, { "tds.type_info.type.invalidplp", PI_PROTOCOL, PI_NOTE, "Invalid PLP type", EXPFILL }}
     };
 

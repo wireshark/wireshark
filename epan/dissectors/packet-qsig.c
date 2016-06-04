@@ -2040,7 +2040,7 @@ static gint ett_qsig_mid_SEQUENCE_OF_Extension = -1;
 #line 310 "./asn1/qsig/packet-qsig-template.c"
 static gint ett_cnq_PSS1InformationElement = -1;
 
-static expert_field ei_qsig_unsupported_arg_type = EI_INIT;
+/* static expert_field ei_qsig_unsupported_arg_type = EI_INIT; */
 static expert_field ei_qsig_unsupported_result_type = EI_INIT;
 static expert_field ei_qsig_unsupported_error_type = EI_INIT;
 
@@ -16363,7 +16363,9 @@ void proto_register_qsig(void) {
   };
 
   static ei_register_info ei[] = {
+#if 0
     { &ei_qsig_unsupported_arg_type, { "qsig.unsupported.arg_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED ARGUMENT TYPE (QSIG)", EXPFILL }},
+#endif
     { &ei_qsig_unsupported_result_type, { "qsig.unsupported.result_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED RESULT TYPE (QSIG)", EXPFILL }},
     { &ei_qsig_unsupported_error_type, { "qsig.unsupported.error_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED ERROR TYPE (QSIG)", EXPFILL }},
   };

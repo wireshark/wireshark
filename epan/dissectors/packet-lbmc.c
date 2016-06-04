@@ -6015,7 +6015,7 @@ static expert_field ei_lbmc_analysis_zero_length = EI_INIT;
 static expert_field ei_lbmc_analysis_tsni = EI_INIT;
 static expert_field ei_lbmc_analysis_invalid_value = EI_INIT;
 static expert_field ei_lbmc_analysis_no_reassembly = EI_INIT;
-static expert_field ei_lbmc_analysis_invalid_offset = EI_INIT;
+/* static expert_field ei_lbmc_analysis_invalid_offset = EI_INIT; */
 static expert_field ei_lbmc_analysis_missing_reassembly_frame = EI_INIT;
 static expert_field ei_lbmc_analysis_invalid_fragment = EI_INIT;
 static expert_field ei_lbmc_extopt_fragment_offset = EI_INIT;
@@ -14177,7 +14177,9 @@ void proto_register_lbmc(void)
         { &ei_lbmc_analysis_tsni, { "lbmc.analysis.tsni", PI_SEQUENCE, PI_NOTE, "TSNI Sqn", EXPFILL } },
         { &ei_lbmc_analysis_invalid_value, { "lbmc.analysis.invalid_value", PI_MALFORMED, PI_ERROR, "Invalid value", EXPFILL } },
         { &ei_lbmc_analysis_no_reassembly, { "lbmc.analysis.no_reassembly", PI_PROTOCOL, PI_ERROR, "Reassembly not in progress but fragment_offset not zero", EXPFILL } },
+#if 0
         { &ei_lbmc_analysis_invalid_offset, { "lbmc.analysis.invalid_offset", PI_MALFORMED, PI_ERROR, "Message property offset exceeds data length", EXPFILL } },
+#endif
         { &ei_lbmc_analysis_missing_reassembly_frame, { "lbmc.analysis.missing_reassembly_frame", PI_UNDECODED, PI_WARN, "Message not reassembled - reassembly data missing from capture", EXPFILL } },
         { &ei_lbmc_analysis_invalid_fragment, { "lbmc.analysis.invalid_fragment", PI_MALFORMED, PI_ERROR, "Invalid fragment", EXPFILL } },
         { &ei_lbmc_extopt_fragment_offset, { "lbmc.extopt.fragment_offset.invalid", PI_PROTOCOL, PI_ERROR, "Invalid fragment offset", EXPFILL } },

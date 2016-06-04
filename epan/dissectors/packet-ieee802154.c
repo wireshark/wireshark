@@ -345,14 +345,14 @@ static gint ett_ieee802154_zigbee = -1;
 static gint ett_ieee802154_zboss = -1;
 
 static expert_field ei_ieee802154_invalid_addressing = EI_INIT;
-static expert_field ei_ieee802154_invalid_panid_compression = EI_INIT;
+/* static expert_field ei_ieee802154_invalid_panid_compression = EI_INIT; */
 static expert_field ei_ieee802154_invalid_panid_compression2 = EI_INIT;
 static expert_field ei_ieee802154_fcs = EI_INIT;
 static expert_field ei_ieee802154_decrypt_error = EI_INIT;
 static expert_field ei_ieee802154_dst = EI_INIT;
 static expert_field ei_ieee802154_src = EI_INIT;
 static expert_field ei_ieee802154_frame_ver = EI_INIT;
-static expert_field ei_ieee802154_frame_type = EI_INIT;
+/* static expert_field ei_ieee802154_frame_type = EI_INIT; */
 static expert_field ei_ieee802154_seqno_suppression = EI_INIT;
 
 static int ieee802_15_4_short_address_type = -1;
@@ -3476,8 +3476,10 @@ void proto_register_ieee802154(void)
     static ei_register_info ei[] = {
         { &ei_ieee802154_invalid_addressing, { "wpan.invalid_addressing", PI_MALFORMED, PI_WARN,
                 "Invalid Addressing", EXPFILL }},
+#if 0
         { &ei_ieee802154_invalid_panid_compression, { "wpan.invalid_panid_compression", PI_MALFORMED, PI_ERROR,
                 "Invalid Setting for PAN ID Compression", EXPFILL }},
+#endif
         { &ei_ieee802154_invalid_panid_compression2, { "wpan.seqno_supression_fv2_invalid",  PI_MALFORMED, PI_WARN,
                 "Invalid Pan ID Compression and addressing combination for Frame Version 2", EXPFILL }},
         { &ei_ieee802154_dst, { "wpan.dst_invalid", PI_MALFORMED, PI_ERROR,
@@ -3486,8 +3488,10 @@ void proto_register_ieee802154(void)
                 "Invalid Source Address Mode", EXPFILL }},
         { &ei_ieee802154_frame_ver,  { "wpan.frame_version_unknown", PI_MALFORMED, PI_ERROR,
                 "Frame Version Unknown Cannot Dissect", EXPFILL }},
+#if 0
         { &ei_ieee802154_frame_type, { "wpan.frame_type_unknown", PI_MALFORMED, PI_ERROR,
                 "Frame Type Unknown Cannot Dissect", EXPFILL }},
+#endif
         { &ei_ieee802154_decrypt_error, { "wpan.decrypt_error", PI_UNDECODED, PI_WARN,
                 "Decryption error", EXPFILL }},
         { &ei_ieee802154_fcs, { "wpan.fcs.bad", PI_CHECKSUM, PI_WARN,

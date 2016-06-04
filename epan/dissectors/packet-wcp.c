@@ -175,7 +175,7 @@ static gint ett_wcp_field = -1;
 static expert_field ei_wcp_compressed_data_exceeds = EI_INIT;
 static expert_field ei_wcp_uncompressed_data_exceeds = EI_INIT;
 static expert_field ei_wcp_invalid_window_offset = EI_INIT;
-static expert_field ei_wcp_invalid_match_length = EI_INIT;
+/* static expert_field ei_wcp_invalid_match_length = EI_INIT; */
 
 static dissector_handle_t fr_uncompressed_handle;
 
@@ -770,7 +770,9 @@ proto_register_wcp(void)
 		{ &ei_wcp_compressed_data_exceeds, { "wcp.compressed_data.exceeds", PI_MALFORMED, PI_ERROR, "Compressed data exceeds maximum buffer length", EXPFILL }},
 		{ &ei_wcp_uncompressed_data_exceeds, { "wcp.uncompressed_data.exceeds", PI_MALFORMED, PI_ERROR, "Uncompressed data exceeds maximum buffer length", EXPFILL }},
 		{ &ei_wcp_invalid_window_offset, { "wcp.off.invalid", PI_MALFORMED, PI_ERROR, "Offset points outside of visible window", EXPFILL }},
+#if 0
 		{ &ei_wcp_invalid_match_length, { "wcp.len.invalid", PI_MALFORMED, PI_ERROR, "Length greater than offset", EXPFILL }},
+#endif
 	};
 
 	expert_module_t* expert_wcp;

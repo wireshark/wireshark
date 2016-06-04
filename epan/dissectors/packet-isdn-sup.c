@@ -422,7 +422,7 @@ static gint ett_isdn_sup_MLPPLFBResp = -1;
 /*--- End of included file: packet-isdn-sup-ett.c ---*/
 #line 92 "./asn1/isdn-sup/packet-isdn-sup-template.c"
 
-static expert_field ei_isdn_sup_unsupported_arg_type = EI_INIT;
+/* static expert_field ei_isdn_sup_unsupported_arg_type = EI_INIT; */
 static expert_field ei_isdn_sup_unsupported_result_type = EI_INIT;
 static expert_field ei_isdn_sup_unsupported_error_type = EI_INIT;
 
@@ -3806,7 +3806,9 @@ void proto_register_isdn_sup(void) {
   };
 
   static ei_register_info ei[] = {
+#if 0
     { &ei_isdn_sup_unsupported_arg_type, { "isdn_sup.unsupported.arg_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED ARGUMENT TYPE (ETSI sup)", EXPFILL }},
+#endif
     { &ei_isdn_sup_unsupported_result_type, { "isdn_sup.unsupported.result_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED RESULT TYPE (ETSI sup)", EXPFILL }},
     { &ei_isdn_sup_unsupported_error_type, { "isdn_sup.unsupported.error_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED ERROR TYPE (ETSI sup)", EXPFILL }},
   };

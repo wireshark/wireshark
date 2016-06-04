@@ -411,7 +411,7 @@ static gint ett_hip_tlv_host_id_hdr = -1;
 static gint ett_hip_locator_data = -1;
 
 static expert_field ei_hip_tlv_host_id_len = EI_INIT;
-static expert_field ei_hip_tlv_host_id_e_len = EI_INIT;
+/* static expert_field ei_hip_tlv_host_id_e_len = EI_INIT; */
 static expert_field ei_hip_tlv_host_id_hdr_alg = EI_INIT;
 
 /* Dissect the HIP packet */
@@ -1590,7 +1590,9 @@ proto_register_hip(void)
 
         static ei_register_info ei[] = {
             { &ei_hip_tlv_host_id_len, { "hip.tlv.host_id_length.invalid", PI_PROTOCOL, PI_WARN, "Invalid HI length", EXPFILL }},
+#if 0
             { &ei_hip_tlv_host_id_e_len, { "hip.tlv.host_id_e_length.invalid", PI_PROTOCOL, PI_WARN, "e_len too large", EXPFILL }},
+#endif
             { &ei_hip_tlv_host_id_hdr_alg, { "hip.tlv.host_id_header_algo.invalid", PI_PROTOCOL, PI_WARN, "Unknown algorithm type", EXPFILL }},
         };
 

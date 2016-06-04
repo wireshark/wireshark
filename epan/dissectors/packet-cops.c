@@ -794,7 +794,7 @@ static expert_field ei_cops_trailing_garbage = EI_INIT;
 static expert_field ei_cops_bad_cops_object_length = EI_INIT;
 static expert_field ei_cops_bad_cops_pr_object_length = EI_INIT;
 static expert_field ei_cops_unknown_c_num = EI_INIT;
-static expert_field ei_cops_unknown_s_num = EI_INIT;
+/* static expert_field ei_cops_unknown_s_num = EI_INIT; */
 
 /* For PacketCable */
 static gint ett_cops_subtree = -1;
@@ -2804,7 +2804,9 @@ void proto_register_cops(void)
         { &ei_cops_bad_cops_object_length, { "cops.bad_cops_object_length", PI_MALFORMED, PI_ERROR, "COPS object length is too short", EXPFILL }},
         { &ei_cops_bad_cops_pr_object_length, { "cops.bad_cops_pr_object_length", PI_MALFORMED, PI_ERROR, "COPS-PR object length is too short", EXPFILL }},
         { &ei_cops_unknown_c_num, { "cops.unknown_c_num", PI_UNDECODED, PI_NOTE, "Unknown C-Num value", EXPFILL }},
+#if 0
         { &ei_cops_unknown_s_num, { "cops.unknown_s_num", PI_UNDECODED, PI_NOTE, "Unknown S-Num value", EXPFILL }},
+#endif
     };
 
 

@@ -731,7 +731,7 @@ static expert_field ei_union_unknown  = EI_INIT;
 static expert_field ei_ver_tooold     = EI_INIT;
 static expert_field ei_ver_toonew     = EI_INIT;
 static expert_field ei_oloc_both      = EI_INIT;
-static expert_field ei_banner_invalid = EI_INIT;
+/* static expert_field ei_banner_invalid = EI_INIT; */
 static expert_field ei_sizeillogical  = EI_INIT;
 
 /* Initialize the subtree pointers */
@@ -10465,10 +10465,12 @@ proto_register_ceph(void)
 			"Only one of the key or hash should be present, however both are.",
 			EXPFILL
 		} },
+#if 0
 		{ &ei_banner_invalid, {
 			"ceph.banner.invalid", PI_MALFORMED, PI_ERROR,
 			"Banner was invalid.", EXPFILL
 		} },
+#endif
 		{ &ei_sizeillogical, {
 			"ceph.sizeillogical", PI_MALFORMED, PI_ERROR,
 			"The claimed size is impossible.", EXPFILL

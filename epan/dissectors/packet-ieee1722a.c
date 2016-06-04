@@ -223,7 +223,7 @@ static int ett_1722a_crf_timestamp = -1;
 
 static expert_field ei_sample_width         = EI_INIT;
 static expert_field ei_channels_per_frame   = EI_INIT;
-static expert_field ei_unknown_parameter    = EI_INIT;
+/* static expert_field ei_unknown_parameter    = EI_INIT; */
 static expert_field ei_format_info          = EI_INIT;
 static expert_field ei_clock_reference_type = EI_INIT;
 
@@ -481,7 +481,9 @@ void proto_register_1722a (void)
     static ei_register_info ei[] = {
         { &ei_sample_width,                 { "1722a.expert.sample_width_zero", PI_PROTOCOL, PI_WARN, "Wrong value for Sample Width", EXPFILL }},
         { &ei_channels_per_frame,           { "1722a.expert.channels_per_frame_zero", PI_PROTOCOL, PI_WARN, "Wrong value for parameter Channels per Frame", EXPFILL }},
+#if 0
         { &ei_unknown_parameter,            { "1722a.expert.unknown_parameter", PI_PROTOCOL, PI_WARN, "Unknown parameter", EXPFILL }},
+#endif
         { &ei_format_info,                  { "1722a.expert.format_info", PI_PROTOCOL, PI_WARN, "Format Info Value Reserved", EXPFILL }},
         { &ei_clock_reference_type,         { "1722a.expert.clock_reference_format_type", PI_PROTOCOL, PI_WARN, "The CRF type is not supported", EXPFILL }}
     };
