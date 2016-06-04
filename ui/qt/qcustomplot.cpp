@@ -2472,7 +2472,7 @@ QVector<int> QCPLayout::getSectionSizes(QVector<int> maxSizes, QVector<int> minS
 
   QVector<int> result(sectionCount);
   for (int i=0; i<sectionCount; ++i)
-    result[i] = qRound(sectionSizes.at(i));
+    result[i] = qRound(qreal(sectionSizes.at(i)));
   return result;
 }
 
@@ -3671,7 +3671,7 @@ void QCPLineEnding::draw(QCPPainter *painter, const QVector2D &pos, const QVecto
 */
 void QCPLineEnding::draw(QCPPainter *painter, const QVector2D &pos, double angle) const
 {
-  draw(painter, pos, QVector2D(qCos(angle), qSin(angle)));
+  draw(painter, pos, QVector2D(qCos(qreal(angle)), qSin(qreal(angle))));
 }
 
 
@@ -4051,7 +4051,7 @@ QCPAxis::QCPAxis(QCPAxisRect *parent, AxisType type) :
   mRangeReversed(false),
   mScaleType(stLinear),
   mScaleLogBase(10),
-  mScaleLogBaseLogInv(1.0/qLn(mScaleLogBase)),
+  mScaleLogBaseLogInv(1.0/qLn(qreal(mScaleLogBase))),
   // internal members:
   mGrid(new QCPGrid(this)),
   mAxisPainter(new QCPAxisPainterPrivate(parent->parentPlot())),
@@ -4205,7 +4205,7 @@ void QCPAxis::setScaleLogBase(double base)
   if (base > 1)
   {
     mScaleLogBase = base;
-    mScaleLogBaseLogInv = 1.0/qLn(mScaleLogBase); // buffer for faster baseLog() calculation
+    mScaleLogBaseLogInv = 1.0/qLn(qreal(mScaleLogBase)); // buffer for faster baseLog() calculation
     mCachedMarginValid = false;
   } else
     qDebug() << Q_FUNC_INFO << "Invalid logarithmic scale base (must be greater 1):" << base;
@@ -5201,8 +5201,8 @@ void QCPAxis::scaleRange(double factor, double center)
     if ((mRange.upper < 0 && center < 0) || (mRange.upper > 0 && center > 0)) // make sure center has same sign as range
     {
       QCPRange newRange;
-      newRange.lower = qPow(mRange.lower/center, factor)*center;
-      newRange.upper = qPow(mRange.upper/center, factor)*center;
+      newRange.lower = qPow(qreal(mRange.lower/center), qreal(factor))*center;
+      newRange.upper = qPow(qreal(mRange.upper/center), qreal(factor))*center;
       if (QCPRange::validRange(newRange))
         mRange = newRange.sanitizedForLogScale();
     } else
@@ -5312,9 +5312,9 @@ double QCPAxis::pixelToCoord(double value) const
     } else // mScaleType == stLogarithmic
     {
       if (!mRangeReversed)
-        return qPow(mRange.upper/mRange.lower, (value-mAxisRect->left())/(double)mAxisRect->width())*mRange.lower;
+        return qPow(qreal(mRange.upper/mRange.lower), qreal((value-mAxisRect->left())/(double)mAxisRect->width()))*mRange.lower;
       else
-        return qPow(mRange.upper/mRange.lower, (mAxisRect->left()-value)/(double)mAxisRect->width())*mRange.upper;
+        return qPow(qreal(mRange.upper/mRange.lower), qreal((mAxisRect->left()-value)/(double)mAxisRect->width()))*mRange.upper;
     }
   } else // orientation() == Qt::Vertical
   {
@@ -5327,9 +5327,9 @@ double QCPAxis::pixelToCoord(double value) const
     } else // mScaleType == stLogarithmic
     {
       if (!mRangeReversed)
-        return qPow(mRange.upper/mRange.lower, (mAxisRect->bottom()-value)/(double)mAxisRect->height())*mRange.lower;
+        return qPow(qreal(mRange.upper/mRange.lower), qreal((mAxisRect->bottom()-value)/(double)mAxisRect->height()))*mRange.lower;
       else
-        return qPow(mRange.upper/mRange.lower, (value-mAxisRect->bottom())/(double)mAxisRect->height())*mRange.upper;
+        return qPow(qreal(mRange.upper/mRange.lower), qreal((value-mAxisRect->bottom())/(double)mAxisRect->height()))*mRange.upper;
     }
   }
 }
@@ -5628,7 +5628,7 @@ void QCPAxis::generateAutoTicks()
     {
       // Generate tick positions according to linear scaling:
       mTickStep = mRange.size()/(double)(mAutoTickCount+1e-10); // mAutoTickCount ticks on average, the small addition is to prevent jitter on exact integers
-      double magnitudeFactor = qPow(10.0, qFloor(qLn(mTickStep)/qLn(10.0))); // get magnitude factor e.g. 0.01, 1, 10, 1000 etc.
+      double magnitudeFactor = qPow(qreal(10.0), qFloor(qLn(qreal(mTickStep))/qLn(qreal(10.0)))); // get magnitude factor e.g. 0.01, 1, 10, 1000 etc.
       double tickStepMantissa = mTickStep/magnitudeFactor;
       if (tickStepMantissa < 5)
       {
@@ -5701,7 +5701,7 @@ int QCPAxis::calculateAutoSubTickCount(double tickStep) const
   int result = mSubTickCount; // default to current setting, if no proper value can be found
 
   // get mantissa of tickstep:
-  double magnitudeFactor = qPow(10.0, qFloor(qLn(tickStep)/qLn(10.0))); // get magnitude factor e.g. 0.01, 1, 10, 1000 etc.
+  double magnitudeFactor = qPow(qreal(10.0), qFloor(qLn(qreal(tickStep))/qLn(qreal(10.0)))); // get magnitude factor e.g. 0.01, 1, 10, 1000 etc.
   double tickStepMantissa = tickStep/magnitudeFactor;
 
   // separate integer and fractional part of mantissa:
@@ -5905,7 +5905,7 @@ void QCPAxis::visibleTickBounds(int &lowIndex, int &highIndex) const
 */
 double QCPAxis::baseLog(double value) const
 {
-  return qLn(value)*mScaleLogBaseLogInv;
+  return qLn(qreal(value))*mScaleLogBaseLogInv;
 }
 
 /*! \internal
@@ -5917,7 +5917,7 @@ double QCPAxis::baseLog(double value) const
 */
 double QCPAxis::basePow(double value) const
 {
-  return qPow(mScaleLogBase, value);
+  return qPow(qreal(mScaleLogBase), qreal(value));
 }
 
 /*! \internal
@@ -6610,12 +6610,12 @@ QPointF QCPAxisPainterPrivate::getTickLabelDrawOffset(const TickLabelData &label
     {
       if (tickLabelRotation > 0)
       {
-        x = -qCos(radians)*labelData.totalBounds.width();
-        y = flip ? -labelData.totalBounds.width()/2.0 : -qSin(radians)*labelData.totalBounds.width()-qCos(radians)*labelData.totalBounds.height()/2.0;
+        x = -qCos(qreal(radians))*labelData.totalBounds.width();
+        y = flip ? -labelData.totalBounds.width()/2.0 : -qSin(qreal(radians))*labelData.totalBounds.width()-qCos(qreal(radians))*labelData.totalBounds.height()/2.0;
       } else
       {
-        x = -qCos(-radians)*labelData.totalBounds.width()-qSin(-radians)*labelData.totalBounds.height();
-        y = flip ? +labelData.totalBounds.width()/2.0 : +qSin(-radians)*labelData.totalBounds.width()-qCos(-radians)*labelData.totalBounds.height()/2.0;
+        x = -qCos(qreal(-radians))*labelData.totalBounds.width()-qSin(qreal(-radians))*labelData.totalBounds.height();
+        y = flip ? +labelData.totalBounds.width()/2.0 : +qSin(-radians)*labelData.totalBounds.width()-qCos(qreal(-radians))*labelData.totalBounds.height()/2.0;
       }
     } else
     {
@@ -6628,12 +6628,12 @@ QPointF QCPAxisPainterPrivate::getTickLabelDrawOffset(const TickLabelData &label
     {
       if (tickLabelRotation > 0)
       {
-        x = +qSin(radians)*labelData.totalBounds.height();
-        y = flip ? -labelData.totalBounds.width()/2.0 : -qCos(radians)*labelData.totalBounds.height()/2.0;
+        x = +qSin(qreal(radians))*labelData.totalBounds.height();
+        y = flip ? -labelData.totalBounds.width()/2.0 : -qCos(qreal(radians))*labelData.totalBounds.height()/2.0;
       } else
       {
         x = 0;
-        y = flip ? +labelData.totalBounds.width()/2.0 : -qCos(-radians)*labelData.totalBounds.height()/2.0;
+        y = flip ? +labelData.totalBounds.width()/2.0 : -qCos(qreal(-radians))*labelData.totalBounds.height()/2.0;
       }
     } else
     {
@@ -6646,12 +6646,12 @@ QPointF QCPAxisPainterPrivate::getTickLabelDrawOffset(const TickLabelData &label
     {
       if (tickLabelRotation > 0)
       {
-        x = -qCos(radians)*labelData.totalBounds.width()+qSin(radians)*labelData.totalBounds.height()/2.0;
-        y = -qSin(radians)*labelData.totalBounds.width()-qCos(radians)*labelData.totalBounds.height();
+        x = -qCos(qreal(radians))*labelData.totalBounds.width()+qSin(qreal(radians))*labelData.totalBounds.height()/2.0;
+        y = -qSin(qreal(radians))*labelData.totalBounds.width()-qCos(qreal(radians))*labelData.totalBounds.height();
       } else
       {
-        x = -qSin(-radians)*labelData.totalBounds.height()/2.0;
-        y = -qCos(-radians)*labelData.totalBounds.height();
+        x = -qSin(qreal(-radians))*labelData.totalBounds.height()/2.0;
+        y = -qCos(qreal(-radians))*labelData.totalBounds.height();
       }
     } else
     {
@@ -6664,12 +6664,12 @@ QPointF QCPAxisPainterPrivate::getTickLabelDrawOffset(const TickLabelData &label
     {
       if (tickLabelRotation > 0)
       {
-        x = +qSin(radians)*labelData.totalBounds.height()/2.0;
+        x = +qSin(qreal(radians))*labelData.totalBounds.height()/2.0;
         y = 0;
       } else
       {
-        x = -qCos(-radians)*labelData.totalBounds.width()-qSin(-radians)*labelData.totalBounds.height()/2.0;
-        y = +qSin(-radians)*labelData.totalBounds.width();
+        x = -qCos(qreal(-radians))*labelData.totalBounds.width()-qSin(qreal(-radians))*labelData.totalBounds.height()/2.0;
+        y = +qSin(qreal(-radians))*labelData.totalBounds.width();
       }
     } else
     {
@@ -11117,8 +11117,8 @@ QPixmap QCustomPlot::toPixmap(int width, int height, double scale)
     newWidth = width;
     newHeight = height;
   }
-  int scaledWidth = qRound(scale*newWidth);
-  int scaledHeight = qRound(scale*newHeight);
+  int scaledWidth = qRound(qreal(scale*newWidth));
+  int scaledHeight = qRound(qreal(scale*newHeight));
 
   QPixmap result(scaledWidth, scaledHeight);
   result.fill(mBackgroundBrush.style() == Qt::SolidPattern ? mBackgroundBrush.color() : Qt::transparent); // if using non-solid pattern, make transparent now and draw brush pattern later
@@ -11387,7 +11387,7 @@ void QCPColorGradient::colorize(const double *data, const QCPRange &range, QRgb 
     {
       for (int i=0; i<n; ++i)
       {
-        int index = (int)(qLn(data[dataIndexFactor*i]/range.lower)/qLn(range.upper/range.lower)*(mLevelCount-1)) % mLevelCount;
+        int index = (int)(qLn(qreal(data[dataIndexFactor*i]/range.lower))/qLn(qreal(range.upper/range.lower))*(mLevelCount-1)) % mLevelCount;
         if (index < 0)
           index += mLevelCount;
         scanLine[i] = mColorBuffer.at(index);
@@ -11396,7 +11396,7 @@ void QCPColorGradient::colorize(const double *data, const QCPRange &range, QRgb 
     {
       for (int i=0; i<n; ++i)
       {
-        int index = qLn(data[dataIndexFactor*i]/range.lower)/qLn(range.upper/range.lower)*(mLevelCount-1);
+        int index = qLn(qreal(data[dataIndexFactor*i]/range.lower))/qLn(qreal(range.upper/range.lower))*(mLevelCount-1);
         if (index < 0)
           index = 0;
         else if (index >= mLevelCount)
@@ -11425,7 +11425,7 @@ QRgb QCPColorGradient::color(double position, const QCPRange &range, bool logari
   if (!logarithmic)
     index = (position-range.lower)*(mLevelCount-1)/range.size();
   else
-    index = qLn(position/range.lower)/qLn(range.upper/range.lower)*(mLevelCount-1);
+    index = qLn(qreal(position/range.lower))/qLn(qreal(range.upper/range.lower))*(mLevelCount-1);
   if (mPeriodic)
   {
     index = index % mLevelCount;
@@ -12637,13 +12637,13 @@ void QCPAxisRect::wheelEvent(QWheelEvent *event)
       double wheelSteps = event->delta()/120.0; // a single step delta is +/-120 usually
       if (mRangeZoom.testFlag(Qt::Horizontal))
       {
-        factor = qPow(mRangeZoomFactorHorz, wheelSteps);
+        factor = qPow(qreal(mRangeZoomFactorHorz), qreal(wheelSteps));
         if (mRangeZoomHorzAxis.data())
           mRangeZoomHorzAxis.data()->scaleRange(factor, mRangeZoomHorzAxis.data()->pixelToCoord(event->pos().x()));
       }
       if (mRangeZoom.testFlag(Qt::Vertical))
       {
-        factor = qPow(mRangeZoomFactorVert, wheelSteps);
+        factor = qPow(qreal(mRangeZoomFactorVert), qreal(wheelSteps));
         if (mRangeZoomVertAxis.data())
           mRangeZoomVertAxis.data()->scaleRange(factor, mRangeZoomVertAxis.data()->pixelToCoord(event->pos().y()));
       }
@@ -15823,7 +15823,7 @@ void QCPGraph::getPreparedData(QVector<QCPData> *lineData, QVector<QCPData> *sca
           {
             // determine value pixel span and add as many points in interval to maintain certain vertical data density (this is specific to scatter plot):
             double valuePixelSpan = qAbs(valueAxis->coordToPixel(minValue)-valueAxis->coordToPixel(maxValue));
-            int dataModulo = qMax(1, qRound(intervalDataCount/(valuePixelSpan/4.0))); // approximately every 4 value pixels one data point on average
+            int dataModulo = qMax(1, qRound(qreal(intervalDataCount/(valuePixelSpan/4.0)))); // approximately every 4 value pixels one data point on average
             QCPDataMap::const_iterator intervalIt = currentIntervalStart;
             int c = 0;
             while (intervalIt != it)
@@ -15850,7 +15850,7 @@ void QCPGraph::getPreparedData(QVector<QCPData> *lineData, QVector<QCPData> *sca
       {
         // determine value pixel span and add as many points in interval to maintain certain vertical data density (this is specific to scatter plot):
         double valuePixelSpan = qAbs(valueAxis->coordToPixel(minValue)-valueAxis->coordToPixel(maxValue));
-        int dataModulo = qMax(1, qRound(intervalDataCount/(valuePixelSpan/4.0))); // approximately every 4 value pixels one data point on average
+        int dataModulo = qMax(1, qRound(qreal(intervalDataCount/(valuePixelSpan/4.0)))); // approximately every 4 value pixels one data point on average
         QCPDataMap::const_iterator intervalIt = currentIntervalStart;
         int c = 0;
         while (intervalIt != it)

@@ -225,14 +225,14 @@ void SequenceDialog::vScrollBarChanged(int value)
 
 void SequenceDialog::xAxisChanged(QCPRange range)
 {
-    ui->horizontalScrollBar->setValue(qRound(range.center()*100.0));
-    ui->horizontalScrollBar->setPageStep(qRound(range.size()*100.0));
+    ui->horizontalScrollBar->setValue(qRound(qreal(range.center()*100.0)));
+    ui->horizontalScrollBar->setPageStep(qRound(qreal(range.size()*100.0)));
 }
 
 void SequenceDialog::yAxisChanged(QCPRange range)
 {
-    ui->verticalScrollBar->setValue(qRound(range.center()*100.0));
-    ui->verticalScrollBar->setPageStep(qRound(range.size()*100.0));
+    ui->verticalScrollBar->setValue(qRound(qreal(range.center()*100.0)));
+    ui->verticalScrollBar->setPageStep(qRound(qreal(range.size()*100.0)));
 }
 
 void SequenceDialog::diagramClicked(QMouseEvent *event)

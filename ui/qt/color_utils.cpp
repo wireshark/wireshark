@@ -99,7 +99,7 @@ const color_t ColorUtils::toColorT(const QColor color)
 
 QRgb ColorUtils::alphaBlend(const QColor &color1, const QColor &color2, qreal alpha)
 {
-    alpha = qBound(0.0, alpha, 1.0);
+    alpha = qBound(qreal(0.0), alpha, qreal(1.0));
 
     int r1 = color1.red() * alpha;
     int g1 = color1.green() * alpha;
