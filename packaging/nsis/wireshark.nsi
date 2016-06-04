@@ -1287,8 +1287,8 @@ lbl_npcap_installed:
     ${If} $0 == "0"
         ; Npcap is installed without WinPcap API-compatible mode; WinPcap can be installed
         WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "$NPCAP_NAME is currently installed without WinPcap API-compatible mode"
-        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "1"
-        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "(Use Add/Remove Programs first to uninstall any undetected old WinPcap versions)"
+        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
+        WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you still wish to install WinPcap ${PCAP_DISPLAY_VERSION}, please check this option."
     ${Else}
         ; Npcap is installed with WinPcap API-compatible mode; WinPcap must not be installed
         WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "$NPCAP_NAME"
