@@ -2,7 +2,7 @@
 #
 # Copyright 2013, William Meier (See AUTHORS file)
 #
-# Validate hf_... usage for a dissector file;
+# Validate hf_... and ei_... usage for a dissector file;
 #
 # Usage: checkhf.pl [--debug=?] <file or files>
 #
@@ -102,6 +102,8 @@ while (my $filename = $ARGV[0]) {
     my ($file_contents);
     my (%hf_defs, %hf_static_defs, %hf_array_entries, %hf_usage);
     my ($unused_href, $no_array_href);
+    my (%ei_defs, %ei_static_defs, %ei_array_entries, %ei_usage);
+    my ($unused_ei, $no_array_ei);
 
     read_file(\$filename, \$file_contents);
 
@@ -115,21 +117,29 @@ while (my $filename = $ARGV[0]) {
     find_remove_proto_get_id_hf_assignments(\$file_contents, $filename, \%hf_array_entries);
     find_hf_usage                          (\$file_contents, $filename, \%hf_usage);
 
+    find_remove_ei_defs                    (\$file_contents, $filename, \%ei_defs);
+    find_remove_ei_array_entries           (\$file_contents, $filename, \%ei_array_entries);
+    find_ei_usage                          (\$file_contents, $filename, \%ei_usage);
+
 # Tests (See above)
-# 1. Are all the static hf_defs entries in hf_usage ?
+# 1. Are all the static hf_defs and ei_defs entries in hf_usage and ei_usage?
 #    if not: "Unused entry:"
 #
 
     # create a hash containing entries just for the static definitions
     @hf_static_defs{grep {$hf_defs{$_} == 0} keys %hf_defs} = (); # All values in the new hash will be undef
+    @ei_static_defs{grep {$ei_defs{$_} == 0} keys %ei_defs} = (); # All values in the new hash will be undef
 
     $unused_href = diff_hash(\%hf_static_defs, \%hf_usage);
     remove_hf_pid_from_unused_if_add_oui_call(\$file_contents, $filename, $unused_href);
 
-    print_list("Unused entry: $filename, ", $unused_href);
+    $unused_ei = diff_hash(\%ei_static_defs, \%ei_usage);
 
-# 2. Are all the hf_defs entries (static and global) in hf_array_entries ?
-#    (Note: if a static hf_def is "unused", don't check for same in hf_array_entries)
+    print_list("Unused href entry: $filename, ", $unused_href);
+    print_list("Unused ei entry: $filename, ", $unused_ei);
+
+# 2. Are all the hf_defs and ei_ entries (static and global) in [hf|ei]_array_entries ?
+#    (Note: if a static hf_def or ei is "unused", don't check for same in [hf|ei]_array_entries)
 #    if not: "ERROR: NO ARRAY"
 
 ##    Checking for missing global defs currently gives false positives
@@ -137,10 +147,16 @@ while (my $filename = $ARGV[0]) {
 ##    $no_array_href  = diff_hash(\%hf_defs, \%hf_array_entries);
     $no_array_href  = diff_hash(\%hf_static_defs, \%hf_array_entries);
     $no_array_href  = diff_hash($no_array_href, $unused_href); # Remove "unused" hf_... from no_array list
+    $no_array_ei    = diff_hash(\%ei_static_defs, \%ei_array_entries);
+    $no_array_ei    = diff_hash($no_array_ei, $unused_ei); # Remove "unused" ei_... from no_array list
 
     print_list("ERROR: NO ARRAY: $filename, ", $no_array_href);
+    print_list("ERROR: NO ARRAY: $filename, ", $no_array_ei);
 
     if ((keys %{$no_array_href}) != 0) {
+        $error += 1;
+    }
+    if ((keys %{$no_array_ei}) != 0) {
         $error += 1;
     }
 }
@@ -550,6 +566,143 @@ sub remove_hf_pid_from_unused_if_add_oui_call {
     # hf_...pid unused var && a call to ..._add_oui(); delete entry from unused
     # XXX: maybe hf_..._pid should really be added to hfUsed ?
     delete @$unused_href{@hfvars};
+
+    return;
+}
+
+# ---------------------------------------------------------------------
+# action:  Add to hash an entry for each
+#             'static? expert_field ei_...' definition (including array names)
+#             in the input string.
+#          The entry value will be 0 for 'static' definitions and 1 for 'global' definitions;
+#          Remove each definition found from the input string.
+# args:    code_ref, filename, hf_defs_href
+# returns: ref to the hash
+
+sub find_remove_ei_defs {
+    my ($code_ref, $filename, $ei_defs_eiref) = @_;
+
+    # Build pattern to match any of the following
+    #  static? expert_field ei_foo = -1;
+    #  static? expert_field ei_foo[xxx];
+    #  static? expert_field ei_foo[xxx] = {
+
+    # p1: 'static? expert_field ei_foo'
+    my $p1_regex = qr{
+                         ^
+                         \s*
+                         (static \s+)?
+                         expert_field
+                         \s+
+                         (ei_[a-zA-Z0-9_]+)          # ei_..
+                 }xmso;
+
+    # p2a: ' = EI_INIT;'
+    my  $p2a_regex = qr{
+                           \s* = \s*
+                           (?:
+                           EI_INIT
+                           )
+                           \s* ;
+                   }xmso;
+
+    # p2b: '[xxx];' or '[xxx] = {'
+    my  $p2b_regex = qr/
+                           \s* \[ [^\]]+ \] \s*
+                           (?:
+                               = \s* [{] | ;
+                           )
+                       /xmso;
+
+    my $ei_def_regex = qr{ $p1_regex (?: $p2a_regex | $p2b_regex ) }xmso;
+
+    while (${$code_ref} =~ m{ $ei_def_regex }xmsog) {
+        #print ">%s< >$2<\n", (defined $1) ? $1 ; "";
+        $ei_defs_eiref->{$2} = (defined $1) ? 0 : 1; # 'static' if $1 is defined.
+    }
+    ($debug == 3) && debug_print_hash("VD: $filename", $ei_defs_eiref); # VariableDefinition
+
+    # remove all
+    ${$code_ref} =~ s{ $ei_def_regex } {}xmsog;
+    ($debug == 3) && print "==> After remove ei_defs: code: [$filename]\n${$code_ref}\n===<\n";
+
+    return;
+}
+
+# ---------------------------------------------------------------------
+# action:  Add to hash an entry (ei_...) for each ei[] entry.
+#          Remove each ei[] entries found from the input string.
+# args:    code_ref, filename, ei_array_entries_href
+
+sub find_remove_ei_array_entries {
+    my ($code_ref, $filename, $ei_array_entries_eiref) = @_;
+
+#    ei[] entry regex (to extract an ei_index_name and associated field type)
+    my $ei_array_entry_regex = qr /
+                                      [{]
+                                      \s*
+                                      & \s* ( [a-zA-Z0-9_]+ )   # &ei
+                                      (?:
+                                          \s* [[] [^]]+ []]     # optional array ref
+                                      ) ?
+                                      \s* , \s*
+                                      [{]
+                                      [^}]+
+                                      , \s*
+                                      (PI_[a-zA-Z0-9_]+)        # event group
+                                      \s* , \s*
+                                      (PI_[a-zA-Z0-9_]+)        # event severity
+                                      \s* ,
+                                      [^}]+
+                                      , \s*
+                                      (?:
+                                          EXPFILL
+                                      )
+                                      [^}]*
+                                  }
+                                  [\s,]*
+                                  [}]
+                                  /xmso;
+
+    # find all the ei[] entries (searching ${$code_ref}).
+    while (${$code_ref} =~ m{ $ei_array_entry_regex }xmsog) {
+        ($debug == 98) && print "+++ $1 $2\n";
+        $ei_array_entries_eiref->{$1} = undef;
+    }
+
+    ($debug == 4) && debug_print_hash("AE: $filename", $ei_array_entries_eiref); # ArrayEntry
+
+    # now remove all
+    ${$code_ref} =~ s{ $ei_array_entry_regex } {}xmsog;
+    ($debug == 4) && print "==> After remove ei_array_entries: code: [$filename]\n${$code_ref}\n===<\n";
+
+    return;
+}
+
+# ---------------------------------------------------------------------
+# action: Add to hash all ei_... strings remaining in input string.
+# arga:   code_ref, filename, ei_usage_eiref
+# return: ref to ei_usage hash
+#
+# The hash will include *all* strings of form ei_...
+#   which are in the input string (even strings which
+#   aren't actually vars).
+#   We don't care since we'll be checking only
+#   known valid vars against these strings.
+
+sub find_ei_usage {
+    my ($code_ref, $filename, $ei_usage_eiref) = @_;
+
+    my $ei_usage_regex = qr{
+                               \b ( ei_[a-zA-Z0-9_]+ )      # ei_...
+                       }xmso;
+
+    while (${$code_ref} =~ m{ $ei_usage_regex }xmsog) {
+        #print "$1\n";
+        $ei_usage_eiref->{$1} += 1;
+    }
+
+    ($debug == 5) && debug_print_hash("VU: $filename", $ei_usage_eiref); # VariableUsage
 
     return;
 }
