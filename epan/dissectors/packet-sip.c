@@ -43,6 +43,7 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/tap.h>
 #include <epan/proto_data.h>
+#include <epan/uat.h>
 
 #include <wsutil/str_util.h>
 
@@ -883,6 +884,132 @@ static gboolean sip_delay_sdp_changes = FALSE;
 /* Extension header subdissectors */
 static dissector_table_t ext_hdr_subdissector_table;
 
+/* Custom SIP headers */
+typedef struct _header_field_t {
+    gchar* header_name;
+    gchar* header_desc;
+} header_field_t;
+
+static header_field_t* sip_custom_header_fields = NULL;
+static guint sip_custom_num_header_fields = 0;
+static wmem_map_t *sip_custom_header_fields_hash = NULL;
+
+static gboolean
+header_fields_update_cb(void *r, char **err)
+{
+    header_field_t *rec = (header_field_t *)r;
+    char c;
+
+    if (rec->header_name == NULL) {
+        *err = g_strdup("Header name can't be empty");
+        return FALSE;
+    }
+
+    g_strstrip(rec->header_name);
+    if (rec->header_name[0] == 0) {
+        *err = g_strdup("Header name can't be empty");
+        return FALSE;
+    }
+
+    /* Check for invalid characters (to avoid asserting out when
+    * registering the field).
+    */
+    c = proto_check_field_name(rec->header_name);
+    if (c) {
+        *err = g_strdup_printf("Header name can't contain '%c'", c);
+        return FALSE;
+    }
+
+    *err = NULL;
+    return TRUE;
+}
+
+static void *
+header_fields_copy_cb(void* n, const void* o, size_t siz _U_)
+{
+    header_field_t* new_rec = (header_field_t*)n;
+    const header_field_t* old_rec = (const header_field_t*)o;
+
+    if (old_rec->header_name) {
+        new_rec->header_name = g_strdup(old_rec->header_name);
+    } else {
+        new_rec->header_name = NULL;
+    }
+
+    if (old_rec->header_desc) {
+        new_rec->header_desc = g_strdup(old_rec->header_desc);
+    } else {
+        new_rec->header_desc = NULL;
+    }
+
+    return new_rec;
+}
+
+static void
+header_fields_free_cb(void*r)
+{
+    header_field_t* rec = (header_field_t*)r;
+
+    if (rec->header_name) {
+       g_free(rec->header_name);
+    }
+    if (rec->header_desc) {
+        g_free(rec->header_desc);
+    }
+}
+
+static void
+header_fields_initialize_cb(void)
+{
+    static hf_register_info* hf;
+    gint* hf_id;
+    guint i;
+    gchar* header_name;
+    gchar* header_name_key;
+
+    if (hf) {
+        guint hf_size = wmem_map_size(sip_custom_header_fields_hash);
+        /* Deregister all fields */
+        for (i = 0; i < hf_size; i++) {
+            proto_deregister_field(proto_sip, *(hf[i].p_id));
+            header_name_key = wmem_ascii_strdown(NULL, hf[i].hfinfo.name, -1);
+            wmem_map_remove(sip_custom_header_fields_hash, header_name_key);
+            wmem_free(NULL, header_name_key);
+            wmem_free(wmem_epan_scope(), hf[i].p_id);
+        }
+        proto_add_deregistered_data(hf);
+        hf = NULL;
+    }
+
+    if (sip_custom_num_header_fields) {
+        hf = g_new0(hf_register_info, sip_custom_num_header_fields);
+
+        for (i = 0; i < sip_custom_num_header_fields; i++) {
+            hf_id = wmem_new(wmem_epan_scope(), gint);
+            *hf_id = -1;
+            header_name = g_strdup(sip_custom_header_fields[i].header_name);
+            header_name_key = wmem_ascii_strdown(wmem_epan_scope(), header_name, -1);
+
+            hf[i].p_id = hf_id;
+            hf[i].hfinfo.name = header_name;
+            hf[i].hfinfo.abbrev = g_strdup_printf("sip.%s", header_name);
+            hf[i].hfinfo.type = FT_STRING;
+            hf[i].hfinfo.display = BASE_NONE;
+            hf[i].hfinfo.strings = NULL;
+            hf[i].hfinfo.bitmask = 0;
+            hf[i].hfinfo.blurb = g_strdup(sip_custom_header_fields[i].header_desc);
+            HFILL_INIT(hf[i]);
+
+            wmem_map_insert(sip_custom_header_fields_hash, header_name_key, hf_id);
+        }
+
+        proto_register_field_array(proto_sip, hf, sip_custom_num_header_fields);
+    }
+}
+
+UAT_CSTRING_CB_DEF(sip_custom_header_fields, header_name, header_field_t)
+UAT_CSTRING_CB_DEF(sip_custom_header_fields, header_desc, header_field_t)
+
 /* Forward declaration we need below */
 void proto_reg_handoff_sip(void);
 static gboolean dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info *pinfo,
@@ -1025,8 +1152,8 @@ static gint sip_equal(gconstpointer v, gconstpointer v2)
 static void
 sip_init_protocol(void)
 {
-     guint i;
-     gchar *value_copy;
+    guint i;
+    gchar *value_copy;
     sip_hash = g_hash_table_new(g_str_hash , sip_equal);
 
     /* Hash table for quick lookup of SIP headers names to hf entry (POS_x) */
@@ -1044,6 +1171,7 @@ sip_cleanup_protocol(void)
      g_hash_table_destroy(sip_hash);
      g_hash_table_destroy(sip_headers_hash);
 }
+
 /* Call the export PDU tap with relevant data */
 static void
 export_sip_pdu(packet_info *pinfo, tvbuff_t *tvb)
@@ -2984,20 +3112,26 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
             value_len = (gint) (line_end_offset - value_offset);
 
             if (hf_index == -1) {
-                proto_item *ti_c;
-                proto_tree *ti_tree = proto_tree_add_subtree(hdr_tree, tvb,
-                                                     offset, next_offset - offset, ett_sip_ext_hdr, &ti_c,
-                                                     tvb_format_text(tvb, offset, linelen));
-
-                ext_hdr_handle = dissector_get_string_handle(ext_hdr_subdissector_table, header_name);
-                if (ext_hdr_handle != NULL) {
-                    tvbuff_t *next_tvb2;
-                    next_tvb2 = tvb_new_subset_length(tvb, value_offset, value_len);
-                    dissector_try_string(ext_hdr_subdissector_table, header_name, next_tvb2, pinfo, ti_tree, NULL);
+                gint *hf_ptr = (gint*)wmem_map_lookup(sip_custom_header_fields_hash, header_name);
+                if (hf_ptr) {
+                    sip_proto_tree_add_string(hdr_tree, *hf_ptr, tvb, offset,
+                                              next_offset - offset, value_offset, value_len);
                 } else {
-                    expert_add_info_format(pinfo, ti_c, &ei_sip_unrecognized_header,
-                                           "Unrecognised SIP header (%s)",
-                                           header_name);
+                    proto_item *ti_c;
+                    proto_tree *ti_tree = proto_tree_add_subtree(hdr_tree, tvb,
+                                                         offset, next_offset - offset, ett_sip_ext_hdr, &ti_c,
+                                                         tvb_format_text(tvb, offset, linelen));
+
+                    ext_hdr_handle = dissector_get_string_handle(ext_hdr_subdissector_table, header_name);
+                    if (ext_hdr_handle != NULL) {
+                        tvbuff_t *next_tvb2;
+                        next_tvb2 = tvb_new_subset_length(tvb, value_offset, value_len);
+                        dissector_try_string(ext_hdr_subdissector_table, header_name, next_tvb2, pinfo, ti_tree, NULL);
+                    } else {
+                        expert_add_info_format(pinfo, ti_c, &ei_sip_unrecognized_header,
+                                               "Unrecognised SIP header (%s)",
+                                               header_name);
+                    }
                 }
             } else {
                 proto_item *sip_element_item;
@@ -6427,6 +6561,7 @@ void proto_register_sip(void)
 
     module_t *sip_module;
     expert_module_t* expert_sip;
+    uat_t* sip_custom_headers_uat;
 
     static tap_param sip_stat_params[] = {
       { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
@@ -6447,7 +6582,14 @@ void proto_register_sip(void)
       NULL
     };
 
-    /* Register the protocol name and description */
+    /* UAT for header fields */
+    static uat_field_t sip_custom_header_uat_fields[] = {
+        UAT_FLD_CSTRING(sip_custom_header_fields, header_name, "Header name", "SIP header name"),
+        UAT_FLD_CSTRING(sip_custom_header_fields, header_desc, "Field desc", "Description of the value contained in the header"),
+        UAT_END_FIELDS
+    };
+
+        /* Register the protocol name and description */
     proto_sip = proto_register_protocol("Session Initiation Protocol",
                                         "SIP", "sip");
     proto_raw_sip = proto_register_protocol("Session Initiation Protocol (SIP as raw text)",
@@ -6531,6 +6673,28 @@ void proto_register_sip(void)
         "prevents tracking media in early-media call scenarios",
         &sip_delay_sdp_changes);
 
+    /* UAT */
+    sip_custom_headers_uat = uat_new("Custom SIP Header Fields",
+        sizeof(header_field_t),
+        "custom_sip_header_fields",
+        TRUE,
+        &sip_custom_header_fields,
+        &sip_custom_num_header_fields,
+        /* specifies named fields, so affects dissection
+            and the set of named fields */
+        UAT_AFFECTS_DISSECTION|UAT_AFFECTS_FIELDS,
+        NULL,
+        header_fields_copy_cb,
+        header_fields_update_cb,
+        header_fields_free_cb,
+        header_fields_initialize_cb,
+        sip_custom_header_uat_fields
+    );
+
+    prefs_register_uat_preference(sip_module, "custom_sip_header_fields", "Custom SIP header fields",
+        "A table to define custom SIP header for which fields can be setup and used for filtering/data extraction etc.",
+        sip_custom_headers_uat);
+
     prefs_register_obsolete_preference(sip_module, "tcp.port");
 
     register_init_routine(&sip_init_protocol);
@@ -6542,6 +6706,8 @@ void proto_register_sip(void)
     ext_hdr_subdissector_table = register_dissector_table("sip.hdr", "SIP Extension header", proto_sip, FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     register_stat_tap_table_ui(&sip_stat_table);
+
+    sip_custom_header_fields_hash = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
 
     /* compile patterns */
     ws_mempbrk_compile(&pbrk_comma_semi, ",;");
