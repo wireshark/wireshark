@@ -44,7 +44,8 @@
 
 FirewallRulesDialog::FirewallRulesDialog(QWidget &parent, CaptureFile &cf) :
     WiresharkDialog(parent, cf),
-    ui(new Ui::FirewallRulesDialog)
+    ui(new Ui::FirewallRulesDialog),
+    prod_(0)
 {
     ui->setupUi(this);
 
