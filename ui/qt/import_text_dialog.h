@@ -78,6 +78,7 @@ public slots:
 private slots:
     void on_textFileBrowseButton_clicked();
     void on_textFileLineEdit_textChanged(const QString &arg1);
+    void on_noOffsetButton_toggled(bool checked);
     void on_encapComboBox_currentIndexChanged(int index);
     void on_dateTimeLineEdit_textChanged(const QString &arg1);
     void on_directionIndicationCheckBox_toggled(bool checked);

@@ -317,6 +317,15 @@ void ImportTextDialog::on_textFileLineEdit_textChanged(const QString &file_name)
     updateImportButtonState();
 }
 
+void ImportTextDialog::on_noOffsetButton_toggled(bool checked)
+{
+    if (checked) {
+        ti_ui_->noOffsetLabel->setText("(only one packet will be created)");
+    } else {
+        ti_ui_->noOffsetLabel->setText("");
+    }
+}
+
 void ImportTextDialog::on_encapComboBox_currentIndexChanged(int index)
 {
     QVariant val = ti_ui_->encapComboBox->itemData(index);

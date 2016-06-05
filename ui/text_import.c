@@ -788,6 +788,13 @@ parse_token (token_t token, char *str)
                 state = READ_OFFSET;
             }
             break;
+        case T_BYTE:
+            if (offset_base == 0) {
+                start_new_packet();
+                write_byte(str);
+                state = READ_BYTE;
+            }
+            break;
         default:
             break;
         }
@@ -937,7 +944,8 @@ text_import(text_import_info_t *info)
     hdr_sctp = FALSE;
     hdr_data_chunk = FALSE;
 
-    offset_base = (info->offset_type == OFFSET_HEX) ? 16 :
+    offset_base = (info->offset_type == OFFSET_NONE) ? 0 :
+                  (info->offset_type == OFFSET_HEX) ? 16 :
                   (info->offset_type == OFFSET_OCT) ? 8 :
                   (info->offset_type == OFFSET_DEC) ? 10 :
                   16;
