@@ -173,52 +173,41 @@
         </item>
        </layout>
       </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="directionIndicationLabel">
-        <property name="toolTip">
-         <string>Whether or not the file contains information indicating the direction (inbound or outbound) of the packet.</string>
-        </property>
-        <property name="text">
-         <string>Direction indication:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QCheckBox" name="directionIndicationCheckBox">
-        <property name="toolTip">
-         <string>Whether or not the file contains information indicating the direction (inbound or outbound) of the packet.</string>
-        </property>
-       </widget>
+      <item row="5" column="0" colspan="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,0,0">
+        <item>
+         <widget class="QLabel" name="directionIndicationLabel">
+          <property name="toolTip">
+           <string>Whether or not the file contains information indicating the direction (inbound or outbound) of the packet.</string>
+          </property>
+          <property name="text">
+           <string>Direction indication:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="directionIndicationCheckBox">
+          <property name="toolTip">
+           <string>Whether or not the file contains information indicating the direction (inbound or outbound) of the packet.</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </item>
      </layout>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
-     <item>
-      <widget class="QLabel" name="label_11">
-       <property name="text">
-        <string>Maximum frame length:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="SyntaxLineEdit" name="maxLengthLineEdit">
-       <property name="toolTip">
-        <string>The maximum size of the frames to write to the import capture file (max 64000)</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="3" column="0" colspan="2">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Open</set>
-     </property>
     </widget>
    </item>
    <item row="1" column="0" colspan="2">
@@ -442,6 +431,34 @@
        </layout>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QLabel" name="label_11">
+       <property name="text">
+        <string>Maximum frame length:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="SyntaxLineEdit" name="maxLengthLineEdit">
+       <property name="toolTip">
+        <string>The maximum size of the frames to write to the import capture file (max 64000)</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Open</set>
+     </property>
     </widget>
    </item>
   </layout>
