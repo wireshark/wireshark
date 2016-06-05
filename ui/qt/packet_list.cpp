@@ -1385,7 +1385,9 @@ void PacketList::copySummary()
     QStringList col_parts;
     int row = currentIndex().row();
     for (int col = 0; col < packet_list_model_->columnCount(); col++) {
-        col_parts << packet_list_model_->data(packet_list_model_->index(row, col), Qt::DisplayRole).toString();
+        if (get_column_visible(col)) {
+            col_parts << packet_list_model_->data(packet_list_model_->index(row, col), Qt::DisplayRole).toString();
+        }
     }
 
     QString copy_text;
