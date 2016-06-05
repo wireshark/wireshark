@@ -2486,6 +2486,24 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
 </context>
 <context>
+    <name>FieldFilterEdit</name>
+    <message>
+        <location filename="field_filter_edit.cpp" line="70"/>
+        <source>Display filter entry</source>
+        <translation type="unfinished">Anzeigefiltereintrag</translation>
+    </message>
+    <message>
+        <location filename="field_filter_edit.cpp" line="91"/>
+        <source>Enter a field %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="field_filter_edit.cpp" line="154"/>
+        <source>Invalid filter: </source>
+        <translation type="unfinished">Ungültiger Filter: </translation>
+    </message>
+</context>
+<context>
     <name>FileSetDialog</name>
     <message>
         <location filename="file_set_dialog.ui" line="14"/>
@@ -13145,23 +13163,23 @@ text-decoration: underline;
 <context>
     <name>SequenceDialog</name>
     <message>
-        <location filename="sequence_dialog.cpp" line="62"/>
+        <location filename="sequence_dialog.cpp" line="66"/>
         <source>Call Flow</source>
         <translation>Anruf Flow</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="121"/>
+        <location filename="sequence_dialog.cpp" line="125"/>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
         <translation>Speichern als</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="276"/>
+        <location filename="sequence_dialog.cpp" line="284"/>
         <source>No data</source>
         <translation>Keine Daten</translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="278"/>
+        <location filename="sequence_dialog.cpp" line="286"/>
         <source>%Ln node(s)</source>
         <translation>
             <numerusform>%Ln Node</numerusform>
@@ -13169,7 +13187,7 @@ text-decoration: underline;
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="279"/>
+        <location filename="sequence_dialog.cpp" line="287"/>
         <source>%Ln item(s)</source>
         <translation>
             <numerusform>%Ln Item</numerusform>
@@ -13177,38 +13195,38 @@ text-decoration: underline;
         </translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="299"/>
+        <location filename="sequence_dialog.cpp" line="307"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="300"/>
+        <location filename="sequence_dialog.cpp" line="308"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="301"/>
+        <location filename="sequence_dialog.cpp" line="309"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="303"/>
+        <location filename="sequence_dialog.cpp" line="311"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG File Interchange Format (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="304"/>
+        <location filename="sequence_dialog.cpp" line="312"/>
         <source>ASCII (*.txt)</source>
         <translation>ASCII (*.txt)</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="315"/>
+        <location filename="sequence_dialog.cpp" line="323"/>
         <source>Save Graph As</source>
         <oldsource>Wireshark: Save Graph As...</oldsource>
         <translation>Graph speichern als</translation>
     </message>
     <message>
-        <location filename="sequence_dialog.cpp" line="62"/>
+        <location filename="sequence_dialog.cpp" line="66"/>
         <source>Flow</source>
         <translation>Flow</translation>
     </message>
