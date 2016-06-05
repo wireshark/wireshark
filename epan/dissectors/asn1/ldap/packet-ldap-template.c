@@ -584,9 +584,9 @@ attribute_types_initialize_cb(void)
       hf[i].hfinfo.type = FT_STRING;
       hf[i].hfinfo.display = BASE_NONE;
       hf[i].hfinfo.strings = NULL;
+      hf[i].hfinfo.bitmask = 0;
       hf[i].hfinfo.blurb = g_strdup(attribute_types[i].attribute_desc);
-      hf[i].hfinfo.same_name_prev_id = -1;
-      hf[i].hfinfo.same_name_next = NULL;
+      HFILL_INIT(hf[i]);
 
       g_hash_table_insert(attribute_types_hash, attribute_type, hf_id);
     }

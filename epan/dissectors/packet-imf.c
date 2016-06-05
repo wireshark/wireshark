@@ -907,9 +907,9 @@ header_fields_initialize_cb (void)
       hf[i].hfinfo.type = FT_STRING;
       hf[i].hfinfo.display = BASE_NONE;
       hf[i].hfinfo.strings = NULL;
+      hf[i].hfinfo.bitmask = 0;
       hf[i].hfinfo.blurb = g_strdup (header_fields[i].description);
-      hf[i].hfinfo.same_name_prev_id = -1;
-      hf[i].hfinfo.same_name_next = NULL;
+      HFILL_INIT(hf[i]);
 
       imffield = (struct imf_field *)g_malloc (sizeof (struct imf_field));
       imffield->hf_id = hf_id;
