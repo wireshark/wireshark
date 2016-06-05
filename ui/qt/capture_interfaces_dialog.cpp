@@ -131,7 +131,6 @@ public:
 #ifdef HAVE_EXTCAP
         if (device->if_info.type == IF_EXTCAP) {
             /* extcap interfaces does not have this settings */
-            setData(col_pmode_, Qt::CheckStateRole, QVariant());
             setApplicable(col_pmode_, false);
 
             setApplicable(col_snaplen_, false);
@@ -169,6 +168,7 @@ public:
         if (applicable) {
             setText(column, QString());
         } else {
+            setData(column, Qt::CheckStateRole, QVariant());
             palette.setCurrentColorGroup(QPalette::Disabled);
             setText(column, UTF8_EM_DASH);
         }
@@ -300,7 +300,6 @@ void CaptureInterfacesDialog::on_capturePromModeCheckBox_toggled(bool checked)
         QString device_name = ti->data(col_interface_, Qt::UserRole).toString();
         device = getDeviceByName(device_name);
         if (!device) continue;
-//        QString device_name = ui->interfaceTree->topLevelItem(row)->text(col_interface_);
         device->pmode = checked;
         ti->updateInterfaceColumns(device);
     }
