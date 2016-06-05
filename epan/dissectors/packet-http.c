@@ -2418,9 +2418,9 @@ header_fields_initialize_cb(void)
 			hf[i].hfinfo.type = FT_STRING;
 			hf[i].hfinfo.display = BASE_NONE;
 			hf[i].hfinfo.strings = NULL;
+			hf[i].hfinfo.bitmask = 0;
 			hf[i].hfinfo.blurb = g_strdup(header_fields[i].header_desc);
-			hf[i].hfinfo.same_name_prev_id = -1;
-			hf[i].hfinfo.same_name_next = NULL;
+			HFILL_INIT(hf[i]);
 
 			g_hash_table_insert(header_fields_hash, header_name, hf_id);
 		}

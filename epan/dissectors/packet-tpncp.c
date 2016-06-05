@@ -581,16 +581,12 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
         }
     };
 
-    /* Register common fields of hf_register_info struture. */
+    /* Register common fields of hf_register_info structure. */
     hf_entr.hfinfo.type           = FT_NONE;
     hf_entr.hfinfo.strings        = NULL;
     hf_entr.hfinfo.bitmask        = 0x0;
     hf_entr.hfinfo.blurb          = NULL;
-    hf_entr.hfinfo.id             = 0;
-    hf_entr.hfinfo.parent         = 0;
-    hf_entr.hfinfo.ref_type       = HF_REF_TYPE_NONE;
-    hf_entr.hfinfo.same_name_next = NULL;
-    hf_entr.hfinfo.same_name_prev_id = -1;
+    HFILL_INIT(hf_entr);
 
     if (!was_registered) {
         /* Register non-standard data should be done only once. */
