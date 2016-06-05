@@ -2087,13 +2087,17 @@ static int ett_oid_attribute_oid = -1;
  * Expert infos are related to either a PDU type or a specification, and so
  * they are listed separately.
  */
-/* static expert_field ei_undecoded = EI_INIT; */
+#if 0
+static expert_field ei_undecoded = EI_INIT;
+#endif
 static expert_field ei_malformed = EI_INIT;
 static expert_field ei_implicit_no_op = EI_INIT;
 static expert_field ei_c2_c3_c4_format = EI_INIT;
 static expert_field ei_type_4_header_zero = EI_INIT;
 static expert_field ei_dof_10_flags_zero = EI_INIT;
+#if 0
 static expert_field ei_dof_13_length_specified = EI_INIT;
+#endif
 
 static expert_field ei_dpp2_dof_10_flags_zero = EI_INIT;
 static expert_field ei_dpp_default_flags = EI_INIT;
@@ -6584,10 +6588,12 @@ static int dissect_dnp_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 length = (length << 8) | tvb_get_guint8(tvb, offset + i);
 
             /* Validate the length. */
-            /*if ( (length == 0) && packet->negotiated && session && ! session->connectionless )
+#if 0
+            if ( (length == 0) && packet->negotiated && session && ! session->connectionless )
             {
             expert_add_info( pinfo, NULL, &ei_dof_13_length_specified );
-            } */
+            }
+#endif
 
             offset += dnp_length_length;
 
@@ -11241,7 +11247,9 @@ static void dof_register_dnp_1(void)
     static ei_register_info ei[] =
     {
         { &ei_dof_10_flags_zero, { "dof.dnp.v1.flags_zero", PI_UNDECODED, PI_ERROR, "DPS-10: Reserved flag bits must be zero.", EXPFILL } },
+#if 0
         { &ei_dof_13_length_specified, { "dof.dnp.v1.length_specified", PI_UNDECODED, PI_ERROR, "DPS-13: Length must be specified on a connection.", EXPFILL } },
+#endif
     };
 
     if (proto_2009_9_dnp_1 == -1)
@@ -11423,7 +11431,7 @@ static void dof_register_dpp_2(void)
     static ei_register_info ei[] =
     {
         { &ei_dpp2_dof_10_flags_zero, { "dof.dpp.v2.flags_zero", PI_UNDECODED, PI_ERROR, "DPS-10: Reserved flag bits must be zero.", EXPFILL } },
-        { &ei_dpp_default_flags, { "dof.dpp.v2.flags_included", 0, PI_NOTE, "Default flag value is included explicitly.", EXPFILL } },
+        { &ei_dpp_default_flags, { "dof.dpp.v2.flags_included", PI_COMMENTS_GROUP, PI_NOTE, "Default flag value is included explicitly.", EXPFILL } },
         { &ei_dpp_explicit_sender_sid_included, { "dof.dpp.v2.sender_sid_included", PI_COMMENT, PI_NOTE, "Explicit SID could be optimized, same as sender.", EXPFILL } },
         { &ei_dpp_explicit_receiver_sid_included, { "dof.dpp.v2.receiver_sid_included", PI_COMMENT, PI_NOTE, "Explicit SID could be optimized, same as receiver.", EXPFILL } },
 #ifdef LIBGCRYPT_OK
