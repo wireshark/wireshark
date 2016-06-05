@@ -53,7 +53,6 @@
 //   - Fake a splitter widget by catching mouse events in the plot area.
 //     Drawing a QCPItemLine or QCPItemPixmap over each Y axis might make
 //     this easier.
-// - Add zoom controls.
 // - Add UTF8 to text dump
 // - Save to XMI? http://www.umlgraph.org/
 // - Time: abs vs delta
@@ -135,6 +134,8 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     ui->gridLayout->setSpacing(0);
     connect(sp->yAxis, SIGNAL(rangeChanged(QCPRange)), sp->yAxis2, SLOT(setRange(QCPRange)));
 
+    ctx_menu_.addAction(ui->actionZoomIn);
+    ctx_menu_.addAction(ui->actionZoomOut);
     ctx_menu_.addAction(ui->actionReset);
     ctx_menu_.addSeparator();
     ctx_menu_.addAction(ui->actionMoveRight10);
@@ -208,6 +209,15 @@ void SequenceDialog::keyPressEvent(QKeyEvent *event)
 
     // XXX - Copy some shortcuts from tcp_stream_dialog.cpp
     switch(event->key()) {
+    case Qt::Key_Minus:
+    case Qt::Key_Underscore:    // Shifted minus on U.S. keyboards
+        on_actionZoomOut_triggered();
+        break;
+    case Qt::Key_Plus:
+    case Qt::Key_Equal:         // Unshifted plus on U.S. keyboards
+        on_actionZoomIn_triggered();
+        break;
+
     case Qt::Key_Right:
     case Qt::Key_L:
         panAxes(pan_pixels, 0);
@@ -402,7 +412,7 @@ void SequenceDialog::fillDiagram()
         seq_diagram_->setData(info_->sainfo());
     }
 
-    sequence_w_ = one_em_ * 15 ; // Arbitrary
+    sequence_w_ = one_em_ * 15; // Arbitrary
 
     mouseMoved(NULL);
     resetAxes();
@@ -457,7 +467,7 @@ void SequenceDialog::resetAxes(bool keep_lower)
         left_pos = sp->xAxis2->range().lower;
     }
 
-    double range_span = sp->viewport().width() / sequence_w_;
+    double range_span = sp->viewport().width() / sequence_w_ * sp->axisRect()->rangeZoomFactor(Qt::Horizontal);
     sp->xAxis2->setRange(left_pos, range_span + left_pos);
 
     range_span = sp->axisRect()->height() / (one_em_ * 1.5);
@@ -633,6 +643,29 @@ void SequenceDialog::on_actionMoveUp1_triggered()
 void SequenceDialog::on_actionMoveDown1_triggered()
 {
     panAxes(0, -1);
+}
+
+void SequenceDialog::on_actionZoomIn_triggered()
+{
+    zoomXAxis(true);
+}
+
+void SequenceDialog::on_actionZoomOut_triggered()
+{
+    zoomXAxis(false);
+}
+
+void SequenceDialog::zoomXAxis(bool in)
+{
+    QCustomPlot *sp = ui->sequencePlot;
+    double h_factor = sp->axisRect()->rangeZoomFactor(Qt::Horizontal);
+
+    if (!in) {
+        h_factor = pow(h_factor, -1);
+    }
+
+    sp->xAxis2->scaleRange(h_factor, sp->xAxis->range().lower);
+    sp->replot();
 }
 
 SequenceInfo::SequenceInfo(seq_analysis_info_t *sainfo) :

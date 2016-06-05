@@ -101,6 +101,8 @@ private slots:
     void on_actionMoveLeft1_triggered();
     void on_actionMoveUp1_triggered();
     void on_actionMoveDown1_triggered();
+    void on_actionZoomIn_triggered();
+    void on_actionZoomOut_triggered();
 
 private:
     Ui::SequenceDialog *ui;
@@ -114,6 +116,7 @@ private:
     QCPItemText *key_text_;
     QCPItemText *comment_text_;
 
+    void zoomXAxis(bool in);
     void panAxes(int x_pixels, int y_pixels);
     void resetAxes(bool keep_lower = false);
     void goToAdjacentPacket(bool next);
