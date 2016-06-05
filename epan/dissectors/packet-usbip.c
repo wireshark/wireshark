@@ -1057,7 +1057,7 @@ proto_register_usbip(void)
 
     static ei_register_info ei[] = {
         {&ei_usbip,
-         {"usbip.unsupported_version", PI_MALFORMED, PI_ERROR,
+         { "usbip.unsupported_version", PI_MALFORMED, PI_ERROR,
           "Unsupported element", EXPFILL}},
     };
 

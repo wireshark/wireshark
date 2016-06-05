@@ -4018,14 +4018,14 @@ proto_register_scsi_osd(void)
         { &ei_osd_attr_unknown,    { "scsi_osd.attr_unknown",    PI_UNDECODED, PI_NOTE,  "Unknown attribute, cannot decode attribute value", EXPFILL }},
         { &ei_osd2_invalid_offset, { "scsi_osd2.invalid_offset", PI_UNDECODED, PI_ERROR, "Invalid offset exponent", EXPFILL }},
         { &ei_osd2_invalid_object_descriptor_format, { "scsi_osd2.object_descriptor_format.invalid", PI_UNDECODED, PI_ERROR, "Invalid list format", EXPFILL }},
-        { &ei_osd_unknown_attributes_list_type, {"scsi_osd.attributes_list.type.invalid", PI_UNDECODED, PI_ERROR, "Unknown attribute list type", EXPFILL }},
-        { &ei_osd2_cdb_continuation_format_unknown, {"scsi_osd2.cdb_continuation.format.unknown", PI_UNDECODED, PI_ERROR, "Unknown CDB Continuation Format", EXPFILL }},
-        { &ei_osd2_continued_service_action_mismatch, {"scsi_osd2.cdb_continuation.sa.mismatch", PI_PROTOCOL, PI_WARN, "CONTINUED SERVICE ACTION and SERVICE ACTION do not match", EXPFILL }},
-        { &ei_osd2_cdb_continuation_descriptor_type_unknown, {"scsi_osd2.cdb_continuation.desc.type.unknown", PI_UNDECODED, PI_WARN, "Unknown descriptor type", EXPFILL }},
-        { &ei_osd2_cdb_continuation_descriptor_length_invalid, {"scsi_osd2.cdb_continuation.desc.length.invalid", PI_PROTOCOL, PI_ERROR, "Invalid descriptor length (not a multiple of 8)", EXPFILL }},
-        { &ei_osd2_cdb_continuation_length_invalid, {"scsi_osd2.cdb_continuation.length.invalid", PI_PROTOCOL, PI_ERROR, "Invalid CDB continuation length", EXPFILL }},
-        { &ei_osd_attr_length_invalid, {"scsi_osd.attribute_length.invalid", PI_PROTOCOL, PI_ERROR, "Invalid Attribute Length", EXPFILL }},
-        { &ei_osd2_query_values_equal, {"scsi_osd2.query.entry.equal", PI_PROTOCOL, PI_NOTE, "The minimum and maximum values are equal", EXPFILL }},
+        { &ei_osd_unknown_attributes_list_type, { "scsi_osd.attributes_list.type.invalid", PI_UNDECODED, PI_ERROR, "Unknown attribute list type", EXPFILL }},
+        { &ei_osd2_cdb_continuation_format_unknown, { "scsi_osd2.cdb_continuation.format.unknown", PI_UNDECODED, PI_ERROR, "Unknown CDB Continuation Format", EXPFILL }},
+        { &ei_osd2_continued_service_action_mismatch, { "scsi_osd2.cdb_continuation.sa.mismatch", PI_PROTOCOL, PI_WARN, "CONTINUED SERVICE ACTION and SERVICE ACTION do not match", EXPFILL }},
+        { &ei_osd2_cdb_continuation_descriptor_type_unknown, { "scsi_osd2.cdb_continuation.desc.type.unknown", PI_UNDECODED, PI_WARN, "Unknown descriptor type", EXPFILL }},
+        { &ei_osd2_cdb_continuation_descriptor_length_invalid, { "scsi_osd2.cdb_continuation.desc.length.invalid", PI_PROTOCOL, PI_ERROR, "Invalid descriptor length (not a multiple of 8)", EXPFILL }},
+        { &ei_osd2_cdb_continuation_length_invalid, { "scsi_osd2.cdb_continuation.length.invalid", PI_PROTOCOL, PI_ERROR, "Invalid CDB continuation length", EXPFILL }},
+        { &ei_osd_attr_length_invalid, { "scsi_osd.attribute_length.invalid", PI_PROTOCOL, PI_ERROR, "Invalid Attribute Length", EXPFILL }},
+        { &ei_osd2_query_values_equal, { "scsi_osd2.query.entry.equal", PI_PROTOCOL, PI_NOTE, "The minimum and maximum values are equal", EXPFILL }},
     };
 
     /* Register the protocol name and description */

@@ -4091,7 +4091,7 @@ proto_register_ssl(void)
 
     static ei_register_info ei[] = {
         { &ei_ssl2_handshake_session_id_len_error, { "ssl.handshake.session_id_length.error", PI_MALFORMED, PI_ERROR, "Session ID length error", EXPFILL }},
-        { &ei_ssl3_heartbeat_payload_length, {"ssl.heartbeat_message.payload_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid heartbeat payload length", EXPFILL }},
+        { &ei_ssl3_heartbeat_payload_length, { "ssl.heartbeat_message.payload_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid heartbeat payload length", EXPFILL }},
 
       /* Generated from convert_proto_tree_add_text.pl */
       { &ei_ssl_ignored_unknown_record, { "ssl.ignored_unknown_record", PI_PROTOCOL, PI_WARN, "Ignored Unknown Record", EXPFILL }},
