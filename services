@@ -11276,6 +11276,7 @@ iracinghelper   32034/tcp # iRacing helper service [Randy_Cassidy] [Randy_Cassid
 iracinghelper   32034/udp # iRacing helper service [Randy_Cassidy] [Randy_Cassidy] 2007-08-30
 t1distproc60    32249/tcp # T1 Distributed Processor [Peter_Beahan] [Peter_Beahan] 2004-11
 t1distproc60    32249/udp # T1 Distributed Processor [Peter_Beahan] [Peter_Beahan] 2004-11
+plex            32400/tcp # Plex multimedia [Plex_Inc.] [Sasha_Hilton] 2016-06-02
 apm-link        32483/tcp # Access Point Manager Link [Tony_Diodato] [Tony_Diodato] 2005-08
 apm-link        32483/udp # Access Point Manager Link [Tony_Diodato] [Tony_Diodato] 2005-08
 sec-ntb-clnt    32635/tcp # SecureNotebook-CLNT [Eric_Cantineau] [Eric_Cantineau] 2004-11
