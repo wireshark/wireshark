@@ -3922,6 +3922,8 @@ Robert Long		<rlong[AT]sandia.gov>
 James Lynch		<lynch007[AT]gmail.com>
 Chidambaram Arunachalam	<carunach[AT]cisco.com>
 João Valverde		<joao.valverde[AT]tecnico.ulisboa.pt>
+Benoît Canet		<benoit@scylladb.com>
+
 
 
 From git log
@@ -3965,6 +3967,7 @@ Benjamin Coddington	<bcodding[AT]redhat.com>
 Benjamin Hesmans	<benjamin.hesmans[AT]uclouvain.be>
 Benjamin Roch		<benjamin.roch[AT]tttech.com>
 Benoit Grange		<benoit.grange[AT]gmail.com>
+Benoît Canet		<benoit[AT]scylladb.com>
 Bertrand Bonnefoy-Claudet <bertrandbc[AT]gmail.com>
 Binh Trinh		<beango[AT]gmail.com>
 Birol Capa		<birol.capa[AT]siemens.com>
@@ -4057,6 +4060,7 @@ Jan-Hendrik Bolte	<jabolte[AT]uos.de>
 Jason Heimann		<jheimann[AT]pertino.com>
 Jean Thomas		<jeanthomas[AT]sierrawireless.com>
 Jeffrey Smith		<whydoubt[AT]gmail.com>
+Jens Kilian		<jens.kilian[AT]advantest.com>
 Jeroen Roovers		<jer[AT]gentoo.org>
 Jeroen Sack		<jeroen[AT]jeroensack.nl>
 Jim Young		<jyoung[AT]gsu.edu>
@@ -4221,6 +4225,7 @@ Vikram Hegde		<vikram.h[AT]amsung.com>
 Vikram Hegde		<vikram.h[AT]samsung.com>
 Ville Skyttä		<ville.skytta[AT]iki.fi>
 Vincent Helfre		<vincent.helfre[AT]gmx.net>
+Vincent Helfre		<vincenthelfre[AT]googlemail.com>
 Vincenzo Reale		<smart2128[AT]baslug.org>
 Vladimir Kondratiev	<qca_vkondrat[AT]qca.qualcomm.com>
 Volker Lendecke		<vl[AT]samba.org>
@@ -4231,13 +4236,16 @@ Weston Schmidt		<weston_schmidt[AT]alumni.purdue.edu>
 Xavier Brouckaert	<xabrouck[AT]cisco.com>
 YFdyh000		<yfdyh000[AT]gmail.com>
 Yan Burman		<yanb[AT]mellanox.com>
+Yang Luo		<hsluoyz[AT]gmail.com>
 Yang Luo		<hsluoyz[AT]qq.com>
 Yann Lejeune		<ylejeune[AT]netyl.org>
 Yasuyuki Tanaka		<yatch[AT]isl.rdc.toshiba.co.jp>
+Zdeněk Žamberský	<zzdevel[AT]seznam.cz>
 anilkumar911		<anilkumar911[AT]gmail.com>
 anonsvn			<anonsvn[AT]localhost>
 cff339			<cff339[AT]gmail.com>
 dsrsupport		<eugene.exarevsky[AT]dsr-company.com>
+jpmendoza		<jpablo[AT]gmail.com>
 kardam			<netkardam[AT]gmail.com>
 kkoizumi		<kkoizumi46[AT]gmail.com>
 Øyvind Rønningstad	<ronningstad[AT]gmail.com>
