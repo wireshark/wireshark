@@ -564,22 +564,22 @@ typedef struct _header_field_info header_field_info;
 /** information describing a header field */
 struct _header_field_info {
 	/* ---------- set by dissector --------- */
-	const char		*name;           /**< [FIELDNAME] full name of this field */
-	const char		*abbrev;         /**< [FIELDABBREV] abbreviated name of this field */
-	enum ftenum		 type;           /**< [FIELDTYPE] field type, one of FT_ (from ftypes.h) */
-	int			 display;        /**< [FIELDDISPLAY] one of BASE_, or field bit-width if FT_BOOLEAN and non-zero bitmask */
-	const void		*strings;        /**< [FIELDCONVERT] value_string, val64_string, range_string or true_false_string,
-				                      typically converted by VALS(), RVALS() or TFS().
-				                      If this is an FT_PROTOCOL then it points to the
-				                      associated protocol_t structure */
-	guint64			 bitmask;        /**< [BITMASK] bitmask of interesting bits */
-	const char		*blurb;          /**< [FIELDDESCR] Brief description of field */
+	const char		*name;              /**< [FIELDNAME] full name of this field */
+	const char		*abbrev;            /**< [FIELDABBREV] abbreviated name of this field */
+	enum ftenum		 type;              /**< [FIELDTYPE] field type, one of FT_ (from ftypes.h) */
+	int			 display;           /**< [FIELDDISPLAY] one of BASE_, or field bit-width if FT_BOOLEAN and non-zero bitmask */
+	const void		*strings;           /**< [FIELDCONVERT] value_string, val64_string, range_string or true_false_string,
+				                         typically converted by VALS(), RVALS() or TFS().
+				                         If this is an FT_PROTOCOL then it points to the
+				                         associated protocol_t structure */
+	guint64			 bitmask;           /**< [BITMASK] bitmask of interesting bits */
+	const char		*blurb;             /**< [FIELDDESCR] Brief description of field */
 
 	/* ------- set by proto routines (prefilled by HFILL macro, see below) ------ */
-	int				     id;                /**< Field ID */
-	int					 parent;            /**< parent protocol tree */
-	hf_ref_type			 ref_type;          /**< is this field referenced by a filter */
-	int                  same_name_prev_id; /**< ID of previous hfinfo with same abbrev */
+	int			 id;                /**< Field ID */
+	int			 parent;            /**< parent protocol tree */
+	hf_ref_type		 ref_type;          /**< is this field referenced by a filter */
+	int			 same_name_prev_id; /**< ID of previous hfinfo with same abbrev */
 	header_field_info	*same_name_next;    /**< Link to next hfinfo with same abbrev */
 };
 
@@ -591,9 +591,9 @@ struct _header_field_info {
 #define HFILL -1, 0, HF_REF_TYPE_NONE, -1, NULL
 
 #define HFILL_INIT(hf)   \
-	hf.hfinfo.id				= -1;   \
-	hf.hfinfo.parent			= 0;   \
-	hf.hfinfo.ref_type			= HF_REF_TYPE_NONE;   \
+	hf.hfinfo.id			= -1;   \
+	hf.hfinfo.parent		= 0;   \
+	hf.hfinfo.ref_type		= HF_REF_TYPE_NONE;   \
 	hf.hfinfo.same_name_prev_id	= -1;   \
 	hf.hfinfo.same_name_next	= NULL;
 
