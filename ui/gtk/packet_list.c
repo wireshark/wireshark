@@ -1525,6 +1525,7 @@ packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type)
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
+	gboolean first_col = TRUE;
 
 	if(CS_CSV == copy_type) {
 		text = g_string_new("\"");
@@ -1539,18 +1540,20 @@ packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type)
 			return;
 
 		for(col = 0; col < cfile.cinfo.num_cols; ++col) {
-			if(col != 0) {
-				if(CS_CSV == copy_type) {
-					g_string_append(text,"\",\"");
-				} else {
-					g_string_append_c(text, '\t');
+			if (get_column_visible(col)) {
+				if(!first_col) {
+					if(CS_CSV == copy_type) {
+						g_string_append(text,"\",\"");
+					} else {
+						g_string_append_c(text, '\t');
+					}
 				}
+
+				gtk_tree_model_get(model, &iter, packet_list_get_column_id(col), &celltext, -1);
+				g_string_append(text,celltext);
+				g_free(celltext);
+				first_col = FALSE;
 			}
-
-			gtk_tree_model_get(model, &iter, packet_list_get_column_id(col), &celltext, -1);
-			g_string_append(text,celltext);
-			g_free(celltext);
-
 		}
 		if(CS_CSV == copy_type) {
 			g_string_append_c(text,'"');
