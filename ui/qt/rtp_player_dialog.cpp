@@ -61,7 +61,7 @@ Q_DECLARE_METATYPE(QCPGraph *)
 //   + dst port + ssrc. This means that we can have multiple rtp_stream_info
 //   structs per RtpAudioStream. Should we make them 1:1 instead?
 
-// Current RTP player bugs:
+// Current and former RTP player bugs. Many have attachments that can be usef for testing.
 // Bug 3368 - The timestamp line in a RTP or RTCP packet display's "Not Representable"
 // Bug 3952 - VoIP Call RTP Player: audio played is corrupted when RFC2833 packets are present
 // Bug 4960 - RTP Player: Audio and visual feedback get rapidly out of sync
@@ -72,6 +72,7 @@ Q_DECLARE_METATYPE(QCPGraph *)
 // Bug 10613 - RTP audio player crashes
 // Bug 11125 - RTP Player does not show progress in selected stream in Window 7
 // Bug 11409 - Wireshark crashes when using RTP player
+// Bug 12166 - RTP audio player crashes
 
 // XXX It looks like we duplicate some functionality here and in the RTP
 // analysis code, which has its own routines for writing audio data to a
