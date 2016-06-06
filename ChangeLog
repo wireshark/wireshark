@@ -1,0 +1,797 @@
+commit bf0be28
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jun 6 13:18:59 2016 -0700
+
+    Prep for 1.12.12.
+    
+    Change-Id: Ib78fdf2cb92b1e7cad8bb900e08762d9f5f29111
+    Reviewed-on: https://code.wireshark.org/review/15756
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 2bdbd8a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 5 08:26:50 2016 -0700
+
+    [Automatic update for 2016-06-05]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: Ie2c0d08b20238df150a9266023f38fe5fd417069
+    Reviewed-on: https://code.wireshark.org/review/15736
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit c6cd3d4
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Sun Jun 5 00:05:23 2016 -0400
+
+    Don't copy details of hidden columns.
+    
+    # Conflicts:
+    #	ui/qt/packet_list.cpp
+    
+    Bug: 11788
+    Change-Id: I3f4df884d98903222de8a340de6a08e680687b0a
+    Reviewed-on: https://code.wireshark.org/review/15727
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 887b2030836167f92cf72a9cf7b1694d5a783624)
+    Reviewed-on: https://code.wireshark.org/review/15732
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit fb9dcfa
+Author: Evan Huus <eapache@gmail.com>
+Date:   Sat Jun 4 13:56:57 2016 -0400
+
+    UMTS_FP: fix handling reserved C/T value
+    
+    The spec puts the reserved value at 0xf but our internal table has 'unknown' at
+    0; since all the other values seem to be offset-by-one, just take the modulus
+    0xf to avoid running off the end of the table.
+    
+    # Conflicts:
+    #	epan/dissectors/packet-umts_fp.c
+    
+    Bug: 12191
+    Change-Id: I83c8fb66797bbdee52a2246fb1eea6e37cbc7eb0
+    Reviewed-on: https://code.wireshark.org/review/15722
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    Petri-Dish: Evan Huus <eapache@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 7d7190695ce2ff269fdffb04e87139995cde21f4)
+    Reviewed-on: https://code.wireshark.org/review/15726
+
+commit 1202a40
+Author: Vincent Helfre <vincenthelfre@googlemail.com>
+Date:   Wed Jun 1 11:37:00 2016 +0200
+
+    CSN1: fix dissection of variable bitmaps
+    
+    Change-Id: I3dbb2a4f8f7ea125e4f96e302ea33ff03706eb1b
+    Reviewed-on: https://code.wireshark.org/review/15674
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit b079151c6fe0a1c5ac25fc636f96b694eefb50c5)
+    Conflicts:
+    	epan/dissectors/packet-csn1.c
+    Reviewed-on: https://code.wireshark.org/review/15683
+
+commit ab2ad8e
+Author: Jeff Morriss <jeff.morriss.ws@gmail.com>
+Date:   Tue May 31 21:23:22 2016 -0400
+
+    tshark man page: the first TCP stream is stream 0, not 1.
+    
+    This fixes the example of the -z follow option.
+    
+    Also fix up some formatting in the same section.
+    
+    Bug: 12383
+    Change-Id: Ic9b2ef5e63ab31d70f2750f9cfdcbab76cf204b6
+    Reviewed-on: https://code.wireshark.org/review/15667
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit b2845a6ac885d49aa1ea5d3865cd377d812eb4c7)
+    Reviewed-on: https://code.wireshark.org/review/15669
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit ce1819b
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue May 31 16:09:03 2016 +0200
+
+    LTE-RRC: fix dissection of GPRS container
+    
+    Payload embedded in LTE message does not include the first byte identifying the message type.
+    Let's prepend a fake one before calling the gsm_rlcmac dissector
+    
+    Change-Id: Ibcf9b52902474a556b55e9b0a076d09d341f868c
+    Reviewed-on: https://code.wireshark.org/review/15642
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit d77b8318e82c113b2f7852f950b9269b57e5da40)
+    Conflicts:
+    	epan/dissectors/asn1/lte-rrc/lte-rrc.cnf
+    	epan/dissectors/packet-lte-rrc.c
+    Reviewed-on: https://code.wireshark.org/review/15657
+
+commit d18f7f2
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue May 31 16:11:41 2016 +0200
+
+    Fix display of composite tvbs in GUI
+    
+    a composite tvb is the top-level data source tvb
+    
+    Change-Id: Ibab58801a754fd88fb86b9a13804bccf2ad51c7a
+    Reviewed-on: https://code.wireshark.org/review/15643
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 35feab8a4a43013f1a06374194ec93d4e64959b6)
+    Conflicts:
+    	epan/tvbuff_composite.c
+    Reviewed-on: https://code.wireshark.org/review/15656
+
+commit f540bd6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 29 08:26:12 2016 -0700
+
+    [Automatic update for 2016-05-29]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I8cd3fb55f1933266e20f9e9e54c63b48af5f0418
+    Reviewed-on: https://code.wireshark.org/review/15607
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit d3bb091
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu May 26 13:31:28 2016 -0700
+
+    Don't use proto_tree_add_subtree().
+    
+    It was added in 2.0, and isn't available in 1.12.
+    
+    Change-Id: I681c7695a7dff6fd1bb5634dff1a4897a35679de
+    Reviewed-on: https://code.wireshark.org/review/15578
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 064f2cd
+Author: Gordon Ross <gordon.w.ross@gmail.com>
+Date:   Wed May 25 18:56:33 2016 -0400
+
+    SMB Open andX extended response decoded incorrectly
+    
+    Bug: 12472
+    Change-Id: I94740078631e96980f14ade5df8ae9694c9d73b1
+    Reviewed-on: https://code.wireshark.org/review/15565
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 931465257e1b18dc3480451dda0ada1f65945df4)
+    Reviewed-on: https://code.wireshark.org/review/15571
+
+commit 09c0249
+Author: Jeff Morriss <jeff.morriss.ws@gmail.com>
+Date:   Wed May 25 17:35:43 2016 -0400
+
+    Fix dissection of JXTA over UDP.
+    
+    Prior to this change all JXTA-over-UDP frames throw an exception after setting
+    COL_PROTOCOL.
+    
+    The offset used when adding the protocol to the tree had already been
+    incremented to point to the end of the TVB; use tree_offset (which is the
+    current offset) instead.
+    
+    This code has been here since r17282 (2006) so presumably the change is that
+    proto_tree_add_protocol_format() started throwing an exception when offset
+    points to the end of the TVB sometime between then and now.
+    
+    Change-Id: Iadbcada29cd235e8abe5662b825a2d97ff6f7308
+    Reviewed-on: https://code.wireshark.org/review/15560
+    Petri-Dish: Jeff Morriss <jeff.morriss.ws@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 0bc1cdd9f3692e953bae2ce47fe58e5a0ab7ffd2)
+    Reviewed-on: https://code.wireshark.org/review/15567
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit 2297b62
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon May 23 18:20:50 2016 -0700
+
+    Fix previous change.
+    
+    In 1.12, an EAPOL_RSN_KEY structure has an extra
+    TKIP_GROUP_KEYBYTES_LEN_MAX-byte array at the end; that's not there in
+    2.0 and later.
+    
+    So comparing against sizeof(EAPOL_RSN_KEY) does different things in 1.12
+    and 2.x.
+    
+    Instead, we should compare against RSN_KEY_WITHOUT_KEYBYTES_LEN, as that
+    has the same value in 1.12 as sizeof(EAPOL_RSN_KEY) has in 2.x.
+    
+    Change-Id: I5464c592cf42ae1bab6b878b049c40ef63a5fd51
+    Reviewed-on: https://code.wireshark.org/review/15548
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit f2c0a28
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Sun May 22 20:21:17 2016 -0400
+
+    Make sure EAPOL body is big enough for a EAPOL_RSN_KEY.
+    
+    A pointer to a EAPOL_RSN_KEY is set on the packet presuming the
+    whole EAPOL_RSN_KEY is there.  That's not always the case for
+    fuzzed/malicious captures.
+    
+    Bug: 11585
+    Change-Id: Ib94b8aceef444c7820e43b969596efdb8dbecccd
+    Reviewed-on: https://code.wireshark.org/review/15540
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 9b0b20b8d5f8c9f7839d58ff6c5900f7e19283b4)
+    Reviewed-on: https://code.wireshark.org/review/15544
+
+commit 37c02f3
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 22 08:25:42 2016 -0700
+
+    [Automatic update for 2016-05-22]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: Id89078d6aeaa77c4a7abde28c731d02889f7c20c
+    Reviewed-on: https://code.wireshark.org/review/15529
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 7a7490a
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Mon May 16 16:26:34 2016 +0200
+
+    ethertype: Add old non-standard 802.1ad (QinQ)
+    
+    Issue reported by boaz
+    Bug:12441
+    
+    Change-Id: I821c5a9b360cf935d5c08fdfd1d499381a4a1d0a
+    Reviewed-on: https://code.wireshark.org/review/15463
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit c591cfe
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 15 08:23:44 2016 -0700
+
+    [Automatic update for 2016-05-15]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: Ie9d4c6d0bd9fafc9f75639d67e58af8a6018bd10
+    Reviewed-on: https://code.wireshark.org/review/15433
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 6bef686
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Thu May 12 09:20:33 2016 +0200
+
+    P1: fix request for implicit conversion from 'gpointer' to 'struct p1_address_ctx_t *' not permitted in C++ [-Wc++-compat]
+    
+    Backport change I43364dda21abe3281fbd15ad953232093bb1fffa to
+    master-1.12 also.
+    
+    Change-Id: Id970d4f92e853ab3f41fe4336bd3c0de28852b02
+    Reviewed-on: https://code.wireshark.org/review/15396
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+
+commit 41986d0
+Author: Anthony Coddington <anthony.coddington@endace.com>
+Date:   Tue Apr 5 18:19:59 2016 +1200
+
+    pcap-common: Fix several serious ENCAP_ERF extension header writing issues
+    
+    Write ERF subheader after extension headers, especially important for Ethernet
+    (other types predate extension headers for the most part).
+    Add missing ERF_TYPE_MC_AAL2 and ERF_TYPE_COLOR_HASH_ETH.
+    
+    Truncate final ERF extension header when too many. Rlen is not currently
+    adjusted so may be incorrect (see followup patch). Existing tools generally
+    check against PCAP incl_len anyway as there are other scenarios where this can
+    happen like naive snapping or Wireshark ERF-to-PCAP.
+    Properly fixing this will involve getting rid of the ERF pseudoheader.
+    Consistent with the ERF wiretap (except for different padding behaviour).
+    
+    Bug: 3606
+    Change-Id: I186c37f5a7894b60bc61822b8488a3a274ffb32c
+    Reviewed-on: https://code.wireshark.org/review/15394
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit b8e0d41
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon May 9 18:03:05 2016 +0200
+
+    WBXML: add a basic sanity check for offset overflow
+    
+    This is a naive approach allowing to detact that something went wrong,
+    without the need to replace all proto_tree_add_text() calls as what was
+    done in master-2.0 branch.
+    
+    Bug: 12408
+    Change-Id: Ia14905005e17ae322c2fc639ad5e491fa08b0108
+    Reviewed-on: https://code.wireshark.org/review/15310
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit 0a8a44c
+Author: alpartis <alpartis@thundernet.com>
+Date:   Fri May 6 07:57:42 2016 -0400
+
+    format DIS header timestamp as mm:ss.nnnnnn
+    
+    Older versions of this dissector displayed the header timestamp formatted to show
+    minutes, seconds, and milliseconds past the hour (the DIS spec actually defines the
+    timestamp in terms of microseconds).  This commit fulfills a feature request to
+    return to that format.
+    
+    Bug: 12402
+    Change-Id: Ide4adf8f80306f2458e48e8b2f78c911782669e5
+    Reviewed-on: https://code.wireshark.org/review/15276
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit cb2627c77fad1e6f1f89d8ca1d0e216861d34dfa)
+    Reviewed-on: https://code.wireshark.org/review/15312
+
+commit 11e4519
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sat May 7 19:25:38 2016 +0200
+
+    LPADm: fixes for reassembly
+    
+    - do not packets in error in reassembly table
+    - filter retransmissions based on N(S) value
+    
+    See https://www.wireshark.org/lists/wireshark-users/201605/msg00000.html
+    
+    Change-Id: I0c2ab36acd5927529d40f8fa7fd2eed17a6fc486
+    Reviewed-on: https://code.wireshark.org/review/15281
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit dfdeb54ae2a55dadd4f2fdec2b450dfd24e7b7f7)
+    Reviewed-on: https://code.wireshark.org/review/15309
+
+commit 16254fd
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sun May 8 21:22:16 2016 +0200
+
+    GSM A RR: fix dissection of GPRS Cell Options IE
+    
+    As seen in the capture given in https://www.wireshark.org/lists/wireshark-users/201605/msg00007.html
+    The extension length is not always equal to ll the options defined for a given release
+    
+    Change-Id: I68ba57dd384122eed1f1ff36cc8acc7ef029fcd0
+    Reviewed-on: https://code.wireshark.org/review/15290
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit b9368fcdb8226ff55365e85a71b0a581faf8c6c6)
+    Conflicts:
+    	epan/dissectors/packet-gsm_a_rr.c
+    Reviewed-on: https://code.wireshark.org/review/15303
+
+commit d879d87
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sun May 8 22:39:20 2016 +0200
+
+    LAPSat: fix reported length for tvb subset
+    
+    It seems like LAPSat can have have padding bytes as seen in the capture found
+    here: https://bugs.wireshark.org/bugzilla/attachment.cgi?id=9005
+    
+    Change-Id: Ia2c7230c4c9fdae0bbe456585ab164f04eda0eb8
+    Reviewed-on: https://code.wireshark.org/review/15293
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 65efca4ec1c22e38419b0f8da766291bce82585c)
+    Reviewed-on: https://code.wireshark.org/review/15296
+
+commit 38c014d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 8 08:21:35 2016 -0700
+
+    [Automatic update for 2016-05-08]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I74c6fc37a8c352c9a9a573ddf0b289a2c0679c32
+    Reviewed-on: https://code.wireshark.org/review/15285
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit bb8cc3a
+Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
+Date:   Sat Apr 30 21:19:24 2016 +0100
+
+    ICMPv6: Observe "Redirected Header" option length
+    
+    Bug: 12400
+    Change-Id: Ic4116082b0f6c119172b222aadefab821f1b0971
+    Reviewed-on: https://code.wireshark.org/review/15227
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 80006b0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Mar 28 15:46:33 2016 -0700
+
+    SPOOLSS: Try to avoid an infinite loop.
+    
+    Use tvb_reported_length_remaining in dissect_spoolss_uint16uni. Make
+    sure our offset always increments in dissect_spoolss_keybuffer.
+    
+    Conflicts:
+    	epan/dissectors/packet-dcerpc-spoolss.c
+    
+    Change-Id: I7017c9685bb2fa27161d80a03b8fca4ef630e793
+    Reviewed-on: https://code.wireshark.org/review/14687
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit b4d16b4495b732888e12baf5b8a7e9bf2665e22b)
+    Reviewed-on: https://code.wireshark.org/review/15248
+    (cherry picked from commit 9753ea8db4ea2caeb3365e842e904cbe5681b79e)
+    Reviewed-on: https://code.wireshark.org/review/15249
+
+commit 5a43a0c
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun May 1 17:52:45 2016 -0700
+
+    Don't assume packets will be no larger than ISERIES_MAX_PACKET_LEN.
+    
+    We don't check against it.  Insteead, use phdr->caplen as the buffer
+    size; that's based on the number of hex digits we've found.
+    
+    While we're at it, also get rid of ISERIES_PKT_ALLOC_SIZE - it makes it
+    less obvious that it's based on the packet length from the packet
+    header.
+    
+    Change-Id: I7a3fac130adc75aa0a4b426cb9b5c9c6279e1c88
+    Reviewed-on: https://code.wireshark.org/review/15238
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 713a7bd
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun May 1 17:02:12 2016 -0700
+
+    Make sure the packet length isn't > WTAP_MAX_PACKET_SIZE.
+    
+    Change-Id: I65c1e87e2fcff93b3db998666ff51f19ecd71b55
+    Reviewed-on: https://code.wireshark.org/review/15233
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 7666361bf968057e400d3e73ccc12723707e3646)
+    Reviewed-on: https://code.wireshark.org/review/15235
+
+commit edbed5a
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun May 1 16:29:41 2016 -0700
+
+    Don't treat the packet length as unsigned.
+    
+    The scanf family of functions are as annoyingly bad at handling unsigned
+    numbers as strtoul() is - both of them are perfectly willing to accept a
+    value beginning with a negative sign as an unsigned value.  When using
+    strtoul(), you can compensate for this by explicitly checking for a '-'
+    as the first character of the string, but you can't do that with
+    sscanf().
+    
+    So revert to having pkt_len be signed, and scanning it with %d, but
+    check for a negative value and fail if we see a negative value.
+    
+    Bug: 12394
+    Change-Id: I4b19b95f2e1ffc96dac5c91bff6698c246f52007
+    Reviewed-on: https://code.wireshark.org/review/15230
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 3270dfac43da861c714df76513456b46765ff47f)
+    Reviewed-on: https://code.wireshark.org/review/15232
+
+commit 1635420
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun May 1 16:22:40 2016 -0700
+
+    Don't treat the packet length as unsigned.
+    
+    The scanf family of functions are as annoyingly bad at handling unsigned
+    numbers as strtoul() is - both of them are perfectly willing to accept a
+    value beginning with a negative sign as an unsigned value.  When using
+    strtoul(), you can compensate for this by explicitly checking for a '-'
+    as the first character of the string, but you can't do that with
+    sscanf().
+    
+    So revert to having pkt_len be signed, and scanning it with %d, but
+    check for a negative value and fail if we see a negative value.
+    
+    Bug: 12395
+    Change-Id: I43b458a73b0934e9a5c2c89d34eac5a8f21a7455
+    Reviewed-on: https://code.wireshark.org/review/15223
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit a66628e425db725df1ac52a3c573a03357060ddd)
+    Reviewed-on: https://code.wireshark.org/review/15225
+
+commit 4f4e1cb
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun May 1 16:13:31 2016 -0700
+
+    Don't treat the packet length as unsigned.
+    
+    The scanf family of functions are as annoyingly bad at handling unsigned
+    numbers as strtoul() is - both of them are perfectly willing to accept a
+    value beginning with a negative sign as an unsigned value.  When using
+    strtoul(), you can compensate for this by explicitly checking for a '-'
+    as the first character of the string, but you can't do that with
+    sscanf().
+    
+    So revert to having pkt_len be signed, and scanning it with %d, but
+    check for a negative value and fail if we see a negative value.
+    
+    Bug: 12396
+    Change-Id: I54fe8f61f42c32b5ef33da633ece51bbcda8c95f
+    Reviewed-on: https://code.wireshark.org/review/15220
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 11edc83b98a61e890d7bb01855389d40e984ea82)
+    Reviewed-on: https://code.wireshark.org/review/15222
+
+commit eb8cc59
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun May 1 16:02:40 2016 -0700
+
+    Don't treat the packet length as unsigned.
+    
+    The scanf family of functions are as annoyingly bad at handling unsigned
+    numbers as strtoul() is - both of them are perfectly willing to accept a
+    value beginning with a negative sign as an unsigned value.  When using
+    strtoul(), you can compensate for this by explicitly checking for a '-'
+    as the first character of the string, but you can't do that with
+    sscanf().
+    
+    So revert to having pkt_len be signed, and scanning it with %d, but
+    check for a negative value and fail if we see a negative value.
+    
+    Change-Id: Idc5392fe414da4558a95ec3c99f36ae5e267e6d1
+    Reviewed-on: https://code.wireshark.org/review/15219
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 7f77886
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Sun May 1 12:55:23 2016 -0400
+
+    Make class "type" for USB conversations.
+    
+    USB dissectors can't assume that only their class type has been passed around in the conversation.  Make explicit check that class type expected matches the dissector and stop/prevent dissection if there isn't a match.
+    
+    # Conflicts:
+    #	epan/dissectors/packet-u3v.c
+    #	epan/dissectors/packet-usb-audio.c
+    
+    Bug: 12356
+    Change-Id: Ib23973a4ebd0fbb51952ffc118daf95e3389a209
+    Reviewed-on: https://code.wireshark.org/review/15212
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Martin Kaiser <wireshark@kaiser.cx>
+    Petri-Dish: Martin Kaiser <wireshark@kaiser.cx>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Reviewed-on: https://code.wireshark.org/review/15214
+
+commit 9afb67f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 1 08:21:09 2016 -0700
+
+    [Automatic update for 2016-05-01]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: Ie21285b0b80fa25e6698d5e8a17297281f7d9832
+    Reviewed-on: https://code.wireshark.org/review/15208
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 4ef0da6
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Apr 30 11:30:07 2016 -0700
+
+    Clean up packet length handling.
+    
+    Treat the packet length as unsigned - it shouldn't be negative in the
+    file.  If it is, that'll probably cause the sscanf to fail, so we'll
+    report the file as bad.
+    
+    A normal packet should be Ethernet-sized; initially make the buffer big
+    enough for a maximum-sized Ethernet packet.
+    
+    Once we know the payload length, check to make sure the packet length
+    won't be > WTAP_MAX_PACKET_SIZE and fail if it will.  Then boost the
+    buffer size to be large enough for the packet, even if it's bigger than
+    a maximum-sized Ethernet packet.
+    
+    Change-Id: Ide97ece89bbc460795324786a612a20dc55a2ab3
+    Reviewed-on: https://code.wireshark.org/review/15202
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 02d6cd3
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Apr 29 19:35:10 2016 -0700
+
+    Check for packets bigger than WTAP_MAX_PACKET_SIZE.
+    
+    Change-Id: I4e27ea4c5ba36675dbd9f63e19c6b32c20303edd
+    Reviewed-on: https://code.wireshark.org/review/15192
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit b2ebe7e
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Apr 29 19:10:01 2016 -0700
+
+    Check for packets bigger than WTAP_MAX_PACKET_SIZE.
+    
+    Change-Id: Ia932f3e5aeaca7a566ea9f00ce1dca1a2071a1a4
+    Reviewed-on: https://code.wireshark.org/review/15187
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit bc62c096d058c6db3ea45fcb8f0d041d4cb9580d)
+    Reviewed-on: https://code.wireshark.org/review/15189
+
+commit 867d59e
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Apr 29 18:59:44 2016 -0700
+
+    Check for packets bigger than WTAP_MAX_PACKET_SIZE.
+    
+    Change-Id: If7cd6ae60b805121c3f54dcaa48d730b6cd9b648
+    Reviewed-on: https://code.wireshark.org/review/15183
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 44f72a90eaffc8a0322b377c4a66c11bf63340dc)
+    Reviewed-on: https://code.wireshark.org/review/15185
+
+commit 5d61115
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Apr 29 18:55:07 2016 -0700
+
+    Check for packets bigger than WTAP_MAX_PACKET_SIZE.
+    
+    And note the cases where we don't have to check, as the length in the
+    file is 2 bytes long, and 65535 + the metadata length is <
+    WTAP_MAX_PACKET_SIZE.
+    
+    Change-Id: If7937dacae2d5bd4b6d3cfffe9515e013a2a46e9
+    Reviewed-on: https://code.wireshark.org/review/15182
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 7ffa659
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Apr 29 17:08:11 2016 -0700
+
+    Fix packet length handling.
+    
+    Treat the packet length as unsigned - it shouldn't be negative in the
+    file.  If it is, that'll probably cause the sscanf to fail, so we'll
+    report the file as bad.
+    
+    Check it against WTAP_MAX_PACKET_SIZE to make sure we don't try to
+    allocate a huge amount of memory, just as we do in other file readers.
+    
+    Use the now-validated packet size as the length in
+    ws_buffer_assure_space(), so we are certain to have enough space, and
+    don't allocate too much space.
+    
+    Merge the header and packet data parsing routines while we're at it.
+    
+    Bug: 12396
+    Change-Id: I78ff4e5a429db5d1cf678abd9ac4db4210c92d6b
+    Reviewed-on: https://code.wireshark.org/review/15178
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit f95b796
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Apr 29 15:46:58 2016 -0700
+
+    Fix packet length handling.
+    
+    Treat the packet length as unsigned - it shouldn't be negative in the
+    file.  If it is, that'll probably cause the sscanf to fail, so we'll
+    report the file as bad.
+    
+    Check it against WTAP_MAX_PACKET_SIZE to make sure we don't try to
+    allocate a huge amount of memory, just as we do in other file readers.
+    
+    Use the now-validated packet size as the length in
+    ws_buffer_assure_space(), so we are certain to have enough space, and
+    don't allocate too much space.
+    
+    Merge the header and packet data parsing routines while we're at it.
+    
+    Bug: 12395
+    Change-Id: I4bf4f62882cf046e3e4ceffe7ab2ff3b178cd612
+    Reviewed-on: https://code.wireshark.org/review/15174
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 303680c
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Apr 29 15:19:49 2016 -0700
+
+    Fix packet length handling.
+    
+    Treat the packet length as unsigned - it shouldn't be negative in the
+    file.  If it is, that'll probably cause the sscanf to fail, so we'll
+    report the file as bad.
+    
+    Check it against WTAP_MAX_PACKET_SIZE to make sure we don't try to
+    allocate a huge amount of memory, just as we do in other file readers.
+    
+    Use the now-validated packet size as the length in
+    ws_buffer_assure_space(), so we are certain to have enough space, and
+    don't allocate too much space.
+    
+    Bug: 12394
+    Change-Id: If0b79376fc6fe2f49c7b7d7796dee7b7683485cb
+    Reviewed-on: https://code.wireshark.org/review/15171
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 07713f6
+Author: IWASE Yusuke <iwase.yusuke0@gmail.com>
+Date:   Tue Apr 26 16:58:32 2016 +0900
+
+    OpenFlow: fix flow_monitor_request dissector
+    
+    This patch fixes:
+     - offset calculation
+     - monitor_id field description
+    
+    Change-Id: I9568b8897ca9ebbc6203db6640b88e1b1676448d
+    Reviewed-on: https://code.wireshark.org/review/15128
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit e899c3eb610b4f546dfced6c41ae4e166b9c729e)
+    Reviewed-on: https://code.wireshark.org/review/15130
+
+commit 6bcf422
+Author: Evan Huus <eapache@gmail.com>
+Date:   Sun Jul 6 08:53:48 2014 -0400
+
+    Widen openflow variables and check for underflows
+    
+    As suggested by Alexis reviewing change Ie76c5a810af927b, this issue was
+    scattered throughout the v4/v5 openflow dissectors. Hopefully I got all of them.
+    Original issue found in bug 10259.
+    
+    Change-Id: Idf87deea34132aec5cd4e8f83264906a29b15568
+    Reviewed-on: https://code.wireshark.org/review/2878
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit be4d42c6ab54169c8c027d3b1871a282fd9d0a9d)
+    Reviewed-on: https://code.wireshark.org/review/15121
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit ac6f835
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 24 08:17:23 2016 -0700
+
+    [Automatic update for 2016-04-24]
+    
+    Update manuf, services enterprise-numbers, translations, and other items.
+    
+    Change-Id: I2b9a0e709dc85d7396dadfde32ace84229d5e4fe
+    Reviewed-on: https://code.wireshark.org/review/15076
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit b3d5f8e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Apr 22 13:08:21 2016 -0700
+
+    1.12.11 → 1.12.12.
+    
+    Change-Id: If6bf9e3aa4fbbd93f2bfed27a003d18c8653ded3
+    Reviewed-on: https://code.wireshark.org/review/15058
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>

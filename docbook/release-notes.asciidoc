@@ -16,7 +16,8 @@ The following vulnerabilities have been fixed:
 * ws-salink:2016-29[]
 +
 The SPOOLS dissector could go into an infinite loop.
-(ws-buglink:xxxxx[])
+Discovered by the CESG.
+//(ws-buglink:xxxxx[])
 //cve-idlink:2015-XXXX[]
 // Fixed in master: b4d16b4
 // Fixed in master-2.0: 9753ea8
