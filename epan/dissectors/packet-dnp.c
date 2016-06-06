@@ -1290,7 +1290,9 @@ static expert_field ei_dnp_invalid_length = EI_INIT;
 static expert_field ei_dnp_iin_abnormal = EI_INIT;
 /* Generated from convert_proto_tree_add_text.pl */
 static expert_field ei_dnp3_crc_failed = EI_INIT;
+#if 0
 static expert_field ei_dnp3_buffering_user_data_until_final_frame_is_received = EI_INIT;
+#endif
 
 /* Tables for reassembly of fragments. */
 static reassembly_table al_reassembly_table;
@@ -4549,7 +4551,9 @@ proto_register_dnp3(void)
      { &ei_dnp_invalid_length, { "dnp3.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
      { &ei_dnp_iin_abnormal, { "dnp3.iin_abnormal", PI_PROTOCOL, PI_WARN, "IIN Abnormality", EXPFILL }},
       /* Generated from convert_proto_tree_add_text.pl */
+#if 0
       { &ei_dnp3_buffering_user_data_until_final_frame_is_received, { "dnp3.buffering_user_data_until_final_frame_is_received", PI_PROTOCOL, PI_WARN, "Buffering User Data Until Final Frame is Received..", EXPFILL }},
+#endif
       { &ei_dnp3_crc_failed, { "dnp.crc_failed", PI_PROTOCOL, PI_WARN, "CRC failed", EXPFILL }},
   };
   module_t *dnp3_module;
