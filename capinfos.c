@@ -76,7 +76,6 @@
 #include <wsutil/privileges.h>
 #include <ws_version_info.h>
 #include <wiretap/wtap_opttypes.h>
-#include <wiretap/pcapng.h>
 
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>

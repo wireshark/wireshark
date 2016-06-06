@@ -242,33 +242,41 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     out << section_tmpl_.arg(tr("Capture"));
     out << table_begin;
 
-    QString capture_hardware(unknown);
-    if (summary.shb_hardware && summary.shb_hardware[0] != '\0') {
-        capture_hardware = summary.shb_hardware;
-    }
-    // capture HW
-    out << table_row_begin
-        << table_vheader_tmpl.arg(tr("Hardware"))
-        << table_data_tmpl.arg(capture_hardware)
-        << table_row_end;
+    wtap_optionblock_t shb_inf = wtap_file_get_shb(cap_file_.capFile()->wth);
+    char *str;
 
-    QString capture_os(unknown);
-    if (summary.shb_os && summary.shb_os[0] != '\0') {
-        capture_os = summary.shb_os;
-    }
-    out << table_row_begin
-        << table_vheader_tmpl.arg(tr("OS"))
-        << table_data_tmpl.arg(capture_os)
-        << table_row_end;
+    if (shb_inf != NULL) {
+      QString capture_hardware(unknown);
+      wtap_optionblock_get_option_string(shb_inf, OPT_SHB_HARDWARE, &str);
+      if (str != NULL && str[0] != '\0') {
+          capture_hardware = str;
+      }
+      // capture HW
+      out << table_row_begin
+          << table_vheader_tmpl.arg(tr("Hardware"))
+          << table_data_tmpl.arg(capture_hardware)
+          << table_row_end;
 
-    QString capture_app(unknown);
-    if (summary.shb_user_appl && summary.shb_user_appl[0] != '\0') {
-        capture_app = summary.shb_user_appl;
+      QString capture_os(unknown);
+      wtap_optionblock_get_option_string(shb_inf, OPT_SHB_OS, &str);
+      if (str != NULL && str[0] != '\0') {
+          capture_os = str;
+      }
+      out << table_row_begin
+          << table_vheader_tmpl.arg(tr("OS"))
+          << table_data_tmpl.arg(capture_os)
+          << table_row_end;
+
+      QString capture_app(unknown);
+      wtap_optionblock_get_option_string(shb_inf, OPT_SHB_USERAPPL, &str);
+      if (str != NULL && str[0] != '\0') {
+          capture_app = str;
+      }
+      out << table_row_begin
+          << table_vheader_tmpl.arg(tr("Application"))
+          << table_data_tmpl.arg(capture_app)
+          << table_row_end;
     }
-    out << table_row_begin
-        << table_vheader_tmpl.arg(tr("Application"))
-        << table_data_tmpl.arg(capture_app)
-        << table_row_end;
 
     out << table_end;
 

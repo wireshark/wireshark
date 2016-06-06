@@ -107,7 +107,6 @@ summary_fill_in(capture_file *cf, summary_tally *st)
 {
   frame_data    *first_frame, *cur_frame;
   guint32        framenum;
-  wtap_optionblock_t shb_inf;
   iface_options iface;
   guint i;
   wtapng_iface_descriptions_t* idb_info;
@@ -160,20 +159,6 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   st->drops_known = cf->drops_known;
   st->drops = cf->drops;
   st->dfilter = cf->dfilter;
-
-  /* Get info from SHB */
-  shb_inf = wtap_file_get_shb(cf->wth);
-  if(shb_inf == NULL){
-    st->opt_comment    = NULL;
-    st->shb_hardware   = NULL;
-    st->shb_os         = NULL;
-    st->shb_user_appl  = NULL;
-  }else{
-    wtap_optionblock_get_option_string(shb_inf, OPT_COMMENT, &st->opt_comment);
-    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_HARDWARE, &st->shb_hardware);
-    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_OS, &st->shb_os);
-    wtap_optionblock_get_option_string(shb_inf, OPT_SHB_USERAPPL, (char**)&st->shb_user_appl);
-  }
 
   st->ifaces  = g_array_new(FALSE, FALSE, sizeof(iface_options));
   idb_info = wtap_file_get_idb_info(cf->wth);
