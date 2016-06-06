@@ -528,7 +528,7 @@ void RtpAudioStream::startPlaying()
 
     audio_output_ = new QAudioOutput(format, this);
     audio_output_->setNotifyInterval(65); // ~15 fps
-    connect(audio_output_, SIGNAL(stateChanged(QAudio::State)), this, SLOT(outputStateChanged()));
+    connect(audio_output_, SIGNAL(stateChanged(QAudio::State)), this, SLOT(outputStateChanged(QAudio::State)));
     connect(audio_output_, SIGNAL(notify()), this, SLOT(outputNotify()));
     tempfile_->seek(0);
     audio_output_->start(tempfile_);
@@ -536,7 +536,7 @@ void RtpAudioStream::startPlaying()
     // QTBUG-6548 StoppedState is not always emitted on error, force a cleanup
     // in case playback fails immediately.
     if (audio_output_ && audio_output_->state() == QAudio::StoppedState) {
-        outputStateChanged();
+        outputStateChanged(QAudio::StoppedState);
     }
 }
 
@@ -562,12 +562,18 @@ void RtpAudioStream::writeSilence(int samples)
     visual_samples_ += visual_fill;
 }
 
-void RtpAudioStream::outputStateChanged()
+void RtpAudioStream::outputStateChanged(QAudio::State new_state)
 {
-    switch (audio_output_->state()) {
+    if (!audio_output_) return;
+
+    // On some platforms including OS X and Windows, the stateChanged signal
+    // is emitted while a QMutexLocker is active. As a result we shouldn't
+    // delete audio_output_ here.
+    switch (new_state) {
     case QAudio::StoppedState:
         // RTP_STREAM_DEBUG("stopped %f", audio_output_->processedUSecs() / 100000.0);
-        delete audio_output_;
+        audio_output_->disconnect();
+        audio_output_->deleteLater();
         audio_output_ = NULL;
         emit finishedPlaying();
         break;

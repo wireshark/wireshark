@@ -185,7 +185,7 @@ private:
     void writeSilence(int samples);
 
 private slots:
-    void outputStateChanged();
+    void outputStateChanged(QAudio::State new_state);
     void outputNotify();
 };
 
