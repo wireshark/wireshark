@@ -115,6 +115,12 @@
 01-E0-2F-00-00-01       DOCSIS-CM
 01-E0-2F-00-00-02       DOCSIS-CMTS
 01-E0-2F-00-00-03       DOCSIS-STP
+
+# Extremenetworks in their infinite wisdom seems to use 02-04-94 (Vendor MAC XOR 02-00-00)
+# for their base mac address, thus colliding with MS-NLB 02-04/16 which Microsoft in their
+# infinite wisdom decided to use for MS-NLB.
+02-04-96-00-00-00/24	ExtremeNetworks
+
 # Microsoft Network Load Balancing (NLB)
 # Actually, 02-01-virtualip to 02-20-virtualip will be used from server to rest-of-world
 # 02-bf-virtualip will be used from rest-of-world to server
