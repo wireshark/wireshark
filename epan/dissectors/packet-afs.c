@@ -2903,7 +2903,8 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			);
 	}
 
-	ti = proto_tree_add_item(tree, proto_afs, tvb, offset, -1,
+	ti = proto_tree_add_item(tree, proto_afs, tvb, offset,
+			tvb_reported_length_remaining(tvb, offset),
 			ENC_NA);
 	afs_tree = proto_item_add_subtree(ti, ett_afs);
 
