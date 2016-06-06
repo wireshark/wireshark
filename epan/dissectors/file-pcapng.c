@@ -680,8 +680,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 set_address_tvb(&addr, AT_IPv4, 4, tvb, offset);
                 offset += 4;
 
-                str = wmem_strdup_printf(wmem_packet_scope(), "%s",
-                        address_to_display(wmem_packet_scope(),  &addr));
+                str = address_to_display(wmem_packet_scope(), &addr);
 
                 break;
             case 0x0004:
@@ -695,8 +694,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 set_address_tvb(&addr, AT_IPv6, 16, tvb, offset);
                 offset += 16;
 
-                str = wmem_strdup_printf(wmem_packet_scope(), "%s",
-                        address_to_display(wmem_packet_scope(),  &addr));
+                str = address_to_display(wmem_packet_scope(),  &addr);
 
                 break;
             default:
@@ -1142,8 +1140,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     }
                 }
 
-                str = wmem_strdup_printf(wmem_packet_scope(), "%s",
-                        address_to_display(wmem_packet_scope(),  &addr));
+                str = address_to_display(wmem_packet_scope(), &addr);
                 break;
             case 0x0002: /* IPv6 Record */
                 if (record_length < 17) {
@@ -1168,8 +1165,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     }
                 }
 
-                str = wmem_strdup_printf(wmem_packet_scope(), "%s",
-                        address_to_display(wmem_packet_scope(),  &addr));
+                str = address_to_display(wmem_packet_scope(), &addr);
 
                 break;
             default:

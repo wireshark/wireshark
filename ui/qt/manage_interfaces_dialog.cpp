@@ -608,7 +608,7 @@ void ManageInterfacesDialog::addRemoteInterfaces(GList* rlist, remote_options *r
                  * used.
                  */
                 if (data_link_info->description != NULL) {
-                    str = g_strdup_printf("%s", data_link_info->description);
+                    str = g_strdup(data_link_info->description);
                     linkr->dlt = data_link_info->dlt;
                 } else {
                     str = g_strdup_printf("%s (not supported)", data_link_info->name);

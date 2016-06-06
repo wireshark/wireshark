@@ -4829,7 +4829,7 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
     }
 
     case PREF_BOOL:
-        return g_strdup_printf("%s", (*(gboolean *) valp) ? "TRUE" : "FALSE");
+        return g_strdup((*(gboolean *) valp) ? "TRUE" : "FALSE");
 
     case PREF_ENUM:
     {

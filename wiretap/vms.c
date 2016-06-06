@@ -371,7 +371,7 @@ parse_vms_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gch
             /* We will need to add code to handle new format */
             if (num_items_scanned != 8) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("vms: header line not valid");
+                *err_info = g_strdup("vms: header line not valid");
                 return FALSE;
             }
         }
@@ -382,7 +382,7 @@ parse_vms_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gch
 
             if ( !*p ) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("vms: Length field not valid");
+                *err_info = g_strdup("vms: Length field not valid");
                 return FALSE;
             }
 
@@ -446,7 +446,7 @@ parse_vms_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gch
         if (!parse_single_hex_dump_line(line, pd, i,
                                         offset, pkt_len - i)) {
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("vms: hex dump not valid");
+            *err_info = g_strdup("vms: hex dump not valid");
             return FALSE;
         }
     }

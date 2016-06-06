@@ -1062,7 +1062,7 @@ scsistat_param(register_srt_t* srt, const char* opt_arg, char** err)
     }
     else
     {
-        *err = g_strdup_printf("<cmdset>[,<filter>]");
+        *err = g_strdup("<cmdset>[,<filter>]");
     }
 
     return pos;

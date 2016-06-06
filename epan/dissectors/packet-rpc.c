@@ -435,7 +435,7 @@ rpcstat_param(register_srt_t* srt, const char* opt_arg, char** err)
 	}
 	else
 	{
-		*err = g_strdup_printf("<program>,<version>[,<filter>]");
+		*err = g_strdup("<program>,<version>[,<filter>]");
 	}
 
 	return pos;

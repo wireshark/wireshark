@@ -524,7 +524,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     if (   (packet.dst == ZBEE_BCAST_ALL)
         || (packet.dst == ZBEE_BCAST_ACTIVE)
         || (packet.dst == ZBEE_BCAST_ROUTERS)){
-        dst_addr = wmem_strdup_printf(pinfo->pool, "Broadcast");
+        dst_addr = wmem_strdup(pinfo->pool, "Broadcast");
     }
     else {
         dst_addr = wmem_strdup_printf(pinfo->pool, "0x%04x", packet.dst);
@@ -549,7 +549,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         || (packet.src == ZBEE_BCAST_ACTIVE)
         || (packet.src == ZBEE_BCAST_ROUTERS)){
         /* Source Broadcast doesn't make much sense. */
-        src_addr = wmem_strdup_printf(pinfo->pool, "Unexpected Source Broadcast");
+        src_addr = wmem_strdup(pinfo->pool, "Unexpected Source Broadcast");
         unicast_src = FALSE;
     }
     else {

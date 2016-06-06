@@ -1900,7 +1900,7 @@ dissect_ldap_T_and(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 	if(and_filter_string) {
 		proto_item_append_text(it, "%s", and_filter_string);
-		Filter_string=wmem_strdup_printf(wmem_packet_scope(), "%s",and_filter_string);
+		Filter_string=wmem_strdup(wmem_packet_scope(), and_filter_string);
 	}
 	and_filter_string=old_and_filter_string;
 
@@ -1948,7 +1948,7 @@ dissect_ldap_T_or(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 	if(or_filter_string) {
 		proto_item_append_text(it, "%s", or_filter_string);
-		Filter_string=wmem_strdup_printf(wmem_packet_scope(), "%s",or_filter_string);
+		Filter_string=wmem_strdup(wmem_packet_scope(), or_filter_string);
 	}
 	or_filter_string=old_or_filter_string;
 

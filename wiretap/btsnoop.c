@@ -120,18 +120,18 @@ wtap_open_return_val btsnoop_open(wtap *wth, int *err, gchar **err_info)
         break;
     case KHciLoggerDatalinkTypeBCSP:
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("btsnoop: BCSP capture logs unsupported");
+        *err_info = g_strdup("btsnoop: BCSP capture logs unsupported");
         return WTAP_OPEN_ERROR;
     case KHciLoggerDatalinkTypeH5:
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("btsnoop: H5 capture logs unsupported");
+        *err_info = g_strdup("btsnoop: H5 capture logs unsupported");
         return WTAP_OPEN_ERROR;
     case KHciLoggerDatalinkLinuxMonitor:
         file_encap=WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR;
         break;
     case KHciLoggerDatalinkBlueZ5Simulator:
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("btsnoop: BlueZ 5 Simulator capture logs unsupported");
+        *err_info = g_strdup("btsnoop: BlueZ 5 Simulator capture logs unsupported");
         return WTAP_OPEN_ERROR;
     default:
         *err = WTAP_ERR_UNSUPPORTED;

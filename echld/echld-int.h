@@ -176,7 +176,7 @@ char* paramset_get_params_list(param_t* paramsets, const char* fmt) G_GNUC_PRINT
  static echld_bool_t param_set_ ## Name (char* val , char** err _U_) {  char* p; int temp = (int)strtol(val, &p, 10); if (p<=val) { *err = g_strdup("not an integer"); return FALSE; } else {	param_ ## Name = temp; return TRUE; } }
 
 #define PARAM_BOOL(Name, Default) static gboolean param_ ## Name = Default;  \
- static char* param_get_ ## Name (char** err _U_ ) { return  g_strdup_printf("%s",param_ ## Name ? "TRUE" : "FALSE"); } \
+ static char* param_get_ ## Name (char** err _U_ ) { return  g_strdup(param_ ## Name ? "TRUE" : "FALSE"); } \
  static echld_bool_t param_set_ ## Name (char* val , char** err _U_) { param_ ## Name = (*val == 'T' || *val == 't') ? TRUE : FALSE; return TRUE;}
 
 #define PARAM(Name,Desc) {#Name, param_get_ ## Name, param_set_ ## Name, Desc}

@@ -84,7 +84,7 @@ proto_hier_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data _U_, g
 
     gtk_tree_model_get (model, &iter, FILTER_NAME, &filter, -1);
     if (filter && strlen(filter) > 0) {
-        str = g_strdup_printf("%s", filter);
+        str = g_strdup(filter);
     } else {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not acquire information to build a filter!\nTry expanding or choosing another item.");
         return;
@@ -92,7 +92,7 @@ proto_hier_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data _U_, g
 
     while (gtk_tree_path_up(path) && gtk_tree_path_get_depth(path) > 0)
     {
-        strtmp = g_strdup_printf("%s", str);
+        strtmp = g_strdup(str);
         g_free(str);
 
         gtk_tree_model_get_iter(model, &iter, path);

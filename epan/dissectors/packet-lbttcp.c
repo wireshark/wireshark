@@ -332,7 +332,7 @@ static gboolean lbttcp_tag_update_cb(void * record, char * * error_string)
 
     if (tag->name == NULL)
     {
-        *error_string = g_strdup_printf("Tag name can't be empty");
+        *error_string = g_strdup("Tag name can't be empty");
         return FALSE;
     }
     else
@@ -340,7 +340,7 @@ static gboolean lbttcp_tag_update_cb(void * record, char * * error_string)
         g_strstrip(tag->name);
         if (tag->name[0] == 0)
         {
-            *error_string = g_strdup_printf("Tag name can't be empty");
+            *error_string = g_strdup("Tag name can't be empty");
             return FALSE;
         }
     }

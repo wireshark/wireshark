@@ -190,7 +190,7 @@ column_prefs_show(GtkWidget *prefs_window) {
                 cfmt->custom_fields = NULL;
                 cfmt->custom_occurrence = 0;
             }
-            fmt = g_strdup_printf("%s", col_format_desc(cfmt->fmt));
+            fmt = g_strdup(col_format_desc(cfmt->fmt));
         }
         gtk_list_store_insert_with_values(store, &iter, G_MAXINT,
                            VISIBLE_COLUMN, cfmt->visible,
@@ -561,7 +561,7 @@ column_menu_changed_cb(GtkWidget *w, gpointer data) {
         /* Changing from custom to non-custom   */
         gtk_editable_delete_text(GTK_EDITABLE(field_te), 0, -1);
         gtk_editable_delete_text(GTK_EDITABLE(occurrence_te), 0, -1);
-        fmt = g_strdup_printf("%s", col_format_desc(cur_cb_fmt));
+        fmt = g_strdup(col_format_desc(cur_cb_fmt));
         gtk_widget_set_sensitive(field_lb, FALSE);
         gtk_widget_set_sensitive(field_te, FALSE);
         gtk_widget_set_sensitive(occurrence_lb, FALSE);
@@ -588,7 +588,7 @@ column_menu_changed_cb(GtkWidget *w, gpointer data) {
 
     } else {
         /* Changing from non-custom to non-custom */
-        fmt = g_strdup_printf("%s", col_format_desc(cur_cb_fmt));
+        fmt = g_strdup(col_format_desc(cur_cb_fmt));
     }
     g_signal_handler_unblock(occurrence_te, column_occurrence_changed_handler_id);
     g_signal_handler_unblock(field_te, column_field_changed_handler_id);

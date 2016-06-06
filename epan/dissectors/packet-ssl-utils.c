@@ -4916,7 +4916,7 @@ gboolean
 ssldecrypt_uat_fld_ip_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
 {
     if (!p || strlen(p) == 0u) {
-        *err = g_strdup_printf("No IP address given.");
+        *err = g_strdup("No IP address given.");
         return FALSE;
     }
 
@@ -4928,14 +4928,14 @@ gboolean
 ssldecrypt_uat_fld_port_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
 {
     if (!p || strlen(p) == 0u) {
-        *err = g_strdup_printf("No Port given.");
+        *err = g_strdup("No Port given.");
         return FALSE;
     }
 
     if (strcmp(p, "start_tls") != 0){
         const gint i = atoi(p);
         if (i < 0 || i > 65535) {
-            *err = g_strdup_printf("Invalid port given.");
+            *err = g_strdup("Invalid port given.");
             return FALSE;
         }
     }
@@ -4950,7 +4950,7 @@ ssldecrypt_uat_fld_fileopen_chk_cb(void* r _U_, const char* p, guint len _U_, co
     ws_statb64 st;
 
     if (!p || strlen(p) == 0u) {
-        *err = g_strdup_printf("No filename given.");
+        *err = g_strdup("No filename given.");
         return FALSE;
     } else {
         if (ws_stat64(p, &st) != 0) {

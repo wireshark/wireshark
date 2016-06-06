@@ -1738,7 +1738,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 	case WTAP_ENCAP_NFC_LLCP:
 		if (check_packet_size && packet_size < LLCP_HEADER_LEN) {
 			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("pcap: libpcap llcp file too short");
+			*err_info = g_strdup("pcap: libpcap llcp file too short");
 			return -1;
 		}
 		if (!pcap_read_llcp_pseudoheader(fh, &phdr->pseudo_header, err, err_info))

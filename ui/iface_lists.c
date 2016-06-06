@@ -250,7 +250,7 @@ scan_local_interfaces(void (*update_cb)(void))
                 link = (link_row *)g_malloc(sizeof(link_row));
                 if (data_link_info->description != NULL) {
                     link->dlt = data_link_info->dlt;
-                    link->name = g_strdup_printf("%s", data_link_info->description);
+                    link->name = g_strdup(data_link_info->description);
                 } else {
                     link->dlt = -1;
                     link->name = g_strdup_printf("%s (not supported)", data_link_info->name);
@@ -326,7 +326,7 @@ scan_local_interfaces(void (*update_cb)(void))
             device.name         = g_strdup(interface_opts.name);
             device.display_name = interface_opts.descr ?
                 g_strdup_printf("%s: %s", device.name, interface_opts.descr) :
-                g_strdup_printf("%s", device.name);
+                g_strdup(device.name);
             device.hidden       = FALSE;
             device.selected     = TRUE;
             device.type         = IF_PIPE;

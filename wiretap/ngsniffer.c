@@ -597,7 +597,7 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 
 	if (type != REC_VERS) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("ngsniffer: Sniffer file doesn't start with a version record");
+		*err_info = g_strdup("ngsniffer: Sniffer file doesn't start with a version record");
 		return WTAP_OPEN_ERROR;
 	}
 
@@ -892,7 +892,7 @@ process_rec_header2_v2(wtap *wth, unsigned char *buffer, guint16 length,
 		 * There's not enough data to compare.
 		 */
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("ngsniffer: WAN capture has too-short protocol list");
+		*err_info = g_strdup("ngsniffer: WAN capture has too-short protocol list");
 		return -1;
 	}
 

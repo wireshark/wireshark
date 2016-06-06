@@ -40,12 +40,12 @@ ssh_session create_ssh_connection(const char* hostname, const unsigned int port,
 	/* Open session and set options */
 	sshs = ssh_new();
 	if (sshs == NULL) {
-		*err_info = g_strdup_printf("Can't create ssh session");
+		*err_info = g_strdup("Can't create ssh session");
 		return NULL;
 	}
 
 	if (!hostname) {
-		*err_info = g_strdup_printf("Hostname needed");
+		*err_info = g_strdup("Hostname needed");
 		goto failure;
 	}
 

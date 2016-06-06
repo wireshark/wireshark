@@ -958,8 +958,8 @@ SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 	/* GetPrinterDataEx() stores the key/value in se_data */
 	if(!pinfo->fd->flags.visited){
 		if(!dcv->se_data){
-			dcv->se_data = wmem_strdup_printf(wmem_file_scope(),
-				"%s", value_name?value_name:"");
+			dcv->se_data = wmem_strdup(wmem_file_scope(),
+				value_name?value_name:"");
 		}
 	}
 
@@ -2448,8 +2448,8 @@ SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 	/* OpenPrinterEx() stores the key/value in se_data */
 	if(!pinfo->fd->flags.visited){
 		if(!dcv->se_data){
-			dcv->se_data = wmem_strdup_printf(wmem_file_scope(),
-				"%s", name?name:"");
+			dcv->se_data = wmem_strdup(wmem_file_scope(),
+				name?name:"");
 		}
 	}
 

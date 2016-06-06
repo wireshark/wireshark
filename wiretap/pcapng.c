@@ -562,7 +562,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     /* We currently only suport one SHB */
     if (pn->shb_read == TRUE) {
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("pcapng_read_section_header_block: multiple section header blocks not supported");
+        *err_info = g_strdup("pcapng_read_section_header_block: multiple section header blocks not supported");
         return PCAPNG_BLOCK_ERROR;
     }
 
@@ -1407,7 +1407,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 
     if (0 >= pn->interfaces->len) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng_read_simple_packet_block: SPB appeared before any IDBs");
+        *err_info = g_strdup("pcapng_read_simple_packet_block: SPB appeared before any IDBs");
         return FALSE;
     }
     iface_info = g_array_index(pn->interfaces, interface_info_t, 0);
@@ -2584,7 +2584,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                 wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
                 wth->phdr.pkt_tsprec = WTAP_TSPREC_UNKNOWN;
                 *err = WTAP_ERR_UNSUPPORTED;
-                *err_info = g_strdup_printf("pcapng: multi-section files not currently supported");
+                *err_info = g_strdup("pcapng: multi-section files not currently supported");
                 return FALSE;
 
             case(BLOCK_TYPE_PB):

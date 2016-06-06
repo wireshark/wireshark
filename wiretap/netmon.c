@@ -746,7 +746,7 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 			 */
 			if (!filetime_to_nstime(&phdr->ts, d)) {
 				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup_printf("netmon: time stamp outside supported range");
+				*err_info = g_strdup("netmon: time stamp outside supported range");
 				return FAILURE;
 			}
 		}

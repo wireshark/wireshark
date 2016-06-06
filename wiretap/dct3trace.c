@@ -226,7 +226,7 @@ static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 			{
 				/* If not got any data return error */
 				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup_printf("dct3trace: record without data");
+				*err_info = g_strdup("dct3trace: record without data");
 				return FALSE;
 			}
 		}
@@ -338,7 +338,7 @@ static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 
 baddata:
 	*err = WTAP_ERR_BAD_FILE;
-	*err_info = g_strdup_printf("dct3trace: record missing mandatory attributes");
+	*err_info = g_strdup("dct3trace: record missing mandatory attributes");
 	return FALSE;
 }
 

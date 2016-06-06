@@ -572,7 +572,7 @@ ldap_conv_info_t *ldap_info;
 
 	if(and_filter_string) {
 		proto_item_append_text(it, "%%s", and_filter_string);
-		Filter_string=wmem_strdup_printf(wmem_packet_scope(), "%%s",and_filter_string);
+		Filter_string=wmem_strdup(wmem_packet_scope(), and_filter_string);
 	}
 	and_filter_string=old_and_filter_string;
 
@@ -596,7 +596,7 @@ ldap_conv_info_t *ldap_info;
 %(DEFAULT_BODY)s
 	if(or_filter_string) {
 		proto_item_append_text(it, "%%s", or_filter_string);
-		Filter_string=wmem_strdup_printf(wmem_packet_scope(), "%%s",or_filter_string);
+		Filter_string=wmem_strdup(wmem_packet_scope(), or_filter_string);
 	}
 	or_filter_string=old_or_filter_string;
 

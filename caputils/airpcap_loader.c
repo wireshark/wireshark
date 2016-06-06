@@ -940,9 +940,9 @@ airpcap_get_if_string_number(airpcap_if_info_t* if_info)
     if (a == 0)
     {
         if (g_ascii_strcasecmp(if_info->name,AIRPCAP_DEVICE_ANY_EXTRACT_STRING)!=0)
-            number = g_strdup_printf("??");
+            number = g_strdup("??");
         else
-            number = g_strdup_printf(AIRPCAP_CHANNEL_ANY_NAME);
+            number = g_strdup(AIRPCAP_CHANNEL_ANY_NAME);
     }
     else
     {

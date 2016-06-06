@@ -536,7 +536,7 @@ sctp_stat_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 			wmem_free(NULL, addr_str);
 			dstlist = g_list_next(dstlist);
 		}
-		str = g_strdup_printf(")))");
+		str = g_strdup(")))");
 		g_string_append(gstring, str);
 		filter_string = g_string_free(gstring,FALSE);
 	}

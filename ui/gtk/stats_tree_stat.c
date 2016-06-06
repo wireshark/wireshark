@@ -456,7 +456,7 @@ init_gtk_tree(const char* opt_arg, void *userdata _U_)
 		title=g_strdup_printf("%s with filter: %s",st->display_name,st->filter);
 	} else {
 		st->filter=NULL;
-		title=g_strdup_printf("%s", st->display_name);
+		title=g_strdup(st->display_name);
 	}
 
 	gtk_window_set_title(GTK_WINDOW(st->pr->win), title);
@@ -585,7 +585,7 @@ void gtk_stats_tree_cb(GtkAction *action, gpointer user_data _U_)
 	if(abbr){
 		abbr = abbr+1;
 	}else{
-		abbr = g_strdup_printf("%s",action_name);
+		abbr = g_strdup(action_name);
 	}
 	cfg = stats_tree_get_cfg_by_abbr(abbr);
 	if(cfg){

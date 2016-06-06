@@ -133,7 +133,7 @@ static gboolean uat_devicenet_record_update_cb(void* r, char** err) {
     uat_devicenet_record_t* rec = (uat_devicenet_record_t *)r;
 
     if (rec->mac_id > 63) {
-        *err = g_strdup_printf("MAC ID must be between 0-63");
+        *err = g_strdup("MAC ID must be between 0-63");
         return FALSE;
     }
     return TRUE;

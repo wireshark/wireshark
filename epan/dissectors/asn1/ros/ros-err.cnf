@@ -25,7 +25,7 @@
     else if (actx->rose_ctx->d.code == 1)
       descr = wmem_strdup_printf(wmem_packet_scope(), "ERR: %s", actx->rose_ctx->d.code_global);
   } else {
-    descr = wmem_strdup_printf(wmem_packet_scope(), "ERR:");
+    descr = wmem_strdup(wmem_packet_scope(), "ERR:");
   }
 
   if (actx->rose_ctx->apdu_depth >= 0)

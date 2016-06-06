@@ -610,7 +610,7 @@ uat_key_record_update_cb(void *r, char **err)
     uat_key_record_t *rec = (uat_key_record_t *)r;
 
     if (rec->string == NULL) {
-         *err = g_strdup_printf("Key can't be blank.");
+         *err = g_strdup("Key can't be blank.");
          return FALSE;
     } else {
         g_strstrip(rec->string);
@@ -622,7 +622,7 @@ uat_key_record_update_cb(void *r, char **err)
                 return FALSE;
             }
         } else {
-            *err = g_strdup_printf("Key can't be blank.");
+            *err = g_strdup("Key can't be blank.");
             return FALSE;
         }
     }

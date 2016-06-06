@@ -5309,7 +5309,7 @@ static gboolean ikev1_uat_data_update_cb(void* p, char** err) {
   }
 
   if (ud->key_len == 0) {
-    *err = g_strdup_printf("Must have Encryption key.");
+    *err = g_strdup("Must have Encryption key.");
     return FALSE;
   }
 

@@ -45,20 +45,20 @@ apply_selected_filter (guint callback_action, const char *filter)
 
 	switch(type){
 	case ACTYPE_SELECTED:
-		str = g_strdup_printf("%s", filter);
+		str = g_strdup(filter);
 		break;
 	case ACTYPE_NOT_SELECTED:
 		str = g_strdup_printf("!(%s)", filter);
 		break;
 	case ACTYPE_AND_SELECTED:
 		if ((!current_filter) || (0 == strlen(current_filter)))
-			str = g_strdup_printf("%s", filter);
+			str = g_strdup(filter);
 		else
 			str = g_strdup_printf("(%s) && (%s)", current_filter, filter);
 		break;
 	case ACTYPE_OR_SELECTED:
 		if ((!current_filter) || (0 == strlen(current_filter)))
-			str = g_strdup_printf("%s", filter);
+			str = g_strdup(filter);
 		else
 			str = g_strdup_printf("(%s) || (%s)", current_filter, filter);
 		break;

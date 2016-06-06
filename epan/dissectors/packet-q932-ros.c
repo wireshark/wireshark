@@ -296,7 +296,7 @@ dissect_q932_ros_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
     else if (actx->rose_ctx->d.code == 1)
       descr = wmem_strdup_printf(wmem_packet_scope(), "INV: %s", actx->rose_ctx->d.code_global);
   } else {
-    descr = wmem_strdup_printf(wmem_packet_scope(), "INV:");
+    descr = wmem_strdup(wmem_packet_scope(), "INV:");
   }
 
   if (actx->rose_ctx->apdu_depth >= 0)
@@ -389,7 +389,7 @@ dissect_q932_ros_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
     else if (actx->rose_ctx->d.code == 1)
       descr = wmem_strdup_printf(wmem_packet_scope(), "RES: %s", actx->rose_ctx->d.code_global);
   } else {
-    descr = wmem_strdup_printf(wmem_packet_scope(), "RES:");
+    descr = wmem_strdup(wmem_packet_scope(), "RES:");
   }
 
   if (actx->rose_ctx->apdu_depth >= 0)
@@ -469,7 +469,7 @@ dissect_q932_ros_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
     else if (actx->rose_ctx->d.code == 1)
       descr = wmem_strdup_printf(wmem_packet_scope(), "ERR: %s", actx->rose_ctx->d.code_global);
   } else {
-    descr = wmem_strdup_printf(wmem_packet_scope(), "ERR:");
+    descr = wmem_strdup(wmem_packet_scope(), "ERR:");
   }
 
   if (actx->rose_ctx->apdu_depth >= 0)

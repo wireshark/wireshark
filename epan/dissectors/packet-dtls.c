@@ -1556,7 +1556,7 @@ static gboolean
 dtlsdecrypt_uat_fld_protocol_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
 {
     if (!p || strlen(p) == 0u) {
-        *err = g_strdup_printf("No protocol given.");
+        *err = g_strdup("No protocol given.");
         return FALSE;
     }
 

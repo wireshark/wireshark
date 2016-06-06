@@ -543,13 +543,13 @@ get_ip_address_list_from_packet_list_row(gpointer data)
 
         /* First check selected column */
         if (is_address_column (column)) {
-            addr_list = g_list_append (addr_list, g_strdup_printf("%s", cfile.cinfo.col_expr.col_expr_val[column]));
+            addr_list = g_list_append (addr_list, g_strdup(cfile.cinfo.col_expr.col_expr_val[column]));
         }
 
         for (col = 0; col < cfile.cinfo.num_cols; col++) {
             /* Then check all columns except the selected */
             if ((col != column) && (is_address_column (col))) {
-                addr_list = g_list_append (addr_list, g_strdup_printf("%s", cfile.cinfo.col_expr.col_expr_val[col]));
+                addr_list = g_list_append (addr_list, g_strdup(cfile.cinfo.col_expr.col_expr_val[col]));
             }
         }
 

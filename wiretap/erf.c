@@ -520,7 +520,7 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
     /* If this isn't a pad record, it's a corrupt packet; bail out */
     if ((erf_header->type & 0x7F) != ERF_TYPE_PAD) {
       *err = WTAP_ERR_BAD_FILE;
-      *err_info = g_strdup_printf("erf: File has 0 byte packet");
+      *err_info = g_strdup("erf: File has 0 byte packet");
 
       return FALSE;
     }

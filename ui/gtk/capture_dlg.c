@@ -1338,7 +1338,7 @@ insert_new_rows(GList *list)
          * used.
          */
         if (data_link_info->description != NULL) {
-          str = g_strdup_printf("%s", data_link_info->description);
+          str = g_strdup(data_link_info->description);
           linkr->dlt = data_link_info->dlt;
         } else {
           str = g_strdup_printf("%s (not supported)", data_link_info->name);
@@ -3369,7 +3369,7 @@ static void change_pipe_name_cb(gpointer dialog _U_, gint btn, gpointer data)
         g_free(device.name);
         g_free(device.display_name);
         device.name = g_strdup((gchar *)data);
-        device.display_name = g_strdup_printf("%s", device.name);
+        device.display_name = g_strdup(device.name);
         g_array_remove_index(global_capture_opts.all_ifaces, i);
         g_array_insert_val(global_capture_opts.all_ifaces, i, device);
         temp = g_strdup_printf("<b>%s</b>", device.display_name);
@@ -3479,7 +3479,7 @@ add_pipe_cb(gpointer w _U_)
     pipe_name           = g_strdup(g_save_file);
     memset(&device, 0, sizeof(device));
     device.name         = g_strdup(g_save_file);
-    device.display_name = g_strdup_printf("%s", device.name);
+    device.display_name = g_strdup(device.name);
     device.hidden       = FALSE;
     device.selected     = TRUE;
     device.type         = IF_PIPE;

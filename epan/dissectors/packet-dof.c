@@ -3365,30 +3365,30 @@ static void secmode_list_update_cb(void *r, const char **err)
     size = (guint32)strlen(rec->domain);
     if (!VALIDHEX(rec->domain[0]) && !dof_oid_create_internal(rec->domain, &size, NULL))
     {
-        *err = wmem_strdup_printf(wmem_packet_scope(), "Invalid domain [must be valid OID].");
+        *err = wmem_strdup(wmem_packet_scope(), "Invalid domain [must be valid OID].");
         return;
     }
     else if (!count_hex_bytes(rec->domain))
     {
-        *err = wmem_strdup_printf(wmem_packet_scope(), "Invalid domain [must be valid OID].");
+        *err = wmem_strdup(wmem_packet_scope(), "Invalid domain [must be valid OID].");
         return;
     }
 
     size = (guint32)strlen(rec->identity);
     if (!VALIDHEX(rec->identity[0]) && !dof_oid_create_internal(rec->identity, &size, NULL))
     {
-        *err = wmem_strdup_printf(wmem_packet_scope(), "Invalid identity [must be valid OID].");
+        *err = wmem_strdup(wmem_packet_scope(), "Invalid identity [must be valid OID].");
         return;
     }
     else if (!count_hex_bytes(rec->identity))
     {
-        *err = wmem_strdup_printf(wmem_packet_scope(), "Invalid identity [must be valid OID].");
+        *err = wmem_strdup(wmem_packet_scope(), "Invalid identity [must be valid OID].");
         return;
     }
 
     if (count_hex_bytes(rec->kek) != 32)
     {
-        *err = wmem_strdup_printf(wmem_packet_scope(), "Invalid KEK [must be 32 byte key].");
+        *err = wmem_strdup(wmem_packet_scope(), "Invalid KEK [must be 32 byte key].");
         return;
     }
 }
@@ -3455,7 +3455,7 @@ static void seckey_list_update_cb(void *r, const char **err)
     *err = NULL;
     if (count_hex_bytes(rec->key) != 32)
     {
-        *err = wmem_strdup_printf(wmem_packet_scope(), "Invalid secret [must be 32 bytes].");
+        *err = wmem_strdup(wmem_packet_scope(), "Invalid secret [must be 32 bytes].");
         return;
     }
 }
@@ -3507,13 +3507,13 @@ static void identsecret_list_update_cb(void *r, const char **err)
     {
         if (dof_oid_create_internal(rec->domain, &size, NULL))
         {
-            *err = wmem_strdup_printf(wmem_packet_scope(), "Invalid domain [must be valid OID].");
+            *err = wmem_strdup(wmem_packet_scope(), "Invalid domain [must be valid OID].");
             return;
         }
     }
     else if (!count_hex_bytes(rec->domain))
     {
-        *err = wmem_strdup_printf(wmem_packet_scope(), "Invalid domain [must be valid OID].");
+        *err = wmem_strdup(wmem_packet_scope(), "Invalid domain [must be valid OID].");
         return;
     }
 
@@ -3522,19 +3522,19 @@ static void identsecret_list_update_cb(void *r, const char **err)
     {
         if (dof_oid_create_internal(rec->identity, &size, NULL))
         {
-            *err = wmem_strdup_printf(wmem_packet_scope(), "Invalid identity [must be valid OID].");
+            *err = wmem_strdup(wmem_packet_scope(), "Invalid identity [must be valid OID].");
             return;
         }
     }
     else if (!count_hex_bytes(rec->identity))
     {
-        *err = wmem_strdup_printf(wmem_packet_scope(), "Invalid identity [must be valid OID].");
+        *err = wmem_strdup(wmem_packet_scope(), "Invalid identity [must be valid OID].");
         return;
     }
 
     if (count_hex_bytes(rec->secret) != 32)
     {
-        *err = wmem_strdup_printf(wmem_packet_scope(), "Invalid secret [must be 32 byte key].");
+        *err = wmem_strdup(wmem_packet_scope(), "Invalid secret [must be 32 byte key].");
         return;
     }
 }
@@ -3719,7 +3719,7 @@ static gboolean identsecret_chk_cb(void *r _U_, const char *p _U_, unsigned len 
 
     if (!num_protos)
     {
-        *err = wmem_strdup_printf(wmem_packet_scope(), "No protocols given");
+        *err = wmem_strdup(wmem_packet_scope(), "No protocols given");
         return FALSE;
     }
 

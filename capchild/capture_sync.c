@@ -1332,7 +1332,7 @@ sync_interface_set_80211_chan(const gchar *iface, const char *freq, const gchar 
     if (type)
         opt = g_strdup_printf("%s,%s,%s,%s", freq, type, center_freq1, center_freq2);
     else
-        opt = g_strdup_printf("%s", freq);
+        opt = g_strdup(freq);
 
     if (!opt) {
         *primary_msg = g_strdup("Out of mem.");
